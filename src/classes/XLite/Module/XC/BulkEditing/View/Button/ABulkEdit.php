@@ -8,10 +8,12 @@
 
 namespace XLite\Module\XC\BulkEditing\View\Button;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
+
 /**
  * ItemsExport button
  */
-abstract class ABulkEdit extends \XLite\View\Button\Dropdown\ADropdown
+abstract class ABulkEdit extends \XLite\View\Button\Dropdown\ADropdown implements ProviderInterface
 {
     /**
      * getJSFiles
@@ -51,7 +53,7 @@ abstract class ABulkEdit extends \XLite\View\Button\Dropdown\ADropdown
      *
      * @return array
      */
-    protected function getCommentedData()
+    public function getPreloadedLanguageLabels()
     {
         return [
             'Bulk edit all'      => static::t('Bulk edit all'),

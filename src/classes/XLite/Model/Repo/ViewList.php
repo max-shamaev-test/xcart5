@@ -10,6 +10,9 @@ namespace XLite\Model\Repo;
 
 /**
  * View list repository
+ *
+ * @Api\Operation\Read(modelClass="XLite\Model\ViewList", summary="Retrieve view list item by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\ViewList", summary="Retrieve all view list items")
  */
 class ViewList extends \XLite\Model\Repo\ARepo
 {
@@ -25,11 +28,11 @@ class ViewList extends \XLite\Model\Repo\ARepo
      *
      * @var string
      */
-    protected $defaultOrderBy = array(
+    protected $defaultOrderBy = [
         'weight' => true,
         'child'  => true,
         'tpl'    => true,
-    );
+    ];
 
     /**
      * Define cache cells
@@ -39,10 +42,9 @@ class ViewList extends \XLite\Model\Repo\ARepo
     protected function defineCacheCells()
     {
         $list = parent::defineCacheCells();
-
-        $list['class_list'] = array(
-            static::ATTRS_CACHE_CELL => array('list', 'zone'),
-        );
+        $list['class_list'] = [
+            static::ATTRS_CACHE_CELL => ['list', 'zone'],
+        ];
 
         return $list;
     }
@@ -59,11 +61,10 @@ class ViewList extends \XLite\Model\Repo\ARepo
      */
     public function findClassList($list, $zone = \XLite\Model\ViewList::INTERFACE_CUSTOMER)
     {
-        $data = $this->getFromCache('class_list', array('list' => $list, 'zone' => $zone));
-
+        $data = $this->getFromCache('class_list', ['list' => $list, 'zone' => $zone]);
         if (!isset($data)) {
             $data = $this->retrieveClassList($list, $zone);
-            $this->saveToCache($data, 'class_list', array('list' => $list, 'zone' => $zone));
+            $this->saveToCache($data, 'class_list', ['list' => $list, 'zone' => $zone]);
         }
 
         return $data;
@@ -81,7 +82,7 @@ class ViewList extends \XLite\Model\Repo\ARepo
     {
         $data = $this->getFromCache(
             'class_list_with_fallback',
-            array('list' => $list, 'zone' => $zone)
+            ['list' => $list, 'zone' => $zone]
         );
 
         if (!isset($data)) {
@@ -89,7 +90,7 @@ class ViewList extends \XLite\Model\Repo\ARepo
             $this->saveToCache(
                 $data,
                 'class_list_with_fallback',
-                array('list' => $list, 'zone' => $zone)
+                ['list' => $list, 'zone' => $zone]
             );
         }
 
@@ -134,10 +135,9 @@ class ViewList extends \XLite\Model\Repo\ARepo
      */
     public function retrieveClassListWithFallback($list, $zone)
     {
-        $actual = $this->defineClassListWithFallbackQuery($list, $zone)->getResult();
-
         $result = [];
 
+        $actual = $this->defineClassListWithFallbackQuery($list, $zone)->getResult();
         foreach ($actual as $viewList) {
             $key = $viewList->getHashWithoutZone();
 
@@ -152,35 +152,6 @@ class ViewList extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * Find view list by tempalte pattern and list name
-     *
-     * @param string $tpl  Tempalte pattern
-     * @param string $list List name
-     *
-     * @return \XLite\Model\ViewList|void
-     */
-    public function findOneByTplAndList($tpl, $list)
-    {
-        return $this->defineOneByTplAndListQuery($tpl, $list)->getSingleResult();
-    }
-
-    /**
-     * Define query for findOneByTplAndList() method
-     *
-     * @param string $tpl  Tempalte pattern
-     * @param string $list List name
-     *
-     * @return \Doctrine\ORM\QueryBuilder
-     */
-    protected function defineOneByTplAndListQuery($tpl, $list)
-    {
-        return $this->createQueryBuilder()
-            ->andWhere('v.twig LIKE :tpl AND v.list = :list')
-            ->setParameter('tpl', $tpl)
-            ->setParameter('list', $tpl);
-    }
-
-    /**
      * Define query builder for findClassList()
      *
      * @param string $list Class list name
@@ -191,9 +162,9 @@ class ViewList extends \XLite\Model\Repo\ARepo
     protected function defineClassListQuery($list, $zone)
     {
         return $this->createQueryBuilder()
-            ->where('v.list = :list AND v.zone IN (:zone, :empty) AND v.version IS NULL')
+            ->where('v.list IN (:list) AND v.zone IN (:zone, :empty) AND v.version IS NULL')
             ->setParameter('empty', '')
-            ->setParameter('list', $list)
+            ->setParameter('list', explode(',', $list))
             ->setParameter('zone', $zone);
     }
 
@@ -208,9 +179,9 @@ class ViewList extends \XLite\Model\Repo\ARepo
     protected function defineClassListWithFallbackQuery($list, $zone)
     {
         return $this->createQueryBuilder()
-            ->where('v.list = :list AND v.zone IN (:zone, :fallback, :empty) AND v.version IS NULL')
+            ->where('v.list IN (:list) AND v.zone IN (:zone, :fallback, :empty) AND v.version IS NULL')
             ->setParameter('empty', '')
-            ->setParameter('list', $list)
+            ->setParameter('list', explode(',', $list))
             ->setParameter('fallback', \XLite::COMMON_INTERFACE)
             ->setParameter('zone', $zone);
     }
@@ -221,9 +192,9 @@ class ViewList extends \XLite\Model\Repo\ARepo
 
     /**
      * Delete obsolete view list childs
-     * 
+     *
      * @param string $currentVersion Current version
-     *  
+     *
      * @return void
      */
     public function deleteObsolete($currentVersion)
@@ -247,9 +218,9 @@ class ViewList extends \XLite\Model\Repo\ARepo
 
     /**
      * Define query for deleteObsolete() method
-     * 
+     *
      * @param string $currentVersion Current version
-     *  
+     *
      * @return \XLite\Model\QueryBuilder\AQueryBuilder
      */
     protected function defineDeleteObsoleteQuery($currentVersion)
@@ -277,5 +248,5 @@ class ViewList extends \XLite\Model\Repo\ARepo
     }
 
     // }}}
-
 }
+

@@ -14,6 +14,20 @@ namespace XLite\Core;
 class Connection extends \Doctrine\DBAL\Connection
 {
     /**
+     * Connection constructor.
+     *
+     * @param array                 $params
+     * @param \Doctrine\DBAL\Driver $driver
+     * @param null                  $config
+     * @param null                  $eventManager
+     */
+    public function __construct(array $params, \Doctrine\DBAL\Driver $driver, $config = null, $eventManager = null)
+    {
+        parent::__construct($params, $driver, $config, $eventManager);
+        $this->setNestTransactionsWithSavepoints(true);
+    }
+
+    /**
      * Prepares an SQL statement
      *
      * @param string $statement The SQL statement to prepare

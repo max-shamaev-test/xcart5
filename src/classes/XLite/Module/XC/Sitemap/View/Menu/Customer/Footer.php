@@ -24,11 +24,11 @@ class Footer extends \XLite\View\Menu\Customer\Footer implements \XLite\Base\IDe
     {
         $items = parent::defineItems();
 
-        $items['map'] = array(
+        $items['map'] = [
             'label'      => static::t('Sitemap'),
             'url'        => \XLite\Core\Converter::buildURL('map'),
             'controller' => '\XLite\Module\XC\Sitemap\Controller\Customer\Map',
-        );
+        ];
 
         return $items;
     }

@@ -32,7 +32,7 @@ class Order extends \XLite\View\Sort\ASort
             )
         );
 
-        $this->widgetParams[self::PARAM_SORT_CRITERIONS]->setValue(
+        $this->widgetParams[self::PARAM_SORT_CRITERIA]->setValue(
             array(
                 'order_id' => 'Order id',
                 'date'     => 'Date',

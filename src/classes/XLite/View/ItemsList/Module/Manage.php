@@ -20,7 +20,7 @@ class Manage extends \XLite\View\ItemsList\Module\AModule
      */
     public static function getAllowedTargets()
     {
-        $result = parent::getAllowedTargets();
+        $result   = parent::getAllowedTargets();
         $result[] = 'addons_list_installed';
 
         return $result;
@@ -36,19 +36,6 @@ class Manage extends \XLite\View\ItemsList\Module\AModule
         $list = parent::getJSFiles();
 
         $list[] = $this->getDir() . '/' . $this->getPageBodyDir() . '/js/controller.js';
-
-        return $list;
-    }
-
-    /**
-     * Register CSS files
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-        $list[] = 'modules_manager/css/common.css';
 
         return $list;
     }
@@ -104,7 +91,7 @@ class Manage extends \XLite\View\ItemsList\Module\AModule
     {
         $state = method_exists(\XLite::getController(), 'getState') ? \XLite::getController()->getState() : null;
 
-        return $state ?:  $this->getParam(static::PARAM_STATE);
+        return $state ?: $this->getParam(static::PARAM_STATE);
     }
 
     /**
@@ -119,10 +106,12 @@ class Manage extends \XLite\View\ItemsList\Module\AModule
             $result->{\XLite\Model\Repo\Module::P_MODULEIDS} = \XLite\Controller\Admin\Base\AddonsList::getRecentlyInstalledModuleList();
         } else {
             $result->{\XLite\Model\Repo\Module::P_INSTALLED} = true;
-            $result->{\XLite\Model\Repo\Module::P_ISSYSTEM}  = false;
+            if (!\XLite\Core\ConfigParser::getOptions(['performance', 'ignore_system_modules'])) {
+                $result->{\XLite\Model\Repo\Module::P_ISSYSTEM}  = false;
+            }
             if (!isset(\XLite\Core\Request::getInstance()->clearCnd)) {
                 $result->{\XLite\Model\Repo\Module::P_SUBSTRING} = $this->getSubstring();
-                
+
                 if ($this->getState()) {
                     $result->{
                     $this->getState() === \XLite\View\FormField\Select\ModuleState::ENABLED
@@ -134,7 +123,7 @@ class Manage extends \XLite\View\ItemsList\Module\AModule
         }
 
         // Always sort installed modules by moduleName
-        $result->{\XLite\Model\Repo\Module::P_ORDER_BY} = array(static::SORT_OPT_ALPHA, self::SORT_ORDER_ASC);
+        $result->{\XLite\Model\Repo\Module::P_ORDER_BY} = [static::SORT_OPT_ALPHA, self::SORT_ORDER_ASC];
 
         return $result;
     }
@@ -168,10 +157,14 @@ class Manage extends \XLite\View\ItemsList\Module\AModule
      */
     protected function getCommonParams()
     {
-        $list = parent::getCommonParams();
         if (!isset($this->commonParams['substring'])) {
             $this->commonParams['substring'] = $this->getSubstring();
         }
+
+        if (!isset($this->commonParams['state'])) {
+            $this->commonParams['state'] = $this->getState();
+        }
+
         return $this->commonParams;
     }
 
@@ -183,10 +176,10 @@ class Manage extends \XLite\View\ItemsList\Module\AModule
      */
     protected function getFilters()
     {
-        return array(
+        return [
             ''                                   => 'All',
             \XLite\Model\Repo\Module::P_INACTIVE => 'Inactive',
-        );
+        ];
     }
 
     /**
@@ -276,7 +269,7 @@ class Manage extends \XLite\View\ItemsList\Module\AModule
      */
     protected function isModuleUpgradeAvailable(\XLite\Model\Module $module)
     {
-        return (bool)$this->getModuleForUpgrade($module);
+        return (bool) $this->getModuleForUpgrade($module);
     }
 
     /**
@@ -315,11 +308,11 @@ class Manage extends \XLite\View\ItemsList\Module\AModule
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             static::PARAM_SUBSTRING => new \XLite\Model\WidgetParam\TypeString(
                 'Substring', ''
             ),
-        );
+        ];
     }
 
     /**
@@ -336,7 +329,7 @@ class Manage extends \XLite\View\ItemsList\Module\AModule
         $marketplaceModule = \XLite\Core\Database::getRepo('XLite\Model\Module')->getModuleFromMarketplace($module);
 
         return $marketplaceModule
-            && (bool)\XLite::getXCNLicense()
+            && (bool) \XLite::getXCNLicense()
             && $this->isXCN($marketplaceModule)
             && !$module->getEnabled()
             && 1 < $marketplaceModule->getEditionState();
@@ -362,6 +355,18 @@ class Manage extends \XLite\View\ItemsList\Module\AModule
      */
     protected function getFormattedModuleName(\XLite\Model\Module $module)
     {
-        return sprintf('%s (%s %s)', $module->getModuleName(),static::t('by'), $module->getAuthorName());
+        return sprintf('%s (%s %s)', $module->getModuleName(), static::t('by'), $module->getAuthorName());
+    }
+
+    /**
+     * Get module author URL
+     *
+     * @param \XLite\Model\Module $module Module
+     *
+     * @return string
+     */
+    protected function getAuthorURL(\XLite\Model\Module $module)
+    {
+        return '';
     }
 }

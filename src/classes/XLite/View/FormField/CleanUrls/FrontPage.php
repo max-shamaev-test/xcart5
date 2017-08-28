@@ -62,7 +62,7 @@ class FrontPage extends \XLite\View\FormField\AFormField
      */
     protected function getModel()
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Category')->find(1);
+        return \XLite\Core\Database::getRepo('XLite\Model\Category')->getRootCategory();
     }
 
     /**
@@ -75,7 +75,8 @@ class FrontPage extends \XLite\View\FormField\AFormField
         return [
             'title' => [
                 'label' => 'Front page title',
-                'value' => $this->getModel()->getName()
+                'value' => $this->getModel()->getMetaTitle()
+                    ?: $this->getModel()->getName()
             ],
             'meta_desc' => [
                 'label' => 'Meta description',

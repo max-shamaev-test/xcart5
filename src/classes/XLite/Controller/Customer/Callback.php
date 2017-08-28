@@ -7,6 +7,9 @@
  */
 
 namespace XLite\Controller\Customer;
+use XLite\Core\Exception\PaymentProcessing\ACallbackException;
+use XLite\Core\Exception\PaymentProcessing\CallbackNotReady;
+use XLite\Model\Payment\Base\Online;
 
 /**
  * Payment method callback
@@ -65,17 +68,42 @@ class Callback extends \XLite\Controller\Customer\ACheckoutReturn
         if ($transaction) {
             $this->transaction = $transaction;
 
-            $transaction->getPaymentMethod()->getProcessor()->processCallback($transaction);
+            try {
+                $transaction->getPaymentMethod()->getProcessor()->processCallback($transaction);
 
-            $cart = $transaction->getOrder();
-            if ($cart instanceof \XLite\Model\Cart) {
-                $cart->tryClose();
+                $cart = $transaction->getOrder();
+                if ($cart instanceof \XLite\Model\Cart) {
+                    $cart->tryClose();
+                }
+
+                $transaction->getOrder()->setPaymentStatusByTransaction($transaction);
+                $transaction->getOrder()->update();
+
+                \XLite\Core\Database::getEM()->flush();
+            } catch (CallbackNotReady $e) {
+                $message = $e->getMessage()
+                    ?: 'Not ready to process this callback right now. TXN ID: ' . $transaction->getPublicTxnId();
+
+                $processor = $transaction->getPaymentMethod()->getProcessor();
+
+                if ($processor instanceof Online) {
+                    $this->setSuppressOutput(true);
+                    $this->set('silent', true);
+
+                    $processor->markCallbackRequestAsInvalid($message);
+                    $processor->processCallbackNotReady($transaction);
+                }
+            } catch (ACallbackException $e) {
+                $processor = $transaction->getPaymentMethod()->getProcessor();
+
+                if ($e->getMessage() && $processor instanceof Online) {
+                    if ($processor instanceof Online) {
+                        $processor->markCallbackRequestAsInvalid($e->getMessage());
+                    } else {
+                        \XLite\Logger::getInstance()->log($e->getMessage(), LOG_WARNING);
+                    }
+                }
             }
-
-            $transaction->getOrder()->setPaymentStatusByTransaction($transaction);
-            $transaction->getOrder()->update();
-
-            \XLite\Core\Database::getEM()->flush();
 
         } else {
             \XLite\Logger::getInstance()->log(

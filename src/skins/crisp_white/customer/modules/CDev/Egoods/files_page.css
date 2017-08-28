@@ -1,0 +1,147 @@
+/* vim: set ts=2 sw=2 sts=2 et: */
+
+/**
+ * User files styles
+ *
+ * Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+ * See https://www.x-cart.com/license-agreement.html for license details.
+ */
+.orders-files ul,
+.orders-files ul li
+{
+}
+
+.orders-files .order {
+  width: 100%;
+  max-width: 600px;
+}
+
+.orders-files .order + .order {
+  margin-top: 30px;
+}
+
+.orders-files .order .info {
+  position: relative;
+}
+
+.orders-files .order .info .order-link {
+  font-size: 24px;
+  color: #4a4a4a;
+}
+
+.orders-files .order .info .order-unavailable-mark {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  color: #ec554e;
+  font-size: 14px;
+}
+
+.orders-files .order .info .order-unavailable-mark.green {
+  color: #257d16;
+}
+
+.orders-files .order .info * {
+  vertical-align: baseline;
+}
+
+.orders-files .order .info .date {
+  font-size: 14px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  letter-spacing: normal;
+  color: #9b9b9b;
+  margin-left: 10px;
+}
+
+.orders-files .order .files {
+  border: solid 1px #e3e3e3;
+  border-radius: 8px;
+  padding: 0;
+  margin-top: 15px;
+}
+
+.orders-files .files .file {
+  padding: 20px;
+  position: relative;
+}
+
+.orders-files .files .file.unavailable .row .icon,
+.orders-files .files .file.unavailable .row .name,
+.orders-files .files .file.unavailable .row .size,
+.orders-files .files .file.unavailable .description {
+  opacity: 0.5;
+}
+
+.orders-files .files .file + .file {
+  margin-top: 1px;
+}
+
+.orders-files .files .file + .file:before {
+  content: '';
+  width: calc(100% - 40px);
+  height: 1px;
+  background: #e3e3e3;
+  display: block;
+  position: absolute;
+  top: 0;
+}
+
+.orders-files .files .file .row {
+  margin: 0;
+}
+
+.orders-files .files .file .row,
+.orders-files .files .file .row *
+{
+}
+
+.orders-files .files a {
+}
+
+.orders-files .files .file .icon {
+  width: 33px;
+  height: 40px;
+  float: left;
+  margin: 0 20px 0 7px;
+}
+
+.orders-files .files .file .icon:before {
+  content: '';
+  width: 33px;
+  height: 40px;
+  display: block;
+  background-size: 30px;
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
+.orders-files .files .file .name {
+  font-size: 18px;
+  display: block;
+}
+
+.orders-files .files .file a.name {
+  color: #386eaf;
+}
+
+.orders-files .files .file .unavailable-mark {
+  font-size: 14px;
+  display: block;
+  color: #ec554e;
+}
+
+.orders-files .files .file .size {
+  display: block;
+  color: #9b9b9b;
+}
+
+.orders-files .files .file .description {
+  margin-top: 20px;
+  margin-left: 7px;
+}
+
+.icon-type-s3:before {
+  background-image: url(files/s3.svg) !important;
+}

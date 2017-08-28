@@ -28,6 +28,9 @@ abstract class TopCategories extends \XLite\View\TopCategories implements \XLite
             'messages',
             'login',
             'recover_password',
+            'saved_cards',
+            'contact_us',
+            'order',
         ];
     }
 }

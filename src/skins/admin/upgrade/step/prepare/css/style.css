@@ -308,6 +308,7 @@ table.incompatible-modules-list {
  */
 .premium-license-modules-section {
   background: transparent url(../images/warning_circle.png) 0px 15px no-repeat;
+  margin-bottom: 40px;
 }
 
 .premium-license-modules-message {
@@ -318,8 +319,7 @@ table.incompatible-modules-list {
 }
 
 .premium-license-modules-section .premium-license-modules-list {
-  margin-left: 70px;
-  width: 730px;
+  width: 800px;
 }
 
 .alert {
@@ -337,9 +337,26 @@ table.incompatible-modules-list {
   font-weight: normal;
 }
 
-.alert.expired-keys table {
+.alert.premium-license-modules-list .module-info a {
+  font-size: 16px;
+  color: #5d503b;
+}
+
+.alert.premium-license-modules-list .module-info .name {
+  font-weight: 600;
+}
+
+.alert.premium-license-modules-list .module-info .author {
+  color: #9b9b9b;
+}
+
+.alert.expired-keys table,
+.alert.premium-license-modules-list table {
   table-layout: fixed;
   width: 100%;
+}
+
+.alert.expired-keys table {
   margin-top: 20px;
 }
 
@@ -348,20 +365,36 @@ table.incompatible-modules-list {
   line-height: 30px;
 }
 
-.alert.expired-keys .actions {
+.alert.expired-keys .actions,
+.alert.premium-license-modules-list .actions {
   min-height: 32px;
   text-align: left;
 }
 
-.alert.expired-keys .actions button {
+.alert.expired-keys .actions button,
+.alert.premium-license-modules-list .actions button {
   padding: 0 24px;
+}
+
+.alert.premium-license-modules-list .actions button {
+  min-height: 41px;
+}
+
+.alert.premium-license-modules-list .actions button + button {
+  margin-left: 5px;
+}
+
+.alert.premium-license-modules-list .actions .or-separator {
+  margin-left: 15px;
+  margin-right: 10px;
 }
 
 .alert.expired-keys .actions button.regular-main-button {
   font-weight: 600;
 }
 
-.alert.expired-keys .actions > * {
+.alert.expired-keys .actions > *,
+.alert.premium-license-modules-list .actions > * {
   display: inline-block;
   vertical-align: middle;
 }

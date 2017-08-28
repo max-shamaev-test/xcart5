@@ -22,7 +22,10 @@ class Generator extends \XLite\Logic\Export\Generator implements \XLite\Base\IDe
     {
         return array_merge(
             parent::defineSteps(),
-            ['XLite\Module\XC\CustomProductTabs\Logic\Export\Step\CustomTabs']
+            [
+                'XLite\Module\XC\CustomProductTabs\Logic\Export\Step\CustomTabs',
+                'XLite\Module\XC\CustomProductTabs\Logic\Export\Step\GlobalTabs',
+            ]
         );
     }
 }

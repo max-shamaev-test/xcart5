@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * The Address model repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Address", summary="Add new address")
+ * @Api\Operation\Read(modelClass="XLite\Model\Address", summary="Retrieve address by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Address", summary="Retrieve addresses by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\Address", summary="Update address by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Address", summary="Delete address by id")
  */
 class Address extends \XLite\Model\Repo\ARepo
 {

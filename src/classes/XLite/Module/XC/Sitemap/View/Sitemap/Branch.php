@@ -41,7 +41,7 @@ class Branch extends \XLite\View\AView
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             static::PARAM_TYPE => new \XLite\Model\WidgetParam\TypeString(
                 'Page type', null, false
             ),
@@ -51,7 +51,7 @@ class Branch extends \XLite\View\AView
             static::PARAM_LEVEL => new \XLite\Model\WidgetParam\TypeInt(
                 'Level', 0, false
             ),
-        );
+        ];
     }
 
     /**
@@ -102,7 +102,7 @@ class Branch extends \XLite\View\AView
             }
 
         } elseif (static::PAGE_STATIC == $type) {
-            $result = in_array($id, array(1, 2));
+            $result = in_array($id, [1, 2]);
         }
 
         return $result;
@@ -131,104 +131,104 @@ class Branch extends \XLite\View\AView
      */
     protected function getChildren($type, $id)
     {
-        $result = array();
+        $result = [];
 
         if (empty($type)) {
 
             // Root level
-            $result = array(
-                array(
+            $result = [
+                [
                     'type' => static::PAGE_CATEGORY,
                     'id'   => \XLite\Core\Database::getRepo('XLite\Model\Category')->getRootCategoryId(),
                     'name' => static::t('Catalog'),
-                ),
-                array(
+                ],
+                [
                     'type' => static::PAGE_STATIC,
                     'id'   => 1,
                     'name' => static::t('Order'),
-                ),
-                array(
+                ],
+                [
                     'type' => static::PAGE_STATIC,
                     'id'   => 2,
                     'name' => static::t('Account'),
-                ),
-            );
+                ],
+            ];
 
         } elseif ($type == static::PAGE_STATIC) {
 
             // Static pages
             if (1 == $id)  {
-                $result = array(
-                    array(
+                $result = [
+                    [
                         'type' => static::PAGE_STATIC,
                         'id'   => 101,
                         'name' => static::t('Cart'),
                         'url'  => static::buildURL('cart'),
-                    ),
-                    array(
+                    ],
+                    [
                         'type' => static::PAGE_STATIC,
                         'id'   => 102,
                         'name' => static::t('Checkout'),
                         'url'  => static::buildURL('checkout'),
-                    ),
-                );
+                    ],
+                ];
 
             } elseif (2 == $id) {
 
                 if (!\XLite\Core\Auth::getInstance()->isLogged()) {
-                    $result = array(
-                        array(
+                    $result = [
+                        [
                             'type' => static::PAGE_STATIC,
                             'id'   => 201,
                             'name' => static::t('Sign in'),
                             'url'  => static::buildURL('login'),
-                        ),
-                        array(
+                        ],
+                        [
                             'type' => static::PAGE_STATIC,
                             'id'   => 202,
                             'name' => static::t('Register'),
-                            'url'  => static::buildURL('profile', null, array('mode' => 'register')),
-                        ),
-                    );
+                            'url'  => static::buildURL('profile', null, ['mode' => 'register']),
+                        ],
+                    ];
 
                 } else {
-                    $result = array(
-                        array(
+                    $result = [
+                        [
                             'type' => static::PAGE_STATIC,
                             'id'   => 251,
                             'name' => static::t('My account'),
                             'url'  => static::buildURL('profile'),
-                        ),
-                        array(
+                        ],
+                        [
                             'type' => static::PAGE_STATIC,
                             'id'   => 252,
                             'name' => static::t('Orders'),
                             'url'  => static::buildURL('order_list'),
-                        ),
-                        array(
+                        ],
+                        [
                             'type' => static::PAGE_STATIC,
                             'id'   => 253,
                             'name' => static::t('Address book'),
                             'url'  => static::buildURL('address_book'),
-                        ),
-                    );
+                        ],
+                    ];
                 }
             }
 
         } elseif ($type == static::PAGE_CATEGORY) {
 
             // Subcategories
-            $result = array();
+            $result = [];
             $category = \XLite\Core\Database::getRepo('XLite\Model\Category')->find($id);
             if ($category) {
                 foreach ($category->getChildren() as $cat) {                    
                     if ($cat && $cat->isVisible()) {
-                        $result[] = array(
+                        $result[] = [
                             'type' => static::PAGE_CATEGORY,
                             'id'   => $cat->getCategoryId(),
                             'name' => $cat->getName(),
-                            'url'  => static::buildURL('category', null, array('category_id' => $cat->getCategoryId())),
-                        );
+                            'url'  => static::buildURL('category', null, ['category_id' => $cat->getCategoryId()]),
+                        ];
                     }
                 }
             }
@@ -239,19 +239,19 @@ class Branch extends \XLite\View\AView
                 $cnd->categoryId = $this->getParam(static::PARAM_ID);
                 foreach (\XLite\Core\Database::getRepo('XLite\Model\Product')->search($cnd) as $product) {
                     if ($product && $product->isVisible()) {
-                        $result[] = array(
+                        $result[] = [
                             'type' => static::PAGE_PRODUCT,
                             'id'   => $product->getProductId(),
                             'name' => $product->getName(),
                             'url'  => static::buildURL(
                                 'product',
                                 null,
-                                array(
+                                [
                                     'product_id'  => $product->getProductId(),
                                     'category_id' => $this->getParam(static::PARAM_ID),
-                                )
+                                ]
                             ),
-                        );
+                        ];
                     }
                 }
             }
@@ -288,13 +288,13 @@ class Branch extends \XLite\View\AView
      */
     protected function getContainerTagAttributes()
     {
-        return array(
-            'class' => array(
+        return [
+            'class' => [
                 'level-' . $this->getLevel(),
                 'page-type-' . $this->getParam(static::PARAM_TYPE),
                 'page-id-' . $this->getParam(static::PARAM_ID),
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -307,14 +307,14 @@ class Branch extends \XLite\View\AView
      */
     protected function getItemContainerTagAttributes($type, $id)
     {
-        return array(
-            'class'     => array(
+        return [
+            'class'     => [
                 'page-type-' . $type,
                 'page-id-' . $id,
-            ),
+            ],
             'data-type' => $type,
             'data-id'   => $id,
-        );
+        ];
     }
 
     /**

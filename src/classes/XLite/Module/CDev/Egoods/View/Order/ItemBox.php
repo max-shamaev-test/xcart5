@@ -30,9 +30,9 @@ class ItemBox extends \XLite\View\AView
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_ITEM => new \XLite\Model\WidgetParam\TypeObject('Order item', null, false, 'XLite\Model\OrderItem'),
-        );
+        ];
     }
 
     /**
@@ -64,8 +64,8 @@ class ItemBox extends \XLite\View\AView
     protected function getAttachments()
     {
         return $this->getItem()
-            ? $this->getItem()->getPrivateAttachments()->toArray()
-            : array();
+            ? $this->getItem()->getDownloadAttachments()
+            : [];
     }
 
     /**

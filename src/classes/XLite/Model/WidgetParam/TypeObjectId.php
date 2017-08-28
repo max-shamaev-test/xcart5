@@ -81,11 +81,11 @@ abstract class TypeObjectId extends \XLite\Model\WidgetParam\TypeInt
      *
      * @param mixed $value Value to validate
      *
-     * @return void
+     * @return array
      */
-    protected function getValidaionSchema($value)
+    protected function getValidationSchema($value)
     {
-        $schema = parent::getValidaionSchema($value);
+        $schema = parent::getValidationSchema($value);
         $schema[] = $this->getIdValidCondition($value);
         $schema[] = $this->getObjectExistsCondition($value);
 

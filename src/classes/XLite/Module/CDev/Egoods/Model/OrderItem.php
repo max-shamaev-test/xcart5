@@ -9,7 +9,7 @@
 namespace XLite\Module\CDev\Egoods\Model;
 
 /**
- * Order item 
+ * Order item
  */
 abstract class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\IDecorator
 {
@@ -29,7 +29,7 @@ abstract class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\I
      *
      * @return void
      */
-    public function __construct(array $data = array())
+    public function __construct(array $data = [])
     {
         parent::__construct($data);
 
@@ -37,17 +37,19 @@ abstract class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\I
     }
 
     /**
-     * Get available download attachments 
-     * 
+     * Get available download attachments
+     *
+     * @param bool $availableOnly
+     *
      * @return array
      */
-    public function getDownloadAttachments()
+    public function getDownloadAttachments($availableOnly = true)
     {
-        $list = array();
+        $list = [];
 
-        if ($this->isAllowDownloadAttachments() && $this->getPrivateAttachments()) {
+        if (($this->isAllowDownloadAttachments() || !$availableOnly) && $this->getPrivateAttachments()) {
             foreach ($this->getPrivateAttachments() as $attachment) {
-                if ($attachment->isAvailable()) {
+                if ($attachment->isAvailable() || !$availableOnly) {
                     $list[] = $attachment;
                 }
             }
@@ -57,8 +59,8 @@ abstract class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\I
     }
 
     /**
-     * Create private attachments 
-     * 
+     * Create private attachments
+     *
      * @return void
      */
     public function createPrivateAttachments()
@@ -72,7 +74,7 @@ abstract class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\I
         // Create attachments
         if ($this->getProduct() && $this->getProduct()->getId() && 0 < count($this->getProduct()->getAttachments())) {
 
-            foreach ($this->getProduct()->getAttachments() as $attachment) {
+            foreach ($this->getProduct()->getFilteredAttachments($this->getOrder()->getOrigProfile()) as $attachment) {
                 if ($attachment->getPrivate()) {
                     $private = new \XLite\Module\CDev\Egoods\Model\OrderItem\PrivateAttachment;
                     $this->addPrivateAttachments($private);
@@ -87,24 +89,26 @@ abstract class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\I
 
     /**
      * Check attachments downloading availability
-     * 
+     *
      * @return boolean
      */
     protected function isAllowDownloadAttachments()
     {
-        return in_array(
-            $this->getOrder()->getPaymentStatusCode(),
-            array(
-                \XLite\Model\Order\Status\Payment::STATUS_PAID,
-                \XLite\Model\Order\Status\Payment::STATUS_PART_PAID
-            )
-        );
+        return in_array($this->getOrder()->getPaymentStatusCode(), [
+               \XLite\Model\Order\Status\Payment::STATUS_PAID,
+               \XLite\Model\Order\Status\Payment::STATUS_PART_PAID
+           ])
+           && !in_array($this->getOrder()->getShippingStatusCode(), [
+                   \XLite\Model\Order\Status\Shipping::STATUS_WAITING_FOR_APPROVE,
+                   \XLite\Model\Order\Status\Shipping::STATUS_WILL_NOT_DELIVER,
+           ]);
     }
 
     /**
      * Add privateAttachments
      *
      * @param \XLite\Module\CDev\Egoods\Model\OrderItem\PrivateAttachment $privateAttachments
+     *
      * @return OrderItem
      */
     public function addPrivateAttachments(\XLite\Module\CDev\Egoods\Model\OrderItem\PrivateAttachment $privateAttachments)
@@ -116,7 +120,7 @@ abstract class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\I
     /**
      * Get privateAttachments
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getPrivateAttachments()
     {

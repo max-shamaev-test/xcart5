@@ -7,6 +7,7 @@
  */
 
 namespace XLite\Module\CDev\Egoods\Model;
+use XLite\Model\Order\Status\Shipping;
 
 /**
  * Order
@@ -15,13 +16,13 @@ namespace XLite\Module\CDev\Egoods\Model;
 abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
 {
     /**
-     * Get Pivate attachments list
+     * Get Private attachments list
      *
      * @return array
      */
     public function getPrivateAttachments()
     {
-        $list = array();
+        $list = [];
         foreach ($this->getItems() as $item) {
             $list = array_merge($list, $item->getPrivateAttachments()->toArray());
         }
@@ -30,15 +31,17 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
     }
 
     /**
-     * Get downloadable Pivate attachments list
+     * Get downloadable Private attachments list
+     *
+     * @param bool $availableOnly
      *
      * @return array
      */
-    public function getDownloadAttachments()
+    public function getDownloadAttachments($availableOnly = true)
     {
-        $list = array();
+        $list = [];
         foreach ($this->getItems() as $item) {
-            $list = array_merge($list, $item->getDownloadAttachments());
+            $list = array_merge($list, $item->getDownloadAttachments($availableOnly));
         }
 
         return $list;
@@ -54,6 +57,14 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
         parent::processSucceed();
 
         $this->initializeAttachments();
+
+        if (
+            $this->getPrivateAttachments()
+            && \XLite\Core\Config::getInstance()->CDev->Egoods->approve_before_download
+            && $this->getShippingStatusCode() !== Shipping::STATUS_WAITING_FOR_APPROVE
+        ) {
+            $this->setShippingStatus(Shipping::STATUS_WAITING_FOR_APPROVE);
+        }
     }
 
     /**

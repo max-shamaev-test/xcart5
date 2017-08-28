@@ -36,10 +36,10 @@ class Coordinates implements \XLite\Module\XC\Geolocation\Logic\IGeoInput
      */
     public function getData()
     {
-        return array(
+        return [
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
-        );
+        ];
     }
 
     /**

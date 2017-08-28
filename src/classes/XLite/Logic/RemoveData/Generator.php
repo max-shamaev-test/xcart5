@@ -15,28 +15,7 @@ namespace XLite\Logic\RemoveData;
 class Generator extends \XLite\Logic\AGenerator
 {
     /**
-     * Steps (cache)
-     *
-     * @var array
-     */
-    protected $steps;
-
-    /**
-     * Current step index
-     *
-     * @var integer
-     */
-    protected $currentStep;
-
-    /**
-     * Count (cached)
-     *
-     * @var integer
-     */
-    protected $countCache;
-
-    /**
-     * Flag: is export in progress (true) or no (false)
+     * Flag: is process in progress (true) or no (false)
      *
      * @var boolean
      */
@@ -52,17 +31,6 @@ class Generator extends \XLite\Logic\AGenerator
     public function setInProgress($value)
     {
         static::$inProgress = $value;
-    }
-
-    /**
-     * @param $options \ArrayObject
-     *
-     * @return $this
-     */
-    public function setOptions($options)
-    {
-        $this->options = $options;
-        return $this;
     }
 
     // {{{ Steps
@@ -113,9 +81,7 @@ class Generator extends \XLite\Logic\AGenerator
     // {{{ SeekableIterator, Countable
 
     /**
-     * \Counable::count
-     *
-     * @return integer
+     * @inheritdoc
      */
     public function count()
     {
@@ -138,26 +104,6 @@ class Generator extends \XLite\Logic\AGenerator
     // {{{ Service variable names
 
     /**
-     * Get resizeTickDuration TmpVar name
-     *
-     * @return string
-     */
-    public static function getTickDurationVarName()
-    {
-        return 'removeDataTickDuration';
-    }
-
-    /**
-     * Get resize cancel flag name
-     *
-     * @return string
-     */
-    public static function getCancelFlagVarName()
-    {
-        return 'removeDataCancelFlag';
-    }
-
-    /**
      * Get event name
      *
      * @return string
@@ -165,49 +111,6 @@ class Generator extends \XLite\Logic\AGenerator
     public static function getEventName()
     {
         return 'removeData';
-    }
-
-    /**
-     * Get export lock key
-     *
-     * @return string
-     */
-    public static function getLockKey()
-    {
-        return static::getEventName();
-    }
-
-    /**
-     * Lock export with file lock
-     */
-    public static function lockRemovingData()
-    {
-        \XLite\Core\Lock\FileLock::getInstance()->setRunning(
-            static::getLockKey()
-        );
-    }
-
-    /**
-     * Check if export is locked right now
-     */
-    public static function isLocked()
-    {
-        return \XLite\Core\Lock\FileLock::getInstance()->isRunning(
-            static::getLockKey(),
-            true
-        );
-    }
-
-    /**
-     * Unlock export
-     *
-     * @return string
-     */
-    public static function unlockRemovingData()
-    {
-        \XLite\Core\Lock\FileLock::getInstance()->release(
-            static::getLockKey()
-        );
     }
 
     // }}}

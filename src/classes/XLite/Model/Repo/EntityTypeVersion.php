@@ -63,21 +63,12 @@ class EntityTypeVersion extends \XLite\Model\Repo\ARepo implements EventSubscrib
     {
         $newVersion = $this->generateUUIDv4();
 
-        $em   = $this->getEntityManager();
-        $conn = $em->getConnection();
-
-        $tableName = $em->getClassMetadata('XLite\Model\EntityTypeVersion')->getTableName();
-
-        $numAffectedRows = $conn->update($tableName, ['version' => $newVersion], ['entityType' => $entityType]);
-
-        if ($numAffectedRows == 0) {
-            try {
-                $conn->insert($tableName, ['version' => $newVersion, 'entityType' => $entityType]);
-            } catch (DBALException $e) {
-                // Execute an update if someone else performed insert before we did:
-                $conn->update($tableName, ['version' => $newVersion], ['entityType' => $entityType]);
-            }
-        }
+        \XLite\Core\Database::getEM()->transactionalWithRestarts(function () use ($newVersion, $entityType) {
+            $em = \XLite\Core\Database::getEM();
+            $conn = $em->getConnection();
+            $tableName = $em->getClassMetadata('XLite\Model\EntityTypeVersion')->getTableName();
+            $conn->replace($tableName, ['version' => $newVersion, 'entityType' => $entityType]);
+        });
 
         if (isset($this->entityTypeVersions)) {
             $this->entityTypeVersions[$entityType] = $newVersion;

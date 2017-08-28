@@ -10,6 +10,12 @@ namespace XLite\Model\Repo\AttributeValue;
 
 /**
  * Attribute values repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\AttributeValue\AttributeValueSelect", summary="Add new select attribute value")
+ * @Api\Operation\Read(modelClass="XLite\Model\AttributeValue\AttributeValueSelect", summary="Retrieve select attribute value by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\AttributeValue\AttributeValueSelect", summary="Retrieve select attribute values by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\AttributeValue\AttributeValueSelect", summary="Update select attribute value by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\AttributeValue\AttributeValueSelect", summary="Delete select attribute value by id")
  */
 class AttributeValueSelect extends \XLite\Model\Repo\AttributeValue\Multiple
 {
@@ -58,6 +64,7 @@ class AttributeValueSelect extends \XLite\Model\Repo\AttributeValue\Multiple
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters attribute values by attribute option", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition

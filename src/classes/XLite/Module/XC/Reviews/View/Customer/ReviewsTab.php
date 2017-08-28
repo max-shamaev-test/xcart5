@@ -39,13 +39,48 @@ class ReviewsTab extends \XLite\Module\XC\Reviews\View\ItemsList\Model\Customer\
     {
         parent::setWidgetParams($params);
 
+        $this->processReviewsTabWidgetParams($params);
+    }
+
+    /**
+     * Process reviews tab widget params
+     *
+     * @param $params
+     */
+    protected function processReviewsTabWidgetParams($params)
+    {
         $this->widgetParams[\XLite\View\Pager\APager::PARAM_SHOW_ITEMS_PER_PAGE_SELECTOR]->setValue(false);
-        $this->widgetParams[\XLite\View\Pager\APager::PARAM_ITEMS_COUNT]->setValue(
-            \XLite\Core\Config::getInstance()->XC->Reviews->reviewsCountPerTab
-        );
+
+        if ($this->isFixedReviewsCount()) {
+            $this->widgetParams[\XLite\View\Pager\APager::PARAM_ITEMS_COUNT]->setValue(
+                $this->getPageReviewsCount()
+            );
+        }
+
         $this->widgetParams[\XLite\View\Pager\APager::PARAM_ITEMS_PER_PAGE]->setValue(
-            \XLite\Core\Config::getInstance()->XC->Reviews->reviewsCountPerTab
+            $this->getPageReviewsCount()
         );
+
         $this->widgetParams[\XLite\View\Pager\APager::PARAM_ONLY_PAGES]->setValue(true);
+    }
+
+    /**
+     * Check if show fixed count of reviews on product page, otherwise pager will be used
+     *
+     * @return bool
+     */
+    protected function isFixedReviewsCount()
+    {
+        return true;
+    }
+
+    /**
+     * Check if show fixed count of reviews on product page, otherwise pager will be used
+     *
+     * @return bool
+     */
+    protected function getPageReviewsCount()
+    {
+        return \XLite\Core\Config::getInstance()->XC->Reviews->reviewsCountPerTab;
     }
 }

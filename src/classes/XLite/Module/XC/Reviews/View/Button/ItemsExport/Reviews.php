@@ -15,15 +15,15 @@ class Reviews extends \XLite\View\Button\ItemsExport
 {
     protected function getAdditionalButtons()
     {
-        $list = array();
+        $list = [];
         $list['CSV'] = $this->getWidget(
-            array(
+            [
                 'label'      => 'CSV',
                 'style'      => 'always-enabled action link list-action',
                 'icon-style' => '',
                 'entity'     => 'XLite\Module\XC\Reviews\Logic\Export\Step\Reviews',
                 'session'    => \XLite\Module\XC\Reviews\View\ItemsList\Model\Review::getConditionCellName(),
-            ),
+            ],
             'XLite\View\Button\ExportCSV'
         );
 

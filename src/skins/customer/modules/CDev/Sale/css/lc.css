@@ -7,11 +7,6 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-.product-details-info .sale-label-product-details ul.labels,
-.products ul.product-price li.sale-banner {
-  display: none;
-}
-
 .product-details-info .product-price .sale-banner {
   background: transparent url(../images/sale-banner-arrow.png) 0px 23px no-repeat;
   padding-left: 7px;

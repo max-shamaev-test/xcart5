@@ -28,7 +28,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
     /**
      * Modules list file name
      */
-    const MODULES_FILE_NAME = '.decorator.modules.ini.php';
+    const MODULES_FILE_NAME   = '.decorator.modules.ini.php';
     const XC_FREE_LICENSE_KEY = 'XC5-FREE-LICENSE';
 
     /**
@@ -188,12 +188,12 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      */
     public static function getModuleYAMLFiles($author, $name)
     {
-        $result = array();
+        $result = [];
         $dir = static::getAbsoluteDir($author, $name);
 
         $result[] = $dir . 'install.yaml';
 
-        foreach ((array) glob($dir . 'install_*.yaml') as $translationFile) {
+        foreach ((glob($dir . 'install_*.yaml') ?: []) as $translationFile) {
             $result[] = $translationFile;
         }
 
@@ -252,12 +252,12 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      *
      * @return mixed
      */
-    public static function callModuleMethod($module, $method, array $args = array())
+    public static function callModuleMethod($module, $method, array $args = [])
     {
         $result = null;
 
         if (static::isModuleInstalled($module)) {
-            $result = call_user_func_array(array(static::getClassNameByModuleName($module), $method), $args);
+            $result = call_user_func_array([static::getClassNameByModuleName($module), $method], $args);
         }
 
         return $result;
@@ -272,48 +272,50 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      *
      * @return array
      */
-    protected static function getModuleDataFromClass($author, $name, array $additionalData = array())
+    protected static function getModuleDataFromClass($author, $name, array $additionalData = [])
     {
         $module = static::getActualName($author, $name);
 
-        $result = array(
-            'name'            => $name,
-            'author'          => $author,
-            'enabled'         => (int) static::isActiveModule($module),
-            'installed'       => 1,
-            'yamlLoaded'      => 0,
-            'date'            => time(),
-            'fromMarketplace' => 0,
-            'isSystem'        => (int) static::callModuleMethod($module, 'isSystem'),
-            'majorVersion'    => static::callModuleMethod($module, 'getMajorVersion'),
-            'minorVersion'    => static::callModuleMethod($module, 'getMinorVersion'),
-            'build'           => static::callModuleMethod($module, 'getBuildVersion') ?: 0,
+        $result = [
+            'name'                     => $name,
+            'author'                   => $author,
+            'enabled'                  => (int)static::isActiveModule($module),
+            'installed'                => 1,
+            'yamlLoaded'               => 0,
+            'date'                     => time(),
+            'fromMarketplace'          => 0,
+            'isSystem'                 => (int)static::callModuleMethod($module, 'isSystem'),
+            'majorVersion'             => static::callModuleMethod($module, 'getMajorVersion'),
+            'minorVersion'             => static::callModuleMethod($module, 'getMinorVersion'),
+            'build'                    => static::callModuleMethod($module, 'getBuildVersion') ?: 0,
             'minorRequiredCoreVersion' => static::callModuleMethod($module, 'getMinorRequiredCoreVersion'),
-            'moduleName'      => static::callModuleMethod($module, 'getModuleName'),
-            'authorName'      => static::callModuleMethod($module, 'getAuthorName'),
-            'authorEmail'     => '',
-            'description'     => static::callModuleMethod($module, 'getDescription'),
-            'iconURL'         => static::callModuleMethod($module, 'getIconURL'),
-            'pageURL'         => static::callModuleMethod($module, 'getPageURL'),
-            'authorPageURL'   => static::callModuleMethod($module, 'getAuthorPageURL'),
-            'dependencies'    => serialize((array) static::callModuleMethod($module, 'getDependencies')),
-            'tags'            => serialize(array()),
-            'rating'          => 0,
-            'votes'           => 0,
-            'downloads'       => 0,
-            'price'           => 0.00,
-            'currency'        => 'USD',
-            'revisionDate'    => 0,
-            'packSize'        => 0,
-            'editions'        => serialize(array()),
-            'editionState'    => 0,
-            'xcnPlan'         => 0,
-            'hasLicense'      => 0,
-            'isLanding'       => 0,
-            'landingPosition' => 0,
-            'xbProductId'     => 0,
-            'private'         => 0,
-        );
+            'moduleName'               => static::callModuleMethod($module, 'getModuleName'),
+            'authorName'               => static::callModuleMethod($module, 'getAuthorName'),
+            'authorEmail'              => '',
+            'description'              => static::callModuleMethod($module, 'getDescription'),
+            'iconURL'                  => static::callModuleMethod($module, 'getIconURL'),
+            'pageURL'                  => static::callModuleMethod($module, 'getPageURL'),
+            'authorPageURL'            => static::callModuleMethod($module, 'getAuthorPageURL'),
+            'dependencies'             => serialize((array)static::callModuleMethod($module, 'getDependencies')),
+            'tags'                     => serialize([]),
+            'rating'                   => 0,
+            'votes'                    => 0,
+            'downloads'                => 0,
+            'price'                    => 0.00,
+            'currency'                 => 'USD',
+            'revisionDate'             => 0,
+            'packSize'                 => 0,
+            'editions'                 => serialize([]),
+            'editionState'             => 0,
+            'xcnPlan'                  => 0,
+            'hasLicense'               => 0,
+            'isLanding'                => 0,
+            'landingPosition'          => 0,
+            'xbProductId'              => 0,
+            'private'                  => 0,
+            'wave'                     => 0,
+            'salesChannelPos'          => -1,
+        ];
 
         return array_replace_recursive($result, $additionalData);
     }
@@ -381,6 +383,10 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
             // Remove modules with corrupted dependencies
             static::correctDependencies();
 
+            if (\Includes\Utils\ConfigParser::getOptions(['performance', 'ignore_system_modules'])) {
+                array_walk_recursive(static::getSystemModules(true), ['static', 'disableModule']);
+            }
+
             static::$isActiveModulesProcessed = true;
         }
 
@@ -396,7 +402,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      */
     public static function isActiveModule($moduleName)
     {
-        return (bool) \Includes\Utils\ArrayManager::getIndex(static::getActiveModules(), $moduleName, true);
+        return (bool)\Includes\Utils\ArrayManager::getIndex(static::getActiveModules(), $moduleName, true);
     }
 
     /**
@@ -420,7 +426,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      */
     public static function areActiveModules(array $moduleNames)
     {
-        return array_filter(array_map(array('static', 'isActiveModule'), $moduleNames)) == $moduleNames;
+        return array_filter(array_map(['static', 'isActiveModule'], $moduleNames)) == $moduleNames;
     }
 
     /**
@@ -432,20 +438,22 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      */
     public static function areInactiveModules(array $moduleNames)
     {
-        return array_filter(array_map(array('static', 'isInactiveModule'), $moduleNames)) == $moduleNames;
+        return array_filter(array_map(['static', 'isInactiveModule'], $moduleNames)) == $moduleNames;
     }
 
     /**
      * Get the list of disabled system modules
      *
+     * @param bool $force
+     *
      * @return array
      */
-    protected static function getSystemModules()
+    protected static function getSystemModules($force = false)
     {
-        $modules = array();
+        $modules = [];
 
-        if (!\Includes\Utils\ConfigParser::getOptions(array('performance', 'ignore_system_modules'))) {
-            foreach (static::getModulesList() as $module => $data) {
+        if (!\Includes\Utils\ConfigParser::getOptions(['performance', 'ignore_system_modules']) || $force) {
+            foreach (static::getModulesList( ) as $module => $data) {
                 if (static::callModuleMethod($module, 'isSystem')) {
                     $modules[$module] = $data;
                 }
@@ -488,12 +496,12 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
             function ($module) {
                 return !in_array(
                     $module['author'],
-                    array(
+                    [
                         'QSL',
                         'Qualiteam',
                         'CDev',
                         'XC',
-                    ),
+                    ],
                     true
                 );
             }
@@ -514,10 +522,10 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
             function ($module) {
                 return !in_array(
                     $module['author'],
-                    array(
+                    [
                         'CDev',
                         'XC',
-                    ),
+                    ],
                     true
                 );
             }
@@ -535,7 +543,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      */
     protected static function restoreToPoint($restorePoint)
     {
-        $modules = array();
+        $modules = [];
         $active = static::getActiveModules();
         foreach ($active as $key => $module) {
             $toDisable = true;
@@ -552,7 +560,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
         }
 
         //modules to enable
-        $toEnable = array();
+        $toEnable = [];
         $installed = static::getModulesList();
         foreach ($restorePoint['current'] as $id => $moduleName) {
             $isInstalled = array_key_exists($moduleName, $installed);
@@ -563,10 +571,10 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
         }
 
         // Enable modules
-        array_walk($toEnable, array('static', 'enableModule'));
+        array_walk($toEnable, ['static', 'enableModule']);
 
         // Disable modules
-        array_walk($modules, array('static', 'disableModule'));
+        array_walk($modules, ['static', 'disableModule']);
 
         $date = \DateTime::createFromFormat(static::RESTORE_DATE_FORMAT, $restorePoint['date']);
         \Includes\Decorator\Utils\PersistentInfo::set('restoredTo', $date->getTimestamp());
@@ -590,7 +598,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
                     : static::getHardDisableList();
 
                 // Disable modules
-                array_walk($modules, array('static', 'disableModule'));
+                array_walk($modules, ['static', 'disableModule']);
             } else {
                 $restorePoint = static::getRestorePoint(\Includes\SafeMode::getRestoreDate());
                 if (static::isRestorePointValid($restorePoint)) {
@@ -610,17 +618,17 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      */
     protected static function correctDependencies()
     {
-        $dependencies = array();
+        $dependencies = [];
 
         foreach (static::$activeModules as $module => $data) {
             $dependencies = array_merge_recursive(
                 $dependencies,
-                array_fill_keys(static::callModuleMethod($module, 'getDependencies') ?: array(), $module)
+                array_fill_keys(static::callModuleMethod($module, 'getDependencies') ?: [], $module)
             );
         }
 
         $dependencies = array_diff_key($dependencies, static::$activeModules);
-        array_walk_recursive($dependencies, array('static', 'disableModule'));
+        array_walk_recursive($dependencies, ['static', 'disableModule']);
 
         // http://bugtracker.qtmsoft.com/view.php?id=41330
         static::excludeMutualModules();
@@ -633,13 +641,13 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      */
     protected static function excludeMutualModules()
     {
-        $list = array();
+        $list = [];
 
         foreach (static::$activeModules as $module => $data) {
-            $list = array_merge_recursive($list, static::callModuleMethod($module, 'getMutualModulesList') ?: array());
+            $list = array_merge_recursive($list, static::callModuleMethod($module, 'getMutualModulesList') ?: []);
         }
 
-        array_walk_recursive($list, array('static', 'disableModule'));
+        array_walk_recursive($list, ['static', 'disableModule']);
     }
 
     /**
@@ -730,7 +738,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
     {
         $marketplaceModule = \Includes\Utils\Database::fetchAll(
             'SELECT * FROM ' . static::getTableName() . ' WHERE name= ? AND author= ? AND fromMarketplace= ?',
-            array($module['name'], $module['author'], 1)
+            [$module['name'], $module['author'], 1]
         );
 
         return empty($marketplaceModule) ? null : $marketplaceModule[0];
@@ -753,7 +761,11 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
         // We should detect this and ignore disabling at this moment.
         // Also skip disabling for system module.
         if (isset(static::$activeModules[$key])
-            && !static::callModuleMethod($key, 'isSystem')
+            && (
+                LC_DEVELOPER_MODE
+                || !static::callModuleMethod($key, 'isSystem')
+                || \Includes\Utils\ConfigParser::getOptions(['performance', 'ignore_system_modules'])
+            )
             && !defined('XC_UPGRADE_IN_PROGRESS')
         ) {
             // Short names
@@ -773,7 +785,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
                 // This operation is highly NOT recommended in the usual workflow!
                 // All info for this module must be stored before that!
                 $query = 'UPDATE ' . static::getTableName() . ' SET enabled = ? WHERE moduleID = ?';
-                \Includes\Utils\Database::execute($query, array(0, $data['moduleID']));
+                \Includes\Utils\Database::execute($query, [0, $data['moduleID']]);
 
             }
 
@@ -816,7 +828,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
                 // This operation is highly NOT recommended in the usual workflow!
                 // All info for this module must be stored before that!
                 $query = 'UPDATE ' . static::getTableName() . ' SET enabled = ? WHERE moduleID = ?';
-                \Includes\Utils\Database::execute($query, array(1, $data['moduleID']));
+                \Includes\Utils\Database::execute($query, [1, $data['moduleID']]);
 
             }
 
@@ -896,7 +908,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
     /**
      * Store current modules state for further restoration
      *
-     * @param array|null     $restorePoint modules migration data
+     * @param array|null $restorePoint modules migration data
      *
      * @return void
      */
@@ -904,7 +916,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
     {
         $migrations = static::readModuleMigrationLog();
         if (empty($migrations)) {
-            $migrations = array();
+            $migrations = [];
         }
 
         $migrations[$restorePoint['date']] = $restorePoint;
@@ -916,7 +928,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
     /**
      * Returns restore point from migration log if it exists
      *
-     * @param string     $date restore point date in RESTORE_DATE_FORMAT format
+     * @param string $date restore point date in RESTORE_DATE_FORMAT format
      *
      * @return array
      */
@@ -933,7 +945,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
     /**
      * Checks if snapshot is valid
      *
-     * @param array     $point restore point data
+     * @param array $point restore point data
      *
      * @return boolean
      */
@@ -949,14 +961,14 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      */
     public static function getEmptyRestorePoint()
     {
-        return array(
-            'date' => date(static::RESTORE_DATE_FORMAT),
-            'current' => array(),
-            'enabled' => array(),
-            'disabled' => array(),
-            'deleted' => array(),
-            'installed' => array()
-        );
+        return [
+            'date'      => date(static::RESTORE_DATE_FORMAT),
+            'current'   => [],
+            'enabled'   => [],
+            'disabled'  => [],
+            'deleted'   => [],
+            'installed' => [],
+        ];
     }
 
     /**
@@ -968,10 +980,10 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      */
     public static function getRestorationRecord($restoredTo)
     {
-        return array(
-            'date' => date(static::RESTORE_DATE_FORMAT),
+        return [
+            'date'       => date(static::RESTORE_DATE_FORMAT),
             'restoredTo' => $restoredTo,
-        );
+        ];
     }
 
     /**
@@ -986,7 +998,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
     {
         $enabledPath = static::getEnabledStructurePath();
 
-        $enabledRegistry          = \Includes\Utils\Operator::loadServiceYAML($enabledPath);
+        $enabledRegistry = \Includes\Utils\Operator::loadServiceYAML($enabledPath);
         $enabledRegistry[$module] = $data;
 
         static::storeModuleRegistry($enabledPath, $enabledRegistry);
@@ -1002,10 +1014,10 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      */
     public static function moveModuleToEnabledRegistry($module)
     {
-        $enabledPath     = static::getEnabledStructurePath();
+        $enabledPath = static::getEnabledStructurePath();
         $enabledRegistry = \Includes\Utils\Operator::loadServiceYAML($enabledPath);
 
-        $disabledPath     = static::getDisabledStructuresPath();
+        $disabledPath = static::getDisabledStructuresPath();
         $disabledRegistry = \Includes\Utils\Operator::loadServiceYAML($disabledPath);
 
         $result = false;
@@ -1034,13 +1046,13 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      */
     public static function moveModuleToDisabledRegistry($module)
     {
-        $enabledPath      = static::getEnabledStructurePath();
-        $enabledRegistry  = \Includes\Utils\Operator::loadServiceYAML($enabledPath);
+        $enabledPath = static::getEnabledStructurePath();
+        $enabledRegistry = \Includes\Utils\Operator::loadServiceYAML($enabledPath);
 
-        $disabledPath     = static::getDisabledStructuresPath();
+        $disabledPath = static::getDisabledStructuresPath();
         $disabledRegistry = \Includes\Utils\Operator::loadServiceYAML($disabledPath);
 
-        $result           = false;
+        $result = false;
 
         if (isset($enabledRegistry[$module])) {
             $disabledRegistry[$module] = $enabledRegistry[$module];
@@ -1071,7 +1083,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      */
     protected static function getModuleDependencies($module, $registry)
     {
-        $result = array();
+        $result = [];
 
         foreach ($registry as $mod => $list) {
             if (!empty($list['dependencies'][$module]) && is_array($list['dependencies'][$module])) {
@@ -1136,9 +1148,9 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      */
     public static function getModuleProtectedStructures($author, $name)
     {
-        $tables  = array();
-        $columns = array();
-        $dependencies = array();
+        $tables = [];
+        $columns = [];
+        $dependencies = [];
 
         $moduleDir = static::getAbsoluteDir($author, $name);
 
@@ -1153,7 +1165,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
                 // DO NOT call "getInterfaces()" after the "getFullClassName()"
                 // DO NOT use reflection to get interfaces
                 $interfaces = \Includes\Decorator\Utils\Tokenizer::getInterfaces($path);
-                $class      = \Includes\Decorator\Utils\Tokenizer::getFullClassName($path);
+                $class = \Includes\Decorator\Utils\Tokenizer::getFullClassName($path);
 
                 // Do 'autoload' checking first since the class_exists tries to use autoloader
                 // but fails into "cannot include file" warning when model class is not set to use (LC_Dependencies issue)
@@ -1163,22 +1175,22 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
                         && is_subclass_of($class, '\XLite\Model\AEntity')
                     ) {
                         $class = ltrim($class, '\\');
-                        $len   = strlen(\Includes\Utils\Database::getTablesPrefix());
+                        $len = strlen(\Includes\Utils\Database::getTablesPrefix());
 
                         // DO NOT remove leading backslash in interface name
                         if (in_array('\XLite\Base\IDecorator', $interfaces, true)) {
-                            $parent   = \Includes\Decorator\Utils\Tokenizer::getParentClassName($path);
-                            $parent   = ltrim($parent, '\\');
+                            $parent = \Includes\Decorator\Utils\Tokenizer::getParentClassName($path);
+                            $parent = ltrim($parent, '\\');
                             $metadata = \XLite\Core\Database::getEM()->getClassMetadata($parent);
-                            $table    = substr($metadata->getTableName(), $len);
+                            $table = substr($metadata->getTableName(), $len);
 
                             $reflector = $reflectorFactory->reflectSource($path);
                             $deps = $reflector->getPositiveDependencies();
 
-                            $tool   = new \Doctrine\ORM\Tools\SchemaTool(\XLite\Core\Database::getEM());
-                            $schema = $tool->getCreateSchemaSql(array($metadata));
+                            $tool = new \Doctrine\ORM\Tools\SchemaTool(\XLite\Core\Database::getEM());
+                            $schema = $tool->getCreateSchemaSql([$metadata]);
 
-                            foreach ((array) $metadata->reflFields as $field => $reflection) {
+                            foreach ((array)$metadata->reflFields as $field => $reflection) {
                                 $pattern = '/(?:, |\()(' . $field . ' .+)(?:, [A-Za-z]|\) ENGINE)/USsi';
 
                                 if ($reflection->class === $class
@@ -1239,11 +1251,11 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
         }
 
 
-        return array(
-            'tables' => $tables,
-            'columns' => $columns,
+        return [
+            'tables'       => $tables,
+            'columns'      => $columns,
             'dependencies' => $dependencies,
-        );
+        ];
     }
 
     /**
@@ -1282,9 +1294,9 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
 
         return static::checkTable('modules') ? \Includes\Utils\Database::fetchAll(
             'SELECT ' . $field . $table . '.* FROM ' . $table . ' WHERE installed = ?',
-            array(1),
+            [1],
             \PDO::FETCH_ASSOC | \PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE
-        ) : array();
+        ) : [];
     }
 
     /**
@@ -1321,13 +1333,13 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
     protected static function getModulesList($reset = false)
     {
         if (null === static::$cachedModulesList || $reset) {
-            static::$cachedModulesList = array();
+            static::$cachedModulesList = [];
             $path = static::getModulesFilePath();
             if (\Includes\Utils\FileManager::isFileReadable($path)) {
                 foreach (parse_ini_file($path, true) as $author => $data) {
                     foreach ($data as $name => $enabled) {
                         if ($enabled) {
-                            static::$cachedModulesList[$author . '\\' . $name] = array(
+                            static::$cachedModulesList[$author . '\\' . $name] = [
                                 'actualName' => static::getActualName($author, $name),
                                 'name'       => $name,
                                 'author'     => $author,
@@ -1335,7 +1347,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
                                 'moduleName' => $name,
                                 'authorName' => $author,
                                 'yamlLoaded' => false,
-                            );
+                            ];
                         }
                     }
                 }
@@ -1376,7 +1388,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
         foreach ($modules as $author => $data) {
             $string .= '[' . $author . ']' . PHP_EOL;
             foreach ($data as $name => $enabled) {
-                $string .= $name . ' = ' . ((bool) $enabled) . PHP_EOL;
+                $string .= $name . ' = ' . ((bool)$enabled) . PHP_EOL;
             }
         }
 
@@ -1401,8 +1413,8 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
     {
         // Short names
         $condition = ' WHERE author = ? AND name = ?';
-        $table     = static::getTableName();
-        $module    = static::getActualName($author, $name);
+        $table = static::getTableName();
+        $module = static::getActualName($author, $name);
 
         // Versions
         $majorVersion = static::callModuleMethod($module, 'getMajorVersion');
@@ -1411,10 +1423,10 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
 
         // Reset existing settings
         $query = 'UPDATE ' . $table . ' SET enabled = ?, installed = ?' . $condition;
-        \Includes\Utils\Database::execute($query, array(0, 0, $author, $name));
+        \Includes\Utils\Database::execute($query, [0, 0, $author, $name]);
 
         // Search for module
-        $fields = array('moduleID', 'majorVersion', 'minorVersion', 'build');
+        $fields = ['moduleID', 'majorVersion', 'minorVersion', 'build'];
         $condition .= ' AND fromMarketplace = ?';
 
         if (!$isModulesFileExists) {
@@ -1425,12 +1437,12 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
 
         $moduleRows = \Includes\Utils\Database::fetchAll(
             $query,
-            array($author, $name, 0)
+            [$author, $name, 0]
         );
 
         $needToLoadYaml = false;
 
-        $delQueries = array();
+        $delQueries = [];
 
         // If found in DB
         if ($moduleRows) {
@@ -1444,12 +1456,12 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
                 }
             }
 
-            $moduleID = (int) $moduleRows[$mid]['moduleID'];
-            $yamlLoaded = (int) $moduleRows[$mid]['yamlLoaded'];
-            $moduleName   = static::callModuleMethod($module, 'getModuleName');
-            $moduleDesc   = static::callModuleMethod($module, 'getDescription');
+            $moduleID = (int)$moduleRows[$mid]['moduleID'];
+            $yamlLoaded = (int)$moduleRows[$mid]['yamlLoaded'];
+            $moduleName = static::callModuleMethod($module, 'getModuleName');
+            $moduleDesc = static::callModuleMethod($module, 'getDescription');
 
-            $params = array(
+            $params = [
                 'enabled = ?',
                 'installed = ?',
                 'moduleName = ?',
@@ -1457,17 +1469,17 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
                 'majorVersion = ?',
                 'minorVersion = ?',
                 'build = ?',
-            );
+            ];
 
-            $data  = array(
-                (int) static::isActiveModule($module), // enabled
+            $data = [
+                (int)static::isActiveModule($module), // enabled
                 1,                                     // installed
                 $moduleName,                           // moduleName
                 $moduleDesc,                           // description
                 $majorVersion,                         // majorVersion
                 $minorVersion,                         // minorVersion
                 $build,                                // build
-            );
+            ];
 
             if (!$yamlLoaded && static::isActiveModule($module)) {
                 $params[] = 'yamlLoaded = ?';
@@ -1484,19 +1496,19 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
 
             // Prepare queries to delete the rest rows
             foreach ($moduleRows as $mdata) {
-                $delQueries[] = array(
-                    'sql' => 'DELETE FROM ' . $table . ' WHERE moduleID = ?',
-                    'params' => array($mdata['moduleID']),
-                );
+                $delQueries[] = [
+                    'sql'    => 'DELETE FROM ' . $table . ' WHERE moduleID = ?',
+                    'params' => [$mdata['moduleID']],
+                ];
             }
 
         } else {
-            $data  = static::getModuleDataFromClass($author, $name);
+            $data = static::getModuleDataFromClass($author, $name);
 
             if ($data['enabled']) {
                 $data['yamlLoaded'] = 1;
             }
-            $data['isSkin'] = (int) static::callModuleMethod($module, 'isSkinModule');
+            $data['isSkin'] = (int)static::callModuleMethod($module, 'isSkinModule');
 
             $query = 'REPLACE INTO ' . $table . ' SET ' . implode(' = ?,', array_keys($data)) . ' = ?';
         }
@@ -1507,7 +1519,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
 
         // Delete redundant rows from DB
         foreach ($delQueries as $qData) {
-           \Includes\Utils\Database::execute($qData['sql'], $qData['params']);
+            \Includes\Utils\Database::execute($qData['sql'], $qData['params']);
         }
 
         // Save changes in DB
@@ -1536,7 +1548,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
             \Includes\Decorator\Plugin\Doctrine\Utils\FixturesManager::addFixtureToList($file);
         }
 
-        foreach ((array) glob($dir . LC_DS . 'install_*.yaml') as $translationFile) {
+        foreach ((glob($dir . LC_DS . 'install_*.yaml') ?: []) as $translationFile) {
             if (\Includes\Utils\FileManager::isFileReadable($translationFile)) {
                 \Includes\Decorator\Plugin\Doctrine\Utils\FixturesManager::addFixtureToList($translationFile);
             }
@@ -1600,9 +1612,9 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
     protected static function getModuleQuotedPaths()
     {
         if (null === static::$quotedPaths) {
-            static::$quotedPaths = array();
+            static::$quotedPaths = [];
             \Includes\Decorator\ADecorator::getModulesGraph()->walkThrough(
-                array(get_called_class(), 'getModuleQuotedPathsCallback')
+                [get_called_class(), 'getModuleQuotedPathsCallback']
             );
         }
 

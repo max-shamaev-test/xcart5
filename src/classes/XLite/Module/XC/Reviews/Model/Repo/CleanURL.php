@@ -69,7 +69,7 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
             $params
         );
 
-        return array('product_reviews' == $target ? $target : $newTarget, $params);
+        return ['product_reviews' == $target ? $target : $newTarget, $params];
     }
 
     /**
@@ -87,7 +87,7 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
             $urlParts[0] = static::REVIEWS_PREFIX . $urlParts[0];
         }
 
-        return array($urlParts, $params);
+        return [$urlParts, $params];
     }
 
     /**

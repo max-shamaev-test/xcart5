@@ -17,27 +17,6 @@ use XLite\Module\XC\MailChimp\Core\MailChimpECommerce;
 class Generator extends \XLite\Logic\AGenerator
 {
     /**
-     * Steps (cache)
-     *
-     * @var array
-     */
-    protected $steps;
-
-    /**
-     * Current step index
-     *
-     * @var integer
-     */
-    protected $currentStep;
-
-    /**
-     * Count (cached)
-     *
-     * @var integer
-     */
-    protected $countCache;
-
-    /**
      * Flag: is export in progress (true) or no (false)
      *
      * @var boolean
@@ -54,17 +33,6 @@ class Generator extends \XLite\Logic\AGenerator
     public function setInProgress($value)
     {
         static::$inProgress = $value;
-    }
-
-    /**
-     * @param $options \ArrayObject
-     *
-     * @return $this
-     */
-    public function setOptions($options)
-    {
-        $this->options = $options;
-        return $this;
     }
 
     // {{{ Steps
@@ -123,40 +91,12 @@ class Generator extends \XLite\Logic\AGenerator
 
         $lists = isset($options['lists'])
             ? $options['lists']
-            : null;
+            : [];
 
         foreach ($lists as $listId => $value) {
-            $storeName = MailChimp::getInstance()->getStoreName();
             $storeId = MailChimp::getInstance()->getStoreId($listId);
-            if ($storeId) {
-                $ecCore = MailChimpECommerce::getInstance();
-                if (!$ecCore->getStore($storeId)) {
-                    $ecCore->createStore(
-                        [
-                            'campaign_id'   => '',
-                            'store_id'      => $storeId,
-                            'store_name'    => $storeName,
-                            'currency_code' => \XLite::getInstance()->getCurrency()->getCode(),
-                            'is_main'       => $value
-                        ],
-                        $listId
-                    );
-                } else {
-                    $existingStore = \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\Store')->find($storeId);
+            MailChimpECommerce::getInstance()->updateStoreAndReference($listId, $value);
 
-                    if ($existingStore) {
-                        $existingStore->setMain($value);
-                    } else {
-                        $ecCore->createStoreReference(
-                            $listId,
-                            $storeId,
-                            $storeName,
-                            $value
-                        );
-                    }
-                }
-            }
-            
             if (!isset($options['stores'])) {
                 $options['stores'] = [];
             }
@@ -165,7 +105,9 @@ class Generator extends \XLite\Logic\AGenerator
                 $options['stores'][] = $storeId;
             }
         }
-        
+
+        \XLite\Core\Database::getEM()->flush();
+
         $this->setOptions($options);
     }
 
@@ -199,43 +141,11 @@ class Generator extends \XLite\Logic\AGenerator
     // {{{ Service variable names
 
     /**
-     * Get resizeTickDuration TmpVar name
-     *
-     * @return string
-     */
-    public static function getTickDurationVarName()
-    {
-        return static::getEventName() . 'TickDuration';
-    }
-
-    /**
-     * Get resize cancel flag name
-     *
-     * @return string
-     */
-    public static function getCancelFlagVarName()
-    {
-        return static::getEventName() . 'CancelFlag';
-    }
-
-    /**
-     * Get event name
-     *
-     * @return string
+     * @inheritdoc
      */
     public static function getEventName()
     {
         return 'MailChimpUploadingData';
-    }
-
-    /**
-     * Get export lock key
-     *
-     * @return string
-     */
-    public static function getLockKey()
-    {
-        return static::getEventName();
     }
 
     // }}}

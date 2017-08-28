@@ -27,6 +27,8 @@ body.target-cart {
   }
 }
 
+
+
 #shopping-cart {
   .selected-products {
     padding: (@rhythmic-unit * 2);
@@ -266,10 +268,13 @@ body.target-cart {
 }
 
 #cart-right {
-  box-shadow: 0 0 0px 1px #cacaca;
-  border-radius: 2px;
-  padding: (@rhythmic-unit * 2) !important;
+  padding: 0;
+
   .totals {
+    box-shadow: 0 0 0px 1px #cacaca;
+    border-radius: 2px;
+    padding: (@rhythmic-unit * 2) !important;
+
     & > li + li {
       margin-top: (@rhythmic-unit / 2);
     }
@@ -281,8 +286,38 @@ body.target-cart {
       float: left;
       text-align: center;
 
+      @media(min-width: @screen-xs-min) and (max-width: @screen-sm-max) {
+        &.paypal-ec {
+          width: 30%;
+          margin-left: 20%;
+        }
+        &.paypal-credit {
+          width: 30%;
+        }
+      }
+
+      @media(min-width: @screen-xs-min) and (max-width: @screen-xs-max) {
+        &.paypal-ec {
+          width: 40%;
+          margin-left: 10%;
+        }
+        &.paypal-credit {
+          width: 40%;
+        }
+      }
+
       img {
         max-width: 100%;
+      }
+    }
+
+    .volume-discounts {
+      clear: both;
+      padding-top: 1px;
+      .volume-discounts-promo {
+        .flex-display();
+        .align-items(center);
+        .justify-content(center);
       }
     }
 
@@ -404,6 +439,15 @@ body.target-cart {
     }
   }
 
+  > .box {
+    padding: @rhythmic-unit 0 0 0;
+  }
+
+  .paypal-credit.cartPage {
+    padding-top: 20px;
+    clear: both;
+  }
+
   @media (min-width: @screen-xs-min) and (max-width: @screen-xs-max) {
     margin-left: (-@grid-gutter-width / 2);
     .calc(width, '100vw - @{grid-gutter-width}') !important;
@@ -450,6 +494,10 @@ form.change-attribute-values {
 }
 
 .target-cart {
+  #main-wrapper {
+    padding-bottom: 20px;
+  }
+
   .btn.continue {
     position: absolute;
     top: -(@rhythmic-unit * 4);

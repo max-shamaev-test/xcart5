@@ -1,0 +1,5 @@
+Version 5.3.3.0
+
+Fixes
+- fixed styles for the Special Offers backend page
+- fixed the issue with offers of disabled modules being displyed on Special Offers backend page (#0047540)

@@ -36,6 +36,9 @@ abstract class Payment extends \XLite\View\Checkout\Payment implements \XLite\Ba
             ->findOneBy(array('service_name' => 'PayflowTransparentRedirect'));
         if ($method && $method->isEnabled()) {
             $list[] = 'modules/CDev/Paypal/transparent_redirect/payment.js';
+
+            // Add JS file for dynamic credit card widget
+            $list = array_merge($list, $this->getWidget(array(), 'XLite\View\CreditCard')->getJSFiles());
         }
 
         return $list;

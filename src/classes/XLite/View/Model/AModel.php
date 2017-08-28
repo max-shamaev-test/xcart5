@@ -27,21 +27,22 @@ abstract class AModel extends \XLite\View\Dialog
      * FIXME: keep this list synchronized with the classes,
      * derived from the \XLite\View\FormField\AFormField
      */
-    const SCHEMA_CLASS          = 'class';
-    const SCHEMA_VALUE          = \XLite\View\FormField\AFormField::PARAM_VALUE;
-    const SCHEMA_REQUIRED       = \XLite\View\FormField\AFormField::PARAM_REQUIRED;
-    const SCHEMA_ATTRIBUTES     = \XLite\View\FormField\AFormField::PARAM_ATTRIBUTES;
-    const SCHEMA_NAME           = \XLite\View\FormField\AFormField::PARAM_NAME;
-    const SCHEMA_LABEL          = \XLite\View\FormField\AFormField::PARAM_LABEL;
-    const SCHEMA_LABEL_PARAMS   = \XLite\View\FormField\AFormField::PARAM_LABEL_PARAMS;
-    const SCHEMA_FIELD_ONLY     = \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY;
-    const SCHEMA_PLACEHOLDER    = \XLite\View\FormField\Input\Base\StringInput::PARAM_PLACEHOLDER;
-    const SCHEMA_COMMENT        = \XLite\View\FormField\AFormField::PARAM_COMMENT;
-    const SCHEMA_HELP           = \XLite\View\FormField\AFormField::PARAM_HELP;
-    const SCHEMA_LINK_HREF      = \XLite\View\FormField\AFormField::PARAM_LINK_HREF;
-    const SCHEMA_LINK_TEXT      = \XLite\View\FormField\AFormField::PARAM_LINK_TEXT;
-    const SCHEMA_LINK_IMG       = \XLite\View\FormField\AFormField::PARAM_LINK_IMG;
-    const SCHEMA_TRUSTED        = \XLite\View\FormField\AFormField::PARAM_TRUSTED;
+    const SCHEMA_CLASS           = 'class';
+    const SCHEMA_VALUE           = \XLite\View\FormField\AFormField::PARAM_VALUE;
+    const SCHEMA_REQUIRED        = \XLite\View\FormField\AFormField::PARAM_REQUIRED;
+    const SCHEMA_ATTRIBUTES      = \XLite\View\FormField\AFormField::PARAM_ATTRIBUTES;
+    const SCHEMA_NAME            = \XLite\View\FormField\AFormField::PARAM_NAME;
+    const SCHEMA_LABEL           = \XLite\View\FormField\AFormField::PARAM_LABEL;
+    const SCHEMA_LABEL_PARAMS    = \XLite\View\FormField\AFormField::PARAM_LABEL_PARAMS;
+    const SCHEMA_FIELD_ONLY      = \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY;
+    const SCHEMA_PLACEHOLDER     = \XLite\View\FormField\Input\Base\StringInput::PARAM_PLACEHOLDER;
+    const SCHEMA_COMMENT         = \XLite\View\FormField\AFormField::PARAM_COMMENT;
+    const SCHEMA_HELP            = \XLite\View\FormField\AFormField::PARAM_HELP;
+    const SCHEMA_LINK_HREF       = \XLite\View\FormField\AFormField::PARAM_LINK_HREF;
+    const SCHEMA_LINK_TEXT       = \XLite\View\FormField\AFormField::PARAM_LINK_TEXT;
+    const SCHEMA_LINK_IMG        = \XLite\View\FormField\AFormField::PARAM_LINK_IMG;
+    const SCHEMA_TRUSTED         = \XLite\View\FormField\AFormField::PARAM_TRUSTED;
+    const SCHEMA_TRUSTED_PERMISSION = 'trustedPermission';
 
     const SCHEMA_OPTIONS = \XLite\View\FormField\Select\ASelect::PARAM_OPTIONS;
     const SCHEMA_IS_CHECKED = \XLite\View\FormField\Input\Checkbox::PARAM_IS_CHECKED;
@@ -673,6 +674,11 @@ abstract class AModel extends \XLite\View\Dialog
 
         $data[static::SCHEMA_DEPENDENCY] = isset($data[static::SCHEMA_DEPENDENCY]) ? $data[static::SCHEMA_DEPENDENCY] : array();
 
+        if (isset($data[static::SCHEMA_TRUSTED_PERMISSION]) && $data[static::SCHEMA_TRUSTED_PERMISSION]) {
+            $data[static::SCHEMA_TRUSTED] = $this->isContentTrustedByPermission($name, $data);
+        }
+
+
         return $data;
     }
 
@@ -765,7 +771,7 @@ abstract class AModel extends \XLite\View\Dialog
      *
      * @param array $data Data to save
      *
-     * @return void
+     * @return array
      */
     protected function processFiles(array $data)
     {
@@ -1521,6 +1527,19 @@ abstract class AModel extends \XLite\View\Dialog
     }
 
     /**
+     * Check if saved value different from value in object
+     *
+     * @param mixed $name Field/property name
+     *
+     * @return boolean
+     */
+    public function hasDifferentSavedValue($name)
+    {
+        return $this->getSavedData($name) !== null
+            && $this->getSavedData($name) !== $this->getModelObjectValue($name);
+    }
+
+    /**
      * Get model value by name
      *
      * @param \XLite\Model\AEntity $model Model object
@@ -1752,6 +1771,17 @@ abstract class AModel extends \XLite\View\Dialog
     {
         return $this->getRequestData($fieldName) == $expectedValue
             || (is_array($expectedValue) && in_array($this->getRequestData($fieldName), $expectedValue));
+    }
+
+    /**
+     * @param string $fieldName
+     * @param array $fieldData
+     * @return bool
+     */
+    protected function isContentTrustedByPermission($fieldName, array $fieldData)
+    {
+        return \XLite\Core\Auth::getInstance()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS)
+            || \XLite\Core\Auth::getInstance()->isPermissionAllowed('unfiltered html');
     }
 
     /**

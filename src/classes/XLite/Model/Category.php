@@ -7,6 +7,7 @@
  */
 
 namespace XLite\Model;
+use XLite\Core\Database;
 
 /**
  * Category
@@ -286,7 +287,7 @@ class Category extends \XLite\Model\Base\Catalog
         if (null === $this->flagVisible) {
             $current = $this;
             $hidden = false;
-            $rootCategoryId = \XLite\Core\Database::getRepo('XLite\Model\Category')->getRootCategoryId();
+            $rootCategoryId = Database::getRepo('XLite\Model\Category')->getRootCategoryId();
 
             while ($rootCategoryId != $current->getCategoryId()) {
                 if (!$this->checkStorefrontVisibility($current)) {
@@ -299,6 +300,14 @@ class Category extends \XLite\Model\Base\Catalog
         }
 
         return $this->flagVisible;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRootCategory()
+    {
+        return $this->getCategoryId() == Database::getRepo('XLite\Model\Category')->getRootCategoryId();
     }
 
     /**
@@ -497,7 +506,7 @@ class Category extends \XLite\Model\Base\Catalog
             $cnd->{\XLite\Model\Repo\Product::P_INVENTORY} = false;
         }
 
-        return \XLite\Core\Database::getRepo('XLite\Model\Product')->search($cnd, $countOnly);
+        return Database::getRepo('XLite\Model\Product')->search($cnd, $countOnly);
     }
 
     /**

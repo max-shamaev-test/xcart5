@@ -51,13 +51,11 @@ class IpAddress implements \XLite\Module\XC\Geolocation\Logic\IGeoInput
     protected function getRemoteIPAddress()
     {
         $ip = '';
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } else if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else if (!empty($_SERVER['REMOTE_ADDR'])) {
-            $ip = $_SERVER['REMOTE_ADDR'];
+
+        if (\XLite\Core\Request::getInstance()->getClientIp() !== 'UNKNOWN') {
+            $ip = \XLite\Core\Request::getInstance()->getClientIp();
         }
+
         return $ip;
     }
 }

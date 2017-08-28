@@ -54,10 +54,36 @@
 
 // Placeholder text
 .placeholder(@color: @input-color-placeholder) {
-  &::-moz-placeholder           { color: @color;   // Firefox
-                                  opacity: 1; } // See https://github.com/twbs/bootstrap/pull/11526
-  &:-ms-input-placeholder       { color: @color; } // Internet Explorer 10+
-  &::-webkit-input-placeholder  { color: @color; } // Safari and Chrome
+  &::-moz-placeholder {
+    color: @color;
+    opacity: 1; // See https://github.com/twbs/bootstrap/pull/11526
+  }
+
+  &:-ms-input-placeholder {
+    color: @color;
+  }
+
+  &::-webkit-input-placeholder {
+    color: @color;
+  }
+}
+
+// For floating-label textarea placeholder fix
+.hide-placeholder() {
+  &::-moz-placeholder {
+    color: transparent;
+    opacity: 0;
+  }
+
+  &:-ms-input-placeholder {
+    color: transparent;
+    opacity: 0;
+  }
+
+  &::-webkit-input-placeholder {
+    color: transparent;
+    opacity: 0;
+  }
 }
 
 // Text overflow

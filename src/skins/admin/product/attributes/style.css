@@ -7,37 +7,58 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-div.attributes .header {
-  border-bottom: 1px solid #ddd;
-  -webkit-box-shadow: 0px 10px 15px -6px rgba(50, 50, 50, 0.75);
-  -moz-box-shadow:    0px 10px 15px -6px rgba(50, 50, 50, 0.75);
-  box-shadow:         0px 10px 15px -6px rgba(50, 50, 50, 0.75);
+.attrs div.dialog-block {
+  border: none;
+  width: 100%;
 }
 
+div.tab-content .tab-content {
+  position: relative;
+  margin-top: 50px;
+}
+
+.attrs div.dialog-block + div.dialog-block:before,
+.attrs div.dialog-block.attribute-classes:before {
+  content: "";
+  display: block;
+  height: 20px;
+  background: #f3f3f4;
+  margin-right: -25px;
+  margin-left: -25px;
+  -webkit-box-shadow: inset 0px 5px 5px -5px rgba(0,0,0,0.75);
+  -moz-box-shadow: inset 0px 5px 5px -5px rgba(0,0,0,0.75);
+  box-shadow: inset 0px 5px 5px -5px rgba(0,0,0,0.75);
+}
+
+.attrs div.dialog-block > div {
+  width: 1000px;
+}
+
+div.dialog-block div.attribute-group {
+  border-top: 1px dashed #a5aeb2;
+}
+
+div.dialog-block div.attributes .header .title,
 div.dialog-block div.attribute-group .header .title {
-  color: #6594bb;
-  margin: 20px 21px 4px;
+  margin: 0;
+  line-height: 60px;
+  flex-grow: 1;
 }
 
+div.dialog-block div.attributes .header {
+  margin-bottom: 20px;
+}
+
+div.dialog-block div.attributes .header,
 div.dialog-block div.attribute-group .header {
   border-bottom: none;
-}
-
-.header div.btn-dropdown {
-  position: absolute;
-  right: 19px;
-  top: 13px;
-}
-
-div.attribute-group .header div.btn-dropdown {
-  top: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 li.list-empty {
-  color: #999;
-  font-size: 22px;
-  padding: 28px 0 23px;
-  text-align: center;
+  margin-left: 9px;
   display: none;
 }
 
@@ -50,7 +71,10 @@ div.attribute-group ul.data {
 }
 
 div.dialog-block ul.data {
-  margin: 10px;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  margin-left: -9px;
 }
 
 ul.data li .attribute-name .table-value {
@@ -60,8 +84,7 @@ ul.data li .attribute-name .table-value {
 }
 
 ul.data li.create-line .attribute-name .table-value {
-  padding: 11px 0;
-  margin-left: 5px;
+  padding: 7px 0;
 }
 
 ul.data li .attribute-value,
@@ -75,22 +98,26 @@ ul.data li .actions {
   float: right;
   background: transparent url(../../items_list/model/table/images/line-separator.png) repeat-y left top;
   padding: 2px 10px 2px 13px;
-  margin-top: 17px;
+  margin-top: 10px;
+}
+
+div.dialog-block ul.data li.attribute {
+  margin-bottom: 13px;
 }
 
 ul.data li .attribute-name {
   width: 251px;
-  height: 46px;
-  padding: 6px 5px 5px;
+  min-height: 46px;
+  padding-top: 2px;
 }
 
 ul.data li .attribute-name .inline-field.editable .view {
   margin: 0;
-  padding: 4px 9px;
+  padding: 7px 8px;
 }
 
 ul.data li .attribute-name .inline-field.editable .view span {
-  font-size: 20px;
+  font-size: 14px;
 }
 
 ul.data li .attribute-name .inline-field .view.not-editable {
@@ -101,8 +128,12 @@ ul.data li .attribute-name .inline-field .view.not-editable span {
   font-size: 18px;
 }
 
+ul.data li .attribute-name input[type=text] {
+  font-size: 14px;
+}
+
 ul.data li .attribute-value {
-  padding: 8px 18px 0;
+  padding: 0 18px 0;
   width: 560px;
 }
 
@@ -134,22 +165,6 @@ ul.data li .attribute-value.type-t {
 
 .remove-wrapper input {
   display: none;
-}
-
-button.remove img {
-  background: transparent url(../../images/close_icon.png) no-repeat center -2px;
-  height: 19px;
-  width: 19px;
-  vertical-align: middle;
-}
-
-button.remove:hover img {
-  background: transparent url(../../images/close_icon.png) no-repeat center -24px;
-}
-
-button.remove.delete img,
-button.remove.delete:hover img {
-  background: transparent url(../../images/icon_trash.png) no-repeat center;
 }
 
 button.remove
@@ -208,7 +223,6 @@ ul.data li .attribute-value li .actions {
   padding-left: 0;
   position: absolute;
   left: 407px;
-  top: -7px;
   display: none;
 }
 
@@ -232,8 +246,7 @@ ul.data li .attribute-value label.inline-checkbox * {
 }
 
 ul.data li .attribute-value label.inline-checkbox span {
-  font-size: 16px;
-  color: #333;
+  font-size: 14px;
 }
 
 ul.data li .attribute-value ul.values li,
@@ -389,7 +402,8 @@ ul.data li .attribute-value.type-s li {
 }
 
 div.dialog-block .attributes .header .title {
-  max-width: 685px;
+  margin: 0;
+  font-size: 24px;
 }
 
 div.dialog-block .attributes .header .tooltip-main {
@@ -397,15 +411,8 @@ div.dialog-block .attributes .header .tooltip-main {
 }
 
 div.dialog-block.product-class {
-  width: 938px;
-  overflow: hidden;
-}
-
-div.panel-cell.saveMode {
-  -webkit-order: -1;
-  -moz-order: -1;
-  -ms-order: -1;
-  order: -1;
+  width: 1000px;
+  border: none;
 }
 
 form.changed.view-changes li.create-line div.modifiers,

@@ -10,11 +10,13 @@ namespace XLite\View\IntegrityCheck;
 
 /**
  * Class Page
+ *
+ * @ListChild (list="admin.center", zone="admin")
  */
 class Page extends \XLite\View\AView
 {
     /**
-     * @inheritDoc
+     * @return array
      */
     public static function getAllowedTargets()
     {

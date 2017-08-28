@@ -8,6 +8,7 @@
 
 namespace XLite\Controller;
 
+use XLite\Core\Cache\ExecuteCachedTrait;
 use XLite\Core\DependencyInjection\ContainerAwareTrait;
 use XLite\View\FormField\Select\ObjectNameInPageTitleOrder;
 
@@ -17,6 +18,7 @@ use XLite\View\FormField\Select\ObjectNameInPageTitleOrder;
 abstract class AController extends \XLite\Core\Handler
 {
     use ContainerAwareTrait;
+    use ExecuteCachedTrait;
 
     /**
      * Controller main params
@@ -291,13 +293,27 @@ abstract class AController extends \XLite\Core\Handler
 
         \XLite\Core\Session::getInstance()->set(\XLite::SHOW_TRIAL_NOTICE, null);
 
-        $result = \XLite::isAdminZone() ? $showTrialNotice : \XLite::isTrialPeriodExpired();
+        $result = \XLite::isAdminZone()
+            ? ($showTrialNotice || \XLite\Core\Request::getInstance()->activate_key)
+            : \XLite::isTrialPeriodExpired();
 
         if ($result && \XLite::isAdminZone()) {
             \XLite\Core\Session::getInstance()->set(static::TRIAL_NOTICE_DISPLAYED, true);
         }
 
         return $result;
+    }
+
+    /**
+     * Get number of days left before trial period will expire
+     *
+     * @param boolean $returnDays Flag: return in days
+     *
+     * @return integer
+     */
+    public function getTrialPeriodLeft($returnDays = true)
+    {
+        return \XLite::getTrialPeriodLeft($returnDays);
     }
 
     /**
@@ -311,7 +327,9 @@ abstract class AController extends \XLite\Core\Handler
             && !\XLite\Core\Session::getInstance()->get(\XLite::SHOW_TRIAL_NOTICE)
             && !\XLite\Core\Session::getInstance()->get(static::TRIAL_NOTICE_DISPLAYED)
             && !$this->isDisplayBlockContent()
-            && \XLite\Core\Marketplace::getInstance()->hasUnallowedModules();
+            && \XLite\Core\Marketplace::getInstance()->hasUnallowedModules()
+            && (\XLite::getXCNLicense(false) || \XLite::isTrialPeriodExpired())
+            && !\XLite\Core\Request::getInstance()->activate_key;
 
         if (\XLite\Core\Session::getInstance()->get(static::TRIAL_NOTICE_DISPLAYED)) {
             \XLite\Core\Session::getInstance()->set(static::TRIAL_NOTICE_DISPLAYED, null);
@@ -384,7 +402,7 @@ abstract class AController extends \XLite\Core\Handler
                     $this->isHTTPS() ? 'https_host' : 'http_host'
                 )
             );
-            if ($host != $_SERVER['HTTP_HOST']) {
+            if (isset($_SERVER['HTTP_HOST']) && $host != $_SERVER['HTTP_HOST']) {
                 $isRedirectNeeded = true;
                 $this->setReturnURL($this->getShopURL($this->getURL(), $this->isHTTPS()));
             }
@@ -1008,6 +1026,16 @@ abstract class AController extends \XLite\Core\Handler
     }
 
     /**
+     * Get meta title
+     *
+     * @return string
+     */
+    public function getMetaTitle()
+    {
+        return null;
+    }
+
+    /**
      * Get meta description
      *
      * @return string
@@ -1186,8 +1214,18 @@ abstract class AController extends \XLite\Core\Handler
                 $formId = \XLite\Core\Session::getInstance()->getSessionFormId();
 
                 $result = $formId && $formId->getFormId() === $request->{\XLite::FORM_ID};
+
                 if (!$result && $formId) {
-                    \XLite\Core\Session::getInstance()->resetFormId();
+                    $newFormId = \XLite\Core\Session::getInstance()->resetFormId();
+
+                    if ($this->isAJAX()) {
+                        $value = json_encode([
+                            'old' => $request->{\XLite::FORM_ID},
+                            'name'  => \XLite::FORM_ID,
+                            'value' => $newFormId,
+                        ]);
+                        header('event-update-csrf: ' . $value);
+                    }
                 }
 
             } else {
@@ -1207,10 +1245,11 @@ abstract class AController extends \XLite\Core\Handler
 
                     if ($this->isAJAX()) {
                         $value = json_encode([
+                            'old' => $request->{\XLite::FORM_ID},
                             'name'  => \XLite::FORM_ID,
                             'value' => $newFormId,
                         ]);
-                        header('update-csrf: ' . $value);
+                        header('event-update-csrf: ' . $value);
                     }
                 }
             }
@@ -1258,25 +1297,27 @@ abstract class AController extends \XLite\Core\Handler
      */
     public function checkFormId()
     {
-        $result = !static::needFormId()
-            || (
-                static::needFormId()
-                && (
-                    ($this->getTarget() && $this->isIgnoredTarget())
-                    || ($this->isFormIdValid())
-                )
-            );
+        return $this->executeCachedRuntime(function() {
+            $result = !static::needFormId()
+                || (
+                    static::needFormId()
+                    && (
+                        ($this->getTarget() && $this->isIgnoredTarget())
+                        || ($this->isFormIdValid())
+                    )
+                );
 
-        if (!$result) {
-            \XLite\Core\TopMessage::addWarning('The form could not be identified as a form generated by X-Cart');
+            if (!$result) {
+                \XLite\Core\TopMessage::addWarning('The form could not be identified as a form generated by X-Cart');
 
-            \XLite\Logger::getInstance()->log(
-                'Form ID checking failure (target: ' . $this->getTarget() . ', action: ' . $this->getAction() . ')',
-                LOG_WARNING
-            );
-        }
+                \XLite\Logger::getInstance()->log(
+                    'Form ID checking failure (target: ' . $this->getTarget() . ', action: ' . $this->getAction() . ')',
+                    LOG_WARNING
+                );
+            }
 
-        return $result;
+            return $result;
+        }, ['checkFormId', $this->getTarget(), \XLite\Core\Request::getInstance()->{\XLite::FORM_ID}]);
     }
 
     /**
@@ -1418,9 +1459,9 @@ abstract class AController extends \XLite\Core\Handler
      *
      * @param string $url Redirect URL OPTIONAL
      *
-     * @return void
+     * @param null   $code
      */
-    protected function redirect($url = null)
+    protected function redirect($url = null, $code = null)
     {
         $location = $this->getReturnURL();
 
@@ -1456,7 +1497,7 @@ abstract class AController extends \XLite\Core\Handler
         \XLite\Core\Operator::redirect(
             $location,
             $this->getRedirectMode(),
-            $this->getParam(static::PARAM_REDIRECT_CODE)
+            $code ?: $this->getParam(static::PARAM_REDIRECT_CODE)
         );
     }
 
@@ -1753,6 +1794,23 @@ abstract class AController extends \XLite\Core\Handler
     }
 
     /**
+     * Retrieve AJAX output content from viewer
+     *
+     * @param mixed $viewer Viewer to display in AJAX
+     *
+     * @return string
+     */
+    protected function getAJAXOutputContent($viewer)
+    {
+        // WARNING: getContent() call must be done before printAJAXResources()
+        // because actual resources are registered during getContent() call
+        $content = $viewer->getContent();
+
+        return $this->printAJAXResources() . PHP_EOL
+             . $content;
+    }
+
+    /**
      * Print AJAX request output
      *
      * @param mixed $viewer Viewer to display in AJAX
@@ -1761,7 +1819,7 @@ abstract class AController extends \XLite\Core\Handler
      */
     protected function printAJAXOutput($viewer)
     {
-        $content = $viewer->getContent();
+        $content = $this->getAJAXOutputContent($viewer);
 
         $class = 'ajax-container-loadable'
             . ' ctrl-' . implode('-', \XLite\Core\Operator::getInstance()->getClassNameAsKeys(get_called_class()))
@@ -1772,7 +1830,6 @@ abstract class AController extends \XLite\Core\Handler
             . ' class="' . $class . '"'
             . ' title="' . func_htmlspecialchars(static::t($this->getTitle())) . '"'
             . ' ' . $this->printAJAXAttributes() . ' >' . PHP_EOL
-            . $this->printAJAXResources() . PHP_EOL
             . $content
             . '</div>'
         );
@@ -2054,7 +2111,7 @@ RES;
         $this->setHardRedirect();
         $this->assignAJAXResponseStatus();
 
-        $this->redirect($this->getShopURL($this->getURL(), true));
+        $this->redirect($this->getShopURL($this->getURL(), true), 301);
     }
 
     /**
@@ -2067,6 +2124,7 @@ RES;
         if (
             !LC_USE_CLEAN_URLS
             || !\XLite\Core\Request::getInstance()->isGet()
+            || $this->isAJAX()
             || \XLite::isAdminZone()
             || !\XLite\Core\Router::getInstance()->isUseLanguageUrls()
         ) {
@@ -2110,7 +2168,7 @@ RES;
      *
      * @return void
      */
-        protected function doActionChangeLanguage()
+    protected function doActionChangeLanguage()
     {
         $code = strval(\XLite\Core\Request::getInstance()->language);
 

@@ -19,6 +19,7 @@ abstract class AButton extends \XLite\View\AView
     const PARAM_NAME     = 'buttonName';
     const PARAM_VALUE    = 'value';
     const PARAM_LABEL    = 'label';
+    const PARAM_TITLE    = 'title';
     const PARAM_STYLE    = 'style';
     const PARAM_DISABLED = 'disabled';
     const PARAM_ID       = 'id';
@@ -26,7 +27,6 @@ abstract class AButton extends \XLite\View\AView
     const PARAM_BTN_SIZE   = 'button-size';
     const PARAM_BTN_TYPE   = 'button-type';
     const PARAM_ICON_STYLE = 'icon-style';
-    const PARAM_JS_CONFIRM_TEXT = 'jsConfirmText';
 
     const BTN_SIZE_DEFAULT = 'btn-default';
 
@@ -39,6 +39,7 @@ abstract class AButton extends \XLite\View\AView
     {
         $list = parent::getCSSFiles();
         $list[] = 'button/css/button.css';
+        $list[] = 'button/style.less';
 
         return $list;
     }
@@ -84,6 +85,16 @@ abstract class AButton extends \XLite\View\AView
     protected function getDefaultLabel()
     {
         return '--- Button title is not defined ---';
+    }
+
+    /**
+     * getDefaultLabel
+     *
+     * @return string
+     */
+    protected function getDefaultTitle()
+    {
+        return '';
     }
 
     /**
@@ -162,6 +173,10 @@ abstract class AButton extends \XLite\View\AView
             $list['disabled'] = 'disabled';
         }
 
+        if ($this->getButtonTitle()) {
+            $list['title'] = $this->getButtonTitle();
+        }
+
         return $list;
     }
 
@@ -176,14 +191,15 @@ abstract class AButton extends \XLite\View\AView
     }
 
     /**
-     * Return text for js confirm() function
+     * Return button text
      *
      * @return string
      */
-    protected function getJsConfirmText()
+    public function getButtonTitle()
     {
-        return $this->getParam(static::PARAM_JS_CONFIRM_TEXT);
+        return $this->getParam(static::PARAM_TITLE);
     }
+
 
     /**
      * Get commented data
@@ -208,6 +224,7 @@ abstract class AButton extends \XLite\View\AView
             static::PARAM_NAME     => new \XLite\Model\WidgetParam\TypeString('Name', '', true),
             static::PARAM_VALUE    => new \XLite\Model\WidgetParam\TypeString('Value', '', true),
             static::PARAM_LABEL    => new \XLite\Model\WidgetParam\TypeString('Label', $this->getDefaultLabel(), true),
+            static::PARAM_TITLE    => new \XLite\Model\WidgetParam\TypeString('Title', $this->getDefaultTitle(), true),
             static::PARAM_STYLE    => new \XLite\Model\WidgetParam\TypeString('Button style', $this->getDefaultStyle()),
             static::PARAM_BTN_SIZE => new \XLite\Model\WidgetParam\TypeString('Button size', $this->getDefaultButtonSize()),
             static::PARAM_BTN_TYPE => new \XLite\Model\WidgetParam\TypeString('Button type', $this->getDefaultButtonType()),
@@ -215,7 +232,6 @@ abstract class AButton extends \XLite\View\AView
             static::PARAM_ID       => new \XLite\Model\WidgetParam\TypeString('Button ID', ''),
             static::PARAM_ATTRIBUTES => new \XLite\Model\WidgetParam\TypeCollection('Attributes', $this->getDefaultAttributes()),
             static::PARAM_ICON_STYLE => new \XLite\Model\WidgetParam\TypeString('Button ID', ''),
-            static::PARAM_JS_CONFIRM_TEXT => new \XLite\Model\WidgetParam\TypeString('JS confirm text', ''),
         );
     }
 

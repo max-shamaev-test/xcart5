@@ -39,7 +39,8 @@ class UpgradeWaveWarning extends \XLite\View\AView
     {
         return \XLite\Upgrade\Cell::getInstance()->getEntries()
             && !\XLite\Upgrade\Cell::getInstance()->isUpgraded()
-            && !$this->isUpgradeWaveValid();
+            && !$this->isUpgradeWaveValid()
+            && $this->hasModulesNotInMerchantWave();
     }
 
     /**
@@ -54,6 +55,24 @@ class UpgradeWaveWarning extends \XLite\View\AView
 
         // Wave is not set (sees merchant waves only), or set to merchant wave explicitly
         return !$value || $value === $this->getMerchantWaveIndex();
+    }
+
+    /**
+     * There is no way to check if wave in merchant
+     * So we are checking index here
+     *
+     * @return boolean
+     */
+    protected function hasModulesNotInMerchantWave()
+    {
+        foreach (\XLite\Upgrade\Cell::getInstance()->getEntries() as $entry) {
+            $wave = $entry->getWave();
+            if ($wave !== 0 && $wave < $this->getMerchantWaveIndex()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -123,7 +142,7 @@ class UpgradeWaveWarning extends \XLite\View\AView
      */
     protected function getWave()
     {
-        return intval(\XLite\Core\Config::getInstance()->Environment->upgrade_wave);
+        return (int) \XLite\Core\Config::getInstance()->Environment->upgrade_wave;
     }
 
     /**

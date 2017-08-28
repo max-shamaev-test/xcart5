@@ -2,7 +2,7 @@
  # Image
  #}
 
-<img src="{{ this.getImage() }}?{{ date().timestamp }}" alt="" />
+<img class="field-image" src="{{ this.getImage() }}?{{ date().timestamp }}" alt="" />
 <input{{ this.getAttributesCode()|raw }}/>
 {% if this.getValue() %}
   <label>

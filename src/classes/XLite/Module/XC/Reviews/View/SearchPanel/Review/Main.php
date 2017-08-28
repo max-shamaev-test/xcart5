@@ -55,29 +55,29 @@ class Main extends \XLite\View\SearchPanel\ASearchPanel
      */
     protected function defineConditions()
     {
-        return parent::defineConditions() + array(
-            'keywords' => array(
+        return parent::defineConditions() + [
+            'keywords' => [
                 static::CONDITION_CLASS => 'XLite\View\FormField\Input\Text',
                 \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY  => true,
                 \XLite\View\FormField\Input\Text::PARAM_PLACEHOLDER => static::t('Product, SKU or customer info'),
-            ),
-            'rating' => array(
+            ],
+            'rating' => [
                 static::CONDITION_CLASS => '\XLite\Module\XC\Reviews\View\FormField\Select\ReviewRating',
                 \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY => true,
-            ),
-            'type' => array(
+            ],
+            'type' => [
                 static::CONDITION_CLASS => '\XLite\Module\XC\Reviews\View\FormField\Select\ReviewType',
                 \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY => true,
-            ),
-            'status' => array(
+            ],
+            'status' => [
                 static::CONDITION_CLASS => '\XLite\Module\XC\Reviews\View\FormField\Select\ReviewStatus',
                 \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY => true,
-            ),
-            'dateRange' => array(
+            ],
+            'dateRange' => [
                 static::CONDITION_CLASS => '\XLite\View\FormField\Input\Text\DateRange',
                 \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY  => true,
                 \XLite\View\FormField\Input\Text::PARAM_PLACEHOLDER => static::t('Enter date range'),
-            ),
-        );
+            ],
+        ];
     }
 }

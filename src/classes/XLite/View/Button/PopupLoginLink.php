@@ -8,7 +8,6 @@
 
 namespace XLite\View\Button;
 
-
 /**
  * Login form in popup
  */

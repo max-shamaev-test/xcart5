@@ -64,3 +64,7 @@ ul.address-box li.address-text-city .address-text-comma,
   display: inherit;
 }
 
+.cc-form-container {
+  margin-bottom: 40px;
+}
+

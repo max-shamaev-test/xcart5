@@ -35,7 +35,9 @@ class WidgetParamsSerializer
         foreach ($widgetParams as $key => $param) {
             $value = $param->value;
 
-            if (!$this->isSerializable($value)) {
+            if ($value instanceof \XLite\Core\Serialization\SerializableEntity) {
+                $value = \XLite\Core\Serialization\EntitySerializer::serialize($value);
+            } elseif (!$this->isSerializable($value)) {
                 throw new WidgetParamsSerializationException("Unable to serialize \"$key\" widget param");
             }
 
@@ -54,7 +56,21 @@ class WidgetParamsSerializer
      */
     public function unserialize($params)
     {
-        return unserialize($params);
+        return array_map([$this, 'unserializeParam'], unserialize($params));
+    }
+
+    /**
+     * Unserialize widget parameter.
+     *
+     * @param mixed $param
+     *
+     * @return mixed
+     */
+    protected function unserializeParam($param)
+    {
+        return $param instanceof \XLite\Core\Serialization\ASerializedEntity
+            ? $param->restore()
+            : $param;
     }
 
     /**

@@ -49,7 +49,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      *
      * @return void
      */
-    public function __construct(array $data = array())
+    public function __construct(array $data = [])
     {
         $this->pinCodes = new \Doctrine\Common\Collections\ArrayCollection();
 

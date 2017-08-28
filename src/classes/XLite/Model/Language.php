@@ -90,7 +90,6 @@ class Language extends \XLite\Model\Base\I18n
      */
     protected $module;
 
-
     /**
      * Get module
      *
@@ -146,35 +145,29 @@ class Language extends \XLite\Model\Base\I18n
     /**
      * Get flag URL
      *
-     * @return string|void
+     * @return string
      */
     public function getFlagURL()
     {
-        $path = \XLite\Core\Layout::getInstance()->getResourceWebPath(
-            'images/flags_svg/' . $this->getCode() . '.svg',
+        return \XLite\Core\Layout::getInstance()->getResourceWebPath(
+            $this->getFlagFile(),
             \XLite\Core\Layout::WEB_PATH_OUTPUT_URL,
             \XLite\Core\Layout::PATH_COMMON
         );
-
-        if (!$path) {
-            $path = \XLite\Core\Layout::getInstance()->getResourceWebPath(
-                'images/flags_svg/__.svg',
-                \XLite\Core\Layout::WEB_PATH_OUTPUT_URL,
-                \XLite\Core\Layout::PATH_COMMON
-            );
-        }
-
-        return $path;
     }
 
     /**
      * Get flag URL
      *
-     * @return string|void
+     * @return string
      */
     public function getFlagFile()
     {
-        $file = 'images/flags_svg/' . $this->getCode() . '.svg';
+        $code = isset($this->getLanguageToFlagCodeMapping()[$this->getCode()])
+            ? $this->getLanguageToFlagCodeMapping()[$this->getCode()]
+            : $this->getCode();
+
+        $file = "images/flags_svg/{$code}.svg";
         $path = \XLite\Core\Layout::getInstance()->getResourceFullPath(
             $file,
             \XLite\Core\Layout::PATH_COMMON
@@ -183,6 +176,29 @@ class Language extends \XLite\Model\Base\I18n
         return $path
             ? $file
             : 'images/flags_svg/__.svg';
+    }
+
+    /**
+     * @return array
+     */
+    protected function getLanguageToFlagCodeMapping()
+    {
+        return [
+            'be' => 'by',
+            'ja' => 'jp',
+            'ko' => 'kr',
+            'hy' => 'am',
+            'ar' => 'sa',
+            'el' => 'gr',
+            'he' => 'il',
+            'kr' => 'ng',
+            'sv' => 'se',
+            'sl' => 'si',
+            'si' => 'lk',
+            'et' => 'ee',
+            'ee' => 'gh',
+            'aa' => 'et',
+        ];
     }
 
     /**

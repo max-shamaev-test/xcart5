@@ -28,7 +28,7 @@ class Search extends \XLite\View\ItemsList\Product\Customer\ACustomer
     const PARAM_BY_SKU            = 'by_sku';
 
     /**
-     * Allowed sort criterions
+     * Allowed sort criteria
      */
     const SORT_BY_MODE_DEFAULT = 'cp.orderby';
 
@@ -125,6 +125,16 @@ class Search extends \XLite\View\ItemsList\Product\Customer\ACustomer
     protected static function getWidgetTarget()
     {
         return self::WIDGET_TARGET;
+    }
+
+    /**
+     * Returns list of GET-parameters, which should be collected from form
+     *
+     * @return array
+     */
+    protected function getSearchUrlParams()
+    {
+        return array_merge(static::getSearchParams(), static::getBasicSearchParams());
     }
 
     /**
@@ -350,6 +360,10 @@ class Search extends \XLite\View\ItemsList\Product\Customer\ACustomer
         // In the Customer zone we search in subcategories always.
         $cnd->{\XLite\Model\Repo\Product::P_SEARCH_IN_SUBCATS} = 'Y';
 
+        if ($cnd->{\XLite\Model\Repo\Product::P_INCLUDING} === null) {
+            $cnd->{\XLite\Model\Repo\Product::P_INCLUDING} = 'all';
+        }
+
         return $cnd;
     }
 
@@ -366,22 +380,12 @@ class Search extends \XLite\View\ItemsList\Product\Customer\ACustomer
     }
 
     /**
-     * Defines if the widget is listening to #hash changes
-     *
-     * @return boolean
+     * @inheritdoc
      */
-    protected function getListenToHash()
+    public function displayCommentedData(array $data)
     {
-        return true;
-    }
-
-    /**
-     * Defines the #hash prefix of the data for the widget
-     *
-     * @return string
-     */
-    protected function getListenToHashPrefix()
-    {
-        return 'product.search';
+        parent::displayCommentedData(array_merge($data, [
+            'searchUrlParams' => $this->getSearchUrlParams()
+        ]));
     }
 }

@@ -5,7 +5,6 @@
  #}
 
 <div class="pin-codes-enabled">
-   {{ widget('\\XLite\\Module\\CDev\\PINCodes\\View\\FormField\\Input\\Checkbox\\Highlighted', fieldOnly='true', value=this.product.getPinCodesEnabled(), fieldName='pins_enabled', fieldId='enabled-checkbox') }}
-  <label for="enabled-checkbox">{{ t('PIN codes enabled') }}</label>
+   {{ widget('\\XLite\\View\\FormField\\Input\\Checkbox\\YesNo', label='PIN codes enabled', value=this.product.getPinCodesEnabled(), fieldName='pins_enabled', fieldId='enabled-checkbox') }}
 </div>
 <div class="clear"></div>

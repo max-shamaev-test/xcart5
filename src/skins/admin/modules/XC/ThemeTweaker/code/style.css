@@ -8,7 +8,7 @@
  */
 
 div.table-value.code-value {
-  width: 90%;
+  width: 100%;
   padding: 0;
   display: inline-block;
 }
@@ -32,4 +32,12 @@ div[class|="formfield"] {
 .custom-code-form .model-form-buttons {
     padding: 20px 0 0 0;
     margin: 10px 0 0 0;
+}
+
+.custom-code-form .CodeMirror.cm-s-default {
+    min-height: 300px;
+}
+
+.custom-code-form .CodeMirror.cm-s-default > .CodeMirror-scroll {
+    min-height: 300px;
 }

@@ -28,6 +28,20 @@ class AddressBook extends \XLite\View\AView
         return 'account/address_book/body.twig';
     }
 
+    public function getCSSFiles()
+    {
+        return array_merge(
+            parent::getCSSFiles(),
+            [
+                [
+                    'file'  => 'css/less/address-book.less',
+                    'media' =>  'screen',
+                    'merge' =>  'bootstrap/css/bootstrap.less',
+                ]
+            ]
+        );
+    }
+
     /**
      * Define widget parameters
      *

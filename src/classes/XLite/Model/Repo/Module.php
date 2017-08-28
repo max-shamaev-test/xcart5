@@ -31,6 +31,7 @@ class Module extends \XLite\Model\Repo\ARepo
     const P_EDITION          = 'edition';
     const P_VENDOR           = 'vendor';
     const P_IS_SKIN          = 'isSkin';
+    const P_SALES_CHANNELS   = 'salesChannels';
 
     /**
      * Price criteria
@@ -449,6 +450,20 @@ class Module extends \XLite\Model\Repo\ARepo
     {
         $queryBuilder->andWhere('m.isLanding = :isLanding')
             ->setParameter('isLanding', $value);
+    }
+
+    /**
+     * Prepare certain search condition
+     *
+     * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
+     * @param boolean                    $value        Condition
+     *
+     * @return void
+     */
+    protected function prepareCndSalesChannels(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
+    {
+        $queryBuilder->andWhere('m.salesChannelPos != -1')
+            ->orderBy('m.salesChannelPos', 'ASC');
     }
 
     // }}}

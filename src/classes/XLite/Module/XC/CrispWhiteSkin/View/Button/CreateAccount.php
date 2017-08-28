@@ -20,11 +20,17 @@ class CreateAccount extends \XLite\View\Button\PopupButton
      */
     protected function prepareURLParams()
     {
-        return array(
+        $params =  [
             'target' => 'profile',
             'widget' => 'XLite\View\AccountDialog',
-            'mode' => 'register'
-        );
+            'mode'   => 'register'
+        ];
+
+        if (\XLite\Core\Request::getInstance()->fromURL) {
+            $params['fromURL'] = \XLite\Core\Request::getInstance()->fromURL;
+        }
+
+        return $params;
     }
 
     /**

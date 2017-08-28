@@ -161,6 +161,16 @@ class Marketplace extends \XLite\Upgrade\Entry\Module\AModule
     }
 
     /**
+     * Return module wave
+     *
+     * @return string
+     */
+    public function getWave()
+    {
+        return $this->getModuleForUpgrade()->getWave();
+    }
+
+    /**
      * Check if module is enabled
      *
      * @return boolean
@@ -303,10 +313,13 @@ class Marketplace extends \XLite\Upgrade\Entry\Module\AModule
     {
         $licenseKey = $this->getModuleForUpgrade()->getLicenseKey();
 
+        $moduleInstalled = $this->getModule($this->moduleInfoInstalled);
         $result = \XLite\Core\Marketplace::getInstance()->getAddonHash(
             $this->getModuleInstalled()->getMarketplaceID(),
             $licenseKey ? $licenseKey->getKeyValue() : null,
-            $this->moduleInfoInstalled ?: null
+            $moduleInstalled && $moduleInstalled->isInstalled()
+                ? $this->moduleInfoInstalled
+                : null
         );
 
         if (!$result) {
@@ -378,10 +391,13 @@ class Marketplace extends \XLite\Upgrade\Entry\Module\AModule
         $result = false;
         $licenseKey = $this->getModuleForUpgrade()->getLicenseKey();
 
+        $moduleInstalled = $this->getModule($this->moduleInfoInstalled);
         $path = \XLite\Core\Marketplace::getInstance()->getAddonPack(
             $this->getMarketplaceID(),
             $licenseKey ? $licenseKey->getKeyValue() : null,
-            $this->moduleInfoInstalled ?: null
+            $moduleInstalled && $moduleInstalled->isInstalled()
+                ? $this->moduleInfoInstalled
+                : null
         );
 
         $params = array('name' => $this->getActualName());

@@ -37,3 +37,21 @@ jQuery(document).ready(function() {
      }
    });
 });
+
+
+function CloudZoomSwitcher() {
+  jQuery('#cloud-zoom').change(function (event)
+  {
+    if ($(this).is(':checked')) {
+      $('.cloud-zoom-mode-switch').stop().slideDown();
+    } else {
+      $('.cloud-zoom-mode-switch').stop().slideUp();
+
+      if (!_.isUndefined($('#cloud-zoom-mode').get(0).commonController)) {
+        $('#cloud-zoom-mode').get(0).commonController.undo();
+      }
+    }
+  }).change();
+}
+
+core.autoload(CloudZoomSwitcher);

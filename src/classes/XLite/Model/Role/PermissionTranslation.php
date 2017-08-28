@@ -60,7 +60,7 @@ class PermissionTranslation extends \XLite\Model\Base\Translation
     /**
      * Set description
      *
-     * @param text $description
+     * @param string $description
      * @return PermissionTranslation
      */
     public function setDescription($description)
@@ -72,7 +72,7 @@ class PermissionTranslation extends \XLite\Model\Base\Translation
     /**
      * Get description
      *
-     * @return text 
+     * @return string
      */
     public function getDescription()
     {

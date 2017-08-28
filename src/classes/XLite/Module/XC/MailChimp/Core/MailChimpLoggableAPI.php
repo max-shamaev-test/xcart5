@@ -9,6 +9,8 @@
 namespace XLite\Module\XC\MailChimp\Core;
 use XLite\Module\XC\MailChimp\Main;
 
+require_once LC_DIR_MODULES . 'XC' . LC_DS . 'MailChimp' . LC_DS . 'lib' . LC_DS . 'MailChimp.php';
+
 /**
  * MailChimp core class
  */

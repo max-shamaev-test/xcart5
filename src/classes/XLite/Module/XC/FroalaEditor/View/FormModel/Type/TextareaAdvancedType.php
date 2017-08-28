@@ -42,6 +42,7 @@ class TextareaAdvancedType extends \XLite\View\FormModel\Type\TextareaAdvancedTy
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
         $view->vars = array_replace($view->vars, [
+            'input_grid' => 'froala-widget-column',
             'fieldOptions' => array_replace(
                 $view->vars['fieldOptions'],
                 [

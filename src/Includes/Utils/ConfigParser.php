@@ -28,6 +28,7 @@ abstract class ConfigParser extends \Includes\Utils\AUtils
      * @var array
      */
     protected static $mutators = array(
+        'processWebDirSingleSlash',
         'setWebDirWOSlash',
         'adjustHost',
     );
@@ -129,7 +130,7 @@ abstract class ConfigParser extends \Includes\Utils\AUtils
      */
     protected static function parseLocalFile($fileName)
     {
-        return static::parseCommon(LC_DIR_CONFIG . LC_DS . $fileName);
+        return static::parseCommon(LC_DIR_CONFIG . $fileName);
     }
 
     /**
@@ -157,6 +158,16 @@ abstract class ConfigParser extends \Includes\Utils\AUtils
     {
         foreach (static::$mutators as $method) {
             static::$method();
+        }
+    }
+
+    /**
+     * Convert "/" web_dir to empty string
+     */
+    protected static function processWebDirSingleSlash()
+    {
+        if (static::$options['host_details']['web_dir'] === '/') {
+            static::$options['host_details']['web_dir'] = '';
         }
     }
 

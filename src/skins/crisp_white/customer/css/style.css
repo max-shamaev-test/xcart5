@@ -133,7 +133,7 @@ form.invalid-form .form-error {
   .search-orders tbody,
   .search-orders tr
 {
-  border: 0px none;
+  border: 0 none;
 }
 
 /*
@@ -234,8 +234,8 @@ table.form-data tr,
 table.form-data th,
 table.form-data td
 {
-  border: 0px none;
-  border-spacing: 0px;
+  border: 0 none;
+  border-spacing: 0;
 }
 
 table.form-data td {
@@ -400,12 +400,12 @@ ul.subcategory-list.subcategory-view-list li a {
 .products input.product-qty
 {
   width: 25px;
-  padding: 0px 3px 1px;
+  padding: 0 3px 1px;
 }
 
 .products .product-name a
 {
-  word-break: break-word;
+  word-wrap: break-word;
 }
 
 .products .products-table ul.product-price {
@@ -420,7 +420,7 @@ ul.subcategory-list.subcategory-view-list li a {
 .products-list .product .drag-n-drop-handle
 {
   position: absolute;
-  right: 0px;
+  right: 0;
   top: -12px;
 }
 
@@ -429,16 +429,17 @@ ul.subcategory-list.subcategory-view-list li a {
   text-align: center;
 }
 
+/*
  * Product block
  */
 .product-block .product {
-  padding: 0px;
+  padding: 0;
 }
 
 .product-block .product-name
 {
   font-size: 16px;
-  padding-top: 0px;
+  padding-top: 0;
   text-align: left;
 }
 
@@ -464,7 +465,7 @@ ul.product-options li.product-option
 }
 
 .block-container ul.product-options {
-  padding-top: 0px;
+  padding-top: 0;
 }
 
 .block-container .change-options .butons {
@@ -473,7 +474,7 @@ ul.product-options li.product-option
 }
 
 .block-container .change-options .butons button {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 ul.product-options
@@ -579,12 +580,23 @@ body.store-product h1#page-title,
   margin-top: 10px;
 }
 
+.product-details .product-buttons .buttons-row,
+.product-quicklook .product-buttons .buttons-row
+{
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
 
 .product-details .product-buttons button,
 .product-quicklook .product-buttons button
 {
-  margin-top: 0px;
-  margin-bottom: 0px;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .add-button-wrapper {
@@ -596,14 +608,22 @@ body.store-product h1#page-title,
 {
   padding-right: 10px;
   display: inline-block;
-  font-size: 0px;
+  font-size: 0;
 }
 
 .product-details .product-qty {
+  padding-right: 0;
+}
+
+.product-details .product-qty .quantity-box-container,
+.product-quicklook .product-qty .quantity-box-container {
   padding-right: 4px;
 }
+
 .product-details-info .product-buttons .buttons-row > * {
   vertical-align: middle;
+}
+.product-details-info .product-buttons .buttons-row > * > *:last-child {
   margin-right: 20px;
 }
 
@@ -624,7 +644,7 @@ body.store-product h1#page-title,
   width: 60px;
   text-align: right;
   padding: 4px 6px;
-  margin-left: 0px;
+  margin-left: 0;
   vertical-align: middle;
 }
 
@@ -633,7 +653,7 @@ body.store-product h1#page-title,
 {
   display: none;
   vertical-align: middle;
-  margin-right: 0px;
+  margin-right: 0;
 }
 
 /**
@@ -643,7 +663,7 @@ body.store-product h1#page-title,
 div.product-details button.continue,
 .product-quicklook button.continue
 {
-  margin: 20px 0px 10px;
+  margin: 20px 0 10px;
 }
 
 .product-details .continue-button-intend
@@ -655,16 +675,15 @@ div.product-details button.continue,
 .product-details .extra-fields
 {
   list-style: none;
-  padding: 0px;
-  padding-top: 6px;
-  margin: 0px;
+  padding: 6px 0 0;
+  margin: 0;
 }
 
 .product-details .extra-fields li
 {
   list-style: none;
-  padding: 4px 0px;
-  margin: 0px;
+  padding: 4px 0;
+  margin: 0;
   background-image: none;
   font-size: 14px;
 }
@@ -811,7 +830,7 @@ table.list-body-list td
 }
 
 .button .buttons-separator span {
-  padding-left: 0px;
+  padding-left: 0;
 }
 
 
@@ -844,8 +863,8 @@ table.including-modifiers tbody,
 table.including-modifiers tr,
 table.including-modifiers td
 {
-  border: 0px none;
-  margin: 0px;
+  border: 0 none;
+  margin: 0;
 }
 
 table.including-modifiers td {
@@ -862,7 +881,7 @@ table.including-modifiers td.value {
  */
 
 .block-wait {
-  border: 0px none;
+  border: 0 none;
   background: transparent none;
 }
 
@@ -897,8 +916,8 @@ table.including-modifiers td.value {
 
 .wait-overlay {
   position: absolute;
-  top: 0px;
-  left: 0px;
+  top: 0;
+  left: 0;
   background-color: #fff;
   opacity: .5;
   -moz-border-radius: 4px;
@@ -974,9 +993,9 @@ ul.location-subnodes {
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   border-radius: 3px;
-  box-shadow: 0px 1px 4px 1px rgba(0,0,0,0.25);
-  -webkit-box-shadow: 0px 1px 4px 1px rgba(0,0,0,0.25);
-  -moz-box-shadow: 0px 1px 4px 1px rgba(0,0,0,0.25);
+  box-shadow: 0 1px 4px 1px rgba(0,0,0,0.25);
+  -webkit-box-shadow: 0 1px 4px 1px rgba(0,0,0,0.25);
+  -moz-box-shadow: 0 1px 4px 1px rgba(0,0,0,0.25);
 }
 
 ul.location-subnodes li:first-child > a{
@@ -1080,11 +1099,10 @@ ul.location-subnodes li > a.current {
 
 @media (max-width: 768px) {
   .order-box .links {
-    padding-right: 0px;
+    padding-right: 0;
   }
   .order-box .links .print {
-    float: right;
-    padding-right: 0px;
+    padding-right: 0;
   }
 }
 
@@ -1102,8 +1120,8 @@ ul.location-subnodes li > a.current {
 
 form div.table-value.xcart-form-id-value {
   position: absolute;
-  width: 0px;
-  height: 0px;
+  width: 0;
+  height: 0;
 }
 
 .ui-widget {
@@ -1124,8 +1142,6 @@ form div.table-value.xcart-form-id-value {
 .overlay-blur {
   filter: blur(5px);
   -webkit-filter: blur(5px);
-  -moz-filter: blur(5px);
-  -o-filter: blur(5px);
   -ms-filter: blur(5px);
 }
 
@@ -1141,16 +1157,16 @@ form div.table-value.xcart-form-id-value {
 #main.force-change-password-section .head-h2 {
   font-size: 30px;
   line-height: 36px;
-  margin: 20px 0px 16px;
+  margin: 20px 0 16px;
 }
 
 #main.force-change-password-section ul.main-table {
-  margin: 0px;
+  margin: 0;
 }
 
 #main.force-change-password-section .header-text {
   font-size: 14px;
-  padding: 0px 0px 20px 0px;
+  padding: 0 0 20px 0;
 }
 
 #main.force-change-password-section .model-form-buttons {
@@ -1257,4 +1273,29 @@ form div.table-value.xcart-form-id-value {
 
 .tooltip-arrow {
   display: none !important;
+}
+
+table.login-form:not(.locked-out) tbody.timer-table-body {
+  display: none;
+}
+
+table.login-form.locked-out tbody:not(.timer-table-body) {
+  display: none;
+}
+
+table.login-form.locked-out {
+  margin: 0;
+}
+
+table.login-form.locked-out .timer-table-body {
+  border: none;
+}
+
+table.login-form.locked-out .timer-table-body .timer-header td{
+  padding: 0;
+  font-size: 22px;
+  font-family: "Trebuchet MS", Helvetica, Jamrul, sans-serif;
+  font-weight: normal;
+  line-height: 1.1;
+  color: #579ed2;
 }

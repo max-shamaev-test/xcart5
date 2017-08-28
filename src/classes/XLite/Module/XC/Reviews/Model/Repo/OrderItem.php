@@ -23,7 +23,9 @@ class OrderItem extends \XLite\Model\Repo\OrderItem implements \XLite\Base\IDeco
      */
     public function countItemsPurchasedByCustomer($productId, $profile)
     {
-        return 0 < $this->defineCountItemsPurchasedByCustomer($productId, $profile)->getSingleScalarResult();
+        return $profile && $profile->getProfileId()
+            ? 0 < $this->defineCountItemsPurchasedByCustomer($productId, $profile)->getSingleScalarResult()
+            : 0;
     }
 
     /**

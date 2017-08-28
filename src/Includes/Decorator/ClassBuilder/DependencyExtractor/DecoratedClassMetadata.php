@@ -13,6 +13,8 @@ class DecoratedClassMetadata implements \Serializable
     /** @var string[] */
     private $decorators;
 
+    static $ROOT = LC_DIR_ROOT;
+
     public function __construct($decorators)
     {
         $this->decorators = $decorators;
@@ -26,6 +28,11 @@ class DecoratedClassMetadata implements \Serializable
         return $this->decorators;
     }
 
+    public static function setRoot($root)
+    {
+        static::$ROOT = $root;
+    }
+
     /**
      * (PHP 5 &gt;= 5.1.0)<br/>
      * String representation of object
@@ -35,7 +42,7 @@ class DecoratedClassMetadata implements \Serializable
     public function serialize()
     {
         $decorators = array_map(function ($decorator) {
-            return substr($decorator, strlen(LC_DIR_ROOT));
+            return substr($decorator, strlen(static::$ROOT));
         }, $this->decorators);
 
         return json_encode($decorators);
@@ -55,7 +62,7 @@ class DecoratedClassMetadata implements \Serializable
         $decorators = json_decode($serialized);
 
         $this->decorators = array_map(function ($decorator) {
-            return LC_DIR_ROOT . $decorator;
+            return static::$ROOT . $decorator;
         }, $decorators);
     }
 }

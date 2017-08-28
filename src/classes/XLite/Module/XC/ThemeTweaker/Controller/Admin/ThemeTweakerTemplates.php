@@ -33,7 +33,7 @@ class ThemeTweakerTemplates extends \XLite\Controller\Admin\AAdmin
      */
     public function getTitle()
     {
-        return static::t('Webmaster mode');
+        return static::t('Edited templates');
     }
 
     /**
@@ -43,7 +43,7 @@ class ThemeTweakerTemplates extends \XLite\Controller\Admin\AAdmin
      */
     public function getStoreFrontLink()
     {
-        $styleClass = \XLite\Core\Config::getInstance()->XC->ThemeTweaker->edit_mode
+        $styleClass = \XLite\Module\XC\ThemeTweaker\Core\ThemeTweaker::getInstance()->isInWebmasterMode()
             ? ''
             : 'hidden';
 
@@ -70,6 +70,7 @@ class ThemeTweakerTemplates extends \XLite\Controller\Admin\AAdmin
 
     /**
      * Switch state
+     * TODO: REMOVE. SWITCHER IS IN ThemeTweaker controller
      *
      * @return void
      */

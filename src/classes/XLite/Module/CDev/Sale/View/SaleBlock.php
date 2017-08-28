@@ -13,8 +13,7 @@ use XLite\View\CacheableTrait;
 /**
  * Sale products block widget
  *
- * @ListChild (list="sidebar.single", zone="customer", weight="170")
- * @ListChild (list="sidebar.first", zone="customer", weight="130")
+ * @ListChild (list="sidebar.first", zone="customer", weight="1000")
  */
 class SaleBlock extends \XLite\Module\CDev\Sale\View\ASale
 {

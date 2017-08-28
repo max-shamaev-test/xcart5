@@ -1,0 +1,18 @@
+# vim: set ts=2 sw=2 sts=2 et:
+#
+# Fixtures
+#
+# Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+# See https://www.x-cart.com/license-agreement.html for license details.
+
+XLite\Model\LanguageLabel:
+  - { name: 'X products selected', translations: [{ code: ru, label: 'Выбрано {{count}} товар(ов)' }] }
+  - { name: 'Comparison table - X items', translations: [{ code: ru, label: 'Таблица для сравнения — {{count}} товар(ов)' }] }
+  - { name: 'Add other products to compare', translations: [{ code: ru, label: 'Добавьте для сравнения другие товары' }] }
+  - { name: 'Clear list', translations: [{ code: ru, label: 'Очистить список' }] }
+  - { name: 'Differences only', translations: [{ code: ru, label: 'Оставить только отличия' }] }
+  - { name: 'Add to compare', translations: [{ code: ru, label: 'Сравнить' }] }
+  - { name: 'No products have been selected for comparison.', translations: [{ code: ru, label: 'Товары для сравнения не выбраны.' }] }
+  - { name: 'Product has been removed from comparison table.', translations: [{ code: ru, label: 'Товар удален из таблицы сравнения.' }] }
+  - { name: 'The product has been added to the comparison table.', translations: [{ code: ru, label: 'Товар добавлен в таблицу сравнения.' }] }
+  - { name: 'The comparison table has been cleared.', translations: [{ code: ru, label: 'Таблица сравнения очищена.' }] }

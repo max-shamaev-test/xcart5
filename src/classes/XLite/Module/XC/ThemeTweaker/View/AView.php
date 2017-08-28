@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\ThemeTweaker\View;
 
+use XLite\Module\XC\ThemeTweaker\Core\ThemeTweaker;
+
 /**
  * Abstract widget
  */
@@ -98,7 +100,7 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
      */
     protected static function getAdminHtmlTree()
     {
-        $result = '<div id="themeTweaker_wrapper" style="display: none;">';
+        $result = '<div id="themeTweaker_wrapper" style="display: none;" data-editor-wrapper>';
 
         $backTitle = static::t('Back to notification settings');
         $backUrl = \XLite\Core\Converter::buildURL(
@@ -118,7 +120,7 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
         $orderChangePlaceholder = static::t('Enter Order number');
 
         $result .= <<<HTML
-<div class="themeTweaker-control-panel">
+<div class="themeTweaker-control-panel" data-editor-control-panel>
 <div class="themeTweaker-back">
     <a href="{$backUrl}">{$backTitle}</a>
 </div>
@@ -135,7 +137,7 @@ HTML;
 
         // inner interface
         $innerInterface = \XLite\Core\Request::getInstance()->interface;
-        $result .= '<div id="themeTweaker_tree" data-interface="' . \XLite::MAIL_INTERFACE . '" data-inner-interface="' . $innerInterface . '">';
+        $result .= '<div class="themeTweaker_tree not-processed" data-editor-tree data-interface="' . \XLite::MAIL_INTERFACE . '" data-inner-interface="' . $innerInterface . '">';
         $result .= static::buildHtmlTreeNode(static::$tree);
         $result .= '</div></div>';
 
@@ -149,30 +151,14 @@ HTML;
      */
     protected static function getCustomerHtmlTree()
     {
-        $result = '<div id="themeTweaker_wrapper" style="display: none;">';
-        $title = static::t('Theme tweaker');
-        $label = static::t('Pick template from page element');
-
-        $result .= <<<HTML
-<div class="themeTweaker-control-panel">
-<div class="themeTweaker-title">{$title}</div>
-<div class="themeTweaker-label">{$label}</div>
-<div class="themeTweaker-onoffswitch">
-  <input id="themeTweaker-switcher" type="checkbox" />
-  <label for="themeTweaker-switcher">
-    <span class="fa fa-check"></span>
-  </label>
-</div>
-</div>
-HTML;
-        $result .= '<div id="themeTweaker_tree" data-interface="' . \XLite::CUSTOMER_INTERFACE . '">';
+        $result = '<div class="themeTweaker_tree not-processed" data-editor-tree data-interface="' . \XLite::CUSTOMER_INTERFACE . '">';
         $result .= static::buildHtmlTreeNode(static::$tree);
-        $result .= '</div></div>';
+        $result .= '</div>';
 
         return $result;
     }
 
-    /**
+/**
      * Returns current templates tree (HTML)
      *
      * @param \Includes\DataStructure\Graph $node Node
@@ -290,11 +276,14 @@ HTML;
     {
         $list = parent::getCommonFiles();
 
-        if ($this->isMarkTemplates()) {
+        if ($this->isMarkTemplates() && \XLite::isAdminZone()) {
             $list[static::RESOURCE_JS][] = 'modules/XC/ThemeTweaker/template_editor/vakata-jstree/dist/jstree.min.js';
+            $list[static::RESOURCE_JS][] = 'modules/XC/ThemeTweaker/template_editor/tree-view.js';
+            $list[static::RESOURCE_JS][] = 'modules/XC/ThemeTweaker/template_editor/template-navigator.js';
             $list[static::RESOURCE_JS][] = 'modules/XC/ThemeTweaker/template_editor/editor.js';
             $list[static::RESOURCE_CSS][] = 'modules/XC/ThemeTweaker/template_editor/vakata-jstree/dist/themes/default/style.min.css';
             $list[static::RESOURCE_CSS][] = 'modules/XC/ThemeTweaker/template_editor/style.css';
+            $list[static::RESOURCE_CSS][] = 'modules/XC/ThemeTweaker/template_editor/template-navigator.css';
         }
 
 
@@ -320,7 +309,7 @@ HTML;
                 ];
             }
 
-            if ($this->isCustomCssEnabled() && !$this->isInLayoutMode()) {
+            if ($this->isCustomCssEnabled() && !$this->isInCustomCssMode()) {
                 $files[static::RESOURCE_CSS] = [
                     [
                         'file'  => 'theme/custom.css',
@@ -353,6 +342,13 @@ HTML;
         return \Includes\Utils\FileManager::read($path) ?: '';
     }
 
+    protected function getNextTemplateId()
+    {
+        return \XLite::getController()->isAJAX()
+            ? substr(\XLite\Core\Request::getInstance()->getUniqueIdentifier(), 0, 6) . '_' . static::$templateId++
+            : static::$templateId++;
+    }
+
     /**
      * Prepare template display
      *
@@ -377,7 +373,7 @@ HTML;
     {
         if ($this->setStartMark($template)) {
 
-            $templateId = static::$templateId++;
+            $templateId = $this->getNextTemplateId();
 
             $localPath = substr($template, strlen(LC_DIR_SKINS));
             $current = new \XLite\Core\CommonGraph($localPath);
@@ -436,7 +432,7 @@ HTML;
     {
         $start = false;
         if (static::$mark) {
-            $templateId = static::$templateId++;
+            $templateId = $this->getNextTemplateId();
 
             $current = new \XLite\Core\CommonGraph($list);
 
@@ -554,7 +550,35 @@ HTML;
      */
     protected function isInLayoutMode()
     {
-        return \XLite\Core\Request::getInstance()->isInLayoutMode();
+        return ThemeTweaker::getInstance()->isInLayoutMode();
+    }
+
+    /**
+     * Is running custom css edit mode
+     *
+     * @return boolean
+     */
+    protected function isInCustomCssMode()
+    {
+        return ThemeTweaker::getInstance()->isInCustomCssMode();
+    }
+
+    /**
+     * Display plain array as JS array
+     *
+     * @param array $data Plain array
+     *
+     * @return void
+     */
+    public function displayCommentedData(array $data)
+    {
+        foreach ($data as $key => $value) {
+            if ($value instanceof \Twig_Markup) {
+                $data[$key] = (string) $value;
+            }
+        }
+
+        parent::displayCommentedData($data);
     }
 
     /**
@@ -565,33 +589,10 @@ HTML;
     protected function isMarkTemplates()
     {
         if (null === static::$allowMark) {
-            static::$allowMark = \XLite::isAdminZone()
-                ? $this->checkAdminZone()
-                : $this->checkCustomerZone();
+            static::$allowMark = ThemeTweaker::getInstance()->isInWebmasterMode();
         }
 
         return static::$allowMark;
-    }
-
-    protected function checkCustomerZone()
-    {
-        return \XLite\Core\Config::getInstance()->XC->ThemeTweaker->edit_mode
-               && \XLite\Module\XC\ThemeTweaker\Main::isUserAllowed()
-               && !\XLite\Core\Request::getInstance()->isPost()
-               && !\XLite\Core\Request::getInstance()->isCLI()
-               && !\XLite\Core\Request::getInstance()->isAJAX()
-               && !\Includes\Decorator\Utils\CacheManager::isRebuildNeeded()
-               && \XLite\Module\XC\ThemeTweaker\Main::isTargetAllowed();
-    }
-
-    protected function checkAdminZone()
-    {
-        return \XLite\Module\XC\ThemeTweaker\Main::isUserAllowed()
-               && !\XLite\Core\Request::getInstance()->isPost()
-               && !\XLite\Core\Request::getInstance()->isCLI()
-               && !\XLite\Core\Request::getInstance()->isAJAX()
-               && !\Includes\Decorator\Utils\CacheManager::isRebuildNeeded()
-               && \XLite\Module\XC\ThemeTweaker\Main::isAdminTargetAllowed();
     }
 
     /**
@@ -601,7 +602,9 @@ HTML;
      */
     protected function isCacheAllowed()
     {
-        return parent::isCacheAllowed() && !\XLite\Core\Config::getInstance()->XC->ThemeTweaker->edit_mode;
+        return parent::isCacheAllowed()
+            && !ThemeTweaker::getInstance()->isInWebmasterMode()
+            && !\XLite\Core\Translation::getInstance()->isInlineEditingEnabled();
     }
 }
 

@@ -189,6 +189,18 @@ class PaypalWPS extends \XLite\Model\Payment\Base\WebBased
     }
 
     /**
+     * @inheritdoc
+     */
+    public function processCallbackNotReady(\XLite\Model\Payment\Transaction $transaction)
+    {
+        parent::processCallbackNotReady($transaction);
+
+        header('HTTP/1.1 409 Conflict', true, 409);
+        header('Status: 409 Conflict');
+        header('X-Robots-Tag: noindex, nofollow');
+    }
+
+    /**
      * Process return
      *
      * @param \XLite\Model\Payment\Transaction $transaction Return-owner transaction

@@ -2,7 +2,9 @@
  # Activate free license form
  #}
 
+{% if not this.isBusinessViewPage() %}
 <p class="page-note">{{ t('Activate free license description', {'purchaseURL': this.getPurchaseURL()})|raw }}</p>
+{% endif %}
 
 <div class="modules-list-box">
   <ul class="update-module-list">
@@ -45,9 +47,11 @@
 
 <div class="clear"></div>
 
+{% if not this.isBusinessViewPage() %}
 <div class="activate-free-license-form">
   {% form 'XLite\\View\\Form\\ActivateFreeLicense' %}
     {{ widget('XLite\\View\\FormField\\Input\\Text\\Email', required='true', fieldName='email', value=this.getEmail(), label=t('Email')) }}
     {{ widget('XLite\\View\\Button\\Submit', style='regular-main-button', label=t('Activate')) }}
   {% endform %}
 </div>
+{% endif %}

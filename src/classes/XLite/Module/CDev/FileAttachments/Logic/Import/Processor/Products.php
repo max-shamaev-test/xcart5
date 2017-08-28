@@ -24,18 +24,18 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     {
         $columns = parent::defineColumns();
 
-        $columns['attachments'] = array(
+        $columns['attachments'] = [
             static::COLUMN_IS_MULTIPLE => true,
-        );
-        $columns['attachmentsTitle'] = array(
+        ];
+        $columns['attachmentsTitle'] = [
             static::COLUMN_IS_MULTIPLE     => true,
             static::COLUMN_IS_MULTILINGUAL => true,
             static::COLUMN_LENGTH          => 128,
-        );
-        $columns['attachmentsDescription'] = array(
+        ];
+        $columns['attachmentsDescription'] = [
             static::COLUMN_IS_MULTIPLE     => true,
             static::COLUMN_IS_MULTILINGUAL => true,
-        );
+        ];
 
         return $columns;
     }
@@ -52,9 +52,9 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     public static function getMessages()
     {
         return parent::getMessages()
-            + array(
+               + [
                 'PRODUCT-ATTACH-FMT' => 'The "{{value}}" file is not created',
-            );
+               ];
     }
 
     /**
@@ -70,7 +70,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
         if (!$this->verifyValueAsEmpty($value)) {
             foreach ($value as $attachment) {
                 if (!$this->verifyValueAsEmpty($attachment) && !$this->verifyValueAsFile($attachment)) {
-                    $this->addWarning('PRODUCT-ATTACH-FMT', array('column' => $column, 'value' => $attachment));
+                    $this->addWarning('PRODUCT-ATTACH-FMT', ['column' => $column, 'value' => $attachment]);
                 }
             }
         }
@@ -109,6 +109,12 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
 
                     } else {
                         $attachment->getStorage()->loadFromLocalFile(LC_DIR_ROOT . $path);
+                    }
+
+                    if (!$attachment->getStorage()->getPath()) {
+                        $model->getAttachments()->removeElement($attachment);
+                        \XLite\Core\Database::getEM()->remove($attachment->getStorage());
+                        \XLite\Core\Database::getEM()->remove($attachment);
                     }
                 }
             }

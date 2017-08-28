@@ -40,6 +40,9 @@ class Main extends \XLite\View\Form\Product\Search\Customer\ACustomer
      */
     protected function getDefaultParams()
     {
-        return parent::getDefaultParams() + array('searchInSubcats' => 'Y');
+        return parent::getDefaultParams() + array(
+            'searchInSubcats'   => 'Y',
+            'itemsList'         => '\XLite\View\ItemsList\Product\Customer\Search',
+        );
     }
 }

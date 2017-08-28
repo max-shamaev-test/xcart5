@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\SocialLogin\Controller\Customer;
 
+use XLite\Module\CDev\SocialLogin\Core\AAuthProvider;
+
 /**
  * Authorization grants are routed to this controller
  */
@@ -25,77 +27,24 @@ class SocialLogin extends \XLite\Controller\Customer\ACustomer
         $requestProcessed = false;
 
         foreach ($authProviders as $authProvider) {
-            if ($authProvider->detectAuth()) {
+            /** @var AAuthProvider $authProvider */
+            if (!$authProvider->detectAuth()) {
+                continue;
+            }
 
-                $profileInfo = $authProvider->processAuth();
+            $profileInfo = $authProvider->processAuth();
 
-                if ($profileInfo && !empty($profileInfo['id'])) {
+            if ($profileInfo && !empty($profileInfo['id'])) {
 
-                    if (!empty($profileInfo['email'])) {
-                        $profile = $this->getSocialLoginProfile(
-                            $profileInfo['email'],
-                            $authProvider->getName(),
-                            $profileInfo['id']
-                        );
+                if (!empty($profileInfo['email'])) {
+                    $this->processProfileInfo($authProvider, $profileInfo);
 
-                        if ($profile) {
-                            if (!$profile->getFirstAddress()) {
-                                $address = $authProvider->processAddress($profileInfo);
-                                if ($address) {
-                                    $address->setProfile($profile);
-                                    \XLite\Core\Database::getEM()->persist($address);
-
-                                    $profile->addAddresses($address);
-                                }
-                            }
-
-                            $picture = $authProvider->processPicture($profileInfo);
-
-                            if ($picture && !$profile->getPictureUrl()) {
-                                $profile->setPictureUrl($picture);
-                            }
-
-                            if ($profile->isEnabled()) {
-                                \XLite\Core\Auth::getInstance()->loginProfile($profile);
-
-                                // We merge the logged in cart into the session cart
-                                $profileCart = $this->getCart();
-                                $profileCart->login($profile);
-                                \XLite\Core\Database::getEM()->flush();
-
-                                if ($profileCart->isPersistent()) {
-                                    $this->updateCart();
-                                }
-
-                                $this->setAuthReturnUrl($authProvider::STATE_PARAM_NAME);
-
-                            } else {
-                                \XLite\Core\TopMessage::addError('Profile is disabled');
-                                $this->setAuthReturnUrl($authProvider::STATE_PARAM_NAME, true);
-                            }
-
-                        } else {
-                            $provider = \XLite\Core\Database::getRepo('XLite\Model\Profile')
-                                ->findOneBy(['login' => $profileInfo['email'], 'order' => null])
-                                ->getSocialLoginProvider();
-
-                            if ($provider) {
-                                $signInVia = 'Please sign in with ' . $provider . '.';
-                            } else {
-                                $signInVia = 'Profile with the same e-mail address already registered. '
-                                    . 'Please sign in the classic way.';
-                            }
-
-                            \XLite\Core\TopMessage::addError($signInVia);
-                            $this->setAuthReturnUrl($authProvider::STATE_PARAM_NAME, true);
-                        }
-                    } else {
-                        \XLite\Core\TopMessage::addError('Profile does not have any email address. Please sign in the classic way.');
-                        $this->setAuthReturnUrl($authProvider::STATE_PARAM_NAME, true);
-                    }
-
-                    $requestProcessed = true;
+                } else {
+                    \XLite\Core\TopMessage::addError('Profile does not have any email address. Please sign in the classic way.');
+                    $this->setAuthReturnUrl($authProvider::STATE_PARAM_NAME, true);
                 }
+
+                $requestProcessed = true;
             }
         }
 
@@ -105,6 +54,71 @@ class SocialLogin extends \XLite\Controller\Customer\ACustomer
         }
     }
 
+    /**
+     * @param AAuthProvider $authProvider
+     * @param array         $profileInfo
+     */
+    protected function processProfileInfo(AAuthProvider $authProvider, array $profileInfo)
+    {
+        $profile = $this->getSocialLoginProfile(
+            $profileInfo['email'],
+            $authProvider->getName(),
+            $profileInfo['id']
+        );
+
+        if ($profile) {
+            if (!$profile->getFirstAddress()) {
+                $address = $authProvider->processAddress($profileInfo);
+                if ($address) {
+                    $address->setProfile($profile);
+                    \XLite\Core\Database::getEM()->persist($address);
+
+                    $profile->addAddresses($address);
+                }
+            }
+
+            $picture = $authProvider->processPicture($profileInfo);
+
+            if ($picture && !$profile->getPictureUrl()) {
+                $profile->setPictureUrl($picture);
+            }
+
+            if ($profile->isEnabled()) {
+                \XLite\Core\Auth::getInstance()->loginProfile($profile);
+
+                // We merge the logged in cart into the session cart
+                /** @var \XLite\Model\Cart $profileCart */
+                $profileCart = $this->getCart();
+                $profileCart->login($profile);
+                \XLite\Core\Database::getEM()->flush();
+
+                if ($profileCart->isPersistent()) {
+                    $this->updateCart();
+                }
+
+                $this->setAuthReturnUrl($authProvider::STATE_PARAM_NAME);
+
+            } else {
+                \XLite\Core\TopMessage::addError('Profile is disabled');
+                $this->setAuthReturnUrl($authProvider::STATE_PARAM_NAME, true);
+            }
+
+        } else {
+            $provider = \XLite\Core\Database::getRepo('XLite\Model\Profile')
+                ->findOneBy(['login' => $profileInfo['email'], 'order' => null])
+                ->getSocialLoginProvider();
+
+            if ($provider) {
+                $signInVia = 'Please sign in with ' . $provider . '.';
+            } else {
+                $signInVia = 'Profile with the same e-mail address already registered. '
+                    . 'Please sign in the classic way.';
+            }
+
+            \XLite\Core\TopMessage::addError($signInVia);
+            $this->setAuthReturnUrl($authProvider::STATE_PARAM_NAME, true);
+        }
+    }
     /**
      * Fetches an existing social login profile or creates new
      *
@@ -173,9 +187,13 @@ class SocialLogin extends \XLite\Controller\Customer\ACustomer
         }
 
         if (empty($redirectTo) && $returnURL && $this->checkReturnUrl($returnURL)) {
-            $this->setReturnURL(\Includes\Utils\URLManager::getShopURL(urldecode($returnURL)));
+            if (strpos($returnURL, \XLite\Core\Converter::buildURL('login')) !== false) {
+                $returnURL = \XLite\Core\Converter::buildURL('main');
+            }
+
+            $this->setReturnURL(\Includes\Utils\URLManager::getShopURL($returnURL));
         } else {
-            $this->setReturnURL($this->buildURL($redirectTo));
+            $this->setReturnURL($this->buildFullURL(urldecode($redirectTo)));
         }
     }
 

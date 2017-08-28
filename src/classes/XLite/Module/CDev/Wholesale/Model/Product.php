@@ -16,6 +16,15 @@ namespace XLite\Module\CDev\Wholesale\Model;
 class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
 {
     /**
+     * Relation to a product entity
+     *
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @OneToMany (targetEntity="XLite\Module\CDev\Wholesale\Model\WholesalePrice", mappedBy="product")
+     */
+    protected $wholesalePrices;
+
+    /**
      * Storage of current wholesale quantity according to the clear price will be calculated
      *
      * @var integer
@@ -27,12 +36,12 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      *
      * @var array()
      */
-    protected $minQuantities = array();
+    protected $minQuantities = [];
 
     /**
      * Wholesale membership
      *
-     * @var   \XLite\Model\Memberhsip
+     * @var   \XLite\Model\Membership
      */
     protected $wholesaleMembership;
 
@@ -106,6 +115,14 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     }
 
     /**
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getWholesalePrices()
+    {
+        return $this->wholesalePrices;
+    }
+
+    /**
      * Check if wholesale prices are enabled for the specified product.
      * Return true if product is not on sale (Sale module)
      *
@@ -149,6 +166,8 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     /**
      * Override clear price of product
      *
+     * @param \XLite\Model\Membership $membership
+     *
      * @return float
      */
     public function getWholesalePrice($membership)
@@ -189,7 +208,10 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
                 ? \XLite\Core\Auth::getInstance()->getProfile()->getMembership()
                 : null;
 
-        } elseif (\XLite::getController() instanceOf \XLite\Controller\ACustomer) {
+        } elseif (
+            \XLite::getController() instanceOf \XLite\Controller\Customer\ACustomer
+            && \XLite::getController()->getCart()->getProfile()
+        ) {
             $membership = \XLite::getController()->getCart()->getProfile()->getMembership();
 
         } else{
@@ -210,7 +232,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     protected function cloneQuantity($newProduct)
     {
-        foreach (\XLite\Core\Database::getRepo('XLite\Module\CDev\Wholesale\Model\MinQuantity')->findBy(array('product' => $this)) as $quantity) {
+        foreach (\XLite\Core\Database::getRepo('XLite\Module\CDev\Wholesale\Model\MinQuantity')->findBy(['product' => $this]) as $quantity) {
             $newQuantity = $quantity->cloneEntity();
             $newQuantity->setProduct($newProduct);
             $newQuantity->setMembership($quantity->getMembership());
@@ -227,7 +249,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     protected function cloneMembership($newProduct)
     {
-        foreach (\XLite\Core\Database::getRepo('XLite\Module\CDev\Wholesale\Model\WholesalePrice')->findBy(array('product' => $this)) as $price) {
+        foreach (\XLite\Core\Database::getRepo('XLite\Module\CDev\Wholesale\Model\WholesalePrice')->findBy(['product' => $this]) as $price) {
             $newPrice = $price->cloneEntity();
             $newPrice->setProduct($newProduct);
             $newPrice->setMembership($price->getMembership());

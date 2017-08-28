@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\ThemeTweaker\Model;
 
+use XLite\Module\XC\ThemeTweaker\Core\ThemeTweaker;
+
 /**
  * View list decorator
  *
@@ -53,7 +55,7 @@ class ViewList extends \XLite\Model\ViewList implements \XLite\Base\IDecorator
      */
     public function isDisplayed()
     {
-        return \XLite\Core\Request::getInstance()->isInLayoutMode()
+        return ThemeTweaker::getInstance()->isInLayoutMode()
             || !$this->isHidden();
     }
 

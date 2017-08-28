@@ -7,9 +7,10 @@
 
 {% if this.product.isUpcomingProduct() %}
   <span class="coming-soon-label">
-    {{ t('Coming soon') }}
+    {{ widget('XLite\\View\\Labels', labels=this.getComingSoonLabel()) }}
+
     {% if this.config.CDev.ProductAdvisor.cs_display_date %}
-      <span class="coming-soon-note">({{ t('expected on') }} <span class="coming-soon-date">{{ this.formatDate(this.product.getArrivalDate()) }}</span>)</span>
+      <span class="coming-soon-note">{{ t('Expected on') }} <span class="coming-soon-date">{{ this.formatDate(this.product.getArrivalDate()) }}</span></span>
     {% endif %}
   </span>
 {% endif %}

@@ -85,6 +85,7 @@ class SelectAddress extends \XLite\Controller\Customer\Cart
             : false;
 
         $this->selectCartAddress($atype, $addressId, $hasEmptyFields);
+        $this->silent = true;
     }
 
     /**

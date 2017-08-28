@@ -32,26 +32,6 @@ class Generator extends \XLite\Logic\AGenerator
     // {{{ Service variable names
 
     /**
-     * Get resizeTickDuration TmpVar name
-     *
-     * @return string
-     */
-    public static function getTickDurationVarName()
-    {
-        return 'quickDataTickDuration';
-    }
-
-    /**
-     * Get resize cancel flag name
-     *
-     * @return string
-     */
-    public static function getCancelFlagVarName()
-    {
-        return 'quickDataCancelFlag';
-    }
-
-    /**
      * Get event name
      *
      * @return string

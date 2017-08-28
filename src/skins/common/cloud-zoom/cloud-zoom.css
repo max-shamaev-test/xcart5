@@ -27,6 +27,10 @@
 	overflow:hidden;
 }
 
+.cloud-zoom-outside .cloud-zoom-big {
+	border: none;
+}
+
 /* This is the loading message. */
 .cloud-zoom-loading {
 	color:white;	

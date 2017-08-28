@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * Currency repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Currency", summary="Add new currency")
+ * @Api\Operation\Read(modelClass="XLite\Model\Currency", summary="Retrieve currency by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Currency", summary="Retrieve all currencies")
+ * @Api\Operation\Update(modelClass="XLite\Model\Currency", summary="Update currency by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Currency", summary="Delete currency by id")
  */
 class Currency extends \XLite\Model\Repo\Base\I18n
 {

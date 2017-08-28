@@ -1,7 +1,7 @@
 {##
  # OnOff checkbox
  #}
-<div class="{{ this.getCssClass() }}">
+<div class="{{ this.getCssClass() }}"{% if this.isDisabled() and this.getDisabledTitle() %} title="{{ this.getDisabledTitle() }}"{% endif %}>
   {% if not this.isDisabled() %}
     <input type="hidden" name="{{ this.getName() }}" value="" />
   {% endif %}

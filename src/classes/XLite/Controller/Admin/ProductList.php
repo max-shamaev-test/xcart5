@@ -120,6 +120,15 @@ class ProductList extends \XLite\Controller\Admin\ACL\Catalog
                 'Products information has been successfully updated'
             );
 
+        } elseif ($ids = $this->getActionProductsIds()) {
+            $qb = \XLite\Core\Database::getRepo('XLite\Model\Product')->createQueryBuilder();
+            $alias = $qb->getMainAlias();
+            $qb->update('\XLite\Model\Product', $alias)
+                ->set("{$alias}.enabled", $qb->expr()->literal(true))
+                ->andWhere($qb->expr()->in("{$alias}.product_id", $ids))
+                ->execute();
+            \XLite\Core\TopMessage::addInfo('Products information has been successfully updated');
+
         } else {
             \XLite\Core\TopMessage::addWarning('Please select the products first');
         }
@@ -145,6 +154,15 @@ class ProductList extends \XLite\Controller\Admin\ACL\Catalog
                 'Products information has been successfully updated'
             );
 
+        } elseif ($ids = $this->getActionProductsIds()) {
+            $qb = \XLite\Core\Database::getRepo('XLite\Model\Product')->createQueryBuilder();
+            $alias = $qb->getMainAlias();
+            $qb->update('\XLite\Model\Product', $alias)
+                ->set("{$alias}.enabled", $qb->expr()->literal(false))
+                ->andWhere($qb->expr()->in("{$alias}.product_id", $ids))
+                ->execute();
+            \XLite\Core\TopMessage::addInfo('Products information has been successfully updated');
+
         } else {
             \XLite\Core\TopMessage::addWarning('Please select the products first');
         }
@@ -161,13 +179,28 @@ class ProductList extends \XLite\Controller\Admin\ACL\Catalog
 
         if ($select && is_array($select)) {
             \XLite\Core\Database::getRepo('\XLite\Model\Product')->deleteInBatchById($select);
-            \XLite\Core\TopMessage::addInfo(
-                'Products information has been successfully deleted'
-            );
+            \XLite\Core\TopMessage::addInfo('Products information has been successfully deleted');
+
+        } elseif ($ids = $this->getActionProductsIds()) {
+            \XLite\Core\Database::getRepo('XLite\Model\Product')->deleteInBatchById(array_flip($ids));
+            \XLite\Core\TopMessage::addInfo('Products information has been successfully deleted');
 
         } else {
             \XLite\Core\TopMessage::addWarning('Please select the products first');
         }
+    }
+
+    /**
+     * @return array
+     */
+    protected function getActionProductsIds()
+    {
+        $cnd = $this->getItemsList()->getSearchCaseProcessor()->getSearchCase();
+        $ids = \XLite\Core\Database::getRepo('XLite\Model\Product')
+            ->search($cnd, \XLite\Model\Repo\ARepo::SEARCH_MODE_IDS);
+        $ids = is_array($ids) ? array_unique(array_filter($ids)) : [];
+
+        return $ids;
     }
 
     /**

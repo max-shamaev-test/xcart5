@@ -76,7 +76,10 @@ BillingAddressView.prototype.handleSameAddress = function(event)
 
 BillingAddressView.prototype.handleUpdateCart = function(event, data)
 {
-  if ('undefined' != typeof(data.sameAddress)) {
+  if ('undefined' !== typeof (data.billingAddressFields)) {
+    this.load();
+
+  } else if ('undefined' != typeof(data.sameAddress)) {
 
     // Load if same address flag changed
     var inp = jQuery('#same_address').eq(0);

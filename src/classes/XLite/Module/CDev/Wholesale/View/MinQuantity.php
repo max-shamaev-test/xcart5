@@ -58,14 +58,14 @@ class MinQuantity extends \XLite\View\AView
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_PRODUCT => new \XLite\Model\WidgetParam\TypeObject(
                 'Product',
                 $this->getProduct(),
                 false,
                 '\XLite\Model\Product'
             ),
-        );
+        ];
     }
 
     /**

@@ -8,10 +8,12 @@
 
 namespace XLite\View\Button;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
+
 /**
  * ItemsExport button
  */
-abstract class ItemsExport extends \XLite\View\Button\AButton
+abstract class ItemsExport extends \XLite\View\Button\AButton implements ProviderInterface
 {
     /**
      * getJSFiles
@@ -91,12 +93,7 @@ abstract class ItemsExport extends \XLite\View\Button\AButton
         return parent::getClass() . ' items-export';
     }
 
-    /**
-     * Get commented data
-     *
-     * @return array
-     */
-    protected function getCommentedData()
+    public function getPreloadedLanguageLabels()
     {
         return [
             'Export all'      => static::t('Export all'),

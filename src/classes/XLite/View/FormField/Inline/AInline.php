@@ -194,10 +194,27 @@ abstract class AInline extends \XLite\View\AView
         $parts = explode('\\', get_class($this->getEntity()));
         $class = strtolower(array_pop($parts));
 
-        return 'inline-field'
-            . ($this->isEditable() ? ' editable' : '')
-            . ($this->hasSeparateView() ? ' has-view' : '')
-            . (' ' . $class . '-' . $this->getParam(static::PARAM_FIELD_NAME));
+        $classes = [
+            'inline-field',
+            $class . '-' . $this->getParam(static::PARAM_FIELD_NAME)
+        ];
+
+        if ($this->isEditable()) {
+            $classes[] = 'editable';
+        }
+
+        if ($this->hasSeparateView()) {
+            $classes[] = 'has-view';
+        }
+
+        list($flag, $error) = $this->validate();
+
+        if (!$flag) {
+            $classes[] = 'invalid-inline-field';
+        }
+
+
+        return implode(' ', $classes);
     }
 
     /**
@@ -477,19 +494,77 @@ abstract class AInline extends \XLite\View\AView
         $parts = $this->getNameParts($field);
         $label = isset($field[static::FIELD_LABEL]) ? $field[static::FIELD_LABEL] : $field[static::FIELD_NAME];
 
+        $fieldValue = $this->getSavedValue() !== null
+            ? $this->getSavedValue()
+            : $this->getFieldEntityValue($field);
+
         $list = array(
             'fieldOnly' => true,
             'nameParts' => $parts,
             'fieldName' => array_shift($parts) . ($parts ? ('[' . implode('][', $parts) . ']') : ''),
-            'value'     => $this->getFieldEntityValue($field),
+            'value'     => $fieldValue,
             'label'     => \XLite\Core\Translation::lbl($label),
         );
+
+        $wrapperClass = $this->getWrapperClass($field);
+
+        if ($wrapperClass) {
+            $list['wrapperClass'] = $wrapperClass;
+        }
 
         if (!empty($field[static::FIELD_PARAMS]) && is_array($field[static::FIELD_PARAMS])) {
             $list = array_merge($list, $field[static::FIELD_PARAMS]);
         }
 
         return array_merge($list, $this->prepareAdditionalFieldParams($field));
+    }
+
+    /**
+     * @param $field
+     *
+     * @return string
+     */
+    protected function getWrapperClass($field)
+    {
+        $wrapperClasses = [];
+
+        if ($this->hasDifferentSavedValue($field)) {
+            $wrapperClasses[] = 'has-diff-saved-value';
+        }
+
+        return implode(' ', $wrapperClasses);
+    }
+
+    /**
+     * @return mixed|null
+     */
+    protected function getSavedValue()
+    {
+        $entity = $this->getEntity();
+        /** @var \XLite\View\ItemsList\Model\AModel $itemsList */
+        $itemsList = $this->getParam(static::PARAM_ITEMS_LIST);
+
+        $savedValue = null;
+
+        if ($entity && $itemsList) {
+            $savedValue = $itemsList->getSavedFieldValue(
+                $this->getParam('fieldName'),
+                $entity->getUniqueIdentifier()
+            );
+        }
+
+        return $savedValue;
+    }
+
+    /**
+     * @param $field
+     *
+     * @return bool
+     */
+    protected function hasDifferentSavedValue($field)
+    {
+        return $this->getSavedValue() !== null
+            && $this->getSavedValue() != $this->getFieldEntityValue($field);
     }
 
     /**

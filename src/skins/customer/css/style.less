@@ -104,6 +104,10 @@ html, body{
   position: relative;
 }
 
+#main-wrapper #content .list-container > .block.block-block {
+  clear: both;
+}
+
 fieldset {
   margin-bottom: 1em;
   padding: 0.5em;
@@ -164,7 +168,6 @@ table {
   }
 
   .tablesort-indicator {
-    background: url(../images/sort.png) no-repeat 0 6px;
     position: relative;
     left: 0;
     top: -2px;
@@ -648,7 +651,7 @@ li.mm-vertical.mm-opened > .mm-panel {
   .transform(transform 0.4s ease);
 }
 
-html.mm-opened {
+html.mm-opened:not(.popup-opened) {
   overflow: hidden;
   position: relative;
 

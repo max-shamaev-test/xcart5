@@ -26,4 +26,12 @@ class APage extends \XLite\View\Product\Details\Customer\Page\APage implements \
 
         return $labels;
     }
+
+    /**
+     * @return array
+     */
+    protected function getComingSoonLabel()
+    {
+        return [\XLite\Module\CDev\ProductAdvisor\Main::PA_MODULE_PRODUCT_LABEL_SOON => static::t('Coming soon')];
+    }
 }

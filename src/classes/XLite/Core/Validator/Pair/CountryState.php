@@ -64,6 +64,7 @@ class CountryState extends \XLite\Core\Validator\Pair\APair
         if (empty($data['state'])
             && $this->isFieldAvailable(static::FIELD_STATE)
             && $data['country']->hasStates()
+            && !$data['country']->isForcedCustomState()
         ) {
             throw $this->throwError('State is not defined');
 
@@ -98,7 +99,11 @@ class CountryState extends \XLite\Core\Validator\Pair\APair
         $country = $countryCodeValidator->getValidator()->sanitize($data[static::FIELD_COUNTRY]);
 
         // Get state
-        if ($country->hasStates() && isset($data[static::FIELD_STATE])) {
+        if (
+            $country->hasStates()
+            && !$country->isForcedCustomState()
+            && isset($data[static::FIELD_STATE])
+        ) {
             $stateValidator = new \XLite\Core\Validator\String\ObjectId\State(true);
             $state = $stateValidator->sanitize($data[static::FIELD_STATE]);
 

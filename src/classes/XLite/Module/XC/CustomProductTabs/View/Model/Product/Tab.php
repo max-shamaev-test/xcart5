@@ -18,24 +18,43 @@ class Tab extends \XLite\View\Model\AModel
      *
      * @var array
      */
-    protected $schemaDefault = array(
-        'name' => array(
+    protected $schemaDefault = [
+        'enabled'    => [
+            self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Checkbox\YesNo',
+            self::SCHEMA_LABEL    => 'Enabled',
+            self::SCHEMA_REQUIRED => false,
+        ],
+        'name'       => [
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Text',
             self::SCHEMA_LABEL    => 'Name',
             self::SCHEMA_REQUIRED => true,
-        ),
-        'contentTab' => array(
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Textarea\Advanced',
-            self::SCHEMA_LABEL    => 'Content',
-            self::SCHEMA_REQUIRED => true,
+        ],
+        'contentTab' => [
+            self::SCHEMA_CLASS                                   => '\XLite\Module\XC\CustomProductTabs\View\FormField\Textarea\Description',
+            self::SCHEMA_LABEL                                   => 'Content',
+            self::SCHEMA_REQUIRED                                => true,
+            self::SCHEMA_TRUSTED_PERMISSION                      => true,
             \XLite\View\FormField\Textarea\Advanced::PARAM_STYLE => 'product-description',
-        ),
-        'enabled' => array(
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Checkbox\Enabled',
-            self::SCHEMA_LABEL    => 'Enabled',
-            self::SCHEMA_REQUIRED => false,
-        ),
-    );
+        ],
+        'brief_info' => [
+            self::SCHEMA_CLASS => '\XLite\Module\XC\CustomProductTabs\View\FormField\Textarea\BriefInfo',
+            self::SCHEMA_LABEL => 'Brief info',
+            self::SCHEMA_HELP  => 'Brief info help',
+        ],
+    ];
+
+    /**
+     * Get a list of CSS files required to display the widget properly
+     *
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        $list = parent::getCSSFiles();
+        $list[] = 'modules/XC/CustomProductTabs/product_tab/style.css';
+
+        return $list;
+    }
 
     /**
      * Return current model ID
@@ -84,19 +103,19 @@ class Tab extends \XLite\View\Model\AModel
         $label = $this->getModelObject()->getId() ? 'Update' : 'Create';
 
         $result['submit'] = new \XLite\View\Button\Submit(
-            array(
+            [
                 \XLite\View\Button\AButton::PARAM_LABEL    => $label,
                 \XLite\View\Button\AButton::PARAM_BTN_TYPE => 'regular-main-button',
                 \XLite\View\Button\AButton::PARAM_STYLE    => 'action',
-            )
+            ]
         );
 
         $result['save_and_close'] = new \XLite\View\Button\Regular(
-            array(
+            [
                 \XLite\View\Button\AButton::PARAM_LABEL  => 'Save & Close',
                 \XLite\View\Button\AButton::PARAM_STYLE  => 'action',
                 \XLite\View\Button\Regular::PARAM_ACTION => 'updateProductTabAndClose',
-            )
+            ]
         );
 
         return $result;

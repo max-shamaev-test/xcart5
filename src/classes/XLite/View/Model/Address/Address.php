@@ -88,7 +88,16 @@ class Address extends \XLite\View\Model\AModel
 
             $address = $this->getModelObject();
 
-            if ($address && $address->getCountry() && $address->getCountry()->hasStates()) {
+            if (
+                $address
+                && $address->getCountry()
+                && $address->getCountry()->hasStates()
+                && !$address->getCountry()->isForcedCustomState()
+                && (
+                    !$address->isPersistent()
+                    || ($address->getState() && $address->getState()->isPersistent())
+                )
+            ) {
                 $deleteStateSelector = false;
             }
 
@@ -356,10 +365,20 @@ class Address extends \XLite\View\Model\AModel
 
             $data['state'] = null;
 
-            if (isset($data['state_id'])) {
+
+            if ($data['country'] && $data['country']->isForcedCustomState() && isset($data['custom_state'])) {
+                $data['state'] = $data['custom_state'];
+
+                unset($data['custom_state']);
+                unset($data['state_id']);
+            } elseif (isset($data['state_id'])) {
                 $state = \XLite\Core\Database::getRepo('XLite\Model\State')->find($data['state_id']);
 
-                if (isset($state) && $state->getCountry()->getCode() == $data['country_code']) {
+                if (
+                    isset($state)
+                    && $state->getCountry()->getCode() == $data['country_code']
+                    && !$state->getCountry()->isForcedCustomState()
+                ) {
                     $data['state'] = $state;
                     unset($data['custom_state']);
                 }

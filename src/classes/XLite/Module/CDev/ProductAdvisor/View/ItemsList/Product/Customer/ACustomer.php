@@ -14,7 +14,7 @@ namespace XLite\Module\CDev\ProductAdvisor\View\ItemsList\Product\Customer;
 abstract class ACustomer extends \XLite\View\ItemsList\Product\Customer\ACustomer implements \XLite\Base\IDecorator
 {
     /**
-     * Allowed sort criterions
+     * Allowed sort criteria
      */
     const SORT_BY_MODE_DATE  = 'p.arrivalDate';
 

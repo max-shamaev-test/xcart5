@@ -20,15 +20,15 @@ abstract class AAction extends \XLite\View\AView
     /**
      * Widget parameters' names
      */
-    const PARAM_MODULE      = 'module';
-    const PARAM_MODULE_ID   = 'moduleID';
+    const PARAM_MODULE    = 'module';
+    const PARAM_MODULE_ID = 'moduleID';
 
     /**
      * Module object cache
      *
      * @var \XLite\Model\Module|null
      */
-    protected $module = null;
+    protected $module;
 
     /**
      * Defines the name of the action
@@ -49,10 +49,10 @@ abstract class AAction extends \XLite\View\AView
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
-            self::PARAM_MODULE => new \XLite\Model\WidgetParam\TypeObject('Module', null, false, '\XLite\Model\Module'),
+        $this->widgetParams += [
+            self::PARAM_MODULE    => new \XLite\Model\WidgetParam\TypeObject('Module', null, false, 'XLite\Model\Module'),
             self::PARAM_MODULE_ID => new \XLite\Model\WidgetParam\TypeInt('Module ID', 0, false),
-        );
+        ];
     }
 
     /**
@@ -77,6 +77,7 @@ abstract class AAction extends \XLite\View\AView
         if (!$this->module) {
             $this->module = $this->getModuleObject();
         }
+
         return $this->module;
     }
 
@@ -99,7 +100,6 @@ abstract class AAction extends \XLite\View\AView
     protected function getCacheParameters()
     {
         $list = parent::getCacheParameters();
-
         $list[] = md5(serialize($this->getWidgetParams()));
 
         return $list;

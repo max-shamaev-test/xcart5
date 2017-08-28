@@ -93,18 +93,20 @@ decorate(
   }
 );
 
+PopupButtonExportCSV.throttledEachClick = _.throttle(function (elem, self, args) {
+  self.restoreState();
+  var xhr = self.startExport(elem);
+
+  xhr.always(function() {
+    args.callee.previousMethod.apply(self, args);
+  });
+}, 2000, {trailing: false});
+
 decorate(
   'PopupButtonExportCSV',
   'eachClick',
   function (elem) {
-    this.restoreState();
-    var xhr = this.startExport(elem);
-    // previous method call
-    var self = this;
-    var args = arguments;
-    xhr.always(function() {
-      args.callee.previousMethod.apply(self, args);
-    });
+    PopupButtonExportCSV.throttledEachClick(elem, this, arguments);
   }
 );
 

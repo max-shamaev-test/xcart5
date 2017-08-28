@@ -39,6 +39,15 @@ class Shipping extends \XLite\Logic\Order\Modifier\AShipping
     protected $rates;
 
     /**
+     * @inheritdoc
+     */
+    public function initialize(\XLite\Model\Order $order, \XLite\DataSet\Collection\OrderModifier $list)
+    {
+        $this->rates = null;
+        parent::initialize($order, $list);
+    }
+
+    /**
      * Check - can apply this modifier or not
      *
      * @return boolean
@@ -112,9 +121,20 @@ class Shipping extends \XLite\Logic\Order\Modifier\AShipping
     public function getRates()
     {
         if (!isset($this->rates) || \XLite\Core\Request::getInstance()->isAJAX()) {
-            $this->rates = $this->isCart()
-                ? $this->calculateRates()
-                : $this->restoreRates();
+            if ($this->isCart()) {
+                $this->rates = $this->calculateRates();
+            } else {
+                $rates = $this->restoreRates();
+
+                if (
+                    !$rates
+                    && $this->getOrder()->getShippingId() !== $this->getOrder()->getLastShippingId()
+                ) {
+                    $rates = $this->calculateRates();
+                }
+
+                $this->rates = $rates;
+            }
         }
 
         return $this->rates;

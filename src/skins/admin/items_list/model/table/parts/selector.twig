@@ -7,5 +7,7 @@
          name="{{ this.getSelectorDataPrefix() }}[{{ this.entity.getUniqueIdentifier() }}]"
          value="1"
          class="selector not-significant"
-         autocomplete="off"/>
+         autocomplete="off"
+         {% if this.isRowSelected(this.entity) %}checked="checked"{% endif %}
+  />
 </div>

@@ -16,7 +16,7 @@ class Singletons
     /**
      * handler
      *
-     * @var \Includes\Singletons
+     * @var static
      */
     public static $handler;
 

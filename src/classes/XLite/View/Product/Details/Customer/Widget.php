@@ -42,9 +42,37 @@ abstract class Widget extends \XLite\View\Product\AProduct
 
         $this->widgetParams += [
             static::PARAM_PRODUCT          => new \XLite\Model\WidgetParam\TypeObject('Product', null, false, 'XLite\Model\Product'),
-            static::PARAM_PRODUCT_ID       => new \XLite\Model\WidgetParam\TypeInt('Product ID', 0),
             static::PARAM_ATTRIBUTE_VALUES => new \XLite\Model\WidgetParam\TypeString('Attribute values IDs', $this->getDefaultAttributeValues()),
         ];
+    }
+    
+    /**
+     * @inheritdoc
+     */
+    public function setWidgetParams(array $params)
+    {
+        if (empty($params[static::PARAM_PRODUCT]) && (
+                !$this->getParam(static::PARAM_PRODUCT) || isset($params[static::PARAM_PRODUCT_ID])
+            )
+        ) {
+            $params[static::PARAM_PRODUCT] = \XLite\Core\Database::getRepo('XLite\Model\Product')->find(
+                isset($params[static::PARAM_PRODUCT_ID])
+                    ? $params[static::PARAM_PRODUCT_ID]
+                    : $this->getDefaultProductId()
+            );
+        }
+
+        parent::setWidgetParams($params);
+    }
+
+    /**
+     * @return integer
+     */
+    protected function getDefaultProductId()
+    {
+        return isset(\XLite\Core\Request::getInstance()->product_id)
+            ? \XLite\Core\Request::getInstance()->product_id
+            : 0;   
     }
 
     /**
@@ -52,7 +80,7 @@ abstract class Widget extends \XLite\View\Product\AProduct
      */
     protected function getDefaultAttributeValues()
     {
-        return is_string(\XLite\Core\Request::getInstance()->attribute_values)
+        return isset(\XLite\Core\Request::getInstance()->attribute_values)
             ? \XLite\Core\Request::getInstance()->attribute_values
             : '';   
     }
@@ -95,14 +123,19 @@ abstract class Widget extends \XLite\View\Product\AProduct
 
         return $this->executeCachedRuntime(function () use ($attributeValuesParam) {
             $result          = [];
-            $attributeValues = trim($attributeValuesParam, ',');
 
-            if ($attributeValues) {
-                $attributeValues = explode(',', $attributeValues);
-                foreach ($attributeValues as $attributeValue) {
-                    list($attributeId, $valueId) = explode('_', $attributeValue);
+            if (is_array($attributeValuesParam)) {
+                $result = $attributeValuesParam;
+            } else {
+                $attributeValues = trim($attributeValuesParam, ',');
 
-                    $result[$attributeId] = $valueId;
+                if ($attributeValues) {
+                    $attributeValues = explode(',', $attributeValues);
+                    foreach ($attributeValues as $attributeValue) {
+                        list($attributeId, $valueId) = explode('_', $attributeValue);
+
+                        $result[$attributeId] = $valueId;
+                    }
                 }
             }
 

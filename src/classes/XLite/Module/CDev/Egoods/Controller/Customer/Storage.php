@@ -8,14 +8,17 @@
 
 namespace XLite\Module\CDev\Egoods\Controller\Customer;
 
+use XLite\Core\Operator;
+use XLite\Model\Order\Status\Shipping;
+
 /**
  * Storage
  */
 abstract class Storage extends \XLite\Controller\Customer\Storage implements \XLite\Base\IDecorator
 {
     /**
-     * Storage private key 
-     * 
+     * Storage private key
+     *
      * @var   \XLite\Module\CDev\Egoods\Model\OrderItem\PrivateAttachment
      */
     protected $storageKey;
@@ -36,7 +39,7 @@ abstract class Storage extends \XLite\Controller\Customer\Storage implements \XL
         ) {
             $key = \XLite\Core\Request::getInstance()->key;
             $key = \XLite\Core\Database::getRepo('XLite\Module\CDev\Egoods\Model\OrderItem\PrivateAttachment')
-                ->findOneBy(array('downloadKey' => $key));
+                ->findOneBy(['downloadKey' => $key]);
             if (!$key || $key->getAttachment()->getId() != $storage->getAttachment()->getid() || !$key->isAvailable()) {
                 $storage = null;
 
@@ -49,17 +52,91 @@ abstract class Storage extends \XLite\Controller\Customer\Storage implements \XL
     }
 
     /**
+     * Create history point
+     */
+    protected function createHistoryPoint()
+    {
+        if (\XLite\Core\Config::getInstance()->CDev->Egoods->enable_history) {
+            $auth = \XLite\Core\Auth::getInstance();
+            $historyRepo = \XLite\Core\Database::getRepo('XLite\Module\CDev\Egoods\Model\Product\Attachment\AttachmentHistoryPoint');
+
+            /** @var \XLite\Module\CDev\Egoods\Model\Product\Attachment\AttachmentHistoryPoint $historyPoint */
+            $historyPoint = $historyRepo->insert(null, false);
+
+            if ($this->storageKey->getItem()) {
+                $historyPoint->setOrder($this->storageKey->getItem()->getOrder());
+            }
+
+            $historyPoint->setLogin($auth->getProfile() ? $auth->getProfile()->getLogin() : '');
+            $historyPoint->setProfile($auth->getProfile());
+            $historyPoint->setAttachment($this->storageKey->getAttachment());
+            $this->storageKey->getAttachment()->addHistoryPoint($historyPoint);
+
+            if ($this->storageKey->getAttachment() && $this->storageKey->getAttachment()->getStorage()) {
+                $pi = pathinfo($this->storageKey->getAttachment()->getStorage()->getStoragePath());
+                $path = isset($pi['dirname']) ? $pi['dirname'] . LC_DS : '';
+                $path .= $this->storageKey->getAttachment()->getStorage()->getFileName();
+                $historyPoint->setPath($path);
+            }
+
+            $historyPoint->setIp(\XLite\Core\Request::getInstance()->getClientIp());
+            $historyPoint->fillAdditionalDetails();
+        }
+    }
+
+    /**
+     * Set delivered shipping status on file download
+     */
+    protected function processOrderStatus()
+    {
+        if ($this->storageKey->getItem() && $this->storageKey->getItem()->getOrder()) {
+            $order = $this->storageKey->getItem()->getOrder();
+
+            if (in_array($order->getShippingStatusCode(), [
+                Shipping::STATUS_NEW,
+                Shipping::STATUS_PROCESSING,
+                Shipping::STATUS_SHIPPED,
+            ])) {
+                $deliveredStatus = \XLite\Core\Database::getRepo('XLite\Model\Order\Status\Shipping')
+                    ->findOneByCode(Shipping::STATUS_DELIVERED);
+
+                \XLite\Core\OrderHistory::getInstance()->registerOrderDeliveredByDownload(
+                    $order->getOrderId(),
+                    [
+                        'old' => $order->getShippingStatus() ? $order->getShippingStatus()->getName() : 'Undefined',
+                        'new' => $deliveredStatus->getName(),
+                    ]
+                );
+
+                $order->setShippingStatus($deliveredStatus);
+                $order->setOldShippingStatus($deliveredStatus);
+            }
+        }
+    }
+
+    /**
      * Read storage
      *
      * @param \XLite\Model\Base\Storage $storage Storage
-     *
-     * @return void
      */
     protected function readStorage(\XLite\Model\Base\Storage $storage)
     {
         if ($this->storageKey) {
+            $this->createHistoryPoint();
+
             $this->storageKey->incrementAttempt();
+
+            $this->processOrderStatus();
+
             \XLite\Core\Database::getEM()->flush();
+        }
+
+        if ($storage instanceof \XLite\Module\CDev\Egoods\Model\Product\Attachment\Storage
+            && $storage->canBeSigned()
+            && $storage->getAttachment()->getPrivate()
+        ) {
+            Operator::redirect($storage->getSignedUrl());
+            return;
         }
 
         parent::readStorage($storage);

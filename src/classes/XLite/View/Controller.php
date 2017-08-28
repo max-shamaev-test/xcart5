@@ -78,13 +78,11 @@ class Controller extends \XLite\View\AView
     }
 
     /**
-     * CSS classes which are defined in the defineBodyClasses() method are assembled into the one string
+     * Get body class
      *
      * @return string
-     *
-     * @see \XLite\View\Content::defineBodyClasses()
      */
-    protected function getBodyClasses()
+    protected function getBodyClass()
     {
         return implode(' ', $this->defineBodyClasses());
     }
@@ -133,12 +131,28 @@ class Controller extends \XLite\View\AView
             $classes[] = 'no-sidebars';
         }
 
+        $sidebarState = \XLite\Core\Layout::getInstance()->getSidebarState();
+
         if ($first) {
             $classes[] = 'sidebar-first';
+            if ($sidebarState & \XLite\Core\Layout::SIDEBAR_STATE_FIRST_EMPTY) {
+                $classes[] = 'sidebar-first-empty';
+            }
+
+            if ($sidebarState & \XLite\Core\Layout::SIDEBAR_STATE_FIRST_ONLY_CATEGORIES) {
+                $classes[] = 'sidebar-first-only-categories';
+            }
         }
 
         if ($second) {
             $classes[] = 'sidebar-second';
+            if ($sidebarState & \XLite\Core\Layout::SIDEBAR_STATE_SECOND_EMPTY) {
+                $classes[] = 'sidebar-second-empty';
+            }
+
+            if ($sidebarState & \XLite\Core\Layout::SIDEBAR_STATE_SECOND_ONLY_CATEGORIES) {
+                $classes[] = 'sidebar-second-only-categories';
+            }
         }
 
         $classes = \XLite::getController()->defineBodyClasses($classes);
@@ -158,7 +172,7 @@ class Controller extends \XLite\View\AView
      */
     protected function prepareCSSClass($class)
     {
-        return preg_replace('/[^a-z0-9_-]+/Sis', '-', $class);
+        return preg_replace('/[^a-z0-9_-]+/Si', '-', $class);
     }
 
     /**
@@ -256,16 +270,6 @@ class Controller extends \XLite\View\AView
     protected function refreshEnd()
     {
         func_refresh_end();
-    }
-
-    /**
-     * Get body class
-     *
-     * @return string
-     */
-    protected function getBodyClass()
-    {
-        return implode(' ', $this->defineBodyClasses());
     }
 
     /**

@@ -150,6 +150,8 @@ class Upgrade extends \XLite\Controller\Admin\Base\Addon
         if ($this->isDownload()) {
             $result = static::t('Downloading updates');
 
+        } elseif ($this->getAction() === 'view' && \XLite\Core\Request::getInstance()->hide_title) {
+            $result = null;
         } else {
             $version = \XLite\Upgrade\Cell::getInstance()->getCoreMajorVersion();
 
@@ -215,6 +217,18 @@ class Upgrade extends \XLite\Controller\Admin\Base\Addon
         }
 
         return $result;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isShowPharPopup()
+    {
+        $requirements = new \Includes\Requirements();
+        $result = $requirements->getResult();
+
+        return !isset($result['php_phar']['data']['version'])
+            || empty($result['php_phar']['data']['version']);
     }
 
     /**
@@ -902,11 +916,11 @@ class Upgrade extends \XLite\Controller\Admin\Base\Addon
     {
         $this->setReturnURL($this->buildURL('upgrade'));
 
-        \XLite\Upgrade\Cell::getInstance()->clear();
-
         if (\XLite\Core\Request::getInstance()->entries) {
             \XLite\Core\Session::getInstance()->selectedEntries = \XLite\Core\Request::getInstance()->entries;
         }
+
+        \XLite\Upgrade\Cell::getInstance()->clear();
 
         $version = null;
 
@@ -1093,7 +1107,7 @@ class Upgrade extends \XLite\Controller\Admin\Base\Addon
                         || in_array($entityID, array_keys($entries))
                     )
                 ) {
-                    $urlParamsAggregated[] = $this->getKeyURLParams($i++, $key);
+                    $urlParamsAggregated[] = \XLite\Core\Marketplace::getKeyURLParams($i++, $key);
 
                     if (isset($entries[$entityID])) {
                         // License key is related to upgrade entry - set blocking flag
@@ -1112,7 +1126,7 @@ class Upgrade extends \XLite\Controller\Admin\Base\Addon
                     $this->expiredKeys[] = [
                         'title'       => $title,
                         'expDate'     => \XLite\Core\Converter::formatDate($keyData['expDate']),
-                        'purchaseURL' => $commonURLPart . $this->getKeyURLParams(1, $key) . '&proxy_checkout=1',
+                        'purchaseURL' => $commonURLPart . \XLite\Core\Marketplace::getKeyURLParams(1, $key) . '&proxy_checkout=1',
                     ];
                 }
             }
@@ -1163,6 +1177,8 @@ class Upgrade extends \XLite\Controller\Admin\Base\Addon
 
     /**
      * Get key purchase URL parameters
+     * @deprecated 5.3.2.10
+     * @see \XLite\Core\Marketplace::getKeyURLParams
      *
      * @param integer                $index Index of entity in URL
      * @param \XLite\Model\ModuleKey $key   Module key object

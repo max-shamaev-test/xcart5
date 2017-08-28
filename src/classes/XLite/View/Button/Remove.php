@@ -13,6 +13,8 @@ namespace XLite\View\Button;
  */
 class Remove extends \XLite\View\Button\AButton
 {
+    const PARAM_IS_CROSS = 'isCrossIcon';
+
     /**
      * Get a list of JavaScript files required to display the widget properly
      *
@@ -23,6 +25,20 @@ class Remove extends \XLite\View\Button\AButton
         $list = parent::getJSFiles();
 
         $list[] = 'button/js/remove.js';
+
+        return $list;
+    }
+
+    /**
+     * Get a list of JavaScript files required to display the widget properly
+     *
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        $list = parent::getCSSFiles();
+
+        $list[] = 'button/css/remove.css';
 
         return $list;
     }
@@ -45,7 +61,16 @@ class Remove extends \XLite\View\Button\AButton
     protected function  getStyle()
     {
         return 'remove'
-            . ($this->getParam(self::PARAM_STYLE) ? ' ' . $this->getParam(self::PARAM_STYLE) : '');
+            . ($this->getParam(self::PARAM_STYLE) ? ' ' . $this->getParam(self::PARAM_STYLE) : '')
+            . ($this->isCrossIcon() ? ' cross-icon' : '');
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isCrossIcon()
+    {
+        return $this->getParam(static::PARAM_IS_CROSS);
     }
 
     /**
@@ -58,5 +83,9 @@ class Remove extends \XLite\View\Button\AButton
         parent::defineWidgetParams();
 
         $this->widgetParams[self::PARAM_LABEL]->setValue('Remove');
+
+        $this->widgetParams += [
+            static::PARAM_IS_CROSS    => new \XLite\Model\WidgetParam\TypeBool('Value', false),
+        ];
     }
 }

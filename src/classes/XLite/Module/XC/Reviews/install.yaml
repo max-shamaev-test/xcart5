@@ -32,6 +32,9 @@ XLite\Model\Config:
       - code: en
         option_name: 'The quantity of reviews for tabs product reviews'
 
+XLite\Model\Product\GlobalTab:
+  - {service_name: 'Reviews', position: 60}
+
 XLite\Model\LanguageLabel:
   - { name: 'X stars_5', translations: [{ code: en, label: '{{count}} stars' }] }
   - { name: 'X stars_4', translations: [{ code: en, label: '{{count}} stars' }] }
@@ -91,10 +94,11 @@ XLite\Model\LanguageLabel:
   - { name: 'Rate desc', translations: [{ code: en, label: 'By Rate - 9-0' }] }
   - { name: 'Only customers who purchased this product can leave feedback on this product', translations: [{ code: 'en', label: 'Only registered customers who purchased this product can leave feedback' }] }
   - { name: 'Registered users who purchased product', translations: [{ code: 'en', label: 'Registered users who purchased the product' }] }
-  - { name: 'Score: X. Votes: Y', translations: [{ code: 'en', label: 'Score: {{score}}. Votes: {{votes}}' }] }
+  - { name: 'Score: X. Votes: Y', translations: [{ code: 'en', label: 'Score: {{score}} (votes: {{votes}})' }] }
+  - { name: 'Votes: X', translations: [{ code: 'en', label: 'Votes: {{votes}}' }] }
   - { name: 'No reviews.', translations: [{ code: 'en', label: 'No reviews.' }] }
   - { name: 'Not rated yet', translations: [{ code: 'en', label: 'Not rated yet' }] }
-  - { name: 'Be the first and leave a feedback.', translations: [{ code: 'en', label: 'Be the first and leave feedback.' }] }
+  - { name: 'Be the first and leave a feedback.', translations: [{ code: 'en', label: 'Be the first and leave feedback' }] }
   - { name: 'All users', translations: [{ code: en, label: 'All users' }] }
   - { name: 'Registered users only', translations: [{ code: en, label: 'Registered users only' }] }
   - { name: 'Reviews and ratings', translations: [{ code: en, label: 'Reviews and ratings' }] }
@@ -116,6 +120,13 @@ XLite\Model\LanguageLabel:
   - { name: 'A new review has been submitted for the product "{{name}}".', translations: [{ code: 'en', label: 'A new review has been submitted for the product "{{name}}".' }] }
   - { name: 'Go to see the review [in the Admin area]', translations: [{ code: 'en', label: 'Go to see the review <a href="{{link}}">in the Admin area</a>' }] }
   - { name: 'itemslist.admin.review.blank', translations: [{ code: en, label: '<p class="items-list-blank-description-heading text-center">No one has rated your products yet.</p><p class="text-center">Once someone reviews your product (or you add a review manually), this is the place to track, moderate and remove reviews.</p>' },{ code: ru, label: '<p class="items-list-blank-description-heading text-center">Никто пока не оценил ваши продукты.</p><p class="text-center">Как только появятся отзывы о ваших продуктах, вы сможете управлять ими на этой странице.</p>' }] }
+  - { name: 'star_tooltip_1', translations: [{ code: 'en', label: 'Excellent' }, { code: 'ru', label: 'Отлично' }] }
+  - { name: 'star_tooltip_2', translations: [{ code: 'en', label: 'Good' }, { code: 'ru', label: 'Хорошо' }] }
+  - { name: 'star_tooltip_3', translations: [{ code: 'en', label: 'Average' }, { code: 'ru', label: 'Нормально' }] }
+  - { name: 'star_tooltip_4', translations: [{ code: 'en', label: 'Fair' }, { code: 'ru', label: 'Посредственно' }] }
+  - { name: 'star_tooltip_5', translations: [{ code: 'en', label: 'Poor' }, { code: 'ru', label: 'Плохо' }] }
+  - { name: 'Text of response', translations: [{ code: 'en', label: 'Text of response' }, { code: 'ru', label: 'Ответ' }] }
+  - { name: 'Response date is in wrong format', translations: [{ code: 'en', label: 'Response date is in wrong format' }, { code: 'ru', label: 'Неверный формат поля "responseDate"' }] }
 
 XLite\Model\Notification:
   - templatesDirectory: modules/XC/Reviews/new_review

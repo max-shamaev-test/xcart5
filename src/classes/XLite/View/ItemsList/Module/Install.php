@@ -25,7 +25,7 @@ class Install extends \XLite\View\ItemsList\Module\AModule
     const PRICE_OPT_ALL  = 'all';
     const PRICE_OPT_FREE = \XLite\Model\Repo\Module::PRICE_FREE;
     const PRICE_OPT_PAID = \XLite\Model\Repo\Module::PRICE_PAID;
-    const TAG_OPT_ALL    = 'All';
+    const TAG_OPT_ALL    = 'All tags';
     const VENDOR_OPT_ALL = 'All';
 
     /**
@@ -42,7 +42,7 @@ class Install extends \XLite\View\ItemsList\Module\AModule
      */
     public static function getAllowedTargets()
     {
-        $result = parent::getAllowedTargets();
+        $result   = parent::getAllowedTargets();
         $result[] = 'addons_list_marketplace';
 
         return $result;
@@ -55,11 +55,11 @@ class Install extends \XLite\View\ItemsList\Module\AModule
      */
     public function getCommonFiles()
     {
-        $list = parent::getCommonFiles();
-        $list['js'][] = array(
+        $list         = parent::getCommonFiles();
+        $list['js'][] = [
             'file'      => 'js/ui.selectmenu.min.js',
             'no_minify' => true,
-        );
+        ];
         // popup button is using several specific popup JS
         $list['js'][] = 'js/core.popup.js';
         $list['js'][] = 'js/core.popup_button.js';
@@ -76,7 +76,7 @@ class Install extends \XLite\View\ItemsList\Module\AModule
      */
     public function getCSSFiles()
     {
-        $list = parent::getCSSFiles();
+        $list   = parent::getCSSFiles();
         $list[] = 'modules_manager/css/common.css';
 
         // TODO must be taken from LICENSE module widget
@@ -86,6 +86,7 @@ class Install extends \XLite\View\ItemsList\Module\AModule
 
         // TODO must be taken from SwitchButton widget
         $list[] = \XLite\View\Button\SwitchButton::SWITCH_CSS_FILE;
+        $list[] = 'button/css/progress-state.css';
 
         return $list;
     }
@@ -113,6 +114,8 @@ class Install extends \XLite\View\ItemsList\Module\AModule
             $list[] = 'modules_manager/install/js/connection.js';
         }
 
+        $list[] = 'button/js/progress-state.js';
+
         return $list;
     }
 
@@ -134,10 +137,20 @@ class Install extends \XLite\View\ItemsList\Module\AModule
         }
 
         if ($request->clearCnd) {
-            $params[static::PARAM_TAG] = '';
+            $params[static::PARAM_TAG]    = '';
             $params[static::PARAM_VENDOR] = '';
-            $params[static::PARAM_PRICE] = '';
+            $params[static::PARAM_PRICE]  = '';
         }
+    }
+
+    /**
+     * isFooterVisible
+     *
+     * @return boolean
+     */
+    protected function isFooterVisible()
+    {
+        return $this->isLandingPage();
     }
 
     /**
@@ -199,13 +212,13 @@ class Install extends \XLite\View\ItemsList\Module\AModule
     protected function getPagerClass()
     {
         return $this->isLandingPage()
-            ? '\XLite\View\Pager\Admin\Module\InstallLandingPage'
-            : '\XLite\View\Pager\Admin\Module\Install';
+            ? 'XLite\View\Pager\Admin\Module\InstallLandingPage'
+            : 'XLite\View\Pager\Admin\Module\Install';
     }
 
     protected function getMarketplaceNotAccessibleData()
     {
-        $result = array();
+        $result = [];
 
         if (\XLite\Core\Request::getInstance()->landing) {
             $result['landing'] = 1;
@@ -253,20 +266,20 @@ class Install extends \XLite\View\ItemsList\Module\AModule
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             static::PARAM_SUBSTRING => new \XLite\Model\WidgetParam\TypeString(
                 'Substring', ''
             ),
-            static::PARAM_TAG => new \XLite\Model\WidgetParam\TypeString(
+            static::PARAM_TAG       => new \XLite\Model\WidgetParam\TypeString(
                 'Tag', ''
             ),
-            static::PARAM_VENDOR => new \XLite\Model\WidgetParam\TypeString(
+            static::PARAM_VENDOR    => new \XLite\Model\WidgetParam\TypeString(
                 'Vendor', ''
             ),
-            static::PARAM_PRICE => new \XLite\Model\WidgetParam\TypeSet(
+            static::PARAM_PRICE     => new \XLite\Model\WidgetParam\TypeSet(
                 'Price', static::PRICE_OPT_ALL, false, $this->getPriceOptions()
             ),
-        );
+        ];
     }
 
     /**
@@ -281,15 +294,36 @@ class Install extends \XLite\View\ItemsList\Module\AModule
 
         $request = \XLite\Core\Request::getInstance();
 
-        if (!$request->clearSearch) {
-            $this->requestParams[] = static::PARAM_SUBSTRING;
+        if ($request->sessionCell || $request->widget || $request->sortBy) {
+            if (!$request->clearSearch) {
+                $this->requestParams[] = static::PARAM_SUBSTRING;
+            }
+
+            if (!$request->clearCnd) {
+                $this->requestParams[] = static::PARAM_TAG;
+                $this->requestParams[] = static::PARAM_VENDOR;
+                $this->requestParams[] = static::PARAM_PRICE;
+            }
         }
 
-        if (!$request->clearCnd) {
-            $this->requestParams[] = static::PARAM_TAG;
-            $this->requestParams[] = static::PARAM_VENDOR;
-            $this->requestParams[] = static::PARAM_PRICE;
+        $this->requestParams[] = static::PARAM_SUBSTRING;
+        $this->requestParams[] = static::PARAM_TAG;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSavedRequestParam($param)
+    {
+        $result = null;
+
+        $request = \XLite\Core\Request::getInstance();
+
+        if ($request->sessionCell || $request->widget || $request->sortBy) {
+            $result = parent::getSavedRequestParam($param);
         }
+
+        return $result;
     }
 
     /**
@@ -300,10 +334,10 @@ class Install extends \XLite\View\ItemsList\Module\AModule
     protected function getSortOptions()
     {
         return array_merge(
-            array(
+            [
                 static::SORT_OPT_POPULAR => static::t('module-sort-Most popular'),
                 static::SORT_OPT_NEWEST  => static::t('module-sort-Newest'),
-            ),
+            ],
             parent::getSortOptions()
         );
     }
@@ -315,18 +349,18 @@ class Install extends \XLite\View\ItemsList\Module\AModule
      */
     protected function getSortOptionsForSelector()
     {
-        $result = array();
+        $result    = [];
         $substring = $this->getSubstring();
 
         foreach ($this->getSortOptions() as $value => $name) {
-            $url = $this->buildURL(
+            $url          = $this->buildURL(
                 'addons_list_marketplace',
                 '',
-                array(
+                [
                     \XLite\View\Pager\Admin\Module\AModule::PARAM_CLEAR_PAGER => 1,
-                    static::PARAM_SORT_BY   => $value,
-                    static::PARAM_SUBSTRING => $substring,
-                )
+                    static::PARAM_SORT_BY                                     => $value,
+                    static::PARAM_SUBSTRING                                   => $substring,
+                ]
             );
             $result[$url] = $name;
         }
@@ -344,11 +378,11 @@ class Install extends \XLite\View\ItemsList\Module\AModule
         return $this->buildURL(
             'addons_list_marketplace',
             '',
-            array(
+            [
                 \XLite\View\Pager\Admin\Module\AModule::PARAM_CLEAR_PAGER => 1,
-                static::PARAM_SORT_BY => $this->getSortBy(),
-                static::PARAM_SUBSTRING => $this->getSubstring(),
-            )
+                static::PARAM_SORT_BY                                     => $this->getSortBy(),
+                static::PARAM_SUBSTRING                                   => $this->getSubstring(),
+            ]
         );
     }
 
@@ -361,11 +395,11 @@ class Install extends \XLite\View\ItemsList\Module\AModule
      */
     protected function getPriceOptions()
     {
-        return array(
-            static::PRICE_OPT_ALL  => 'price-All',
+        return [
+            static::PRICE_OPT_ALL  => 'Free & paid',
             static::PRICE_OPT_PAID => 'price-Paid',
             static::PRICE_OPT_FREE => 'price-Free',
-        );
+        ];
     }
 
     /**
@@ -375,34 +409,23 @@ class Install extends \XLite\View\ItemsList\Module\AModule
      */
     protected function getPriceOptionsForSelector()
     {
-        $result = array();
+        $result = [];
         foreach ($this->getPriceOptions() as $value => $name) {
-            $actionUrl = $this->getActionURL(
-                array(
-                    static::PARAM_PRICE => $value,
+            $url = $this->getActionURL(
+                [
+                    static::PARAM_PRICE                                       => $value,
                     \XLite\View\Pager\Admin\Module\AModule::PARAM_CLEAR_PAGER => 1,
-                )
+                ]
             );
 
-            $result[$actionUrl] = static::t($name);
+            $result[] = [
+                'label'    => static::t($name),
+                'url'      => $url,
+                'selected' => $value === $this->getParam(self::PARAM_PRICE),
+            ];
         }
 
         return $result;
-    }
-
-    /**
-     * Get price filter option value for selector
-     *
-     * @return string
-     */
-    protected function getPriceOptionsValueForSelector()
-    {
-        return $this->getActionURL(
-            array(
-                static::PARAM_PRICE                                       => $this->getParam(self::PARAM_PRICE),
-                \XLite\View\Pager\Admin\Module\AModule::PARAM_CLEAR_PAGER => 1,
-            )
-        );
     }
 
     // }}}
@@ -417,7 +440,7 @@ class Install extends \XLite\View\ItemsList\Module\AModule
     protected function getTagOptions()
     {
         return array_merge(
-            array(static::TAG_OPT_ALL => ''),
+            [static::TAG_OPT_ALL => ''],
             $this->getTags()
         );
     }
@@ -429,37 +452,24 @@ class Install extends \XLite\View\ItemsList\Module\AModule
      */
     protected function getTagOptionsForSelector()
     {
-        $result = array();
+        $result = [];
 
         foreach ($this->getTagOptions() as $name => $value) {
-            $actionUrl = $this->getActionURL(
-                array(
+            $url = $this->getActionURL(
+                [
                     static::PARAM_TAG                                         => $value,
                     \XLite\View\Pager\Admin\Module\AModule::PARAM_CLEAR_PAGER => 1,
-                    'clearSearch'                                             => 1,
-                )
+                ]
             );
 
-            $result[$actionUrl] = $this->getTagName($name);
+            $result[] = [
+                'label'    => $name,
+                'url'      => $url,
+                'selected' => $value === $this->getTagValue(),
+            ];
         }
 
         return $result;
-    }
-
-    /**
-     * Get tag option value for selector
-     *
-     * @return string
-     */
-    protected function getTagOptionsValueForSelector()
-    {
-        return $this->getActionURL(
-            array(
-                static::PARAM_TAG                                         => $this->getTagValue(),
-                \XLite\View\Pager\Admin\Module\AModule::PARAM_CLEAR_PAGER => 1,
-                'clearSearch'                                             => 1,
-            )
-        );
     }
 
     /**
@@ -493,11 +503,11 @@ class Install extends \XLite\View\ItemsList\Module\AModule
      */
     protected function getVendorOptions()
     {
-        $vendors = $this->getVendors();
+        $vendors     = $this->getVendors();
         $authorNames = array_keys($vendors);
 
         return array_merge(
-            array(static::VENDOR_OPT_ALL => ''),
+            [static::VENDOR_OPT_ALL => ''],
             array_combine($authorNames, $authorNames)
         );
     }
@@ -509,15 +519,15 @@ class Install extends \XLite\View\ItemsList\Module\AModule
      */
     protected function getVendorOptionsForSelector()
     {
-        $result = array();
+        $result = [];
 
         foreach ($this->getVendorOptions() as $name => $value) {
             $actionUrl = $this->getActionURL(
-                array(
+                [
                     static::PARAM_VENDOR                                      => $value,
                     \XLite\View\Pager\Admin\Module\AModule::PARAM_CLEAR_PAGER => 1,
                     'clearSearch'                                             => 1,
-                )
+                ]
             );
 
             $result[$actionUrl] = $this->getTagName($name);
@@ -534,11 +544,11 @@ class Install extends \XLite\View\ItemsList\Module\AModule
     protected function getVendorOptionsValueForSelector()
     {
         return $this->getActionURL(
-            array(
+            [
                 static::PARAM_VENDOR                                      => $this->getVendorValue(),
                 \XLite\View\Pager\Admin\Module\AModule::PARAM_CLEAR_PAGER => 1,
                 'clearSearch'                                             => 1,
-            )
+            ]
         );
     }
 
@@ -547,7 +557,7 @@ class Install extends \XLite\View\ItemsList\Module\AModule
      *
      * @return string
      */
-    protected function getVendorValue()
+    public function getVendorValue()
     {
         return \XLite\Core\Request::getInstance()->clearCnd ? '' : $this->getFilteredVendorValue();
     }
@@ -571,6 +581,54 @@ class Install extends \XLite\View\ItemsList\Module\AModule
     // }}}
 
     /**
+     * Get module author URL
+     *
+     * @param \XLite\Model\Module $module Module
+     *
+     * @return string
+     */
+    protected function getAuthorURL(\XLite\Model\Module $module)
+    {
+        $authorName = $module->getAuthorName();
+
+        if ($authorName === \XLite\Model\Repo\Module::VENDOR_QUALITEAM
+            || $authorName === \XLite\Model\Repo\Module::VENDOR_XCART_TEAM
+        ) {
+
+            $authorName = \XLite\Model\Repo\Module::VENDOR_XCART_TEAM_AND_QUALITEAM;
+        }
+        
+        return $this->getActionURL(
+            [
+                static::PARAM_VENDOR                                      => $authorName,
+                \XLite\View\Pager\Admin\Module\AModule::PARAM_CLEAR_PAGER => 1,
+                'clearSearch'                                             => 1,
+                static::PARAM_TAG                                         => '',
+                static::PARAM_PRICE                                       => '',
+            ]
+        );
+    }
+
+    /**
+     * Get module author URL
+     *
+     * @param string $tag
+     *
+     * @return string
+     */
+    protected function getTagURL($tag)
+    {
+        return $this->getActionURL(
+            [
+                static::PARAM_TAG                                         => $tag,
+                \XLite\View\Pager\Admin\Module\AModule::PARAM_CLEAR_PAGER => 1,
+                static::PARAM_VENDOR                                      => '',
+                static::PARAM_PRICE                                       => ''
+            ]
+        );
+    }
+
+    /**
      * Return params list to use for search
      *
      * @return \XLite\Core\CommonCell
@@ -578,33 +636,33 @@ class Install extends \XLite\View\ItemsList\Module\AModule
     protected function getSearchCondition()
     {
         if ($this->isLandingPage()) {
-            $cnd = new \XLite\Core\CommonCell();
+            $cnd                                                 = new \XLite\Core\CommonCell();
             $cnd->{\XLite\Model\Repo\Module::P_FROM_MARKETPLACE} = true;
             $cnd->{\XLite\Model\Repo\Module::P_ISSYSTEM}         = false;
             $cnd->{\XLite\Model\Repo\Module::P_IS_LANDING}       = true;
-            $cnd->{\XLite\Model\Repo\Module::P_ORDER_BY}         = array(static::SORT_OPT_LANDING_POSITION, static::SORT_ORDER_ASC);
+            $cnd->{\XLite\Model\Repo\Module::P_ORDER_BY}         = [static::SORT_OPT_LANDING_POSITION, static::SORT_ORDER_ASC];
         } else {
-            $cnd = parent::getSearchCondition();
+            $cnd                                                 = parent::getSearchCondition();
             $cnd->{\XLite\Model\Repo\Module::P_FROM_MARKETPLACE} = true;
             $cnd->{\XLite\Model\Repo\Module::P_ISSYSTEM}         = false;
 
             if (isset(\XLite\Core\Request::getInstance()->clearCnd)) {
-                $cnd->{\XLite\Model\Repo\Module::P_ORDER_BY} = array(static::SORT_OPT_ALPHA, static::SORT_ORDER_ASC);
+                $cnd->{\XLite\Model\Repo\Module::P_ORDER_BY} = [static::SORT_OPT_ALPHA, static::SORT_ORDER_ASC];
             } else {
                 if ($this->getModuleId()) {
-                    $cnd->{\XLite\Model\Repo\Module::P_MODULEIDS}    = array($this->getModuleId());
+                    $cnd->{\XLite\Model\Repo\Module::P_MODULEIDS} = [$this->getModuleId()];
                 } else {
                     $cnd->{\XLite\Model\Repo\Module::P_PRICE_FILTER} = $this->getParam(static::PARAM_PRICE);
                     $cnd->{\XLite\Model\Repo\Module::P_SUBSTRING}    = $this->getSubstring();
 
                     $tag = $this->getTagValue();
                     if ($tag) {
-                        $cnd->{\XLite\Model\Repo\Module::P_TAG}      = $tag;
+                        $cnd->{\XLite\Model\Repo\Module::P_TAG} = $tag;
                     }
 
                     $vendor = $this->getVendorValue();
                     if ($vendor) {
-                        $cnd->{\XLite\Model\Repo\Module::P_VENDOR}   = $vendor;
+                        $cnd->{\XLite\Model\Repo\Module::P_VENDOR} = $vendor;
                     }
                 }
             }
@@ -620,7 +678,7 @@ class Install extends \XLite\View\ItemsList\Module\AModule
      */
     protected function isVisibleAddonFilters()
     {
-        return !$this->isLandingPage() && !$this->getModuleId();
+        return !$this->getModuleId();
     }
 
     /**
@@ -631,7 +689,7 @@ class Install extends \XLite\View\ItemsList\Module\AModule
     protected function getWarningMessage()
     {
         $message = 'No Phar extension for PHP error';
-        $params = array();
+        $params  = [];
 
         if ($this->isPHARAvailable()) {
             $message = 'No Curl extension for PHP error';
@@ -675,7 +733,7 @@ class Install extends \XLite\View\ItemsList\Module\AModule
                             break;
 
                         default:
-                            $message = 'cURL error';
+                            $message                 = 'cURL error';
                             $params['error code']    = \XLite\Core\Session::getInstance()->getCURLError();
                             $params['error message'] = \XLite\Core\Session::getInstance()->getCURLErrorMessage();
                     }
@@ -933,7 +991,7 @@ class Install extends \XLite\View\ItemsList\Module\AModule
     {
         if (is_null($this->bannerInfo)) {
             $this->bannerInfo = false;
-            $tag = $this->getTagValue();
+            $tag              = $this->getTagValue();
 
             if ($tag && !$this->isLandingPage()) {
                 $tags = \XLite\Core\Marketplace::getInstance()->getAllTagsInfo();
@@ -954,7 +1012,7 @@ class Install extends \XLite\View\ItemsList\Module\AModule
                         )
                         && $this->isPromoBannerActive($tagInfo[\XLite\Core\Marketplace::FIELD_TAG_BANNER_EXPIRATION_DATE])
                     ) {
-                        $this->bannerInfo = array(
+                        $this->bannerInfo = [
                             'banner_url'        => $tagInfo[\XLite\Core\Marketplace::FIELD_TAG_BANNER_IMG],
                             'module_banner_url' =>
                                 (!empty($tagInfo[\XLite\Core\Marketplace::FIELD_TAG_BANNER_URL])
@@ -962,7 +1020,7 @@ class Install extends \XLite\View\ItemsList\Module\AModule
                                     : $this->getBannerURL($tagInfo[\XLite\Core\Marketplace::FIELD_TAG_MODULE_BANNER])
                                 ),
                             'is_external_link'  => !empty($tagInfo[\XLite\Core\Marketplace::FIELD_TAG_BANNER_URL]),
-                        );
+                        ];
                     }
                 }
             }

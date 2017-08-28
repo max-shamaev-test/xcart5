@@ -40,8 +40,8 @@ class LocationSelect extends \XLite\View\Form\AForm
      */
     protected function getCommonFormParams()
     {
-        return parent::getCommonFormParams() + array(
+        return parent::getCommonFormParams() + [
             'widget' => '\XLite\Module\XC\Geolocation\View\LocationSelect',
-        );
+        ];
     }
 }

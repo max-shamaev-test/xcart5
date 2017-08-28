@@ -14,7 +14,7 @@ namespace XLite\Core\Lock;
 class OrderItemLocker extends \XLite\Core\Lock\AObjectCacheLocker
 {
     /**
-     * @param \XLite\Module\OrderItem $object OrderItem entity
+     * @param \XLite\Model\OrderItem $object OrderItem entity
      *
      * @return string
      */

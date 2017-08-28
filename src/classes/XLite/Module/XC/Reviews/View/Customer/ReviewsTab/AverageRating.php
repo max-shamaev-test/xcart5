@@ -15,6 +15,16 @@ namespace XLite\Module\XC\Reviews\View\Customer\ReviewsTab;
 class AverageRating extends \XLite\Module\XC\Reviews\View\AverageRating
 {
     /**
+     * Check if widget is visible
+     *
+     * @return boolean
+     */
+    protected function isVisible()
+    {
+        return parent::isVisible() && $this->getVotesCount() > 0;
+    }
+
+    /**
      * Return widget default template
      *
      * @return string

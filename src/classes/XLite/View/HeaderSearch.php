@@ -11,7 +11,7 @@ namespace XLite\View;
 /**
  * Header search
  *
- * @ListChild (list="admin.main.page.header.right", weight="100", zone="admin")
+ * @ListChild (list="admin.main.page.header", weight="500", zone="admin")
  */
 class HeaderSearch extends \XLite\View\AView
 {

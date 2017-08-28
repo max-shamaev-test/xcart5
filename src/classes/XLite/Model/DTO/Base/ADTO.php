@@ -137,6 +137,16 @@ abstract class ADTO extends CommonCell
     }
 
     /**
+     * @param $fieldName
+     * @return bool
+     */
+    protected function isContentTrustedByPermission($fieldName)
+    {
+        return \XLite\Core\Auth::getInstance()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS)
+            || \XLite\Core\Auth::getInstance()->isPermissionAllowed('unfiltered html');
+    }
+
+    /**
      * @return array
      */
     public function toScheme()

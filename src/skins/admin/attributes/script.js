@@ -22,7 +22,6 @@ core.bind('afterPopupPlace', function(event) {
 });
 
 core.bind('resources.ready', function(event) {
-  TableItemsListQueue();
   jQuery('.tooltip-main').each(
     function () {
       attachTooltip(

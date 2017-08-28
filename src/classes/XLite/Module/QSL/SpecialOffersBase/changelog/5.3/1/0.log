@@ -1,0 +1,4 @@
+Version 5.3.1.0
+
+Fixes
+- fixed the issue that arise when creating special offers with empty dates

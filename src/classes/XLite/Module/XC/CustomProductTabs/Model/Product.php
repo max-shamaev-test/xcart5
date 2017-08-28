@@ -27,8 +27,6 @@ abstract class Product extends \XLite\Model\Product implements \XLite\Base\IDeco
      * Constructor
      *
      * @param array $data Entity properties OPTIONAL
-     *
-     * @return void
      */
     public function __construct(array $data = array())
     {
@@ -79,5 +77,15 @@ abstract class Product extends \XLite\Model\Product implements \XLite\Base\IDeco
     public function getTabs()
     {
         return $this->tabs;
+    }
+
+    /**
+     * Return GlobalTabs
+     *
+     * @return \XLite\Model\Product\GlobalTab[]
+     */
+    public function getGlobalTabs()
+    {
+        return [];
     }
 }

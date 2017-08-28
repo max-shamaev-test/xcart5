@@ -33,6 +33,19 @@ class Review extends \XLite\Controller\Customer\ACustomer
     }
 
     /**
+     * Return allowed return targets
+     *
+     * @return array
+     */
+    protected function getAllowedReturnTargets()
+    {
+        return [
+            'product',
+            'product_reviews'
+        ];
+    }
+
+    /**
      * Get return URL
      *
      * @return string
@@ -42,15 +55,22 @@ class Review extends \XLite\Controller\Customer\ACustomer
         $url = parent::getReturnURL();
 
         if (\XLite\Core\Request::getInstance()->action) {
-            $target = $this->getReturnTarget();
-            $params = array('product_id' => $this->getProductId());
+            $target = in_array($this->getReturnTarget(), $this->getAllowedReturnTargets())
+                ? $this->getReturnTarget()
+                : 'product';
+
+            $params = ['product_id' => $this->getProductId()];
 
             $widget = \XLite\Core\Request::getInstance()->widget;
             if ($widget) {
                 $params['widget'] = $widget;
             }
 
-            $url = $this->buildURL($target, '', $params) . '#product-details-tab-reviews';
+            $url = $this->buildURL($target, '', $params);
+
+            if ($target === 'product') {
+                $url .= '#product-details-tab-reviews';
+            }
         }
 
         return $url;
@@ -148,8 +168,7 @@ class Review extends \XLite\Controller\Customer\ACustomer
      */
     public function getProfile()
     {
-        return \XLite\Core\Auth::getInstance()->getProfile() ? :
-            null;
+        return \XLite\Core\Auth::getInstance()->getProfile();
     }
 
     /**
@@ -199,12 +218,12 @@ class Review extends \XLite\Controller\Customer\ACustomer
      */
     protected function getEditableFields()
     {
-        return array(
+        return [
             'rating',
             'reviewerName',
             'review',
             'email',
-        );
+        ];
     }
 
     /**
@@ -217,7 +236,7 @@ class Review extends \XLite\Controller\Customer\ACustomer
         $data = \XLite\Core\Request::getInstance()->getData();
 
         if (!is_array($data)) {
-            $data = array();
+            $data = [];
         }
 
         foreach ($data as $k => $v) {
@@ -317,6 +336,11 @@ class Review extends \XLite\Controller\Customer\ACustomer
 
         $review->setStatus($status);
         $review->map($data);
+
+        if ($status === \XLite\Module\XC\Reviews\Model\Review::STATUS_PENDING) {
+            $this->updateNewReviewsUpdateTimestamp();
+            $review->setIsNew(true);
+        }
 
         \XLite\Core\Database::getEM()->flush();
 

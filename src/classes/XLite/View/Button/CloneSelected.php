@@ -8,11 +8,16 @@
 
 namespace XLite\View\Button;
 
+use XLite\View\Button\Features\ConfirmableTrait;
+use XLite\View\Button\Features\TooltippedTrait;
+
 /**
  * Clone selected button
  */
 class CloneSelected extends \XLite\View\Button\Regular
 {
+    use ConfirmableTrait, TooltippedTrait;
+
     /**
      * Return default button label
      *
@@ -21,6 +26,16 @@ class CloneSelected extends \XLite\View\Button\Regular
     protected function getDefaultLabel()
     {
         return 'Clone selected';
+    }
+
+    /**
+     * Return default button title
+     *
+     * @return string
+     */
+    protected function getDefaultTitle()
+    {
+        return static::t('Clone selected');
     }
 
     /**
@@ -34,12 +49,12 @@ class CloneSelected extends \XLite\View\Button\Regular
     }
 
     /**
-     * Return CSS classes
+     * getDefaultConfirmationText
      *
      * @return string
      */
-    protected function getClass()
+    protected function getDefaultConfirmationText()
     {
-        return parent::getClass() . ' action link list-action';
+        return 'Do you really want to clone the selected items?';
     }
 }

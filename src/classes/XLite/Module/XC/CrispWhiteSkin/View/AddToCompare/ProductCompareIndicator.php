@@ -7,6 +7,8 @@
  */
 
 namespace XLite\Module\XC\CrispWhiteSkin\View\AddToCompare;
+
+use XLite\Core\PreloadedLabels\ProviderInterface;
 use XLite\Module\XC\ProductComparison\Core\Data;
 
 /**
@@ -14,7 +16,7 @@ use XLite\Module\XC\ProductComparison\Core\Data;
  *
  * @Decorator\Depend("XC\ProductComparison")
  */
-class ProductCompareIndicator extends \XLite\Module\XC\ProductComparison\View\AddToCompare\ProductCompareIndicator implements \XLite\Base\IDecorator
+class ProductCompareIndicator extends \XLite\Module\XC\ProductComparison\View\AddToCompare\ProductCompareIndicator implements \XLite\Base\IDecorator, ProviderInterface
 {
     /**
      * Register JS files
@@ -123,7 +125,7 @@ class ProductCompareIndicator extends \XLite\Module\XC\ProductComparison\View\Ad
      *
      * @return array
      */
-    protected function getPreloadedLabels()
+    public function getPreloadedLanguageLabels()
     {
         $list = array(
             'Please add another product to comparison',

@@ -14,9 +14,13 @@ namespace XLite\Module\XC\CustomProductTabs\Model\Product;
  * The "tab" model class
  *
  * @Entity
- * @Table  (name="product_tabs")
+ * @Table  (name="product_tabs",
+ *      uniqueConstraints={
+ *          @UniqueConstraint (name="product_global_tab", columns={"product_id", "global_tab_id"})
+ *      }
+ * )
  */
-class Tab extends \XLite\Model\Base\I18n
+class Tab extends \XLite\Model\Base\I18n implements \XLite\Model\Product\IProductTab
 {
     /**
      * Tab unique ID
@@ -57,9 +61,30 @@ class Tab extends \XLite\Model\Base\I18n
     protected $product;
 
     /**
+     * Global tab product
+     *
+     * @var \XLite\Model\Product\GlobalTab
+     * @ManyToOne  (targetEntity="XLite\Model\Product\GlobalTab")
+     * @JoinColumn (name="global_tab_id", referencedColumnName="id", onDelete="CASCADE")
+     */
+    protected $global_tab;
+
+    /**
+     * @inheritdoc
+     */
+    public function cloneEntity()
+    {
+        $new = parent::cloneEntity();
+
+        $new->setGlobalTab($this->getGlobalTab());
+
+        return $new;
+    }
+
+    /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -70,7 +95,8 @@ class Tab extends \XLite\Model\Base\I18n
      * Set position
      *
      * @param integer $position
-     * @return Tab
+     *
+     * @return $this
      */
     public function setPosition($position)
     {
@@ -81,7 +107,7 @@ class Tab extends \XLite\Model\Base\I18n
     /**
      * Get position
      *
-     * @return integer 
+     * @return integer
      */
     public function getPosition()
     {
@@ -92,7 +118,8 @@ class Tab extends \XLite\Model\Base\I18n
      * Set enabled
      *
      * @param boolean $enabled
-     * @return Tab
+     *
+     * @return $this
      */
     public function setEnabled($enabled)
     {
@@ -103,7 +130,7 @@ class Tab extends \XLite\Model\Base\I18n
     /**
      * Get enabled
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getEnabled()
     {
@@ -114,7 +141,8 @@ class Tab extends \XLite\Model\Base\I18n
      * Set product
      *
      * @param \XLite\Model\Product $product
-     * @return Tab
+     *
+     * @return $this
      */
     public function setProduct(\XLite\Model\Product $product = null)
     {
@@ -125,10 +153,127 @@ class Tab extends \XLite\Model\Base\I18n
     /**
      * Get product
      *
-     * @return \XLite\Model\Product 
+     * @return \XLite\Model\Product
      */
     public function getProduct()
     {
         return $this->product;
+    }
+
+    /**
+     * Return GlobalTab
+     *
+     * @return \XLite\Model\Product\GlobalTab
+     */
+    public function getGlobalTab()
+    {
+        return $this->global_tab;
+    }
+
+    /**
+     * Set GlobalTab
+     *
+     * @param \XLite\Model\Product\GlobalTab $global_tab
+     *
+     * @return $this
+     */
+    public function setGlobalTab($global_tab)
+    {
+        $this->global_tab = $global_tab;
+        return $this;
+    }
+
+    /**
+     * Return Name
+     *
+     * @return string|null
+     */
+    public function getServiceName()
+    {
+        return $this->getGlobalTab()
+            ? $this->getGlobalTab()->getServiceName()
+            : null;
+    }
+
+
+    /**
+     * Check if tab available
+     *
+     * @return bool
+     */
+    public function isAvailable()
+    {
+        $result = $this->isGlobalStatic()
+            ? $this->getGlobalTab()->isAvailable()
+            : true;
+
+        return $result && $this->getEnabled();
+    }
+
+    /**
+     * Check if tab is alias to global
+     *
+     * @return bool
+     */
+    public function isGlobal()
+    {
+        return (boolean)$this->getGlobalTab();
+    }
+
+    /**
+     * Check if tab is alias to global custom
+     *
+     * @return bool
+     */
+    public function isGlobalCustom()
+    {
+        return $this->isGlobal() && $this->getGlobalTab()->getCustomTab();
+    }
+
+
+    /**
+     * Check if tab is alias to global static
+     *
+     * @return bool
+     */
+    public function isGlobalStatic()
+    {
+        return $this->getGlobalTab() && $this->getGlobalTab()->getServiceName();
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->isGlobal()
+            ? $this->getGlobalTab()->getName()
+            : $this->callI18nMethod('getName', []);
+    }
+
+    /**
+     * Get content
+     *
+     * @return string
+     */
+    public function getContent()
+    {
+        return $this->isGlobalCustom()
+            ? $this->getGlobalTab()->getCustomTab()->getContent()
+            : $this->callI18nMethod('getContent', []);
+    }
+
+    /**
+     * Get content
+     *
+     * @return string
+     */
+    public function getBriefInfo()
+    {
+        return $this->isGlobalCustom()
+            ? $this->getGlobalTab()->getCustomTab()->getBriefInfo()
+            : $this->callI18nMethod('getBriefInfo', []);
     }
 }

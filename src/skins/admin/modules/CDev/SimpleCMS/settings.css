@@ -14,21 +14,20 @@
 
 .general-settings .model-properties ul.table .table-label.logo-label,
 .general-settings .model-properties ul.table .table-label.favicon-label,
-.general-settings .model-properties ul.table .table-label.appleicon-label
-{
+.general-settings .model-properties ul.table .table-label.appleicon-label {
   width: 15%;
 }
 
 .general-settings .model-properties ul.table .table-value.logo-value,
 .general-settings .model-properties ul.table .table-value.favicon-value,
-.general-settings .model-properties ul.table .table-value.appleicon-value
-{
+.general-settings .model-properties ul.table .table-value.appleicon-value {
   width: 85%;
 }
 
-.general-settings .model-properties ul.table .table-value img{
-  max-width:  800px;
+.general-settings .model-properties ul.table .table-value img.field-image {
+  max-width: 800px;
   max-height: 600px;
+  display: block;
 }
 
 .general-settings .model-properties ul.table input[type="file"] {
@@ -36,4 +35,5 @@
   line-height: inherit;
   width: auto;
   margin-top: 4px;
+  display: inline-block;
 }

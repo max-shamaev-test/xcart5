@@ -58,20 +58,11 @@ OrdersListView.prototype.postprocess = function(isSuccess, initial)
 {
   OrdersListView.superclass.postprocess.apply(this, arguments);
 
-  jQuery('.order-body-item', this.base).each(function (index, elem) {
-    var $elem = jQuery(elem);
-    var action = jQuery('#' + jQuery('.order-body-items-list', $elem).prop('id') + '-action');
+  jQuery('.order-body-item').first().addClass('open-at-start');
 
-    jQuery('.order-body-items-list', $elem)
-      .on('show.bs.collapse', function () {
-        action.removeClass('fa-plus-square-o').addClass('fa-minus-square-o');
-      })
-      .on('hidden.bs.collapse', function () {
-        action.removeClass('fa-minus-square-o').addClass('fa-plus-square-o');
-      });
-  });
-
-  jQuery('i', this.base).eq(0).click();
+  if ('undefined' !== typeof (window.OrdersListItem)) {
+      core.autoload(OrdersListItem, '.order-body-item');
+  }
 };
 
 OrdersListView.prototype.getEventNamespace = function () {

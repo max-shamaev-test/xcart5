@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * Temporary variables repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\TmpVar", summary="Add new temporary variable")
+ * @Api\Operation\Read(modelClass="XLite\Model\TmpVar", summary="Retrieve temporary variable by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\TmpVar", summary="Retrieve all temporary variables")
+ * @Api\Operation\Update(modelClass="XLite\Model\TmpVar", summary="Update temporary variable by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\TmpVar", summary="Delete temporary variable by id")
  */
 class TmpVar extends \XLite\Model\Repo\ARepo
 {
@@ -19,56 +25,56 @@ class TmpVar extends \XLite\Model\Repo\ARepo
     const EVENT_TASK_STATE_PREFIX = 'eventTaskState.';
 
     /**
-     * Set variable 
-     * 
-     * @param string $name  Variable name
-     * @param mixed  $value Variable value
-     * @param boolean  $flush Perform flush on return
-     *  
-     * @return void
+     * Set variable
+     *
+     * @param string  $name  Variable name
+     * @param mixed   $value Variable value
+     * @param boolean $flush Perform flush on return
      */
     public function setVar($name, $value, $flush = true)
     {
-        $entity = $this->findOneBy(array('name' => $name));
+        $connection = \XLite\Core\Database::getEM()->getConnection();
 
-        if (!$entity) {
-            $entity = new \XLite\Model\TmpVar;
-            $entity->setName($name);
-            \XLite\Core\Database::getEM()->persist($entity);
-        }
+        $query = 'REPLACE INTO ' . $this->getTableName()
+            . ' set `name` = ?, `value` = ?';
 
-        if (!is_scalar($value)) {
-            $value = serialize($value);
-        }
-
-        $entity->setValue($value);
-
-        if ($flush) {
-            \XLite\Core\Database::getEM()->flush();
-        }
+        $connection->executeUpdate($query, [$name, serialize($value)]);
     }
 
     /**
-     * Get variable 
-     * 
+     * Get variable
+     *
      * @param string $name Variable name
-     *  
+     *
      * @return mixed
      */
     public function getVar($name)
     {
-        $entity = $this->findOneBy(array('name' => $name));
+        $entity = $this->findOneBy(['name' => $name]);
 
         $value = $entity ? $entity->getValue() : null;
 
         if (!empty($value)) {
             $tmp = @unserialize($value);
-            if (false !== $tmp) {
+            if (false !== $tmp || $value === serialize(false)) {
                 $value = $tmp;
             }
         }
 
         return $value;
+    }
+
+    /**
+     * @param $name
+     */
+    public function removeVar($name)
+    {
+        $connection = \XLite\Core\Database::getEM()->getConnection();
+
+        $query = 'DELETE FROM ' . $this->getTableName()
+            . ' WHERE `name` = ?';
+
+        $connection->executeUpdate($query, [$name]);
     }
 
     // {{{ Event tasks-based temporary variable operations
@@ -81,19 +87,19 @@ class TmpVar extends \XLite\Model\Repo\ARepo
      *
      * @return array
      */
-    public function initializeEventState($name, array $options = array())
+    public function initializeEventState($name, array $options = [])
     {
         $this->setEventState(
             $name,
-            array('position' => 0, 'length' => 0, 'state' => \XLite\Core\EventTask::STATE_STANDBY) + $options
+            ['position' => 0, 'length' => 0, 'state' => \XLite\Core\EventTask::STATE_STANDBY] + $options
         );
     }
 
     /**
-     * Get event task state 
-     * 
+     * Get event task state
+     *
      * @param string $name Event task name
-     *  
+     *
      * @return array
      */
     public function getEventState($name)
@@ -102,12 +108,12 @@ class TmpVar extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * Set event state 
-     * 
-     * @param string $name Event task name
-     * @param array  $rec  Event task state
-     * @param boolean  $flush  Flush task
-     *  
+     * Set event state
+     *
+     * @param string  $name  Event task name
+     * @param array   $rec   Event task state
+     * @param boolean $flush Flush task
+     *
      * @return void
      */
     public function setEventState($name, array $rec, $flush = true)
@@ -124,11 +130,7 @@ class TmpVar extends \XLite\Model\Repo\ARepo
      */
     public function removeEventState($name)
     {
-        $var = $this->findOneBy(array('name' => static::EVENT_TASK_STATE_PREFIX . $name));
-        if ($var) {
-            \XLite\Core\Database::getEM()->remove($var);
-            \XLite\Core\Database::getEM()->flush();
-        }
+        $this->removeVar(static::EVENT_TASK_STATE_PREFIX . $name);
     }
 
     /**
@@ -143,7 +145,8 @@ class TmpVar extends \XLite\Model\Repo\ARepo
         $record = $this->getEventState($name);
 
         return $record
-            && ($record['state'] == \XLite\Core\EventTask::STATE_FINISHED || $record['state'] == \XLite\Core\EventTask::STATE_ABORTED);
+            && ((int) $record['state'] === \XLite\Core\EventTask::STATE_FINISHED
+                || (int) $record['state'] === \XLite\Core\EventTask::STATE_ABORTED);
     }
 
     /**
@@ -155,23 +158,20 @@ class TmpVar extends \XLite\Model\Repo\ARepo
      */
     public function getEventStatePercent($name)
     {
-        $record = $this->getEventState($name);
-
         $percent = 0;
 
+        $record = $this->getEventState($name);
         if ($record) {
             if ($this->isFinishedEventState($name)) {
                 $percent = 100;
 
             } elseif (0 < $record['length']) {
-                $percent = min(100, intval($record['position'] / $record['length'] * 100));
+                $percent = min(100, (int) ($record['position'] / $record['length'] * 100));
             }
         }
 
         return $percent;
     }
 
-
     // }}}
 }
-

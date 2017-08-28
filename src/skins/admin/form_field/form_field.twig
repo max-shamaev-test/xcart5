@@ -20,7 +20,16 @@
 {% endif %}
 
 <div class="{{ this.getValueContainerClass() }}">
-  {% include this.getDir() ~ '/' ~ this.getFieldTemplate() %}
+  {% if this.getParam('editOnClick') %}
+    <div {{ this.printTagAttributes(this.getContainerAttributes())|raw }}>
+      <div {{ this.printTagAttributes(this.getViewContainerAttributes())|raw }}>{% include this.getViewTemplate() %}</div>
+      <div {{ this.printTagAttributes(this.getFieldContainerAttributes())|raw }}>
+        {% include this.getDir() ~ '/' ~ this.getFieldTemplate() %}
+      </div>
+    </div>
+  {% else %}
+    {% include this.getDir() ~ '/' ~ this.getFieldTemplate() %}
+  {% endif %}
   {% if this.getParam('linkHref') %}
     {% if this.getParam('linkImg') %}
       <img src="{{ this.getParam('linkImg') }}" class="form-field-link-img" alt="" height="20">

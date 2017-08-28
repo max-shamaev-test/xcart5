@@ -145,4 +145,11 @@ class CartItems extends \XLite\View\AView
             && $this->getCart()->isOpen();
     }
 
+    /**
+     * @return array
+     */
+    protected function getItemsCountLinkAttributes()
+    {
+        return [];
+    }
 }

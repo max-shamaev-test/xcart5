@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * Membership repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Membership", summary="Add new membership")
+ * @Api\Operation\Read(modelClass="XLite\Model\Membership", summary="Retrieve membership by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Membership", summary="Retrieve all memberships")
+ * @Api\Operation\Update(modelClass="XLite\Model\Membership", summary="Update membership by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Membership", summary="Delete membership by id")
  */
 class Membership extends \XLite\Model\Repo\Base\I18n
 {

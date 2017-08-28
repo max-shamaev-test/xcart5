@@ -3,4 +3,4 @@
  #}
 
 <span class="title">{{ this.attribute.name }}</span>
-<textarea class="form-control" name="{{ this.getName() }}" data-attribute-id="{{ this.attribute.id }}">{{ this.getValue() }}</textarea>
+<textarea class="form-control" name="{{ this.getName() }}" data-attribute-id="{{ this.attribute.id }}" {{ this.printTagAttributes(this.getInputAttributes())|raw }}>{{ this.getValue() }}</textarea>

@@ -100,7 +100,9 @@ class Shipping extends \XLite\Base\Singleton
     }
 
     /**
-     * 
+     * @param string $processorId
+     *
+     * @return null|Shipping\Processor\AProcessor
      */
     public static function getProcessorObjectByProcessorId($processorId)
     {
@@ -212,34 +214,12 @@ class Shipping extends \XLite\Base\Singleton
 
         if ($profile && $profile->getShippingAddress()) {
             // Profile is exists
-            $address = static::prepareAddressData($profile->getShippingAddress());
+            $address = $profile->getShippingAddress()->toArray();
         }
 
         return null === $address
             ? static::getDefaultAddress()
             : $address;
-    }
-
-    /**
-     * Prepare the specific data format for address
-     *
-     * @deprecated 5.3.2.2 This function uses old incompatible format, use \XLite\Model\Address::toArray() instead
-     * @param \XLite\Model\Address $address Address
-     *
-     * @return array
-     */
-    public static function prepareAddressData($address)
-    {
-        return $address
-            ? array(
-                'address' => $address->getStreet(),
-                'city'    => $address->getCity(),
-                'state'   => $address->getState() ? $address->getState()->getStateId() : '',
-                'custom_state' => $address->getCustomState(),
-                'zipcode' => $address->getZipcode(),
-                'country' => $address->getCountry() ? $address->getCountry()->getCode() : '',
-                'type'    => $address->getType() ?: \XLite\Core\Config::getInstance()->Shipping->anonymous_address_type,
-            ) : null;
     }
 
     /**
@@ -325,7 +305,7 @@ class Shipping extends \XLite\Base\Singleton
     }
 
     /**
-     * Apply murkups to the rates and return list of modified rates
+     * Apply markups to the rates and return list of modified rates
      *
      * @param \XLite\Logic\Order\Modifier\Shipping $modifier Shipping order modifier
      * @param array                                $rates    List of rates

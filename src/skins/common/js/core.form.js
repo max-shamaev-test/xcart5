@@ -118,7 +118,9 @@ function CommonForm(form)
   var triggerStateEvents = function(form) {
     if (form.get(0).commonController.isChanged()) {
       form.addClass('changed');
-      form.trigger('state-changed');
+      form.trigger('state-changed', {
+        valid: form.get(0).commonController.validate(true)
+      });
 
     } else {
       form.removeClass('changed');
@@ -781,6 +783,8 @@ CommonForm.prototype.isReadinessChanged = function()
 // Constructor
 function CommonElement(elm)
 {
+  this.validationCallbacks = [];
+
   if (elm && !elm.commonController) {
     this.bindElement(elm);
   }
@@ -789,14 +793,10 @@ function CommonElement(elm)
 extend(CommonElement, Base);
 
 CommonElement.prototype.element = null;
-
 CommonElement.prototype.$element = null;
-
 // Validattion class-base rule pattern
 CommonElement.prototype.classRegExp = /^field-(.+)$/;
-
 CommonElement.prototype.watchTTL = 2000;
-
 CommonElement.prototype.promptPosition = 'bottomLeft';
 
 // Bind element
@@ -913,6 +913,14 @@ CommonElement.prototype.isVisible = function()
     .length;
 };
 
+CommonElement.prototype.isVisibleForValidation = function()
+{
+  var data = this.$element.data('jqv');
+
+  return this.isVisible() || (data && data.validateNonVisibleFields === true)
+      || this.$element.data('custom-validate') === true;
+};
+
 // Build validator method name helper
 CommonElement.prototype.buildMethodName = function(str)
 {
@@ -920,11 +928,23 @@ CommonElement.prototype.buildMethodName = function(str)
 };
 
 // Validate form element
+CommonElement.prototype.addValidationCallback = function(callback)
+{
+  this.validationCallbacks.push(callback);
+};
+
+// Validate form element
+CommonElement.prototype.getValidationCallbacks = function()
+{
+  return this.validationCallbacks;
+};
+
+// Validate form element
 CommonElement.prototype.validate = function(silent, noFocus)
 {
   var result = true;
 
-  if (!this.isVisible()) {
+  if (!this.isVisibleForValidation()) {
     return result;
   }
 
@@ -954,7 +974,7 @@ CommonElement.prototype.validate = function(silent, noFocus)
 
     var validators = this.getValidators();
 
-    if (0 < validators.length && this.isVisible()) {
+    if (0 < validators.length && this.isVisibleForValidation()) {
 
       // Check by validators
       for (var i = 0; i < validators.length && result; i++) {
@@ -995,7 +1015,11 @@ CommonElement.prototype.validate = function(silent, noFocus)
     }
   }
 
-  return result;
+  var element = this.$element;
+
+  return result && _.every(this.getValidationCallbacks(), function(callback) {
+    return callback(element);
+  });
 };
 
 // Check
@@ -1229,7 +1253,9 @@ CommonElement.prototype.markAsWatcher = function(beforeCallback)
 
   o.$element
     .blur(submitElement)
-    .keyup(delayedUpdate);
+    .keyup(delayedUpdate)
+    .filter('[type="checkbox"]')
+    .click(submitElement);
 
   if ('undefined' != typeof(jQuery.fn.mousewheel)) {
     o.$element.mousewheel(delayedUpdate);
@@ -1393,8 +1419,7 @@ CommonElement.prototype.isChanged = function(onlyVisible)
 {
   var result = false;
 
-  if (!(onlyVisible && !this.isVisible()) && this.isSignificantInput()) {
-
+  if ((!(onlyVisible && !this.isVisible()) && this.isSignificantInput()) || this.isAffectChange()) {
     if (
       (isElement(this.element, 'input') && -1 != jQuery.inArray(this.element.type, ['text', 'password', 'hidden', 'file']))
       || isElement(this.element, 'select')
@@ -1435,7 +1460,11 @@ CommonElement.prototype.isSignificantInput = function ()
   return !this.$element.hasClass('not-significant');
 };
 
-// Check - element is significant or not
+CommonElement.prototype.isAffectChange = function ()
+{
+  return this.$element.hasClass('affect-change');
+};
+
 CommonElement.prototype.isRequired = function ()
 {
   return this.element.className.indexOf('required') != -1;
@@ -1712,13 +1741,18 @@ CommonElement.prototype.handleChange = function(event)
 {
   var controlReadiness = this.element.form && this.element.form.commonController.controlReadiness;
 
-  if (controlReadiness || this.$element.hasClass('validation-error')) {
+  if (controlReadiness
+      || this.$element.hasClass('validation-error')
+      || this.$element.hasClass('touched')
+  ) {
     this.validate();
   }
 
   if (controlReadiness) {
     this.element.form.commonController.processReadiness();
   }
+
+  this.$element.addClass('touched');
 };
 
 CommonElement.prototype.handleKeyUp = function(event)

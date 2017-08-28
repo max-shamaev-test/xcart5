@@ -6,7 +6,7 @@
 # See https://www.x-cart.com/license-agreement.html for license details.
 
 XLite\Model\Config:
-  directives: { insert: true }
+  - { directives: { forceInsertCommand: true } }
   - { name: admin_presentation, category: General, type: separator, orderby: 40000, translations: [{ code: en, option_name: 'Administrator Zone settings' }] }
   - { name: admin_security, category: Security, type: checkbox, orderby: 1000, value: N, translations: [{ code: en, option_name: 'Use HTTPS in the Administrator Zone' }] }
   - { name: anonymous, category: Shipping, type: separator, orderby: 3000, translations: [{ code: en, option_name: 'Default customer address' }] }
@@ -21,6 +21,7 @@ XLite\Model\Config:
   - { name: aggregate_js, category: Performance, type: XLite\View\FormField\Input\Checkbox\OnOff, orderby: 3000, value: Y, translations: [{ code: en, option_name: 'Aggregate JS files (enable for better performance)' }] }
   - { name: use_view_cache, category: Performance, type: XLite\View\FormField\Input\Checkbox\OnOff, orderby: 4000, value: Y, translations: [{ code: en, option_name: 'Use widget cache (enable for better performance)' }] }
   - { name: use_dynamic_image_resizing, category: Performance, type: hidden, orderby: 5000, value: '' }
+  - { name: unsharp_mask_filter_on_resize, category: Performance, type: hidden, orderby: 5100, value: '' }
   - { name: layout_type, category: Layout, type: XLite\View\FormField\Select\LayoutType, orderby: 1000, value: left, translations: [{ code: en, option_name: 'Default layout' }] }
   - { name: layout_type_home, category: Layout, type: XLite\View\FormField\Select\LayoutType, orderby: 1010, value: left, translations: [{ code: en, option_name: 'Home page layout' }] }
   - { name: cli_key, category: Security, orderby: 11000, translations: [{ code: en, option_name: 'CLI mode key' }] }
@@ -35,6 +36,7 @@ XLite\Model\Config:
   - { name: customer_security, category: Security, type: checkbox, value: N, orderby: 100, translations: [{ code: en, option_name: 'Use HTTPS in the Customer Zone (for login, Checkout and profile pages)' }] }
   - { name: force_customers_to_https, category: Security, type: checkbox, value: Y, orderby: 200, translations: [{ code: en, option_name: 'Redirect customers to HTTPS' }] }
   - { name: date_format, category: Units, type: 'XLite\View\FormField\Select\DateFormat', orderby: 66000, value: '%b %e, %Y', translations: [{ code: en, option_name: 'Date format' }] }
+  - { name: week_start, category: Units, type: 'XLite\View\FormField\Select\DayOfWeek', orderby: 67000, value: 'sun', translations: [{ code: en, option_name: 'First day of week' }] }
   - { name: csv_delim, category: Units, type: 'XLite\View\FormField\Select\CSVDelimiter', orderby: 70000, value: ',', translations: [{ code: en, option_name: 'CSV column delimiter' }] }
   - { name: export_import_charset, category: Units, type: 'XLite\View\FormField\Select\IconvCharset', orderby: 72500, value: 'UTF-8', translations: [{ code: en, option_name: 'Import/export charset' }] }
   - { name: default_language, category: General, orderby: 33000, value: en }
@@ -68,7 +70,7 @@ XLite\Model\Config:
   - { name: order_number_counter, category: General, type: 'XLite\View\FormField\Input\Text\Integer', orderby: 39000, value: 1, translations: [{ code: en, option_name: 'Next order #', option_comment: 'You can change the number that will be assigned on the next order. The new order number should be greater than the current one.' }] }
   - { name: cart_ttl, category: General, type: 'XLite\View\FormField\Input\Text\Integer', orderby: 39500, value: 7, translations: [{ code: en, option_name: 'Cart TTL (days)', option_comment: 'Specify the number of days after which a stored shopping cart should be considered old and should be removed. Leave empty if old carts should never be removed (not recommended)' }] }
   - { name: internal_cron_enabled, category: General, type: checkbox, orderby: 39800, value: Y, translations: [{ code: en, option_name: 'Enable internal cron service', option_comment: "This setting allows you to enable/disable the use of your store's internal cron service. This service schedules the run of certain maintenance tasks for your store - like removing customers' expired shopping carts - at the periodicity of once per 100 user sessions." }] }
-  - { name: orders_department, category: Company, type: 'XLite\View\FormField\Input\Text\Email', orderby: 48000, value: bit-bucket@x-cart.com, translations: [{ code: en, option_name: 'Sales department e-mail', option_comment: '"TO:" address for notifications about orders (creation of new orders, changes of order status, etc). "FROM:" address for low limit warning messages.' }] }
+  - { name: orders_department, category: Company, type: 'XLite\View\FormField\Select\MultipleEmails', orderby: 48000, value: 'a:1:{i:0;s:21:"bit-bucket@x-cart.com";}', translations: [{ code: en, option_name: 'Sales department e-mails', option_comment: 'The first email in this field (the one marked dark blue) will be used as the "FROM:" address for low limit warning messages.<br/><br/>All addresses in this field will be used as the "TO:" address for notifications about orders (creation of new orders, changes of order status, etc).' }] }
   - { name: orders_per_page, category: General, type: 'XLite\View\FormField\Input\Text\Integer', orderby: 43000, value: 30, widgetParameters: { min: 1 }, translations: [{ code: en, option_name: 'Orders per page' }] }
   - { name: products_per_page, category: General, type: 'XLite\View\FormField\Input\Text\Integer', orderby: 25000, value: 12, widgetParameters: { min: 1 }, translations: [{ code: en, option_name: 'Products per category listing page' }] }
   - { name: products_per_page_max, category: General, type: 'XLite\View\FormField\Input\Text\Integer', orderby: 25000, value: 100, widgetParameters: { min: 1 }, translations: [{ code: en, option_name: 'Maximum products per category listing page' }] }
@@ -78,10 +80,9 @@ XLite\Model\Config:
   - { name: shop_closed, category: Internal, type: checkbox, orderby: 11000, value: N, translations: [{ code: en, option_name: 'Close the shop temporarily' }] }
   - { name: shop_currency, category: General, type: '', orderby: 60500, value: 840, translations: [{ code: en, option_name: 'Shop currency' }] }
   - { name: trailing_zeroes, category: General, type: '', orderby: 60500, value: 0, translations: [{ code: en, option_name: 'Hide trailing zeros in fractional part' }] }
-  - { name: site_administrator, category: Company, type: 'XLite\View\FormField\Input\Text\Email', orderby: 46000, value: bit-bucket@x-cart.com, translations: [{ code: en, option_name: 'Site administrator e-mail', option_comment: '"TO:" address for information on access to your store in safe mode (Hard and Soft reset links), notifications about failed administrator login attempts, low limit warnings, etc.<br />"FROM:" address for most notifications about user profiles.' }] }
+  - { name: site_administrator, category: Company, type: 'XLite\View\FormField\Select\MultipleEmails', orderby: 46000, value:  'a:1:{i:0;s:21:"bit-bucket@x-cart.com";}', translations: [{ code: en, option_name: 'Site administrator e-mails', option_comment: 'The first email in this field (the one marked dark blue) will be used as the "FROM:" address for most notifications about user profiles.<br/><br/>All addresses in this field will be used as the "TO:" address for information on access to your store in safe mode (Hard and Soft reset links), notifications about failed administrator login attempts, low limit warnings, etc.' }] }
   - { name: smtp_password, category: Email, type: 'XLite\View\FormField\Input\PasswordWithValue', orderby: 16000, translations: [{ code: en, option_name: Password }] }
   - { name: smtp_security, category: Email, type: 'XLite\View\FormField\Select\SMTPSecurity', orderby: 17000, value: no, translations: [{ code: en, option_name: 'Secure connection' }] }
-  - { name: smtp_server, category: Email, type: separator, orderby: 10000, translations: [{ code: en, option_name: 'SMTP server' }] }
   - { name: smtp_server_port, category: Email, type: 'XLite\View\FormField\Input\Text\Integer', orderby: 13000, value: 25, widgetParameters: { min: 0, max: 65535 }, translations: [{ code: en, option_name: 'SMTP port', option_comment: 'By default, SMTP uses TCP port 25. However, if you are going to use secure SSL/TLS encrypted SMTP, you need to specify the correct TCP port number for your system here. Typically, port number for secure SMTP is 465.' }] }
   - { name: smtp_server_url, category: Email, type: text, orderby: 12000, translations: [{ code: en, option_name: 'SMTP server' }] }
   - { name: smtp_username, category: Email, type: text, orderby: 15000, translations: [{ code: en, option_name: Username }] }
@@ -89,14 +90,14 @@ XLite\Model\Config:
   - { name: subcategories_look, category: General, type: 'XLite\View\FormField\Select\SubcategoriesLook', orderby: 22000, value: icons, translations: [{ code: en, option_name: 'Subcategory listings format' }] }
   - { name: default_products_sort_order, category: General, type: 'XLite\View\FormField\Select\DefaultProductSortOrder', orderby: 22500, value: 'default', translations: [{ code: en, option_name: 'Default order to sort products within a category' }] }
   - { name: default_search_sort_order, category: General, type: 'XLite\View\FormField\Select\DefaultProductSortOrder', orderby: 22501, value: 'default', translations: [{ code: en, option_name: 'Default order to sort products within a search result' }] }
-  - { name: support_department, category: Company, type: 'XLite\View\FormField\Input\Text\Email', orderby: 49000, value: bit-bucket@x-cart.com, translations: [{ code: en, option_name: 'HelpDesk/Support service e-mail', option_comment: "Address for messages sent by store visitors via the Contact us form." }] }
+  - { name: support_department, category: Company, type: 'XLite\View\FormField\Select\MultipleEmails', orderby: 49000, value:  'a:1:{i:0;s:21:"bit-bucket@x-cart.com";}', translations: [{ code: en, option_name: 'HelpDesk/Support service e-mails', option_comment: 'Addresses for messages sent by store visitors via the Contact us form.' }] }
   - { name: time_format, category: Units, type: 'XLite\View\FormField\Select\TimeFormat', orderby: 67000, value: '%H:%M', translations: [{ code: en, option_name: 'Time format' }] }
   - { name: time_zone, category: Units, type: 'XLite\View\FormField\Select\TimeZone', orderby: 68000, translations: [{ code: en, option_name: 'Time zone' }] }
-  - { name: users_department, category: Company, type: 'XLite\View\FormField\Input\Text\Email', orderby: 47000, value: bit-bucket@x-cart.com, translations: [{ code: en, option_name: 'Customer relations e-mail', option_comment: '"TO:" address for notifications about user profile related events (creation of a new user profile, deletion of a user profile, etc). "FROM:" address for password reset messages.' }] }
+  - { name: users_department, category: Company, type: 'XLite\View\FormField\Select\MultipleEmails', orderby: 47000, value:  'a:1:{i:0;s:21:"bit-bucket@x-cart.com";}', translations: [{ code: en, option_name: 'Customer relations e-mails', option_comment: 'The first email in this field (the one marked dark blue) will be used as the "FROM:" address for password reset messages.<br/><br/>All addresses in this field will be used as the "TO:" address for notifications about user profile related events (creation of a new user profile, deletion of a user profile, etc).' }] }
   - { name: users_per_page, category: General, type: 'XLite\View\FormField\Input\Text\Integer', orderby: 42000, value: '30', widgetParameters: { min: 1 }, translations: [{ code: en, option_name: 'Users per page' }] }
-  - { name: use_smtp, category: Email, type: checkbox, orderby: 11000, value: N, translations: [{ code: en, option_name: 'Use SMTP server' }] }
-  - { name: use_smtp_auth, category: Email, type: checkbox, orderby: 14000, value: N, translations: [{ code: en, option_name: 'Use authentication' }] }
-  - { name: version, category: Version, value: '5.3.2.8' }
+  - { name: use_smtp, category: Email, type: XLite\View\FormField\Input\Checkbox\OnOff, orderby: 11000, value: '', translations: [{ code: en, option_name: 'Use SMTP server' }] }
+  - { name: use_smtp_auth, category: Email, type: XLite\View\FormField\Input\Checkbox\OnOff, orderby: 14000, value: '', translations: [{ code: en, option_name: 'Use authentication' }] }
+  - { name: version, category: Version, value: '5.3.3.3' }
   - { name: weight_symbol, category: Units, type: text, orderby: 62000, value: lbs, translations: [{ code: en, option_name: 'Weight symbol' }] }
   - { name: weight_unit, category: Units, type: 'XLite\View\FormField\Select\WeightUnit', orderby: 61000, value: lbs, translations: [{ code: en, option_name: 'Weight unit' }] }
   - { name: weight_trailing_zeroes, category: Units, type: checkbox, orderby: 62100, value: Y, translations: [{ code: en, option_name: 'Hide trailing zeros in fractional part' }] }
@@ -194,14 +195,14 @@ XLite\Model\Config:
   - { name: quick_data_rebuilding, category: CacheManagement, type: checkbox, orderby: 10000, value: N, translations: [{ code: en, option_name: 'Perform quick data calculation during store re-deployment', option_comment: 'Calculated quick data enhances your store''s performance by allowing quick product sorting. If you want quick data to be calculated along with store re-deployment, make sure this setting is enabled before running the "Re-deploy the store" tool. Keep the setting disabled if you want to do the re-deployment without the calculation of quick data.' }] }
 
   - { name: enabled, category: BannerRotation, type: XLite\View\FormField\Input\Checkbox\OnOff, orderby: 10000, value: false, translations: [{ code: en, option_name: 'Enabled' }] }
-  - { name: interval, category: BannerRotation, type: XLite\View\FormField\Input\Text\FloatInput, orderby: 30000, value: 5, translations: [{ code: en, option_name: 'Banner inverval (in seconds)', option_comment: 'Set to "0" to disable automatic rotation' }] }
+  - { name: interval, category: BannerRotation, type: XLite\View\FormField\Input\Text\FloatInput, orderby: 30000, value: 5, translations: [{ code: en, option_name: 'Banner interval (in seconds)', option_comment: 'Set to "0" to disable automatic rotation' }] }
 
   - { name: attach_pdf_invoices, category: NotificationAttachments, type: XLite\View\FormField\Input\Checkbox\OnOff, orderby: 10000, value: 0, translations: [{ code: en, option_name: 'Send the PDF version of invoices in the attachments' }] }
 
 XLite\Model\Category:
   - { category_id: 1, show_title: false, translations: [{ code: en, name: 'Catalog' }] }
 XLite\Model\Currency:
-  directives: { insert: true }
+  - { directives: { forceInsertCommand: true } }
   - { currency_id: 784, code: AED, e: 2, symbol: د.إ, prefix: د.إ, translations: [{ code: en, name: 'UAE Dirtham' }] }
   - { currency_id: 971, code: AFN, e: 2, symbol: ؋, prefix: ؋, translations: [{ code: en, name: Afghani }] }
   - { currency_id: 8,   code: ALL, e: 2, symbol: L, prefix: L, translations: [{ code: en, name: Lek }] }
@@ -365,7 +366,7 @@ XLite\Model\Membership:
   - { position: 10, translations: [{ code: en, name: Wholesaler }, { code: ru, name: 'Оптовый покупатель' }] }
 
 XLite\Model\Language:
-  directives: { insert: true }
+  - { directives: { forceInsertCommand: true } }
   - { code: aa, code3: aar, translations: [{ code: en, name: Afar }] }
   - { code: ab, code3: abk, translations: [{ code: en, name: Abkhazian }] }
   - { code: af, code3: afr, translations: [{ code: en, name: Afrikaans }] }
@@ -388,7 +389,7 @@ XLite\Model\Language:
   - { code: bh, code3: bih, translations: [{ code: en, name: Bihari }] }
   - { code: bi, code3: bis, translations: [{ code: en, name: Bislama }] }
   - { code: bs, code3: bos, translations: [{ code: en, name: Bosnian }] }
-  - { code: br, code3: bre, translations: [{ code: en, name: Breton }] }
+  - { code: br, code3: bre, translations: [{ code: en, name: 'Brazilian Portuguese' }] }
   - { code: gb, code3: gbr, translations: [{ code: en, name: British }], module: 'XC\GbTranslation' }
   - { code: bg, code3: bul, translations: [{ code: en, name: Bulgarian }] }
   - { code: my, code3: bur, translations: [{ code: en, name: Burmese }] }
@@ -549,7 +550,7 @@ XLite\Model\Language:
   - { code: za, code3: zha, translations: [{ code: en, name: Zhuang }] }
   - { code: zu, code3: zul, translations: [{ code: en, name: Zulu }] }
 XLite\Model\Payment\Method:
-  directives: { insert: true }
+  - { directives: { forceInsertCommand: true } }
   - { service_name: PurchaseOrder, class: 'Model\Payment\Processor\PurchaseOrder', added: true, orderby: 20, translations: [{ code: en, name: 'Purchase Order' }] }
   - { service_name: PhoneOrdering, class: 'Model\Payment\Processor\PhoneOrdering', added: true, enabled: true, orderby: 30, translations: [{ code: en, name: 'Phone Ordering', description: 'Phone: (555) 555-5555' }, { code: ru, name: 'Заказ по телефону', description: 'Тел. (555) 555-5555' }] }
   - { service_name: FaxOrdering, class: 'Model\Payment\Processor\Offline', added: true, enabled: true, orderby: 40, translations: [{ code: en, name: 'Fax Ordering', description: 'Fax: (555) 555-5555' }] }
@@ -558,7 +559,7 @@ XLite\Model\Payment\Method:
   - { service_name: COD, class: 'Model\Payment\Processor\Offline', added: true, enabled: true, orderby: 70, translations: [{ code: en, name: COD, description: 'Cash On Delivery' }] }
 
 XLite\Model\Region:
-  directives: { insert: true }
+  - { directives: { forceInsertCommand: true } }
   - { name: 'England', code: 'GB-ENG' }
   - { name: 'Northern Ireland', code: 'GB-NIR' }
   - { name: 'Scotland', code: 'GB-SCT' }
@@ -1493,7 +1494,9 @@ XLite\Model\Zone:
 XLite\Model\Task:
   - { owner: 'XLite\Core\Task\EventListener' }
   - { owner: 'XLite\Core\Task\OrdersGarbageCleaner' }
+  - { owner: 'XLite\Core\Task\JobQueueCronRunner' }
   - { owner: 'XLite\Core\Task\SessionsGarbageCleaner' }
+  - { owner: 'XLite\Core\Task\DataCacheGarbageCleaner' }
 XLite\Model\Role:
   - { translations: [{ code: en, name: Administrator }, { code: ru, name: Administrator }], permissions: [ { code: root access, section: All, translations: [{ code: en, name: Root access }] } ] }
 XLite\Model\Role\Permission:
@@ -1503,6 +1506,7 @@ XLite\Model\Role\Permission:
   - { code: manage orders, section: Sales, translations: [{ code: en, name: Manage orders }] }
   - { code: manage import, section: Import and Export, translations: [{ code: en, name: Manage import }] }
   - { code: manage export, section: Import and Export, translations: [{ code: en, name: Manage export }] }
+  - { code: unfiltered html, section: Content, translations: [{ code: en, name: Allow unfiltered HTML }] }
 
 XLite\Model\AddressField:
   - { serviceName: title,         additional: false, required: false, translations: [{ code: en, name: Title }], schemaClass: \XLite\View\FormField\Select\Title, enabled: false }
@@ -1539,6 +1543,7 @@ XLite\Model\Order\Status\Shipping:
   - { code: D, translations: [{ code: en, name: Delivered, customerName: Delivered }], position: 40 }
   - { code: WND, translations: [{ code: en, name: Will Not Deliver, customerName: Will Not Deliver }], position: 50 }
   - { code: R, translations: [{ code: en, name: Returned, customerName: Returned }], position: 60 }
+  - { code: WFA, translations: [{ code: en, name: Waiting for approve, customerName: Waiting for approve }], position: 70 }
 
 XLite\Model\Order\Status\Property:
   - { paymentStatus: { code: A }, shippingStatus: { code: N }, incStock: false}
@@ -1594,6 +1599,7 @@ XLite\Model\Notification:
   - { templatesDirectory: order_failed, availableForAdmin: true, availableForCustomer: true, enabledForAdmin: true, enabledForCustomer: true, adminHeaderEnabled: false, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: false, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Order declined, description: "This notification is sent to both the administrator and customer when an order gets the status Declined.", customerSubject: Your order has been declined, customerText: "The status of your order has been changed to \"Declined\". This could be for one of the following reasons:<br />1) The order was declined by the store administrator.<br />2) The payment could not be processed at the time of order placement.<br />For more information, please contact the store administrator.", adminSubject: Order has been declined, adminText: Order has been declined. }]}
   - { templatesDirectory: order_processed, availableForAdmin: true, availableForCustomer: true, enabledForAdmin: true, enabledForCustomer: true, adminHeaderEnabled: false, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: false, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Order processed, description: "This notification is sent to both the administrator and customer when an order gets the status Paid.", customerSubject: Order confirmation, customerText: "Your order has been processed. Thank you for your business.<br />We will notify you by email of any further order status updates.", adminSubject: Order has been processed, adminText: Order has been processed. }]}
   - { templatesDirectory: order_shipped, availableForAdmin: false, availableForCustomer: true, enabledForAdmin: false, enabledForCustomer: true, adminHeaderEnabled: false, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: false, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Order shipped, description: "This notification is sent to the customer when an order gets the status Shipped.", customerSubject: Your order has been shipped, customerText: "Your order has been shipped. Thank you for your business.<br />Please come back soon!" }]}
+  - { templatesDirectory: order_waiting_for_approve, availableForAdmin: false, availableForCustomer: true, enabledForAdmin: false, enabledForCustomer: true, adminHeaderEnabled: false, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: false, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: 'Order awaiting for approval', description: "This notification is sent to the customer when an order gets the status Waiting for approve.", customerSubject: 'Order awaiting for approval', customerText: "Thank you for your purchase. Our team will provide you with the download links in a couple of hours. Sorry for the inconveniences." }]}
   - { templatesDirectory: order_tracking_information, availableForAdmin: false, availableForCustomer: false, enabledForAdmin: false, enabledForCustomer: true, adminHeaderEnabled: false, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: false, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Order tracking information, description: 'This notification is sent to the customer when an administrator clicks the "Send tracking information to customer" button.', customerSubject: Your order tracking information, customerText: "Here are the tracking details for your order" }]}
   - { templatesDirectory: profile_created, availableForAdmin: true, availableForCustomer: true, enabledForAdmin: false, enabledForCustomer: true, adminHeaderEnabled: true, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: true, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: User profile created, description: "This notification is sent to both the administrator and customer when a new customer profile is created.", customerSubject: Welcome!, customerText: Thank you for registering with us., adminSubject: New user registration, adminText: "A new user profile has been registered:" }]}
   - { templatesDirectory: profile_deleted, availableForAdmin: true, availableForCustomer: false, enabledForAdmin: false, enabledForCustomer: false, adminHeaderEnabled: true, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: true, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: User profile deleted, description: "This notification is sent to the administrator when a customer profile is deleted.", adminSubject: User profile has been deleted, adminText: "The following user profile has been deleted:" }]}
@@ -1633,3 +1639,7 @@ XLite\Model\AccessControlEntityType:
 
 XLite\Model\AccessControlZoneType:
   - name: 'order'
+
+XLite\Model\Product\GlobalTab:
+  - {service_name: 'Description', position: 10}
+  - {service_name: 'Specification', position: 20}

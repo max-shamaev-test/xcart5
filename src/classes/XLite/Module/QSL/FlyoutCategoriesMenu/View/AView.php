@@ -24,9 +24,15 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
     {
         $list = parent::getThemeFiles($adminZone);
 
-        if (!(is_null($adminZone) ? \XLite::isAdminZone() : $adminZone)) {
+        if (!(null === $adminZone ? \XLite::isAdminZone() : $adminZone)) {
             $list[static::RESOURCE_CSS][] = 'modules/QSL/FlyoutCategoriesMenu/flyout-menu.css';
-            $list[static::RESOURCE_JS][] = 'modules/QSL/FlyoutCategoriesMenu/flyout-menu.js';
+            $list[static::RESOURCE_JS][]  = 'modules/QSL/FlyoutCategoriesMenu/flyout-menu.js';
+
+            $list[static::RESOURCE_CSS][] = [
+                'file'  => 'modules/QSL/FlyoutCategoriesMenu/css/grid.less',
+                'media' => 'screen',
+                'merge' => 'bootstrap/css/bootstrap.less',
+            ];
         }
 
         return $list;

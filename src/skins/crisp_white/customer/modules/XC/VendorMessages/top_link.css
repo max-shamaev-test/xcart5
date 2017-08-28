@@ -23,11 +23,11 @@ ul.account-links li.messages-count a:hover {
 }
 
 ul.account-links li.messages-count a:hover svg path {
-  fill: #0ba2e8;
+  fill: #1cb5fc;
 }
 
 ul.account-links li.messages-count a:hover span {
-  color: #0ba2e8;
+  color: #1cb5fc;
 }
 
 ul.account-links li.messages-count svg {
@@ -43,5 +43,5 @@ ul.account-links li.messages-count svg path {
 }
 
 ul.account-links li.messages-count span {
-  color: #3c476e;
+  color: #386eaf;
 }

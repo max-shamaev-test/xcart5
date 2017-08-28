@@ -22,4 +22,14 @@ class Price extends \XLite\Module\XC\ProductVariants\View\FormField\Inline\Input
     {
         return 'XLite\Module\XC\ProductVariants\View\FormField\Input\Text\Price';
     }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getPlaceholder()
+    {
+        return $this->getProduct()
+            ? $this->formatPrice($this->getProduct()->getPrice())
+            : parent::getPlaceholder();
+    }
 }

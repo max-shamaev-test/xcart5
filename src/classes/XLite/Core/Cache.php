@@ -16,7 +16,7 @@ class Cache extends \XLite\Base
     /**
      * Cache driver
      *
-     * @var \Doctrine\Common\Cache\Cache
+     * @var \Doctrine\Common\Cache\CacheProvider
      */
     protected $driver;
 
@@ -42,12 +42,12 @@ class Cache extends \XLite\Base
     /**
      * Constructor
      *
-     * @param \Doctrine\Common\Cache\Cache $driver  Driver OPTIONAL
+     * @param \Doctrine\Common\Cache\CacheProvider $driver  Driver OPTIONAL
      * @param array                        $options Driver options OPTIONAL
      *
      * @return void
      */
-    public function __construct(\Doctrine\Common\Cache\Cache $driver = null, array $options = array())
+    public function __construct(\Doctrine\Common\Cache\CacheProvider $driver = null, array $options = array())
     {
         $this->options = $options;
         $this->driver = $driver ?: $this->detectDriver();
@@ -56,11 +56,22 @@ class Cache extends \XLite\Base
     /**
      * Get driver 
      * 
-     * @return \Doctrine\Common\Cache\Cache
+     * @return \Doctrine\Common\Cache\CacheProvider
      */
     public function getDriver()
     {
         return $this->driver;
+    }
+
+    /**
+     * Returns default cache ttl in seconds
+     *
+     * @return int
+     */
+    public static function getDefaultCacheTtl()
+    {
+        return (int)\XLite\Core\ConfigParser::getOptions(['cache', 'default_cache_ttl'])
+            ?: 604800;
     }
 
     /**
@@ -119,7 +130,7 @@ class Cache extends \XLite\Base
     /**
      * Get cache driver by options list
      *
-     * @return \Doctrine\Common\Cache\Cache
+     * @return \Doctrine\Common\Cache\CacheProvider
      */
     protected function detectDriver()
     {
@@ -309,9 +320,13 @@ class Cache extends \XLite\Base
      */
     protected function buildFileDriver()
     {
-        $cache = new \XLite\Core\FileCache(LC_DIR_DATACACHE);
+        try {
+            return new \Doctrine\Common\Cache\FilesystemCache(LC_DIR_DATACACHE);
+        } catch (\Exception $e) {
+            \XLite\Logger::getInstance()->log($e->getMessage(), LOG_ERR, $e->getTrace());
+        }
 
-        return $cache->isValid() ? $cache : null;
+        return null;
     }
     // }}}
 

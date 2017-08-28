@@ -1,12 +1,16 @@
 {##
  # Rating value in product info
+ #
+ # @ListChild (list="reviews.product.rating.average", weight="100")
  #}
+
 {% if this.isVisibleAverageRatingOnPage() %}
   <div class="product-average-rating">
-    <input type="hidden" name="target_widget" value="\XLite\Module\XC\Reviews\View\Customer\ProductInfo\Details\AverageRating" />
-    <input type="hidden" name="widgetMode" value="{{ this.getWidgetMode() }}" />
+    <input type="hidden" name="target_widget"
+           value="\XLite\Module\XC\Reviews\View\Customer\ProductInfo\Details\AverageRating"/>
+    <input type="hidden" name="widgetMode" value="{{ this.getWidgetMode() }}"/>
     {{ widget_list('reviews.product.rating', product=this.getRatedProduct()) }}
-    {% if this.isVisibleReviewsCount() and this.getReviewsCount() > 0 %}
+    {% if this.isVisibleReviewsCount() %}
       <div class="reviews-count no-reviews">
         &mdash;
         <a href="{{ this.getRatedProductURL() }}" class="link-to-tab">
@@ -14,16 +18,15 @@
         </a>
       </div>
     {% endif %}
-    {% if this.isVisibleReviewsCount() and this.getReviewsCount() == 0 %}
-      <div class="reviews-count">
-        {{ t('No reviews.') }}
-      </div>
-    {% endif %}
-    {% if this.isAllowedAddReview() %}
+    {% if this.isVisibleAddReviewLink(this.product) %}
       <span class="separator">|</span>
-      <a href="{{ this.getRatedProductURL() }}" class="link-to-tab">
-            {{ widget('\\XLite\\Module\\XC\\Reviews\\View\\Button\\Customer\\AddReviewLink', label=t('Be the first and leave a feedback.'), product=this.product) }}
-      </a>
+      {% if this.isReplaceAddReviewWithLogin() %}
+        {{ widget('\\XLite\\Module\\XC\\Reviews\\View\\Button\\PopupLoginLink', label=this.getReviewsLinkLabel(), product=this.product) }}
+      {% else %}
+        <a href="{{ this.getRatedProductURL() }}" class="link-to-tab">
+          {{ widget('\\XLite\\Module\\XC\\Reviews\\View\\Button\\Customer\\AddReviewLink', label=this.getReviewsLinkLabel(), product=this.product) }}
+        </a>
+      {% endif %}
     {% endif %}
   </div>
 {% endif %}

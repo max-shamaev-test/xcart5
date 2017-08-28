@@ -69,6 +69,15 @@ class Page extends \XLite\Model\Base\Catalog
     protected $metaDescType = 'A';
 
     /**
+     * Tab position
+     *
+     * @var integer
+     *
+     * @Column (type="integer")
+     */
+    protected $position = 0;
+
+    /**
      * Get front URL
      *
      * @return string
@@ -207,5 +216,28 @@ class Page extends \XLite\Model\Base\Catalog
     public function getCleanURLs()
     {
         return $this->cleanURLs;
+    }
+
+    /**
+     * Return Position
+     *
+     * @return int
+     */
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    /**
+     * Set Position
+     *
+     * @param int $position
+     *
+     * @return $this
+     */
+    public function setPosition($position)
+    {
+        $this->position = $position;
+        return $this;
     }
 }

@@ -5,6 +5,9 @@
 <div class="{{ this.getBlockStyle() }}">
   <div class="header clearfix">
     <span class="title">{{ this.getTitle()|raw }}</span>
-    {{ widget('\\XLite\\View\\Button\\Submit', label=t('Change')) }}
+    <a href="#" class="change-attributes">{{ t('Change') }}</a>
+    {% if this.isAllowVaraintAdd() %}
+      {% include 'modules/XC/ProductVariants/variants/parts/create_variants.twig' %}
+    {% endif %}
   </div>
 </div>

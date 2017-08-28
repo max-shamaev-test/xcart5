@@ -5,7 +5,7 @@
  #}
 
 <div class="pin-codes-auto">
-  {{ widget('\\XLite\\Module\\CDev\\PINCodes\\View\\FormField\\Select\\AutoPinCodes', value=this.product.getAutoPinCodes(), fieldName='autoPinCodes', fieldOnly='true') }}
+  {{ widget('\\XLite\\Module\\CDev\\PINCodes\\View\\FormField\\Select\\AutoPinCodes', value=this.product.getAutoPinCodes(), fieldName='autoPinCodes', label='PIN codes generation method') }}
   <div class="clear"></div>
   {% if not this.product.getPinCodesEnabled() %}
     <div class="can-add-after-saving">

@@ -75,7 +75,7 @@ class Cart extends \XLite\Controller\Customer\ACustomer
      */
     protected function markCartCalculate()
     {
-        return !$this->getAction()
+        return (!$this->getAction() || in_array($this->getAction(), ['add', 'add_order'], true))
             && !in_array(\XLite\Core\Request::getInstance()->widget, $this->getExcludedWidgets());
     }
 
@@ -420,8 +420,6 @@ class Cart extends \XLite\Controller\Customer\ACustomer
 
     /**
      * URL to return after product is added
-     *
-     * @return string
      */
     protected function setURLToReturn()
     {

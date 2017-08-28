@@ -13,6 +13,8 @@ namespace XLite\Core;
  */
 class LessParser extends \XLite\Base\Singleton
 {
+    use \XLite\Core\Cache\ExecuteCachedTrait;
+
     /**
      * Less parser object
      *
@@ -98,11 +100,11 @@ class LessParser extends \XLite\Base\Singleton
         $path = $this->getCSSResource($lessFiles);
         $url  = $this->getCSSResourceURL($path);
 
-        $data = array(
+        $data = [
             'file'  => $path,
             'media' => 'screen', // It is hardcoded right now
             'url'   => $url,
-        );
+        ];
 
         if ($this->needToCompileLessResource($lessFiles)) {
             try {
@@ -146,17 +148,46 @@ class LessParser extends \XLite\Base\Singleton
      */
     protected function calcLESSResourceHash($lessFiles)
     {
-        $result = array();
+        $result = [];
 
-        if ($lessFiles
-            && is_array($lessFiles)
-        ) {
+        if ($lessFiles && is_array($lessFiles)) {
             foreach ($lessFiles as $v) {
-                $result[$this->getShortName($v['file'])] = md5_file($v['file']);
+                $result[$this->getShortName($v['file'])] = $this->calcLESSFileHash($v['file']);
             }
         }
 
         return $result;
+    }
+
+    /**
+     * Calc LESSResourceHash
+     *
+     * @param string $lessFile LESS file path
+     *
+     * @return string
+     */
+    protected function calcLESSFileHash($lessFile)
+    {
+        return $this->executeCachedRuntime(function () use ($lessFile) {
+            $result = '';
+
+            if ($lessFile && file_exists($lessFile)) {
+                $content = file_get_contents($lessFile);
+                $offset = 0;
+
+                while (($offset = strpos($content, '@import ', $offset)) !== false) {
+                    $import = substr($content, $offset + 8, strpos($content, ';', $offset) - $offset - 8);
+                    $import = trim($import, "\n\r'\" ;@");
+
+                    $result .= $this->calcLESSFileHash(dirname($lessFile) . LC_DS . $import);
+                    $offset++;
+                }
+
+                $result = md5($result . md5_file($lessFile));
+            }
+
+            return $result;
+        }, $lessFile);
     }
 
     /**
@@ -196,14 +227,14 @@ class LessParser extends \XLite\Base\Singleton
 
             $this->LESSResourceHash = $data && is_array($data)
                 ? $data
-                : array();
+                : [];
         }
 
         $path = $this->getCSSResource($lessFiles, $original, true);
 
         return isset($this->LESSResourceHash[$path]) && is_array($this->LESSResourceHash[$path])
             ? $this->LESSResourceHash[$path]
-            : array();
+            : [];
     }
 
     /**
@@ -225,7 +256,7 @@ class LessParser extends \XLite\Base\Singleton
      */
     protected function getUniqueName($lessFiles)
     {
-        $list = array();
+        $list = [];
 
         foreach ($lessFiles as $id => $lessFile) {
             unset($lessFile['file']);
@@ -386,7 +417,7 @@ class LessParser extends \XLite\Base\Singleton
         $xlite  = \XLite::getInstance();
         $layout = \XLite\Core\Layout::getInstance();
 
-        return array(
+        return [
             // Defines the admin skin path
             'admin-skin'    => '\'' . $xlite->getShopURL(
                 dirname($layout->getResourceWebPath('body.twig', \XLite\Core\Layout::WEB_PATH_OUTPUT_URL, \XLite::ADMIN_INTERFACE))
@@ -397,7 +428,7 @@ class LessParser extends \XLite\Base\Singleton
             'common-skin' => '\'' . $xlite->getShopURL(
                 $layout->getResourceWebPath('', \XLite\Core\Layout::WEB_PATH_OUTPUT_URL, \XLite::COMMON_INTERFACE)
             ) . '\'',
-        );
+        ];
     }
 
     /**
@@ -407,9 +438,9 @@ class LessParser extends \XLite\Base\Singleton
      */
     protected function getLessParserOptions()
     {
-        return array(
+        return [
             'compress'  => true,
             'root_dir'  => LC_DIR_ROOT,
-        );
+        ];
     }
 }

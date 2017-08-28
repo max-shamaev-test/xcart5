@@ -22,7 +22,7 @@ class Review extends \XLite\View\AView
      */
     public static function getAllowedTargets()
     {
-        return array_merge(parent::getAllowedTargets(), array('review'));
+        return array_merge(parent::getAllowedTargets(), ['review']);
     }
 
     /**

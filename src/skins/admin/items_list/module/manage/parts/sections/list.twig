@@ -3,8 +3,7 @@
  #
  # @ListChild (list="itemsList.module.manage.sections", weight="400")
  #}
-
-{% form '\\XLite\\View\\Form\\Module\\Manage' %}
+{% form 'XLite\\View\\Form\\Module\\Manage' %}
   <table cellspacing="0" cellpadding="0" class="data-table items-list modules-list">
     <tbody class="lines">
       {% for idx, module in this.getPageData() %}

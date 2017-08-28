@@ -14,8 +14,8 @@ namespace XLite\Controller\Customer;
 class Storage extends \XLite\Controller\Customer\ACustomer
 {
     /**
-     * Storage 
-     * 
+     * Storage
+     *
      * @var \XLite\Model\Base\Storage
      */
     protected $storage;
@@ -39,14 +39,12 @@ class Storage extends \XLite\Controller\Customer\ACustomer
     {
         $this->set('silent', true);
         $this->setSuppressOutput(true);
-        header('Content-Type: ' . $this->getStorage()->getMime());
-        header('Content-Disposition: attachment; filename="' . addslashes($this->getStorage()->getFileName()) . '";');
         $this->readStorage($this->getStorage());
     }
 
     /**
-     * Get storage 
-     * 
+     * Get storage
+     *
      * @return \XLite\Model\Base\Storage
      */
     protected function getStorage()
@@ -60,7 +58,7 @@ class Storage extends \XLite\Controller\Customer\ACustomer
             if (\XLite\Core\Operator::isClassExists($class)) {
                 $id = \XLite\Core\Request::getInstance()->id;
                 $this->storage = \XLite\Core\Database::getRepo($class)->find($id);
-                if (!$this->storage->isFileExists()) {
+                if ($this->storage && !$this->storage->isFileExists()) {
                     $this->storage = null;
                 }
             }
@@ -70,14 +68,79 @@ class Storage extends \XLite\Controller\Customer\ACustomer
     }
 
     /**
-     * Read storage 
-     * 
+     * Read storage
+     *
      * @param \XLite\Model\Base\Storage $storage Storage
-     *  
-     * @return void
      */
     protected function readStorage(\XLite\Model\Base\Storage $storage)
     {
+        if (
+            \XLite\Core\ConfigParser::getOptions(['other', 'use_sendfile'])
+            && $this->isStorageServerReadable($storage)
+        ) {
+            if (\Includes\Environment::isApache() || \Includes\Environment::isLighttpd()) {
+                $this->readStorageXSendfile($storage);
+            } elseif (\Includes\Environment::isNginx()) {
+                $this->readStorageXAccelRedirect($storage);
+            } else {
+                $this->readStorageDefault($storage);
+            }
+        } else {
+            $this->readStorageDefault($storage);
+        }
+    }
+
+    /**
+     * Check if storage can be returned via headers
+     *
+     * @param \XLite\Model\Base\Storage $storage
+     *
+     * @return bool
+     */
+    protected function isStorageServerReadable(\XLite\Model\Base\Storage $storage)
+    {
+        return in_array($storage->getStorageType(), [
+                \XLite\Model\Base\Storage::STORAGE_ABSOLUTE,
+                \XLite\Model\Base\Storage::STORAGE_RELATIVE,
+            ])
+            && (
+                !\Includes\Environment::isNginx()
+                || strpos($storage->getStoragePath(), LC_DIR_FILES) === 0
+            );
+    }
+
+    /**
+     * @param \XLite\Model\Base\Storage $storage
+     */
+    protected function readStorageXSendfile(\XLite\Model\Base\Storage $storage)
+    {
+        $path = $storage->getStoragePath();
+
+        header("X-Sendfile: {$path}");
+        header('Content-Type: ' . $storage->getMime());
+        header('Content-Disposition: attachment; filename="' . addslashes($storage->getFileName()) . '";');
+    }
+
+    /**
+     * @param \XLite\Model\Base\Storage $storage
+     */
+    protected function readStorageXAccelRedirect(\XLite\Model\Base\Storage $storage)
+    {
+        $uri = '/storage_download/' . str_replace('\\', '/', substr($storage->getStoragePath(), strlen(LC_DIR_FILES)));
+
+        header("X-Accel-Redirect: {$uri}");
+        header('Content-Type: ' . $storage->getMime());
+        header('Content-Disposition: attachment; filename="' . addslashes($storage->getFileName()) . '";');
+    }
+
+    /**
+     * @param \XLite\Model\Base\Storage $storage
+     */
+    protected function readStorageDefault(\XLite\Model\Base\Storage $storage)
+    {
+        header('Content-Type: ' . $storage->getMime());
+        header('Content-Disposition: attachment; filename="' . addslashes($storage->getFileName()) . '";');
+
         $range = null;
 
         if (isset($_SERVER['HTTP_RANGE'])) {

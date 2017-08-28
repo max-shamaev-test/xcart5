@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\FileAttachments\Model;
 
+use \XLite\Module\CDev\FileAttachments\Model\Product\Attachment;
+
 /**
  * Product 
  */
@@ -30,7 +32,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      *
      * @return void
      */
-    public function __construct(array $data = array())
+    public function __construct(array $data = [])
     {
         $this->attachments = new \Doctrine\Common\Collections\ArrayCollection();
 
@@ -75,5 +77,46 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     public function getAttachments()
     {
         return $this->attachments;
+    }
+
+    /**
+     * Return filtered attachments
+     *
+     * @param \XLite\Model\Profile $profile OPTIONAL
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getFilteredAttachments($profile = null)
+    {
+        return $this->getAttachments()->filter($this->getAttachmentsFilter($profile));
+    }
+
+    /**
+     * Returns image comparing closure
+     *
+     * @param \XLite\Model\Profile $profile OPTIONAL
+     *
+     * @return \Closure
+     */
+    protected function getAttachmentsFilter($profile = null)
+    {
+        /**
+         * @param Attachment $element
+         *
+         * @return boolean
+         */
+        return function ($element) use ($profile) {
+            if ($element->getAccess() === Attachment::ACCESS_ANY) {
+                return true;
+            } elseif ($element->getAccess() === Attachment::ACCESS_REGISTERED) {
+                return null !== $profile;
+            }
+
+            $membershipId = ($profile && $profile->getMembership())
+                ? $profile->getMembership()->getMembershipId()
+                : null;
+
+            return (integer)$element->getAccess() === $membershipId;
+        };
     }
 }

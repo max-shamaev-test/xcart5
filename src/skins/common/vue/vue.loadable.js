@@ -49,7 +49,9 @@
         core.bind(['resources.ready', 'resources.empty'], _.bind(
           function(event, args){
             if (args.uuid === uuid) {
-              var oldData = JSON.parse(JSON.stringify(this.$data));
+              if (this.$options.loadable.transferState) {
+                var oldData = JSON.parse(JSON.stringify(this.$data));
+              }
               this._updateComponent(data);
               if (this.$options.loadable.transferState) {
                 this.$data = oldData;
@@ -105,3 +107,5 @@
     window.VueLoadableMixin = VueLoadableMixin
   }
 })();
+
+define('vue/vue.loadable', function () { return VueLoadableMixin; });

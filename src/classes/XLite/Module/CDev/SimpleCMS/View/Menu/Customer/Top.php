@@ -218,7 +218,7 @@ class Top extends \XLite\View\Menu\Customer\Top implements \XLite\Base\IDecorato
     {
         $class = parent::displayItemClass($index, $item);
 
-        return $item['hasSubmenus']
+        return !empty($item['hasSubmenus'])
             ?  preg_replace('/"$/', ' has-sub"', $class)
             :  $class;
     }

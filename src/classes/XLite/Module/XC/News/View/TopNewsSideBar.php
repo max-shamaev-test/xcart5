@@ -11,7 +11,6 @@ namespace XLite\Module\XC\News\View;
 /**
  * Side-bar box for top news
  *
- * @ListChild (list="sidebar.single")
  * @ListChild (list="sidebar.first")
  */
 class TopNewsSideBar extends \XLite\View\SideBarBox

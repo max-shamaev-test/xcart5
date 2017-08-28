@@ -11,7 +11,7 @@ namespace XLite\View;
 /**
  * Activate top box
  *
- * @ListChild (list="admin.main.page.header", weight="60", zone="admin")
+ * @ListChild (list="admin.main.page.header_wrapper", weight="500", zone="admin")
  */
 class ActivateTopBox extends \XLite\View\AView
 {

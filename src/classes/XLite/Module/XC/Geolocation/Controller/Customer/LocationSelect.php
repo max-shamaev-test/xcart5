@@ -47,10 +47,10 @@ class LocationSelect extends \XLite\Controller\Customer\ACustomer
     public function hasField($fieldName)
     {
         return (bool) \XLite\Core\Database::getRepo('XLite\Model\AddressField')->findOneBy(
-            array(
+            [
                 'serviceName' => $fieldName,
                 'enabled'     => true,
-            )
+            ]
         );
     }
 
@@ -104,10 +104,10 @@ class LocationSelect extends \XLite\Controller\Customer\ACustomer
                     ? $this->getCart()->getProfile()->getShippingAddress()
                     : null;
             if (!$address) {
-                $location = array(
+                $location = [
                     'country' => $country->getCode(),
                     'zipcode' => \XLite\Core\Request::getInstance()->address_zipcode,
-                );
+                ];
 
                 if ($state) {
                     $location['state'] = $state->getStateId() > 0 ? $state->getCode() : $state->getState();

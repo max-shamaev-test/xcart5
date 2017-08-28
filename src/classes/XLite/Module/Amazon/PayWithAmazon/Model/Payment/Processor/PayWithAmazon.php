@@ -36,12 +36,12 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
     protected $jsUrls = [
         'test' => [
             'EUR' => 'https://static-eu.payments-amazon.com/OffAmazonPayments/de/sandbox/js/Widgets.js',
-            'GBR' => 'https://static-eu.payments-amazon.com/OffAmazonPayments/uk/sandbox/js/Widgets.js',
+            'GBP' => 'https://static-eu.payments-amazon.com/OffAmazonPayments/uk/sandbox/js/Widgets.js',
             'USD' => 'https://static-na.payments-amazon.com/OffAmazonPayments/us/sandbox/js/Widgets.js',
         ],
         'live' => [
             'EUR' => 'https://static-eu.payments-amazon.com/OffAmazonPayments/de/js/Widgets.js',
-            'GBR' => 'https://static-eu.payments-amazon.com/OffAmazonPayments/uk/js/Widgets.js',
+            'GBP' => 'https://static-eu.payments-amazon.com/OffAmazonPayments/uk/js/Widgets.js',
             'USD' => 'https://static-na.payments-amazon.com/OffAmazonPayments/us/js/Widgets.js',
         ],
     ];
@@ -98,8 +98,8 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
     public function getJsSdkUrl($method)
     {
         $mode     = $this->isTestMode($method) ? 'test' : 'live';
-        $currency = $method->getSetting('merchant_id');
-        $currency = in_array($currency, ['EUR', 'GBR'], true)
+        $currency = $method->getSetting('region');
+        $currency = in_array($currency, ['EUR', 'GBP'], true)
             ? $currency
             : 'USD';
         $sid      = $method->getSetting('merchant_id');
@@ -153,7 +153,7 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
      */
     protected function getAllowedCurrencies(\XLite\Model\Payment\Method $method)
     {
-        return ['USD', 'GBR', 'EUR', 'JPY'];
+        return ['USD', 'GBP', 'EUR', 'JPY'];
     }
 
     /**

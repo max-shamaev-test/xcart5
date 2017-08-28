@@ -33,6 +33,27 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
     protected static $instance;
 
     /**
+     * Steps (cache)
+     *
+     * @var array
+     */
+    protected $steps;
+
+    /**
+     * Current step index
+     *
+     * @var integer
+     */
+    protected $currentStep;
+
+    /**
+     * Count (cached)
+     *
+     * @var integer
+     */
+    protected $countCache;
+
+    /**
      * Returns generator if it is initialised or FALSE otherwise
      *
      * @return AGenerator|boolean
@@ -107,6 +128,17 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * @param $options \ArrayObject
+     *
+     * @return $this
+     */
+    public function setOptions($options)
+    {
+        $this->options = $options;
+        return $this;
     }
 
     /**
@@ -335,7 +367,7 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
     }
 
     /**
-     * \Counable::count
+     * \Countable::count
      *
      * @return integer
      */
@@ -392,4 +424,69 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
     }
 
     // }}}
+
+    // {{{ Service variable names
+
+    /**
+     * Get resizeTickDuration TmpVar name
+     *
+     * @return string
+     */
+    public static function getTickDurationVarName()
+    {
+        return static::getEventName() . 'TickDuration';
+    }
+
+    /**
+     * Get resize cancel flag name
+     *
+     * @return string
+     */
+    public static function getCancelFlagVarName()
+    {
+        return static::getEventName() . 'CancelFlag';
+    }
+
+    // }}}
+
+    /**
+     * Get export lock key
+     *
+     * @return string
+     */
+    public static function getLockKey()
+    {
+        return static::getEventName();
+    }
+
+    /**
+     * Lock with file lock
+     */
+    public static function lock()
+    {
+        \XLite\Core\Lock\FileLock::getInstance()->setRunning(
+            static::getLockKey()
+        );
+    }
+
+    /**
+     * Check if is locked right now
+     */
+    public static function isLocked()
+    {
+        return \XLite\Core\Lock\FileLock::getInstance()->isRunning(
+            static::getLockKey(),
+            true
+        );
+    }
+
+    /**
+     * Unlock
+     */
+    public static function unlock()
+    {
+        \XLite\Core\Lock\FileLock::getInstance()->release(
+            static::getLockKey()
+        );
+    }
 }

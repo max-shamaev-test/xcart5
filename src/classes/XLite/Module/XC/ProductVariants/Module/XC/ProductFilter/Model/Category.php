@@ -30,7 +30,6 @@ class Category extends \XLite\Model\Category implements \XLite\Base\IDecorator
         $qb->leftJoin('product.variants', 'variants');
         $qb->leftJoin('variants.attributeValueS', 'attributeValuesS', 'WITH', 'attributeValuesS.attribute = av');
 
-        $qb->andWhere('(variantsAttributes.id IS NULL OR attributeValuesS.id IS NOT NULL)');
         return $qb;
     }
 }

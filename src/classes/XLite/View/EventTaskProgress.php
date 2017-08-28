@@ -8,10 +8,12 @@
 
 namespace XLite\View;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
+
 /**
  * Event task progress bar
  */
-class EventTaskProgress extends \XLite\View\AView
+class EventTaskProgress extends \XLite\View\AView implements ProviderInterface
 {
     /**
      * Widget parameter names
@@ -243,7 +245,7 @@ class EventTaskProgress extends \XLite\View\AView
      *
      * @return array
      */
-    protected function getPreloadedLabels()
+    public function getPreloadedLanguageLabels()
     {
         $list = array(
             'Canceling',

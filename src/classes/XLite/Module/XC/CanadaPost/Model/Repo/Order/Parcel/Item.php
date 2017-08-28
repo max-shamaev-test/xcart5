@@ -23,7 +23,7 @@ class Item extends \XLite\Model\Repo\ARepo
      *
      * @param integer        $itemId   Item ID
      * @param integer        $amount   Amount
-     * @param integet|string $parcelId Parcel ID or "NEW" string for new parcels
+     * @param integer|string $parcelId Parcel ID or "NEW" string for new parcels
      *
      * @return void
      */ 

@@ -32,3 +32,11 @@ core.microhandlers.add(
     );
   }
 );
+
+core.microhandlers.add(
+  'dashboard-welcome',
+  '.admin-welcome',
+  function() {
+    $('.dashboard').addClass('welcome-visible');
+  }
+);

@@ -26,7 +26,7 @@ class FacebookAuthProvider extends AAuthProvider
     /**
      * Data to gain access to
      */
-    const AUTH_REQUEST_SCOPE = 'email,user_location';
+    const AUTH_REQUEST_SCOPE = 'email';
 
     /**
      * Url to get access token
@@ -66,8 +66,11 @@ class FacebookAuthProvider extends AAuthProvider
         $this->accessToken = null;
 
         if (200 == $response->code) {
-            parse_str($response->body, $data);
-            $this->accessToken = $data['access_token'];
+            $data = json_decode($response->body, true);
+
+            if (isset($data['access_token'])) {
+                $this->accessToken = $data['access_token'];
+            }
         }
 
         return $this->accessToken;
@@ -172,6 +175,7 @@ class FacebookAuthProvider extends AAuthProvider
             if ($accessToken) {
                 $request = new \XLite\Core\HTTP\Request($this->getAddressRequestUrl($id, $accessToken));
                 $response = $request->sendRequest();
+
                 if (200 == $response->code) {
                     $addressinfo = json_decode($response->body, true);
                 }
@@ -224,5 +228,27 @@ class FacebookAuthProvider extends AAuthProvider
     protected function getClientSecret()
     {
         return \XLite\Core\Config::getInstance()->CDev->SocialLogin->fb_client_secret;
+    }
+
+    /**
+     * @return string
+     */
+    protected static function getAuthRequestScope()
+    {
+        $result = parent::getAuthRequestScope();
+
+        if (static::shouldRequestUserLocation()) {
+            $result .= ',user_location';
+        }
+
+        return $result;
+    }
+
+    /**
+     *
+     */
+    public static function shouldRequestUserLocation()
+    {
+        return \XLite\Core\Config::getInstance()->CDev->SocialLogin->fb_request_location;
     }
 }

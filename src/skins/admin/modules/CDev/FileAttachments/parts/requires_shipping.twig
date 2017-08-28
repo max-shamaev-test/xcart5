@@ -1,0 +1,7 @@
+{##
+ # Product requires shipping switcher
+ #}
+
+<div class="requires-shipping">
+  {{ widget('\\XLite\\View\\FormField\\Input\\Checkbox\\OnOff', label='Requires shipping', value=this.product.getShippable(), fieldName='requires_shipping', fieldId='requires-shipping-checkbox') }}
+</div>

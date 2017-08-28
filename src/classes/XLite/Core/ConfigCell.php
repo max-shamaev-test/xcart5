@@ -13,4 +13,33 @@ namespace XLite\Core;
  */
 class ConfigCell extends \XLite\Core\CommonCell
 {
+    /**
+     * @var bool
+     */
+    protected $isMain = false;
+
+    public function __construct($isMain = false, array $data = null)
+    {
+        parent::__construct($data);
+
+        $this->isMain = $isMain;
+    }
+
+    /**
+     * Get property by name
+     *
+     * @param string $name property name
+     *
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        $result = parent::__get($name);
+
+        if (!$result && $this->isMain) {
+            $result = new \XLite\Core\ConfigCell();
+        }
+
+        return $result;
+    }
 }

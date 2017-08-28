@@ -24,17 +24,18 @@ var FroalaEditor = CommonElement.extend({
 
   initialize: function () {
     var froala = this.$element.froalaEditor(this.getEditorOptions());
+
     this.$element.on('froalaEditor.contentChanged', _.bind(this.onContentChange, this));
 
     this.bind('local.validate', _.bind(this.specialValidate, this));
 
-    core.trigger('froala.initialized', { sender: this, element: this.element });
+    core.trigger('froala.initialized', {sender: this, element: this.element});
   },
 
   getEditorOptions: function () {
     var options = core.getCommentedData(this.$element.parent());
 
-    $.map(options.appendToDefault, function(value, index) {
+    $.map(options.appendToDefault, function (value, index) {
       if (typeof options[index] == 'undefined') {
         if (value instanceof Array && $.FroalaEditor.DEFAULTS[index] instanceof Array) {
           options[index] = value.concat($.FroalaEditor.DEFAULTS[index]);
@@ -50,15 +51,15 @@ var FroalaEditor = CommonElement.extend({
     jQuery(e.target).trigger('change');
   }, 200),
 
-  isVisible: function() {
+  isVisible: function () {
     return this.$element.parent().is(':visible');
   },
 
-  isVueControlled: function() {
+  isVueControlled: function () {
     return typeof(this.element.form.__vue__) !== 'undefined';
   },
 
-  handleChange: function() {
+  handleChange: function () {
     if (this.isVueControlled()) {
       // stub unneccessary function
       return true;
@@ -72,7 +73,16 @@ var FroalaEditor = CommonElement.extend({
       return;
     }
 
-    if (this.$element.length && this.$element.froalaEditor('html.get').trim() === '' && this.$element.froalaEditor('codeView.get').trim() === '') {
+    if (
+      this.$element.length
+      && (
+        this.$element.froalaEditor('core.isEmpty')
+        || (
+          this.$element.froalaEditor('html.get').trim() === ''
+          && this.$element.froalaEditor('codeView.get').trim() === ''
+        )
+      )
+    ) {
       var name = '';
       var label = jQuery('label[for=' + this.element.id + ']');
       if (label && label.length > 0) {
@@ -81,16 +91,22 @@ var FroalaEditor = CommonElement.extend({
         name = id;
       }
 
-      core.trigger(
-        'message',
-        {
-          type: 'error',
-          message: core.t('The X field is empty', {name: name})
-        }
-      );
+      if (_.isUndefined(state)) {
+        state = {};
+      }
 
-      this.markAsInvalid();
-      this.$element.froalaEditor('events.focus');
+      if (!state.silent) {
+        core.trigger(
+          'message',
+          {
+            type: 'error',
+            message: core.t('The X field is empty', {name: name})
+          }
+        );
+
+        this.markAsInvalid();
+        this.$element.froalaEditor('events.focus');
+      }
 
       state.result = false;
     } else {
@@ -109,7 +125,7 @@ var FroalaEditor = CommonElement.extend({
     var str = getRules[1];
     var rules = str.split(/\[|,|\]/);
     return -1 !== rules.indexOf('required');
-  } 
+  }
 });
 
 core.autoload('FroalaEditor', 'textarea.fr-instance');

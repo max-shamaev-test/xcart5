@@ -52,6 +52,14 @@ class StoreData extends \XLite\View\StickyPanel\ItemForm
                 ],
                 'XLite\View\Button\Regular'
             ),
+            $this->getWidget(
+                [
+                    \XLite\View\Button\AButton::PARAM_LABEL     => static::t('Update store data'),
+                    \XLite\View\Button\AButton::PARAM_STYLE     => 'regular-button always-enabled',
+                    \XLite\View\Button\Regular::PARAM_ACTION    => 'updateStoresData'
+                ],
+                'XLite\View\Button\Regular'
+            ),
         ];
     }
 }

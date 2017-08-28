@@ -13,6 +13,7 @@ namespace XLite\Module\CDev\Coupons\Model;
  *
  * @Entity
  * @Table  (name="order_coupons")
+ * @HasLifecycleCallbacks
  */
 class UsedCoupon extends \XLite\Model\AEntity
 {
@@ -187,7 +188,7 @@ class UsedCoupon extends \XLite\Model\AEntity
     /**
      * Set value
      *
-     * @param decimal $value
+     * @param float $value
      * @return UsedCoupon
      */
     public function setValue($value)
@@ -199,7 +200,7 @@ class UsedCoupon extends \XLite\Model\AEntity
     /**
      * Get value
      *
-     * @return decimal 
+     * @return float
      */
     public function getValue()
     {
@@ -236,5 +237,21 @@ class UsedCoupon extends \XLite\Model\AEntity
     public function getCoupon()
     {
         return $this->coupon;
+    }
+
+    /**
+     * Remove
+     *
+     * @PreRemove
+     */
+    public function processRemove()
+    {
+        if ($this->getCoupon() && $this->getCoupon()->getUsedCoupons()) {
+            $this->getCoupon()->getUsedCoupons()->removeElement($this);
+        }
+
+        if ($this->getOrder() && $this->getOrder()->getUsedCoupons()) {
+            $this->getOrder()->getUsedCoupons()->removeElement($this);
+        }
     }
 }

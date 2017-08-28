@@ -93,69 +93,80 @@
   {% include 'settings/base.twig' %}
 {% endif %}
 
-<table cellspacing="1" cellpadding="5" class="settings-table permissions-table">
+<table cellspacing="1" cellpadding="5" class="settings-table install-requirements-table">
 
-{% if not this.isWin() %}
-<tr>
-	<td colspan="2">
-    <h2>{{ t('Directories and files permissions') }}</h2>
-  </td>
-</tr>
-
-{% for k, v in this.check_dirs %}
-<tr class="{{ this.getRowClass(k, 'dialog-box', 'highlight') }}">
-	<td>{{ v.dir }}</td>
-	<td>
-		{% if v.error == '' %}<span class="success-message">OK</span>{% endif %}
-		{% if v.error == 'cannot_create' %}<span class="error-message">{{ t('cannot create directory') }}</span>{% endif %}
-    {% if v.error == 'cannot_chmod' %}<span class="error-message">{{ t('cannot set X permissions', {'X': this.getDirPermissionStr(v.dir)}) }}</span>{% endif %}
-		{% if v.error == 'wrong_permissions' %}
-      <span class="error-message">
-        {{ t('Incorrect permissions') }}
-      </span>
-    {% endif %}
-        {% if v.error == 'wrong_owner' %}<span class="error-message">{{ t('Incorrect owner of X directory', {'X': v.dir}) }}</span>{% endif %}
-        {% if v.error == 'wrong_permissions_subdirs' %}<span class="error-message">{{ t('subdirectories problems') }}</span>&nbsp;&nbsp;<a href="javascript:void(0);" onclick="jQuery('#details_{{ k }}').toggle();" class="navigation-path"><b>{{ t('details') }}</b>&nbsp;&gt;&gt</a>{% endif %}
-	</td>
-</tr>
-{% if v.error == 'wrong_permissions_subdirs' %}
-  <tr class="{{ this.getRowClass(k, 'dialog-box', 'highlight') }}" style="display : none" id="details_{{ k }}">
-      <td colspan="4">
-          &nbsp;{{ t('Incorrect permissions') }}<br />
-          {% for sid, subdir in v.subdirs %}
-              &nbsp;&nbsp;&nbsp;{{ subdir }}<br />
-          {% endfor %}
-      </td>
+  <tr>
+    <td colspan="2">
+      <h2>{{ t('Installation requirements') }}</h2>
+    </td>
   </tr>
-{% endif %}
-{% endfor %}
 
-{% for k, v in this.check_files %}
-<tr class="{{ this.getRowClass(k, 'dialog-box', 'highlight') }}">
-  <td>{{ v.file }}</td>
-  <td>
- 		{% if v.error == '' %}<span class="success-message">OK</span>{% endif %}
-		{% if v.error == 'does_not_exist' %}<span class="error-message">{{ t('file does not exist') }}</span>{% endif %}
-		{% if v.error == 'cannot_chmod' %}<span class="error-message">{{ t('cannot set X permissions', {'X': this.getDirPermissionStr(v.file)}) }}</span>{% endif %}
-    {% if v.error == 'wrong_owner' %}<span class="error-message">{{ t('Incorrect owner of X file', {'X': v.file}) }}</span>{% endif %}
-	</td>
-</tr>
-{% endfor %}
-{% endif %}
+  <tr>
+    <td colspan="2">
+      <h3>{{ t('Critical') }}</h3>
+    </td>
+  </tr>
+
+  {% for name, requirement in this.getCriticalRequirements() %}
+
+    <tr class="{% if loop.index is odd %}dialog-box{% else %}highlight{% endif %}">
+      <td class="name">
+        {{ requirement.title }}
+        {% if not requirement.status %}
+          <div class="description">
+            {{ requirement.description|raw }}
+          </div>
+          <div class="kb-description">
+            {{ requirement.kb_description|raw }}
+          </div>
+        {% endif %}
+      </td>
+      <td class="status">
+        {% if requirement.status %}
+          <span class="passed success-message">{{ t('Passed') }}</span>
+        {% else %}
+          <span class="failed error-message">{{ t('Failed') }}</span>
+          {% if requirement.error_description %}
+            {{ widget('XLite\\View\\Tooltip', id='install_requirement_error_'~name, text=requirement.error_description|raw, caption='', isImageTag='true', className='help-icon') }}
+          {% endif %}
+        {% endif %}
+      </td>
+    </tr>
+
+  {% endfor %}
+
+  <tr>
+    <td colspan="2">
+      <h3>{{ t('Non-critical') }}</h3>
+    </td>
+  </tr>
+
+  {% for name, requirement in this.getNonCriticalRequirements() %}
+
+    <tr class="{% if loop.index is odd %}dialog-box{% else %}highlight{% endif %}">
+      <td class="name">
+        {{ requirement.title }}
+        {% if not requirement.status %}
+          <div class="description">
+            {{ requirement.description|raw }}
+          </div>
+          <div class="kb-description">
+            {{ requirement.kb_description|raw }}
+          </div>
+        {% endif %}
+      </td>
+      <td class="status">
+        {% if requirement.status %}
+          <span class="passed success-message">{{ t('Passed') }}</span>
+        {% else %}
+          <span class="failed error-message">{{ t('Failed') }}</span>
+          {% if requirement.error_description %}
+            {{ widget('XLite\\View\\Tooltip', id='install_requirement_error_'~name, text=requirement.error_description|raw, caption='', isImageTag='true', className='help-icon') }}
+          {% endif %}
+        {% endif %}
+      </td>
+    </tr>
+
+  {% endfor %}
+
 </table>
-
-{% if this.getWrongPermissions() %}
-  <div class="modified-files-section">
-    <div class="modified-files-section-frame">
-    <div class="description">{{ t('Permissions checking failed')|raw }}</div>
-    <ul class="modified-files-block">
-      {% for command in this.getWrongPermissions() %}
-        <li>{{ command }}</li>
-      {% endfor %}
-    </ul>
-    <div class="modified-files-buttons">
-      {{ widget('XLite\\View\\Button\\CopyLink', copy=this.getWrongPermissionsAsString(), label=t('Copy to clipboard')) }}
-    </div>
-    </div>
-  </div>
-{% endif %}

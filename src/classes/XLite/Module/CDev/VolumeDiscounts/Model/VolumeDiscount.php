@@ -132,7 +132,7 @@ class VolumeDiscount extends \XLite\Model\AEntity
     /**
      * Set value
      *
-     * @param decimal $value
+     * @param float $value
      * @return VolumeDiscount
      */
     public function setValue($value)
@@ -144,7 +144,7 @@ class VolumeDiscount extends \XLite\Model\AEntity
     /**
      * Get value
      *
-     * @return decimal 
+     * @return float
      */
     public function getValue()
     {
@@ -176,7 +176,7 @@ class VolumeDiscount extends \XLite\Model\AEntity
     /**
      * Set subtotalRangeBegin
      *
-     * @param decimal $subtotalRangeBegin
+     * @param float $subtotalRangeBegin
      * @return VolumeDiscount
      */
     public function setSubtotalRangeBegin($subtotalRangeBegin)
@@ -188,7 +188,7 @@ class VolumeDiscount extends \XLite\Model\AEntity
     /**
      * Get subtotalRangeBegin
      *
-     * @return decimal 
+     * @return float
      */
     public function getSubtotalRangeBegin()
     {
@@ -198,7 +198,7 @@ class VolumeDiscount extends \XLite\Model\AEntity
     /**
      * Set subtotalRangeEnd
      *
-     * @param decimal $subtotalRangeEnd
+     * @param float $subtotalRangeEnd
      * @return VolumeDiscount
      */
     public function setSubtotalRangeEnd($subtotalRangeEnd)
@@ -210,7 +210,7 @@ class VolumeDiscount extends \XLite\Model\AEntity
     /**
      * Get subtotalRangeEnd
      *
-     * @return decimal 
+     * @return float
      */
     public function getSubtotalRangeEnd()
     {

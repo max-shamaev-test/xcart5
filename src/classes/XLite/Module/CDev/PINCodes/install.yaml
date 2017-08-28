@@ -13,8 +13,6 @@ XLite\Model\LanguageLabel:
   - { name: "X PIN codes longer than Y characters ignored.", translations: [{ code: en, label: "{{count}} PIN codes longer than {{max}} characters ignored." }] }
   - { name: "Could not assign X PIN codes to order #Y.", translations: [{ code: en, label: "Could not assign {{count}} PIN codes to order #{{orderId}}." }] }
   - { name: "No valid code found.", translations: [{ code: en, label: "No valid code found." }] }
-  - { name: "PIN codes are generated automatically", translations: [{ code: en, label: "PIN codes are generated automatically" }] }
-  - { name: "PIN codes are defined manually", translations: [{ code: en, label: "PIN codes are defined manually" }] }
   - { name: "PIN", translations: [{ code: en, label: "PIN" }] }
   - { name: "Can not be disabled for products with manually defined PIN codes", translations: [{ code: en, label: "Cannot be disabled for products with manually defined PIN codes" }] }
   - { name: "PIN codes enabled", translations: [{ code: en, label: "PIN codes enabled" }] }
@@ -30,11 +28,14 @@ XLite\Model\LanguageLabel:
   - { name: "X PIN Codes were not assigned.", translations: [{ code: en, label: "{{count}} PIN Codes were not assigned." }] }
   - { name: "No pin codes are bought yet", translations: [{ code: en, label: "No pin codes have been bought yet" }] }
   - { name: "PIN codes data have been successfully updated", translations: [{ code: en, label: "PIN codes data has been successfully updated" }] }
-  - { name: "Unknown error occurred", translations: [{ code: en, label: "Unknown error occurred" }] }
   - { name: "PIN code", translations: [{ code: en, label: "PIN code" }] }
   - { name: "PIN codes", translations: [{ code: en, label: "PIN codes" }] }
   - { name: 'Add PIN codes', translations: [{ code: en, label: 'Add PIN codes' }] }
   - { name: 'Inventory tracking for product X will not be imported', translations: [{ code: en, label: 'Inventory tracking for product {{value}} will not be imported' }] }
+  - { name: 'PIN codes generation method', translations: [{ code: en, label: 'PIN codes generation method' },{ code: ru, label: 'Способ создания ПИН-кодов' }] }
+  - { name: 'Automatically', translations: [{ code: en, label: 'Automatically' },{ code: ru, label: 'Автоматически' }] }
+  - { name: 'Manually', translations: [{ code: en, label: 'Manually' },{ code: ru, label: 'Вручную' }] }
+  - { name: "Product not found", translations: [{ code: ru, label: "Product not found" }] }
 
 XLite\Model\Notification:
   - templatesDirectory: modules/CDev/PINCodes/acquire_pin_codes_failed
@@ -54,8 +55,25 @@ XLite\Model\Notification:
         description: "This notification is sent to the administrator in the event of an error in the process of generating PIN codes for one or more items - as a result of which the PIN codes have not been generated."
         adminSubject: PIN code generation failure for one or more ordered items
         adminText: "Could not generate PIN codes for the following products:"
+
+XLite\Model\Config:
+  - name: esd_fullfilment
+    category: CDev\PINCodes
+    type: XLite\View\FormField\Input\Checkbox\YesNo
+    orderby: 400
+    translations:
+      - code: en
+        option_name: 'Show only ESD related fulfilment statuses'
+        option_comment: 'This option leave only 3 method: New, Delivered and Will Not Deliver. You can rename it with "Custom Order Statuses" module'
       - code: ru
-        name: Ошибка создания пин-кода (модуль PIN codes)
-        description: "Данное сообщение отправляется администратору в случае, когда при создании PIN-кодов для одного или нескольких товаров произошла ошибка, в результате которой PIN-код(ы) не были созданы."
-        adminSubject: Ошибка создания PIN-кода для одного или нескольких заказанных продуктов
-        adminText: "Не удалось создать PIN-коды для следующих продуктов:"
+        option_name: 'Отображать только статусы для цифровой дистрибуции'
+        option_comment: 'Данная настройка оставит только 3 статуса доставки: Новый, Доставлен и Доставка отменена. Переименовать их можно при помощи модуля Custom Order Statuses'
+  - name: approve_before_download
+    category: CDev\PINCodes
+    type: XLite\View\FormField\Input\Checkbox\YesNo
+    orderby: 500
+    translations:
+      - code: en
+        option_name: 'Approve before providing access'
+      - code: ru
+        option_name: 'Одобрение перед предоставлением доступа'

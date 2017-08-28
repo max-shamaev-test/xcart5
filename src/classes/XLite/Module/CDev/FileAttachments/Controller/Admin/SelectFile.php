@@ -22,7 +22,7 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
      */
     protected function doActionSelectUploadProductAttachments()
     {
-        $this->doActionSelectProductAttachments('loadFromRequest', array('uploaded_file'));
+        $this->doActionSelectProductAttachments('loadFromRequest', ['uploaded_file']);
     }
 
     /**
@@ -34,10 +34,10 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
     {
         $this->doActionSelectProductAttachments(
             'loadFromURL',
-            array(
+            [
                 \XLite\Core\Request::getInstance()->url,
-                (bool) \XLite\Core\Request::getInstance()->url_copy_to_local
-            )
+                (bool)\XLite\Core\Request::getInstance()->url_copy_to_local
+            ]
         );
     }
 
@@ -52,7 +52,7 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
 
         $this->doActionSelectProductAttachments(
             'loadFromLocalFile',
-            array($file)
+            [$file]
         );
     }
 
@@ -66,15 +66,21 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
      */
     protected function doActionSelectProductAttachments($methodToLoad, array $paramsToLoad)
     {
-        $productId = intval(\XLite\Core\Request::getInstance()->objectId);
+        $productId = (integer)\XLite\Core\Request::getInstance()->objectId;
 
         $product = \XLite\Core\Database::getRepo('XLite\Model\Product')->find($productId);
 
         if (isset($product)) {
-            $attachment = new \XLite\Module\CDev\FileAttachments\Model\Product\Attachment();
-            $attachment->setProduct($product);
+            $attachmentsRepo = \XLite\Core\Database::getRepo('XLite\Module\CDev\FileAttachments\Model\Product\Attachment');
+            $attachment = $attachmentsRepo->find((integer)\XLite\Core\Request::getInstance()->fileObjectId);
 
-            if (call_user_func_array(array($attachment->getStorage(), $methodToLoad), $paramsToLoad)) {
+            if (!$attachment) {
+                $attachment = new \XLite\Module\CDev\FileAttachments\Model\Product\Attachment();
+                $attachment->setProduct($product);
+                $attachment->setOrderby($attachmentsRepo->getMaxAttachmentOrderByForProduct($product) + 10);
+            }
+
+            if (call_user_func_array([$attachment->getStorage(), $methodToLoad], $paramsToLoad)) {
 
                 $found = false;
                 foreach ($attachment->getStorage()->getDuplicates() as $duplicate) {
@@ -93,9 +99,12 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
                     );
 
                 } else {
-                    $product->addAttachments($attachment);
+                    if (!$attachment->isPersistent()) {
+                        $product->addAttachments($attachment);
 
-                    \XLite\Core\Database::getEM()->persist($attachment);
+                        \XLite\Core\Database::getEM()->persist($attachment);
+                    }
+
                     \XLite\Core\Database::getEM()->flush();
 
                     \XLite\Core\TopMessage::addInfo('The attachment has been added successfully');
@@ -106,7 +115,14 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
                 \XLite\Core\TopMessage::addError('The file extension is forbidden');
 
             } else {
-                \XLite\Core\TopMessage::addError('Failed to add the attachment');
+                if ($attachment->getStorage()->getLoadErrorMessage()) {
+                    \XLite\Core\TopMessage::addRawError(
+                        static::t('Failed to add the attachment') .
+                        ': ' . call_user_func_array(['static', 't'], $attachment->getStorage()->getLoadErrorMessage())
+                    );
+                } else {
+                    \XLite\Core\TopMessage::addError('Failed to add the attachment');
+                }
             }
 
         } else {
@@ -125,14 +141,14 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
      */
     protected function getParamsObjectProduct()
     {
-        return array(
+        return [
             'target'     => 'product',
             'page'       => \XLite\Core\Request::getInstance()->fileObject,
             'product_id' => \XLite\Core\Request::getInstance()->objectId,
-        );
+        ];
     }
 
-     /**
+    /**
      * Return parameters array for reupload "Product" target
      *
      * @return string
@@ -140,16 +156,16 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
     protected function getParamsObjectAttachment()
     {
         $attachment = $this->getAttachment();
-        return array(
+        return [
             'target'     => 'product',
             'page'       => \XLite\Core\Request::getInstance()->fileObject,
             'product_id' => $attachment->product->product_id,
-        );
+        ];
     }
 
     /**
-     * Get attachment 
-     * 
+     * Get attachment
+     *
      * @return \XLite\Module\CDev\FileAttachments\Model\Product\Attachment
      */
     protected function getAttachment()
@@ -165,7 +181,7 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
      */
     protected function doActionSelectUploadAttachmentAttachments()
     {
-        $this->doActionSelectAttachmentAttachments('loadFromRequest', array('uploaded_file'));
+        $this->doActionSelectAttachmentAttachments('loadFromRequest', ['uploaded_file']);
     }
 
     /**
@@ -177,10 +193,10 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
     {
         $this->doActionSelectProductAttachments(
             'loadFromURL',
-            array(
+            [
                 \XLite\Core\Request::getInstance()->url,
-                (bool) \XLite\Core\Request::getInstance()->url_copy_to_local
-            )
+                (bool)\XLite\Core\Request::getInstance()->url_copy_to_local
+            ]
         );
     }
 
@@ -195,7 +211,7 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
 
         $this->doActionSelectAttachmentAttachments(
             'loadFromLocalFile',
-            array($file)
+            [$file]
         );
     }
 
@@ -214,7 +230,7 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
         if (isset($attachment)) {
             $storage = $attachment->getStorage();
             $storage->setFilename('');
-            if (call_user_func_array(array($storage, $methodToLoad), $paramsToLoad)) {
+            if (call_user_func_array([$storage, $methodToLoad], $paramsToLoad)) {
                 \XLite\Core\Database::getEM()->flush();
                 \XLite\Core\TopMessage::addInfo(
                     'The attachment has been successfully re-upload'

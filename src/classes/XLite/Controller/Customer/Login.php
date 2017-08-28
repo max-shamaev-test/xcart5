@@ -40,6 +40,13 @@ class Login extends \XLite\Controller\Customer\ACustomer
     protected $profile;
 
     /**
+     * Time left to unlock
+     *
+     * @var integer
+     */
+    protected $timeLeftToUnlock;
+
+    /**
      * Set if the form id is needed to make an actions
      * Form class uses this method to check if the form id should be added
      *
@@ -137,7 +144,14 @@ class Login extends \XLite\Controller\Customer\ACustomer
      */
     protected function getRedirectFromLoginURL()
     {
-        return null;
+        $url = null;
+        if ($this->profile instanceof \XLite\Model\Profile
+            && $this->profile->isAdmin()
+        ) {
+            $url = \XLite\Core\Converter::buildURL('', '', [], \XLite::ADMIN_SELF);
+        }
+
+        return $url;
     }
 
     /**
@@ -178,7 +192,7 @@ class Login extends \XLite\Controller\Customer\ACustomer
      */
     protected function isLoginDisabled($profile)
     {
-        return $profile && $profile->isAdmin();
+        return false;
     }
 
     /**
@@ -237,7 +251,7 @@ class Login extends \XLite\Controller\Customer\ACustomer
 
         if (!($this->profile instanceof \XLite\Model\Profile)) {
 
-            $this->addLoginFailedMessage(\XLite\Core\Auth::RESULT_ACCESS_DENIED);
+            $this->addLoginFailedMessage($this->profile);
 
             \XLite\Logger::getInstance()
                 ->log(sprintf('Log in action is failed (%s)', \XLite\Core\Request::getInstance()->login), LOG_WARNING);
@@ -255,24 +269,18 @@ class Login extends \XLite\Controller\Customer\ACustomer
             }
 
         } else {
-            if (\XLite\Core\Request::getInstance()->returnURL) {
-                $url = preg_replace(
-                    '/' . preg_quote(\XLite\Core\Session::getInstance()->getName()) . '=([^&]+)/',
-                    '',
-                    \XLite\Core\Request::getInstance()->returnURL
-                );
-                $this->setReturnURL($url);
-            }
-
             $profileCart = $this->getCart();
 
-            $this->setReturnURL($this->getReferrerURL());
+            $this->setReturnURL(
+                \XLite\Core\Request::getInstance()->fromURL
+                    ?: $this->getReferrerURL()
+            );
 
             if (!$this->getReturnURL() && !$profileCart->isEmpty()) {
                 $this->setReturnURL(
                     \XLite\Core\Converter::buildURL('cart')
                 );
-            } elseif ($this->getReturnURL() === \XLite\Core\Converter::buildURL('login')) {
+            } elseif (strpos($this->getReturnURL(), \XLite\Core\Converter::buildURL('login')) !== false) {
                 $this->setReturnURL(
                     \XLite\Core\Converter::buildURL('main')
                 );
@@ -298,7 +306,7 @@ class Login extends \XLite\Controller\Customer\ACustomer
      */
     protected function isNeedFailureRedirect()
     {
-        return $this->foundProfile && $this->foundProfile->isAdmin();
+        return false;
     }
 
     /**
@@ -327,7 +335,7 @@ class Login extends \XLite\Controller\Customer\ACustomer
 
             \Includes\Utils\Session::clearAdminCookie();
 
-            $this->setReturnURL(\XLite\Core\Converter::buildURL());
+            $this->setReturnURL(\XLite\Core\Converter::buildFullURL());
 
             $this->getCart()->logoff();
             $this->updateCart();
@@ -347,6 +355,22 @@ class Login extends \XLite\Controller\Customer\ACustomer
     }
 
     /**
+     * Return time left to unlock
+     *
+     * @return integer
+     */
+    protected function getTimeLeftToUnlock()
+    {
+        if (!isset($this->timeLeftToUnlock)) {
+            $this->timeLeftToUnlock = \XLite\Core\Session::getInstance()->dateOfLockLogin
+                ? \XLite\Core\Session::getInstance()->dateOfLockLogin + \XLite\Core\Auth::TIME_OF_LOCK_LOGIN - \XLite\Core\Converter::time()
+                : 0;
+        }
+
+        return $this->timeLeftToUnlock;
+    }
+
+    /**
      * Add top message if log in is failed
      *
      * @param mixed $result Result of log in procedure
@@ -358,6 +382,12 @@ class Login extends \XLite\Controller\Customer\ACustomer
         if (in_array($result, array(\XLite\Core\Auth::RESULT_ACCESS_DENIED, \XLite\Core\Auth::RESULT_PASSWORD_NOT_EQUAL))) {
             \XLite\Core\TopMessage::addError('Invalid login or password');
             \XLite\Core\Event::invalidForm('login-form', static::t('Invalid login or password'));
+        } elseif ($result == \XLite\Core\Auth::RESULT_LOGIN_IS_LOCKED) {
+            \XLite\Core\TopMessage::addError('Login is locked out');
+            \XLite\Core\Event::invalidForm('login-form', static::t('Login is locked out'));
+            \XLite\Core\Event::getInstance()->trigger('login.lockout', [
+                'time' => $this->getTimeLeftToUnlock()
+            ]);
         }
     }
 }

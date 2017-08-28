@@ -45,7 +45,7 @@ class Address extends \XLite\View\Dialog
     /**
      * Returns address param
      * 
-     * @return void
+     * @return \XLite\Model\Address
      */
     protected function getAddress()
     {
@@ -267,6 +267,16 @@ class Address extends \XLite\View\Dialog
     protected function getDefaultTemplate()
     {
         return 'address/wrapper.twig';
+    }
+
+    /**
+     * Return internal list name
+     *
+     * @return string
+     */
+    protected function getListName()
+    {
+        return 'address.' . $this->getParam(self::PARAM_DISPLAY_MODE);
     }
 
     /**

@@ -8,8 +8,13 @@
  */
 
 var searchCallback = function ($form, linked) {
+  if (_.isUndefined(jQuery(linked).get(0))) {
+    return;
+  }
+
   var $linked = jQuery(linked).get(0).itemsListController;
   $linked.cleanURLParams();
+  $linked.reinitializeUrlParamsByCommentedData();
 
   $form.find(':input').not('button').each(function (id, elem) {
     if ('action' !== jQuery(elem).attr('name') && 'returnURL' !== jQuery(elem).attr('name')) {
@@ -157,8 +162,14 @@ var SearchConditionBox = function (submitFormFlag)
             jQuery(this).find('input[type="text"],input[type="checkbox"]:checked,select,textarea').each(
               function() {
                 if (jQuery(this).val()) {
-                  if (jQuery(this).attr('id') == 'stateSelectorId' && jQuery(this).data('value') == '') {
-                    // Skip state selector with empty value
+                  if (jQuery(this).attr('id') == 'stateSelectorId') {
+                    if (
+                      jQuery(this).data('value') != ''
+                      && jQuery('#country').val()
+                      && StatesList.getInstance().getStates(jQuery('#country').val())
+                    ) {
+                      filled = true;
+                    }
                   } else {
                     filled = true;
                   }

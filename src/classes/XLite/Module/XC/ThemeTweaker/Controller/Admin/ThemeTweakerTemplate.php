@@ -8,6 +8,9 @@
 
 namespace XLite\Module\XC\ThemeTweaker\Controller\Admin;
 
+use XLite\Core\Database;
+use XLite\Module\XC\ThemeTweaker\Core\TemplateObjectProvider;
+
 /**
  * Theme tweaker template controller
  */
@@ -63,6 +66,59 @@ HTML;
     }
 
     /**
+     * Update model
+     *
+     * @return void
+     */
+    protected function doActionApplyChanges()
+    {
+        $templatePath = TemplateObjectProvider::getInstance()->getTemplatePath();
+        $interface = \XLite\Core\Request::getInstance()->interface ?: \XLite::CUSTOMER_INTERFACE;
+        $innerInterface = \XLite\Core\Request::getInstance()->innerInterface ?: \XLite::CUSTOMER_INTERFACE;
+        $rawData = \XLite\Core\Request::getInstance()->getNonFilteredData();
+        $content = isset($rawData['content']) ? $rawData['content'] : null;
+
+        if ($templatePath && $content) {
+            $entity = TemplateObjectProvider::getInstance()->getTemplateObject();
+            $layout = \XLite\Core\Layout::getInstance();
+
+            if ($interface === \XLite::MAIL_INTERFACE) {
+                $layout->setMailSkin($innerInterface);
+            }
+
+            $fullPath = $layout->getFullPathByLocalPath($templatePath, $interface);
+
+            if (\Includes\Utils\FileManager::write($fullPath, $content)) {
+                $this->getTemplateCacheManager()->invalidate($fullPath);
+
+                $entity->setDate(LC_START_TIME);
+                $entity->setTemplate(substr($fullPath, strlen(\LC_DIR_SKINS)));
+
+                Database::getEM()->persist($entity);
+                Database::getEM()->flush();
+            } else {
+                $this->addErrorMessage(
+                    'file permissions',
+                    static::t('The file {{file}} does not exist or is not writable.', ['file' => $templatePath]),
+                    ['file' => $fullPath]
+                );
+            }
+        }
+
+        $this->set('silent', true);
+    }
+
+    /**
+     * Returns a (cached) templating engine instance
+     *
+     * @return CacheManagerInterface
+     */
+    protected function getTemplateCacheManager()
+    {
+        return $this->getContainer()->get('template_cache_manager');
+    }
+
+    /**
      * Get model form class
      *
      * @return string
@@ -84,7 +140,7 @@ HTML;
         if ($this->isCreate()) {
             $localPath = \XLite\Core\Request::getInstance()->template;
         } elseif (\XLite\Core\Request::getInstance()->id) {
-            $template = \XLite\Core\Database::getRepo('XLite\Module\XC\ThemeTweaker\Model\Template')
+            $template = Database::getRepo('XLite\Module\XC\ThemeTweaker\Model\Template')
                 ->find(\XLite\Core\Request::getInstance()->id);
 
             $localPath = $template ? $template->getTemplate() : '';

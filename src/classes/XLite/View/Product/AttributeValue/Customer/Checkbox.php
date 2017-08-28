@@ -45,6 +45,24 @@ class Checkbox extends \XLite\View\Product\AttributeValue\Customer\ACustomer
     }
 
     /**
+     * Returns input-specific attributes
+     * 
+     * @return array
+     */
+    protected function getInputAttributes()
+    {
+        $attrValues = $this->getAttrValues();
+
+        return array_merge(
+            parent::getInputAttributes(),
+            [
+                'v-bind:true-value' => $attrValues[1]->getId(),
+                'v-bind:false-value' => $attrValues[0]->getId(),
+            ]
+        );
+    }
+    
+    /**
      * @return mixed|null
      */
     protected function defineAttributeValue()

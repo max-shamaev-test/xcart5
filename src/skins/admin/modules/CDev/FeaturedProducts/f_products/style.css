@@ -11,17 +11,6 @@
   min-width: 100px;
 }
 
-.items-list button.remove .fa-trash-o:before {
-  content: "";
-}
-
-.items-list button.remove .fa-trash-o {
-  background: transparent url(../../../../images/close_icon.png) no-repeat center -2px;
-  height: 19px;
-  width: 19px;
-  vertical-align: middle;
-}
-
 .items-list button.remove:hover .fa-trash-o {
   background-position-y: -24px;
 }

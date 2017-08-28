@@ -8,157 +8,219 @@
  */
 
 .product-attachments {
-  width: 880px;
 }
 
-li.attachment {
-  border: 1px solid #d7e1e8;
-  cursor: pointer;
-  margin: 10px 0px;
+.product-attachments.items-list .list-header .button-container {
+  margin: 0;
 }
 
-li.attachment .row {
-  background-color: #f5f5f5;
-  padding: 11px 10px 10px;
-  margin: 0px;
+.product-attachments.items-list .list-header .button-container .add-file .dropdown-menu span,
+.product-attachments.items-list .list .cell.file .reupload-file .dropdown-menu span {
+  display: inline-block;
 }
 
-li.attachment .row,
-li.attachment .row *
-{
-  vertical-align: middle;
-  font-size: 14px;
+.product-attachments.items-list .list-header .button-container .add-file .dropdown-menu span:first-letter,
+.product-attachments.items-list .list .cell.file .reupload-file .dropdown-menu span:first-letter {
+  text-transform: uppercase;
 }
 
-li.attachment .move {
-  cursor: move;
+.product-attachments.items-list table.list {
+  margin-top: 18px;
 }
 
-li.attachment .move img {
-  background: transparent url(../../../images/move_cursor.png) no-repeat left top;
-  width: 19px;
-  height: 13px;
-  margin-bottom: 3px;
+.product-attachments.items-list .no-items {
+  margin-top: 15px;
 }
 
-li.attachment .separator {
-  background: transparent url(../../../images/vertical_dots.png) repeat-y left top;
-  width: 2px;
-  height: 17px;
+.product-attachments.items-list-table table.list tbody.lines .cell.icon {
+  width: 30px;
+  padding: 0;
 }
 
-li.attachment .first-separator {
-  margin-left: 2px;
-  margin-right: 7px;
-}
-li.attachment .mime-icon {
-  margin-right: 4px;
+.product-attachments.items-list-table table.list tbody.lines .cell .inline-field .view {
+  border: none;
 }
 
-li.attachment .name {
-  text-decoration: underline;
+.product-attachments .cell.icon i.file-icon {
+  color: #9b9b9b;
+  font-weight: normal;
+  font-size: 30px;
 }
 
-li.attachment .size {
-  color: #8f8f8f;
+.product-attachments.items-list .list thead th.title,
+.product-attachments.items-list .list .cell.title {
+  padding-left: 0;
+}
+
+.product-attachments.items-list .list thead th.private {
+  padding-left: 27px;
+}
+
+.product-attachments.items-list .list thead th.description {
+  padding-left: 33px;
+}
+
+.product-attachments.items-list .list .cell.description {
+  padding-left: 25px;
+}
+
+.product-attachments .cell.title .cell {
+  height: 40px;
+  width: 221px;
+}
+
+.product-attachments .cell.title .cell .inline-text-file .field {
+  margin-top: 4px;
+}
+
+.product-attachments .cell.title .inline-field.attachment-title .view {
   padding-left: 7px;
+  padding-top: 0;
+  margin-left: 2px;
+  height: 40px;
+  line-height: 10px;
+  width: 221px;
+  padding-bottom: 15px;
 }
 
-li.attachment .switcher,
-li.attachment .second-separator,
-li.attachment .remove
-{
-  float: right;
+.product-attachments .cell.title .inline-field.attachment-title .view .value {
+  max-width: 200px;
+}
+
+.product-attachments .cell.title .inline-field.attachment-title .view .second-line {
+  position: absolute;
+  max-width: 200px;
+  top: 24px;
+}
+
+.product-attachments .cell.title .inline-field.attachment-title .view .second-line .click-tip {
   display: none;
 }
 
-li.attachment:hover .switcher,
-li.attachment:hover .second-separator,
-li.attachment:hover .remove,
-li.attachment.expanded .switcher,
-li.attachment.expanded .second-separator,
-li.attachment.expanded .remove
-{
-  display: block;
+.product-attachments .line:hover .cell.title .inline-field.attachment-title .view .second-line .click-tip {
+  display: inline;
 }
 
-li.attachment .switcher img {
-  background: transparent url(../../../images/rollover_arrow.png) no-repeat left top;
-  width: 25px;
-  height: 22px;
-  margin-right: 3px;
-  cursor: pointer;
+.product-attachments .cell.title .inline-field.attachment-title .view .second-line span {
+  font-size: 10px;
+  color: #8f8f8f;
 }
 
-li.attachment.expanded .switcher img {
-  background-position: left -21px;
+.product-attachments .cell.title .inline-field.attachment-title .field input {
+  max-width: 221px;
 }
 
-li.attachment .switcher a {
-  text-decoration: underline;
-  padding-bottom: 1px;
+.product-attachments .cell.description .inline-field.attachment-description .view {
+  height: 40px;
 }
 
-li.attachment .second-separator {
-  margin-right: 12px;
-  margin-left: 20px;
+.product-attachments .cell.description .inline-field.attachment-description .view .value {
+  max-width: 400px;
+  min-width: 250px;
 }
 
-li.attachment .remove img {
-  background: transparent url(../../../images/icon_trash.png) no-repeat left top;
-  width: 18px;
-  height: 18px;
-  margin-right: 2px;
+.product-attachments .cell.description .inline-field.attachment-description {
+  position: relative;
 }
 
-li.attachment .info {
-  clear: both;
-  padding: 13px 18px;
+.product-attachments .cell.description .inline-field.attachment-description.editable .view.editable  {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
 }
 
-li.attachment .info table.form td {
-  padding-top: 7px;
-  padding-bottom: 8px;
+.product-attachments .cell.description .inline-field.attachment-description .field {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10000;
 }
 
-li.attachment .info table.form td * {
-  font-size: 14px;
+.product-attachments .cell.description .inline-field.attachment-description .field textarea {
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, .2);
 }
 
-li.attachment .info table.form input[type="text"] {
-  padding: 4px;
+.product-attachments .cell.private .cell {
+  padding-left: 10px;
 }
 
-li.attachment .info table.form td.label {
-  padding-right: 12px;
+.product-attachments .cell.file {
+  position: relative;
+  white-space: nowrap;
+  min-width: 115px;
+}
+
+.items-list-table.product-attachments table.list td.cell.description {
+  min-width: 250px;
+  width: 250px;
+}
+
+.product-attachments .cell.description .attachment-description .view .value .placeholder {
+  color: #9b9b9b;
+  font-style: italic;
+}
+
+.product-attachments .cell.file .file-column {
+  min-height: 38px;
+  display: table;
+  width: 100%;
+}
+
+.product-attachments .cell.file .fileinfo {
+  display: table-cell;
+}
+
+.product-attachments .cell.file .reupload-file {
+  float: right;
+}
+
+.product-attachments .cell.file .reupload-file button.download-file-button {
+  background-image: url(../../../images/download.svg);
+  background-size: 16px;
+  background-repeat: no-repeat;
+  background-position: 9px;
+  width: 36px;
+}
+
+.product-attachments .cell.file .reupload-file .buttons {
+  margin: 0;
+}
+
+.product-attachments .cell.file .reupload-file button {
+  width: 36px;
+}
+
+.product-attachments .cell.file .reupload-file button.dropdown-file-selector {
+  margin-left: 5px;
+  padding: 6px 6px 6px 7px;
+}
+
+.product-attachments .cell.file .reupload-file button.dropdown-file-selector span {
+  font-weight: bold;
+  font-size: 18px;
   vertical-align: top;
+  line-height: 9px;
+  letter-spacing: 1px;
 }
 
-li.attachment .info table.form tr.title input {
-  width: 430px;
+.product-attachments .cell.file .reupload-file button.dropdown-file-selector span.caret {
+  display: none;
 }
 
-li.attachment .info table.form tr.description textarea {
-  width: 492px;
-  height: 55px;
+.product-attachments .cell.file .reupload-file .dropdown-menu button.action {
+  width: 100% !important;
 }
 
-li.attachment .info .reupload-file {
-  padding-left: 83px;
-  padding-top: 4px;
+.product-attachments .line.remove-mark .cell.file .reupload-file button {
+  pointer-events: none;
 }
 
-li.attachment .info button.reupload {
-  padding-left: 2px;
+.product-attachments .cell.file .filesize {
+  font-size: 12px;
+  color: #8f8f8f;
+  line-height: 35px;
 }
 
-li.attachment .info button.reupload span {
-  background: transparent url(images/upload_icon.png) no-repeat left 1px;
-  padding-left: 23px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-}
-
-.product-attachments .sticky-panel {
-  margin-top: 50px;
+.product-attachments .cell.file .filename {
+  line-height: 35px;
 }

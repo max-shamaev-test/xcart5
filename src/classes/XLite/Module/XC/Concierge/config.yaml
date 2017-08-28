@@ -14,7 +14,7 @@ XLite\Model\Config:
     value: ''
   - name: user_id
     category: XC\Concierge
-    value: 'skot@x-cart.com'
+    value: 'sdfg@f.ty'
   - name: additional_config_loaded
     category: XC\Concierge
     value: 'true'

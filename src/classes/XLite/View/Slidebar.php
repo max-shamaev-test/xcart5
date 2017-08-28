@@ -13,7 +13,7 @@ namespace XLite\View;
  *
  * @ListChild (list="layout.slidebar", zone="customer", weight="10")
  */
-class Slidebar extends \XLite\View\AView
+class Slidebar extends \XLite\View\AView implements \XLite\Core\PreloadedLabels\ProviderInterface
 {
     /**
      * Get a list of JavaScript files required to display the widget properly
@@ -51,11 +51,23 @@ class Slidebar extends \XLite\View\AView
     }
 
     /**
-     * Get preloaded labels
+     * Checks if widget content should be rendered
      *
-     * @return array
+     * @return boolean
      */
-    protected function getPreloadedLabels()
+    protected function shouldRender()
+    {
+        return \XLite::getController()->shouldRenderMobileNavbar();
+    }
+
+    /**
+     * Array of labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    public function getPreloadedLanguageLabels()
     {
         $list = array(
             'Menu',
@@ -67,5 +79,14 @@ class Slidebar extends \XLite\View\AView
         }
 
         return $data;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isDisplayCategories()
+    {
+        $root = \XLite\Core\Database::getRepo('XLite\Model\Category')->getRootCategory();
+        return $root ? $root->hasSubcategories() : false;
     }
 }

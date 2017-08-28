@@ -150,6 +150,13 @@ class CanadaPost extends \XLite\Model\Shipping\Processor\AProcessor
         $commonData = isset($inputData['commonData']) ? $inputData['commonData'] : array();
         unset($inputData['commonData']);
 
+        $dstAddress = $commonData['dstAddress'];
+        if ($dstAddress['country'] === 'PR') {
+            $dstAddress['country'] = 'US';
+            $dstAddress['state'] = 'PR';
+            $commonData['dstAddress'] = $dstAddress;
+        }
+
         if (!empty($inputData['packages'])) {
             foreach ($inputData['packages'] as $key => $package) {
                 $package = array_merge($package, $commonData);

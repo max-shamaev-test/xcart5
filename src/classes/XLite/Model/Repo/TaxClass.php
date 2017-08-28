@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * Tax classes repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\TaxClass", summary="Add new tax class")
+ * @Api\Operation\Read(modelClass="XLite\Model\TaxClass", summary="Retrieve tax class by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\TaxClass", summary="Retrieve tax classes by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\TaxClass", summary="Update tax class by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\TaxClass", summary="Delete tax class by id")
  */
 class TaxClass extends \XLite\Model\Repo\Base\I18n
 {
@@ -60,7 +66,7 @@ class TaxClass extends \XLite\Model\Repo\Base\I18n
      * @param string  $name      Name
      * @param boolean $countOnly Count only OPTIONAL
      *
-     * @return \XLite\Model\ClassClass|integer
+     * @return \XLite\Model\TaxClass|integer
      */
     public function findOneByName($name, $countOnly = false)
     {

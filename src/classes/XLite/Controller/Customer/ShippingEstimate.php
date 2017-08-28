@@ -141,6 +141,8 @@ class ShippingEstimate extends \XLite\Controller\Customer\ACustomer
 
             $address->setZipcode(\XLite\Core\Request::getInstance()->destination_zipcode);
 
+            $address->setCity(\XLite\Core\Request::getInstance()->destination_city);
+
             $address->setType(
                 \XLite\Core\Request::getInstance()->destination_type
                     ?: \XLite\Core\Config::getInstance()->Shipping->anonymous_address_type

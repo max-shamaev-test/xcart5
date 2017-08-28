@@ -10,6 +10,10 @@ namespace XLite\Model\Repo\Payment;
 
 /**
  * Payment method setting repository
+ *
+ * @Api\Operation\Read(modelClass="XLite\Model\Payment\MethodSetting", summary="Retrieve payment method setting by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Payment\MethodSetting", summary="Retrieve all payment method settings")
+ * @Api\Operation\Update(modelClass="XLite\Model\Payment\MethodSetting", summary="Update payment method setting by id")
  */
 class MethodSetting extends \XLite\Model\Repo\ARepo
 {

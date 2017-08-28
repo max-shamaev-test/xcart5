@@ -18,8 +18,7 @@ class AddonsListInstalled extends \XLite\Controller\Admin\Base\AddonsList
      *
      * @var array
      */
-    protected $switch = null;
-
+    protected $switch;
 
     /**
      * Define and set handler attributes; initialize handler
@@ -46,8 +45,8 @@ class AddonsListInstalled extends \XLite\Controller\Admin\Base\AddonsList
     public function getTitle()
     {
         return $this->isRecentlyInstalledPage()
-            ? static::t('Recently installed modules')
-            : static::t('Installed Modules') . ': ' . $this->getInstalledModulesCount();
+            ? static::t('Recently installed addons')
+            : static::t('Installed Addons');
     }
 
     /**

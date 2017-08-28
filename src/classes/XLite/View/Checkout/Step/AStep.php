@@ -33,6 +33,20 @@ abstract class AStep extends \XLite\View\AView
     abstract public function getTitle();
 
     /**
+     * Check - step is complete or not
+     *
+     * @return boolean
+     */
+    abstract public function isCompleted();
+
+    /**
+     * Process incomplete
+     */
+    public function processIncomplete()
+    {
+    }
+
+    /**
      * Get steps collector
      *
      * @return \XLite\View\Checkout\Steps

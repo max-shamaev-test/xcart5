@@ -13,6 +13,10 @@
     };
 
     window.onAmazonLoginReady = function() {
+      define('Amazon/Config', function () {
+          return amazonConfig;
+      });
+      
       amazon.Login.setSandboxMode({{ this.isSandboxMode() }});
       amazon.Login.setClientId(amazonConfig.clientId);
       amazon.Login.setRegion('{{ amazonConfig.region }}');

@@ -10,13 +10,11 @@ namespace XLite\Module\Amazon\PayWithAmazon\View\Payment;
 
 use XLite\Module\Amazon\PayWithAmazon\Main;
 
-abstract class Method extends \XLite\View\Payment\Method implements \XLite\Base\IDecorator
+/**
+ * Class Method
+ */
+class Method extends \XLite\View\Payment\Method
 {
-    /**
-     * Return list of targets allowed for this widget
-     *
-     * @return array
-     */
     public static function getAllowedTargets()
     {
         $result = parent::getAllowedTargets();
@@ -32,8 +30,6 @@ abstract class Method extends \XLite\View\Payment\Method implements \XLite\Base\
      */
     public function getPaymentMethod()
     {
-        return \XLite::getController()->getTarget() === 'pay_with_amazon'
-            ? Main::getMethod()
-            : parent::getPaymentMethod();
+        return Main::getMethod();
     }
 }

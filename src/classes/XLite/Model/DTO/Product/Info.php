@@ -91,7 +91,6 @@ class Info extends \XLite\Model\DTO\Base\ADTO
             'description'          => $object->getBriefDescription(),
             'full_description'     => $object->getDescription(),
             'available_for_sale'   => $object->getEnabled(),
-            'arrival_date'         => $object->getArrivalDate() ?: time(),
         ];
         $this->default = new CommonCell($default);
 
@@ -109,6 +108,7 @@ class Info extends \XLite\Model\DTO\Base\ADTO
             'memberships'        => $memberships,
             'tax_class'          => $taxClass ? $taxClass->getId() : null,
             'price'              => $object->getPrice(),
+            'arrival_date'       => $object->getArrivalDate() ?: time(),
             'inventory_tracking' => $inventoryTracking,
         ];
         $this->prices_and_inventory = new CommonCell($pricesAndInventory);
@@ -168,11 +168,18 @@ class Info extends \XLite\Model\DTO\Base\ADTO
         $categories = \XLite\Core\Database::getRepo('XLite\Model\Category')->findByIds($default->category);
         $object->replaceCategoryProductsLinksByCategories($categories);
 
-        $object->setBriefDescription((string) $rawData['default']['description']);
-        $object->setDescription((string) $rawData['default']['full_description']);
+        $description = $this->isContentTrustedByPermission('description')
+            ? (string) $rawData['default']['description']
+            : \XLite\Core\HTMLPurifier::purify((string) $rawData['default']['description']);
+
+        $full_description = $this->isContentTrustedByPermission('full_description')
+            ? (string) $rawData['default']['full_description']
+            : \XLite\Core\HTMLPurifier::purify((string) $rawData['default']['full_description']);
+
+        $object->setBriefDescription($description);
+        $object->setDescription($full_description);
 
         $object->setEnabled((boolean) $default->available_for_sale);
-        $object->setArrivalDate(\XLite\Core\Converter::getDayStart((int) $default->arrival_date));
 
         $priceAndInventory = $this->prices_and_inventory;
         $memberships       = \XLite\Core\Database::getRepo('XLite\Model\Membership')->findByIds($priceAndInventory->memberships);
@@ -182,6 +189,10 @@ class Info extends \XLite\Model\DTO\Base\ADTO
         $object->setTaxClass($taxClass);
 
         $object->setPrice((float) $priceAndInventory->price);
+
+        if ((int) $priceAndInventory->arrival_date) {
+            $object->setArrivalDate(\XLite\Core\Converter::getDayStart((int) $priceAndInventory->arrival_date));
+        }
 
         $object->setInventoryEnabled((boolean) $priceAndInventory->inventory_tracking->inventory_tracking);
         $object->setAmount((int) $priceAndInventory->inventory_tracking->quantity);
@@ -201,9 +212,15 @@ class Info extends \XLite\Model\DTO\Base\ADTO
 
         $marketing = $this->marketing;
         $object->setMetaDescType($marketing->meta_description_type);
-        $object->setMetaDesc((string) $marketing->meta_description);
-        $object->setMetaTags((string) $marketing->meta_keywords);
-        $object->setMetaTitle((string) $marketing->product_page_title);
+
+        if ($marketing->meta_description_type === \XLite\Model\Product::META_DESC_TYPE_AUTO) {
+            $object->setMetaDesc($object->getMetaDesc());
+        } else {
+            $object->setMetaDesc((string)$marketing->meta_description);
+        }
+
+        $object->setMetaTags((string)$marketing->meta_keywords);
+        $object->setMetaTitle((string)$marketing->product_page_title);
 
         if ($marketing->clean_url->autogenerate
             || empty($marketing->clean_url->clean_url)
@@ -246,8 +263,6 @@ class Info extends \XLite\Model\DTO\Base\ADTO
     /**
      * @param \XLite\Model\Product $object
      * @param array|null           $rawData
-     *
-     * @return mixed
      */
     public function afterPopulate($object, $rawData = null)
     {
@@ -257,8 +272,6 @@ class Info extends \XLite\Model\DTO\Base\ADTO
     /**
      * @param \XLite\Model\Product $object
      * @param array|null           $rawData
-     *
-     * @return mixed
      */
     public function afterCreate($object, $rawData = null)
     {
@@ -273,8 +286,6 @@ class Info extends \XLite\Model\DTO\Base\ADTO
     /**
      * @param \XLite\Model\Product $object
      * @param array|null           $rawData
-     *
-     * @return mixed
      */
     public function afterUpdate($object, $rawData = null)
     {

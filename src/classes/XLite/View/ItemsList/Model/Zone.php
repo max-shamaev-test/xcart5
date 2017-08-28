@@ -33,17 +33,17 @@ class Zone extends \XLite\View\ItemsList\Model\Table
      */
     protected function defineColumns()
     {
-        return array(
-            'zone_name' => array (
+        return [
+            'zone_name' => [
                 static::COLUMN_NAME      => \XLite\Core\Translation::lbl('Zone'),
                 static::COLUMN_CLASS     => '\XLite\View\FormField\Inline\Input\Text',
-                static::COLUMN_PARAMS    => array('required' => true),
+                static::COLUMN_PARAMS    => ['required' => true],
                 static::COLUMN_ORDERBY   => 100,
                 static::COLUMN_MAIN      => true,
                 static::COLUMN_EDIT_LINK => true,
                 static::COLUMN_LINK      => 'zones',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -105,7 +105,7 @@ class Zone extends \XLite\View\ItemsList\Model\Table
      */
     protected function getRemoveMessage($count)
     {
-        return \XLite\Core\Translation::lbl('X zones have been removed', array('count' => $count));
+        return \XLite\Core\Translation::lbl('X zones have been removed', ['count' => $count]);
     }
 
     /**
@@ -117,7 +117,7 @@ class Zone extends \XLite\View\ItemsList\Model\Table
      */
     protected function getCreateMessage($count)
     {
-        return \XLite\Core\Translation::lbl('X zones have been successfully created', array('count' => $count));
+        return \XLite\Core\Translation::lbl('X zones have been successfully created', ['count' => $count]);
     }
 
     /**
@@ -177,7 +177,7 @@ class Zone extends \XLite\View\ItemsList\Model\Table
     {
         $result = parent::getSearchCondition();
 
-        $result->{\XLite\Model\Repo\Zone::P_ORDER_BY} = array('z.zone_name', 'ASC');
+        $result->{\XLite\Model\Repo\Zone::P_ORDER_BY} = ['z.zone_name', 'ASC'];
 
         return $result;
     }
@@ -191,7 +191,7 @@ class Zone extends \XLite\View\ItemsList\Model\Table
     {
         return array_merge(
             parent::getRightActions(),
-            array('items_list/model/table/zones/action.tooltip.twig')
+            ['items_list/model/table/zones/action.tooltip.twig']
         );
     }
 }

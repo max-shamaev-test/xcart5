@@ -52,7 +52,7 @@ abstract class AStep extends \XLite\Logic\ARepoStep
      */
     protected function processModel(\XLite\Model\AEntity $model)
     {
-        $model->prepareSizes();
+        $model->prepareSizes(true);
     }
 
     // }}}

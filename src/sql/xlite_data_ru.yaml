@@ -153,6 +153,10 @@ XLite\Model\Config:
     category: Units
     value: 'WINDOWS-1251'
 
+  - name: week_start
+    category: Units
+    value: 'mon'
+
   - name: anonymous_country
     category: Shipping
     value: RU

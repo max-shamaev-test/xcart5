@@ -33,10 +33,10 @@ class ProductVariantWholesalePrice extends \XLite\Module\CDev\Wholesale\Model\Re
             ->setMaxResults(1)
             ->getResult();
 
-        return array(
+        return [
             'price'          => !empty($price),
             'wholesalePrice' => !empty($price),
-        );
+        ];
     }
 
     /**

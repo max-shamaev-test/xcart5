@@ -97,7 +97,11 @@ abstract class Address extends \XLite\Model\AEntity
             $stateField = $this->getFieldValue('state_id');
 
             // Real state object from address fields
-            if ($stateField && $stateField->getValue()) {
+            if (
+                $stateField
+                && $stateField->getValue()
+                && (!$this->getCountry() || !$this->getCountry()->isForcedCustomState())
+            ) {
                 $this->setStateId($stateField->getValue());
                 $state = $this->state;
             }
@@ -129,7 +133,8 @@ abstract class Address extends \XLite\Model\AEntity
     /**
      * Set country
      *
-     * @param XLite\Model\Country $country
+     * @param \XLite\Model\Country $country
+     *
      * @return Address
      */
     public function setCountry(\XLite\Model\Country $country = null)
@@ -267,8 +272,8 @@ abstract class Address extends \XLite\Model\AEntity
         if (!isset(static::$defaultFieldValuesCache[$fieldName])) {
             $field = \XLite\Core\Database::getRepo('\XLite\Model\Config')
                 ->findOneBy(array(
-                    'category'  => \XLite\Model\Config::SHIPPING_CATEGORY,
-                    'name'      => static::getDefaultFieldName($fieldName)
+                    'category' => \XLite\Model\Config::SHIPPING_CATEGORY,
+                    'name'     => static::getDefaultFieldName($fieldName)
                 ));
             static::$defaultFieldValuesCache[$fieldName] = $field ? $field->getValue() : '';
         }
@@ -375,6 +380,12 @@ abstract class Address extends \XLite\Model\AEntity
         $result = array();
 
         foreach ($this->getRequiredFieldsByType($atype) as $name) {
+            $countryHasStates = $this->getCountry() && $this->getCountry()->hasStates();
+
+            if ($name === 'state_id' && !$countryHasStates) {
+                continue;
+            }
+
             $method = 'get' . \XLite\Core\Converter::getInstance()->convertToCamelCase($name);
 
             if (!strlen($this->$method())) {
@@ -434,7 +445,7 @@ abstract class Address extends \XLite\Model\AEntity
      */
     public function update()
     {
-        return $this->checkAddress() && parent::update();
+        return $this->checkAddressDuplicates() && parent::update();
     }
 
     /**
@@ -444,7 +455,7 @@ abstract class Address extends \XLite\Model\AEntity
      */
     public function create()
     {
-        return $this->checkAddress() && parent::create();
+        return $this->checkAddressDuplicates() && parent::create();
     }
 
 
@@ -453,8 +464,42 @@ abstract class Address extends \XLite\Model\AEntity
      *
      * @return boolean
      */
-    protected function checkAddress()
+    protected function checkAddressDuplicates()
     {
+        return true;
+    }
+
+
+    /**
+     * Check if address has duplicates
+     *
+     * @return boolean
+     */
+    public function checkAddress()
+    {
+        return true;
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     *
+     * @return bool
+     */
+    protected function checkAddressField($name, $value) {
+        switch ($name) {
+            case 'country':
+                if ($value instanceof \XLite\Model\Country) {
+                    return $value->getEnabled();
+                }
+                break;
+            case 'country_code':
+                $country = \XLite\Core\Database::getRepo('XLite\Model\Country')->find($value);
+
+                return $value && $country && $country->getEnabled();
+                break;
+        }
+
         return true;
     }
 
@@ -488,11 +533,37 @@ abstract class Address extends \XLite\Model\AEntity
 
         foreach (\XLite\Core\Database::getRepo('XLite\Model\AddressField')->findAllEnabled() as $field) {
             $name = $field->getServiceName();
+
+            if (
+                (
+                    $name === 'custom_state'
+                    && $this->hasStates()
+                    && ($this->getCountry() && !$this->getCountry()->isForcedCustomState())
+                )
+                || (
+                    $name === 'state_id'
+                    && (
+                        !$this->hasStates()
+                        || ($this->getCountry() && $this->getCountry()->isForcedCustomState())
+                    )
+                )
+            ) {
+                continue;
+            }
+
             $methodName = 'get' . \XLite\Core\Converter::getInstance()->convertToCamelCase($name);
             $result[$name] = $this->$methodName();
         }
 
         return $result;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasStates()
+    {
+        return $this->getCountry() && $this->getCountry()->hasStates();
     }
 
     // }}}

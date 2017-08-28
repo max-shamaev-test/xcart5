@@ -97,7 +97,6 @@
           justify-content: space-between;
   overflow: hidden;
   text-decoration: none;
-  white-space: nowrap;
   -o-transition: color .15s;
   -ms-transition: color .15s;
   -moz-transition: color .15s;
@@ -123,7 +122,6 @@
   -ms-flex-pack: justify;
           justify-content: space-between;
   overflow: hidden;
-  white-space: nowrap;
   -o-transition: color .15s;
   -ms-transition: color .15s;
   -moz-transition: color .15s;
@@ -184,5 +182,16 @@
   }
   .flyout-menu .icon-triangle {
     visibility: hidden;
+  }
+}
+
+@media (min-width: 768px) {
+  .flyout-menu li ul {
+    width: 220px;
+  }
+}
+@media (min-width: 992px) {
+  .flyout-menu li ul {
+    max-width: 270px;
   }
 }

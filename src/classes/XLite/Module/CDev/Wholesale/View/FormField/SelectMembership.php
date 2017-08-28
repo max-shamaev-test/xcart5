@@ -27,6 +27,6 @@ class SelectMembership extends \XLite\View\FormField\Select\Membership
      */
     protected function getDefaultOptions()
     {
-        return array('' => static::t('All customers wholesale')) + $this->getMembershipsList();
+        return ['' => static::t('All customers wholesale')] + $this->getMembershipsList();
     }
 }

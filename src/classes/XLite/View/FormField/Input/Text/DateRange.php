@@ -177,6 +177,28 @@ class DateRange extends \XLite\View\FormField\Input\Text
     }
 
     /**
+     * @return int
+     */
+    protected function getStartDay()
+    {
+        $start = \XLite\Core\Config::getInstance()->Units->week_start;
+
+        $starts = [
+            'sun' => 'sunday',
+            'mon' => 'monday',
+            'tue' => 'tuesday',
+            'wed' => 'wednesday',
+            'thu' => 'thursday',
+            'fri' => 'friday',
+            'sat' => 'saturday',
+        ];
+
+        return isset($starts[$start])
+            ? $starts[$start]
+            : 'sunday';
+    }
+
+    /**
      * Get config settings for DateRangePicker
      *
      * @return string
@@ -190,6 +212,7 @@ class DateRange extends \XLite\View\FormField\Input\Text
         $config = array(
             'separator' => static::getDatesSeparator(),
             'language'  => $lng,
+            'startOfWeek'   => $this->getStartDay(),
             'format'    => static::getDateFormat(true),
             'shortcuts' => array(),
             'customShortcuts' => array(

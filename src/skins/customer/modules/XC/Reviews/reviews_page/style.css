@@ -46,6 +46,10 @@ div.reviews div.title div.info {
   display: inline-table;
 }
 
+div.reviews div.response {
+  margin-left: 20px;
+}
+
 div.reviews div.title div.right-actions {
   text-align: right;
   display: inline-table;

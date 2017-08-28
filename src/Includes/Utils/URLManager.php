@@ -88,7 +88,7 @@ abstract class URLManager extends \Includes\Utils\AUtils
             $host = $hostDetails[$protocol . '_host'];
 
             if (!$host && !\Includes\Utils\ConfigParser::getOptions(array('database_details', 'database'))) {
-                $phpSelf = rtrim(dirname($_SERVER["PHP_SELF"]), '/');
+                $phpSelf = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
                 $host = $_SERVER['HTTP_HOST'] . $phpSelf;
             }
 

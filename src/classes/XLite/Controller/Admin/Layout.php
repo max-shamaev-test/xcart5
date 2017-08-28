@@ -43,7 +43,7 @@ class Layout extends \XLite\Controller\Admin\AAdmin
      */
     public function getTemplatesStoreURL()
     {
-        return \XLite::getXCartURL('https://market.x-cart.com/xcart-templates');
+        return \XLite::getXCartURL('https://market.x-cart.com/ecommerce-templates/');
     }
 
     /**

@@ -63,15 +63,15 @@ class AccountOrderPinCodes extends \XLite\View\AView
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_ORDER => new \XLite\Model\WidgetParam\TypeObject('Order', null, false, '\\XLite\\\Model\\Order'),
-        );
+        ];
     }
 
     /**
      * Get cart items
      *
-     * @return return
+     * @return array
      */
     public function getItems()
     {
@@ -87,7 +87,7 @@ class AccountOrderPinCodes extends \XLite\View\AView
      */
     protected function getOrderUrl()
     {
-        return $this->buildUrl('order', '', array('order_number' => $this->getParam(self::PARAM_ORDER)->getOrderNumber()));
+        return $this->buildUrl('order', '', ['order_number' => $this->getParam(self::PARAM_ORDER)->getOrderNumber()]);
     }
 
 }

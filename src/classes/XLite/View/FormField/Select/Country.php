@@ -18,11 +18,12 @@ class Country extends \XLite\View\FormField\Select\Regular
     /**
      * Widget param names
      */
-    const PARAM_ALL               = 'all';
-    const PARAM_STATE_SELECTOR_ID = 'stateSelectorId';
-    const PARAM_STATE_INPUT_ID    = 'stateInputId';
-    const PARAM_SELECT_ONE        = 'selectOne';
-    const PARAM_SELECT_ONE_LABEL  = 'selectOneLabel';
+    const PARAM_ALL                = 'all';
+    const PARAM_STATE_SELECTOR_ID  = 'stateSelectorId';
+    const PARAM_STATE_INPUT_ID     = 'stateInputId';
+    const PARAM_SELECT_ONE         = 'selectOne';
+    const PARAM_SELECT_ONE_LABEL   = 'selectOneLabel';
+    const PARAM_DENY_SINGLE_OPTION = 'denySingleOption';
 
     /**
      * Display only enabled countries
@@ -32,13 +33,9 @@ class Country extends \XLite\View\FormField\Select\Regular
     protected $onlyEnabled = true;
 
     /**
-     * Save current form reference and sections list, and initialize the cache
-     *
-     * @param array $params Widget params OPTIONAL
-     *
-     * @return void
+     * @inheritdoc
      */
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         if (!empty($params[static::PARAM_ALL])) {
             $this->onlyEnabled = false;
@@ -48,14 +45,23 @@ class Country extends \XLite\View\FormField\Select\Regular
     }
 
     /**
-     * Register JS files
-     *
-     * @return array
+     * @inheritdoc
      */
     public function getJSFiles()
     {
         $list = parent::getJSFiles();
         $list[] = $this->getDir() . '/select_country.js';
+
+        return $list;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCSSFiles()
+    {
+        $list = parent::getCSSFiles();
+        $list[] = 'form_field/input/text/autocomplete.css';
 
         return $list;
     }
@@ -78,20 +84,27 @@ class Country extends \XLite\View\FormField\Select\Regular
 
     /**
      * Define widget parameters
-     *
-     * @return void
      */
     protected function defineWidgetParams()
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
-            static::PARAM_ALL               => new \XLite\Model\WidgetParam\TypeBool('All', false),
-            static::PARAM_STATE_SELECTOR_ID => new \XLite\Model\WidgetParam\TypeString('State select ID', null),
-            static::PARAM_STATE_INPUT_ID    => new \XLite\Model\WidgetParam\TypeString('State input ID', null),
-            static::PARAM_SELECT_ONE        => new \XLite\Model\WidgetParam\TypeBool('All', true),
-            static::PARAM_SELECT_ONE_LABEL  => new \XLite\Model\WidgetParam\TypeString('Select one label', $this->getDefaultSelectOneLabel()),
-        );
+        $this->widgetParams += [
+            static::PARAM_ALL                => new \XLite\Model\WidgetParam\TypeBool('All', false),
+            static::PARAM_STATE_SELECTOR_ID  => new \XLite\Model\WidgetParam\TypeString('State select ID', null),
+            static::PARAM_STATE_INPUT_ID     => new \XLite\Model\WidgetParam\TypeString('State input ID', null),
+            static::PARAM_SELECT_ONE         => new \XLite\Model\WidgetParam\TypeBool('All', true),
+            static::PARAM_SELECT_ONE_LABEL   => new \XLite\Model\WidgetParam\TypeString('Select one label', $this->getDefaultSelectOneLabel()),
+            static::PARAM_DENY_SINGLE_OPTION => new \XLite\Model\WidgetParam\TypeBool('Deny single option', false),
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function isSingleOptionAllowed()
+    {
+        return !$this->getParam(static::PARAM_DENY_SINGLE_OPTION);
     }
 
     /**
@@ -115,7 +128,7 @@ class Country extends \XLite\View\FormField\Select\Regular
             ? \XLite\Core\Database::getRepo('XLite\Model\Country')->findAllEnabled()
             : \XLite\Core\Database::getRepo('XLite\Model\Country')->findAllCountries();
 
-        $options = array();
+        $options = [];
 
         foreach ($list as $country) {
             $options[$country->getCode()] = $country->getCountry();
@@ -131,8 +144,11 @@ class Country extends \XLite\View\FormField\Select\Regular
      */
     protected function getOptions()
     {
-        return $this->getParam(static::PARAM_SELECT_ONE) && count(parent::getOptions()) > 1
-            ? array('' => $this->getParam(static::PARAM_SELECT_ONE_LABEL)) + parent::getOptions()
+        return $this->getParam(static::PARAM_SELECT_ONE) && (
+            count(parent::getOptions()) > 1
+            || !$this->isSingleOptionAllowed()
+        )
+            ? ['' => $this->getParam(static::PARAM_SELECT_ONE_LABEL)] + parent::getOptions()
             : parent::getOptions();
     }
 
@@ -151,20 +167,36 @@ class Country extends \XLite\View\FormField\Select\Regular
     }
 
     /**
+     * @return array
+     */
+    protected function getStateAutocompleteCountries()
+    {
+        $countries = \Includes\Utils\ConfigParser::getOptions([
+            'storefront_options',
+            'autocomplete_states_for_countries'
+        ]);
+
+        $countries = array_filter(array_map('trim', explode(',', $countries)));
+
+        return $countries;
+    }
+
+    /**
      * Return some data for JS external scripts if it is needed.
      *
      * @return null|array
      */
     protected function getFormFieldJSData()
     {
-        return array(
-            'statesList' => \XLite\Core\Database::getRepo('XLite\Model\Country')->findCountriesStatesGrouped(),
-            'stateSelectors' => array(
-                'fieldId'           => $this->getFieldId(),
-                'stateSelectorId'   => $this->getParam(static::PARAM_STATE_SELECTOR_ID),
-                'stateInputId'      => $this->getParam(static::PARAM_STATE_INPUT_ID),
-            ),
-        );
+        return [
+            'statesList'       => \XLite\Core\Database::getRepo('XLite\Model\Country')->findCountriesStatesGrouped(),
+            'forceCustomState' => $this->getStateAutocompleteCountries(),
+            'stateSelectors'   => [
+                'fieldId'         => $this->getFieldId(),
+                'stateSelectorId' => $this->getParam(static::PARAM_STATE_SELECTOR_ID),
+                'stateInputId'    => $this->getParam(static::PARAM_STATE_INPUT_ID),
+            ],
+        ];
     }
 
     /**

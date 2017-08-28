@@ -99,7 +99,7 @@ class ZoneElement extends \XLite\Model\AEntity
                 'field'      => 'city',
                 'weight'     => 0x10,
                 'funcSuffix' => 'Cities',
-                'required'   => false,
+                'required'   => true,
             ),
             self::ZONE_ELEMENT_ADDRESS => array(
                 'field'      => 'address',

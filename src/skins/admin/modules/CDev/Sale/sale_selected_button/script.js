@@ -44,16 +44,27 @@ decorate(
       ? ((value > 0) && (value <= 100))
       : (value >= 0);
 
-    jQuery('input[name*="select"]', jQuery(selector)).each(function (index, elem) {
+    var elements = jQuery('input[name*="select"]', jQuery(selector));
 
+    if (elements.length) {
+      jQuery('input[name*="select"]', jQuery(selector)).each(function (index, elem) {
+        if (participateSale) {
+          jQuery('.entity-' + jQuery(elem).val() + ' .product-name-sale-label')
+            .removeClass('product-name-sale-label-disabled');
+        } else {
+          jQuery('.entity-' + jQuery(elem).val() + ' .product-name-sale-label')
+            .addClass('product-name-sale-label-disabled');
+        }
+      });
+    } else {
       if (participateSale) {
-        jQuery('.entity-' + jQuery(elem).val() + ' .product-name-sale-label')
+        jQuery('.items-list.products .list .lines .line .product-name-sale-label')
           .removeClass('product-name-sale-label-disabled');
       } else {
-        jQuery('.entity-' + jQuery(elem).val() + ' .product-name-sale-label')
+        jQuery('.items-list.products .list .lines .line .product-name-sale-label')
           .addClass('product-name-sale-label-disabled');
       }
-    });
+    }
   }
 );
 

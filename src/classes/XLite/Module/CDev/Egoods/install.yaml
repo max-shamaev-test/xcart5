@@ -15,7 +15,10 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Download link TTL (days)'
-        option_comment: 'set zero for unlimited access'
+        option_comment: 'Set zero for unlimited access. If you are using Amazon Signed URLs, TTL is limited to 7 days.'
+      - code: ru
+        option_name: 'Время действия ссылки на скачку (в днях)'
+        option_comment: 'При значении 0 - неограниченный доступ. Для ссылок Amazon S3, подписанных ключом, время ограничено 7 днями.'
   - name: attempts_limit
     category: CDev\Egoods
     type: XLite\View\FormField\Input\Text\Integer
@@ -25,7 +28,92 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Downloads limit (per 1 ordered item)'
-        option_comment: 'set zero for unlimited access'
+        option_comment: 'Set zero for unlimited access. If you are using Amazon Signed URLs, this settings controls the limit of link renewal, because it is impossible to control downloads on the Signed URL.'
+      - code: ru
+        option_name: 'Лимит скачек (на 1 позицию заказа)'
+        option_comment: 'При значении 0 - безлимитный доступ. Для ссылок Amazon S3, подписанных ключом, эта настройка контролирует количество доступов к ссылке, так как невозможно ограничить количество скачек по такой ссылке.'
+  - name: enable_history
+    category: CDev\Egoods
+    type: XLite\View\FormField\Input\Checkbox\YesNo
+    orderby: 300
+    value: 1
+    translations:
+      - code: en
+        option_name: 'Keep a history of downloads'
+        option_comment: 'Amazon S3 Signed URLs are counted per link access (not download), because X-Cart can not track downloads on the Amazon S3 Storage.'
+      - code: ru
+        option_name: 'Сохранять историю загрузок'
+        option_comment: 'Для ссылок Amazon S3, подписанных ключом, учитывается количество доступов, а не скачек, так как X-Cart не имеет доступа к истории скачек хранилища Amazon S3.'
+  - name: esd_fullfilment
+    category: CDev\Egoods
+    type: XLite\View\FormField\Input\Checkbox\YesNo
+    orderby: 400
+    translations:
+      - code: en
+        option_name: 'Show only ESD related fulfilment statuses'
+        option_comment: 'With this option enabled, only 3 statuses will be available: New, Delivered and Will Not Deliver. You can rename the statuses as you require using the "Custom Order Statuses" module'
+      - code: ru
+        option_name: 'Отображать только статусы для цифровой дистрибуции'
+        option_comment: 'При включении данной настройки будет доступны только 3 статуса доставки: Новый, Доставлен и Доставка отменена. Переименовать их можно при помощи модуля Custom Order Statuses'
+  - name: approve_before_download
+    category: CDev\Egoods
+    type: XLite\View\FormField\Input\Checkbox\YesNo
+    orderby: 500
+    translations:
+      - code: en
+        option_name: 'Approve before providing access to download'
+      - code: ru
+        option_name: 'Одобрение перед предоставлением доступа на скачивание'
+
+  - name: amazon_separator
+    category: CDev\Egoods
+    type: separator
+    orderby: 1000
+    value: 0
+    translations:
+      - code: en
+        option_name: Amazon Signed URLs
+  - name: enable_signed_urls
+    category: CDev\Egoods
+    type: XLite\View\FormField\Input\Checkbox\YesNo
+    orderby: 1100
+    value: 0
+    translations:
+      - code: en
+        option_name: 'Enable usage of Presigned URLs for Amazon S3 links'
+      - code: ru
+        option_name: 'Включить ссылки, подписанные ключом, для файлов на хранилище Amazon S3'
+  - name: amazon_access
+    category: CDev\Egoods
+    type: 'XLite\View\FormField\Input\Text'
+    orderby: 1200
+    value: ''
+    translations:
+      - code: en
+        option_name: Amazon Access Key
+  - name: amazon_secret
+    category: CDev\Egoods
+    type: 'XLite\View\FormField\Input\Text'
+    orderby: 1300
+    value: ''
+    translations:
+      - code: en
+        option_name: Amazon Secret Key
+  - name: bucket
+    category: CDev\Egoods
+    type: 'XLite\View\FormField\Input\Text'
+    orderby: 1400
+    value: ''
+    translations:
+      - code: en
+        option_name: S3 Bucket name
+      - code: ru
+        option_name: S3 Bucket
+  - name: bucket_region
+    category: CDev\Egoods
+    type: hidden
+    orderby: 1500
+    value: ''
 
 XLite\Model\LanguageLabel:
   - { name: "Product removed", translations: [{ code: en, label: "Product removed" }] }
@@ -46,7 +134,16 @@ XLite\Model\LanguageLabel:
   - { name: "less one hour", translations: [{ code: en, label: "less than one hour" }] }
   - { name: E-goods, translations: [{ code: en, label: E-goods }] }
   - { name: 'Ordered files', translations: [{ code: en, label: 'Ordered files' }] }
+  - { name: 'Egoods paid', translations: [{ code: en, label: 'Paid' },{ code: ru, label: 'Платный' }] }
+  - { name: 'Egoods free', translations: [{ code: en, label: 'Free' },{ code: ru, label: 'Бесплатный' }] }
   - { name: 'Your payment module to accept payments for digital items. [Get it now]!', translations: [{ code: en, label: 'Your payment module to accept payments for digital items. <a href="{{url}}" target="_blank">Get it now</a>!' }, { code: ru, label: 'Продаёшь цифровые товары? Устрой тест-драйв нашему <a href="{{url}}" target="_blank">новому модулю</a> и начни принимать платежи прямо сейчас.' }] }
+  - { name: 'Available after purchase', translations: [{ code: en, label: 'Available after purchase' }, { code: ru, label: 'Доступен после покупки' }] }
+  - { name: 'Re-upload file', translations: [{ code: en, label: 'Re-upload file' }, { code: ru, label: 'Повторно загрузить' }] }
+  - { name: 'History of downloads', translations: [{ code: en, label: 'History of downloads' }, { code: ru, label: 'История загрузок' }] }
+  - { name: "The product's history of downloads is empty", translations: [{ code: en, label: "The product's history of downloads is empty" }, { code: ru, label: 'История загрузок для этого товара пуста' }] }
+  - { name: "The history of downloads feature for this product is disabled. You can enable it here", translations: [{ code: en, label: "The history of downloads feature for this product is disabled. You can enable it <a href='{{link}}'>here</a>" }, { code: ru, label: 'Сохранение истории загрузок для данного товара отключено. Вы можете включить его <a href="{{link}}">здесь</a>' }] }
+  - { name: "File is available by public URL", translations: [{ code: en, label: "File is available by public URL" }, { code: ru, label: 'Файл доступен по публичной ссылке' }] }
+  - { name: 'Order fulfilment status changed from {{oldStatus}} to {{newStatus}} by file download', translations: [{ code: en, label: 'Order fulfilment status changed from {{oldStatus}} to {{newStatus}} due to the file having been downloaded by the user.' }, { code: ru, label: 'Статус доставки изменился с {{oldStatus}} на {{newStatus}} в связи с загрузкой файла пользователем' }] }
 
 XLite\Model\Notification:
   - templatesDirectory: modules/CDev/Egoods/egoods_links

@@ -25,5 +25,5 @@
     <p class="payment-methods-not-defined payment-not-required">{{ t('Payment is not required') }}</p>
 
 {% else %}
-  <p class="payment-methods-not-defined">{{ t('There\'s no payment method available', {'email': this.config.Company.support_department})|raw }}</p>
+  <p class="payment-methods-not-defined">{{ t('There\'s no payment method available', {'email': this.getSupportDepartmentMail()})|raw }}</p>
 {% endif %}

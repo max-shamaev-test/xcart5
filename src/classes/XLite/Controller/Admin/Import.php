@@ -157,7 +157,10 @@ class Import extends \XLite\Controller\Admin\AAdmin
                 foreach ($list as $path) {
                     if (
                         is_file($path)
-                        && \Includes\Utils\FileManager::isCSV($path)
+                        && (
+                            \Includes\Utils\FileManager::isCSV($path)
+                            || \Includes\Utils\FileManager::isZIP($path)
+                        )
                     ) {
                         \Includes\Utils\FileManager::deleteFile($path);
 

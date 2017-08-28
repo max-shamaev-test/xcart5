@@ -13,21 +13,22 @@
 }
 
 .mailchimp-logo {
-  padding-top: 10px;
-  padding-bottom: 10px;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding: 10px 20px;
 }
 
 .mailchimp-options-header {
-  padding-top: 10px;
-  padding-bottom: 10px;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding: 10px 20px;
   font-size: 16px;
 }
 
 .mailchimp-welcome.root {
+  -moz-border-radius: 8px;
+  -webkit-border-radius: 8px;
+  border: 1px solid #cfdfea;
+  background-color: #f9fcff;
+  overflow: hidden;
+  font-family: Arial,Helvetica,Garuda,sans-serif;
+  position: relative;
   max-width: 1180px;
   margin: 0;
   border-radius: 0px;
@@ -85,4 +86,21 @@
 
 .mailchimp-welcome .mailchimp-options-header ~ .mailchimp-options-header {
   padding-top: 8px;
+}
+
+.mailchimp-welcome .mailchimp-key-value,
+.mailchimp-welcome .manual-api-key-form {
+  display: inline;
+}
+
+.mailchimp-welcome .mailchimp-options-header .separator {
+  margin: 5px;
+}
+
+.mailchimp-welcome .mailchimp-key-value input[type=text] {
+  min-width: 300px;
+}
+
+.mailchimp-welcome + form {
+  display: none;
 }

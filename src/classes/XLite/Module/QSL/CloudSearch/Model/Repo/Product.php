@@ -100,7 +100,7 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
         $results = $this->getCloudSearchResults($cnd);
 
         return array_map(function ($p) {
-            return $p['id'];
+            return intval($p['id']);
         }, $results['products']);
     }
 
@@ -135,8 +135,7 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
             $ids = $this->getCloudSearchProductIds($this->getCloudSearchConditions());
 
             if (!empty($ids)) {
-                $idsInCondition = $queryBuilder->getInCondition($ids, 'arr');
-                $queryBuilder->andWhere('p.product_id IN (' . $idsInCondition . ')');
+                $queryBuilder->andWhere('p.product_id IN (' . implode(', ', $ids) . ')');
             } else {
                 // Force empty result set:
                 $queryBuilder->andWhere('p.product_id IN (0)');
@@ -158,12 +157,10 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
             $ids = $this->getCloudSearchProductIds($this->getCloudSearchConditions());
 
             if (!empty($ids)) {
-                $idsInCondition = $queryBuilder->getInCondition($ids, 'arr');
-
                 $queryBuilder->resetDQLPart('orderBy');
                 $queryBuilder
-                    ->addSelect('field(p.product_id, ' . $idsInCondition . ') as field_product_id')
-                    ->addOrderBy('field_product_id', 'asc');
+                    ->addSelect('FIELD(p.product_id, ' . implode(', ', $ids) . ') AS cloud_seach_field_product_id')
+                    ->addOrderBy('cloud_seach_field_product_id', 'asc');
             }
         } else {
             parent::prepareCndOrderBy($queryBuilder, $value);
@@ -184,8 +181,7 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
             $ids = $this->getCloudSearchProductIds($this->getCloudSearchConditions());
 
             if (!empty($ids)) {
-                $idsInCondition = $queryBuilder->getInCondition($ids, 'arr');
-                $queryBuilder->andWhere('p.product_id IN (' . $idsInCondition . ')');
+                $queryBuilder->andWhere('p.product_id IN (' . implode(', ', $ids) . ')');
             } else {
                 // Force empty result set:
                 $queryBuilder->andWhere('p.product_id IN (0)');

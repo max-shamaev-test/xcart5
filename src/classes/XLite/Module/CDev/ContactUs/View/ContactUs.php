@@ -22,7 +22,7 @@ class ContactUs extends \XLite\View\AView
      */
     public static function getAllowedTargets()
     {
-        return array_merge(parent::getAllowedTargets(), array('contact_us'));
+        return array_merge(parent::getAllowedTargets(), ['contact_us']);
     }
 
     /**
@@ -34,19 +34,9 @@ class ContactUs extends \XLite\View\AView
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'modules/CDev/ContactUs/contact_us/style.css';
+        $list[] = 'modules/CDev/ContactUs/contact_us/style.less';
 
         return $list;
-    }
-
-    /**
-     * Return captcha
-     *
-     * @return string
-     */
-    protected function getCaptcha()
-    {
-        return \XLite\Module\CDev\ContactUs\Core\ReCaptcha::getInstance()->getWidget();
     }
 
     /**

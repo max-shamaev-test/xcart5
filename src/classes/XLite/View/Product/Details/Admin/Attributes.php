@@ -24,6 +24,7 @@ class Attributes extends \XLite\View\Product\Details\AAttributes
 
         $list[] = 'product/attribute/style.css';
         $list[] = 'product/attributes/style.css';
+        $list[] = 'product/attributes/additional_style.less';
 
         return $list;
     }
@@ -146,4 +147,33 @@ class Attributes extends \XLite\View\Product\Details\AAttributes
             ? static::t('Remove')
             : static::t('Removing this attribute will affect all the products. Leave this blank to hide this option for the product.');
     }
+
+    /**
+     * Get 'remove' text
+     *
+     * @return string
+     */
+    protected function getPopoverText()
+    {
+        return static::t(
+            'attributes_popover_text',
+            [ 'link' => $this->getProductClassLink() ]
+        );
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getProductClassLink()
+    {
+        $params = [];
+
+        if ($this->getProductClass()) {
+            $params['product_class_id'] = $this->getProductClass()->getId();
+        }
+
+        return $this->buildURL('attributes', '', $params);
+    }
+
 }

@@ -7,26 +7,32 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-define('form_model_start', ['js/vue/vue', 'ready'], function (XLiteVue) {
-  if (typeof(Inputmask) !== 'undefined') {
-    Inputmask.extendAliases({
-      xcdecimal: {
-        alias:          "numeric",
-        digitsOptional: false,
-        groupSeparator: "",
-        radixPoint:     "."
-      }
-    });
-  }
+core.microhandlers.add(
+    'formModel',
+    'xlite-form-model',
+    function (event, element) {
+      define('form_model_start', ['js/vue/vue', 'ready', 'form_model'], function (XLiteVue) {
 
-  XLiteVue.start();
-});
+        if (typeof(Inputmask) !== 'undefined') {
+          Inputmask.extendAliases({
+            xcdecimal: {
+              alias:          "numeric",
+              digitsOptional: false,
+              groupSeparator: "",
+              radixPoint:     "."
+            }
+          });
+        }
+      });
+    }
+);
 
-define('form_model', ['js/vue/vue'], function (XLiteVue) {
+define('form_model', ['js/vue/vue', 'form_model/sticky_panel'], function (XLiteVue, Panel) {
   var state = false;
 
   XLiteVue.component('xlite-form-model', {
     props: ['form', 'original', 'changed'],
+
     activate: function (done) {
       var self = this;
       setTimeout(function () {
@@ -62,6 +68,7 @@ define('form_model', ['js/vue/vue'], function (XLiteVue) {
         }
       }
     },
+
     methods: {
       isChanged: function (model, event) {
         if (state === false) {
@@ -81,7 +88,28 @@ define('form_model', ['js/vue/vue'], function (XLiteVue) {
         for (var sectionName in this.original) {
           for (var fieldName in this.original[sectionName]) {
             if (typeof this.original[sectionName][fieldName] == 'object') {
-              if (objectHash.sha1(this.form[sectionName][fieldName]) != objectHash.sha1(this.original[sectionName][fieldName])) {
+              var hash1, hash2;
+
+
+              if (this.form[sectionName][fieldName] instanceof Array) {
+                var obj1 = {}, obj2 = {};
+
+                for(var index in this.form[sectionName][fieldName]) {
+                  obj1[index] = this.form[sectionName][fieldName][index];
+                }
+
+                for(var index in this.original[sectionName][fieldName]) {
+                  obj2[index] = this.original[sectionName][fieldName][index];
+                }
+
+                hash1 = objectHash.sha1(obj1);
+                hash2 = objectHash.sha1(obj2);
+              } else {
+                hash1 = objectHash.sha1(this.form[sectionName][fieldName]);
+                hash2 = objectHash.sha1(this.original[sectionName][fieldName]);
+              }
+
+              if (hash1 != hash2) {
                 result = true;
               }
             } else {
@@ -105,6 +133,12 @@ define('form_model', ['js/vue/vue'], function (XLiteVue) {
             event.preventDefault()
           }
         })
+      }
+    },
+
+    events: {
+      'form-model-prop-updated': function (path, value) {
+        this.$set(path, value);
       }
     }
   });

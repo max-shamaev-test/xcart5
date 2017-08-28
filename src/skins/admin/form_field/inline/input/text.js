@@ -11,27 +11,31 @@ CommonForm.elementControllers.push(
   {
     pattern: '.inline-field.inline-text',
     handler: function () {
-
+      this.viewValuePattern = '.view .value';
       var field = jQuery(this);
-
       var inputs = jQuery('.field :input', this);
 
       // Sanitize-and-set value into field
-      this.sanitize = function()
-      {
-        inputs.each(
-          function () {
-            this.value = this.value.replace(/^ +/, '').replace(/ +$/, '');
-          }
-        );
-      }
+      this.sanitize = function () {
+        inputs.each(function () {
+          this.value = this.value.replace(/^ +/, '').replace(/ +$/, '');
+        });
+      };
 
       // Save field into view
-      this.saveField = function()
-      {
+      this.saveField = function () {
         var value = this.getFieldFormattedValue();
-        field.find(this.viewValuePattern).find('.value').html(htmlspecialchars("" == value ? " " : value, null, null, false));
-      }
+
+        if (value !== undefined && "" !== value) {
+          value = htmlspecialchars("" == value ? " " : value, null, null, false);
+          field.trigger('beforeSaveFieldInline');
+          this.getViewValueElements().html(value);
+          field.trigger('afterSaveFieldInline');
+        } else {
+          this.getViewValueElements().html(" ");
+          field.trigger('saveEmptyFieldInline');
+        }
+      };
 
     }
   }

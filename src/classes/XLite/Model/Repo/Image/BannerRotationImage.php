@@ -10,6 +10,12 @@ namespace XLite\Model\Repo\Image;
 
 /**
  * Product varioant's image
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Image\BannerRotationImage", summary="Add new banner image")
+ * @Api\Operation\Read(modelClass="XLite\Model\Image\BannerRotationImage", summary="Retrieve banner image by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Image\BannerRotationImage", summary="Retrieve all banner images")
+ * @Api\Operation\Update(modelClass="XLite\Model\Image\BannerRotationImage", summary="Update banner image by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Image\BannerRotationImage", summary="Delete banner image by id")
  */
 class BannerRotationImage extends \XLite\Model\Repo\Base\Image
 {

@@ -20,23 +20,20 @@ class Attributes extends \XLite\View\StickyPanel\Product\AProduct
      */
     protected function defineButtons()
     {
-        $list = array();
+        $list = [];
         
-        if ('global' == \XLite\Core\Request::getInstance()->spage) {
+        if ('global' === \XLite\Core\Request::getInstance()->spage) {
             $list['saveMode'] = $this->getWidget(
-                array(
-                    'fieldOnly'  => true,
+                [
                     'fieldName'  => 'save_mode',
-                    'attributes' => array(
-                        'disabled' => 'disabled',
-                        'class'    => 'not-significant',
-                    ),
-                ),
-                'XLite\View\FormField\Select\AttributeSaveMode'
-            );
-            $list['saveModeTooltips'] = $this->getWidget(
-                array(),
-                'XLite\View\Product\Details\Admin\SaveModeTooltips'
+                    'attributes' => [
+                        'class' => 'not-significant',
+                    ],
+                    'disabled'   => true,
+                    'value'      => false,
+                    'label'      => static::t("Apply attribute value changes for all the products")
+                ],
+                'XLite\View\FormField\Input\Checkbox\OnOff'
             );
         }
 

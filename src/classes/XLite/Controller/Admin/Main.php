@@ -24,7 +24,6 @@ class Main extends \XLite\Controller\Admin\AAdmin
             parent::defineFreeFormIdActions(),
             array(
                 'hide_welcome_block',
-                'hide_welcome_block_forever',
                 'set_notifications_as_read',
                 'close_module_banner',
             )
@@ -74,30 +73,22 @@ class Main extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionHideWelcomeBlock()
     {
-        \XLite\Core\Session::getInstance()->hide_welcome_block = 1;
+        $blockName = \XLite\Core\Request::getInstance()->block;
 
-        print ('OK');
+        $sessionClosedBlocks = \XLite\Core\Session::getInstance()->closedBlocks ?: array();
+        $sessionClosedBlocks[$blockName] = true;
+        \XLite\Core\Session::getInstance()->closedBlocks = $sessionClosedBlocks;
 
-        $this->setSuppressOutput(true);
-    }
+        if (\XLite\Core\Request::getInstance()->forever) {
+            $profileId = \XLite\Core\Auth::getInstance()->getProfile()->getProfileId();
+            $foreverClosedBlocks = \XLite\Core\TmpVars::getInstance()->closedBlocks ?: array();
+            $profileRecord = isset($foreverClosedBlocks[$profileId]) ? $foreverClosedBlocks[$profileId] : array();
+            $profileRecord[$blockName] = true;
+            $foreverClosedBlocks[$profileId] = $profileRecord;
+            \XLite\Core\TmpVars::getInstance()->closedBlocks = $foreverClosedBlocks;
+        }
 
-    /**
-     * Hide welcome block (forever)
-     *
-     * @return void
-     */
-    protected function doActionHideWelcomeBlockForever()
-    {
-        \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
-            array(
-                'category' => 'Internal',
-                'name'     => 'hide_welcome_block',
-                'value'    => 1,
-            )
-        );
-
-        print ('OK');
-
+        $this->silent = true;
         $this->setSuppressOutput(true);
     }
 
@@ -124,6 +115,7 @@ class Main extends \XLite\Controller\Admin\AAdmin
 
         print ('OK');
 
+        $this->silent = true;
         $this->setSuppressOutput(true);
     }
 

@@ -11,7 +11,6 @@ namespace XLite\Core\Templating\Twig;
 use Twig_Environment;
 use XLite\Core\Layout;
 use XLite\Core\Translation;
-use XLite\View\AView;
 
 /**
  * Custom twig functions
@@ -31,7 +30,7 @@ class Functions
         $this->layout = Layout::getInstance();
     }
 
-    public function widget(Twig_Environment $env, $context, array $arguments = array())
+    public function widget(Twig_Environment $env, $context, array $arguments = [])
     {
         $nextPositionalArgument = 0;
 
@@ -43,18 +42,16 @@ class Functions
             $nextPositionalArgument++;
         }
 
-        if (isset($arguments[$nextPositionalArgument])) {
-            // Instantiate widget with parameters passed in $arguments[$nextPositionalArgument]
+        /** @var \XLite\View\AView $widget */
+        $widget = $env->getGlobals()['this'];
 
-            $env->getGlobals()['this']->getWidget($arguments[$nextPositionalArgument], $class)->display();
-        } else {
-            // Instantiate widget with named function arguments
-
-            $env->getGlobals()['this']->getWidget($arguments, $class)->display();
-        }
+        return $widget->getWidget(
+            isset($arguments[$nextPositionalArgument]) ? $arguments[$nextPositionalArgument] : $arguments,
+            $class
+        );
     }
 
-    public function widget_list(Twig_Environment $env, $context, array $arguments = array())
+    public function widget_list(Twig_Environment $env, $context, array $arguments = [])
     {
         $type = isset($arguments['type']) ? strtolower($arguments['type']) : null;
 
@@ -72,21 +69,28 @@ class Functions
             $params = $arguments;
         }
 
-        if ($type == 'inherited') {
-            $env->getGlobals()['this']->displayInheritedViewListContent($name, $params);
-        } else if ($type == 'nested') {
-            $env->getGlobals()['this']->displayNestedViewListContent($name, $params);
+        /** @var \XLite\View\AView $widget */
+        $widget = $env->getGlobals()['this'];
+        if ($type === 'inherited') {
+            $widget->displayInheritedViewListContent($name, $params);
+        } elseif ($type === 'nested') {
+            $widget->displayNestedViewListContent($name, $params);
         } else {
-            $env->getGlobals()['this']->displayViewListContent($name, $params);
+            $widget->displayViewListContent($name, $params);
         }
     }
 
-    public function t($name, array $arguments = array(), $code = null)
+    public function t($name, array $arguments = [], $code = null)
     {
         return $this->translator->translate($name, $arguments, $code);
     }
 
-    public function url(Twig_Environment $env, $context, $target = '', $action = '', array $params = array(), $forceCuFlag = null)
+    public function svg(Twig_Environment $env, $context, $path, $interface = null)
+    {
+        return $env->getGlobals()['this']->getSVGImage($path, $interface);
+    }
+
+    public function url(Twig_Environment $env, $context, $target = '', $action = '', array $params = [], $forceCuFlag = null)
     {
         return $env->getGlobals()['this']->buildURL($target, $action, $params, $forceCuFlag);
     }

@@ -25,7 +25,7 @@ decorate(
     core.autoload(TableItemsListQueue);
     core.autoload(CommonForm);
     core.autoload(StickyPanelProductSelection);
-    SearchConditionBox(true);
+    SearchConditionBox();
   }
 );
 

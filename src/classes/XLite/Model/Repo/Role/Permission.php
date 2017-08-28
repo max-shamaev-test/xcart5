@@ -9,7 +9,10 @@
 namespace XLite\Model\Repo\Role;
 
 /**
- * Permission repository 
+ * Permission repository
+ *
+ * @Api\Operation\Read(modelClass="XLite\Model\Role\Permission", summary="Retrieve user permission type by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Role\Permission", summary="Retrieve all user permission types")
  */
 class Permission extends \XLite\Model\Repo\Base\I18n
 {

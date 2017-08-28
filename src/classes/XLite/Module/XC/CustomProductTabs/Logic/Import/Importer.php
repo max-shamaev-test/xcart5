@@ -22,7 +22,10 @@ class Importer extends \XLite\Logic\Import\Importer implements \XLite\Base\IDeco
     {
         return array_merge(
             parent::getProcessorList(),
-            ['XLite\Module\XC\CustomProductTabs\Logic\Import\Processor\CustomTabs']
+            [
+                'XLite\Module\XC\CustomProductTabs\Logic\Import\Processor\CustomTabs',
+                'XLite\Module\XC\CustomProductTabs\Logic\Import\Processor\GlobalTabs',
+            ]
         );
     }
 }

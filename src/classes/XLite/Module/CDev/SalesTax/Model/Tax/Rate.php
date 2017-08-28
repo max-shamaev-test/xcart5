@@ -362,7 +362,7 @@ class Rate extends \XLite\Model\AEntity
     /**
      * Set value
      *
-     * @param decimal $value
+     * @param float $value
      * @return Rate
      */
     public function setValue($value)
@@ -374,7 +374,7 @@ class Rate extends \XLite\Model\AEntity
     /**
      * Get value
      *
-     * @return decimal 
+     * @return float
      */
     public function getValue()
     {

@@ -28,6 +28,11 @@ abstract class AAuthProvider extends \XLite\Base\Singleton
      */
     const STATE_DELIMITER = '||';
 
+    protected static function getAuthRequestScope()
+    {
+        return static::AUTH_REQUEST_SCOPE;
+    }
+
     /**
      * Get OAuth 2.0 client ID
      *
@@ -60,7 +65,7 @@ abstract class AAuthProvider extends \XLite\Base\Singleton
         $url = static::AUTH_REQUEST_URL
             . '?client_id=' . $this->getClientId()
             . '&redirect_uri=' . urlencode($this->getRedirectUrl())
-            . '&scope=' . static::AUTH_REQUEST_SCOPE
+            . '&scope=' . static::getAuthRequestScope()
             . '&response_type=code'
             . '&' . static::STATE_PARAM_NAME . '=' . urlencode($state)
             . static::STATE_DELIMITER . urlencode($returnUrl);

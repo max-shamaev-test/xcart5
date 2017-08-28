@@ -150,7 +150,7 @@ abstract class AConsole extends \XLite\Controller\AController
     /**
      * Get controller help
      *
-     * @return void
+     * @return string
      */
     protected function getControllerHelp()
     {
@@ -195,7 +195,7 @@ abstract class AConsole extends \XLite\Controller\AController
      *
      * @return void
      */
-    protected function redirect($url = null)
+    protected function redirect($url = null, $code = null)
     {
     }
 

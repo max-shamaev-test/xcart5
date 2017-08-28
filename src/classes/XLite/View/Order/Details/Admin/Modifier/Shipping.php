@@ -14,6 +14,27 @@ namespace XLite\View\Order\Details\Admin\Modifier;
 class Shipping extends \XLite\View\Order\Details\Admin\Modifier
 {
     /**
+     * Check if widget is visible
+     *
+     * @return boolean
+     */
+    protected function isVisible()
+    {
+        /** @var $shippingModifier \XLite\Logic\Order\Modifier\Shipping */
+        $shippingModifier = $this->getOrder()->getModifier(\XLite\Model\Base\Surcharge::TYPE_SHIPPING, 'SHIPPING');
+
+        $shippable = false;
+        foreach ($this->getOrder()->getItems() as $item) {
+            if ($item->isShippable() && !$item->isDeleted()) {
+                $shippable = true;
+            }
+        }
+        $result = $shippable || ($shippingModifier && $shippingModifier->canApply() && $shippingModifier->getSelectedRate());
+
+        return parent::isVisible() && $result;
+    }
+
+    /**
      * Return default template
      *
      * @return string

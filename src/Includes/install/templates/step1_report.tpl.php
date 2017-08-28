@@ -6,20 +6,17 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-
 /**
  * X-Cart (standalone edition) web installation wizard: Report page
  */
 
 if (!defined('XLITE_INSTALL_MODE')) {
-	die('Incorrect call of the script. Stopped.');
+    die('Incorrect call of the script. Stopped.');
 }
-
 
 global $requirements;
 
 if (!empty($requirements) && is_array($requirements)) {
-
     $report = make_check_report($requirements);
 
 ?>

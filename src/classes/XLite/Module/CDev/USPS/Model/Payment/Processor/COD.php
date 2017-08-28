@@ -31,4 +31,18 @@ class COD extends \XLite\Model\Payment\Processor\COD
     {
         return true;
     }
+
+    /**
+     * Get the carrier code
+     *
+     * @return string
+     */
+    protected function getCarrierCode()
+    {
+        $config = \XLite\Core\Config::getInstance()->CDev->USPS;
+
+        return $config->dataProvider === 'pitneyBowes'
+            ? 'pb_usps'
+            : 'usps';
+    }
 }

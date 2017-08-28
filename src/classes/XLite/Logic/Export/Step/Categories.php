@@ -36,25 +36,26 @@ class Categories extends \XLite\Logic\Export\Step\Base\I18n
      */
     protected function defineColumns()
     {
-        $columns = array(
-            'path'        => array(),
-            'enabled'     => array(),
-            'showTitle'   => array(),
-            'position'    => array(),
-            'memberships' => array(),
-            'image'       => array(),
-            'banner'       => array(),
-            'cleanURL'    => array(),
-        );
+        $columns = [
+            'categoryId'  => [],
+            'path'        => [],
+            'enabled'     => [],
+            'showTitle'   => [],
+            'position'    => [],
+            'memberships' => [],
+            'image'       => [],
+            'banner'       => [],
+            'cleanURL'    => [],
+        ];
 
         $columns += $this->assignI18nColumns(
-            array(
-                'name'        => array(),
-                'description' => array(),
-                'metaTags'    => array(),
-                'metaDesc'    => array(),
-                'metaTitle'   => array(),
-            )
+            [
+                'name'        => [],
+                'description' => [],
+                'metaTags'    => [],
+                'metaDesc'    => [],
+                'metaTitle'   => [],
+            ]
         );
 
         return $columns;
@@ -73,9 +74,23 @@ class Categories extends \XLite\Logic\Export\Step\Base\I18n
      *
      * @return string
      */
+    protected function getCategoryIdColumnValue(array $dataset, $name, $i)
+    {
+        return $dataset['model']->getCategoryId();
+    }
+
+    /**
+     * Get column value for 'path' column
+     *
+     * @param array   $dataset Dataset
+     * @param string  $name    Column name
+     * @param integer $i       Subcolumn index
+     *
+     * @return string
+     */
     protected function getPathColumnValue(array $dataset, $name, $i)
     {
-        $result = array();
+        $result = [];
         foreach ($this->getRepository()->getCategoryPath($dataset['model']->getCategoryId()) as $category) {
             $result[] = $category->getName();
         }
@@ -136,7 +151,7 @@ class Categories extends \XLite\Logic\Export\Step\Base\I18n
      */
     protected function getMembershipsColumnValue(array $dataset, $name, $i)
     {
-        $result = array();
+        $result = [];
 
         foreach ($dataset['model']->getMemberships() as $membership) {
             $result[] = $membership->getName();

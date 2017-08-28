@@ -24,9 +24,9 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     {
         $columns = parent::defineColumns();
 
-        $columns['attachmentsPrivate'] = array(
+        $columns['attachmentsPrivate'] = [
             static::COLUMN_IS_MULTIPLE => true,
-        );
+        ];
 
         return $columns;
     }

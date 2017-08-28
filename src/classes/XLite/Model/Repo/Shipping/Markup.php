@@ -10,6 +10,12 @@ namespace XLite\Model\Repo\Shipping;
 
 /**
  * Shipping method model
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Shipping\Markup", summary="Add new shipping markup")
+ * @Api\Operation\Read(modelClass="XLite\Model\Shipping\Markup", summary="Retrieve shipping markup by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Shipping\Markup", summary="Retrieve shipping markups by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\Shipping\Markup", summary="Update shipping markup by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Shipping\Markup", summary="Delete shipping markup by id")
  */
 class Markup extends \XLite\Model\Repo\ARepo
 {
@@ -233,6 +239,7 @@ class Markup extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filter markups by method id", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param string                     $value        Profile
@@ -247,6 +254,7 @@ class Markup extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filter markups by shipping zone id", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param string                     $value        Profile

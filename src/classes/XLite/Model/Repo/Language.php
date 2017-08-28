@@ -10,6 +10,10 @@ namespace XLite\Model\Repo;
 
 /**
  * Language repository
+ *
+ * @Api\Operation\Read(modelClass="XLite\Model\Language", summary="Retrieve language by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Language", summary="Retrieve language records")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Language", summary="Delete language by id")
  */
 class Language extends \XLite\Model\Repo\Base\I18n
 {
@@ -54,6 +58,11 @@ class Language extends \XLite\Model\Repo\Base\I18n
     protected $alternativeIdentifier = array(
         array('code'),
     );
+
+    /**
+     * @var \XLite\Model\Language[]
+     */
+    protected $activeLanguages;
 
     /**
      * Create a new QueryBuilder instance that is prepopulated for this entity name
@@ -137,7 +146,11 @@ class Language extends \XLite\Model\Repo\Base\I18n
      */
     public function findActiveLanguages()
     {
-        return $this->defineByEnabledQuery(true)->getResult();
+        if (null === $this->activeLanguages) {
+            $this->activeLanguages = $this->defineByEnabledQuery(true)->getResult();
+        }
+
+        return $this->activeLanguages;
     }
 
     /**
@@ -246,7 +259,9 @@ class Language extends \XLite\Model\Repo\Base\I18n
 
                     // Generate associative array of the row data
                     foreach ($data as $id => $col) {
-                        $row[$fields[$id]] = $col;
+                        if (isset($fields[$id])) {
+                            $row[$fields[$id]] = $col;
+                        }
                     }
 
                     if (empty($row) || count($row) != count($fields)) {

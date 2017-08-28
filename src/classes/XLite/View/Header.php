@@ -18,6 +18,20 @@ class Header extends \XLite\View\AResourcesContainer
      *
      * @return string
      */
+    protected function getMetaTitle()
+    {
+        $result = \XLite::getController()->getMetaTitle();
+
+        return ($result && is_scalar($result))
+            ? trim(strip_tags($result))
+            : null;
+    }
+
+    /**
+     * Get meta description
+     *
+     * @return string
+     */
     protected function getMetaDescription()
     {
         $result = \XLite::getController()->getMetaDescription();
@@ -78,6 +92,29 @@ class Header extends \XLite\View\AResourcesContainer
     }
 
     /**
+     * Get collected meta tags
+     *
+     * @return array
+     */
+    protected function getPreloadedLabels()
+    {
+        return \XLite\Core\PreloadedLabels\Registrar::getInstance()->getRegistered();
+    }
+
+    /**
+     * Get collected meta tags
+     *
+     * @return array
+     */
+    protected function getPreloadedLabelsJSON()
+    {
+        return json_encode(
+            $this->getPreloadedLabels(),
+            JSON_UNESCAPED_UNICODE
+        );
+    }
+
+    /**
      * Get script
      *
      * @return string
@@ -125,5 +162,13 @@ class Header extends \XLite\View\AResourcesContainer
     protected function getHeadAttributes()
     {
         return array();
+    }
+
+    /**
+     *
+     */
+    public function useUpgradeInsecure()
+    {
+        return \XLite::getInstance()->getOptions(array('other', 'meta_upgrade_insecure'));
     }
 }

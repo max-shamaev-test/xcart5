@@ -9,7 +9,7 @@
 namespace XLite\Module\XC\ThemeTweaker\Controller\Admin;
 
 /**
- * CustomJavaScript controller
+ * Custom JavaScript controller
  */
 class CustomJs extends \XLite\Module\XC\ThemeTweaker\Controller\Admin\Base\ThemeTweaker
 {
@@ -20,6 +20,6 @@ class CustomJs extends \XLite\Module\XC\ThemeTweaker\Controller\Admin\Base\Theme
      */
     public function getTitle()
     {
-        return static::t('Custom JavaScript');
+        return static::t('Custom CSS & JS');
     }
 }

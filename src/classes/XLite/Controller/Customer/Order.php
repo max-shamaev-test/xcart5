@@ -8,6 +8,8 @@
 
 namespace XLite\Controller\Customer;
 
+use XLite\Model\Order\Status\Shipping;
+
 /**
  * Order controller
  */
@@ -19,7 +21,6 @@ class Order extends \XLite\Controller\Customer\Base\Order
      * @var array
      */
     protected $orders = null;
-
 
     /**
      * Check - controller must work in secure zone or not

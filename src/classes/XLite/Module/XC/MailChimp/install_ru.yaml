@@ -6,7 +6,7 @@
 # See https://www.x-cart.com/license-agreement.html for license details.
 
 XLite\Model\Config:
-  directives: { addModel: 'XLite\Model\ConfigTranslation' }
+  - { directives: { allowedModel: 'XLite\Model\ConfigTranslation' } }
   - { name: 'mailChimpSeparator', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Настройки MailChimp' }] }
   - { name: 'mailChimpAPIKey', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'API ключ MailChimp' }] }
   - { name: 'analytics360enabled', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Включить аналитику Ecommerce' }] }
@@ -16,7 +16,7 @@ XLite\Model\Config:
   - { name: 'updateInterval', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Обновлять список рассылок MailChimp каждые', option_comment: 'Выберите временной интервал для обновления информации о списках рассылок.'}] }
 
 XLite\Model\LanguageLabel:
-  directives: { addModel: 'XLite\Model\LanguageLabelTranslation' }
+  - { directives: { allowedModel: 'XLite\Model\LanguageLabelTranslation' } }
   - { name: 'MailChimp', translations: [{ code: ru, label: 'MailChimp' }] }
   - { name: 'MailChimp Integration with E-commerce support', translations: [{ code: ru, label: 'Интеграция сервиса MailChimp с поддержкой Ecommerce' }] }
   - { name: 'Type: select box', translations: [{ code: ru, label: 'Тип: список' }] }
@@ -39,8 +39,6 @@ XLite\Model\LanguageLabel:
   - { name: 'Filter by specific products', translations: [{ code: ru, label: 'Фильтровать по определенным продуктам' }] }
   - { name: 'Products', translations: [{ code: ru, label: 'Продукты' }] }
   - { name: 'Segment condition', translations: [{ code: ru, label: 'Условия попадания подписчика в сегмент' }] }
-  - { name: 'You will need a valid and working MailChimp Account in order to be able to use this module.', translations: [{ code: ru, label: 'Чтобы иметь возможность воспользоваться данным модулем вам понадобится рабочая учетная запись MailChimp.' }] }
-  - { name: 'You can register MailChimp account', translations: [{ code: ru, label: 'Вы можете зарегистрировать учетную запись MailChimp' }] }
   - { name: 'here', translations: [{ code: ru, label: 'здесь' }] }
   - { name: 'Month', translations: [{ code: ru, label: 'Месяц' }] }
   - { name: 'Static', translations: [{ code: ru, label: 'Статический' }] }
@@ -81,3 +79,10 @@ XLite\Model\LanguageLabel:
   - { name: '_MailChimp ecommerce info text_', translations: [{ code: ru, label: 'Загрузите данные магазина в MailChimp для более эффективной работы рекомендаций товаров и поддержки оставленных корзин от MailChimp. Перед тем как нажать на кнопку, выберите списки, для которых требуется создать "магазины" в MailChimp. "Магазин" - это набор товаров, заказов, корзин и покупателей. MailChimp создаст "магазины" и привяжет их к спискам, которые вы указали. Данные из X-Cart будут выгружаться именно в эти магазины.<br><a href="{{url}}" target="_blank">Подробнее об опциях e-Commerce в MailChimp</a>' }] }
   - { name: 'Upload store data to MailChimp', translations: [{ code: ru, label: 'Выгрузить данные в MailChimp' }] }
   - { name: 'E-Commerce features setup', translations: [{ code: ru, label: 'Настройка опций e-Commerce' }] }
+
+  - { name: 'mailchimp_settings_promo_text', translations: [{ code: ru, label: 'Хотите ли вы прорекламировать какой-то товар, поделиться важными новостями или рассказать историю - наш конфигуратор рассылок поможет вам с легкостью создать новостную рассылку, наилучшим образом соответствующую посланию, которое вы пытаетесь донести.' }] }
+  - { name: 'Connect with your MailChimp account', translations: [{ code: ru, label: 'Подключить аккаунт MailChimp' }] }
+  - { name: 'Reconnect with your MailChimp account', translations: [{ code: ru, label: 'Переподключить аккаунт MailChimp' }] }
+  - { name: 'Install Mailchimp addon', translations: [{ code: ru, label: 'Установить модуль MailChimp' }] }
+  - { name: 'Enter your MailChimp API key manually', translations: [{ code: ru, label: 'Введите API ключ MailChimp вручную' }] }
+  - { name: 'e-Commerce Analytics disable warning', translations: [{ code: ru, label: "Функция e-Commerce Analytics является ключевым компонентом функциональности данной интеграции." }] }

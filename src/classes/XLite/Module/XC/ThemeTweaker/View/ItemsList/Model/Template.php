@@ -190,7 +190,17 @@ class Template extends \XLite\View\ItemsList\Model\Table
      */
     protected function isEmptyListTemplateVisible()
     {
-        return false;
+        return true;
+    }
+
+    /**
+     * Description for blank items list
+     *
+     * @return string
+     */
+    protected function getEmptyListDescription()
+    {
+        return static::t('itemslist.admin.template.blank');
     }
 
     /**

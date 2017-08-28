@@ -21,7 +21,7 @@ class FeaturedProducts extends \XLite\View\ItemsList\Product\Customer\Category\A
     use CacheableTrait;
 
     /**
-     * Allowed sort criterions
+     * Allowed sort criteria
      */
     const SORT_BY_MODE_DEFAULT = 'featuredProducts.orderBy';
 
@@ -78,6 +78,11 @@ class FeaturedProducts extends \XLite\View\ItemsList\Product\Customer\Category\A
         return $this->getParam(static::PARAM_IS_EXPORTED)
             ? $this->getParam(static::PARAM_DISPLAY_MODE)
             : \XLite\Core\Config::getInstance()->CDev->FeaturedProducts->featured_products_look;
+    }
+
+    protected function useWidgetParamsAsSearchDefaults()
+    {
+        return true;
     }
 
     /**

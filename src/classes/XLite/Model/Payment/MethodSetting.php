@@ -94,7 +94,7 @@ class MethodSetting extends \XLite\Model\AEntity
     /**
      * Set value
      *
-     * @param text $value
+     * @param string $value
      * @return MethodSetting
      */
     public function setValue($value)
@@ -106,7 +106,7 @@ class MethodSetting extends \XLite\Model\AEntity
     /**
      * Get value
      *
-     * @return text 
+     * @return string
      */
     public function getValue()
     {

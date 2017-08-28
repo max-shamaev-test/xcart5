@@ -38,16 +38,12 @@ class Attributes extends \XLite\View\Product\Details\AAttributes
                 if (is_array($value)) {
                     $value = implode($a::DELIMITER, $value);
                 }
-                if (
-                    $value
-                    && (
-                        $a::TYPE_CHECKBOX != $a->getType()
-                        || static::t('No') != $value
-                    )
-                ) {
+                if ($this->isAttributeVisible($a, $value)) {
                     $this->attributes[] = array(
                         'name'  => $a->getName(),
-                        'value' => ($a::TYPE_TEXT == $a->getType() ? $value : htmlspecialchars($value)),
+                        'value' => $a::TYPE_TEXT === $a->getType()
+                            ? $value
+                            : htmlspecialchars($value),
                         'class' => $this->getFieldClass($a, $value)
                     );
                 }
@@ -55,6 +51,25 @@ class Attributes extends \XLite\View\Product\Details\AAttributes
         }
 
         return $this->attributes;
+    }
+
+    /**
+     * Checks whether attributes should be visible or not
+     *
+     * @param $attr \XLite\Model\Attribute
+     * @param $value string
+     * @return bool
+     */
+    protected function isAttributeVisible($attr, $value)
+    {
+        $result = !empty($value);
+
+        if ($attr::TYPE_CHECKBOX === $attr->getType()
+            && (static::t('No') === $value || substr_count($value, $attr::DELIMITER) > 0)) {
+            $result = false;
+        }
+
+        return $result;
     }
 
     /**

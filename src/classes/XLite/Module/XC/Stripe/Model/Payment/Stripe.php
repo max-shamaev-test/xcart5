@@ -379,6 +379,20 @@ class Stripe extends \XLite\Model\Payment\Base\Online
         return $this->doRefund($transaction, true);
     }
 
+
+    /**
+     * Refund
+     *
+     * @param \XLite\Model\Payment\BackendTransaction $transaction Backend transaction
+     * @param boolean                                 $isDoVoid    Is void action OPTIONAL
+     *
+     * @return boolean
+     */
+    protected function doRefundMulti(\XLite\Model\Payment\BackendTransaction $transaction, $isDoVoid = false)
+    {
+        return $this->doRefund($transaction, $isDoVoid);
+    }
+
     /**
      * Refund
      *
@@ -394,27 +408,31 @@ class Stripe extends \XLite\Model\Payment\Base\Online
         $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_FAILED;
 
         try {
+            /** @var \Stripe_Charge $payment */
             $payment = \Stripe_Charge::retrieve(
                 $transaction->getPaymentTransaction()->getDataCell('stripe_id')->getValue()
             );
             if ($transaction->getValue() != $transaction->getPaymentTransaction()->getValue()) {
                 $payment->refund(
                     array(
-                        'id'     => $transaction->getPaymentTransaction()->getDataCell('stripe_id')->getValue(),
                         'amount' => $this->formatCurrency($transaction->getValue()),
                     )
                 );
                 $refundTransaction = null;
-                foreach ($payment->refunds as $r) {
-                    if (!$this->isRefundTransactionRegistered($r)) {
-                        $refundTransaction = $r;
-                        break;
+
+                if ($payment->refunds) {
+                    foreach ($payment->refunds as $r) {
+                        if (!$this->isRefundTransactionRegistered($r)) {
+                            $refundTransaction = $r;
+                            break;
+                        }
                     }
                 }
 
             } else {
                 $payment->refund();
-                $refundTransaction = reset($payment->refunds);
+                $refunds = $payment->refunds;
+                $refundTransaction = reset($refunds);
             }
 
             if ($refundTransaction) {
@@ -518,7 +536,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
      *
      * @param \XLite\Model\Payment\Transaction $transaction Callback-owner transaction
      *
-     * @return void
+     * @throws \XLite\Core\Exception\PaymentProcessing\ACallbackException
      */
     public function processCallback(\XLite\Model\Payment\Transaction $transaction)
     {
@@ -528,19 +546,25 @@ class Stripe extends \XLite\Model\Payment\Base\Online
             $this->processStripeEvent($transaction);
 
             // Remove ttl for IPN requests
-            /** @var \XLite\Module\XC\Stripe\Model\Payment\Transaction $transaction */
-            if ($transaction->hasCallbackLock()) {
-                $transaction->unlockCallbackProcessing();
+            if ($transaction->isEntityLocked(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN)) {
+                $transaction->unsetEntityLock(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN);
             }
 
         } else {
-            \XLite\Logger::getInstance()->logCustom(
-                'stripe',
-                'Not ready to process this callback right now (waiting for payment return or db flush) ' . $transaction->getPublicTxnId()
-            );
-
-            \XLite::getController()->sendStripeConflictResponse();
+            throw new \XLite\Core\Exception\PaymentProcessing\CallbackNotReady();
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function processCallbackNotReady(\XLite\Model\Payment\Transaction $transaction)
+    {
+        parent::processCallbackNotReady($transaction);
+
+        header('HTTP/1.1 409 Conflict', true, 409);
+        header('Status: 409 Conflict');
+        header('X-Robots-Tag: noindex, nofollow');
     }
 
     /**
@@ -552,12 +576,13 @@ class Stripe extends \XLite\Model\Payment\Base\Online
      */
     protected function canProcessCallback(\XLite\Model\Payment\Transaction $transaction)
     {
-        /** @var \XLite\Module\XC\Stripe\Model\Payment\Transaction $transaction */
-        $result = $transaction->isCallbackLockExpired() || !$transaction->hasCallbackLock();
+        $locked = $transaction->isEntityLocked(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN);
+        $result = $transaction->isEntityLockExpired(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN)
+            || !$locked;
 
         // Set ttl once when no payment return happened yet
-        if (!$this->isOrderProcessed($transaction) && !$transaction->hasCallbackLock()) {
-            $transaction->lockCallbackProcessing(3600);
+        if (!$locked && !$this->isOrderProcessed($transaction)) {
+            $transaction->setEntityLock(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN);
             $result = false;
         }
 

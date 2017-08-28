@@ -44,6 +44,13 @@ class Tooltip extends \XLite\View\AView
     public function getCommonFiles()
     {
         $list = parent::getCommonFiles();
+
+        $list[static::RESOURCE_JS][] = [
+            'file' => $this->isDeveloperMode() ? 'vue/vue.js' : 'vue/vue.min.js',
+            'no_minify' => true
+        ];
+        $list[static::RESOURCE_JS][] = 'js/vue/vue.js';
+        $list[static::RESOURCE_JS][] = 'js/vue/component.js';
         $list[static::RESOURCE_JS][] = 'js/tooltip.js';
 
         return $list;

@@ -24,13 +24,20 @@ class InstallLandingPage extends \XLite\View\Pager\Admin\Module\Install
     }
 
     /**
-     * Return true as 'Items-per-page' selector should be visible.
-     * It used to add common tools for 'Landing page' modules list
+     * Check if widget is visible
      *
      * @return boolean
      */
-    protected function isItemsPerPageVisible()
+    protected function isVisible()
     {
-        return true;
+        return false;
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function isVisibleBottom()
+    {
+        return false;
     }
 }

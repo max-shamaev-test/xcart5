@@ -20,6 +20,8 @@ class VoteBar extends \XLite\View\AView
     const PARAM_MAX         = 'max';
     const PARAM_IS_EDITABLE = 'is_editable';
     const PARAM_FIELD_NAME  = 'field_name';
+    const PARAM_RATING_LABEL  = 'rating_label';
+    const PARAM_RATING_LABELS  = 'rating_labels';
 
     const STARS_KOEFFICIENT = 0;
 
@@ -35,7 +37,6 @@ class VoteBar extends \XLite\View\AView
 
         return $list;
     }
-
 
     /**
      * Return widget default template
@@ -57,10 +58,12 @@ class VoteBar extends \XLite\View\AView
         parent::defineWidgetParams();
 
         $this->widgetParams += array(
-            self::PARAM_RATE        => new \XLite\Model\WidgetParam\TypeFloat('', 0),
-            self::PARAM_MAX         => new \XLite\Model\WidgetParam\TypeInt('', 5),
-            self::PARAM_IS_EDITABLE => new \XLite\Model\WidgetParam\TypeBool('', false),
-            self::PARAM_FIELD_NAME  => new \XLite\Model\WidgetParam\TypeString('', 'rating'),
+            self::PARAM_RATE             => new \XLite\Model\WidgetParam\TypeFloat('', 0),
+            self::PARAM_MAX              => new \XLite\Model\WidgetParam\TypeInt('', 5),
+            self::PARAM_IS_EDITABLE      => new \XLite\Model\WidgetParam\TypeBool('', false),
+            self::PARAM_RATING_LABEL     => new \XLite\Model\WidgetParam\TypeString('', null),
+            self::PARAM_FIELD_NAME       => new \XLite\Model\WidgetParam\TypeString('', 'rating'),
+            self::PARAM_RATING_LABELS    => new \XLite\Model\WidgetParam\TypeCollection('', array()),
         );
     }
 
@@ -82,6 +85,16 @@ class VoteBar extends \XLite\View\AView
     protected function getRating()
     {
         return $this->getParam(self::PARAM_RATE);
+    }
+
+    /**
+     * Get rating
+     *
+     * @return float
+     */
+    protected function getMaxRating()
+    {
+        return $this->getParam(self::PARAM_MAX);
     }
 
     /**
@@ -116,5 +129,28 @@ class VoteBar extends \XLite\View\AView
     protected function isEditable()
     {
         return $this->getParam(self::PARAM_IS_EDITABLE);
+    }
+
+    /**
+     * Get number or stars
+     *
+     * @return integer
+     */
+    protected function getRatingLabel()
+    {
+        return $this->getParam(self::PARAM_RATING_LABEL);
+    }
+
+    /**
+     * Get number or stars
+     *
+     * @param $num int
+     * @return int
+     */
+    protected function getRatingLabelFor($num)
+    {
+        $labels = $this->getParam(self::PARAM_RATING_LABELS);
+
+        return isset($labels[$num]) ? $labels[$num] : '';
     }
 }

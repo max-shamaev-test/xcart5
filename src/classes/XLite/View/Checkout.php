@@ -8,12 +8,14 @@
 
 namespace XLite\View;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
+
 /**
  * Checkout
  *
  * @ListChild (list="center")
  */
-class Checkout extends \XLite\View\Dialog
+class Checkout extends \XLite\View\Dialog implements ProviderInterface
 {
     /**
      * Indexes in step data array
@@ -106,7 +108,7 @@ class Checkout extends \XLite\View\Dialog
      *
      * @return array
      */
-    protected function getPreloadedLabels()
+    public function getPreloadedLanguageLabels()
     {
         $list = array(
             'Enter a correct email',

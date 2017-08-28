@@ -53,14 +53,15 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
         $columns = parent::defineColumns();
 
         if ('none' !== $this->generator->getOptions()->attrs) {
-            $columns += array(
-                static::VARIANT_PREFIX . 'SKU'          => array(static::COLUMN_MULTIPLE => true),
-                static::VARIANT_PREFIX . 'Price'        => array(static::COLUMN_MULTIPLE => true),
-                static::VARIANT_PREFIX . 'Quantity'     => array(static::COLUMN_MULTIPLE => true),
-                static::VARIANT_PREFIX . 'Weight'       => array(static::COLUMN_MULTIPLE => true),
-                static::VARIANT_PREFIX . 'Image'        => array(static::COLUMN_MULTIPLE => true),
-                static::VARIANT_PREFIX . 'ImageAlt'     => array(static::COLUMN_MULTIPLE => true),
-            );
+            $columns += [
+                static::VARIANT_PREFIX . 'ID'       => [static::COLUMN_MULTIPLE => true],
+                static::VARIANT_PREFIX . 'SKU'      => [static::COLUMN_MULTIPLE => true],
+                static::VARIANT_PREFIX . 'Price'    => [static::COLUMN_MULTIPLE => true],
+                static::VARIANT_PREFIX . 'Quantity' => [static::COLUMN_MULTIPLE => true],
+                static::VARIANT_PREFIX . 'Weight'   => [static::COLUMN_MULTIPLE => true],
+                static::VARIANT_PREFIX . 'Image'    => [static::COLUMN_MULTIPLE => true],
+                static::VARIANT_PREFIX . 'ImageAlt' => [static::COLUMN_MULTIPLE => true],
+            ];
         }
 
         return $columns;
@@ -89,9 +90,9 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
     /**
      * Get column value for 'variantSKU' column
      *
-     * @param array   $dataset Dataset
-     * @param string  $name    Column name
-     * @param integer $i       Subcolumn index
+     * @param array $dataset Dataset
+     * @param string $name Column name
+     * @param integer $i Subcolumn index
      *
      * @return string
      */
@@ -103,11 +104,27 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
     }
 
     /**
+     * Get column value for 'variantID' column
+     *
+     * @param array $dataset Dataset
+     * @param string $name Column name
+     * @param integer $i Subcolumn index
+     *
+     * @return string
+     */
+    protected function getVariantIDColumnValue(array $dataset, $name, $i)
+    {
+        return empty($dataset['variant'])
+            ? ''
+            : $this->getColumnValueByName($dataset['variant'], 'variant_id');
+    }
+
+    /**
      * Get column value for 'variantPrice' column
      *
-     * @param array   $dataset Dataset
-     * @param string  $name    Column name
-     * @param integer $i       Subcolumn index
+     * @param array $dataset Dataset
+     * @param string $name Column name
+     * @param integer $i Subcolumn index
      *
      * @return string
      */
@@ -121,9 +138,9 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
     /**
      * Get column value for 'variantQuantity' column
      *
-     * @param array   $dataset Dataset
-     * @param string  $name    Column name
-     * @param integer $i       Subcolumn index
+     * @param array $dataset Dataset
+     * @param string $name Column name
+     * @param integer $i Subcolumn index
      *
      * @return string
      */
@@ -137,9 +154,9 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
     /**
      * Get column value for 'variantWeight' column
      *
-     * @param array   $dataset Dataset
-     * @param string  $name    Column name
-     * @param integer $i       Subcolumn index
+     * @param array $dataset Dataset
+     * @param string $name Column name
+     * @param integer $i Subcolumn index
      *
      * @return string
      */
@@ -153,9 +170,9 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
     /**
      * Get column value for abstract 'attribute' column
      *
-     * @param array   $dataset Dataset
-     * @param string  $name    Column name
-     * @param integer $i       Subcolumn index
+     * @param array $dataset Dataset
+     * @param string $name Column name
+     * @param integer $i Subcolumn index
      *
      * @return string
      */
@@ -190,16 +207,16 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
     /**
      * Get column value for 'variantImage' column
      *
-     * @param array   $dataset Dataset
-     * @param string  $name    Column name
-     * @param integer $i       Subcolumn index
+     * @param array $dataset Dataset
+     * @param string $name Column name
+     * @param integer $i Subcolumn index
      *
      * @return array
      */
     protected function getVariantImageColumnValue(array $dataset, $name, $i)
     {
-        $result = array();
-        if (!empty($dataset['variant']) && null !== $dataset['variant']->getImage() ) {
+        $result = [];
+        if (!empty($dataset['variant']) && null !== $dataset['variant']->getImage()) {
             $result[] = $this->formatImageModel($dataset['variant']->getImage());
         }
 
@@ -209,18 +226,18 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
     /**
      * Get column value for 'variantImageAlt' column
      *
-     * @param array   $dataset Dataset
-     * @param string  $name    Column name
-     * @param integer $i       Subcolumn index
+     * @param array $dataset Dataset
+     * @param string $name Column name
+     * @param integer $i Subcolumn index
      *
      * @return array
      */
     protected function getVariantImageAltColumnValue(array $dataset, $name, $i)
     {
-        $result = array();
-        if (!empty($dataset['variant']) && null !== $dataset['variant']->getImage() ) {
+        $result = [];
+        if (!empty($dataset['variant']) && null !== $dataset['variant']->getImage()) {
             $result[] = $dataset['variant']->getImage()->getAlt();
-        }       
+        }
 
         return $result;
     }
@@ -229,7 +246,7 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
      * Returns product specified variant attribute by name
      *
      * @param \XLite\Model\Product $model Product
-     * @param string               $name  Attribute name
+     * @param string $name Attribute name
      *
      * @return \XLite\Model\Attribute
      */
@@ -237,7 +254,7 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
     {
         /** @var \XLite\Model\Attribute $item */
         return array_reduce($model->getVariantsAttributes()->toArray(), function ($carry, $item) use ($name) {
-            return null === $carry && $name === $item->getName() && (bool) $item->getProduct()
+            return null === $carry && $name === $item->getName() && (bool)$item->getProduct()
                 ? $item
                 : $carry;
         }, null);
@@ -247,8 +264,8 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
      * Returns product class variant attribute by name and group
      *
      * @param \XLite\Model\Product $model Product
-     * @param string               $name  Attribute name
-     * @param string               $group Attribute group
+     * @param string $name Attribute name
+     * @param string $group Attribute group
      *
      * @return \XLite\Model\Attribute
      */
@@ -259,7 +276,7 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
             return null === $carry
             && $name === $item->getName()
             && $group === ($item->getAttributeGroup() ? $item->getAttributeGroup()->getName() : '')
-            && (bool) $item->getProductClass()
+            && (bool)$item->getProductClass()
                 ? $item
                 : $carry;
         }, null);

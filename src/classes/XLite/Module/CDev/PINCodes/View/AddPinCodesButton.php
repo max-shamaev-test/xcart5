@@ -47,11 +47,11 @@ class AddPinCodesButton extends \XLite\View\Button\APopupButton
      */
     protected function prepareURLParams()
     {
-        return array(
+        return [
             'target' => 'add_pin_codes',
             'widget' => '\XLite\Module\CDev\PINCodes\View\AddPinCodesDialog',
             'product_id' => \XLite\Core\Request::getInstance()->product_id
-        );
+        ];
     }
 
     /**

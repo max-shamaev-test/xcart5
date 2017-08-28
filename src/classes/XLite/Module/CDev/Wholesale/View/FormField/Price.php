@@ -32,6 +32,6 @@ class Price extends \XLite\View\FormField\Inline\Input\Text\Price
      */
     protected function getFieldParams(array $field)
     {
-        return parent::getFieldParams($field) + array('min' => 0);
+        return parent::getFieldParams($field) + ['min' => 0];
     }
 }

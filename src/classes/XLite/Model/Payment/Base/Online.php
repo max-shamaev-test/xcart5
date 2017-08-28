@@ -32,8 +32,6 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
      * Process return
      *
      * @param \XLite\Model\Payment\Transaction $transaction Return-owner transaction
-     *
-     * @return void
      */
     public function processReturn(\XLite\Model\Payment\Transaction $transaction)
     {
@@ -56,8 +54,6 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
      * Process callback
      *
      * @param \XLite\Model\Payment\Transaction $transaction Callback-owner transaction
-     *
-     * @return void
      */
     public function processCallback(\XLite\Model\Payment\Transaction $transaction)
     {
@@ -67,9 +63,18 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
     }
 
     /**
+     * Process callback not ready
+     *
+     * @param \XLite\Model\Payment\Transaction $transaction Callback-owner transaction
+     */
+    public function processCallbackNotReady(\XLite\Model\Payment\Transaction $transaction)
+    {
+    }
+
+    /**
      * Get callback request owner transaction or null
      *
-     * @return \XLite\Model\Payment\Transaction|void
+     * @return \XLite\Model\Payment\Transaction
      */
     public function getCallbackOwnerTransaction()
     {
@@ -80,8 +85,6 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
      * Mark callback request as invalid
      *
      * @param string $message Message
-     *
-     * @return void
      */
     public function markCallbackRequestAsInvalid($message)
     {
@@ -136,8 +139,6 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
 
     /**
      * Save request data into transaction
-     *
-     * @return void
      */
     protected function saveDataFromRequest($backendTransaction = null)
     {
@@ -149,8 +150,6 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
      *
      * @param array                                   $data               Array of data to save
      * @param \XLite\Model\Payment\BackendTransaction $backendTransaction Backend transaction object OPTIONAL
-     *
-     * @return void
      */
     protected function saveFilteredData($data, $backendTransaction = null)
     {
@@ -182,8 +181,6 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
      * Log return request
      *
      * @param array $list Request data
-     *
-     * @return void
      */
     protected function logReturn(array $list)
     {
@@ -198,8 +195,6 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
      * Log callback
      *
      * @param array $list Callback data
-     *
-     * @return void
      */
     protected function logCallback(array $list)
     {
@@ -295,6 +290,7 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
         $result = true;
 
         $currency = $this->transaction->getCurrency();
+        
         if ($total && $currency->roundValue($this->transaction->getValue()) != $currency->roundValue($total)) {
             $msg = 'Total amount doesn\'t match. Transaction total: ' . $this->transaction->getValue()
                 . '; payment gateway amount: ' . $total;

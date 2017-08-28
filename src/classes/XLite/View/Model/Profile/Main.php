@@ -24,42 +24,46 @@ class Main extends \XLite\View\Model\Profile\AProfile
      *
      * @var array
      */
-    protected $mainSchema = array(
-        'login' => array(
-            self::SCHEMA_CLASS    => '\XLite\View\FormField\Input\Text\Email',
-            self::SCHEMA_LABEL    => 'E-mail',
-            self::SCHEMA_REQUIRED => true,
-            self::SCHEMA_MODEL_ATTRIBUTES => array(
+    protected $mainSchema = [
+        'login'                 => [
+            self::SCHEMA_CLASS            => 'XLite\View\FormField\Input\Text\Email',
+            self::SCHEMA_LABEL            => 'E-mail',
+            self::SCHEMA_REQUIRED         => true,
+            self::SCHEMA_MODEL_ATTRIBUTES => [
                 \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 'length',
-            ),
-        ),
-        'password' => array(
-            self::SCHEMA_CLASS    => '\XLite\View\FormField\Input\Password',
-            self::SCHEMA_LABEL    => 'Password',
-            self::SCHEMA_REQUIRED => false,
-            self::SCHEMA_MODEL_ATTRIBUTES => array(
+            ],
+        ],
+        'password'              => [
+            self::SCHEMA_CLASS            => 'XLite\View\FormField\Input\Password',
+            self::SCHEMA_LABEL            => 'Password',
+            self::SCHEMA_REQUIRED         => false,
+            self::SCHEMA_MODEL_ATTRIBUTES => [
                 \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 'length',
-            ),
-        ),
-        'password_conf' => array(
-            self::SCHEMA_CLASS    => '\XLite\View\FormField\Input\Password',
-            self::SCHEMA_LABEL    => 'Confirm password',
-            self::SCHEMA_REQUIRED => false,
-            self::SCHEMA_MODEL_ATTRIBUTES => array(
+            ],
+        ],
+        'password_conf'         => [
+            self::SCHEMA_CLASS            => 'XLite\View\FormField\Input\Password',
+            self::SCHEMA_LABEL            => 'Confirm password',
+            self::SCHEMA_REQUIRED         => false,
+            self::SCHEMA_MODEL_ATTRIBUTES => [
                 \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 'length',
-            ),
-        ),
-        'membership_id' => array(
-            self::SCHEMA_CLASS    => '\XLite\View\FormField\Label',
-            self::SCHEMA_LABEL    => 'Membership',
-            self::SCHEMA_REQUIRED => false,
-        ),
-        'pending_membership_id' => array(
-            self::SCHEMA_CLASS    => '\XLite\View\FormField\Select\Membership',
+            ],
+        ],
+        'membership_id'         => [
+            self::SCHEMA_CLASS                                 => 'XLite\View\FormField\Input\Text',
+            \XLite\View\FormField\Input\Text::PARAM_ATTRIBUTES => [
+                'readonly' => true,
+                'disabled' => true,
+            ],
+            self::SCHEMA_LABEL                                 => 'Membership',
+            self::SCHEMA_REQUIRED                              => false,
+        ],
+        'pending_membership_id' => [
+            self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\Membership',
             self::SCHEMA_LABEL    => 'Pending membership',
             self::SCHEMA_REQUIRED => false,
-        ),
-    );
+        ],
+    ];
 
     /**
      * Return value for the "register" mode param
@@ -77,16 +81,13 @@ class Main extends \XLite\View\Model\Profile\AProfile
      *
      * @param array $params   Widget params OPTIONAL
      * @param array $sections Sections list OPTIONAL
-     *
-     * @return void
      */
-    public function __construct(array $params = array(), array $sections = array())
+    public function __construct(array $params = [], array $sections = [])
     {
         $this->sections = $this->getProfileMainSections() + $this->sections;
 
         parent::__construct($params, $sections);
     }
-
 
     /**
      * The "mode" parameter used to determine if we create new or modify existing profile
@@ -117,8 +118,9 @@ class Main extends \XLite\View\Model\Profile\AProfile
      */
     public function isValid()
     {
-        $validActions = array('validateInput', 'delete');
-        return (in_array($this->currentAction, $validActions)) ?: parent::isValid();
+        $validActions = ['validateInput', 'delete'];
+
+        return in_array($this->currentAction, $validActions, true) ?: parent::isValid();
     }
 
     /**
@@ -128,7 +130,7 @@ class Main extends \XLite\View\Model\Profile\AProfile
      */
     public function getCSSFiles()
     {
-        $list = parent::getCSSFiles();
+        $list   = parent::getCSSFiles();
         $list[] = $this->getDir() . '/profile/main.css';
 
         return $list;
@@ -170,7 +172,7 @@ class Main extends \XLite\View\Model\Profile\AProfile
      */
     protected function getFormClass()
     {
-        return '\XLite\View\Form\Profile\Main';
+        return 'XLite\View\Form\Profile\Main';
     }
 
     /**
@@ -202,7 +204,7 @@ class Main extends \XLite\View\Model\Profile\AProfile
     {
         // Create new profile - password is required
         if (!$this->getModelObject()->isPersistent()) {
-            foreach (array('password', 'password_conf') as $field) {
+            foreach (['password', 'password_conf'] as $field) {
                 if (isset($this->mainSchema[$field])) {
                     $this->mainSchema[$field][self::SCHEMA_REQUIRED] = true;
                 }
@@ -212,7 +214,7 @@ class Main extends \XLite\View\Model\Profile\AProfile
         }
 
         if ($this->getModelObject()->getMembership()) {
-            $this->mainSchema['pending_membership_id'][self::SCHEMA_CLASS] = '\XLite\View\FormField\Label';
+            $this->mainSchema['pending_membership_id'][self::SCHEMA_CLASS] = 'XLite\View\FormField\Label';
         }
 
         if (!\XLite\Core\Config::getInstance()->General->allow_membership_request) {
@@ -251,14 +253,13 @@ class Main extends \XLite\View\Model\Profile\AProfile
     protected function checkPassword()
     {
         $result = true;
-        $data = $this->getRequestData();
+        $data   = $this->getRequestData();
 
-        if (
-            isset($this->sections[self::SECTION_MAIN])
+        if (isset($this->sections[self::SECTION_MAIN])
             && (!empty($data['password']) || !empty($data['password_conf']))
         ) {
             if ($data['password'] != $data['password_conf']) {
-                $result = false;
+                $result     = false;
                 $formFields = $this->getFormFields();
                 $this->addErrorMessage(
                     'password',
@@ -278,9 +279,9 @@ class Main extends \XLite\View\Model\Profile\AProfile
      */
     protected function getProfileMainSections()
     {
-        return array(
-            self::SECTION_MAIN   => 'Personal info',
-        );
+        return [
+            self::SECTION_MAIN => 'Personal info',
+        ];
     }
 
     /**
@@ -329,9 +330,9 @@ class Main extends \XLite\View\Model\Profile\AProfile
      */
     protected function performActionUpdate()
     {
-        $data = $this->getRequestData();
+        $data   = $this->getRequestData();
         $result = $this->checkPassword() ? parent::performActionUpdate() : false;
-        
+
         if ($result && !empty($data['password']) && $profile = $this->getModelObject()) {
             $profile->logoffSessions(true);
         }
@@ -412,5 +413,4 @@ class Main extends \XLite\View\Model\Profile\AProfile
 
         return $data;
     }
-
 }

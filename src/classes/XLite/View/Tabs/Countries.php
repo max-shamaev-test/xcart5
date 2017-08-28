@@ -51,59 +51,7 @@ class Countries extends \XLite\View\Tabs\ATabs
      */
     public function isDisplayZoneDetails()
     {
-        return 'add' === \XLite\Core\Request::getInstance()->mode
-            || null !== \XLite\Core\Request::getInstance()->zone_id;
-    }
-
-    /**
-     * Return zone
-     *
-     * @return \XLite\Model\Zone
-     */
-    public function getZone()
-    {
-        if (null === $this->zone) {
-            if (null !== \XLite\Core\Request::getInstance()->zone_id) {
-                $zone = \XLite\Core\Database::getRepo('XLite\Model\Zone')
-                    ->find(\XLite\Core\Request::getInstance()->zone_id);
-
-                if (null === $zone) {
-                    \XLite\Core\TopMessage::addError('Requested zone does not exists');
-
-                } else {
-                    $this->zone = $zone;
-                }
-
-            } else {
-                $this->zone = new \XLite\Model\Zone();
-            }
-        }
-
-        return $this->zone;
-    }
-
-    /**
-     * getShippingZones
-     *
-     * @return array
-     */
-    public function getShippingZones()
-    {
-        if (null === $this->zones) {
-            $this->zones = \XLite\Core\Database::getRepo('XLite\Model\Zone')->findAllZones();
-        }
-
-        return $this->zones;
-    }
-
-    /**
-     * isZonesDefined
-     *
-     * @return boolean
-     */
-    public function isZonesDefined()
-    {
-        return count($this->getShippingZones()) > 1;
+        return 'add' === \XLite\Core\Request::getInstance()->mode || $this->getZone();
     }
 
     /**
@@ -139,7 +87,7 @@ class Countries extends \XLite\View\Tabs\ATabs
      */
     protected function isCityMasksEditEnabled()
     {
-        return false;
+        return true;
     }
 
     /**

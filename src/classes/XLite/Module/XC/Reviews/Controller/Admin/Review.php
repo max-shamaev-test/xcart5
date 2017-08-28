@@ -100,7 +100,7 @@ class Review extends \XLite\Controller\Admin\AAdmin
             ? \XLite\Core\Converter::buildURL(
                 'product',
                 '',
-                array('product_id' => $targetProductId, 'page' => 'product_reviews')
+                ['product_id' => $targetProductId, 'page' => 'product_reviews']
             )
             : \XLite\Core\Converter::buildURL('reviews');
 

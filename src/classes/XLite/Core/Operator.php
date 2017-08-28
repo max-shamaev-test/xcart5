@@ -49,7 +49,7 @@ class Operator extends \XLite\Base\Singleton
      */
     public static function redirect($location, $force = false, $code = 302)
     {
-        if (static::checkRedirectStatus() || $force) {
+        if ($force || static::checkRedirectStatus()) {
             static::setHeaderLocation($location, $code);
             static::finish();
         }
@@ -96,6 +96,7 @@ class Operator extends \XLite\Base\Singleton
 
         $bouncer = new \XLite\Core\HTTP\Request($url);
         $bouncer->verb = 'HEAD';
+        $bouncer->setAdditionalOption(CURLOPT_FOLLOWLOCATION, true);
         $response = $bouncer->sendRequest();
 
         if ($response && 200 == $response->code) {
@@ -104,6 +105,7 @@ class Operator extends \XLite\Base\Singleton
             unset($bouncer);
             $bouncer = new \XLite\Core\HTTP\Request($url);
             $bouncer->verb = 'GET';
+            $bouncer->setAdditionalOption(CURLOPT_FOLLOWLOCATION, true);
             $response = $bouncer->sendRequest();
 
             if ($response && 200 == $response->code) {
@@ -119,13 +121,14 @@ class Operator extends \XLite\Base\Singleton
      *
      * @param string $url URL
      *
-     * @return string|void
+     * @return boolean|null
      */
     public static function writeURLContentsToFile($url, $file)
     {
         $result = null;
 
         $bouncer = new \XLite\Core\HTTP\Request($url);
+        $bouncer->setAdditionalOption(CURLOPT_FOLLOWLOCATION, true);
         $response = $bouncer->requestToFile($file);
 
         if ($response && 200 == $response->code) {
@@ -140,28 +143,18 @@ class Operator extends \XLite\Base\Singleton
      *
      * @param string $url URL
      *
-     * @return string|void
+     * @return string|null
      */
     public static function getURLContent($url)
     {
         $result = null;
 
-        if (ini_get('allow_url_fopen')) {
-            $result = file_get_contents(
-                str_replace(
-                    array(' '),
-                    array('%20'),
-                    $url
-                )
-            );
+        $bouncer = new \XLite\Core\HTTP\Request($url);
+        $bouncer->setAdditionalOption(CURLOPT_FOLLOWLOCATION, true);
+        $response = $bouncer->sendRequest();
 
-        } else {
-            $bouncer = new \XLite\Core\HTTP\Request($url);
-            $response = $bouncer->sendRequest();
-
-            if ($response && 200 == $response->code) {
-                $result = $response->body;
-            }
+        if ($response && 200 == $response->code) {
+            $result = $response->body;
         }
 
         return $result;
@@ -178,8 +171,8 @@ class Operator extends \XLite\Base\Singleton
      */
     public static function calculatePagination($count, $page = 1, $limit = 20)
     {
-        $count = max(0, intval($count));
-        $limit = max(0, intval($limit));
+        $count = max(0, (int) $count);
+        $limit = max(0, (int) $limit);
 
         if (0 == $limit && $count) {
             $pages = 1;
@@ -188,7 +181,7 @@ class Operator extends \XLite\Base\Singleton
             $pages = 0 == $count ? 0 : ceil($count / $limit);
         }
 
-        $page = min($pages, max(1, intval($page)));
+        $page = min($pages, max(1, (int) $page));
 
         return array($pages, $page);
     }
@@ -231,7 +224,7 @@ class Operator extends \XLite\Base\Singleton
 
         } elseif (\XLite\Core\Request::getInstance()->isAJAX() && 200 == $code) {
 
-            // AJAX-based redirct
+            // AJAX-based redirect
             header('AJAX-Location: ' . $location, true, $code);
 
         } else {
@@ -248,14 +241,13 @@ class Operator extends \XLite\Base\Singleton
      */
     protected static function finish()
     {
+        \XLite::getInstance()->runPostRequestActions();
         exit (0);
     }
 
 
     /**
      * Constructor
-     * 
-     * @return void
      */
     protected function __construct()
     {
@@ -326,7 +318,7 @@ class Operator extends \XLite\Base\Singleton
 
                     $parts[] = 'file ' . str_replace($patterns, $placeholders, $l['file']);
 
-                } elseif (isset($l['class']) && isset($l['function'])) {
+                } elseif (isset($l['class'], $l['function'])) {
 
                     $parts[] = 'method ' . $l['class'] . '::' . $l['function'] . $this->getBackTraceArgs($l);
 
@@ -385,14 +377,14 @@ class Operator extends \XLite\Base\Singleton
      */
     public function sanitizeValueBySet($value, $set, $defaultValue = null)
     {
-        return in_array($value, array_keys($set)) ? $value : $defaultValue;
+        return array_key_exists($value, $set) ? $value : $defaultValue;
     }
 
     /**
      * Get class name as keys list
-     * 
+     *
      * @param string|object $class Class name or object
-     *  
+     *
      * @return array
      */
     public function getClassNameAsKeys($class)
@@ -414,11 +406,11 @@ class Operator extends \XLite\Base\Singleton
     }
 
     /**
-     * Generate token 
-     * 
+     * Generate token
+     *
      * @param integer $length Length OPTIONAL
      * @param array   $chars  Characters book OPTIONAL
-     *  
+     *
      * @return string
      */
     public function generateToken($length = 32, array $chars = array())
@@ -429,7 +421,7 @@ class Operator extends \XLite\Base\Singleton
 
         $limit = count($chars) - 1;
         $x = explode('.', uniqid('', true));
-        mt_srand(microtime(true) + intval(hexdec($x[0])) + $x[1]);
+        mt_srand(microtime(true) + (int) hexdec($x[0]) + $x[1]);
 
         $password = '';
         for ($i = 0; $length > $i; $i++) {
@@ -472,7 +464,7 @@ class Operator extends \XLite\Base\Singleton
 
             } elseif (is_resource($arg)) {
 
-                $args[] = strval($arg);
+                $args[] = (string) $arg;
 
             } elseif (is_array($arg)) {
                 if (is_callable($arg)) {

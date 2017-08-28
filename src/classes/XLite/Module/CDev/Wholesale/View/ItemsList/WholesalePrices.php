@@ -33,23 +33,53 @@ class WholesalePrices extends \XLite\View\ItemsList\Model\Table
      */
     protected function defineColumns()
     {
-        return array(
-            'quantityRangeBegin' => array(
-                static::COLUMN_NAME         => \XLite\Core\Translation::lbl('Quantity range'),
-                static::COLUMN_CLASS        => 'XLite\Module\CDev\Wholesale\View\FormField\QuantityRangeBegin',
-                static::COLUMN_ORDERBY  => 100,
-            ),
-            'price' => array(
-                static::COLUMN_NAME         => \XLite\Core\Translation::lbl('Price'),
-                static::COLUMN_CLASS        => 'XLite\Module\CDev\Wholesale\View\FormField\Price',
-                static::COLUMN_ORDERBY  => 200,
-            ),
-            'membership' => array(
-                static::COLUMN_NAME         => \XLite\Core\Translation::lbl('Membership'),
-                static::COLUMN_CLASS        => 'XLite\Module\CDev\Wholesale\View\FormField\Membership',
-                static::COLUMN_ORDERBY  => 300,
-            ),
-        );
+        return [
+            'quantityRangeBegin' => [
+                static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Quantity range'),
+                static::COLUMN_CLASS   => 'XLite\Module\CDev\Wholesale\View\FormField\QuantityRangeBegin',
+                static::COLUMN_ORDERBY => 100,
+            ],
+            'price'              => [
+                static::COLUMN_CLASS   => '\XLite\Module\CDev\Wholesale\View\FormField\Inline\Input\WholesalePriceOrPercent',
+                static::COLUMN_ORDERBY => 200,
+            ],
+            'membership'         => [
+                static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Membership'),
+                static::COLUMN_CLASS   => 'XLite\Module\CDev\Wholesale\View\FormField\Membership',
+                static::COLUMN_ORDERBY => 300,
+            ],
+            'resultPrice'              => [
+                static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Price'),
+                static::COLUMN_ORDERBY => 400,
+            ],
+            'save'              => [
+                static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Saving'),
+                static::COLUMN_ORDERBY => 500,
+            ],
+        ];
+    }
+
+    /**
+     * @param $entity \XLite\Module\CDev\Wholesale\Model\WholesalePrice
+     * @return string
+     */
+    protected function getResultPriceColumnValue($entity)
+    {
+        return static::formatPriceHTML($entity->getClearPrice());
+    }
+
+    /**
+     * @param $entity \XLite\Module\CDev\Wholesale\Model\WholesalePrice
+     * @return string
+     */
+    protected function getSaveColumnValue($entity)
+    {
+        if ($entity->getOwner()) {
+            return static::formatPriceHTML($entity->getOwnerPrice() - $entity->getClearPrice())
+                . " (" . round(100 - ($entity->getClearPrice() / $entity->getOwnerPrice() * 100), 2) . "%)";
+        }
+
+        return '';
     }
 
     /**
@@ -147,7 +177,7 @@ class WholesalePrices extends \XLite\View\ItemsList\Model\Table
      */
     protected function getListNameSuffixes()
     {
-        return array('wholesalePrices');
+        return ['wholesalePrices'];
     }
 
     /**
@@ -161,9 +191,7 @@ class WholesalePrices extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * createEntity
-     *
-     * @return \XLite\Model\Product
+     * @inheritdoc
      */
     protected function createEntity()
     {
@@ -234,7 +262,7 @@ class WholesalePrices extends \XLite\View\ItemsList\Model\Table
 
         if (\XLite\Core\Request::getInstance()->isGet()) {
             $result = array_merge(
-                array($this->getDefaultPrice()),
+                [$this->getDefaultPrice()],
                 $result
             );
         }
@@ -269,100 +297,77 @@ class WholesalePrices extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Define request data
-     * Remove duplicate by quantity and membership entities
-     *
-     * @return array
+     * @inheritdoc
      */
-    protected function defineRequestData()
+    protected function prevalidateEntities()
     {
-        $requestData = parent::defineRequestData();
+        if (parent::prevalidateEntities()) {
+            $entities = $this->getPageDataForUpdate();
 
-        $delete = isset($requestData['delete']) ? $requestData['delete'] : array();
-        $new = isset($requestData['new']) ? $requestData['new'] : array();
-        $data = isset($requestData['data']) ? $requestData['data'] : array();
+            /** @var \XLite\Module\CDev\Wholesale\Model\Base\AWholesalePrice $entity */
+            foreach ($this->getPageDataForUpdate() as $entity) {
+                if (!$entity->getMembership() && $entity->getQuantityRangeBegin() === 1) {
+                    $this->errorMessages[] = static::t('The base price can not be changed on this page.');
+                    return false;
+                }
 
-        foreach ($new as $id => $value) {
-            $tier = $this->getTierByQuantityAndMembership($value['quantityRangeBegin'], $value['membership']);
+                if ($tier = $this->getTierByWholesaleEntity($entity)) {
+                    if ($tier->getId() !== $entity->getId()) {
+                        $this->errorMessages[] = static::t('Tier with same quantity range and membership already defined.');
+                        return false;
+                    }
+                }
 
-            if (
-                $tier
-                && !isset($delete[$tier->getId()])
-                && 0 > $id
-            ) {
-                $data[$tier->getId()] = array(
-                    'quantityRangeBegin' => $value['quantityRangeBegin'],
-                    'price' => $value['price'],
-                    'membership' => $value['membership']
-                );
-
-                unset($new[$id]);
-
-            } elseif (0 == $id) {
-                unset($new[$id]);
-            }
-        }
-
-        foreach ($data as $id => $value) {
-            $tier = $this->getTierByQuantityAndMembership($value['quantityRangeBegin'], $value['membership']);
-
-            if (
-                $tier
-                && $tier->getId() !== $id
-                && !isset($delete[$tier->getId()])
-            ) {
-                $data[$tier->getId()] = array(
-                    'quantityRangeBegin' => $value['quantityRangeBegin'],
-                    'price' => $value['price'],
-                    'membership' => $value['membership']
-                );
-
-                $delete[$id] = true;
-                unset($data[$id]);
-            }
-        }
-
-        $requestData = array_merge(
-            $requestData,
-            array(
-                'new'    => $new,
-                'delete' => $delete,
-                'data'   => $data,
-            )
-        );
-
-        foreach (array('data', 'new') as $idx) {
-            foreach ($requestData[$idx] as $id => $value) {
-                if (empty($value['membership']) && 1 == $value['quantityRangeBegin']) {
-                    unset($requestData[$idx][$id]);
-
-                    \XLite\Core\TopMessage::addWarning(
-                        'The base price can not be changed on this page.'
-                    );
+                if (array_filter($entities, function ($tier) use ($entity) {
+                    return $entity->getMembership() === $tier->getMembership()
+                           && $entity->getQuantityRangeBegin() === $tier->getQuantityRangeBegin()
+                           && $entity->getId() !== $tier->getId();
+                })) {
+                    $this->errorMessages[] = static::t('Tier with same quantity range and membership already defined.');
+                    return false;
                 }
             }
+
+            return true;
         }
 
-        return $requestData;
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function prevalidateNewEntity(\XLite\Model\AEntity $entity)
+    {
+        /** @var \XLite\Module\CDev\Wholesale\Model\Base\AWholesalePrice $entity */
+        $result = parent::prevalidateNewEntity($entity);
+
+        if ($result && !$entity->getMembership() && $entity->getQuantityRangeBegin() === 1) {
+            $this->errorMessages[] = static::t('The base price can not be changed on this page.');
+            return false;
+        }
+
+        if ($result && $this->getTierByWholesaleEntity($entity)) {
+            $this->errorMessages[] = static::t('Tier with same quantity range and membership already defined.');
+            return false;
+        }
+
+        return $result;
     }
 
     /**
      * Get tier by quantity and membership
      *
-     * @param integer $quantity   Quantity
-     * @param integer $membership Membership
+     * @param \XLite\Module\CDev\Wholesale\Model\Base\AWholesalePrice $entity
      *
-     * @return \XLite\Module\CDev\Wholesale\Model\WholesalePrice
+     * @return \XLite\Module\CDev\Wholesale\Model\Base\AWholesalePrice
      */
-    protected function getTierByQuantityAndMembership($quantity, $membership)
+    protected function getTierByWholesaleEntity($entity)
     {
-        return \XLite\Core\Database::getRepo('\XLite\Module\CDev\Wholesale\Model\WholesalePrice')
-            ->findOneBy(
-                array(
-                    'quantityRangeBegin' => $quantity,
-                    'membership'         => $membership ?: null,
-                    'product'            => $this->getProduct(),
-                )
-            );
+        return $entity->getRepository()->findOneBy([
+            'quantityRangeBegin' => $entity->getQuantityRangeBegin(),
+            'membership'         => $entity->getMembership(),
+            'product'            => $this->getProduct(),
+        ]);
     }
 }

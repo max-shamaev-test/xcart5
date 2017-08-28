@@ -72,7 +72,7 @@ class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\IDecorator
 
         if (!$result && $this->getProduct()) {
             $model = \XLite\Core\Database::getRepo('XLite\Module\CDev\Wholesale\Model\WholesalePrice')
-                ->findOneBy(array('product' => $this->getProduct()));
+                ->findOneBy(['product' => $this->getProduct()]);
             $result = !!$model;
         }
 

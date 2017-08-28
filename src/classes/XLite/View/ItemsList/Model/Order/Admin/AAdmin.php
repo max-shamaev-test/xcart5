@@ -109,7 +109,7 @@ abstract class AAdmin extends \XLite\View\ItemsList\Model\Order\AOrder
     /**
      * Get list of transaction types to filter allowed backend transactions list
      *
-     * @return void
+     * @return array
      */
     protected function getTransactionsFilter()
     {

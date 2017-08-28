@@ -21,10 +21,10 @@ class WhoCanLeaveFeedback extends \XLite\View\FormField\Select\Regular
      */
     protected function getUsersGroupsList()
     {
-        return array(
+        return [
             \XLite\Module\XC\Reviews\Model\Review::REGISTERED_CUSTOMERS => static::t('Registered users only'),
             \XLite\Module\XC\Reviews\Model\Review::PURCHASED_CUSTOMERS  => static::t('Registered users who purchased product'),
-        );
+        ];
     }
 
     /**

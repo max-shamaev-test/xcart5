@@ -57,9 +57,9 @@ class ProductVariantWholesalePrices extends \XLite\Module\CDev\Wholesale\View\It
         if ('product_variant' == $this->getTarget()) {
             $cnd->{\XLite\Module\CDev\Wholesale\Model\Repo\ProductVariantWholesalePrice::P_PRODUCT_VARIANT} = $this->getProductVariant();
             $cnd->{\XLite\Module\CDev\Wholesale\Model\Repo\ProductVariantWholesalePrice::P_ORDER_BY_MEMBERSHIP} = true;
-            $cnd->{\XLite\Module\CDev\Wholesale\Model\Repo\ProductVariantWholesalePrice::P_ORDER_BY} = array('w.quantityRangeBegin', 'ASC');
+            $cnd->{\XLite\Module\CDev\Wholesale\Model\Repo\ProductVariantWholesalePrice::P_ORDER_BY} = ['w.quantityRangeBegin', 'ASC'];
 
-             $result = \XLite\Core\Database::getRepo('XLite\Module\CDev\Wholesale\Model\ProductVariantWholesalePrice')
+            $result = \XLite\Core\Database::getRepo('XLite\Module\CDev\Wholesale\Model\ProductVariantWholesalePrice')
                 ->search($cnd, $countOnly);
 
         } else {
@@ -102,22 +102,20 @@ class ProductVariantWholesalePrices extends \XLite\Module\CDev\Wholesale\View\It
     /**
      * Get tier by quantity and membership
      *
-     * @param integer $quantity   Quantity
-     * @param integer $membership Membership
+     * @param \XLite\Module\CDev\Wholesale\Model\Base\AWholesalePrice $entity
      *
-     * @return \XLite\Module\CDev\Wholesale\Model\WholesalePrice
+     * @return \XLite\Module\CDev\Wholesale\Model\Base\AWholesalePrice
      */
-    protected function getTierByQuantityAndMembership($quantity, $membership)
+    protected function getTierByWholesaleEntity($entity)
     {
-        return 'product_variant' == $this->getTarget()
-            ? \XLite\Core\Database::getRepo('\XLite\Module\CDev\Wholesale\Model\ProductVariantWholesalePrice')
-                ->findOneBy(
-                    array(
-                        'quantityRangeBegin' => $quantity,
-                        'membership'         => $membership ?: null,
-                        'productVariant'     => $this->getProductVariant(),
-                    )
-                )
-            : parent::getTierByQuantityAndMembership($quantity, $membership);
+        if ('product_variant' == $this->getTarget()) {
+            return $entity->getRepository()->findOneBy([
+                'quantityRangeBegin' => $entity->getQuantityRangeBegin(),
+                'membership'         => $entity->getMembership(),
+                'productVariant'     => $this->getProductVariant(),
+            ]);
+        }
+
+        return parent::getTierByWholesaleEntity($entity);
     }
 }

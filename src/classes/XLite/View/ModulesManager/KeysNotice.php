@@ -335,14 +335,16 @@ class KeysNotice extends \XLite\View\ModulesManager\AModulesManager
     {
         if (!isset($this->purchaseAllURL)) {
 
-            $urlParamsAggregated = array();
+            $urlParamsAggregated = [
+                'action' => 'add_items'
+            ];
             $i = 1;
 
             if ($this->xbProductIds) {
                 foreach (array('editions', 'addons') as $licType) {
                     if (!empty($this->xbProductIds[$licType])) {
                         foreach ($this->xbProductIds[$licType] as $id) {
-                            $urlParamsAggregated['add_' . $i] = $id;
+                            $urlParamsAggregated['xbid_' . $i] = $id;
                             $i ++;
                         }
                     }
@@ -352,7 +354,7 @@ class KeysNotice extends \XLite\View\ModulesManager\AModulesManager
             if ($this->isCoreWarning()) {
                 $license = $this->getCoreLicense();
                 if ($license && !empty($license['xbProductId'])) {
-                    $urlParamsAggregated['add_' . $i] = $license['xbProductId'];
+                    $urlParamsAggregated['xbid_' . $i] = $license['xbProductId'];
                 }
             }
 

@@ -10,6 +10,12 @@ namespace XLite\Model\Repo\Image\Product;
 
 /**
  * Product image
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Image\Product\Image", summary="Add new product image")
+ * @Api\Operation\Read(modelClass="XLite\Model\Image\Product\Image", summary="Retrieve product image by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Image\Product\Image", summary="Retrieve all product images")
+ * @Api\Operation\Update(modelClass="XLite\Model\Image\Product\Image", summary="Update product image by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Image\Product\Image", summary="Delete product image by id")
  */
 class Image extends \XLite\Model\Repo\Base\Image
 {

@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\FastLaneCheckout\Controller\Customer;
 
+use XLite\Module\XC\FastLaneCheckout\Main;
+
 /**
  * Select address from address book
  */
@@ -26,12 +28,17 @@ abstract class SelectAddress extends \XLite\Controller\Customer\SelectAddress im
             ? true
             : false;
 
-        $sameAddressState = \XLite\Core\Session::getInstance()->same_address !== null 
-            ? \XLite\Core\Session::getInstance()->same_address
-            : $this->getCart()->getProfile()->isEqualAddress();
+        if (Main::isFastlaneEnabled()) {
+            $sameAddressState = \XLite\Core\Session::getInstance()->same_address !== null
+                ? \XLite\Core\Session::getInstance()->same_address
+                : $this->getCart()->getProfile()->isEqualAddress();
 
-        $preserveSameAddress = ($sameAddressState && $atype == 's');
+            $preserveSameAddress = ($sameAddressState && $atype == 's');
 
-        $this->selectCartAddress($atype, $addressId, $hasEmptyFields, $preserveSameAddress);
+            $this->selectCartAddress($atype, $addressId, $hasEmptyFields, $preserveSameAddress);
+            $this->silent = true;
+        } else {
+            parent::doActionSelect();
+        }
     }
 }

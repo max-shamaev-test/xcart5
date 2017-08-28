@@ -182,7 +182,7 @@ class DependencyExtractor implements DependencyExtractorInterface
             $afterModules = array_merge(
                 $reflector->getAfterModules(),
                 array_diff(
-                    ModulesManager::callModuleMethod($module, 'getDependencies'),
+                    ModulesManager::callModuleMethod($module, 'getDependencies') ?: [],
                     $reflector->getBeforeModules()
                 )
             );

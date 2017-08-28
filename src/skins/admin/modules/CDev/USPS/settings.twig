@@ -1,7 +1,26 @@
 {##
  # USPS module settings main page template
  #}
-<div class="shipping-description">
-  {{ t('U.S.P.S. module allows to use online shipping rates calculation via USPS Web Tools Ecommerce API.')|raw }}
+<div class="usps-info{% if this.getDataProvider() != 'usps' %} hidden{% endif %}">
+  <div class="shipping-description">
+    {{ t('U.S.P.S. module allows to use online shipping rates calculation via USPS Web Tools Ecommerce API.')|raw }}
+  </div>
+
+  <div class="usps-pitney-bowes-promo">
+    <div class="pitney-bowes-logo" align="center">
+      <img src="{{ this.layout.getResourceWebPath('modules/CDev/USPS/images/pitney_bowes.jpg') }}" alt="{{ t('PitneyBowes') }}" class="logo" />
+    </div>
+    <div class="usps-pitney-bowes-promo-header">
+      {{ t('USPS via Pitney Bowes brings you competitive and discounted USPS pricing via the X-Cart 5 interface. Print shipping labels with ease and track USPS shipments from origin to delivery with Pitney Bowes and X-Cart.') }}
+    </div>
+  </div>
+
 </div>
+
+<div class="pitney-bowes-info{% if this.getDataProvider() != 'pitneyBowes' %} hidden{% endif %}">
+  <div class="shipping-description">
+    {{ t('To use U.S.P.S. via Pitney Bowes, you need to register via this link and then enter the email address you have used for registration into the field below.', {url: this.getRegistrationURL()})|raw }}
+  </div>
+</div>
+
 {{ widget('XLite\\Module\\CDev\\USPS\\View\\Model\\Settings') }}

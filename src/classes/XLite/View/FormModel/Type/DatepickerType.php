@@ -58,6 +58,28 @@ class DatepickerType extends AType
     }
 
     /**
+     * @return int
+     */
+    protected function getStartDay()
+    {
+        $start = \XLite\Core\Config::getInstance()->Units->week_start;
+
+        $starts = [
+            'sun' => 0,
+            'mon' => 1,
+            'tue' => 2,
+            'wed' => 3,
+            'thu' => 4,
+            'fri' => 5,
+            'sat' => 6,
+        ];
+
+        return isset($starts[$start])
+            ? $starts[$start]
+            : 0;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver)
@@ -66,7 +88,8 @@ class DatepickerType extends AType
 
         $resolver->setDefaults(
             [
-                'date_format' => $currentFormats['jsFormat']
+                'date_format'   => $currentFormats['jsFormat'],
+                'first_day'     => $this->getStartDay(),
             ]
         );
     }
@@ -86,7 +109,8 @@ class DatepickerType extends AType
                     'v-datepicker'  => $view->vars['v_model'],
                     'detect-change' => 'off',
                     'detect-blur'   => 'off',
-                    'format'        => $options['date_format']
+                    'format'        => $options['date_format'],
+                    'firstday'      => $options['first_day'],
                 ]
             )
         ]);

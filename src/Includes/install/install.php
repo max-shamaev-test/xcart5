@@ -6,7 +6,6 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-
 /**
  * X-Cart installation procedures
  */
@@ -14,15 +13,6 @@
 if (!defined('XLITE_INSTALL_MODE')) {
     die('Incorrect call of the script. Stopping.');
 }
-
-
-/**
- * Test class for checking of DocBlock feature support
- *
- * @param  Test param
- * @return Returned value
- */
-class InstallTestDockblocks { }
 
 /**
  * Returns a processed text by specified label value
@@ -38,7 +28,9 @@ function xtr($label, array $substitute = array())
 
     if (!empty($substitute)) {
         foreach ($substitute as $key => $value) {
-            $text = str_replace($key, $value, $text);
+            if (is_scalar($value)) {
+                $text = str_replace($key, $value, $text);
+            }
         }
     }
 
@@ -80,7 +72,7 @@ function getTextByLabel($label)
 
         // Check if this file exists and include it (it must be correct php script, that is contained $translation array) otherwise include default translations(english)
         if (!file_exists($labelsFile)) {
-            $labelsFile = constant('LC_DIR_ROOT') . 'Includes/install/translations/' . 'en.php';    
+            $labelsFile = constant('LC_DIR_ROOT') . 'Includes/install/translations/' . 'en.php';
         }
         include_once $labelsFile;
     }
@@ -93,11 +85,9 @@ function getTextByLabel($label)
     return $result;
 }
 
-
 /**
  * Logging functions
  */
-
 
 /**
  * Write a record to log
@@ -182,23 +172,29 @@ function x_install_log_mask_params($params)
         'pass2',
     );
 
+    static $fieldsToHide = array(
+        '_login',
+        '_password'
+    );
+
     foreach ($params as $key => $value) {
         if (is_array($value)) {
             $params[$key] = x_install_log_mask_params($value);
 
-        } elseif (in_array($key, $fieldsToMask)) {
+        } elseif (in_array($key, $fieldsToMask, true)) {
             $params[$key] = empty($value) ? '<empty>' : '<specified>';
+
+        } elseif (in_array($key, $fieldsToHide, true)) {
+            unset($params[$key]);
         }
     }
 
     return $params;
 }
 
-
-/*
+/**
  * Checking requirements section
  */
-
 
 /**
  * Return true if failed requirement with specified code is a error which is removable hard
@@ -212,14 +208,13 @@ function isHardError($code)
     return in_array(
         $code,
         array(
-            'lc_php_version',
-            'lc_mysql_version',
-            'lc_docblocks_support',
-            'lc_php_magic_quotes_runtime',
-            'lc_php_pdo_mysql',
-            'lc_php_memory_limit',
-            'lc_config_file',
-            'lc_file_permissions',
+            'php_version',
+            'mysql_version',
+            'doc_blocks_support',
+            'php_pdo_mysql',
+            'php_memory_limit',
+            'config_file',
+            'file_permissions',
         )
     );
 }
@@ -227,831 +222,104 @@ function isHardError($code)
 /**
  * Perform the requirements checking
  *
- * @return bool
+ * @return array
  */
-function doCheckRequirements()
+function doCheckRequirements($environment = array())
 {
-    $checkRequirements = array();
+    $passed = true;
+    $result = [];
 
-    $checkRequirements['lc_install_script'] = array(
-        'title'    => xtr('Installation script'),
-        'critical' => true,
-    );
-
-    $checkRequirements['lc_config_file'] = array(
-        'title'    => xtr('Config file'),
-        'critical' => true,
-    );
-
-    $checkRequirements['lc_php_version'] = array(
-        'title'    => xtr('PHP version'),
-        'critical' => true,
-    );
-
-    $checkRequirements['lc_php_disable_functions'] = array(
-        'title'    => xtr('Disabled functions'),
-        'critical' => false,
-    );
-
-    $checkRequirements['lc_php_magic_quotes_runtime'] = array(
-        'title'    => xtr('PHP.magic_quotes_runtime'),
-        'critical' => true,
-    );
-
-    $checkRequirements['lc_php_memory_limit'] = array(
-        'title'    => xtr('Memory limit'),
-        'critical' => true,
-    );
-
-    $checkRequirements['lc_php_file_uploads'] = array(
-        'title'    => xtr('File uploads'),
-        'critical' => false,
-    );
-
-    $checkRequirements['lc_php_pdo_mysql'] = array(
-        'title'    => xtr('PDO extension'),
-        'critical' => true,
-    );
-
-    $checkRequirements['lc_php_upload_max_filesize'] = array(
-        'title'    => xtr('Upload file size limit'),
-        'critical' => false,
-    );
-
-    $checkRequirements['lc_file_permissions'] = array(
-        'title'    => xtr('File permissions'),
-        'critical' => true,
-    );
-
-    $checkRequirements['lc_mysql_version'] = array(
-        'title'    => xtr('MySQL version'),
-        'critical' => true,
-    );
-
-    $checkRequirements['lc_php_gdlib'] = array(
-        'title'    => xtr('GDlib extension'),
-        'critical' => false,
-    );
-
-    $checkRequirements['lc_php_phar'] = array(
-        'title'    => xtr('Phar extension'),
-        'critical' => false,
-    );
-
-    $checkRequirements['lc_https_bouncer'] = array(
-        'title'    => xtr('HTTPS bouncers'),
-        'critical' => false,
-    );
-
-    $checkRequirements['lc_xml_support'] = array(
-        'title'    => xtr('XML extensions support'),
-        'critical' => false,
-    );
-
-    $checkRequirements['lc_docblocks_support'] = array(
-        'title'    => xtr('DocBlocks support'),
-        'critical' => true,
-    );
-
-
-    $passed = array();
-
-    $requirementsOk = true;
-
-    while (count($passed) < count($checkRequirements)) {
-
-        foreach ($checkRequirements as $reqName => $reqData) {
-
-            // Requirement has been already checked
-            if (in_array($reqName, $passed)) {
-                continue;
-            }
-
-            if (isset($reqData['depends'])) {
-
-                // Skip checking if requirement depended on unchecked requirement
-                if (!in_array($reqData['depends'], $passed)) {
-                    continue;
-
-                // Skip checking if requirement depends on failed requirement
-                } elseif ($checkRequirements[$reqData['depends']]['status'] === false || isset($checkRequirements[$reqData['depends']]['skipped'])) {
-                    $checkRequirements[$reqName]['status'] = ($checkRequirements[$reqData['depends']]['critical'] && $checkRequirements[$reqData['depends']]['status'] === false) || !$checkRequirements[$reqName]['critical'];
-                    $checkRequirements[$reqName]['skipped'] = true;
-                    $checkRequirements[$reqName]['value'] = '';
-                    $checkRequirements[$reqName]['description'] = $checkRequirements[$reqName]['title'] . ' failed';
-                    $passed[] = $reqName;
-                    continue;
-                }
-            }
-
-            // Prepare checking function name
-            $reqNameComponents = explode('_', $reqName);
-            $funcName = 'check';
-            foreach($reqNameComponents as $part) {
-                if (strtolower($part) != 'lc') {
-                    $part[0] = strtoupper($part[0]);
-                    $funcName .= $part;
-                }
-            }
-
-            if (!function_exists($funcName)) {
-                die(xtr('Internal error: function :func() does not exists', array(':func' => $funcName)));
-            }
-
-            // Check requirement and init its properies
-            $errorMsg = $value = null;
-            $checkRequirements[$reqName]['status'] = $funcName($errorMsg, $value);
-            $checkRequirements[$reqName]['description'] = $errorMsg;
-            $checkRequirements[$reqName]['value'] = $value;
-
-            $requirementsOk = $requirementsOk && $checkRequirements[$reqName]['status'];
-            $passed[] = $reqName;
-        }
-    }
-
-    if ($requirementsOk) {
-        x_install_log(xtr('Checking requirements is successfully complete'));
-        x_install_log(xtr('Requirements log'), $checkRequirements);
-    }
-
-    return $checkRequirements;
-}
-
-/**
- * Check if DocBlock feature is supported
- *
- * @param string $errorMsg Error message if checking failed
- * @param string $value    Actual value of the checked parameter
- *
- * @return bool
- */
-function checkDocblocksSupport(&$errorMsg, $value = null)
-{
-    $rc = new ReflectionClass('InstallTestDockblocks');
-
-    $docblock = $rc->getDocComment();
-
-    $result = !empty($docblock) && preg_match('/@(param|return)/', $docblock);
-
-    if (!$result) {
-        $errorMsg = xtr('DockBlock is not supported message');
-
-        if (extension_loaded('eAccelerator')) {
-            $errorMsg .= ' ' . xtr('eAccelerator loaded message');
-        }
-    }
-
-    return $result;
-}
-
-/**
- * Check if install.php file exists
- *
- * @param string $errorMsg Error message if checking failed
- * @param string $value    Actual value of the checked parameter
- *
- * @return bool
- */
-function checkInstallScript(&$errorMsg, $value = null)
-{
-    $result = @file_exists(LC_DIR_ROOT . 'install.php');
-
-    if (!$result) {
-        $errorMsg = xtr('X-Cart installation script not found. Restore it  and try again');
-    }
-
-    return $result;
-}
-
-/**
- * Check if config file exists
- *
- * @param string $errorMsg Error message if checking failed
- * @param string $value    Actual value of the checked parameter
- *
- * @return bool
- */
-function checkConfigFile(&$errorMsg, $value = null)
-{
-    $result = @file_exists(LC_DIR_CONFIG . constant('LC_CONFIG_FILE'));
-
-    if (!$result) {
-
-        if (!@copy(LC_DIR_CONFIG . constant('LC_DEFAULT_CONFIG_FILE'), LC_DIR_CONFIG . constant('LC_CONFIG_FILE'))) {
-
-            $result = false;
-
-            $errorMsg = xtr(
-                'lc_config_file_description',
-                array(
-                    ':dir'   => LC_DIR_CONFIG,
-                    ':file1' => constant('LC_DEFAULT_CONFIG_FILE'),
-                    ':file2' => constant('LC_CONFIG_FILE')
-                )
-            );
-        } else {
-            $result = true;
-        }
-    }
-
-    return $result;
-}
-
-/**
- * Check PHP version
- *
- * @param string $errorMsg Error message if checking failed
- * @param string $value    Actual value of the checked parameter
- *
- * @return bool
- */
-function checkPhpVersion(&$errorMsg, &$value)
-{
-    global $lcSettings;
-
-    $result = true;
-
-    $value = $currentPhpVersion = phpversion();
-
-    if (version_compare($currentPhpVersion, constant('LC_PHP_VERSION_MIN')) < 0) {
-        $result = false;
-        $errorMsg = xtr('PHP Version must be :minver as a minimum', array(':minver' => constant('LC_PHP_VERSION_MIN')));
-    }
-
-    if ($result && constant('LC_PHP_VERSION_MAX') != '' && version_compare($currentPhpVersion, constant('LC_PHP_VERSION_MAX')) > 0) {
-        $result = false;
-        $errorMsg = xtr('PHP Version must be not greater than :maxver', array(':maxver' => constant('LC_PHP_VERSION_MAX')));
-    }
-
-    if ($result && isset($lcSettings['forbidden_php_versions']) && is_array($lcSettings['forbidden_php_versions'])) {
-
-        foreach ($lcSettings['forbidden_php_versions'] as $fpv) {
-
-            if (version_compare($currentPhpVersion, $fpv['min']) >= 0) {
-
-                $result = false;
-
-                if (isset($fpv['max']) && version_compare($currentPhpVersion, $fpv['max']) > 0) {
-                    $result = true;
-
-                } else {
-                    $errorMsg = xtr('Unsupported PHP version detected');
-                    break;
-                }
-            }
-        }
-    }
-
-    return $result;
-}
-
-/**
- * Check if php.ini file disabled some functions
- *
- * @param string $errorMsg Error message if checking failed
- * @param string $value    Actual value of the checked parameter
- *
- * @return bool
- */
-function checkPhpDisableFunctions(&$errorMsg, &$value)
-{
-    $result = true;
-
-    list($list, $allowed) = getDisabledFunctions();
-
-    if (!empty($list)) {
-        $result = false;
-        $value = substr(implode(', ', $list), 0, 45) . '...';
-        $errorMsg = xtr('There are disabled functions (:funclist) that may be used by software in some cases and should be enabled', array(':funclist' => implode(', ', $list)));
-        foreach ($list as $func) {
-            ga_event('warning', 'disabled_function', $func);
+    $requirements = new \Includes\Requirements($environment);
+    $exclude = [ 'mysql_cache' ];
+    foreach ($requirements->getResult($exclude) as $name => $requirement) {
+        if ($name === 'install_script') {
+            continue;
         }
 
-    } else {
-        $value = 'none';
-    }
+        $status = $requirement['state'] === \Includes\Requirements::STATE_SUCCESS;
+        $passed = $passed && $status;
 
-    return $result;
-}
+        $data = isset($requirement['data']) ? $requirement['data'] : '';
+        $value = '';
 
-/**
- * Check if option magic_quotes_runtime is exist and enabled
- *
- * @param string $errorMsg Error message if checking failed
- * @param string $value    Actual value of the checked parameter
- *
- * @return bool
- */
-function checkPhpMagicQuotesRuntime(&$errorMsg, &$value)
-{
-    $value = @ini_get('magic_quotes_runtime');
-
-    $result = (in_array(strtolower($value), array('off', '0', '', false)));
-
-    if (!$result) {
-        $errorMsg = xtr('PHP option magic_quotes_runtime that must be disabled');
-    }
-
-    return $result;
-}
-
-/**
- * Get allowed value 'disable_functions' PHP option
- *
- * @return string
- */
-function getAllowedDisableFunctionsValue()
-{
-    list($value, $allowed) = getDisabledFunctions();
-
-    return implode(',', $allowed);
-}
-
-/**
- * Get disabled functions lists
- *
- * @return array (unallowed & allowed)
- */
-function getDisabledFunctions()
-{
-    static $usedFunctions = array(
-        'func_num_args', 'func_get_arg', 'func_get_args', 'strlen',
-        'strcmp', 'strncmp', 'strcasecmp', 'strncasecmp',
-        'each', 'error_reporting', 'define', 'defined',
-        'get_class', 'get_called_class', 'get_parent_class', 'method_exists',
-        'property_exists', 'class_exists', 'interface_exists', 'function_exists',
-        'get_included_files', 'is_subclass_of', 'is_a', 'get_class_vars',
-        'get_object_vars', 'set_error_handler', 'restore_error_handler', 'set_exception_handler',
-        'get_declared_classes', 'get_resource_type', 'extension_loaded', 'debug_backtrace',
-        'debug_print_backtrace', 'strtotime', 'date', 'gmdate',
-        'mktime', 'strftime', 'time', 'getdate',
-        'date_create', 'date_default_timezone_set', 'date_default_timezone_get',
-        'preg_match', 'preg_match_all', 'preg_replace', 'preg_replace_callback',
-        'preg_split', 'preg_quote', 'preg_grep', 'preg_last_error',
-        'ctype_alpha', 'ctype_digit',
-        'filter_var', 'filter_var_array', 'hash_hmac', 'json_encode',
-        'json_decode',
-        'spl_autoload_register', 'spl_autoload_unregister', 'spl_autoload_functions',
-        'class_parents', 'class_implements', 'spl_object_hash', 'iterator_to_array',
-        'simplexml_load_file', 'constant',
-        'sleep', 'flush', 'htmlspecialchars', 'htmlentities',
-        'html_entity_decode', 'get_html_translation_table', 'sha1', 'md5',
-        'md5_file', 'crc32', 'getimagesize', 'phpinfo',
-        'phpversion', 'substr_count', 'strspn', 'strcspn',
-        'strtok', 'strtoupper', 'strtolower', 'strpos',
-        'stripos', 'strrpos', 'strrev', 'nl2br',
-        'basename', 'dirname', 'pathinfo', 'stripslashes',
-        'stripcslashes', 'strstr', 'stristr', 'str_split',
-        'substr', 'substr_replace', 'ucfirst', 'lcfirst',
-        'ucwords', 'strtr', 'addslashes', 'addcslashes',
-        'rtrim', 'str_replace', 'str_ireplace', 'str_repeat',
-        'chunk_split', 'trim', 'ltrim', 'strip_tags',
-        'explode', 'implode', 'join', 'setlocale',
-        'chr', 'ord', 'parse_str', 'str_pad',
-        'chop', 'sprintf', 'printf', 'sscanf',
-        'parse_url', 'urlencode', 'urldecode', 'http_build_query',
-        'unlink', 'exec', 'escapeshellcmd', 'escapeshellarg',
-        'rand', 'srand', 'mt_rand', 'mt_srand',
-        'getmypid', 'base64_encode', 'abs', 'ceil',
-        'floor', 'round', 'is_infinite', 'pow',
-        'log', 'sqrt', 'hexdec', 'octdec',
-        'dechex', 'base_convert', 'number_format', 'getenv',
-        'putenv', 'microtime', 'uniqid', 'quoted_printable_encode',
-        'set_time_limit', 'get_magic_quotes_gpc', 'get_magic_quotes_runtime',
-        'error_log', 'error_get_last', 'call_user_func', 'call_user_func_array',
-        'serialize', 'unserialize', 'var_dump', 'var_export',
-        'print_r', 'memory_get_usage', 'memory_get_peak_usage', 'register_shutdown_function',
-        'ini_get', 'ini_set', 'get_include_path', 'set_include_path', 'setcookie',
-        'header', 'headers_sent', 'parse_ini_file', 'is_uploaded_file',
-        'move_uploaded_file', 'intval', 'floatval', 'doubleval',
-        'strval', 'gettype', 'is_null', 'is_resource',
-        'is_bool', 'is_float', 'is_int', 'is_integer',
-        'is_numeric', 'is_string', 'is_array', 'is_object',
-        'is_scalar', 'is_callable', 'pclose', 'popen',
-        'readfile', 'rewind', 'rmdir', 'umask',
-        'fclose', 'feof', 'fgets', 'fread',
-        'fopen', 'fstat', 'fflush', 'fwrite',
-        'fputs', 'mkdir', 'rename', 'copy',
-        'tempnam', 'file', 'file_get_contents', 'file_put_contents',
-        'stream_context_create', 'stream_context_set_params', 'stream_filter_append', 'stream_filter_remove',
-        'stream_socket_enable_crypto', 'stream_get_contents', 'flock', 'stream_get_meta_data',
-        'stream_set_timeout', 'socket_set_timeout', 'socket_get_status', 'realpath',
-        'fsockopen', 'pack', 'unpack', 'opendir',
-        'closedir', 'chdir', 'getcwd', 'readdir',
-        'glob', 'filemtime', 'fileperms', 'filesize',
-        'file_exists', 'is_writable', 'is_readable', 'is_executable',
-        'is_file', 'is_dir', 'is_link', 'chmod',
-        'touch', 'clearstatcache', 'disk_free_space', 'mail',
-        'openlog', 'syslog', 'closelog', 'ob_start',
-        'ob_flush', 'ob_clean', 'ob_end_clean', 'ob_get_clean',
-        'ob_get_contents', 'ksort', 'krsort', 'asort',
-        'sort', 'usort', 'uasort', 'uksort',
-        'array_walk', 'array_walk_recursive', 'count', 'end',
-        'next', 'reset', 'current', 'key',
-        'min', 'max', 'in_array', 'array_search',
-        'compact', 'array_fill', 'array_fill_keys', 'range',
-        'array_multisort', 'array_push', 'array_pop', 'array_shift',
-        'array_unshift', 'array_splice', 'array_slice', 'array_merge',
-        'array_merge_recursive', 'array_replace_recursive', 'array_keys', 'array_values',
-        'array_count_values', 'array_reverse', 'array_reduce', 'array_pad',
-        'array_flip', 'array_change_key_case', 'array_unique', 'array_intersect',
-        'array_intersect_key', 'array_diff', 'array_diff_key', 'array_diff_assoc',
-        'array_udiff_assoc', 'array_sum', 'array_filter', 'array_map',
-        'array_chunk', 'array_combine', 'array_key_exists', 'version_compare',
-        'stream_get_filters', 'sys_get_temp_dir', 'token_get_all', 'xml_parser_create',
-        'xml_parse_into_struct', 'xml_get_error_code', 'xml_error_string', 'xml_get_current_byte_index',
-        'xml_parser_free',
-    );
-
-    $functions = array(
-        'allowed'   => array(),
-        'unallowed' => array(),
-    );
-
-    foreach ($usedFunctions as $function) {
-        $functions[function_exists($function) ? 'allowed' : 'unallowed'][] = $function;
-    }
-
-    return array($functions['unallowed'], $functions['allowed']);
-}
-
-/**
- * Check PHP option memory_limit
- *
- * @param string $errorMsg Error message if checking failed
- * @param string $value    Actual value of the checked parameter
- *
- * @return bool
- */
-function checkPhpMemoryLimit(&$errorMsg, &$value)
-{
-    $result = true;
-
-    $value = @ini_get("memory_limit");
-
-    if (is_disabled_memory_limit()) {
-        $value = xtr('Unlimited');
-
-    } else {
-
-        $result = check_memory_limit($value, constant('LC_PHP_MEMORY_LIMIT_MIN'));
-
-        if (!$result) {
-            $errorMsg = xtr('PHP memory_limit option value should be :minval as a minimum', array(':minval' => constant('LC_PHP_MEMORY_LIMIT_MIN')));
-        }
-    }
-
-    return $result;
-}
-
-/**
- * Check if PHP option file_uploads is on/off
- *
- * @param string $errorMsg Error message if checking failed
- * @param string $value    Actual value of the checked parameter
- *
- * @return bool
- */
-function checkPhpFileUploads(&$errorMsg, &$value)
-{
-    $result = true;
-
-    $value = (ini_get('file_uploads') ? 'On' : 'Off');
-
-    if ('off' == strtolower($value)) {
-        $result = false;
-        $errorMsg = xtr('PHP file_uploads option value should be On');
-    }
-
-    return $result;
-}
-
-/**
- * Check if PDO extension and PDO MySQL driver installed
- *
- * @param string $errorMsg Error message if checking failed
- * @param string $value    Actual value of the checked parameter
- *
- * @return bool
- */
-function checkPhpPdoMysql(&$errorMsg, &$value)
-{
-    $result = true;
-
-    if (!class_exists('PDO') || !defined('PDO::MYSQL_ATTR_LOCAL_INFILE')) {
-        $result = false;
-        $errorMsg = xtr('PDO extension with MySQL support must be installed.');
-    }
-
-    return $result;
-}
-
-/**
- * Check if PHP option upload_max_filesize presented
- *
- * @param string $errorMsg Error message if checking failed
- * @param string $value    Actual value of the checked parameter
- *
- * @return bool
- */
-function checkPhpUploadMaxFilesize(&$errorMsg, &$value)
-{
-    $result = true;
-
-    $value = @ini_get("upload_max_filesize");
-
-    if (empty($value)) {
-        $result = false;
-        $errorMsg = xtr('PHP option upload_max_filesize should contain a value. It is empty currently.');
-    }
-
-    return $result;
-}
-
-/**
- * Check file permissions
- *
- * @param string $errorMsg Error message if checking failed
- * @param string $value    Actual value of the checked parameter
- *
- * @return bool
- */
-function checkFilePermissions(&$errorMsg, &$value)
-{
-    global $lcSettings;
-
-    $result = true;
-
-    $perms = array();
-
-    if (constant('LC_SUPHP_MODE') == "0") {
-
-        $array = array();
-
-        foreach ($lcSettings['mustBeWritable'] as $object) {
-            $array = array_merge($array, checkPermissionsRecursive(constant('LC_DIR_ROOT') . $object));
-        }
-
-        if (!empty($array)) {
-
-            foreach ($array as $file => $perm) {
-
-                if (LC_OS_IS_WIN) {
-                    $perms[] = $file;
-
-                } else {
-
-                    if (is_dir($file)) {
-                        $perms[] = 'find ' . $file . ' -type d -exec chmod 0777 {} \\;';
-                        $perms[] = 'find ' . $file . ' -type f -exec chmod 0666 {} \\;';
-
-                    } else {
-                        $perms[] = 'chmod ' . $perm . ' ' . $file;
+        switch ($name) {
+            case 'php_version':
+                $value = isset($data['version']) ? $data['version'] : '';
+                break;
+            case 'php_disabled_functions':
+                if (isset($data['missed'])) {
+                    $value = substr(implode(', ', $data['missed']), 0, 45) . '...';
+                    foreach ($data['missed'] as $function) {
+                        ga_event('warning', 'disabled_function', $function);
                     }
+                } else {
+                    $value = 'none';
                 }
+                break;
+            case 'php_memory_limit':
+                $value = isset($data['memoryLimit']) ? $data['memoryLimit'] : '';
+                break;
+            case 'php_file_uploads':
+                $value = isset($data['file_uploads']) ? $data['file_uploads'] : '';
+                break;
+            case 'php_upload_max_file_size':
+                $value = isset($data['upload_max_filesize']) ? $data['upload_max_filesize'] : '';
+                break;
+            case 'file_permissions':
+                break;
+            case 'mysql_version':
+                $value = isset($data['version']) ? $data['version'] : '';
+                break;
+            case 'php_gdlib':
+                $value = isset($data['version']) ? $data['version'] : '';
+                break;
+            case 'php_phar':
+                $value = isset($data['version']) ? $data['version'] : '';
+                break;
+            case 'https_bouncer':
+                $value = isset($data['version']) ? $data['version'] : '';
+                break;
+            case 'xml_support':
+                $value = isset($data['extensions']) ? implode(', ', $data['extensions']) : '';
+                break;
+        }
 
-                if (count($perms) > 25) {
-                    break;
-                }
+        $resultRequirement = [
+            'title' => xtr($requirement['title']),
+            'status' => $status,
+            'critical' => $requirement['level'] === \Includes\Requirements::LEVEL_CRITICAL,
+            'value' => $value,
+            'data' => $requirement['data'],
+        ];
+
+        $messageData = [];
+        foreach ($requirement['data'] as $varName => $varValue) {
+            if (is_scalar($varValue)) {
+                $messageData[':' . $varName] = $varValue;
             }
         }
+        $resultRequirement['messageData'] = $messageData;
+
+        $resultRequirement['description'] = $status ? '' : xtr($name .  '.' . $requirement['description'], $messageData);
+
+        if ($requirement['state'] === \Includes\Requirements::STATE_SKIPPED) {
+            $resultRequirement['skipped'] = true;
+        }
+
+        $result[$name] = $resultRequirement;
     }
 
-    if (count($perms) > 0) {
-        $result = false;
-        if (LC_OS_IS_WIN) {
-            $errorMsg = xtr("Permissions checking failed. Please make sure that the following files have writable permissions<br /><br /><i>:perms</i>", array(':perms' => implode("<br />" . PHP_EOL, $perms)));
-
-        } else {
-            $errorMsg = xtr("Permissions checking failed. Please make sure that the following file permissions are assigned (UNIX only):<br /><br /><i>:perms</i>", array(':perms' => implode("<br />" . PHP_EOL, $perms)));
-        }
+    if ($passed) {
+        x_install_log(xtr('Checking requirements is successfully complete'));
+        x_install_log(xtr('Requirements log'), $result);
     }
 
     return $result;
 }
 
 /**
- * Check MySQL version: returns false only if version is gathered and it isn't suit
- *
- * @param string   $errorMsg    Error message if checking failed
- * @param string   $value       Actual value of the checked parameter
- * @param resource $isConnected MySQL connection link OPTIONAL
- *
- * @return boolean
- */
-function checkMysqlVersion(&$errorMsg, &$value, $isConnected = false)
-{
-    global $isDBConnected;
-
-    $result = true;
-    $value = xtr('unknown');
-    $pdoErrorMsg = '';
-
-    $version = false;
-
-    if (defined('DB_URL')) {
-        // Connect via PDO and get DB version
-
-        $data = unserialize(constant('DB_URL'));
-
-        // Support of Drupal 6 $db_url
-        if (!is_array($data)) {
-            $data = parseDbURL(constant('DB_URL'));
-        }
-
-        $isConnected = dbConnect($data, $pdoErrorMsg);
-
-        if (!$isConnected) {
-            $errorMsg = xtr('Can\'t connect to MySQL server') . (!empty($pdoErrorMsg) ? ': ' . $pdoErrorMsg : '');
-        }
-    }
-
-    if ($isConnected || $isDBConnected) {
-
-        try {
-            $version = \Includes\Utils\Database::getDbVersion();
-
-        } catch (Exception $e) {
-            $pdoErrorMsg = $e->getMessage();
-        }
-
-        // Check version
-        if ($version) {
-
-            global $mysqlVersion;
-            $mysqlVersion = $version;
-
-            x_install_log(xtr('MySQL version: ' . $version));
-
-            if (version_compare($version, constant('LC_MYSQL_VERSION_MIN')) < 0) {
-                $result = false;
-                $errorMsg = xtr('MySQL version must be :minver as a minimum.', array(':minver' => constant('LC_MYSQL_VERSION_MIN')));
-
-            } else {
-
-                // Check for InnoDb support
-                if (!\Includes\Utils\Database::isInnoDBSupported()) {
-                    $result = false;
-                    $errorMsg = xtr('MySQL server doesn\'t support InnoDB engine. It is required for X-Cart operation');
-                }
-            }
-
-        } else {
-            $errorMsg = xtr('Cannot get the MySQL server version') . (!empty($pdoErrorMsg) ? ' : ' . $pdoErrorMsg : '.');
-        }
-    }
-
-    $value = $version;
-
-    return $result;
-}
-
-/**
- * Check GDlib extension
- *
- * @param string   $errorMsg   Error message if checking failed
- * @param string   $value      Actual value of the checked parameter
- *
- * @return bool
- */
-function checkPhpGdlib(&$errorMsg, &$value)
-{
-    $result = false;
-
-    if (extension_loaded('gd') && function_exists("gd_info")) {
-        $gdConfig = gd_info();
-        $value = $gdConfig['GD Version'];
-        $result = preg_match('/[^0-9]*2\./', $gdConfig['GD Version']);
-    }
-
-    if ($result && !function_exists('imagecreatefromjpeg')) {
-        $errorMsg = xtr('GDlib extension has not JPEG plugin.');
-        $result = false;
-
-    } elseif (!$result) {
-        $errorMsg = xtr('GDlib extension v.2.0 or later required for some modules.');
-    }
-
-    return $result;
-}
-
-/**
- * Check Phar extension
- *
- * @param string   $errorMsg   Error message if checking failed
- * @param string   $value      Actual value of the checked parameter
- *
- * @return bool
- */
-function checkPhpPhar(&$errorMsg, &$value)
-{
-    $result = true;
-
-    if (!extension_loaded('Phar')) {
-        $errorMsg = xtr('Phar extension is not loaded');
-        $result = false;
-
-    } else {
-
-        $info = get_info();
-
-        if (!empty($info['phar_ext_ver'])) {
-            $value = trim($info['phar_ext_ver']);
-            if (version_compare($value, '2.0.1') < 0) {
-                $errorMsg = xtr('Phar extension v.2.0.1 or later required to get upgrades and install modules. Otherwise this features may not work properly.');
-                $result = false;
-            }
-        } else {
-            $value = 'unknown version';
-        }
-    }
-
-    return $result;
-}
-
-/**
- * Check https bouncers presence (libcurl only checking)
- *
- * @param string   $errorMsg   Error message if checking failed
- * @param string   $value      Actual value of the checked parameter
- *
- * @return bool
- */
-function checkHttpsBouncer(&$errorMsg, &$value)
-{
-    $result = true;
-
-    if (!function_exists('curl_init') || !function_exists('curl_version')) {
-        $result = false;
-        $errorMsg = xtr('libcurl extension is not found');
-
-    } else {
-
-        $version = curl_version();
-
-        if (is_array($version)) {
-
-            $value = 'libcurl ' . $version['version'];
-
-            if (!empty($version['ssl_version'])) {
-                $value = $value . ', ' . $version['ssl_version'];
-            }
-
-        } else {
-            $value = $version;
-        }
-
-        if (
-            (is_array($version) && !in_array('https', $version['protocols']))
-            || (!is_array($version) && !preg_match('/ssl|tls/Ssi', $version))
-        ) {
-            $errorMsg = xtr('libcurl extension found but it does not support secure protocols');
-            $result = false;
-        }
-    }
-
-    return $result;
-}
-
-/**
- * Check GDlib extension
- *
- * @param string   $errorMsg   Error message if checking failed
- * @param string   $value      Actual value of the checked parameter
- *
- * @return bool
- */
-function checkXmlSupport(&$errorMsg, &$value)
-{
-    $result = false;
-    $ext = array();
-
-    if (function_exists('xml_parse')) {
-        $ext[] = 'XML Parser';
-    }
-
-    if (function_exists('dom_import_simplexml')) {
-        $ext[] = 'DOM/XML';
-    }
-
-    if (!empty($ext)) {
-        $value = implode(', ', $ext);
-        if (count($ext) > 1) {
-            $result = true;
-        }
-    }
-
-    if (!$result) {
-        $errorMsg = xtr('XML/Expat and DOM extensions are required for some modules.');
-    }
-
-    return $result;
-}
-
-/*
  * End of Checking requirements section
  */
-
 
 /**
  * Prepare the fixtures: the list of yaml files for uploading to the database
@@ -1600,6 +868,7 @@ OUT;
 <br />
 
 <?php echo $permsHTML; ?>
+<?php x_install_check_step_seven_requirements($params); ?>
 
 <div class="field-label second-title"><?php echo xtr('X-Cart software has been successfully installed and is now available at the following URLs:'); ?></div>
 
@@ -1634,6 +903,46 @@ OUT;
     return $result;
 }
 
+function x_install_check_step_seven_requirements($params)
+{
+    $requirements = new \Includes\Requirements($params);
+
+    $requirement = $requirements->getSingleResult('mysql_cache');
+    $status = $requirement['state'] === \Includes\Requirements::STATE_SUCCESS;
+
+    $value = '';
+
+    $resultRequirement = [
+        'title' => xtr($requirement['title']),
+        'status' => $status,
+        'critical' => $requirement['level'] === \Includes\Requirements::LEVEL_CRITICAL,
+        'value' => $value,
+        'data' => $requirement['data'],
+    ];
+
+    $messageData = [];
+    foreach ($requirement['data'] as $varName => $varValue) {
+        if (is_scalar($varValue)) {
+            $messageData[':' . $varName] = $varValue;
+        }
+    }
+    $resultRequirement['messageData'] = $messageData;
+
+    $resultRequirement['description'] = $status ? '' : xtr('mysql_cache.' . $requirement['description'], $messageData);
+
+    if ($requirement['state'] === \Includes\Requirements::STATE_SKIPPED) {
+        $resultRequirement['skipped'] = true;
+    }
+    if (!$status
+        && !$resultRequirement['status']
+        && isset($resultRequirement['description'])
+    ) {
+        echo sprintf(
+           '<p><strong>%s:</strong> %s</p>',
+            xtr('Warning'), $resultRequirement['description']
+        );
+    }
+}
 
 /*
  * Service functions section
@@ -2159,75 +1468,6 @@ function is_disabled_memory_limit()
 }
 
 /**
- * Check memory_limit option value
- *
- * @param string $current_limit
- * @param string $required_limit
- *
- * @return bool
- */
-function check_memory_limit($current_limit, $required_limit)
-{
-    $result = true;
-
-    $limit = convert_ini_str_to_int($current_limit);
-    $required = convert_ini_str_to_int($required_limit);
-
-    if ($limit < $required) {
-
-        // workaround for http://bugs.php.net/bug.php?id=36568
-        if (!LC_OS_IS_WIN && version_compare(phpversion(), '5.1.0') < 0) {
-            @ini_set('memory_limit', $required_limit);
-            $limit = ini_get('memory_limit');
-        }
-
-        $result = (strcasecmp($limit, $required_limit) == 0);
-    }
-
-    return $result;
-}
-
-/**
- * Check if current PHP version is 5 or higher
- *
- * @return bool
- */
-function is_php5()
-{
-    return version_compare(@phpversion(), '5.0.0') >= 0;
-}
-
-/**
- * Convert php_ini int string to int
- *
- * @param string $string
- *
- * @return string
- */
-function convert_ini_str_to_int($string)
-{
-    $string = trim($string);
-
-    $last = strtolower(substr($string,strlen($string)-1));
-    $number = intval($string);
-
-    switch($last) {
-        case 'k':
-            $number *= 1024;
-            break;
-
-        case 'm':
-            $number *= 1024*1024;
-            break;
-
-        case 'g':
-            $number *= 1024*1024*1024;
-    }
-
-    return $number;
-}
-
-/**
  * Preparing text of the configuration checking report
  *
  * @param array $requirements
@@ -2254,6 +1494,12 @@ function make_check_report($requirements)
     $all = array();
 
     foreach ($requirements as $reqName => $reqData) {
+
+        if (($reqName === 'mysql_version' && $reqData['data']['version'] === 'unknown')
+            || ($reqName === 'mysql_cache' && $reqData['data']['query_cache_type'] === 'unknown')
+        ) {
+            continue;
+        }
 
         $rep = array();
         $rep[] = '[' . $reqData['title'] . ']';
@@ -2566,7 +1812,7 @@ function warning_error($txt, $errorCategory, $errorCode = '') {
  */
 function message($txt) {
 ?>
-<B><FONT class=WelcomeTitle><?php echo $txt ?></FONT></B>
+<b><span class=WelcomeTitle><?php echo $txt ?></span></b>
 <?php
 }
 
@@ -2594,20 +1840,6 @@ function rename_install_script()
 }
 
 /**
- * Check if current protocol is HTTPS
- *
- * @return bool
- */
-function isHTTPS()
-{
-    $result = ((isset($_SERVER['HTTPS']) &&
-                (strtolower($_SERVER['HTTPS'] == 'on') || $_SERVER['HTTPS'] == '1')) ||
-                (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443'));
-
-    return $result;
-}
-
-/**
  * Get number for StepBack button
  *
  * @return integer
@@ -2615,8 +1847,6 @@ function isHTTPS()
 function getStepBackNumber()
 {
     global $current, $params;
-
-    $back = 0;
 
     switch ($current) {
         case 4:
@@ -2632,7 +1862,9 @@ function getStepBackNumber()
             break;
     }
 
-    if (isset($params['start_at']) && (($params['start_at'] === '4' && $back < 4) || ($params['start_at'] === '6' && $back < 6))) {
+    if (isset($params['start_at'])
+        && (($params['start_at'] === '4' && $back < 4) || ($params['start_at'] === '6' && $back < 6))
+    ) {
         $back = 0;
     }
 
@@ -2762,11 +1994,12 @@ function update_config_settings($params)
 
     $poweredBy = \XLite\View\PoweredBy::getPoweredByPhraseIndex();
 
+    $serializedSiteEmail = serialize([$siteEmail]);
     $options = array(
-        'Company::orders_department'  => $siteEmail,
-        'Company::site_administrator' => $siteEmail,
-        'Company::support_department' => $siteEmail,
-        'Company::users_department'   => $siteEmail,
+        'Company::orders_department'  => $serializedSiteEmail,
+        'Company::site_administrator' => $serializedSiteEmail,
+        'Company::support_department' => $serializedSiteEmail,
+        'Company::users_department'   => $serializedSiteEmail,
         'Units::time_zone'            => $defaultTimezone,
         'Company::start_year'         => date('Y', $time),
         'Version::timestamp'          => $time,
@@ -3008,17 +2241,13 @@ OUT;
     echo $output;
 }
 
-
 /*
  * End of Service functions section
  */
 
-
 /*
  * Modules section
  */
-
-
 
 /**
  * Default module. Shows Terms & Conditions
@@ -3112,13 +2341,13 @@ function module_check_cfg(&$params)
             'error_msg'    => xtr('Critical dependency failed'),
             'section'      => 'B',
             'requirements' => array(
-                'lc_php_version',
-                'lc_php_magic_quotes_runtime',
-                'lc_php_memory_limit',
-                'lc_docblocks_support',
-                'lc_php_pdo_mysql',
-                'lc_config_file',
-                'lc_file_permissions'
+                'php_version',
+                'php_memory_limit',
+                'doc_blocks_support',
+                'php_pdo_mysql',
+                'config_file',
+                'file_permissions',
+                'frame_options'
             )
         ),
         3 => array(
@@ -3126,13 +2355,13 @@ function module_check_cfg(&$params)
             'error_msg'    => xtr('Non-critical dependency failed'),
             'section'      => 'B',
             'requirements' => array(
-                'lc_php_disable_functions',
-                'lc_php_file_uploads',
-                'lc_php_upload_max_filesize',
-                'lc_php_gdlib',
-                'lc_php_phar',
-                'lc_https_bouncer',
-                'lc_xml_support'
+                'php_disabled_functions',
+                'php_file_uploads',
+                'php_upload_max_file_size',
+                'php_gdlib',
+                'php_phar',
+                'https_bouncer',
+                'xml_support'
             )
         )
     );
@@ -3417,14 +2646,42 @@ function module_cfg_install_db(&$params)
 
                 $isDBConnected = true;
 
-                $requirements = doCheckRequirements();
+                $fields = array(
+                    'hostspec' => 'mysqlhost',
+                    'port'     => 'mysqlport',
+                    'socket'   => 'mysqlsock',
+                    'username' => 'mysqluser',
+                    'password' => 'mysqlpass',
+                    'database' => 'mysqlbase',
+                );
+                $dbParams = array();
+                foreach ($fields as $key => $value) {
+                    if (isset($params[$value])) {
+                        $dbParams[$key] = $params[$value];
+                    }
+                }
+
+                $requirements = doCheckRequirements([
+                    'databaseDetails' => $dbParams
+                ]);
 
                 // Check MySQL version
                 $mysqlVersionErr = $currentMysqlVersion = '';
 
-                if (!checkMysqlVersion($mysqlVersionErr, $currentMysqlVersion, true)) {
+                if ($requirements['mysql_version'] && !$requirements['mysql_version']['status']) {
+                    $currentMysqlVersion = $requirements['mysql_version']['data']['version'];
+                    $mysqlVersionErr = $requirements['mysql_version']['description'];
                     fatal_error_extended($mysqlVersionErr . (!empty($currentMysqlVersion) ? '<br />(current version is ' . $currentMysqlVersion . ')' : ''), 'reqs', 'mysql version', xtr('kb_note_mysql_issue'));
                     $checkError = true;
+                }
+
+                if (!$checkError
+                    && isset($requirements['mysql_cache'])
+                    && $requirements['mysql_cache']
+                    && !$requirements['mysql_cache']['status']
+                ) {
+                    warning_error($requirements['mysql_cache']['description'], 'reqs');
+                    $checkWarning = true;
                 }
 
                 // Check if config.php file is writeable

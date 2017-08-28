@@ -563,4 +563,24 @@ class Profile extends \XLite\View\ItemsList\Model\Table
 
         return $result;
     }
+
+    /**
+     * Remove entity
+     *
+     * @param \XLite\Model\Profile $entity Entity
+     *
+     * @return boolean
+     */
+    protected function removeEntity(\XLite\Model\AEntity $entity)
+    {
+        $login = $entity ? $entity->getLogin() : null;
+
+        $result = parent::removeEntity($entity);
+
+        if ($result && $login) {
+            \XLite\Core\Mailer::sendProfileDeleted($login);
+        }
+
+        return $result;
+    }
 }

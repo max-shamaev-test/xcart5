@@ -13,6 +13,8 @@ namespace XLite\Model\Shipping;
  */
 class Rate extends \XLite\Base\SuperClass
 {
+    const DELIVERY_TIME = 'delivery_time';
+
     /**
      * Shipping method object
      *
@@ -173,6 +175,54 @@ class Rate extends \XLite\Base\SuperClass
     public function setExtraData(\XLite\Core\CommonCell $extraData)
     {
         $this->extraData = $extraData;
+    }
+
+    /**
+     * Set delivery time
+     *
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setDeliveryTime($value)
+    {
+        $extraData = $this->getExtraData();
+
+        if (!$extraData) {
+            $extraData = new \XLite\Core\CommonCell;
+        }
+
+        $extraData->{self::DELIVERY_TIME} = $value;
+
+        $this->setExtraData($extraData);
+
+        return $this;
+    }
+
+    /**
+     * Returns delivery time
+     *
+     * @return string|null
+     */
+    public function getDeliveryTime()
+    {
+        $extraData = $this->getExtraData();
+
+        return $extraData ? $extraData->{self::DELIVERY_TIME} : null;
+    }
+
+    /**
+     * Return prepared delivery time
+     *
+     * @return string|null
+     */
+    public function getPreparedDeliveryTime()
+    {
+        if ($this->getMethod() && $this->getMethod()->getProcessorObject()) {
+            return $this->getMethod()->getProcessorObject()->prepareDeliveryTime($this);
+        }
+
+        return null;
     }
 
     /**

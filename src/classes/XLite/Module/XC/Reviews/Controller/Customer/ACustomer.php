@@ -56,39 +56,53 @@ abstract class ACustomer extends \XLite\Controller\Customer\ACustomer implements
     /**
      * Return TRUE if customer already reviewed product
      *
+     * @param \XLite\Model\Product $product
+     *
      * @return boolean
      */
-    public function isProductReviewedByUser()
+    public function isProductReviewedByUser($product = null)
     {
-        $product = $this->getProduct();
+        if (null === $product) {
+            $product = $this->getProduct();
+        }
+
         $result = false;
-        if (isset($product)) {
+        if (isset($product) && $this->getProfile()) {
             $result = $product->isReviewedByUser($this->getProfile());
         }
+
         return $result;
     }
 
     /**
      * Return TRUE if customer can add review for product
      *
+     * @param \XLite\Model\Product $product
+     *
      * @return boolean
      */
-    public function isAllowedAddReview()
+    public function isAllowedAddReview($product = null)
     {
-        $result = (bool) $this->getProfile();
-
-        if ($result && $this->isProductReviewedByUser()) {
-            $result = false;
-        }
+        $result = !$this->isProductReviewedByUser($product);
 
         if ($result
             && $this->isPurchasedCustomerOnlyAbleLeaveFeedback()
-            && !$this->isUserPurchasedProduct()
+            && !$this->isUserPurchasedProduct($product)
         ) {
             $result = false;
         }
 
         return $result;
+    }
+
+    /**
+     * Check if add review should request user to login
+     *
+     * @return bool
+     */
+    public function isReplaceAddReviewWithLogin()
+    {
+        return !(boolean)$this->getProfile();
     }
 
     /**
@@ -100,11 +114,7 @@ abstract class ACustomer extends \XLite\Controller\Customer\ACustomer implements
     {
         $message = null;
 
-        if (!$this->getProfile()) {
-            $message = 'Please sign in to add review';
-        }
-
-        if (empty($message) && $this->isProductReviewedByUser()) {
+        if (empty($message) && $this->getProfile() && $this->isProductReviewedByUser()) {
             $message = 'You have already reviewed this product';
         }
 
@@ -130,28 +140,30 @@ abstract class ACustomer extends \XLite\Controller\Customer\ACustomer implements
     /**
      * Return true if customer purchased the specified product
      *
-     * @param integer $productId Product ID
+     * @param \XLite\Model\Product $product
      *
      * @return boolean
      */
-    protected function isUserPurchasedProduct()
+    protected function isUserPurchasedProduct($product)
     {
         return \XLite\Core\Database::getRepo('XLite\Model\OrderItem')
-            ->countItemsPurchasedByCustomer($this->getProductId(), $this->getProfile());
+            ->countItemsPurchasedByCustomer($product ? $product->getId() : $this->getProductId(), $this->getProfile());
     }
 
     /**
      * Define if review is added by current user
      *
-     * @return boolean
+     * @param \XLite\Module\XC\Reviews\Model\Review $entity
+     *
+     * @return bool
      */
     public function isOwnReview(\XLite\Module\XC\Reviews\Model\Review $entity)
     {
         $result = false;
 
         $profile = \XLite\Core\Auth::getInstance()->getProfile();
-        if ($profile) {
-            $result = ($entity->getProfile() == $profile);
+        if ($profile && $entity->getProfile()) {
+            $result = ($entity->getProfile()->getProfileId() === $profile->getProfileId());
         }
 
         return $result;

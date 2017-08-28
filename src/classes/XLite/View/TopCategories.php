@@ -11,7 +11,6 @@ namespace XLite\View;
 /**
  * Sidebar categories list
  *
- * @ListChild (list="sidebar.single", zone="customer", weight="100")
  * @ListChild (list="sidebar.first", zone="customer", weight="100")
  */
 class TopCategories extends \XLite\View\SideBarBox
@@ -168,6 +167,14 @@ class TopCategories extends \XLite\View\SideBarBox
     protected function postprocessDTOs($categories)
     {
         return $categories;
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function isVisible()
+    {
+        return $this->getCategories($this->getParam(self::PARAM_ROOT_ID));
     }
 
     /**

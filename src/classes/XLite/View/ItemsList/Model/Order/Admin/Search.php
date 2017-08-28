@@ -32,7 +32,7 @@ class Search extends \XLite\View\ItemsList\Model\Order\Admin\AAdmin
     const PARAM_SKU             = 'sku';
 
     /**
-     * Allowed sort criterions
+     * Allowed sort criteria
      */
     const SORT_BY_MODE_ID               = 'o.orderNumber';
     const SORT_BY_MODE_DATE             = 'o.date';
@@ -93,6 +93,20 @@ class Search extends \XLite\View\ItemsList\Model\Order\Admin\AAdmin
         return 'order_list';
     }
 
+    /**
+     * Get wrapper form params
+     *
+     * @return array
+     */
+    protected function getFormParams()
+    {
+        return array_merge(
+            parent::getFormParams(),
+            [
+                'statusToSet' => '',
+            ]
+        );
+    }
     /**
      * Description for blank items list
      *

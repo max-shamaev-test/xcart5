@@ -11,7 +11,7 @@ namespace XLite\Module\CDev\VolumeDiscounts\View;
 /**
  * Volume discounts promotion block widget in the cart
  *
- * @ListChild (list="cart.panel.totals", weight="100")
+ * @ListChild (list="cart.panel.totals", weight="300")
  */
 class CartPromo extends \XLite\View\AView
 {

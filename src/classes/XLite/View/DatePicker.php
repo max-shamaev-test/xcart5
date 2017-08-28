@@ -150,6 +150,28 @@ class DatePicker extends \XLite\View\FormField\Input\Text
     }
 
     /**
+     * @return int
+     */
+    protected function getStartDay()
+    {
+        $start = \XLite\Core\Config::getInstance()->Units->week_start;
+
+        $starts = [
+            'sun' => 0,
+            'mon' => 1,
+            'tue' => 2,
+            'wed' => 3,
+            'thu' => 4,
+            'fri' => 5,
+            'sat' => 6,
+        ];
+
+        return isset($starts[$start])
+            ? $starts[$start]
+            : 0;
+    }
+
+    /**
      * Return specific for JS code widget options
      *
      * @return array
@@ -159,6 +181,7 @@ class DatePicker extends \XLite\View\FormField\Input\Text
         $currentFormats = \XLite\Core\Converter::getDateFormatsByStrftimeFormat();
         return array(
             'dateFormat' => $currentFormats['jsFormat'],
+            'firstDay'   => $this->getStartDay(),
             'highYear'   => $this->getParam(static::PARAM_HIGH_YEAR),
             'lowYear'    => $this->getParam(static::PARAM_LOW_YEAR),
         );

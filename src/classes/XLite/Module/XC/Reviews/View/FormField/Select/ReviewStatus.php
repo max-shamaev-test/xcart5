@@ -20,10 +20,10 @@ class ReviewStatus extends \XLite\View\FormField\Select\ASelect
      */
     public function getDefaultOptions()
     {
-        return array(
+        return [
             '' => static::t('All statuses'),
             \XLite\Module\XC\Reviews\Model\Review::STATUS_PENDING  => static::t('Pending'),
             \XLite\Module\XC\Reviews\Model\Review::STATUS_APPROVED => static::t('Published'),
-        );
+        ];
     }
 }

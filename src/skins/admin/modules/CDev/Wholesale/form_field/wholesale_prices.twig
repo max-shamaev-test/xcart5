@@ -25,7 +25,7 @@
       {% for wp in this.getWholesalePrices() %}
         <li>
           {{ t('from') }} {{ wp.quantityRangeBegin }}:
-          {{ this.formatPrice(wp.price) }}
+          {{ this.formatValue(wp) }}
           {% if wp.membership %}
             ({{ wp.membership.name }})
           {% endif %}

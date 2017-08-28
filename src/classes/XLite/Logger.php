@@ -429,7 +429,9 @@ class Logger extends \XLite\Base\Singleton
      */
     public static function getCustomLogPath($type)
     {
-        return LC_DIR_LOG . static::getCustomLogFileName($type);
+        $path = date('Y' . LC_DS . 'm');
+
+        return LC_DIR_LOG . $path . LC_DS . static::getCustomLogFileName($type);
     }
 
     /**
@@ -489,6 +491,7 @@ class Logger extends \XLite\Base\Singleton
 
         if ('file' == $this->getType()) {
             $dir = dirname(LC_DIR . LC_DS . ltrim($result, LC_DS));
+            $dir = $dir . LC_DS . date('Y' . LC_DS . 'm');
             $file = basename($result);
             $parts = explode('.', $file);
             array_splice($parts, count($parts) - 1, 0, date('Y-m-d'));
@@ -627,6 +630,8 @@ class Logger extends \XLite\Base\Singleton
      */
     protected function getErrorLogPath()
     {
-        return LC_DIR_LOG . 'php_errors.log.' . date('Y-m-d') . '.php';
+        $path = date('Y' . LC_DS .'m');
+
+        return LC_DIR_LOG . $path . LC_DS . 'php_errors.log.' . date('Y-m-d') . '.php';
     }
 }

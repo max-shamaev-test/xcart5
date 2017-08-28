@@ -87,7 +87,7 @@ OrderInfoForm.prototype.initialize = function()
   core.bind(
     'afterPopupPlace',
     function() {
-      UpdateStatesList();
+      StatesList.getInstance().updateStatesList();
     }
   );
 

@@ -43,7 +43,8 @@ class PaypalIPN extends \XLite\Base\Singleton
      * @param \XLite\Model\Payment\Transaction    $transaction Callback-owner transaction
      * @param \XLite\Model\Payment\Base\Processor $processor   Payment processor object
      *
-     * @return boolean
+     * @return bool
+     * @throws \XLite\Core\Exception\PaymentProcessing\ACallbackException
      */
     public function tryProcessCallbackIPN($transaction, $processor) {
 
@@ -56,8 +57,7 @@ class PaypalIPN extends \XLite\Base\Singleton
         }
 
         if (!$result) {
-            $processor->markCallbackRequestAsInvalid(static::t('Not ready to process this IPN right now (waiting for payment return or db flush)'));
-            \XLite::getController()->sendPaypalConflictResponse();
+            throw new \XLite\Core\Exception\PaymentProcessing\CallbackNotReady();
         }
 
         return $result;
@@ -72,12 +72,13 @@ class PaypalIPN extends \XLite\Base\Singleton
      */
     protected function canProcessIPN(\XLite\Model\Payment\Transaction $transaction)
     {
-        /** @var \XLite\Module\CDev\Paypal\Model\Payment\Transaction $transaction */
-        $result = $transaction->isCallbackLockExpired() || !$transaction->hasCallbackLock();
+        $locked = $transaction->isEntityLocked(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN);
+        $result = $transaction->isEntityLockExpired(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN)
+            || !$locked;
 
         // Set ttl once when no payment return happened yet
-        if (!$this->isOrderProcessed($transaction) && !$transaction->hasCallbackLock()) {
-            $transaction->lockCallbackProcessing(3600);
+        if (!$locked && !$this->isOrderProcessed($transaction)) {
+            $transaction->setEntityLock(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN);
             $result = false;
         }
 
@@ -101,7 +102,7 @@ class PaypalIPN extends \XLite\Base\Singleton
      * @param \XLite\Model\Payment\Transaction    $transaction Callback-owner transaction
      * @param \XLite\Model\Payment\Base\Processor $processor   Payment processor object
      *
-     * @return void
+     * @return boolean
      */
     public function processCallbackIPN($transaction, $processor)
     {
@@ -288,9 +289,8 @@ class PaypalIPN extends \XLite\Base\Singleton
         }
 
         // Remove ttl for IPN requests
-        /** @var \XLite\Module\CDev\Paypal\Model\Payment\Transaction $transaction */
-        if ($transaction->hasCallbackLock()) {
-            $transaction->unlockCallbackProcessing();
+        if ($transaction->isEntityLocked(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN)) {
+            $transaction->unsetEntityLock(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN);
         }
 
         if ($transaction->getStatus() != $status) {
@@ -380,7 +380,6 @@ class PaypalIPN extends \XLite\Base\Singleton
             'fees_payer'     => 'Fees payer',                                   // Adaptive payments
             'sender_email'   => 'Customer\'s primary email address',            // Adaptive payments
             'txnId'          => 'Original transaction identification number',   // Adaptive payments
-            'reason_code'    => 'Reason code',                                  // Adaptive payments
             'trackingId'     => 'Tracking ID',                                  // Adaptive payments
         );
     }
@@ -425,7 +424,7 @@ class PaypalIPN extends \XLite\Base\Singleton
         $ipnRequest->verb = 'POST';
 
         if (function_exists('curl_version')) {
-            $ipnRequest->setAdditionalOption(\CURLOPT_SSLVERSION, 1);
+            $ipnRequest->setAdditionalOption(\CURLOPT_SSLVERSION, 6);
             $curlVersion = curl_version();
 
             if (
@@ -433,7 +432,7 @@ class PaypalIPN extends \XLite\Base\Singleton
                 && $curlVersion['ssl_version']
                 && 0 !== strpos($curlVersion['ssl_version'], 'NSS')
             ) {
-                $ipnRequest->setAdditionalOption(\CURLOPT_SSL_CIPHER_LIST, 'TLSv1');
+                $ipnRequest->setAdditionalOption(\CURLOPT_SSL_CIPHER_LIST, 'TLSv1.2');
             }
         }
 

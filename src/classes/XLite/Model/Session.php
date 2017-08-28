@@ -8,6 +8,9 @@
 
 namespace XLite\Model;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManager;
+
 /**
  * Session
  *
@@ -311,37 +314,41 @@ class Session extends \XLite\Model\AEntity
      * @param mixed  $value Cell value
      *
      * @return \XLite\Model\SessionCell
+     * @throws \Exception
      */
     protected function insertCell($name, $value)
     {
-        $connection = \XLite\Core\Database::getEM()->getConnection();
-
         $id = $this->getId();
-
         $data = $this->prepareDataForNewCell($id, $name, $value);
 
+        $connection = \XLite\Core\Database::getEM()->getConnection();
+        /** @var Connection $connection */
         $connection->connect();
 
-        $cols = array();
-        $placeholders = array();
+        \XLite\Core\Database::getEM()->transactionalWithRestarts(function(EntityManager $em) use ($data) {
+            $cols = array();
+            $placeholders = array();
 
-        foreach ($data as $columnName => $value) {
-            $cols[] = $columnName;
-            $placeholders[] = '?';
-        }
+            foreach ($data as $columnName => $value) {
+                $cols[] = $columnName;
+                $placeholders[] = '?';
+            }
 
-        $query = 'REPLACE INTO ' . static::getSessionCellRepo()->getTableName()
-            . ' (' . implode(', ', $cols) . ')'
-            . ' VALUES (' . implode(', ', $placeholders) . ')';
+            $query = sprintf('REPLACE INTO %s (%s) VALUES (%s)',
+                static::getSessionCellRepo()->getTableName(),
+                implode(', ', $cols),
+                implode(', ', $placeholders)
+            );
 
-        $connection->executeUpdate($query, array_values($data));
 
-        return static::getSessionCellRepo()->findOneBy(
-            array(
-                'session' => $this,
-                'name'    => $name,
-            )
-        );
+            $values = array_values($data);
+            $em->getConnection()->executeUpdate($query, $values);
+        }, null, 5);
+
+        return static::getSessionCellRepo()->findOneBy([
+            'session' => $this,
+            'name'    => $name,
+        ]);
     }
 
     /**
@@ -380,7 +387,7 @@ class Session extends \XLite\Model\AEntity
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -390,7 +397,7 @@ class Session extends \XLite\Model\AEntity
     /**
      * Get sid
      *
-     * @return string 
+     * @return string
      */
     public function getSid()
     {
@@ -412,7 +419,7 @@ class Session extends \XLite\Model\AEntity
     /**
      * Get expiry
      *
-     * @return integer 
+     * @return integer
      */
     public function getExpiry()
     {
@@ -434,7 +441,7 @@ class Session extends \XLite\Model\AEntity
     /**
      * Get cells
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getCells()
     {
@@ -456,7 +463,7 @@ class Session extends \XLite\Model\AEntity
     /**
      * Get formIds
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getFormIds()
     {

@@ -24,7 +24,7 @@ abstract class Dump extends \XLite\Model\AEntity
     /**
      * Get entity repository
      *
-     * @return \XLite\Model\Doctrine\Repo\AbstractRepo
+     * @return \XLite\Model\Repo\ARepo
      */
     public function getRepository()
     {

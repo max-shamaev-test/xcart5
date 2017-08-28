@@ -2,12 +2,6 @@
  # SagePay Form protocol configuration page
  #}
 
-{% if not this.paymentMethod.isMcryptDecrypt() %}
-  <div class="top-note warning">
-    <div>{{ t('You need to install the PHP mcrypt extension to use the Sage Pay integration') }}</div>
-  </div>
-{% endif %}
-
 <table cellspacing="1" cellpadding="5" class="settings-table">
 
   <tr>

@@ -19,41 +19,30 @@ class CodeMirror extends \XLite\View\FormField\Textarea\Simple
     const PARAM_CODE_MODE = 'codeMode';
 
     /**
-     * Get a list of CSS files required to display the widget properly
-     *
      * @return array
      */
-    public function getCSSFiles()
+    protected function getCommonFiles()
     {
-        $list = parent::getCSSFiles();
-        $list[] = array(
+        $list = parent::getCommonFiles();
+
+        $list[static::RESOURCE_CSS][] = [
             'file'      => 'modules/XC/ThemeTweaker/codemirror/lib/codemirror.css',
             'no_minify' => true,
-        );
+        ];
 
-        $list[] = 'modules/XC/ThemeTweaker/form_field/codemirror.css';
+        $list[static::RESOURCE_CSS][] = 'modules/XC/ThemeTweaker/form_field/codemirror.css';
 
-        return $list;
-    }
-
-    /**
-     * Register JS files
-     *
-     * @return array
-     */
-    public function getJSFiles()
-    {
-        $list = parent::getJSFiles();
-        $list[] = array(
+        $list[static::RESOURCE_JS][] = [
             'file'      => 'modules/XC/ThemeTweaker/codemirror/lib/min/codemirror.js',
             'no_minify' => true,
-        );
-        $list[] = 'modules/XC/ThemeTweaker/form_field/codemirror.js';
+        ];
+
+        $list[static::RESOURCE_JS][] = 'modules/XC/ThemeTweaker/form_field/codemirror.js';
 
         $mode = $this->getParam(static::PARAM_CODE_MODE);
 
         if ($mode) {
-            $list[] = sprintf('modules/XC/ThemeTweaker/codemirror/mode/%s/%s.js', $mode, $mode);
+            $list[static::RESOURCE_JS][] = sprintf('modules/XC/ThemeTweaker/codemirror/mode/%s/%s.js', $mode, $mode);
         }
 
         return $list;

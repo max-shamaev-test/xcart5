@@ -36,9 +36,9 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
     public function handleRequest()
     {
         $cellName = \XLite\Module\XC\Reviews\View\ItemsList\Model\Review::getSessionCellName();
-        \XLite\Core\Session::getInstance()->$cellName = array(
+        \XLite\Core\Session::getInstance()->$cellName = [
             \XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_PRODUCT => $this->getProductId(),
-        );
+        ];
 
         parent::handleRequest();
     }

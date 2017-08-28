@@ -8,7 +8,6 @@
 
 namespace XLite\Module\XC\MultiCurrency\Model;
 
-use \XLite\Module\XC\MultiCurrency\Core\MultiCurrency;
 
 /**
  * Active currency

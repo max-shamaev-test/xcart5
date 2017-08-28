@@ -66,40 +66,63 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
     protected function defineColumns()
     {
         return [
-            'path'              => [
-                static::COLUMN_IS_KEY          => true,
+            'categoryId'  => [
+                static::COLUMN_IS_KEY => true,
             ],
-            'enabled'           => [],
-            'showTitle'         => [],
-            'position'          => [],
-            'memberships'       => [
-                static::COLUMN_IS_MULTIPLE     => true
+            'path'        => [
+                static::COLUMN_IS_KEY => true,
             ],
-            'image'             => [],
-            'banner'            => [],
-            'cleanURL'          => [
-                static::COLUMN_LENGTH          => 255,
+            'identity'    => [
+                static::COLUMN_IS_MULTICOLUMN  => true,
+                static::COLUMN_HEADER_DETECTOR => true,
+                static::COLUMN_IS_IMPORT_EMPTY => true,
             ],
-            'name'              => [
+            'enabled'     => [],
+            'showTitle'   => [],
+            'position'    => [],
+            'memberships' => [
+                static::COLUMN_IS_MULTIPLE => true
+            ],
+            'image'       => [],
+            'banner'      => [],
+            'cleanURL'    => [
+                static::COLUMN_LENGTH => 255,
+            ],
+            'name'        => [
                 static::COLUMN_IS_MULTILINGUAL => true,
                 static::COLUMN_LENGTH          => 255,
             ],
-            'description'       => [
+            'description' => [
                 static::COLUMN_IS_MULTILINGUAL => true,
                 static::COLUMN_IS_TAGS_ALLOWED => true,
             ],
-            'metaTags'          => [
+            'metaTags'    => [
                 static::COLUMN_IS_MULTILINGUAL => true,
                 static::COLUMN_LENGTH          => 255,
             ],
-            'metaDesc'          => [
+            'metaDesc'    => [
                 static::COLUMN_IS_MULTILINGUAL => true,
             ],
-            'metaTitle'         => [
+            'metaTitle'   => [
                 static::COLUMN_IS_MULTILINGUAL => true,
                 static::COLUMN_LENGTH          => 255,
             ],
         ];
+    }
+
+    /**
+     * Detect header(s)
+     *
+     * @param array $column Column info
+     * @param array $row    Header row
+     *
+     * @return array
+     */
+    protected function detectIdentityHeader(array $column, array $row)
+    {
+        $pattern = "(categoryId|path|name)";
+
+        return $this->detectHeaderByPattern($pattern, $row, true);
     }
 
     // }}}
@@ -114,28 +137,59 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
     public static function getMessages()
     {
         return parent::getMessages()
-            + [
-                'CATEGORY-ENABLED-FMT'              => 'Wrong enabled format',
-                'CATEGORY-SHOW-TITLE-FMT'           => 'Wrong show title format',
-                'CATEGORY-POSITION-FMT'             => 'Wrong position format',
-                'CATEGORY-NAME-FMT'                 => 'The name is empty',
-                'CATEGORY-IMG-LOAD-FAILED'          => 'Error of image loading. Make sure the "images" directory has write permissions.',
-                'CATEGORY-IMG-URL-LOAD-FAILED'      => "Couldn't download the image {{value}} from URL",
-                'CATEGORY-BANNER-LOAD-FAILED'       => 'Error of banner loading. Make sure the "images" directory has write permissions.',
-                'CATEGORY-BANNER-URL-LOAD-FAILED'   => "Couldn't download the banner {{value}} from URL",
-        ];
+               + [
+                   'CATEGORY-ENABLED-FMT'            => 'Wrong enabled format',
+                   'CATEGORY-SHOW-TITLE-FMT'         => 'Wrong show title format',
+                   'CATEGORY-POSITION-FMT'           => 'Wrong position format',
+                   'CATEGORY-NAME-FMT'               => 'The name is empty',
+                   'CATEGORY-IMG-LOAD-FAILED'        => 'Error of image loading. Make sure the "images" directory has write permissions.',
+                   'CATEGORY-IMG-URL-LOAD-FAILED'    => "Couldn't download the image {{value}} from URL",
+                   'CATEGORY-BANNER-LOAD-FAILED'     => 'Error of banner loading. Make sure the "images" directory has write permissions.',
+                   'CATEGORY-BANNER-URL-LOAD-FAILED' => "Couldn't download the banner {{value}} from URL",
+                   'CATEGORY-CATEGORY-ID-NF'         => 'Category with id X not found, new category will be created',
+                   'CATEGORY-IDENTITY-FMT'           => 'Category id or path is required',
+                   'CATEGORY-PATH-NAME-FMT'          => 'Last element of category path should be same as name',
+               ];
     }
 
     /**
-     * Verify 'path' value
+     * Returns csv format manual URL
+     *
+     * @return string
+     */
+    public static function getCSVFormatManualURL()
+    {
+        return '//kb.x-cart.com/en/import-export/csv_format_by_x-cart_data_type/csv_import_categories.html';
+    }
+
+    /**
+     * Verify 'identity' value
      *
      * @param mixed $value  Value
      * @param array $column Column info
-     *
-     * @return void
      */
-    protected function verifyPath($value, array $column)
+    protected function verifyIdentity($value, array $column)
     {
+        if (!empty($value['categoryId'])) {
+            if (!$this->getRepository()->find((integer)$value['categoryId'])) {
+                $this->addWarning('CATEGORY-CATEGORY-ID-NF', ['column' => $column, 'value' => (integer)$value['categoryId']]);
+            }
+        } elseif (isset($value['path'])) {
+            $model = $this->getCategoryByPath($value['path'], false);
+
+            if (!$model) {
+                $path = explode('>>>', $value['path']);
+                $lastElement = count($path) ? trim(array_pop($path)) : '';
+                if (
+                    !isset($value['name_' . $this->importer->getLanguageCode()])
+                    || trim($value['name_' . $this->importer->getLanguageCode()]) !== $lastElement
+                ) {
+                    $this->addWarning('CATEGORY-PATH-NAME-FMT', ['column' => $column]);
+                }
+            }
+        } else {
+            $this->addWarning('CATEGORY-IDENTITY-FMT', ['column' => $column]);
+        }
     }
 
     /**
@@ -379,7 +433,16 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function detectModel(array $data)
     {
-        return $this->getCategoryByPath(isset($data['path']) ? $data['path'] : '', false);
+        if (!empty($data['categoryId'])) {
+            $model = $this->getRepository()->find((integer)$data['categoryId']);
+        }
+
+        if (!isset($model) || !$model) {
+            $path = isset($data['path']) ? $data['path'] : '';
+            $model = $this->getCategoryByPath($path, false);
+        }
+
+        return $model;
     }
 
     /**
@@ -391,7 +454,29 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function createModel(array $data)
     {
+        $path = isset($data['path']) ? $data['path'] : '';
+        $path = explode('>>>', $path);
+        $lastElement = count($path) ? trim(array_pop($path)) : '';
+        $name = trim($this->getDefLangValue($data['name']));
+
+        if ($name !== $lastElement) {
+            return null;
+        }
+
         return $this->addCategoryByPath(isset($data['path']) ? $data['path'] : '');
+    }
+
+    /**
+     * Import 'categoryId' value
+     *
+     * @param \XLite\Model\Category $model  Category
+     * @param string                $value  Value
+     * @param array                 $column Column info
+     *
+     * @return void
+     */
+    protected function importCategoryIdColumn(\XLite\Model\Category $model, $value, array $column)
+    {
     }
 
     /**
@@ -405,7 +490,6 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function importPathColumn(\XLite\Model\Category $model, $value, array $column)
     {
-        // Just skip this field
     }
 
     /**
@@ -475,19 +559,19 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
                 if ($image->getLoadError() === 'unwriteable') {
                     $this->addError('CATEGORY-IMG-LOAD-FAILED', [
                         'column' => $column,
-                        'value' => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file
+                        'value'  => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file
                     ]);
                 } elseif ($image->getLoadError()) {
                     $this->addWarning('CATEGORY-IMG-URL-LOAD-FAILED', [
                         'column' => $column,
-                        'value' => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file
+                        'value'  => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file
                     ]);
                 }
             }
         } elseif ($value && $this->verifyValueAsURL($value) && !$this->verifyValueAsFile($value)) {
             $this->addWarning('CATEGORY-IMG-URL-LOAD-FAILED', [
                 'column' => $column,
-                'value' => $value
+                'value'  => $value
             ]);
         }
 
@@ -536,19 +620,19 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
                 if ($image->getLoadError() === 'unwriteable') {
                     $this->addError('CATEGORY-BANNER-LOAD-FAILED', [
                         'column' => $column,
-                        'value' => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file
+                        'value'  => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file
                     ]);
                 } elseif ($image->getLoadError()) {
                     $this->addWarning('CATEGORY-BANNER-URL-LOAD-FAILED', [
                         'column' => $column,
-                        'value' => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file
+                        'value'  => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file
                     ]);
                 }
             }
         } elseif ($value && $this->verifyValueAsURL($value) && !$this->verifyValueAsFile($value)) {
             $this->addWarning('CATEGORY-BANNER-URL-LOAD-FAILED', [
                 'column' => $column,
-                'value' => $value
+                'value'  => $value
             ]);
         }
 

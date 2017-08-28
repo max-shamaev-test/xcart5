@@ -51,6 +51,10 @@ ALoadable.prototype.listenToHash = false;
 
 ALoadable.prototype.listenToHashPrefix = '';
 
+ALoadable.prototype.replaceState = false;
+
+ALoadable.prototype.replaceStatePrefix = '';
+
 
 // Options
 
@@ -108,8 +112,42 @@ ALoadable.prototype.checkBase = function(base)
 }
 
 // Load widget
+ALoadable.prototype.doReplaceState = function(params) {
+  var o = this, origParams = {};
+
+  window.location.search.substring(1).split('&').forEach(function (v) {
+    var pair = v.split('=');
+
+    if (
+      !_.isUndefined(pair[0])
+      && !_.isUndefined(pair[1])
+      && pair[0] !== o.replaceStatePrefix
+      && pair[0].indexOf(o.replaceStatePrefix + '[') !== 0
+    ) {
+      origParams[pair[0]] = pair[1];
+    }
+  });
+
+  var url = window.location.pathname+ '?';
+  var queryString = '';
+  params = array_merge(origParams, params || {});
+
+  $.each(params, function (key, value) {
+    queryString += '&' + key + '=' + value;
+  });
+
+  url += queryString.substring(1);
+
+  window.history.replaceState(params, 'Filter', url);
+};
+
+// Load widget
 ALoadable.prototype.load = function(params)
 {
+  if (this.replaceState) {
+    this.doReplaceState(params);
+  }
+
   if (this.listenToHash) {
     hash.add(params);
   }
@@ -288,7 +326,7 @@ ALoadable.prototype.getTemporaryContainer = function()
 // Extract widget data
 ALoadable.prototype.extractRequestData = function(div)
 {
-  div.find('script').first().remove();
+  div.find('script[type!="text/x-cart-data"]').first().remove();
   return div;
 };
 

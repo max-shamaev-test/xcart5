@@ -24,6 +24,15 @@ abstract class Category extends \XLite\View\Category implements \XLite\Base\IDec
 
         $list[] = $this->getCategory()->getOpenGraphMetaTags();
 
+        if (\XLite\Core\Config::getInstance()->CDev->GoSocial->gplus_use
+            && \XLite\Core\Config::getInstance()->CDev->GoSocial->gplus_page_id
+        ) {
+            $list[] = sprintf(
+                '<link href="https://plus.google.com/%s" rel="publisher" />',
+                \XLite\Core\Config::getInstance()->CDev->GoSocial->gplus_page_id
+            );
+        }
+
         return $list;
     }
 }

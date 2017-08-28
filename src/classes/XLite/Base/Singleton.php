@@ -40,7 +40,7 @@ abstract class Singleton extends \XLite\Base\SuperClass
     /**
      * Destruct and recreate singleton
      *
-     * @return \XLite\Base
+     * @return static
      */
     public static function resetInstance()
     {

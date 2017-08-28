@@ -10,6 +10,11 @@ namespace XLite\Model\Repo;
 
 /**
  * Notifications repository
+ *
+ * @Api\Operation\Read(modelClass="XLite\Model\Notification", summary="Retrieve email notification type by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Notification", summary="Retrieve all email notification types")
+ * @Api\Operation\Update(modelClass="XLite\Model\Notification", summary="Update email notification type by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Notification", summary="Delete email notification type by id")
  */
 class Notification extends \XLite\Model\Repo\Base\I18n
 {

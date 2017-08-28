@@ -50,7 +50,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '2';
+        return '3';
     }
 
     /**
@@ -60,7 +60,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '2';
+        return '3';
     }
 
     /**
@@ -70,7 +70,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorRequiredCoreVersion()
     {
-        return '2';
+        return '3';
     }
 
     /**
@@ -102,6 +102,30 @@ abstract class Main extends \XLite\Module\AModule
     public static function getSettingsForm()
     {
         return \XLite::ADMIN_SELF . '?target=mailchimp_options';
+    }
+
+    public static function updateAllMainStores()
+    {
+        $stores = static::getMainStores();
+
+        $ecCore = \XLite\Module\XC\MailChimp\Core\MailChimpECommerce::getInstance();
+
+        foreach ($stores as $store) {
+            $ecCore->updateStoreAndReference($store->getList()->getId(), true);
+        }
+
+        \XLite\Core\Database::getEM()->flush();
+    }
+
+    public static function setAllStoreSyncFlag($flagValue)
+    {
+        $stores = static::getMainStores();
+
+        $ecCore = \XLite\Module\XC\MailChimp\Core\MailChimpECommerce::getInstance();
+
+        foreach ($stores as $store) {
+            $ecCore->changeStoreSyncingStatus($store->getId(), $flagValue);
+        }
     }
 
     /**

@@ -27,7 +27,7 @@ class TypeCheckbox extends \XLite\Model\WidgetParam\AWidgetParam
      *
      * @return void
      */
-    protected function getValidaionSchema($value)
+    protected function getValidationSchema($value)
     {
         return array(
             array(

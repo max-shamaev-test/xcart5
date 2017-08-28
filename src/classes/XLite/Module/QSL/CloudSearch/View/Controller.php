@@ -11,6 +11,7 @@ namespace XLite\Module\QSL\CloudSearch\View;
 use XLite\Core\Auth;
 use XLite\Core\CommonCell;
 use XLite\Core\Database;
+use XLite\Core\Layout;
 use XLite\Module\QSL\CloudSearch\Core\ServiceApiClient;
 use XLite\Module\QSL\CloudSearch\View\CloudFilters\FiltersBox;
 use XLite\Module\QSL\CloudSearch\View\CloudFilters\FiltersBoxPlaceholder;
@@ -60,7 +61,7 @@ class Controller extends \XLite\View\Controller implements \XLite\Base\IDecorato
      */
     protected function getCloudSearchInitData()
     {
-        $lng = array(
+        $lng = [
             'lbl_showing_results_for'  => static::t('cs_showing_results_for'),
             'lbl_see_details'          => static::t('cs_see_details'),
             'lbl_see_more_results_for' => static::t('cs_see_more_results_for'),
@@ -68,24 +69,32 @@ class Controller extends \XLite\View\Controller implements \XLite\Base\IDecorato
             'lbl_products'             => static::t('cs_products'),
             'lbl_categories'           => static::t('cs_categories'),
             'lbl_pages'                => static::t('cs_pages'),
+            'lbl_manufacturers'        => static::t('cs_manufacturers'),
             'lbl_did_you_mean'         => static::t('cs_did_you_mean'),
-        );
-
-        $membership = Auth::getInstance()->getMembershipId();
+        ];
 
         $apiClient = new ServiceApiClient();
 
-        $data = array(
-            'cloudSearch' => array(
+        $data = [
+            'cloudSearch' => [
                 'apiKey'               => $apiClient->getApiKey(),
                 'priceTemplate'        => static::formatPrice(0),
                 'selector'             => 'input[name="substring"]',
                 'lng'                  => $lng,
-                'membership'           => $membership,
                 'dynamicPricesEnabled' => $this->isCloudSearchDynamicPricesEnabledCached(),
-                'maxProducts'          => $this->getCloudSearchMaxProductCountInPopup(),
-            ),
-        );
+                'requestData'          => [
+                    'limits' => [
+                        'products' => $this->getCloudSearchMaxProductCountInPopup(),
+                    ],
+                ],
+            ],
+        ];
+
+        $membership = Auth::getInstance()->getMembershipId();
+
+        if ($membership) {
+            $data['cloudSearch']['requestData']['membership'] = $membership;
+        }
 
         return $data;
     }
@@ -99,9 +108,13 @@ class Controller extends \XLite\View\Controller implements \XLite\Base\IDecorato
     {
         parent::prepareContent();
 
+        $pattern = '/' . preg_quote(FiltersBoxPlaceholder::CLOUD_FILTERS_PLACEHOLDER_VALUE) . '/';
+
+        $widgetRendered = false;
+
         self::$bodyContent = preg_replace_callback(
-            '/' . preg_quote(FiltersBoxPlaceholder::CLOUD_FILTERS_PLACEHOLDER_VALUE) . '/',
-            function () {
+            $pattern,
+            function () use (&$widgetRendered) {
                 if (self::$showCloudFilters) {
                     $widget = $this->getChildWidget(
                         'XLite\Module\QSL\CloudSearch\View\CloudFilters\FiltersBox',
@@ -111,13 +124,32 @@ class Controller extends \XLite\View\Controller implements \XLite\Base\IDecorato
                         ]
                     );
 
-                    return $widget->getContent();
+                    $content = $widget->getContent();
+
+                    $widgetRendered = !empty($content);
+
+                    return $content;
                 } else {
                     return '';
                 }
             },
             self::$bodyContent
         );
+
+        $layout = Layout::getInstance();
+
+        // Only applies to X-Cart 5.3.3.0+
+        if (method_exists($layout, 'getSidebarState')) {
+            if (!$widgetRendered) {
+                $content = $layout->getCloudSearchSidebarContent();
+
+                $content = preg_replace($pattern, '', $content);
+
+                if (trim($content) === '') {
+                    $layout->setSidebarState($layout->getSidebarState() | Layout::SIDEBAR_STATE_FIRST_EMPTY);
+                }
+            }
+        }
     }
 
     /**

@@ -33,14 +33,13 @@ abstract class ACustomer extends \XLite\View\Form\Login\ALogin
     {
         $list = parent::getCommonFormParams();
 
-        if (\XLite\Core\Request::getInstance()->popup && !\XLite\Core\Request::getInstance()->returnURL) {
-            if (\XLite\Core\Request::getInstance()->fromURL) {
-                $url = \XLite\Core\Request::getInstance()->fromURL;
+        if (\XLite\Core\Request::getInstance()->fromURL) {
+            $list['returnURL'] = \XLite\Core\Request::getInstance()->fromURL;
+            $list['fromURL'] = \XLite\Core\Request::getInstance()->fromURL;
 
-            } else {
-                $server = \XLite\Core\Request::getInstance()->getServerData();
-                $url = empty($server['HTTP_REFERER']) ? null : $server['HTTP_REFERER'];
-            }
+        } elseif (\XLite\Core\Request::getInstance()->popup && !\XLite\Core\Request::getInstance()->returnURL) {
+            $server = \XLite\Core\Request::getInstance()->getServerData();
+            $url = empty($server['HTTP_REFERER']) ? null : $server['HTTP_REFERER'];
 
             if ($url) {
                 $list['popup'] = 1;

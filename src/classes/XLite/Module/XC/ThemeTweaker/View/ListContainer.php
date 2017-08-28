@@ -25,8 +25,9 @@ abstract class ListContainer extends \XLite\View\ListContainer implements \XLite
     protected function getListItemMetadata($item)
     {
         return array(
-            'weight' => $item->getWeightActual(),
-            'list_id' => $item->getListId(),
+            'weight'     => $item->getWeightActual(),
+            'list'       => $item->getListActual() ?: $item->getList(),
+            'list_id'    => $item->getListId(),
             'visibility' => !$item->isHidden(),
         );
     }
@@ -127,19 +128,25 @@ abstract class ListContainer extends \XLite\View\ListContainer implements \XLite
      */
     protected function defineViewListItemAttributes($widget)
     {
-        $attrs = array(
+        $attrs = [
             'widget' => get_class($widget),
-        );
+        ];
 
         $metadata = $widget->getParam(static::PARAM_METADATA);
         if ($metadata) {
             $attrs['weight'] = $metadata['weight'] ?: 0;
-            $attrs['id'] = $metadata['list_id'] ?: 0;
+            $attrs['id']     = $metadata['list_id'] ?: 0;
+            $attrs['list']   = $metadata['list'];
         }
 
         $displayGroup = $widget->getParam(ThemeTweaker\View\LayoutBlockInterface::PARAM_DISPLAY_GROUP);
         if ($displayGroup) {
             $attrs['display'] = $displayGroup;
+        }
+
+        $displayName = $widget->getParam(ThemeTweaker\View\LayoutBlockInterface::PARAM_DISPLAY_NAME);
+        if ($displayName) {
+            $attrs['blockName'] = $displayName;
         }
 
         return $attrs;
@@ -155,7 +162,7 @@ abstract class ListContainer extends \XLite\View\ListContainer implements \XLite
         return array_merge(
             parent::getCSSFiles(),
             array(
-                'modules/XC/ThemeTweaker/layout_editor/list_container.css'
+                'modules/XC/ThemeTweaker/list_container/list_container.css'
             )
         );
     }
@@ -170,8 +177,8 @@ abstract class ListContainer extends \XLite\View\ListContainer implements \XLite
         return array_merge(
             parent::getJSFiles(),
             array(
-                'modules/XC/ThemeTweaker/layout_editor/jquery.listItem.js',
-                'modules/XC/ThemeTweaker/layout_editor/list_container.js',
+                'modules/XC/ThemeTweaker/list_container/jquery.listItem.js',
+                'modules/XC/ThemeTweaker/list_container/list_container.js',
             )
         );
     }
@@ -187,16 +194,5 @@ abstract class ListContainer extends \XLite\View\ListContainer implements \XLite
         $list[static::RESOURCE_JS][]    = 'js/Sortable.js';
 
         return $list;
-    }
-
-    /**
-     * Check display mode
-     *
-     * @return boolean
-     */
-    protected function isInLayoutMode()
-    {
-        return \XLite\Core\Request::getInstance()->isInLayoutMode()
-            && !$this->isCheckoutLayout();
     }
 }

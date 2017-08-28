@@ -109,7 +109,7 @@ abstract class Base extends \XLite\Model\SearchCondition\ASearchCondition implem
     /**
      * Get search condition service name
      *
-     * @return strig
+     * @return string
      */
     public function getName()
     {

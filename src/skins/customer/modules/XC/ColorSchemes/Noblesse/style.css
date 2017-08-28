@@ -584,8 +584,7 @@ form.estimator ul.form label {
 }
 
 .invoice-box .items th {
-  background: #f4f4f4;
-  color: #333333;
+  color: #333333 !important;
 }
 
 .invoice-box .items td.name .additional {

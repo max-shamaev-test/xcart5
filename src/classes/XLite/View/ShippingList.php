@@ -130,8 +130,8 @@ class ShippingList extends \XLite\View\AView
      */
     protected function getMethodDeliveryTime(\XLite\Model\Shipping\Rate $rate)
     {
-        return $rate->getMethod() && 'offline' === $rate->getMethod()->getProcessor()
-            ? $rate->getMethod()->getDeliveryTime()
+        return $rate->getMethod() && $rate->getMethod()->getProcessor()
+            ? $rate->getPreparedDeliveryTime()
             : '';
     }
 

@@ -45,6 +45,11 @@ class Layout extends \XLite\Base\Singleton
     const LAYOUT_GROUP_DEFAULT = 'default';
     const LAYOUT_GROUP_HOME = 'home';
 
+    const SIDEBAR_STATE_FIRST_EMPTY = 1;
+    const SIDEBAR_STATE_SECOND_EMPTY = 2;
+    const SIDEBAR_STATE_FIRST_ONLY_CATEGORIES = 4;
+    const SIDEBAR_STATE_SECOND_ONLY_CATEGORIES = 8;
+
     /**
      * Widgets resources collector
      *
@@ -144,6 +149,11 @@ class Layout extends \XLite\Base\Singleton
      * @var array
      */
     protected $idStrings = [];
+
+    /**
+     * @var integer
+     */
+    protected $sidebarState = 0;
 
     /**
      * Get logo
@@ -795,6 +805,71 @@ class Layout extends \XLite\Base\Singleton
 
         return \XLite\Core\Database::getRepo('XLite\Model\ImageSettings')
             ->findByModuleName($skinModuleName);
+    }
+
+    /**
+     * Check if cloud zoom enabled
+     *
+     * @return boolean
+     */
+    public function getCloudZoomEnabled()
+    {
+        return (boolean)\XLite\Core\Config::getInstance()->Layout->cloud_zoom;
+    }
+
+    /**
+     * Returns cloud zoom mode
+     *
+     * @return string
+     */
+    public function getCloudZoomMode()
+    {
+        return \XLite\Core\Config::getInstance()->Layout->cloud_zoom_mode ?: \XLite\View\FormField\Select\CloudZoomMode::MODE_INSIDE;
+    }
+
+    /**
+     * Returns allowed cloud zoom modes
+     *
+     * @return array
+     */
+    public function getAllowedCloudZoomModes()
+    {
+        return[
+            \XLite\View\FormField\Select\CloudZoomMode::MODE_INSIDE,
+            \XLite\View\FormField\Select\CloudZoomMode::MODE_OUTSIDE,
+        ];
+    }
+
+    /**
+     * Set cloud zoom mode
+     *
+     * @return $this
+     */
+    public function setCloudZoomMode($mode)
+    {
+        $mode = in_array($mode, $this->getAllowedCloudZoomModes()) ? $mode : \XLite\View\FormField\Select\CloudZoomMode::MODE_INSIDE;
+
+        \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
+            array(
+                'category' => 'Layout',
+                'name' => 'cloud_zoom_mode',
+                'value' => $mode,
+            )
+        );
+
+        return $this;
+    }
+
+    /**
+     * Check if cloud zoom supported by skin
+     *
+     * @return boolean
+     */
+    public function isCloudZoomAllowed()
+    {
+        $skin = \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
+
+        return $skin ? $skin->callModuleMethod('isUseCloudZoom') : true;
     }
 
     // }}}
@@ -1545,6 +1620,22 @@ class Layout extends \XLite\Base\Singleton
         }
 
         return empty($data['url']) ? null : $data;
+    }
+
+    /**
+     * @return integer
+     */
+    public function getSidebarState()
+    {
+        return $this->sidebarState;
+    }
+
+    /**
+     * @param integer $sidebarState
+     */
+    public function setSidebarState($sidebarState)
+    {
+        $this->sidebarState = $sidebarState;
     }
 
     /**

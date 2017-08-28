@@ -15,10 +15,20 @@ use \XLite\Module\XC\MailChimp\Core;
  */
 class MailchimpOptions extends \XLite\Controller\Admin\Module
 {
+    public static function defineFreeFormIdActions()
+    {
+        return array_merge(
+            parent::defineFreeFormIdActions(),
+            [
+                'authenticate'
+            ]
+        );
+    }
+
     /**
      * Get current module ID
      *
-     * @return integer
+     * @return void
      */
     public function handleRequest()
     {
@@ -42,6 +52,108 @@ class MailchimpOptions extends \XLite\Controller\Admin\Module
 
             $this->doRedirect();
         }
+    }
+
+    /**
+     *
+     */
+    protected function doActionAuthenticate()
+    {
+        $redirectURL   = $this->getShopURL(
+            $this->buildURL(
+                'mailchimp_options',
+                'endAuth'
+            )
+        );
+
+        $oauthCore = $this->createClient();
+        $auth_url = $oauthCore->getAuthUrl($redirectURL);
+
+        if ($auth_url) {
+            $this->redirect($auth_url);
+        }
+    }
+
+    /**
+     *
+     */
+    protected function doActionSetApiKey()
+    {
+        if (\XLite\Core\Request::getInstance()->mailchimp_key) {
+            \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption([
+                'category' => 'XC\MailChimp',
+                'name'     => 'mailChimpAPIKey',
+                'value'    => \XLite\Core\Request::getInstance()->mailchimp_key,
+            ]);
+        }
+    }
+
+
+    /**
+     *
+     */
+    protected function doActionEndAuth()
+    {
+        $redirectURL = $this->getShopURL(
+            $this->buildURL(
+                'mailchimp_options',
+                'endAuth'
+            )
+        );
+
+        $oauthCore = $this->createClient();
+        $token = $oauthCore->getToken(\XLite\Core\Request::getInstance()->code, $redirectURL);
+
+        if ($token) {
+            \XLite\Core\TopMessage::addInfo('Successfully authenticated');
+            $this->saveAsApiKey($token);
+        } else {
+            \XLite\Core\TopMessage::addError('Cannot authenticate');
+        }
+
+        $this->setReturnURL($this->buildURL(
+            'mailchimp_options',
+            '',
+            [ 'section' => 'settings' ]
+        ));
+    }
+
+    /**
+     * @param $token
+     */
+    protected function saveAsApiKey($token)
+    {
+        $oauthCore = $this->createClient();
+        try {
+            $metadata = $oauthCore->getTokenMetadata($token);
+            $dc = $metadata->dc;
+
+            $key = $token . '-' . $dc;
+
+            \XLite\Core\Database::getRepo('\XLite\Model\Config')->createOption(
+                array(
+                    'category' => 'XC\MailChimp',
+                    'name'     => 'mailChimpAPIKey',
+                    'value'    => $key,
+                )
+            );
+            \XLite\Core\Database::getEM()->flush();
+
+        } catch (\Exception $e) {
+            \XLite\Core\TopMessage::addError('Cannot authenticate');
+        }
+    }
+
+    /**
+     * @return Core\OAuth
+     */
+    protected function createClient()
+    {
+        $clientId     = '371104556554';
+        $clientSecret = '39bbf84b9cbae6799294a581f95cad619a926cea538e64a07d';
+        $oathProxyUrl = 'https://mc-end-auth.qtmsoft.com/oauth.php';
+
+        return new Core\OAuth($clientId, $clientSecret, $oathProxyUrl);
     }
 
     /**

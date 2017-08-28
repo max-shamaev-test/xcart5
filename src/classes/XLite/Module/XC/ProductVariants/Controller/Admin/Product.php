@@ -148,15 +148,27 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
      */
     protected function updateVariantsAttributes()
     {
-        $attr = \XLite\Core\Request::getInstance()->attr;
+        $attr = \XLite\Core\Request::getInstance()->select;
+
+        $attr = is_array($attr) ? array_keys($attr) : null;
+
+        /** @var \XLite\Module\XC\ProductVariants\Model\Product $product */
         $product = $this->getProduct();
 
-        $product->getVariantsAttributes()->clear();
+        /** @var \XLite\Model\Attribute $attribute */
+        foreach ($product->getVariantsAttributes() as $attribute) {
+            if (!$attr || !in_array($attribute->getId(), $attr)) {
+                $attribute->getVariantsProducts()->removeElement($product);
+                $product->getVariantsAttributes()->removeElement($attribute);
+            }
+        }
+
         if ($attr) {
             $attributes = \XLite\Core\Database::getRepo('XLite\Model\Attribute')->findByIds($attr);
-            foreach ($attributes as $a) {
-                $product->addVariantsAttributes($a);
-                $a->addVariantsProduct($product);
+            foreach ($attributes as $attribute) {
+                if (!$product->getVariantsAttributes()->contains($attribute)) {
+                    $product->addVariantsAttributes($attribute);
+                }
             }
         }
 

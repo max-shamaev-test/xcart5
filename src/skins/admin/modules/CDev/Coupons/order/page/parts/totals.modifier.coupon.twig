@@ -38,15 +38,17 @@
 </li>
 {% endfor %}
 
-<li class="coupon-row add-new-row">
-  <div></div>
-  <div></div>
-  <div class="add-new">
-    <a href="#" class="add">{{ t('Add coupon') }}</a>
-    <div class="box">
-      {{ widget('XLite\\Module\\CDev\\Coupons\\View\\FormField\\NewCode', fieldName='couponCode', fieldOnly='true', label=t('Coupon')) }}
-      <button type="button" class="btn regular-button action add-coupon"><span>{{ t('Redeem') }}</span></button>
+{% if this.isOrderEditable() %}
+  <li class="coupon-row add-new-row">
+    <div></div>
+    <div></div>
+    <div class="add-new">
+      <a href="#" class="add">{{ t('Add coupon') }}</a>
+      <div class="box">
+        {{ widget('XLite\\Module\\CDev\\Coupons\\View\\FormField\\NewCode', fieldName='couponCode', fieldOnly='true', label=t('Coupon')) }}
+        <button type="button" class="btn regular-button action add-coupon"><span>{{ t('Redeem') }}</span></button>
+      </div>
     </div>
-  </div>
 
-  {{ widget_list('order.base.totals.modifier.value', surcharge=this.surcharge, sType=this.surcharge.code, order=this.order) }}
+    {{ widget_list('order.base.totals.modifier.value', surcharge=this.surcharge, sType=this.surcharge.code, order=this.order) }}
+{% endif %}

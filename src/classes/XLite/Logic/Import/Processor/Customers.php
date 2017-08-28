@@ -177,6 +177,16 @@ class Customers extends \XLite\Logic\Import\Processor\AProcessor
     }
 
     /**
+     * Returns csv format manual URL
+     *
+     * @return string
+     */
+    public static function getCSVFormatManualURL()
+    {
+        return '//kb.x-cart.com/en/import-export/csv_format_by_x-cart_data_type/csv_import_customers.html';
+    }
+
+    /**
      * Verify data chunk
      *
      * @param array $data Data chunk
@@ -632,6 +642,9 @@ class Customers extends \XLite\Logic\Import\Processor\AProcessor
                 $model->getAddresses()->removeElement($address);
             }
         } elseif ($value && $this->verifyValueAsNull($value)) {
+            foreach ($model->getAddresses() as $address) {
+                \XLite\Core\Database::getEM()->remove($address);
+            }
             $model->getAddresses()->clear();
         }
     }
@@ -678,7 +691,7 @@ class Customers extends \XLite\Logic\Import\Processor\AProcessor
      *
      * @return void
      */
-    protected function importAccessLevelColumn(\XLite\Model\Profile $model, array $value, array $column)
+    protected function importAccessLevelColumn(\XLite\Model\Profile $model, $value, array $column)
     {
         if (!$this->verifyValueAsEmpty($value)
             && $this->isAdminProfilesManager()
@@ -793,7 +806,7 @@ class Customers extends \XLite\Logic\Import\Processor\AProcessor
      *
      * @param mixed @value Value
      *
-     * @return intgern
+     * @return intger
      */
     protected function normalizeLastLoginValue($value)
     {

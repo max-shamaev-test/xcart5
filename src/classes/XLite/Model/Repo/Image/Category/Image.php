@@ -10,6 +10,12 @@ namespace XLite\Model\Repo\Image\Category;
 
 /**
  * Category
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Image\Category\Image", summary="Add new category thumbnail")
+ * @Api\Operation\Read(modelClass="XLite\Model\Image\Category\Image", summary="Retrieve category thumbnail by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Image\Category\Image", summary="Retrieve all category thumbnails")
+ * @Api\Operation\Update(modelClass="XLite\Model\Image\Category\Image", summary="Update category thumbnail by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Image\Category\Image", summary="Delete category thumbnail by id")
  */
 class Image extends \XLite\Model\Repo\Base\Image
 {

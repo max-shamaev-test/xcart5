@@ -9,6 +9,7 @@
 namespace XLite\Module\XC\MailChimp\Core\EventListener;
 
 use XLite\Module\XC\MailChimp\Logic\UploadingData\Generator;
+use XLite\Module\XC\MailChimp\Main;
 
 /**
  * Class UploadingData
@@ -149,6 +150,17 @@ class UploadingData extends \XLite\Core\EventListener\Base\Countable
         parent::finishStep();
     }
 
+
+    /**
+     * @inheritdoc
+     */
+    protected function initializeTask()
+    {
+        parent::initializeTask();
+
+        Main::setAllStoreSyncFlag(true);
+    }
+
     /**
      * Finish task
      *
@@ -159,6 +171,8 @@ class UploadingData extends \XLite\Core\EventListener\Base\Countable
         $this->record['options'] = $this->getItems()->getOptions()->getArrayCopy();
 
         parent::finishTask();
+
+        Main::setAllStoreSyncFlag(false);
 
         $this->getItems()->finalize();
     }

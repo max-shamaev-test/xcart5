@@ -77,16 +77,6 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
     }
 
     /**
-     * Return class name for the controller main form
-     *
-     * @return string
-     */
-    protected function getModelFormClass()
-    {
-        return '\XLite\View\Model\Product';
-    }
-
-    /**
      * Alias
      *
      * @return \XLite\Model\Product
@@ -423,7 +413,7 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
         $attributeValue = \XLite\Core\Request::getInstance()->attributeValue;
         $delete         = \XLite\Core\Request::getInstance()->delete;
         $newValue       = \XLite\Core\Request::getInstance()->newValue;
-        $saveMode      = \XLite\Core\Request::getInstance()->save_mode;
+        $saveGlobally   = \XLite\Core\Request::getInstance()->save_mode;
 
         // Initialize non-filtered request data
         $nonFilteredData = \XLite\Core\Request::getInstance()->getNonFilteredData();
@@ -431,7 +421,7 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
         $repo      = \XLite\Core\Database::getRepo('\XLite\Model\Attribute');
         $repoGroup = \XLite\Core\Database::getRepo('\XLite\Model\AttributeGroup');
 
-        if ('globaly' == $saveMode) {
+        if ($saveGlobally) {
             $oldValues = $this->getAttributeValues();
         }
 
@@ -533,7 +523,7 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
 
         $this->getProduct()->updateQuickData();
 
-        if ('globaly' == $saveMode) {
+        if ($saveGlobally) {
             $this->applyAttributeValuesChanges(
                 $oldValues,
                 $this->getAttributeValues()
@@ -559,7 +549,7 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
     /**
      * Purify an attribute value
      *
-     * @param string $value
+     * @param array $value
      *
      * @return string
      */

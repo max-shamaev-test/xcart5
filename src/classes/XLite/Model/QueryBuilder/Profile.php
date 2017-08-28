@@ -400,7 +400,7 @@ class Profile extends \XLite\Model\QueryBuilder\AQueryBuilder
     {
         $this->linkInner('p.roles')
             ->linkInner('roles.permissions')
-            ->andWhere('permissions.code IN (' . $this->getInCondition($value, 'perm') . ')');
+            ->addInCondition('permissions.code', $value);
 
         return $this;
     }

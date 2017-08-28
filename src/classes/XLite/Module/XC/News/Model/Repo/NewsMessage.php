@@ -111,6 +111,9 @@ class NewsMessage extends \XLite\Model\Repo\Base\I18n
             ->orderBy('n.id', 'desc')
             ->addOrderBy('n.date', 'asc')
             ->andWhere($or)
+            ->andWhere('n.enabled = :true AND n.date < :current_time')
+            ->setParameter('true', true)
+            ->setParameter('current_time', \XLite\Core\Converter::time())
             ->getSingleResult();
 
         $or = new \Doctrine\ORM\Query\Expr\Orx();
@@ -121,6 +124,9 @@ class NewsMessage extends \XLite\Model\Repo\Base\I18n
             ->orderBy('n.id', 'asc')
             ->addOrderBy('n.date', 'desc')
             ->andWhere($or)
+            ->andWhere('n.enabled = :true AND n.date < :current_time')
+                ->setParameter('true', true)
+                ->setParameter('current_time', \XLite\Core\Converter::time())
             ->getSingleResult();
 
         return array(

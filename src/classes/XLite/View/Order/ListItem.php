@@ -29,6 +29,15 @@ class ListItem extends \XLite\View\AView
     }
 
     /**
+     * @return \XLite\Model\Order
+     */
+    protected function getDefaultOrder()
+    {
+        $ctrl = \XLite::getController();
+        return $ctrl instanceof \XLite\Controller\Customer\Base\Order ? $ctrl->getOrder() : null;
+    }
+
+    /**
      * Check if the product of the order item is deleted one in the store
      *
      * @param \XLite\Model\OrderItem $item Order item
@@ -56,6 +65,20 @@ class ListItem extends \XLite\View\AView
     }
 
     /**
+     * Get a list of JS files required to display the widget properly
+     *
+     * @return array
+     */
+    public function getJSFiles()
+    {
+        $list = parent::getJSFiles();
+
+        $list[] = 'items_list/order/order.js';
+
+        return $list;
+    }
+
+    /**
      * Return widget default template
      *
      * @return string
@@ -75,7 +98,18 @@ class ListItem extends \XLite\View\AView
         parent::defineWidgetParams();
 
         $this->widgetParams += [
-            self::PARAM_ORDER => new \XLite\Model\WidgetParam\TypeObject('Order', null, false, 'XLite\Model\Order'),
+            self::PARAM_ORDER => new \XLite\Model\WidgetParam\TypeObject('Order', $this->getDefaultOrder(), false, 'XLite\Model\Order'),
+        ];
+    }
+
+    protected function getCommentedData()
+    {
+        return [
+            'widgetTarget' => 'order',
+            'widgetClass' => get_class($this),
+            'widgetParams' => [
+                'order_number' => $this->getOrder()->getOrderNumber()
+            ]
         ];
     }
 

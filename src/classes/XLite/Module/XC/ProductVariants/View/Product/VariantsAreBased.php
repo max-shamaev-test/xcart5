@@ -43,17 +43,18 @@ class VariantsAreBased extends \XLite\Module\XC\ProductVariants\View\Product\APr
      */
     protected function getTitle()
     {
-        $variants = array();
+        $variants = [];
 
         foreach ($this->getVariantsAttributes() as $v) {
             $variants[] = $v->getName();
         }
 
         return static::t(
-            'Product variants are based on {{variants}}',
-            array(
-                'variants' => '<span>' . implode('</span>, <span>', $variants) . '</span>',
-            )
+            '{{count}} variants are based on {{variants}}',
+            [
+                'count' => count($this->getProduct()->getVariants()),
+                'variants' => '<span>' . implode('</span> <span>', $variants) . '</span>',
+            ]
         );
     }
 

@@ -31,7 +31,6 @@ class InlineEditable extends \XLite\Controller\Admin\ACL\Catalog
     public static function defineFreeFormIdActions()
     {
         $list = parent::defineFreeFormIdActions();
-        $list[] = 'update_field';
         $list[] = 'save_image';
 
         return $list;

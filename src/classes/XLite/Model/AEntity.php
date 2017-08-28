@@ -9,11 +9,12 @@
 namespace XLite\Model;
 
 use XLite\Core\MagicMethodsIntrospectionInterface;
+use XLite\Core\Serialization\SerializableEntity;
 
 /**
  * Abstract entity
  */
-abstract class AEntity extends \XLite\Base\SuperClass
+abstract class AEntity extends \XLite\Base\SuperClass implements SerializableEntity
 {
     /**
      * @var \XLite\Core\CommonCell
@@ -338,7 +339,7 @@ abstract class AEntity extends \XLite\Base\SuperClass
     /**
      * Get entity unique identifier value
      *
-     * @return integer
+     * @return mixed
      */
     public function getUniqueIdentifier()
     {
@@ -355,8 +356,8 @@ abstract class AEntity extends \XLite\Base\SuperClass
     {
         try {
             $entityName = \XLite\Core\Database::getEM()->getMetadataFactory()->getMetadataFor(get_class($this))->getName();
-        } catch (MappingException $e) {
-            throw new \Exception('Given object ' . get_class($entity) . ' is not a Doctrine Entity. ');
+        } catch (\Doctrine\ORM\Mapping\MappingException $e) {
+            throw new \Exception('Given object ' . get_class($this) . ' is not a Doctrine Entity. ');
         }
 
         return $entityName;
@@ -522,7 +523,9 @@ abstract class AEntity extends \XLite\Base\SuperClass
                     \XLite\Core\Database::getEM()->flush();
                 }
 
-                $file->prepareSizes();
+                if (!(isset($data['delete']) && $data['delete'])) {
+                    $file->prepareSizes();
+                }
             }
         }
 
@@ -599,5 +602,13 @@ abstract class AEntity extends \XLite\Base\SuperClass
      */
     public function prepareEntityBeforeCommit($type)
     {
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isSerializable()
+    {
+        return null !== $this->getUniqueIdentifier();
     }
 }

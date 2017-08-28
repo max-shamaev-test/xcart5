@@ -8,12 +8,13 @@
 
 namespace XLite\Module\XC\FastLaneCheckout\View;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
 use \XLite\Module\XC\FastLaneCheckout;
 
 /**
  * Checkout fastlane app container
  */
-class CheckoutApp extends \XLite\View\AView
+class CheckoutApp extends \XLite\View\AView implements ProviderInterface
 {
     public function getJSFiles()
     {
@@ -102,9 +103,11 @@ class CheckoutApp extends \XLite\View\AView
      *
      * @return array
      */
-    protected function getPreloadedLabels()
+    public function getPreloadedLanguageLabels()
     {
         $list = array(
+            'Edit email',
+            'Edit address',
             'Enter a correct email',
             'Order can not be placed because not all required fields are completed. Please check the form and try again.',
             'Field is required!',

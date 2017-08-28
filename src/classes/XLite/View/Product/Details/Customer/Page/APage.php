@@ -13,9 +13,6 @@ namespace XLite\View\Product\Details\Customer\Page;
  */
 abstract class APage extends \XLite\View\Product\Details\Customer\ACustomer
 {
-    const SPECIFICATION_TAB_LIST = 'product.details.page.tab.attributes';
-    const DESCRIPTION_TAB_LIST = 'product.details.page.tab.description';
-
     /**
      * Tabs (cache)
      *
@@ -45,7 +42,7 @@ abstract class APage extends \XLite\View\Product\Details\Customer\ACustomer
 
     /**
      * Check - loupe icon is visible or not
-     * 
+     *
      * @return boolean
      */
     protected function isLoupeVisible()
@@ -56,11 +53,11 @@ abstract class APage extends \XLite\View\Product\Details\Customer\ACustomer
     // {{{ Tabs
 
     /**
-     * Compare tabs 
-     * 
+     * Compare tabs
+     *
      * @param array $a Tab 1
      * @param array $b tab 2
-     *  
+     *
      * @return integer
      */
     public function compareTabs(array $a, array $b)
@@ -144,44 +141,53 @@ abstract class APage extends \XLite\View\Product\Details\Customer\ACustomer
     {
         $list = array();
 
-        $this->defineDescriptionTab($list);
-        $this->defineSpecificationTab($list);
+        foreach ($this->getProduct()->getGlobalTabs() as $tab) {
+            $this->processGlobalTab($list, $tab);
+        }
 
         return $list;
     }
 
     /**
-     * Define the description tab
+     * Process global tab addition into list
      *
-     * @param array $list
+     * @param                                  $list
+     * @param \XLite\Model\Product\IProductTab $tab
      */
-    protected function defineDescriptionTab(&$list)
+    protected function processGlobalTab(&$list, $tab)
     {
-        if ($this->hasDescription()) {
-            $list['Description'] = array(
-                'list' => static::DESCRIPTION_TAB_LIST,
-            );
+        if ($tab->isAvailable() && $tab->getServiceName()) {
+            $this->applyStaticTabListValue($list, $tab);
         }
     }
 
     /**
-     * Define the specification tab
+     * Process global tab addition into list
      *
-     * @param array $list
+     * @param                                  $list
+     * @param \XLite\Model\Product\IProductTab $tab
      */
-    protected function defineSpecificationTab(&$list)
+    protected function applyStaticTabListValue(&$list, $tab)
     {
-        /**
-         * The specification tab is visible if the attributes list is configured
-         * as visible in the separated tab and at least one attribute widget is visible in it
-         */
-        if (
-            $this->getProduct()->getAttrSepTab()
-            && $this->isAttributesVisible()
-        ) {
-            $list['Specification'] = array(
-                'list' => static::SPECIFICATION_TAB_LIST,
-            );
+        switch ($tab->getServiceName()) {
+            case 'Description':
+                if ($this->hasDescription()) {
+                    $list[$tab->getServiceName()] = [
+                        'list'   => 'product.details.page.tab.description',
+                        'weight' => $tab->getPosition(),
+                        'name'   => $tab->getName(),
+                    ];
+                }
+                break;
+            case 'Specification':
+                if ($this->isAttributesVisible() && $this->getProduct()->getAttrSepTab()) {
+                    $list[$tab->getServiceName()] = [
+                        'list'   => 'product.details.page.tab.attributes',
+                        'weight' => $tab->getPosition(),
+                        'name'   => $tab->getName(),
+                    ];
+                }
+                break;
         }
     }
 
@@ -270,7 +276,7 @@ abstract class APage extends \XLite\View\Product\Details\Customer\ACustomer
      *
      * @return array
      */
-    protected function getAttributesWidgets()
+    public function getAttributesWidgets()
     {
         if (is_null($this->attributesWidgets)) {
             $this->defineAttributesWidgets();
@@ -325,5 +331,15 @@ abstract class APage extends \XLite\View\Product\Details\Customer\ACustomer
     protected function getLabels()
     {
         return [];
+    }
+
+    /**
+     * @return \XLite\Model\Product|null
+     */
+    protected function getProduct()
+    {
+        return method_exists(\XLite::getController(), 'getProduct')
+            ? \XLite::getController()->getProduct()
+            : null;
     }
 }

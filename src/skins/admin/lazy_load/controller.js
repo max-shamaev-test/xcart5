@@ -36,7 +36,7 @@ LazyLoadWidget.prototype.shadeWidget = false;
 LazyLoadWidget.prototype.isScheduledReload = false;
 
 LazyLoadWidget.autoload = function() {
-  jQuery('.lazy-load.active').each(function () {
+  jQuery('.lazy-load-widget.active').each(function () {
     new LazyLoadWidget(this);
   });
 };
@@ -55,6 +55,6 @@ LazyLoadWidget.prototype.handleLazyEvent = function(event, data) {
     },
     1000
   );
-}
+};
 
 core.autoload('LazyLoadWidget');

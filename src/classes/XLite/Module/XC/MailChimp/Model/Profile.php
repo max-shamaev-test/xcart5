@@ -46,7 +46,7 @@ abstract class Profile extends \XLite\Model\Profile implements \XLite\Base\IDeco
      *
      * @param array $data Entity properties OPTIONAL
      */
-    function __construct(array $data = array())
+    public function __construct(array $data = array())
     {
         $this->mail_chimp_lists = new \Doctrine\Common\Collections\ArrayCollection();
         $this->mail_chimp_segments = new \Doctrine\Common\Collections\ArrayCollection();

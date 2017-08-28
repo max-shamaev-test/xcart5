@@ -93,7 +93,7 @@ class PageTranslation extends \XLite\Model\Base\Translation
     /**
      * Set teaser
      *
-     * @param text $teaser
+     * @param string $teaser
      * @return PageTranslation
      */
     public function setTeaser($teaser)
@@ -105,7 +105,7 @@ class PageTranslation extends \XLite\Model\Base\Translation
     /**
      * Get teaser
      *
-     * @return text 
+     * @return string
      */
     public function getTeaser()
     {
@@ -115,7 +115,7 @@ class PageTranslation extends \XLite\Model\Base\Translation
     /**
      * Set body
      *
-     * @param text $body
+     * @param string $body
      * @return PageTranslation
      */
     public function setBody($body)
@@ -127,7 +127,7 @@ class PageTranslation extends \XLite\Model\Base\Translation
     /**
      * Get body
      *
-     * @return text 
+     * @return string
      */
     public function getBody()
     {
@@ -137,7 +137,7 @@ class PageTranslation extends \XLite\Model\Base\Translation
     /**
      * Set metaKeywords
      *
-     * @param text $metaKeywords
+     * @param string $metaKeywords
      * @return PageTranslation
      */
     public function setMetaKeywords($metaKeywords)
@@ -149,7 +149,7 @@ class PageTranslation extends \XLite\Model\Base\Translation
     /**
      * Get metaKeywords
      *
-     * @return text 
+     * @return string
      */
     public function getMetaKeywords()
     {

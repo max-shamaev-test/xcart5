@@ -8,6 +8,8 @@
 
 namespace XLite\Core;
 
+use Includes\Utils\FileManager;
+
 /**
  * Translation core rutine
  */
@@ -24,6 +26,13 @@ class Translation extends \XLite\Base\Singleton implements \XLite\Base\IREST
      * @var \XLite\Core\TranslationDriver\ATranslationDriver
      */
     protected $driver;
+
+    /**
+     * Translation postprocessor
+     *
+     * @var \XLite\Core\ITranslationProcessor
+     */
+    protected $processor;
 
     /**
      * Translation drivers query
@@ -117,6 +126,8 @@ class Translation extends \XLite\Base\Singleton implements \XLite\Base\IREST
             $result = $handler
                 ? $this->translateByHandler($handler, $name, $arguments, $code)
                 : $this->translateByString($name, $arguments, $code);
+
+            $result = $this->postprocessTranslation($result, $name, $arguments, $code);
         }
 
         return $result;
@@ -211,7 +222,7 @@ class Translation extends \XLite\Base\Singleton implements \XLite\Base\IREST
             $arguments = array();
         }
 
-        return $this->translate($id, $arguments);
+        return (string) $this->translate($id, $arguments);
     }
 
     /**
@@ -226,6 +237,28 @@ class Translation extends \XLite\Base\Singleton implements \XLite\Base\IREST
         }
 
         return $this->driver;
+    }
+
+    /**
+     * Get translation postprocessor.
+     *
+     * @return ITranslationProcessor
+     */
+    public function getProcessor()
+    {
+        return $this->processor;
+    }
+
+    /**
+     * Set translation postprocessor.
+     *
+     * @param ITranslationProcessor $value
+     * @return $this
+     */
+    public function setProcessor(ITranslationProcessor $value = null)
+    {
+        $this->processor = $value;
+        return $this;
     }
 
     /**
@@ -330,6 +363,30 @@ class Translation extends \XLite\Base\Singleton implements \XLite\Base\IREST
     }
 
     /**
+     * Translate by string
+     *
+     * @param string $translation      Translated label string
+     * @param string $name             Label name
+     * @param array  $arguments        Substitute arguments OPTIONAL
+     * @param string $code             Language code OPTIONAL
+     *
+     * @return string
+     */
+    public function postprocessTranslation($translation, $name, array $arguments = array(), $code = null)
+    {
+        if (empty($code)) {
+            $code = \XLite\Logic\Export\Generator::getLanguageCode()
+                ?: \XLite\Core\Session::getInstance()->getLanguage()->getCode();
+        }
+
+        if ($this->getProcessor()) {
+            $translation = $this->getProcessor()->postprocess($translation, $name, $arguments, $code);
+        }
+
+        return $translation;
+    }
+
+    /**
      * Process substitute
      *
      * @param string $string Translated label
@@ -343,10 +400,12 @@ class Translation extends \XLite\Base\Singleton implements \XLite\Base\IREST
         $values = array();
         foreach ($args as $k => $v) {
             $keys[] = '{{' . $k . '}}';
-            $values[] = $v;
+            $values[$k] = $v;
         }
 
-        return str_replace($keys, $values, $string);
+        return $this->getProcessor()
+            ? $this->getProcessor()->replaceVariables($string, $keys, $values)
+            : str_replace($keys, $values, $string);
     }
 
     /**
@@ -469,7 +528,7 @@ class Translation extends \XLite\Base\Singleton implements \XLite\Base\IREST
     {
         $result = false;
 
-        $data = \Symfony\Component\Yaml\Yaml::parse($fileName);
+        $data = FileManager::parseYamlFile($fileName);
 
         $dbLabels = array();
 

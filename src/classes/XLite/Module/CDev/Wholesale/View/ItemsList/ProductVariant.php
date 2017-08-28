@@ -26,14 +26,21 @@ class ProductVariant extends \XLite\Module\XC\ProductVariants\View\ItemsList\Mod
 
         foreach ($columns as $k => $v) {
             if ('price' == $k) {
-                $columns['wholesalePrices'] =  array(
+                $columns['wholesalePrices'] =  [
                     static::COLUMN_CLASS   => 'XLite\Module\CDev\Wholesale\View\FormField\WholesalePrices',
                     static::COLUMN_ORDERBY => $v[static::COLUMN_ORDERBY] + 1,
-                );
+                ];
                 break;
             }
         }
 
         return $columns;
+    }
+
+    public function getJSFiles()
+    {
+        return array_merge(parent::getJSFiles(), [
+            'modules/CDev/Wholesale/items_list/variants.js'
+        ]);
     }
 }

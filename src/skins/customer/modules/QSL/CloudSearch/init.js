@@ -14,16 +14,11 @@
         selector: cloudSearchData.selector,
         lang: cloudSearchData.lng,
         EventHandlers: {OnPopupRender: []},
-        requestData: {
-            membership: cloudSearchData.membership,
-            limits: {
-                products: cloudSearchData.maxProducts
-            }
-        },
+        requestData: cloudSearchData.requestData,
         positionPopupAt: function (searchInput) {
             var elem = searchInput.closest('.simple-search-box');
 
-            return elem.length == 1 ? elem : searchInput;
+            return elem.length === 1 ? elem : searchInput;
         }
     };
 

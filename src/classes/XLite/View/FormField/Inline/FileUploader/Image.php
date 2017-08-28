@@ -99,4 +99,20 @@ class Image extends \XLite\View\FormField\Inline\Base\Single
     {
         return false;
     }
+
+    /**
+     * @return null
+     */
+    protected function getSavedValue()
+    {
+        $savedValue = parent::getSavedValue();
+
+        if (is_array($savedValue)) {
+            $savedValue = isset($savedValue['temp_id'])
+                ? \XLite\Core\Database::getRepo('\XLite\Model\TemporaryFile')->find($savedValue['temp_id'])
+                : null;
+        }
+
+        return $savedValue;
+    }
 }

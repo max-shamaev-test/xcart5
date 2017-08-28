@@ -11,8 +11,10 @@ namespace XLite\Module\CDev\GoSocial\Model;
 /**
  * Category 
  */
-abstract class Category extends \XLite\Model\Category implements \XLite\Base\IDecorator
+class Category extends \XLite\Model\Category implements \XLite\Base\IDecorator
 {
+    use \XLite\Module\CDev\GoSocial\Core\OpenGraphTrait;
+
     /**
      * Custom Open graph meta tags
      *
@@ -32,11 +34,35 @@ abstract class Category extends \XLite\Model\Category implements \XLite\Base\IDe
     protected $useCustomOG = false;
 
     /**
-     * Get Open Graph meta tags
-     *
-     * @param boolean $preprocessed Preprocessed OPTIONAL
-     *
-     * @return string
+     * @inheritdoc
+     */
+    protected function isUseOpenGraphImage()
+    {
+        return (boolean)$this->getImage() || $this->isRootCategory();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getOpenGraphImageWidth()
+    {
+        return $this->getImage()
+            ? $this->getImage()->getWidth()
+            : null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getOpenGraphImageHeight()
+    {
+        return $this->getImage()
+            ? $this->getImage()->getHeight()
+            : null;
+    }
+
+    /**
+     * @inheritdoc
      */
     public function getOpenGraphMetaTags($preprocessed = true)
     {
@@ -48,43 +74,7 @@ abstract class Category extends \XLite\Model\Category implements \XLite\Base\IDe
     }
 
     /**
-     * Define Open Graph meta tags
-     *
-     * @return array
-     */
-    protected function defineOpenGraphMetaTags()
-    {
-        $list = array(
-            'og:title'       => $this->getOpenGraphTitle(),
-            'og:type'        => $this->getOpenGraphType(),
-            'og:url'         => $this->getOpenGraphURL(),
-            'og:site_name'   => $this->getOpenGraphSiteName(),
-            'og:description' => $this->getOpenGraphDescription(),
-            'og:locale'      => $this->getOpenGraphLocale(),
-        );
-
-        if ($this->getImage()) {
-            $list['og:image'] = $this->getOpenGraphImage();
-            $list['og:image:width'] = $this->getImage()->getWidth();
-            $list['og:image:height'] = $this->getImage()->getHeight();
-        }
-
-        $appId = $this->getOpenGraphAppId();
-        $admins = $this->getOpenGraphAdmins();
-        if ($appId) {
-            $list['fb:app_id'] = $appId;
-
-        } elseif ($admins) {
-            $list['fb:admins'] = $admins;
-        }
-
-        return $list;
-    }
-
-    /**
-     * Returns open graph title
-     *
-     * @return string
+     * @inheritdoc
      */
     protected function getOpenGraphTitle()
     {
@@ -92,9 +82,7 @@ abstract class Category extends \XLite\Model\Category implements \XLite\Base\IDe
     }
 
     /**
-     * Returns open graph type
-     *
-     * @return string
+     * @inheritdoc
      */
     protected function getOpenGraphType()
     {
@@ -102,29 +90,7 @@ abstract class Category extends \XLite\Model\Category implements \XLite\Base\IDe
     }
 
     /**
-     * Returns open graph url
-     *
-     * @return string
-     */
-    protected function getOpenGraphURL()
-    {
-        return '[PAGE_URL]';
-    }
-
-    /**
-     * Returns open graph site name
-     *
-     * @return string
-     */
-    protected function getOpenGraphSiteName()
-    {
-        return \XLite\Core\Config::getInstance()->Company->company_name;
-    }
-
-    /**
-     * Returns open graph description
-     *
-     * @return string
+     * @inheritdoc
      */
     protected function getOpenGraphDescription()
     {
@@ -132,97 +98,40 @@ abstract class Category extends \XLite\Model\Category implements \XLite\Base\IDe
     }
 
     /**
-     * Returns open graph locale
-     *
-     * @return string
-     */
-    protected function getOpenGraphLocale()
-    {
-        return \XLite\Core\Session::getInstance()->getLocale();
-    }
-
-    /**
-     * Returns open graph image
-     *
-     * @return string
-     */
-    protected function getOpenGraphImage()
-    {
-        return '[IMAGE_URL]';
-    }
-
-    /**
-     * Returns open graph app id
-     *
-     * @return string
-     */
-    protected function getOpenGraphAppId()
-    {
-        return \XLite\Core\Config::getInstance()->CDev->GoSocial->fb_app_id;
-    }
-
-    /**
-     * Returns open graph admins
-     *
-     * @return string
-     */
-    protected function getOpenGraphAdmins()
-    {
-        return \XLite\Core\Config::getInstance()->CDev->GoSocial->fb_admins;
-    }
-
-    /**
-     * Get generated Open Graph meta tags
-     *
-     * @return string
-     */
-    protected function generateOpenGraphMetaTags()
-    {
-        $list = $this->defineOpenGraphMetaTags();
-
-        $html = array();
-        foreach ($list as $k => $v) {
-            $html[] = '<meta property="' . $k . '" content="' . htmlentities($v, ENT_COMPAT, 'UTF-8') . '" />';
-        }
-
-        return implode("\n", $html);
-    }
-
-    /**
-     * Preprocess Open Graph meta tags
-     *
-     * @param string $tags Tags content
-     *
-     * @return string
+     * @inheritdoc
      */
     protected function preprocessOpenGraphMetaTags($tags)
     {
         $categoryURL = $this->getParent()
             ? \XLite\Core\Converter::makeURLValid(
                 \XLite::getInstance()->getShopURL(
-                    \XLite\Core\Converter::buildURL('category', '', array('category_id' => $this->getCategoryId()), \XLite::getCustomerScript())
+                    \XLite\Core\Converter::buildURL('category', '', ['category_id' => $this->getCategoryId()], \XLite::getCustomerScript())
                 )
             )
             : \XLite::getInstance()->getShopURL();
 
-        return str_replace(
-            array(
-                '[PAGE_URL]',
-                '[IMAGE_URL]',
-            ),
-            array(
-                $categoryURL,
-                $this->getImage() ? $this->getImage()->getFrontURL() : '',
-            ),
-            $tags
+        $imageURL = '';
+
+        if ($this->getImage()) {
+            $imageURL = $this->getImage()->getFrontURL();
+        } elseif ($this->isRootCategory()) {
+            $imageURL = \XLite::getInstance()->getShopURL(\XLite\Core\Layout::getInstance()->getLogo());
+        }
+
+        return strtr(
+            $tags,
+            [
+                '[PAGE_URL]' => $categoryURL,
+                '[IMAGE_URL]' => $imageURL,
+            ]
         );
     }
 
     /**
      * Set ogMeta
      *
-     * @param text $ogMeta
-     * @return Category
+     * @param string $ogMeta
+     * @return static
      */
     public function setOgMeta($ogMeta)
     {
@@ -231,9 +140,7 @@ abstract class Category extends \XLite\Model\Category implements \XLite\Base\IDe
     }
 
     /**
-     * Get ogMeta
-     *
-     * @return text 
+     * @inheritdoc
      */
     public function getOgMeta()
     {
@@ -244,7 +151,7 @@ abstract class Category extends \XLite\Model\Category implements \XLite\Base\IDe
      * Set useCustomOG
      *
      * @param boolean $useCustomOG
-     * @return Category
+     * @return static
      */
     public function setUseCustomOG($useCustomOG)
     {

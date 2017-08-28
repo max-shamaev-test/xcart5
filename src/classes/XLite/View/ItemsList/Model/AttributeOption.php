@@ -109,6 +109,14 @@ class AttributeOption extends \XLite\View\ItemsList\Model\Table
         return 'a.position';
     }
 
+    protected function getOrderBy()
+    {
+        return [
+            parent::getOrderBy(),
+            [ 'a.id', 'asc' ]
+        ];
+    }
+
     /**
      * Mark list as removable
      *
@@ -242,6 +250,8 @@ class AttributeOption extends \XLite\View\ItemsList\Model\Table
         if ($this->getAttribute()) {
             $result['id'] = $this->getAttribute()->getId();
         }
+
+        $result['product_class_id'] = \XLite\Core\Request::getInstance()->product_class_id;
 
         return $result;
     }

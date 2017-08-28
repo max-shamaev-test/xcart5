@@ -52,4 +52,14 @@ abstract class AModuleSkin extends AModule
     {
         return array();
     }
+
+    /**
+     * Check if skin supports cloud zoom
+     *
+     * @return boolean
+     */
+    public static function isUseCloudZoom()
+    {
+        return true;
+    }
 }

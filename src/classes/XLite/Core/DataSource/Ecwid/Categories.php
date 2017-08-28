@@ -104,7 +104,7 @@ class Categories extends \XLite\Core\DataSource\Base\Categories
      * @param mixed $position Position to go to
      *  
      * @return void
-     * @throws OutOfBoundException
+     * @throws \OutOfBoundsException
      */
     public function seek($position)
     {
@@ -120,7 +120,7 @@ class Categories extends \XLite\Core\DataSource\Base\Categories
      * Returns current category
      * 
      * @return void
-     * @throws OutOfBoundException
+     * @throws \OutOfBoundsException
      */
     public function current()
     {

@@ -8,7 +8,6 @@
 
 namespace XLite\Module\QSL\CloudSearch\Controller\Admin;
 
-use XLite\Core\Config;
 use XLite\Core\Request;
 use XLite\Module\QSL\CloudSearch\Core\ServiceApiClient;
 use XLite\Module\QSL\CloudSearch\Main;
@@ -36,7 +35,15 @@ class CloudSearchDashboardLoader extends \XLite\Controller\Admin\AAdmin
 
         $request = Request::getInstance();
 
-        $params = $request->section ? ['section' => $request->section] : [];
+        $params = [];
+
+        if ($request->section) {
+            $params['section'] = $request->section;
+        }
+
+        if ($request->settings) {
+            $params['settings'] = $request->settings;
+        }
 
         $this->redirect($apiClient->getDashboardIframeUrl($secretKey, $params));
     }

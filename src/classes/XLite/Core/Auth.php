@@ -58,7 +58,7 @@ class Auth extends \XLite\Base
     protected $sessionVarsToClear = array(
         'profile_id',
         'anonymous',
-        'hide_welcome_block',
+        'closedBlocks',
         'createProfilePassword',
         'dateOfLockLogin',
     );
@@ -266,7 +266,7 @@ class Auth extends \XLite\Base
                     $result = true;
                 }
 
-                if (\XLite::isAdminZone() || ($profile && $profile->isAdmin())) {
+                if ($profile && $profile->isAdmin()) {
                     if (\XLite\Core\Converter::time() < (\XLite\Core\Session::getInstance()->dateOfLockLogin + static::TIME_OF_LOCK_LOGIN)) {
                         $result = static::RESULT_LOGIN_IS_LOCKED;
 
@@ -314,10 +314,8 @@ class Auth extends \XLite\Base
                 $profile->setCountOfLoginAttempts($countOfLoginAttempts);
                 $profile->setDateOfLoginAttempt(\XLite\Core\Converter::time());
                 $profile->update();
-                if (
-                    \XLite::isAdminZone()
-                    && static::MAX_COUNT_OF_LOGIN_ATTEMPTS <= $profile->getCountOfLoginAttempts()
-                ) {
+
+                if (\XLite::isAdminZone() && static::MAX_COUNT_OF_LOGIN_ATTEMPTS <= $profile->getCountOfLoginAttempts()) {
                     \XLite\Core\Session::getInstance()->dateOfLockLogin = \XLite\Core\Converter::time();
                     \XLite\Core\Mailer::sendFailedAdminLoginAdmin($profile->getLogin());
                 }
@@ -445,7 +443,9 @@ class Auth extends \XLite\Base
      */
     public function isOperatingAsUserMode()
     {
-        return (bool) $this->getOperatingAs();
+        return (bool) $this->getOperatingAs()
+            && $this->getProfile()
+            && $this->getProfile()->getProfileId() === $this->getOperatingAs();
     }
 
     /**
@@ -485,13 +485,22 @@ class Auth extends \XLite\Base
                 $this->resetProfileCache();
                 $this->profile['isInitialized'] = true;
 
-                $profileId = $this->isOperatingAsUserMode() && !\XLite::isAdminScript()
-                    ? $this->getOperatingAs()
-                    : $this->getStoredProfileId();
+                $entity = null;
 
-                if (isset($profileId)) {
-                    $this->profile['object'] = \XLite\Core\Database::getRepo('XLite\Model\Profile')->find($profileId);
+                if ((bool) $this->getOperatingAs() && !\XLite::isAdminScript()) {
+                    $entity = \XLite\Core\Database::getRepo('XLite\Model\Profile')->find($this->getOperatingAs());
                 }
+
+                if (!$entity) {
+                    if ((bool) $this->getOperatingAs()) {
+                        \XLite\Core\TopMessage::addInfo('Finished operating as user');
+                        $this->finishOperatingAs();
+                    }
+
+                    $entity = \XLite\Core\Database::getRepo('XLite\Model\Profile')->find($this->getStoredProfileId());
+                }
+
+                $this->profile['object'] = $entity;
             }
 
             $result = $this->profile['object'];
@@ -817,6 +826,16 @@ class Auth extends \XLite\Base
         $profile = $this->getProfile();
 
         return $profile && $profile->isPermissionAllowed($code);
+    }
+
+    /**
+     * Check if current user has root access permission
+     *
+     * @return boolean
+     */
+    public function hasRootAccess()
+    {
+        return $this->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS);
     }
 
     /**

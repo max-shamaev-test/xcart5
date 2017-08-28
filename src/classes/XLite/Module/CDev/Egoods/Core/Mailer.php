@@ -43,7 +43,7 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
             static::getOrdersDepartmentMail(),
             $order->getProfile()->getLogin(),
             'modules/CDev/Egoods/egoods_links',
-            array(),
+            [],
             true,
             \XLite::CUSTOMER_INTERFACE,
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())

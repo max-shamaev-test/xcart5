@@ -45,7 +45,7 @@ define(
       updateStates: function() {
         if (typeof StateSelector !== 'undefined') {
           StateSelector.updateStateValueOnce = true;
-          UpdateStatesList();
+          StatesList.getInstance().updateStatesList();
         }
       }
     },

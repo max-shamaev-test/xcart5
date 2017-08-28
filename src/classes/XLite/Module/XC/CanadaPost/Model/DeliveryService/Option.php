@@ -203,7 +203,7 @@ class Option extends \XLite\Model\AEntity
     /**
      * Set qualifierMax
      *
-     * @param decimal $qualifierMax
+     * @param float $qualifierMax
      * @return Option
      */
     public function setQualifierMax($qualifierMax)
@@ -215,7 +215,7 @@ class Option extends \XLite\Model\AEntity
     /**
      * Get qualifierMax
      *
-     * @return decimal 
+     * @return float
      */
     public function getQualifierMax()
     {

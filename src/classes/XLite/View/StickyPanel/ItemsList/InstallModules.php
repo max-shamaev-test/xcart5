@@ -30,7 +30,7 @@ class InstallModules extends \XLite\View\StickyPanel\ItemsListForm
      */
     public function getCSSFiles()
     {
-        $list = parent::getCSSFiles();
+        $list   = parent::getCSSFiles();
         $list[] = 'modules_manager/css/install_modules.css';
 
         return $list;
@@ -73,32 +73,55 @@ class InstallModules extends \XLite\View\StickyPanel\ItemsListForm
     }
 
     /**
-     * Get "save" widget
-     *
-     * @return \XLite\View\Button\Submit
+     * @return boolean
+     */
+    public function isShowPharPopup()
+    {
+        $requirements = new \Includes\Requirements();
+        $result = $requirements->getResult();
+
+        return !isset($result['php_phar']['data']['version'])
+            || empty($result['php_phar']['data']['version']);
+    }
+
+    /**
+     * @inheritdoc
      */
     protected function getSaveWidget()
     {
         $modules = $this->getModulesToInstall();
 
-        return $this->isKeysNoticeAutoDisplay()
-            ? $this->getWidget(
+        if ($this->isKeysNoticeAutoDisplay()) {
+            return $this->getWidget(
                 [
-                    'label'      => static::t('Install modules'),
-                    'forcePopup' => false,
+                    'style'       => 'action submit',
+                    'button-type' => 'regular-main-button',
+                    'label'       => static::t('Install addons'),
+                    'forcePopup'  => false,
                 ],
-                // License warning popup button
                 'XLite\View\Button\KeysNotice'
-            )
-            : $this->getWidget(
+            );
+        } elseif ($this->isShowPharPopup()) {
+            return $this->getWidget(
                 [
-                    'style'    => 'action submit',
-                    'label'    => static::t('Install modules'),
-                    'disabled' => empty($modules),
+                    'style'       => 'action submit',
+                    'button-type' => 'regular-main-button',
+                    'label'       => static::t('Install addons'),
+                    'disabled'    => empty($modules),
                 ],
-                // LAs of the modules popup button
+                'XLite\View\Button\Popup\UpgradePhar'
+            );
+        } else {
+            return $this->getWidget(
+                [
+                    'style'       => 'action submit',
+                    'button-type' => 'regular-main-button',
+                    'label'       => static::t('Install addons'),
+                    'disabled'    => empty($modules),
+                ],
                 'XLite\View\Button\Addon\InstallModules'
             );
+        }
     }
 
     /**

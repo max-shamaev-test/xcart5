@@ -51,7 +51,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '1';
+        return '2';
     }
 
     /**
@@ -61,7 +61,17 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '1';
+        return '0';
+    }
+
+    /**
+     * Get minor core version which is required for the module activation
+     *
+     * @return string
+     */
+    public static function getMinorRequiredCoreVersion()
+    {
+        return '3';
     }
 
     /**
@@ -75,23 +85,33 @@ abstract class Main extends \XLite\Module\AModule
     }
 
     /**
+     * Determines if we need to show settings form link
+     *
+     * @return boolean
+     */
+    public static function showSettingsForm()
+    {
+        return true;
+    }
+
+    /**
      * Removes some inventory tracking templates to extend them with PIN Codes specific features
      *
      * @return array
      */
     protected static function moveTemplatesInLists()
     {
-        return array(
-            'product/inventory/inv_track_amount.twig' => array(
-                static::TO_DELETE => array(
-                    array('product.inventory.parts', \XLite\Model\ViewList::INTERFACE_ADMIN),
-                ),
-            ),
-            'product/inventory/inv_track_selector.twig' => array(
-                static::TO_DELETE => array(
-                    array('product.inventory.parts', \XLite\Model\ViewList::INTERFACE_ADMIN),
-                ),
-            )
-        );
+        return [
+            'product/inventory/inv_track_amount.twig' => [
+                static::TO_DELETE => [
+                    ['product.inventory.parts', \XLite\Model\ViewList::INTERFACE_ADMIN],
+                ],
+            ],
+            'product/inventory/inv_track_selector.twig' => [
+                static::TO_DELETE => [
+                    ['product.inventory.parts', \XLite\Model\ViewList::INTERFACE_ADMIN],
+                ],
+            ]
+        ];
     }
 }

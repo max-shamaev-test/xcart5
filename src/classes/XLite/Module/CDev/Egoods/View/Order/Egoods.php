@@ -63,7 +63,7 @@ class Egoods extends \XLite\View\AView
     protected function getItems()
     {
         if (!isset($this->items)) {
-            $this->items = array();
+            $this->items = [];
             foreach ($this->getOrder()->getItems() as $item) {
                 if (0 < count($item->getPrivateAttachments())) {
                     $this->items[] = $item;
@@ -84,7 +84,7 @@ class Egoods extends \XLite\View\AView
      */
     protected function getAttachmentClass($index, \XLite\Module\CDev\Egoods\Model\OrderItem\PrivateAttachment $attachment)
     {
-        $classes = array();
+        $classes = [];
 
         if (0 == $index % 3) {
             $classes[] = 'last-row';
@@ -108,10 +108,10 @@ class Egoods extends \XLite\View\AView
             $label = static::t('less one hour');
 
         } elseif (86400 > $ttl) {
-            $label = static::t('X hours', array('hours' => floor($ttl / 3600)));
+            $label = static::t('X hours', ['hours' => floor($ttl / 3600)]);
 
         } else {
-            $label = static::t('X days', array('days' => floor($ttl / 86400)));
+            $label = static::t('X days', ['days' => floor($ttl / 86400)]);
 
         }
 

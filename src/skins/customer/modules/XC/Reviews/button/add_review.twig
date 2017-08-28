@@ -5,9 +5,12 @@
  #}
 <div id="product-reviews-button">
     {% if this.isAllowedAddReview() %}
-      {{ widget('\\XLite\\Module\\XC\\Reviews\\View\\Button\\Customer\\AddReview', label=t('Add review'), style='regular-main-button', product=this.product) }}
-    {% endif %}
-    {% if not this.isAllowedAddReview() %}
+      {% if this.isReplaceAddReviewWithLogin() %}
+        {{ widget('\\XLite\\Module\\XC\\Reviews\\View\\Button\\PopupLogin', label=t('Add review'), product=this.product) }}
+      {% else %}
+        {{ widget('\\XLite\\Module\\XC\\Reviews\\View\\Button\\Customer\\AddReview', label=t('Add review'), product=this.product) }}
+      {% endif %}
+    {% else %}
       <div class="add-review-button-disabled">
           {{ this.getAddReviewMessage() }}
       </div>

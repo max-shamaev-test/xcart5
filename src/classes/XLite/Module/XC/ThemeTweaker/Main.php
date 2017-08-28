@@ -40,7 +40,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '2';
+        return '3';
     }
 
     /**
@@ -49,6 +49,16 @@ abstract class Main extends \XLite\Module\AModule
      * @return string
      */
     public static function getBuildVersion()
+    {
+        return '2';
+    }
+
+    /**
+     * Get minor core version which is required for the module activation
+     *
+     * @return string
+     */
+    public static function getMinorRequiredCoreVersion()
     {
         return '3';
     }
@@ -94,40 +104,6 @@ abstract class Main extends \XLite\Module\AModule
         $list[] = 'CDev\DrupalConnector';
 
         return $list;
-    }
-
-    /**
-     * Check target allowed
-     *
-     * @return boolean
-     */
-    public static function isTargetAllowed()
-    {
-        return !in_array(\XLite\Core\Request::getInstance()->target, ['image'], true);
-    }
-
-    /**
-     * Check target allowed
-     *
-     * @return boolean
-     */
-    public static function isAdminTargetAllowed()
-    {
-        return in_array(\XLite\Core\Request::getInstance()->target, ['notification_editor'], true);
-    }
-
-    /**
-     * Check user allowed
-     *
-     * @return boolean
-     */
-    public static function isUserAllowed()
-    {
-        $auth = \XLite\Core\Auth::getInstance();
-
-        return $auth->getProfile()
-               && $auth->getProfile()->isAdmin()
-               && \XLite\Core\Auth::getInstance()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS);
     }
 
     /**

@@ -132,9 +132,9 @@ VoteBarView.prototype.postprocess = function(isSuccess, initial)
       }
     );
 
-    jQuery(this.base).bind('re-load', function (event) {
+    jQuery(this.base).bind('re-load', _.throttle(function (event) {
       o.load();
-    });
+    }, 1000, {trailing: false}));
 
     this.base.closest('form').eq(0).commonController('bindElements');
   }
@@ -153,9 +153,7 @@ VoteBarView.prototype.getParams = function(params)
   return params;
 };
 
-// Form submit handler
-VoteBarView.prototype.rateProduct = function(event, block)
-{
+VoteBarView.prototype.rateProduct = _.throttle(function(event, block) {
   var form = jQuery(block).closest('.product-average-rating');
 
   var rating = jQuery('input[name=rating]', form).eq(0).val();
@@ -190,7 +188,7 @@ VoteBarView.prototype.rateProduct = function(event, block)
   );
 
   return false;
-};
+}, 1000, {trailing: false});
 
 // Form POST processor
 VoteBarView.prototype.postprocessRateProduct = function(XMLHttpRequest, textStatus, data, isValid)

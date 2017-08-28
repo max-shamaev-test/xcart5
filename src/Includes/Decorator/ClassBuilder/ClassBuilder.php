@@ -17,6 +17,7 @@ use Includes\Reflection\StaticReflectorInterface;
 use Includes\SourceToTargetPathMapperInterface;
 use Includes\Reflection\StaticReflectorFactoryInterface;
 use Includes\Autoload\StreamWrapperInterface;
+use Includes\Utils\FileManager;
 
 class ClassBuilder extends AbstractClassBuilder
 {
@@ -78,6 +79,8 @@ class ClassBuilder extends AbstractClassBuilder
                 $this->builtClasses += $this->buildClass($reflector, $class);
             }
         }
+
+        return isset($this->builtClasses[$class]) ? $this->builtClasses[$class] : null;
     }
 
     public function buildClassname($class)
@@ -95,6 +98,20 @@ class ClassBuilder extends AbstractClassBuilder
         $this->builtClasses += $this->buildClass($reflector, $class);
 
         return isset($this->builtClasses[$class]) ? $this->builtClasses[$class] : null;
+    }
+
+    public function getDecoratedAncestorForPathname($pathname)
+    {
+        $class = $this->sourceClassPathResolver->getClass($pathname);
+
+        return $this->getDecoratedAncestorForClassname($class);
+    }
+
+    public function getDecoratedAncestorForClassname($class)
+    {
+        $ancestor = $this->getDecoratedAncestorClassName($class);
+
+        return isset($this->builtClasses[$ancestor]) ? $this->builtClasses[$ancestor] : null;
     }
 
     protected function buildClass(StaticReflectorInterface $reflector, $class)
@@ -133,7 +150,7 @@ class ClassBuilder extends AbstractClassBuilder
 
         if (
             !$this->decoratorExtractor->areClassDecoratorsChanged($class)
-            && $this->getSourceMtime($class) < $this->getTargetMtime($class)
+            && $this->getSourceMtime($class) <= $this->getTargetMtime($class)
         ) {
             $builtClasses = [];
 
@@ -173,7 +190,9 @@ class ClassBuilder extends AbstractClassBuilder
         $decorators = $this->decoratorExtractor->getClassDecorators($class);
 
         if (empty($decorators)) {
+            $this->touchOriginalClass($class);
             $this->copyClass($class);
+            $this->removeServiceFiles($class);
 
             return [$class => $this->shuttingDown ? $this->getStream($class) : $this->getWrappedStream($class)];
         }
@@ -185,6 +204,10 @@ class ClassBuilder extends AbstractClassBuilder
 
         if ($original->isEntity()) {
             $generator->removeEntityAnnotations();
+        }
+
+        if (true || defined('LC_APIDOC_GENERATION_MODE')) {
+            $generator->removeApiDocAnnotations();
         }
 
         $this->writeToClass($ancestor, $generator->getSource());
@@ -246,6 +269,25 @@ class ClassBuilder extends AbstractClassBuilder
         return count($parts) > 3 && $parts[1] == 'Module'
             ? $parts[2] . '\\' . $parts[3]
             : null;
+    }
+
+    protected function touchOriginalClass($class)
+    {
+        $sourcePathname = $this->sourceClassPathResolver->getPathname($class);
+
+        touch($sourcePathname);
+    }
+
+    /**
+     * @param $class
+     */
+    protected function removeServiceFiles($class)
+    {
+        $targetPathnameAbstract = $this->targetClassPathResolver->getPathname(
+            $this->getDecoratedAncestorClassName($class)
+        );
+
+        FileManager::deleteFile($targetPathnameAbstract);
     }
 
     /**

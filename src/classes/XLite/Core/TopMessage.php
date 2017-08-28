@@ -151,7 +151,7 @@ class TopMessage extends \XLite\Base\Singleton
             }
 
             if (!$rawText) {
-                $text = static::t($text, $arguments, $code);
+                $text = (string) static::t($text, $arguments, $code);
             }
 
             if (!in_array($type, $this->types, true)) {

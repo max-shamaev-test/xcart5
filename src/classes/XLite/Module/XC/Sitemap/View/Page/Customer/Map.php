@@ -22,7 +22,7 @@ class Map extends \XLite\View\AView
      */
     public static function getAllowedTargets()
     {
-        return array_merge(parent::getAllowedTargets(), array('map'));
+        return array_merge(parent::getAllowedTargets(), ['map']);
     }
 
     /**

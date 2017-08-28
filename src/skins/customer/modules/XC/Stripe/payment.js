@@ -25,7 +25,13 @@ core.bind(
               jQuery('.stripe-box .token').val(token.id);
               jQuery('body').css('overflow', 'visible');
               jQuery('form.place').submit();
-            }
+            },
+            opened: function() {
+              core.trigger('stripe.checkout.opened');
+            },
+            closed: function() {
+              core.trigger('stripe.checkout.closed');
+            },
           };
           if (box.data('image')) {
             options.image = box.data('image');
@@ -54,7 +60,15 @@ core.bind(
       'checkout.common.ready',
       function(event, state) {
         var box = jQuery('.stripe-box');
-        if (handler && box.length && !box.find('.token').val()) {
+
+        var isNewCheckout = typeof Checkout !== 'undefined'
+            && typeof Checkout.instance !== 'undefined';
+
+        if (handler
+            && box.length
+            && !box.find('.token').val()
+            && (!isNewCheckout || Checkout.instance.getState().sections.current.name === 'payment')
+        ) {
           var email = jQuery('#email').val();
           handler.open({
             name:        box.data('name'),
@@ -69,5 +83,11 @@ core.bind(
       }
     );
 
+    core.bind(
+      'stripe.checkout.closed',
+      function() {
+        core.trigger('checkout.common.unblock');
+      }
+    );
   }
 );

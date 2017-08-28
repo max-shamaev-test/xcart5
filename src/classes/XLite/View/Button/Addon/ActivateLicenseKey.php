@@ -11,7 +11,7 @@ namespace XLite\View\Button\Addon;
 /**
  * Activate license key popup text
  * 
- * @ListChild (list="install-modules.pager.buttons", weight="200", zone="admin")
+ * @ListChild (list="marketplace.addons-filters", weight="300", zone="admin")
  */
 class ActivateLicenseKey extends \XLite\View\Button\ActivateKey
 {

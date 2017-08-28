@@ -21,7 +21,6 @@ class LayoutEdit extends \XLite\Controller\Admin\AAdmin
     public static function defineFreeFormIdActions()
     {
         $list = parent::defineFreeFormIdActions();
-        $list[] = 'apply_changes';
         $list[] = 'disable';
 
         return $list;

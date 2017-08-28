@@ -211,6 +211,20 @@ class ShippingEstimate extends \XLite\View\AView
     }
 
     /**
+     * Get City
+     *
+     * @return string
+     */
+    protected function getCity()
+    {
+        $address = $this->getAddress();
+
+        return ($address && isset($address['city']))
+            ? $address['city']
+            : '';
+    }
+
+    /**
      * Get address type code
      *
      * @return string

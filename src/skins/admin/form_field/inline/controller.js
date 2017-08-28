@@ -17,6 +17,7 @@ CommonForm.elementControllers.push(
       var obj = this;
 
       this.viewValuePattern = '.view';
+      this.isAffectWholeLine = true;
 
       var line = field.parents('.line').eq(0);
       var list = line.parents('.items-list').eq(0);
@@ -48,7 +49,7 @@ CommonForm.elementControllers.push(
         ) {
           field.trigger('beforeStartEditInline');
 
-          if (row) {
+          if (row && this.isAffectWholeLine) {
             line.addClass('edit-open-mark');
 
           } else {
@@ -75,7 +76,7 @@ CommonForm.elementControllers.push(
 
         // undefined value cannot be saved
         if (value !== undefined && "" !== value) {
-          var preparedValue = field.data('is-escape')
+          var preparedValue = field.data('is-escape') && (_.isUndefined(inputs.data().isEscape) || inputs.data('is-escape'))
             ? htmlspecialchars("" == value ? " " : value, null, null, false)
             : ("" == value ? " " : value);
           var data = {
@@ -108,13 +109,18 @@ CommonForm.elementControllers.push(
         var result = '';
         if (input) {
           if (input.is('select')) {
+            if (input.is('[multiple]')) {
+              return result;
+            }
             var elm = input.get(0);
             var option = jQuery(elm.options[elm.selectedIndex]);
-            if (option.data('value')) {
-              result = option.data('value');
+            if (option.length) {
+              if (option.data('value')) {
+                result = option.data('value');
 
-            } else {
-              result = elm.options[elm.selectedIndex].text;
+              } else {
+                result = elm.options[elm.selectedIndex].text;
+              }
             }
 
           } else {

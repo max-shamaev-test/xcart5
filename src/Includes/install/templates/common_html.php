@@ -420,7 +420,7 @@ div.content
   margin-bottom: 5px;
 }
 
-.error-text.lc_file_permissions .copy2clipboard-alert {
+.error-text.file_permissions .copy2clipboard-alert {
   position: absolute;
   padding: 6px;
   margin-top: 24px;
@@ -638,7 +638,7 @@ input[type="button"].active-button {
   padding-top: 0;
 }
 
-.status-report-box .error-text.lc_php_version b {
+.status-report-box .error-text.php_version b {
   color: #c11600;
 }
 

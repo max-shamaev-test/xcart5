@@ -11,7 +11,7 @@ namespace XLite\Module\CDev\Egoods\View\Tabs;
 /**
  * Tabs related to user profile section
  */
-abstract class Account extends \XLite\View\Tabs\Account implements \XLite\Base\IDecorator
+class Account extends \XLite\View\Tabs\Account implements \XLite\Base\IDecorator
 {
     /**
      * Returns the list of targets where this widget is available
@@ -50,6 +50,6 @@ abstract class Account extends \XLite\View\Tabs\Account implements \XLite\Base\I
      */
     public function getOrdersWithFiles()
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Order')->findAllOrdersWithEgoods($this->getProfile());
+        return \XLite\Core\Database::getRepo('XLite\Model\Order')->findAllOrdersWithEgoods($this->getProfile(), false);
     }
 }

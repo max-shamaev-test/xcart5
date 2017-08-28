@@ -7,4 +7,4 @@
 
 XLite\Model\LanguageLabel:
   - { name: "Sitemap", translations: [{ code: en, label: "Sitemap" }] }
-  - { name: "Static pages", translations: [{ code: en, label: "Static pages" }] }
+  - { name: "Information", translations: [{ code: en, label: "Information" }] }

@@ -38,7 +38,7 @@ class Tracking extends \XLite\Model\Repo\ARepo
     /**
      * Find all expired tracking details
      *
-     * @return \Doctrine\Common\Collection\ArrayCollection
+     * @return \Doctrine\Common\Collections\ArrayCollection
      */
     public function findAllExpiredDetails()
     {

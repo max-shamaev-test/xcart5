@@ -18,9 +18,9 @@ class LeftMenu extends \XLite\View\Menu\Admin\LeftMenu implements \XLite\Base\ID
      *
      * @return array
      */
-    protected function defineItems()
+    protected function defineBottomItems()
     {
-        $items = parent::defineItems();
+        $items = parent::defineBottomItems();
 
         if (isset($items['store_setup'])
             && isset($items['store_setup'][static::ITEM_CHILDREN])

@@ -46,12 +46,12 @@ class Inventory extends \XLite\Model\DTO\Product\Inventory implements \XLite\Bas
         $minimumPurchaseQuantity = [];
 
         foreach ($this->minimum_purchase_quantity as $id => $data) {
-            $rate = array(
+            $rate = [
                 'quantity' => max(1, (int) $data),
                 'product'  => $object,
-            );
+            ];
 
-            $membership = $membershipRepo->findOneBy(array('membership_id' => str_replace('membership_', '', $id)));
+            $membership = $membershipRepo->findOneBy(['membership_id' => str_replace('membership_', '', $id)]);
             if ($membership) {
                 $rate['membership'] = $membership;
             }

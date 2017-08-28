@@ -123,7 +123,7 @@ class AccessDenied extends \XLite\View\AView
         if (\XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('CDev\ContactUs')) {
             $location = $this->buildURL('contact_us');
         } else {
-            $email = \XLite\Core\Config::getInstance()->Company->site_administrator;
+            $email = \XLite\Core\Mailer::getSiteAdministratorMail();
             $location = 'mailto:' . $email;
         }
 

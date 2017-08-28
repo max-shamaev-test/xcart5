@@ -30,10 +30,10 @@ class LocationSelectPopup extends \XLite\View\Button\APopupButton
     {
         return array_merge(
             parent::getJSFiles(),
-            array(
+            [
                 'form_field/select_country.js',
                 'modules/XC/Geolocation/location_popup/controller.js',
-            )
+            ]
         );
     }
 
@@ -46,10 +46,10 @@ class LocationSelectPopup extends \XLite\View\Button\APopupButton
     {
         return array_merge(
             parent::getCSSFiles(),
-            array(
+            [
                 'form_field/form_field.css',
                 'modules/XC/Geolocation/location_popup/style.css',
-            )
+            ]
         );
     }
 
@@ -96,11 +96,11 @@ class LocationSelectPopup extends \XLite\View\Button\APopupButton
      */
     protected function prepareURLParams()
     {
-        return array(
+        return [
             'target' => 'location_select',
             'widget' => 'XLite\Module\XC\Geolocation\View\LocationSelect',
             'returnUrl' => \XLite\Core\URLManager::getCurrentURL(),
-        );
+        ];
     }
 
     /**

@@ -13,6 +13,8 @@ namespace XLite\Controller\Admin;
  */
 class Profile extends \XLite\Controller\Admin\AAdmin
 {
+    const PASSWORD_RESET_KEY_EXP_TIME = 3600;
+
     /**
      * Controller parameters (to generate correct URL in getURL() method)
      *
@@ -52,7 +54,7 @@ class Profile extends \XLite\Controller\Admin\AAdmin
         $profile = $this->getProfile();
 
         $allowedForCurrentUser = \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage users');
-        if ( $profile && $profile->isAdmin() && !\XLite\Core\Auth::getInstance()->isPermissionAllowed('manage admins')) {
+        if ($profile && $profile->isAdmin() && !\XLite\Core\Auth::getInstance()->isPermissionAllowed('manage admins')) {
             $allowedForCurrentUser = false;
         }
 
@@ -129,7 +131,7 @@ class Profile extends \XLite\Controller\Admin\AAdmin
      */
     public static function defineFreeFormIdActions()
     {
-        return array_merge(parent::defineFreeFormIdActions(), array('finishOperateAs'));
+        return array_merge(parent::defineFreeFormIdActions(), array('finishOperateAs', 'recover_password'));
     }
 
     /**
@@ -162,10 +164,7 @@ class Profile extends \XLite\Controller\Admin\AAdmin
             } else {
 
                 // Send notification
-                \XLite\Core\Mailer::sendProfileCreated(
-                    $this->getProfile(),
-                    \XLite\Core\Request::getInstance()->password
-                );
+                \XLite\Core\Mailer::sendProfileCreated($this->getProfile());
 
                 // Return to the created profile page
                 $params = array('profile_id' => $this->getProfile()->getProfileId());
@@ -181,7 +180,11 @@ class Profile extends \XLite\Controller\Admin\AAdmin
                 $password = \XLite\Core\Request::getInstance()->password;
             }
 
-            \XLite\Core\Mailer::sendProfileUpdated($this->getProfile(), $password);
+            if (!\XLite::isAdminZone()
+                || $this->getProfile()->getProfileId() != \XLite\Core\Auth::getInstance()->getProfile()->getProfileId()
+            ) {
+                \XLite\Core\Mailer::sendProfileUpdated($this->getProfile());
+            }
 
             // Get profile ID from modified profile model
             $profileId = $this->getProfile()->getProfileId();
@@ -292,6 +295,7 @@ class Profile extends \XLite\Controller\Admin\AAdmin
         if (
             $profile
             && !$profile->getAnonymous()
+            && !\XLite::isFreeLicense()
         ) {
             \XLite\Core\Auth::getInstance()->setOperatingAs($profile);
 
@@ -334,6 +338,7 @@ class Profile extends \XLite\Controller\Admin\AAdmin
 
         if (
             $profile
+//            && false
             && !$profile->getAnonymous()
             && $profile->isAdmin()
             && !$profile->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS)
@@ -351,6 +356,81 @@ class Profile extends \XLite\Controller\Admin\AAdmin
                     \XLite::getAdminScript()
                 )
             );
+
+        } else {
+            if ($profile) {
+                $this->setReturnURL($this->buildURL('profile', '', ['profile_id' => $profile->getProfileId()]));
+            }
         }
+
+        $this->setHardRedirect(true);
+    }
+
+    /**
+     * doActionRecoverPassword
+     *
+     * @return void
+     */
+    protected function doActionRecoverPassword()
+    {
+        /** @var \XLite\Model\Profile $profile */
+        $profile = $this->getModelForm()->getModelObject();
+
+        if ($this->requestRecoverPassword($profile)) {
+            \XLite\Core\TopMessage::addInfo(
+                'The confirmation URL link was mailed to email',
+                ['email' => $profile->getLogin()]
+            );
+        }
+
+        $this->setReturnURL($this->buildURL('profile', '', ['profile_id' => $profile->getProfileId()]));
+    }
+
+    /**
+     * @param \XLite\Model\Profile $profile
+     *
+     * @return boolean
+     */
+    protected function requestRecoverPassword($profile)
+    {
+        $result = false;
+        if ($profile
+            && $profile->getProfileId() === \XLite\Core\Auth::getInstance()->getProfile()->getProfileId()
+        ) {
+            if ('' === $profile->getPasswordResetKey()
+                || 0 === $profile->getPasswordResetKeyDate()
+                || \XLite\Core\Converter::time() > $profile->getPasswordResetKeyDate()
+            ) {
+                // Generate new 'password reset key'
+                $profile->setPasswordResetKey($this->generatePasswordResetKey());
+                $profile->setPasswordResetKeyDate(\XLite\Core\Converter::time() + static::PASSWORD_RESET_KEY_EXP_TIME);
+
+                $profile->update();
+            }
+
+            \XLite\Core\Mailer::sendRecoverPasswordRequest($profile->getLogin(), $profile->getPasswordResetKey());
+
+            $result = true;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Generates password reset key
+     *
+     * @return string
+     */
+    protected function generatePasswordResetKey()
+    {
+        $result = \XLite\Core\Auth::encryptPassword(microtime(), \XLite\Core\Auth::DEFAULT_HASH_ALGO);
+
+        if (!empty($result)
+            && 0 === strpos($result, \XLite\Core\Auth::DEFAULT_HASH_ALGO)
+        ) {
+            $result = substr($result, 7);
+        }
+
+        return $result;
     }
 }

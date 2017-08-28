@@ -50,6 +50,15 @@ class Review extends \XLite\Model\AEntity
     protected $review = '';
 
     /**
+     * Response text
+     *
+     * @var string
+     *
+     * @Column (type="text", nullable=true)
+     */
+    protected $response = '';
+
+    /**
      * Review rating
      *
      * @var integer
@@ -68,6 +77,15 @@ class Review extends \XLite\Model\AEntity
     protected $additionDate;
 
     /**
+     * Respond date (UNIX timestamp)
+     *
+     * @var integer
+     *
+     * @Column (type="integer", nullable=true)
+     */
+    protected $responseDate;
+
+    /**
      * Relation to a profile entity (who adds review)
      *
      * @var \XLite\Model\Profile
@@ -76,6 +94,16 @@ class Review extends \XLite\Model\AEntity
      * @JoinColumn (name="profile_id", referencedColumnName="profile_id", onDelete="SET NULL")
      */
     protected $profile;
+
+    /**
+     * Respondent profile
+     *
+     * @var \XLite\Model\Profile
+     *
+     * @ManyToOne  (targetEntity="XLite\Model\Profile")
+     * @JoinColumn (name="respondent_id", referencedColumnName="profile_id", onDelete="SET NULL")
+     */
+    protected $respondent;
 
     /**
      * Reviewer name
@@ -192,12 +220,12 @@ class Review extends \XLite\Model\AEntity
      */
     public function getMetaDescription()
     {
-        $data = array(
+        $data = [
             'rating'       => $this->getProduct()->getAverageRating(),
             'maxRating'    => static::MAX_RATING,
             'reviewerName' => $this->getReviewerName(),
             'review'       => $this->getReview(),
-        );
+        ];
 
         return \XLite::t('reviewMetaDescription', $data);
     }
@@ -260,7 +288,7 @@ class Review extends \XLite\Model\AEntity
      */
     public function map(array $data)
     {
-        $reviewData = array();
+        $reviewData = [];
 
         foreach ($data as $key => $value) {
             if ($this->isPropertyExists($key)) {
@@ -282,6 +310,16 @@ class Review extends \XLite\Model\AEntity
     }
 
     /**
+     * Get review
+     *
+     * @return string
+     */
+    public function getReview()
+    {
+        return $this->review;
+    }
+
+    /**
      * Set review
      *
      * @param string $review
@@ -294,13 +332,26 @@ class Review extends \XLite\Model\AEntity
     }
 
     /**
-     * Get review
+     * Return Response
      *
      * @return string
      */
-    public function getReview()
+    public function getResponse()
     {
-        return $this->review;
+        return (string)$this->response;
+    }
+
+    /**
+     * Set Response
+     *
+     * @param string $response
+     *
+     * @return $this
+     */
+    public function setResponse($response)
+    {
+        $this->response = $response;
+        return $this;
     }
 
     /**
@@ -333,6 +384,29 @@ class Review extends \XLite\Model\AEntity
     public function getAdditionDate()
     {
         return $this->additionDate;
+    }
+
+    /**
+     * Return ResponseDate
+     *
+     * @return int
+     */
+    public function getResponseDate()
+    {
+        return $this->responseDate;
+    }
+
+    /**
+     * Set ResponseDate
+     *
+     * @param int $responseDate
+     *
+     * @return $this
+     */
+    public function setResponseDate($responseDate)
+    {
+        $this->responseDate = $responseDate;
+        return $this;
     }
 
     /**
@@ -499,6 +573,39 @@ class Review extends \XLite\Model\AEntity
     public function getProfile()
     {
         return $this->profile;
+    }
+
+    /**
+     * Return Respondent
+     *
+     * @return \XLite\Model\Profile
+     */
+    public function getRespondent()
+    {
+        return $this->respondent;
+    }
+
+    /**
+     * Set Respondent
+     *
+     * @param \XLite\Model\Profile $respondent
+     *
+     * @return $this
+     */
+    public function setRespondent($respondent)
+    {
+        $this->respondent = $respondent;
+        return $this;
+    }
+
+    /**
+     * Return respondent name
+     *
+     * @return string
+     */
+    public function getRespondentName()
+    {
+        return \XLite\Core\Config::getInstance()->Company->company_name;
     }
 
     /**

@@ -28,16 +28,18 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
         static::register('order', $order);
         static::register('items', $order->getItems());
 
-        static::compose(
-            static::TYPE_ACQUIRE_PIN_CODES_FAILED_LINKS,
-            static::getOrdersDepartmentMail(),
-            static::getOrdersDepartmentMail(),
-            'modules/CDev/PINCodes/acquire_pin_codes_failed',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+        foreach (static::getOrdersDepartmentMails() as $mail) {
+            static::compose(
+                static::TYPE_ACQUIRE_PIN_CODES_FAILED_LINKS,
+                static::getOrdersDepartmentMail(),
+                $mail,
+                'modules/CDev/PINCodes/acquire_pin_codes_failed',
+                array(),
+                true,
+                \XLite::ADMIN_INTERFACE,
+                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+            );
+        }
 
         return static::getMailer()->getLastError();
     }

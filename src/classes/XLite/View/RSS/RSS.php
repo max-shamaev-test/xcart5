@@ -128,12 +128,16 @@ class RSS extends \XLite\View\Dialog
         $result = array();
         if ($feed && $feed->channel->item) {
             foreach ($feed->channel->item as $story) {
+                $params = [
+                    'utm_source'    => 'xc5admin',
+                    'utm_medium'    => 'link2blog',
+                    'utm_campaign'  => 'xc5adminlink2blog'
+                ];
+                $link = \XLite\Core\URLManager::appendParamsToUrl($story->link, $params);
                 $result[] = array (
                     'title' => (string) $story->title,
                     'desc'  => (string) $story->description,
-                    'link'  => $story->link
-                        . (strpos($story->link, '?') === false ? '?' : '&')
-                        . 'utm_source=xc5admin&utm_medium=link2blog&utm_campaign=xc5adminlink2blog',
+                    'link'  => $link,
                     'date'  => strtotime($story->pubDate),
                 );
 

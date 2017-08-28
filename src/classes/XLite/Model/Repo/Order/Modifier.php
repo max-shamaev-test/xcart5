@@ -10,6 +10,12 @@ namespace XLite\Model\Repo\Order;
 
 /**
  * Order modifier repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Order\Modifier", summary="Add new order modifier")
+ * @Api\Operation\Read(modelClass="XLite\Model\Order\Modifier", summary="Retrieve order modifier by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Order\Modifier", summary="Retrieve all order modifiers")
+ * @Api\Operation\Update(modelClass="XLite\Model\Order\Modifier", summary="Update order modifier by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Order\Modifier", summary="Delete order modifier by id")
  */
 class Modifier extends \XLite\Model\Repo\ARepo
 {

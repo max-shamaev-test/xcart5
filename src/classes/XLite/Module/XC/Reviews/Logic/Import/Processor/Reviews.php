@@ -42,26 +42,29 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function defineColumns()
     {
-        return array(
-            'product'       => array(
-                static::COLUMN_IS_KEY          => true,
-                static::COLUMN_LENGTH          => 32,
-            ),
-            'review'        => array(),
-            'rating'        => array(),
-            'additionDate'  => array(
-                static::COLUMN_IS_KEY          => true,
-            ),
-            'reviewerName'  => array(
-                static::COLUMN_IS_KEY          => true,
-            ),
-            'email'         => array(
-                static::COLUMN_IS_KEY          => true,
-            ),
-            'status'        => array(),
-            'ip'            => array(),
-            'useForMeta'    => array(),
-        );
+        return [
+            'product'      => [
+                static::COLUMN_IS_KEY => true,
+                static::COLUMN_LENGTH => 32,
+            ],
+            'review'       => [],
+            'response'     => [],
+            'rating'       => [],
+            'additionDate' => [
+                static::COLUMN_IS_KEY => true,
+            ],
+            'responseDate' => [],
+            'respondent'   => [],
+            'reviewerName' => [
+                static::COLUMN_IS_KEY => true,
+            ],
+            'email'        => [
+                static::COLUMN_IS_KEY => true,
+            ],
+            'status'       => [],
+            'ip'           => [],
+            'useForMeta'   => [],
+        ];
     }
 
     // }}}
@@ -76,15 +79,16 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
     public static function getMessages()
     {
         return parent::getMessages() +
-            array(
-                'REVIEW-PRODUCT-FMT'    => 'Unknown product is stated',
-                'REVIEW-RATING-FMT'     => 'Rating is in wrong format',
-                'REVIEW-DATE-FMT'       => 'Date is in wrong format',
-                'REVIEW-EMAIL-FMT'      => 'Email is in wrong format',
-                'REVIEW-STATUS-FMT'     => 'Unknown or missing status',
-                'REVIEW-USEFORMETA-FMT' => 'Unknown or missing useForMeta flag',
-                'REVIEW-IP-FMT'         => 'Wrong format of IP column',
-            );
+               [
+                   'REVIEW-PRODUCT-FMT'       => 'Unknown product is stated',
+                   'REVIEW-RATING-FMT'        => 'Rating is in wrong format',
+                   'REVIEW-DATE-FMT'          => 'Date is in wrong format',
+                   'REVIEW-RESPONSE-DATE-FMT' => 'Response date is in wrong format',
+                   'REVIEW-EMAIL-FMT'         => 'Email is in wrong format',
+                   'REVIEW-STATUS-FMT'        => 'Unknown or missing status',
+                   'REVIEW-USEFORMETA-FMT'    => 'Unknown or missing useForMeta flag',
+                   'REVIEW-IP-FMT'            => 'Wrong format of IP column',
+               ];
     }
 
     /**
@@ -98,7 +102,7 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyProduct($value, array $column)
     {
         if ($this->verifyValueAsEmpty($value) || !$this->verifyValueAsProduct($value)) {
-            $this->addError('REVIEW-PRODUCT-FMT', array('column' => $column, 'value' => $value));
+            $this->addError('REVIEW-PRODUCT-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -115,6 +119,18 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
     }
 
     /**
+     * Verify 'response' value
+     *
+     * @param mixed $value  Value
+     * @param array $column Column info
+     *
+     * @return void
+     */
+    protected function verifyResponse($value, array $column)
+    {
+    }
+
+    /**
      * Verify 'rating' value
      *
      * @param mixed $value  Value
@@ -125,7 +141,7 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyRating($value, array $column)
     {
         if ($this->verifyValueAsEmpty($value) || !$this->verifyValueAsUinteger($value)) {
-            $this->addWarning('REVIEW-RATING-FMT', array('column' => $column, 'value' => $value));
+            $this->addWarning('REVIEW-RATING-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -140,7 +156,22 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyAdditionDate($value, array $column)
     {
         if ($this->verifyValueAsEmpty($value) || !$this->verifyValueAsDate($value)) {
-            $this->addWarning('REVIEW-DATE-FMT', array('column' => $column, 'value' => $value));
+            $this->addWarning('REVIEW-DATE-FMT', ['column' => $column, 'value' => $value]);
+        }
+    }
+
+    /**
+     * Verify 'responseDate' value
+     *
+     * @param mixed $value  Value
+     * @param array $column Column info
+     *
+     * @return void
+     */
+    protected function verifyResponseDate($value, array $column)
+    {
+        if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsDate($value)) {
+            $this->addWarning('REVIEW-RESPONSE-DATE-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -167,7 +198,7 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyEmail($value, array $column)
     {
         if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsEmail($value)) {
-            $this->addWarning('REVIEW-EMAIL-FMT', array('column' => $column, 'value' => $value));
+            $this->addWarning('REVIEW-EMAIL-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -181,9 +212,9 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function verifyStatus($value, array $column)
     {
-        $acceptableStatuses = array('Approved', 'Pending');
+        $acceptableStatuses = ['Approved', 'Pending'];
         if ($this->verifyValueAsEmpty($value) || !$this->verifyValueAsSet($value, $acceptableStatuses)) {
-            $this->addWarning('REVIEW-STATUS-FMT', array('column' => $column, 'value' => $value));
+            $this->addWarning('REVIEW-STATUS-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -198,7 +229,7 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyIp($value, array $column)
     {
         if (!$this->verifyValueAsEmpty($value) && !filter_var($value, FILTER_VALIDATE_IP)) {
-            $this->addError('REVIEW-IP-FMT', array('column' => $column, 'value' => $value));
+            $this->addError('REVIEW-IP-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -213,7 +244,7 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyUseForMeta($value, array $column)
     {
         if ($this->verifyValueAsEmpty($value) || !$this->verifyValueAsBoolean($value)) {
-            $this->addWarning('REVIEW-USEFORMETA-FMT', array('column' => $column, 'value' => $value));
+            $this->addWarning('REVIEW-USEFORMETA-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -302,11 +333,24 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function importEmailColumn(\XLite\Module\XC\Reviews\Model\Review $model, $value, array $column)
     {
-        if ($value) {
-            $result = \XLite\Core\Database::getRepo('XLite\Model\Profile')->findByLogin($value);
-            if ($result) {
-                $model->setProfile($result);
-            }
+        if ($value && $profile = $this->normalizeValueAsProfile($value)) {
+            $model->setProfile($profile);
+        }
+    }
+
+    /**
+     * Import 'respondent' value
+     *
+     * @param \XLite\Module\XC\Reviews\Model\Review $model  Review
+     * @param string                                $value  Value
+     * @param array                                 $column Column info
+     *
+     * @return void
+     */
+    protected function importRespondentColumn(\XLite\Module\XC\Reviews\Model\Review $model, $value, array $column)
+    {
+        if ($value && $profile = $this->normalizeValueAsProfile($value)) {
+            $model->setRespondent($profile);
         }
     }
 

@@ -159,6 +159,28 @@ class Date extends \XLite\View\FormField\Input\Text
     }
 
     /**
+     * @return int
+     */
+    protected function getStartDay()
+    {
+        $start = \XLite\Core\Config::getInstance()->Units->week_start;
+
+        $starts = [
+            'sun' => 0,
+            'mon' => 1,
+            'tue' => 2,
+            'wed' => 3,
+            'thu' => 4,
+            'fri' => 5,
+            'sat' => 6,
+        ];
+
+        return isset($starts[$start])
+            ? $starts[$start]
+            : 0;
+    }
+
+    /**
      * Register some data that will be sent to template as special HTML comment
      *
      * @return array
@@ -169,6 +191,7 @@ class Date extends \XLite\View\FormField\Input\Text
 
         $currentFormats = \XLite\Core\Converter::getDateFormatsByStrftimeFormat();
         $data['dateFormat'] = $currentFormats['jsFormat'];
+        $data['firstDay'] = $this->getStartDay();
 
         return $data;
     }

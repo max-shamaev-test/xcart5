@@ -25,6 +25,10 @@ core.bind('block.product.details.postprocess', function() {
   core.autoload(PopupButtonAddReview);
 });
 
+core.bind('list.products.postprocess', function() {
+  core.autoload(PopupButtonAddReview);
+});
+
 core.microhandlers.add(
   'emailTooltip',
   '.modify-review-dialog .tooltip-main .help-text',

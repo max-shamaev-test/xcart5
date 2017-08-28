@@ -19,7 +19,7 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
     const TYPE_LOW_VARIANT_LIMIT_WARNING = 'low_variant_limit_warning';
 
     /**
-     * Send contact us message
+     * Send low variant limit warning message
      *
      * @param array $data Data
      *
@@ -29,15 +29,17 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
     {
         static::register('data', $data);
 
-        static::compose(
-            static::TYPE_LOW_VARIANT_LIMIT_WARNING,
-            static::getOrdersDepartmentMail(),
-            static::getSiteAdministratorMail(),
-            'modules/XC/ProductVariants/low_variant_limit_warning',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+        foreach (static::getSiteAdministratorMails() as $mail) {
+            static::compose(
+                static::TYPE_LOW_VARIANT_LIMIT_WARNING,
+                static::getOrdersDepartmentMail(),
+                $mail,
+                'modules/XC/ProductVariants/low_variant_limit_warning',
+                array(),
+                true,
+                \XLite::ADMIN_INTERFACE,
+                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+            );
+        }
     }
 }

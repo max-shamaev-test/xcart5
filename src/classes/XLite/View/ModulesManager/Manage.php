@@ -8,12 +8,14 @@
 
 namespace XLite\View\ModulesManager;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
+
 /**
  * Modules modify widget
  *
  * @ListChild (list="admin.center", zone="admin")
  */
-class Manage extends \XLite\View\ModulesManager\AModulesManager
+class Manage extends \XLite\View\ModulesManager\AModulesManager implements ProviderInterface
 {
     /**
      * Return list of targets allowed for this widget
@@ -63,5 +65,48 @@ class Manage extends \XLite\View\ModulesManager\AModulesManager
     protected function getDir()
     {
         return parent::getDir() . LC_DS . 'manage';
+    }
+
+    /**
+     * Return list of price filter options
+     *
+     * @return array
+     */
+    protected function getStateOptions()
+    {
+        return [
+            ''  => static::t('All modules'),
+            'E' => static::t('Enabled only'),
+            'D' => static::t('Disabled only'),
+        ];
+    }
+
+    /**
+     * Return list of price filter options for selector
+     *
+     * @return array
+     */
+    protected function getStateOptionsForSelector()
+    {
+        $result = [];
+        foreach ($this->getStateOptions() as $value => $name) {
+            $result[] = [
+                'label'    => static::t($name),
+                'url'      => 'javascript: submitForm($(".addons-search-box form").get(0), {state: "' . $value .'"});',
+                'selected' => $value === \XLite\Core\Request::getInstance()->state,
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'All modules'   => static::t('All modules')
+        ];
     }
 }

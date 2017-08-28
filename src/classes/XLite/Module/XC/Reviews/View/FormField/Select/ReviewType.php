@@ -20,10 +20,10 @@ class ReviewType extends \XLite\View\FormField\Select\ASelect
      */
     public function getDefaultOptions()
     {
-        return array(
+        return [
             '' => static::t('Reviews and ratings'),
             \XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_TYPE_RATINGS_ONLY => static::t('Ratings only'),
             \XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_TYPE_REVIEWS_ONLY => static::t('Reviews only'),
-        );
+        ];
     }
 }

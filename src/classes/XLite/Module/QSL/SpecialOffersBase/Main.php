@@ -2,48 +2,8 @@
 // vim: set ts=4 sw=4 sts=4 et:
 
 /**
- * X-Cart
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the software license agreement
- * that is bundled with this package in the file LICENSE.txt.
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to licensing@x-cart.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not modify this file if you wish to upgrade X-Cart to newer versions
- * in the future. If you wish to customize X-Cart for your needs please
- * refer to http://www.x-cart.com/ for more information.
- *
- * -----------------------------------------------------------------------------
- * CHANGES
- * 
- * 5.3.0
- * - adapted the 5.2.4 version of the module for X-Cart 5.3.x
- * 
- * 5.3.1
- * - fixed the issue that arise when creating special offers with empty dates
- * 
- * 5.3.2
- * - fixed the issue with the cart page crashing on Crisp White theme (#0046804)
- * 
- * 5.3.3
- * - fixed styles for the Special Offers backend page
- * - fixed the issue with offers of disabled modules being displyed on Special
- *   Offers backend page (#0047540)
- * 
- * 5.3.4
- * - fixed the page listing available Special Offer related modules
- * 
- * -----------------------------------------------------------------------------
- * 
- * @category  X-Cart 5
- * @author    Qualiteam software Ltd <info@x-cart.com>
- * @copyright Copyright (c) 2011-2016 Qualiteam software Ltd <info@x-cart.com>. All rights reserved
- * @link      http://www.x-cart.com/
+ * Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+ * See https://www.x-cart.com/module-marketplace-terms-of-use.html for license details.
  */
 
 namespace XLite\Module\QSL\SpecialOffersBase;
@@ -100,7 +60,18 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '4';
+        return '6';
+    }
+
+
+    /**
+     * Get module build number (4th number in the version)
+     *
+     * @return string
+     */
+    public static function getBuildVersion()
+    {
+        return '2';
     }
 
     /**

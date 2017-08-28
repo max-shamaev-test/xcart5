@@ -385,8 +385,6 @@ class NextPreviousProduct extends \XLite\View\AView
 
             $result = null;
             if (isset($cookieData['class'])) {
-                //$searchCondition = $itemsList->getSearchConditionWrapper();
-
                 $searchCondition = \XLite\Core\Session::getInstance()
                     ->{$cookieData['class']::getSearchSessionCellName() . '_np'};
                 $result          = hash(

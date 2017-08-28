@@ -8,6 +8,7 @@
 
 namespace XLite\Module\QSL\CloudSearch\Controller\Admin;
 
+use XLite;
 use XLite\Module\QSL\CloudSearch\Main;
 
 /**
@@ -29,18 +30,22 @@ class Promotions extends \XLite\Controller\Admin\Promotions implements \XLite\Ba
      */
     public static function getPagesStatic()
     {
+        $version = XLite::getInstance()->getVersion();
+
         $list = parent::getPagesStatic();
 
-        $list[static::PAGE_CLOUD_SEARCH_DASHBOARD] = array(
-            'name' => static::t('CloudSearch'),
-            'tpl'  => 'modules/QSL/CloudSearch/cloud_search_promotions_menu_body.twig',
-        );
+        if (version_compare($version, '5.3.3') < 0) {
+            $list[static::PAGE_CLOUD_SEARCH_DASHBOARD] = [
+                'name' => static::t('CloudSearch'),
+                'tpl'  => 'modules/QSL/CloudSearch/cs_page_body.twig',
+            ];
 
-        if (Main::isCloudFiltersEnabled()) {
-            $list[static::PAGE_CLOUD_FILTERS_DASHBOARD] = array(
-                'name' => static::t('CloudFilters'),
-                'tpl'  => 'modules/QSL/CloudSearch/cloud_filters_promotions_menu_body.twig',
-            );
+            if (Main::isCloudFiltersEnabled()) {
+                $list[static::PAGE_CLOUD_FILTERS_DASHBOARD] = [
+                    'name' => static::t('CloudFilters'),
+                    'tpl'  => 'modules/QSL/CloudSearch/cf_page_body.twig',
+                ];
+            }
         }
 
         return $list;

@@ -13,6 +13,8 @@
 function ProductFilterView(base) {
   this.listenToHash = core.getCommentedData(base, 'listenToHash');
   this.listenToHashPrefix = core.getCommentedData(base, 'listenToHashPrefix');
+  this.replaceState = core.getCommentedData(base, 'replaceState');
+  this.replaceStatePrefix = core.getCommentedData(base, 'replaceStatePrefix');
 
   this.callSupermethod('constructor', arguments);
 
@@ -28,11 +30,14 @@ function ProductFilterView(base) {
       function (event, data) {
         if (jQuery('.product-filter', data.base).length) {
           core.autoload(ProductFilterView);
-        } else if (jQuery(data.base).hasClass('filtered-products') && jQuery.isEmptyObject(hash.get())) {
+        } else if (
+          o.listenToHash
+          && jQuery(data.base).hasClass('filtered-products')
+          && jQuery.isEmptyObject(hash.get())
+        ) {
           o.productsListView = data;
           _.once(o.load());
         }
-        ;
       }
     );
   }
@@ -103,111 +108,97 @@ ProductFilterView.prototype.postprocess = function (isSuccess) {
 
   if (isSuccess) {
     var o = this;
-    jQuery('.table-label.collapsible').click(
-      function () {
-        if (jQuery(this).hasClass('collapsed')) {
-          jQuery(this).removeClass('collapsed');
-          jQuery(this).parent().find('.table-value.collapsible').removeClass('collapsed');
-          jQuery(this).parent().removeClass('collapsed');
-        } else {
-          jQuery(this).addClass('collapsed');
-          jQuery(this).parent().find('.table-value.collapsible').addClass('collapsed');
-          jQuery(this).parent().addClass('collapsed');
-        }
+    jQuery('.table-label.collapsible').click(function () {
+      if (jQuery(this).hasClass('collapsed')) {
+        jQuery(this).removeClass('collapsed');
+        jQuery(this).parent().find('.table-value.collapsible').removeClass('collapsed');
+        jQuery(this).parent().removeClass('collapsed');
+      } else {
+        jQuery(this).addClass('collapsed');
+        jQuery(this).parent().find('.table-value.collapsible').addClass('collapsed');
+        jQuery(this).parent().addClass('collapsed');
       }
-    );
+    });
 
     jQuery('.table-label.collapsible.collapsed').each(function () {
       jQuery(this).parent().addClass('collapsed');
     });
 
-    jQuery('.product-filter a.reset-filter, .empty-box a.reset-filter').click(
-      function () {
-        var productFilter = jQuery('.product-filter');
+    jQuery('.product-filter a.reset-filter, .empty-box a.reset-filter').click(function () {
+      var productFilter = jQuery('.product-filter');
 
-        productFilter.find('input[type=\'checkbox\']:checked').each(function () {
-          jQuery(this).click();
-        });
-        productFilter.find('input[type=\'text\']').each(function () {
-          jQuery(this).val('').change();
-        });
-        jQuery('.product-filter .popup').hide();
-        jQuery('form.filter-form').submit();
+      productFilter.find('input[type=\'checkbox\']:checked').each(function () {
+        jQuery(this).click();
+      });
+      productFilter.find('input[type=\'text\']').each(function () {
+        jQuery(this).val('').change();
+      });
+      jQuery('.product-filter .popup').hide();
+      jQuery('form.filter-form').submit();
 
-        return false;
+      return false;
+    });
+
+    jQuery('.type-c input[type=\'checkbox\']').change(function () {
+      if (jQuery(this).prop('checked')) {
+        jQuery(this).parent().parent().parent().addClass('checked');
+      } else {
+        jQuery(this).parent().parent().parent().removeClass('checked');
       }
-    );
+    });
 
-    jQuery('.type-c input[type=\'checkbox\']').change(
-      function () {
-        if (jQuery(this).prop('checked')) {
-          jQuery(this).parent().parent().parent().addClass('checked');
-        } else {
-          jQuery(this).parent().parent().parent().removeClass('checked');
-        }
+    jQuery('.type-s input[type=\'checkbox\']').change(function () {
+      if (jQuery(this).prop('checked')) {
+        jQuery(this).parent().addClass('checked');
+      } else {
+        jQuery(this).parent().removeClass('checked');
       }
-    );
+    });
 
-    jQuery('.type-s input[type=\'checkbox\']').change(
-      function () {
-        if (jQuery(this).prop('checked')) {
-          jQuery(this).parent().addClass('checked');
-        } else {
-          jQuery(this).parent().removeClass('checked');
-        }
+    jQuery('a.show-products').click(function () {
+      jQuery('form.filter-form').submit();
+      return false;
+    });
+
+    jQuery('.product-filter input[type=\'checkbox\'],.product-filter input[type=\'text\']').change(function () {
+      var popup = jQuery('.product-filter .popup');
+      popup.css('top', jQuery(this).offset().top - jQuery('.product-filter').offset().top - 60).show();
+      clearTimeout(popup.attr('timerId'));
+      popup.attr('timerId', setTimeout("jQuery('.product-filter .popup').hide()", 4000));
+    });
+
+    jQuery('form.filter-form').unbind('submit').submit(function () {
+      o.mergeFilters();
+      core.trigger('blocks.product_filter_view.before_submit');
+
+      if (!o.productsListView || !o.ajaxEvents) {
+        return true;
       }
-    );
 
-    jQuery('a.show-products').click(
-      function () {
-        jQuery('form.filter-form').submit();
-        return false;
-      }
-    );
+      if (!jQuery(this).hasClass('disabled')) {
+        jQuery('button', this).addClass('disabled');
+        jQuery(this).addClass('disabled');
 
-    jQuery('.product-filter input[type=\'checkbox\'],.product-filter input[type=\'text\']').change(
-      function () {
-        var popup = jQuery('.product-filter .popup');
-        popup.css('top', jQuery(this).offset().top - jQuery('.product-filter').offset().top - 60).show();
-        clearTimeout(popup.attr('timerId'));
-        popup.attr('timerId', setTimeout("jQuery('.product-filter .popup').hide()", 4000));
-      }
-    );
-
-    jQuery('form.filter-form').unbind('submit').submit(
-      function () {
-        o.mergeFilters();
-        core.trigger('blocks.product_filter_view.before_submit');
-
-        if (!o.productsListView || !o.ajaxEvents) {
-          return true;
-        }
-
-        if (!jQuery(this).hasClass('disabled')) {
-          jQuery('button', this).addClass('disabled');
-          jQuery(this).addClass('disabled');
-
-          var filters = o.getFilters();
-          if (
-            o.productsListView.submitForm(
-              this,
-              function (XMLHttpRequest, textStatus, data, isValid) {
-                if (isValid) {
-                  core.clearHash('filter');
-                  o.productsListView.load(filters);
-                } else {
-                  o.productsListView.unshade();
-                }
+        var filters = o.getFilters();
+        if (
+          o.productsListView.submitForm(
+            this,
+            function (XMLHttpRequest, textStatus, data, isValid) {
+              if (isValid) {
+                core.clearHash('filter');
+                o.productsListView.load(filters);
+              } else {
+                o.productsListView.unshade();
               }
-            )
-          ) {
-            o.productsListView.shade();
-          }
+            }
+          )
+        ) {
+          o.productsListView.shade();
         }
-
-        return false;
       }
-    );
+
+      return false;
+    });
 
     if (typeof ValueRangeWidget !== 'undefined') {
       core.autoload(ValueRangeWidget);

@@ -80,7 +80,7 @@ class Permissions extends \XLite\View\FormField\Select\Tags\ATags
     /**
      * Get root permission
      *
-     * @return void
+     * @return \XLite\Model\Role\Permission
      */
     protected function getRootPermission()
     {

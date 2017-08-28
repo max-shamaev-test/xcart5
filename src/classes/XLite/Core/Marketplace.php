@@ -98,6 +98,7 @@ class Marketplace extends \XLite\Base\Singleton
     const FIELD_BANNER_MODULE         = 'banner_module';
     const FIELD_BANNER_IMG            = 'banner_img';
     const FIELD_BANNER_URL            = 'banner_url';
+    const FIELD_BANNER_SECTION        = 'banner_section';
     const FIELD_EDITION_STATE         = 'edition_state';
     const FIELD_EDITIONS              = 'editions';
     const FIELD_KEY_DATA              = 'keyData';
@@ -110,6 +111,7 @@ class Marketplace extends \XLite\Base\Singleton
     const FIELD_TRIAL                 = 'trial';
     const FIELD_MODULE_ENABLED        = 'enabled';
     const FIELD_QUERIES               = 'querySets';
+    const FIELD_SALES_CHANNEL_POS     = 'salesChannelPos';
 
     const FIELD_TAG_NAME                    = 'tag_name';
     const FIELD_TAG_BANNER_EXPIRATION_DATE  = 'tag_banner_expiration_date';
@@ -185,6 +187,8 @@ class Marketplace extends \XLite\Base\Singleton
      */
     const PURCHASE_URL_HOST = 'market.x-cart.com';
 
+    const RENEWAL_ENDPOINT = 'secure.x-cart.com/customer.php?target=generate_invoice&action=buy';
+
     /**
      * Last error code
      *
@@ -214,8 +218,11 @@ class Marketplace extends \XLite\Base\Singleton
             'target'    => 'cart',
             'action'    => 'add',
             'store_url' => \XLite\Core\URLManager::getShopURL(\XLite\Core\Converter::buildURL()),
-            'email'     => \XLite\Core\Auth::getInstance()->getProfile()->getLogin(),
         );
+
+        if (\XLite\Core\Auth::getInstance()->isAdmin()) {
+            $commonParams['email'] = \XLite\Core\Auth::getInstance()->getProfile()->getLogin();
+        }
 
         if (!$ignoreId) {
             $commonParams['xbid'] = (int) $id !== 0
@@ -233,6 +240,34 @@ class Marketplace extends \XLite\Base\Singleton
             'https://' . static::PURCHASE_URL_HOST . '/?' . implode('&', $urlParams)
         );
 
+    }
+
+
+    /**
+     * URL of the page where license can be purchased
+     *
+     * @param \XLite\Model\ModuleKey $key Module key
+     *
+     * @return string
+     */
+    public static function getRenewalURL($key)
+    {
+        return 'https://' . static::RENEWAL_ENDPOINT . '&' . static::getKeyURLParams(1, $key) . '&proxy_checkout=1';
+    }
+
+    /**
+     * Get key purchase URL parameters
+     *
+     * @param integer                $index Index of entity in URL
+     * @param \XLite\Model\ModuleKey $key   Module key object
+     *
+     * @return string
+     */
+    public static function getKeyURLParams($index, $key)
+    {
+        $keyData = $key->getKeyData();
+
+        return sprintf('add_%d=%d&lickey_%d=%s', $index, $keyData['prolongKey'], $index, md5($key->getKeyValue()));
     }
 
     /**
@@ -645,7 +680,7 @@ class Marketplace extends \XLite\Base\Singleton
             $data[static::FIELD_KEYS] = $keys;
         }
 
-        $email = \XLite\Core\Config::getInstance()->Company->site_administrator;
+        $email = \XLite\Core\Mailer::getSiteAdministratorMail();
 
         if (!$email) {
             // Search for first active root administrator
@@ -868,6 +903,10 @@ class Marketplace extends \XLite\Base\Singleton
                 'filter'  => FILTER_VALIDATE_INT,
                 'options' => array('min_range' => 0),
             ),
+            static::FIELD_WAVE => array(
+                'filter'  => FILTER_VALIDATE_INT,
+                'options' => array(),
+            ),
         );
     }
 
@@ -899,7 +938,8 @@ class Marketplace extends \XLite\Base\Singleton
             $result[$key] = array(
                 $fullCoreVersion,
                 $core[static::FIELD_REVISION_DATE],
-                $core[static::FIELD_LENGTH]
+                $core[static::FIELD_LENGTH],
+                $core[static::FIELD_WAVE],
             );
         }
 
@@ -1100,6 +1140,10 @@ class Marketplace extends \XLite\Base\Singleton
                 'options' => array('regexp' => static::REGEXP_WORD),
             ),
             static::FIELD_BANNER_URL => array(
+                'filter'  => FILTER_VALIDATE_REGEXP,
+                'options' => array('regexp' => static::REGEXP_WORD),
+            ),
+            static::FIELD_BANNER_SECTION => array(
                 'filter'  => FILTER_VALIDATE_REGEXP,
                 'options' => array('regexp' => static::REGEXP_WORD),
             ),
@@ -1459,6 +1503,8 @@ class Marketplace extends \XLite\Base\Singleton
                     'editions'        => (array) $this->getField($module, static::FIELD_EDITIONS),
                     'xbProductId'     => $this->getField($module, static::FIELD_XB_PRODUCT_ID),
                     'private'         => $this->getField($module, static::FIELD_PRIVATE),
+                    'wave'            => $this->getField($module, static::FIELD_WAVE) ?: 0,
+                    'salesChannelPos' => $this->getField($module, static::FIELD_SALES_CHANNEL_POS) ?: 0,
                 );
 
                 $result[$key] = array_merge($result[$key], $this->adjustResponseItemForGetAddonsAction($module));
@@ -1680,6 +1726,14 @@ class Marketplace extends \XLite\Base\Singleton
             static::FIELD_PRIVATE => array(
                 'filter'  => FILTER_VALIDATE_INT,
                 'options' => array('min_range' => 0),
+            ),
+            static::FIELD_WAVE => array(
+                'filter'  => FILTER_VALIDATE_INT,
+                'options' => array(),
+            ),
+            static::FIELD_SALES_CHANNEL_POS => array(
+                'filter'  => FILTER_VALIDATE_INT,
+                'options' => array(),
             ),
         );
     }
@@ -2769,6 +2823,8 @@ class Marketplace extends \XLite\Base\Singleton
     {
         $method = 'ResponseFor' . \Includes\Utils\Converter::convertToPascalCase($action) . 'Action';
 
+        $this->logInfo($action, 'Server response:', array(), (array)$result);
+
         if (is_array($result)) {
             if ($this->{'validate' . $method}($result)) {
                 if (method_exists($this, 'prepare' . $method)) {
@@ -2840,6 +2896,7 @@ class Marketplace extends \XLite\Base\Singleton
             static::INACTIVE_KEYS,
             static::ACTION_UPDATE_PM,
             static::ACTION_UPDATE_SHM,
+            static::ACTION_GET_XC5_NOTIFICATIONS
         );
     }
 

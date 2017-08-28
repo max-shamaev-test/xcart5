@@ -7,6 +7,7 @@
  */
 
 namespace XLite\View\Button;
+use XLite\Core\Auth;
 
 /**
  * 'Terminate profile sessions' button widget
@@ -54,7 +55,7 @@ class TerminateProfileSessions extends \XLite\View\Button\Link
     {
         return \XLite\Core\Database::getRepo('XLite\Model\Profile')->find(
             \XLite\Core\Request::getInstance()->profile_id
-        ) ?: \XLite\Core\Auth::getInstance()->getProfile();
+        ) ?: Auth::getInstance()->getProfile();
     }
 
     /**
@@ -65,7 +66,7 @@ class TerminateProfileSessions extends \XLite\View\Button\Link
     protected function isVisible()
     {
         return parent::isVisible()
-        && $this->isProfileAllowed();
+               && $this->isProfileAllowed();
     }
 
     /**
@@ -76,7 +77,12 @@ class TerminateProfileSessions extends \XLite\View\Button\Link
     protected function isProfileAllowed()
     {
         return $this->getProfile()
-        && $this->getProfile()->isPersistent()
-        && !$this->getProfile()->getAnonymous();
+               && $this->getProfile()->isPersistent()
+               && !$this->getProfile()->getAnonymous()
+               && (
+                   $this->getProfile()->getProfileId() !== Auth::getInstance()->getProfile()->getProfileId()
+                   || Auth::getInstance()->isPermissionAllowed('manage users')
+                   || Auth::getInstance()->isPermissionAllowed('manage admins')
+               );
     }
 }

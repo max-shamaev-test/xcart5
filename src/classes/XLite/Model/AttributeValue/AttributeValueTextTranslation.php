@@ -25,7 +25,7 @@ class AttributeValueTextTranslation extends \XLite\Model\Base\Translation
     /**
      * Value
      *
-     * @var text
+     * @var string
      *
      * @Column (type="text")
      */
@@ -34,7 +34,7 @@ class AttributeValueTextTranslation extends \XLite\Model\Base\Translation
     /**
      * Set value
      *
-     * @param text $value
+     * @param string $value
      * @return AttributeValueTextTranslation
      */
     public function setValue($value)
@@ -46,7 +46,7 @@ class AttributeValueTextTranslation extends \XLite\Model\Base\Translation
     /**
      * Get value
      *
-     * @return text 
+     * @return string
      */
     public function getValue()
     {

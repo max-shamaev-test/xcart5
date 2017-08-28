@@ -108,7 +108,7 @@ class USPS extends \XLite\Model\Shipping\Processor\AProcessor
     {
         $config = $this->getConfiguration();
 
-        return $config->server_url ?: 'http://testing.shippingapis.com/ShippingAPI.dll';
+        return $config->server_url ?: 'http://stg-production.shippingapis.com/ShippingApi.dll';
     }
 
     // {{{ Rates
@@ -123,9 +123,14 @@ class USPS extends \XLite\Model\Shipping\Processor\AProcessor
      */
     public function getRates($inputData, $ignoreCache = false)
     {
-        $rates = parent::getRates($inputData, $ignoreCache);
-        if ($rates) {
-            $this->setError();
+        $configuration = $this->getConfiguration();
+        $rates = [];
+
+        if ($configuration->dataProvider === 'USPS') {
+            $rates = parent::getRates($inputData, $ignoreCache);
+            if ($rates) {
+                $this->setError();
+            }
         }
 
         return $rates;
@@ -155,7 +160,8 @@ class USPS extends \XLite\Model\Shipping\Processor\AProcessor
         $result = array();
 
         $sourceAddress = $inputData->getOrder()->getSourceAddress();
-        if ('US' === $sourceAddress->getCountryCode()) {
+        $sourceCountry = $sourceAddress->getCountryCode();
+        if ('US' === $sourceCountry || 'PR' === $sourceCountry) {
             $result['srcAddress'] = array(
                 'zipcode' => $sourceAddress->getZipcode(),
             );
@@ -186,6 +192,13 @@ class USPS extends \XLite\Model\Shipping\Processor\AProcessor
     {
         $result = array();
         $config = $this->getConfiguration();
+
+        $dstAddress = $inputData['dstAddress'];
+        if ($dstAddress['country'] === 'PR') {
+            $dstAddress['country'] = 'US';
+            $dstAddress['state'] = 'PR';
+            $inputData['dstAddress'] = $dstAddress;
+        }
 
         if (!empty($inputData['packages']) && isset($inputData['srcAddress'], $inputData['dstAddress'])) {
             $this->setApiType($inputData['dstAddress']);
@@ -483,7 +496,7 @@ class USPS extends \XLite\Model\Shipping\Processor\AProcessor
             'ZipOrigination' => $this->sanitizeZipcode($data['srcAddress']['zipcode']), // lenght=5, pattern=/\d{5}/
             'ZipDestination' => $this->sanitizeZipcode($data['dstAddress']['zipcode']), // lenght=5, pattern=/\d{5}/
             'Pounds' => (int) $pounds, // integer, range=0-70
-            'Ounces' => sprintf('%.1f', $ounces), // decimal, range=0.0-1120.0, totalDigits=10
+            'Ounces' => sprintf('%.3f', $ounces), // decimal, range=0.0-1120.0, totalDigits=10
             'Container' => $config->container,  // RECTANGULAR | NONRECTANGULAR | ...
             'Size' => $config->package_size,  // REGULAR | LARGE
             'FirstClassMailType' => $config->first_class_mail_type, // LETTER | PARCEL | FLAT | POSTCARD | PACKAGE SERVICE
@@ -727,7 +740,7 @@ OUT;
 
         $result = array(
             'Pounds' => (int) $pounds, // integer, range=0-70
-            'Ounces' => sprintf('%.1f', $ounces), // decimal, range=0.0-1120.0, totalDigits=10
+            'Ounces' => sprintf('%.3f', $ounces), // decimal, range=0.0-1120.0, totalDigits=10
             'Machinable' => $config->machinable ? 'true' : 'false',
             'MailType' => $config->mail_type,  // Package | Postcards or aerogrammes | Envelope | LargeEnvelope | FlatRate
             'ValueOfContents' => sprintf('%.2f', $data['packages'][$packKey]['subtotal']), // decimal
@@ -833,16 +846,58 @@ OUT;
         }
 
         if (!isset($result['err_msg'])) {
-            $postage = $xml->getArrayByPath($xmlParsed, $this->getApiName() . 'Response/Package/Service');
+            $packages = $xml->getArrayByPath($xmlParsed, $this->getApiName() . 'Response/Package');
 
-            if ($postage) {
-                foreach ($postage as $k => $v) {
-                    $serviceName = $this->sanitizeServiceName($xml->getArrayByPath($v, '#/SvcDescription/0/#'));
-                    $result['postage'][] = array(
-                        'CLASSID' => 'I-' . $xml->getArrayByPath($v, '@/ID') . '-' . static::getUniqueMethodID($serviceName),
-                        'MailService' => $this->getUSPSNamePrefix() . $serviceName,
-                        'Rate' => $xml->getArrayByPath($v, '#/Postage/0/#'),
-                    );
+            if ($packages) {
+
+                $packageRates = array();
+                $packagesCount = count($packages);
+
+                foreach ($packages as $i => $package) {
+                    $postage = $xml->getArrayByPath($package, '#/Service');
+
+                    if ($postage) {
+                        foreach ($postage as $k => $v) {
+                            $serviceName = $this->sanitizeServiceName($xml->getArrayByPath($v, '#/SvcDescription/0/#'));
+
+                            // Get rate types returned in response
+                            $rateTypes = array('Postage', 'Rate', 'CommercialRate', 'CommercialPlusRate');
+                            $ratePrices = array();
+
+                            foreach ($rateTypes as $rt) {
+                                $rateValue = $xml->getArrayByPath($v, '#/' . $rt . '/0/#');
+                                if (0 < (float) $rateValue) {
+                                    $ratePrices[$rt] = (float) $rateValue;
+                                }
+                            }
+
+                            $postageData = array(
+                                'CLASSID'     => 'I-' . $xml->getArrayByPath($v, '@/ID') . '-' . static::getUniqueMethodID($serviceName),
+                                'MailService' => $this->getUSPSNamePrefix() . $serviceName,
+                                'Rate'        => $this->getRatePrice($ratePrices),
+                            );
+
+                            if (!isset($packageRates[$i])) {
+                                $packageRates[$i] = array();
+                            }
+
+                            $packageRates[$postageData['CLASSID']][] = $postageData;
+                        }
+                    }
+                }
+
+
+                if ($packageRates) {
+                    // Get intersection of postages
+                    foreach ($packageRates as $packageRatesData) {
+                        if (count($packageRatesData) < $packagesCount) {
+                            continue;
+                        }
+
+                        foreach ($packageRatesData as $v) {
+                            $result['postage'][] = $v;
+                        }
+                    }
                 }
             }
         }
@@ -900,7 +955,7 @@ OUT;
             $pounds = (int) $pounds;
         }
 
-        return array($pounds, round($ounces, 1));
+        return array($pounds, round($ounces, 3));
     }
 
     /**
@@ -960,8 +1015,8 @@ OUT;
     {
         $config = $this->getConfiguration();
 
-        return $config->userid
-            && $config->server_url;
+        return ($config->dataProvider === 'USPS' && $config->userid && $config->server_url)
+        || ($config->dataProvider === 'pitneyBowes' && $config->pbShipperId);
     }
 
     /**

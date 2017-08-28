@@ -76,7 +76,7 @@ class ClassTransformer implements ClassTransformerInterface
         $text = $this->getDocCommentText();
 
         foreach ($annotations as $annotation) {
-            $text = preg_replace('/@(' . $annotation . '\b)/', ' $1', $text);
+            $text = preg_replace('/@(' . $annotation . '\b)/i', ' $1', $text);
         }
 
         return $this->setDocComment($text);
@@ -92,6 +92,48 @@ class ClassTransformer implements ClassTransformerInterface
             'InheritanceType',
             'DiscriminatorColumn',
             'DiscriminatorMap',
+        ];
+
+        return $this->removeAnnotations($removeAnnotations);
+    }
+
+    public function removeApiDocAnnotations()
+    {
+        $removeAnnotations = [
+            'Api\\\Entity',
+            'Api\\\Column',
+            'Api\\\Association',
+            'Api\\\Condition',
+            'Api\\\Operation\\\Create',
+            'Api\\\Operation\\\Read',
+            'Api\\\Operation\\\ReadAll',
+            'Api\\\Operation\\\Update',
+            'Api\\\Operation\\\Delete',
+            'Swg\\\AbstractAnnotation',
+            'Swg\\\Contact',
+            'Swg\\\Definition',
+            'Swg\\\Delete',
+            'Swg\\\ExternalDocumentation',
+            'Swg\\\Get',
+            'Swg\\\Head',
+            'Swg\\\Header',
+            'Swg\\\Info',
+            'Swg\\\Items',
+            'Swg\\\License',
+            'Swg\\\Operation',
+            'Swg\\\Options',
+            'Swg\\\Parameter',
+            'Swg\\\Patch',
+            'Swg\\\Path',
+            'Swg\\\Post',
+            'Swg\\\Property',
+            'Swg\\\Put',
+            'Swg\\\Response',
+            'Swg\\\Schema',
+            'Swg\\\SecurityScheme',
+            'Swg\\\Swagger',
+            'Swg\\\Tag',
+            'Swg\\\Xml',
         ];
 
         return $this->removeAnnotations($removeAnnotations);

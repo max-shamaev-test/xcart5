@@ -25,7 +25,7 @@ abstract class ProductVariantProducts extends \XLite\Logic\Export\Step\Products 
         $columns = parent::defineColumns();
 
         if ('none' !== $this->generator->getOptions()->attrs) {
-            $columns[static::VARIANT_PREFIX . 'WholesalePrices'] = array(static::COLUMN_MULTIPLE => true);
+            $columns[static::VARIANT_PREFIX . 'WholesalePrices'] = [static::COLUMN_MULTIPLE => true];
         }
 
         return $columns;
@@ -42,7 +42,7 @@ abstract class ProductVariantProducts extends \XLite\Logic\Export\Step\Products 
      */
     protected function getVariantWholesalePricesColumnValue(array $dataset, $name, $i)
     {
-        $result = array();
+        $result = [];
 
         if (
             isset($dataset['variant'])

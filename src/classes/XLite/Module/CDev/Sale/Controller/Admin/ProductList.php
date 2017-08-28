@@ -24,9 +24,17 @@ class ProductList extends \XLite\Controller\Admin\ProductList implements \XLite\
         $select = \XLite\Core\Request::getInstance()->select;
         if ($select && is_array($select)) {
             \XLite\Core\Database::getRepo('\XLite\Model\Product')->updateInBatchById($this->getUpdateInfo());
-            \XLite\Core\TopMessage::addInfo(
-                'Products information has been successfully updated'
-            );
+            \XLite\Core\TopMessage::addInfo('Products information has been successfully updated');
+
+        } elseif ($ids = $this->getActionProductsIds()) {
+            $qb = \XLite\Core\Database::getRepo('XLite\Model\Product')->createQueryBuilder();
+            $alias = $qb->getMainAlias();
+            $qb->update('\XLite\Model\Product', $alias)
+                ->set("{$alias}.participateSale", $qb->expr()->literal(false))
+                ->andWhere($qb->expr()->in("{$alias}.product_id", $ids))
+                ->execute();
+            \XLite\Core\TopMessage::addInfo('Products information has been successfully updated');
+
         } else {
            \XLite\Core\TopMessage::addWarning('Please select the products first');
         }

@@ -20,7 +20,7 @@ class Export extends \Rah\Danpu\Export
      * @param  string $flags    Flags
      *
      * @return void
-     * @throws Exception
+     * @throws \Exception
      */
     protected function open($filename, $flags)
     {

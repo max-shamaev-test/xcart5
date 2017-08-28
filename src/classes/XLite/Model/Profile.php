@@ -336,6 +336,15 @@ class Profile extends \XLite\Model\AEntity
     protected $xcPendingExport = false;
 
     /**
+     * Checkout email
+     *
+     * @var string
+     *
+     * @Column (type="string")
+     */
+    protected $lastCheckoutEmail = '';
+
+    /**
      * Set referer
      *
      * @param string $value Value
@@ -521,12 +530,12 @@ class Profile extends \XLite\Model\AEntity
 
         if ($type == 'shipping') {
             $new->setIsShipping(true);
-            if ($useAsOtherType !== null) {
+            if ($useAsOtherType !== null && $current && !$current->getIsWork()) {
                 $new->setIsBilling($useAsOtherType);
             }
         } else {
             $new->setIsBilling(true);
-            if ($useAsOtherType !== null) {
+            if ($useAsOtherType !== null && $current && !$current->getIsWork()) {
                 $new->setIsShipping($useAsOtherType);
             }
         }
@@ -738,11 +747,6 @@ class Profile extends \XLite\Model\AEntity
     {
         $newProfile = parent::cloneEntity();
 
-        if (!$newProfile->update(true) || !$newProfile->getProfileId()) {
-            // TODO - add throw exception
-            \XLite::getInstance()->doGlobalDie('Can not clone profile');
-        }
-
         $newProfile->setMembership($this->getMembership());
         $newProfile->setPendingMembership($this->getPendingMembership());
         $newProfile->setPassword('');
@@ -752,7 +756,6 @@ class Profile extends \XLite\Model\AEntity
             $newBillingAddress = $billingAddress->cloneEntity();
             $newBillingAddress->setProfile($newProfile);
             $newProfile->addAddresses($newBillingAddress);
-            $newBillingAddress->update();
         }
 
         $shippingAddress = $this->getShippingAddress();
@@ -762,10 +765,7 @@ class Profile extends \XLite\Model\AEntity
             $newShippingAddress = $shippingAddress->cloneEntity();
             $newShippingAddress->setProfile($newProfile);
             $newProfile->addAddresses($newShippingAddress);
-            $newShippingAddress->update();
         }
-
-        $newProfile->update(true);
 
         return $newProfile;
     }
@@ -1687,5 +1687,33 @@ class Profile extends \XLite\Model\AEntity
         if ($flush) {
             \XLite\Core\Database::getEM()->flush();
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->getLastCheckoutEmail()
+            ?: $this->getLogin();
+    }
+
+    /**
+     * @return string
+     */
+    public function getLastCheckoutEmail()
+    {
+        return $this->lastCheckoutEmail;
+    }
+
+    /**
+     * @param string $lastCheckoutEmail
+     *
+     * @return $this
+     */
+    public function setLastCheckoutEmail($lastCheckoutEmail)
+    {
+        $this->lastCheckoutEmail = $lastCheckoutEmail;
+        return $this;
     }
 }

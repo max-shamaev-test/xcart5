@@ -14,9 +14,7 @@ namespace XLite\Module\XC\CrispWhiteSkin\View;
 class CommonImage extends \XLite\View\Image
 {
     /**
-     * Get properties
-     *
-     * @return void
+     * @inheritdoc
      */
     public function getProperties()
     {

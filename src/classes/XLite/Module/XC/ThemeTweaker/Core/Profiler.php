@@ -22,6 +22,6 @@ class Profiler extends \XLite\Module\XC\WebmasterKit\Core\Profiler implements \X
      */
     public static function markTemplatesEnabled()
     {
-        return parent::markTemplatesEnabled() && !\XLite\Core\Config::getInstance()->XC->ThemeTweaker->edit_mode;
+        return parent::markTemplatesEnabled() && !ThemeTweaker::getInstance()->isInWebmasterMode();
     }
 }

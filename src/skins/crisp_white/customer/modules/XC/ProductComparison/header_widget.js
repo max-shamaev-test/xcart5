@@ -8,10 +8,16 @@
  */
 
 (function(){
+  core.loadLanguageHash(core.getCommentedData('.add-to-compare'));
+
   window.product_comparison = _.wrap(window.product_comparison, function(original) {
     jQuery('.compare-checkbox input').each(function() {
       var elem = jQuery(this);
       elem.change(function(event){
+        if (elem.siblings('.add-label').length) {
+          elem.siblings('.add-label').text(event.target.checked ? core.t('Added') : core.t('Add to compare'));
+        }
+
         if (event.target.checked) {
           var target = $('.header_product-comparison:visible');
           if (target.length == 0) {
@@ -32,10 +38,9 @@
     return original.apply(this, Array.prototype.slice.call(arguments, 1));
   });
 
-  core.loadLanguageHash(core.getCommentedData('.header_product-comparison'));
-
   core.bind('updateProductComparison', function(event, data) {
     var indicator = $('.compare-indicator');
+    var mobile_menu = $('.mobile_header-slidebar');
     var link = $('.compare-indicator > a');
     var span = link.find('.counter');
     var old_count = parseInt(span.first().text());
@@ -54,6 +59,7 @@
 
     if (data.count > 0 && (data.count > old_count || isNaN(old_count) || indicator.hasClass('recently-updated'))) {
       indicator.addClass('recently-updated');
+      mobile_menu.addClass('recently-updated');
     } else {
       indicator.removeClass('recently-updated');
     }

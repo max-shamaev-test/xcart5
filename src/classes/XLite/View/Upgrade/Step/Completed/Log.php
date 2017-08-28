@@ -45,14 +45,12 @@ class Log extends \XLite\View\Upgrade\Step\Completed\ACompleted
         return $this->buildURL('upgrade', 'view_log_file');
     }
 
-    /**
-     * Called after the includeCompiledFile()
-     *
-     * @return void
-     */
-    protected function closeView()
+    protected function finalizeTemplateDisplay($template, array $profilerData)
     {
-        parent::closeView();
+        parent::finalizeTemplateDisplay($template, $profilerData);
+
+        \XLite\Core\Marketplace::getInstance()->getAddonsList(0);
+        \XLite\Core\Database::getEM()->flush();
 
         \XLite\Upgrade\Cell::getInstance()->clear(true, true, false);
         \XLite\Upgrade\Cell::getInstance()->setUpgraded(false);

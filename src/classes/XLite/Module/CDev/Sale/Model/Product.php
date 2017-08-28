@@ -65,7 +65,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     /**
      * Set it to display price with discounts to use in quick data
      *
-     * @return decimal
+     * @return float
      */
     public function getQuickDataPrice()
     {

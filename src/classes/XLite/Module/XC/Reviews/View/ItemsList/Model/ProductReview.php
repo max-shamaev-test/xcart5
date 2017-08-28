@@ -26,7 +26,7 @@ class ProductReview extends \XLite\Module\XC\Reviews\View\ItemsList\Model\Review
      */
     public static function getAllowedTargets()
     {
-        return array_merge(parent::getAllowedTargets(), array('product'));
+        return array_merge(parent::getAllowedTargets(), ['product']);
     }
 
     /**
@@ -66,7 +66,7 @@ class ProductReview extends \XLite\Module\XC\Reviews\View\ItemsList\Model\Review
      */
     protected function getFormParams()
     {
-        $params = array();
+        $params = [];
 
         $productId = \XLite\Core\Request::getInstance()->product_id;
         if ($productId) {
@@ -86,12 +86,12 @@ class ProductReview extends \XLite\Module\XC\Reviews\View\ItemsList\Model\Review
      */
     protected function defineColumns()
     {
-        $allowedColumns = array(
+        $allowedColumns = [
             'reviewerName',
             'rating',
             'status',
             'additionDate',
-        );
+        ];
 
         $columns = parent::defineColumns();
 
@@ -102,16 +102,16 @@ class ProductReview extends \XLite\Module\XC\Reviews\View\ItemsList\Model\Review
             }
         }
 
-        $columns['useForMeta'] = array(
+        $columns['useForMeta'] = [
             static::COLUMN_NAME      => static::t('SEO'),
             static::COLUMN_HEAD_HELP => static::t('Select the review that should be included into the rich snippet shown for the page of this product when the page appears in search results by Google and other major search engines'),
             static::COLUMN_CLASS     => '\XLite\View\FormField\Inline\Input\Radio\Radio',
             static::COLUMN_EDIT_ONLY => true,
-            static::COLUMN_PARAMS => array(
+            static::COLUMN_PARAMS => [
                 'fieldName' => 'useForMeta',
-            ),
+            ],
             static::COLUMN_ORDERBY   => 600,
-        );
+        ];
 
         return $columns;
     }

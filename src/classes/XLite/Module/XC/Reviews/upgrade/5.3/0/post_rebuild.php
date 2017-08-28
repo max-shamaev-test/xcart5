@@ -12,11 +12,11 @@ return function()
     // because constant already removed from a code base in the moment
     if ('A' === \XLite\Core\Config::getInstance()->XC->Reviews->whoCanLeaveFeedback) {
         \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
-            array(
+            [
                 'category' => 'XC\Reviews',
                 'name'     => 'whoCanLeaveFeedback',
                 'value'    => \XLite\Module\XC\Reviews\Model\Review::REGISTERED_CUSTOMERS,
-            )
+            ]
         );
 
         \XLite\Core\Database::getEM()->flush();

@@ -32,17 +32,36 @@ class Shipping extends \XLite\View\Tabs\ATabs
     }
 
     /**
+     * Register files from common repository
+     *
+     * @return array
+     */
+    public function getCommonFiles()
+    {
+        $list = parent::getCommonFiles();
+        $list[static::RESOURCE_JS] = isset($list[static::RESOURCE_JS]) ? $list[static::RESOURCE_JS] : [];
+
+        $tooltip = new \XLite\View\Tooltip();
+        $list[static::RESOURCE_JS] = array_merge(
+            $list[static::RESOURCE_JS],
+            $tooltip->getCommonFiles()[static::RESOURCE_JS]
+        );
+
+        return $list;
+    }
+
+    /**
      * @return array
      */
     protected function defineTabs()
     {
         return [
-            'shipping_methods' => [
-                'weight' => 100,
-                'title'  => static::t('Settings'),
-                'widget'    => 'XLite\View\ItemsList\Model\Shipping\Carriers',
+            'shipping_methods'          => [
+                'weight'   => 100,
+                'title'    => static::t('Settings'),
+                'template' => 'shipping/carriers.twig',
             ],
-            'origin_address' => [
+            'origin_address'            => [
                 'weight' => 200,
                 'title'  => static::t('Origin address'),
                 'widget' => 'XLite\View\Page\OriginAddress',
@@ -68,6 +87,6 @@ class Shipping extends \XLite\View\Tabs\ATabs
     protected function isVisible()
     {
         return parent::isVisible()
-            && !(\XLite::getController() instanceof \XLite\Controller\Admin\ShippingMethods && $this->getMethod());
+               && !(\XLite::getController() instanceof \XLite\Controller\Admin\ShippingMethods && $this->getMethod());
     }
 }

@@ -72,6 +72,6 @@ class OrderedFiles extends \XLite\Controller\Customer\ACustomer
      */
     public function getOrdersWithFiles()
     {
-        return \XLite\Core\Database::getRepo('\XLite\Model\Order')->findAllOrdersWithEgoods($this->getProfile());
+        return \XLite\Core\Database::getRepo('\XLite\Model\Order')->findAllOrdersWithEgoods($this->getProfile(), false);
     }
 }

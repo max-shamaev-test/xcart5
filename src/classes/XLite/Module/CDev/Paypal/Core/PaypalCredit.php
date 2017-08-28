@@ -43,7 +43,7 @@ class PaypalCredit extends \XLite\Base\Singleton
         $request = new \XLite\Core\HTTP\Request(static::END_POINT);
 
         if (function_exists('curl_version')) {
-            $request->setAdditionalOption(\CURLOPT_SSLVERSION, 1);
+            $request->setAdditionalOption(\CURLOPT_SSLVERSION, 6);
             $curlVersion = curl_version();
 
             if (
@@ -51,7 +51,7 @@ class PaypalCredit extends \XLite\Base\Singleton
                 && $curlVersion['ssl_version']
                 && 0 !== strpos($curlVersion['ssl_version'], 'NSS')
             ) {
-                $request->setAdditionalOption(\CURLOPT_SSL_CIPHER_LIST, 'TLSv1');
+                $request->setAdditionalOption(\CURLOPT_SSL_CIPHER_LIST, 'TLSv1.2');
             }
         }
 

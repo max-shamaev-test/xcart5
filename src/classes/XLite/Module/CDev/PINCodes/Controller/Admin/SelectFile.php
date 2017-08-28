@@ -37,10 +37,10 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
      */
     protected function getParamsObjectImportPinCodes()
     {
-        return array(
+        return [
             'action' => 'import',
             'product_id' => \XLite\Core\Request::getInstance()->objectId
-        );
+        ];
     }
 
     /**
@@ -56,7 +56,7 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
         \XLite\Core\Session::getInstance()->importPinCodesCell = null;
         $methodToLoad .= 'Import';
 
-        $path = call_user_func_array(array($this, $methodToLoad), $paramsToLoad);
+        $path = call_user_func_array([$this, $methodToLoad], $paramsToLoad);
         if (is_array($path)) {
 
             if (!$path[0] && $path[1]) {
@@ -79,7 +79,7 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
      */
     protected function doActionSelectUploadImportPinCodes()
     {
-        $this->doActionSelectImportPinCodes('loadFromRequest', array('uploaded_file'));
+        $this->doActionSelectImportPinCodes('loadFromRequest', ['uploaded_file']);
     }
 
     /**
@@ -91,9 +91,9 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
     {
         $this->doActionSelectImportPinCodes(
             'loadFromURL',
-            array(
+            [
                 \XLite\Core\Request::getInstance()->url,
-            )
+            ]
         );
     }
 
@@ -108,7 +108,7 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
 
         $this->doActionSelectImportPinCodes(
             'loadFromLocalFile',
-            array($file)
+            [$file]
         );
     }
 

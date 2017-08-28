@@ -10,7 +10,6 @@ namespace XLite\Module\XC\Reviews\Controller\Customer;
 
 /**
  * Reviews controller
- *
  */
 class ProductReviews extends \XLite\Controller\Customer\Product
 {
@@ -22,7 +21,7 @@ class ProductReviews extends \XLite\Controller\Customer\Product
     public function getTitle()
     {
         return $this->getProduct()
-            ? static::t('Ratings and Reviews of X', array('product' => $this->getProduct()->getName()))
+            ? static::t('Ratings and Reviews of X', ['product' => $this->getProduct()->getName()])
             : null;
     }
 
@@ -34,7 +33,7 @@ class ProductReviews extends \XLite\Controller\Customer\Product
     public function getTitleObjectPart()
     {
         return $this->getProduct() && $this->getProduct()->getMetaTitle()
-            ? static::t('Ratings and Reviews of X', array('product' => $this->getProduct()->getMetaTitle()))
+            ? static::t('Ratings and Reviews of X', ['product' => $this->getProduct()->getMetaTitle()])
             : $this->getTitle();
     }
 
@@ -108,15 +107,15 @@ class ProductReviews extends \XLite\Controller\Customer\Product
      */
     public function getKeywords()
     {
-        $keywords = array();
+        $keywords = [];
 
         if ($this->isVisible()) {
-            $keywords = array(
+            $keywords = [
                 $this->getProduct()->getName(),
                 'Ratings',
                 'Reviews',
                 \Xlite\Core\Config::getInstance()->Company->company_name,
-            );
+            ];
         }
 
         return $keywords
@@ -235,7 +234,7 @@ class ProductReviews extends \XLite\Controller\Customer\Product
 
         foreach (\XLite\Module\XC\Reviews\View\ItemsList\Model\Review::getSearchParams() as $requestParam) {
             if (\XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_ADDITION_DATE === $requestParam) {
-                $searchParams[$requestParam] = array($this->startDate, $this->endDate);
+                $searchParams[$requestParam] = [$this->startDate, $this->endDate];
             } elseif (isset(\XLite\Core\Request::getInstance()->$requestParam)) {
                 $searchParams[$requestParam] = \XLite\Core\Request::getInstance()->$requestParam;
             }
@@ -256,7 +255,7 @@ class ProductReviews extends \XLite\Controller\Customer\Product
         $searchParams = \XLite\Core\Session::getInstance()->$cellName;
 
         if (!is_array($searchParams)) {
-            $searchParams = array();
+            $searchParams = [];
         }
 
         return $searchParams;
@@ -310,7 +309,7 @@ class ProductReviews extends \XLite\Controller\Customer\Product
         if ($this->getProduct()) {
             $this->addLocationNode(
                 $this->getProduct()->getName(),
-                $this->buildURL('product', '', array('product_id' => $this->getProductId()))
+                $this->buildURL('product', '', ['product_id' => $this->getProductId()])
             );
         }
     }
@@ -349,10 +348,10 @@ class ProductReviews extends \XLite\Controller\Customer\Product
     {
         return array_merge(
             parent::defineCommonJSData(),
-            array(
+            [
                 'product_id'    => $this->getProductId(),
                 'category_id'   => $this->getCategoryId(),
-            )
+            ]
         );
     }
 

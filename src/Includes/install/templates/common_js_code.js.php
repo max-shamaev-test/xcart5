@@ -218,7 +218,7 @@ jQuery().ready(
                 var result = '';
                 var box = jQuery('.permissions-list', trigger.parentElement);
                 if (0 < box.length) {
-                    result = jQuery(box).html();
+                    result = jQuery(box).text();
                 }
                 return result;
             }

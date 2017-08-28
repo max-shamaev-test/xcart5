@@ -133,7 +133,7 @@ CartView.prototype.openShippingEstimator = function(event, elm)
 
     core.bind('afterPopupPlace', function() {
       // Refresh list of states
-      UpdateStatesList();
+      StatesList.getInstance().updateStatesList();
       // Enable forceUpdateCartOnClose option
       this.forceUpdateCartOnClose = true;
       jQuery('form.estimator, .estimate-methods form.method-change').submit(

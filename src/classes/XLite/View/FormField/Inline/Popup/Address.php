@@ -63,13 +63,13 @@ abstract class Address extends \XLite\View\FormField\Inline\Popup\APopup
      */
     protected function defineFields()
     {
-        $fields = array();
+        $fields = [];
 
         foreach (\XLite\Core\Database::getRepo('XLite\Model\AddressField')->findAllEnabled() as $field) {
-            $fields[$field->getServiceName()] = array(
+            $fields[$field->getServiceName()] = [
                 static::FIELD_NAME    => $field->getServiceName(),
                 static::FIELD_CLASS   => $this->defineFieldClass(),
-            );
+            ];
         }
 
         return $fields;
@@ -102,10 +102,10 @@ abstract class Address extends \XLite\View\FormField\Inline\Popup\APopup
      */
     protected function getNameParts(array $field)
     {
-        return array(
+        return [
             $this->getParam(static::PARAM_FIELD_NAME),
             $field[static::FIELD_NAME],
-        );
+        ];
     }
 
     /**
@@ -163,7 +163,7 @@ abstract class Address extends \XLite\View\FormField\Inline\Popup\APopup
 
         } else {
             // Get address property via common setterProperty() method
-            $oldValue = $address->getterProperty($field['field'][static::FIELD_NAME], $value);
+            $oldValue = $address->getterProperty($field['field'][static::FIELD_NAME]);
         }
 
         return $oldValue;
@@ -181,6 +181,15 @@ abstract class Address extends \XLite\View\FormField\Inline\Popup\APopup
     protected function setPropertyValue(\XLite\Model\Address $address, array $field, $value)
     {
         $setterMethod = $this->getAddressFieldMethodName($field);
+
+        if (
+            $field['field'][static::FIELD_NAME] === 'state_id'
+            && $address->getCountry()
+            && $address->getCountry()->isForcedCustomState()
+        ) {
+            $address->setState($address->getCustomState() ?: '');
+            return;
+        }
 
         if (method_exists($address, $setterMethod)) {
             // Set address property via specific method
@@ -250,27 +259,27 @@ abstract class Address extends \XLite\View\FormField\Inline\Popup\APopup
 
             case 'country_code': {
                 $fieldName = 'Country';
-                $oldCountry = \XLite\Core\Database::getRepo('XLite\Model\Country')->findOneBy(array('code' => $oldValue));
+                $oldCountry = \XLite\Core\Database::getRepo('XLite\Model\Country')->findOneBy(['code' => $oldValue]);
                 $oldValue = $oldCountry ? $oldCountry->getCountry() : $oldValue;
-                $newCountry = \XLite\Core\Database::getRepo('XLite\Model\Country')->findOneBy(array('code' => $value));
+                $newCountry = \XLite\Core\Database::getRepo('XLite\Model\Country')->findOneBy(['code' => $value]);
 
-                $oldHasStates = $oldCountry && $oldCountry->hasStates();
-                $newHasStates = $newCountry && $newCountry->hasStates();
+                $oldHasStates = $oldCountry && $oldCountry->hasStates() && !$oldCountry->isForcedCustomState();
+                $newHasStates = $newCountry && $newCountry->hasStates() && !$newCountry->isForcedCustomState();
 
                 if ($newHasStates && !$oldHasStates) {
-                    $customStateField = array(
-                        'field' => array(
+                    $customStateField = [
+                        'field' => [
                             static::FIELD_NAME => 'custom_state'
-                        )
-                    );
+                        ]
+                    ];
                     $this->setOldState($address, $customStateField);
                 }
                 if ($oldHasStates && !$newHasStates) {
-                    $stateField = array(
-                        'field' => array(
+                    $stateField = [
+                        'field' => [
                             static::FIELD_NAME => 'state_id'
-                        )
-                    );
+                        ]
+                    ];
                     $this->setOldState($address, $stateField);
                 }
 
@@ -279,7 +288,11 @@ abstract class Address extends \XLite\View\FormField\Inline\Popup\APopup
             }
 
             case 'state_id': {
-                if ($address->getCountry() && $address->getCountry()->hasStates()) {
+                if (
+                    $address->getCountry()
+                    && $address->getCountry()->hasStates()
+                    && !$address->getCountry()->isForcedCustomState()
+                ) {
                     $fieldName = 'State';
 
                     if (null === $this->oldState) {
@@ -299,7 +312,11 @@ abstract class Address extends \XLite\View\FormField\Inline\Popup\APopup
             }
 
             case 'custom_state': {
-                if ($address->getCountry() && $address->getCountry()->hasStates()) {
+                if (
+                    $address->getCountry()
+                    && $address->getCountry()->hasStates()
+                    && !$address->getCountry()->isForcedCustomState()
+                ) {
                     $ignoreChange = true;
 
                 } else {

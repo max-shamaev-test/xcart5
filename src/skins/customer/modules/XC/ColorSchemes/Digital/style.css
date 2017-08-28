@@ -314,6 +314,7 @@ ul.products-sidebar-text-links li.product-cell {
   font-style: normal;
   font-weight: 300;
   font-size: 26px;
+  line-height: 26px;
 }
 
 .product-image-gallery ul{
@@ -346,6 +347,22 @@ div.product-details-market-price div.text {
 
 div.product-details-market-price div.text span.you-save {
   color: #ffffff;
+}
+
+.product-tabs-brief-info {
+  background: #000;
+  color: #ccc;
+}
+
+.product-tabs-brief-info ul li .tab-title,
+.product-tabs-brief-info ul li .tab-brief-info-body {
+  color: #ccc;
+}
+
+img[src*='images/demo/tabs/logos-payments-tab.png'] {
+  background: #fff;
+  padding: 5px;
+  border-radius: 2px;
 }
 
 .wholesale-price-header {

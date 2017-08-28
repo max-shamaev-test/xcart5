@@ -56,3 +56,5 @@ XLite\Model\LanguageLabel:
   - { name: 'The changes will be applied to all selected products', translations: [{ code: en, label: 'The changes will be applied to all selected products' }] }
   - { name: 'Apply price', translations: [{ code: en, label: 'Apply price' }] }
   - { name: 'On sale', translations: [{ code: en, label: 'On sale' }] }
+  - { name: 'Put all for sale', translations: [{ code: en, label: 'Put all for sale' }] }
+  - { name: 'Cancel sale for all', translations: [{ code: en, label: 'Cancel sale for all' }] }

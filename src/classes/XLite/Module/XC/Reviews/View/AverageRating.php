@@ -251,8 +251,32 @@ class AverageRating extends \XLite\View\AView
      */
     public function isVisibleReviewsCount()
     {
-        return 0 < $this->getReviewsCount()
-            || 'grid' != $this->getWidgetMode();
+        return 0 < $this->getReviewsCount();
+    }
+
+    /**
+     * Define whether to display the votes on the page
+     *
+     * @param \XLite\Model\Product $product
+     *
+     * @return boolean
+     */
+    public function isVisibleAddReviewLink($product = null)
+    {
+        return $this->isAllowedAddReview($product)
+               && $this->getWidgetMode() !== \XLite\View\ItemsList\Product\Customer\ACustomer::DISPLAY_MODE_GRID;
+    }
+
+    /**
+     * Return reviews link label
+     *
+     * @return string
+     */
+    protected function getReviewsLinkLabel()
+    {
+        return $this->getReviewsCount()
+            ? static::t('Add review')
+            : static::t('Be the first and leave a feedback.');
     }
 
     /**
@@ -274,10 +298,10 @@ class AverageRating extends \XLite\View\AView
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             static::PARAM_PRODUCT => new \XLite\Model\WidgetParam\TypeObject('Product', null, false, 'XLite\Model\Product'),
             static::PARAM_WIDGET_MODE => new \XLite\Model\WidgetParam\TypeString('Widget mode', 'product-details'),
-        );
+        ];
     }
 
     /**
@@ -339,7 +363,7 @@ class AverageRating extends \XLite\View\AView
         $product = $this->getRatedProduct();
 
         return $product
-            ? $this->buildURL('product', null, array('product_id' => $product->getId(), 'category_id' => $product->getCategoryId())) . '#product-details-tab-reviews'
+            ? $this->buildURL('product', null, ['product_id' => $product->getId(), 'category_id' => $product->getCategoryId()]) . '#product-details-tab-reviews'
             : '';
     }
 }

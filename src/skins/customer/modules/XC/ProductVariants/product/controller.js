@@ -13,8 +13,7 @@
 
 core.bind(
   'update-product-page',
-  function (event, productId)
-  {
+  function (event, productId) {
     if (jQuery('div.product-details').length > 0 && 'undefined' !== typeof(jQuery('div.product-details').get(0).controller)) {
       jQuery('div.product-details').get(0).controller.block.loadVariantsImages(productId);
     }
@@ -22,12 +21,10 @@ core.bind(
 );
 
 jQuery(document).ready(
-  function()
-  {
+  function () {
     core.bind(
       'update-product-page',
-      function (event, productId)
-      {
+      function (event, productId) {
         if (jQuery('div.product-details').length > 0 && 'undefined' !== typeof(jQuery('div.product-details').get(0).controller)) {
           jQuery('div.product-details').get(0).controller.block.loadVariantsImages(productId);
         }
@@ -39,8 +36,7 @@ jQuery(document).ready(
     if ('undefined' != typeof(use) && !use) {
       core.bind(
         'update-variant-image',
-        function (event, productId)
-        {
+        function (event, productId) {
           jQuery('div.product-details').get(0).controller.block.loadVariantsImages(productId, true);
         }
       );
@@ -48,11 +44,11 @@ jQuery(document).ready(
       var handler = function () {
         core.trigger('update-variant-image', productId);
       };
-      
+
       jQuery("ul.attribute-values input[type='checkbox']").unbind('change').change(handler);
       jQuery("ul.attribute-values select").unbind('change').change(handler);
     }
-    if (jQuery('div.product-details').length > 0 &&'undefined' !== typeof(jQuery('div.product-details').get(0).controller)) {
+    if (jQuery('div.product-details').length > 0 && 'undefined' !== typeof(jQuery('div.product-details').get(0).controller)) {
       jQuery('div.product-details').get(0).controller.block.loadVariantsImages(productId);
     }
   }
@@ -61,8 +57,7 @@ jQuery(document).ready(
 ProductDetailsView.prototype.fakeLoupeLink = null;
 
 // Load variant image
-ProductDetailsView.prototype.loadVariantsImages = function(productId, shade)
-{
+ProductDetailsView.prototype.loadVariantsImages = function (productId, shade) {
   if (this.base.data('variants-has-images')) {
 
     if (shade) {
@@ -76,14 +71,13 @@ ProductDetailsView.prototype.loadVariantsImages = function(productId, shade)
       URLHandler.buildURL(this.getURLParametersForLoadVariantsImages(productId)),
       _.bind(this.handleLoadVariantsImages, this),
       null,
-      { dataType: 'json' }
+      {dataType: 'json'}
     );
   }
 }
 
 // Get URL parameters for variant image loading routine
-ProductDetailsView.prototype.getURLParametersForLoadVariantsImages = function(productId)
-{
+ProductDetailsView.prototype.getURLParametersForLoadVariantsImages = function (productId) {
   var params = {product_id: productId};
   params = array_merge(params, core.getWidgetsParams('update-product-page', params));
 
@@ -91,8 +85,7 @@ ProductDetailsView.prototype.getURLParametersForLoadVariantsImages = function(pr
 }
 
 // Load variant image handler
-ProductDetailsView.prototype.handleLoadVariantsImages = function (XMLHttpRequest, textStatus, data)
-{
+ProductDetailsView.prototype.handleLoadVariantsImages = function (XMLHttpRequest, textStatus, data) {
   if (data && _.isString(data)) {
     data = jQuery.parseJSON(data);
   }
@@ -109,78 +102,84 @@ ProductDetailsView.prototype.handleLoadVariantsImages = function (XMLHttpRequest
   }
 }
 
-ProductDetailsView.prototype.processVariantImageAsGallery = function(data)
-{
+ProductDetailsView.prototype.processVariantImageAsGallery = function (data) {
+  var self = this;
 
   var imageChanged = false;
 
-  var variantImageSelected = this.base.find('.product-image-gallery li.variant-image.selected').length > 0;
+  var galleries = this.base.find('.product-image-gallery');
 
-  if (data && _.isObject(data)) {
+  galleries.each(function () {
+    var $gallery = jQuery(this);
 
-    imageChanged = this.base.find('.product-image-gallery li.variant-image a').attr('href') != data.full[2];
+    if (data && _.isObject(data)) {
 
-    if (imageChanged) {
+      imageChanged = imageChanged || $gallery.find('li.variant-image a').attr('href') != data.full.url;
+
+      if (imageChanged) {
+
+        // Remove old variant image
+        var li = $gallery.find('li:eq(0)').clone(true);
+
+        $gallery.find('li.variant-image').remove();
+
+        // Change images
+        var elm = li.find('a img');
+        elm.attr('width', data.gallery.w)
+          .attr('height', data.gallery.h)
+          .attr('src', data.gallery.url)
+          .attr('srcset', data.gallery.srcset)
+          .attr('alt', data.gallery.alt)
+          .css({width: data.gallery.w + 'px', height: data.gallery.h + 'px'});
+
+        elm = li.find('img.middle');
+        elm.attr('width', data.main.w)
+          .attr('height', data.main.h)
+          .attr('src', data.main.url)
+          .attr('srcset', data.main.srcset)
+          .attr('alt', data.main.alt)
+          .css({width: data.main.w + 'px', height: data.main.h + 'px'});
+
+        // Change gallery link
+        li.find('a')
+          .attr('href', data.full.url)
+          .attr('rev', 'width: ' + data.full.w + ', height: ' + data.full.h);
+
+        li.addClass('variant-image');
+
+        $gallery.find('li:eq(0)').before(li);
+
+        // Gallery icon vertical aligment
+        var margin = (li.height() - li.find('a img').height()) / 2;
+
+        li.find('a img').css({
+          'margin-top': Math.ceil(margin) + 'px',
+          'margin-bottom': Math.floor(margin) + 'px'
+        });
+      }
+
+    } else if ($gallery.find('li.variant-image').length > 0) {
+
+      imageChanged = true;
 
       // Remove old variant image
-      var li = this.base.find('.product-image-gallery li:eq(0)').clone(true);
+      $gallery.find('li.variant-image').remove();
 
-      this.base.find('.product-image-gallery li.variant-image').remove();
-      
-      // Change images
-      var elm = li.find('a img');
-      elm.attr('width', data.gallery[0])
-        .attr('height', data.gallery[1])
-        .attr('src', data.gallery[2])
-        .attr('alt', data.gallery[3])
-        .css({ width: data.gallery[0] + 'px', height: data.gallery[1] + 'px' });
-
-      elm = li.find('img.middle');
-      elm.attr('width', data.main[0])
-        .attr('height', data.main[1])
-        .attr('src', data.main[2])
-        .attr('alt', data.main[3])
-        .css({ width: data.main[0] + 'px', height: data.main[1] + 'px' });
-
-      // Change gallery link
-      li.find('a')
-        .attr('href', data.full[2])
-        .attr('rev', 'width: ' + data.full[0] + ', height: ' + data.full[1]);
-
-      li.addClass('variant-image');
-
-      this.base.find('.product-image-gallery li:eq(0)').before(li);
-
-      // Gallery icon vertical aligment
-      var margin = (li.height() - li.find('a img').height()) / 2;
-
-      li.find('a img').css({
-        'margin-top':    Math.ceil(margin) + 'px',
-        'margin-bottom': Math.floor(margin) + 'px'
-      });
     }
-
-  } else if (this.base.find('.product-image-gallery li.variant-image').length > 0) {
-
-    imageChanged = true;
-
-    // Remove old variant image
-    this.base.find('.product-image-gallery li.variant-image').remove();
-
-  }
-
+  });
   if (imageChanged) {
-    // Gallery reinitialization
-    this.gallery = jQuery('.product-image-gallery li', this.base);
-    this.hideLightbox();
+    self.initializeGallery();
+    self.hideLightbox();
 
-    this.base.find('.product-image-gallery li:eq(0) a').click();
+    self.applyToGalleries(function (gallery) {
+      if (gallery.get(0)) {
+        $(gallery.get(0)).find('a').click();
+      }
+    });
   }
-
 }
 
-ProductDetailsView.prototype.processVariantImageAsImage = function(data)
-{
+ProductDetailsView.prototype.processVariantImageAsImage = function (data) {
   if (!this.fakeLoupeLink) {
     this.fakeLoupeLink = this.base.find('.default-image');
     this.fakeLoupeLink.colorbox(this.getColorboxOptions());
@@ -188,7 +187,7 @@ ProductDetailsView.prototype.processVariantImageAsImage = function(data)
       .unbind('click')
       .click(
         _.bind(
-          function(event) {
+          function (event) {
             this.fakeLoupeLink.click();
           },
           this
@@ -198,16 +197,17 @@ ProductDetailsView.prototype.processVariantImageAsImage = function(data)
 
   if (data && _.isObject(data)) {
     var elm = this.base.find('img.product-thumbnail');
-    elm.attr('width', data.main[0])
-      .attr('height', data.main[1])
-      .attr('src', data.main[2])
-      .attr('alt', data.main[3])
-      .css({ width: data.main[0] + 'px', height: data.main[1] + 'px' });
+    elm.attr('width', data.main.w)
+      .attr('height', data.main.h)
+      .attr('src', data.main.url)
+      .attr('srcset', data.main.srcset)
+      .attr('alt', data.main.alt)
+      .css({width: data.main.w + 'px', height: data.main.h + 'px'});
 
-    this.fakeLoupeLink.attr('href', data.full[2]);
+    this.fakeLoupeLink.attr('href', data.full.url);
     this.base.find('.loupe').show();
 
-    this.base.find('a.cloud-zoom').attr('href', data.full[2]);
+    this.base.find('a.cloud-zoom').attr('href', data.full.url);
     this.base.find('.cloud-zoom').trigger('cloud-zoom');
 
   } else {
@@ -216,8 +216,7 @@ ProductDetailsView.prototype.processVariantImageAsImage = function(data)
 
 }
 
-ProductDetailsView.prototype.applyDefaultImage = function()
-{
+ProductDetailsView.prototype.applyDefaultImage = function () {
   if (this.base.find('.product-image-gallery li').length > 0) {
     var a = this.base.find('.product-image-gallery li a');
     var img = this.base.find('.product-image-gallery li img.middle');
@@ -226,7 +225,7 @@ ProductDetailsView.prototype.applyDefaultImage = function()
       .attr('width', img.attr('width'))
       .attr('height', img.attr('height'))
       .css({
-        'width':  img.attr('width') + 'px',
+        'width': img.attr('width') + 'px',
         'height': img.attr('height') + 'px'
       });
 
@@ -244,7 +243,7 @@ ProductDetailsView.prototype.applyDefaultImage = function()
       .attr('width', img.attr('width'))
       .attr('height', img.attr('height'))
       .css({
-        'width':  img.attr('width') + 'px',
+        'width': img.attr('width') + 'px',
         'height': img.attr('height') + 'px'
       });
 
@@ -258,6 +257,8 @@ ProductDetailsView.prototype.applyDefaultImage = function()
     }
     this.base.find('a.cloud-zoom')
       .unbind('click')
-      .click(function() { return false; });
+      .click(function () {
+        return false;
+      });
   }
 }

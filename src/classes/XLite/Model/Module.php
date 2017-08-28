@@ -387,7 +387,7 @@ class Module extends \XLite\Model\AEntity
     /**
      * Image URL cached
      *
-     * @var string
+     * @var string[]
      */
     protected $imageURLCached = array();
 
@@ -408,6 +408,24 @@ class Module extends \XLite\Model\AEntity
      * @Column (type="boolean")
      */
     protected $private = false;
+
+    /**
+     * Wave of current module version
+     *
+     * @var integer
+     *
+     * @Column (type="integer")
+     */
+    protected $wave = 0;
+
+    /**
+     * Position in sales channel list
+     *
+     * @var integer
+     *
+     * @Column (type="integer")
+     */
+    protected $salesChannelPos = -1;
 
     /**
      * Returns string representation of module entity
@@ -807,7 +825,7 @@ class Module extends \XLite\Model\AEntity
             foreach ($modules as $m => $data) {
                 $mutualModules = \Includes\Utils\ModulesManager::callModuleMethod($m, 'getMutualModulesList');
 
-                if (in_array($this->getActualName(), $mutualModules) && !isset($list[$m])) {
+                if ($mutualModules && in_array($this->getActualName(), $mutualModules) && !isset($list[$m])) {
                     $list[$m] = \XLite\Core\Database::getRepo('XLite\Model\Module')
                         ->findOneBy(array_combine(array('author', 'name'), explode('\\', $m)));
                 }
@@ -1983,5 +2001,37 @@ class Module extends \XLite\Model\AEntity
     public function getPrivate()
     {
         return $this->private;
+    }
+
+    /**
+     * @return int
+     */
+    public function getWave()
+    {
+        return $this->wave;
+    }
+
+    /**
+     * @param int $wave
+     */
+    public function setWave($wave)
+    {
+        $this->wave = $wave;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSalesChannelPos()
+    {
+        return $this->salesChannelPos;
+    }
+
+    /**
+     * @param int $salesChannelPos
+     */
+    public function setSalesChannelPos($salesChannelPos)
+    {
+        $this->salesChannelPos = $salesChannelPos;
     }
 }

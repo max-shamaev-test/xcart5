@@ -30,53 +30,53 @@ class ActiveCurrencies extends \XLite\View\ItemsList\Model\Table
      */
     protected function defineColumns()
     {
-        return array(
-            'name'              => array(
-                static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Name'),
-                static::COLUMN_CLASS    => '\XLite\View\FormField\Inline\Label',
-                static::COLUMN_MAIN     => true,
-                static::COLUMN_NO_WRAP  => true,
-                static::COLUMN_ORDERBY  => 100,
-            ),
-            'code'              => array(
-                static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Code'),
-                static::COLUMN_CLASS    => '\XLite\View\FormField\Inline\Label',
-                static::COLUMN_NO_WRAP  => true,
-                static::COLUMN_ORDERBY  => 200,
-            ),
-            'format'            => array(
-                static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Format'),
-                static::COLUMN_TEMPLATE => 'modules/XC/MultiCurrency/multi_currency/cell.format.twig',
-                static::COLUMN_ORDERBY  => 300,
-            ),
-            'prefix'            => array(
-                static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Prefix'),
-                static::COLUMN_CLASS    => '\XLite\View\FormField\Inline\Input\Text',
-                static::COLUMN_NO_WRAP  => true,
-                static::COLUMN_ORDERBY  => 400,
-            ),
-            'suffix'            => array(
-                static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Suffix'),
-                static::COLUMN_CLASS    => '\XLite\View\FormField\Inline\Input\Text',
-                static::COLUMN_NO_WRAP  => true,
-                static::COLUMN_ORDERBY  => 500,
-            ),
-            'rate'              => array(
-                static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Rate'),
-                static::COLUMN_CLASS    => '\XLite\View\FormField\Inline\Input\Text\FloatInput',
-                static::COLUMN_PARAMS   => array(
-                    \XLite\View\FormField\Input\Text\FloatInput::PARAM_E => 4
-                ),
-                static::COLUMN_NO_WRAP  => true,
-                static::COLUMN_ORDERBY  => 600,
-            ),
-            'countriesList'=> array (
-                static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Countries'),
-                static::COLUMN_MAIN     => true,
-                static::COLUMN_LINK     => 'currency_countries',
-                static::COLUMN_ORDERBY  => 700,
-            )
-        );
+        return [
+            'name'          => [
+                static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Name'),
+                static::COLUMN_CLASS   => '\XLite\View\FormField\Inline\Label',
+                static::COLUMN_MAIN    => true,
+                static::COLUMN_NO_WRAP => true,
+                static::COLUMN_ORDERBY => 100,
+            ],
+            'code'          => [
+                static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Code'),
+                static::COLUMN_CLASS   => '\XLite\View\FormField\Inline\Label',
+                static::COLUMN_NO_WRAP => true,
+                static::COLUMN_ORDERBY => 200,
+            ],
+            'format'        => [
+                static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Format'),
+                static::COLUMN_CLASS   => '\XLite\View\FormField\Inline\Select\FloatFormat',
+                static::COLUMN_ORDERBY => 300,
+            ],
+            'prefix'        => [
+                static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Prefix'),
+                static::COLUMN_CLASS   => '\XLite\View\FormField\Inline\Input\Text',
+                static::COLUMN_NO_WRAP => true,
+                static::COLUMN_ORDERBY => 400,
+            ],
+            'suffix'        => [
+                static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Suffix'),
+                static::COLUMN_CLASS   => '\XLite\View\FormField\Inline\Input\Text',
+                static::COLUMN_NO_WRAP => true,
+                static::COLUMN_ORDERBY => 500,
+            ],
+            'rate'          => [
+                static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Rate'),
+                static::COLUMN_CLASS   => '\XLite\View\FormField\Inline\Input\Text\FloatInput',
+                static::COLUMN_PARAMS  => [
+                    \XLite\View\FormField\Input\Text\FloatInput::PARAM_E => 4,
+                ],
+                static::COLUMN_NO_WRAP => true,
+                static::COLUMN_ORDERBY => 600,
+            ],
+            'countriesList' => [
+                static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Countries'),
+                static::COLUMN_MAIN    => true,
+                static::COLUMN_LINK    => 'currency_countries',
+                static::COLUMN_ORDERBY => 700,
+            ],
+        ];
     }
 
     /**
@@ -97,6 +97,28 @@ class ActiveCurrencies extends \XLite\View\ItemsList\Model\Table
     protected function isDefault()
     {
         return true;
+    }
+
+    /**
+     * @param \XLite\Module\XC\MultiCurrency\Model\ActiveCurrency $entity
+     *
+     * @inheritdoc
+     */
+    protected function setDefaultValue($entity, $value)
+    {
+        if ($value) {
+            if (!$entity->isDefaultCurrency()) {
+                \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption([
+                    'category' => 'General',
+                    'name'     => 'shop_currency',
+                    'value'    => $entity->getCurrency()->getCurrencyId()
+                ]);
+
+                $entity->setEnabled(1);
+                $entity->setRate(1);
+                $entity->setRateDate(0);
+            }
+        }
     }
 
     /**
@@ -180,7 +202,7 @@ class ActiveCurrencies extends \XLite\View\ItemsList\Model\Table
     /**
      * Get format selector name
      *
-     * @param array                                                $column         Column
+     * @param array                                               $column         Column
      * @param \XLite\Module\XC\MultiCurrency\Model\ActiveCurrency $activeCurrency Active currency
      *
      * @return string
@@ -193,7 +215,7 @@ class ActiveCurrencies extends \XLite\View\ItemsList\Model\Table
     /**
      * Get format selector id
      *
-     * @param array                                                $column         Column
+     * @param array                                               $column         Column
      * @param \XLite\Module\XC\MultiCurrency\Model\ActiveCurrency $activeCurrency Active currency
      *
      * @return string

@@ -43,7 +43,7 @@ class ShippingSettings extends \XLite\Controller\Admin\AAdmin
     /**
      * Returns shipping options
      *
-     * @return array
+     * @return \XLite\Model\Config[]
      */
     public function getOptions()
     {

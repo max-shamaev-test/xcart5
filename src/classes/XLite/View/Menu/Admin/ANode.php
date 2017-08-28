@@ -218,11 +218,15 @@ class ANode extends \XLite\View\AView
 
         $class .= $this->getIcon() ? ' icon' : ' no-icon';
         if ($this->isExpanded()) {
-            $class .= ' pre-expanded';
+            $class .= ' active pre-expanded';
         }
 
         if ($this->getLabel()) {
             $class .= ' has-label';
+        }
+
+        if (count($this->getChildren()) === 0) {
+            $class .= ' empty';
         }
 
         return trim($class);

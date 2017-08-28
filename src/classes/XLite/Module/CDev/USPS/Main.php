@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\USPS;
 
+use XLite\Module\CDev\USPS\Model\Shipping\PBAPI\RequestFactory;
+
 /**
  * Main
  */
@@ -49,6 +51,26 @@ abstract class Main extends \XLite\Module\AModule
      * @return string
      */
     public static function getMinorVersion()
+    {
+        return '2';
+    }
+
+    /**
+     * Get minor core version which is required for the module activation
+     *
+     * @return string
+     */
+    public static function getMinorRequiredCoreVersion()
+    {
+        return '3';
+    }
+
+    /**
+     * Get module build number (4th number in the version)
+     *
+     * @return string
+     */
+    public static function getBuildVersion()
     {
         return '1';
     }
@@ -92,9 +114,12 @@ abstract class Main extends \XLite\Module\AModule
     {
         parent::init();
 
-        // Register USPS shipping processor
         \XLite\Model\Shipping::getInstance()->registerProcessor(
-            '\XLite\Module\CDev\USPS\Model\Shipping\Processor\USPS'
+            'XLite\Module\CDev\USPS\Model\Shipping\Processor\USPS'
+        );
+
+        \XLite\Model\Shipping::getInstance()->registerProcessor(
+            'XLite\Module\CDev\USPS\Model\Shipping\Processor\PB'
         );
     }
 
@@ -117,5 +142,27 @@ abstract class Main extends \XLite\Module\AModule
     public static function isStrictMode()
     {
         return false;
+    }
+
+    /**
+     * @return RequestFactory
+     */
+    public static function getRequestFactory()
+    {
+        return new RequestFactory(
+            \XLite\Core\Config::getInstance()->CDev->USPS->pbSandbox
+                ? RequestFactory::MODE_SANDBOX
+                : RequestFactory::MODE_PRODUCTION
+        );
+    }
+
+    /**
+     * @param mixed $message
+     */
+    public static function log($message)
+    {
+        if (\XLite\Core\Config::getInstance()->CDev->USPS->debug_enabled) {
+            \XLite\Logger::logCustom('usps', $message);
+        }
     }
 }

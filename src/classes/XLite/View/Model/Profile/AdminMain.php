@@ -8,6 +8,8 @@
 
 namespace XLite\View\Model\Profile;
 
+use XLite\Core\Auth;
+
 /**
  * Administrator profile model widget. This widget is used in the admin interface
  */
@@ -16,125 +18,131 @@ class AdminMain extends \XLite\View\Model\AModel
     /**
      * Form sections
      */
-    const SECTION_SUMMARY  = 'summary';
-    const SECTION_MAIN     = 'main';
-    const SECTION_ACCESS   = 'access';
+    const SECTION_SUMMARY = 'summary';
+    const SECTION_MAIN    = 'main';
+    const SECTION_ACCESS  = 'access';
 
     /**
      * Schema of the "Account summary" section
      *
      * @var array
      */
-    protected $summarySchema = array(
-        'referer' => array(
+    protected $summarySchema = [
+        'referer'      => [
             self::SCHEMA_CLASS    => '\XLite\View\FormField\Label',
             self::SCHEMA_LABEL    => 'Referer',
             self::SCHEMA_REQUIRED => false,
-        ),
-        'added' => array(
+        ],
+        'added'        => [
             self::SCHEMA_CLASS    => '\XLite\View\FormField\Label',
             self::SCHEMA_LABEL    => 'Added',
             self::SCHEMA_REQUIRED => false,
-        ),
-        'last_login' => array(
+        ],
+        'last_login'   => [
             self::SCHEMA_CLASS    => '\XLite\View\FormField\Label',
             self::SCHEMA_LABEL    => 'Last login',
             self::SCHEMA_REQUIRED => false,
-        ),
-        'language' => array(
+        ],
+        'language'     => [
             self::SCHEMA_CLASS    => '\XLite\View\FormField\Label',
             self::SCHEMA_LABEL    => 'Language',
             self::SCHEMA_REQUIRED => false,
-        ),
-        'orders_count' => array(
-            self::SCHEMA_CLASS    => '\XLite\View\FormField\Label',
-            self::SCHEMA_LABEL    => 'Orders count',
-            self::SCHEMA_REQUIRED => false,
+        ],
+        'orders_count' => [
+            self::SCHEMA_CLASS                                 => '\XLite\View\FormField\Label',
+            self::SCHEMA_LABEL                                 => 'Orders count',
+            self::SCHEMA_REQUIRED                              => false,
             \XLite\View\FormField\Label\ALabel::PARAM_UNESCAPE => true,
-        ),
-    );
+        ],
+    ];
 
     /**
      * Schema of the "E-mail & Password" section
      *
      * @var array
      */
-    protected $mainSchema = array(
-        'login' => array(
-            self::SCHEMA_CLASS    => '\XLite\View\FormField\Input\Text\Email',
-            self::SCHEMA_LABEL    => 'E-mail',
-            self::SCHEMA_REQUIRED => true,
-            self::SCHEMA_MODEL_ATTRIBUTES => array(
+    protected $mainSchema = [
+        'login'         => [
+            self::SCHEMA_CLASS            => '\XLite\View\FormField\Input\Text\Email',
+            self::SCHEMA_LABEL            => 'E-mail',
+            self::SCHEMA_REQUIRED         => true,
+            self::SCHEMA_MODEL_ATTRIBUTES => [
                 \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 'length',
-            ),
-        ),
-        'password' => array(
-            self::SCHEMA_CLASS    => '\XLite\View\FormField\Input\Password',
-            self::SCHEMA_LABEL    => 'Password',
-            self::SCHEMA_REQUIRED => false,
-            self::SCHEMA_MODEL_ATTRIBUTES => array(
+            ],
+        ],
+        'password'      => [
+            self::SCHEMA_CLASS            => '\XLite\View\FormField\Input\Password',
+            self::SCHEMA_LABEL            => 'Password',
+            self::SCHEMA_REQUIRED         => false,
+            self::SCHEMA_MODEL_ATTRIBUTES => [
                 \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 'length',
-            ),
-        ),
-        'password_conf' => array(
-            self::SCHEMA_CLASS    => '\XLite\View\FormField\Input\Password',
-            self::SCHEMA_LABEL    => 'Confirm password',
-            self::SCHEMA_REQUIRED => false,
-            self::SCHEMA_MODEL_ATTRIBUTES => array(
+            ],
+            self::SCHEMA_ATTRIBUTES       => [
+                'autocomplete' => 'new-password',
+            ],
+        ],
+        'password_conf' => [
+            self::SCHEMA_CLASS            => '\XLite\View\FormField\Input\Password',
+            self::SCHEMA_LABEL            => 'Confirm password',
+            self::SCHEMA_REQUIRED         => false,
+            self::SCHEMA_MODEL_ATTRIBUTES => [
                 \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 'length',
-            ),
-        ),
-    );
+            ],
+            self::SCHEMA_ATTRIBUTES       => [
+                'autocomplete' => 'new-password',
+            ],
+        ],
+    ];
 
     /**
      * Schema of the "User access" section
      *
      * @var array
      */
-    protected $accessSchema = array(
-        'access_level' => array(
+    protected $accessSchema = [
+        'access_level'          => [
             self::SCHEMA_CLASS    => '\XLite\View\FormField\Select\AccessLevel',
             self::SCHEMA_LABEL    => 'Access level',
             self::SCHEMA_REQUIRED => true,
-        ),
-        'status' => array(
+        ],
+        'status'                => [
             self::SCHEMA_CLASS    => '\XLite\View\FormField\Select\AccountStatus',
             self::SCHEMA_LABEL    => 'Account status',
             self::SCHEMA_REQUIRED => true,
-        ),
-        'statusComment' => array(
-            self::SCHEMA_CLASS    => '\XLite\View\FormField\Textarea\Simple',
-            self::SCHEMA_LABEL    => 'Status comment (reason)',
-            self::SCHEMA_MODEL_ATTRIBUTES => array(
+        ],
+        'statusComment'         => [
+            self::SCHEMA_CLASS            => '\XLite\View\FormField\Textarea\Simple',
+            self::SCHEMA_LABEL            => 'Status comment (reason)',
+            self::SCHEMA_MODEL_ATTRIBUTES => [
                 \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 'length',
-            ),
-            self::SCHEMA_REQUIRED => false,
-        ),
-        'membership_id' => array(
+            ],
+            self::SCHEMA_REQUIRED         => false,
+        ],
+        'membership_id'         => [
             self::SCHEMA_CLASS    => '\XLite\View\FormField\Select\Membership',
             self::SCHEMA_LABEL    => 'Membership',
             self::SCHEMA_REQUIRED => false,
-        ),
-        'pending_membership_id' => array(
+        ],
+        'pending_membership_id' => [
             self::SCHEMA_CLASS    => '\XLite\View\FormField\Label',
             self::SCHEMA_LABEL    => 'Pending membership',
             self::SCHEMA_REQUIRED => false,
-        ),
-        'roles' => array(
-            self::SCHEMA_CLASS    => '\XLite\View\FormField\Select\Tags\Roles',
-            self::SCHEMA_LABEL    => 'Roles',
-            self::SCHEMA_DEPENDENCY => array(
-                self::DEPENDENCY_SHOW => array(
-                    'access_level' => array(100),
-                ),
-            ),
-        ),
-        'forceChangePassword' => array(
-            self::SCHEMA_CLASS => '\XLite\View\FormField\Input\Checkbox\Enabled',
-            self::SCHEMA_LABEL => 'Require to change password on next log in',
+        ],
+        'roles'                 => [
+            self::SCHEMA_CLASS      => '\XLite\View\FormField\Select\Tags\Roles',
+            self::SCHEMA_LABEL      => 'Roles',
+            self::SCHEMA_DEPENDENCY => [
+                self::DEPENDENCY_SHOW => [
+                    'access_level' => [100],
+                ],
+            ],
+        ],
+        'forceChangePassword'   => [
+            self::SCHEMA_CLASS    => '\XLite\View\FormField\Input\Checkbox\Enabled',
+            self::SCHEMA_LABEL    => 'Require to change password on next log in',
             self::SCHEMA_REQUIRED => false,
-        ),
-    );
+        ],
+    ];
 
     /**
      * Return value for the "register" mode param
@@ -152,7 +160,7 @@ class AdminMain extends \XLite\View\Model\AModel
      * @param array $params   Widget params OPTIONAL
      * @param array $sections Sections list OPTIONAL
      */
-    public function __construct(array $params = array(), array $sections = array())
+    public function __construct(array $params = [], array $sections = [])
     {
         $this->sections = $this->getProfileMainSections() + $this->sections;
 
@@ -166,6 +174,7 @@ class AdminMain extends \XLite\View\Model\AModel
     {
         $list = parent::getJSFiles();
         $list[] = 'model/profile/email.js';
+        $list[] = 'model/profile/password.js';
 
         return $list;
     }
@@ -259,10 +268,10 @@ class AdminMain extends \XLite\View\Model\AModel
                     $url = $this->buildURL(
                         'order_list',
                         'searchByCustomer',
-                        array(
+                        [
                             'profileId'     => $this->getModelObject()->getProfileId(),
                             \XLite::FORM_ID => \XLite::getFormId(),
-                        )
+                        ]
                     );
 
                     $value = '<a href="' . $url . '">' . $value . '</a>';
@@ -288,7 +297,7 @@ class AdminMain extends \XLite\View\Model\AModel
                     && \XLite\Core\Auth::getInstance()->getProfile()->getProfileId() == $this->getModelObject()->getProfileId()
                 ) {
                     if ($value) {
-                        $roles = array();
+                        $roles = [];
                         /** @var \XLite\Model\Role $role */
                         foreach ($value as $role) {
                             $roles[] = $role->getPublicName();
@@ -334,7 +343,7 @@ class AdminMain extends \XLite\View\Model\AModel
      */
     protected function getFormClass()
     {
-        return '\XLite\View\Form\Profile\AdminMain';
+        return 'XLite\View\Form\Profile\AdminMain';
     }
 
     /**
@@ -354,17 +363,20 @@ class AdminMain extends \XLite\View\Model\AModel
      */
     protected function getFormFieldsForSectionMain()
     {
-        if ($this->getModelObject()) {
-            if (!$this->getModelObject()->isPersistent()) {
+        /** @var \XLite\Model\Profile $profile */
+        $profile = $this->getModelObject();
+
+        if ($profile) {
+            if (!$profile->isPersistent()) {
                 // Create new profile - password is required
-                foreach (array('password', 'password_conf') as $field) {
+                foreach (['password', 'password_conf'] as $field) {
                     if (isset($this->mainSchema[$field])) {
                         $this->mainSchema[$field][self::SCHEMA_REQUIRED] = true;
                     }
                 }
-            } elseif ($this->getModelObject()->getAnonymous()) {
+            } elseif ($profile->getAnonymous()) {
                 // Anonymous user
-                foreach (array('password', 'password_conf') as $field) {
+                foreach (['password', 'password_conf'] as $field) {
                     if (isset($this->mainSchema[$field])) {
                         unset($this->mainSchema[$field]);
                     }
@@ -374,10 +386,48 @@ class AdminMain extends \XLite\View\Model\AModel
                     $this->mainSchema['login'][static::SCHEMA_CLASS] = 'XLite\View\FormField\Label';
                     $this->mainSchema['login'][static::SCHEMA_REQUIRED] = false;
                 }
-            } elseif ($this->getModelObject()->getOrdersCount()) {
+            } elseif ($profile->getOrdersCount()) {
                 if (isset($this->mainSchema['login'])) {
-                    $this->mainSchema['login'][static::SCHEMA_COMMENT] = static::t('E-mail will also be updated in all the related orders.');
+                    $this->mainSchema['login'][static::SCHEMA_COMMENT]
+                        = static::t('E-mail will also be updated in all the related orders.');
                 }
+            }
+
+            if ($profile->getProfileId()
+                && $profile->getProfileId() === \XLite\Core\Auth::getInstance()->getProfile()->getProfileId()
+            ) {
+                $this->mainSchema['login'][\XLite\View\FormField\AFormField::PARAM_EDIT_ON_CLICK] = true;
+
+                $this->mainSchema['password'][self::SCHEMA_COMMENT] = static::t(
+                    'Send reset link',
+                    ['url' => $this->buildURL('profile', 'recover_password', ['profile_id' => $profile->getProfileId()])]
+                );
+
+                unset($this->mainSchema['password_conf']);
+
+                $mainSchema = [];
+                foreach ($this->mainSchema as $name => $schema) {
+                    $mainSchema[$name] = $schema;
+
+                    if ($name === 'password') {
+                        $mainSchema['password_current'] = [
+                            self::SCHEMA_CLASS            => 'XLite\View\FormField\Input\Password',
+                            self::SCHEMA_LABEL            => 'Current password',
+                            self::SCHEMA_MODEL_ATTRIBUTES => [
+                                \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 'length',
+                            ],
+                            self::SCHEMA_ATTRIBUTES       => [
+                                'autocomplete' => 'current-password',
+                            ],
+                        ];
+
+                        if (null === $this->currentAction) {
+                            $mainSchema['password_current'][self::SCHEMA_REQUIRED] = true;
+                        }
+                    }
+                }
+
+                $this->mainSchema = $mainSchema;
             }
         }
 
@@ -402,8 +452,8 @@ class AdminMain extends \XLite\View\Model\AModel
             unset($this->accessSchema['pending_membership_id']);
 
         } else {
-            $this->accessSchema['access_level'][static::SCHEMA_CLASS]       = '\XLite\View\FormField\Label';
-            $this->accessSchema['access_level'][static::SCHEMA_REQUIRED]    = false;
+            $this->accessSchema['access_level'][static::SCHEMA_CLASS] = '\XLite\View\FormField\Label';
+            $this->accessSchema['access_level'][static::SCHEMA_REQUIRED] = false;
             $this->accessSchema['access_level'][\XLite\View\FormField\Label::PARAM_UNESCAPE] = true;
 
             unset($this->accessSchema['roles'][static::SCHEMA_DEPENDENCY]);
@@ -446,11 +496,11 @@ class AdminMain extends \XLite\View\Model\AModel
      */
     protected function getFormFieldsForSectionSummary()
     {
-        $result = array();
+        $result = [];
 
         if (!$this->isRegisterMode()) {
             if (empty($this->summarySchema['referer'][static::SCHEMA_ATTRIBUTES])) {
-                $this->summarySchema['referer'][static::SCHEMA_ATTRIBUTES] = array();
+                $this->summarySchema['referer'][static::SCHEMA_ATTRIBUTES] = [];
             }
 
             $this->summarySchema['referer'][static::SCHEMA_ATTRIBUTES]['title'] = $this->getDefaultFieldValue('referer');
@@ -496,9 +546,9 @@ class AdminMain extends \XLite\View\Model\AModel
             if ($sameProfile) {
                 $label = static::t(
                     'Anonymous Customer, _Registered User with the same email_',
-                    array(
-                        'URL' => static::buildURL('profile', '', array('profile_id' => $sameProfile->getProfileId())),
-                    )
+                    [
+                        'URL' => static::buildURL('profile', '', ['profile_id' => $sameProfile->getProfileId()]),
+                    ]
                 );
 
             } else {
@@ -506,19 +556,17 @@ class AdminMain extends \XLite\View\Model\AModel
             }
 
         } else {
-            $sameProfile = \XLite\Core\Database::getRepo('XLite\Model\Profile')->findOneBy(
-                array(
-                    'login'     => $this->getModelObject()->getLogin(),
-                    'order'     => null,
-                    'anonymous' => true,
-                )
-            );
+            $sameProfile = \XLite\Core\Database::getRepo('XLite\Model\Profile')->findOneBy([
+                'login'     => $this->getModelObject()->getLogin(),
+                'order'     => null,
+                'anonymous' => true,
+            ]);
             if ($sameProfile) {
                 $label = static::t(
                     'Registered Customer, _Anonymous Customer with the same email_',
-                    array(
-                        'URL' => static::buildURL('profile', '', array('profile_id' => $sameProfile->getProfileId())),
-                    )
+                    [
+                        'URL' => static::buildURL('profile', '', ['profile_id' => $sameProfile->getProfileId()]),
+                    ]
                 );
 
             } else {
@@ -539,7 +587,7 @@ class AdminMain extends \XLite\View\Model\AModel
         $request = \XLite\Core\Request::getInstance();
 
         return !$request->profile_id
-            || \XLite\Core\Auth::getInstance()->getProfile()->getProfileId() == $request->profile_id;
+               || \XLite\Core\Auth::getInstance()->getProfile()->getProfileId() == $request->profile_id;
     }
 
     /**
@@ -572,12 +620,13 @@ class AdminMain extends \XLite\View\Model\AModel
         }
 
         if (isset($data['forceChangePassword']) && is_string($data['forceChangePassword'])) {
-             $data['forceChangePassword'] = (bool)$data['forceChangePassword'];
+            $data['forceChangePassword'] = (bool)$data['forceChangePassword'];
         }
 
         $isRoot = \XLite\Core\Auth::getInstance()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS);
 
-        if (isset($data['roles'])
+        if (
+            isset($data['roles'])
             && (!$isRoot || (isset($data['access_level']) && $adminAccessLevel != $data['access_level']))
         ) {
             unset($data['roles']);
@@ -588,22 +637,20 @@ class AdminMain extends \XLite\View\Model\AModel
 
         // Assign only role for admin
         $isAdmin = (isset($data['access_level']) && $adminAccessLevel == $data['access_level'])
-            || ($model->getProfileId() && $model->isAdmin());
+                   || ($model->getProfileId() && $model->isAdmin());
 
-        if ($isAdmin
-            && $this->needSetRootAccess($this->getModelObject())
-        ) {
+        if ($isAdmin && $this->needSetRootAccess($this->getModelObject())) {
             $rootRole = \XLite\Core\Database::getRepo('XLite\Model\Role')->findOneRoot();
             if ($rootRole) {
                 if (!isset($data['roles'])) {
-                    $data['roles'] = array();
+                    $data['roles'] = [];
                 }
 
                 $data['roles'][] = $rootRole->getId();
             }
         }
 
-        if ($isAdmin && !isset($data['roles'])) {
+        if ($isAdmin && !isset($data['roles']) && $isRoot && !$this->isLoggedProfile()) {
             $data['roles'] = [];
         }
 
@@ -684,7 +731,7 @@ class AdminMain extends \XLite\View\Model\AModel
         }
 
         return 1 == \XLite\Core\Database::getRepo('XLite\Model\Role')->count()
-            || $onlyOneRootAdmin;
+               || $onlyOneRootAdmin;
     }
 
     /**
@@ -696,7 +743,7 @@ class AdminMain extends \XLite\View\Model\AModel
     {
         $data = parent::prepareDataForMapping();
 
-        if (isset($data['membership_id']) && 0 < (int) $data['membership_id']) {
+        if (isset($data['membership_id']) && 0 < (int)$data['membership_id']) {
             $membership = \XLite\Core\Database::getRepo('XLite\Model\Membership')->find($data['membership_id']);
 
             if (isset($membership)) {
@@ -722,7 +769,14 @@ class AdminMain extends \XLite\View\Model\AModel
         $result = true;
         $data = $this->getRequestData();
 
-        if (isset($this->sections[self::SECTION_MAIN])
+        /** @var \XLite\Model\Profile $model */
+        $model = $this->getModelObject();
+
+        if ($model
+            && $model->getProfileId() === \XLite\Core\Auth::getInstance()->getProfile()->getProfileId()
+        ) {
+            $result = true;
+        } elseif (isset($this->sections[self::SECTION_MAIN])
             && (!empty($data['password']) || !empty($data['password_conf']))
         ) {
             if ($data['password'] != $data['password_conf']) {
@@ -738,6 +792,36 @@ class AdminMain extends \XLite\View\Model\AModel
         } else {
             $this->excludeField('password');
             $this->excludeField('password_conf');
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param \XLite\View\FormField\AFormField $field      Form field object
+     * @param array                            $formFields
+     *
+     * @return array
+     */
+    protected function validateFormFieldPasswordCurrentValue($field, $formFields)
+    {
+        $result = [true, null];
+
+        $data = $this->getRequestData();
+
+        /** @var \XLite\Model\Profile $model */
+        $model = $this->getModelObject();
+
+        if ($data
+            && $model
+            && $model->getProfileId() === \XLite\Core\Auth::getInstance()->getProfile()->getProfileId()
+        ) {
+            $savedData = \XLite\Core\Database::getRepo('XLite\Model\Profile')->getArrayData($model->getProfileId());
+
+            if (($data['login'] !== $savedData['login'] || !empty($data['password']))
+                && !Auth::comparePassword($savedData['password'], $data['password_current'])) {
+                $result = [false, 'Incorrect password. Please try again.'];
+            }
         }
 
         return $result;
@@ -778,11 +862,11 @@ class AdminMain extends \XLite\View\Model\AModel
      */
     protected function getProfileMainSections()
     {
-        return array(
+        return [
             self::SECTION_SUMMARY => 'Account summary',
             self::SECTION_MAIN    => 'Email &amp; password',
             self::SECTION_ACCESS  => 'Access information',
-        );
+        ];
     }
 
     /**
@@ -795,7 +879,7 @@ class AdminMain extends \XLite\View\Model\AModel
     protected function getErrorActionValidateInputMessage($login)
     {
         return 'The <i>' . $login . '</i> profile is already registered. '
-            . 'Please, try some other email address.';
+               . 'Please, try some other email address.';
     }
 
     /**
@@ -938,6 +1022,7 @@ class AdminMain extends \XLite\View\Model\AModel
 
         return $result;
     }
+
     /**
      * Return list of the "Button" widgets
      *
@@ -949,11 +1034,11 @@ class AdminMain extends \XLite\View\Model\AModel
 
         if (!$this->getModelObject() || !$this->getModelObject()->getAnonymous()) {
             $result['submit'] = new \XLite\View\Button\Submit(
-                array(
+                [
                     \XLite\View\Button\AButton::PARAM_LABEL    => $this->getSubmitButtonLabel(),
                     \XLite\View\Button\AButton::PARAM_BTN_TYPE => 'regular-main-button',
                     \XLite\View\Button\AButton::PARAM_STYLE    => $this->getSubmitButtonStyle(),
-                )
+                ]
             );
         }
 
@@ -966,24 +1051,24 @@ class AdminMain extends \XLite\View\Model\AModel
         ) {
             if (!$same) {
                 $result['register'] = new \XLite\View\Button\Regular(
-                    array(
-                        \XLite\View\Button\AButton::PARAM_LABEL => static::t('Register user'),
-                        \XLite\View\Button\AButton::PARAM_BTN_TYPE => 'regular-main-button',
-                        \XLite\View\Button\AButton::PARAM_STYLE => 'register',
-                        \XLite\View\Button\Regular::PARAM_ACTION => 'registerAsNew',
-                        \XLite\View\Button\AButton::PARAM_ATTRIBUTES => array(
+                    [
+                        \XLite\View\Button\AButton::PARAM_LABEL      => static::t('Register user'),
+                        \XLite\View\Button\AButton::PARAM_BTN_TYPE   => 'regular-main-button',
+                        \XLite\View\Button\AButton::PARAM_STYLE      => 'register',
+                        \XLite\View\Button\Regular::PARAM_ACTION     => 'registerAsNew',
+                        \XLite\View\Button\AButton::PARAM_ATTRIBUTES => [
                             'title' => static::t('The user will be registered; a password will be sent to the user via email'),
-                        ),
-                    )
+                        ],
+                    ]
                 );
 
             } elseif ($same && !$same->isAdmin()) {
                 $result['merge'] = new \XLite\View\Button\Regular(
-                    array(
-                        \XLite\View\Button\AButton::PARAM_LABEL => static::t('Merge with Registered'),
-                        \XLite\View\Button\AButton::PARAM_STYLE => 'merge',
+                    [
+                        \XLite\View\Button\AButton::PARAM_LABEL  => static::t('Merge with Registered'),
+                        \XLite\View\Button\AButton::PARAM_STYLE  => 'merge',
                         \XLite\View\Button\Regular::PARAM_ACTION => 'mergeWithRegistered',
-                    )
+                    ]
                 );
             }
         }

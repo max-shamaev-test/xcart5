@@ -56,6 +56,8 @@ function ListView(base)
   this.widgetParams = core.getCommentedData(base, 'widget_params');
   this.listenToHash = core.getCommentedData(base, 'listenToHash');
   this.listenToHashPrefix = core.getCommentedData(base, 'listenToHashPrefix');
+  this.replaceState = core.getCommentedData(base, 'replaceState');
+  this.replaceStatePrefix = core.getCommentedData(base, 'replaceStatePrefix');
 
   ListView.superclass.constructor.apply(this, arguments);
 }

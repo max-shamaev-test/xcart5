@@ -7,157 +7,177 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-// Main class
-function FileUploader (base) {
-  this.commonData = jQuery(base).parent().data();
-  this.commonData.target = 'files';
-  this.callSupermethod('constructor', arguments);
+define('file_uploader', [
+  'vue/vue',
+  'js/vue/vue',
+  'vue/vue.loadable'
+], function (Vue, XLiteVue, VueLoadableMixin) {
+  var XLiteFileUploader = {
+    mixins: [VueLoadableMixin],
 
-  var multiple = jQuery('.multiple-files');
-  if (multiple.length) {
-    multiple.sortable({
-      placeholder:          'ui-state-highlight',
-      forcePlaceholderSize: false,
-      distance:             10,
-      items:                '> div.item',
-      update:               function(event, ui)
-      {
-        repositionFiles(this);
+    props: {
+      'multiple': false,
+      'temp_id': false,
+      'position': false,
+      'alt': false,
+      'delete': false,
+      'basePath': ''
+    },
+
+    watch: {
+      'temp_id': function (val) {
+        this.$dispatch('form-model-prop-updated', this.basePath + '.temp_id', val);
       },
-      activate: function(event, ui) {
-        if (ui.item.hasClass('open')) {
-          ui.item.find('.link').dropdown('toggle');
+      'position': function (val) {
+        this.$dispatch('form-model-prop-updated', this.basePath + '.position', val);
+      },
+      'alt': function (val) {
+        this.$dispatch('form-model-prop-updated', this.basePath + '.alt', val);
+      },
+      'delete': function (val) {
+        this.$dispatch('form-model-prop-updated', this.basePath + '.delete', val);
+      }
+    },
+
+    data: function () {
+      return {
+        commonData: {},
+        viaUrlPopup: {},
+        reloadFromContent: false,
+        reloadContent: null
+      };
+    },
+
+    loadable: {
+      transferState: false,
+      cacheSimultaneous: false,
+      loader: function () {
+        var self = this;
+
+        if (this.reloadFromContent) {
+          this.reloadFromContent = false;
+
+          var html = this.reloadContent || self.getFileUploaderElement()[0].outerHTML;
+
+          return $.Deferred(function (obj) {
+            obj.resolve(html);
+          }).promise();
+        }
+
+        var data = {
+          object_id: self.getFileUploaderElement().data('objectId'),
+          markAsImage: true
         };
-      }
-    });
+        this.commonData.action = 'refresh';
 
-    multiple.each(
-      function() {
-        repositionFiles(this, true);
-      }
-    );
-  }
-}
 
-function repositionFiles (base, saveAsInitial) {
-  base = jQuery(base);
+        this.viaUrlPopup = null;
+        return core.post(
+          URLHandler.buildURL(this.commonData),
+          undefined,
+          data,
+          {timeout: 45000}
+        );
+      },
+      resolve: function () {
+        var form = $(this.getFileUploaderElement()).parents('form').get(0);
 
-  var min = 10;
-  base.find('input.input-position').each(function () {
-    min = parseInt(10 == min ? min : Math.min(this.value, min));
-  });
+        if (!_.isUndefined(CommonForm) && form) {
+          CommonForm.autoassign(this.getFileUploaderElement());
 
-  base.find('input.input-position').each(function () {
-    jQuery(this).attr('value', min);
-    if (saveAsInitial) {
-      if (this.commonController) {
-        this.commonController.saveValue();
-      }
+          jQuery(form).addClass('changed');
+          jQuery(form).trigger('state-changed');
 
-    } else {
-      jQuery(this).change();
-    }
-    min += 10;
-  });
-}
-
-extend(FileUploader, ALoadable);
-
-FileUploader.prototype.assignWait = function () {
-  this.base.html('<div class="spinner"></div>');
-};
-
-FileUploader.prototype.refresh = function () {
-  var o = this;
-  var formData = new FormData();
-  formData.append('object_id', jQuery(o.base).data('objectId'));
-  formData.append('markAsImage', true);
-  o.commonData.action = 'refresh';
-
-  this.assignWait();
-
-  jQuery.ajax({
-    url: URLHandler.buildURL(o.commonData),
-    type: 'post',
-    xhr: function() {
-      return jQuery.ajaxSettings.xhr();
-    },
-    success: function (data, status, xhr) {
-      o.loadHandler(xhr, status, data);
-    },
-    data: formData,
-    cache: false,
-    contentType: false,
-    processData: false
-  });
-};
-
-FileUploader.prototype.request = function (formData, multiple) {
-  var o = this;
-
-  formData.append('object_id', jQuery(o.base).data('objectId'));
-  if (multiple) {
-    o = jQuery(document.createElement('div'))
-      .addClass('file-uploader')
-      .addClass('dropdown')
-      .insertBefore(this.base);
-    o = new FileUploader(jQuery(o));
-  }
-
-  o.assignWait();
-
-  jQuery.ajax({
-    url: URLHandler.buildURL(o.commonData),
-    type: 'post',
-    xhr: function() {
-      return jQuery.ajaxSettings.xhr();
-    },
-    success: function (data, status, xhr) {
-      o.loadHandler(xhr, status, data);
-      var multipleFiles = jQuery(o.base).parents('.multiple-files').get(0);
-      if (multipleFiles) {
-        repositionFiles(multipleFiles);
-      }
-      var form = jQuery(o.base).parents('form').get(0);
-      if (form) {
-        jQuery(form).addClass('changed');
-        jQuery(form).trigger('state-changed');
+          var temp_id = $(this.getFileUploaderElement()).find('.input-temp-id');
+          if (temp_id.length && !_.isUndefined(temp_id.get(0).commonController)) {
+            temp_id.get(0).commonController.element.initialValue = null;
+          }
+        }
+      },
+      reject: function () {
       }
     },
-    data: formData,
-    cache: false,
-    contentType: false,
-    processData: false
-  });
-};
 
-// Postprocess widget
-FileUploader.prototype.postprocess = function (isSuccess) {
-  if (isSuccess) {
-    var o = this;
+    ready: function () {
+      this.commonData = jQuery(this.getFileUploaderElement()).parent().data();
+      this.commonData.target = 'files';
 
-    jQuery('a.from-computer', o.base).bind(
-      'click',
-      function (event)
-      {
-        jQuery('input[type=file]', o.base).val('').click();
+      this.prepareWidget();
+    },
 
-        return false;
-      }
-    );
+    methods: {
+      getFileUploaderElement: function () {
+        return $(this.$el).closest('.file-uploader');
+      },
+      assignWait: function () {
+        this.getFileUploaderElement().html('<div class="spinner"></div>');
+      },
+      prepareWidget: function () {
+        var base = this.getFileUploaderElement();
 
-    jQuery('div.via-url-popup button', o.base).bind(
-      'click',
-      function (event)
-      {
-        viaUrlPopup.dialog('close');
+        base.find('div.via-url-popup .copy-to-file').change(function () {
+          base.find('div.via-url-popup .not-copy-to-file-warning').toggleClass('hidden', jQuery(this).is(':checked'));
+        });
+
+        this.viaUrlPopup = base.find('.via-url-popup').dialog({
+          autoOpen: false,
+          draggable: false,
+          title: base.find('.via-url-popup').data('title'),
+          width: 500,
+          modal: true,
+          resizable: false,
+          open: _.bind(
+            function (event, ui) {
+              jQuery('.overlay-blur-base').addClass('overlay-blur');
+            },
+            this
+          ),
+          close: _.bind(
+            function (event, ui) {
+              jQuery('.overlay-blur-base').removeClass('overlay-blur');
+            },
+            this
+          )
+        });
+      },
+      toggleDelete: function () {
+        var base = this.getFileUploaderElement();
+
+        if (base.hasClass('remove-mark')) {
+          base.removeClass('remove-mark');
+
+        } else {
+          base.addClass('remove-mark');
+        }
+
+        base.find('input.input-delete').click();
+        base.find('.dropdown').click();
+      },
+      uploadFromComputer: function () {
+        this.getFileUploaderElement().find('input[type=file]').val('').click();
+      },
+      doUploadFromFile: function (event) {
         var formData = new FormData();
-        o.commonData.action = 'uploadFromURL';
-        if (jQuery('input.copy-to-file', jQuery(this).parent()).prop('checked')) {
+        this.commonData.action = 'uploadFromFile';
+        for (var i = 0; i < event.target.files.length; i++) {
+          formData.append('file', event.target.files[i]);
+          this.doRequest(formData, this.viaUrlPopup.data('multiple'));
+        }
+      },
+      uploadViaUrl: function () {
+        this.viaUrlPopup.dialog('open');
+        this.getFileUploaderElement().find('.dropdown').click();
+      },
+      doUploadViaUrl: function () {
+        var self = this;
+        this.viaUrlPopup.dialog('close');
+        var formData = new FormData();
+        this.commonData.action = 'uploadFromURL';
+        if (jQuery('input.copy-to-file', this.viaUrlPopup).prop('checked')) {
           formData.append('copy', 1);
         }
-        if (viaUrlPopup.data('multiple')) {
-          var area = jQuery('textarea.urls', viaUrlPopup);
+        if (this.multiple) {
+          var area = jQuery('textarea.urls', this.viaUrlPopup);
           var urls = area.val().split('\n');
 
           urls.forEach(function (url) {
@@ -168,155 +188,111 @@ FileUploader.prototype.postprocess = function (isSuccess) {
             }
 
             formData.append('uploadedUrl', url);
-            o.request(formData, true);
+            self.doRequest(formData, true);
           });
 
           area.val('');
 
-        } else if (jQuery('input.url', viaUrlPopup).val()) {
-          var url = jQuery('input.url', viaUrlPopup).val();
+        } else if (jQuery('input.url', this.viaUrlPopup).val()) {
+          var url = jQuery('input.url', this.viaUrlPopup).val();
           url = url.replace(/^:?\/\//, '');
 
           if (!/^https?:\/\//i.test(url)) {
             url = 'http://' + url;
           }
           formData.append('uploadedUrl', url);
-          o.request(formData, false);
+          self.doRequest(formData, false);
         }
-      }
-    );
+      },
+      showAlt: function () {
+        var base = this.getFileUploaderElement();
 
-    jQuery('input[type=file]', o.base).bind(
-      'change',
-      function (event)
-      {
-        var formData = new FormData();
-        o.commonData.action = 'uploadFromFile';
-        for (var i = 0; i < this.files.length; i++) {
-          formData.append('file', this.files[i]);
-          o.request(formData, viaUrlPopup.data('multiple'));
-        }
-      }
-    );
+        base.find('li.alt-text .value').hide();
+        base.find('li.alt-text .input-group').css('display', 'table');
+        base.find('li.alt-text .input-group input').focus();
+      },
+      doChangeAlt: function (event) {
+        var base = this.getFileUploaderElement();
 
-    jQuery('a.via-url', o.base).bind(
-      'click',
-      function (event) {
-        viaUrlPopup.dialog('open');
-        jQuery('.dropdown').click();
-
-        return false;
-      }
-    );
-
-    jQuery('li.alt-text .value', o.base).bind(
-      'click',
-      function (event) {
-        jQuery(this).hide();
-        jQuery('li.alt-text .input-group', o.base).css('display','table');
-        jQuery('li.alt-text .input-group input', o.base).focus();
-
-        return false;
-      }
-    );
-
-    jQuery('input.input-alt', o.base).bind(
-      'click',
-      function (event) {
-        return false;
-      }
-    ).bind(
-      'change keydown blur',
-      function (event)
-      {
         if (!event.keyCode || 13 === event.keyCode) {
-          jQuery(this).parent().hide();
-          jQuery('li.alt-text .value span', o.base).text(jQuery(this).val());
-          jQuery('li.alt-text .value', o.base).show();
+          base.find('li.alt-text .input-group').hide();
+          base.find('li.alt-text .value span').text($(event.target).val());
+          base.find('li.alt-text .value').show();
 
+          event.preventDefault();
           return false;
         }
-      }
-    );
+      },
+      getTemporaryContainer: function () {
+        var div = document.createElement('DIV');
+        div.style.display = 'none';
+        jQuery('body').get(0).appendChild(div);
+        return jQuery(div);
+      },
+      doRequest: function (formData, multiple) {
+        var self = this;
 
-    jQuery('a.delete', o.base).bind(
-      'click',
-      function (event)
-      {
-        if (jQuery(o.base).hasClass('remove-mark')) {
-          jQuery(o.base).removeClass('remove-mark');
+        formData.append('object_id', self.getFileUploaderElement().data('objectId'));
 
-        } else {
-          jQuery(o.base).addClass('remove-mark');
-        }
-        jQuery('input.input-delete', o.base).click();
-        jQuery('.dropdown').click();
+        self.assignWait();
 
-        return false;
-      }
-    );
-
-    var viaUrlPopup = jQuery('.via-url-popup', o.base);
-    viaUrlPopup = jQuery('.via-url-popup', o.base).dialog(
-      {
-        autoOpen:  false,
-        draggable: false,
-        title:     viaUrlPopup.data('title'),
-        width:     500,
-        modal:     true,
-        resizable: false,
-        open:      _.bind(
-          function(event, ui) {
-            jQuery('.overlay-blur-base').addClass('overlay-blur');
+        jQuery.ajax({
+          url: URLHandler.buildURL(self.commonData),
+          type: 'post',
+          xhr: function () {
+            return jQuery.ajaxSettings.xhr();
           },
-          this
-        ),
-        close:     _.bind(
-          function(event, ui) {
-            jQuery('.overlay-blur-base').removeClass('overlay-blur');
-          },
-          this
-        )
-      }
-    );
-  }
-};
+          success: function (data, status, xhr) {
+            var handler = function (xhr, s, data) {
+              if (false !== data) {
+                if (self.multiple) {
+                  self.$dispatch('new-file-uploaded', data, self);
+                } else {
+                  self.reloadContent = data;
+                  self.reloadFromContent = true;
+                  self.$reload();
+                }
+              }
+            };
 
-core.microhandlers.add(
-    'file-uploader',
-    'div.file-uploader',
-    function(event, element) {
-      core.autoload(FileUploader, element);
+            handler(xhr, status, data);
+          },
+          error: function (xhr, status, errorThrown) {
+            core.trigger('message', {
+              message: errorThrown,
+              type: 'error'
+            });
+            self.$reload();
+          },
+          data: formData,
+          cache: false,
+          contentType: false,
+          processData: false
+        });
+      }
     }
-);
+  };
 
-core.bind('list.model.table.newLineCreated', function(event, data) {
-    var line = jQuery('.create-line').last();
-    if (!line.length) {
-      return;
-    };
-    var uploader = line.find('div.file-uploader');
-    if (!uploader.length) {
-      return;
-    };
+  XLiteVue.component('xlite-file-uploader', XLiteFileUploader);
 
-    var newUploader = uploader.clone();
-    uploader.remove();
-    line.find('.cell.image .table-value > div').append(newUploader);
-    var controller = new FileUploader(newUploader);
-    line
-      .find(':input')
-      .each(
-        function () {
-            var el = jQuery(this).parents('.table-value').children('div');
+  core.bind(
+    'itemListNewItemCreated',
+    function (event, params) {
+      var field = jQuery(params.line).find('.inline-file-uploader');
+      field = field.last();
 
-            if (el.data('name') && data.idx) {
-                var newName = el.data('name').replace(/\[0\]/, '[' + (-1 * data.idx) + ']');
-                el.data('name', newName);
-                var newUploader = el.find('.file-uploader');
-                newUploader.data('object-id', (-1 * data.idx));
-            }
-        }
-      );
-    controller.refresh();
+      var element = field.find('xlite-file-uploader').get(0);
+      var dataElement = jQuery(element).parent();
+
+      if (element && dataElement) {
+        dataElement.data('name', dataElement.data('name').replace(/\[0\]/, '[' + (-1 * params.idx) + ']'));
+
+        var v = new Vue();
+        v.el = element;
+        v.$compile(element);
+      }
+    }
+  );
+
+  return XLiteFileUploader;
 });

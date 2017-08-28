@@ -20,7 +20,7 @@ core.microhandlers.add(
   {
     var li = jQuery(this);
     var box = li.children('.box');
-    var arr = box.children('.arr');
+    // var arr = box.children('.arr');
     var header = jQuery('#header');
 
     jQuery(this).mouseenter(
@@ -36,12 +36,12 @@ core.microhandlers.add(
         }
 
         // Fix arr position
-        var liCenter = li.offset().left + Math.round(li.outerWidth() / 2);
-        arrCenter = arr.offset().left + Math.round(arr.outerWidth() / 2);
-        var diff = liCenter - arrCenter;
-        if (diff != 0) {
-          arr.css('left', arr.position().left + diff);
-        }
+        // var liCenter = li.offset().left + Math.round(li.outerWidth() / 2);
+        // arrCenter = arr.offset().left + Math.round(arr.outerWidth() / 2);
+        // var diff = liCenter - arrCenter;
+        // if (diff != 0) {
+        //   arr.css('left', arr.position().left + diff);
+        // }
       }
     );
   }

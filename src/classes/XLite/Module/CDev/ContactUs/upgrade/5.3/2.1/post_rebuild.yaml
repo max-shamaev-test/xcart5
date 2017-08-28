@@ -11,6 +11,7 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Site key'
+        option_comment: 'To use reCAPTCHA you should get Site and Secret keys from <a href="https://www.google.com/recaptcha/admin/create">https://www.google.com/recaptcha/admin/create</a>'
   - name: recaptcha_private_key
     category: 'CDev\ContactUs'
     translations:

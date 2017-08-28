@@ -35,14 +35,40 @@ class SaleSelected extends \XLite\Controller\Admin\AAdmin
 
         if ($form->getValidationMessage()) {
             \XLite\Core\TopMessage::addError($form->getValidationMessage());
+        } elseif (!$this->getSelected() && $ids = $this->getActionProductsIds()) {
+            $qb = \XLite\Core\Database::getRepo('XLite\Model\Product')->createQueryBuilder();
+            $alias = $qb->getMainAlias();
+            $qb->update('\XLite\Model\Product', $alias)
+                ->andWhere($qb->expr()->in("{$alias}.product_id", $ids));
+
+            foreach ($this->getUpdateInfoElement() as $key => $value) {
+                $qb->set("{$alias}.{$key}", ":{$key}")
+                    ->setParameter($key, $value);
+            }
+
+            $qb->execute();
+
+            \XLite\Core\TopMessage::addInfo('Products information has been successfully updated');
         } else {
             \XLite\Core\Database::getRepo('\XLite\Model\Product')->updateInBatchById($this->getUpdateInfo());
-            \XLite\Core\TopMessage::addInfo(
-                'Products information has been successfully updated'
-            );
+            \XLite\Core\TopMessage::addInfo('Products information has been successfully updated');
         }
 
-        $this->setReturnURL($this->buildURL('product_list', '', array('mode' => 'search')));
+        $this->setReturnURL($this->buildURL('product_list', '', ['mode' => 'search']));
+    }
+
+    /**
+     * @return array
+     */
+    protected function getActionProductsIds()
+    {
+        $cnd = \XLite\Controller\Admin\ProductList::getInstance()->getItemsList()
+            ->getSearchCaseProcessor()->getSearchCase();
+        $ids = \XLite\Core\Database::getRepo('XLite\Model\Product')
+            ->search($cnd, \XLite\Model\Repo\ARepo::SEARCH_MODE_IDS);
+        $ids = is_array($ids) ? array_unique(array_filter($ids)) : [];
+
+        return $ids;
     }
 
     /**
@@ -67,8 +93,11 @@ class SaleSelected extends \XLite\Controller\Admin\AAdmin
     {
         $data = $this->getPostedData();
 
-        return array(
-            'participateSale' => (0 !== $data['salePriceValue'] || \XLite\Model\Product::SALE_DISCOUNT_TYPE_PERCENT !== $data['discountType'])
-        ) + $data;
+        return [
+            'participateSale' => (
+                0 !== $data['salePriceValue']
+                || \XLite\Model\Product::SALE_DISCOUNT_TYPE_PERCENT !== $data['discountType']
+            )
+        ] + $data;
     }
 }

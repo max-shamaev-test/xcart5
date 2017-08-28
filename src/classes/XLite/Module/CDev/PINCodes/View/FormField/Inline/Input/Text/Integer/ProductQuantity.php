@@ -60,7 +60,7 @@ class ProductQuantity extends \XLite\View\FormField\Inline\Input\Text\Integer\Pr
         return $this->buildUrl(
             'product',
             '',
-            array('product_id' => $this->getEntity()->getId(), 'page' => 'pin_codes')
+            ['product_id' => $this->getEntity()->getId(), 'page' => 'pin_codes']
         );
     }
 }

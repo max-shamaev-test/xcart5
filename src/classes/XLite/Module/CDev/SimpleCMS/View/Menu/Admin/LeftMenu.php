@@ -65,6 +65,16 @@ abstract class LeftMenu extends \XLite\View\Menu\Admin\LeftMenu implements \XLit
             ),
         );
 
+        return $items;
+    }
+
+    /**
+     * @return array
+     */
+    protected function defineBottomItems()
+    {
+        $items = parent::defineBottomItems();
+
         if (isset($items['css_js'][static::ITEM_CHILDREN]) && is_array($items['css_js'][static::ITEM_CHILDREN])) {
             $items['css_js'][static::ITEM_CHILDREN] = array_merge($items['css_js'][static::ITEM_CHILDREN], [
                 'logo_favicon' => [

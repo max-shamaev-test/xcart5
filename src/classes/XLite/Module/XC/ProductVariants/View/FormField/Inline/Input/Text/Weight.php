@@ -22,4 +22,14 @@ class Weight extends \XLite\Module\XC\ProductVariants\View\FormField\Inline\Inpu
     {
         return 'XLite\Module\XC\ProductVariants\View\FormField\Input\Text\Weight';
     }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getPlaceholder()
+    {
+        return $this->getProduct()
+            ? $this->getProduct()->getWeight()
+            : parent::getPlaceholder();
+    }
 }

@@ -11,4 +11,6 @@ XLite\Model\LanguageLabel:
   - { name: "Failed to re-upload attachment", translations: [{ code: en, label: "Failed to re-upload attachment" }] }
   - { name: "Attachment has been deleted successfully", translations: [{ code: en, label: "Attachment has been deleted successfully" }] }
   - { name: "Attachments", translations: [{ code: en, label: "Attachments" }] }
+  - { name: "File description", translations: [{ code: en, label: "File description" },{ code: ru, label: "Описание файла" }] }
+  - { name: "Click to edit", translations: [{ code: en, label: "Click to edit" },{ code: ru, label: "Нажмите для редактирования" }] }
 

@@ -22,12 +22,12 @@ abstract class LeftMenu extends \XLite\View\Menu\Admin\LeftMenu implements \XLit
     {
         $return = parent::defineItems();
 
-        $return['promotions'][self::ITEM_CHILDREN]['newsletter_subscribers'] = array(
-            self::ITEM_TITLE      => 'Subscribers',
+        $return['sales_channels'][self::ITEM_CHILDREN]['newsletter_subscribers'] = array(
+            self::ITEM_TITLE      => static::t('Newsletters'),
             self::ITEM_TARGET     => 'newsletter_subscribers',
             self::ITEM_CLASS      => 'subscribers',
             self::ITEM_PERMISSION => 'manage users',
-            self::ITEM_WEIGHT     => 1100,
+            self::ITEM_WEIGHT     => 200,
         );
 
         return $return;

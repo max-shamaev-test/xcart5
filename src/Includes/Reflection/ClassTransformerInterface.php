@@ -45,6 +45,11 @@ interface ClassTransformerInterface
     public function removeEntityAnnotations();
 
     /**
+     * @return ClassTransformerInterface
+     */
+    public function removeApiDocAnnotations();
+
+    /**
      * @return string
      */
     public function getSource();

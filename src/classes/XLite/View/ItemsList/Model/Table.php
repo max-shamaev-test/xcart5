@@ -122,7 +122,7 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel
             'class'     => '\XLite\View\Form\ItemsList\AItemsList',
             'name'      => str_replace('\\', '', get_class($this)),
             'target'    => $this->getFormTarget(),
-            'action'    => 'updateItemsList',
+            'action'    => $this->getFormAction(),
             'params'    => $this->getFormParams(),
         );
     }
@@ -130,11 +130,21 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel
     /**
      * Get wrapper form target
      *
-     * @return array
+     * @return string
      */
     protected function getFormTarget()
     {
         return 'simple_items_list_controller';
+    }
+
+    /**
+     * Get wrapper form action
+     *
+     * @return string
+     */
+    protected function getFormAction()
+    {
+        return 'updateItemsList';
     }
 
     /**
@@ -901,6 +911,16 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel
     }
 
     /**
+     * Return sort field name for tag
+     *
+     * @return string
+     */
+    protected function getSortFieldName()
+    {
+        return 'position';
+    }
+
+    /**
      * Template for selector action definition
      *
      * @return string
@@ -948,6 +968,26 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel
     protected function getRemoveActionTemplate()
     {
         return 'items_list/model/table/parts/remove.twig';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCrossIcon()
+    {
+        return false;
+    }
+
+    /**
+     * Check if row selected
+     *
+     * @param \XLite\Model\AEntity $entity Entity
+     *
+     * @return bool
+     */
+    protected function isRowSelected($entity)
+    {
+        return false;
     }
 
     /**

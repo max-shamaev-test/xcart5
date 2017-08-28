@@ -8,8 +8,8 @@
 
 namespace XLite\Module\XC\MailChimp\Core;
 
+use XLite\Module\XC\MailChimp\Logic\DataMapper\Order;
 use XLite\Module\XC\MailChimp\Logic\DataMapper\Product;
-use \XLite\Module\XC\MailChimp\Logic\DataMapper\Order;
 use XLite\Module\XC\MailChimp\Model;
 
 require_once LC_DIR_MODULES . 'XC' . LC_DS . 'MailChimp' . LC_DS . 'lib' . LC_DS . 'MailChimp.php';
@@ -124,6 +124,29 @@ class MailChimpECommerce extends \XLite\Base\Singleton
     }
 
     /**
+     * See http://developer.mailchimp.com/documentation/mailchimp/guides/getting-started-with-ecommerce/#order-status-notifications
+     *
+     * @return array
+     */
+    public function mapForOrderNotifications()
+    {
+        return [
+            'financial' => [
+                \XLite\Model\Order\Status\Payment::STATUS_PAID          => 'paid',
+                \XLite\Model\Order\Status\Payment::STATUS_PART_PAID     => 'paid',
+                \XLite\Model\Order\Status\Payment::STATUS_AUTHORIZED    => 'pending',
+                \XLite\Model\Order\Status\Payment::STATUS_QUEUED        => 'pending',
+                \XLite\Model\Order\Status\Payment::STATUS_REFUNDED      => 'refunded',
+                \XLite\Model\Order\Status\Payment::STATUS_CANCELED      => 'cancelled',
+                \XLite\Model\Order\Status\Payment::STATUS_DECLINED      => 'cancelled',
+            ],
+            'fulfillment'   => [
+                \XLite\Model\Order\Status\Shipping::STATUS_SHIPPED      => 'shipped',
+            ],
+        ];
+    }
+
+    /**
      * @param $string   $storeId
      *
      * @return array|bool|false
@@ -147,7 +170,9 @@ class MailChimpECommerce extends \XLite\Base\Singleton
     /**
      * Create new store
      *
-     * @param array $data Store info
+     * @param      $dataRaw
+     * @param null $listId
+     *
      * @return array|false
      */
     public function createStore($dataRaw, $listId = null)
@@ -168,13 +193,16 @@ class MailChimpECommerce extends \XLite\Base\Singleton
             $listId = $list['list_id'];
         }
 
-        $data = [
-            'id'            => $dataRaw['store_id'],
-            'name'          => $dataRaw['store_name'],
-            'list_id'       => $listId,
-            'currency_code' => $dataRaw['currency_code'],
-            'platform'      => 'X-Cart',
-        ];
+        $data = array_merge(
+            $this->getCommonStoreData(),
+            [
+                'id'            => $dataRaw['store_id'],
+                'name'          => $dataRaw['store_name'],
+                'list_id'       => $listId,
+                'currency_code' => $dataRaw['currency_code'],
+                'money_format'  => $dataRaw['money_format'],
+            ]
+        );
 
         $this->mailChimpAPI->setActionMessageToLog('Creating store');
         $result = $this->mailChimpAPI->post("ecommerce/stores", $data);
@@ -195,6 +223,139 @@ class MailChimpECommerce extends \XLite\Base\Singleton
         return $this->mailChimpAPI->success()
             ? $result
             : null;
+    }
+
+    /**
+     * @param $storeId
+     *
+     * @param $statusFlag
+     *
+     * @return array|false|null
+     */
+    public function changeStoreSyncingStatus($storeId, $statusFlag)
+    {
+        $data = [ 'is_syncing' => $statusFlag ];
+
+        return $this->updateStoreData($storeId, $data);
+    }
+
+    /**
+     * @param $listId
+     * @param $selected
+     */
+    public function updateStoreAndReference($listId, $selected)
+    {
+        $storeId = MailChimp::getInstance()->getStoreId($listId);
+
+        if (!$storeId) {
+            return;
+        }
+
+        $storeName = MailChimp::getInstance()->getStoreName();
+
+        if ($selected) {
+            if (!$this->getStore($storeId)) {
+                $this->createStore(
+                    [
+                        'campaign_id'   => '',
+                        'store_id'      => $storeId,
+                        'store_name'    => $storeName,
+                        'currency_code' => \XLite::getInstance()->getCurrency()->getCode(),
+                        'money_format'  => \XLite::getInstance()->getCurrency()->getPrefix()
+                            ?: \XLite::getInstance()->getCurrency()->getSuffix(),
+                        'is_main'       => $selected
+                    ],
+                    $listId
+                );
+            } else {
+                $this->updateStoreData($storeId);
+            }
+        }
+
+        /** @var \XLite\Module\XC\MailChimp\Model\Store $existingStore */
+        $existingStore = \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\Store')->find($storeId);
+
+        if ($existingStore) {
+            $existingStore->setMain($selected);
+            $existingStore->setName($storeName);
+        } else {
+            $this->createStoreReference(
+                $listId,
+                $storeId,
+                $storeName,
+                $selected
+            );
+        }
+    }
+
+    /**
+     * @param      $storeId
+     * @param null $data
+     *
+     * @return array|false|null
+     */
+    public function updateStoreData($storeId, $data = null)
+    {
+        if (!$data) {
+            $data = $this->getCommonStoreData();
+        }
+
+        $this->mailChimpAPI->setActionMessageToLog('Changing store data');
+
+        $result = $this->mailChimpAPI->patch("ecommerce/stores/{$storeId}", $data);
+
+        return $this->mailChimpAPI->success()
+            ? $result
+            : null;
+    }
+
+
+    public function getCommonStoreData()
+    {
+        $timezone = '';
+
+        try {
+            $timezoneObj = \XLite\Core\Converter::getTimeZone();
+
+            if ($timezoneObj) {
+                $timezone = $timezoneObj->getName();
+            }
+        } catch (\Exception $e) {}
+
+        return [
+            'name'          => MailChimp::getInstance()->getStoreName(),
+            'platform'      => 'X-Cart',
+            'domain'        => \XLite\Core\URLManager::getShopURL(),
+            'email_address' => \XLite\Core\Mailer::getUsersDepartmentMail(),
+            'primary_locale'    => \XLite\Core\Config::getInstance()->General->default_language,
+            'timezone'      => $timezone,
+            'phone'         => \XLite\Core\Config::getInstance()->Company->company_phone,
+            'address'       => $this->mapStoreAddress(),
+        ];
+    }
+
+    public function mapStoreAddress()
+    {
+        $data = [
+            "address1"      => \XLite\Core\Config::getInstance()->Company->location_address,
+            "address2"      => '',
+            "city"          => \XLite\Core\Config::getInstance()->Company->location_city,
+            "postal_code"   => \XLite\Core\Config::getInstance()->Company->location_zipcode,
+        ];
+
+        $country = \XLite\Core\Config::getInstance()->Company->locationCountry;
+        if ($country && $country instanceof \XLite\Model\Country) {
+            $data["country"]        = $country->getCountry();
+            $data["country_code"]   = $country->getCode3();
+        }
+
+        $state = \XLite\Core\Config::getInstance()->Company->locationState;
+        if ($state && $state instanceof \XLite\Model\State) {
+            $data["province"]       = $state->getState();
+            $data["province_code"]  = $state->getCode();
+        }
+
+        return array_filter($data);
     }
 
     public function createStoreReference($listId, $storeId, $storeName, $isMain = false)

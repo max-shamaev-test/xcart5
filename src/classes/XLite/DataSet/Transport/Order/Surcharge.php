@@ -10,6 +10,8 @@ namespace XLite\DataSet\Transport\Order;
 
 /**
  * Surcharge info
+ * @property string $name
+ * @property string $notAvailableReason
  */
 class Surcharge extends \XLite\DataSet\Transport\ATransport
 {

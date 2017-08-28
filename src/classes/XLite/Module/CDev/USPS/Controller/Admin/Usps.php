@@ -8,6 +8,10 @@
 
 namespace XLite\Module\CDev\USPS\Controller\Admin;
 
+use XLite\Module\CDev\USPS\Main;
+use XLite\Module\CDev\USPS\Model\Shipping\PBAPI\Request\RequestException;
+use XLite\Module\CDev\USPS\Model\Shipping\PBAPI\TokenStorage\FactoryException;
+
 /**
  * USPS module settings page controller
  */
@@ -16,13 +20,13 @@ class Usps extends \XLite\Controller\Admin\ShippingSettings
     /**
      * Returns shipping options
      *
-     * @return array
+     * @return \XLite\Model\Config[]
      */
     public function getOptions()
     {
-        $list = array();
+        $list = [];
 
-        $CODRelatedOptions = array('first_class_mail_type', 'use_cod_price', 'cod_price');
+        $CODRelatedOptions = ['first_class_mail_type', 'use_cod_price', 'cod_price'];
         foreach (parent::getOptions() as $option) {
             if (!in_array($option->getName(), $CODRelatedOptions, true)
                 || $this->isUSPSCODPaymentEnabled()
@@ -31,17 +35,33 @@ class Usps extends \XLite\Controller\Admin\ShippingSettings
             }
 
             if ('cacheOnDeliverySeparator' === $option->getName()) {
-                $list[] = new \XLite\Model\Config(array(
+                $list[] = new \XLite\Model\Config([
                     'name'        => 'cod_status',
                     'type'        => 'XLite\View\FormField\Input\Checkbox\OnOff',
                     'value'       => $this->isUSPSCODPaymentEnabled() ? true : false,
                     'orderby'     => $option->getOrderby() + 1,
                     'option_name' => static::t('"Cash on delivery" status'),
-                ));
+                ]);
             }
         }
 
         return $list;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDataProvider()
+    {
+        return \XLite\Core\Config::getInstance()->CDev->USPS->dataProvider;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRegistrationURL()
+    {
+        return Main::getRequestFactory()->getRegistrationURL();
     }
 
     /**
@@ -57,7 +77,7 @@ class Usps extends \XLite\Controller\Admin\ShippingSettings
     /**
      * Class name for the \XLite\View\Model\ form (optional)
      *
-     * @return string|void
+     * @return string
      */
     protected function getModelFormClass()
     {
@@ -71,7 +91,21 @@ class Usps extends \XLite\Controller\Admin\ShippingSettings
      */
     protected function getProcessor()
     {
-        return new \XLite\Module\CDev\USPS\Model\Shipping\Processor\USPS();
+        $config = \XLite\Core\Config::getInstance()->CDev->USPS;
+
+        return 'pitneyBowes' === $config->dataProvider
+            ? new \XLite\Module\CDev\USPS\Model\Shipping\Processor\PB()
+            : new \XLite\Module\CDev\USPS\Model\Shipping\Processor\USPS();
+    }
+
+    /**
+     * Returns current processor id
+     *
+     * @return string
+     */
+    public function getProcessorId()
+    {
+        return 'usps';
     }
 
     /**
@@ -81,7 +115,7 @@ class Usps extends \XLite\Controller\Admin\ShippingSettings
      */
     protected function getRequestData()
     {
-        $list = parent::getRequestData();
+        $list               = parent::getRequestData();
         $list['dimensions'] = serialize($list['dimensions']);
 
         return $list;
@@ -106,7 +140,7 @@ class Usps extends \XLite\Controller\Admin\ShippingSettings
     {
         $schema = parent::getTestRatesSchema();
 
-        foreach (array('srcAddress', 'dstAddress') as $k) {
+        foreach (['srcAddress', 'dstAddress'] as $k) {
             unset($schema[$k]['city'], $schema[$k]['state']);
         }
 
@@ -129,19 +163,81 @@ class Usps extends \XLite\Controller\Admin\ShippingSettings
 
         $config = \XLite\Core\Config::getInstance()->CDev->USPS;
 
-        $package = array(
-            'weight'    => $data['weight'],
-            'subtotal'  => $data['subtotal'],
-            'length'    => $config->length,
-            'width'     => $config->width,
-            'height'    => $config->height,
-        );
+        $package = [
+            'weight'   => $data['weight'],
+            'subtotal' => $data['subtotal'],
+            'length'   => $config->length,
+            'width'    => $config->width,
+            'height'   => $config->height,
+        ];
 
-        $data['packages'] = array($package);
+        $data['packages'] = [$package];
 
         unset($data['weight'], $data['subtotal']);
 
         return $data;
+    }
+
+    /**
+     * Do action 'Update'
+     *
+     * @return void
+     * @throws \Exception
+     */
+    public function doActionUpdate()
+    {
+        $config    = \XLite\Core\Config::getInstance()->CDev->USPS;
+        $pbEmailId = $config->pbEmailId;
+        $pbSandbox = $config->pbSandbox;
+
+        if (\XLite\Core\Request::getInstance()->dataProvider === 'pitneyBowes'
+            && $pbSandbox !== \XLite\Core\Request::getInstance()->pbSandbox
+        ) {
+            $pbEmailId = '';
+            Main::getRequestFactory()->dropToken();
+        }
+
+        parent::doActionUpdate();
+
+        if (\XLite\Core\Request::getInstance()->dataProvider === 'pitneyBowes'
+            && $pbEmailId !== \XLite\Core\Request::getInstance()->pbEmailId
+        ) {
+            if (\XLite\Core\Request::getInstance()->pbEmailId) {
+                $requestFactory = Main::getRequestFactory();
+
+                try {
+                    $pbEmailId           = \XLite\Core\Request::getInstance()->pbEmailId;
+                    $merchantInfoRequest = $requestFactory->createMerchantInfoRequest($pbEmailId);
+                    $merchantInfo        = $merchantInfoRequest->performRequest();
+
+                    $this->setPBShipperId($merchantInfo['postalReportingNumber']);
+
+                } catch (FactoryException $e) {
+                    Main::log($e->getMessage());
+                    \XLite\Core\TopMessage::addWarning('Unable to get merchant info');
+                    $this->setPBShipperId('');
+
+                } catch (RequestException $e) {
+                    Main::log($e->getMessage());
+                    \XLite\Core\TopMessage::addWarning('Unable to get merchant info');
+                    $this->setPBShipperId('');
+                }
+
+            } else {
+                $this->setPBShipperId('');
+            }
+        }
+    }
+
+    protected function setPBShipperId($shipperId)
+    {
+        \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
+            [
+                'category' => 'CDev\USPS',
+                'name'     => 'pbShipperId',
+                'value'    => $shipperId,
+            ]
+        );
     }
 
     /**
@@ -154,38 +250,38 @@ class Usps extends \XLite\Controller\Admin\ShippingSettings
         $config = \XLite\Core\Config::getInstance()->CDev->USPS;
 
         // Prepare default input data
-        $data = array();
-        $data['packages'] = array();
-        $data['packages'][] = array(
-            'weight'    => 5,
-            'subtotal'  => 50,
-            'length'    => $config->length,
-            'width'     => $config->width,
-            'height'    => $config->height,
-        );
-        $data['srcAddress'] = array(
+        $data               = [];
+        $data['packages']   = [];
+        $data['packages'][] = [
+            'weight'   => 5,
+            'subtotal' => 50,
+            'length'   => $config->length,
+            'width'    => $config->width,
+            'height'   => $config->height,
+        ];
+        $data['srcAddress'] = [
             'country' => 'US',
             'zipcode' => '10001',
-        );
+        ];
 
         // Prepare several destination addresses
-        $dstAddresses = array();
-        $dstAddresses[] = array(
+        $dstAddresses   = [];
+        $dstAddresses[] = [
             'country' => 'US',
             'zipcode' => '90001',
-        );
-        $dstAddresses[] = array(
+        ];
+        $dstAddresses[] = [
             'country' => 'CA',
             'zipcode' => 'V7P 1S0',
-        );
-        $dstAddresses[] = array(
+        ];
+        $dstAddresses[] = [
             'country' => 'GB',
             'zipcode' => 'EC1A 1BB',
-        );
-        $dstAddresses[] = array(
+        ];
+        $dstAddresses[] = [
             'country' => 'CN',
             'zipcode' => '100001',
-        );
+        ];
 
         foreach ($dstAddresses as $addr) {
 
@@ -197,7 +293,7 @@ class Usps extends \XLite\Controller\Admin\ShippingSettings
         }
 
         $this->setReturnURL(
-            $this->buildURL('shipping_methods', null, array('processor' => 'usps'))
+            $this->buildURL('shipping_methods', null, ['processor' => 'usps'])
         );
     }
 }

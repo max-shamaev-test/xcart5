@@ -286,7 +286,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Set min_weight
      *
-     * @param decimal $minWeight
+     * @param float $minWeight
      * @return Markup
      */
     public function setMinWeight($minWeight)
@@ -298,7 +298,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Get min_weight
      *
-     * @return decimal 
+     * @return float
      */
     public function getMinWeight()
     {
@@ -308,7 +308,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Set max_weight
      *
-     * @param decimal $maxWeight
+     * @param float $maxWeight
      * @return Markup
      */
     public function setMaxWeight($maxWeight)
@@ -320,7 +320,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Get max_weight
      *
-     * @return decimal 
+     * @return float
      */
     public function getMaxWeight()
     {
@@ -330,7 +330,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Set min_total
      *
-     * @param decimal $minTotal
+     * @param float $minTotal
      * @return Markup
      */
     public function setMinTotal($minTotal)
@@ -342,7 +342,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Get min_total
      *
-     * @return decimal 
+     * @return float
      */
     public function getMinTotal()
     {
@@ -352,7 +352,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Set max_total
      *
-     * @param decimal $maxTotal
+     * @param float $maxTotal
      * @return Markup
      */
     public function setMaxTotal($maxTotal)
@@ -364,7 +364,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Get max_total
      *
-     * @return decimal 
+     * @return float
      */
     public function getMaxTotal()
     {
@@ -374,7 +374,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Set min_items
      *
-     * @param decimal $minItems
+     * @param float $minItems
      * @return Markup
      */
     public function setMinItems($minItems)
@@ -386,7 +386,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Get min_items
      *
-     * @return decimal 
+     * @return float
      */
     public function getMinItems()
     {
@@ -396,7 +396,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Set max_items
      *
-     * @param decimal $maxItems
+     * @param float $maxItems
      * @return Markup
      */
     public function setMaxItems($maxItems)
@@ -408,7 +408,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Get max_items
      *
-     * @return decimal 
+     * @return float
      */
     public function getMaxItems()
     {
@@ -418,7 +418,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Set markup_flat
      *
-     * @param decimal $markupFlat
+     * @param float $markupFlat
      * @return Markup
      */
     public function setMarkupFlat($markupFlat)
@@ -430,7 +430,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Get markup_flat
      *
-     * @return decimal 
+     * @return float
      */
     public function getMarkupFlat()
     {
@@ -440,7 +440,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Set markup_percent
      *
-     * @param decimal $markupPercent
+     * @param float $markupPercent
      * @return Markup
      */
     public function setMarkupPercent($markupPercent)
@@ -452,7 +452,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Get markup_percent
      *
-     * @return decimal 
+     * @return float
      */
     public function getMarkupPercent()
     {
@@ -462,7 +462,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Set markup_per_item
      *
-     * @param decimal $markupPerItem
+     * @param float $markupPerItem
      * @return Markup
      */
     public function setMarkupPerItem($markupPerItem)
@@ -474,7 +474,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Get markup_per_item
      *
-     * @return decimal 
+     * @return float
      */
     public function getMarkupPerItem()
     {
@@ -484,7 +484,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Set markup_per_weight
      *
-     * @param decimal $markupPerWeight
+     * @param float $markupPerWeight
      * @return Markup
      */
     public function setMarkupPerWeight($markupPerWeight)
@@ -496,7 +496,7 @@ class Markup extends \XLite\Model\AEntity
     /**
      * Get markup_per_weight
      *
-     * @return decimal 
+     * @return float
      */
     public function getMarkupPerWeight()
     {

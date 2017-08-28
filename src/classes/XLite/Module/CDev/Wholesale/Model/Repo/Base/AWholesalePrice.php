@@ -7,6 +7,7 @@
  */
 
 namespace XLite\Module\CDev\Wholesale\Model\Repo\Base;
+use XLite\Module\CDev\Wholesale\Model\Base\AWholesalePrice as AWholesalePriceModel;
 
 /**
  * WholesalePrice model repository
@@ -43,7 +44,7 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
     public function correctQuantityRangeEnd($object)
     {
         $cnd = new \XLite\Core\CommonCell();
-        $cnd->{self::P_ORDER_BY} = array('w.quantityRangeBegin', 'ASC');
+        $cnd->{self::P_ORDER_BY} = ['w.quantityRangeBegin', 'ASC'];
 
         // Get all prices
         $allPrices = $this->search($this->processContition($cnd, $object));
@@ -52,8 +53,8 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
 
             // Calculate new quantityRangeEnd values for all prices...
 
-            $membershipsHash = array();
-            $maxQuantities = array();
+            $membershipsHash = [];
+            $maxQuantities = [];
 
             // Get hash of quantityRangeBegin for all prices (group by membership)
             foreach ($allPrices as $key => $price) {
@@ -140,14 +141,21 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
 
             $cnd->{static::P_MEMBERSHIP}          = $membership;
             $cnd->{static::P_QTY}                 = $amount;
-            $cnd->{static::P_ORDER_BY}            = array('w.price', 'ASC');
+            $cnd->{static::P_ORDER_BY}            = ['w.price', 'ASC'];
             $cnd->{static::P_ORDER_BY_MEMBERSHIP} = false;
 
             $prices = $this->search($this->processContition($cnd, $object));
 
             $price = null;
             if (isset($prices[0])) {
-                $price = $prices[0]->getPrice();
+                /** @var AWholesalePriceModel $entity */
+                $entity = $prices[0];
+
+                if ($entity->getType() === AWholesalePriceModel::WHOLESALE_TYPE_PERCENT) {
+                    $price = $object->getBasePrice() * $entity->getPrice() / 100;
+                } else {
+                    $price = $entity->getPrice();
+                }
 
                 // to allow batch product update in \XLite\Core\QuickData
                 \XLite\Core\Database::getEM()->detach($prices[0]);
@@ -173,13 +181,13 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
 
         $cnd->{static::P_MEMBERSHIP} = $membership;
         $cnd->{static::P_MIN_QTY}    = $minQty;
-        $cnd->{static::P_ORDER_BY}   = array('w.quantityRangeBegin', 'ASC');
+        $cnd->{static::P_ORDER_BY}   = ['w.quantityRangeBegin', 'ASC'];
         $cnd->{static::P_ORDER_BY_MEMBERSHIP} = false;
 
         $prices = $this->search($this->processContition($cnd, $object));
 
         if (empty($prices)) {
-            return array();
+            return [];
         }
 
         if (1 < $minQty) {
@@ -192,7 +200,7 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
 
         if (!empty($membership)) {
 
-            $result = array();
+            $result = [];
 
             foreach ($prices as $key => $price) {
                 if (!empty($minimalPrice)
@@ -202,7 +210,7 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
                 }
 
                 //get all ranges for quantity point
-                $rangesHaving = array();
+                $rangesHaving = [];
                 foreach ($prices as $rangeKey => $range) {
                     if ($price->getQuantityRangeBegin() >= $range->getQuantityRangeBegin()
                         && ($range->getQuantityRangeEnd() == 0
@@ -255,7 +263,7 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
             && isset($prices[0])
             && $minQty >= $prices[0]->getQuantityRangeBegin()
         ) {
-            $prices = array();
+            $prices = [];
         }
 
         return $prices;
@@ -289,7 +297,7 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
 
         $membershipRelation = false;
         foreach ($cnd as $key => $value) {
-            if (in_array($key, array(self::P_MEMBERSHIP, self::P_ORDER_BY_MEMBERSHIP), true)) {
+            if (in_array($key, [self::P_MEMBERSHIP, self::P_ORDER_BY_MEMBERSHIP], true)) {
                 $membershipRelation = true;
             }
         }
@@ -324,7 +332,7 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
         $cndToAdd = [ 'membership.membership_id', $orderByMembership ? 'ASC' : 'DESC' ];
 
         if ($currentOrderBy && is_array($currentOrderBy)) {
-            $currentOrderBy = is_array($currentOrderBy[0]) ? $currentOrderBy : array($currentOrderBy);
+            $currentOrderBy = is_array($currentOrderBy[0]) ? $currentOrderBy : [$currentOrderBy];
             array_unshift($currentOrderBy, $cndToAdd);
         } else {
             $currentOrderBy = [ $cndToAdd ];

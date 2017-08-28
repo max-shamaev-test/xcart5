@@ -39,6 +39,10 @@ class Profile extends \XLite\Controller\Customer\ACustomer
     {
         if (!$this->isLogged() && !$this->isRegisterMode()) {
             $this->setReturnURL($this->buildURL('login'));
+        } elseif ($this->isLogged() && $this->isRegisterMode()) {
+            $this->setReturnURL(
+                call_user_func_array(array($this, 'buildURL'), $this->getActionRegisterSuccessURL())
+            );
         }
 
         parent::handleRequest();
@@ -93,19 +97,6 @@ class Profile extends \XLite\Controller\Customer\ACustomer
     public function isTitleVisible()
     {
         return 'delete' == \XLite\Core\Request::getInstance()->mode;
-    }
-
-    /**
-     * Check if widget is visible
-     *
-     * @return boolean
-     */
-    protected function isVisible()
-    {
-        $registerModeForLogged = \XLite\Core\Auth::getInstance()->isLogged()
-            && self::getRegisterMode() === \XLite\Core\Request::getInstance()->mode;
-
-        return parent::isVisible() && !$registerModeForLogged;
     }
 
     /**

@@ -14,6 +14,11 @@ namespace XLite\View\SearchPanel\Order\Admin;
 class Main extends \XLite\View\SearchPanel\Order\Admin\AAdmin
 {
     /**
+     * @var \XLite\View\ItemsList\Model\Table
+     */
+    protected $itemsList;
+
+    /**
      * Via this method the widget registers the CSS files which it uses.
      * During the viewers initialization the CSS files are collecting into the static storage.
      *
@@ -55,8 +60,12 @@ class Main extends \XLite\View\SearchPanel\Order\Admin\AAdmin
      */
     protected function getItemsList()
     {
-        return parent::getItemsList()
-            ?: new \XLite\View\ItemsList\Model\Order\Admin\Search();
+        if (!$this->itemsList) {
+            $this->itemsList = parent::getItemsList()
+                ?: new \XLite\View\ItemsList\Model\Order\Admin\Search();
+        }
+
+        return $this->itemsList;
     }
 
     /**
@@ -70,7 +79,7 @@ class Main extends \XLite\View\SearchPanel\Order\Admin\AAdmin
             'substring' => array(
                 static::CONDITION_CLASS => 'XLite\View\FormField\Input\Text',
                 \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY         => true,
-                \XLite\View\FormField\Input\Text::PARAM_PLACEHOLDER => static::t('Enter OrderID or email'),
+                \XLite\View\FormField\Input\Text::PARAM_PLACEHOLDER => static::t('OrderID or email, ID1-ID2 for range'),
             ),
             'paymentStatus' => array(
                 static::CONDITION_CLASS => '\XLite\View\FormField\Select\CheckboxList\OrderStatus\Payment',
@@ -164,7 +173,7 @@ class Main extends \XLite\View\SearchPanel\Order\Admin\AAdmin
         if ($count) {
             $recentOrdersFilter = new \XLite\Model\SearchFilter();
             $recentOrdersFilter->setId('recent');
-            $recentOrdersFilter->setName(static::t('Orders awaiting processing'));
+            $recentOrdersFilter->setName(static::t('Awaiting processing'));
             $recentOrdersFilter->setSuffix(sprintf('(%d)', $count));
             $result = array('recent' => $recentOrdersFilter) + $result;
         }

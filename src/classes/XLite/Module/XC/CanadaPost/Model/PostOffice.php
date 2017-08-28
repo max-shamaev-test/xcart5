@@ -114,8 +114,6 @@ class PostOffice extends \XLite\Base\SuperClass
 
     /**
      * Public class constructor
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -291,7 +289,7 @@ class PostOffice extends \XLite\Base\SuperClass
     /**
      * Get post office city
      *
-     * @return city
+     * @return string
      */
     public function getCity()
     {

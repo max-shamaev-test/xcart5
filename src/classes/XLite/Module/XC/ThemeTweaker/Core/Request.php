@@ -14,13 +14,34 @@ namespace XLite\Module\XC\ThemeTweaker\Core;
 class Request extends \XLite\Core\Request implements \XLite\Base\IDecorator
 {
     /**
+     * @var string
+     */
+    protected $identifier;
+
+    /**
+     * Current request identifier
+     *
+     * @return string
+     */
+    public function getUniqueIdentifier()
+    {
+        if (null === $this->identifier) {
+            $this->identifier = hash('md4', uniqid('', true));
+        }
+
+        return $this->identifier;
+    }
+
+    /**
      * Drag-n-drop-cart feature is turned off in layout edit mode
      *
      * @return boolean
      */
     public static function isDragDropCartFlag()
     {
-        return parent::isDragDropCartFlag() && !\XLite\Core\Request::getInstance()->isInLayoutMode();
+        return parent::isDragDropCartFlag()
+            && !ThemeTweaker::getInstance()->isInLayoutMode()
+            && !\XLite\Core\Translation::getInstance()->isInlineEditingEnabled();
     }
 
     /**
@@ -30,13 +51,6 @@ class Request extends \XLite\Core\Request implements \XLite\Base\IDecorator
      */
     public function isInLayoutMode()
     {
-        return \XLite\Core\Config::getInstance()->XC->ThemeTweaker->layout_mode
-            && !\XLite::isAdminZone()
-            && \XLite\Module\XC\ThemeTweaker\Main::isTargetAllowed()
-            && \XLite\Module\XC\ThemeTweaker\Main::isUserAllowed()
-            && !\XLite\Core\Request::getInstance()->isPost()
-            && !\XLite\Core\Request::getInstance()->isCLI()
-            && !\XLite\Core\Request::getInstance()->isAJAX()
-            && !\Includes\Decorator\Utils\CacheManager::isRebuildNeeded();
+        return Themetweaker::getInstance()->isInLayoutMode();
     }
 }

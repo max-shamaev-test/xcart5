@@ -14,14 +14,6 @@ namespace XLite\View\Import;
 class ErrorsFile extends \XLite\View\Import\Failed
 {
     /**
-     * Hack for flexy, \r \n symbols
-     */
-    protected function getEOL()
-    {
-        return PHP_EOL;
-    }
-
-    /**
      * Get human readable message type
      *
      * @param string $type
@@ -46,18 +38,18 @@ class ErrorsFile extends \XLite\View\Import\Failed
     {
         $errorsAll = $this->getErrorsGroups($file);
 
-        $errors = array_filter($errorsAll, function($item) {
+        $errors = array_filter($errorsAll, function ($item) {
             return $item['type'] === 'E';
         });
 
-        $warnings = array_filter($errorsAll, function($item) {
+        $warnings = array_filter($errorsAll, function ($item) {
             return $item['type'] === 'W';
         });
 
-        return array(
+        return [
             'E' => $errors,
             'W' => $warnings,
-        );
+        ];
     }
 
     /**

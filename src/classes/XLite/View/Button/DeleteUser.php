@@ -12,7 +12,7 @@ namespace XLite\View\Button;
 /**
  * Delete user button widget. Customer area.
  */
-class DeleteUser extends \XLite\View\Button\APopupButton
+class DeleteUser extends \XLite\View\Button\APopupLink
 {
     /**
      * getJSFiles

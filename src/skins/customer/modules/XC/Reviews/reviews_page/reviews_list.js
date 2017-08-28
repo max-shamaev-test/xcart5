@@ -23,7 +23,7 @@ function ReviewsListController(base)
 extend(ReviewsListController, ListsController);
 
 ReviewsListController.prototype.name = 'ReviewsListController';
-ReviewsListController.prototype.findPattern = '.product-reviews';
+ReviewsListController.prototype.findPattern = '.items-list.product-reviews';
 
 ReviewsListController.prototype.getListView = function()
 {

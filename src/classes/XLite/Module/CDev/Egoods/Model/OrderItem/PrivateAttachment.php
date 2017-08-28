@@ -119,12 +119,12 @@ class PrivateAttachment extends \XLite\Model\AEntity
     public function isAvailable()
     {
         return $this->getAttachment()
-            && $this->getDownloadKey()
-            && $this->isOrderCompleted()
-            && !$this->getBlocked()
-            && !$this->isExpired()
-            && !$this->isAttemptsEnded()
-            && $this->getAttachment()->getStorage()->isFileExists();
+               && $this->getDownloadKey()
+               && $this->isOrderCompleted()
+               && !$this->getBlocked()
+               && !$this->isExpired()
+               && !$this->isAttemptsEnded()
+               && $this->getAttachment()->getStorage()->isFileExists();
     }
 
     /**
@@ -135,7 +135,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
     public function isActive()
     {
         return $this->getAttachment()
-            && $this->isOrderCompleted();
+               && $this->isOrderCompleted();
     }
 
     /**
@@ -145,13 +145,19 @@ class PrivateAttachment extends \XLite\Model\AEntity
      */
     public function isOrderCompleted()
     {
+        $order = $this->getItem()->getOrder();
+
         return in_array(
-            $this->getItem()->getOrder()->getPaymentStatusCode(),
-            array(
-                \XLite\Model\Order\Status\Payment::STATUS_PAID,
-                \XLite\Model\Order\Status\Payment::STATUS_PART_PAID
-            )
-        );
+                   $order->getPaymentStatusCode(),
+                   [
+                       \XLite\Model\Order\Status\Payment::STATUS_PAID,
+                       \XLite\Model\Order\Status\Payment::STATUS_PART_PAID
+                   ]
+               )
+               && !in_array($order->getShippingStatusCode(), [
+                \XLite\Model\Order\Status\Shipping::STATUS_WAITING_FOR_APPROVE,
+                \XLite\Model\Order\Status\Shipping::STATUS_WILL_NOT_DELIVER,
+            ]);
     }
 
     /**
@@ -267,7 +273,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -278,6 +284,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
      * Set title
      *
      * @param string $title
+     *
      * @return PrivateAttachment
      */
     public function setTitle($title)
@@ -289,7 +296,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
     /**
      * Get title
      *
-     * @return string 
+     * @return string
      */
     public function getTitle()
     {
@@ -300,6 +307,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
      * Set downloadKey
      *
      * @param string $downloadKey
+     *
      * @return PrivateAttachment
      */
     public function setDownloadKey($downloadKey)
@@ -311,7 +319,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
     /**
      * Get downloadKey
      *
-     * @return string 
+     * @return string
      */
     public function getDownloadKey()
     {
@@ -322,6 +330,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
      * Set expire
      *
      * @param integer $expire
+     *
      * @return PrivateAttachment
      */
     public function setExpire($expire)
@@ -333,7 +342,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
     /**
      * Get expire
      *
-     * @return integer 
+     * @return integer
      */
     public function getExpire()
     {
@@ -344,6 +353,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
      * Set attempt
      *
      * @param integer $attempt
+     *
      * @return PrivateAttachment
      */
     public function setAttempt($attempt)
@@ -355,7 +365,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
     /**
      * Get attempt
      *
-     * @return integer 
+     * @return integer
      */
     public function getAttempt()
     {
@@ -366,6 +376,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
      * Set attemptLimit
      *
      * @param integer $attemptLimit
+     *
      * @return PrivateAttachment
      */
     public function setAttemptLimit($attemptLimit)
@@ -377,7 +388,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
     /**
      * Get attemptLimit
      *
-     * @return integer 
+     * @return integer
      */
     public function getAttemptLimit()
     {
@@ -388,6 +399,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
      * Set blocked
      *
      * @param boolean $blocked
+     *
      * @return PrivateAttachment
      */
     public function setBlocked($blocked)
@@ -399,7 +411,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
     /**
      * Get blocked
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getBlocked()
     {
@@ -410,6 +422,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
      * Set item
      *
      * @param \XLite\Model\OrderItem $item
+     *
      * @return PrivateAttachment
      */
     public function setItem(\XLite\Model\OrderItem $item = null)
@@ -421,7 +434,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
     /**
      * Get item
      *
-     * @return \XLite\Model\OrderItem 
+     * @return \XLite\Model\OrderItem
      */
     public function getItem()
     {
@@ -432,6 +445,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
      * Set attachment
      *
      * @param \XLite\Module\CDev\FileAttachments\Model\Product\Attachment $attachment
+     *
      * @return PrivateAttachment
      */
     public function setAttachment(\XLite\Module\CDev\FileAttachments\Model\Product\Attachment $attachment = null)
@@ -443,7 +457,7 @@ class PrivateAttachment extends \XLite\Model\AEntity
     /**
      * Get attachment
      *
-     * @return \XLite\Module\CDev\FileAttachments\Model\Product\Attachment 
+     * @return \XLite\Module\CDev\FileAttachments\Model\Product\Attachment
      */
     public function getAttachment()
     {

@@ -47,19 +47,20 @@ class ServiceApiClient
         $shopUrl = $this->getShopUrl();
 
         $request       = new Request($requestUrl);
-        $request->body = array(
+        $request->body = [
             'shopUrl'  => $shopUrl,
             'shopType' => 'xc5',
-            'format'   => 'php',
-        );
+        ];
 
         $response = $request->sendRequest();
 
         if ($response && $response->code == 200) {
-            $data = unserialize($response->body);
+            $data = json_decode($response->body, true);
 
             if ($data && !empty($data['apiKey'])) {
                 $this->storeApiKey($data['apiKey']);
+
+                Config::updateInstance();
 
                 $this->requestSecretKey();
 
@@ -206,9 +207,9 @@ class ServiceApiClient
         $requestUrl = static::CLOUD_SEARCH_URL . static::CLOUD_SEARCH_REQUEST_SECRET_KEY_URL;
 
         $request       = new Request($requestUrl);
-        $request->body = array(
+        $request->body = [
             'apiKey' => $apiKey,
-        );
+        ];
 
         $request->sendRequest();
     }
@@ -229,18 +230,14 @@ class ServiceApiClient
 
         $request->setAdditionalOption(\CURLOPT_TIMEOUT, self::PLAN_INFO_REQUEST_TIMEOUT);
 
-        $request->body = array(
+        $request->body = [
             'apiKey'    => $apiKey,
             'secretKey' => $secretKey,
-        );
+        ];
 
         $response = $request->sendRequest();
 
-        if ($response->code != 200) {
-            return null;
-        }
-
-        return json_decode($response->body, true);
+        return $response && $response->code == 200 ? json_decode($response->body, true) : null;
     }
 
     /**
@@ -253,11 +250,12 @@ class ServiceApiClient
      */
     public function getDashboardIframeUrl($secretKey, $params)
     {
+        $features = ['cloud_filters'];
+
         return static::CLOUD_SEARCH_URL
                . static::CLOUD_SEARCH_REMOTE_IFRAME_URL
                . $secretKey
-               . '&client_features[]=cloud_filters'
-               . '&' . http_build_query($params);
+               . '&' . http_build_query($params + ['client_features' => $features]);
     }
 
     /**
@@ -273,10 +271,11 @@ class ServiceApiClient
             URLManager::getShopURL(Converter::buildURL())
         );
 
-        if (Main::isMultiDomain()) {
-            $protocol = URLManager::isHTTPS() ? 'https' : 'http';
+        $protocol = URLManager::isHTTPS() ? 'https' : 'http';
 
-            $hostDetails   = ConfigParser::getOptions('host_details');
+        $hostDetails = ConfigParser::getOptions('host_details');
+
+        if (Main::isMultiDomain() && isset($hostDetails[$protocol . '_host_orig'])) {
             $original_host = $hostDetails[$protocol . '_host_orig'];
 
             $scheme = parse_url($url, PHP_URL_SCHEME);
@@ -300,10 +299,10 @@ class ServiceApiClient
     {
         $repo = Database::getRepo('XLite\Model\Config');
 
-        $apiKeySetting = $repo->findOneBy(array(
+        $apiKeySetting = $repo->findOneBy([
             'name'     => 'api_key',
             'category' => 'QSL\CloudSearch',
-        ));
+        ]);
 
         $apiKeySetting->setValue($key);
 

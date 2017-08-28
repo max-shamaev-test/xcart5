@@ -21,36 +21,34 @@ abstract class AAdmin extends \XLite\View\StickyPanel\Product\AProduct
     protected function defineAdditionalButtons()
     {
         return [
-            'delete' => [
-                'class'    => 'XLite\View\Button\DeleteSelected',
-                'params'   => [
-                    'label'      => '',
-                    'style'      => 'more-action icon-only hide-on-disable hidden',
-                    'icon-style' => 'fa fa-trash-o',
-                ],
-                'position' => 100,
-            ],
             'status' => [
                 'class'    => 'XLite\View\Button\Dropdown\Status',
                 'params'   => [
                     'label'         => '',
-                    'style'         => 'more-action icon-only hide-on-disable hidden',
+                    'style'         => 'always-enabled more-action icon-only hide-on-disable',
                     'icon-style'    => 'fa fa-power-off',
-                    'showCaret'     => false,
+                    'useCaretButton' => false,
                     'dropDirection' => 'dropup',
                 ],
                 'position' => 200,
             ],
             'clone' => [
-                'class'    => 'XLite\View\Button\Dropdown\CloneFake',
+                'class'    => 'XLite\View\Button\CloneSelected',
                 'params'   => [
-                    'label'         => '',
-                    'style'         => 'more-action icon-only hide-on-disable hidden',
-                    'icon-style'    => 'fa fa-copy',
-                    'showCaret'     => false,
-                    'dropDirection' => 'dropup ',
+                    'label'      => '',
+                    'style'      => 'more-action icon-only hide-on-disable hidden',
+                    'icon-style' => 'fa fa-copy',
                 ],
                 'position' => 300,
+            ],
+            'delete' => [
+                'class'    => 'XLite\View\Button\DeleteSelected',
+                'params'   => [
+                    'label'      => '',
+                    'style'      => 'more-action icon-only hide-on-disable',
+                    'icon-style' => 'fa fa-trash-o',
+                ],
+                'position' => 400,
             ],
         ];
     }
@@ -69,5 +67,15 @@ abstract class AAdmin extends \XLite\View\StickyPanel\Product\AProduct
         );
 
         return $list;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getJSFiles()
+    {
+        return array_merge(parent::getJSFiles(), [
+            'sticky_panel/product_list/script.js'
+        ]);
     }
 }

@@ -42,10 +42,10 @@ class EditReview extends \XLite\View\Button\APopupButton
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             static::PARAM_ID => new \XLite\Model\WidgetParam\TypeInt('Review Id', 0),
             static::PARAM_TARGET_PRODUCT_ID => new \XLite\Model\WidgetParam\TypeInt('Target product id', 0),
-        );
+        ];
     }
 
     /**
@@ -75,11 +75,11 @@ class EditReview extends \XLite\View\Button\APopupButton
      */
     protected function prepareURLParams()
     {
-        $params = array(
+        $params = [
             'target'    => 'review',
             'widget'    => '\XLite\Module\XC\Reviews\View\Review',
             'id'        => $this->getId(),
-        );
+        ];
 
         if ($this->getTargetProductId()) {
             $params[self::PARAM_TARGET_PRODUCT_ID] = $this->getTargetProductId();

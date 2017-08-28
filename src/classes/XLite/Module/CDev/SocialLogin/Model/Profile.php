@@ -10,6 +10,8 @@ namespace XLite\Module\CDev\SocialLogin\Model;
 
 /**
  * \XLite\Module\CDev\SocialLogin\Model\Profile
+ *
+ * @Decorator\After({"Amazon\PayWithAmazon","CDev\Paypal"})
  */
 class Profile extends \XLite\Model\Profile implements \XLite\Base\IDecorator
 {

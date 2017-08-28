@@ -92,7 +92,7 @@ class State extends \XLite\View\FormField\Select\Regular
     /**
      * Check - current value is selected or not
      *
-     * @param mixed $value Value
+     * @param \XLite\Model\State $state Value
      *
      * @return boolean
      */

@@ -47,11 +47,11 @@ class Review extends \XLite\View\Form\AForm
      */
     protected function getDefaultParams()
     {
-        $params = array(
+        $params = [
             self::PARAM_ID              => \XLite\Core\Request::getInstance()->id,
             self::PARAM_PRODUCT_ID      => \XLite\Core\Request::getInstance()->product_id,
             self::PARAM_RETURN_TARGET   => \XLite\Core\Request::getInstance()->return_target,
-        );
+        ];
 
         return $params;
     }

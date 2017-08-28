@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * Clean URL repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\CleanURL", summary="Add new clean url")
+ * @Api\Operation\Read(modelClass="XLite\Model\CleanURL", summary="Retrieve clean url by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\CleanURL", summary="Retrieve all clean urls")
+ * @Api\Operation\Update(modelClass="XLite\Model\CleanURL", summary="Update clean url by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\CleanURL", summary="Delete clean url by id")
  */
 class CleanURL extends \XLite\Model\Repo\ARepo
 {
@@ -556,6 +562,9 @@ class CleanURL extends \XLite\Model\Repo\ARepo
         return $this->prepareParseURL($url, $last, $rest, $ext, $target, $params);
     }
 
+    /**
+     * @return array
+     */
     public static function getConfigCleanUrlAliases()
     {
         return \Includes\Utils\ConfigParser::getOptions(array('clean_urls_aliases'));
@@ -632,10 +641,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
                 if ($entity && $entity->hasProduct($params['product_id'])) {
                     $params['category_id'] = $entity->getCategoryId();
 
-                } else {
-                    unset($params['product_id']);
                 }
-
             } elseif (!empty(\XLite\Core\Request::getInstance()->category_id)) {
                 $params['category_id'] = \XLite\Core\Request::getInstance()->category_id;
             }
@@ -974,15 +980,27 @@ class CleanURL extends \XLite\Model\Repo\ARepo
 
             $tmp = \XLite\Core\Request::getInstance();
 
-            if ('product' === $target) {
-                if (!empty($tmp->last)) {
-                    list($target, $params) = $this->parseURL($tmp->url, $tmp->last, $tmp->rest, $tmp->ext);
-                    $result = \XLite\Core\Converter::buildFullURL($target, '', $params);
-                }
+            if ($this->isRedirectToCanonicalRequired($target, $tmp->url, $tmp->last, $tmp->rest, $tmp->ext)) {
+                list($target, $params) = $this->parseURL($tmp->url, $tmp->last, $tmp->rest, $tmp->ext);
+                $result = \XLite\Core\Converter::buildFullURL($target, '', $params);
             }
         }
 
         return $result;
+    }
+
+    /**
+     * Check if redirect to canonical url required
+     *
+     * @param string $target
+     * @param string $url
+     * @param string $last
+     * @param string $rest
+     * @param string $ext
+     * @return bool
+     */
+    protected function isRedirectToCanonicalRequired($target, $url, $last, $rest, $ext) {
+        return 'product' === $target && !empty($last);
     }
 
     /**

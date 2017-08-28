@@ -18,7 +18,7 @@ abstract class ATransport extends \XLite\Base implements \Countable, \IteratorAg
      *
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * Storage allowed keys list (cache)
@@ -63,7 +63,7 @@ abstract class ATransport extends \XLite\Base implements \Countable, \IteratorAg
      */
     public function clear()
     {
-        $this->data = array();
+        $this->data = [];
     }
 
     /**
@@ -92,7 +92,7 @@ abstract class ATransport extends \XLite\Base implements \Countable, \IteratorAg
      */
     protected function getKeys()
     {
-        if (!isset($this->keys)) {
+        if (null === $this->keys) {
             $this->keys = $this->defineKeys();
         }
 
@@ -110,7 +110,7 @@ abstract class ATransport extends \XLite\Base implements \Countable, \IteratorAg
      */
     public function __get($name)
     {
-        return in_array($name, $this->getKeys()) && isset($this->data[$name]) ? $this->data[$name] : null;
+        return in_array($name, $this->getKeys(), true) && isset($this->data[$name]) ? $this->data[$name] : null;
     }
 
     /**
@@ -123,7 +123,7 @@ abstract class ATransport extends \XLite\Base implements \Countable, \IteratorAg
      */
     public function __set($name, $value)
     {
-        if (in_array($name, $this->getKeys())) {
+        if (in_array($name, $this->getKeys(), true)) {
             $this->data[$name] = $value;
         }
     }
@@ -137,7 +137,7 @@ abstract class ATransport extends \XLite\Base implements \Countable, \IteratorAg
      */
     public function __isset($name)
     {
-        return in_array($name, $this->getKeys()) && isset($this->data[$name]);
+        return in_array($name, $this->getKeys(), true) && isset($this->data[$name]);
     }
 
     /**
@@ -149,32 +149,21 @@ abstract class ATransport extends \XLite\Base implements \Countable, \IteratorAg
      */
     public function __unset($name)
     {
-        if (in_array($name, $this->getKeys()) && isset($this->data[$name])) {
+        if (in_array($name, $this->getKeys(), true) && isset($this->data[$name])) {
             unset($this->data[$name]);
         }
     }
 
     /**
-     * Sleep (serialization)
-     *
-     * @return string
+     * @return array
      */
     public function __sleep()
     {
-        return serialize($this->data);
+        return ['data'];
     }
 
-    /**
-     * Wakeup (unserialization)
-     *
-     * @param string $serialized Seralized data
-     *
-     * @return void
-     */
-    public function __wakeup($serialized)
+    public function __wakeup()
     {
-        $this->clear();
-        $this->map(unserialize($serialized));
     }
 
     // }}}
@@ -202,8 +191,7 @@ abstract class ATransport extends \XLite\Base implements \Countable, \IteratorAg
      */
     public function getIterator()
     {
-        $list = array();
-
+        $list = [];
         foreach ($this->getKeys() as $k) {
             $list[$k] = isset($this->$k) ? $this->$k : null;
         }
@@ -265,5 +253,4 @@ abstract class ATransport extends \XLite\Base implements \Countable, \IteratorAg
     }
 
     // }}}
-
 }

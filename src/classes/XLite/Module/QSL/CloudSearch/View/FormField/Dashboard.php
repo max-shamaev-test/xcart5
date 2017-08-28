@@ -9,6 +9,7 @@
 namespace XLite\Module\QSL\CloudSearch\View\FormField;
 
 use XLite\Model\WidgetParam\TypeSet;
+use XLite\Module\QSL\CloudSearch\Main;
 
 /**
  * String-based
@@ -86,7 +87,7 @@ class Dashboard extends \XLite\View\FormField\AFormField
      */
     protected function getFieldTemplate()
     {
-        return 'modules/QSL/CloudSearch/form_field/dashboard.tpl';
+        return 'modules/QSL/CloudSearch/form_field/dashboard.twig';
     }
 
     /**
@@ -108,9 +109,9 @@ class Dashboard extends \XLite\View\FormField\AFormField
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_SECTION => new TypeSet('Section', null, false, ['cloud_search', 'cloud_filters']),
-        );
+        ];
     }
 
     /**
@@ -120,9 +121,17 @@ class Dashboard extends \XLite\View\FormField\AFormField
      */
     protected function getCloudSearchAdminData()
     {
-        return array(
+        return [
             'admin_self' => \XLite::getAdminScript(),
             'section'    => $this->getParam(self::PARAM_SECTION),
-        );
+            'settings'   => $this->getSettings(),
+        ];
+    }
+
+    protected function getSettings()
+    {
+        return [
+            'cloudFiltersEnabled' => (int)Main::isCloudFiltersEnabled(),
+        ];
     }
 }

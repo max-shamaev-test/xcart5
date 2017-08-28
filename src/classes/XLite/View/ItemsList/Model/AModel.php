@@ -57,11 +57,20 @@ abstract class AModel extends \XLite\View\ItemsList\AItemsList
     protected $requestData;
 
     /**
+     * Dump entity
+     *
+     * @var \XLite\Model\AEntity
+     */
+    protected $dumpEntity;
+
+    /**
      * Entities created by $this::processCreate
      *
      * @var array
      */
     protected $createdEntities = [];
+
+    static protected $savedDataCache = null;
 
     /**
      * Set widget params
@@ -181,8 +190,15 @@ abstract class AModel extends \XLite\View\ItemsList\AItemsList
      */
     public function process()
     {
-        $this->processUpdate();
+        $data = $this->getRequestData();
+        $dataPrefix = $this->getDataPrefix();
+
+        if (isset($data[$dataPrefix])) {
+            $this->setSavedData($data[$dataPrefix]);
+        }
+
         $this->processRemove();
+        $this->processUpdate();
         $this->processCreate();
 
         \XLite\Core\Database::getEM()->flush();
@@ -373,9 +389,37 @@ abstract class AModel extends \XLite\View\ItemsList\AItemsList
      */
     protected function getDumpEntity()
     {
-        return $this->executeCachedRuntime(function () {
-            return $this->createEntity();
-        });
+        if (null === $this->dumpEntity) {
+            $this->dumpEntity = $this->createEntity();
+        }
+
+        return $this->dumpEntity;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function finalizeTemplateDisplay($template, array $profilerData)
+    {
+        parent::finalizeTemplateDisplay($template, $profilerData);
+
+        if (!$this->isCloned) {
+            $this->clearSavedData();
+        }
+
+        if ($this->dumpEntity instanceof \XLite\Model\AEntity) {
+            $this->removeDumpEntity($this->dumpEntity);
+        }
+    }
+
+    /**
+     * Remove dump entity to avoid side-effects
+     *
+     * @param \XLite\Model\AEntity $entity
+     */
+    protected function removeDumpEntity($entity)
+    {
+        \XLite\Core\Database::getEM()->remove($entity);
     }
 
     /**
@@ -615,6 +659,7 @@ abstract class AModel extends \XLite\View\ItemsList\AItemsList
         if ($this->prevalidateEntities()) {
             $this->updateEntities();
 
+            \XLite\Core\Database::getEM()->flush();
         } else {
             $this->undoEntities();
             $count = false;
@@ -689,9 +734,18 @@ abstract class AModel extends \XLite\View\ItemsList\AItemsList
         foreach ($this->getPageDataForUpdate() as $entity) {
             $entity->getRepository()->update($entity, array(), false);
             if ($this->isDefault()) {
-                $entity->setDefaultValue($this->isDefaultEntity($entity));
+                $this->setDefaultValue($entity, $this->isDefaultEntity($entity));
             }
         }
+    }
+
+    /**
+     * @param \XLite\Model\AEntity $entity
+     * @param boolean $value
+     */
+    protected function setDefaultValue($entity, $value)
+    {
+        $entity->setDefaultValue($value);
     }
 
     /**
@@ -813,6 +867,59 @@ abstract class AModel extends \XLite\View\ItemsList\AItemsList
     }
 
     /**
+     * @param $fieldName
+     * @param $id
+     *
+     * @return mixed|null
+     */
+    public function getSavedFieldValue($fieldName, $id)
+    {
+        $data = $this->getSavedData();
+
+        return isset($data[$id][$fieldName])
+            ? $data[$id][$fieldName]
+            : null;
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function getSavedData()
+    {
+        // This is not executeCachedRuntime
+        // because executeCachedRuntime bind to the object, not class
+
+        if (!static::$savedDataCache) {
+            static::$savedDataCache = \XLite\Core\Session::getInstance()->get(
+                get_class($this)
+            );
+        }
+
+        return static::$savedDataCache;
+    }
+
+    /**
+     * @param $data
+     */
+    protected function setSavedData($data)
+    {
+        \XLite\Core\Session::getInstance()->set(
+            get_class($this),
+            $data
+        );
+    }
+
+    /**
+     * Clear form fields in session
+     *
+     * @return void
+     */
+    public function clearSavedData()
+    {
+        $this->setSavedData(null);
+    }
+
+    /**
      * Get page data for update
      *
      * @return array
@@ -874,7 +981,7 @@ abstract class AModel extends \XLite\View\ItemsList\AItemsList
      * @param        $label
      * @param string $message Message
      */
-    protected function addPlainErrorMessage($label, $message)
+    public function addPlainErrorMessage($label, $message)
     {
         $this->errorMessages[] = ($label ? $label . ': ' : '') . $message;
     }
@@ -987,6 +1094,7 @@ abstract class AModel extends \XLite\View\ItemsList\AItemsList
 
         if (-1 == $index) {
             $result['style'] = 'display: none;';
+            $result['v-pre'] = '';
         }
 
         return $result;

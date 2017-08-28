@@ -230,6 +230,13 @@ div.product-average-rating div.reviews-count {
   white-space: normal;
 }
 
+div.product-average-rating a.link-to-tab,
+div.product-average-rating a.popup-button.popup-login {
+  display: inline-block;
+  vertical-align: bottom;
+  white-space: normal;
+}
+
 div.product-average-rating div.reviews-count + a.link-to-tab {
   display: inline-block;
   vertical-align: middle;

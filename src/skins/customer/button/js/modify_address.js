@@ -16,7 +16,7 @@ var PopupButtonModifyAddress = PopupButton.extend({
     callback: function(selector) {
         PopupButtonModifyAddress.superclass.callback.apply(this, arguments);
         // Some autoloading could be added
-        UpdateStatesList();
+        StatesList.getInstance().updateStatesList();
 
         var self = this;
         this.addressId = this.findAddressId(selector);

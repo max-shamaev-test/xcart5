@@ -4,6 +4,7 @@
 
 <div class="tabs2-tabbed-content-wrapper">
   <div class="tabs2-tabs-container">
+    {% if this.isTabsNavigationVisible() %}
     <div class="tabs2-page-tabs">
 
       <ul>
@@ -23,6 +24,7 @@
       </ul>
 
     </div>
+    {% endif %}
     <div class="clear"></div>
 
     <div class="tab-content">

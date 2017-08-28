@@ -32,70 +32,29 @@ class Payment extends \XLite\Model\Order\Status\AStatus
     const STATUS_REFUNDED       = 'R';
 
     /**
-     * List of change status handlers;
-     * top index - old status, second index - new one
-     * (<old_status> ----> <new_status>: $statusHandlers[$old][$new])
-     *
-     * @var array
-     */
-    protected static $statusHandlers = array(
-        self::STATUS_QUEUED => array(
-            self::STATUS_AUTHORIZED => array('authorize'),
-            self::STATUS_PAID       => array('process'),
-            self::STATUS_DECLINED   => array('decline', 'uncheckout', 'fail'),
-            self::STATUS_CANCELED   => array('decline', 'uncheckout', 'cancel'),
-        ),
-
-        self::STATUS_AUTHORIZED => array(
-            self::STATUS_PAID       => array('process'),
-            self::STATUS_DECLINED   => array('decline', 'uncheckout', 'fail'),
-            self::STATUS_CANCELED   => array('decline', 'uncheckout', 'cancel'),
-        ),
-
-        self::STATUS_PART_PAID => array(
-            self::STATUS_PAID       => array('process'),
-            self::STATUS_DECLINED   => array('decline', 'uncheckout', 'fail'),
-            self::STATUS_CANCELED   => array('decline', 'uncheckout', 'fail'),
-        ),
-
-        self::STATUS_PAID => array(
-            self::STATUS_DECLINED   => array('decline', 'uncheckout', 'fail'),
-            self::STATUS_CANCELED   => array('decline', 'uncheckout', 'cancel'),
-        ),
-
-        self::STATUS_DECLINED => array(
-            self::STATUS_AUTHORIZED => array('checkout', 'queue', 'authorize'),
-            self::STATUS_PART_PAID  => array('checkout', 'queue'),
-            self::STATUS_PAID       => array('checkout', 'queue', 'process'),
-            self::STATUS_QUEUED     => array('checkout', 'queue'),
-        ),
-
-        self::STATUS_CANCELED => array(
-            self::STATUS_AUTHORIZED => array('checkout', 'queue', 'authorize'),
-            self::STATUS_PART_PAID  => array('checkout', 'queue'),
-            self::STATUS_PAID       => array('checkout', 'queue', 'process'),
-            self::STATUS_QUEUED     => array('checkout', 'queue'),
-        ),
-    );
-
-    /**
      * Disallowed to set manually statuses
      *
-     * @var array
+     * @return array
      */
-    protected static $disallowedToSetManuallyStatuses = array(
-        self::STATUS_AUTHORIZED,
-    );
+    public static function getDisallowedToSetManuallyStatuses()
+    {
+        return [
+            self::STATUS_AUTHORIZED
+        ];
+    }
 
     /**
-     * Not compatible with Shipping status
+     * Not compatible with Shipping statuses
      *
-     * @var array
+     * @return array
      */
-    protected static $notCompatibleWithShippingStatus  = array(
-        self::STATUS_DECLINED,
-        self::STATUS_CANCELED,
-    );
+    public static function getNotCompatibleWithShippingStatuses()
+    {
+        return [
+            self::STATUS_DECLINED,
+            self::STATUS_CANCELED,
+        ];
+    }
 
     /**
      * Get open order statuses
@@ -104,13 +63,13 @@ class Payment extends \XLite\Model\Order\Status\AStatus
      */
     public static function getOpenStatuses()
     {
-        return array(
+        return [
             static::STATUS_AUTHORIZED,
             static::STATUS_PART_PAID,
             static::STATUS_PAID,
             static::STATUS_QUEUED,
             static::STATUS_REFUNDED,
-        );
+        ];
     }
 
     /**
@@ -120,11 +79,11 @@ class Payment extends \XLite\Model\Order\Status\AStatus
      */
     public static function getPaidStatuses()
     {
-        return array(
+        return [
             static::STATUS_AUTHORIZED,
             static::STATUS_PART_PAID,
             static::STATUS_PAID,
-        );
+        ];
     }
 
     /**
@@ -136,7 +95,7 @@ class Payment extends \XLite\Model\Order\Status\AStatus
     {
         return !in_array(
             $this->getCode(),
-            static::$notCompatibleWithShippingStatus
+            static::getNotCompatibleWithShippingStatuses()
         );
     }
 
@@ -149,7 +108,7 @@ class Payment extends \XLite\Model\Order\Status\AStatus
     {
         return !in_array(
             $this->getCode(),
-            static::$disallowedToSetManuallyStatuses
+            static::getDisallowedToSetManuallyStatuses()
         );
     }
 
@@ -205,5 +164,55 @@ class Payment extends \XLite\Model\Order\Status\AStatus
     public function getPosition()
     {
         return $this->position;
+    }
+
+    /**
+     * List of change status handlers;
+     * top index - old status, second index - new one
+     * (<old_status> ----> <new_status>: $statusHandlers[$old][$new])
+     *
+     * @return array
+     */
+    public static function getStatusHandlers()
+    {
+        return [
+            self::STATUS_QUEUED => [
+                self::STATUS_AUTHORIZED => ['authorize'],
+                self::STATUS_PAID       => ['process'],
+                self::STATUS_DECLINED   => ['decline', 'uncheckout', 'fail'],
+                self::STATUS_CANCELED   => ['decline', 'uncheckout', 'cancel'],
+            ],
+
+            self::STATUS_AUTHORIZED => [
+                self::STATUS_PAID       => ['process'],
+                self::STATUS_DECLINED   => ['decline', 'uncheckout', 'fail'],
+                self::STATUS_CANCELED   => ['decline', 'uncheckout', 'cancel'],
+            ],
+
+            self::STATUS_PART_PAID => [
+                self::STATUS_PAID       => ['process'],
+                self::STATUS_DECLINED   => ['decline', 'uncheckout', 'fail'],
+                self::STATUS_CANCELED   => ['decline', 'uncheckout', 'fail'],
+            ],
+
+            self::STATUS_PAID => [
+                self::STATUS_DECLINED   => ['decline', 'uncheckout', 'fail'],
+                self::STATUS_CANCELED   => ['decline', 'uncheckout', 'cancel'],
+            ],
+
+            self::STATUS_DECLINED => [
+                self::STATUS_AUTHORIZED => ['checkout', 'queue', 'authorize'],
+                self::STATUS_PART_PAID  => ['checkout', 'queue'],
+                self::STATUS_PAID       => ['checkout', 'queue', 'process'],
+                self::STATUS_QUEUED     => ['checkout', 'queue'],
+            ],
+
+            self::STATUS_CANCELED => [
+                self::STATUS_AUTHORIZED => ['checkout', 'queue', 'authorize'],
+                self::STATUS_PART_PAID  => ['checkout', 'queue'],
+                self::STATUS_PAID       => ['checkout', 'queue', 'process'],
+                self::STATUS_QUEUED     => ['checkout', 'queue'],
+            ],
+        ];
     }
 }

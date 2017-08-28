@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * Region repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Region", summary="Add new region")
+ * @Api\Operation\Read(modelClass="XLite\Model\Region", summary="Retrieve region by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Region", summary="Retrieve regions by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\Region", summary="Update region by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Region", summary="Delete region by id")
  */
 class Region extends \XLite\Model\Repo\ARepo
 {

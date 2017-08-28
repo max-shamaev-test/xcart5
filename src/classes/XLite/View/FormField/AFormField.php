@@ -30,6 +30,7 @@ abstract class AFormField extends \XLite\View\AView
     const PARAM_LABEL_HELP_WIDGET = 'labelHelpWidget';
     const PARAM_FIELD_ONLY      = 'fieldOnly';
     const PARAM_WRAPPER_CLASS   = 'wrapperClass';
+    const PARAM_FORM_CONTROL   = 'formControl';
 
     /** @deprecated */
     const PARAM_USE_COLON       = 'useColon';
@@ -42,6 +43,8 @@ abstract class AFormField extends \XLite\View\AView
     const PARAM_IS_ALLOWED_FOR_CUSTOMER = 'isAllowedForCustomer';
 
     const PARAM_DEPENDENCY = 'dependency';
+
+    const PARAM_EDIT_ON_CLICK = 'editOnClick';
 
     /**
      * Available field types
@@ -112,6 +115,20 @@ abstract class AFormField extends \XLite\View\AView
      * @return string
      */
     abstract protected function getFieldTemplate();
+
+    /**
+     * @return array
+     */
+    public function getJSFiles()
+    {
+        $list = parent::getJSFiles();
+
+        if ($this->getParam(self::PARAM_EDIT_ON_CLICK)) {
+            $list[] = 'form_field/edit_on_click/controller.js';
+        }
+
+        return $list;
+    }
 
     /**
      * Return field name
@@ -405,7 +422,7 @@ abstract class AFormField extends \XLite\View\AView
      */
     protected function isFormControl()
     {
-        return true;
+        return $this->getParam(self::PARAM_FORM_CONTROL);
     }
 
     /**
@@ -584,6 +601,7 @@ abstract class AFormField extends \XLite\View\AView
             self::PARAM_LABEL_HELP_WIDGET => new \XLite\Model\WidgetParam\TypeString('Label help widget class name', null),
             self::PARAM_ATTRIBUTES => new \XLite\Model\WidgetParam\TypeCollection('Attributes', $this->getDefaultAttributes()),
             self::PARAM_WRAPPER_CLASS => new \XLite\Model\WidgetParam\TypeString('Wrapper class', $this->getDefaultWrapperClass()),
+            self::PARAM_FORM_CONTROL   => new \XLite\Model\WidgetParam\TypeBool('Is form control', true),
 
             /** @deprecated */
             self::PARAM_USE_COLON     => new \XLite\Model\WidgetParam\TypeBool('Use colon', false),
@@ -603,6 +621,7 @@ abstract class AFormField extends \XLite\View\AView
             ),
             self::PARAM_DEPENDENCY => new \XLite\Model\WidgetParam\TypeCollection('Dependency', array()),
             self::PARAM_TRUSTED    => new \XLite\Model\WidgetParam\TypeBool('Trusted (value may contain anything)', false),
+            self::PARAM_EDIT_ON_CLICK => new \XLite\Model\WidgetParam\TypeBool('Edit on click', false),
         );
     }
 
@@ -736,7 +755,19 @@ abstract class AFormField extends \XLite\View\AView
             $class .= ' table-value-required';
         }
 
+        if ($this->hasDifferentSavedValue()) {
+            $class .= ' has-diff-saved-value';
+        }
+
         return $class;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function hasDifferentSavedValue()
+    {
+        return $this->callFormMethod('hasDifferentSavedValue', array($this->getName()));
     }
 
     /**
@@ -768,4 +799,90 @@ abstract class AFormField extends \XLite\View\AView
     {
         return $this->getParam(static::PARAM_HELP) || $this->getParam(static::PARAM_HELP_WIDGET);
     }
+
+    // {{{ Edit on click
+
+    /**
+     * Get container attributes
+     *
+     * @return array
+     */
+    protected function getContainerAttributes()
+    {
+        return array(
+            'class'          => $this->getContainerClass(),
+            'data-is-escape' => $this->isEscapeValue() ? '1' : '',
+        );
+    }
+
+    /**
+     * Get container class
+     *
+     * @return string
+     */
+    protected function getContainerClass()
+    {
+        return 'edit-on-click-field editable has-view';
+    }
+
+    /**
+     * Check - escape value or not
+     *
+     * @return boolean
+     */
+    protected function isEscapeValue()
+    {
+        return true;
+    }
+
+    /**
+     * Get view container attributes
+     *
+     * @return array
+     */
+    protected function getViewContainerAttributes()
+    {
+        $attributes = [
+            'class' => [
+                'view',
+                'editable',
+            ],
+        ];
+
+        return $attributes;
+    }
+
+    /**
+     * Get view template
+     *
+     * @return string
+     */
+    protected function getViewTemplate()
+    {
+        return 'form_field/edit_on_click/view.twig';
+    }
+
+    /**
+     * Get view value
+     *
+     * @return mixed
+     */
+    protected function getViewValue()
+    {
+        return $this->getValue();
+    }
+
+    /**
+     * Get field container attributes
+     *
+     * @return array
+     */
+    protected function getFieldContainerAttributes()
+    {
+        return [
+            'class' => ['field'],
+        ];
+    }
+
+    // }}}
 }

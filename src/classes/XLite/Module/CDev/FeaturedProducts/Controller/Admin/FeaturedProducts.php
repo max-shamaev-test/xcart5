@@ -21,6 +21,16 @@ class FeaturedProducts extends \XLite\Controller\Admin\AAdmin
     protected $params = array('target', 'id');
 
     /**
+     * Check ACL permissions
+     *
+     * @return boolean
+     */
+    public function checkACL()
+    {
+        return parent::checkACL() || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage catalog');
+    }
+
+    /**
      * Return the current page title (for the content area)
      *
      * @return string

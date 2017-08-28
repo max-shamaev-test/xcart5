@@ -128,6 +128,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
      */
     public static function getTitle()
     {
+        return '';
     }
 
     /**
@@ -1711,6 +1712,16 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
     }
 
     /**
+     * Returns csv format manual URL
+     *
+     * @return string
+     */
+    public static function getCSVFormatManualURL()
+    {
+        return '';
+    }
+
+    /**
      * Add warning
      *
      * @param string  $code      Message code
@@ -1865,7 +1876,25 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
      */
     protected function verifyValueAsNull($value)
     {
-        return is_array($value) && count($value) == 1 ? static::NULL_VALUE === $value[0] : static::NULL_VALUE === $value;
+        $result = false;
+
+        if (is_array($value) && count($value) === 1) {
+            if (is_array($value[0])) {
+                foreach ($value[0] as $lngValue) {
+                    if (static::NULL_VALUE === $lngValue) {
+                        $result = true;
+
+                        break;
+                    }
+                }
+            } else {
+                $result = static::NULL_VALUE === $value[0];
+            }
+        } else {
+            $result = static::NULL_VALUE === $value;
+        }
+
+        return $result;
     }
 
     /**
@@ -1903,6 +1932,18 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
     protected function verifyValueAsUinteger($value)
     {
         return !(bool) preg_match('/\D/S', trim($value));
+    }
+
+    /**
+     * Verify value as unsigned integer
+     *
+     * @param mixed @value Value
+     *
+     * @return boolean
+     */
+    protected function verifyValueAsModifier($value)
+    {
+        return (bool) preg_match('/[+-]\d+/S', trim($value));
     }
 
     /**
@@ -2009,6 +2050,18 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
     }
 
     /**
+     * Verify value as profile
+     *
+     * @param string @value email
+     *
+     * @return boolean
+     */
+    protected function verifyValueAsProfile($value)
+    {
+        return (boolean)\XLite\Core\Database::getRepo('XLite\Model\Profile')->findByLogin($value);
+    }
+
+    /**
      * Verify value as membership
      *
      * @param mixed @value Value
@@ -2093,7 +2146,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
     protected function verifyValueAsFile($value)
     {
         // Do not verify files in verification mode and if 'ignoreFileChecking' option is true
-        if (!$this->isVerification() || !$this->importer->getOptions()->ignoreFileChecking) {
+        if (!$this->isVerification() && !$this->importer->getOptions()->ignoreFileChecking) {
             if (\Includes\Utils\FileManager::isReadable(LC_DIR_ROOT . $value)) {
                 $result = 0 === strpos(realpath(LC_DIR_ROOT . $value), LC_DIR_ROOT);
             } elseif ($this->verifyValueAsURL($value)) {
@@ -2121,7 +2174,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
         $webdir = \XLite::getInstance()->getOptions(array('host_details', 'web_dir'));
         $webdir = $webdir ? $webdir . '/' : '';
 
-        return ltrim(parse_url($path, PHP_URL_PATH), '/' . $webdir);
+        return preg_replace('#^' . $webdir . '#', '', parse_url($path, PHP_URL_PATH));
     }
 
     /**
@@ -2220,6 +2273,18 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
     }
 
     /**
+     * Normalize value as boolean
+     *
+     * @param string @value Value with following format "+1, -1"
+     *
+     * @return integer
+     */
+    protected function normalizeValueAsModifier($value)
+    {
+        return (int) $value;
+    }
+
+    /**
      * Normalize value as string
      *
      * @param mixed @value Value
@@ -2229,6 +2294,18 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
     protected function normalizeValueAsString($value)
     {
         return (string) $value;
+    }
+
+    /**
+     * Normalize value as profile
+     *
+     * @param mixed @value email
+     *
+     * @return \XLite\Model\Profile
+     */
+    protected function normalizeValueAsProfile($value)
+    {
+        return \XLite\Core\Database::getRepo('XLite\Model\Profile')->findByLogin($value);
     }
 
     /**
@@ -2383,7 +2460,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
         $result = null;
         if ($value) {
             $result = \XLite\Core\Database::getRepo('XLite\Model\Product')->findOneBySku($value);
-            $processorAllowedToAdd = $this instanceof XLite\Logic\Import\Processor\Products;
+            $processorAllowedToAdd = $this instanceof \XLite\Logic\Import\Processor\Products;
 
             if (!$result && $processorAllowedToAdd) {
                 $result = \XLite\Core\Database::getRepo('\XLite\Model\Product')->insert(

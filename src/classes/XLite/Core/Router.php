@@ -19,6 +19,28 @@ class Router extends \XLite\Base\Singleton
      */
     protected $activeLanguagesCodes = null;
 
+
+    /**
+     * @var bool
+     */
+    protected $isUseLangUrlsTmp = true;
+
+    /**
+     * Temporarily disable language urls
+     */
+    public function disableLanguageUrlsTmp()
+    {
+        $this->isUseLangUrlsTmp = false;
+    }
+
+    /**
+     * Release disabling flag
+     */
+    public function releaseLanguageUrlsTmp()
+    {
+        $this->isUseLangUrlsTmp = true;
+    }
+
     /**
      * Process \XLite\Core\Request data
      */
@@ -40,10 +62,11 @@ class Router extends \XLite\Base\Singleton
                     $matches
                 );
 
-                $request->rest = isset($matches[3]) ? $matches[3] : null;
-                $request->last = isset($matches[4]) ? $matches[4] : null;
-                $request->url = isset($matches[5]) ? $matches[5] : null;
-                $request->ext = isset($matches[7]) ? $matches[7] : null;
+                $_GET['rest'] = isset($matches[3]) ? $matches[3] : null;
+                $_GET['last'] = isset($matches[4]) ? $matches[4] : null;
+                $_GET['url'] = isset($matches[5]) ? $matches[5] : null;
+                $_GET['ext'] = isset($matches[7]) ? $matches[7] : null;
+                \XLite\Core\Request::getInstance()->mapRequest();
             } else {
                 $this->processCleanUrlLanguage();
             }
@@ -76,9 +99,15 @@ class Router extends \XLite\Base\Singleton
         }
     }
 
+    /**
+     * Is use language urls
+     *
+     * @return bool
+     */
     public function isUseLanguageUrls()
     {
-        return \Includes\Utils\ConfigParser::getOptions(array('clean_urls', 'use_language_url')) == 'Y';
+        return $this->isUseLangUrlsTmp
+               && \Includes\Utils\ConfigParser::getOptions(['clean_urls', 'use_language_url']) == 'Y';
     }
 
     /**

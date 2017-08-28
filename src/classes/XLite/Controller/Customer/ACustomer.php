@@ -97,6 +97,55 @@ abstract class ACustomer extends \XLite\Controller\AController
     }
 
     /**
+     * Define body classes
+     *
+     * @param array $classes Classes
+     *
+     * @return array
+     */
+    public function defineBodyClasses(array $classes)
+    {
+        $classes = parent::defineBodyClasses($classes);
+
+        $responsiveClass = \XLite\Core\Request::isMobileDevice()
+            ? 'responsive-mobile'
+            : 'responsive-desktop';
+
+        if (\XLite\Core\Request::isTablet()) {
+            $responsiveClass = 'responsive-tablet';
+        }
+
+        $classes[] = $responsiveClass;
+
+        return $classes;
+    }
+
+    /**
+     * Checks if desktop navbar should be rendered (used to defer duplicate navbar loading)
+     * TODO: Enable this when it will be properly working
+     *
+     * @return bool
+     */
+    public function shouldRenderDesktopNavbar()
+    {
+        return true;
+//        return $this->isAJAX() || \XLite\Core\Request::isTablet() || !\XLite\Core\Request::isMobileDevice();
+    }
+
+    /**
+     * Checks if mobile navbar should be rendered (used to defer duplicate navbar loading)
+     * TODO: Enable this when it will be properly working
+     *
+     * @return bool
+     */
+    public function shouldRenderMobileNavbar()
+    {
+        return true;
+//        return $this->isAJAX() || \XLite\Core\Request::isMobileDevice();
+    }
+
+    /**
+     *
      * Common method to determine current location
      *
      * @return string
@@ -437,10 +486,8 @@ abstract class ACustomer extends \XLite\Controller\AController
     protected function updateCart($silent = false)
     {
         $em = \XLite\Core\Database::getEM();
-        $em->getConnection()->beginTransaction();
-
-        $cart = $this->getCart();
-        try {
+        $em->transactionalWithRestarts(function() use ($em, &$cart) {
+            $cart = $this->getCart();
             if ($cart->isManaged()) {
                 $em->lock($cart, \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE);
             }
@@ -450,12 +497,7 @@ abstract class ACustomer extends \XLite\Controller\AController
             }
 
             \XLite\Core\Database::getRepo('XLite\Model\Cart')->update($cart);
-            $em->getConnection()->commit();
-        } catch (\Exception $e) {
-            $em->getConnection()->rollback();
-
-            throw $e;
-        }
+        });
 
         if (!$silent) {
             $this->assembleEvent();
@@ -476,23 +518,11 @@ abstract class ACustomer extends \XLite\Controller\AController
             $this->getCart()->getEventFingerprint($this->getCartFingerprintExclude())
         );
 
-        $postponeCellName = 'initialCartFingerprintPostponed' . $this->getCart()->getOrderId();
-        $actualDiff = [];
-
         if ($diff) {
             $actualDiff = $this->posprocessCartFingerprintDifference($diff);
             if ($actualDiff) {
-                if (!$this->isAJAX()) {
-                    \XLite\Core\Session::getInstance()->{$postponeCellName} = $actualDiff;
-                }
+                \XLite\Core\Event::updateCart($actualDiff);
             }
-        } elseif (\XLite\Core\Session::getInstance()->{$postponeCellName} && $this->isAJAX()) {
-            $actualDiff = \XLite\Core\Session::getInstance()->{$postponeCellName};
-            \XLite\Core\Session::getInstance()->{$postponeCellName} = null;
-        }
-        
-        if ($actualDiff) {
-            \XLite\Core\Event::updateCart($actualDiff);
         }
 
         return (bool)$diff;

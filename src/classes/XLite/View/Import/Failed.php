@@ -60,6 +60,7 @@ class Failed extends \XLite\View\AView
     protected function isCanceled()
     {
         $repo = \XLite\Core\Database::getRepo('XLite\Model\TmpVar');
+
         return $repo->getVar(\XLite\Logic\Import\Importer::getImportCancelFlagVarName());
     }
 
@@ -90,7 +91,9 @@ class Failed extends \XLite\View\AView
      */
     protected function isBroken()
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\TmpVar')->getVar(\XLite\Logic\Import\Importer::getImportUserBreakFlagVarName());
+        $repo = \XLite\Core\Database::getRepo('XLite\Model\TmpVar');
+
+        return $repo->getVar(\XLite\Logic\Import\Importer::getImportUserBreakFlagVarName());
     }
 
     /**
@@ -135,46 +138,47 @@ class Failed extends \XLite\View\AView
     protected function getErrorsGroups($file)
     {
         $errors = $this->getErrors($file);
-        $result = array();
+        $result = [];
         array_walk(
             $errors,
-            function($error) use (&$result){
+            function ($error) use (&$result) {
                 $uniqueHash = md5($error['code'] . serialize($error['arguments']));
                 if (!array_key_exists($uniqueHash, $result)) {
-                    $result[$uniqueHash] = array(
+                    $result[$uniqueHash] = [
                         'code'      => $error['code'],
                         'type'      => $error['type'],
                         'arguments' => $error['arguments'],
-                        'errors'    => array()
-                    );
+                        'errors'    => [],
+                    ];
                 }
                 $result[$uniqueHash]['errors'][] = $error;
             }
         );
+
         return $result;
     }
 
     /**
      * Return title
      *
-     * @return string 
+     * @return string
      */
     protected function getTitle()
     {
         return static::t(
             'The script found {{number}} errors during verification',
-            array(
-                'number' => \XLite\Core\Database::getRepo('XLite\Model\ImportLog')->count()
-            )
+            [
+                'number' => \XLite\Core\Database::getRepo('XLite\Model\ImportLog')->count(),
+            ]
         );
     }
 
     /**
-     * Return error message 
+     * Return error message
      *
-     * @param array $error Error 
+     * @param array $error Error
      *
-     * @return string 
+     * @return string
      */
     protected function getErrorMessage($error)
     {
@@ -182,49 +186,46 @@ class Failed extends \XLite\View\AView
 
         $result = static::t(
             'Row {{number}}',
-            array('number' => $error['row'])
+            ['number' => $error['row']]
         );
 
         $result .= ': ';
 
         $result .= isset($messages[$error['code']])
-            ? static::t($messages[$error['code']], is_array($error['arguments']) ? $error['arguments'] : array())
+            ? static::t($messages[$error['code']], is_array($error['arguments']) ? $error['arguments'] : [])
             : $error['code'];
 
         return $result;
     }
 
     /**
-     * Return group error message 
+     * Return group error message
      *
-     * @param array $error Error 
+     * @param array $errorGroup
      *
-     * @return string 
+     * @return string
      */
     protected function getGroupErrorMessage($errorGroup)
     {
         $messages = $this->getErrorMessages();
 
         $result = isset($messages[$errorGroup['code']])
-            ? static::t($messages[$errorGroup['code']], is_array($errorGroup['arguments']) ? $errorGroup['arguments'] : array())
+            ? static::t($messages[$errorGroup['code']], is_array($errorGroup['arguments']) ? $errorGroup['arguments'] : [])
             : $errorGroup['code'];
-        $rows = array_map(function($error){
-            return $error['row'];
-        }, $errorGroup['errors']);
 
         return $result;
     }
 
     /**
-     * Return group error rows 
+     * Return group error rows
      *
-     * @param array $error Error 
+     * @param array $errorGroup
      *
-     * @return string 
+     * @return string
      */
     protected function getGroupErrorRows($errorGroup)
     {
-        $rows = array_map(function($error){
+        $rows = array_map(function ($error) {
             return $error['row'];
         }, $errorGroup['errors']);
 
@@ -233,38 +234,38 @@ class Failed extends \XLite\View\AView
         return 1 < count($rows)
             ? static::t(
                 'Row(s) {{numbers}}',
-                array('numbers' => implode(', ', array_unique($rows)))
+                ['numbers' => implode(', ', array_unique($rows))]
             )
             : static::t(
                 'Row {{number}}',
-                array('number' => array_pop($rows))
+                ['number' => array_pop($rows)]
             );
     }
 
     /**
      * Return error text
      *
-     * @param array $error Error 
+     * @param array $error Error
      *
-     * @return string 
+     * @return string
      */
     protected function getErrorText($error)
     {
         $texts = $this->getErrorTexts();
 
         return isset($texts[$error['code']])
-            ? static::t($texts[$error['code']]) 
-            : ('E' == $error['type'] ? static::t('Critical error') : static::t('Warning'));
+            ? static::t($texts[$error['code']])
+            : ('E' === $error['type'] ? static::t('Critical error') : static::t('Warning'));
     }
 
     /**
      * Return error messages
      *
-     * @return array 
+     * @return array
      */
     protected function getErrorMessages()
     {
-        $result = array();
+        $result = [];
 
         foreach (\XLite\Logic\Import\Importer::getProcessorList() as $processor) {
             $result = array_merge($result, $processor::getMessages());
@@ -277,7 +278,8 @@ class Failed extends \XLite\View\AView
     {
         $result = '';
 
-        $importer = $this->getImporter() ?: $this->getCancelledImporter();
+        /** @var \XLite\Logic\Import\Importer $importer */
+        $importer  = $this->getImporter() ?: $this->getCancelledImporter();
         $lastClass = \XLite\Core\TmpVars::getInstance()->lastImportStep;
 
         if ($importer && $lastClass) {
@@ -295,14 +297,36 @@ class Failed extends \XLite\View\AView
     /**
      * Return error texts
      *
-     * @return array 
+     * @return array
      */
     protected function getErrorTexts()
     {
-        $result = array();
-
+        $result = [];
         foreach (\XLite\Logic\Import\Importer::getProcessorList() as $processor) {
             $result = array_merge($result, $processor::getErrorTexts());
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getManualLinks()
+    {
+        $result = [];
+
+        $files = $this->getFiles();
+        foreach ($files as $k => $file) {
+            if (isset($file['processor'])
+                && \Includes\Utils\Operator::checkIfClassExists($file['processor'])
+            ) {
+                $manualURL = call_user_func([$file['processor'], 'getCSVFormatManualURL']);
+
+                if ($manualURL) {
+                    $result[] = array_merge($file, ['manualURL' => $manualURL]);
+                }
+            }
         }
 
         return $result;

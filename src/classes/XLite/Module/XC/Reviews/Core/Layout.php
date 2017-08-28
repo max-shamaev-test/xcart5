@@ -22,9 +22,9 @@ class Layout extends \XLite\Core\Layout implements \XLite\Base\IDecorator
     {
         return array_merge(
             parent::getSidebarFirstHiddenTargets(),
-            array(
+            [
                 'product_reviews',
-            )
+            ]
         );
     }
 }

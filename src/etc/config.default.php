@@ -30,6 +30,8 @@ table_prefix = "xlite_"
 ; ----------------------
 ;
 [cache]
+; default cache ttl in seconds, 604800 - 1 week
+default_cache_ttl = 604800
 ; Type of cache used. Can take auto, memcache, memcached, apc, xcache, file values.
 type=file
 ; Cache namespace
@@ -154,7 +156,8 @@ locale = en
 default_image = "images/no_image.png"
 default_image_width = 110
 default_image_height = 110
-unsharp_mask_filter_on_resize = off
+make_progressive = On
+generate_retina_images = On
 
 ; Installation path of Image Magick executables:
 ; for example:
@@ -298,6 +301,9 @@ iframe[] = allowfullscreen:CDATA
 callback_opened = On
 optimize_css = Off
 
+; All the following countries always uses custom state with autocomplete(if available)
+; possible values - country codes ('GB,US,DE' as example), 'All' or empty ''
+autocomplete_states_for_countries = 'GB'
 ;
 ; Other options
 ;
@@ -324,6 +330,13 @@ x_frame_options = 'sameorigin'
 ; CSRF token strategy
 ; possible values: per-session, per-form
 csrf_strategy = per-session
+meta_upgrade_insecure = Off
+
+show_initialized_transactions = Off
+
+; Use X-Sendfile and X-Accel-Redirect to download files
+; Note that server should be properly configured
+use_sendfile = Off
 
 
 [export-import]
@@ -347,6 +360,14 @@ encodings_list[] = 'ISO-8859-9'
 encodings_list[] = 'BIG5'
 encodings_list[] = 'WINDOWS-1254'
 encodings_list[] = 'WINDOWS-874'
+
+[queue]
+; Enable to consume jobs via Cron or Demon(target=consumer, action=consumeAll)
+backgroundJobsSchedulingEnabled = false
+
+; Consume jobs via js runner
+jsRunnerForOnlineEnabled = true
+
 
 ; WARNING: Do not change the line below
 ; */ ?>

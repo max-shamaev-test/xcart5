@@ -54,7 +54,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
      */
     public static function getMinorVersion()
     {
-        return '2';
+        return '3';
     }
 
     /**
@@ -65,6 +65,16 @@ abstract class Main extends \XLite\Module\AModuleSkin
     public static function getBuildVersion()
     {
         return '0';
+    }
+
+    /**
+     * Get minor core version which is required for the module activation
+     *
+     * @return string
+     */
+    public static function getMinorRequiredCoreVersion()
+    {
+        return '3';
     }
 
     /**
@@ -169,5 +179,15 @@ abstract class Main extends \XLite\Module\AModuleSkin
     public static function isDefaultColorScheme()
     {
         return !Layout::getInstance()->getLayoutColor();
+    }
+
+    /**
+     * Check if skin supports cloud zoom
+     *
+     * @return boolean
+     */
+    public static function isUseCloudZoom()
+    {
+        return true;
     }
 }

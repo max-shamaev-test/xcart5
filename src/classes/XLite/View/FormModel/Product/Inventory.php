@@ -47,6 +47,11 @@ class Inventory extends \XLite\View\FormModel\AFormModel
     {
         return [
             self::SECTION_DEFAULT => [
+                'arrival_date'                      => [
+                    'label'    => static::t('Arrival date'),
+                    'type'     => 'XLite\View\FormModel\Type\DatepickerType',
+                    'position' => 50,
+                ],
                 'inventory_tracking_status'         => [
                     'label'    => static::t('Inventory tracking for this product is'),
                     'type'     => 'XLite\View\FormModel\Type\SwitcherType',

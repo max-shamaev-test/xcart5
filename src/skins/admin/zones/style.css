@@ -64,28 +64,40 @@ div.table-value.input-listbox.state-listbox .listbox-item div.table-value select
   margin-top: 20px;
 }
 
+.table-label.zone-zipcodes-label,
+.table-label.zone-cities-label,
+.table-label.zone-addresses-label {
+  display: block;
+}
+
 .zone-zipcodes-label label,
 .zone-cities-label label,
 .zone-addresses-label label {
-  margin-top: 60px;
+  margin-bottom: 20px;
 }
 
 .table-value.zone-cities-value textarea,
 .table-value.zone-zipcodes-value textarea,
 .table-value.zone-addresses-value textarea {
-  width: 400px;
-  height: 150px;
+  width: 360px;
+  height: 160px;
 }
 
-.table-value.zone-cities-value .tooltip-main,
-.table-value.zone-zipcodes-value .tooltip-main,
-.table-value.zone-addresses-value .tooltip-main {
-  margin-top: 60px;
+.table-value.zone-cities-value,
+.table-value.zone-zipcodes-value,
+.table-value.zone-addresses-value {
+  padding-left: 40px;
+  display: table-cell;
 }
 
-.table-value.zone-states-value + .clear,
-.table-value.zone-cities-value + .clear,
-.table-value.zone-zipcodes-value + .clear,
-.table-value.zone-addresses-value + .clear {
-  margin-bottom: 40px;
+.zone-cities-help,
+.zone-zipcodes-help,
+.zone-addresses-help {
+  width: 405px;
+  display: table-cell;
+  vertical-align: top;
+}
+
+.zone-details .states-for-countries-label {
+  width: auto;
 }

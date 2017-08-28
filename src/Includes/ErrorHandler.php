@@ -187,14 +187,16 @@ abstract class ErrorHandler
      */
     protected static function getLogFile($code = 0)
     {
+        $pathPart = date('Y' . LC_DS . 'm');
+
         switch ($code) {
             case static::ERROR_CLOSED:
             case static::ERROR_MAINTENANCE_MODE:
-                $path = LC_DIR_VAR . 'log' . LC_DS . 'actions.log.' . date('Y-m-d') . '.php';
+                $path = LC_DIR_LOG . $pathPart . LC_DS . 'actions.log.' . date('Y-m-d') . '.php';
                 break;
 
             default:
-                $path = LC_DIR_VAR . 'log' . LC_DS . 'php_errors.log.' . date('Y-m-d') . '.php';
+                $path = LC_DIR_LOG . $pathPart . LC_DS . 'php_errors.log.' . date('Y-m-d') . '.php';
         }
 
         return $path;
@@ -434,7 +436,9 @@ abstract class ErrorHandler
     public static function handleException($exception)
     {
         try {
-            \XLite\Logger::getInstance()->executePostponedLogs();
+            if (class_exists('\XLite\Logger')) {
+                \XLite\Logger::getInstance()->executePostponedLogs();
+            }
         } catch (\Exception $e) {
             static::logInfo($e->getMessage(), $e->getCode(), $e->getTraceAsString());
         }

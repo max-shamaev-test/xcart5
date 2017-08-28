@@ -8,19 +8,18 @@
  */
 
 p.page-note {
-  padding: 20px;
-  padding-left: 40px;
+  padding: 20px 20px 0 40px;
   width: 600px;
   font-size: 14px;
   line-height: 18px;
   background: transparent url(../images/lightbulb.png) 0 23px no-repeat;
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 .modules-list-box {
   width: 1000px;
   position: relative;
-  margin-top: 20px;
+  margin-top: 60px;
 }
 
 ul.update-module-list {

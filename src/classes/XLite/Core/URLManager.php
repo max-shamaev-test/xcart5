@@ -120,6 +120,26 @@ abstract class URLManager extends \Includes\Utils\URLManager
     }
 
     /**
+     * @param $link
+     * @param $paramsToAppend
+     *
+     * @return string
+     */
+    public static function appendParamsToUrl($link, $paramsToAppend) {
+        $fragment = parse_url($link, PHP_URL_FRAGMENT);
+        $delimiter = (strpos($link, '?') === false ? '?' : '&');
+
+        $base = $link;
+        $tail = '';
+        if ($fragment) {
+            $base = str_replace('#' . $fragment, '', $link);
+            $tail = '#' . $fragment;
+        }
+
+        return $base . $delimiter . http_build_query($paramsToAppend) . $tail;
+    }
+
+    /**
      * Get options
      *
      * @param mixed $option Option

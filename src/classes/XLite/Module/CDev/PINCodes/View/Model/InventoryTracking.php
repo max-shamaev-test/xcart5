@@ -8,7 +8,6 @@
 
 namespace XLite\Module\CDev\PINCodes\View\Model;
 
-use XLite\Module\CDev\PINCodes\View\FormField\Input\Text\Integer\ProductQuantity as ProductQuantityInput;
 
 /**
  * Product view model
@@ -21,13 +20,13 @@ abstract class InventoryTracking extends \XLite\View\Model\InventoryTracking imp
     function __construct ()
     {
         if ($this->getModelObject()->hasManualPinCodes()) {
-            $this->schemaDefault['inventoryEnabled'][static::SCHEMA_ATTRIBUTES] = array(
+            $this->schemaDefault['inventoryEnabled'][static::SCHEMA_ATTRIBUTES] = [
                 'disabled' => 'disabled'
-            );
+            ];
 
-            $this->schemaDefault['amount'][static::SCHEMA_ATTRIBUTES] = array(
+            $this->schemaDefault['amount'][static::SCHEMA_ATTRIBUTES] = [
                 'disabled' => 'disabled'
-            );
+            ];
             $this->schemaDefault['amount'][self::SCHEMA_HELP] =
                 'Quantity in stock is determined by the amount of the remaining PIN codes.';
         }

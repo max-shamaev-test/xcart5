@@ -17,7 +17,7 @@ interface ISearchValuesStorage
      * Get param value
      *
      * @param string    $serviceName   Search condition service name
-     * @param mixe      $value
+     * @param mixed     $value
      */
     public function setValue($serviceName, $value);
 

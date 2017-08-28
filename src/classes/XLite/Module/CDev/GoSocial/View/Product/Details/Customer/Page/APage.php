@@ -9,28 +9,29 @@
 namespace XLite\Module\CDev\GoSocial\View\Product\Details\Customer\Page;
 
 /**
- * Abstract product page 
+ * Abstract product page
  */
 abstract class APage extends \XLite\View\Product\Details\Customer\Page\APage implements \XLite\Base\IDecorator
 {
     /**
-     * Define tabs
+     * Process global tab addition into list
      *
-     * @return array
+     * @param                                  $list
+     * @param \XLite\Model\Product\IProductTab $tab
      */
-    protected function defineTabs()
+    protected function applyStaticTabListValue(&$list, $tab)
     {
-        $list = parent::defineTabs();
+        parent::applyStaticTabListValue($list, $tab);
 
         if (
-            \XLite\Core\Config::getInstance()->CDev->GoSocial->fb_comments_use
+            $tab->getServiceName() === 'Comments'
+            && \XLite\Core\Config::getInstance()->CDev->GoSocial->fb_comments_use
             && \XLite\Core\Config::getInstance()->CDev->GoSocial->fb_app_id
         ) {
-            $list['Comments'] = array(
-                'list' => 'product.details.page.tab.comments',
-            );
+            $list[$tab->getServiceName()] = [
+                'list'   => 'product.details.page.tab.comments',
+                'weight' => $tab->getPosition(),
+            ];
         }
-
-        return $list;
     }
 }

@@ -8,7 +8,6 @@
 
 namespace XLite\Controller\Admin;
 
-use XLite\Core\Cache\WidgetCacheInvalidator;
 
 /**
  * Abstract admin-zone controller

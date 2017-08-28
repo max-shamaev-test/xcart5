@@ -66,6 +66,11 @@ class Settings extends \XLite\Controller\Admin\AAdmin
     private $curlResponse;
 
     /**
+     * @var array
+     */
+    protected $requirements;
+
+    /**
      * Define body classes
      *
      * @param array $classes Classes
@@ -350,14 +355,6 @@ class Settings extends \XLite\Controller\Admin\AAdmin
                 $return = \XLite\Core\Database::getRepo('XLite\Model\ModuleKey')->findAll();
                 break;
 
-            case 'check_files':
-                $return = $this->getCheckFilesValue();
-                break;
-
-            case 'check_dirs':
-                $return = $this->getCheckDirsValue();
-                break;
-
             default:
                 $return = parent::get($name);
         }
@@ -454,131 +451,6 @@ class Settings extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
-     * Get CheckFiles value
-     *
-     * @return string
-     */
-    public function getCheckFilesValue()
-    {
-        $result = array();
-        $files = array();
-
-        foreach ($files as $file) {
-            $mode = $this->getExpectedFilePermission($file);
-            $modeStr = $this->getExpectedFilePermissionStr($file);
-            $res = array('file' => $file, 'error' => '');
-
-            if (!is_file($file)) {
-                $res['error'] = 'does_not_exist';
-                $result[] = $res;
-                continue;
-            }
-
-            $perm = substr(sprintf('%o', @fileperms($file)), -4);
-
-            if ($perm !== $modeStr) {
-                if (!@chmod($file, $mode)) {
-                    $res['error'] = 'cannot_chmod';
-                    $result[] = $res;
-                    continue;
-                }
-
-            } else {
-                if ($this->getComplex('xlite.suMode') != 0 && !@chmod($file, $mode)) {
-                    $res['error'] = 'wrong_owner';
-                    $result[] = $res;
-                    continue;
-                }
-            }
-
-            $result[] = $res;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Get CheckDirs value
-     *
-     * @return string
-     */
-    public function getCheckDirsValue()
-    {
-        $result = array();
-
-        $dirs = array(
-            'var/run',
-            'var/log',
-            'var/backup',
-            'var/tmp',
-            'images',
-            'skins/customer/modules',
-            'skins/admin/modules',
-            'skins/mail/modules',
-            'skins/mail/images'
-        );
-
-        foreach ($dirs as $dir) {
-            $mode = $this->getDirPermission($dir);
-
-            $res = array(
-                'dir'     => $dir,
-                'error'   => '',
-                'subdirs' => array(),
-            );
-
-            if (!$this->tryCreateDir($dir, $mode)) {
-                $res['error'] = 'cannot_create';
-                $result[] = $res;
-                continue;
-            }
-
-            $modeStr = $this->getDirPermissionStr($dir);
-            if (!\Includes\Utils\FileManager::isDirWriteable($dir)) {
-                $res['error'] = 'wrong_permissions';
-                $res['permission_command'] = \Includes\Utils\FileManager::getPermissionsCommand($dir, $modeStr);
-                $result[] = $res;
-
-                continue;
-            }
-
-            $subdirs = array();
-
-            if ('images' !== $dir) {
-                $this->checkSubdirs($dir, $subdirs);
-            }
-
-            if (!empty($subdirs)) {
-                $res['error'] = 'wrong_permissions_subdirs';
-                $res['permission_command'] = \Includes\Utils\FileManager::getPermissionsCommand($dir, $modeStr);
-                $res['subdirs'] = $subdirs;
-                $result[] = $res;
-                continue;
-            }
-            $result[] = $res;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Try create if not exists
-     *
-     * @param  string   $dir    Dir to create
-     * @param  integer  $mode   Permissions
-     *
-     * @return boolean
-     */
-    public function tryCreateDir($dir, $mode)
-    {
-        if (!is_dir($dir)) {
-            @\Includes\Utils\FileManager::mkdirRecursive($dir, $mode);
-        }
-
-        return is_dir($dir);
-    }
-
-    /**
      * Try permissions
      *
      * @param  string   $dir      Dir to create
@@ -594,171 +466,6 @@ class Settings extends \XLite\Controller\Admin\AAdmin
         );
 
         return $modeStr === $perm;
-    }
-
-    /**
-     * Get directory permission
-     *
-     * @param string $dir Directory path
-     *
-     * @return integer
-     */
-    public function getDirPermission($dir)
-    {
-        global $options;
-
-        if ($this->getComplex('xlite.suMode') == 0) {
-            if ($this->isSubdir($dir, 'var' . LC_DS, true)) {
-                $mode = 0777;
-
-            } else {
-                $mode = isset($options['filesystem_permissions']['nonprivileged_permission_dir'])
-                    ? base_convert($options['filesystem_permissions']['nonprivileged_permission_dir'], 8, 10)
-                    : 0755;
-            }
-
-        } else {
-            $mode = isset($options['filesystem_permissions']['privileged_permission_dir'])
-                ? base_convert($options['filesystem_permissions']['privileged_permission_dir'], 8, 10)
-                : 0711;
-        }
-
-        return $mode;
-    }
-
-    protected function isSubdir($dir, $subdir, $start = false)
-    {
-        return $start
-            ? $subdir === "" || strrpos($dir, $subdir, -strlen($dir)) !== false
-            : strpos($dir, $subdir) !== false;
-    }
-
-    /**
-     * getDirPermissionStr
-     *
-     * @param string $dir Directory path OPTIONAL
-     *
-     * @return string
-     */
-    public function getDirPermissionStr($dir = '')
-    {
-        $mode = (int) $this->getDirPermission($dir);
-
-        return (string) ('0' . base_convert($mode, 10, 8));
-    }
-
-    /**
-     * Get expected file permission
-     *
-     * @param mixed $file File path OPTIONAL
-     *
-     * @return integer
-     */
-    public function getExpectedFilePermission($file = '')
-    {
-        global $options;
-
-        switch ($file) {
-            default:
-                if ($this->getComplex('xlite.suMode') == 0) {
-                    $mode = isset($options['filesystem_permissions']['nonprivileged_permission_file'])
-                        ? base_convert($options['filesystem_permissions']['nonprivileged_permission_file'], 8, 10)
-                        : 0644;
-
-                } else {
-                    $mode = isset($options['filesystem_permissions']['privileged_permission_file'])
-                        ? base_convert($options['filesystem_permissions']['privileged_permission_file'], 8, 10)
-                        : 0600;
-                }
-                break;
-        }
-
-        return $mode;
-    }
-
-    /**
-     * Get expected file permission (string)
-     *
-     * @param string $file File path OPTIONAL
-     *
-     * @return string
-     */
-    public function getExpectedFilePermissionStr($file = '')
-    {
-        switch ($file) {
-            default:
-                $mode = (int) $this->getExpectedFilePermission($file);
-                break;
-        }
-
-        return (string) '0' . base_convert($mode, 10, 8);
-    }
-
-    /**
-     * checkSubdirs
-     *
-     * @param mixed $path          ____param_comment____
-     * @param mixed &$subdirErrors ____param_comment____
-     *
-     * @return void
-     */
-    public function checkSubdirs($path, &$subdirErrors)
-    {
-        if (is_dir($path)) {
-            $mode = $this->getDirPermission($path);
-            $modeStr = $this->getDirPermissionStr($path);
-
-            $dh = @opendir($path);
-
-            while (($file = @readdir($dh)) !== false) {
-                if ('.' !== $file && '..' !== $file) {
-                    $fullpath = $path . DIRECTORY_SEPARATOR . $file;
-
-                    if (@is_dir($fullpath)) {
-                        if (!\Includes\Utils\FileManager::isDirWriteable($fullpath)) {
-                            $subdirErrors[] = $fullpath;
-                            continue;
-
-                        }
-
-                        $this->checkSubdirs($fullpath, $subdirErrors);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Get wrong permissions
-     *
-     * @return array
-     */
-    public function getWrongPermissions()
-    {
-        $permissions = array_map(
-            function($dir) {
-                return isset($dir['permission_command'])
-                    ? $dir['permission_command']
-                    : '';
-            },
-            $this->getCheckDirsValue()
-        );
-
-        return array_filter(
-            array_merge($permissions)
-        );
-    }
-
-    /**
-     * Get wrong permissions
-     *
-     * @return array
-     */
-    public function getWrongPermissionsAsString()
-    {
-        $list = $this->getWrongPermissions();
-
-        return $list ? implode('\\' . PHP_EOL, $list) : '';
     }
 
     /**
@@ -982,10 +689,69 @@ class Settings extends \XLite\Controller\Admin\AAdmin
         } else {
             \XLite\Core\TopMessage::getInstance()->add('Test e-mail have been successfully sent');
         }
+    }
 
-        $this->setReturnURL(
-            $this->buildURL('settings', '', array('page' => static::EMAIL_PAGE))
-        );
+    // }}}
+
+    // {{{ Requirements
+
+    public function getCriticalRequirements()
+    {
+        $result = [];
+        foreach ($this->getRequirements() as $name => $requirement) {
+            if ($requirement['level'] === \Includes\Requirements::LEVEL_CRITICAL) {
+                $result[$name] = $requirement;
+            }
+        }
+
+        return $result;
+    }
+
+    public function getNonCriticalRequirements()
+    {
+        $result = [];
+        foreach ($this->getRequirements() as $name => $requirement) {
+            if ($requirement['level'] !== \Includes\Requirements::LEVEL_CRITICAL) {
+                $result[$name] = $requirement;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getRequirements()
+    {
+        if ($this->requirements === null) {
+            $result = [];
+            $requirements = new \Includes\Requirements();
+            foreach ($requirements->getResult() as $name => $requirement) {
+                $requirement['status'] = $requirement['state'] === \Includes\Requirements::STATE_SUCCESS;
+                $requirement['title'] = static::t($requirement['title']);
+
+                $requirement['error_description'] = isset($requirement['description'])
+                    ? $this->getRequirementTranslation($name . '.' . $requirement['description'], $requirement)
+                    : '';
+
+                $requirement['description'] = $this->getRequirementTranslation($name . '.label_message', $requirement);
+                $requirement['kb_description'] = $this->getRequirementTranslation($name . '.kb_message', $requirement);
+
+                $result[$name] = $requirement;
+            }
+
+            $this->requirements = $result;
+        }
+
+        return $this->requirements;
+    }
+
+    protected function getRequirementTranslation($name, $requirement)
+    {
+        $value = static::t($name, array_filter($requirement['data'], 'is_scalar'));
+
+        return $name === $value ? '' : $value;
     }
 
     // }}}

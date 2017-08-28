@@ -16,18 +16,37 @@ class FileUploader extends \XLite\View\AView
     /**
      * Widget param names
      */
-    const PARAM_OBJECT             = 'object';
-    const PARAM_OBJECT_ID          = 'objectId';
-    const PARAM_MESSAGE            = 'message';
-    const PARAM_MAX_WIDTH          = 'maxWidth';
-    const PARAM_MAX_HEIGHT         = 'maxHeight';
-    const PARAM_IS_IMAGE           = 'isImage';
-    const PARAM_IS_TEMPORARY       = 'isTemporary';
-    const PARAM_NAME               = 'fieldName';
-    const PARAM_MULTIPLE           = 'multiple';
-    const PARAM_POSITION           = 'position';
+    const PARAM_OBJECT = 'object';
+    const PARAM_OBJECT_ID = 'objectId';
+    const PARAM_MESSAGE = 'message';
+    const PARAM_MAX_WIDTH = 'maxWidth';
+    const PARAM_MAX_HEIGHT = 'maxHeight';
+    const PARAM_IS_IMAGE = 'isImage';
+    const PARAM_IS_TEMPORARY = 'isTemporary';
+    const PARAM_NAME = 'fieldName';
+    const PARAM_MULTIPLE = 'multiple';
+    const PARAM_POSITION = 'position';
     const PARAM_IS_VIA_URL_ALLOWED = 'isViaUrlAllowed';
-    const PARAM_IS_REMOVABLE       = 'removable';
+    const PARAM_IS_REMOVABLE = 'removable';
+
+    /**
+     * @return array
+     */
+    public function getCommonFiles()
+    {
+        $list = parent::getCommonFiles();
+
+        $list[static::RESOURCE_JS][] = [
+            'file' => $this->isDeveloperMode() ? 'vue/vue.js' : 'vue/vue.min.js',
+            'no_minify' => true
+        ];
+
+        $list[static::RESOURCE_JS][] = 'vue/vue.loadable.js';
+        $list[static::RESOURCE_JS][] = 'js/vue/vue.js';
+        $list[static::RESOURCE_JS][] = 'js/vue/component.js';
+
+        return $list;
+    }
 
     /**
      * Get a list of JS files required to display the widget properly
@@ -150,8 +169,8 @@ class FileUploader extends \XLite\View\AView
             $index = $this->getParam(static::PARAM_OBJECT_ID);
             if (!$index) {
                 if ($this->getObject()) {
-                    $index = $this->getObject()->getId();
-                    if ($this->getParam(static::PARAM_IS_TEMPORARY)) {
+                    $index = (integer)$this->getObject()->getId();
+                    if ($this->getParam(static::PARAM_IS_TEMPORARY) && $index > 0) {
                         $index = '-' . $index;
                     }
                 }
@@ -166,12 +185,28 @@ class FileUploader extends \XLite\View\AView
     {
         $name = $this->getParam(static::PARAM_NAME);
         $name = str_replace(['[]', '[', ']'], ['', '.', ''], $name);
+        $parts = explode('.', $name);
+        $name = '';
+
+        foreach ($parts as $part) {
+            if (!strlen($name)) {
+                $name = $part;
+                continue;
+            }
+
+            if (is_numeric($part) && (integer)$part == $part) {
+                $name .= '[' . $part . ']';
+            } else {
+                $name .= '.' . $part;
+            }
+        }
+
         if ($this->getParam(static::PARAM_MULTIPLE)) {
             $index = $this->getParam(static::PARAM_OBJECT_ID);
             if (!$index) {
                 if ($this->getObject()) {
-                    $index = $this->getObject()->getId();
-                    if ($this->getParam(static::PARAM_IS_TEMPORARY)) {
+                    $index = (integer)$this->getObject()->getId();
+                    if ($this->getParam(static::PARAM_IS_TEMPORARY) && $index > 0) {
                         $index = '-' . $index;
                     }
                 }
@@ -195,19 +230,17 @@ class FileUploader extends \XLite\View\AView
             $result = '<i class="icon fa warning fa-exclamation-triangle"></i>';
 
         } else if ($this->isImage() && $this->hasFile()) {
-            $viewer = new \XLite\View\Image(
-                array(
-                    'image'       => $this->getObject(),
-                    'maxWidth'    => $this->getParam(static::PARAM_MAX_WIDTH),
-                    'maxHeight'   => $this->getParam(static::PARAM_MAX_HEIGHT),
-                    'alt'         => '',
-                    'centerImage' => true
-                )
-            );
+            $viewer = new \XLite\View\Image([
+                'image' => $this->getObject(),
+                'maxWidth' => $this->getParam(static::PARAM_MAX_WIDTH),
+                'maxHeight' => $this->getParam(static::PARAM_MAX_HEIGHT),
+                'alt' => '',
+                'centerImage' => true
+            ]);
 
             $result = '<div class="preview">'
-                      . $viewer->getContent()
-                      . '</div>';
+                . $viewer->getContent()
+                . '</div>';
 
         } elseif ($this->isImage()) {
             $result = '<i class="icon fa fa-camera"></i>';
@@ -225,20 +258,20 @@ class FileUploader extends \XLite\View\AView
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
-            static::PARAM_NAME               => new \XLite\Model\WidgetParam\TypeString('Name', 'file'),
-            static::PARAM_OBJECT             => new \XLite\Model\WidgetParam\TypeObject('Object', null),
-            static::PARAM_OBJECT_ID          => new \XLite\Model\WidgetParam\TypeInt('Object Id', 0),
-            static::PARAM_MESSAGE            => new \XLite\Model\WidgetParam\TypeString('Message', ''),
-            static::PARAM_MAX_WIDTH          => new \XLite\Model\WidgetParam\TypeInt('Max. width', 120),
-            static::PARAM_MAX_HEIGHT         => new \XLite\Model\WidgetParam\TypeInt('Max. height', 120),
-            static::PARAM_IS_IMAGE           => new \XLite\Model\WidgetParam\TypeBool('Is image', false),
-            static::PARAM_IS_TEMPORARY       => new \XLite\Model\WidgetParam\TypeBool('Is temporary', false),
-            static::PARAM_MULTIPLE           => new \XLite\Model\WidgetParam\TypeBool('Multiple', false),
-            static::PARAM_POSITION           => new \XLite\Model\WidgetParam\TypeInt('Position', 0),
+        $this->widgetParams += [
+            static::PARAM_NAME => new \XLite\Model\WidgetParam\TypeString('Name', 'file'),
+            static::PARAM_OBJECT => new \XLite\Model\WidgetParam\TypeObject('Object', null),
+            static::PARAM_OBJECT_ID => new \XLite\Model\WidgetParam\TypeInt('Object Id', 0),
+            static::PARAM_MESSAGE => new \XLite\Model\WidgetParam\TypeString('Message', ''),
+            static::PARAM_MAX_WIDTH => new \XLite\Model\WidgetParam\TypeInt('Max. width', 120),
+            static::PARAM_MAX_HEIGHT => new \XLite\Model\WidgetParam\TypeInt('Max. height', 120),
+            static::PARAM_IS_IMAGE => new \XLite\Model\WidgetParam\TypeBool('Is image', false),
+            static::PARAM_IS_TEMPORARY => new \XLite\Model\WidgetParam\TypeBool('Is temporary', false),
+            static::PARAM_MULTIPLE => new \XLite\Model\WidgetParam\TypeBool('Multiple', false),
+            static::PARAM_POSITION => new \XLite\Model\WidgetParam\TypeInt('Position', 0),
             static::PARAM_IS_VIA_URL_ALLOWED => new \XLite\Model\WidgetParam\TypeInt('Is ViaUrl allowed', true),
-            static::PARAM_IS_REMOVABLE       => new \XLite\Model\WidgetParam\TypeBool('Is removable', true),
-        );
+            static::PARAM_IS_REMOVABLE => new \XLite\Model\WidgetParam\TypeBool('Is removable', true),
+        ];
     }
 
     /**

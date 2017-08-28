@@ -1,0 +1,4 @@
+Version 5.3.6.2
+
+Fixes
+- fixed the wrong order of special offers displayed in the backend (#0048318)

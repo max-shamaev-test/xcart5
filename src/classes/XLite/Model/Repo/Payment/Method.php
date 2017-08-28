@@ -10,6 +10,10 @@ namespace XLite\Model\Repo\Payment;
 
 /**
  * Payment method repository
+ *
+ * @Api\Operation\Read(modelClass="XLite\Model\Payment\Method", summary="Retrieve payment method by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Payment\Method", summary="Retrieve payment methods by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\Payment\Method", summary="Update payment method by id")
  */
 class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Base\IModuleLinked
 {
@@ -159,6 +163,7 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
 
     /**
      * Prepare certain search condition for module name
+     * @Api\Condition(description="Retrieve payment method by its name", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param boolean                    $value        Condition data
@@ -177,6 +182,7 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
 
     /**
      * Prepare certain search condition for module name
+     * @Api\Condition(description="Retrieve payment method by country", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param boolean                    $value        Condition data
@@ -206,6 +212,7 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
 
     /**
      * Prepare certain search condition for module name
+     * @Api\Condition(description="Retrieve payment method by excluded country name", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param boolean                    $value        Condition data
@@ -229,6 +236,7 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
 
     /**
      * Prepare certain search condition for enabled flag
+     * @Api\Condition(description="Retrieve payment method by its enabled state", type="boolean")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param boolean                    $value        Condition data
@@ -245,6 +253,7 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
 
     /**
      * Prepare certain search condition for moduleEnabled flag
+     * @Api\Condition(description="Retrieve payment method by module enabled state", type="boolean")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param boolean                    $value        Condition data
@@ -261,6 +270,7 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
 
     /**
      * Prepare certain search condition for added flag
+     * @Api\Condition(description="Retrieve payment method by its added\not added state", type="boolean")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param boolean                    $value        Condition data
@@ -279,6 +289,7 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
 
     /**
      * Prepare certain search condition for onlyModuleOffline flag
+     * @Api\Condition(description="Get only offline methods", type="boolean")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param boolean                    $value        Condition data
@@ -299,6 +310,7 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
 
     /**
      * Prepare certain search condition for onlyModuleOffline flag
+     * @Api\Condition(description="Get only offline methods (added by module)", type="boolean")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param boolean                    $value        Condition data
@@ -336,7 +348,7 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
     }
 
     /**
-     * Prepare certain search condition for position
+     * @Api\Condition(description="Filter methods by type", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param string                     $value        Condition data
@@ -349,7 +361,7 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
         if ($value) {
             $alias = $this->getMainAlias($queryBuilder);
             if (is_array($value)) {
-                $queryBuilder->andWhere($alias . '.type IN (' . $queryBuilder->getInCondition($value, 'type') . ')');
+                $queryBuilder->addInCondition($alias . '.type', $value);
 
             } else {
                 $queryBuilder->andWhere($alias . '.type = :type')
@@ -384,7 +396,7 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
     /**
      * Find all methods
      *
-     * @return \Doctrine\Common\Collection\Collection
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function findAllMethods()
     {
@@ -394,7 +406,7 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
     /**
      * Find all active and ready for checkout payment methods.
      *
-     * @return \Doctrine\Common\Collection\Collection
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function findAllActive()
     {
@@ -452,7 +464,7 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
      *
      * @param string $type Payment method type
      *
-     * @return \Doctrine\Common\Collection\Collection
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function findForAdditionByType($type)
     {

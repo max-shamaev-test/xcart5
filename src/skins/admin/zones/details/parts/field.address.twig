@@ -5,5 +5,13 @@
  #}
 
 {% if this.isAddressMasksEditEnabled() %}
-  {{ widget('\\XLite\\View\\FormField\\Textarea\\Simple', value=this.zone.getZoneAddresses(1), label='Address masks', rows='5', cols='70', fieldName='zone_addresses', help=t('Zone address masks help')) }}
+  <div class="table-label zone-addresses-label">
+    <label>{{ t('Address masks') }}</label>
+  </div>
+
+  <div class="zone-addresses-help">
+    <label>{{ t('Zone address masks help')|raw }}</label>
+  </div>
+
+  {{ widget('\\XLite\\View\\FormField\\Textarea\\Simple', value=this.zone.getZoneAddresses(1), fieldOnly=true, rows='5', cols='70', fieldName='zone_addresses') }}
 {% endif %}

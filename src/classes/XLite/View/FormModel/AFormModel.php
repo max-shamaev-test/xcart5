@@ -321,7 +321,11 @@ abstract class AFormModel extends \XLite\View\AView
 
         return array_merge(
             parent::getJSFiles(),
-            ['form_model/controller.js', 'form_model/constraints.js'],
+            [
+                'form_model/controller.js',
+                'form_model/sticky_panel/controller.js',
+                'form_model/constraints.js'
+            ],
             $this->jsFiles ? call_user_func_array('array_merge', $this->jsFiles) : []
         );
     }
@@ -393,14 +397,16 @@ abstract class AFormModel extends \XLite\View\AView
     {
         $list = parent::getCommonFiles();
 
-        if (\LC_DEVELOPER_MODE && !\XLite\Core\Config::getInstance()->Performance->aggregate_js) {
-            // @todo: this doesn't work with our minification (first getter or setter terminate object definition)
-            $list[static::RESOURCE_JS][] = 'vue/vue.js';
-            $list[static::RESOURCE_JS][] = 'vue-validator/dist/vue-validator.js';
-        } else {
-            $list[static::RESOURCE_JS][] = 'vue/vue.min.js';
-            $list[static::RESOURCE_JS][] = 'vue-validator/dist/vue-validator.min.js';
-        }
+        $list[static::RESOURCE_JS][] = [
+            'file' => $this->isDeveloperMode() ? 'vue/vue.js' : 'vue/vue.min.js',
+            'no_minify' => true
+        ];
+
+        $list[static::RESOURCE_JS][] = [
+            'file' => $this->isDeveloperMode() ? 'vue-validator/dist/vue-validator.js' : 'vue-validator/dist/vue-validator.min.js',
+            'no_minify' => true
+        ];
+
         $list[static::RESOURCE_JS][] = 'js/object_hash.js';
 
         $list[static::RESOURCE_JS][] = 'js/vue/vue.js';

@@ -2,8 +2,6 @@
  # Event task progress bar
  #}
 <div class="{{ this.getCSSClasses() | join(' ') }}">
-  {{ this.displayCommentedData(this.getPreloadedLabels()) }}
-
   {% if this.isBlockingDriver() %}
     {% if this.getBlockingNote() %}
       <p class="progress-note">{{ this.getBlockingNote() }}</p>

@@ -32,4 +32,14 @@ class ContactUs extends \XLite\View\Form\AForm
     {
         return 'send';
     }
+
+    /**
+     * getDefaultClassName
+     *
+     * @return string
+     */
+    protected function getDefaultClassName()
+    {
+        return 'contact-us-form';
+    }
 }

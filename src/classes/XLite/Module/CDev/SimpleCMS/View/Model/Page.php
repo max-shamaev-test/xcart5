@@ -7,6 +7,7 @@
  */
 
 namespace XLite\Module\CDev\SimpleCMS\View\Model;
+use XLite\Core\Database;
 
 /**
  * Page view model
@@ -43,7 +44,7 @@ class Page extends \XLite\View\Model\AModel
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Textarea\Advanced',
             self::SCHEMA_LABEL    => 'Content',
             self::SCHEMA_REQUIRED => true,
-            self::SCHEMA_TRUSTED  => true,
+            self::SCHEMA_TRUSTED_PERMISSION => true,
             \XLite\View\FormField\Textarea\Advanced::PARAM_STYLE => 'page-body-content',
         ),
         'meta_title' => array(
@@ -93,7 +94,7 @@ class Page extends \XLite\View\Model\AModel
 
         $urls = $this->getModelObject()->getCleanURLs();
         foreach ($urls as $url) {
-            \XLite\Core\Database::getEM()->detach($url);
+            Database::getEM()->detach($url);
         }
     }
 
@@ -132,10 +133,15 @@ class Page extends \XLite\View\Model\AModel
     protected function getDefaultModelObject()
     {
         $model = $this->getModelId()
-            ? \XLite\Core\Database::getRepo('XLite\Module\CDev\SimpleCMS\Model\Page')->find($this->getModelId())
+            ? Database::getRepo('XLite\Module\CDev\SimpleCMS\Model\Page')->find($this->getModelId())
             : null;
 
-        return $model ?: new \XLite\Module\CDev\SimpleCMS\Model\Page;
+        if (!$model) {
+            $model = new \XLite\Module\CDev\SimpleCMS\Model\Page;
+            $model->setPosition(Database::getRepo('XLite\Module\CDev\SimpleCMS\Model\Page')->getMaxPosition() + 10);
+        }
+
+        return $model;
     }
 
     /**

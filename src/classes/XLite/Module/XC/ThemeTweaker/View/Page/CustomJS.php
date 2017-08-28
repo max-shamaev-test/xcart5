@@ -10,8 +10,6 @@ namespace XLite\Module\XC\ThemeTweaker\View\Page;
 
 /**
  * Custom JS page
- *
- * @ListChild (list="admin.center", zone="admin")
  */
 class CustomJS extends \XLite\View\AView
 {

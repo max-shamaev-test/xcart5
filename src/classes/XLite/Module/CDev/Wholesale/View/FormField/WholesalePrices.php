@@ -55,7 +55,7 @@ class WholesalePrices extends \XLite\View\FormField\Inline\Label
         if (!isset($this->wholesalePrices)) {
             $cnd = new \XLite\Core\CommonCell;
             $cnd->{\XLite\Module\CDev\Wholesale\Model\Repo\Base\AWholesalePrice::P_ORDER_BY_MEMBERSHIP} = true;
-            $cnd->{\XLite\Module\CDev\Wholesale\Model\Repo\Base\AWholesalePrice::P_ORDER_BY} = array('w.quantityRangeBegin', 'ASC');
+            $cnd->{\XLite\Module\CDev\Wholesale\Model\Repo\Base\AWholesalePrice::P_ORDER_BY} = ['w.quantityRangeBegin', 'ASC'];
 
             if ($this->getEntity()->getDefaultPrice()) {
                 $cnd->{\XLite\Module\CDev\Wholesale\Model\Repo\WholesalePrice::P_PRODUCT} = $this->getEntity()->getProduct();
@@ -81,7 +81,22 @@ class WholesalePrices extends \XLite\View\FormField\Inline\Label
     protected function getLink()
     {
         return $this->getEntity()->getDefaultPrice()
-            ? $this->buildURL('product', null, array('product_id' => $this->getEntity()->getProduct()->getId(), 'page' => 'wholesale_pricing'))
-            : $this->buildURL('product_variant', null, array('id' => $this->getEntity()->getId(), 'page' => 'wholesale_pricing'));
+            ? $this->buildURL('product', null, ['product_id' => $this->getEntity()->getProduct()->getId(), 'page' => 'wholesale_pricing'])
+            : $this->buildURL('product_variant', null, ['id' => $this->getEntity()->getId(), 'page' => 'wholesale_pricing']);
+    }
+
+
+    /**
+     * @param \XLite\Module\CDev\Wholesale\Model\Base\AWholesalePrice $wp
+     *
+     * @return string
+     */
+    protected function formatValue($wp)
+    {
+        if ($wp->getType() === $wp::WHOLESALE_TYPE_PERCENT) {
+            return $wp->getPrice() . '%';
+        }
+
+        return $this->formatPrice($wp->getPrice());
     }
 }

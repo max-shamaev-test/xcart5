@@ -48,7 +48,8 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
             && \XLite\Module\CDev\Paypal\Main::isInContextCheckoutAvailable()
         ) {
             $list[] = array(
-                'url' => 'https://www.paypalobjects.com/api/checkout.js',
+                'url'   => 'https://www.paypalobjects.com/api/checkout.js',
+                'async' => true
             );
             $list[] = 'modules/CDev/Paypal/button/in_context.js';
         } else {

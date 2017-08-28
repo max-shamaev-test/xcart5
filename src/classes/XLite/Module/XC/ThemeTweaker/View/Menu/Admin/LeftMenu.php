@@ -18,26 +18,21 @@ abstract class LeftMenu extends \XLite\View\Menu\Admin\LeftMenu implements \XLit
      *
      * @return array
      */
-    protected function defineItems()
+    protected function defineBottomItems()
     {
-        $items = parent::defineItems();
+        $items = parent::defineBottomItems();
 
         if (isset($items['css_js'][static::ITEM_CHILDREN]) && is_array($items['css_js'][static::ITEM_CHILDREN])) {
             $items['css_js'][static::ITEM_CHILDREN] = array_merge($items['css_js'][static::ITEM_CHILDREN], [
                 'theme_tweaker_templates' => [
-                    static::ITEM_TITLE      => static::t('Webmaster mode'),
+                    static::ITEM_TITLE      => static::t('Edited templates'),
                     static::ITEM_TARGET     => 'theme_tweaker_templates',
                     static::ITEM_WEIGHT     => 300,
                 ],
                 'custom_css' => [
-                    static::ITEM_TITLE      => static::t('Custom CSS'),
+                    static::ITEM_TITLE      => static::t('Custom CSS & JS'),
                     static::ITEM_TARGET     => 'custom_css',
                     static::ITEM_WEIGHT     => 400,
-                ],
-                'custom_js' => [
-                    static::ITEM_TITLE      => static::t('Custom JavaScript'),
-                    static::ITEM_TARGET     => 'custom_js',
-                    static::ITEM_WEIGHT     => 500,
                 ],
             ]);
         }

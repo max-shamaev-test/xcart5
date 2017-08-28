@@ -20,6 +20,7 @@ div.address-box div.change-action {
 
 ul.address-text {
   display: inline-block;
+  color: #4a4a4a;
 }
 
 ul.address-entry {
@@ -29,11 +30,23 @@ ul.address-entry {
 ul.address-entry li.address-text-cell:after {
   content: "\00a0";
   display: inline-block;
+  font-size: 0;
+  height: 0;
 }
 
 ul.address-entry li.address-text-cell,
 ul.address-text li {
   float: left;
+}
+
+ul.address-text li.address-text-comma {
+  padding-right: 3px;
+}
+
+
+ul.address-entry li.address-text-firstname,
+ul.address-entry li.address-text-lastname {
+  font-weight: 600;
 }
 
 ul.address-entry li.address-text-street,

@@ -26,7 +26,7 @@ class MaxMindGeoIP extends AProvider
      *
      * @param Logic\IGeoInput $data
      *
-     * @return \GeoIp2\Record
+     * @return \GeoIp2\Model\AbstractModel[]
      */
     public function getRawLocation(Logic\IGeoInput $data)
     {
@@ -34,14 +34,20 @@ class MaxMindGeoIP extends AProvider
             return null;
         }
 
+        $records = [];
+
         try {
             $reader = $this->getReader();
-            $record = $reader->country($data->getData());
+            try {
+                $records[] = $reader->city($data->getData());
+            } catch (\Exception $e) {
+                $records[] = $reader->country($data->getData());
+            }
         } catch (\Exception $e) {
             $record = null;
         }
 
-        return $record;
+        return $records;
     }
 
     /**
@@ -61,21 +67,44 @@ class MaxMindGeoIP extends AProvider
      */
     public function acceptedInput()
     {
-        return array('IpAddress');
+        return ['IpAddress'];
     }
 
     /**
      * Transforms raw geolocation data to XCart format (array of address fields)
      *
-     * @param mixed $data
+     * @param \GeoIp2\Model\AbstractModel[] $data
      *
      * @return array
      */
     protected function transformData($data)
     {
-        return array(
-            'country' => $data->country->isoCode
-        );
+        $result = [];
+
+        foreach ($data as $record) {
+            if ($record instanceof \GeoIp2\Model\Country) {
+                $result['country'] = $record->country->isoCode;
+            }
+
+            if ($record instanceof \GeoIp2\Model\City) {
+                $result['country'] = $record->country->isoCode;
+                $result['city'] = $record->city->name;
+
+                if ($record->mostSpecificSubdivision->isoCode) {
+                    $result['state'] = $record->mostSpecificSubdivision->isoCode;
+                }
+
+                if ($record->mostSpecificSubdivision->name) {
+                    $result['custom_state'] = $record->mostSpecificSubdivision->name;
+                }
+
+                if ($record->postal->code) {
+                    $result['zipcode'] = $record->postal->code;
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -94,6 +123,20 @@ class MaxMindGeoIP extends AProvider
      * @return string
      */
     protected function getGeoDb()
+    {
+        $extended_db_path = \XLite\Core\Config::getInstance()->XC->Geolocation->extended_db_path;
+        if ($extended_db_path && file_exists($extended_db_path)) {
+            return $extended_db_path;
+        }
+        return static::getDefaultDatabasePath();
+    }
+
+    /**
+     * Returns default GeoLite2-Country db path.
+     *
+     * @return string
+     */
+    public static function getDefaultDatabasePath()
     {
         return LC_DIR_MODULES . 'XC' . LC_DS . 'Geolocation' . LC_DS . 'lib' . LC_DS . 'MaxMind' . LC_DS . 'GeoLite2-Country.mmdb';
     }

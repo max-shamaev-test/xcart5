@@ -21,14 +21,27 @@ class Search extends \XLite\View\StickyPanel\Order\Admin\AAdmin
     protected function defineAdditionalButtons()
     {
         return [
-            'delete' => [
-                'class'    => 'XLite\View\Button\DeleteSelected',
+            'payment-status'  => [
+                'class'    => 'XLite\View\Button\Dropdown\PaymentStatuses',
                 'params'   => [
-                    'label'      => '',
-                    'style'      => 'more-action icon-only hide-on-disable hidden',
-                    'icon-style' => 'fa fa-trash-o',
+                    'label'         => '',
+                    'style'         => 'more-action icon-only hide-on-disable hidden',
+                    'icon-style'    => 'fa fa-money',
+                    'useCaretButton' => false,
+                    'dropDirection' => 'dropup',
                 ],
-                'position' => 100,
+                'position' => 250,
+            ],
+            'fulfillment-status'  => [
+                'class'    => 'XLite\View\Button\Dropdown\FulfillmentStatuses',
+                'params'   => [
+                    'label'         => '',
+                    'style'         => 'more-action icon-only hide-on-disable hidden',
+                    'icon-style'    => 'fa fa-truck',
+                    'useCaretButton' => false,
+                    'dropDirection' => 'dropup',
+                ],
+                'position' => 250,
             ],
             'print'  => [
                 'class'    => 'XLite\View\Button\Dropdown\OrderPrint',
@@ -36,10 +49,19 @@ class Search extends \XLite\View\StickyPanel\Order\Admin\AAdmin
                     'label'         => '',
                     'style'         => 'more-action icon-only hide-on-disable hidden',
                     'icon-style'    => 'fa fa-print',
-                    'showCaret'     => false,
+                    'useCaretButton' => false,
                     'dropDirection' => 'dropup',
                 ],
                 'position' => 200,
+            ],
+            'delete' => [
+                'class'    => 'XLite\View\Button\DeleteSelected',
+                'params'   => [
+                    'label'      => '',
+                    'style'      => 'more-action icon-only hide-on-disable hidden',
+                    'icon-style' => 'fa fa-trash-o',
+                ],
+                'position' => 400,
             ],
         ];
     }

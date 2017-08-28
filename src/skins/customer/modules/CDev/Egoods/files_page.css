@@ -9,8 +9,8 @@
 .orders-files ul,
 .orders-files ul li
 {
-  padding: 0px;
-  margin: 0px;
+  padding: 0;
+  margin: 0;
   list-style: none;
   background: transparent none;
 }
@@ -26,9 +26,18 @@
   vertical-align: middle;
 }
 
-.orders-files .order .info a {
+.orders-files .order .info .order-link {
   text-decoration: underline;
   vertical-align: middle;
+}
+
+.orders-files .order .info .order-unavailable-mark {
+  float: right;
+  color: #ec554e;
+}
+
+.orders-files .order .info .order-unavailable-mark.green {
+  color: #257d16;
 }
 
 .orders-files .order .info span {
@@ -40,6 +49,10 @@
   border: 1px solid #dfdfdf;
   background-color: #f4f4f4;
   padding: 10px;
+}
+
+.orders-files .files.unavailable {
+  opacity: 0.6;
 }
 
 .orders-files .files li {
@@ -62,6 +75,12 @@
 
 .orders-files .files a {
   text-decoration: underline;
+}
+
+.orders-files .files .unavailable-mark {
+  color: #ec554e;
+  padding-left: 7px;
+  font-size: 12px;
 }
 
 .orders-files .files .size {

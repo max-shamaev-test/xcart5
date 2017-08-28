@@ -47,11 +47,25 @@ class ProductVariantWholesalePrice extends \XLite\Module\CDev\Wholesale\Model\Ba
      *
      * @param \XLite\Module\XC\ProductVariants\Model\ProductVariant $owner Owner
      *
-     * @return void
+     * @return static
      */
     public function setOwner($owner)
     {
         return $this->setProductVariant($owner);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getOwnerPrice()
+    {
+        if ($this->getOwner()) {
+            return $this->getOwner()->getDefaultPrice()
+                ? $this->getOwner()->getProduct()->getPrice()
+                : $this->getOwner()->getPrice();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -69,7 +83,7 @@ class ProductVariantWholesalePrice extends \XLite\Module\CDev\Wholesale\Model\Ba
      *
      * @param \XLite\Model\Product $product
      *
-     * @return \XLite\Module\CDev\Wholesale\Model\WholesalePrice
+     * @return static
      */
     public function setProduct($product)
     {
@@ -87,10 +101,7 @@ class ProductVariantWholesalePrice extends \XLite\Module\CDev\Wholesale\Model\Ba
     }
 
     /**
-     * Set price
-     *
-     * @param float $price
-     * @return ProductVariantWholesalePrice
+     * @inheritdoc
      */
     public function setPrice($price)
     {
@@ -99,57 +110,11 @@ class ProductVariantWholesalePrice extends \XLite\Module\CDev\Wholesale\Model\Ba
     }
 
     /**
-     * Get price
-     *
-     * @return float 
+     * @inheritdoc
      */
     public function getPrice()
     {
         return $this->price;
-    }
-
-    /**
-     * Set quantityRangeBegin
-     *
-     * @param integer $quantityRangeBegin
-     * @return ProductVariantWholesalePrice
-     */
-    public function setQuantityRangeBegin($quantityRangeBegin)
-    {
-        $this->quantityRangeBegin = $quantityRangeBegin;
-        return $this;
-    }
-
-    /**
-     * Get quantityRangeBegin
-     *
-     * @return integer 
-     */
-    public function getQuantityRangeBegin()
-    {
-        return $this->quantityRangeBegin;
-    }
-
-    /**
-     * Set quantityRangeEnd
-     *
-     * @param integer $quantityRangeEnd
-     * @return ProductVariantWholesalePrice
-     */
-    public function setQuantityRangeEnd($quantityRangeEnd)
-    {
-        $this->quantityRangeEnd = $quantityRangeEnd;
-        return $this;
-    }
-
-    /**
-     * Get quantityRangeEnd
-     *
-     * @return integer 
-     */
-    public function getQuantityRangeEnd()
-    {
-        return $this->quantityRangeEnd;
     }
 
     /**
@@ -172,27 +137,5 @@ class ProductVariantWholesalePrice extends \XLite\Module\CDev\Wholesale\Model\Ba
     public function getProductVariant()
     {
         return $this->productVariant;
-    }
-
-    /**
-     * Set membership
-     *
-     * @param \XLite\Model\Membership $membership
-     * @return ProductVariantWholesalePrice
-     */
-    public function setMembership(\XLite\Model\Membership $membership = null)
-    {
-        $this->membership = $membership;
-        return $this;
-    }
-
-    /**
-     * Get membership
-     *
-     * @return \XLite\Model\Membership 
-     */
-    public function getMembership()
-    {
-        return $this->membership;
     }
 }

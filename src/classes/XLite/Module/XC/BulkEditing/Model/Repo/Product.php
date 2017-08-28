@@ -130,7 +130,7 @@ class Product extends \XLite\Model\Repo\Product implements \XLite\Base\IDecorato
      */
     protected function prepareCndIds(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
     {
-        $queryBuilder->where(
+        $queryBuilder->andWhere(
             $queryBuilder->expr()->in(
                 'p.' . $this->getPrimaryKeyField(),
                 ':ids'
@@ -166,7 +166,7 @@ class Product extends \XLite\Model\Repo\Product implements \XLite\Base\IDecorato
     {
         $qb = $this->createPureQueryBuilder()
             ->setFirstResult($position)
-            ->setMaxResults(1000000000);
+            ->setMaxResults(\XLite\Module\XC\BulkEditing\Core\EventListener\BulkEdit::CHUNK_LENGTH);
 
         $qb->andWhere($qb->getMainAlias() . '.xcPendingBulkEdit = 1');
 

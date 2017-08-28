@@ -6,7 +6,7 @@
 # See https://www.x-cart.com/license-agreement.html for license details.
 
 XLite\Model\Config:
-  directives: { addModel: 'XLite\Model\ConfigTranslation' }
+  - { directives: { allowedModel: 'XLite\Model\ConfigTranslation' } }
   - name: 'analytics360enabled'
     category: 'XC\MailChimp'
     translations: 

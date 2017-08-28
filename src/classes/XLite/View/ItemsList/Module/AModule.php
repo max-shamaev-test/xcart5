@@ -846,9 +846,33 @@ abstract class AModule extends \XLite\View\ItemsList\AItemsList
             }
         }
 
-        if (filter_var($result, FILTER_VALIDATE_URL)) {
+        if (!filter_var($result, FILTER_VALIDATE_URL)) {
+            $result = null;
+        }
 
-        } elseif (filter_var($result, FILTER_VALIDATE_EMAIL)) {
+        return $result;
+    }
+
+    /**
+     * Get module author URL
+     *
+     * @param \XLite\Model\Module $module Module
+     *
+     * @return string
+     */
+    protected function getAuthorEmail(\XLite\Model\Module $module)
+    {
+        $result = $module->getAuthorEmail();
+
+        if (!$result) {
+            $mpModule = $this->getModuleFromMarketplace($module);
+
+            if ($mpModule) {
+                $result = $mpModule->getAuthorEmail();
+            }
+        }
+
+        if (filter_var($result, FILTER_VALIDATE_EMAIL)) {
             $result = 'mailto:' . $result;
 
         } else {

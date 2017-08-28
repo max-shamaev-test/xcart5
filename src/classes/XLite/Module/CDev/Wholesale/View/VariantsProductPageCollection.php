@@ -24,9 +24,9 @@ class VariantsProductPageCollection extends \XLite\View\ProductPageCollection im
     {
         return array_merge(
             parent::defineWidgetsCollection(),
-            array(
+            [
                 '\XLite\View\Product\Details\Customer\Quantity'
-            )
+            ]
         );
     }
 

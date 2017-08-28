@@ -55,7 +55,7 @@ abstract class AWidgetParam extends \XLite\Base\SuperClass
      *
      * @return array
      */
-    abstract protected function getValidaionSchema($value);
+    abstract protected function getValidationSchema($value);
 
     /**
      * Constructor
@@ -83,7 +83,7 @@ abstract class AWidgetParam extends \XLite\Base\SuperClass
      */
     public function validate($value)
     {
-        $result = $this->checkConditions($this->getValidaionSchema($value));
+        $result = $this->checkConditions($this->getValidationSchema($value));
 
         return array(empty($result), $result);
     }

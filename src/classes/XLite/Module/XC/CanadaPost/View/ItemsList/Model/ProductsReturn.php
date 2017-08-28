@@ -14,7 +14,7 @@ namespace XLite\Module\XC\CanadaPost\View\ItemsList\Model;
 class ProductsReturn extends \XLite\View\ItemsList\Model\Table
 {
     /**
-     * Allowed sort criterions
+     * Allowed sort criteria
      */
     const SORT_BY_MODE_ID       = 'r.id';
     const SORT_BY_MODE_ORDER_ID = 'o.order_id';

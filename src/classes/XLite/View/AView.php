@@ -603,10 +603,16 @@ abstract class AView extends \XLite\Core\Handler
     protected function initView()
     {
         $cachekey = get_class($this);
+
         if (!isset(static::$initFlags[$cachekey])) {
             // Add widget resources to the static array
             $this->registerResourcesForCurrentWidget();
             static::$initFlags[$cachekey] = true;
+        }
+
+        if ($this instanceof \XLite\Core\PreloadedLabels\ProviderInterface) {
+            $data = $this->getPreloadedLanguageLabels();
+            \XLite\Core\PreloadedLabels\Registrar::getInstance()->register($data);
         }
     }
 
@@ -1585,7 +1591,7 @@ abstract class AView extends \XLite\Core\Handler
      * @param string $list      List name
      * @param array  $arguments List common arguments OPTIONAL
      *
-     * @return array
+     * @return \XLite\View\AView[]
      */
     protected function getViewList($list, array $arguments = array())
     {
@@ -1614,7 +1620,7 @@ abstract class AView extends \XLite\Core\Handler
      *
      * @param string $list List name
      *
-     * @return array
+     * @return \XLite\Model\ViewList[]
      */
     protected function getViewListChildren($list)
     {
@@ -1701,7 +1707,7 @@ abstract class AView extends \XLite\Core\Handler
                 $widgets[] = $this->getWidget(
                     array(
                         'viewListClass' => $this->getViewListClass(),
-                        'viewListName'  => $list,
+                        'viewListName'  => $widget->getList(),
                         'metadata'      => $metadata,
                     ),
                     $widget->getChild()
@@ -1952,6 +1958,26 @@ abstract class AView extends \XLite\Core\Handler
     }
 
     /**
+     * Checks if rendering is done for mobile device
+     *
+     * @return boolean
+     */
+    protected function isMobileDevice()
+    {
+        return \XLite\Core\Request::isMobileDevice();
+    }
+
+    /**
+     * Checks if rendering is done for mobile device
+     *
+     * @return boolean
+     */
+    protected function isTablet()
+    {
+        return \XLite\Core\Request::isTablet();
+    }
+
+    /**
      * @return string
      */
     public function getAjaxPrefix()
@@ -1969,6 +1995,22 @@ abstract class AView extends \XLite\Core\Handler
         }
 
         return $result;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCleanUrlsEnabled()
+    {
+        return LC_USE_CLEAN_URLS;
+    }
+
+    /**
+     * @return string
+     */
+    public function cleansUrlsBase()
+    {
+        return \XLite::getCustomerScript();
     }
 
     // }}}
@@ -2076,7 +2118,7 @@ abstract class AView extends \XLite\Core\Handler
      *
      * @return string
      */
-    protected function getSVGImage($path, $interface = null)
+    public function getSVGImage($path, $interface = null)
     {
         $content = null;
 
@@ -2275,24 +2317,13 @@ abstract class AView extends \XLite\Core\Handler
     }
 
     /**
-     * Check 'Admin welcome' block visibility
-     *
-     * @return boolean
-     */
-    protected function isAdminWelcomeBlockVisible()
-    {
-        return 1 != \XLite\Core\Session::getInstance()->hide_welcome_block
-            && 1 != \XLite\Core\Config::getInstance()->Internal->hide_welcome_block;
-    }
-
-    /**
      * URL of the page where free license can be activated
      *
      * @return string
      */
     protected function getActivateFreeLicenseURL()
     {
-        return $this->buildURL('activate_free_license');
+        return \XLite\Core\Converter::buildURL('activate_free_license', '', [], \XLite::ADMIN_SELF);
     }
 
     /**

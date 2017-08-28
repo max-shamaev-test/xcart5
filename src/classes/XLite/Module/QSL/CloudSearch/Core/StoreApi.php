@@ -59,14 +59,14 @@ class StoreApi extends \XLite\Base\Singleton
         $pageRepo = Database::getRepo('\XLite\Module\CDev\SimpleCMS\Model\Page');
         $numPages = $pageRepo ? $pageRepo->search($this->getPageSearchConditions(), $pageRepo::SEARCH_MODE_COUNT) : 0;
 
-        return array(
+        return [
             'numProducts'      => $numProducts,
             'numCategories'    => $numCategories,
             'numManufacturers' => $this->getBrandsCount(),
             'numPages'         => $numPages,
             'productsAtOnce'   => $this->getMaxEntitiesAtOnce(),
             'features'         => ['cloud_filters'],
-        );
+        ];
     }
 
     /**
@@ -102,7 +102,7 @@ class StoreApi extends \XLite\Base\Singleton
      */
     protected function getPageSearchConditions()
     {
-        return new CommonCell(array(PageRepo::PARAM_ENABLED => true));
+        return new CommonCell([PageRepo::PARAM_ENABLED => true]);
     }
 
     /**
@@ -146,7 +146,7 @@ class StoreApi extends \XLite\Base\Singleton
     {
         $cnd = $this->getProductSearchConditions();
 
-        $cnd->{ProductRepo::P_LIMIT} = array($start, $limit);
+        $cnd->{ProductRepo::P_LIMIT} = [$start, $limit];
 
         /** @var ProductRepo $repo */
         $repo = Database::getRepo('XLite\Model\Product');
@@ -310,8 +310,8 @@ class StoreApi extends \XLite\Base\Singleton
 
         foreach ($codes as $code) {
             $qb
-                ->join('a.translations', "at_$code", 'WITH', "at_$code.code = :lng_$code")
-                ->join('ao.translations', "aot_$code", 'WITH', "aot_$code.code = :lng_$code")
+                ->leftJoin('a.translations', "at_$code", 'WITH', "at_$code.code = :lng_$code")
+                ->leftJoin('ao.translations', "aot_$code", 'WITH', "aot_$code.code = :lng_$code")
                 ->setParameter("lng_$code", $code);
         }
 
@@ -320,7 +320,7 @@ class StoreApi extends \XLite\Base\Singleton
                 array_map(function ($code) {
                     return "at_{$code}.name";
                 }, $codes)
-            )
+            ) . ' AS name'
         );
 
         $qb->addSelect(
@@ -349,21 +349,18 @@ class StoreApi extends \XLite\Base\Singleton
     {
         $qb = Database::getEM()->createQueryBuilder()
             ->select('a.id')
-            ->addSelect('at.name')
             ->addSelect('av.value')
             ->addSelect('IDENTITY(a.productClass) AS productClassId')
             ->from('XLite\Model\AttributeValue\AttributeValueCheckbox', 'av')
             ->join('av.attribute', 'a')
-            ->join('a.translations', 'at', 'WITH', 'at.code = :lng')
             ->where('av.product = :productId')
-            ->setParameter('productId', $product->getProductId())
-            ->setParameter('lng', 'en');
+            ->setParameter('productId', $product->getProductId());
 
         $codes = Translation::getLanguageQuery();
 
         foreach ($codes as $code) {
             $qb
-                ->join('a.translations', "at_$code", 'WITH', "at_$code.code = :lng_$code")
+                ->leftJoin('a.translations', "at_$code", 'WITH', "at_$code.code = :lng_$code")
                 ->setParameter("lng_$code", $code);
         }
 
@@ -372,7 +369,7 @@ class StoreApi extends \XLite\Base\Singleton
                 array_map(function ($code) {
                     return "at_{$code}.name";
                 }, $codes)
-            )
+            ) . ' AS name'
         );
 
         $this->addProductAttributesQuerySelects($qb);
@@ -454,13 +451,13 @@ class StoreApi extends \XLite\Base\Singleton
      */
     protected function getProductMetaInfo(Product $product)
     {
-        $info = array(
+        $info = [
             'name'   => '_meta_additional_',
-            'values' => array(
+            'values' => [
                 $product->getMetaTags(),
                 $product->getMetaDesc(),
-            ),
-        );
+            ],
+        ];
 
         // Include brief description if full description is not empty (so that both will be indexed)
         if ($product->getDescription()) {
@@ -524,7 +521,7 @@ class StoreApi extends \XLite\Base\Singleton
     protected function getProductUrl(Product $product)
     {
         $url = Converter::buildFullURL(
-            'product', '', array('product_id' => $product->getProductId())
+            'product', '', ['product_id' => $product->getProductId()]
         );
 
         return $this->isMultiDomain() ? parse_url($url, PHP_URL_PATH) : $url;
@@ -539,7 +536,7 @@ class StoreApi extends \XLite\Base\Singleton
      */
     protected function getProductImage(Product $product)
     {
-        $result = array();
+        $result = [];
 
         if ($product->getImage()) {
             list(
@@ -566,23 +563,23 @@ class StoreApi extends \XLite\Base\Singleton
 
         $cnd = $this->getCategorySearchConditions();
 
-        $cnd->{\XLite\Model\Repo\Category::P_LIMIT} = array($start, $limit);
+        $cnd->{\XLite\Model\Repo\Category::P_LIMIT} = [$start, $limit];
 
         $categories = $repo->search($cnd, false);
 
-        $categoriesArray = array();
+        $categoriesArray = [];
 
         $rootCatId = Database::getRepo('XLite\Model\Category')->getRootCategoryId();
 
         foreach ($categories as $category) {
             $parentId = $category->getParentId() == $rootCatId ? 0 : $category->getParentId();
 
-            $categoryHash = array(
+            $categoryHash = [
                 'id'          => $category->getCategoryId(),
                 'name'        => htmlspecialchars_decode($category->getName()),
                 'description' => $category->getViewDescription(),
                 'parent'      => $parentId,
-            );
+            ];
 
             if ($category->getImage()) {
                 list($categoryHash['image_width'], $categoryHash['image_height'], $categoryHash['image_src']) =
@@ -592,7 +589,7 @@ class StoreApi extends \XLite\Base\Singleton
             $url = Converter::buildFullURL(
                 'category',
                 '',
-                array('category_id' => $category->getCategoryId())
+                ['category_id' => $category->getCategoryId()]
             );
 
             $categoryHash['url'] = $this->isMultiDomain() ? parse_url($url, PHP_URL_PATH) : $url;
@@ -615,12 +612,12 @@ class StoreApi extends \XLite\Base\Singleton
     {
         $repo = Database::getRepo('\XLite\Module\CDev\SimpleCMS\Model\Page');
 
-        $pagesArray = array();
+        $pagesArray = [];
 
         if ($repo) {
             $cnd = $this->getPageSearchConditions();
 
-            $cnd->{PageRepo::P_LIMIT}       = array($start, $limit);
+            $cnd->{PageRepo::P_LIMIT}       = [$start, $limit];
             $cnd->{PageRepo::PARAM_ENABLED} = true;
             $pages                          = $repo->search($cnd, false);
 
@@ -629,12 +626,12 @@ class StoreApi extends \XLite\Base\Singleton
                     ? parse_url($page->getFrontURL(), PHP_URL_PATH)
                     : $page->getFrontURL();
 
-                $pageHash = array(
+                $pageHash = [
                     'id'      => $page->getid(),
                     'title'   => $page->getName(),
                     'content' => $page->getBody(),
                     'url'     => $url,
-                );
+                ];
 
                 $pagesArray[] = $pageHash;
             }
@@ -659,10 +656,10 @@ class StoreApi extends \XLite\Base\Singleton
             if ($this->isSignatureCorrect($key, $signature)) {
                 $repo = Database::getRepo('XLite\Model\Config');
 
-                $secretKeySetting = $repo->findOneBy(array(
+                $secretKeySetting = $repo->findOneBy([
                     'name'     => 'secret_key',
                     'category' => 'QSL\CloudSearch',
-                ));
+                ]);
 
                 $secretKeySetting->setValue($key);
 
@@ -670,7 +667,7 @@ class StoreApi extends \XLite\Base\Singleton
             }
         }
 
-        return array();
+        return [];
     }
 
     /**

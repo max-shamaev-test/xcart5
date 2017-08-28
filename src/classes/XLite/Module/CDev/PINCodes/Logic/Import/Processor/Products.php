@@ -21,9 +21,9 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     public static function getMessages()
     {
         return parent::getMessages()
-            + array(
+               + [
                 'PRODUCT-MANUAL-PIN-FMT' => 'Inventory tracking for product X will not be imported',
-            );
+               ];
     }
 
     /**
@@ -38,14 +38,14 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
             $result = false;
 
             $product = \XLite\Core\Database::getRepo('XLite\Model\Product')->findOneBy(
-                array(
+                [
                     'sku' => $sku
-                )
+                ]
             );
 
             if ($product && $product->hasManualPinCodes()) {
                 $result = true;
-                $this->addWarning('PRODUCT-MANUAL-PIN-FMT', array('column' => $column, 'value' => $sku));
+                $this->addWarning('PRODUCT-MANUAL-PIN-FMT', ['column' => $column, 'value' => $sku]);
             }
 
             $this->hasManualPinCodes = $result;

@@ -29,6 +29,20 @@ class Instructions extends \XLite\View\FormField\Label\ALabel
     }
 
     /**
+     * Define widget params
+     *
+     * @return void
+     */
+    protected function defineWidgetParams()
+    {
+        parent::defineWidgetParams();
+
+        $this->widgetParams += array(
+            'kbLink' => new \XLite\Model\WidgetParam\TypeString('KB Link', ''),
+        );
+    }
+
+    /**
      * Process all occurencies of WEB_LC_ROOT
      *
      * @param mixed $str Input string
@@ -62,5 +76,13 @@ class Instructions extends \XLite\View\FormField\Label\ALabel
     protected function getDefaultTemplate()
     {
         return 'modules/CDev/SocialLogin/form_field/instructions.twig';
+    }
+
+    /**
+     * @return string
+     */
+    public function getKBLink()
+    {
+        return $this->getParam('kbLink');
     }
 }

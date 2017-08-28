@@ -51,6 +51,20 @@ abstract class AItemsList extends \XLite\View\Container
      */
     protected $sortByModes = array();
 
+    // {{{ Runtime cache
+
+    /**
+     * @var integer
+     */
+    protected $totalItemsCount;
+
+    /**
+     * @var \XLite\View\Pager\APager
+     */
+    protected $pager;
+
+    // }}}
+
     protected function getSortByModesField()
     {
         return $this->sortByModes;
@@ -257,14 +271,16 @@ abstract class AItemsList extends \XLite\View\Container
      */
     protected function getItemsCount()
     {
-        return $this->executeCachedRuntime(function () {
+        if (null === $this->totalItemsCount) {
             $cacheParams   = $this->getCacheParameters();
             $cacheParams[] = 'getItemsCount';
 
-            return $this->executeCached(function () {
+            $this->totalItemsCount = $this->executeCached(function () {
                 return $this->getData($this->getSearchCondition(), true);
             }, $cacheParams);
-        });
+        }
+
+        return $this->totalItemsCount;
     }
 
     /**
@@ -471,9 +487,11 @@ abstract class AItemsList extends \XLite\View\Container
      */
     protected function getPager()
     {
-        return $this->executeCachedRuntime(function () {
-            return $this->getWidget($this->getPagerParams(), $this->getPagerClass());
-        });
+        if (null === $this->pager) {
+            $this->pager = $this->getWidget($this->getPagerParams(), $this->getPagerClass());
+        }
+
+        return $this->pager;
     }
 
     // {{{ SEARCH REGION
@@ -617,9 +635,52 @@ abstract class AItemsList extends \XLite\View\Container
     {
         $processor = static::getSearchCaseProcessor();
 
+        $defaultsProvider = $this->getDefaultValuesProvider();
+        if ($defaultsProvider
+            && $defaultsProvider instanceof ISearchValuesStorage
+        ) {
+            $processor->setDefaultValuesStorage($defaultsProvider);
+        }
+
         return $this->postprocessSearchCase(
             $processor->getSearchCase()
         );
+    }
+
+    /**
+     * Used for provider default values for search
+     * For example via \XLite\View\ItemsList\WidgetParamsSearchValuesStorage
+     *
+     * @return \XLite\View\ItemsList\ISearchValuesStorage
+     */
+    protected function getDefaultValuesProvider()
+    {
+        $result = null;
+
+        if ($this->useWidgetParamsAsSearchDefaults()) {
+            $result = $this->createWidgetParamsSearchValuesStorage();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Used for provider default values for search
+     * For example via \XLite\View\ItemsList\WidgetParamsSearchValuesStorage
+     */
+    protected function createWidgetParamsSearchValuesStorage()
+    {
+        $paramsData = $this->getWidgetParams();
+
+        return new \XLite\View\ItemsList\WidgetParamsSearchValuesStorage($paramsData);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function useWidgetParamsAsSearchDefaults()
+    {
+        return false;
     }
 
     // }}}

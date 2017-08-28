@@ -42,6 +42,26 @@ class ModuleSettings extends \XLite\View\Model\ModuleSettings
     }
 
     /**
+     * Get form field by option
+     *
+     * @param \XLite\Model\Config $option Option
+     *
+     * @return array
+     */
+    protected function getFormFieldByOption(\XLite\Model\Config $option)
+    {
+        $cell = parent::getFormFieldByOption($option);
+
+        if ($option->getName() === 'mailChimpAPIKey') {
+            $cell[\XLite\View\FormField\AFormField::PARAM_LINK_HREF] = $this->buildURL('mailchimp_options', 'authenticate');
+            $cell[\XLite\View\FormField\AFormField::PARAM_LINK_TEXT] = \XLite\Module\XC\MailChimp\Core\MailChimp::hasAPIKey()
+                ? 'Reconnect with your MailChimp account'
+                : 'Connect with your MailChimp account';
+        }
+
+        return $cell;
+    }
+    /**
      * Return name of web form widget class
      *
      * @return string

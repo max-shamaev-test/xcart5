@@ -12,6 +12,30 @@ use XLite\Core\Database\Migration\UnsupportedDatabaseOperationDuringMaintenanceE
 /**
  * Application singleton
  *
+ * @Swg\Swagger (
+ *     schemes={"http"},
+ *     host="demostore.x-cart.com",
+ *     basePath="/admin.php?target=RESTAPI&",
+ *     produces={"application/json", "application/xml"},
+ *     consumes={"application/json", "application/x-www-form-urlencoded"},
+ *     @Swg\Info (
+ *         version="5.3.3.0",
+ *         title="X-Cart REST API",
+ *         description="",
+ *     ),
+ *     @Swg\ExternalDocumentation (
+ *         description="Find out more about X-Cart REST API",
+ *         url="http://devs.x-cart.com/en/basics/rest_api_documentation.html"
+ *     )
+ * )
+ *
+ * @SWG\SecurityScheme(
+ *   securityDefinition="api_key",
+ *   type="apiKey",
+ *   in="query",
+ *   name="_key"
+ * )
+ *
  * TODO: to revise
  * TODO[SINGLETON]: lowest priority
  */
@@ -22,7 +46,7 @@ class XLite extends \XLite\Base
     /**
      * Core version
      */
-    const XC_VERSION = '5.3.2.8';
+    const XC_VERSION = '5.3.3.3';
 
     /**
      * Endpoints
@@ -373,11 +397,10 @@ class XLite extends \XLite\Base
     public static function getTrialPeriodLeft($returnDays = true)
     {
         $startTime = \XLite\Core\Config::getInstance()->Version->timestamp;
-
-        $endTime = $startTime + 86400 * \XLite::TRIAL_PERIOD;
+        $endTime   = $startTime + 86400 * \XLite::TRIAL_PERIOD;
 
         return $returnDays
-            ? (int) (($endTime - time()) / 86400)
+            ? ceil(($endTime - time()) / 86400)
             : $endTime - time();
     }
 
@@ -665,6 +688,8 @@ class XLite extends \XLite\Base
 
         static::getController()->processRequest();
 
+        $this->runPostRequestActions();
+
         return $this;
     }
 
@@ -822,13 +847,18 @@ class XLite extends \XLite\Base
             }
 
             if (($web_dir . '/' . $redirectUrl) !== $selfURI) {
+                // If there is not-default language selected
+                // but url doesn't contains it, so we should redirect to url with that language
+                $isRedirectToLanguageNeeded = isset($noLangRedirectUrl)
+                    && ($web_dir . '/' . $noLangRedirectUrl) === $selfURI;
+                $code = $isRedirectToLanguageNeeded
+                    ? 302
+                    : 301;
 
                 \XLite\Core\Operator::redirect(
                     \XLite\Core\URLManager::getShopURL($redirectUrl),
                     false,
-                    isset($noLangRedirectUrl) && ($web_dir . '/' . $noLangRedirectUrl) !== $selfURI
-                        ? 301
-                        : 302
+                    $code
                 );
             }
         }
@@ -1001,6 +1031,22 @@ class XLite extends \XLite\Base
     public static function getLastRebuildTimestamp()
     {
         return \XLite\Core\Database::getRepo('XLite\Model\TmpVar')->getVar(\XLite::CACHE_TIMESTAMP);
+    }
+
+    /**
+     * @since 5.3.3.2 First appearance
+     *
+     * Actions to be executed after ignore_user_abort call
+     */
+    public function runPostRequestActions()
+    {
+        flush();
+        ignore_user_abort(true);
+
+        while (\XLite\Core\Job\InMemoryJobRegistry::getInstance()->hasJobs()) {
+            $job = \XLite\Core\Job\InMemoryJobRegistry::getInstance()->consume();
+            $job->handle();
+        }
     }
 
     // }}}

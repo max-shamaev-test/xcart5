@@ -19,9 +19,9 @@ abstract class ASort extends \XLite\View\AView
      * Widget parameter names
      */
 
-    const PARAM_PARAMS          = 'params';
-    const PARAM_SORT_CRITERIONS = 'sortCriterions';
-    const PARAM_CELL            = 'cell';
+    const PARAM_PARAMS        = 'params';
+    const PARAM_SORT_CRITERIA = 'sortCriteria';
+    const PARAM_CELL          = 'cell';
 
 
     /**
@@ -152,9 +152,9 @@ abstract class ASort extends \XLite\View\AView
         parent::defineWidgetParams();
 
         $this->widgetParams += array(
-            self::PARAM_PARAMS          => new \XLite\Model\WidgetParam\TypeCollection('URL params', array()),
-            self::PARAM_SORT_CRITERIONS => new \XLite\Model\WidgetParam\TypeCollection('Sort criterions', array()),
-            self::PARAM_CELL            => new \XLite\Model\WidgetParam\TypeCollection('List conditions cell', array()),
+            self::PARAM_PARAMS        => new \XLite\Model\WidgetParam\TypeCollection('URL params', array()),
+            self::PARAM_SORT_CRITERIA => new \XLite\Model\WidgetParam\TypeCollection('Sort criteria', array()),
+            self::PARAM_CELL          => new \XLite\Model\WidgetParam\TypeCollection('List conditions cell', array()),
         );
     }
 
@@ -165,6 +165,6 @@ abstract class ASort extends \XLite\View\AView
      */
     protected function isVisible()
     {
-        return parent::isVisible() && $this->getParam(self::PARAM_SORT_CRITERIONS);
+        return parent::isVisible() && $this->getParam(self::PARAM_SORT_CRITERIA);
     }
 }

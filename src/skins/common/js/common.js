@@ -17,22 +17,19 @@ var URLHandler = {
   nameValueSeparator: '=',
 
   // Return query param
-  getParamValue: function(name, params)
-  {
+  getParamValue: function (name, params) {
     return name
       + this.nameValueSeparator
       + encodeURIComponent(typeof params[name] === 'boolean' ? Number(params[name]) : params[name]);
   },
 
   // Get param value for the remained params
-  getQueryParamValue: function(name, params)
-  {
+  getQueryParamValue: function (name, params) {
     return URLHandler.getParamValue(name, params);
   },
 
   // Build HTTP query
-  implodeParams: function(params, method)
-  {
+  implodeParams: function (params, method) {
     result = '';
     isStarted = false;
 
@@ -51,14 +48,12 @@ var URLHandler = {
   },
 
   // Implode remained params
-  implodeQueryParams: function(params)
-  {
+  implodeQueryParams: function (params) {
     return this.implodeParams(params, this.getQueryParamValue);
   },
 
   // Unset some params
-  clearParams: function(params, excluded)
-  {
+  clearParams: function (params, excluded) {
     // clone object
     var result = {};
 
@@ -71,33 +66,34 @@ var URLHandler = {
     return result;
   },
 
-  preprocessParams: function(params)
-  {
+  preprocessParams: function (params) {
     return this.clearParams(params, this.excluded);
   },
 
   // Get base url
-  buildBaseUrl: function(params)
-  {
+  buildBaseUrl: function (params) {
+    var base = params.base || this.baseURLPart;
+
+    if (xliteConfig.clean_url && base === xliteConfig.clean_urls_base) {
+      return '';
+    }
+
     return params.base || this.baseURLPart;
   },
 
   // Compose query params
-  buildQueryParams: function(params)
-  {
+  buildQueryParams: function (params) {
     return this.querySeparator + this.implodeQueryParams(this.preprocessParams(params));
   },
 
-  getBuildURLPrefix: function()
-  {
+  getBuildURLPrefix: function () {
     return xliteConfig.ajax_prefix
-        ? (xliteConfig.ajax_prefix + '/')
-        : '';
+      ? (xliteConfig.ajax_prefix + '/')
+      : '';
   },
 
   // Compose URL
-  buildURL: function(params)
-  {
+  buildURL: function (params) {
     return this.getBuildURLPrefix() + this.buildBaseUrl(params) + this.buildQueryParams(params);
   }
 };
@@ -106,13 +102,13 @@ var URLHandler = {
  * Columns selector
  */
 jQuery(document).ready(
-  function() {
+  function () {
     jQuery('input.column-selector').click(
-      function(event) {
+      function (event) {
         if (!this.columnSelectors) {
           var idx = jQuery(this).parents('th').get(0).cellIndex;
           var table = jQuery(this).parents('table').get(0);
-          this.columnSelectors = jQuery('tr', table).find('td:eq('+idx+') :checkbox');
+          this.columnSelectors = jQuery('tr', table).find('td:eq(' + idx + ') :checkbox');
         }
 
         this.columnSelectors.prop('checked', this.checked ? 'checked' : '');
@@ -136,15 +132,14 @@ jQuery(document).ready(
 // Dialog
 
 // Abstract open dialog
-function openDialog(selector, additionalOptions)
-{
+function openDialog(selector, additionalOptions) {
   additionalOptions = additionalOptions || {};
 
   var box = jQuery(selector);
 
   _.each(
-    ['h2','h1'],
-    function(tag) {
+    ['h2', 'h1'],
+    function (tag) {
       var elm = box.find(tag);
       if ('undefined' == typeof(additionalOptions.title) || !additionalOptions.title) {
         additionalOptions.title = elm.html();
@@ -153,26 +148,26 @@ function openDialog(selector, additionalOptions)
     }
   );
 
+  popup.isLoading = false;
   return popup.open(jQuery(selector), additionalOptions);
 }
 
 // Loadable dialog
-function loadDialog(url, dialogOptions, callback, link, $this)
-{
+function loadDialog(url, dialogOptions, callback, link, $this) {
   openWaitBar();
 
   var selector = 'tmp-dialog-' + (new Date()).getTime() + '-' + jQuery(link).attr('class').toString().replace(/ /g, '-');
 
   core.get(
     url,
-    function(xhr, status, data) {
+    function (xhr, status, data) {
       if (data) {
         var div = jQuery(document.body.appendChild(document.createElement('div'))).hide();
 
         var uuid = _.uniqueId();
 
         core.bind(['resources.ready', 'resources.empty'], _.bind(
-          function(event, args){
+          function (event, args) {
             if (args.uuid === uuid) {
               if (1 == div.get(0).childNodes.length) {
                 div = jQuery(div.get(0).childNodes[0]);
@@ -206,8 +201,7 @@ function loadDialog(url, dialogOptions, callback, link, $this)
 }
 
 // Load dialog by link
-function loadDialogByLink(link, url, options, callback, $this)
-{
+function loadDialogByLink(link, url, options, callback, $this) {
   if (!link.linkedDialog || 0 == jQuery(link.linkedDialog).length || jQuery(link).hasClass('always-reload')) {
     link.linkedDialog = loadDialog(url, options, callback, link, $this);
 
@@ -216,19 +210,16 @@ function loadDialogByLink(link, url, options, callback, $this)
   }
 }
 
-function openWaitBar()
-{
+function openWaitBar() {
   popup.openAsWait();
 }
 
-function closeWaitBar()
-{
+function closeWaitBar() {
   popup.close();
 }
 
 // Check for the AJAX support
-function hasAJAXSupport()
-{
+function hasAJAXSupport() {
   if (typeof(window.ajaxSupport) == 'undefined') {
     window.ajaxSupport = false;
     try {
@@ -236,7 +227,8 @@ function hasAJAXSupport()
       var xhr = window.ActiveXObject ? new ActiveXObject('Microsoft.XMLHTTP') : new XMLHttpRequest();
       window.ajaxSupport = xhr ? true : false;
 
-    } catch(e) { }
+    } catch (e) {
+    }
   }
 
   return window.ajaxSupport;
@@ -277,10 +269,10 @@ function checkMarks(form, reg, lbl) {
 }
 
 /*
-  Parameters:
-  checkboxes       - array of tag names
-  checkboxes_form    - form name with these checkboxes
-*/
+ Parameters:
+ checkboxes       - array of tag names
+ checkboxes_form    - form name with these checkboxes
+ */
 function change_all(flag, formname, arr) {
   if (!formname)
     formname = checkboxes_form;
@@ -290,7 +282,7 @@ function change_all(flag, formname, arr) {
     return false;
   for (var x = 0; x < arr.length; x++) {
     if (arr[x] != '' && document.forms[formname].elements[arr[x]] && !document.forms[formname].elements[arr[x]].disabled) {
-         document.forms[formname].elements[arr[x]].checked = flag;
+      document.forms[formname].elements[arr[x]].checked = flag;
       if (document.forms[formname].elements[arr[x]].onclick)
         document.forms[formname].elements[arr[x]].onclick();
     }
@@ -317,15 +309,14 @@ function checkAll(flag, form, prefix) {
 }
 
 /*
-  Opener/Closer HTML block
-*/
-function visibleBox(id, skipOpenClose)
-{
+ Opener/Closer HTML block
+ */
+function visibleBox(id, skipOpenClose) {
   var elm1 = document.getElementById('open' + id);
   var elm2 = document.getElementById('close' + id);
   var elm3 = document.getElementById('box' + id);
 
-  if(!elm3) {
+  if (!elm3) {
     return false;
   }
 
@@ -359,8 +350,7 @@ function visibleBox(id, skipOpenClose)
 /**
  * Attach tooltip to some element on hover action
  */
-function attachTooltip(elm, content, forcePlacement, ttl)
-{
+function attachTooltip(elm, content, forcePlacement, ttl) {
   var placement = 'right';
 
   elm = jQuery(elm);
@@ -389,24 +379,26 @@ function attachTooltip(elm, content, forcePlacement, ttl)
           var obj = jQuery(this);
           if (undefined === ttl) {
             ttl = 500;
-          };
+          }
+          ;
 
           var options = {
-            html:      true,
-            title:     content,
+            html: true,
+            title: content,
             placement: placement,
-            trigger:   'manual'
+            trigger: 'manual'
           };
 
           if (elm.data('container')) {
             options['container'] = elm.data('container');
           } else if (elm.parents('.ui-dialog').length > 0) {
             options['container'] = '.ui-dialog';
-          };
+          }
+          ;
           obj.tooltip(options);
 
           obj.mouseover(
-            function() {
+            function () {
               if (to) {
                 clearTimeout(to);
                 to = null;
@@ -418,9 +410,9 @@ function attachTooltip(elm, content, forcePlacement, ttl)
           );
 
           obj.mouseout(
-            function() {
+            function () {
               to = setTimeout(
-                function() {
+                function () {
                   obj.tooltip('hide');
                 },
                 ttl
@@ -430,12 +422,16 @@ function attachTooltip(elm, content, forcePlacement, ttl)
 
           obj.on(
             'shown.bs.tooltip',
-            function(event) {
+            function (event) {
               var next = jQuery(event.currentTarget).next();
-              if ('undefined' == typeof(next.get(0).tooltipAssigned) || !next.get(0).tooltipAssigned) {            
+              if ('undefined' == typeof(next.get(0).tooltipAssigned) || !next.get(0).tooltipAssigned) {
                 next
-                  .mouseover(function() { obj.mouseover(); })
-                  .mouseout(function() { obj.mouseout(); });
+                  .mouseover(function () {
+                    obj.mouseover();
+                  })
+                  .mouseout(function () {
+                    obj.mouseout();
+                  });
                 next.get(0).tooltipAssigned = true;
               }
             }
@@ -447,17 +443,17 @@ function attachTooltip(elm, content, forcePlacement, ttl)
 
       } else {
         jQuery(this).tooltip({
-          items:     this,
+          items: this,
           'content': content
         });
 
       }
 
-      jQuery(document).on('click' , '.tooltip-main .tooltip', function (evt) {
+      jQuery(document).on('click', '.tooltip-main .tooltip', function (evt) {
         return false;
       });
 
-      jQuery(document).on('click' , '.tooltip-main .tooltip a', function (evt) {
+      jQuery(document).on('click', '.tooltip-main .tooltip a', function (evt) {
         evt.stopPropagation();
       });
     }
@@ -469,8 +465,7 @@ function attachTooltip(elm, content, forcePlacement, ttl)
  */
 var waitOverlayRegistry = {};
 
-function assignWaitOverlay(elem)
-{
+function assignWaitOverlay(elem) {
   pattern = elem.prop('class');
   if (!_.isUndefined(elem.get(0).waitOverlay) && elem.get(0).waitOverlay) {
     unassignWaitOverlay(elem);
@@ -479,29 +474,28 @@ function assignWaitOverlay(elem)
   var div = jQuery('<div class="wait-block-overlay"><div class="wait-block"><div></div></div></div>');
 
   div.css({
-    width:          elem.outerWidth() + 'px',
-    height:         elem.outerHeight() + 'px'
+    width: elem.outerWidth() + 'px',
+    height: elem.outerHeight() + 'px'
   });
 
   // We do not show the overlay if the element has zero width or height (the element is not visible)
   if (0 !== elem.outerWidth() && 0 !== elem.outerHeight()) {
     elem.prepend(div)
   }
-  var leftOffset  = elem.offset().left - div.offset().left;
-  var topOffset   = elem.offset().top - div.offset().top;
-  div.css('margin-left',  leftOffset + 'px');
-  div.css('margin-top',   topOffset + 'px');
+  var leftOffset = elem.offset().left - div.offset().left;
+  var topOffset = elem.offset().top - div.offset().top;
+  div.css('margin-left', leftOffset + 'px');
+  div.css('margin-top', topOffset + 'px');
 
   waitOverlayRegistry[pattern] = div;
   elem.get(0).waitOverlay = div;
 
-  elem.trigger('assignOverlay', { widget: elem });
+  elem.trigger('assignOverlay', {widget: elem});
 
   return div;
 }
 
-function unassignWaitOverlay(elem, force)
-{
+function unassignWaitOverlay(elem, force) {
   pattern = elem.prop('class');
   var overlay = null;
   if (waitOverlayRegistry[pattern]) {
@@ -514,7 +508,7 @@ function unassignWaitOverlay(elem, force)
   if (overlay) {
     overlay.remove();
     if (elem.get(0)) {
-      elem.trigger('unassignOverlay', { widget: elem });
+      elem.trigger('unassignOverlay', {widget: elem});
       elem.get(0).waitOverlay = null;
     }
   }
@@ -525,8 +519,7 @@ function unassignWaitOverlay(elem, force)
  */
 var shadeOverlayRegistry = {};
 
-function assignShadeOverlay(elem)
-{
+function assignShadeOverlay(elem) {
   pattern = elem.prop('class');
   if (!_.isUndefined(elem.get(0).shadeOverlay) && elem.get(0).shadeOverlay) {
     unassignShadeOverlay(elem);
@@ -535,7 +528,7 @@ function assignShadeOverlay(elem)
   var div = jQuery('<div class="shade-block-overlay"></div>');
 
   div.css({
-    width:  elem.outerWidth() + 'px',
+    width: elem.outerWidth() + 'px',
     height: elem.outerHeight() + 'px'
   });
 
@@ -544,20 +537,19 @@ function assignShadeOverlay(elem)
     elem.before(div)
   }
 
-  var leftOffset  = elem.offset().left - div.offset().left;
-  var topOffset   = elem.offset().top - div.offset().top;
-  div.css('margin-left',  leftOffset + 'px');
-  div.css('margin-top',   topOffset + 'px');
+  var leftOffset = elem.offset().left - div.offset().left;
+  var topOffset = elem.offset().top - div.offset().top;
+  div.css('margin-left', leftOffset + 'px');
+  div.css('margin-top', topOffset + 'px');
   shadeOverlayRegistry[pattern] = div;
   elem.get(0).shadeOverlay = div;
 
-  elem.trigger('assignOverlay', { widget: elem });
+  elem.trigger('assignOverlay', {widget: elem});
 
   return div;
 }
 
-function unassignShadeOverlay(elem, force)
-{
+function unassignShadeOverlay(elem, force) {
   pattern = elem.prop('class');
   var overlay = null;
   if (shadeOverlayRegistry[pattern]) {
@@ -570,45 +562,144 @@ function unassignShadeOverlay(elem, force)
   if (overlay) {
     overlay.remove();
     if (elem.get(0)) {
-      elem.trigger('unassignOverlay', { widget: elem });
+      elem.trigger('unassignOverlay', {widget: elem});
       elem.get(0).waitOverlay = null;
     }
   }
 }
 
-function isBootstrapUse()
-{
+function isBootstrapUse() {
   return 'undefined' != typeof(jQuery.fn.modal)
     && _.isFunction(jQuery.fn.modal);
 }
 
 /**
  * State widget specific objects and methods (used in select_country.js )
- * @TODO : Move it to the one object after dynamic loading widgets JS implementation
  */
-var statesList = [];
-var stateSelectors = [];
 
-function UpdateStatesList(base)
-{
-  var _stateSelectors;
+var StatesList = (function () {
+  var instance;
 
-  base = base || document;
+  function createInstance() {
+    function StatesListProto() {
+    }
 
-  jQuery('.country-selector', base).each(function (index, elem) {
-    statesList = array_merge(statesList, core.getCommentedData(elem, 'statesList'));
-    _stateSelectors = core.getCommentedData(elem, 'stateSelectors');
+    extend(StatesListProto, Object);
 
-    stateSelectors[_stateSelectors.fieldId] = new StateSelector(
-      _stateSelectors.fieldId,
-      _stateSelectors.stateSelectorId,
-      _stateSelectors.stateInputId
-    );
-  });
-}
+    StatesListProto.states = [];
+    StatesListProto.stateSelectors = [];
+    StatesListProto.forceCustomState = false;
+    StatesListProto.forceCustomStateCountries = [];
 
-function setPriceElement(element, value, e)
-{
+    StatesListProto.prototype.addStates = function (states) {
+      StatesListProto.states = array_merge(this.states, states);
+      return this;
+    };
+
+    StatesListProto.prototype.getStates = function (country) {
+      return StatesListProto.states[country];
+    };
+
+    StatesListProto.prototype.getAllStates = function () {
+      return StatesListProto.states;
+    };
+
+    StatesListProto.prototype.getStatesArray = function (country) {
+      var extractStates = function (state) {
+        if (state instanceof Object) {
+          if (!_.isUndefined(state.name)) {
+            return [state.name];
+          }
+
+          var result = [];
+
+          if (state instanceof Array) {
+            state.map(function (v) {
+              result = result.concat(extractStates(v));
+            });
+          } else {
+            Object.keys(state).forEach(function (key) {
+              result = result.concat(extractStates(state[key]));
+            });
+          }
+
+          return result.sort(function (a, b) {
+            return a.toLowerCase().localeCompare(b.toLowerCase());
+          });
+        }
+
+        return [];
+      };
+
+      return extractStates(this.getStates(country));
+    };
+
+    StatesListProto.prototype.addStateSelector = function (fieldId, stateSelector) {
+      StatesListProto.stateSelectors[fieldId] = stateSelector;
+      return this;
+    };
+
+    StatesListProto.prototype.getStateSelectors = function () {
+      return StatesListProto.stateSelectors;
+    };
+
+    StatesListProto.prototype.isForceCustomState = function (country) {
+      return StatesListProto.forceCustomState
+        || StatesListProto.forceCustomStateCountries.indexOf(country) != -1;
+    };
+
+    StatesListProto.prototype.updateStatesList = function (base) {
+      var _stateSelectors, _forceCustomState, o = this;
+
+      base = base || document;
+
+      if (!jQuery('.country-selector', base).length) {
+        o.addStates(window.statesList);
+      } else {
+        jQuery('.country-selector', base).each(function (index, elem) {
+          o.addStates(core.getCommentedData(elem, 'statesList'));
+          _forceCustomState = core.getCommentedData(elem, 'forceCustomState');
+          _stateSelectors = core.getCommentedData(elem, 'stateSelectors');
+
+          if (_forceCustomState instanceof Array) {
+            if (_forceCustomState.indexOf('All') != -1) {
+              StatesListProto.forceCustomState = true;
+              _forceCustomState.splice(_forceCustomState.indexOf('All'), 1);
+            }
+
+            StatesListProto.forceCustomStateCountries = array_merge(
+                StatesListProto.forceCustomStateCountries,
+                _forceCustomState
+            );
+          }
+
+          if (_stateSelectors) {
+            o.addStateSelector(_stateSelectors.fieldId, new StateSelector(
+                _stateSelectors.fieldId,
+                _stateSelectors.stateSelectorId,
+                _stateSelectors.stateInputId
+            ));
+          }
+        });
+      }
+    };
+
+    return new StatesListProto;
+  }
+
+  return {
+    getInstance: function () {
+      if (!instance) {
+        instance = createInstance();
+
+        instance.updateStatesList();
+      }
+      return instance;
+    }
+  };
+})();
+
+function setPriceElement(element, value, e) {
   e = e || 2;
 
   var str = core.numberToString(value, '.', '', e);
@@ -639,8 +730,7 @@ function setPriceElement(element, value, e)
   }
 }
 
-function CacheEngine ()
-{
+function CacheEngine() {
   this.cache = [];
 }
 
@@ -696,18 +786,18 @@ CacheEngine.prototype.clear = function () {
 };
 
 jQuery(document).ready(
-  function() {
+  function () {
     var isIE11 = !!navigator.userAgent.match(/Trident.*rv[ :]*11\./);
 
-    if(isIE11){
-        jQuery('body').addClass('ie11');
+    if (isIE11) {
+      jQuery('body').addClass('ie11');
     }
 
     // Open warning popup
     core.microhandlers.add(
       'OverlayHeightResize',
       '>*:first',
-      function(event) {
+      function (event) {
         jQuery('.ui-widget-overlay').css('height', jQuery(document).height());
         jQuery('.ui-widget-overlay').css('width', jQuery('body').innerWidth());
       }
@@ -723,27 +813,9 @@ jQuery(document).ready(
           });
       }
     );
-
-    core.microhandlers.add(
-      'HideEmptySidebars',
-      '.sidebar',
-      function (event) {
-        var appendClass = _.bind(function() {
-          var className = this.attr('id') + '-empty';
-          jQuery('body').removeClass(className);
-
-          var visibleBlockCount = jQuery('.list-container *:visible', this).length
-
-          if (visibleBlockCount == 0) {
-            jQuery('body').addClass(className);
-          } else {
-            jQuery('body').removeClass(className);
-          };
-        }, jQuery(this));
-
-        appendClass();
-
-        jQuery(window).resize(_.debounce(appendClass, 30));
-      }
-    );
-});
+core.bind('popup.open', function() {
+      jQuery('html').addClass('popup-opened');
+    });
+    core.bind('popup.close', function() {
+      jQuery('html').removeClass('popup-opened');
+    });});

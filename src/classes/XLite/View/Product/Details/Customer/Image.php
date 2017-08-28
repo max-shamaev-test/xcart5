@@ -65,7 +65,7 @@ class Image extends \XLite\View\Product\Details\Customer\ACustomer
     }
 
     /**
-     * Register CSS files
+     * Register JS files
      *
      * @return array
      */
@@ -75,6 +75,54 @@ class Image extends \XLite\View\Product\Details\Customer\ACustomer
         $list[] = 'product/details/controller.js';
 
         return $list;
+    }
+
+    /**
+     * Returns cloud zoom mode (position)
+     *
+     * @return string|null
+     */
+    public function getCloudZoomClass()
+    {
+        return $this->getCloudZoomMode()
+            ? 'cloud-zoom-' . $this->getCloudZoomMode()
+            : '';
+    }
+
+    /**
+     * Check if cloud zoom mode inside
+     *
+     * @return bool
+     */
+    public function isCloudZoomInside()
+    {
+        return $this->getCloudZoomMode() === \XLite\View\FormField\Select\CloudZoomMode::MODE_INSIDE;
+    }
+
+    /**
+     * Returns cloud zoom mode (position)
+     *
+     * @return string|null
+     */
+    public function getCloudZoomMode()
+    {
+        return \XLite\Core\Layout::getInstance()->getCloudZoomMode();
+    }
+
+    /**
+     * Returns cloud zoom mode (position)
+     *
+     * @return string|null
+     */
+    public function getPreparedCloudZoomMode()
+    {
+        $mode = $this->getCloudZoomMode();
+
+        if ($mode === \XLite\View\FormField\Select\CloudZoomMode::MODE_OUTSIDE) {
+            return null;
+        }
+
+        return "'" . $mode . "'";
     }
 
     /**
@@ -146,7 +194,8 @@ class Image extends \XLite\View\Product\Details\Customer\ACustomer
     protected function hasZoomImage()
     {
         if (!isset($this->isZoom)) {
-            $this->isZoom = $this->defineHasZoomImage();
+            $layout = \XLite\Core\Layout::getInstance();
+            $this->isZoom = $this->defineHasZoomImage() && $layout->isCloudZoomAllowed() && $layout->getCloudZoomEnabled();
         }
 
         return $this->isZoom;
@@ -176,6 +225,8 @@ class Image extends \XLite\View\Product\Details\Customer\ACustomer
 
     /**
      * Return true if image is zoomable
+     *
+     * @param $image \XLite\Model\Image\Product\Image
      *
      * @return boolean
      */

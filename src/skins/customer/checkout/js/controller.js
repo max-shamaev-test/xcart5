@@ -20,9 +20,6 @@ function CheckoutView(base)
 
   jQuery('form.place').submit(_.bind(this.handlePlaceOrder, this));
   CheckoutView.superclass.constructor.apply(this, arguments);
-
-  // Preload language labels
-  core.loadLanguageHash(core.getCommentedData(jQuery('.checkout-block')));
 }
 
 extend(CheckoutView, ALoadable);

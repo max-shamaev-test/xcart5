@@ -14,13 +14,23 @@ namespace XLite\Module\XC\CustomProductTabs\Controller\Admin;
 class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDecorator
 {
     /**
-     * is edited tab
+     * Check if is edited tab
      *
      * @return boolean
      */
     public function isProductTabPage()
     {
         return isset(\XLite\Core\Request::getInstance()->tab_id);
+    }
+
+    /**
+     * Check if is edited global tab
+     *
+     * @return boolean
+     */
+    public function isGlobalTabPage()
+    {
+        return isset(\XLite\Core\Request::getInstance()->global_tab_id);
     }
 
     /**
@@ -48,7 +58,7 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
         $list = parent::getPageTemplates();
 
         if (!$this->isNew()) {
-            $list['tabs']    = 'modules/XC/CustomProductTabs/product/tabs.twig';
+            $list['tabs'] = 'modules/XC/CustomProductTabs/product/tabs.twig';
         }
 
         return $list;
@@ -109,14 +119,61 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
     }
 
     /**
+     * Update product tab model
+     *
+     * @return void
+     */
+    protected function doActionUpdateGlobalTab()
+    {
+        if ($this->getModelForm()->performAction('modify')) {
+            $this->setReturnUrl(
+                \XLite\Core\Converter::buildURL(
+                    'product',
+                    null,
+                    array(
+                        'product_id'    => \XLite\Core\Request::getInstance()->product_id,
+                        'page'          => 'tabs',
+                        'global_tab_id' => $this->getModelForm()->getModelObject()->getId()
+                    )
+                )
+            );
+        }
+    }
+
+    /**
+     * Update model and close page
+     *
+     * @return void
+     */
+    protected function doActionUpdateGlobalTabAndClose()
+    {
+        if ($this->getModelForm()->performAction('modify')) {
+            $this->setReturnUrl(
+                \XLite\Core\Converter::buildUrl(
+                    'product',
+                    null,
+                    array(
+                        'product_id' => \XLite\Core\Request::getInstance()->product_id,
+                        'page'       => 'tabs',
+                    )
+                )
+            );
+        }
+    }
+
+    /**
      * Get model form class
      *
      * @return string
      */
     protected function getModelFormClass()
     {
-        return \XLite\Core\Request::getInstance()->page == 'tabs'
-            ? 'XLite\Module\XC\CustomProductTabs\View\Model\Product\Tab'
-            : parent::getModelFormClass();
+        if (\XLite\Core\Request::getInstance()->page === 'tabs') {
+            return $this->isGlobalTabPage()
+                ? 'XLite\Module\XC\CustomProductTabs\View\Model\Product\GlobalTab'
+                : 'XLite\Module\XC\CustomProductTabs\View\Model\Product\Tab';
+        }
+
+        return parent::getModelFormClass();
     }
 }

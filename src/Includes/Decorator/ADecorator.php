@@ -41,6 +41,13 @@ abstract class ADecorator
     protected static $step;
 
     /**
+     * Set to true to make getClassesDir always return original classes dir
+     *
+     * @var boolean
+     */
+    protected static $forceOriginalClassesDir = false;
+
+    /**
      * Modules graph
      *
      * @var \Includes\Decorator\DataStructure\Graph\Modules
@@ -55,6 +62,11 @@ abstract class ADecorator
     public static function getStep()
     {
         return static::$step;
+    }
+
+    public static function setForceOriginalClassesDir($value)
+    {
+        static::$forceOriginalClassesDir = $value;
     }
 
     /**
@@ -78,7 +90,7 @@ abstract class ADecorator
      */
     public static function getClassesDir()
     {
-        return self::STEP_FIRST == static::$step || self::STEP_SECOND == static::$step
+        return self::STEP_FIRST == static::$step || self::STEP_SECOND == static::$step || static::$forceOriginalClassesDir
             ? LC_DIR_CLASSES
             : static::getCacheClassesDir();
     }

@@ -31,8 +31,6 @@ abstract class AAdmin extends \XLite\View\StickyPanel\Product\Admin\AAdmin imple
             'position' => 50,
         ];
 
-        unset($list['delete']);
-
         return $list;
     }
 }

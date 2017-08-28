@@ -10,6 +10,12 @@ namespace XLite\Model\Repo\AttributeValue;
 
 /**
  * Attribute values repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\AttributeValue\AttributeValueCheckbox", summary="Add new checkbox attribute value")
+ * @Api\Operation\Read(modelClass="XLite\Model\AttributeValue\AttributeValueCheckbox", summary="Retrieve checkbox attribute value by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\AttributeValue\AttributeValueCheckbox", summary="Retrieve checkbox attribute values by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\AttributeValue\AttributeValueCheckbox", summary="Update checkbox attribute value by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\AttributeValue\AttributeValueCheckbox", summary="Delete checkbox attribute value by id")
  */
 class AttributeValueCheckbox extends \XLite\Model\Repo\AttributeValue\Multiple
 {

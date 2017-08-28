@@ -6,6 +6,27 @@
 # See https://www.x-cart.com/license-agreement.html for license details.
 
 XLite\Model\Config:
+  - name: dataProvider
+    category: CDev\USPS
+    type: XLite\Module\CDev\USPS\View\FormField\Select\DataProvider
+    value: pitneyBowes
+    orderby: 2
+    translations:
+      - code: en
+        option_name: Data provider
+  - name: pbEmailId
+    category: CDev\USPS
+    type: XLite\View\FormField\Input\Text
+    orderby: 10
+    translations:
+      - code: en
+        option_name: PitneyBowes merchant emailId
+  - name: pbShipperId
+    category: CDev\USPS
+    orderby: 10
+    translations:
+      - code: en
+        option_name: PitneyBowes merchant shipperId
   - name: userid
     category: CDev\USPS
     type: XLite\View\FormField\Input\Text
@@ -16,12 +37,12 @@ XLite\Model\Config:
   - name: server_url
     category: CDev\USPS
     type: XLite\View\FormField\Input\Text\URL
-    value: http://testing.shippingapis.com/ShippingAPI.dll
+    value: http://stg-production.shippingapis.com/ShippingApi.dll
     orderby: 20
     translations:
       - code: en
         option_name: U.S.P.S. API server URL
-        option_comment: Enter the URL provided to you by U.S.P.S. in the notification about your successful registration for the U. S. Postal Service's Web Tools Application Program Interfaces. For example: <ul><li>http://testing.shippingapis.com/ShippingAPITest.dll</li><li>http://production.shippingapis.com/ShippingAPI.dll</li></ul>
+        option_comment: "Enter the URL provided to you by U.S.P.S. in the notification about your successful registration for the U. S. Postal Service's Web Tools Application Program Interfaces. For example: <ul><li>http://stg-production.shippingapis.com/ShippingApi.dll</li><li>http://production.shippingapis.com/ShippingAPI.dll</li></ul>"
 
   - name: additionalSettingsSeparator
     category: CDev\USPS
@@ -120,6 +141,14 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: Pricing type to be used
+  - name: pb_domestic_parcel_type
+    category: CDev\USPS
+    type: XLite\Module\CDev\USPS\View\FormField\Select\PBDomesticParcelType
+    value: PKG
+    orderby: 360
+    translations:
+      - code: en
+        option_name: Parcel type
 
   - name: internationalUSPSSeparator
     category: CDev\USPS
@@ -172,6 +201,14 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: GXG package contains a gift
+  - name: pb_international_parcel_type
+    category: CDev\USPS
+    type: XLite\Module\CDev\USPS\View\FormField\Select\PBInternationalParcelType
+    value: PKG
+    orderby: 470
+    translations:
+      - code: en
+        option_name: Parcel type
 
   - name: cacheOnDeliverySeparator
     category: CDev\USPS
@@ -197,7 +234,7 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: Fixed COD price
-        option_comment: If you have selected to use a fixed COD fee, specify the fee amount here. The COD fee will be used for all shipping methods returned by the USPS server.<br /><br />You can find the current price for the USPS Collect on Delivery (COD) extra service on this page: <a href="https://www.usps.com/business/add-extra-services.htm" target="_blank">https://www.usps.com/business/add-extra-services.htm</a>
+        option_comment: 'If you have selected to use a fixed COD fee, specify the fee amount here. The COD fee will be used for all shipping methods returned by the USPS server.<br /><br />You can find the current price for the USPS Collect on Delivery (COD) extra service on this page: <a href="https://www.usps.com/business/add-extra-services.htm" target="_blank">https://www.usps.com/business/add-extra-services.htm</a>'
 
   - name: additionalOptionsSeparator
     category: CDev\USPS
@@ -213,6 +250,13 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: Log all communication between shopping cart and USPS server
+  - name: pbSandbox
+    category: CDev\USPS
+    type: XLite\View\FormField\Input\Checkbox\OnOffWithoutOffLabel
+    orderby: 605
+    translations:
+      - code: en
+        option_name: Sandbox mode
   - name: autoenable_new_methods
     category: CDev\USPS
     type: XLite\View\FormField\Input\Checkbox\OnOffWithoutOffLabel
@@ -234,6 +278,95 @@ XLite\Model\Shipping\Method:
       - code: en
         name: U.S.P.S
 
+  - processor: usps
+    carrier: pb_usps
+    code: FCM
+    enabled: 1
+    position: 10
+    translations:
+      - code: en
+        name: U.S.P.S. First Class Mail
+  - processor: usps
+    carrier: pb_usps
+    code: PM
+    enabled: 1
+    position: 20
+    translations:
+      - code: en
+        name: U.S.P.S. Priority Mail
+  - processor: usps
+    carrier: pb_usps
+    code: EM
+    enabled: 1
+    position: 30
+    translations:
+      - code: en
+        name: U.S.P.S. Priority Mail Express
+  - processor: usps
+    carrier: pb_usps
+    code: STDPOST
+    enabled: 1
+    position: 40
+    translations:
+      - code: en
+        name: U.S.P.S. Standard Post
+  - processor: usps
+    carrier: pb_usps
+    code: PRCLSEL
+    enabled: 1
+    position: 50
+    translations:
+      - code: en
+        name: U.S.P.S. Parcel Select
+  - processor: usps
+    carrier: pb_usps
+    code: MEDIA
+    enabled: 1
+    position: 60
+    translations:
+      - code: en
+        name: U.S.P.S. Media Mail
+  - processor: usps
+    carrier: pb_usps
+    code: LIB
+    enabled: 1
+    position: 70
+    translations:
+      - code: en
+        name: U.S.P.S. Library Mail
+  - processor: usps
+    carrier: pb_usps
+    code: FCMI
+    enabled: 1
+    position: 80
+    translations:
+      - code: en
+        name: U.S.P.S. First Class International
+  - processor: usps
+    carrier: pb_usps
+    code: FCPIS
+    enabled: 1
+    position: 90
+    translations:
+      - code: en
+        name: U.S.P.S. First Class Package International Service
+  - processor: usps
+    carrier: pb_usps
+    code: EMI
+    enabled: 1
+    position: 100
+    translations:
+      - code: en
+        name: U.S.P.S. Priority Mail Express International
+  - processor: usps
+    carrier: pb_usps
+    code: PMI
+    enabled: 1
+    position: 110
+    translations:
+      - code: en
+        name: U.S.P.S. Priority Mail International
+
 XLite\Model\Payment\Method:
   - service_name: COD_USPS
     class: Module\CDev\USPS\Model\Payment\Processor\COD
@@ -250,3 +383,36 @@ XLite\Model\LanguageLabel:
   - { name: 'Refresh list of available methods', translations: [{ code: en, label: 'Refresh list of available methods' }] }
   - { name: 'Wrong container type selected: {{value}}. For large package size only the following types are allowed: RECTANGULAR, NONRECTANGULAR, VARIABLE', translations: [{ code: en, label: 'Wrong container type selected: {{value}}. For large package size only the following types are allowed: RECTANGULAR, NONRECTANGULAR, VARIABLE' }] }
   - { name: '{{value}} is an invalid container type for a REGULAR package. Valid Container is: VARIABLE', translations: [{ code: en, label: '{{value}} is an invalid container type for a REGULAR package. Valid Container is: VARIABLE' }] }
+
+  - { name: 'USPS Shipments', translations: [{ code: en, label: 'USPS Shipments' }] }
+  - { name: 'Tracking information was updated successfully', translations: [{ code: en, label: 'Tracking information was updated successfully' }] }
+  - { name: 'Shipment has been voided successfully', translations: [{ code: en, label: 'Shipment has been voided successfully' }] }
+  - { name: 'Shipment has been created successfully', translations: [{ code: en, label: 'Shipment has been created successfully' }] }
+  - { name: 'Shipment Id', translations: [{ code: en, label: 'Shipment Id' }] }
+  - { name: 'Tracking number', translations: [{ code: en, label: 'Tracking number' }] }
+  - { name: 'Delivery cost', translations: [{ code: en, label: 'Delivery cost' }] }
+  - { name: 'Shipping label', translations: [{ code: en, label: 'Shipping label' }] }
+  - { name: 'Shipment options', translations: [{ code: en, label: 'Shipment options' }] }
+  - { name: 'Method name', translations: [{ code: en, label: 'Method name' }] }
+  - { name: 'Parcel type', translations: [{ code: en, label: 'Parcel type' }] }
+  - { name: 'Parcel weight', translations: [{ code: en, label: 'Parcel weight' }] }
+  - { name: 'Parcel dimensions', translations: [{ code: en, label: 'Parcel dimensions' }] }
+  - { name: 'Irregular parcel girth', translations: [{ code: en, label: 'Irregular parcel girth' }] }
+  - { name: 'Special services', translations: [{ code: en, label: 'Special services' }] }
+  - { name: 'COD value', translations: [{ code: en, label: 'COD value' }] }
+  - { name: 'Insurance value', translations: [{ code: en, label: 'Insurance value' }] }
+  - { name: 'Label format', translations: [{ code: en, label: 'Label format' }] }
+  - { name: 'Label size', translations: [{ code: en, label: 'Label size' }] }
+  - { name: 'Hide total carrier charge', translations: [{ code: en, label: 'Hide total carrier charge' }] }
+  - { name: 'Hide the carrier shipping charge on the label', translations: [{ code: en, label: 'Hide the carrier shipping charge on the label' }] }
+  - { name: 'Non delivery option', translations: [{ code: en, label: 'Non delivery option' }] }
+  - { name: 'Use this field for instructions in case the package is not delivered.', translations: [{ code: en, label: 'Use this field for instructions in case the package is not delivered.' }] }
+  - { name: 'Print custom message 1', translations: [{ code: en, label: 'Print custom message 1' }] }
+  - { name: 'This is a user specified message that gets printed on the face of the label. A string of up to 50 characters can be printed on the label.', translations: [{ code: en, label: 'This is a user specified message that gets printed on the face of the label. A string of up to 50 characters can be printed on the label.' }] }
+  - { name: 'Print custom message 2', translations: [{ code: en, label: 'Print custom message 2' }] }
+  - { name: 'This is a user specified message that gets printed on the bottom of the label. A string of up to 50 characters can be printed on the label.', translations: [{ code: en, label: 'This is a user specified message that gets printed on the bottom of the label. A string of up to 50 characters can be printed on the label.' }] }
+  - { name: 'Shipping label sender signature', translations: [{ code: en, label: 'Shipping label sender signature' }] }
+  - { name: 'Adds the sender’s signature and the date on CN22 and CP72 shipping labels. Enter the signature as a string. The Sender’s signature date is automatically populated.', translations: [{ code: en, label: 'Adds the sender’s signature and the date on CN22 and CP72 shipping labels. Enter the signature as a string. The Sender’s signature date is automatically populated.' }] }
+  - { name: 'Create shipment', translations: [{ code: en, label: 'Create shipment' }] }
+  - { name: 'USPS via Pitney Bowes brings you competitive and discounted USPS pricing via the X-Cart 5 interface. Print shipping labels with ease and track USPS shipments from origin to delivery with Pitney Bowes and X-Cart.', translations: [{ code: en, label: 'USPS via Pitney Bowes brings you competitive and discounted USPS pricing via the X-Cart 5 interface. Print shipping labels with ease and track USPS shipments from origin to delivery with Pitney Bowes and X-Cart.' }] }
+  - { name: 'To use U.S.P.S. via Pitney Bowes, you need to register via this link and then enter the email address you have used for registration into the field below.', translations: [{ code: en, label: 'To use U.S.P.S. via Pitney Bowes, you need to register via <a href="{{url}}" class="external" target="_blank">this link</a> and then enter the email address you have used for registration into the field below.' }] }

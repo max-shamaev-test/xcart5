@@ -729,6 +729,20 @@ abstract class FileManager extends \Includes\Utils\AUtils
     }
 
     /**
+     * Check - file is in zip format or not
+     *
+     * @param string $path File path
+     *
+     * @return boolean
+     */
+    public static function isZIP($path)
+    {
+        $fileInfo = pathinfo($path);
+
+        return 'zip' == strtolower($fileInfo['extension']);
+    }
+
+    /**
      * Make relative path for $absToPath resource from $absFromPath resource
      *
      * @param string $absFromPath
@@ -800,5 +814,27 @@ abstract class FileManager extends \Includes\Utils\AUtils
         }
 
         return $output;
+    }
+
+    /**
+     * Method to read yaml file and parse it.
+     * If you need pass parameters to the parse method you should call it directly
+     *
+     * @param $path
+     *
+     * @return mixed
+     */
+    public static function parseYamlFile($path)
+    {
+        $data = null;
+
+        if ($path && FileManager::isReadable($path)) {
+            $fileContent = file_get_contents($path);
+            if ($fileContent) {
+                $data = \Symfony\Component\Yaml\Yaml::parse($fileContent);
+            }
+        }
+
+        return $data;
     }
 }

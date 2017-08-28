@@ -50,7 +50,7 @@ class Review extends \XLite\Module\XC\Reviews\View\Pager\Customer\ACustomer
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_PRODUCT_ID => new \XLite\Model\WidgetParam\ObjectId\Product(
                 'Product ID',
                 null
@@ -60,7 +60,7 @@ class Review extends \XLite\Module\XC\Reviews\View\Pager\Customer\ACustomer
                 'Category ID',
                 null
             ),
-        );
+        ];
     }
 
     /**

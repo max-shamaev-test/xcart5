@@ -6,24 +6,6 @@
  * Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
-.tpl-debug-canvas {
-  position: absolute;
-  display: block;
-  z-index: 1000000;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-.tpl-debug-tpl-canvas,
-.tpl-debug-list-canvas
-{
-  border: 1px dashed #d6ab89;
-}
-
-.tpl-debug-current {
-  opacity: 0.2;
-  background-color: #ee6800;
-}
 
 #themeTweaker_wrapper {
   position: fixed;
@@ -38,17 +20,21 @@
   padding-right: 6px;
 }
 
-#themeTweaker_tree {
+.themeTweaker_tree {
   width: 100%;
   height: 100%;
   overflow: scroll;
 }
 
-#themeTweaker_tree > ul {
+.themeTweaker_tree.not-processed {
+  display: none;
+}
+
+.themeTweaker_tree > ul {
   clear:right;
 }
 
-#themeTweaker_tree.jstree-default .jstree-icon.jstree-themeicon {
+.themeTweaker_tree.jstree-default .jstree-icon.jstree-themeicon {
   background: none;
   display: inline-block;
   font-family: FontAwesome;
@@ -61,29 +47,29 @@
   color: #EEDC54;
 }
 
-#themeTweaker_tree.jstree-default .jstree-disabled>.jstree-icon {
+.themeTweaker_tree.jstree-default .jstree-disabled>.jstree-icon {
   opacity: 1;
   filter: none;
   -webkit-filter: none;
 }
 
-#themeTweaker_tree.jstree-default .jstree-open>a>.jstree-icon.jstree-themeicon {
+.themeTweaker_tree.jstree-default .jstree-open>a>.jstree-icon.jstree-themeicon {
   padding-left: 3px;
 }
 
-#themeTweaker_tree.jstree-default .jstree-icon.jstree-themeicon:after {
+.themeTweaker_tree.jstree-default .jstree-icon.jstree-themeicon:after {
   content: '\f07b';
 }
 
-#themeTweaker_tree.jstree-default .jstree-open>a>.jstree-icon.jstree-themeicon:after {
+.themeTweaker_tree.jstree-default .jstree-open>a>.jstree-icon.jstree-themeicon:after {
   content: '\f07c';
 }
 
-#themeTweaker_tree.jstree-default .jstree-disabled>.jstree-icon.jstree-themeicon:after {
+.themeTweaker_tree.jstree-default .jstree-disabled>.jstree-icon.jstree-themeicon:after {
   content: '\f114';
 }
 
-#themeTweaker_tree.jstree-default .jstree-open>a.jstree-disabled>.jstree-icon.jstree-themeicon:after {
+.themeTweaker_tree.jstree-default .jstree-open>a.jstree-disabled>.jstree-icon.jstree-themeicon:after {
   content: '\f115';
 }
 

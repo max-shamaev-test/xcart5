@@ -42,6 +42,16 @@ class XCart extends Twig_Extension
                 ]
             ),
             new Twig_SimpleFunction(
+                'get_widget',
+                [$functions, 'get_widget'],
+                [
+                    'is_variadic'       => true,
+                    'needs_environment' => true,
+                    'needs_context'     => true,
+                    'node_class'        => 'XLite\Core\Templating\Twig\Node\Expression\IntactArgNamesFunction',
+                ]
+            ),
+            new Twig_SimpleFunction(
                 'widget_list',
                 [$functions, 'widget_list'],
                 [
@@ -51,7 +61,11 @@ class XCart extends Twig_Extension
                     'node_class'        => 'XLite\Core\Templating\Twig\Node\Expression\IntactArgNamesFunction',
                 ]
             ),
-
+            new Twig_SimpleFunction(
+                'svg',
+                [$functions, 'svg'],
+                ['needs_environment' => true, 'needs_context' => true]
+            ),
             new Twig_SimpleFunction('t', [$functions, 't']),
             new Twig_SimpleFunction('url', [$functions, 'url'], ['needs_environment' => true, 'needs_context' => true]),
             new Twig_SimpleFunction('asset', [$functions, 'asset']),
@@ -95,6 +109,10 @@ function xcart_twig_escape_filter(
 ) {
     if ($autoescape && $string instanceof Twig_Markup) {
         return $string;
+    }
+
+    if ($autoescape && $string instanceof \XLite\View\AView) {
+        return $string->getContent();
     }
 
     if (!is_string($string)) {

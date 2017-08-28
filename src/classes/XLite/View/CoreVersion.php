@@ -11,7 +11,7 @@ namespace XLite\View;
 /**
  * Core version
  *
- * @ListChild (list="admin.main.page.header", weight="20", zone="admin")
+ * @ListChild (list="admin.main.page.header.left", weight="200", zone="admin")
  */
 class CoreVersion extends \XLite\View\AView
 {
@@ -64,22 +64,16 @@ class CoreVersion extends \XLite\View\AView
      */
     protected function getEditionName()
     {
-        $result = 'Trial';
-
+        $result  = 'Trial';
         $license = \XLite::getXCNLicense();
 
-        if ($license && ($keyData = $license->getKeyData()) && !empty($keyData['editionName'])) {
-
-            if (!is_array($keyData)) {
-                $keyData = unserialize($keyData);
-            }
-
-            if (isset($keyData['editionName'])) {
-                $result = $keyData['editionName'];
-            }
+        if ($license
+            && ($keyData = $license->getKeyData())
+            && !empty($keyData['editionName'])
+        ) {
+            $result = $keyData['editionName'];
         }
 
         return $result;
     }
-
 }

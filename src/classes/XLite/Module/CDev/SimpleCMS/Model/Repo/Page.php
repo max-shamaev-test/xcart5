@@ -15,6 +15,13 @@ namespace XLite\Module\CDev\SimpleCMS\Model\Repo;
 class Page extends \XLite\Model\Repo\Base\I18n
 {
     /**
+     * Default 'order by' field name
+     *
+     * @var string
+     */
+    protected $defaultOrderBy = 'position';
+
+    /**
      * Alternative record identifiers
      *
      * @var array
@@ -22,6 +29,17 @@ class Page extends \XLite\Model\Repo\Base\I18n
     protected $alternativeIdentifier = array(
         array('cleanURL'),
     );
+
+    /**
+     * Returns maximal position
+     *
+     * @return integer
+     */
+    public function getMaxPosition()
+    {
+        $qb = $this->createQueryBuilder('page');
+        return $qb->select('MAX(page.position)')->getSingleScalarResult();
+    }
 
     // {{{XML Sitemap
 

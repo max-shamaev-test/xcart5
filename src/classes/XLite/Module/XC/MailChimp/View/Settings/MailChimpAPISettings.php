@@ -13,7 +13,7 @@ use \XLite\Module\XC\MailChimp\Core;
 /**
  * Tabs
  */
-class MailChimpAPISettings extends \XLite\Module\XC\MailChimp\View\Settings\ASettings
+class MailChimpAPISettings extends \XLite\Module\XC\MailChimp\View\Settings\ASettings implements \XLite\Core\PreloadedLabels\ProviderInterface
 {
     /**
      * Return widget default template
@@ -23,6 +23,42 @@ class MailChimpAPISettings extends \XLite\Module\XC\MailChimp\View\Settings\ASet
     protected function getDefaultTemplate()
     {
         return $this->getDir() . '/settings.twig';
+    }
+
+    /**
+     * Register CSS files
+     *
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        $return = parent::getCSSFiles();
+
+        $return[] = $this->getDir() . '/settings.css';
+
+        return $return;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getJSFiles()
+    {
+        $list = parent::getJSFiles();
+
+        $list[] = 'modules/XC/MailChimp/settings/script.js';
+
+        return $list;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'e-Commerce Analytics disable warning' => static::t('e-Commerce Analytics disable warning')
+        ];
     }
 
     /**

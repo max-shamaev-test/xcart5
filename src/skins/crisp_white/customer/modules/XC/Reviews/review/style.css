@@ -18,12 +18,12 @@ div.modify-review-dialog textarea {
 }
 
 div.modify-review-dialog .form-item .table-value .tooltip-main {
-  left: 260px;
+  left: auto;
 }
 
 div.add-review-button-disabled {
-  font-size: 12px;
-  color: #9F9F9F;
+  font-size: 14px;
+  color: #626669;
   padding-bottom: 5px;
 }
 
@@ -44,16 +44,21 @@ div.modify-review-dialog div.form-item div.icon-help:hover {
   cursor: pointer;
 }
 
-label.rating {
+.modify-review-dialog .form-item label.rating {
   white-space: nowrap;
   display: inline;
   vertical-align: middle;
-  padding: 0 40px 0 0;
+  padding: 0px 10px 0px 0px;
+  color: #4a4a4a;
 }
 
 .modify-review-dialog .vote-bar {
   display: inline-block;
   vertical-align: middle;
+}
+
+.modify-review-dialog .form-item label {
+  color: #808080;
 }
 
 div.modify-review-dialog .form-item div.email-label {
@@ -67,15 +72,25 @@ div.modify-review-dialog .form-item div.email-value {
   padding-left: 5px;
 }
 
-div.modify-review-dialog .form-item div.tooltip-main {
+div.modify-review-dialog .form-item .tooltip-main {
   display: inline-block;
   float: right;
   padding: 0 5px 0 0;
 }
 
 div.modify-review-dialog .model-properties {
-  width: 310px;
+  width: 450px;
   margin: 0 auto;
+}
+
+div.modify-review-dialog .model-properties .reviewername-value .input-field-wrapper input,
+div.modify-review-dialog .model-properties .email-value .input-field-wrapper input,
+div.modify-review-dialog .model-properties .review-value textarea {
+  width: 450px;
+}
+
+div.modify-review-dialog .model-properties .form-item .review-value textarea {
+  min-height: 140px;
 }
 
 div.modify-review-dialog .form-item {

@@ -10,7 +10,6 @@ namespace XLite\Module\XC\Reviews\View\Model;
 
 /**
  * Review view model
- *
  */
 class Review extends \XLite\View\Model\AModel
 {
@@ -19,33 +18,57 @@ class Review extends \XLite\View\Model\AModel
      *
      * @var array
      */
-    protected $schemaDefault = array(
-        'product'      => array(
+    protected $schemaDefault = [
+        'product'      => [
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\Model\ProductSelector',
             self::SCHEMA_LABEL    => 'Product',
             self::SCHEMA_REQUIRED => true,
-        ),
-        'rating'       => array(
+        ],
+        'rating'       => [
             self::SCHEMA_CLASS    => 'XLite\Module\XC\Reviews\View\FormField\Input\VoteBar',
             self::SCHEMA_LABEL    => 'Rating',
             self::SCHEMA_REQUIRED => false,
-        ),
-        'reviewerName' => array(
+        ],
+        'reviewerName' => [
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Text',
             self::SCHEMA_LABEL    => 'Reviewer name',
             self::SCHEMA_REQUIRED => true,
-        ),
-        'profile'      => array(
+        ],
+        'profile'      => [
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\Model\ProfileSelector',
             self::SCHEMA_LABEL    => 'Profile',
-            self::SCHEMA_REQUIRED => true,
-        ),
-        'review'       => array(
+            self::SCHEMA_REQUIRED => false,
+        ],
+        'review'       => [
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Textarea\Simple',
             self::SCHEMA_LABEL    => 'Text of review',
             self::SCHEMA_REQUIRED => false,
-        ),
-    );
+        ],
+        'response'     => [
+            self::SCHEMA_CLASS      => 'XLite\View\FormField\Textarea\Simple',
+            self::SCHEMA_LABEL      => 'Text of response',
+            self::SCHEMA_REQUIRED   => false,
+        ],
+    ];
+
+    /**
+     * @inheritdoc
+     */
+    public function __construct(array $params = array(), array $sections = array())
+    {
+        parent::__construct($params, $sections);
+
+        /** @var \XLite\Module\XC\Reviews\Model\Review $review */
+        $review = $this->getModelObject();
+
+        if (
+            $review->getRespondent()
+            && $review->getRespondent()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS)
+            && !\XLite\Core\Auth::getInstance()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS)
+        ) {
+            $this->schemaDefault['response'][self::SCHEMA_ATTRIBUTES] = ['disabled' => 'disabled'];
+        }
+    }
 
     /**
      * Return current model ID
@@ -91,37 +114,37 @@ class Review extends \XLite\View\Model\AModel
         if ($this->getModelObject()->getId()) {
             if ($this->isApproved()) {
                 $result['submit'] = new \XLite\View\Button\Submit(
-                    array(
+                    [
                         \XLite\View\Button\AButton::PARAM_LABEL    => 'Update',
                         \XLite\View\Button\AButton::PARAM_BTN_TYPE => 'regular-main-button',
                         \XLite\View\Button\AButton::PARAM_STYLE    => 'action',
-                    )
+                    ]
                 );
             } else {
                 $result['approve'] = new \XLite\View\Button\Regular(
-                    array(
+                    [
                         \XLite\View\Button\AButton::PARAM_LABEL    => 'Approve',
                         \XLite\View\Button\AButton::PARAM_BTN_TYPE => 'regular-main-button',
                         \XLite\View\Button\AButton::PARAM_STYLE    => 'action always-enabled',
                         \XLite\View\Button\Regular::PARAM_ACTION   => 'approve',
-                    )
+                    ]
                 );
                 $result['remove'] = new \XLite\View\Button\Regular(
-                    array(
+                    [
                         \XLite\View\Button\AButton::PARAM_LABEL  => 'Remove',
                         \XLite\View\Button\AButton::PARAM_STYLE  => 'action always-enabled',
                         \XLite\View\Button\Regular::PARAM_ACTION => 'delete',
-                    )
+                    ]
                 );
             }
 
         } else {
             $result['submit'] = new \XLite\View\Button\Submit(
-                array(
+                [
                     \XLite\View\Button\AButton::PARAM_LABEL    => 'Create',
                     \XLite\View\Button\AButton::PARAM_BTN_TYPE => 'regular-main-button',
                     \XLite\View\Button\AButton::PARAM_STYLE    => 'action',
-                )
+                ]
             );
         }
 
@@ -136,5 +159,21 @@ class Review extends \XLite\View\Model\AModel
     protected function isApproved()
     {
         return \XLite\Module\XC\Reviews\Model\Review::STATUS_APPROVED == $this->getModelObject()->getStatus();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function setModelProperties(array $data)
+    {
+        /** @var \XLite\Module\XC\Reviews\Model\Review $review */
+        $review = $this->getModelObject();
+
+        if ($data['response'] && $review && $review->getResponse() != $data['response']) {
+            $review->setRespondent(\XLite\Core\Auth::getInstance()->getProfile());
+            $review->setResponseDate(\XLite\Core\Converter::time());
+        }
+
+        parent::setModelProperties($data);
     }
 }

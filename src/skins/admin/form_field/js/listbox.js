@@ -7,64 +7,82 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-/**
- * TODO: Review this function and remove it's obsolete
- */
-function normalizeSelect(name)
-{
-  var tmp = document.getElementById(name);
-  if (tmp) {
-    tmp.options[tmp.options.length-1] = null;
-  }
-}
+core.bind('load', function (event) {
+  var listboxes = jQuery('.input-listbox > .listbox');
 
-/**
- * Move options from on list to other one
- */
-function moveSelect(id, direction)
-{
-  var left = document.getElementById(id + '-listbox-select-from');
-  var right = document.getElementById(id + '-listbox-select-to');
+  listboxes.each(function () {
+    var from = $(this).find('.listbox-item.from select'),
+      to = $(this).find('.listbox-item.to select'),
+      add = $(this).find('.listbox-actions button.add'),
+      remove = $(this).find('.listbox-actions button.remove'),
+      input = $(this).find('> input[type=hidden]');
 
-  if (direction) {
-    var tmp = left;
-    left = right;
-    right = tmp;
-  }
+    var listbox = this;
 
-  if (!left || !right) {
-    return false;
-  }
+    this.renewListboxValue = function () {
+      var separator = input.data('separator');
 
-  while (right.selectedIndex != -1) {
-    left.options[left.options.length] = new Option(right.options[right.selectedIndex].text, right.options[right.selectedIndex].value);
-    right.options[right.selectedIndex] = null;
-  }
+      var result = [];
 
-  return true;
-}
+      to.find('option').each(function () {
+        result.push($(this).val());
+      });
 
-/**
- * Prepare list 'TO' for saving values
- */
-function saveSelects(objects)
-{
-  if (!objects) {
-    return false;
-  }
+      input.val(result.join(separator)).change();
+      from.trigger('change');
+      to.trigger('change');
 
-  for (var sel = 0; sel < objects.length; sel++) {
+      this.sortListboxOptions();
+    };
 
-    var id = objects[sel] + '-listbox-select-to';
+    this.selectListboxOption = function (option) {
+      to.append(option);
+      this.renewListboxValue();
+      to.change();
+      from.change();
+    };
 
-    if (document.getElementById(id)) {
-      if (document.getElementById(objects[sel] + '-store').value == '') {
-        for (var x = 0; x < document.getElementById(id).options.length; x++) {
-          document.getElementById(objects[sel] + '-store').value += document.getElementById(id).options[x].value + ';';
-        }
+    this.deselectListboxOption = function (option) {
+      from.append(option);
+      this.renewListboxValue();
+    };
+
+    this.moveListboxOption = function (option) {
+      if (to.has(option).length) {
+        this.deselectListboxOption(option);
+      } else if (from.has(option).length) {
+        this.selectListboxOption(option);
       }
-    }
-  }
+    };
 
-  return true;
-}
+    this.sortListboxOptions = function () {
+      var options = from.find('option').sort(function(a, b) { return $(a).text() > $(b).text() ? 1 : -1; });
+      from.append(options);
+
+      options = to.find('option').sort(function(a, b) { return $(a).text() > $(b).text() ? 1 : -1; });
+      to.append(options);
+    };
+
+    if (from.length && to.length && input.length) {
+      from.find('option').each(function () {
+        $(this).dblclick(function () {
+          listbox.moveListboxOption(this);
+        });
+      });
+
+      to.find('option').each(function () {
+        $(this).dblclick(function () {
+          listbox.moveListboxOption(this);
+        });
+      });
+
+      add.click(function () {
+        listbox.selectListboxOption(from.find('option:selected'));
+      });
+
+      remove.click(function () {
+        listbox.deselectListboxOption(to.find('option:selected'));
+      });
+    }
+  });
+});

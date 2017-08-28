@@ -37,11 +37,39 @@ class Images extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionUpdate()
     {
+        $request = \XLite\Core\Request::getInstance();
+
         \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption([
             'category' => 'Performance',
             'name'     => 'use_dynamic_image_resizing',
-            'value'    => (boolean)\XLite\Core\Request::getInstance()->use_dynamic_image_resizing,
+            'value'    => (boolean)$request->use_dynamic_image_resizing,
         ]);
+
+        if ($this->isShowUnsharpOption()) {
+            \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption([
+                'category' => 'Performance',
+                'name'     => 'unsharp_mask_filter_on_resize',
+                'value'    => (boolean)$request->unsharp_mask_filter_on_resize,
+            ]);
+        }
+
+        \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption([
+            'category' => 'Performance',
+            'name'     => 'resize_quality',
+            'value'    => (integer)$request->resize_quality,
+        ]);
+
+        if (isset($request->cloud_zoom)) {
+            \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption([
+                'category' => 'Layout',
+                'name'     => 'cloud_zoom',
+                'value'    => (boolean)$request->cloud_zoom,
+            ]);
+        }
+
+        if (isset($request->cloud_zoom_mode)) {
+            \XLite\Core\Layout::getInstance()->setCloudZoomMode($request->cloud_zoom_mode);
+        }
 
         $list = new \XLite\View\ItemsList\Model\ImagesSettings();
         $list->processQuick();
@@ -55,6 +83,34 @@ class Images extends \XLite\Controller\Admin\AAdmin
     public function getUseDynamicImageResizingValue()
     {
         return \XLite\Core\Config::getInstance()->Performance->use_dynamic_image_resizing;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShowUnsharpOption()
+    {
+        return \XLite\Core\ImageOperator::getEngineType() === \XLite\Core\ImageOperator::ENGINE_GD;
+    }
+
+    /**
+     * Return "Unsharp mask filter on resize" setting value
+     *
+     * @return boolean
+     */
+    public function getUnsharpMaskFilterOnResizeValue()
+    {
+        return (boolean)\XLite\Core\Config::getInstance()->Performance->unsharp_mask_filter_on_resize;
+    }
+
+    /**
+     * Return "Resize quality" setting value
+     *
+     * @return integer
+     */
+    public function getResizeQuality()
+    {
+        return (integer)\XLite\Core\Config::getInstance()->Performance->resize_quality ?: 85;
     }
 
     // {{{ Image resize methods
@@ -90,7 +146,7 @@ class Images extends \XLite\Controller\Admin\AAdmin
         return $state
             && in_array(
                 $state['state'],
-                array(\XLite\Core\EventTask::STATE_STANDBY, \XLite\Core\EventTask::STATE_IN_PROGRESS)
+                [\XLite\Core\EventTask::STATE_STANDBY, \XLite\Core\EventTask::STATE_IN_PROGRESS]
             )
             && !\XLite\Core\Database::getRepo('XLite\Model\TmpVar')->getVar($this->getImageResizeCancelFlagVarName());
     }
@@ -102,7 +158,11 @@ class Images extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionImageResize()
     {
-        \XLite\Logic\ImageResize\Generator::run($this->assembleImageResizeOptions());
+        if (\XLite\Core\ImageOperator::getEngineType() === \XLite\Core\ImageOperator::ENGINE_SIMPLE) {
+            \XLite\Core\TopMessage::addError("Image resizing requires libraries");
+        } else {
+            \XLite\Logic\ImageResize\Generator::run($this->assembleImageResizeOptions());
+        }
     }
 
     /**
@@ -114,9 +174,9 @@ class Images extends \XLite\Controller\Admin\AAdmin
     {
         $request = \XLite\Core\Request::getInstance();
 
-        return array(
+        return [
             'include' => $request->section,
-        );
+        ];
     }
 
     /**
@@ -162,6 +222,40 @@ class Images extends \XLite\Controller\Admin\AAdmin
     protected function getImageResizeCancelFlagVarName()
     {
         return \XLite\Logic\ImageResize\Generator::getCancelFlagVarName();
+    }
+
+    // }}}
+
+    // {{{ Cloud Zoom
+
+    /**
+     * Check if cloud zoom enabled
+     *
+     * @return boolean
+     */
+    public function getCloudZoomEnabled()
+    {
+        return \XLite\Core\Layout::getInstance()->getCloudZoomEnabled();
+    }
+
+    /**
+     * Return cloud zoom mode
+     *
+     * @return string
+     */
+    public function getCloudZoomMode()
+    {
+        return \XLite\Core\Layout::getInstance()->getCloudZoomMode();
+    }
+
+    /**
+     * Check if cloud zoom supported by skin
+     *
+     * @return boolean
+     */
+    public function isCloudZoomAllowed()
+    {
+        return \XLite\Core\Layout::getInstance()->isCloudZoomAllowed();
     }
 
     // }}}

@@ -10,10 +10,10 @@ namespace XLite\Module\QSL\FlyoutCategoriesMenu\View;
 
 /**
  * Sidebar categories list
- * 
+ *
  * @Decorator\Depend ("XC\ProductFilter")
  */
-class TopCategoriesAfterFilters extends \XLite\View\TopCategories implements \XLite\Base\IDecorator
+abstract class TopCategoriesAfterFilters extends \XLite\View\TopCategories implements \XLite\Base\IDecorator
 {
     /**
      * Check if widget is visible
@@ -22,6 +22,6 @@ class TopCategoriesAfterFilters extends \XLite\View\TopCategories implements \XL
      */
     protected function isVisible()
     {
-        return parent::isVisible() || 'category_filter' == $this->getTarget();
-    }    
+        return parent::isVisible() || 'category_filter' === $this->getTarget();
+    }
 }

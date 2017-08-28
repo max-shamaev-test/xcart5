@@ -114,7 +114,7 @@ class Products extends \XLite\Core\DataSource\Base\Products
      * @param mixed $position Position to go to
      *  
      * @return void
-     * @throws OutOfBoundException
+     * @throws \OutOfBoundsException
      */
     public function seek($position)
     {
@@ -130,7 +130,7 @@ class Products extends \XLite\Core\DataSource\Base\Products
      * Returns current product
      * 
      * @return void
-     * @throws OutOfBoundException
+     * @throws \OutOfBoundsException
      */
     public function current()
     {

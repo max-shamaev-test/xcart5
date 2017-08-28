@@ -49,22 +49,24 @@ function trim(str) {
 }
 
 function setCardType(type) {
+    jQuery('#cvv2-hint').popover({ placement: 'top'});
+    jQuery('#cc_cvv2')
+        .focus(function() { $('#cvv2-hint').popover('show') })
+        .blur(function() { $('#cvv2-hint').popover('hide') });
 
     jQuery('.cardType .icon').attr('class', 'dropdown-toggle icon');
     jQuery('.cardType .icon .card').attr('class', 'card');
-    jQuery('.cardCVV2 .icon').attr('class', 'icon blank');
+    jQuery('.cardCVV2').attr('class', 'cardCVV2');
     jQuery('.cardCVV2 .right-text').attr('class', 'right-text').find('.default-text').show().siblings().hide();
 
     jQuery('#card_type').val('');
 
-    jQuery('.cardCVV2').show();
     if (typeof type == 'undefined') {
         var accountNumber = jQuery('#cc_number').val().replace(/[^0-9]/g, '');
 
         if ('' == accountNumber) {
             jQuery('.cardType .icon').addClass('blank');
             jQuery('.cardCVV2 .right-text').addClass('blank');
-            jQuery('.cardCVV2').hide();
             return;
         }
 
@@ -78,7 +80,6 @@ function setCardType(type) {
     }
 
     if (typeof type == 'undefined') {
-        jQuery('.cardCVV2').hide();
         jQuery('.cardType .icon').addClass('unknown');
         jQuery('.cardCVV2 .right-text').addClass('unknown').find('.default-text').show().siblings().hide();
         return;
@@ -88,8 +89,9 @@ function setCardType(type) {
 
     if (ccTypeSprites[type]) {
         jQuery('.cardType .icon .card').addClass(ccTypeSprites[type]);
-        jQuery('.cardCVV2 .icon').removeClass('blank').addClass(ccTypeSprites[type]);
+        jQuery('.cardCVV2').removeClass('blank').addClass(ccTypeSprites[type]);
     }
+
 
     var textSpan = jQuery('.cardCVV2 .right-text').find('.'+type);
     if (textSpan.length) {
@@ -102,6 +104,7 @@ function setCardType(type) {
 function cardTypeHandlersSetter() {
     if (jQuery('.cc-form').length) {
         var numberField = jQuery('#cc_number');
+        Payment.formatCardNumber(numberField);
         numberField.change(function () { setCardType(); });
         numberField.keyup(function () { setCardType(); });
         setCardType();

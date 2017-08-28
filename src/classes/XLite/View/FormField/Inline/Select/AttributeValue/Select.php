@@ -71,12 +71,16 @@ class Select extends \XLite\View\FormField\Inline\Base\Single
     {
         $list = parent::getFieldParams($field);
 
-        /** @var \XLite\Model\AttributeValue\AttributeValueSelect[] $options */
         $options = $list['value'];
 
         $result = [];
         foreach ($options as $option) {
-            $result[(string) $option->getId()] = $option->asString();
+            if (!($option instanceof \XLite\Model\AttributeValue\AttributeValueSelect)) {
+                $option = \XLite\Core\Database::getRepo('XLite\Model\AttributeValue\AttributeValueSelect')
+                    ->find((int)$option);
+            }
+
+            $result[$option->getId()] = $option->asString();
         }
 
         $list['options'] = $result;

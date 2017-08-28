@@ -13,7 +13,7 @@ namespace XLite\Module\XC\CrispWhiteSkin\View;
  *
  * @Decorator\Depend("XC\MultiVendor")
  */
-abstract class VendorsBlock extends \XLite\View\VendorsBlock implements \XLite\Base\IDecorator
+abstract class VendorsBlock extends \XLite\Module\XC\MultiVendor\View\VendorsBlock implements \XLite\Base\IDecorator
 {
     /**
      * Return list of disallowed targets

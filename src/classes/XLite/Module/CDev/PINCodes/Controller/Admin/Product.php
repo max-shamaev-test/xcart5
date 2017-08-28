@@ -8,6 +8,9 @@
 
 namespace XLite\Module\CDev\PINCodes\Controller\Admin;
 
+use XLite\Core\Database;
+use XLite\Core\Request;
+
 /**
  * Product modify
  *
@@ -23,30 +26,30 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
     {
         $product = $this->getProduct();
 
-        $product->setPinCodesEnabled((bool)\XLite\Core\Request::getInstance()->pins_enabled);
-        $product->setAutoPinCodes(\XLite\Core\Request::getInstance()->autoPinCodes);
+        $product->setPinCodesEnabled((bool)Request::getInstance()->pins_enabled);
+        $product->setAutoPinCodes(Request::getInstance()->autoPinCodes);
 
-        if (\XLite\Core\Request::getInstance()->delete) {
-            foreach (\XLite\Core\Request::getInstance()->delete as $id => $checked) {
-                $obj = \XLite\Core\Database::getRepo('XLite\Module\CDev\PINCodes\Model\PinCode')->findOneBy(
-                    array(
-                        'id' => $id,
+        if (Request::getInstance()->delete) {
+            foreach (Request::getInstance()->delete as $id => $checked) {
+                $obj = Database::getRepo('XLite\Module\CDev\PINCodes\Model\PinCode')->findOneBy(
+                    [
+                        'id'      => $id,
                         'product' => $product->getId(),
-                        'isSold' => 0
-                    )
+                        'isSold'  => 0
+                    ]
                 );
                 if ($obj) {
-                    \XLite\Core\Database::getEM()->remove($obj);
+                    Database::getEM()->remove($obj);
                 }
             }
         }
 
-        \XLite\Core\Database::getEM()->flush($product);
+        Database::getEM()->flush($product);
         if ($product->hasManualPinCodes()) {
             $product->syncAmount();
             $product->setInventoryEnabled(true);
         }
-        \XLite\Core\Database::getEM()->flush();
+        Database::getEM()->flush();
 
         \XLite\Core\TopMessage::addInfo('PIN codes data have been successfully updated');
     }
@@ -73,14 +76,14 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
      */
     protected function getPageTemplates()
     {
-        $tpls = parent::getPageTemplates();
+        $templates = parent::getPageTemplates();
 
         if (!$this->isNew()) {
-            $tpls += array(
+            $templates += [
                 'pin_codes' => 'modules/CDev/PINCodes/product/pin_codes.twig',
-            );
+            ];
         }
 
-        return $tpls;
+        return $templates;
     }
 }

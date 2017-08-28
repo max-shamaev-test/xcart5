@@ -160,7 +160,10 @@ define(
 
         var countryCode = address['country_code'];
 
-        if (_.isUndefined(window.statesList[countryCode])) {
+        if (
+          _.isUndefined(StatesList.getInstance().getStates(countryCode))
+          || StatesList.getInstance().isForceCustomState(countryCode)
+        ) {
           value = '';
         }
 
@@ -171,7 +174,10 @@ define(
 
         var countryCode = address['country_code'];
 
-        if (!_.isUndefined(window.statesList[countryCode])) {
+        if (
+          !_.isUndefined(StatesList.getInstance().getStates(countryCode))
+          && !StatesList.getInstance().isForceCustomState(countryCode)
+        ) {
           value = '';
         }
 

@@ -68,6 +68,10 @@ abstract class Countable extends \XLite\Core\EventListener\AEventListener
 
         $this->initializeStep();
 
+        if (!isset($this->record['position'])) {
+            $this->record['position'] = 0;
+        }
+
         if (0 == $this->record['position']) {
             $this->initializeTask();
         }

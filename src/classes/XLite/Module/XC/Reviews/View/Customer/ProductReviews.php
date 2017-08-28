@@ -170,7 +170,7 @@ class ProductReviews extends \XLite\View\Dialog
             $this->conditions = \XLite\Core\Session::getInstance()->reviews_search;
 
             if (!is_array($this->conditions)) {
-                $this->conditions = array();
+                $this->conditions = [];
                 \XLite\Core\Session::getInstance()->reviews_search = $this->conditions;
             }
         }
@@ -185,7 +185,7 @@ class ProductReviews extends \XLite\View\Dialog
             $this->conditions['sortOrder'] = 'DESC';
         }
 
-        $cnd->orderBy = array('r.' . $this->conditions['sortCriterion'], $this->conditions['sortOrder']);
+        $cnd->orderBy = ['r.' . $this->conditions['sortCriterion'], $this->conditions['sortOrder']];
 
         return $cnd;
     }

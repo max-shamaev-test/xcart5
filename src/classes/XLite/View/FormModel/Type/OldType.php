@@ -40,11 +40,18 @@ class OldType extends AType
         $fieldOptions = [
             'fieldName' => $view->vars['full_name'],
             // 'id'        => $view->vars['id'],
-            'id' => 'twtwer',
+            'id'        => 'twtwer',
             'fieldOnly' => true,
         ];
 
         $fieldOptions = array_replace($fieldOptions, $options['fieldOptions']);
+
+        $viewData = $form->getViewData();
+        if ($viewData) {
+            $fieldOptions = array_replace($fieldOptions, [
+                'value' => $viewData
+            ]);
+        }
 
         $view->vars = array_replace($view->vars, [
             'fieldClass'   => $options['oldType'],

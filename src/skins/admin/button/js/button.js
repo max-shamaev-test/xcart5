@@ -17,6 +17,17 @@ function setFormAction(form, action)
   setFormAttribute('action', action);
 }
 
+function disableInputsInForm(form) {
+  var inputs = jQuery(form).find(':input');
+
+  if (inputs.length) {
+    _.each(inputs, function(input) {
+      $(input).attr('disabled', true);
+    });
+  }
+
+}
+
 function submitForm(form, attrs)
 {
   jQuery.each(
@@ -28,8 +39,10 @@ function submitForm(form, attrs)
       }
     }
   );
+  var disableInputs = _.partial(disableInputsInForm, form);
 
-	jQuery(form).submit();
+  jQuery(form).submit();
+  _.delay(disableInputs, 100);
 }
 
 function submitFormDefault(form, action)

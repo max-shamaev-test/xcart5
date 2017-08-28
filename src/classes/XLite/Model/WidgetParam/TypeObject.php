@@ -45,7 +45,7 @@ class TypeObject extends \XLite\Model\WidgetParam\AWidgetParam
      *
      * @return array
      */
-    protected function getValidaionSchema($value)
+    protected function getValidationSchema($value)
     {
         return array(
             array(

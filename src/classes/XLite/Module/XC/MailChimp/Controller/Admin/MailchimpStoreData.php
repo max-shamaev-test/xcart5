@@ -11,6 +11,7 @@ namespace XLite\Module\XC\MailChimp\Controller\Admin;
 use XLite\Module\XC\MailChimp\Core\MailChimp;
 use XLite\Module\XC\MailChimp\Core\MailChimpECommerce;
 use \XLite\Module\XC\MailChimp\Logic\UploadingData;
+use XLite\Module\XC\MailChimp\Main;
 
 /**
  * Class MailchimpStoreData
@@ -48,48 +49,27 @@ class MailchimpStoreData extends \XLite\Controller\Admin\AAdmin
                 'startUploadProducts',
                 'startUploadOrders',
                 'startUploadAll',
+                'updateStoresData',
             ]
         );
     }
 
     public function doActionUpdateStores()
     {
-        $storeName = MailChimp::getInstance()->getStoreName();
-
         $lists = \XLite\Core\Request::getInstance()->lists ?: [];
 
         foreach ($lists as $listId => $value) {
-            $storeId = MailChimp::getInstance()->getStoreId($listId);
-            if ($storeId) {
-                $ecCore = MailChimpECommerce::getInstance();
-                if (!$ecCore->getStore($storeId)) {
-                    $ecCore->createStore(
-                        [
-                            'campaign_id'   => '',
-                            'store_id'      => $storeId,
-                            'store_name'    => $storeName,
-                            'currency_code' => \XLite::getInstance()->getCurrency()->getCode(),
-                            'is_main'       => $value
-                        ],
-                        $listId
-                    );
-                } else {
-                    $existingStore = \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\Store')->find($storeId);
-                    if ($existingStore) {
-                        $existingStore->setMain($value);
-                    } else {
-                        $ecCore->createStoreReference(
-                            $listId,
-                            $storeId,
-                            $storeName,
-                            $value
-                        );
-                    }
-                }  
-            }
+            MailChimpECommerce::getInstance()->updateStoreAndReference($listId, $value);
         }
 
         \XLite\Core\Database::getEM()->flush();
+    }
+
+    public function doActionUpdateStoresData()
+    {
+        Main::updateAllMainStores();
+
+        Main::setAllStoreSyncFlag(false);
     }
     
     /**

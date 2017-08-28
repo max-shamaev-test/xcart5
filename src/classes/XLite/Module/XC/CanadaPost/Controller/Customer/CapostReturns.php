@@ -56,7 +56,7 @@ class CapostReturns extends \XLite\Controller\Customer\ACustomer
     {
         parent::addBaseLocation();
 
-        $this->addLocationNode('Search for orders', $this->buildURL('order_list'));
+        $this->addLocationNode('Orders', $this->buildURL('order_list'));
 
         $this->addLocationNode(
             'Order details',

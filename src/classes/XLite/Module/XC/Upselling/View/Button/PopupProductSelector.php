@@ -43,10 +43,13 @@ class PopupProductSelector extends \XLite\View\Button\PopupProductSelector
      */
     protected function prepareURLParams()
     {
+        $productId = $this->getParam(static::PARAM_PARENT_PRODUCT_ID);
+
         return array_merge(
             parent::prepareURLParams(),
             array(
-                'parent_product_id' => $this->getParam(static::PARAM_PARENT_PRODUCT_ID),
+                'parent_product_id' => $productId,
+                'product_id'        => $productId,
                 'category_id'       => 0,
             )
         );

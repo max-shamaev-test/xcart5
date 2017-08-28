@@ -44,7 +44,7 @@ class Home extends \XLite\View\Location\Node
      *
      * @return string
      */
-    protected function getSVGImage($path, $interface = null)
+    public function getSVGImage($path, $interface = null)
     {
         $content = parent::getSVGImage($path, $interface);
 

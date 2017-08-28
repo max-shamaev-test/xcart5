@@ -48,7 +48,10 @@ window.getProductRepresentationFor = function(element) {
 }
 
 core.bind('autoload.before.product_filter_view', function() {
-  if ($('.product-filter-placeholder').length > 0 && $('.product-filter').length > 0) {
+  if ($('.product-filter-placeholder').length > 0
+    && $('.product-filter').length > 0
+    && $('#main .sidebar').css('float') === 'none'
+  ) {
     var filter = $('.product-filter').detach();
 
     $('.product-filter-placeholder').replaceWith(filter);

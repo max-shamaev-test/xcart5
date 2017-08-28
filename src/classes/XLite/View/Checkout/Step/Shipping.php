@@ -51,6 +51,26 @@ class Shipping extends \XLite\View\Checkout\Step\AStep
     }
 
     /**
+     * @inheritdoc
+     */
+    public function processIncomplete()
+    {
+        if (!$this->isShippingAddressValid() && $this->isShippingAddressCompleted()) {
+            $this->getProfile()->getShippingAddress()->restoreInvalid();
+        }
+
+        $billingAddress = $this->getProfile() ? $this->getProfile()->getBillingAddress() : null;
+        if (
+            $billingAddress
+            && $billingAddress->isCompleted(\XLite\Model\Address::BILLING)
+            && !$billingAddress->checkAddress()
+        ) {
+            $billingAddress->restoreInvalid();
+        }
+        \XLite\Core\Database::getEM()->flush();
+    }
+
+    /**
      * Check - step is enabled (true) or skipped (false)
      *
      * @return boolean
@@ -61,15 +81,23 @@ class Shipping extends \XLite\View\Checkout\Step\AStep
     }
 
     /**
+     * @return \XLite\Model\Profile
+     */
+    public function getProfile()
+    {
+        return $this->getCart()->getProfile();
+    }
+
+    /**
      * Check - shipping substep is complete or not
      *
      * @return boolean
      */
     protected function isProfileCompleted()
     {
-        return $this->getCart()->getProfile()->getLogin()
+        return $this->getProfile()->getLogin()
             && (
-                !$this->getCart()->getProfile()->getAnonymous()
+                !$this->getProfile()->getAnonymous()
                 || !\XLite\Core\Session::getInstance()->order_create_profile
                 || \XLite\Core\Session::getInstance()->createProfilePassword
             );
@@ -87,6 +115,7 @@ class Shipping extends \XLite\View\Checkout\Step\AStep
             || (
                 $this->isShippingAddressCompleted()
                 && $this->isModifierCompleted()
+                && $this->isShippingAddressValid()
             );
     }
 
@@ -109,9 +138,10 @@ class Shipping extends \XLite\View\Checkout\Step\AStep
      */
     protected function isPaymentCompleted()
     {
-        return $this->getCart()->getProfile()
-                && $this->getCart()->getProfile()->getBillingAddress()
-                && $this->getCart()->getProfile()->getBillingAddress()->isCompleted(\XLite\Model\Address::BILLING)
+        return $this->getProfile()
+                && $this->getProfile()->getBillingAddress()
+                && $this->getProfile()->getBillingAddress()->isCompleted(\XLite\Model\Address::BILLING)
+                && $this->getProfile()->getBillingAddress()->checkAddress(\XLite\Model\Address::BILLING)
                 && ($this->getCart()->getPaymentMethod() || $this->isPayedCart());
     }
 
@@ -144,11 +174,25 @@ class Shipping extends \XLite\View\Checkout\Step\AStep
      */
     protected function isShippingAddressCompleted()
     {
-        $profile = $this->getCart()->getProfile();
+        $profile = $this->getProfile();
 
         return $profile
             && $profile->getShippingAddress()
             && $profile->getShippingAddress()->isCompleted(\XLite\Model\Address::SHIPPING);
+    }
+
+    /**
+     * Check - shipping address is valid or not
+     *
+     * @return boolean
+     */
+    protected function isShippingAddressValid()
+    {
+        $profile = $this->getProfile();
+
+        return $profile
+            && $profile->getShippingAddress()
+            && $profile->getShippingAddress()->checkAddress(\XLite\Model\Address::SHIPPING);
     }
 
     /**
@@ -198,7 +242,7 @@ class Shipping extends \XLite\View\Checkout\Step\AStep
      */
     public function isBillingAddressCompleted()
     {
-        $profile = $this->getCart()->getProfile();
+        $profile = $this->getProfile();
 
         return $profile
             && $profile->getBillingAddress()
@@ -212,7 +256,7 @@ class Shipping extends \XLite\View\Checkout\Step\AStep
      */
     public function isSameAddress()
     {
-        return !$this->getCart()->getProfile() || $this->getCart()->getProfile()->isEqualAddress();
+        return !$this->getProfile() || $this->getProfile()->isEqualAddress();
     }
 
     /**

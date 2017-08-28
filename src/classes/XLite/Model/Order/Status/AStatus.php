@@ -52,12 +52,14 @@ abstract class AStatus extends \XLite\Model\Base\I18n
     abstract public function isAllowedToSetManually();
 
     /**
-     * Return status handlers list
+     * List of change status handlers;
+     * top index - old status, second index - new one
+     * (<old_status> ----> <new_status>: $statusHandlers[$old][$new])
      *
      * @return array
      */
     public static function getStatusHandlers()
     {
-        return static::$statusHandlers;
+        return [];
     }
 }

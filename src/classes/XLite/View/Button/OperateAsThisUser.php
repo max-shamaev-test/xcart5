@@ -66,7 +66,8 @@ class OperateAsThisUser extends \XLite\View\Button\Link
     protected function isVisible()
     {
         return parent::isVisible()
-            && $this->isProfileAllowed();
+            && $this->isProfileAllowed()
+            && !\XLite::isFreeLicense();
     }
 
     /**

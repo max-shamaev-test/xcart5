@@ -20,7 +20,7 @@ class TaxClasses extends \XLite\Controller\Admin\ACL\Catalog
      */
     static public function isEnabled()
     {
-        return false;
+        return true;
     }
 
     /**

@@ -14,6 +14,10 @@ ItemsList.prototype.listeners.popup = function(handler)
   core.autoload(PopupButtonSelectInstallationType);
 };
 
+ItemsList.prototype.listeners.requestForUpgrade = function (controller) {
+  core.autoload(RequestForUpgrade);
+};
+
 jQuery(document).ready(
   function () {
     // Top filters

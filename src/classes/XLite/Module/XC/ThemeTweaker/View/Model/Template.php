@@ -10,6 +10,7 @@ namespace XLite\Module\XC\ThemeTweaker\View\Model;
 
 use XLite\Core\Layout;
 use XLite\Core\Templating\CacheManagerInterface;
+use XLite\Module\XC\ThemeTweaker\View\FormField\Textarea\CodeMirror;
 
 /**
  * Theme tweaker template view model
@@ -23,13 +24,16 @@ class Template extends \XLite\View\Model\AModel
      */
     protected $schemaDefault = [
         'body' => [
-            self::SCHEMA_CLASS                                                                => 'XLite\Module\XC\ThemeTweaker\View\FormField\Textarea\CodeMirror',
-            self::SCHEMA_LABEL                                                                => 'Template',
-            self::SCHEMA_REQUIRED                                                             => false,
-            self::SCHEMA_FIELD_ONLY                                                           => true,
-            self::SCHEMA_TRUSTED                                                              => true,
-            \XLite\Module\XC\ThemeTweaker\View\FormField\Textarea\CodeMirror::PARAM_CODE_MODE => 'twig',
-            \XLite\Module\XC\ThemeTweaker\View\FormField\Textarea\CodeMirror::PARAM_COLS      => 130,
+            self::SCHEMA_CLASS          => 'XLite\Module\XC\ThemeTweaker\View\FormField\Textarea\CodeMirror',
+            self::SCHEMA_LABEL          => 'Template',
+            self::SCHEMA_REQUIRED       => false,
+            self::SCHEMA_FIELD_ONLY     => true,
+            self::SCHEMA_TRUSTED        => true,
+            self::SCHEMA_ATTRIBUTES     => [
+                'v-pre' => 'v-pre',
+            ],
+            CodeMirror::PARAM_CODE_MODE => 'twig',
+            CodeMirror::PARAM_COLS      => 130,
         ],
     ];
 

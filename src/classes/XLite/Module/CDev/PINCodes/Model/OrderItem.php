@@ -31,7 +31,7 @@ class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\IDecorator
      *
      * @return void
      */
-    public function __construct(array $data = array())
+    public function __construct(array $data = [])
     {
         $this->pinCodes = new \Doctrine\Common\Collections\ArrayCollection();
 
@@ -67,7 +67,7 @@ class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\IDecorator
      */
     public function getSoldPinCodes()
     {
-        $result = array();
+        $result = [];
         foreach ($this->getPinCodes() as $pin) {
             if ($pin->getIsSold()) {
                 $result[] = $pin;
@@ -145,7 +145,7 @@ class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\IDecorator
      */
     public function getAutoPinCodes(\XLite\Model\Product $product, $amount)
     {
-        $codes = array();
+        $codes = [];
 
         for ($i=0; $i < $amount; $i++) {
             $code = new \XLite\Module\CDev\PINCodes\Model\PinCode;

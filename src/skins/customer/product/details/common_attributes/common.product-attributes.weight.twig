@@ -6,6 +6,6 @@
 {% if this.getWeight() != 0 %}
   <li class="product-weight">
     <div><strong>{{ t('Weight') }}</strong></div>
-    <span>{{ this.formatWeight(this.getWeight()) }}</span>
+    <span>{{ this.formatWeight(this.getWeight())|raw }}</span>
   </li>
 {% endif %}

@@ -107,6 +107,7 @@ class CommonResources extends \XLite\View\AView
                 'js/core.popup_button.js',
                 'js/core.form.js',
                 'js/lazy-load.js',
+                'js/loadCSS.min.js',
                 'js/functionNamePolyfill/Function.name.js',
                 array(
                     'file'      => 'js/php.min.js',
@@ -116,7 +117,8 @@ class CommonResources extends \XLite\View\AView
                     'file'      => 'js/fallback.min.js',
                     'no_minify' => true,
                 ),
-                'js/core/amd.js'
+                'js/core/amd.js',
+                'js/core/translate.js',
             ),
             static::RESOURCE_CSS => array(
                 'css/normalize.css',
@@ -125,6 +127,11 @@ class CommonResources extends \XLite\View\AView
                 'css/validationEngine.jquery.css',
                 'css/font-awesome/font-awesome.min.css',
                 'css/lazy-load.css',
+                array(
+                    'file'      => 'css/common.less',
+                    'media'     => 'screen',
+                    'weight'    => 0,
+                ),
                 array(
                     'file'      => 'bootstrap/css/initialize.less',
                     'media'     => 'screen',
@@ -141,6 +148,7 @@ class CommonResources extends \XLite\View\AView
                         . '&subset='
                         . urlencode('latin,cyrillic,latin-ext'),
                     'media' => 'not print',
+                    'async' => true,
                 ),
             ),
         );
@@ -169,6 +177,7 @@ class CommonResources extends \XLite\View\AView
                 ),
                 static::RESOURCE_JS => array(
                     'js/sticky_footer.js',
+                    'js/responsive_navbar.js'
                 ),
             );
     }

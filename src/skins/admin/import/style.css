@@ -264,11 +264,11 @@ div.import-completed .empty .message .comment li {
 }
 
 .import-box .subcontent ul.errors span.count-e {
-  background-color: #b94a48;
+  background-color: #a94442;
 }
 
 div.import-box.import-failed .header h2 {
-  color: #b94a48;
+  color: #a94442;
   padding-left: 1px;
 }
 
@@ -309,7 +309,7 @@ div.import-box.import-failed .header h2 {
 }
 
 .import-box .subcontent ul.errors li.type-E div.text {
-  color: #b94a48;
+  color: #a94442;
 }
 
 .import-box .subcontent ul.errors li.title {
@@ -328,7 +328,7 @@ div.import-box.import-failed .header h2 {
 
 .import-box .subcontent div.much-errors {
   font-size: 18px;
-  color: #b94a48;
+  color: #a94442;
   margin-bottom: 7px;
 }
 
@@ -434,4 +434,24 @@ div.import-box.import-failed .header h2 {
 .action-wrapper .bottom-fade-action:hover,
 .import-box .subcontent .download-errors a:hover{
   color: #0f9dcc;
+}
+
+.alert.alert-danger ul {
+  list-style-type: disc;
+}
+
+.alert.alert-danger ul li {
+  margin-left: 30px;
+}
+
+.alert.alert-danger ul li a.external:after {
+  content: "\f08e";
+  font: normal normal normal 14px/1 FontAwesome;
+  margin-left: 5px;
+  font-size: 11px;
+  display: none;
+}
+
+.alert.alert-danger ul li a.external:hover:after {
+  display: inline-block;
 }

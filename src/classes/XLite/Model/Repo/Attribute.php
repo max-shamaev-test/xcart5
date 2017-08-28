@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * Attributes repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Attribute", summary="Add new product attribute")
+ * @Api\Operation\Read(modelClass="XLite\Model\Attribute", summary="Retrieve product attribute by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Attribute", summary="Retrieve product attributes by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\Attribute", summary="Update product attribute by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Attribute", summary="Delete product attribute by id")
  */
 class Attribute extends \XLite\Model\Repo\Base\I18n
 {
@@ -58,13 +64,15 @@ class Attribute extends \XLite\Model\Repo\Base\I18n
 
         return $qb->leftJoin('a.attribute_properties', 'ap', 'WITH', 'ap.product = :product')
             ->addSelect('ap.position')
-            ->andWhere('a.id IN (' . $qb->getInCondition($ids, 'arr') . ')')
+            ->addInCondition('a.id', $ids)
             ->addGroupBy('a.id')
             ->setParameter('product', $product);
     }
 
     /**
      * Prepare certain search condition
+     *
+     * @Api\Condition(description="Filters attributes by certain product id (leave empty to search attributes without product)", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition OPTIONAL
@@ -84,6 +92,8 @@ class Attribute extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare certain search condition
+     *
+     * @Api\Condition(description="Filters attributes by product class ids", type="array", collectionFormat="multi", items=@Swg\Items(type="integer"))
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition OPTIONAL
@@ -118,6 +128,8 @@ class Attribute extends \XLite\Model\Repo\Base\I18n
     /**
      * Prepare certain search condition
      *
+     * @Api\Condition(description="Filters attributes by attribute group id (leave empty to search attributes without group)", type="integer")
+     *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition OPTIONAL
      *
@@ -136,6 +148,7 @@ class Attribute extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters attributes by type", type="string", enum={"S", "T", "C"})
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition OPTIONAL
@@ -157,6 +170,7 @@ class Attribute extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters attributes by name", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition OPTIONAL
@@ -223,7 +237,7 @@ class Attribute extends \XLite\Model\Repo\Base\I18n
     {
         return $this->createPureQueryBuilder()
             ->setFirstResult($position)
-            ->setMaxResults(1000000000);
+            ->setMaxResults(\XLite\Core\EventListener\Export::CHUNK_LENGTH);
     }
 
     // }}}
@@ -270,7 +284,7 @@ class Attribute extends \XLite\Model\Repo\Base\I18n
                 ->setParameter('productClass', $value);
 
         } else {
-            $result = parent::addImportCondition($qb, $name, $value);
+            parent::addImportCondition($qb, $name, $value);
         }
     }
 }

@@ -108,10 +108,10 @@ class Ecwid extends ADataSource
      * Does an Ecwid API call
      * 
      * @param string $apiMethod API method name to call
-     * @param string $params    Parameters to pass along OPTIONAL
+     * @param array $params    Parameters to pass along OPTIONAL
      *  
      * @return array
-     * @throws Exception
+     * @throws \Exception
      */
     public function callApi($apiMethod, $params = array())
     {

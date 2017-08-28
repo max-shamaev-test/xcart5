@@ -18,11 +18,6 @@ use Doctrine\ORM\Query\Expr;
 abstract class ARepo extends \Doctrine\ORM\EntityRepository
 {
     /**
-     * Cache default TTL (1 year)
-     */
-    const CACHE_DEFAULT_TTL = 2592000;
-
-    /**
      * Cache cell fields names
      */
     const KEY_TYPE_CACHE_CELL  = 'keyType';
@@ -220,7 +215,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
                 : $cells;
         }
 
-        \XLite\Model\Repo\ARepo::getCacheDriver()->save($key, $cacheCells, static::CACHE_DEFAULT_TTL);
+        \XLite\Model\Repo\ARepo::getCacheDriver()->save($key, $cacheCells, \XLite\Core\Cache::getDefaultCacheTtl());
     }
 
     /**
@@ -563,8 +558,6 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
      * @param \XLite\Model\AEntity $entity Entity to update
      * @param array                $data   New values for entity properties
      * @param boolean              $flush  Flag OPTIONAL
-     *
-     * @return void
      */
     public function update(\XLite\Model\AEntity $entity, array $data = array(), $flush = self::FLUSH_BY_DEFAULT)
     {
@@ -759,7 +752,13 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
      */
     public function clearAll()
     {
-        $this->deleteInBatch($this->findAll());
+        $this->createPureQueryBuilder()
+            ->delete()
+            ->execute();
+
+        \XLite\Core\Database::getEM()->clear(
+            $this->getClassName()
+        );
     }
 
     /**
@@ -1244,7 +1243,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
 
             list($cacheCells, $relations) = $this->postprocessCacheCells($cacheCells);
 
-            \XLite\Model\Repo\ARepo::getCacheDriver()->save($key, $cacheCells, self::CACHE_DEFAULT_TTL);
+            \XLite\Model\Repo\ARepo::getCacheDriver()->save($key, $cacheCells, \XLite\Core\Cache::getDefaultCacheTtl());
 
             // Save relations to current model cache cells from related models
             foreach ($relations as $model => $cells) {
@@ -1362,7 +1361,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
             \XLite\Model\Repo\ARepo::getCacheDriver()->save(
                 $this->getCellHash($name, $cell, $params),
                 $data,
-                self::CACHE_DEFAULT_TTL
+                \XLite\Core\Cache::getDefaultCacheTtl()
             );
 
         } else {
@@ -1780,30 +1779,6 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
     }
 
     /**
-     * Assign calculated field
-     * @deprecated 5.3.3 use getCalculatedFieldAlias
-     *
-     * @param \XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder Query builder
-     * @param string                                  $name         Field name
-     *
-     * @return \XLite\Model\QueryBuilder\AQueryBuilder
-     */
-    protected function assignCalculatedField(\XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder, $name)
-    {
-        $uname = ucfirst($name);
-        $method = 'defineCalculated' . $uname . 'DQL';
-        if (method_exists($this, $method)
-            && null === $queryBuilder->getDataCell(static::CALCULATED_FIELD_FLAG . $name)
-        ) {
-            $value = $this->$method($queryBuilder, $queryBuilder->getRootAlias());
-            $queryBuilder->addSelect($value . ' calculated' . $uname);
-            $queryBuilder->setDataStorage(static::CALCULATED_FIELD_FLAG . $name, $value);
-        }
-
-        return $queryBuilder;
-    }
-
-    /**
      * Helper to get a valid value for {sort, order} pair.
      * It returns  array($sort, null)   value if $value = array($sort)
      * and returns array($sort, $order) value if $value = array($sort, $order)
@@ -1937,14 +1912,16 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
     /**
      * Define items iterator
      *
-     * @param integer $position Position OPTIONAL
+     * @param integer $position
+     * @param int     $maxItems
      *
      * @return \Doctrine\ORM\Internal\Hydration\IterableResult
      */
-    public function getExportIterator($position = 0)
+    public function getExportIterator($position = 0, $maxItems = 100)
     {
         return $this->defineExportIteratorQueryBuilder($position)
-                    ->iterate();
+            ->setMaxResults($maxItems)
+            ->iterate();
     }
 
     /**
@@ -1982,7 +1959,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
     {
         $qb = $this->createPureQueryBuilder()
                    ->setFirstResult($position)
-                   ->setMaxResults(1000000000);
+                   ->setMaxResults(\XLite\Core\EventListener\Export::CHUNK_LENGTH);
 
         if ($this->hasFilter) {
             $qb->andWhere($this->getFilterExpr($qb));
@@ -2058,8 +2035,6 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
      * @param \Doctrine\ORM\QueryBuilder $qb    Query builder
      * @param string                     $name  Name
      * @param mixed                      $value Value
-     *
-     * @return void
      */
     protected function addImportCondition(\Doctrine\ORM\QueryBuilder $qb, $name, $value)
     {
@@ -2522,6 +2497,8 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
     /**
      * Prepare certain search condition
      *
+     * @Api\Condition(description="Sets the offset (first item) and the limit (second item)", type="array", collectionFormat="multi", @Swg\Items(type="string"))
+     *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param array                      $value        Condition data
      *
@@ -2534,6 +2511,8 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
 
     /**
      * Prepare certain search condition
+     *
+     * @Api\Condition(description="Sets sorting order field", type="array", collectionFormat="multi", @Swg\Items(type="string"))
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param array                      $value        Condition data
@@ -2565,15 +2544,14 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
             $this->searchState['queryBuilder']
                 ->resetDQLPart('orderBy');
 
-            $this->assignDefaultOrderBy($this->searchState['queryBuilder']);
             foreach ($orderByCnds as $orderByCnd) {
                 list($sort, $order) = $orderByCnd;
                 $this->searchState['queryBuilder']
                     ->addOrderBy($sort, $order);
             }
-        } else {
-            $this->assignDefaultOrderBy($this->searchState['queryBuilder']);
         }
+
+        $this->assignDefaultOrderBy($this->searchState['queryBuilder']);
     }
 
     /**

@@ -10,17 +10,28 @@ namespace XLite\Model\Repo;
 
 /**
  * Product classes repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\ProductClass", summary="Add new product class")
+ * @Api\Operation\Read(modelClass="XLite\Model\ProductClass", summary="Retrieve product class by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\ProductClass", summary="Retrieve product classs by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\ProductClass", summary="Update product class by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\ProductClass", summary="Delete product class by id")
  */
 class ProductClass extends \XLite\Model\Repo\Base\I18n
 {
+    /**
+     * Default 'order by' field name
+     *
+     * @var string
+     */
+    protected $defaultOrderBy = 'position';
+
     /**
      * Allowable search params
      */
     const CND_PRODUCT = 'product';
 
     /**
-     * Prepare certain search condition
-     *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition OPTIONAL
      *

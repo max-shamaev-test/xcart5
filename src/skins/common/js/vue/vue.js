@@ -10,27 +10,58 @@
 define('vue/vue', function () { return Vue; });
 
 if ('undefined' !== typeof(Vuex)) {
+  Vue.use(Vuex);
   define('vue/vuex', function () { return Vuex; });
 }
 
-if ('undefined' !== typeof(VueLoadableMixin)) {
-  define('vue/vue.loadable', function () { return VueLoadableMixin; });
-}
-
 define('js/vue/vue', ['vue/vue', 'js/vue/component'], function (Vue, XLiteVueComponent) {
+  Vue.directive('data', {
+    update: function() {
+      var self = this;
+      var object = JSON.parse(this.expression);
+      for (var key in object) {
+        var parts = key.replace('[','.').replace(']','').split('.');
+        var path = '';
+
+        parts.forEach(function (part) {
+          if (path) {
+            path = isNaN(part)
+              ? path.concat('.' + part)
+              : path.concat('[' + part + ']');
+          } else {
+            path = part;
+          }
+
+          if (_.isUndefined(self.vm.$get(path))) {
+            self.vm.$set(path, {});
+          }
+        });
+
+        this.vm.$set(key, object[key]);
+      }
+    }
+  });
+
   function XLiteVue() {
+    this.root = null;
   }
 
-  XLiteVue.prototype.root = null;
-  XLiteVue.prototype.start = function () {
+  XLiteVue.prototype.components = {};
+
+  XLiteVue.prototype.start = function (element) {
     for (var componentName in this.components) if (this.components.hasOwnProperty(componentName)) {
       Vue.component(componentName, Vue.extend(this.components[componentName].definition))
     }
 
-    this.root = new Vue({el: 'body'});
+    var elementToInit = element || 'body';
+
+    if (element instanceof jQuery && element.length > 0) {
+      elementToInit = element.get(0);
+    }
+
+    this.root = new Vue({el: elementToInit});
   };
 
-  XLiteVue.prototype.components = {};
   XLiteVue.prototype.component = function (name, definition) {
     if (this.components[name]) {
       this.components[name].extend(definition);
@@ -41,3 +72,12 @@ define('js/vue/vue', ['vue/vue', 'js/vue/component'], function (Vue, XLiteVueCom
 
   return new XLiteVue();
 });
+
+jQuery(document).ready(function () {
+  define('xlite_vue_model_start', ['js/vue/vue', 'ready'], function (XLiteVue) {
+    if ('undefined' === typeof(xliteConfig.admin_script)) {
+        XLiteVue.start();
+    }
+  });
+});
+

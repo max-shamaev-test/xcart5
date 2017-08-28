@@ -14,99 +14,6 @@ if (!defined('XLITE_INSTALL_MODE')) {
     die('Incorrect call of the script. Stopping.');
 }
 
-
-function get_lc_config_file_description()
-{
-    return xtr(
-        'lc_config_file_description',
-        array(
-            ':dir'   => LC_DIR_CONFIG,
-            ':file1' => constant('LC_DEFAULT_CONFIG_FILE'),
-            ':file2' => constant('LC_CONFIG_FILE'),
-        )
-    );
-}
-
-function get_lc_php_version_description()
-{
-    return xtr('lc_php_version_description', array(':phpver' => phpversion()));
-}
-
-function get_lc_php_disable_functions_description()
-{
-    return xtr('lc_php_disable_functions_description');
-}
-
-function get_lc_php_memory_limit_description()
-{
-    return xtr('lc_php_memory_limit_description', array(':minval' => constant('LC_PHP_MEMORY_LIMIT_MIN')));
-}
-
-function get_lc_php_pdo_mysql_description()
-{
-    return xtr('lc_php_pdo_mysql_description');
-}
-
-function get_lc_file_permissions_description($requirements)
-{
-    return $requirements['lc_file_permissions']['description'];
-}
-
-function get_lc_php_file_uploads_description()
-{
-    return xtr('lc_php_file_uploads_description');
-}
-
-function get_lc_php_upload_max_filesize_description()
-{
-    return xtr('lc_php_upload_max_filesize_description');
-}
-
-function get_lc_php_gdlib_description()
-{
-    return xtr('lc_php_gdlib_description');
-}
-
-function get_lc_php_phar_description()
-{
-    return xtr('lc_php_phar_description');
-}
-
-function get_lc_https_bouncer_description()
-{
-    return xtr('lc_https_bouncer_description');
-}
-
-function get_lc_xml_support_description()
-{
-    return xtr('lc_xml_support_description');
-}
-
-function get_lc_docblocks_support_description()
-{
-    return xtr('lc_docblocks_support_description');
-}
-
-function get_kb_lc_file_permissions_description($requirements)
-{
-    return xtr('kb_lc_file_permissions_description');
-}
-
-function get_kb_lc_php_disable_functions_description()
-{
-    return xtr('kb_lc_php_disable_functions_description');
-}
-
-function get_kb_lc_php_pdo_mysql_description()
-{
-    return xtr('kb_lc_php_pdo_mysql_description');
-}
-
-function get_kb_lc_https_bouncer_description()
-{
-    return xtr('kb_lc_https_bouncer_description');
-}
-
 ?>
 
 <div class="requirements-report">
@@ -168,28 +75,19 @@ foreach ($steps as $stepData) {
 
         $colorNumber = ('2' === $colorNumber) ? '1' : '2';
 
-        // Prepare data for requirement notes displaying
-        $label = $reqName . '_description';
-        $labelText = null;
-        $funcname = 'get_' . $label;
-
-        if (function_exists($funcname)) {
-            $labelText = $funcname($requirements);
-
+        if ($reqName === 'file_permissions') {
+            $labelText = $reqData['description'];
         } else {
-
-            $labelText = xtr($label);
-
-            if ($label === $labelText) {
-                $labelText = null;
-            }
+            $label     = $reqName . '.label_message';
+            $labelText = xtr($label, $reqData['messageData']);
+            $labelText = $labelText === $label ? null : $labelText;
         }
 
-        $kbNoteGetter = 'get_kb_' . $label;
+        $kbLabel = $reqName . '.kb_message';
+        $kbNote = xtr($kbLabel, $reqData['messageData']);
+        $kbNote = $kbNote === $kbLabel ? '' : $kbNote;
 
-        $kbNote = function_exists($kbNoteGetter) ? $kbNoteGetter($requirements) : '';
-
-        if (!is_null($labelText)) {
+        if ($labelText !== null) {
             $reqsNotes[] = array(
                 'reqname' => $reqName,
                 'title'   => $stepData['error_msg'],
@@ -271,12 +169,12 @@ foreach ($reqsNotes as $reqNote) {
 
 <?php
 
-    if (!$requirements['lc_file_permissions']['status']) {
+    if (!$requirements['file_permissions']['status']) {
 
 ?>
 
 <P>
-<?php $requirements['lc_file_permissions']['description'] ?>
+<?php $requirements['file_permissions']['description'] ?>
 </P>
 
 <?php

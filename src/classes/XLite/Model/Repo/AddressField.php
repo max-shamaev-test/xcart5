@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * The "address field" model repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\AddressField", summary="Add new address field")
+ * @Api\Operation\Read(modelClass="XLite\Model\AddressField", summary="Retrieve address field by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\AddressField", summary="Retrieve address fields by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\AddressField", summary="Update address field by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\AddressField", summary="Delete address field by id")
  */
 class AddressField extends \XLite\Model\Repo\Base\I18n
 {
@@ -143,6 +149,7 @@ class AddressField extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare query builder for enabled status search
+     * @Api\Condition(description="Filters address fields by enabled\disabled flag", type="boolean")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder
      * @param boolean                    $value
@@ -159,6 +166,7 @@ class AddressField extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare query builder for required status search
+     * @Api\Condition(description="Filters address fields by required/not required flag", type="boolean")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder
      * @param boolean                    $value
@@ -175,6 +183,7 @@ class AddressField extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare query builder for required status search
+     * @Api\Condition(description="Removes custom_state field from selection", type="boolean")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder
      * @param boolean                    $value

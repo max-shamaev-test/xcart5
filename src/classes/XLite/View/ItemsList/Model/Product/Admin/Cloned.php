@@ -16,7 +16,7 @@ namespace XLite\View\ItemsList\Model\Product\Admin;
 class Cloned extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
 {
     /**
-     * Allowed sort criterions
+     * Allowed sort criteria
      */
     const SORT_BY_MODE_PRICE  = 'p.price';
     const SORT_BY_MODE_NAME   = 'translations.name';

@@ -1,0 +1,77 @@
+/* vim: set ts=2 sw=2 sts=2 et: */
+
+/**
+ * Cloud zoom styles
+ *
+ * Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+ * See https://www.x-cart.com/license-agreement.html for license details.
+ */
+
+.product-photo.cloud-zoom-outside .cloud-zoom-big {
+  left: 380px !important;
+  border: none;
+}
+.cloud-zoom-big {
+  border: none;
+  overflow: visible;
+}
+
+.cloud-zoom-big:before {
+  content: " ";
+  position: absolute;
+  border: 1px solid #e2e2e2;
+  top: -1px;
+  bottom: -1px;
+  left: -1px;
+  right: -1px;
+}
+
+.product-photo.cloud-zoom-photo {
+  overflow: visible;
+  border: 1px solid #e2e2e2;
+  height: 442px;
+  width: 368px;
+}
+
+.product-photo.cloud-zoom-photo.cloud-zoom-outside img.photo.product-thumbnail {
+  object-fit: fill;
+  max-height: 440px;
+  max-width: 366px;
+  width: auto;
+  height: auto;
+}
+
+.product-photo.cloud-zoom-photo.cloud-zoom-inside img.photo.product-thumbnail {
+  height: 440px !important;
+  width: 366px !important;
+}
+
+.product-photo.cloud-zoom-photo .mousetrap {
+  z-index: 9990 !important;
+}
+
+.product-photo.cloud-zoom-inside .mousetrap:hover {
+  z-index: 9999 !important;
+}
+
+.product-photo.cloud-zoom-photo .cloud-zoom-lens {
+  border: 4px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+.product-photo.cloud-zoom-photo .cloud-zoom-lens:before {
+  content: " ";
+  position: absolute;
+  border: 1px solid #e2e2e2;
+  top: -1px;
+  bottom: -1px;
+  left: -1px;
+  right: -1px;
+}
+
+.product-photo #wrap {
+  z-index: auto !important;
+}
+
+.product-photo #wrap .cloud-zoom-big {
+  z-index: 9992 !important;
+}

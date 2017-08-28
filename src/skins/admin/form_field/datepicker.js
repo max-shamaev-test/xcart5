@@ -20,6 +20,7 @@ jQuery().ready(
         jQuery(elem).find('input').datepicker({
           dateFormat:        options.dateFormat,
           gotoCurrent:       true,
+          firstDay:          options.firstDay,
           yearRange:         options.highYear + ':' + options.lowYear,
           showButtonPanel:   false,
           beforeShow:        datePickerPostprocess,

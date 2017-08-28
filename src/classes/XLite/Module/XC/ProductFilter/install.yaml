@@ -56,6 +56,16 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Sort order for class attributes'
+        option_comment: 'This setting affects only the attributes themselves, not their values. The values are sorted alphabetically.'
+  - name: url_part_type
+    category: 'XC\ProductFilter'
+    type: 'XLite\Module\XC\ProductFilter\View\FormField\Select\UrlPartType'
+    orderby: 700
+    value: G
+    translations:
+      - code: en
+        option_name: 'Generate the URL query string for filter with'
+        option_comment: 'This setting defines how the URL query string should be assembled when selecting the parameters that will be used to filter products.'
 
 XLite\Model\LanguageLabel:
   - { name: 'Shopping options', translations: [{ code: en, label: 'Shopping options' }] }
@@ -78,3 +88,5 @@ XLite\Model\LanguageLabel:
   - { name: 'Alphabetical', translations: [{ code: en, label: 'Alphabetical' }] }
   - { name: 'Manual', translations: [{ code: en, label: 'Manual' }] }
   - { name: 'Wrong useClasses format', translations: [{ code: en, label: "Wrong useClasses format. This should be 'A', 'N' or 'D'" }] }
+  - { name: 'Hash', translations: [{ code: en, label: 'Hash' }] }
+  - { name: 'Get params', translations: [{ code: en, label: 'GET params' }] }

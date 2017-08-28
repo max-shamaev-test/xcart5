@@ -11,6 +11,12 @@ namespace XLite\Model\Repo;
 /**
  * Order history events repository
  * todo: rename to OrderHistoryEvent
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\OrderHistoryEvents", summary="Add new order history event")
+ * @Api\Operation\Read(modelClass="XLite\Model\OrderHistoryEvents", summary="Retrieve order history event by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\OrderHistoryEvents", summary="Retrieve order history events by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\OrderHistoryEvents", summary="Update order history event by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\OrderHistoryEvents", summary="Delete order history event by id")
  */
 class OrderHistoryEvents extends \XLite\Model\Repo\ARepo
 {
@@ -42,7 +48,7 @@ class OrderHistoryEvents extends \XLite\Model\Repo\ARepo
     {
         $order = \XLite\Core\Database::getRepo('XLite\Model\Order')->find($orderId);
 
-        if (!$order->isRemoving()) {
+        if ($order && !$order->isRemoving()) {
             $event = new \XLite\Model\OrderHistoryEvents(
                 array(
                     'date'         => \XLite\Core\Converter::time(),

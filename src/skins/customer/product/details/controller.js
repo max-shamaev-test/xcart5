@@ -38,23 +38,25 @@ function ProductDetailsController(base)
       function(event, data) {
         var i;
 
-        for (i = 0; i < data.items.length; i++) {
-          if (data.items[i].object_type == 'product' && data.items[i].object_id == o.productId) {
-            if (0 < data.items[i].quantity && !jQuery('body').hasClass('added-product')) {
-              jQuery('body').addClass('added-product')
-                .removeClass('non-added-product');
-
-            } else if (0 == data.items[i].quantity && jQuery('body').hasClass('added-product')) {
-              jQuery('body').addClass('non-added-product')
-                .removeClass('added-product');
-            }
-          }
-        }
-
-        if (!o.selfAdded) {
+        if (!_.isUndefined(data.items)) {
           for (i = 0; i < data.items.length; i++) {
             if (data.items[i].object_type == 'product' && data.items[i].object_id == o.productId) {
-              o.block.load();
+              if (0 < data.items[i].quantity && !jQuery('body').hasClass('added-product')) {
+                jQuery('body').addClass('added-product')
+                  .removeClass('non-added-product');
+
+              } else if (0 == data.items[i].quantity && jQuery('body').hasClass('added-product')) {
+                jQuery('body').addClass('non-added-product')
+                  .removeClass('added-product');
+              }
+            }
+          }
+
+          if (!o.selfAdded) {
+            for (i = 0; i < data.items.length; i++) {
+              if (data.items[i].object_type == 'product' && data.items[i].object_id == o.productId) {
+                o.block.load();
+              }
             }
           }
         }
@@ -144,7 +146,7 @@ ProductDetailsView.prototype.widgetTarget = 'product';
 ProductDetailsView.prototype.widgetClass = '\\XLite\\View\\Product\\Details\\Customer\\Page\\Main';
 
 // Imgaes gallery
-ProductDetailsView.prototype.gallery = null;
+ProductDetailsView.prototype.galleries = null;
 
 // Zoom layer max. width
 ProductDetailsView.prototype.zoomMaxWidth = 460;
@@ -170,20 +172,36 @@ ProductDetailsView.prototype.preloadHandler = function ()
   }
 };
 
+ProductDetailsView.prototype.initializeGallery = function ()
+{
+  var self = this;
+  self.galleries = [];
+  jQuery('.product-image-gallery', this.base).each(function () {
+    self.galleries.push($(this).find('li'));
+  });
+};
+
+ProductDetailsView.prototype.applyToGalleries = function (callback)
+{
+  if (this.galleries) {
+    var self = this;
+    this.galleries.forEach(function (gallery) {
+      callback.apply(self, [gallery]);
+    })
+  }
+};
+
 // Postprocess widget
 ProductDetailsView.prototype.postprocess = function(isSuccess, initial)
 {
   this.callSupermethod('postprocess', arguments);
-
-  var tabsBase = jQuery('.product-details-tabs', this.base);
 
   if (isSuccess) {
 
     // Hide popup title
     jQuery(this.base).parents('.ui-dialog').eq(0).addClass('no-title');
 
-    // Save gallery list items
-    this.gallery = jQuery('.product-image-gallery li', this.base);
+    this.initializeGallery();
 
     var o = this;
 
@@ -215,6 +233,12 @@ ProductDetailsView.prototype.postprocess = function(isSuccess, initial)
           rel.zoomHeight = Math.min(img.height(), baseRel.zoomHeight);
           rel.adjustX  = intval(img.offset().left - jQuery(this).offset().left);
 
+          if (rel.position !== "'inside'") {
+            rel.adjustX += 10;
+            jQuery(this).closest('.cloud-zoom-photo').addClass('cloud-zoom-outside').removeClass('cloud-zoom-inside');
+          }
+
+
           core.setRelArray(jQuery(this), rel);
 
           if (typeof jQuery(this).CloudZoom !== "undefined") {
@@ -223,6 +247,7 @@ ProductDetailsView.prototype.postprocess = function(isSuccess, initial)
 
           jQuery('.image .product-photo img', o.base).css({width: '', height: ''});
         } else {
+          jQuery(this).closest('.cloud-zoom-photo').removeClass('cloud-zoom-outside').addClass('cloud-zoom-inside');
 
           jQuery(this).attr('data-rel', jQuery(this).data('rel-base'));
 
@@ -363,7 +388,7 @@ ProductDetailsView.prototype.postprocess = function(isSuccess, initial)
       cloud.trigger('cloud-zoom');
     }
 
-    jQuery('.link-to-tab').click(
+    jQuery('a.link-to-tab').click(
       _.bind(
         function (event) {
           self.location = event.currentTarget.href;
@@ -465,9 +490,9 @@ ProductDetailsView.prototype.getColorboxOptions = function () {
       jQuery('#cboxTitle').text(jQuery('img', this).attr('alt'));
     },
     onClosed: _.bind(this.hideLightbox, this),
-    maxWidth: jQuery(document).width(),
-    maxHeight: jQuery(document).height(),
-    title:      jQuery('.product-photo img', this.base).attr('alt')
+    maxWidth: jQuery(window).width(),
+    maxHeight: jQuery(window).height(),
+    title: jQuery('.product-photo img', this.base).attr('alt')
   };
 };
 
@@ -478,78 +503,91 @@ ProductDetailsView.prototype.getShadeBase = function () {
 
 // Image gallery switcher
 ProductDetailsView.prototype.switchImage = function (diff) {
-  var selected = -1;
-  var i = 0;
+  var next = -1;
 
-  // Detect current index
-  this.gallery.each(function () {
-    if (selected == -1 && jQuery(this).hasClass('selected')) {
-      selected = i;
+  this.applyToGalleries(function (gallery) {
+    if (next !== -1) {
+      return;
     }
-    i++;
+    var selected = -1;
+    var i = 0;
+
+    // Detect current index
+    gallery.each(function () {
+      if (selected === -1 && jQuery(this).hasClass('selected')) {
+        selected = i;
+      }
+      i++;
+    });
+
+    if (selected === -1) {
+      selected = 0;
+    }
+
+    // Calculate new position
+    next = selected + diff;
+
+    if (next < 0) {
+      next = gallery.length - Math.abs(next) % gallery.length;
+    } else if (next >= gallery.length) {
+      next = next % gallery.length;
+    }
   });
 
-  if (selected == -1) {
-    selected = 0;
-  }
-
-  // Calculate new position
-  var next = selected + diff;
-
-  if (next < 0) {
-    next = this.gallery.length - Math.abs(next) % this.gallery.length;
-  } else if (next >= this.gallery.length) {
-    next = next % this.gallery.length;
-  }
-
-  return this.selectImage(next);
+  this.selectImage(next);
 };
 
 // Select image from gallery
 ProductDetailsView.prototype.selectImage = function (pos) {
-  this.gallery.removeClass('selected');
+  this.applyToGalleries(function (gallery) {
+    gallery.removeClass('selected');
 
-  // Refresh main image and another options + cloud zoom plugin restart
-  var next = this.gallery.eq(pos);
-  next.addClass('selected');
+    // Refresh main image and another options + cloud zoom plugin restart
+    var next = gallery.eq(pos);
+    next.addClass('selected');
 
-  if (this.zoomWidget) {
-    var cloud = jQuery('.cloud-zoom', this.base);
+    if (this.zoomWidget) {
+      var cloud = jQuery('.cloud-zoom', this.base);
 
-    if (cloud.data('zoom')) {
-      cloud.data('zoom').destroy();
-    } else {
-      cloud.unbind('click', this.linkClickHandler);
+      if (cloud.data('zoom')) {
+        cloud.data('zoom').destroy();
+      } else {
+        cloud.unbind('click', this.linkClickHandler);
+      }
+
+      cloud.attr('href', jQuery('a', next).attr('href'));
     }
 
-    cloud.attr('href', jQuery('a', next).attr('href'));
-  }
+    var middle = jQuery('img.middle', next).eq(0);
+    if (middle.length > 0) {
+      var src = middle.attr('src') || null;
+      var srcset = middle.attr('srcset') || null;
+      var alt = middle.attr('alt') || null;
+      jQuery('.image .product-photo img', this.base)
+        .hide()
+        .attr('src', src)
+        .attr('srcset', srcset)
+        .attr('alt', alt)
+        .show();
+    }
 
-  var middle = jQuery('img.middle', next).eq(0);
-  if (middle.length > 0) {
-    jQuery('.image .product-photo img', this.base)
-      .hide()
-      .attr('src', middle.attr('src'))
-      .attr('alt', middle.attr('alt'))
-      .show();
-  }
+    if (jQuery('a', next).length) {
+      var params = jQuery('a', next).attr('rev');
 
-  if (jQuery('a', next).length) {
-    var params = jQuery('a', next).attr('rev');
-
-    if (this.zoomWidget && params) {
-      var tmp = core.parseObjectString('{' + params + '}');
-      if (
+      if (this.zoomWidget && params) {
+        var tmp = core.parseObjectString('{' + params + '}');
+        if (
           tmp &&
           (tmp.width > (middle.width()  * this.kZoom)
           || tmp.height > (middle.width()  * this.kZoom))
-      ) {
-        cloud.trigger('cloud-zoom');
-      } else {
-        cloud.click(this.linkClickHandler);
+        ) {
+          cloud.trigger('cloud-zoom');
+        } else {
+          cloud.click(this.linkClickHandler);
+        }
       }
     }
-  }
+  })
 };
 
 // Get additional parameters

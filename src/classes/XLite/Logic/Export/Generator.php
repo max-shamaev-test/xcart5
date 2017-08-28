@@ -41,27 +41,6 @@ class Generator extends \XLite\Logic\AGenerator
     static protected $languageCode;
 
     /**
-     * Steps (cache)
-     *
-     * @var array
-     */
-    protected $steps;
-
-    /**
-     * Current step index
-     *
-     * @var integer
-     */
-    protected $currentStep;
-
-    /**
-     * Count (cached)
-     *
-     * @var integer
-     */
-    protected $countCache;
-
-    /**
      * Flag: is export in progress (true) or no (false)
      *
      * @var boolean
@@ -84,8 +63,6 @@ class Generator extends \XLite\Logic\AGenerator
      * Constructor
      *
      * @param array $options Options OPTIONAL
-     *
-     * @return void
      */
     public function __construct(array $options = array())
     {
@@ -359,26 +336,6 @@ class Generator extends \XLite\Logic\AGenerator
     // {{{ Service variable names
 
     /**
-     * Get exportTickDuration TmpVar name
-     *
-     * @return string
-     */
-    public static function getTickDurationVarName()
-    {
-        return 'exportTickDuration';
-    }
-
-    /**
-     * Get export cancel flag name
-     *
-     * @return string
-     */
-    public static function getCancelFlagVarName()
-    {
-        return 'exportCancelFlag';
-    }
-
-    /**
      * Get export event name
      *
      * @return string
@@ -386,49 +343,6 @@ class Generator extends \XLite\Logic\AGenerator
     public static function getEventName()
     {
         return 'export';
-    }
-
-    /**
-     * Get export lock key
-     *
-     * @return string
-     */
-    public static function getLockKey()
-    {
-        return static::getEventName();
-    }
-
-    /**
-     * Lock export with file lock
-     */
-    public static function lockExport()
-    {
-        \XLite\Core\Lock\FileLock::getInstance()->setRunning(
-            static::getLockKey()
-        );
-    }
-
-    /**
-     * Check if export is locked right now
-     */
-    public static function isLocked()
-    {
-        return \XLite\Core\Lock\FileLock::getInstance()->isRunning(
-            static::getLockKey(),
-            true
-        );
-    }
-
-    /**
-     * Unlock export
-     *
-     * @return string
-     */
-    public static function unlockExport()
-    {
-        \XLite\Core\Lock\FileLock::getInstance()->release(
-            static::getLockKey()
-        );
     }
 
     // }}}

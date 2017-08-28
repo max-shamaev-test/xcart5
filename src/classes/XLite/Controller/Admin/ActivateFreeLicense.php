@@ -26,6 +26,11 @@ class ActivateFreeLicense extends \XLite\Controller\Admin\ModuleKey
         \XLite\Core\Database::getRepo('XLite\Model\Module')->hasMarketplaceModules(true);
     }
 
+    public function isBusinessViewPage()
+    {
+        return \XLite\Core\Request::getInstance()->page === 'business_view';
+    }
+
     /**
      * Run controller
      *
@@ -49,7 +54,9 @@ class ActivateFreeLicense extends \XLite\Controller\Admin\ModuleKey
      */
     public function getTitle()
     {
-        return static::t('Activate free license');
+        return $this->isBusinessViewPage()
+            ? static::t('Business premium features')
+            : static::t('Activate free license');
     }
 
     /**
@@ -140,7 +147,7 @@ class ActivateFreeLicense extends \XLite\Controller\Admin\ModuleKey
                 // Try to uninstall these modules...
                 foreach ($nonFreeModules as $module) {
                     $messages = [];
-                    $res = \XLite\Core\Database::getRepo('XLite\Model\Module')->uninstallModule($module, $messages);
+                    $res      = \XLite\Core\Database::getRepo('XLite\Model\Module')->uninstallModule($module, $messages);
                     if ($messages) {
                         $method = ($res ? 'Info' : 'Error');
                         foreach ($messages as $message) {

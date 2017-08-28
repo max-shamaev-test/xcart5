@@ -9,7 +9,7 @@
 namespace XLite\Module\CDev\FileAttachments\Model\Product;
 
 /**
- * Product attchament's translations
+ * Product attachment's translations
  *
  * @Entity
  * @Table (name="product_attachment_translations",
@@ -68,7 +68,7 @@ class AttachmentTranslation extends \XLite\Model\Base\Translation
     /**
      * Set description
      *
-     * @param text $description
+     * @param string $description
      * @return AttachmentTranslation
      */
     public function setDescription($description)
@@ -80,7 +80,7 @@ class AttachmentTranslation extends \XLite\Model\Base\Translation
     /**
      * Get description
      *
-     * @return text 
+     * @return string
      */
     public function getDescription()
     {

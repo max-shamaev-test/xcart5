@@ -80,7 +80,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
      *
      * @param array $data Entity properties OPTIONAL
      */
-    public function __construct(array $data = array())
+    public function __construct(array $data = [])
     {
         $this->addressFields = new \Doctrine\Common\Collections\ArrayCollection();
 
@@ -101,7 +101,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
 
         if (null === $result) {
             $addressField = \XLite\Core\Database::getRepo('XLite\Model\AddressField')
-                ->findOneBy(array('serviceName' => $property));
+                ->findOneBy(['serviceName' => $property]);
 
             if ($addressField) {
                 $repo = \XLite\Core\Database::getRepo('XLite\Model\AddressFieldValue');
@@ -116,13 +116,11 @@ class Address extends \XLite\Model\Base\PersonalAddress
 
                 } else {
                     $addressFieldValue = new \XLite\Model\AddressFieldValue();
-                    $addressFieldValue->map(
-                        array(
-                            'address'      => $this,
-                            'addressField' => $addressField,
-                            'value'        => $value,
-                        )
-                    );
+                    $addressFieldValue->map([
+                        'address'      => $this,
+                        'addressField' => $addressField,
+                        'value'        => $value,
+                    ]);
                     $this->addAddressFields($addressFieldValue);
                     if ($this->isPersistent()) {
                         $repo->insert($addressFieldValue);
@@ -261,7 +259,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
     public function isPropertyExists($name)
     {
         return parent::isPropertyExists($name)
-            || (bool) static::getAddressFieldByServiceName($name);
+            || (bool)static::getAddressFieldByServiceName($name);
     }
 
     /**
@@ -280,7 +278,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
         if ($addressField) {
             foreach ($this->getAddressFields() as $field) {
                 if ($field->getAddressField()
-                    && (int) $field->getAddressField()->getId() === (int) $addressField->getId()
+                    && (int)$field->getAddressField()->getId() === (int)$addressField->getId()
                 ) {
                     $addressFieldValue = $field;
                     break;
@@ -295,9 +293,9 @@ class Address extends \XLite\Model\Base\PersonalAddress
     {
         $address = new \XLite\Model\Address();
 
-        $requiredFields = array('country', 'state', 'custom_state', 'zipcode', 'city');
+        $requiredFields = ['country', 'state', 'custom_state', 'zipcode', 'city'];
 
-        $data = array();
+        $data = [];
         foreach ($requiredFields as $fieldName) {
             if (!isset($data[$fieldName]) && \XLite\Model\Address::getDefaultFieldValue($fieldName)) {
                 $data[$fieldName] = \XLite\Model\Address::getDefaultFieldValue($fieldName);
@@ -307,6 +305,32 @@ class Address extends \XLite\Model\Base\PersonalAddress
         $address->map($data);
 
         return $address;
+    }
+
+    public function checkAddress()
+    {
+        /** @var \XLite\Model\AddressFieldValue $addressFieldValue */
+        foreach ($this->getAddressFields() as $addressFieldValue) {
+            $serviceName = $addressFieldValue->getAddressField()->getServiceName();
+            $val = $addressFieldValue->getValue();
+            if (!$this->checkAddressField($serviceName, $val)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function restoreInvalid()
+    {
+        /** @var \XLite\Model\AddressFieldValue $addressFieldValue */
+        foreach ($this->getAddressFields() as $addressFieldValue) {
+            $serviceName = $addressFieldValue->getAddressField()->getServiceName();
+            $val = $addressFieldValue->getValue();
+            if (!$this->checkAddressField($serviceName, $val)) {
+                $addressFieldValue->setValue(static::getDefaultFieldValue($serviceName));
+            }
+        }
     }
 
     /**
@@ -324,6 +348,23 @@ class Address extends \XLite\Model\Base\PersonalAddress
             case 'country':
                 $code = \XLite\Core\Config::getInstance()->Shipping->anonymous_country;
                 $result = \XLite\Core\Database::getRepo('XLite\Model\Country')->findOneByCode($code);
+
+                if ($result && !$result->getEnabled()) {
+                    $newResult = \XLite\Core\Database::getRepo('XLite\Model\Country')->findOneBy(['enabled' => true]);
+                    $result = $newResult ?: $result;
+                }
+                break;
+
+            case 'country_code':
+                $code = \XLite\Core\Config::getInstance()->Shipping->anonymous_country;
+                $result = \XLite\Core\Database::getRepo('XLite\Model\Country')->findOneByCode($code);
+
+                if ($result && !$result->getEnabled()) {
+                    $newResult = \XLite\Core\Database::getRepo('XLite\Model\Country')->findOneBy(['enabled' => true]);
+                    $result = $newResult ?: $result;
+                }
+
+                $result = $result->getCode();
                 break;
 
             case 'state':
@@ -370,7 +411,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
 
             default:
                 $list = null;
-                // TODO - add throw exception
+            // TODO - add throw exception
         }
 
         return $list;
@@ -385,15 +426,15 @@ class Address extends \XLite\Model\Base\PersonalAddress
     {
         $fields = $this->getAddressFields();
 
-        $result = array();
+        $result = [];
 
         if ($fields) {
             $result = array_reduce($fields->toArray(), function ($acc, $item) {
-                if ($item->getAddressField()) {                
+                if ($item->getAddressField()) {
                     $acc[$item->getAddressField()->getServiceName()] = $item->getValue();
                     return $acc;
                 }
-            }, array());
+            }, []);
         }
 
         return $result;
@@ -409,6 +450,14 @@ class Address extends \XLite\Model\Base\PersonalAddress
         $entity = parent::cloneEntity();
 
         foreach (\XLite\Core\Database::getRepo('XLite\Model\AddressField')->findAllEnabled() as $field) {
+            if (
+                $field->getServiceName() === 'state_id'
+                && $this->getCountry()
+                && $this->getCountry()->isForcedCustomState()
+            ) {
+                continue;
+            }
+
             $entity->setterProperty($field->getServiceName(), $this->getterProperty($field->getServiceName()));
         }
 
@@ -430,7 +479,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
 
         if (!$result) {
             $countryField = \XLite\Core\Database::getRepo('XLite\Model\AddressField')
-                ->findOneBy(array('serviceName' => 'country_code', 'enabled' => false));
+                ->findOneBy(['serviceName' => 'country_code', 'enabled' => false]);
             if ($countryField) {
                 $result = \XLite\Model\Address::getDefaultFieldValue('country');
             }
@@ -447,21 +496,23 @@ class Address extends \XLite\Model\Base\PersonalAddress
      */
     public function toArray()
     {
-        return array(
-            'address' => $this->getStreet(),
-            'city'    => $this->getCity(),
-            'state'   => $this->getState() ? $this->getState()->getCode() : '',
+        return [
+            'name'         => trim($this->getFirstname() . ' ' . $this->getLastname()),
+            'address'      => $this->getStreet(),
+            'city'         => $this->getCity(),
+            'state'        => $this->getState() ? $this->getState()->getCode() : '',
             'custom_state' => $this->getCustomState(),
-            'zipcode' => $this->getZipcode(),
-            'country' => $this->getCountry() ? $this->getCountry()->getCode() : '',
-            'type'    => $this->getType() ?: \XLite\Core\Config::getInstance()->Shipping->anonymous_address_type,
-        );
+            'zipcode'      => $this->getZipcode(),
+            'country'      => $this->getCountry() ? $this->getCountry()->getCode() : '',
+            'type'         => $this->getType() ?: \XLite\Core\Config::getInstance()->Shipping->anonymous_address_type,
+        ];
     }
 
     /**
      * Set is_billing
      *
      * @param boolean $isBilling
+     *
      * @return Address
      */
     public function setIsBilling($isBilling)
@@ -473,7 +524,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
     /**
      * Get is_billing
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getIsBilling()
     {
@@ -484,6 +535,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
      * Set is_shipping
      *
      * @param boolean $isShipping
+     *
      * @return Address
      */
     public function setIsShipping($isShipping)
@@ -495,7 +547,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
     /**
      * Get is_shipping
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getIsShipping()
     {
@@ -506,6 +558,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
      * Set isWork
      *
      * @param boolean $isWork
+     *
      * @return Address
      */
     public function setIsWork($isWork)
@@ -517,7 +570,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
     /**
      * Get isWork
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getIsWork()
     {
@@ -527,7 +580,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
     /**
      * Get address_id
      *
-     * @return integer 
+     * @return integer
      */
     public function getAddressId()
     {
@@ -538,6 +591,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
      * Set address_type
      *
      * @param string $addressType
+     *
      * @return Address
      */
     public function setAddressType($addressType)
@@ -549,7 +603,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
     /**
      * Get address_type
      *
-     * @return string 
+     * @return string
      */
     public function getAddressType()
     {
@@ -560,6 +614,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
      * Add addressFields
      *
      * @param \XLite\Model\AddressFieldValue $addressFields
+     *
      * @return Address
      */
     public function addAddressFields(\XLite\Model\AddressFieldValue $addressFields)
@@ -571,7 +626,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
     /**
      * Get addressFields
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getAddressFields()
     {
@@ -582,6 +637,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
      * Set profile
      *
      * @param \XLite\Model\Profile $profile
+     *
      * @return Address
      */
     public function setProfile(\XLite\Model\Profile $profile = null)
@@ -593,7 +649,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
     /**
      * Get profile
      *
-     * @return \XLite\Model\Profile 
+     * @return \XLite\Model\Profile
      */
     public function getProfile()
     {

@@ -20,6 +20,7 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Favicon'
+        option_comment: 'For the icon to be displayed properly in all web browsers, we recommend using the icon size of 32x32 px'
   - name: appleIcon
     category: 'CDev\SimpleCMS'
     type: 'XLite\Module\CDev\SimpleCMS\View\FormField\Input\AppleIcon'

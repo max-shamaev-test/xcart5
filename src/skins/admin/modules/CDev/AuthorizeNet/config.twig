@@ -94,11 +94,33 @@
 
   <tr>
     <td class="setting-name">
-    <label for="settings_md5_key">{{ t('MD5 Hash protection') }}</label>
+    <label for="settings_signature">{{ t('Signature key') }}</label>
     </td>
     <td>
-    <input type="text" id="settings_md5_key" class="setting-with-help" name="settings[md5_key]" value="{{ this.paymentMethod.getSetting('md5_key') }}" class="validate[required,maxSize[255]]" />
+    <input type="text" id="settings_signature" class="setting-with-help" name="settings[signature]" value="{{ this.paymentMethod.getSetting('signature') }}" class="validate[maxSize[255]]" />
+      {{ widget('XLite\\View\\Tooltip', id='settings_signature_help', text=t('Required for SHA512 hash protection.')|raw, caption='', isImageTag='true', className='help-icon') }}
+    </td>
+  </tr>
+
+  <tr>
+    <td class="setting-name">
+    <label for="settings_hash_key">{{ t('MD5 Hash protection') }}</label>
+    </td>
+    <td>
+    <input type="text" id="settings_hash_key" class="setting-with-help" name="settings[hash_key]" value="{{ this.paymentMethod.getSetting('hash_key') }}" class="validate[required,maxSize[255]]" />
     {{ widget('XLite\\View\\Tooltip', id='settings_prefix_help', text=t('authorize_md5_key_help')|raw, caption='', isImageTag='true', className='help-icon') }}
+    </td>
+  </tr>
+
+  <tr>
+    <td class="setting-name">
+    <label for="settings_type">{{ t('Hash protection type') }}</label>
+    </td>
+    <td>
+    <select id="settings_hash_type" name="settings[hash_type]">
+      <option value="md5" {% if this.isSelected(this.paymentMethod.getSetting('hash_type'), 'md5') %} selected="selected" {% endif %}>MD5</option>
+      <option value="sha512" {% if this.isSelected(this.paymentMethod.getSetting('hash_type'), 'sha512') %} selected="selected" {% endif %}>SHA512</option>
+    </select>
     </td>
   </tr>
 

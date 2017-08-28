@@ -8,10 +8,12 @@
 
 namespace XLite\View\Button\Dropdown;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
+
 /**
  * Status
  */
-class Status extends \XLite\View\Button\Dropdown\ADropdown
+class Status extends \XLite\View\Button\Dropdown\ADropdown implements ProviderInterface
 {
     /**
      * Define additional buttons
@@ -21,11 +23,11 @@ class Status extends \XLite\View\Button\Dropdown\ADropdown
     protected function defineAdditionalButtons()
     {
         return [
-            'enable' => [
+            'enable'  => [
                 'params'   => [
                     'action'     => 'enable',
                     'label'      => 'Enable selected',
-                    'style'      => 'action link list-action',
+                    'style'      => 'always-enabled action action-enable link list-action',
                     'icon-style' => 'fa fa-power-off state-on',
                 ],
                 'position' => 100,
@@ -34,11 +36,38 @@ class Status extends \XLite\View\Button\Dropdown\ADropdown
                 'params'   => [
                     'action'     => 'disable',
                     'label'      => 'Disable selected',
-                    'style'      => 'action link list-action',
+                    'style'      => 'always-enabled action action-disable link list-action',
                     'icon-style' => 'fa fa-power-off state-off',
                 ],
                 'position' => 200,
             ],
+        ];
+    }
+
+    /**
+     * getDefaultStyle
+     *
+     * @return string
+     */
+    protected function getDefaultButtonClass()
+    {
+        return parent::getDefaultButtonClass() . ' contains-translation-data';
+    }
+
+    /**
+     * Array of labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'Enable selected' => static::t('Enable selected'),
+            'Enable all'      => static::t('Enable all'),
+            'Disable selected' => static::t('Disable selected'),
+            'Disable all'      => static::t('Disable all'),
         ];
     }
 }

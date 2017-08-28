@@ -76,19 +76,23 @@
     > a, > span {
       #rhythmless > .rhythm(@font-size-large);
       line-height: (2 * @rhythmic-unit);
-      border-bottom: 1px solid transparent;
+      border-bottom: 1px solid @color-link;
       margin-top: -1px;
       &:hover {
       }
     }
 
     &:hover, &:focus {
+      > a, > span {
+        border-color: @color-highlight;
+        color: @color-highlight;
+      }
     }
 
     &.active {
 
       > a, > span {
-        border-color: @color-highlight;
+        border-color: transparent;
         color: @color-highlight;
 
         &:hover, &:hover {

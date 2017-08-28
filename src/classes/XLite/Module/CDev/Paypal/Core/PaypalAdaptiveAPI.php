@@ -447,7 +447,7 @@ class PaypalAdaptiveAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
         if (preg_match("#^/#i", $url)) {
             $url = $currentHost . $url;
         } else {
-            $directory = dirname($_SERVER['PHP_SELF']);
+            $directory = dirname($_SERVER['SCRIPT_NAME']);
             $url = $currentHost . $directory . $url;
         }
     }

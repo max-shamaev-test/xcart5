@@ -17,4 +17,15 @@ abstract class Product extends \XLite\Controller\Admin\Product implements \XLite
     {
         return 'Product';
     }
+
+    /**
+     * @return string
+     */
+    public function getConciergeTitle()
+    {
+        $pages = $this->getPages();
+        $page = $this->getPage();
+
+        return 'Product: ' . $pages[$page];
+    }
 }

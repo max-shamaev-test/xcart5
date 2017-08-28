@@ -12,6 +12,9 @@
     margin-top: 0;
     margin-bottom: 0;
     position: relative;
+    float: none;
+    white-space: nowrap;
+    display: inline-block;
 }
 
 .top-main-menu li ul {
@@ -68,7 +71,7 @@
     padding: 0;
 }
 .top-main-menu li li span.primary-title {
-    font-weight: bold;
+    /*font-weight: bold;*/
 }
 .top-main-menu li li span.primary-title,
 .top-main-menu li li a:active, .top-main-menu li li a:link, .top-main-menu li li a:visited, .top-main-menu li li a:hover {
@@ -130,6 +133,11 @@
     position: absolute;
     top: 0;
     left: 100%;
+}
+
+.top-main-menu li:hover ul li ul.right {
+    left: auto;
+    right: 100%;
 }
 
 .scrollable {

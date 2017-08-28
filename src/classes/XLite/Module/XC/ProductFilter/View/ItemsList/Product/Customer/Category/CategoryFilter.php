@@ -223,4 +223,41 @@ class CategoryFilter extends \XLite\View\ItemsList\Product\Customer\Category\ACa
 
         return $list;
     }
+
+    /**
+     * Defines if the widget is listening to #hash changes
+     *
+     * @return boolean
+     */
+    protected function getListenToHash()
+    {
+        return \XLite\Module\XC\ProductFilter\Main::isUseHash();
+    }
+
+    /**
+     * Defines the #hash prefix of the data for the widget
+     * @TODO implement!
+     *
+     * @return string
+     */
+    protected function getListenToHashPrefix()
+    {
+        return 'product.category';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getReplaceState()
+    {
+        return !\XLite\Module\XC\ProductFilter\Main::isUseHash();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getReplaceStatePrefix()
+    {
+        return 'filter';
+    }
 }

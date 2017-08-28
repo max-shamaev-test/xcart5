@@ -15,8 +15,8 @@ class Product extends \XLite\Controller\Customer\Product implements \XLite\Base\
 {
 
     /**
-     * Get variant images 
-     * 
+     * Get variant images
+     *
      * @return void
      */
     protected function doActionGetVariantImages()
@@ -24,7 +24,7 @@ class Product extends \XLite\Controller\Customer\Product implements \XLite\Base\
         $data = null;
 
         if ($this->getProduct()->mustHaveVariants()) {
-            $ids = array();
+            $ids = [];
             $attributeValues = trim(\XLite\Core\Request::getInstance()->{\XLite\View\Product\Details\Customer\Widget::PARAM_ATTRIBUTE_VALUES}, ',');
 
             if ($attributeValues) {
@@ -49,48 +49,57 @@ class Product extends \XLite\Controller\Customer\Product implements \XLite\Base\
     }
 
     /**
-     * Assemble variant image data 
-     * 
+     * Assemble variant image data
+     *
      * @param \XLite\Module\XC\ProductVariants\Model\Image\ProductVariant\Image $image Image
-     *  
+     *
      * @return array
      */
     protected function assembleVariantImageData(\XLite\Model\Base\Image $image)
     {
-        $result = array(
-            'full' => array(
-                $image->getWidth(),
-                $image->getHeight(),
-                $image->getURL(),
-                $image->getAlt(),
-            ),
-        );
+        $result = [
+            'full' => [
+                'w'   => $image->getWidth(),
+                'h'   => $image->getHeight(),
+                'url' => $image->getURL(),
+                'alt' => $image->getAlt(),
+            ],
+        ];
 
         foreach ($this->getImageSizes() as $name => $sizes) {
-            $result[$name] = $image->getResizedURL($sizes[0], $sizes[1]);
-            $result[$name][3] = $image->getAlt();
+            list(
+                $result[$name]['w'],
+                $result[$name]['h'],
+                $result[$name]['url'],
+                $result[$name]['srcset']
+                ) = $image->getResizedURL($sizes[0], $sizes[1]);
+            $result[$name]['alt'] = $image->getAlt();
+
+            $result[$name]['srcset'] = $result[$name]['srcset'] && $result[$name]['url'] !== $result[$name]['srcset']
+                ? ($result[$name]['srcset'] . ' ' . \XLite\Model\Base\Image::RETINA_RATIO . 'x')
+                : '';
         }
 
         return $result;
     }
 
     /**
-     * Get image sizes 
-     * 
+     * Get image sizes
+     *
      * @return array
      */
     protected function getImageSizes()
     {
-        return array(
-            'gallery' => array(
+        return [
+            'gallery' => [
                 60,
                 60,
-            ),
-            'main'    => array(
+            ],
+            'main'    => [
                 $this->getDefaultMaxImageSize(true),
                 $this->getDefaultMaxImageSize(false),
-            ),
-        );
+            ],
+        ];
     }
 
 }

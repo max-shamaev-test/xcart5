@@ -42,6 +42,13 @@ class Core extends \XLite\Upgrade\Entry\AEntry
     protected $size;
 
     /**
+     * Wave
+     *
+     * @var integer
+     */
+    protected $wave = 0;
+
+    /**
      * Return entry readable name
      *
      * @return string
@@ -122,6 +129,22 @@ class Core extends \XLite\Upgrade\Entry\AEntry
     }
 
     /**
+     * @return int
+     */
+    public function getWave()
+    {
+        return $this->wave;
+    }
+
+    /**
+     * @param int $wave
+     */
+    public function setWave($wave)
+    {
+        $this->wave = $wave;
+    }
+
+    /**
      * Check if module is enabled
      *
      * @return boolean
@@ -188,13 +211,12 @@ class Core extends \XLite\Upgrade\Entry\AEntry
      * Constructor
      *
      * @param string  $majorVersion Core major version
-     * @param string  $minorVersion Core minor version
-     * @param integer $revisionDate Core revison date
+     * @param string  $fullVersion  Core full version
+     * @param integer $revisionDate Core revision date
      * @param integer $size         Pack size
-     *
-     * @return void
+     * @param integer $wave         Wave
      */
-    public function __construct($majorVersion, $fullVersion, $revisionDate, $size)
+    public function __construct($majorVersion, $fullVersion, $revisionDate, $size, $wave = 0)
     {
         $minorVersion = str_replace($majorVersion . '.', '', $fullVersion);
 
@@ -211,6 +233,7 @@ class Core extends \XLite\Upgrade\Entry\AEntry
         $this->minorVersion = $minorVersion;
         $this->revisionDate = $revisionDate;
         $this->size         = $size;
+        $this->wave         = $wave;
 
         parent::__construct();
     }

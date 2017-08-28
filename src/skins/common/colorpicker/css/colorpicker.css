@@ -68,7 +68,9 @@
 	top: 13px;
 	background: #f00;
 }
-.colorpicker input {
+.colorpicker input,
+.colorpicker .colorpicker_hex input,
+.colorpicker .colorpicker_field input {
 	background-color: transparent;
 	border: 1px solid transparent;
 	position: absolute;
@@ -82,6 +84,7 @@
 	padding: 0;
 	height: 11px;
 }
+
 .colorpicker_hex {
 	position: absolute;
 	width: 72px;

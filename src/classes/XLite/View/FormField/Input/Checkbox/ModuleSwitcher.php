@@ -11,7 +11,7 @@ namespace XLite\View\FormField\Input\Checkbox;
 /**
  * Module state switcher form field
  */
-class ModuleSwitcher extends \XLite\View\FormField\Input\Checkbox\Switcher
+class ModuleSwitcher extends \XLite\View\FormField\Input\Checkbox\OnOff
 {
     const PARAM_WARNING_ICON = 'warningIcon';
     const PARAM_COMMENT_TEXT = 'commentText';
@@ -43,12 +43,22 @@ class ModuleSwitcher extends \XLite\View\FormField\Input\Checkbox\Switcher
      *
      * @return string
      */
-    public function getWrapperClass()
+    public function getCssClass()
     {
-        return trim(parent::getWrapperClass()
-            . ($this->isSwitcherReadOnly() ? ' read-only' : '')
+        return trim(
+            parent::getCssClass()
             . ($this->getValue() ? ' disable' : ' enable')
         );
+    }
+
+    /**
+     * Get value container class
+     *
+     * @return string
+     */
+    protected function getValueContainerClass()
+    {
+        return $this->getFieldId() . '-value';
     }
 
     /**
@@ -91,15 +101,15 @@ class ModuleSwitcher extends \XLite\View\FormField\Input\Checkbox\Switcher
         return $this->getParam(self::PARAM_WARNING_ICON);
     }
 
-    /**
-     * Return true if switcher in read-only mode
-     *
-     * @return boolean
-     */
-    protected function isSwitcherReadOnly()
-    {
-        return $this->getParam(self::PARAM_IS_READ_ONLY);
-    }
+    ///**
+    // * Return true if switcher in read-only mode
+    // *
+    // * @return boolean
+    // */
+    //protected function isSwitcherReadOnly()
+    //{
+    //    return $this->getParam(self::PARAM_IS_READ_ONLY);
+    //}
 
     /**
      * Get ID of element containing help text for tooltip
@@ -109,5 +119,13 @@ class ModuleSwitcher extends \XLite\View\FormField\Input\Checkbox\Switcher
     protected function getHelpId()
     {
         return $this->getParam(self::PARAM_HELP_ID);
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function isDisabled()
+    {
+        return $this->getParam(self::PARAM_IS_READ_ONLY);
     }
 }

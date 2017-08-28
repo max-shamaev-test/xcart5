@@ -70,9 +70,19 @@ class MailChimp extends \XLite\Base\Singleton
      */
     public function getStoreId($listId = null)
     {
+        if ($listId) {
+            $repo = \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\Store');
+
+            /** @var \XLite\Module\XC\MailChimp\Model\Store $store */
+            $store = $repo->findStoreByListId($listId);
+            if ($store) {
+                return $store->getId();
+            }
+        }
+
         $rawId  = \Includes\Utils\URLManager::getShopURL();
-        $rawId .= static::getInstance()->getStoreName();
         $rawId .= $listId ?: 'no_list_id';
+        $rawId .= 'xc_5_weak_salt';
 
         return md5($rawId);
     }
@@ -251,10 +261,18 @@ class MailChimp extends \XLite\Base\Singleton
      */
     public function updateMailChimpLists()
     {
-        $mailChimpLists = $this->getMailChimpLists();
+        try {
+            $mailChimpLists = $this->getMailChimpLists();
 
-        \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\MailChimpList')
-            ->updateLists($mailChimpLists['lists']);
+            if (isset($mailChimpLists['lists']) && $mailChimpLists['lists']) {
+                \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\MailChimpList')
+                    ->updateLists($mailChimpLists['lists']);
+            } else {
+                Main::logError('No lists', []);
+            }
+        } catch (MailChimpException $e) {
+            Main::logError($e->getMessage(), []);
+        }
     }
 
     /**
@@ -634,7 +652,9 @@ class MailChimp extends \XLite\Base\Singleton
                 'campaign_id'   => $data['campaign_id'],
                 'store_id'      => $storeId,
                 'store_name'    => $storeName,
-                'currency_code' => $data['currency_code']
+                'currency_code' => $data['currency_code'],
+                'money_format'  => \XLite::getInstance()->getCurrency()->getPrefix()
+                    ?: \XLite::getInstance()->getCurrency()->getSuffix(),
             ]
         );
 
@@ -701,6 +721,32 @@ class MailChimp extends \XLite\Base\Singleton
     }
 
     /**
+     * Send ECommerce360 order data
+     *
+     * @param \XLite\Model\Order $order
+     *
+     * @return array
+     */
+    public function updateOrder(\XLite\Model\Order $order)
+    {
+        /** @var \XLite\Module\XC\MailChimp\Model\Order $order */
+        $storeId = $order->getMailchimpStoreId();
+
+        $orderData = Order::mapDataForChange($order);
+        $orderId = $orderData['id'];
+
+        $this->mailChimpAPI->setActionMessageToLog('Update order');
+        $result = $this->mailChimpAPI->patch(
+            "ecommerce/stores/{$storeId}/orders/{$orderId}",
+            $orderData
+        );
+
+        return $this->mailChimpAPI->success()
+            ? $result
+            : null;
+    }
+
+    /**
      * @param string                   $url
      * @param array                    $data
      * @param \XLite\Model\OrderItem[] $lines
@@ -757,7 +803,10 @@ class MailChimp extends \XLite\Base\Singleton
 
             if ($item->getObject()
                 && (!$product
-                    || \DateTime::createFromFormat('c', $product['published_at_foreign']) < $item->getObject()->getUpdateDate()
+                    || (
+                        isset($product['published_at_foreign'])
+                        && \DateTime::createFromFormat('c', $product['published_at_foreign']) < $item->getObject()->getUpdateDate()
+                    )
                 )
             ) {
                 if ($product) {

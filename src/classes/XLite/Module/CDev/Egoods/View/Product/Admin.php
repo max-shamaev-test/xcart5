@@ -11,8 +11,22 @@ namespace XLite\Module\CDev\Egoods\View\Product;
 /**
  * Product attachments tab
  */
-abstract class Admin extends \XLite\Module\CDev\FileAttachments\View\Product\Admin implements \XLite\Base\IDecorator
+class Admin extends \XLite\Module\CDev\FileAttachments\View\Product\Admin implements \XLite\Base\IDecorator
 {
+    /**
+     * @return array
+     */
+    protected function defineTabs()
+    {
+        return parent::defineTabs() + [
+            'history'     => [
+                'weight'   => 200,
+                'title'    => static::t('History of downloads'),
+                'template' => 'modules/CDev/Egoods/product/history.twig',
+            ],
+        ];
+    }
+
     /**
      * Register CSS files
      *

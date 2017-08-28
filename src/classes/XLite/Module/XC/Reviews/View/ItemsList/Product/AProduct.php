@@ -14,7 +14,7 @@ namespace XLite\Module\XC\Reviews\View\ItemsList\Product;
 abstract class AProduct extends \XLite\View\ItemsList\Product\AProduct implements \XLite\Base\IDecorator
 {
     /**
-     * Allowed sort criterions
+     * Allowed sort criteria
      */
     const SORT_BY_MODE_RATE = 'r.rating';
 }

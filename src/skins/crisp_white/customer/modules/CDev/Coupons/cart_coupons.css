@@ -10,6 +10,7 @@
 .coupons {
   width: 100%;
   text-align: center;
+  margin-top: 20px;
 }
 
 .checkout-block .coupons {
@@ -32,24 +33,16 @@
  * New coupon form
  */
 
-.coupons {
-  position: absolute;
-  bottom: -160px;
-  left: 0;
-  right: 0;
-  height: 140px;
-}
-
 @media (max-width: 767px) {
   .coupons {
     bottom: -140px;
-    height: 120px;
+    height: 0;
     padding-left: 20px;
     padding-right: 20px;
   }
   .coupons.opened{
     bottom: -300px;
-    height: 280px;
+    height: 200px;
   }
 }
 
@@ -110,42 +103,13 @@
 .checkout_fastlane_section-right:after {
   content: '';
   display: block;
+}
+
+.checkout_fastlane_section-right:after {
   margin-bottom: 140px;
 }
 
-#cart:after {
-  content: '';
-  display: block;
-  margin-bottom: 25px;
-}
-
-#cart.opened:after {
-  margin-bottom: 105px;
-}
-
-@media (max-width: 991px) {
-  #cart:after {
-    margin-bottom: 65px;
-  }
-
-  #cart.opened:after {
-    margin-bottom: 145px;
-  }
-}
-
 @media (max-width: 767px) {
-  #cart:after {
-    margin-bottom: 45px;
-  }
-
-  #cart.opened:after {
-    margin-bottom: 185px;
-  }
-
-  .checkout-block .review-step:after {
-    margin-bottom: 180px;
-  }
-
   .checkout_fastlane_section-right:after {
     margin-bottom: 240px;
   }

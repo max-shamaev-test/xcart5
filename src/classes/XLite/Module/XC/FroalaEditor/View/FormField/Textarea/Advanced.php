@@ -10,9 +10,14 @@ namespace XLite\Module\XC\FroalaEditor\View\FormField\Textarea;
 
 /**
  * Froala textarea widget
+ *
+ * https://github.com/xcart/wysiwyg-editor
  */
 class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite\Base\IDecorator
 {
+    const SCRIPT_TAG_REGEX = '/<script[\s\S]*?>[\s\S]*?<\/script>/i';
+    const STYLE_TAG_REGEX = '/<style[\s\S]*?>[\s\S]*?<\/style>/i';
+
     /**
      * getJSFiles
      *
@@ -34,10 +39,10 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
     {
         $list = parent::getCommonFiles();
 
-        $list[static::RESOURCE_JS][]    = 'froala-editor/js/froala_editor.pkgd.min.js';
-        $list[static::RESOURCE_JS][]    = 'froala-editor/js/froala_editor.activate.js';
-        $list[static::RESOURCE_CSS][]   = 'froala-editor/css/froala_editor.pkgd.min.css';
-        $list[static::RESOURCE_JS][]    = $this->getEditorLanguageResource();
+        $list[static::RESOURCE_JS][] = 'froala-editor/js/froala_editor.pkgd.min.js';
+        $list[static::RESOURCE_JS][] = 'froala-editor/js/froala_editor.activate.js';
+        $list[static::RESOURCE_JS][] = $this->getEditorLanguageResource();
+        $list[static::RESOURCE_CSS][] = 'froala-editor/css/froala_editor.pkgd.min.css';
 
         return $list;
     }
@@ -53,7 +58,7 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
     protected function getEditorLanguageResource()
     {
         return [
-            'file' => $this->getEditorLanguageFile(),
+            'file'      => $this->getEditorLanguageFile(),
             'no_minify' => true,
         ];
     }
@@ -66,8 +71,8 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
     protected function getEditorLanguageFile()
     {
         return 'froala-editor/js/languages/'
-            . $this->getCurrentLanguageCode()
-            . '.js';
+               . $this->getCurrentLanguageCode()
+               . '.js';
     }
 
     /**
@@ -88,7 +93,7 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
 
             case 'zh':
                 return 'zh_cn';
-            
+
             default:
                 return $code;
         }
@@ -153,23 +158,24 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
      */
     protected function getFroalaConfiguration()
     {
-        return [
-            'placeholderText' => '',
-            'iframe' => true,
-            'iframeStyleFiles' => $this->getIframeStyleFiles(),
-            'toolbarSticky' => true,
-            'charCounterCount' => false,
-            'imageUploadURL' => \XLite\Core\Converter::buildURL(
+        $config = [
+            'language'              => $this->getCurrentLanguageCode(),
+            'placeholderText'       => '',
+            'iframe'                => true,
+            'iframeStyleFiles'      => $this->getIframeStyleFiles(),
+            'toolbarSticky'         => true,
+            'charCounterCount'      => false,
+            'imageUploadURL'        => \XLite\Core\Converter::buildURL(
                 'files',
                 'upload_from_file',
                 [
-                    'mode' => 'json',
-                    'type' => 'image',
+                    'mode'           => 'json',
+                    'type'           => 'image',
                     'url_param_name' => 'link',
-                    'register' => true
+                    'register'       => true,
                 ]
             ),
-            'imageManagerLoadURL' => \XLite\Core\Converter::buildURL(
+            'imageManagerLoadURL'   => \XLite\Core\Converter::buildURL(
                 'files',
                 'get_image_manager_list',
                 []
@@ -179,15 +185,70 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
                 'remove_from_image_manager',
                 []
             ),
-            'imageUploadParam' => 'file',
-            'requestHeaders' => [
-                'X-Requested-With' => 'XMLHttpRequest'
+            'imageUploadParam'      => 'file',
+            'requestHeaders'        => [
+                'X-Requested-With' => 'XMLHttpRequest',
             ],
-            'toolbarButtons' => [
-                'fontFamily', 'fontSize', '|', 'bold', 'italic', 'underline', 'strikeThrough', 'color', 'inlineStyle', 'clearFormatting', '|', 'paragraphFormat', 'paragraphStyle', 'formatOL', 'formatUL', '-', 
-                'align', 'indent', 'outdent', 'insertHR', 'quote', '|', 'insertImage', 'insertTable', 'insertLink', 'insertVideo', '|', 'undo', 'redo', 'html', 'fullscreen'
-            ],
-            'appendToDefault' => $this->getFroalaAppendConfiguration(),
+            'htmlRemoveTags'        => $this->getHtmlRemoveTags(),
+            'toolbarButtons'        => $this->getFroalaToolbarButtons(),
+            'toolbarButtonsMD'      => $this->getFroalaToolbarButtons(),
+            'toolbarButtonsSM'      => $this->getFroalaToolbarButtons(),
+            'toolbarButtonsXS'      => $this->getFroalaToolbarButtons(),
+            'appendToDefault'       => $this->getFroalaAppendConfiguration(),
+        ];
+
+        if($this->useCustomColors() && $this->getCustomColors()) {
+            $config['colorsBackground'] = $this->getCustomColors();
+            $config['colorsText'] = $this->getCustomColors();
+            $config['colorsStep'] = 7;
+        }
+
+        return $config;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function useCustomColors()
+    {
+        return (bool) \XLite\Core\Config::getInstance()->XC->FroalaEditor->use_custom_colors;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getCustomColors()
+    {
+        $customColors = [];
+
+        $colorsSetting = \XLite\Core\Config::getInstance()->XC->FroalaEditor->custom_colors;
+        if ($colorsSetting) {
+            $customColors = explode(',', $colorsSetting);
+
+            $customColors = array_map(function($color) {
+                return '#' . $color;
+            }, $customColors);
+        }
+
+        $customColors[] = 'REMOVE';
+
+        return $customColors;
+    }
+
+    /**
+     * Return list of froala toolbar buttons
+     *
+     * @return array
+     */
+    protected function getFroalaToolbarButtons()
+    {
+        return [
+            'fontFamily', 'fontSize',
+            '|', 'bold', 'italic', 'underline', 'strikeThrough', 'color', 'clearFormatting', 'print',
+            '|', 'paragraphFormat', 'paragraphStyle', 'formatOL', 'formatUL',
+            '-', 'align', 'indent', 'outdent', 'insertHR', 'quote',
+            '|', 'insertImage', 'insertTable', 'insertLink', 'insertVideo',
+            '|', 'undo', 'redo', 'html', 'fullscreen', 'help', 'shortcutsHint'
         ];
     }
 
@@ -204,8 +265,16 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
     }
 
     /**
+     * @return string
+     */
+    protected function getHtmlRemoveTags()
+    {
+        return [];
+    }
+
+    /**
      * Provides style files for iframe mode. Destined to replicate customer zone style.
-     * 
+     *
      * @return array
      */
     protected function getIframeStyleFiles()
@@ -226,7 +295,7 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
 
     /**
      * Returns compiled customer zone style file url.
-     * 
+     *
      * @return string
      */
     protected function getCustomerLessStyles()
@@ -235,28 +304,28 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
 
         $customerLESS = [
             [
-                'file' => \XLite\Core\Layout::getInstance()->getResourceFullPath('bootstrap/css/bootstrap.less', \XLite::COMMON_INTERFACE),
-                'media' => 'screen',
-                'weight' => 0,
-                'filelist' => [
+                'file'      => \XLite\Core\Layout::getInstance()->getResourceFullPath('bootstrap/css/bootstrap.less', \XLite::COMMON_INTERFACE),
+                'media'     => 'screen',
+                'weight'    => 0,
+                'filelist'  => [
                     'bootstrap/css/bootstrap.less',
                 ],
                 'interface' => \XLite::COMMON_INTERFACE,
-                'original' => 'bootstrap/css/bootstrap.less',
-                'url' => \XLite\Core\Layout::getInstance()->getResourceWebPath('bootstrap/css/bootstrap.less', \XLite\Core\Layout::WEB_PATH_OUTPUT_SHORT, \XLite::COMMON_INTERFACE),
-                'less' => true,
+                'original'  => 'bootstrap/css/bootstrap.less',
+                'url'       => \XLite\Core\Layout::getInstance()->getResourceWebPath('bootstrap/css/bootstrap.less', \XLite\Core\Layout::WEB_PATH_OUTPUT_SHORT, \XLite::COMMON_INTERFACE),
+                'less'      => true,
             ],
             [
-                'file'          => \XLite\Core\Layout::getInstance()->getResourceFullPath('css/style.less', \XLite::CUSTOMER_INTERFACE),
-                'media'         => 'screen',
-                'merge'         => 'bootstrap/css/bootstrap.less',
-                'filelist'      => [
+                'file'      => \XLite\Core\Layout::getInstance()->getResourceFullPath('css/style.less', \XLite::CUSTOMER_INTERFACE),
+                'media'     => 'screen',
+                'merge'     => 'bootstrap/css/bootstrap.less',
+                'filelist'  => [
                     'css/style.less',
                 ],
-                'interface'     => null,
-                'original'      => 'css/style.less',
-                'url'           => \XLite\Core\Layout::getInstance()->getResourceWebPath('css/style.less', \XLite\Core\Layout::WEB_PATH_OUTPUT_SHORT, \XLite::CUSTOMER_INTERFACE),
-                'less'          => true
+                'interface' => null,
+                'original'  => 'css/style.less',
+                'url'       => \XLite\Core\Layout::getInstance()->getResourceWebPath('css/style.less', \XLite\Core\Layout::WEB_PATH_OUTPUT_SHORT, \XLite::CUSTOMER_INTERFACE),
+                'less'      => true
             ],
         ];
 
@@ -275,7 +344,7 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
 
     /**
      * Returns current theme style files
-     * 
+     *
      * @return array
      */
     protected function getThemeStyles()
@@ -303,7 +372,7 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
 
     /**
      * Returns specific froala editor styles to be used inside iframe
-     * 
+     *
      * @return array
      */
     protected function getFroalaEditorStyles()
@@ -329,8 +398,8 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
     }
 
     /**
-     * Get processed value 
-     * 
+     * Get processed value
+     *
      * @return string
      */
     protected function getProcessedValue()
@@ -340,5 +409,14 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
             htmlentities(\XLite::getInstance()->getShopURL(null)),
             $this->getValue()
         );
+    }
+
+    /**
+     * Detects any script tags inside the value
+     */
+    protected function hasScripts()
+    {
+        return preg_match(static::SCRIPT_TAG_REGEX, $this->getValue())
+            || preg_match(static::STYLE_TAG_REGEX, $this->getValue());
     }
 }

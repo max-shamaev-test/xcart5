@@ -1,17 +1,19 @@
 {##
  # Marketplace banner
  #}
+<div id="marketplaceBanners" class="top-controls banner carousel slide" data-ride="carousel" data-interval="3000">
+  <ol class="carousel-indicators">
+    {% for banner in this.getBanners() %}
+      <li data-target="#marketplaceBanners" data-slide-to="{{ loop.index0 }}"{% if loop.first %} class="active"{% endif %}></li>
+    {% endfor %}
+  </ol>
 
-<div class="top-controls banner">
-  <div class="banner-info main-banner">
-    <a class="module-link" href="{{ this.getMainBannerURL() }}" {% if this.isMainBannerExternalURL() %}target="_blank"{% endif %}><img class="module-image" src="{{ this.getMainBannerImg() }}" alt="" /></a>
-    {{ widget_list('marketplace.landing.controls') }}
-  </div>
-  <div class="banners-collection-box">
-    {% for banner in this.getBannersCollection() %}
-      <div class="banner-info banners-collection">
+  <div class="carousel-inner">
+    {% for banner in this.getBanners() %}
+      <div class="item{% if loop.first %} active{% endif %}">
         <a class="module-link" href="{{ this.getBannerURL(banner) }}" {% if this.isBannerExternalURL(banner) %}target="_blank"{% endif %}><img class="module-image" src="{{ this.getBannerImg(banner) }}" alt="" /></a>
       </div>
     {% endfor %}
   </div>
 </div>
+<div class="clear"></div>

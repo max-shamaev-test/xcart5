@@ -7,6 +7,7 @@
  */
 
 namespace XLite\Upgrade;
+
 use XLite\Core\Cache\ExecuteCachedTrait;
 
 /**
@@ -15,6 +16,7 @@ use XLite\Core\Cache\ExecuteCachedTrait;
 class Cell extends \XLite\Base\Singleton
 {
     use ExecuteCachedTrait;
+
     /**
      * Name of TmpVar
      */
@@ -45,7 +47,7 @@ class Cell extends \XLite\Base\Singleton
     /**
      * List of cell entries
      *
-     * @var array
+     * @var \XLite\Upgrade\Entry\AEntry[]
      */
     protected $entries = array();
 
@@ -169,7 +171,7 @@ class Cell extends \XLite\Base\Singleton
     /**
      * Getter
      *
-     * @return array
+     * @return \XLite\Upgrade\Entry\AEntry[]
      */
     public function getEntries()
     {
@@ -856,7 +858,16 @@ class Cell extends \XLite\Base\Singleton
      */
     protected function checkForCoreUpgrade()
     {
-        $majorVersion = $this->coreVersion ?: \XLite::getInstance()->getMajorVersion();
+        if ($this->coreVersion) {
+            $versionData = explode('.', $this->coreVersion);
+            $majorVersion = $versionData[0];
+
+            if (!empty($versionData[1])) {
+                $majorVersion .= '.' . $versionData[1];
+            }
+        } else {
+            $majorVersion = \XLite::getInstance()->getMajorVersion();
+        }
 
         $isHotfixMode = $this->isHotFixesModeSelected();
 
@@ -1332,7 +1343,6 @@ class Cell extends \XLite\Base\Singleton
         $logLibDir  = LC_DIR_LIB . 'Log' . LC_DS;
         $pearFile   = LC_DIR_LIB . 'PEAR';
         $purifier   = LC_DIR_LIB . 'htmlpurifier';
-        $dompdf     = LC_DIR_LIB . 'dompdf';
 
         // Exclude specific Symfony component
         $symfonyComponent = LC_DIR_LIB . 'Symfony' . LC_DS . 'Component' . LC_DS . 'EventDispatcher';
@@ -1347,7 +1357,6 @@ class Cell extends \XLite\Base\Singleton
                 && (false === stristr($filePath, $pearFile))
                 && (false === stristr($filePath, $symfonyComponent))
                 && (false === stristr($filePath, $purifier))
-                && (false === stristr($filePath, $dompdf))
                 && (!$doctrineDir || false === stristr($filePath, $doctrineDir))
             ) {
                 require_once $filePath;

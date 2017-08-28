@@ -24,6 +24,16 @@ abstract class I18n extends \XLite\Logic\Export\Step\AStep
     }
 
     /**
+     * Get used language codes
+     *
+     * @return array
+     */
+    protected function getUsedLanguageCodes()
+    {
+        return $this->getTranslationRepository()->getUsedLanguageCodes();
+    }
+
+    /**
      * Assign i18n columns 
      * 
      * @param array $columns Base columns
@@ -34,7 +44,7 @@ abstract class I18n extends \XLite\Logic\Export\Step\AStep
     {
         $result = array();
 
-        foreach ($this->getTranslationRepository()->getUsedLanguageCodes() as $code) {
+        foreach ($this->getUsedLanguageCodes() as $code) {
             foreach ($columns as $name => $column) {
                 if (!isset($column[static::COLUMN_GETTER])) {
                     $column[static::COLUMN_GETTER] = 'getTranslationColumnValue';
@@ -59,6 +69,5 @@ abstract class I18n extends \XLite\Logic\Export\Step\AStep
     {
         return $dataset['model']->getTranslation(substr($name, -2))->getterProperty(substr($name, 0, -3));
     }
-
 }
 

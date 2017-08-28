@@ -73,6 +73,13 @@ class Image extends \XLite\View\AView
     protected $resizedURL = null;
 
     /**
+     * Retina resized thumbnail URL
+     *
+     * @var string
+     */
+    protected $retinaResizedURL = null;
+
+    /**
      * Use default image 
      * 
      * @var boolean
@@ -158,7 +165,7 @@ class Image extends \XLite\View\AView
     /**
      * Get properties
      *
-     * @return void
+     * @return array
      */
     public function getProperties()
     {
@@ -166,7 +173,39 @@ class Image extends \XLite\View\AView
         $this->properties['data-max-height'] = max(0, $this->getParam(self::PARAM_MAX_HEIGHT));
         $this->properties['data-is-default-image'] = $this->useDefaultImage;
 
+        if (
+            $this->getParam(self::PARAM_IMAGE)
+            && $this->getParam(self::PARAM_IMAGE)->isExists()
+            && $this->getParam(self::PARAM_USE_CACHE)
+            && ($this->resizedURL !== $this->retinaResizedURL &&
+                !$this->isOriginalImageUrl($this->retinaResizedURL)
+            )
+        ) {
+            $this->properties['srcset'] = $this->retinaResizedURL
+                . ' ' . \XLite\Model\Base\Image::RETINA_RATIO . 'x';
+        }
+
         return $this->properties;
+    }
+
+    /**
+     * Checks if image url is not in images cache folder
+     *
+     * @param string $url Image URL
+     *
+     * @return bool
+     */
+    protected function isOriginalImageUrl($url)
+    {
+        $shopUrl = \XLite::getInstance()->getShopURL();
+
+        if (strpos($url, $shopUrl) === 0) {
+            $localPath = str_replace($shopUrl, '', $url);
+
+            return \Includes\Utils\FileManager::getRelativePath($localPath, LC_DIR_IMAGES) !== null;
+        }
+
+        return false;
     }
 
     /**
@@ -309,7 +348,6 @@ class Image extends \XLite\View\AView
 
     /**
      * Preprocess image
-     * TODO: replace getResizedThumbnailURL to getResizedURL
      *
      * @return void
      */
@@ -318,16 +356,12 @@ class Image extends \XLite\View\AView
         $maxw = max(0, $this->getParam(self::PARAM_MAX_WIDTH));
         $maxh = max(0, $this->getParam(self::PARAM_MAX_HEIGHT));
 
-        $funcName = method_exists($this->getParam(self::PARAM_IMAGE), 'getResizedURL')
-            ? 'getResizedURL'
-            : 'getResizedThumbnailURL';
-
-        // $funcName - getResizedURL or getResizedThumbnailURL
         list(
             $this->properties['width'],
             $this->properties['height'],
-            $this->resizedURL
-        ) = $this->getParam(self::PARAM_IMAGE)->$funcName($maxw, $maxh);
+            $this->resizedURL,
+            $this->retinaResizedURL
+        ) = $this->getParam(self::PARAM_IMAGE)->getResizedURL($maxw, $maxh);
 
         // Center the image vertically and horizontally
         if ($this->getParam(self::PARAM_CENTER_IMAGE)) {

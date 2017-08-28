@@ -21,7 +21,7 @@ abstract class ACategory extends \XLite\View\ItemsList\Product\Customer\ACustome
     const PARAM_CATEGORY_ID  = 'category_id';
 
     /**
-     * Allowed sort criterions
+     * Allowed sort criteria
      */
     const SORT_BY_MODE_DEFAULT = 'cp.orderby';
 

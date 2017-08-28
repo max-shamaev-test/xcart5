@@ -38,7 +38,7 @@ abstract class Address extends \XLite\Model\Base\Address implements \XLite\Base\
                 case 'state_id':
                     $fixedName = 'state';
                     $stateCode = isset($location[$fixedName]) ? $location[$fixedName] : null;
-                    $state = $stateCode ? \XLite\Core\Database::getRepo('XLite\Model\State')->findOneBy(array('code' => $stateCode)) : null;
+                    $state = $stateCode ? \XLite\Core\Database::getRepo('XLite\Model\State')->findOneBy(['code' => $stateCode]) : null;
                     $fieldValue = $state ? $state->getStateId() : parent::getDefaultFieldPlainValue($fieldName);
                     break;
 

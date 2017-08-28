@@ -20,9 +20,12 @@ class CustomCss extends \XLite\Module\XC\ThemeTweaker\Controller\Admin\Base\Them
      */
     public function getTitle()
     {
-        return $this->isAJAX() ? '' : static::t('Custom CSS');
+        return $this->isAJAX() ? '' : static::t('Custom CSS & JS');
     }
 
+    /**
+     * @return string
+     */
     public function printAJAXAttributes()
     {
         return 'data-dialog-modal="false"';

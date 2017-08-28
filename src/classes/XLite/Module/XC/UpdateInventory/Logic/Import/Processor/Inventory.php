@@ -96,7 +96,7 @@ class Inventory extends \XLite\Logic\Import\Processor\Products
      */
     protected function verifyQty($value, array $column)
     {
-        parent::verifyStockLevel($value, $column);
+        parent::verifyStockLevelWithModifier($value, $column);
     }
 
     // }}}
@@ -114,7 +114,7 @@ class Inventory extends \XLite\Logic\Import\Processor\Products
      */
     protected function importQtyColumn($model, $value, array $column)
     {
-        parent::importStockLevelColumn($model, $value, $column);
+        parent::importStockLevelWithModifier($model, $value, $column);
     }
 
     // }}}

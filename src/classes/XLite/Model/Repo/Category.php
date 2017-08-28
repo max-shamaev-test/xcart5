@@ -8,10 +8,17 @@
 
 namespace XLite\Model\Repo;
 
+use Doctrine\Common\Collections\Collection;
 use XLite\Core\Cache\ExecuteCachedTrait;
 
 /**
  * Category repository class
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Category", summary="Add new category")
+ * @Api\Operation\Read(modelClass="XLite\Model\Category", summary="Retrieve category by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Category", summary="Retrieve categories by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\Category", summary="Update category by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Category", summary="Delete category by id")
  */
 class Category extends \XLite\Model\Repo\Base\I18n
 {
@@ -20,7 +27,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
     /**
      * Allowable search params
      */
-    const SEARCH_PARENT = 'parent';
+    const SEARCH_PARENT  = 'parent';
     const SEARCH_SUBTREE = 'subTree';
 
     const ROOT_LPOS = 1;
@@ -228,7 +235,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
     {
         return $category = $this->getCategory($categoryId)
             ? $this->defineSubtreeQuery($categoryId)->getResult()
-            : array();
+            : [];
     }
 
     /**
@@ -242,7 +249,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
     {
         return $category = $this->getCategory($categoryId)
             ? $this->defineCategoryPathQuery($categoryId)->getResult()
-            : array();
+            : [];
     }
 
     /**
@@ -254,7 +261,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
      */
     public function getCategoryNamePath($categoryId)
     {
-        return array_map(array($this, 'getCategoryName'), $this->getCategoryPath($categoryId));
+        return array_map([$this, 'getCategoryName'], $this->getCategoryPath($categoryId));
     }
 
     /**
@@ -315,7 +322,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
                     ->andWhere('c.parent = :parent')
                     ->setParameter('parent', $result);
 
-                $names = array();
+                $names = [];
 
                 if (!$strict) {
                     $names[] = $name;
@@ -366,7 +373,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
             $exLpos = $excludeCat->getLpos();
         }
 
-        $list = array();
+        $list = [];
         foreach ($this->getChildsPlainListForTree($categoryId) as $category) {
             if ($excludeCat && $category['lpos'] >= $exLpos && $category['rpos'] <= $exRpos) {
                 // Category should be excluded
@@ -374,11 +381,11 @@ class Category extends \XLite\Model\Repo\Base\I18n
 
             } else {
                 // Add category to the result
-                $list[] = array(
+                $list[] = [
                     'category_id'  => $category['category_id'],
                     'depth'        => $category['depth'],
                     'translations' => $category['translations'],
-                );
+                ];
                 if ($category['rpos'] > $category['lpos'] + 1) {
                     $list = array_merge($list, $this->getPlanListForTree($category['category_id'], $excludeId));
                 }
@@ -419,7 +426,8 @@ class Category extends \XLite\Model\Repo\Base\I18n
         $field = 'lpos',
         $lpos = null,
         $rpos = null
-    ) {
+    )
+    {
         $category = $this->getCategory($categoryId);
 
         if ($category) {
@@ -427,7 +435,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
             $lposName = 'sub_tree_condition_lpos_' . $index;
             $rposName = 'sub_tree_condition_rpos_' . $index;
 
-            $queryBuilder->andWhere($queryBuilder->expr()->between('c.' . $field, ':'.$lposName, ':'.$rposName))
+            $queryBuilder->andWhere($queryBuilder->expr()->between('c.' . $field, ':' . $lposName, ':' . $rposName))
                 ->setParameter($lposName, $lpos ?: $category->getLpos())
                 ->setParameter($rposName, $rpos ?: $category->getRpos());
         }
@@ -463,7 +471,6 @@ class Category extends \XLite\Model\Repo\Base\I18n
     {
         return $this->createPureQueryBuilder()
             ->select('MAX(c.rpos)')
-            ->groupBy('c.category_id')
             ->setMaxResults(1);
     }
 
@@ -493,7 +500,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
      */
     protected function getCategoriesPlainListChild($categoryId)
     {
-        $list = array();
+        $list = [];
 
         foreach ($this->defineSubcategoriesQuery($categoryId)->getArrayResult() as $category) {
             $list[] = $category;
@@ -717,9 +724,9 @@ class Category extends \XLite\Model\Repo\Base\I18n
     protected function addOrderByCondition(\Doctrine\ORM\QueryBuilder $queryBuilder, $alias = null)
     {
         $queryBuilder
-        // We need POS ordering since POS and LPOS are orderings inside the same one level.
-        // LPOS is formed by the system (by adding into the level)
-        // POS  is formed manually by admin and must have priority
+            // We need POS ordering since POS and LPOS are orderings inside the same one level.
+            // LPOS is formed by the system (by adding into the level)
+            // POS  is formed manually by admin and must have priority
             ->addOrderBy(($alias ?: $this->getDefaultAlias()) . '.pos', 'ASC')
             ->addOrderBy(($alias ?: $this->getDefaultAlias()) . '.category_id', 'ASC');
     }
@@ -738,7 +745,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
         $alias = $alias ?: $this->getDefaultAlias();
 
         $queryBuilder->andWhere($alias . '.category_id <> :rootId')
-            ->setParameter('rootId', (int) $value);
+            ->setParameter('rootId', (int)$value);
     }
 
     /**
@@ -806,10 +813,10 @@ class Category extends \XLite\Model\Repo\Base\I18n
      */
     protected function prepareQuickFlags($scAll, $scEnabled)
     {
-        return array(
+        return [
             'subcategories_count_all'     => $scAll,
             'subcategories_count_enabled' => $scEnabled,
-        );
+        ];
     }
 
     /**
@@ -822,7 +829,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
      */
     protected function prepareCategoryId($categoryId)
     {
-        return abs((int) $categoryId) ?: null;
+        return abs((int)$categoryId) ?: null;
     }
 
     /**
@@ -873,7 +880,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
     protected function performInsert($entity = null)
     {
         /** @var \XLite\Model\Category $entity */
-        $entity   = parent::performInsert($entity);
+        $entity = parent::performInsert($entity);
         $parentID = $entity->getParentId();
 
         if (empty($parentID)) {
@@ -917,15 +924,15 @@ class Category extends \XLite\Model\Repo\Base\I18n
      *
      * @return void
      */
-    protected function performUpdate(\XLite\Model\AEntity $entity, array $data = array())
+    protected function performUpdate(\XLite\Model\AEntity $entity, array $data = [])
     {
         if (!empty($data)) {
-            $changeset = array(
-                'enabled' => array(
+            $changeset = [
+                'enabled' => [
                     $entity->getEnabled(),
                     isset($data['enabled']) ? $data['enabled'] : null
-                )
-            );
+                ]
+            ];
 
         } else {
             $uow = \XLite\Core\Database::getEM()->getUnitOfWork();
@@ -936,7 +943,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
         if (!$changeset && $entity->_getPreviousState()->enabled !== null) {
             $changeset = [
                 'enabled' => [
-                    (bool) $entity->_getPreviousState()->enabled,
+                    (bool)$entity->_getPreviousState()->enabled,
                     $entity->getEnabled(),
                 ]
             ];
@@ -944,7 +951,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
 
         if (isset($changeset['enabled'][0], $changeset['enabled'][1])
             && $entity->getParent()
-            && ($changeset['enabled'][0] xor ((bool) $changeset['enabled'][1]))
+            && ($changeset['enabled'][0] xor ((bool)$changeset['enabled'][1]))
         ) {
             $this->updateQuickFlags(
                 $entity->getParent(),
@@ -1004,9 +1011,10 @@ class Category extends \XLite\Model\Repo\Base\I18n
     public function loadRawFixture(
         \XLite\Model\AEntity $entity,
         array $record,
-        array $regular = array(),
-        array $assocs = array()
-    ) {
+        array $regular = [],
+        array $assocs = []
+    )
+    {
         /** @var \XLite\Model\Category $entity */
         if ($entity->isPersistent() && $this->find($entity->getCategoryId())) {
             $this->performUpdate($entity);
@@ -1026,10 +1034,10 @@ class Category extends \XLite\Model\Repo\Base\I18n
      *
      * @return array
      */
-    protected function assembleAssociationsFromRecord(array $record, array $assocs = array())
+    protected function assembleAssociationsFromRecord(array $record, array $assocs = [])
     {
         if (!isset($record['quickFlags'])) {
-            $record['quickFlags'] = array();
+            $record['quickFlags'] = [];
         }
 
         return parent::assembleAssociationsFromRecord($record, $assocs);
@@ -1053,6 +1061,8 @@ class Category extends \XLite\Model\Repo\Base\I18n
     /**
      * Prepare certain search condition
      *
+     * @Api\Condition(description="Filters categories by parent id", type="integer")
+     *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition data
      *
@@ -1061,7 +1071,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
     protected function prepareCndParent(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
     {
         if ($value && !is_object($value)) {
-            $value = \XLite\Core\Database::getRepo('XLite\Model\Category')->find((int) $value);
+            $value = \XLite\Core\Database::getRepo('XLite\Model\Category')->find((int)$value);
         }
 
         if ($value) {
@@ -1072,6 +1082,8 @@ class Category extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare certain search condition
+     *
+     * @Api\Condition(description="Retrieve categories subtree by parent id", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Parent category id
@@ -1130,25 +1142,27 @@ class Category extends \XLite\Model\Repo\Base\I18n
         if ($data) {
             foreach ($data as $catId => $d) {
                 $query = 'UPDATE ' . $this->getTableName()
-                    . ' SET ' . implode(', ', array_map(function($v) { return $v . ' = ?'; }, array_keys($d)))
-                    . ' WHERE category_id = ?';
-                $d[]   = $catId;
+                         . ' SET ' . implode(', ', array_map(function ($v) {
+                        return $v . ' = ?';
+                    }, array_keys($d)))
+                         . ' WHERE category_id = ?';
+                $d[] = $catId;
                 \XLite\Core\Database::getEM()->getConnection()->executeUpdate($query, array_values($d));
             }
         }
 
         if ($quickFlags) {
-            $qfKeys = array(
+            $qfKeys = [
                 'category_id',
                 'subcategories_count_all',
                 'subcategories_count_enabled',
-            );
+            ];
 
             foreach ($quickFlags as $qfData) {
                 $qfQuery = 'REPLACE INTO '
-                    . \XLite\Core\Database::getRepo('XLite\Model\Category\QuickFlags')->getTableName()
-                    . ' (' . implode(', ', $qfKeys) . ')'
-                    . ' VALUES (' . implode(', ', array_fill(0, count($qfData), '?')) . ')';
+                           . \XLite\Core\Database::getRepo('XLite\Model\Category\QuickFlags')->getTableName()
+                           . ' (' . implode(', ', $qfKeys) . ')'
+                           . ' VALUES (' . implode(', ', array_fill(0, count($qfData), '?')) . ')';
                 \XLite\Core\Database::getEM()->getConnection()->executeUpdate($qfQuery, array_values($qfData));
             }
         }
@@ -1161,7 +1175,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
      */
     protected function getCategoriesRawData()
     {
-        $fields = array(
+        $fields = [
             'c.category_id as id',
             'c.parent_id',
             'c.lpos',
@@ -1171,12 +1185,12 @@ class Category extends \XLite\Model\Repo\Base\I18n
             'c.enabled',
             'qf.subcategories_count_all         as subnodes_count_all',
             'qf.subcategories_count_enabled     as subnodes_count_enabled',
-        );
+        ];
 
         $query = 'SELECT ' . implode(',', $fields) . ' FROM ' . $this->getTableName() . ' c '
-            . ' LEFT JOIN ' . \XLite\Core\Database::getRepo('XLite\Model\Category\QuickFlags')->getTableName()
-            . ' qf ON c.category_id = qf.category_id '
-            . ' ORDER BY c.category_id';
+                 . ' LEFT JOIN ' . \XLite\Core\Database::getRepo('XLite\Model\Category\QuickFlags')->getTableName()
+                 . ' qf ON c.category_id = qf.category_id '
+                 . ' ORDER BY c.category_id';
 
         return \Includes\Utils\Database::fetchAll($query);
     }
@@ -1195,7 +1209,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
      */
     public function hasProduct($category, $product)
     {
-        return (bool) $this->defineHasProduct($category, $product)->getSingleScalarResult();
+        return (bool)$this->defineHasProduct($category, $product)->getSingleScalarResult();
     }
 
     /**
@@ -1238,7 +1252,13 @@ class Category extends \XLite\Model\Repo\Base\I18n
         ];
 
         return \XLite\Core\Cache\ExecuteCached::executeCached(function () {
-            foreach ($this->getAllCategoriesAsDTOQueryBuilder()->getResult() as $category) {
+            $rawCategories = $this->getAllCategoriesAsDTOQueryBuilder()->getResult();
+            if (!$rawCategories || ($rawCategories instanceof Collection && !$rawCategories->count())) {
+                return [];
+            }
+
+            $categories = [];
+            foreach ($rawCategories as $category) {
                 if (!$category['name']) {
                     $category['name'] = $this->getFirstTranslatedName($category['id']);
                 }
@@ -1249,12 +1269,12 @@ class Category extends \XLite\Model\Repo\Base\I18n
             $rootId = $this->getRootCategoryId();
             array_walk($categories, function (array &$category) use ($categories, $rootId) {
                 $result = [$category['name']];
-                $parentId = (int) $category['parent_id'];
+                $parentId = (int)$category['parent_id'];
                 while ($parentId !== $rootId) {
                     $found = false;
                     foreach ($categories as $tmpCategory) {
-                        if ((int) $tmpCategory['id'] === $parentId) {
-                            $parentId = (int) $tmpCategory['parent_id'];
+                        if ((int)$tmpCategory['id'] === $parentId) {
+                            $parentId = (int)$tmpCategory['parent_id'];
                             $result[] = $tmpCategory['name'];
                             $found = true;
                             break;
@@ -1376,6 +1396,8 @@ class Category extends \XLite\Model\Repo\Base\I18n
     /**
      * Prepare certain search condition
      *
+     * @Api\Condition(description="Search by term", type="string")
+     *
      * @param \XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                                   $value        Condition data
      *
@@ -1402,13 +1424,13 @@ class Category extends \XLite\Model\Repo\Base\I18n
                         'translations.name IS NULL AND defaults.name LIKE :searchTerm'
                     )
                 )
-                    ->setParameter('searchTerm', '%' . (string) $value . '%');
+                    ->setParameter('searchTerm', '%' . (string)$value . '%');
 
                 $qb->addSelect('if(locate(\'' . $value . '\', translations.name)=1,0,1) termLocate');
 
             } else {
                 $qb->andWhere($qb->expr()->like('translations.name', ':searchTerm'))
-                    ->setParameter('searchTerm', '%' . (string) $value . '%');
+                    ->setParameter('searchTerm', '%' . (string)$value . '%');
 
                 $qb->addSelect('if(locate(\'' . $value . '\', translations.name)=1,0,1) termLocate');
             }
@@ -1417,6 +1439,8 @@ class Category extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare certain search condition
+     *
+     * @Api\Condition(description="Filters last used categories", type="boolean")
      *
      * @param \XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                                   $value        Condition data
@@ -1468,5 +1492,67 @@ class Category extends \XLite\Model\Repo\Base\I18n
         $qb->andWhere($this->getMainAlias($qb) . '.depth = 0');
 
         return $qb;
+    }
+
+    /**
+     * Check if given categories contains internal category products
+     *
+     * @param array $identifiers Category identifiers
+     *
+     * @return boolean
+     */
+    public function checkForInternalCategoryProducts($identifiers)
+    {
+        if (!empty($identifiers) && is_array($identifiers)) {
+            $tablePrefix = \XLite::getInstance()->getOptions(['database_details', 'table_prefix']);
+            $productsTable = $tablePrefix . 'products';
+            $categoriesTable = $tablePrefix . 'categories';
+            $categoryProductsTable = $tablePrefix . 'category_products';
+
+            $categoriesQuery =
+                "SELECT ct.category_id "
+                . "FROM  {$categoriesTable} c "
+                . "LEFT JOIN  {$categoriesTable} ct "
+                . "ON ct.lpos >= c.lpos AND ct.rpos <= c.rpos "
+                . "WHERE c.category_id IN (:identifiers)";
+
+            $internalCategoryProductsQuery =
+                "SELECT p.product_id "
+                . "FROM {$productsTable} p "
+                . "INNER JOIN {$categoryProductsTable} cpt "
+                . "ON cpt.product_id = p.product_id "
+                . "INNER JOIN {$categoriesTable} ct "
+                . "ON cpt.category_id = ct.category_id AND ct.category_id IN ($categoriesQuery) "
+                . "GROUP BY p.product_id";
+
+            $externalCategoryProductsQuery =
+                "SELECT p.product_id "
+                . "FROM {$productsTable} p "
+                . "INNER JOIN {$categoryProductsTable} cpt "
+                . "ON cpt.product_id = p.product_id "
+                . "INNER JOIN {$categoriesTable} ct "
+                . "ON cpt.category_id = ct.category_id AND ct.category_id IN ($categoriesQuery) "
+                . "INNER JOIN {$categoryProductsTable} acpt "
+                . "ON acpt.product_id = p.product_id "
+                . "INNER JOIN {$categoriesTable} act "
+                . "ON acpt.category_id = act.category_id AND act.category_id NOT IN ($categoriesQuery) "
+                . "GROUP BY p.product_id";
+
+            $internalStmt = \XLite\Core\Database::getEM()->getConnection()->executeQuery(
+                $internalCategoryProductsQuery,
+                ['identifiers' => $identifiers],
+                ['identifiers' => \Doctrine\DBAL\Connection::PARAM_INT_ARRAY]
+            );
+
+            $externalStmt = \XLite\Core\Database::getEM()->getConnection()->executeQuery(
+                $externalCategoryProductsQuery,
+                ['identifiers' => $identifiers],
+                ['identifiers' => \Doctrine\DBAL\Connection::PARAM_INT_ARRAY]
+            );
+
+            return $internalStmt->rowCount() > $externalStmt->rowCount();
+        }
+
+        return false;
     }
 }

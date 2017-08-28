@@ -8,6 +8,7 @@
 
 namespace XLite\Module\XC\Upselling\View\ItemsList;
 
+use XLite\Model\Repo\ARepo;
 use XLite\View\CacheableTrait;
 
 /**
@@ -103,6 +104,20 @@ class UpsellingProducts extends \XLite\View\ItemsList\Product\Customer\ACustomer
     protected function getPagerClass()
     {
         return 'XLite\View\Pager\Infinity';
+    }
+
+    /**
+     * @param \XLite\Core\CommonCell $searchCase
+     *
+     * @return \XLite\Core\CommonCell
+     */
+    protected function postprocessSearchCase(\XLite\Core\CommonCell $searchCase)
+    {
+        $cnd = parent::postprocessSearchCase($searchCase);
+
+        unset($cnd->{ARepo::P_ORDER_BY});
+
+        return $cnd;
     }
 
     /**

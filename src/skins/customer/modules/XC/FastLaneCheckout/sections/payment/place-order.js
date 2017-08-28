@@ -96,7 +96,7 @@ define(
           params.append($('<input type=hidden />').attr('name', k).val(v));
         });
 
-        $('.payment-tpl input').filter(
+        $('.payment-tpl :input').filter(
           function () {
             return this.checked
               || (

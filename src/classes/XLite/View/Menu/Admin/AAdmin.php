@@ -83,8 +83,9 @@ abstract class AAdmin extends \XLite\View\Menu\AMenu
         ),
         'db_backup' => array(
             'db_restore',
-            'integrity_check',
         ),
+        'integrity_check' => [],
+        'consistency_check' => [],
         'product_classes' => array(
             'product_class',
             'attributes',
@@ -105,6 +106,11 @@ abstract class AAdmin extends \XLite\View\Menu\AMenu
         'notifications' => array(
             'notification',
             'notification_common',
+            'notification_attachments',
+            'email_settings',
+        ),
+        'custom_css' => array(
+            'custom_js',
         ),
     );
 

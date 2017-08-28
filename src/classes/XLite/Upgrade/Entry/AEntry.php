@@ -181,6 +181,13 @@ abstract class AEntry
     abstract public function getActualName();
 
     /**
+     * Return entry actual name
+     *
+     * @return string
+     */
+    abstract public function getWave();
+
+    /**
      * Get hashes for current version
      *
      * @return array
@@ -1099,7 +1106,7 @@ abstract class AEntry
                 $arg = null;
                 if (!empty($pendingHooks[$file]) && -1 !== $pendingHooks[$file]) {
                     $arg = $pendingHooks[$file];
-                    if (is_array($arg)) {
+                    if (is_array($arg) && $arg[1]) {
                         $suffix = sprintf('%d/%d [%d%%]', $arg[0], $arg[1], 100 * $arg[0] / $arg[1]);
                     } else {
                         $suffix = sprintf('%d', $arg);
@@ -1359,7 +1366,7 @@ abstract class AEntry
         $path = $this->getUpgradeHelpersDir();
 
         if ($path) {
-            $files = glob($path . $majorVersion . LC_DS . $minorVersion . LC_DS . $type . '*.php');
+            $files = glob($path . $majorVersion . LC_DS . $minorVersion . LC_DS . $type . '*.php') ?: [];
             natsort($files);
 
             $upgradeHelpersDir = $this->getUpgradeHelpersDir(false);

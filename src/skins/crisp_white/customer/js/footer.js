@@ -8,15 +8,28 @@
  */
 
 jQuery(function() {
-	$('.footer-menu').collapser();
-	$('.form-control').floatingLabel();
+  var heightFixer = function () {
+    jQuery(this).addClass('notransition');
 
-	core.bind('checkout.main.ready', function() {
-		$('.checkout_fastlane_container .form-control').floatingLabel();
-	});
+    if (this.scrollHeight > this.clientHeight) {
+      this.style.height = (this.scrollHeight + 10) + 'px';
+    }
 
-    core.bind(['load', 'loader.loaded', 'popup.open'], function() {
-        $('.form-control').floatingLabel();
-    });
+    jQuery(this).removeClass('notransition');
+  };
+
+  jQuery('.footer-menu').collapser();
+  jQuery('.form-control').floatingLabel();
+  jQuery('textarea.form-control').keyup(heightFixer).keyup();
+
+  core.bind('checkout.main.ready', function() {
+  jQuery('.checkout_fastlane_container .form-control').floatingLabel();
+  jQuery('.checkout_fastlane_container textarea.form-control').keyup(heightFixer).keyup();
+  });
+
+  core.bind(['load', 'loader.loaded', 'popup.open'], function() {
+    jQuery('.form-control').floatingLabel();
+    jQuery('textarea.form-control').keyup(heightFixer).keyup();
+  });
 
 });

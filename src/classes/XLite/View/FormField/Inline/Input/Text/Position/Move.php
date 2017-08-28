@@ -54,7 +54,7 @@ class Move extends \XLite\View\FormField\Inline\Input\Text\Position
     /**
      * Get field template
      *
-     * @return void
+     * @return string
      */
     protected function getFieldTemplate()
     {

@@ -10,6 +10,12 @@ namespace XLite\Model\Repo\OrderItem;
 
 /**
  * Order item surcharges repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\OrderItem\Surcharge", summary="Add new order item surcharge")
+ * @Api\Operation\Read(modelClass="XLite\Model\OrderItem\Surcharge", summary="Retrieve order item surcharge by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\OrderItem\Surcharge", summary="Retrieve all order item surcharges")
+ * @Api\Operation\Update(modelClass="XLite\Model\OrderItem\Surcharge", summary="Update order item surcharge by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\OrderItem\Surcharge", summary="Delete order item surcharge by id")
  */
 class Surcharge extends \XLite\Model\Repo\Base\Surcharge
 {

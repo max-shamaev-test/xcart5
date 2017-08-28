@@ -7,6 +7,8 @@
  */
 
 namespace XLite\Controller\Admin;
+use XLite\Core\Lock\FileLock;
+use XLite\Core\Lock\OrderItemLocker;
 
 /**
  * Orders list controller
@@ -214,6 +216,77 @@ class OrderList extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * Bulk payment status change
+     */
+    public function doActionChangePaymentStatus()
+    {
+        $statusToSet  = \XLite\Core\Request::getInstance()->statusToSet;
+        $select = array_filter(\XLite\Core\Request::getInstance()->select);
+
+        $lock = new FileLock();
+        $keyPayment = 'paymentBulkInProcess';
+        $keyShipping = 'shippingBulkInProcess';
+        if(!$lock->isRunning($keyShipping, false, 600)) {
+            $lock->setRunning($keyPayment, 600);
+            $this->changeStatusesBulk('paymentStatus', $statusToSet, $select);
+            $lock->release($keyPayment);
+        } else {
+            \XLite\Core\TopMessage::addError('Another bulk change in progress, please try again later');
+            $list = $this->getItemsList();
+            if ($list) {
+                $list->clearSavedData();
+            }
+        }
+    }
+
+    /**
+     * Bulk fulfillment status change
+     */
+    public function doActionChangeFulfillmentStatus()
+    {
+        $statusToSet  = \XLite\Core\Request::getInstance()->statusToSet;
+        $select = array_filter(\XLite\Core\Request::getInstance()->select);
+
+        $lock = new FileLock();
+        $keyPayment = 'paymentBulkInProcess';
+        $keyShipping = 'shippingBulkInProcess';
+        if(!$lock->isRunning($keyPayment, false, 600)) {
+            $lock->setRunning($keyShipping, 600);
+            $this->changeStatusesBulk('shippingStatus', $statusToSet, $select);
+            $lock->release($keyShipping);
+        } else {
+            \XLite\Core\TopMessage::addError('Another bulk change in progress, please try again later');
+            $list = $this->getItemsList();
+            if ($list) {
+                $list->clearSavedData();
+            }
+        }
+    }
+
+    /**
+     * @param $statusType
+     * @param $statusId
+     * @param $select
+     */
+    protected function changeStatusesBulk($statusType, $statusId, $select)
+    {
+        if ($statusId && $select && is_array($select)) {
+            $data = [];
+            foreach ($select as $id => $value) {
+                $data[$id] = [];
+                $data[$id][$statusType] = $statusId;
+                $data[$id]['_changed'] = true;
+            }
+
+            if ($data) {
+                $dataPrefix = $this->getItemsList()->getDataPrefix();
+                $_POST[$dataPrefix] = $data;
+                \XLite\Core\Request::getInstance()->mapRequest();
+                $this->doActionUpdateItemsList();
+            }
+        }
+    }
+    /**
      * Process 'no action'
      *
      * @return void
@@ -283,7 +356,7 @@ class OrderList extends \XLite\Controller\Admin\AAdmin
             ) {
                 $filter = new \XLite\Model\SearchFilter();
                 $filter->setId('recent');
-                $filter->setName(static::t('Orders awaiting processing'));
+                $filter->setName(static::t('Awaiting processing'));
             }
         }
 
@@ -344,8 +417,12 @@ class OrderList extends \XLite\Controller\Admin\AAdmin
         foreach ($this->getPostedData() as $orderId => $data) {
             $order = \XLite\Core\Database::getRepo('XLite\Model\Order')->find($orderId);
 
+            if (!$order) {
+                continue;
+            }
+
             foreach ($data as $name => $value) {
-                if ('status' === $name) {
+                if (in_array($name, ['status', '_changed'], true)) {
                     continue;
                 }
 

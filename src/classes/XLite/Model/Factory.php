@@ -37,7 +37,7 @@ class Factory extends \XLite\Base
      *
      * @param \ReflectionClass $handler Class descriptor
      *
-     * @return void
+     * @return boolean
      */
     protected static function isSingleton(\ReflectionClass $handler)
     {

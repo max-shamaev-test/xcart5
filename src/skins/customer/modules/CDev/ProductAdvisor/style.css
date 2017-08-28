@@ -18,6 +18,13 @@
   font-size: 14px;
 }
 
+.product-cell .coming-soon-note {
+  display: inline-block;
+  vertical-align: middle;
+  padding-top: 12px;
+  height: 34px;
+}
+
 .coming-soon-date {
   font-weight: bold;
 }
@@ -43,12 +50,14 @@ ul.products-sidebar ul.labels li, ul.products-sidebar ul.labels li.coming-soon d
   white-space: nowrap;
 }
 
-.product-details .labels {
-  position: absolute;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  right: 10px;
-  top: 23px;
-  z-index: 10000;
+.product-details .coming-soon-label .labels {
+  display: inline-block;
+}
+
+.product-details .coming-soon-label .labels li {
+  float: none;
+}
+
+.product-details .coming-soon-label .labels li .content {
+  margin-left: -5px;
 }

@@ -10,6 +10,21 @@ namespace XLite\Model\Repo;
 
 /**
  * The "product" model repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Product", summary="Add new product")
+ * @Api\Operation\Read(modelClass="XLite\Model\Product", summary="Retrieve product by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Product", summary="Retrieve product by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\Product", summary="Update product by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Product", summary="Delete product by id")
+ *
+ * @SWG\Tag(
+ *   name="Product",
+ *   description="Product is the building block of your store. It contains data about certain good you trade and is identified by SKU. Product is tightly coupled with its Category and Attributes.",
+ *   @SWG\ExternalDocumentation(
+ *     description="Find out more about product fields and options",
+ *     url="http://kb.x-cart.com/en/products/adding_products.html"
+ *   )
+ * )
  */
 class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
 {
@@ -22,22 +37,22 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     const P_PRICE             = 'price';
     const P_SEARCH_IN_SUBCATS = 'searchInSubcats';
     const P_INVENTORY         = 'inventory';
-    
-    const P_INCLUDING         = 'including';
-    const P_PRODUCT_CLASS     = 'productClass';
-    const P_TAX_CLASS         = 'taxClass';
-    const P_EXCL_PRODUCT_ID   = 'excludingProductId';
-    const P_ENABLED           = 'enabled';
-    const P_ARRIVAL_DATE      = 'arrivalDate';
+
+    const P_INCLUDING          = 'including';
+    const P_PRODUCT_CLASS      = 'productClass';
+    const P_TAX_CLASS          = 'taxClass';
+    const P_EXCL_PRODUCT_ID    = 'excludingProductId';
+    const P_ENABLED            = 'enabled';
+    const P_ARRIVAL_DATE       = 'arrivalDate';
     const P_ARRIVAL_DATE_RANGE = 'arrivalDateRange';
 
-    const P_BY_TITLE          = 'byTitle';
-    const P_BY_DESCR          = 'byDescr';
-    const P_BY_SKU            = 'bySKU';
+    const P_BY_TITLE = 'byTitle';
+    const P_BY_DESCR = 'byDescr';
+    const P_BY_SKU   = 'bySKU';
 
-    const INCLUDING_ALL     = 'all';
-    const INCLUDING_ANY     = 'any';
-    const INCLUDING_PHRASE  = 'phrase';
+    const INCLUDING_ALL    = 'all';
+    const INCLUDING_ANY    = 'any';
+    const INCLUDING_PHRASE = 'phrase';
 
     const INV_ALL = 'all'; // All
     const INV_LOW = 'low'; // Low amount
@@ -56,9 +71,9 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      *
      * @var array
      */
-    protected $alternativeIdentifier = array(
-        array('sku'),
-    );
+    protected $alternativeIdentifier = [
+        ['sku'],
+    ];
 
     /**
      * Prepare conditions for search
@@ -155,7 +170,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      */
     public function countLastUpdated($limit)
     {
-        return (int) $this->defineCountLastUpdatedQuery($limit)->getSingleScalarResult();
+        return (int)$this->defineCountLastUpdatedQuery($limit)->getSingleScalarResult();
     }
 
     /**
@@ -165,9 +180,9 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      */
     public function getRESTNames()
     {
-        return array (
+        return [
             'product',
-        );
+        ];
     }
 
     /**
@@ -187,7 +202,15 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
             foreach ($this->_class->fieldNames as $name) {
                 $mname = 'get' . \XLite\Core\Converter::convertToCamelCase($name);
                 // $maname assebmled from 'get' + \XLite\Core\Converter::convertToCamelCase() method
-                $data[$name] = $product->$mname();
+                if (
+                    method_exists($product, $mname)
+                    || (
+                        $product instanceof \XLite\Core\MagicMethodsIntrospectionInterface
+                        && $product->hasMagicMethod($mname)
+                    )
+                ) {
+                    $data[$name] = $product->$mname();
+                }
             }
 
             $data['name'] = $product->getName();
@@ -250,7 +273,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
         $qb = $this->defineGenerateSKUQuery();
 
         while ($i < static::SKU_GENERATION_LIMIT
-            && 0 < (int) $qb->setParameter('sku', $sku)->getSingleScalarResult()
+            && 0 < (int)$qb->setParameter('sku', $sku)->getSingleScalarResult()
         ) {
             $i++;
             $sku = $id . '-' . $i;
@@ -277,7 +300,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
         $base = $sku;
 
         while ($i < static::SKU_GENERATION_LIMIT
-            && 0 < (int) $qb->setParameter('sku', $sku)->getSingleScalarResult()
+            && 0 < (int)$qb->setParameter('sku', $sku)->getSingleScalarResult()
         ) {
             $i++;
             $newSku = substr($base . '-clone-' . $i, 0, 32);
@@ -381,12 +404,12 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
             }
         }
 
-        $result = array();
+        $result = [];
 
         foreach ($conditionsBy as $conditionBy) {
             $conditionFields = ('Y' === $this->searchState['currentSearchCnd']->{$conditionBy})
                 ? $this->{'getSubstringSearchFields' . ucfirst($conditionBy)}()
-                : array();
+                : [];
 
             $result = array_merge($result, $conditionFields);
         }
@@ -403,10 +426,10 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     {
         $excludedConditions = array_merge(
             $this->getConditionBy(),
-            array(
+            [
                 static::P_SEARCH_IN_SUBCATS,
-                static::P_INCLUDING
-            )
+                static::P_INCLUDING,
+            ]
         );
 
         return array_merge(
@@ -425,11 +448,11 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      */
     protected function getConditionBy()
     {
-        return array(
+        return [
             self::P_BY_TITLE,
             self::P_BY_DESCR,
             self::P_BY_SKU,
-        );
+        ];
     }
 
     /**
@@ -439,9 +462,9 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      */
     protected function getSubstringSearchFieldsByTitle()
     {
-        return array(
+        return [
             self::TITLE_FIELD,
-        );
+        ];
     }
 
     /**
@@ -451,10 +474,10 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      */
     protected function getSubstringSearchFieldsByDescr()
     {
-        return array(
+        return [
             self::BRIEF_DESCR_FIELD,
             self::DESCR_FIELD,
-        );
+        ];
     }
 
     /**
@@ -464,13 +487,15 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      */
     protected function getSubstringSearchFieldsBySKU()
     {
-        return array(
+        return [
             self::SKU_FIELD,
-        );
+        ];
     }
 
     /**
      * Prepare certain search condition
+     *
+     * @Api\Condition(description="Filters products by sku", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition data
@@ -489,6 +514,8 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     /**
      * Prepare certain search condition
      *
+     * @Api\Condition(description="Filters products by enabled\disabled state", type="boolean")
+     *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition data
      *
@@ -497,11 +524,13 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     protected function prepareCndEnabled(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
     {
         $queryBuilder->andWhere('p.enabled = :enabled')
-            ->setParameter('enabled', (int) (bool) $value);
+            ->setParameter('enabled', (int)(bool)$value);
     }
 
     /**
      * Prepare certain search condition
+     *
+     * @Api\Condition(description="Filters products by category id", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition data
@@ -532,6 +561,8 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     /**
      * Prepare certain search condition
      *
+     * @Api\Condition(description="Filters products by substring in name and description", type="string")
+     *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param string                     $value        Condition data
      *
@@ -551,6 +582,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters by min price (first item) and max price (second item)", type="array", collectionFormat="multi", @Swg\Items(type="number"))
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param array                      $value        Condition data
@@ -561,10 +593,10 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     {
         if (is_array($value)) {
             $min = empty($value[0]) ? null : trim($value[0]);
-            $min = (0 === strlen($min) || !is_numeric($min)) ? null : (float) $min;
+            $min = (0 === strlen($min) || !is_numeric($min)) ? null : (float)$min;
 
             $max = empty($value[1]) ? null : trim($value[1]);
-            $max = (0 === strlen($max) || !is_numeric($max)) ? null : (float) $max;
+            $max = (0 === strlen($max) || !is_numeric($max)) ? null : (float)$max;
 
             $this->assignPriceRangeCondition($queryBuilder, $min, $max);
         }
@@ -620,12 +652,12 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
 
             if (null !== $min) {
                 $queryBuilder->andWhere($field . ' >= :minPrice')
-                    ->setParameter('minPrice', (float) $min);
+                    ->setParameter('minPrice', (float)$min);
             }
 
             if (null !== $max) {
                 $queryBuilder->andWhere($field . ' <= :maxPrice')
-                    ->setParameter('maxPrice', (float) $max);
+                    ->setParameter('maxPrice', (float)$max);
             }
         }
     }
@@ -633,11 +665,11 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     /**
      * Returns array of allowed values for 'includes' input variable
      *
-     * @return boolean
+     * @return array
      */
     protected function getAllowedIncludingValues()
     {
-        return array(self::INCLUDING_ALL, self::INCLUDING_ANY, self::INCLUDING_PHRASE);
+        return [self::INCLUDING_ALL, self::INCLUDING_ANY, self::INCLUDING_PHRASE];
     }
 
     /**
@@ -648,6 +680,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      */
     protected function processCndSubstringPhrase(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
     {
+        $value = trim($value);
         $cnd = new \Doctrine\ORM\Query\Expr\Orx();
 
         // EXACT PHRASE method (or if NONE is selected)
@@ -719,12 +752,12 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      */
     protected function getSearchWords($value)
     {
-        $value  = trim($value);
-        $result = array();
+        $value = trim($value);
+        $result = [];
 
         if (preg_match_all('/"([^"]+)"/', $value, $match)) {
             $result = $match[1];
-            $value  = str_replace($match[0], '', $value);
+            $value = str_replace($match[0], '', $value);
 
         }
 
@@ -734,6 +767,8 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     /**
      * Prepare certain search condition
      *
+     * @Api\Condition(description="Filters products by stock status (inventory)", type="string", enum={"low", "out", "in"})
+     *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param string                     $value        Condition data
      *
@@ -741,7 +776,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      */
     protected function prepareCndInventory(\Doctrine\ORM\QueryBuilder $queryBuilder, $value = self::INV_ALL)
     {
-        if (in_array($value, array(self::INV_LOW, self::INV_OUT), true)) {
+        if (in_array($value, [self::INV_LOW, self::INV_OUT], true)) {
             $queryBuilder->andWhere('p.inventoryEnabled = :enabled')
                 ->setParameter('enabled', true);
         }
@@ -805,6 +840,8 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     /**
      * Prepare certain search condition
      *
+     * @Api\Condition(description="Excludes products with given IDs", type="array", collectionFormat="multi", @Swg\Items(type="integer"))
+     *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param array                      $value        Condition data
      *
@@ -824,6 +861,8 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     /**
      * Prepare certain search condition
      *
+     * @Api\Condition(description="Filters products by arrival date (timestamp) arranged in two-value array [start, end]", type="array", collectionFormat="multi", @Swg\Items(type="integer"))
+     *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition data
      *
@@ -833,8 +872,8 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     {
         if (is_array($value)) {
             $value = array_values($value);
-            $start = empty($value[0]) ? null : (int) $value[0];
-            $end = empty($value[1]) ? null : (int) $value[1];
+            $start = empty($value[0]) ? null : (int)$value[0];
+            $end = empty($value[1]) ? null : (int)$value[1];
 
             if ($start) {
                 $queryBuilder->andWhere('p.arrivalDate >= :start')
@@ -850,6 +889,8 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
 
     /**
      * Prepare certain search condition
+     *
+     * @Api\Condition(description="Filters products by arrival date in format of d-M-Y ~ d-M-Y", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition data
@@ -1099,7 +1140,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      *
      * @return void
      */
-    protected function performUpdate(\XLite\Model\AEntity $entity, array $data = array())
+    protected function performUpdate(\XLite\Model\AEntity $entity, array $data = [])
     {
         parent::performUpdate($entity, $data);
 
@@ -1168,7 +1209,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      */
     public function countForQuickData()
     {
-        return (int) $this->defineCountForQuickDataQuery()->getSingleScalarResult();
+        return (int)$this->defineCountForQuickDataQuery()->getSingleScalarResult();
     }
 
     /**
@@ -1224,7 +1265,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     {
         return $this->createPureQueryBuilder()
             ->setFirstResult($position)
-            ->setMaxResults(1000000000);
+            ->setMaxResults(\XLite\Core\EventListener\QuickData::CHUNK_LENGTH);
     }
 
     // }}}
@@ -1263,7 +1304,22 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
             ->addGroupBy('p.product_id')
             ->addOrderBy('p.sales', 'desc');
 
-        return  $this->assignExternalEnabledCondition($qb, 'p');
+        if ($cnd->availability && $cnd->availability !== \XLite\Controller\Admin\TopSellers::AVAILABILITY_ALL) {
+            $this->addTopSellersAvailabilityCondition($qb, $cnd->availability);
+        }
+
+        return $this->assignExternalEnabledCondition($qb, 'p');
+    }
+
+    /**
+     * Add availability condition
+     *
+     * @param \XLite\Model\QueryBuilder\AQueryBuilder $qb
+     * @param string                                  $condition
+     */
+    protected function addTopSellersAvailabilityCondition($qb, $condition)
+    {
+        $qb->andWhere('p.enabled = true AND (p.inventoryEnabled = false OR p.amount > 0)');
     }
 
     /**
@@ -1296,7 +1352,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
             ->andWhere('o.object = :product')
             ->setParameter('product', $product);
 
-        return (int) $qb->andWhere($qb->expr()->in('ps.code', \XLite\Model\Order\Status\Payment::getPaidStatuses()))
+        return (int)$qb->andWhere($qb->expr()->in('ps.code', \XLite\Model\Order\Status\Payment::getPaidStatuses()))
             ->getSingleScalarResult();
     }
 
@@ -1307,7 +1363,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      */
     public function countForSales()
     {
-        return (int) $this->defineCountForSalesQuery()->getSingleScalarResult();
+        return (int)$this->defineCountForSalesQuery()->getSingleScalarResult();
     }
 
     /**
@@ -1348,7 +1404,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     {
         return $this->createPureQueryBuilder()
             ->setFirstResult($position)
-            ->setMaxResults(1000000000);
+            ->setMaxResults(\XLite\Core\EventListener\Sales::CHUNK_LENGTH);
     }
 
     // }}}

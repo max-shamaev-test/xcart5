@@ -7,7 +7,6 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-
 /**
  * Markup styles
  */
@@ -28,9 +27,12 @@
 }
 
 .sidebar {
-  & > .dialog-content,
-  & .lazy-load > .dialog-content{
-    width: 245px;
+  &,
+  & .lazy-load,
+  & .lazy-load-widget {
+    > .dialog-content {
+      width: 245px;
+    }
   }
 }
 
@@ -42,7 +44,7 @@
   padding-top: 55px;
 }
 
-.sidebar.admin-welcome-indent {
+.dashboard.welcome-visible .sidebar {
   padding-top: 0;
 }
 
@@ -200,6 +202,7 @@ div.tabs .primary a, div.tabs .primary span {
 }
 
 .target-main .items-list-table table.list .cell.shippingStatus .status-N,
+.target-main .items-list-table table.list .cell.shippingStatus .status-WFA,
 .target-main .items-list-table table.list .cell.paymentStatus .status-Q {
   background-color: #d9ead3;
 }

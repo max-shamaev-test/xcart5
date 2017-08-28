@@ -16,7 +16,7 @@ namespace XLite\Module\XC\Reviews\View\ItemsList\Model;
 class Review extends \XLite\View\ItemsList\Model\Table
 {
     /**
-     * Allowed sort criterions
+     * Allowed sort criteria
      */
     const SORT_BY_MODE_REVIEWER         = 'r.reviewerName';
     const SORT_BY_MODE_RATING           = 'r.rating';
@@ -53,7 +53,7 @@ class Review extends \XLite\View\ItemsList\Model\Table
      */
     public static function getAllowedTargets()
     {
-        return array_merge(parent::getAllowedTargets(), array('reviews'));
+        return array_merge(parent::getAllowedTargets(), ['reviews']);
     }
 
     /**
@@ -103,7 +103,7 @@ class Review extends \XLite\View\ItemsList\Model\Table
      */
     protected function getFormParams()
     {
-        $params = array();
+        $params = [];
 
         $productId = \XLite\Core\Request::getInstance()->product_id;
         if ($productId) {
@@ -123,13 +123,13 @@ class Review extends \XLite\View\ItemsList\Model\Table
      */
     static public function getSearchParams()
     {
-        return array(
+        return [
             \XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_DATE_RANGE => static::PARAM_SEARCH_DATE_RANGE,
             \XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_KEYWORDS   => static::PARAM_SEARCH_KEYWORDS,
             \XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_RATING     => static::PARAM_SEARCH_RATING,
             \XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_TYPE       => static::PARAM_SEARCH_TYPE,
             \XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_STATUS     => static::PARAM_SEARCH_STATUS,
-        );
+        ];
     }
 
     /**
@@ -200,7 +200,9 @@ class Review extends \XLite\View\ItemsList\Model\Table
     /**
      * Return profile id
      *
-     * @return integer
+     * @param \XLite\Module\XC\Reviews\Model\Review $entity
+     *
+     * @return int
      */
     public function getProfileId(\XLite\Module\XC\Reviews\Model\Review $entity)
     {
@@ -216,14 +218,14 @@ class Review extends \XLite\View\ItemsList\Model\Table
      *
      * @return void
      */
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
-        $this->sortByModes += array(
+        $this->sortByModes += [
             static::SORT_BY_MODE_REVIEWER       => 'Reviewer',
             static::SORT_BY_MODE_RATING         => 'Rating',
             static::SORT_BY_MODE_STATUS         => 'Status',
             static::SORT_BY_MODE_ADDITION_DATE  => 'Addition date',
-        );
+        ];
 
         parent::__construct($params);
     }
@@ -322,13 +324,13 @@ class Review extends \XLite\View\ItemsList\Model\Table
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             static::PARAM_SEARCH_DATE_RANGE => new \XLite\Model\WidgetParam\TypeString('Date range', ''),
             static::PARAM_SEARCH_KEYWORDS => new \XLite\Model\WidgetParam\TypeString('Product, SKU or customer info', ''),
             static::PARAM_SEARCH_RATING => new \XLite\Model\WidgetParam\TypeString('Rating', ''),
             static::PARAM_SEARCH_TYPE => new \XLite\Model\WidgetParam\TypeString('Review type', ''),
             static::PARAM_SEARCH_STATUS => new \XLite\Model\WidgetParam\TypeString('Status', ''),
-        );
+        ];
 
     }
 
@@ -351,43 +353,43 @@ class Review extends \XLite\View\ItemsList\Model\Table
      */
     protected function defineColumns()
     {
-        return array(
-            'product' => array(
+        return [
+            'product' => [
                 static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Product'),
                 static::COLUMN_NO_WRAP  => true,
                 static::COLUMN_LINK     => 'product',
                 static::COLUMN_ORDERBY  => 100,
-            ),
-            'reviewerName' => array(
+            ],
+            'reviewerName' => [
                 static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Reviewer'),
                 static::COLUMN_TEMPLATE => 'modules/XC/Reviews/reviews/cell/reviewer_info.twig',
                 static::COLUMN_SORT     => static::SORT_BY_MODE_REVIEWER,
                 static::COLUMN_ORDERBY  => 200,
-            ),
-            'review' => array(
+            ],
+            'review' => [
                 static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Review'),
                 static::COLUMN_MAIN     => true,
                 static::COLUMN_TEMPLATE => 'modules/XC/Reviews/reviews/cell/review.twig',
                 static::COLUMN_ORDERBY  => 250,
-            ),
-            'rating' => array(
+            ],
+            'rating' => [
                 static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Rating'),
                 static::COLUMN_TEMPLATE => 'modules/XC/Reviews/reviews/cell/rating.twig',
                 static::COLUMN_SORT     => static::SORT_BY_MODE_RATING,
                 static::COLUMN_ORDERBY  => 300,
-            ),
-            'status' => array(
+            ],
+            'status' => [
                 static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Status'),
                 static::COLUMN_TEMPLATE => 'modules/XC/Reviews/reviews/cell/status.twig',
                 static::COLUMN_SORT     => static::SORT_BY_MODE_STATUS,
                 static::COLUMN_ORDERBY  => 400,
-            ),
-            'additionDate' => array(
+            ],
+            'additionDate' => [
                 static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Date'),
                 static::COLUMN_SORT     => static::SORT_BY_MODE_ADDITION_DATE,
                 static::COLUMN_ORDERBY  => 500,
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -511,7 +513,7 @@ class Review extends \XLite\View\ItemsList\Model\Table
     /**
      * Get panel class
      *
-     * @return \XLite\View\Base\FormStickyPanel
+     * @return string|\XLite\View\Base\FormStickyPanel
      */
     protected function getPanelClass()
     {
@@ -562,7 +564,7 @@ class Review extends \XLite\View\ItemsList\Model\Table
             $result = \XLite\Core\Converter::buildURL(
                 'product',
                 '',
-                array('product_id' => $entity->getProduct()->getProductId())
+                ['product_id' => $entity->getProduct()->getProductId()]
             );
         } else {
             $result = parent::buildEntityURL($entity, $column);

@@ -11,14 +11,13 @@ namespace XLite\View;
 /**
  * Storefront status
  *
- * @ListChild (list="admin.main.page.header", weight="40", zone="admin")
+ * @ListChild (list="admin.main.page.header.right", weight="100", zone="admin")
  */
 class StorefrontStatus extends \XLite\View\AView
 {
-
     public function getJSFiles()
     {
-        $list = parent::getJSFiles();
+        $list   = parent::getJSFiles();
         $list[] = 'main_center/page_container_parts/header_parts/storefront_status.js';
 
         return $list;
@@ -36,7 +35,7 @@ class StorefrontStatus extends \XLite\View\AView
 
     /**
      * Check - storefront switcher is visible or not
-     * 
+     *
      * @return boolean
      */
     protected function isTogglerVisible()
@@ -56,38 +55,38 @@ class StorefrontStatus extends \XLite\View\AView
     }
 
     /**
-     * Get container tag attributes 
-     * 
+     * Get container tag attributes
+     *
      * @return array
      */
     protected function getContainerTagAttributes()
     {
-        return array(
-            'class' => array(
+        return [
+            'class' => [
                 'storefront-status',
                 (\XLite\Core\Auth::getInstance()->isClosedStorefront() ? 'closed' : 'opened'),
-            ),
-        );
+            ],
+        ];
     }
 
     /**
-     * Get toggler tag attributes 
-     * 
+     * Get toggler tag attributes
+     *
      * @return array
      */
     protected function getTogglerTagAttributes()
     {
-        return array(
-            'class' => array(
+        return [
+            'class' => [
                 'toggler',
                 (\XLite\Core\Auth::getInstance()->isClosedStorefront() ? 'off' : 'on'),
-            ),
-        );
+            ],
+        ];
     }
 
     /**
-     * Get switch link 
-     * 
+     * Get switch link
+     *
      * @return string
      */
     protected function getLink()
@@ -95,16 +94,16 @@ class StorefrontStatus extends \XLite\View\AView
         return $this->buildURL(
             'storefront',
             '',
-            array(
+            [
                 'action'    => (\XLite\Core\Auth::getInstance()->isClosedStorefront() ? 'open' : 'close'),
                 'returnURL' => $this->getURL(),
-            )
+            ]
         );
     }
 
     /**
-     * Get accessible shop URL 
-     * 
+     * Get accessible shop URL
+     *
      * @return string
      */
     protected function getOpenedShopURL()
@@ -121,30 +120,4 @@ class StorefrontStatus extends \XLite\View\AView
     {
         return \XLite::getController()->getAccessibleShopURL(false);
     }
-
-    /**
-     * Get open title 
-     * 
-     * @return string
-     */
-    protected function getOpenTitle()
-    {
-        return static::t('View storefront');
-    }
-
-    /**
-     * Get close title 
-     * 
-     * @return string
-     */
-    protected function getCloseTitle()
-    {
-        return static::t(
-            'Access storefront via private link',
-            array(
-                'shop_url' => $this->getClosedShopURL(),
-            )
-        );
-    }
-
 }

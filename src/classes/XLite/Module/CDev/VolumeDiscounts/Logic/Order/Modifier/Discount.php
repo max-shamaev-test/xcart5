@@ -61,7 +61,7 @@ class Discount extends \XLite\Logic\Order\Modifier\Discount
             $total = $discount->getAmount($this->order);
 
             if ($total) {
-                $total = min($total, $this->getOrder()->getSubtotal());
+                $total = min($total, $this->getDiscountBase());
                 $surcharge = $this->addOrderSurcharge($this->code, $total * -1, false);
 
                 // Distribute discount value among the ordered products
@@ -73,6 +73,14 @@ class Discount extends \XLite\Logic\Order\Modifier\Discount
         }
 
         return $surcharge;
+    }
+
+    /**
+     * @return float
+     */
+    public function getDiscountBase()
+    {
+        return $this->getOrder()->getSubtotal();
     }
 
     /**

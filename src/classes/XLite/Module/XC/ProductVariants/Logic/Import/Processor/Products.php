@@ -39,29 +39,54 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
         $columns = parent::defineColumns();
 
         $columns += [
+            static::VARIANT_PREFIX . 'ID'      => [
+                static::COLUMN_IS_MULTIROW => true,
+            ],
             static::VARIANT_PREFIX . 'SKU'      => [
                 static::COLUMN_IS_MULTIROW => true,
                 static::COLUMN_LENGTH      => 32,
             ],
             static::VARIANT_PREFIX . 'Price'    => [
-                static::COLUMN_IS_MULTIROW => true
+                static::COLUMN_IS_MULTIROW => true,
             ],
             static::VARIANT_PREFIX . 'Quantity' => [
-                static::COLUMN_IS_MULTIROW => true
+                static::COLUMN_IS_MULTIROW => true,
             ],
             static::VARIANT_PREFIX . 'Weight'   => [
-                static::COLUMN_IS_MULTIROW => true
-            ],
-            static::VARIANT_PREFIX . 'Image'   => [
-                static::COLUMN_IS_MULTIROW => true
-            ],
-            static::VARIANT_PREFIX . 'ImageAlt'   => [
                 static::COLUMN_IS_MULTIROW => true,
-                static::COLUMN_LENGTH      => 255
+            ],
+            static::VARIANT_PREFIX . 'Image'    => [
+                static::COLUMN_IS_MULTIROW => true,
+            ],
+            static::VARIANT_PREFIX . 'ImageAlt' => [
+                static::COLUMN_IS_MULTIROW => true,
+                static::COLUMN_LENGTH      => 255,
+            ],
+        ];
+
+        $columns += [
+            'identity' => [
+                static::COLUMN_IS_MULTICOLUMN  => true,
+                static::COLUMN_IS_MULTIROW     => true,
+                static::COLUMN_HEADER_DETECTOR => true,
             ],
         ];
 
         return $columns;
+    }
+
+    /**
+     * Detect identity header(s)
+     *
+     * @param array $column Column info
+     * @param array $row Header row
+     *
+     * @return array
+     */
+    protected function detectIdentityHeader(array $column, array $row)
+    {
+        $variantId = static::VARIANT_PREFIX . 'ID';
+        return $this->detectHeaderByPattern("(sku|{$variantId})", $row);
     }
 
     // }}}
@@ -75,24 +100,44 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
      */
     public static function getMessages()
     {
-        return parent::getMessages()
-            + [
+        return parent::getMessages() + [
                 'VARIANT-PRICE-FMT'       => 'Wrong variant price format',
                 'VARIANT-QUANTITY-FMT'    => 'Wrong variant quantity format',
                 'VARIANT-PRODUCT-SKU-FMT' => 'SKU is already assigned to variant',
                 'VARIANT-WEIGHT-FMT'      => 'Wrong variant weight format',
                 'VARIANT-IMAGE-FMT'       => 'The "{{value}}" image does not exist',
                 'VARIANT-ATTRIBUTE-FMT'   => 'Variant attribute "{{column}}" cannot be empty',
-        ];
+                'VARIANT-PRODUCT-FMT'     => 'Variant id X is already assigned to another product variant',
+            ];
+    }
+
+    /**
+     * Verify identity
+     *
+     * @param mixed $values Value
+     * @param array $column Column info
+     */
+    protected function verifyIdentity($values, array $column)
+    {
+        if (!empty($values[static::VARIANT_PREFIX . 'ID']) && !empty($values['sku'])) {
+            $sku = trim(array_shift($values['sku']));
+
+            foreach ($values[static::VARIANT_PREFIX . 'ID'] as $vId) {
+                $entity = \XLite\Core\Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')
+                    ->findOneBy(['variant_id' => $vId]);
+
+                if ($entity && $entity->getProduct()->getSku() !== $sku) {
+                    $this->addError('VARIANT-PRODUCT-FMT', ['column' => $column, 'value' => $vId]);
+                }
+            }
+        }
     }
 
     /**
      * Verify 'attributes' value
      *
-     * @param mixed $value  Value
+     * @param mixed $value Value
      * @param array $column Column info
-     *
-     * @return void
      */
     protected function verifyAttributes($value, array $column)
     {
@@ -108,7 +153,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                                     'VARIANT-ATTRIBUTE-FMT',
                                     [
                                         'column' => array_merge($column, [static::COLUMN_NAME => $name]),
-                                        'value' => $attribute
+                                        'value'  => $attribute,
                                     ],
                                     $offset + 1 - $this->rowStartIndex
                                 );
@@ -145,10 +190,8 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     /**
      * Verify 'SKU' value
      *
-     * @param mixed $value  Value
+     * @param mixed $value Value
      * @param array $column Column info
-     *
-     * @return void
      */
     protected function verifySku($value, array $column)
     {
@@ -167,10 +210,8 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     /**
      * Verify 'variantSKU' value
      *
-     * @param mixed $value  Value
+     * @param mixed $value Value
      * @param array $column Column info
-     *
-     * @return void
      */
     protected function verifyVariantSKU($value, array $column)
     {
@@ -179,7 +220,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     /**
      * Verify 'variantPrice' value
      *
-     * @param mixed $value  Value
+     * @param mixed $value Value
      * @param array $column Column info
      *
      * @return void
@@ -198,10 +239,8 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     /**
      * Verify 'variantQuantity' value
      *
-     * @param mixed $value  Value
+     * @param mixed $value Value
      * @param array $column Column info
-     *
-     * @return void
      */
     protected function verifyVariantQuantity($value, array $column)
     {
@@ -217,10 +256,8 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     /**
      * Verify 'variantWeight' value
      *
-     * @param mixed $value  Value
+     * @param mixed $value Value
      * @param array $column Column info
-     *
-     * @return void
      */
     protected function verifyVariantWeight($value, array $column)
     {
@@ -236,10 +273,8 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     /**
      * Verify 'image' value
      *
-     * @param mixed $value  Value
+     * @param mixed $value Value
      * @param array $column Column info
-     *
-     * @return void
      */
     protected function verifyVariantImage($value, array $column)
     {
@@ -261,17 +296,25 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     {
         $this->variants = $this->variantsAttributes = [];
 
+        if (isset($data[static::VARIANT_PREFIX . 'ID'])) {
+            foreach ($data[static::VARIANT_PREFIX . 'ID'] as $index => $vId) {
+                $entity = \XLite\Core\Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')
+                    ->findOneBy(['variant_id' => $vId]);
+                if ($entity) {
+                    $this->variants[$index] = $entity;
+                }
+            }
+        }
+
         return parent::importData($data);
     }
 
     /**
      * Import 'attributes' value
      *
-     * @param \XLite\Model\Product $model  Product
-     * @param array                $value  Value
-     * @param array                $column Column info
-     *
-     * @return void
+     * @param \XLite\Model\Product $model Product
+     * @param array $value Value
+     * @param array $column Column info
      */
     protected function importAttributesColumn(\XLite\Model\Product $model, array $value, array $column)
     {
@@ -299,6 +342,8 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
             }
 
             if ($variantsAttributes) {
+                $variantsRepo = \XLite\Core\Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant');
+
                 $tmp = [];
                 foreach ($variantsAttributes as $k => $v) {
                     $tmp[$k] = implode('::', $v);
@@ -324,7 +369,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
 
                             } else {
                                 $attributeOption = \XLite\Core\Database::getRepo('XLite\Model\AttributeOption')
-                                   ->findOneByNameAndAttribute($value, $attribute);
+                                    ->findOneByNameAndAttribute($value, $attribute);
                                 $values[$id] = $repo->findOneBy(
                                     [
                                         'attribute'        => $attribute,
@@ -336,18 +381,36 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
 
                         }
 
-                        $variant = $model->getVariantByAttributeValues($values);
+                        if (isset($this->variants[$rowIndex])) {
+                            $idVariant = $this->variants[$rowIndex];
+                        }
 
-                        if (!$variant) {
-                            $variant = new \XLite\Module\XC\ProductVariants\Model\ProductVariant();
+                        $variant = $model->getVariantByAttributeValues($values, true);
+
+                        if (!$variant || (isset($idVariant) && $idVariant->getId() !== $variant->getId())) {
+                            if (isset($variant)) {
+                                \XLite\Core\Database::getEM()->remove($variant);
+                            }
+
+                            if (isset($idVariant)) {
+                                $variant = $idVariant;
+                                $variant->getAttributeValueC()->clear();
+                                $variant->getAttributeValueS()->clear();
+                            } else {
+                                $variant = $variantsRepo->insert(null, false);
+                                $variant->setProduct($model);
+                                $model->addVariants($variant);
+                            }
+
                             foreach ($values as $attributeValue) {
                                 $method = 'addAttributeValue' . $attributeValue->getAttribute()->getType();
                                 $variant->$method($attributeValue);
                                 $attributeValue->addVariants($variant);
                             }
-                            $variant->setProduct($model);
-                            $model->addVariants($variant);
-                            \XLite\Core\Database::getEM()->persist($variant);
+
+                            if (!$variant->getVariantId()) {
+                                $variant->setVariantId($variantsRepo->assembleUniqueVariantId($variant));
+                            }
                         }
 
                         $this->variants[$rowIndex] = $variant;
@@ -382,7 +445,8 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
         foreach ($values as $k => $value) {
             if (!is_array($value) || count($value) > 1 || !array_filter($value, function ($v) {
                     return $v !== '';
-                })) {
+                })
+            ) {
                 return false;
             }
         }
@@ -393,11 +457,9 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     /**
      * Import 'variantSKU' value
      *
-     * @param \XLite\Model\Product $model  Product
-     * @param mixed                $value  Value
-     * @param array                $column Column info
-     *
-     * @return void
+     * @param \XLite\Model\Product $model Product
+     * @param mixed $value Value
+     * @param array $column Column info
      */
     protected function importVariantSKUColumn(\XLite\Model\Product $model, $value, array $column)
     {
@@ -409,11 +471,9 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     /**
      * Import 'variantPrice' value
      *
-     * @param \XLite\Model\Product $model  Product
-     * @param mixed                $value  Value
-     * @param array                $column Column info
-     *
-     * @return void
+     * @param \XLite\Model\Product $model Product
+     * @param mixed $value Value
+     * @param array $column Column info
      */
     protected function importVariantPriceColumn(\XLite\Model\Product $model, $value, array $column)
     {
@@ -426,11 +486,9 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     /**
      * Import 'variantQuantity' value
      *
-     * @param \XLite\Model\Product $model  Product
-     * @param mixed                $value  Value
-     * @param array                $column Column info
-     *
-     * @return void
+     * @param \XLite\Model\Product $model Product
+     * @param mixed $value Value
+     * @param array $column Column info
      */
     protected function importVariantQuantityColumn(\XLite\Model\Product $model, $value, array $column)
     {
@@ -443,11 +501,9 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     /**
      * Import 'variantWeight' value
      *
-     * @param \XLite\Model\Product $model  Product
-     * @param mixed                $value  Value
-     * @param array                $column Column info
-     *
-     * @return void
+     * @param \XLite\Model\Product $model Product
+     * @param mixed $value Value
+     * @param array $column Column info
      */
     protected function importVariantWeightColumn(\XLite\Model\Product $model, $value, array $column)
     {
@@ -460,11 +516,9 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     /**
      * Import 'variantImage' value
      *
-     * @param \XLite\Model\Product $model  Product
-     * @param array                $value  Value
-     * @param array                $column Column info
-     *
-     * @return void
+     * @param \XLite\Model\Product $model Product
+     * @param array $value Value
+     * @param array $column Column info
      */
     protected function importVariantImageColumn(\XLite\Model\Product $model, $value, array $column)
     {
@@ -498,12 +552,12 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                         if ($image->getLoadError() === 'unwriteable') {
                             $this->addError('PRODUCT-IMG-LOAD-FAILED', [
                                 'column' => $column,
-                                'value' => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file
+                                'value'  => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file,
                             ]);
                         } elseif ($image->getLoadError()) {
                             $this->addError('PRODUCT-IMG-URL-LOAD-FAILED', [
                                 'column' => $column,
-                                'value' => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file
+                                'value'  => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file,
                             ]);
                         }
                     } elseif ($isNew) {
@@ -512,15 +566,15 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                         \XLite\Core\Database::getEM()->persist($image);
                     }
 
-                } elseif(!$this->verifyValueAsFile($file) && $this->verifyValueAsURL($file)) {
+                } elseif (!$this->verifyValueAsFile($file) && $this->verifyValueAsURL($file)) {
                     $this->addWarning('PRODUCT-IMG-URL-LOAD-FAILED', [
                         'column' => $column,
-                        'value' => $path
+                        'value'  => $path,
                     ]);
                 } else {
                     $this->addWarning('PRODUCT-IMG-NOT-VERIFIED', [
                         'column' => $column,
-                        'value' => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file
+                        'value'  => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file,
                     ]);
                 }
             }
@@ -530,11 +584,9 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     /**
      * Import 'image alt' value
      *
-     * @param \XLite\Model\Product $model  Product
-     * @param array                $value  Value
-     * @param array                $column Column info
-     *
-     * @return void
+     * @param \XLite\Model\Product $model Product
+     * @param array $value Value
+     * @param array $column Column info
      */
     protected function importVariantImageAltColumn(\XLite\Model\Product $model, $value, array $column)
     {

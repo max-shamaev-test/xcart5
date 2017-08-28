@@ -80,7 +80,24 @@ jQuery().ready(
       'change',
       function () {
         if (jQuery('#files').val()) {
-          jQuery('.import-box .submit').removeClass('disabled');
+          if (this.files) {
+            var totalSize = 0;
+            $(this.files).each(function (key, file) {
+              totalSize += file.size;
+            });
+            var maxSize = parseInt($(this).data('max-size'),10);
+            if (maxSize > totalSize) {
+              jQuery('.import-box .submit').removeClass('disabled');
+            } else {
+              jQuery('.import-box .submit').addClass('disabled');
+              core.trigger('message', {
+                type: 'error',
+                message: core.t('File size exceeds the maximum size', {size: $(this).data('readable-max-size')})
+              });
+            }
+          } else {
+            jQuery('.import-box .submit').removeClass('disabled');
+          }
         } else {
           jQuery('.import-box .submit').addClass('disabled');
         }

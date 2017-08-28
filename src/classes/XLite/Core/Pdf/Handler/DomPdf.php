@@ -19,21 +19,18 @@ class DomPdf extends \XLite\Core\Pdf\Handler
     /**
      * Dompdf instance
      *
-     * @var \Dompdf
+     * @var \Dompdf\Dompdf
      */
     protected $dompdfInstance;
 
     /**
      * Returns Dompdf document instance
      *
-     * @param  string $format      Page format OPTIONAL
-     *
      * @return \Dompdf\Dompdf
      */
     public function getDompdfInstance()
     {
         if (!$this->dompdfInstance) {
-            require_once (LC_DIR_LIB . 'dompdf' . LC_DS . 'autoload.inc.php');
             $this->dompdfInstance = new \Dompdf\Dompdf();
         }
 

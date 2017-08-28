@@ -22,16 +22,6 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Use custom javascript'
-  - name: edit_mode
-    category: 'XC\ThemeTweaker'
-    type: checkbox
-    orderby: 30
-    value: false
-  - name: layout_mode
-    category: 'XC\ThemeTweaker'
-    type: checkbox
-    orderby: 30
-    value: false
 
 XLite\Model\LanguageLabel:
   - { name: 'Use custom css', translations: [{ code: en, label: 'Use custom css' }] }
@@ -64,7 +54,10 @@ XLite\Model\LanguageLabel:
   - { name: 'You have unsaved changes. Are you really sure to exit the preview?', translations: [{ code: en, label: 'You have unsaved changes. Are you really sure to exit the preview?' }] }
   - { name: 'Inline editor is unavailable due to TinyMCE', translations: [{ code: en, label: '<i class="fa fa-exclamation-triangle inline-editor-message_icon"></i>Click on the description to <b>edit</b>. Your changes may be <span style="font-weight: bold; color: orange;">incompatible</span> with TinyMCE.' }] }
   - { name: 'Changes may be incompatible with TinyMCE. Are you sure to proceed?', translations: [{ code: en, label: 'Changes may be incompatible with TinyMCE. Are you sure to proceed?' }] }
-  - { name: 'Layout editor', translations: [{ code: en, label: 'Layout editor mode' }] }
+  - { name: 'Layout editor', translations: [{ code: en, label: 'Layout editor' }] }
+  - { name: 'Template editor', translations: [{ code: en, label: 'Template editor' }] }
+  - { name: 'Labels editor', translations: [{ code: en, label: 'Labels editor' }] }
+  - { name: 'Discard changes', translations: [{ code: en, label: 'Discard changes' }] }
   - { name: 'Layout editor is', translations: [{ code: en, label: 'Layout editor is' }] }
   - { name: 'disabled blocks', translations: [{ code: en, label: 'disabled blocks' }] }
   - { name: 'Some', translations: [{ code: en, label: 'Some' }] }
@@ -75,6 +68,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Layout editor is disabled', translations: [{ code: en, label: 'Layout editor is disabled' }] }
   - { name: 'Layout editor allows you to change the position of the blocks in drag-n-drop fashion', translations: [{ code: en, label: 'Layout editor allows you to change the position of the blocks in drag-n-drop fashion' }] }
   - { name: 'There are some custom CSS styles in your store. These styles may affect the look of the installed template. Review the custom styles and disable them if necessary.', translations: [{ code: en, label: 'There are some custom CSS styles in your store. These styles may affect the look of the installed template. <a href="{{url}}">Review the custom styles</a> and disable them if necessary.' }] }
+  - { name: 'There are some custom templates in your store that may contain skin dependent code.', translations: [{ code: en, label: 'There are some custom templates in your store that may contain skin dependent code. This may cause your store to crash after switching to a different skin. <a href="{{templates_url}}">Review the custom templates</a> and disable them if necessary.' }] }
   - { name: 'Entity was successfully saved', translations: [{ code: en, label: 'Entity was successfully saved' }]}
   - { name: 'Error on saving image', translations: [{ code: en, label: 'Error on saving image' }]}
   - { name: 'Unable to save edited content. Errors: ', translations: [{ code: en, label: 'Unable to save edited content. Errors: ' }]}
@@ -106,3 +100,23 @@ XLite\Model\LanguageLabel:
   - { name: 'The test email notification has been sent to X', translations: [{ code: en, label: 'The test email notification has been sent to {{email}}' }] }
   - { name: 'Failure sending test email to X', translations: [{ code: en, label: 'Failure sending test email to {{email}}' }] }
   - { name: 'Enter Order number', translations: [{ code: en, label: 'Enter Order number' }] }
+
+  - { name: 'xlite-translation-popover.help', translations: [{ code: en, label: 'Text parts in curly braces {} are variables and filled dynamically. Do not remove them.' }] }
+  - { name: 'itemslist.admin.template.blank', translations: [{ code: en, label: "<p class='items-list-blank-description-heading text-center'>You haven't changed any templates yet.</p><p class='text-center'>Here you can track the templates changed with Template editor and revert any changes you've done. Changes to the templates can be done by opening the storefront and switching to the «Template editor» of the panel below.</p>" }] }
+  - { name: 'Pick templates from page', translations: [{ code: en, label: 'Pick templates from page' }] }
+  - { name: 'Drag-n-drop blocks', translations: [{ code: en, label: 'Drag-n-drop blocks' }] }
+  - { name: 'Highlight labels', translations: [{ code: en, label: 'Highlight labels' }] }
+  - { name: 'Layout block', translations: [{ code: en, label: 'Layout block' }] }
+  - { name: 'Inline editor', translations: [{ code: en, label: 'Description editor' }] }
+  - { name: 'Go to different page to edit the content', translations: [{ code: en, label: 'Proceed to the product page to edit the description' }] }
+  - { name: 'Open home or category pages for more opportunities to adjust the website structure', translations: [{ code: en, label: 'Open home or category page for more opportunities to adjust the website structure.' }] }
+  - { name: 'themetweaker.shortcut.switcher', translations: [{ code: en, label: 'Shortcut: Ctrl+/, ⌘+/' }] }
+  - { name: 'themetweaker.shortcut.save', translations: [{ code: en, label: 'Shortcut: Ctrl+S, ⌘+S' }] }
+  - { name: 'You have unsaved changes. Are you really sure to exit?', translations: [{ code: en, label: 'You have unsaved changes. Are you really sure to exit?' }] }
+  - { name: 'Open the storefront while logged in as administrator to change the look & feel of the store.', translations: [{ code: en, label: '<a href="{{url}}" target="_blank">Open the storefront</a> while logged in as administrator and use the Webmaster panel <span class="cog-icon">{{cog}}</span> to change the look & feel of the store.' }] }
+
+  - { name: 'Use the Google Tag Manager addon for more flexibility when adding JS code to your web pages.', translations: [{ code: en, label: 'Use the Google Tag Manager addon for more flexibility when adding JS code to your web pages.' }] }
+  - { name: 'Learn more about Google Tag Manager', translations: [{ code: en, label: 'Learn more about Google Tag Manager' }] }
+  - { name: 'Tag Manager Dashboard', translations: [{ code: en, label: 'Tag Manager Dashboard' }] }
+  - { name: 'Configure Tag Manager', translations: [{ code: en, label: 'Configure Tag Manager' }] }
+  - { name: 'Install Google Tag Manager', translations: [{ code: en, label: 'Install Google Tag Manager' }] }

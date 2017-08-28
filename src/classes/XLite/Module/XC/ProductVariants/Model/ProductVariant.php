@@ -116,6 +116,15 @@ class ProductVariant extends \XLite\Model\AEntity
     protected $sku;
 
     /**
+     * Product variant unique id
+     *
+     * @var string
+     *
+     * @Column (type="string", length=32, nullable=true)
+     */
+    protected $variant_id;
+
+    /**
      * Default flag
      *
      * @var boolean
@@ -175,10 +184,11 @@ class ProductVariant extends \XLite\Model\AEntity
      *
      * @param array $data Entity properties OPTIONAL
      */
-    public function __construct(array $data = array())
+    public function __construct(array $data = [])
     {
         $this->attributeValueC = new \Doctrine\Common\Collections\ArrayCollection();
         $this->attributeValueS = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->orderItems = new \Doctrine\Common\Collections\ArrayCollection();
 
         parent::__construct($data);
     }
@@ -221,8 +231,6 @@ class ProductVariant extends \XLite\Model\AEntity
      * Increase / decrease product inventory amount
      *
      * @param integer $delta Amount delta
-     *
-     * @return void
      */
     public function changeAmount($delta)
     {
@@ -238,7 +246,7 @@ class ProductVariant extends \XLite\Model\AEntity
      */
     public function getValuesHash()
     {
-        $hash = array();
+        $hash = [];
         foreach ($this->getValues() as $av) {
             $hash[] = $av->getAttribute()->getId() . '_' . $av->getId();
         }
@@ -276,7 +284,7 @@ class ProductVariant extends \XLite\Model\AEntity
      */
     public function getNetPrice()
     {
-        return \XLite\Logic\Price::getInstance()->apply($this, 'getClearPrice', array('taxable'), 'net');
+        return \XLite\Logic\Price::getInstance()->apply($this, 'getClearPrice', ['taxable'], 'net');
     }
 
     /**
@@ -286,7 +294,7 @@ class ProductVariant extends \XLite\Model\AEntity
      */
     public function getDisplayPrice()
     {
-        return \XLite\Logic\Price::getInstance()->apply($this, 'getNetPrice', array('taxable'), 'display');
+        return \XLite\Logic\Price::getInstance()->apply($this, 'getNetPrice', ['taxable'], 'display');
     }
 
     /**
@@ -318,19 +326,40 @@ class ProductVariant extends \XLite\Model\AEntity
      */
     public function getSku()
     {
-        return null !== $this->sku ? (string) $this->sku : null;
+        return null !== $this->sku ? (string)$this->sku : null;
     }
 
     /**
      * Set sku and trim it to max length
      *
      * @param string $sku
-     *
-     * @return void
      */
     public function setSku($sku)
     {
         $this->sku = substr($sku, 0, \XLite\Core\Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')->getFieldInfo('sku', 'length'));
+    }
+
+    /**
+     * Return VariantId
+     *
+     * @return string
+     */
+    public function getVariantId()
+    {
+        return $this->variant_id;
+    }
+
+    /**
+     * Set VariantId
+     *
+     * @param string $variant_id
+     *
+     * @return $this
+     */
+    public function setVariantId($variant_id)
+    {
+        $this->variant_id = $variant_id;
+        return $this;
     }
 
     /**
@@ -449,8 +478,6 @@ class ProductVariant extends \XLite\Model\AEntity
      * Clone entity (image)
      *
      * @param \XLite\Module\XC\ProductVariants\Model\ProductVariant $newEntity New entity
-     *
-     * @return void
      */
     public function cloneEntityImage(\XLite\Module\XC\ProductVariants\Model\ProductVariant $newEntity)
     {
@@ -488,21 +515,21 @@ class ProductVariant extends \XLite\Model\AEntity
 
     /**
      * List of controllers which should not send notifications
-     * 
+     *
      * @return array
      */
     protected function getForbiddenControllers()
     {
-        return array(
+        return [
             '\XLite\Controller\Admin\EventTask',
             '\XLite\Controller\Admin\ProductList',
             '\XLite\Controller\Admin\Product',
-        );
+        ];
     }
 
     /**
      * Check if notifications should be sent in current situation
-     * 
+     *
      * @return boolean
      */
     protected function isShouldSend()
@@ -521,13 +548,9 @@ class ProductVariant extends \XLite\Model\AEntity
     }
 
     /**
-     * Perform some actions before inventory saved
-     *
-     * @return void
-     *
      * @PostUpdate
      */
-    public function proccessPostUpdate()
+    public function processPostUpdate()
     {
         if ($this->isLowLimitReached() && $this->isShouldSend()) {
             $this->sendLowLimitNotification();
@@ -536,9 +559,17 @@ class ProductVariant extends \XLite\Model\AEntity
     }
 
     /**
+     * @PrePersist
+     */
+    public function processPrePersist()
+    {
+        if (!$this->getVariantId()) {
+            $this->setVariantId($this->getRepository()->assembleUniqueVariantId($this));
+        }
+    }
+
+    /**
      * Send notification to admin about product low limit
-     *
-     * @return void
      */
     protected function sendLowLimitNotification()
     {
@@ -554,16 +585,16 @@ class ProductVariant extends \XLite\Model\AEntity
      */
     protected function prepareDataForNotification()
     {
-        $data = array();
+        $data = [];
 
         $product = $this->getProduct();
 
-        $data['product']            = $product;
-        $data['name']               = $product->getName();
-        $data['attributes']         = $this->prepareAttributesForEmail();
-        $data['sku']                = $this->getDisplaySku();
-        $data['amount']             = $this->getAmount();
-        $data['variantsTabUrl']     = $this->getUrlToVariant();
+        $data['product'] = $product;
+        $data['name'] = $product->getName();
+        $data['attributes'] = $this->prepareAttributesForEmail();
+        $data['sku'] = $this->getDisplaySku();
+        $data['amount'] = $this->getAmount();
+        $data['variantsTabUrl'] = $this->getUrlToVariant();
 
         return $data;
     }
@@ -575,13 +606,13 @@ class ProductVariant extends \XLite\Model\AEntity
      */
     protected function prepareAttributesForEmail()
     {
-        $attrs = array();
+        $attrs = [];
         foreach ($this->getValues() as $attributeValue) {
             if ($attributeValue->getAttribute()->isVariable($this->getProduct())) {
-                $attrs[] = array(
+                $attrs[] = [
                     'name'  => $attributeValue->getAttribute()->getName(),
                     'value' => $attributeValue->asString(),
-                );
+                ];
             }
         }
 
@@ -595,10 +626,10 @@ class ProductVariant extends \XLite\Model\AEntity
      */
     protected function getUrlToVariant()
     {
-        $params = array(
+        $params = [
             'product_id' => $this->getProduct()->getProductId(),
             'page'       => 'variants',
-        );
+        ];
         $fullUrl = \XLite\Core\Converter::buildFullURL(
             'product',
             '',
@@ -613,8 +644,6 @@ class ProductVariant extends \XLite\Model\AEntity
 
     /**
      * Update low stock update timestamp
-     *
-     * @return void
      */
     protected function updateLowStockUpdateTimestamp()
     {
@@ -624,7 +653,7 @@ class ProductVariant extends \XLite\Model\AEntity
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -646,7 +675,7 @@ class ProductVariant extends \XLite\Model\AEntity
     /**
      * Get price
      *
-     * @return float 
+     * @return float
      */
     public function getPrice()
     {
@@ -668,7 +697,7 @@ class ProductVariant extends \XLite\Model\AEntity
     /**
      * Get defaultPrice
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getDefaultPrice()
     {
@@ -690,7 +719,7 @@ class ProductVariant extends \XLite\Model\AEntity
     /**
      * Get amount
      *
-     * @return integer 
+     * @return integer
      */
     public function getAmount()
     {
@@ -712,7 +741,7 @@ class ProductVariant extends \XLite\Model\AEntity
     /**
      * Get defaultAmount
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getDefaultAmount()
     {
@@ -734,7 +763,7 @@ class ProductVariant extends \XLite\Model\AEntity
     /**
      * Get weight
      *
-     * @return decimal 
+     * @return decimal
      */
     public function getWeight()
     {
@@ -756,7 +785,7 @@ class ProductVariant extends \XLite\Model\AEntity
     /**
      * Get defaultWeight
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getDefaultWeight()
     {
@@ -778,7 +807,7 @@ class ProductVariant extends \XLite\Model\AEntity
     /**
      * Get defaultValue
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getDefaultValue()
     {
@@ -800,7 +829,7 @@ class ProductVariant extends \XLite\Model\AEntity
     /**
      * Get product
      *
-     * @return \XLite\Model\Product 
+     * @return \XLite\Model\Product
      */
     public function getProduct()
     {
@@ -822,7 +851,7 @@ class ProductVariant extends \XLite\Model\AEntity
     /**
      * Get image
      *
-     * @return \XLite\Module\XC\ProductVariants\Model\Image\ProductVariant\Image 
+     * @return \XLite\Module\XC\ProductVariants\Model\Image\ProductVariant\Image
      */
     public function getImage()
     {
@@ -844,7 +873,7 @@ class ProductVariant extends \XLite\Model\AEntity
     /**
      * Get attributeValueC
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getAttributeValueC()
     {
@@ -866,7 +895,7 @@ class ProductVariant extends \XLite\Model\AEntity
     /**
      * Get attributeValueS
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getAttributeValueS()
     {
@@ -888,7 +917,7 @@ class ProductVariant extends \XLite\Model\AEntity
     /**
      * Get orderItems
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getOrderItems()
     {

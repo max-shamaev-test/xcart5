@@ -20,7 +20,7 @@
             <div class="rating-line rating-{{ rating.rating }}" style="width:{{ rating.percent }}%">&nbsp;</div>
             {% if rating.showPercentLastDiv %}<div class="rating-end">&nbsp;</div>{% endif %}
           </td>
-          <td class="count">{{ rating.count }} {{ t('customers') }}</td>
+          <td class="count count-{{ rating.count }}"><span class="count-number">{{ rating.count }}</span><span class="count-text">{{ t('customers') }}</span></td>
         </tr>
       {% endfor %}
       <tr><td colspan="5">&nbsp;</td></tr>

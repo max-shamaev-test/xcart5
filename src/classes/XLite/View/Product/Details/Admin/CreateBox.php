@@ -13,6 +13,27 @@ namespace XLite\View\Product\Details\Admin;
  */
 class CreateBox extends \XLite\View\Product\Details\Admin\AAdmin
 {
+    const PARAM_IS_SPECIFIC = 'isSpecific';
+
+    /**
+     * @return mixed
+     */
+    public function getPersonalOnly()
+    {
+        return $this->getParam(static::PARAM_IS_SPECIFIC);
+    }
+
+    /**
+     * Define widget parameters
+     */
+    protected function defineWidgetParams()
+    {
+        parent::defineWidgetParams();
+
+        $this->widgetParams += array(
+            self::PARAM_IS_SPECIFIC => new \XLite\Model\WidgetParam\TypeBool('Is specific', true),
+        );
+    }
     /**
      * Return widget directory
      *

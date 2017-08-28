@@ -23,41 +23,25 @@ class Shipping extends \XLite\Model\Order\Status\AStatus
     /**
      * Statuses
      */
-    const STATUS_NEW              = 'N';
-    const STATUS_PROCESSING       = 'P';
-    const STATUS_SHIPPED          = 'S';
-    const STATUS_DELIVERED        = 'D';
-    const STATUS_WILL_NOT_DELIVER = 'WND';
-    const STATUS_RETURNED         = 'R';
+    const STATUS_NEW                 = 'N';
+    const STATUS_PROCESSING          = 'P';
+    const STATUS_SHIPPED             = 'S';
+    const STATUS_DELIVERED           = 'D';
+    const STATUS_WILL_NOT_DELIVER    = 'WND';
+    const STATUS_RETURNED            = 'R';
+    const STATUS_WAITING_FOR_APPROVE = 'WFA';
 
     /**
-     * List of change status handlers;
-     * top index - old status, second index - new one
-     * (<old_status> ----> <new_status>: $statusHandlers[$old][$new])
+     * Disallowed to set manually statuses
      *
-     * @var array
+     * @return array
      */
-    protected static $statusHandlers = array(
-        self::STATUS_NEW => array(
-            self::STATUS_SHIPPED => array('ship'),
-        ),
-
-        self::STATUS_PROCESSING => array(
-            self::STATUS_SHIPPED => array('ship'),
-        ),
-
-        self::STATUS_DELIVERED => array(
-            self::STATUS_SHIPPED => array('ship'),
-        ),
-
-        self::STATUS_WILL_NOT_DELIVER => array(
-            self::STATUS_SHIPPED => array('ship'),
-        ),
-
-        self::STATUS_RETURNED => array(
-            self::STATUS_SHIPPED => array('ship'),
-        ),
-    );
+    public static function getDisallowedToSetManuallyStatuses()
+    {
+        return [
+            self::STATUS_WAITING_FOR_APPROVE,
+        ];
+    }
 
     /**
      * Status is allowed to set manually
@@ -66,13 +50,16 @@ class Shipping extends \XLite\Model\Order\Status\AStatus
      */
     public function isAllowedToSetManually()
     {
-        return true;
+        return !in_array(
+            $this->getCode(),
+            static::getDisallowedToSetManuallyStatuses()
+        );
     }
 
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -83,6 +70,7 @@ class Shipping extends \XLite\Model\Order\Status\AStatus
      * Set code
      *
      * @param string $code
+     *
      * @return Shipping
      */
     public function setCode($code)
@@ -94,7 +82,7 @@ class Shipping extends \XLite\Model\Order\Status\AStatus
     /**
      * Get code
      *
-     * @return string 
+     * @return string
      */
     public function getCode()
     {
@@ -105,6 +93,7 @@ class Shipping extends \XLite\Model\Order\Status\AStatus
      * Set position
      *
      * @param integer $position
+     *
      * @return Shipping
      */
     public function setPosition($position)
@@ -116,10 +105,48 @@ class Shipping extends \XLite\Model\Order\Status\AStatus
     /**
      * Get position
      *
-     * @return integer 
+     * @return integer
      */
     public function getPosition()
     {
         return $this->position;
+    }
+
+    /**
+     * List of change status handlers;
+     * top index - old status, second index - new one
+     * (<old_status> ----> <new_status>: $statusHandlers[$old][$new])
+     *
+     * @return array
+     */
+    public static function getStatusHandlers()
+    {
+        return [
+            self::STATUS_NEW => [
+                self::STATUS_SHIPPED => ['ship'],
+                self::STATUS_WAITING_FOR_APPROVE => ['waitingForApprove']
+            ],
+
+            self::STATUS_PROCESSING => [
+                self::STATUS_SHIPPED => ['ship'],
+                self::STATUS_WAITING_FOR_APPROVE => ['waitingForApprove']
+            ],
+
+            self::STATUS_DELIVERED => [
+                self::STATUS_SHIPPED => ['ship'],
+            ],
+
+            self::STATUS_WILL_NOT_DELIVER => [
+                self::STATUS_SHIPPED => ['ship'],
+            ],
+
+            self::STATUS_RETURNED => [
+                self::STATUS_SHIPPED => ['ship'],
+            ],
+
+            self::STATUS_WAITING_FOR_APPROVE => [
+                self::STATUS_SHIPPED => ['ship'],
+            ],
+        ];
     }
 }

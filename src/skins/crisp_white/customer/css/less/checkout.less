@@ -124,6 +124,10 @@ body.target-checkoutPayment {
     }
   }
 
+  .add-coupon form p.inline-error {
+    position: relative;
+  }
+
   form.address {
     li {
       .floating-label;
@@ -461,34 +465,6 @@ body.target-checkoutPayment {
     }
   }
 
-  .payment-tpl .cc-form {
-    @media(min-width: @screen-sm-min) and (max-width: @screen-md-max) {
-      .cardType {
-        display: none;
-      }
-    }
-
-    @media(min-width: @screen-sm-min){
-      min-width: auto;
-
-      .cardExpire {
-        .year-container {
-          margin-left: 10px;
-        }
-      }
-
-      .cardCVV2 {
-        margin-top: 20px;
-        width: 100%;
-
-        .right-text {
-          position: static;
-          font-size: 10px;
-        }
-      }
-    }
-  }
-
   .payment-tpl .form {
     margin-bottom: @rhythmic-unit;
   }
@@ -503,111 +479,6 @@ iframe#pay_iframe {
 
   .content .header h3 {
     margin-bottom: @rhythmic-unit;
-  }
-}
-
-.cc-form {
-  .clearfix;
-  min-width: 320px;
-  max-width: 420px;
-
-  position: relative;
-  padding: (@rhythmic-unit * 2) @rhythmic-unit;
-  border: 2px solid @color-border;
-  border-radius: 2px;
-  background: fade(@color-border, 30);
-
-  .title, .default-hide {
-    display: none;
-  }
-
-  .cardName {
-    input {
-      text-transform: uppercase;
-    }
-  }
-
-  .cardNumber {
-    margin-top: @rhythmic-unit;
-  }
-
-  .cardExpire {
-    margin-top: @rhythmic-unit;
-    float: left;
-    .top-line {
-      margin-left: 33px;
-      margin-bottom: 10px;
-    }
-
-    .bottom-line {
-      .flex-display();
-      .align-items(center);
-
-    }
-
-    .left-text {
-      display: none;
-    }
-
-    .month-container, .year-container {
-      width: 80px;
-    }
-
-    .year-container {
-      margin-left: 20px;
-    }
-  }
-
-  .cardCVV2 {
-    margin-top: 50px;
-    float: right;
-    width: 80px;
-
-    input {
-      text-align: right;
-    }
-
-    .right-text {
-      position: absolute;
-      right: 20px;
-      font-size: 12px;
-      margin-top: 10px;
-    }
-  }
-
-  .cardType {
-    position: absolute;
-    top: 101px;
-    height: (@rhythmic-unit * 2 - 4);
-    right: (@rhythmic-unit + 2);
-
-    .flex-display();
-    .align-items(center);
-
-    .value {
-      display: inline-block;
-    }
-
-    a.icon {
-      font-size: 0px;
-      height: (@rhythmic-unit * 2 - 4);
-      display: block;
-      box-shadow: none;
-    }
-
-    span.card {
-      display: block;
-      width: 140px;
-      height: 70px;
-      margin-right: @rhythmic-unit;
-      zoom: 0.5;
-      -moz-transform: scale(0.5);
-      -moz-transform-origin: 0 0 0;
-    }
-
-    #card_type {
-      display: none;
-    }
   }
 }
 
@@ -636,40 +507,4 @@ html:lang(ru) {
       min-height: @rhythmic-unit * 5;
     }
   }
-}
-
-.cc-form-container div.content div.cardType a.icon span.card.mc {
-    background: url(../../images/cc_types_sprite_embed.png) 0px 0px no-repeat;
-}
-
-.cc-form-container div.content div.cardType a.icon span.card.visa {
-    background: url(../../images/cc_types_sprite_embed.png) 0px -70px no-repeat;
-}
-
-.cc-form-container div.content div.cardType a.icon span.card.jcb {
-    background: url(../../images/cc_types_sprite_embed.png) 0px -286px no-repeat;
-}
-
-.cc-form-container div.content div.cardType a.icon span.card.amex {
-    background: url(../../images/cc_types_sprite_embed.png) 0px -210px no-repeat;
-}
-
-.cc-form-container div.content div.cardType a.icon span.card.dc {
-    background: url(../../images/cc_types_sprite_embed.png) 0px -139px no-repeat;
-}
-
-.cc-form-container div.content div.cardType a.icon span.card.dicl {
-    background: url(../../images/cc_types_sprite_embed.png) 0px -351px no-repeat;
-}
-
-.cc-form-container div.content div.cardType a.icon span.card.sw {
-    background: url(../../images/cc_types_sprite_embed.png) 0px -421px no-repeat;
-}
-
-.cc-form-container div.content div.cardType a.icon span.card.cup {
-    background: url(../../images/cc_types_sprite_embed.png) 0px -491px no-repeat;
-}
-
-.cc-form-container div.content div.cardType a.icon span.card.bc {
-    background: url(../../images/cc_types_sprite_embed.png) 0px -565px  no-repeat;
 }

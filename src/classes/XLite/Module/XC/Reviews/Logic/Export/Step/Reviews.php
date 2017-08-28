@@ -47,17 +47,20 @@ class Reviews extends \XLite\Logic\Export\Step\AStep
      */
     protected function defineColumns()
     {
-        $columns = array(
-            'product'       => array(),
-            'review'        => array(),
-            'rating'        => array(),
-            'additionDate'  => array(),
-            'reviewerName'  => array(),
-            'email'         => array(),
-            'status'        => array(),
-            'ip'            => array(),
-            'useForMeta'    => array(),
-        );
+        $columns = [
+            'product'      => [],
+            'review'       => [],
+            'response'     => [],
+            'rating'       => [],
+            'additionDate' => [],
+            'responseDate' => [],
+            'respondent'   => [],
+            'reviewerName' => [],
+            'email'        => [],
+            'status'       => [],
+            'ip'           => [],
+            'useForMeta'   => [],
+        ];
 
         return $columns;
     }
@@ -98,6 +101,20 @@ class Reviews extends \XLite\Logic\Export\Step\AStep
     }
 
     /**
+     * Get column value for 'response' column
+     *
+     * @param array   $dataset Dataset
+     * @param string  $name    Column name
+     * @param integer $i       Subcolumn index
+     *
+     * @return string
+     */
+    protected function getResponseColumnValue(array $dataset, $name, $i)
+    {
+        return $this->getColumnValueByName($dataset['model'], 'response');
+    }
+
+    /**
      * Get column value for 'rating' column
      *
      * @param array   $dataset Dataset
@@ -123,6 +140,40 @@ class Reviews extends \XLite\Logic\Export\Step\AStep
     protected function getAdditionDateColumnValue(array $dataset, $name, $i)
     {
         return $this->getColumnValueByName($dataset['model'], 'additionDate');
+    }
+
+    /**
+     * Get column value for 'responseDate' column
+     *
+     * @param array   $dataset Dataset
+     * @param string  $name    Column name
+     * @param integer $i       Subcolumn index
+     *
+     * @return string
+     */
+    protected function getResponseDateColumnValue(array $dataset, $name, $i)
+    {
+        return $this->getColumnValueByName($dataset['model'], 'responseDate');
+    }
+
+    /**
+     * Get column value for 'respondent' column
+     *
+     * @param array   $dataset Dataset
+     * @param string  $name    Column name
+     * @param integer $i       Subcolumn index
+     *
+     * @return string
+     */
+    protected function getRespondentColumnValue(array $dataset, $name, $i)
+    {
+        $profile = $this->getColumnValueByName($dataset['model'], 'respondent');
+
+        if ($profile instanceof \XLite\Model\Profile) {
+            return $profile->getLogin();
+        }
+
+        return '';
     }
 
     /**
@@ -179,7 +230,7 @@ class Reviews extends \XLite\Logic\Export\Step\AStep
     protected function getStatusColumnValue(array $dataset, $name, $i)
     {
         $status = $dataset['model']->isApproved();
-        
+
         return $status ? 'Approved' : 'Pending';
     }
 

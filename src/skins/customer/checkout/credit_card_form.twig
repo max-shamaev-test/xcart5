@@ -7,12 +7,12 @@
     <div class="content">
         <div class="header">
             <div class="lock"></div>
-            <h2>{{ t('Secure credit card payment') }}</h2>
+            <h3>{{ t('Secure credit card payment') }}</h3>
         </div>
 
         <div class="cc-form">
             <div class="cardType">
-                <div class="title">{{ t('Card type') }}:</div>
+                <div class="title">{{ t('Card type') }}</div>
                 <div class="value">
                     <select v-model="payment.cc_type" id="card_type" tabindex="-1" lazy>
                         <option disabled selected>{{ t('Chose credit card type') }}</option>
@@ -42,65 +42,42 @@
             </div>
 
             <div class="cardNumber">
-                <div class="title">{{ t('Card number') }}:</div>
+                <div class="title">{{ t('Card number') }}</div>
                 <div class="value">
-                    <input size="25" id="cc_number" class="validate[required,maxSize[255]]" placeholder="XXXX-XXXX-XXXX-XXXX" type="text" autocomplete="off" v-model="payment.cc_number" lazy>
+                    <input size="25" id="cc_number" class="form-control validate[required,maxSize[255]]" placeholder="XXXX-XXXX-XXXX-XXXX" type="text" autocomplete="off" v-model="payment.cc_number" lazy pattern="(\d|\s|-)*" inputmode="numeric" type="tel">
                 </div>
             </div>
 
             <div class="cardExpire">
-                <div class="title lite-hide">{{ t('Expiration date') }}:</div>
+                <div class="title">{{ t('Expiration date') }}</div>
                 <div class="value">
                     <div class="top-line">
-                        <div class="top-text lite-hide">{{ t('MONTH') }} / {{ t('YEAR') }}</div>
+                        <div class="top-text">{{ t('MONTH') }} / {{ t('YEAR') }}</div>
                     </div>
                     <div class="bottom-line">
-                        <div class="left-text lite-hide">{{ t('VALID THRU') }}</div>
-                        <div class="left-text lite-hide default-hide mobile-show">
+                        <div class="left-text">{{ t('VALID THRU') }}</div>
+                        <div class="left-text left-text_extended">
                             <span class="valid-thru">{{ t('VALID THRU') }}</span>
                             <br>
                             <span class="month-year">{{ t('MONTH') }} / {{ t('YEAR') }}</span>
                         </div>
                         <div class="month-container">
-                            <select v-model="payment.cc_expire_month" id="cc_expire_month" class="form-control validate[required]" lazy>
-                                <option value="01" selected="selected">01</option>
-                                <option value="02">02</option>
-                                <option value="03">03</option>
-                                <option value="04">04</option>
-                                <option value="05">05</option>
-                                <option value="06">06</option>
-                                <option value="07">07</option>
-                                <option value="08">08</option>
-                                <option value="09">09</option>
-                                <option value="10">10</option>
-                                <option value="11">11</option>
-                                <option value="12">12</option>
-                            </select>
-                            <div class="bottom-text-month default-hide">{{ t('MONTH') }}</div>
+                            <input v-model="payment.cc_expire_month" id="cc_expire_month" type="tel" class="form-control validate[required]" autocomplete="off" lazy placeholder="MM">
+                            <div class="bottom-text-month text-label">{{ t('MONTH') }}</div>
                         </div>
                         <div class="year-container">
-                            <select v-model="payment.cc_expire_year" id="cc_expire_year" class="validate[required]" lazy>
-                                {% for year in this.getExpiredYears() %}
-                                  <option value="{{ year }}">{{ year }}</option>
-                                {% endfor %}
-                            </select>
-                            <div class="bottom-text-month default-hide">{{ t('YEAR') }}</div>
+                            <input v-model="payment.cc_expire_year" id="cc_expire_year" type="tel" class="form-control validate[required]" autocomplete="off" lazy placeholder="YY">
+                            <div class="bottom-text-month text-label">{{ t('YEAR') }}</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="cardName">
-                <div class="title">{{ t('Cardholder name') }}:</div>
-                <div class="value">
-                    <input size="40" id="cc_name" class="validate[required]" placeholder="{{ t('Cardholder name') }}" type="text" autocomplete="off" v-model="payment.cc_holder_name" lazy>
-                </div>
-            </div>
-
             <div class="cardCVV2 required">
-                <div class="title">{{ t('Security code') }}:</div>
+                <div class="title">{{ t('CVV / CVC') }}</div>
                 <div class="value">
-                    <input v-model="payment.cc_expire_cvv2" size="5" maxlength="4" id="cc_cvv2" type="text" autocomplete="off" class="validate[required]" lazy>
+                    <input v-model="payment.cc_expire_cvv2" size="5" maxlength="4" id="cc_cvv2" type="tel" autocomplete="off" class="form-control validate[required]" lazy placeholder="CVC">
+                    <a id="cvv2-hint" class="cvv2-hint" role="button" data-toggle="popover" data-content=" ">?</a>
                     <div class="right-text">
                         <span class="default-text">{{ t('Credit card security code (if present)') }}</span>
                         <span class="VISA">{{ t('Last three numbers on the back side of your card') }}</span>
@@ -111,6 +88,13 @@
                 </div>
                 <div class="icon-container">
                     <div class="icon mc"></div>
+                </div>
+            </div>
+
+            <div class="cardName">
+                <div class="title">{{ t('Cardholder name') }}</div>
+                <div class="value">
+                    <input size="40" id="cc_name" class="form-control validate[required]" placeholder="{{ t('Cardholder name') }}" type="text" autocomplete="off" v-model="payment.cc_holder_name" lazy>
                 </div>
             </div>
 

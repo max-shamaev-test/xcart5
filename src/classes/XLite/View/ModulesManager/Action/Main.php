@@ -64,7 +64,7 @@ class Main extends \XLite\View\ModulesManager\Action\AAction
     protected function isDisabledHard()
     {
         return !$this->getModule()->getEnabled()
-        && !$this->getParam(static::PARAM_CAN_ENABLE);
+            && !$this->getParam(static::PARAM_CAN_ENABLE);
     }
 
     /**
@@ -75,7 +75,7 @@ class Main extends \XLite\View\ModulesManager\Action\AAction
     protected function isEnabledHard()
     {
         return $this->getModule()->getEnabled()
-        && !$this->getParam(static::PARAM_CAN_DISABLE);
+            && !$this->getParam(static::PARAM_CAN_DISABLE);
     }
 
     /**
@@ -106,7 +106,21 @@ class Main extends \XLite\View\ModulesManager\Action\AAction
     protected function isFieldDisabled($module)
     {
         return ($module->getEnabled() && !$module->canDisable())
-        || (!$module->getEnabled() && !$this->getParam(static::PARAM_CAN_ENABLE))
-        || ($module->getEnabled() && !$this->getParam(static::PARAM_CAN_DISABLE));
+            || (!$module->getEnabled() && !$this->getParam(static::PARAM_CAN_ENABLE))
+            || ($module->getEnabled() && !$this->getParam(static::PARAM_CAN_DISABLE));
+    }
+
+    /**
+     * Check if widget is visible
+     *
+     * @return boolean
+     */
+    protected function isVisible()
+    {
+        return parent::isVisible()
+            //&& !$this->isDisabledHard()
+            //&& !$this->isEnabledHard()
+            //&& !$this->isFieldDisabled($this->getModule())
+            && !$this->getModule()->callModuleMethod('isSkinModule');
     }
 }

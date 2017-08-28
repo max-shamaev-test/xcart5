@@ -53,7 +53,7 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
     {
         $config = $this->getConfiguration();
 
-        return (bool) $config->test_mode;
+        return (bool)$config->test_mode;
     }
 
     /**
@@ -75,11 +75,11 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
      */
     public function getRequiredAddressFields()
     {
-        return array(
+        return [
             'country_code',
             'state_id',
             'zipcode',
-        );
+        ];
     }
 
     /**
@@ -119,13 +119,13 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
      */
     protected function prepareDataFromModifier(\XLite\Logic\Order\Modifier\Shipping $inputData)
     {
-        $result = array();
+        $result = [];
 
         $sourceAddress = $inputData->getOrder()->getSourceAddress();
-        $result['srcAddress'] = array(
+        $result['srcAddress'] = [
             'zipcode' => $sourceAddress->getZipcode(),
             'country' => $sourceAddress->getCountryCode(),
-        );
+        ];
 
         if ($sourceAddress->getState()) {
             $result['srcAddress']['state'] = $sourceAddress->getState()->getCode();
@@ -165,14 +165,14 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
      */
     protected function postProcessInputData(array $inputData)
     {
-        $result = array();
+        $result = [];
 
         if (!empty($inputData['packages'])
             && !empty($inputData['srcAddress'])
             && !empty($inputData['dstAddress'])
         ) {
             $result = $inputData;
-            $result['packages'] = array();
+            $result['packages'] = [];
 
             foreach ($inputData['packages'] as $packKey => $package) {
                 $package['price'] = sprintf('%.2f', $package['subtotal']); // decimal, min=0.00, totalDigits=10
@@ -202,7 +202,7 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
      */
     protected function performRequest($data, $ignoreCache)
     {
-        $rates = array();
+        $rates = [];
         $config = $this->getConfiguration();
         $xmlData = $this->getXMLData($data);
 
@@ -216,10 +216,11 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
 
             if (isset($cachedRate)) {
                 $result = $cachedRate;
+                $timestamp = $this->getDataFromCache($xmlData . '.timestamp');
 
             } elseif (\XLite\Model\Shipping::isIgnoreLongCalculations()) {
                 // Ignore rates calculation
-                return array();
+                return [];
 
             } else {
                 $bouncer = new \XLite\Core\HTTP\Request($postURL);
@@ -232,14 +233,15 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
                     $result = $response->body;
                     if (200 == $response->code) {
                         $this->saveDataInCache($xmlData, $result);
+                        $this->saveDataInCache($xmlData . '.timestamp', \XLite\Core\Converter::time());
                     }
 
                     if ($config->debug_enabled) {
-                        $this->log(array(
+                        $this->log([
                             'request_url'  => $postURL,
                             'request_data' => $this->filterRequestData($xmlData),
                             'response'     => \XLite\Core\XML::getInstance()->getFormattedXML($result),
-                        ));
+                        ]);
                     }
 
                 } else {
@@ -248,16 +250,16 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
             }
 
             $response = !$this->hasError()
-                ? $this->parseResponse($result)
-                : array();
+                ? $this->parseResponse($result, isset($timestamp) ? $timestamp : \XLite\Core\Converter::time())
+                : [];
 
             //save communication log for test request only (ignoreCache is set for test requests only)
             if ($ignoreCache === true) {
-                $this->addApiCommunicationMessage(array(
+                $this->addApiCommunicationMessage([
                     'request_url'  => $postURL,
                     'request_data' => $xmlData,
                     'response'     => $result,
-                ));
+                ]);
             }
 
             if (!$this->hasError() && !isset($response['err_msg'])) {
@@ -271,6 +273,10 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
 
                         $rate->setMethod($method);
                         $rate->setBaseRate($_rate['amount']);
+
+                        if (isset($_rate['delivery_time']) && $_rate['delivery_time']) {
+                            $rate->setDeliveryTime($_rate['delivery_time']);
+                        }
 
                         if (!empty($data['cod_enabled'])) {
                             $extraData = new \XLite\Core\CommonCell();
@@ -294,6 +300,55 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
         return $rates;
     }
 
+    /**
+     * Returns list of registered(and translated) fedex delivery time labels
+     *
+     * @return array
+     */
+    public function getRegisteredTransitTimeLabels()
+    {
+        return [
+            'EIGHTEEN_DAYS'  => 18,
+            'EIGHT_DAYS'     => 8,
+            'ELEVEN_DAYS'    => 11,
+            'FIFTEEN_DAYS'   => 15,
+            'FIVE_DAYS'      => 5,
+            'FOURTEEN_DAYS'  => 14,
+            'FOUR_DAYS'      => 4,
+            'NINETEEN_DAYS'  => 19,
+            'NINE_DAYS'      => 9,
+            'ONE_DAY'        => 1,
+            'SEVENTEEN_DAYS' => 17,
+            'SEVEN_DAYS'     => 7,
+            'SIXTEEN_DAYS'   => 16,
+            'SIX_DAYS'       => 6,
+            'TEN_DAYS'       => 10,
+            'THIRTEEN_DAYS'  => 13,
+            'THREE_DAYS'     => 3,
+            'TWELVE_DAYS'    => 12,
+            'TWENTY_DAYS'    => 20,
+            'TWO_DAYS'       => 2,
+        ];
+    }
+
+    /**
+     * Returns prepared delivery time
+     *
+     * @param \XLite\Model\Shipping\Rate $rate
+     *
+     * @return string|null
+     */
+    public function prepareDeliveryTime(\XLite\Model\Shipping\Rate $rate)
+    {
+        $days = $rate->getDeliveryTime();
+
+        if ($days !== null) {
+            return static::t('X days', ['days' => $days]);
+        }
+
+        return null;
+    }
+
     // }}}
 
     // {{{ Configuration
@@ -308,9 +363,9 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
         $config = $this->getConfiguration();
 
         return $config->meter_number
-        && $config->key
-        && $config->password
-        && $config->account_number;
+               && $config->key
+               && $config->password
+               && $config->account_number;
     }
 
     /**
@@ -322,7 +377,7 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
     {
         $config = $this->getConfiguration();
 
-        return ((float) $config->currency_rate) ?: 1;
+        return ((float)$config->currency_rate) ?: 1;
     }
 
     // }}}
@@ -378,11 +433,11 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
     public function getTrackingInformationParams($trackingNumber)
     {
         $list = parent::getTrackingInformationParams($trackingNumber);
-        $list['tracknumbers']   = $trackingNumber;
-        $list['ascend_header']  = 1;
-        $list['clienttype']     = 'dotcom';
-        $list['cntry_code']     = 'us';
-        $list['language']       = 'english';
+        $list['tracknumbers'] = $trackingNumber;
+        $list['ascend_header'] = 1;
+        $list['clienttype'] = 'dotcom';
+        $list['cntry_code'] = 'us';
+        $list['language'] = 'english';
 
         return $list;
     }
@@ -441,18 +496,18 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
     protected function filterRequestData($data)
     {
         return preg_replace(
-            array(
+            [
                 '|<v17:AccountNumber>.+</v17:AccountNumber>|i',
                 '|<v17:MeterNumber>.+</v17:MeterNumber>|i',
                 '|<v17:Key>.+</v17:Key>|i',
                 '|<v17:Password>.+</v17:Password>|i',
-            ),
-            array(
+            ],
+            [
                 '<v17:AccountNumber>xxx</v17:AccountNumber>',
                 '<v17:MeterNumber>xxx</v17:MeterNumber>',
                 '<v17:Key>xxx</v17:Key>',
                 '<v17:Password>xxx</v17:Password>',
-            ),
+            ],
             $data
         );
     }
@@ -469,7 +524,7 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
     public static function isCODPaymentEnabled()
     {
         $method = \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')
-            ->findOneBy(array('service_name' => 'COD_FEDEX'));
+            ->findOneBy(['service_name' => 'COD_FEDEX']);
 
         return $method && $method->getEnabled();
     }
@@ -540,12 +595,12 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
 
         // Define ship date
         $fedexOptions['ship_date_ready']
-            = date('c', \XLite\Core\Converter::time() + ((int) $fedexOptions['ship_date']) * 24 * 3600);
+            = date('c', \XLite\Core\Converter::time() + ((int)$fedexOptions['ship_date']) * 24 * 3600);
 
         // Define available carrier codes
         $carrierCodes = '';
 
-        foreach (array('fdxe', 'fdxg', 'fxsp') as $code) {
+        foreach (['fdxe', 'fdxg', 'fxsp'] as $code) {
             if (isset($fedexOptions[$code]) && $fedexOptions[$code]) {
                 $carrierCodes
                     .= str_repeat(' ', 9) . '<v17:CarrierCodes>' . strtoupper($code) . '</v17:CarrierCodes>' . PHP_EOL;
@@ -720,7 +775,7 @@ OUT;
             if ('YOUR_PACKAGING' === $fedexOptions['packaging']) {
                 if (isset($pack['box'])) {
                     $length = $pack['box']['length'];
-                    $width  = $pack['box']['width'];
+                    $width = $pack['box']['width'];
                     $height = $pack['box']['height'];
 
                 } else {
@@ -787,15 +842,15 @@ EOT;
     /**
      * Return XML string with special services description
      *
-     * @param array  $data         Input data
-     * @param array  $fedexOptions FedEx options array
+     * @param array $data         Input data
+     * @param array $fedexOptions FedEx options array
      *
      * @return string
      */
     protected function prepareSpecialServicesPackageXML($data, $fedexOptions)
     {
         $result = '';
-        $specialServices = array();
+        $specialServices = [];
 
         if (!empty($fedexOptions['dg_accessibility'])
             && !$this->isSmartPost($fedexOptions)
@@ -839,7 +894,7 @@ OUT;
 
         if (!empty($specialServices)) {
             $specialServicesString = implode('', $specialServices);
-            $result =<<<OUT
+            $result = <<<OUT
                <v17:SpecialServicesRequested>
 {$specialServicesString}
                </v17:SpecialServicesRequested>
@@ -860,8 +915,8 @@ OUT;
     protected function prepareSpecialServicesShipmentXML($data, $fedexOptions)
     {
         $result = '';
-        $specialServices = array();
-        $specialServicesTypes = array();
+        $specialServices = [];
+        $specialServicesTypes = [];
 
         if (!empty($data['cod_enabled']) && $this->isCODAllowed($data)) {
             $subtotal = $this->getPackagesSubtotal($data);
@@ -883,7 +938,7 @@ OUT;
         }
 
         if ($fedexOptions['opt_saturday_pickup']
-            && 6 == date('w', \XLite\Core\Converter::time() + ((int) $fedexOptions['ship_date']) * 24 * 3600)
+            && 6 == date('w', \XLite\Core\Converter::time() + ((int)$fedexOptions['ship_date']) * 24 * 3600)
         ) {
             $specialServicesTypes[] = 'SATURDAY_PICKUP';
         }
@@ -896,7 +951,7 @@ OUT;
 
         if (!empty($specialServices)) {
             $specialServicesString = implode('', $specialServices);
-            $result =<<<OUT
+            $result = <<<OUT
             <v17:SpecialServicesRequested>
 {$specialServicesString}
             </v17:SpecialServicesRequested>
@@ -909,13 +964,14 @@ OUT;
     /**
      * Parses response and returns an associative array
      *
-     * @param string $stringData Response received from FedEx
+     * @param string  $stringData Response received from FedEx
+     * @param integer $timestamp  Response timestamp
      *
      * @return array
      */
-    protected function parseResponse($stringData)
+    protected function parseResponse($stringData, $timestamp)
     {
-        $result = array();
+        $result = [];
 
         $xml = \XLite\Core\XML::getInstance();
 
@@ -924,7 +980,7 @@ OUT;
         if (isset($xmlParsed['soapenv:Envelope']['#']['soapenv:Body'][0]['#']['soapenv:Fault'][0]['#'])) {
             // FedEx responses with error of request validation
 
-            $result['err_msg']= $xml->getArrayByPath(
+            $result['err_msg'] = $xml->getArrayByPath(
                 $xmlParsed,
                 'soapenv:Envelope/#/soapenv:Body/0/#/soapenv:Fault/0/#/faultstring/0/#'
             );
@@ -932,7 +988,7 @@ OUT;
         } else {
             $rateReply = $xml->getArrayByPath($xmlParsed, 'SOAP-ENV:Envelope/#/SOAP-ENV:Body/0/#/RateReply/0/#');
 
-            $errorCodes = array('FAILURE','ERROR');
+            $errorCodes = ['FAILURE', 'ERROR'];
 
             if (in_array($xml->getArrayByPath($rateReply, 'HighestSeverity/0/#'), $errorCodes, true)) {
                 // FedEx failed to return valid rates
@@ -946,14 +1002,20 @@ OUT;
                 $rateDetails = $xml->getArrayByPath($rateReply, 'RateReplyDetails');
 
                 if (!empty($rateDetails) && is_array($rateDetails)) {
+                    $config = $this->getConfiguration();
+                    $fedexOptions = $config->getData();
+
                     $conversionRate = $this->getCurrencyConversionRate();
 
-                    $resultRates = array();
+                    $resultRates = [];
 
                     foreach ($rateDetails as $rate) {
                         $serviceType = $xml->getArrayByPath($rate, '#/ServiceType/0/#');
 
                         $ratedShipmentDetails = $xml->getArrayByPath($rate, '#/RatedShipmentDetails');
+
+                        $transitTime = $xml->getArrayByPath($rate, '#/TransitTime/0/#');
+                        $deliveryTimestamp = $xml->getArrayByPath($rate, '#/DeliveryTimestamp/0/#');
 
                         foreach ($ratedShipmentDetails as $rateDetails) {
 
@@ -969,16 +1031,24 @@ OUT;
                                 '#/ShipmentRateDetail/TotalVariableHandlingCharges/VariableHandlingCharge/Amount/0/#'
                             );
 
-                            $resultRates[$serviceType][$rateType]['amount'] += (float) $variableHandlingCharge;
+                            $resultRates[$serviceType][$rateType]['amount'] += (float)$variableHandlingCharge;
 
                             if (1 != $conversionRate) {
                                 $resultRates[$serviceType][$rateType]['amount'] *= $conversionRate;
                             }
+
+                            if ($deliveryTimestamp) {
+                                $resultRates[$serviceType][$rateType]['delivery_time'] =
+                                    round(
+                                        (strtotime($deliveryTimestamp) - $timestamp)
+                                        / \XLite\Core\Task\Base\Periodic::INT_1_DAY
+                                    );
+                            } elseif ($transitTime && isset($this->getRegisteredTransitTimeLabels()[$transitTime])) {
+                                $transitTime = $this->getRegisteredTransitTimeLabels()[$transitTime];
+                                $resultRates[$serviceType][$rateType]['delivery_time'] = $transitTime + $fedexOptions['ship_date'];
+                            }
                         }
                     }
-
-                    $config = $this->getConfiguration();
-                    $fedexOptions = $config->getData();
 
                     $prefferedType = 'PAYOR_' . ('LIST' == $fedexOptions['rate_request_type'] ? 'LIST' : 'ACCOUNT') . '_PACKAGE';
 
@@ -988,10 +1058,17 @@ OUT;
                             // Preffered request type is found - save this
                             $result[$service]['amount'] = $serviceData[$prefferedType]['amount'];
 
+                            if (isset($serviceData[$prefferedType]['delivery_time'])) {
+                                $result[$service]['delivery_time'] = $serviceData[$prefferedType]['delivery_time'];
+                            }
                         } else {
                             // Preffered request type is found - search first available amount
                             foreach ($serviceData as $rateType => $rateData) {
                                 $result[$service]['amount'] = $rateData['amount'];
+
+                                if (isset($rateData['delivery_time'])) {
+                                    $result[$service]['delivery_time'] = $rateData['delivery_time'];
+                                }
                                 break;
                             }
                         }
@@ -1002,10 +1079,10 @@ OUT;
 
         // Log error
         if (isset($result['err_msg'])) {
-            $this->log(array(
+            $this->log([
                 'Error'    => $result['err_msg'],
                 'Response' => \XLite\Core\XML::getInstance()->getFormattedXML($stringData)
-            ));
+            ]);
         }
 
         return $result;
@@ -1117,7 +1194,7 @@ OUT;
 
         if (is_array($data)) {
             foreach ($data['packages'] as $pack) {
-                $subtotal += (float) $pack['price'];
+                $subtotal += (float)$pack['price'];
             }
         }
 

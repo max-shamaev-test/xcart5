@@ -129,4 +129,14 @@ class SearchCaseProcessor implements \XLite\View\ItemsList\ISearchCaseProvider
     {
         return $this->searchValuesStorage->getValue($name);
     }
+
+    /**
+     * @param \XLite\View\ItemsList\ISearchValuesStorage $storage
+     */
+    public function setDefaultValuesStorage(ISearchValuesStorage $storage)
+    {
+        if ($this->searchValuesStorage instanceof ASearchValuesStorage) {
+            $this->searchValuesStorage->setFallbackStorage($storage);
+        }
+    }
 }

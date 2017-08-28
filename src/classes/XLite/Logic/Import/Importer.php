@@ -622,7 +622,7 @@ class Importer extends \XLite\Base
     /**
      * Get processor list
      *
-     * @return array
+     * @return string[]
      */
     public static function getProcessorList()
     {

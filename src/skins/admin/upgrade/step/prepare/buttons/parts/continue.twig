@@ -5,5 +5,9 @@
  #}
 
 {% if this.isNextStepAvailable() %}
-  {{ widget('\\XLite\\View\\Button\\Submit', style='regular-main-button main-button', label=t('Continue')) }}
+  {% if this.isShowPharPopup() %}
+    {{ widget('\\XLite\\View\\Button\\Popup\\UpgradePhar', style='regular-main-button main-button', label=t('Continue')) }}
+  {% else %}
+    {{ widget('\\XLite\\View\\Button\\Submit', style='regular-main-button main-button', label=t('Continue')) }}
+  {% endif %}
 {% endif %}

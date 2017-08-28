@@ -27,36 +27,10 @@ class PoweredBy extends \XLite\View\AView
      */
     protected static $phrases = array(
         'en' => array(
-            '[Powered by X-Cart shopping cart]',
-            '[Powered by X-Cart shopping cart]',
-            '[Powered by X-Cart shopping cart software]',
-            '[Powered by X-Cart shopping cart software]',
-            '[Powered by X-Cart PHP shopping cart]',
-            '[Powered by X-Cart PHP shopping cart system]',
-            '[Powered by X-Cart eCommerce shopping cart]',
-            '[Powered by X-Cart online shopping cart]',
-            '[Powered by X-Cart online shopping cart]',
-            '[Powered by X-Cart eCommerce software]',
-            '[Powered by X-Cart eCommerce software]',
-            '[Powered by X-Cart e-commerce software]',
-            '[Powered by X-Cart e-commerce software]',
-            '[Powered by X-Cart eCommerce solution]',
-            '[Powered by X-Cart eCommerce solution]',
-            '[Powered by X-Cart e-commerce solution]',
-            '[Powered by X-Cart e-commerce solution]',
-            '[Powered by X-Cart free shopping cart]',
-            '[Powered by X-Cart free shopping cart]',
-            '[Powered by X-Cart online shop software]',
-            '[Powered by X-Cart online shop software]',
-            '[Powered by X-Cart open source eCommerce platform]',
-            '[Powered by X-Cart open source eCommerce platform]',
+            '[Powered by X-Cart]',
         ),
         'ru' => array(
-            '[Интернет магазин X-Cart]',
             '[Создан на базе интернет магазина X-Cart]',
-            '[PHP интернет магазин X-Cart]',
-            '[X-Cart - бесплатный интернет магазин]',
-            '[X-Cart - интернет магазин с открытым кодом]',
         ),
     );
 

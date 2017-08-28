@@ -8,8 +8,24 @@
 
 namespace XLite\Module\XC\ThemeTweaker\View;
 
+use XLite\Core\Translation;
+
 abstract class CommonResources extends \XLite\View\CommonResources implements \XLite\Base\IDecorator
 {
+    public function getJSFiles()
+    {
+        $list = parent::getJSFiles();
+
+        return $list;
+    }
+
+    public function getCSSFiles()
+    {
+        $list = parent::getCSSFiles();
+
+        return $list;
+    }
+
     /**
      * Register files from common repository
      *

@@ -53,9 +53,9 @@ class InvoicePinCodes extends \XLite\View\AView
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_ITEM => new \XLite\Model\WidgetParam\TypeObject('Order item', null, false, '\\XLite\\\Model\\OrderItem'),
-        );
+        ];
     }
 
     /**
@@ -79,7 +79,7 @@ class InvoicePinCodes extends \XLite\View\AView
      */
     protected function getPinCodes()
     {
-        $codes = array();
+        $codes = [];
 
         $list = \XLite::isAdminZone()
             ? $this->getParam(self::PARAM_ITEM)->getPinCodes()

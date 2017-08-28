@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * Attribute options repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\AttributeOption", summary="Add new attribute option")
+ * @Api\Operation\Read(modelClass="XLite\Model\AttributeOption", summary="Retrieve attribute option by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\AttributeOption", summary="Retrieve attribute options by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\AttributeOption", summary="Update attribute option by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\AttributeOption", summary="Delete attribute option by id")
  */
 class AttributeOption extends \XLite\Model\Repo\Base\I18n
 {
@@ -40,6 +46,7 @@ class AttributeOption extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters attribute options by attribute id", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition OPTIONAL
@@ -61,6 +68,7 @@ class AttributeOption extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters attribute options by name", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition OPTIONAL

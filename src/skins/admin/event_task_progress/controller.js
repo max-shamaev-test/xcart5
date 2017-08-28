@@ -33,6 +33,9 @@ var EventTaskProgress = Object.extend({
   userCanceling:        false,
   cancelingRequested:   false,
 
+  stepTimeout: 600000,
+  cancelTimeout: 10000,
+
   initialize: function() {
     if (this.$progress.is('.noblocking')) {
       this.initializeNonblocking();
@@ -43,9 +46,6 @@ var EventTaskProgress = Object.extend({
     this.$cancelButton.click(_.bind(this.cancelHandler, this));
 
     core.bind('step-completed', _.bind(this.closeIfCanceling, this));
-
-    // Preload language labels
-    core.loadLanguageHash(core.getCommentedData(this.$component));
   },
 
   closeIfCanceling: function() {
@@ -66,6 +66,11 @@ var EventTaskProgress = Object.extend({
     this.changeMessage(core.t('Canceling'));
 
     this.userCanceling = true;
+
+    // is used in case progress hanged out
+    _.delay(function(){
+      core.trigger('step-completed');
+    }, 10000);
 
     event.preventDefault();
 
@@ -149,7 +154,7 @@ var EventTaskProgress = Object.extend({
       null,
       {},
       {
-        timeout: 600000,
+        timeout: this.stepTimeout,
         success: function (xhr, textStatus) {
         },
         error: function (xhr, textStatus, errorThrown) {

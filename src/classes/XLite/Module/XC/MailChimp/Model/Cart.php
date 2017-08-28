@@ -18,6 +18,12 @@ use XLite\Module\XC\MailChimp\Main;
  */
 abstract class Cart extends \XLite\Model\Cart implements \XLite\Base\IDecorator
 {
+    /**
+     * Prepare order before save data operation
+     *
+     * @PrePersist
+     * @PreUpdate
+     */
     public function prepareBeforeSave()
     {
         parent::prepareBeforeSave();
@@ -48,7 +54,13 @@ abstract class Cart extends \XLite\Model\Cart implements \XLite\Base\IDecorator
             && Main::isMailChimpECommerceConfigured()
         ) {
             try {
-                $result = Core\MailChimp::getInstance()->createOrder($this);
+                $mcCore = Core\MailChimp::getInstance();
+                $result = $mcCore->createOrder($this);
+                $storeId = $mcCore->getStoreIdByCampaign(
+                    Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
+                );
+                $this->setMailchimpStoreId($storeId);
+
                 if ($result) {
                     Core\MailChimp::getInstance()->removeCart($this);
                 }
@@ -65,32 +77,6 @@ abstract class Cart extends \XLite\Model\Cart implements \XLite\Base\IDecorator
         ) {
             $profile->checkSegmentsConditions();
         }
-    }
-
-    /**
-     * Check if the order needs to send ECommerce360 data
-     *
-     * @return boolean
-     */
-    protected function isECommerce360Order()
-    {
-        return isset(Request::getInstance()->{Core\Request::MAILCHIMP_CAMPAIGN_ID})
-            && !empty(Request::getInstance()->{Core\Request::MAILCHIMP_CAMPAIGN_ID})
-            && isset(Request::getInstance()->{Core\Request::MAILCHIMP_USER_ID})
-            && !empty(Request::getInstance()->{Core\Request::MAILCHIMP_USER_ID});
-    }
-
-    /**
-     * Check if the order needs to send ECommerce360 data
-     *
-     * @return boolean
-     */
-    protected function isECommerce360Cart()
-    {
-        return isset(Request::getInstance()->{Core\Request::MAILCHIMP_CAMPAIGN_ID})
-        && !empty(Request::getInstance()->{Core\Request::MAILCHIMP_CAMPAIGN_ID})
-        && isset(Request::getInstance()->{Core\Request::MAILCHIMP_USER_ID})
-        && !empty(Request::getInstance()->{Core\Request::MAILCHIMP_USER_ID});
     }
 
     /**

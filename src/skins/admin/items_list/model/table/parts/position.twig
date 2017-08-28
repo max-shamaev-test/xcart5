@@ -1,4 +1,4 @@
 {##
  # Position
  #}
-{{ widget(this.getOrderByWidgetClassName(), idx=this.idx, entity=this.entity, column=this.column, itemsList=this.getSelf(), fieldName='position', fieldParams=this.column.params) }}
+{{ widget(this.getOrderByWidgetClassName(), idx=this.idx, entity=this.entity, column=this.column, itemsList=this.getSelf(), fieldName=this.getSortFieldName(), fieldParams=this.column.params) }}

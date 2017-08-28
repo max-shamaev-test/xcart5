@@ -7,6 +7,7 @@
  */
 
 namespace XLite\Module\CDev\GoogleAnalytics;
+
 use XLite\Module\CDev\GoogleAnalytics\Logic\ActionsStorage;
 use XLite\Module\CDev\GoogleAnalytics\Logic\Action;
 
@@ -42,7 +43,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '2';
+        return '3';
     }
 
     /**
@@ -51,6 +52,16 @@ abstract class Main extends \XLite\Module\AModule
      * @return string
      */
     public static function getBuildVersion()
+    {
+        return '1';
+    }
+
+    /**
+     * Get minor core version which is required for the module activation
+     *
+     * @return string
+     */
+    public static function getMinorRequiredCoreVersion()
     {
         return '3';
     }
@@ -108,8 +119,10 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function useUniversalAnalytics()
     {
-        return \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics->ga_account
-            && 'U' === \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics->ga_code_version;
+        return \XLite\Core\Config::getInstance()->CDev
+               && \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics
+               && \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics->ga_account
+               && 'U' === \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics->ga_code_version;
     }
 
     /**
@@ -118,7 +131,7 @@ abstract class Main extends \XLite\Module\AModule
     public static function isECommerceEnabled()
     {
         return static::useUniversalAnalytics()
-            && \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics->ecommerce_enabled;
+               && \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics->ecommerce_enabled;
     }
 
     /**

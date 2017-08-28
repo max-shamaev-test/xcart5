@@ -11,6 +11,7 @@ namespace XLite\Core;
 use Includes\Database\Migration\Migration;
 use Includes\Database\Migration\MigrationFactory;
 use Includes\Decorator\Plugin\Doctrine\Utils\SchemaMigrationManager;
+use Includes\Utils\FileManager;
 use XLite\Core\Database\Migration\PersistenceStrategy;
 use XLite\Core\Database\Migration\ReadStrategy;
 use XLite\Core\Doctrine\ORM\Repository\RepositoryFactory;
@@ -48,7 +49,7 @@ class Database extends \XLite\Base\Singleton
     /**
      * Doctrine entity manager
      *
-     * @var \Doctrine\ORM\EntityManager
+     * @var \XLite\Core\Doctrine\ORM\EntityManager
      */
     protected static $em;
 
@@ -64,11 +65,11 @@ class Database extends \XLite\Base\Singleton
      *
      * @var array
      */
-    protected static $cacheDriversQuery = array(
+    protected static $cacheDriversQuery = [
         'apc',
         'xcache',
         'memcache',
-    );
+    ];
 
     /**
      * Doctrine config object
@@ -96,36 +97,36 @@ class Database extends \XLite\Base\Singleton
      *
      * @var array
      */
-    protected $unmanagedTables = array();
+    protected $unmanagedTables = [];
 
     /**
      * Forbid truncate tables if will truncate store-based tables
      *
      * @var array
      */
-    protected $forbidTruncateTablesStore = array(
+    protected $forbidTruncateTablesStore = [
         'profiles',
         'currencies',
         'payment_methods',
         'shipping_methods',
         'memberships',
-    );
+    ];
 
     /**
      * Fixtures loading procedure options
      *
      * @var array
      */
-    protected $fixturesLoadingOptions = array(
+    protected $fixturesLoadingOptions = [
         'insert'    => false,
         'addModel'  => null,
         'addParent' => true,
-    );
+    ];
 
     /**
      * Get entity manager
      *
-     * @return \Doctrine\ORM\EntityManager
+     * @return \XLite\Core\Doctrine\ORM\EntityManager
      */
     public static function getEM()
     {
@@ -186,7 +187,7 @@ class Database extends \XLite\Base\Singleton
 
         // Register annotation class loader
         \Doctrine\Common\Annotations\AnnotationRegistry::registerLoader(
-            array(get_called_class(), 'loadAnnotationClass')
+            [get_called_class(), 'loadAnnotationClass']
         );
     }
 
@@ -232,24 +233,24 @@ class Database extends \XLite\Base\Singleton
     {
         $length = static::getEM()
             ->getConnection()
-            ->executeQuery('SELECT FOUND_ROWS()', array())
+            ->executeQuery('SELECT FOUND_ROWS()', [])
             ->fetchColumn();
 
-        return (int) $length;
+        return (int)$length;
     }
 
     /**
      * Prepare array for IN () DQL function
      *
-     * @param array  $data   Hash array
+     * @param array $data Hash array
      * @param string $prefix Placeholder prefix OPTIONAL
      *
      * @return array (keys for IN () function & parameters hash array)
      */
     public static function prepareArray(array $data, $prefix = 'arr')
     {
-        $keys = array();
-        $parameters = array();
+        $keys = [];
+        $parameters = [];
 
         foreach ($data as $k => $v) {
             $k = $prefix . $k;
@@ -257,31 +258,8 @@ class Database extends \XLite\Base\Singleton
             $parameters[$k] = $v;
         }
 
-        return array($keys, $parameters);
+        return [$keys, $parameters];
     }
-
-    /**
-     * @deprecated 5.3.3
-     *
-     * Build IN () condition
-     *
-     * @param \Doctrine\ORM\QueryBuilder $qb     Query builder
-     * @param array                      $data   Hash array
-     * @param string                     $prefix Placeholder prefix OPTIONAL
-     *
-     * @return array Keys for IN () function
-     */
-    public static function buildInCondition(\Doctrine\ORM\QueryBuilder $qb, array $data, $prefix = 'arr')
-    {
-        list($keys, $data) = static::prepareArray($data, $prefix);
-
-        foreach ($data as $k => $v) {
-            $qb->setParameter($k, $v);
-        }
-
-        return $keys;
-    }
-
 
     /**
      * Detect APC cache driver
@@ -339,11 +317,11 @@ class Database extends \XLite\Base\Singleton
         // Setup metadata driver
         $paths = array_merge(
             [ADecorator::getCacheModelsDir()],
-            glob(ADecorator::getCacheClassesDir() . 'XLite/Module/*/*/Model/')
+            glob(ADecorator::getCacheClassesDir() . 'XLite/Module/*/*/Model/') ?: []
         );
 
         $excludePaths = [
-            ADecorator::getCacheModelProxiesDir()
+            ADecorator::getCacheModelProxiesDir(),
         ];
 
         $excludePaths = array_filter($excludePaths, 'file_exists');
@@ -372,7 +350,7 @@ class Database extends \XLite\Base\Singleton
         $this->configuration->addCustomStringFunction('greatest', '\\XLite\\Core\\Doctrine\\GreatestFunction');
         $this->configuration->addCustomStringFunction('concat_ws', '\\XLite\\Core\\Doctrine\\ConcatWSFunction');
 
-        $this->tablePrefix = trim(\XLite::getInstance()->getOptions(array('database_details', 'table_prefix')));
+        $this->tablePrefix = trim(\XLite::getInstance()->getOptions(['database_details', 'table_prefix']));
 
         $this->configuration->setRepositoryFactory(new RepositoryFactory());
 
@@ -402,12 +380,12 @@ class Database extends \XLite\Base\Singleton
     public function startEntityManager()
     {
         // Initialize DB connection and entity manager
-        static::$em = \Doctrine\ORM\EntityManager::create($this->getDSN(), $this->configuration);
+        static::$em = \XLite\Core\Doctrine\ORM\EntityManager::create($this->getDSN(), $this->configuration);
 
         static::registerCustomTypes(static::$em);
 
         // Bind events
-        $events = array(\Doctrine\ORM\Events::loadClassMetadata);
+        $events = [\Doctrine\ORM\Events::loadClassMetadata];
         if (static::$cacheDriver) {
             // Bind cache checkers
             $events[] = \Doctrine\ORM\Events::postPersist;
@@ -420,7 +398,7 @@ class Database extends \XLite\Base\Singleton
         $eventManager->addEventListener($events, $this);
 
         $eventManager->addEventSubscriber($this->getRepo('XLite\Model\EntityTypeVersion'));
-        
+
         $eventManager->addEventSubscriber(new EntityVersionUpdater());
 
         // Apply persistence strategy when not in cache rebuild mode
@@ -448,7 +426,7 @@ class Database extends \XLite\Base\Singleton
     /**
      * Export SQL dump from database to the specified file
      *
-     * @param string  $path    File path or directory where SQL dump should be exported OPTIONAL
+     * @param string $path File path or directory where SQL dump should be exported OPTIONAL
      * @param boolean $verbose Is export should be verbose flag OPTIONAL
      *
      * @return boolean
@@ -504,7 +482,7 @@ class Database extends \XLite\Base\Singleton
      */
     public function getExportDBSchema($path = null)
     {
-        $result = array();
+        $result = [];
 
         // Get array of SQL queries which are described of DB schema
         $schema = $this->createMigration(self::SCHEMA_CREATE)->getQueries();
@@ -530,7 +508,7 @@ class Database extends \XLite\Base\Singleton
      */
     public function getExportDBData()
     {
-        $result = array();
+        $result = [];
 
         // Get X-Cart table names
         $tableNames = static::$em->getConnection()->getSchemaManager()->listTableNames();
@@ -549,12 +527,12 @@ class Database extends \XLite\Base\Singleton
                 $statement->closeCursor();
                 $statement = null;
 
-                $insertValues = array();
+                $insertValues = [];
 
                 // Prepare compact INSERT statements for data
                 if (count($rows) > 0) {
                     foreach ($rows as $row) {
-                        $insertValues[] = '(' . implode(',', array_map(array($this, 'doQuote'), $row)) . ')';
+                        $insertValues[] = '(' . implode(',', array_map([$this, 'doQuote'], $row)) . ')';
                     }
 
                     $result[] = 'INSERT INTO ' . $tableName . ' VALUES ' . implode(',', $insertValues);
@@ -581,8 +559,8 @@ class Database extends \XLite\Base\Singleton
     public function doQuote($value)
     {
         // Array for replacements
-        $search  = array("\x00", "\x0a", "\x0d", "\x1a");
-        $replace = array('\0', '\n', '\r', '\Z');
+        $search = ["\x00", "\x0a", "\x0d", "\x1a"];
+        $replace = ['\0', '\n', '\r', '\Z'];
 
         if (null === $value) {
             // Null must be presented as 'NULL' string
@@ -704,8 +682,8 @@ class Database extends \XLite\Base\Singleton
     /**
      * Set fixtures loading procedure option
      *
-     * @param string $name  Option name
-     * @param mixed  $value Option value OPTIONAL
+     * @param string $name Option name
+     * @param mixed $value Option value OPTIONAL
      *
      * @return void
      */
@@ -717,21 +695,21 @@ class Database extends \XLite\Base\Singleton
     /**
      * Load fixtures from YAML file
      *
-     * @param string    $path       YAML file path
-     * @param array     $options    Options         OPTIONAL
+     * @param string $path YAML file path
+     * @param array $options Options         OPTIONAL
      *
      * @return void
      */
     public function loadFixturesFromYaml($path, $options = null)
     {
         $options = array_merge_recursive(
-            $options ?: array(),
+            $options ?: [],
             [
                 'allowedModels'  => null,
                 'excludedModels' => null,
             ]
         );
-        $data = \Symfony\Component\Yaml\Yaml::parse($path);
+        $data = FileManager::parseYamlFile($path);
 
         if (is_array($data)) {
             foreach ($data as $entityName => $rows) {
@@ -771,7 +749,7 @@ class Database extends \XLite\Base\Singleton
      */
     public function unloadFixturesFromYaml($path)
     {
-        $data = \Symfony\Component\Yaml\Yaml::parse($path);
+        $data = FileManager::parseYamlFile($path);
 
         $result = false;
 
@@ -924,8 +902,8 @@ class Database extends \XLite\Base\Singleton
      */
     public function getRegistryStructures($enabled)
     {
-        $tables = array();
-        $columns = array();
+        $tables = [];
+        $columns = [];
 
         $path = $enabled
             ? $this->getEnabledStructuresPath()
@@ -933,7 +911,7 @@ class Database extends \XLite\Base\Singleton
 
         if (file_exists($path)) {
 
-            $dependencies = array();
+            $dependencies = [];
 
             $modules = \XLite\Core\Operator::getInstance()->loadServiceYAML($path);
 
@@ -967,14 +945,14 @@ class Database extends \XLite\Base\Singleton
             }
         }
 
-        return array($tables, $columns);
+        return [$tables, $columns];
     }
 
     /**
      * Return true if module state equals the specified state
      *
-     * @param string  $module Module Author\Name
-     * @param boolean $state  Module state to check
+     * @param string $module Module Author\Name
+     * @param boolean $state Module state to check
      *
      * @return boolean
      */
@@ -994,12 +972,12 @@ class Database extends \XLite\Base\Singleton
     /**
      * Set disabled tables list
      *
-     * @param string $module     Module unique name
-     * @param array  $structures Disabled structures OPTIONAL
+     * @param string $module Module unique name
+     * @param array $structures Disabled structures OPTIONAL
      *
      * @return void
      */
-    public function setDisabledStructures($module, array $structures = array())
+    public function setDisabledStructures($module, array $structures = [])
     {
         $remove = !$structures || (!$structures['tables'] && !$structures['columns']);
 
@@ -1012,9 +990,9 @@ class Database extends \XLite\Base\Singleton
 
                 $data = file_exists($path)
                     ? \XLite\Core\Operator::getInstance()->loadServiceYAML($path)
-                    : array();
+                    : [];
 
-                  $data[$module] = $structures;
+                $data[$module] = $structures;
 
                 \Includes\Utils\ModulesManager::storeModuleRegistry($path, $data);
             }
@@ -1025,11 +1003,11 @@ class Database extends \XLite\Base\Singleton
      * Register Module in the ENABLED module registry
      *
      * @param string $module Module unique name
-     * @param array  $data   Registry info structures OPTIONAL
+     * @param array $data Registry info structures OPTIONAL
      *
      * @return void
      */
-    public function registerModuleToEnabledRegistry($module, array $data = array())
+    public function registerModuleToEnabledRegistry($module, array $data = [])
     {
         \Includes\Utils\ModulesManager::registerModuleToEnabledRegistry($module, $data);
     }
@@ -1078,7 +1056,7 @@ class Database extends \XLite\Base\Singleton
     /**
      * Import SQL from file
      *
-     * @param string  $path    File path
+     * @param string $path File path
      * @param boolean $verbose Is import should be verbose flag OPTIONAL
      *
      * @return integer Lines count
@@ -1119,13 +1097,13 @@ class Database extends \XLite\Base\Singleton
      *
      * @return integer
      */
-    public function truncate(array $tableNames = array())
+    public function truncate(array $tableNames = [])
     {
         if (!$tableNames) {
             $tableNames = $this->detectTruncateTables($this->getAllMetadata());
         }
 
-        $sql = array();
+        $sql = [];
         foreach ($tableNames as $tableName) {
             $sql[] = static::$em->getConnection()->getDatabasePlatform()->getTruncateTableSQL($tableName);
         }
@@ -1140,7 +1118,7 @@ class Database extends \XLite\Base\Singleton
      */
     protected function getAllMetadata()
     {
-        $entities = array();
+        $entities = [];
         foreach (static::$em->getMetadataFactory()->getAllMetadata() as $md) {
             if (!$md->isMappedSuperclass) {
                 $entities[] = $md;
@@ -1153,24 +1131,57 @@ class Database extends \XLite\Base\Singleton
     /**
      * Detect fixtures loading directives
      *
+     * Allowed directives:
+     *  - "forceInsertCommand", "insert"(deprecated)
+     *      This directive force creation of entities. Loading fixtures will not search entities for update
+     *  - "allowedModel", "addModel"(deprecated)
+     *      This directive indicates that loading should try to process only specified models
+     *  - "allowMissingParentInsert", "addParent"(deprecated)
+     *      This directive indicates that specified parent for inserting model will be automatically created
+     *
      * @param array $rows Entity fixtures
      *
      * @return array
      */
     protected function detectDirectives(array $rows)
     {
-        if (isset($rows['directives'])) {
-            $this->fixturesLoadingOptions['insert'] = !empty($rows['directives']['insert']);
-
-            if (isset($rows['directives']['addModel'])) {
-                $this->fixturesLoadingOptions['addModel'] = $rows['directives']['addModel'];
+        $directives = isset($rows['directives'])
+            ? $rows['directives']
+            : null;
+        if (!$directives) {
+            foreach ($rows as $key => $row) {
+                if (isset($row['directives'])) {
+                    $directives = $row['directives'];
+                    unset($rows[$key]);
+                    break;
+                }
             }
-
-            if (isset($rows['directives']['addParent'])) {
-                $this->fixturesLoadingOptions['addParent'] = (bool) $rows['directives']['addParent'];
-            }
-
+        } else {
             unset($rows['directives']);
+        }
+
+        if ($directives) {
+            $this->fixturesLoadingOptions['insert'] = false;
+            if (isset($directives['forceInsertCommand'])) {
+                $this->fixturesLoadingOptions['insert'] = true;
+            } elseif (isset($directives['insert'])) {
+                \XLite\Logger::getInstance()->log('Directive "insert" is deprecated, use "forceInsertCommand" instead', LOG_WARNING);
+                $this->fixturesLoadingOptions['insert'] = true;
+            }
+
+            if (isset($directives['allowedModel'])) {
+                $this->fixturesLoadingOptions['addModel'] = $directives['allowedModel'];
+            } elseif (isset($directives['addModel'])) {
+                \XLite\Logger::getInstance()->log('Directive "addModel" is deprecated, use "allowedModel" instead', LOG_WARNING);
+                $this->fixturesLoadingOptions['addModel'] = $directives['addModel'];
+            }
+
+            if (isset($directives['allowMissingParentInsert'])) {
+                $this->fixturesLoadingOptions['addParent'] = (bool)$directives['allowMissingParentInsert'];
+            } elseif (isset($directives['addParent'])) {
+                \XLite\Logger::getInstance()->log('Directive "addParent" is deprecated, use "allowMissingParentInsert" instead', LOG_WARNING);
+                $this->fixturesLoadingOptions['addParent'] = (bool)$directives['addParent'];
+            }
         }
 
         return $rows;
@@ -1183,8 +1194,8 @@ class Database extends \XLite\Base\Singleton
      */
     protected function resetDirectives()
     {
-        $this->fixturesLoadingOptions['insert']    = false;
-        $this->fixturesLoadingOptions['addModel']  = null;
+        $this->fixturesLoadingOptions['insert'] = false;
+        $this->fixturesLoadingOptions['addModel'] = null;
         $this->fixturesLoadingOptions['addParent'] = true;
     }
 
@@ -1212,17 +1223,17 @@ class Database extends \XLite\Base\Singleton
     {
         $options = \XLite::getInstance()->getOptions('database_details');
 
-        $dsnFields = array(
+        $dsnFields = [
             'host'        => 'hostspec',
             'port'        => 'port',
             'unix_socket' => 'socket',
             'dbname'      => 'database',
-        );
-        $dsnList = array(
+        ];
+        $dsnList = [
             'driver'       => 'pdo_mysql',
             'wrapperClass' => '\XLite\Core\Connection',
-        );
-        $dsnString = array();
+        ];
+        $dsnString = [];
 
         foreach ($dsnFields as $pdoOption => $lcOption) {
             if (!empty($options[$lcOption])) {
@@ -1238,9 +1249,9 @@ class Database extends \XLite\Base\Singleton
 
         if ('pdo_mysql' === $dsnList['driver']) {
             $dsnList['driverClass'] = '\XLite\Core\PDOMySqlDriver';
-            $dsnList['driverOptions'] = array(
-                \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES ' . static::DB_CONNECTION_CHARSET . ", sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''))"
-            );
+            $dsnList['driverOptions'] = [
+                \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES ' . static::DB_CONNECTION_CHARSET . ", sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''))",
+            ];
         }
 
         return $dsnList;
@@ -1278,7 +1289,7 @@ class Database extends \XLite\Base\Singleton
         $list = $this->detectTruncateTables($this->getTruncateMetadatas($type));
 
         if (\XLite\Model\Repo\ARepo::TYPE_STORE === $type) {
-            $forbid = array();
+            $forbid = [];
             foreach ($this->forbidTruncateTablesStore as $n) {
                 $forbid[] = $this->getTablePrefix() . $n;
             }
@@ -1298,7 +1309,7 @@ class Database extends \XLite\Base\Singleton
      */
     protected function getTruncateMetadatas($type)
     {
-        $list = array();
+        $list = [];
 
         foreach ($this->getAllMetadata() as $cmd) {
             if (static::getRepo($cmd->name)->getRepoType() === $type) {
@@ -1339,7 +1350,7 @@ class Database extends \XLite\Base\Singleton
 
         $commitOrder = $calc->getCommitOrder();
 
-        $associationTables = array();
+        $associationTables = [];
 
         foreach ($commitOrder as $class) {
             foreach ($class->associationMappings as $assoc) {
@@ -1379,7 +1390,7 @@ class Database extends \XLite\Base\Singleton
 
         if ($proxy) {
             $className = get_class($proxy);
-            $classMetadata   = \XLite\Core\Database::getEM()->getClassMetadata($className);
+            $classMetadata = \XLite\Core\Database::getEM()->getClassMetadata($className);
             $entityPersister = \XLite\Core\Database::getEM()->getUnitOfWork()->getEntityPersister($className);
 
             $result = $entityPersister->load($classMetadata->getIdentifierValues($proxy));

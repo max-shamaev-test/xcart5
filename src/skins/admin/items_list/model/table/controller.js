@@ -40,6 +40,7 @@ TableItemsList.prototype.placeNewContent = function(content)
 {
   TableItemsList.superclass.placeNewContent.apply(this, arguments);
   var form = this.container.parents('form').get(0);
+
   if (form && form.commonController) {
     form.commonController.bindElements();
     jQuery(form).trigger('change');
@@ -82,9 +83,13 @@ TableItemsList.prototype.listeners.form = function(handler)
 {
   var form = handler.container.parents('form').eq(0);
 
-  if (form.get(0)) {
+  if (form.get(0) && form.get(0).commonController) {
     form.get(0).commonController.submitOnlyChanged = false;
   }
+
+  form.bind('submit.prevalidate', function () {
+    handler.updateChangedMarks(jQuery(this));
+  });
 
   form.bind(
     'state-changed',
@@ -113,6 +118,14 @@ TableItemsList.prototype.listeners.form = function(handler)
 
 };
 
+TableItemsList.prototype.updateChangedMarks = function(form)
+{
+  this.clearChangedMarks(form);
+  _.each(this.getChangedIds(form.get(0).getElements()), _.bind(function (id) {
+    this.addChangedMark(form, id);
+  }, this));
+};
+
 // Process form and form's elements after form changed
 TableItemsList.prototype.processFormChanged = function(form)
 {
@@ -124,6 +137,24 @@ TableItemsList.prototype.processFormChanged = function(form)
   );
 
   this.markPagerAsDisabled();
+};
+
+TableItemsList.prototype.getChangedIds = function(elements)
+{
+  return _.map(
+    _.filter(elements, function (i) { return i.name.search(/^data\[\d+]/) !== -1 && i.isChanged(); }),
+    function (i) { return i.name.replace(/data\[(\d+)].*/, '$1'); }
+  );
+};
+
+TableItemsList.prototype.addChangedMark = function(form, id)
+{
+  jQuery('<input type="hidden" name="data[' + id + '][_changed]" value="true" class="changed-mark" />').appendTo(form);
+};
+
+TableItemsList.prototype.clearChangedMarks = function(form)
+{
+  form.find('.changed-mark').remove();
 };
 
 TableItemsList.prototype.markPagerAsDisabled = function()
@@ -198,6 +229,7 @@ TableItemsList.prototype.listeners.createButton = function(handler)
             }
           );
 
+        line.find('.invalid-inline-field').removeClass('invalid-inline-field');
         box.append(line);
         _.defer(function(){
           jQuery(':input', line).eq(0).focus();
@@ -227,6 +259,10 @@ TableItemsList.prototype.listeners.createButton = function(handler)
         core.trigger('stickyPanelReposition');
 
         handler.triggerVent('line.new.add');
+
+        if (this.form) {
+          jQuery(this.form).change();
+        }
 
         return false;
       }

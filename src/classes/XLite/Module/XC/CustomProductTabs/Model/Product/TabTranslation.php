@@ -24,7 +24,16 @@ class TabTranslation extends \XLite\Model\Base\Translation
      *
      * @Column (type="string", length=255)
      */
-    protected $name;
+    protected $name = '';
+
+    /**
+     * Tab brief info
+     *
+     * @var string
+     *
+     * @Column (type="string")
+     */
+    protected $brief_info = '';
 
     /**
      * Tab Content
@@ -39,7 +48,7 @@ class TabTranslation extends \XLite\Model\Base\Translation
      * Set name
      *
      * @param string $name
-     * @return TabTranslation
+     * @return $this
      */
     public function setName($name)
     {
@@ -58,10 +67,33 @@ class TabTranslation extends \XLite\Model\Base\Translation
     }
 
     /**
+     * Return BriefInfo
+     *
+     * @return string
+     */
+    public function getBriefInfo()
+    {
+        return $this->brief_info;
+    }
+
+    /**
+     * Set BriefInfo
+     *
+     * @param string $brief_info
+     *
+     * @return $this
+     */
+    public function setBriefInfo($brief_info)
+    {
+        $this->brief_info = $brief_info;
+        return $this;
+    }
+
+    /**
      * Set content
      *
-     * @param text $content
-     * @return TabTranslation
+     * @param string $content
+     * @return $this
      */
     public function setContent($content)
     {
@@ -72,7 +104,7 @@ class TabTranslation extends \XLite\Model\Base\Translation
     /**
      * Get content
      *
-     * @return text 
+     * @return string
      */
     public function getContent()
     {
@@ -93,7 +125,7 @@ class TabTranslation extends \XLite\Model\Base\Translation
      * Set code
      *
      * @param string $code
-     * @return TabTranslation
+     * @return $this
      */
     public function setCode($code)
     {

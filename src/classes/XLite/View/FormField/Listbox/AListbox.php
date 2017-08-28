@@ -13,6 +13,7 @@ namespace XLite\View\FormField\Listbox;
  */
 abstract class AListbox extends \XLite\View\FormField\AFormField
 {
+    const LISTBOX_SEPARATOR = ';';
     /**
      * Widget param names
      */
@@ -181,6 +182,26 @@ abstract class AListbox extends \XLite\View\FormField\AFormField
     }
 
     /**
+     * getOptions
+     *
+     * @return array
+     */
+    protected function getOptionsStored()
+    {
+        return implode(static::LISTBOX_SEPARATOR, array_keys((array)$this->getSpecificOptions(false)));
+    }
+
+    /**
+     * getOptions
+     *
+     * @return array
+     */
+    public function getSeparator()
+    {
+        return static::LISTBOX_SEPARATOR;
+    }
+
+    /**
      * Get specific options list for 'from' and for 'to' lists
      *
      * @param boolean $from Flag: is need to get options for 'from' list
@@ -255,5 +276,10 @@ abstract class AListbox extends \XLite\View\FormField\AFormField
                 false
             ),
         );
+    }
+
+    protected function getSelectWidgetClass()
+    {
+        return '\XLite\View\FormField\Select\ListboxSelect';
     }
 }

@@ -142,7 +142,7 @@ abstract class AAttributeValue extends \XLite\Model\Repo\Base\I18n
      * @param \XLite\Model\Attribute $attribute Attribute object
      * @param mixed                  $value     Value
      *
-     * @return \XLite\Model\AttributeValue\AAtributeValue
+     * @return \XLite\Model\AttributeValue\AAttributeValue
      */
     protected function findOneByValue($product, $attribute, $value)
     {
@@ -212,6 +212,7 @@ abstract class AAttributeValue extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters attribute values by product id", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition OPTIONAL
@@ -228,6 +229,7 @@ abstract class AAttributeValue extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters attribute values by attribute id", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition OPTIONAL
@@ -271,7 +273,7 @@ abstract class AAttributeValue extends \XLite\Model\Repo\Base\I18n
     {
         return $this->createPureQueryBuilder()
             ->setFirstResult($position)
-            ->setMaxResults(1000000000);
+            ->setMaxResults(\XLite\Core\EventListener\Export::CHUNK_LENGTH);
     }
 
     // }}}

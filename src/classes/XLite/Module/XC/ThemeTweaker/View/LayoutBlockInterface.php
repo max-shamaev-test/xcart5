@@ -11,6 +11,7 @@ namespace XLite\Module\XC\ThemeTweaker\View;
 interface LayoutBlockInterface
 {
     const PARAM_DISPLAY_GROUP = 'displayGroup';
+    const PARAM_DISPLAY_NAME = 'displayName';
 
     const DISPLAY_GROUP_CENTER = 'center';
     const DISPLAY_GROUP_SIDEBAR = 'sidebar';

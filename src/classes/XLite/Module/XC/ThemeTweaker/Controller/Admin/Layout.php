@@ -8,23 +8,13 @@
 
 namespace XLite\Module\XC\ThemeTweaker\Controller\Admin;
 
+use XLite\Module\XC\ThemeTweaker\Core\ThemeTweaker;
+
 /**
  * Layout
  */
 class Layout extends \XLite\Controller\Admin\Layout implements \XLite\Base\IDecorator
 {
-    /**
-     * Define the actions with no secure token
-     *
-     * @return array
-     */
-    public static function defineFreeFormIdActions()
-    {
-        $list = parent::defineFreeFormIdActions();
-        $list[] = 'switch_layout_mode';
-
-        return $list;
-    }
 
     /**
      * Returns link to store front
@@ -33,44 +23,18 @@ class Layout extends \XLite\Controller\Admin\Layout implements \XLite\Base\IDeco
      */
     public function getStoreFrontLink()
     {
-        $styleClass = \XLite\Core\Config::getInstance()->XC->ThemeTweaker->edit_mode
+        $styleClass = ThemeTweaker::getInstance()->isInWebmasterMode()
             ? ''
             : 'hidden';
 
-        $button = new \XLite\View\Button\SimpleLink(array(
-            \XLite\View\Button\SimpleLink::PARAM_LABEL => 'Open storefront',
+        $button = new \XLite\View\Button\SimpleLink([
+            \XLite\View\Button\SimpleLink::PARAM_LABEL    => 'Open storefront',
             \XLite\View\Button\SimpleLink::PARAM_LOCATION => $this->getShopURL(),
-            \XLite\View\Button\SimpleLink::PARAM_BLANK => true,
-            \XLite\View\Button\SimpleLink::PARAM_STYLE => $styleClass,
-        ));
+            \XLite\View\Button\SimpleLink::PARAM_BLANK    => true,
+            \XLite\View\Button\SimpleLink::PARAM_STYLE    => $styleClass,
+        ]);
 
         return $button->getContent();
-    }
-
-    /**
-     * Switch state
-     *
-     * @return void
-     */
-    protected function doActionSwitchLayoutMode()
-    {
-        $value = !\XLite\Core\Config::getInstance()->XC->ThemeTweaker->layout_mode;
-
-        \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
-            array(
-                'category' => 'XC\ThemeTweaker',
-                'name'     => 'layout_mode',
-                'value'    => $value,
-            )
-        );
-
-        \XLite\Core\TopMessage::addInfo(
-            $value
-                ? 'Layout editor is enabled'
-                : 'Layout editor is disabled'
-        );
-
-        $this->setReturnURL($this->buildURL('layout'));
     }
 
     /**
@@ -89,9 +53,24 @@ class Layout extends \XLite\Controller\Admin\Layout implements \XLite\Base\IDeco
             if (!empty($content)) {
                 \XLite\Core\TopMessage::getInstance()->addWarning(
                     'There are some custom CSS styles in your store. These styles may affect the look of the installed template. Review the custom styles and disable them if necessary.',
-                    array('url' => $this->buildURL('custom_css'))
+                    ['url' => $this->buildURL('custom_css')]
                 );
             }
         }
+
+        if ($this->isShowTemplatesWarning()) {
+            \XLite\Core\TopMessage::getInstance()->addWarning(
+                'There are some custom templates in your store that may contain skin dependent code.',
+                ['templates_url' => $this->buildURL('theme_tweaker_templates')]
+            );
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isShowTemplatesWarning()
+    {
+        return \XLite\Core\Database::getRepo('XLite\Module\XC\ThemeTweaker\Model\Template')->count() > 0;
     }
 }

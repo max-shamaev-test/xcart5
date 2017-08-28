@@ -25,9 +25,9 @@ class TypeInt extends \XLite\Model\WidgetParam\AWidgetParam
      *
      * @param mixed $value Value to validate
      *
-     * @return void
+     * @return array
      */
-    protected function getValidaionSchema($value)
+    protected function getValidationSchema($value)
     {
         return array(
             array(

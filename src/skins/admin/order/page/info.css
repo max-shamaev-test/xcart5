@@ -790,7 +790,6 @@ div.line-3 h2 {
 
 /* Customer notes */
 .customer-notes {
-  float: left;
   padding-top: 20px;
 }
 
@@ -851,6 +850,7 @@ img.truck {
 .order-info .sticky-panel .recalculate.last {
   position: absolute;
   left: 722px;
+  top: 12px;
 }
 
 .order-info .value .tooltip .tooltip-inner {

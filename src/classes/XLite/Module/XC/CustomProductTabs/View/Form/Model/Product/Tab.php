@@ -13,7 +13,6 @@ namespace XLite\Module\XC\CustomProductTabs\View\Form\Model\Product;
  */
 class Tab extends \XLite\View\Form\AForm
 {
-
     /**
      * Return default value for the "target" parameter
      *
@@ -52,10 +51,9 @@ class Tab extends \XLite\View\Form\AForm
     protected function getDefaultParams()
     {
         return array(
-            'tab_id' => \XLite\Core\Request::getInstance()->tab_id,
-            'product_id'=>\XLite\Core\Request::getInstance()->product_id,
-            'page'=>\XLite\Core\Request::getInstance()->page,
+            'tab_id'     => \XLite\Core\Request::getInstance()->tab_id,
+            'product_id' => \XLite\Core\Request::getInstance()->product_id,
+            'page'       => \XLite\Core\Request::getInstance()->page,
         );
     }
-
 }

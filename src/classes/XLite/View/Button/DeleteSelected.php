@@ -8,15 +8,15 @@
 
 namespace XLite\View\Button;
 
+use XLite\View\Button\Features\ConfirmableTrait;
+use XLite\View\Button\Features\TooltippedTrait;
+
 /**
- * 'Delete selecetd' button
+ * 'Delete selected' button
  */
 class DeleteSelected extends \XLite\View\Button\Regular
 {
-    /**
-     * Widget parameter names
-     */
-    const PARAM_CONFIRMATION = 'confirm';
+    use ConfirmableTrait, TooltippedTrait;
 
     /**
      * getDefaultLabel
@@ -26,6 +26,16 @@ class DeleteSelected extends \XLite\View\Button\Regular
     protected function getDefaultLabel()
     {
         return 'Delete selected';
+    }
+
+    /**
+     * getDefaultLabel
+     *
+     * @return string
+     */
+    protected function getDefaultTitle()
+    {
+        return static::t('Delete selected');
     }
 
     /**
@@ -46,37 +56,5 @@ class DeleteSelected extends \XLite\View\Button\Regular
     protected function getDefaultConfirmationText()
     {
         return 'Do you really want to delete selected items?';
-    }
-
-    /**
-     * Define widget parameters
-     *
-     * @return void
-     */
-    protected function defineWidgetParams()
-    {
-        parent::defineWidgetParams();
-
-        $this->widgetParams += array(
-            self::PARAM_CONFIRMATION => new \XLite\Model\WidgetParam\TypeString(
-                'Confirmation text', $this->getDefaultConfirmationText(), true
-            ),
-        );
-    }
-
-    /**
-     * JavaScript: default JS code to execute
-     *
-     * @return string
-     */
-    protected function getDefaultJSCode()
-    {
-        $code = parent::getDefaultJSCode();
-
-        if ($this->getParam(self::PARAM_CONFIRMATION)) {
-            $code = 'if (confirm(\'' . static::t($this->getParam(self::PARAM_CONFIRMATION)) . '\')) { ' . $code . ' }';
-        }
-
-        return $code;
     }
 }

@@ -1,9 +1,9 @@
 {##
  # Modules main section list
  #
- # @ListChild (list="itemsList.module.install.columns.module-main-section", weight="500")
+ # @ListChild (list="itemsList.module.install.columns.module-description-section", weight="40")
+ # @ListChild (list="itemsList.module.sales-channels.columns.module-description-section", weight="40")
  #}
-
 {% if this.isModuleUpdateAvailable(this.module) %}
   <div class="note version upgrade">
     {{ t('Installed version') }}:&nbsp;{{ this.getModuleVersion(this.getModuleInstalled(this.module)) }}&nbsp;({{ t('outdated') }})<br />

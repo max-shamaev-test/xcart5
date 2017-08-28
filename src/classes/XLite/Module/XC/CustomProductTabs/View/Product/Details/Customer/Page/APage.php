@@ -14,6 +14,32 @@ namespace XLite\Module\XC\CustomProductTabs\View\Product\Details\Customer\Page;
 class APage extends \XLite\View\Product\Details\Customer\Page\APage implements \XLite\Base\IDecorator
 {
     /**
+     * Get a list of JavaScript files required to display the widget properly
+     *
+     * @return array
+     */
+    public function getJSFiles()
+    {
+        $list = parent::getJSFiles();
+        $list[] = 'modules/XC/CustomProductTabs/product/controller.js';
+
+        return $list;
+    }
+
+    /**
+     * Get a list of CSS files required to display the widget properly
+     *
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        $list = parent::getCSSFiles();
+        $list[] = 'modules/XC/CustomProductTabs/product/style.css';
+
+        return $list;
+    }
+
+    /**
      * Define tabs
      *
      * @return array
@@ -21,22 +47,66 @@ class APage extends \XLite\View\Product\Details\Customer\Page\APage implements \
     protected function defineTabs()
     {
         $list = parent::defineTabs();
-        $weight = 5000;
 
         foreach ($this->getProduct()->getTabs() as $tab) {
-            if ($tab->getEnabled()) {
-                $list['tab' . $tab->getId()] = array(
-                    'widget'     => '\XLite\Module\XC\CustomProductTabs\View\Tab',
-                    'parameters' => array(
-                        'tab' => $tab,
-                    ),
-                    'name'       => $tab->getName(),
-                    'weight'     => $weight,
-                );
-                $weight++;
-            }
+            $this->processTab($list, $tab);
         }
 
         return $list;
+    }
+
+    /**
+     * Process tab addition into list
+     *
+     * @param                                                      $list
+     * @param \XLite\Module\XC\CustomProductTabs\Model\Product\Tab $tab
+     */
+    protected function processTab(&$list, $tab)
+    {
+        if ($tab->isAvailable()) {
+            if ($tab->isGlobalStatic()) {
+                $this->processGlobalTab($list, $tab);
+            } else {
+                $list['tab' . $tab->getId()] = [
+                    'widget'     => '\XLite\Module\XC\CustomProductTabs\View\Product\Tabs\Tab',
+                    'parameters' => [
+                        'tab' => $tab,
+                    ],
+                    'name'       => $tab->getName(),
+                    'weight'     => $tab->getPosition(),
+                ];
+            }
+        }
+    }
+
+    /**
+     * Returns list of tabs brief info [tab_link => info]
+     *
+     * @return array
+     */
+    public function getTabsBriefInfo()
+    {
+        $result = [];
+
+        foreach ($this->getProduct()->getTabs() as $tab) {
+            if ($tab->getEnabled() && $tab->getBriefInfo()) {
+                $result['product-details-tab-' . preg_replace('/\W+/Ss', '-', strtolower('tab' . $tab->getId()))] = [
+                    'brief_info' => $tab->getBriefInfo(),
+                    'title' => $tab->getName()
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Returns list of tabs brief info [tab_link => info]
+     *
+     * @return bool
+     */
+    public function hasTabsBriefInfo()
+    {
+        return count($this->getTabsBriefInfo()) > 0;
     }
 }

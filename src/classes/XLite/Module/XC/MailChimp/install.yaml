@@ -26,15 +26,15 @@ XLite\Model\Config:
         option_name: 'MailChimp API key'
   - name: 'analytics360enabled'
     category: XC\MailChimp
-    type: checkbox
+    type: \XLite\View\FormField\Input\Checkbox\OnOff
     orderby: 300
-    value: false
+    value: true
     translations:
       - code: en
         option_name: 'Enable E-commerce analytics'
   - name: 'abandonedCartEnabled'
     category: XC\MailChimp
-    type: checkbox
+    type: \XLite\View\FormField\Input\Checkbox\OnOff
     orderby: 350
     value: false
     translations:
@@ -42,7 +42,7 @@ XLite\Model\Config:
         option_name: 'Enable Abandoned Carts'
   - name: 'doubleOptinDisabled'
     category: XC\MailChimp
-    type: checkbox
+    type: \XLite\View\FormField\Input\Checkbox\OnOff
     orderby: 400
     value: false
     translations:
@@ -91,8 +91,6 @@ XLite\Model\LanguageLabel:
   - { name: 'Filter by specific products', translations: [{ code: en, label: 'Filter by specific products' }] }
   - { name: 'Products', translations: [{ code: en, label: 'Products' }] }
   - { name: 'Segment condition', translations: [{ code: en, label: 'Segment condition' }] }
-  - { name: 'You will need a valid and working MailChimp Account in order to be able to use this module.', translations: [{ code: en, label: 'You will need a valid and working MailChimp account in order to be able to use this module.' }] }
-  - { name: 'You can register MailChimp account', translations: [{ code: en, label: 'You can register MailChimp account' }] }
   - { name: 'here', translations: [{ code: en, label: 'here' }] }
   - { name: 'Month', translations: [{ code: en, label: 'Month' }] }
   - { name: 'Static', translations: [{ code: en, label: 'Static' }] }
@@ -133,3 +131,10 @@ XLite\Model\LanguageLabel:
   - { name: 'E-Commerce features setup', translations: [{ code: en, label: 'E-Commerce features setup' }] }
   - { name: 'Upload store data to MailChimp', translations: [{ code: en, label: 'Upload store data to MailChimp' }] }
   - { name: '_MailChimp ecommerce info text_', translations: [{ code: en, label: 'Upload store data to MailChimp to promote more efficient MailChimp Product Recommendations and Abandoned Carts. Before clicking the button, select the lists for which you want MailChimp "stores" to be created. A "store" is a collection of products, orders, carts and customers. MailChimp will create the "stores" and will connect them with the lists you have specified. Store data from X-Cart will be uploaded for these specific stores.<br><a href="{{url}}" target="_blank">Learn more about MailChimp e-Commerce features</a>' }] }
+
+  - { name: 'mailchimp_settings_promo_text', translations: [{ code: en, label: 'Whether you need to draw attention to certain products, share some big news, or tell a story, our campaign builder makes it easy to create email campaigns that best suit your message.' }] }
+  - { name: 'Connect with your MailChimp account', translations: [{ code: en, label: 'Connect with your MailChimp account' }] }
+  - { name: 'Reconnect with your MailChimp account', translations: [{ code: en, label: 'Reset MailChimp connection' }] }
+  - { name: 'Install Mailchimp addon', translations: [{ code: en, label: 'Install Mailchimp addon' }] }
+  - { name: 'Enter your MailChimp API key manually', translations: [{ code: en, label: 'Enter your MailChimp API key manually' }] }
+  - { name: 'e-Commerce Analytics disable warning', translations: [{ code: en, label: "The e-Commerce Analytics feature is the core component of the integration functionality." }] }

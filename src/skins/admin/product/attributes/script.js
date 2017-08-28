@@ -127,9 +127,9 @@ jQuery().ready(
       }
     );
 
-    jQuery('select#save-mode').change(
+    jQuery('#save-mode').change(
       function () {
-        if ('globaly' == jQuery(this).val()) {
+        if (jQuery(this).is(':checked')) {
           jQuery('form.attrs').addClass('view-changes');
 
         } else {
@@ -143,21 +143,25 @@ jQuery().ready(
         var changed = this.initialValue != this.value;
         var el = jQuery(this);
         if (changed) {
-          el.addClass('is-changed').parents('li.line.value').addClass('is-changed');
+          el.addClass('is-changed');
+          el.parents('li.line.value').addClass('is-changed');
+          el.parents('.attribute-name').addClass('is-changed');
 
         } else {
-          el.removeClass('is-changed').parents('li.line.value').removeClass('is-changed');
+          el.removeClass('is-changed');
+          el.parents('li.line.value').removeClass('is-changed');
+          el.parents('.attribute-name').removeClass('is-changed');
         }
       }
     );
 
     jQuery('form.attrs').change(
       function () {
-        if (jQuery(this).hasClass('changed')) {
-          jQuery('select#save-mode').removeProp('disabled');
+        if (jQuery(this).hasClass('changed') || jQuery(this).find('.line.is-changed').length) {
+          jQuery('#save-mode').removeProp('disabled');
 
         } else {
-          jQuery('select#save-mode').prop('disabled', 'disabled');
+          jQuery('#save-mode').prop('disabled', 'disabled');
         }
       }
     );

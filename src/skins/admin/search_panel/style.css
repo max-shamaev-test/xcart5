@@ -32,7 +32,6 @@
 .search-conditions-box .search-conditions {
   display: table;
   margin-top: 0;
-  min-width: 800px;
 }
 
 .search-conditions-box .search-conditions > li {
@@ -116,6 +115,7 @@
 .search-conditions-box div.table-value input[type="text"]
 {
   margin: 0;
+  font-size: 15px;
 }
 
 .search-conditions-box .search-conditions .table-value,

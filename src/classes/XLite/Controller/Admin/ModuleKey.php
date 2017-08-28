@@ -161,16 +161,17 @@ class ModuleKey extends \XLite\Controller\Admin\AAdmin
                             \XLite::setCleanUpCacheFlag(true);
                         }
 
-                        if (empty($keyData['message'])) {
-                            $this->showInfo(
-                                __FUNCTION__,
-                                static::t('X-Cart license key has been successfully verified')
-                            );
+                        $this->showInfo(
+                            __FUNCTION__,
+                            static::t('X-Cart license key has been successfully verified')
+                        );
 
-                        } else {
-                            $this->showWarning(
-                                __FUNCTION__,
-                                static::t('X-Cart license key has been successfully verified and activated. But this key has expired and do not allow upgrade store.')
+                        if (!empty($keyData['message'])) {
+                            \XLite\Core\TopMessage::addWarning(
+                                'The key does not allow getting new features and upgrades.',
+                                [
+                                    'renewalUrl' => \XLite\Core\Marketplace::getRenewalURL($entity)
+                                ]
                             );
                         }
 
@@ -210,28 +211,23 @@ class ModuleKey extends \XLite\Controller\Admin\AAdmin
                         // Clear cache for proper installation
                         \XLite\Core\Marketplace::getInstance()->clearActionCache();
 
-                        if (empty($keyData['message'])) {
-                            $this->showInfo(
-                                __FUNCTION__,
-                                static::t(
-                                    'License key has been successfully verified for "{{name}}" module by "{{author}}" author',
-                                    array(
-                                        'name'   => $module->getModuleName(),
-                                        'author' => $module->getAuthorName(),
-                                    )
+                        $this->showInfo(
+                            __FUNCTION__,
+                            static::t(
+                                'License key has been successfully verified and activated for "{{name}}" module by "{{author}}" author.',
+                                array(
+                                    'name'   => $module->getModuleName(),
+                                    'author' => $module->getAuthorName(),
                                 )
-                            );
+                            )
+                        );
 
-                        } else {
-                            $this->showWarning(
-                                __FUNCTION__,
-                                static::t(
-                                    'License key has been successfully verified and activated for "{{name}}" module by "{{author}}" author. But this key has expired and do not allow upgrade store.',
-                                    array(
-                                        'name'   => $module->getModuleName(),
-                                        'author' => $module->getAuthorName(),
-                                    )
-                                )
+                        if (!empty($keyData['message'])) {
+                            \XLite\Core\TopMessage::addWarning(
+                                'The key does not allow getting new features and upgrades.',
+                                [
+                                    'renewalUrl' => \XLite\Core\Marketplace::getRenewalURL($entity)
+                                ]
                             );
                         }
 

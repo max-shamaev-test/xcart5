@@ -24,7 +24,7 @@ decorate(
   'PopupButtonLocationSelect',
   'callback',
   function(selector) {
-  	UpdateStatesList();
+    StatesList.getInstance().updateStatesList();
 
     jQuery('form', selector).each(
       function() {

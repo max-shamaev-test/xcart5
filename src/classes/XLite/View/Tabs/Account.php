@@ -91,7 +91,7 @@ class Account extends \XLite\View\Tabs\ATabs
             ],
             'profile' => [
                 'weight'   => 300,
-                'title'    => static::t('Details'),
+                'title'    => static::t('Profile details'),
                 'template' => 'account/account.twig',
             ],
         ];

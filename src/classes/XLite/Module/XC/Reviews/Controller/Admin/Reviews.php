@@ -175,10 +175,10 @@ class Reviews extends \XLite\Controller\Admin\AAdmin
         $select = \XLite\Core\Request::getInstance()->select;
 
         if ($select && is_array($select)) {
-            $data = array();
-            $properties = array(
+            $data = [];
+            $properties = [
                 'status' => $status,
-            );
+            ];
 
             foreach ($select as $id => $tmp) {
                 $data[$id] = $properties;
@@ -220,7 +220,7 @@ class Reviews extends \XLite\Controller\Admin\AAdmin
 
         foreach ($searchParams as $requestParam) {
             if (\XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_ADDITION_DATE === $requestParam) {
-                $searchParams[$requestParam] = array($this->startDate, $this->endDate);
+                $searchParams[$requestParam] = [$this->startDate, $this->endDate];
             } elseif (isset(\XLite\Core\Request::getInstance()->$requestParam)) {
                 $searchParams[$requestParam] = \XLite\Core\Request::getInstance()->$requestParam;
             }
@@ -241,7 +241,7 @@ class Reviews extends \XLite\Controller\Admin\AAdmin
         $searchParams = parent::getSessionSearchConditions();
 
         if (!is_array($searchParams)) {
-            $searchParams = array();
+            $searchParams = [];
 
             $now = time();
             $startDate = $now - 2592000; // One month
@@ -255,35 +255,45 @@ class Reviews extends \XLite\Controller\Admin\AAdmin
 
     /**
      * Reset status 'isNew' for all reviews
-     *
-     * @return void
      */
     protected function resetIsNewStatus()
     {
-        $reviews = \XLite\Core\Database::getRepo('XLite\Module\XC\Reviews\Model\Review')->search(
-            $this->getResetIsNewSearchCondition()
-        );
+        $qb = \XLite\Core\Database::getRepo('XLite\Module\XC\Reviews\Model\Review')
+            ->createQueryBuilder()
+            ->update();
+        $alias = $qb->getMainAlias();
 
-        if ($reviews) {
-            foreach ($reviews as $review) {
-                $review->setIsNew(0);
-            }
+        $qb->set("{$alias}.isNew", $qb->expr()->literal(false));
 
-            \XLite\Core\Database::getEM()->flush();
+        $result = $this->getResetIsNewSearchQueryBuilder()->getArrayResult();
+
+        $qb->andWhere("{$alias}.id IN (:ids)");
+
+        while ($ids = array_map(function($element) {
+            return isset($element['id']) ? $element['id'] : null;
+        }, array_splice($result, 0, 1000))) {
+            $qb->setParameter('ids', $ids);
+            $qb->execute();
         }
     }
 
     /**
      * Get conditions to search reviews for reset 'isNew' status
      *
-     * @return \XLite\Core\CommonCell
+     * @return \XLite\Model\QueryBuilder\AQueryBuilder
      */
-    protected function getResetIsNewSearchCondition()
+    protected function getResetIsNewSearchQueryBuilder()
     {
-        $cnd = new \XLite\Core\CommonCell();
-        $cnd->{\XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_NEW} = 1;
+        $qb = \XLite\Core\Database::getRepo('XLite\Module\XC\Reviews\Model\Review')
+            ->createQueryBuilder('rv');
 
-        return $cnd;
+        $alias = $qb->getMainAlias();
+
+        $qb->select("{$alias}.id");
+
+        $qb->andWhere($qb->expr()->eq("{$alias}.isNew", $qb->expr()->literal(true)));
+
+        return $qb;
     }
 
     // }}}

@@ -9,8 +9,7 @@
 
 var lastPopupButton;
 
-function PopupButton(base)
-{
+function PopupButton(base) {
   var obj = this;
 
   if (base) {
@@ -37,62 +36,56 @@ PopupButton.prototype.options = {
 PopupButton.prototype.afterSubmit = function (selector) {
 };
 
-PopupButton.prototype.callback = function (selector, link)
-{
+PopupButton.prototype.callback = function (selector, link) {
+
   var obj = this;
 
   var shouldClose = jQuery(this.base).data('without-close') === true || !jQuery(this.base).data('without-close');
 
   if (!this.enableBackgroundSubmit) {
-    jQuery('form', selector).each(
-        function () {
-          this.commonController.backgroundSubmit = false;
-        }
-    );
+    jQuery('form', selector).each(function () {
+      this.commonController.backgroundSubmit = false;
+    });
   } else if (shouldClose) {
-    jQuery('form', selector).each(
-      function() {
-        jQuery(this).commonController(
-          'enableBackgroundSubmit',
-          function () {
-            // Close dialog (but it is available in DOM)
-            popup.close();
-            openWaitBar();
+    jQuery('form', selector).each(function () {
+      jQuery(this).commonController(
+        'enableBackgroundSubmit',
+        function () {
+          // Close dialog (but it is available in DOM)
+          popup.close();
+          openWaitBar();
 
-            return true;
-          },
-          function (event) {
-            closeWaitBar();
+          return true;
+        },
+        function (event) {
+          closeWaitBar();
 
-            obj.afterSubmit(selector);
+          obj.afterSubmit(selector);
 
-            // Remove dialog from DOM
-            jQuery(selector).remove();
-            link.linkedDialog = null;
+          // Remove dialog from DOM
+          jQuery(selector).remove();
+          link.linkedDialog = null;
 
-            return false;
-          }
-        );
-      }
-    );
-
+          return false;
+        }
+      );
+    });
   }
+
+  $(link).trigger('popup.open');
 
   core.autoload(PopupButton);
 };
 
-PopupButton.prototype.getURLParams = function (button)
-{
+PopupButton.prototype.getURLParams = function (button) {
   return core.getCommentedData(button, 'url_params');
 };
 
-PopupButton.prototype.getJSConfirmText = function (button)
-{
+PopupButton.prototype.getJSConfirmText = function (button) {
   return core.getCommentedData(button, 'jsConfirm');
 };
 
-PopupButton.prototype.eachClick = function (elem)
-{
+PopupButton.prototype.eachClick = function (elem) {
   lastPopupButton = jQuery(elem);
 
   var proceed = true;
@@ -119,16 +112,16 @@ PopupButton.prototype.eachClick = function (elem)
   return proceed;
 };
 
-PopupButton.prototype.beforeLoadDialog = function(elem) {};
+PopupButton.prototype.beforeLoadDialog = function (elem) {
+};
 
-PopupButton.prototype.eachCallback = function (elem)
-{
+PopupButton.prototype.eachCallback = function (elem) {
   var obj = this;
   elem.popupController = obj;
 
   var handler = _.bind(obj.eachClick, this);
   jQuery(elem).click(
-    function(event) {
+    function (event) {
       handler(this);
       event.stopImmediatePropagation();
 

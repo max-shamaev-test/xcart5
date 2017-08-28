@@ -33,10 +33,10 @@ class WholesalePrice extends \XLite\Module\CDev\Wholesale\Model\Repo\Base\AWhole
             ->setMaxResults(1)
             ->getResult();
 
-        return array(
+        return [
             'price'          => !empty($price),
             'wholesalePrice' => !empty($price),
-        );
+        ];
     }
 
     /**

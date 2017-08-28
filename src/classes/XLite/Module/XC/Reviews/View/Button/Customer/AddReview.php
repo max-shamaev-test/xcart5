@@ -33,6 +33,19 @@ class AddReview extends \XLite\View\Button\APopupButton
     }
 
     /**
+     * Get CSS files
+     *
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        $list = parent::getCSSFiles();
+        $list[] = 'modules/XC/Reviews/review/style.css';
+
+        return $list;
+    }
+
+    /**
      * Define widget params
      *
      * @return void
@@ -41,9 +54,9 @@ class AddReview extends \XLite\View\Button\APopupButton
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_PRODUCT => new \XLite\Model\WidgetParam\TypeObject('Product', null, false, '\XLite\Model\Product'),
-        );
+        ];
     }
 
     /**
@@ -75,12 +88,12 @@ class AddReview extends \XLite\View\Button\APopupButton
      */
     protected function prepareURLParams()
     {
-        return array(
+        return [
             'target'        => 'review',
             'product_id'    => $this->getProductId(),
             'return_target' => \XLite\Core\Request::getInstance()->target,
             'widget'        => '\XLite\Module\XC\Reviews\View\Customer\ModifyReview',
-        );
+        ];
     }
 
     /**

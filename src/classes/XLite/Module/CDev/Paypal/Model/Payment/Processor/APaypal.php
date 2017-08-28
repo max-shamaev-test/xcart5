@@ -540,7 +540,7 @@ abstract class APaypal extends \XLite\Model\Payment\Base\Iframe
     /**
      * Process failed try of payment
      *
-     * @return void
+     * @param \XLite\Model\Payment\Transaction $transaction
      */
     protected function processFailTryPayment(\XLite\Model\Payment\Transaction $transaction)
     {
@@ -560,7 +560,7 @@ abstract class APaypal extends \XLite\Model\Payment\Base\Iframe
      *
      * @param \XLite\Model\Payment\Transaction $transaction Callback-owner transaction
      *
-     * @return void
+     * @throws \XLite\Core\Exception\PaymentProcessing\ACallbackException
      */
     public function processCallback(\XLite\Model\Payment\Transaction $transaction)
     {
@@ -570,8 +570,7 @@ abstract class APaypal extends \XLite\Model\Payment\Base\Iframe
         $resultCode = null !== $request->RESULT ? (int) $request->RESULT : null;
 
         if (!$request->isPost()) {
-            // Callback request must be POST
-            $this->markCallbackRequestAsInvalid(static::t('Request type must be POST'));
+            throw new \XLite\Core\Exception\PaymentProcessing\CallbackRequestError(static::t('Request type must be POST'));
 
         } elseif (null === $resultCode) {
 
@@ -586,7 +585,7 @@ abstract class APaypal extends \XLite\Model\Payment\Base\Iframe
 
             } else {
                 // RESULT parameter must be presented in all callback requests
-                $this->markCallbackRequestAsInvalid(static::t('\'RESULT\' argument not found'));
+                throw new \XLite\Core\Exception\PaymentProcessing\CallbackRequestError(static::t("'RESULT' argument not found"));
             }
 
         } else {
@@ -630,6 +629,18 @@ abstract class APaypal extends \XLite\Model\Payment\Base\Iframe
                 )
             );
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function processCallbackNotReady(\XLite\Model\Payment\Transaction $transaction)
+    {
+        parent::processCallbackNotReady($transaction);
+
+        header('HTTP/1.1 409 Conflict', true, 409);
+        header('Status: 409 Conflict');
+        header('X-Robots-Tag: noindex, nofollow');
     }
 
     // }}}
@@ -986,8 +997,8 @@ abstract class APaypal extends \XLite\Model\Payment\Base\Iframe
             $transaction = $this->transaction;
         }
 
-        if (in_array($requestType, $this->getIpnLockingRequests())) {
-            $transaction->getPaymentTransaction()->lockCallbackProcessing(600);
+        if (in_array($requestType, $this->getIpnLockingRequests(), true)) {
+            $transaction->getPaymentTransaction()->setEntityLock(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN, 600);
         }
 
         $method = sprintf('get%sRequestParams', ucfirst($requestType));
@@ -998,7 +1009,9 @@ abstract class APaypal extends \XLite\Model\Payment\Base\Iframe
         $result = $this->api->doRequest($requestType, $params);
         $response = $this->api->getLastResponse();
 
-        if (200 === (int) $response->code
+        if (
+            $response
+            && 200 === (int) $response->code
             && !empty($response->body)
             && !empty($transaction)
             && !empty($result)
@@ -1046,8 +1059,8 @@ abstract class APaypal extends \XLite\Model\Payment\Base\Iframe
             $transaction->update();
         }
 
-        if (in_array($requestType, $this->getIpnLockingRequests())) {
-            $transaction->getPaymentTransaction()->unlockCallbackProcessing();
+        if (in_array($requestType, $this->getIpnLockingRequests(), true)) {
+            $transaction->getPaymentTransaction()->unsetEntityLock(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN);
         }
 
         return $result;

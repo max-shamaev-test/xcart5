@@ -18,9 +18,11 @@ class Begin extends \XLite\View\Export\Begin implements \XLite\Base\IDecorator
      *
      * @return string[]
      */
-    protected function getSections()
+    protected function defineSections()
     {
-        return parent::getSections()
-            + ['XLite\Module\XC\CustomProductTabs\Logic\Export\Step\CustomTabs' => 'Product tabs'];
+        return parent::defineSections() + [
+            'XLite\Module\XC\CustomProductTabs\Logic\Export\Step\CustomTabs' => 'Product tabs',
+            'XLite\Module\XC\CustomProductTabs\Logic\Export\Step\GlobalTabs' => 'Global product tabs',
+        ];
     }
 }

@@ -5,16 +5,20 @@
  #}
 
 {% if this.hasAlt() %}
-  <li role="presentation" class="divider"></li>
-  <li role="presentation" class="alt-text">
-    <div class="value">
-      <b>{{ t('Alt') }}:</b>
-      <span>{{ this.object.alt }}</span>
-      <div class="right-fade"></div>
-    </div>
-    <div class="input-group input-group-sm">
-      <span class="input-group-addon">{{ t('Alt') }}:</span>
-      <input type="text" name="{{ this.getName() }}[alt]" v-model="{{ this.getVModel() }}.alt" value="{{ this.object.alt }}" class="form-control input-alt" />
-    </div>
-  </li>
+    <li role="presentation" class="divider"></li>
+    <li role="presentation" class="alt-text">
+        <div class="value" @click.prevent.stop="showAlt">
+            <b>{{ t('Alt') }}:</b>
+            <span>{{ this.object.alt }}</span>
+            <div class="right-fade"></div>
+        </div>
+        <div class="input-group input-group-sm">
+            <span class="input-group-addon">{{ t('Alt') }}:</span>
+            <input type="text" name="{{ this.getName() }}[alt]" v-model="alt"
+                   value="{{ this.object.alt }}" class="form-control input-alt"
+                   @change="doChangeAlt"
+                   @keydown="doChangeAlt"
+                   @blur="doChangeAlt"/>
+        </div>
+    </li>
 {% endif %}

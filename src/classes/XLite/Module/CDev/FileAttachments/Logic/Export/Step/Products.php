@@ -22,12 +22,12 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
     {
         $columns = parent::defineColumns();
 
-        $columns['attachments'] = array();
+        $columns['attachments'] = [];
         $columns += $this->assignI18nColumns(
-            array(
-                'attachmentsTitle'       => array(static::COLUMN_GETTER => 'getAttachmentsTitleColumnValue'),
-                'attachmentsDescription' => array(static::COLUMN_GETTER => 'getAttachmentsDescriptionColumnValue'),
-            )
+            [
+                'attachmentsTitle'       => [static::COLUMN_GETTER => 'getAttachmentsTitleColumnValue'],
+                'attachmentsDescription' => [static::COLUMN_GETTER => 'getAttachmentsDescriptionColumnValue'],
+            ]
         );
 
         return $columns;
@@ -44,7 +44,7 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
      */
     protected function getAttachmentsColumnValue(array $dataset, $name, $i)
     {
-        $result = array();
+        $result = [];
 
         foreach ($dataset['model']->getAttachments() as $attachment) {
             $result[] = $this->formatAttachmentModel($attachment);
@@ -64,7 +64,7 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
      */
     protected function getAttachmentsTitleColumnValue(array $dataset, $name, $i)
     {
-        $result = array();
+        $result = [];
 
         foreach ($dataset['model']->getAttachments() as $attachment) {
             $result[] = $attachment->getTranslation(substr($name, -2))->getTitle();
@@ -84,7 +84,7 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
      */
     protected function getAttachmentsDescriptionColumnValue(array $dataset, $name, $i)
     {
-        $result = array();
+        $result = [];
 
         foreach ($dataset['model']->getAttachments() as $attachment) {
             $result[] = $attachment->getTranslation(substr($name, -2))->getDescription();

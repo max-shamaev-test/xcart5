@@ -22,3 +22,6 @@ XLite\Model\LanguageLabel:
   - { name: "View parent product's wholesale prices", translations: [{ code: en, label: "View parent product's wholesale prices" }] }
   - { name: 'Wholesale prices are not defined', translations: [{ code: en, label: 'Wholesale prices are not defined' }]}
   - { name: 'The minimum amount of "{{product}}" product {{description}} allowed to purchase is {{min}} item(s). Please adjust the product quantity.', translations: [{ code: en, label: 'The minimum amount of "{{product}}" product {{description}} allowed to purchase is {{min}} item(s). Please adjust the product quantity.' }] }
+  - { name: 'Tier with same quantity range and membership already defined.', translations: [{ code: en, label: 'Tier with same quantity range and membership already defined.' }] }
+  - { name: 'X variants and wholesale prices are defined', translations: [{ code: en, label: '<a href="{{variantsUrl}}">{{variants}} variants</a> and <a href="{{wholesaleUrl}}">wholesale prices</a> are defined' }] }
+  - { name: 'Wholesale prices are defined', translations: [{ code: en, label: 'Wholesale prices are defined' }] }

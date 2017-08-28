@@ -17,10 +17,8 @@ abstract class LeftMenu extends \XLite\View\Menu\Admin\LeftMenu implements \XLit
      * Define and set handler attributes; initialize handler
      *
      * @param array $params Handler params OPTIONAL
-     *
-     * @return void
      */
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         parent::__construct($params);
 
@@ -41,13 +39,13 @@ abstract class LeftMenu extends \XLite\View\Menu\Admin\LeftMenu implements \XLit
     {
         $return = parent::defineItems();
 
-        $return['promotions'][self::ITEM_CHILDREN]['mailchimp_lists'] = array(
+        $return['sales_channels'][self::ITEM_CHILDREN]['mailchimp_lists'] = [
             self::ITEM_TITLE      => 'MailChimp Lists',
             self::ITEM_TARGET     => 'mailchimp_lists',
             self::ITEM_CLASS      => 'mailchimp-lists',
             self::ITEM_PERMISSION => 'manage users',
-            self::ITEM_WEIGHT     => 1000,
-        );
+            self::ITEM_WEIGHT     => 100,
+        ];
 
         return $return;
     }

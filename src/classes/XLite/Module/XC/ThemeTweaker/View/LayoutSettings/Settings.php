@@ -36,6 +36,7 @@ class Settings extends \XLite\View\LayoutSettings\Settings implements \XLite\Bas
         $list = parent::getJSFiles();
         $list[] = 'modules/XC/ThemeTweaker/theme_tweaker_templates/controller.js';
         $list[] = 'modules/XC/ThemeTweaker/layout_settings/layout_mode_btn_controller.js';
+        $list[] = 'modules/XC/ThemeTweaker/layout_settings/labels_editor_btn_controller.js';
 
         return $list;
     }

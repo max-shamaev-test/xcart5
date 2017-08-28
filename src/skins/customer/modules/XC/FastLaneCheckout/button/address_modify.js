@@ -14,7 +14,7 @@ var PopupButtonAddressModify = PopupButton.extend({
     },
     callback: function(selector) {
         PopupButtonAddressModify.superclass.callback.apply(this, arguments);
-        UpdateStatesList(selector);
+        StatesList.getInstance().updateStatesList(selector);
 
         var self = this;
         jQuery('form', selector).each(function() {

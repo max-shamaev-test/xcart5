@@ -42,6 +42,10 @@ XLite\Model\Config:
     category: Company
     value: '+44-800-555-5555'
 
+  - name: week_start
+    category: Units
+    value: 'mon'
+
   - name: anonymous_country
     category: Shipping
     value: GB

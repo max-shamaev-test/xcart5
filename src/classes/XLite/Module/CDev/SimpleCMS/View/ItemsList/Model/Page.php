@@ -145,6 +145,16 @@ class Page extends \XLite\View\ItemsList\Model\Table
         return true;
     }
 
+    /**
+     * Mark list as sortable
+     *
+     * @return integer
+     */
+    protected function getSortableType()
+    {
+        return static::SORT_TYPE_MOVE;
+    }
+
     // }}}
 
     /**

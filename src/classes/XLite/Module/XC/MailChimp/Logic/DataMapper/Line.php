@@ -31,18 +31,18 @@ class Line
             }
             
             return [
-                'id'                    => strval($item->getItemId()),
+                'id'                    => (string)$item->getItemId(),
                 'product_id'            => $item->getObject()
-                    ? strval($item->getObject()->getProductId())
-                    : strval($item->getItemId()),
+                    ? (string)$item->getObject()->getProductId()
+                    : (string)$item->getItemId(),
                 'product_variant_id'    => $item->getObject()
-                    ? strval($item->getObject()->getProductId() . '_dv')
-                    : strval($item->getItemId() . '_dv'),
+                    ? (string)($item->getObject()->getProductId() . '_dv')
+                    : (string)($item->getItemId() . '_dv'),
                 'sku'                   => $item->getSku(),
                 'product_name'          => $item->getName(),
                 'category_id'           => $categoryId,
                 'category_name'         => $categoryName,
-                'quantity'              => intval($item->getAmount()),
+                'quantity'              => (int)$item->getAmount(),
                 'price'                 => $item->getOrder()->getCurrency()
                     ? $item->getOrder()->getCurrency()->formatValue($item->getItemNetPrice())
                     : $item->getItemNetPrice()

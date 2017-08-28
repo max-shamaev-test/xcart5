@@ -10,6 +10,7 @@ namespace XLite\Module\QSL\CloudSearch\Controller\Customer;
 
 use XLite\Core\Database;
 use XLite\Core\Request;
+use XLite\Module\QSL\CloudSearch\Core\ServiceApiClient;
 use XLite\Module\QSL\CloudSearch\Core\StoreApi;
 
 /**
@@ -18,6 +19,18 @@ use XLite\Module\QSL\CloudSearch\Core\StoreApi;
 class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
 {
     protected $debugStack;
+
+    /**
+     * Define and set handler attributes; initialize handler
+     *
+     * @param array $params Handler params OPTIONAL
+     */
+    public function __construct(array $params = [])
+    {
+        parent::__construct($params);
+
+        $this->params[] = 'action';
+    }
 
     /**
      * 'info' api verb
@@ -102,8 +115,8 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
 
     protected function doActionGetPrices()
     {
-        $prices   = array();
-        $products = array();
+        $prices   = [];
+        $products = [];
 
         $currency = $this->getCart()->getCurrency();
 
@@ -146,6 +159,44 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
     }
 
     /**
+     * Change store settings via API
+     *
+     * @return void
+     */
+    protected function doActionSetSettings()
+    {
+        $request = Request::getInstance();
+
+        $apiClient = new ServiceApiClient();
+
+        $secretKey = $apiClient->getSecretKey();
+
+        if ($secretKey && $secretKey === $request->secret_key) {
+            $settings = $request->settings;
+
+            if (isset($settings['isCloudFiltersEnabled'])) {
+                $this->setSetting('isCloudFiltersEnabled', (bool)$settings['isCloudFiltersEnabled']);
+            }
+        }
+
+        $this->printNoneAndExit();
+    }
+
+    protected function setSetting($name, $value)
+    {
+        $repo = Database::getRepo('XLite\Model\Config');
+
+        $setting = $repo->findOneBy([
+            'name'     => $name,
+            'category' => 'QSL\CloudSearch',
+        ]);
+
+        $setting->setValue($value);
+
+        Database::getEM()->flush($setting);
+    }
+
+    /**
      * Render output and finish
      *
      * @param $output
@@ -170,6 +221,12 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
         exit;
     }
 
+    protected function printNoneAndExit()
+    {
+        $this->silent = true;
+        $this->setSuppressOutput(true);
+    }
+
     /**
      * Get adjusted request limits
      *
@@ -182,7 +239,7 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
         $start = max(0, $request->start);
         $limit = max(1, $request->limit ?: StoreApi::MAX_ENTITIES_AT_ONCE);
 
-        return array($start, $limit);
+        return [$start, $limit];
     }
 
     /**

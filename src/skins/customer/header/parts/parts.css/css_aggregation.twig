@@ -8,7 +8,11 @@
   {% if this.doCSSOptimization() and this.isResourceSuitableForOptimization(file) %}
     {{ this.getInternalCssByResource(file)|raw }}
   {% else %}
-    <link href="{{ this.getResourceURL(file.url) }}" rel="stylesheet" type="text/css" media="{{ file.media }}" />
+    {{ widget(template='header/parts/parts.css/css_resource.twig',
+      async=file.async,
+      media=file.media,
+      url=this.getResourceURL(file.url)
+    ) }}
   {% endif %}
 {% endfor %}
 {% endif %}

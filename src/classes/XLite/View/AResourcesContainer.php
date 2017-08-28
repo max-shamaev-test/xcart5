@@ -196,8 +196,6 @@ abstract class AResourcesContainer extends \XLite\View\Container
      */
     protected function minifyCSS($content, $filePath)
     {
-        require_once LC_DIR_LIB . 'Minify' . LC_DS . 'cssmin.php';
-
         $minifier = new \CSSmin();
 
         return $minifier->run($content);
@@ -327,7 +325,7 @@ abstract class AResourcesContainer extends \XLite\View\Container
     }
 
     /**
-     * Check if the CSS resources should be aggregated
+     * Check if the CSS resources should be SEO-optimized
      *
      * @return boolean
      */
@@ -544,7 +542,7 @@ abstract class AResourcesContainer extends \XLite\View\Container
         $viewedResources = $request->viewedResources;
 
         if (!empty($viewedResources) && !is_array($viewedResources)) {
-            $viewedResources = unserialize($viewedResources);
+            $viewedResources = @unserialize($viewedResources);
         }
 
         if (!is_array($viewedResources)) {
@@ -570,7 +568,7 @@ abstract class AResourcesContainer extends \XLite\View\Container
         $viewedResources = $request->viewedResources;
 
         if (!empty($viewedResources) && !is_array($viewedResources)) {
-            $viewedResources = unserialize($viewedResources);
+            $viewedResources = @unserialize($viewedResources);
         }
 
         if (is_array($viewedResources)) {

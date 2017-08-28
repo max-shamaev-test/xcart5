@@ -64,6 +64,8 @@ class ContainerFactory
             // X-Cart services
             'XLite\Core\Layout'                       => \DI\factory('XLite\Core\Layout::getInstance'),
             'layout'                                  => \DI\get('XLite\Core\Layout'),
+            'XLite\Core\Request'                      => \DI\factory('XLite\Core\Request::getInstance'),
+            'request'                                 => \DI\get('XLite\Core\Request'),
             'widget_cache_manager'                    => \DI\object('XLite\Core\WidgetCacheManager'),
             'XLite\Core\WidgetCacheRegistryInterface' => \DI\get('widget_cache_manager'),
             'widget_cache'                            => \DI\object('XLite\Core\WidgetCache'),
@@ -96,6 +98,7 @@ class ContainerFactory
             'layout'                    => 'XLite\Core\Layout',
             'widget_cache_manager'      => 'XLite\Core\WidgetCacheManager',
             'widget_cache'              => 'XLite\Core\WidgetCache',
+            'request'                   => 'XLite\Core\Request',
 
             // Other services
             'event_dispatcher'          => 'Symfony\Component\EventDispatcher\EventDispatcher',

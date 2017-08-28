@@ -8,6 +8,8 @@
 
 namespace XLite\Model;
 
+use XLite\Core\ImageOperator\ADTO;
+
 /**
  * Mail images parser
  * TODO: full refactoring is required
@@ -142,41 +144,26 @@ class MailImageParser extends \XLite\Core\FlexyCompiler
      *
      * @param mixed $img ____param_comment____
      *
-     * @return void
+     * @return string
      */
     public function getImgSubstitution($img)
     {
         if (!isset($this->images[$img])) {
 
-            // fetch image
-
-            if (($fd = @fopen($img, 'rb'))) {
-
-                $image = '';
-
-                while (!feof($fd)) {
-
-                    $image .= fgets($fd, 10000);
-                }
-
-                fclose($fd);
-
+            $image = ADTO::getDTO($img);
+            if ($image->getBody()) {
                 $path = tempnam(LC_DIR_COMPILE, 'mailimage');
-                file_put_contents($path, $image);
-
-                $info = getimagesize($img);
+                file_put_contents($path, $image->getBody());
 
                 $this->images[$img] = array(
-                    'name' => basename($img),
+                    'name' => $image->getName(),
                     'path' => $path,
-                    'mime' => $info['mime']
+                    'mime' => $image->getType()
                 );
 
                 $this->counter++;
 
             } else {
-
-                // can't fetch
                 return $img;
             }
         }

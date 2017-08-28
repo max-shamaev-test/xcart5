@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * Order repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Order", summary="Add new order")
+ * @Api\Operation\Read(modelClass="XLite\Model\Order", summary="Retrieve order by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Order", summary="Retrieve orders by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\Order", summary="Update order by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Order", summary="Delete order by id")
  */
 class Order extends \XLite\Model\Repo\ARepo
 {
@@ -61,10 +67,8 @@ class Order extends \XLite\Model\Repo\ARepo
         array('orderNumber'),
     );
 
-
     /**
      * Get condition to search recent orders
-     * TODO: Review before commit!!!
      *
      * @return \XLite\Core\CommonCell
      */
@@ -437,6 +441,62 @@ class Order extends \XLite\Model\Repo\ARepo
     }
 
     /**
+     * @param \XLite\Model\Order $order
+     *
+     * @return \XLite\Model\AEntity|\XLite\Model\Order|null
+     */
+    public function findNextOrder($order)
+    {
+        if ($order->getOrderNumber() === '') {
+            return null;
+        }
+
+        return $this->defineFindNextOrder($order)->getSingleResult();
+    }
+
+    /**
+     * @param \XLite\Model\Order $order
+     *
+     * @return \Doctrine\ORM\QueryBuilder|\XLite\Model\QueryBuilder\AQueryBuilder
+     */
+    protected function defineFindNextOrder($order)
+    {
+        return $this->createQueryBuilder()
+            ->andWhere('o.orderNumber > :orderNumber')
+            ->setParameter('orderNumber', (int) $order->getOrderNumber())
+            ->orderBy('LENGTH(o.orderNumber)', 'ASC')
+            ->addOrderBy('o.orderNumber', 'ASC');
+    }
+
+    /**
+     * @param \XLite\Model\Order $order
+     *
+     * @return \XLite\Model\AEntity|\XLite\Model\Order|null
+     */
+    public function findPreviousOrder($order)
+    {
+        if ($order->getOrderNumber() === '') {
+            return null;
+        }
+
+        return $this->defineFindPreviousOrder($order)->getSingleResult();
+    }
+
+    /**
+     * @param \XLite\Model\Order $order
+     *
+     * @return \Doctrine\ORM\QueryBuilder|\XLite\Model\QueryBuilder\AQueryBuilder
+     */
+    protected function defineFindPreviousOrder($order)
+    {
+        return $this->createQueryBuilder()
+            ->andWhere('o.orderNumber < :orderNumber')
+            ->setParameter('orderNumber', (int) $order->getOrderNumber())
+            ->orderBy('LENGTH(o.orderNumber)', 'DESC')
+            ->addOrderBy('o.orderNumber', 'DESC');
+    }
+
+    /**
      * Create a QueryBuilder instance for getOrderStats()
      *
      * @param integer $startDate Start date timestamp
@@ -491,6 +551,7 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Retrieve order by its number", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param integer                    $value        Condition data
@@ -507,6 +568,7 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Retrieve order by user access level", type="string", enum={"anonymous", "registered"})
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param integer                    $value        Condition data
@@ -556,6 +618,7 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters order by date (timestamp) arranged in two-value array [start, end]", type="array", collectionFormat="multi", @Swg\Items(type="integer"))
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param integer                    $value        Condition data
@@ -581,6 +644,7 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Retrieve order by user login or order number substring", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param integer                    $value        Condition data
@@ -589,22 +653,35 @@ class Order extends \XLite\Model\Repo\ARepo
      */
     protected function prepareCndSubstring(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
     {
-        if (!empty($value)) {
-            $number = $value;
-            if (preg_match('/^\d+$/S', $number)) {
-                $number = (int)$number ;
-            }
+        $value = trim($value);
 
+        if (!empty($value)) {
             $queryBuilder->linkInner('o.profile', 'p');
 
-            $queryBuilder->andWhere('o.orderNumber = :substring OR p.login LIKE :substringLike')
-                ->setParameter('substring', $number)
+            $orCnd = $queryBuilder->expr()->orX();;
+            $orCnd->add('p.login LIKE :substringLike');
+
+            if (preg_match('/^\d+\s*?\-\s*?\d+$/S', $value)) {
+                list($min, $max) = explode('-', $value);
+
+                $orCnd->add('o.orderNumber BETWEEN :orderNumMin and :orderNumMax');
+
+                $queryBuilder->setParameter('orderNumMin', (int) trim($min));
+                $queryBuilder->setParameter('orderNumMax', (int) trim($max));
+
+            } elseif (preg_match('/^\d+$/S', $value)) {
+                $orCnd->add('o.orderNumber = :substring');
+                $queryBuilder->setParameter('substring', (int) $value);
+            }
+
+            $queryBuilder->andWhere($orCnd)
                 ->setParameter('substringLike', '%' . $value . '%');
         }
     }
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Retrieve order by product sku", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param integer                    $value        Condition data
@@ -638,6 +715,7 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Retrieve only recent (unprocessed) orders", type="boolean")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param integer                    $value        Condition data
@@ -673,6 +751,7 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Retrieve orders by profile id", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param integer                    $value        Condition data
@@ -690,6 +769,7 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Retrieve orders by user login", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param string                     $value        Condition data
@@ -709,6 +789,9 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(
+     *     description="Retrieve orders in certain payment status",
+     *     type="string", enum={"A", "PP", "P", "D", "C", "Q", "R"})
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param string                     $value        Condition data
@@ -722,6 +805,9 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(
+     *     description="Retrieve orders in certain shipping status",
+     *     type="string", enum={"N", "P", "S", "D", "WND", "R", "WFA"})
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param string                     $value        Condition data
@@ -813,6 +899,7 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters order by currency id", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param integer                    $value        Condition data OPTIONAL
@@ -854,6 +941,7 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters order by payment transaction public_id", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param integer                    $value        Condition data
@@ -871,6 +959,7 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters orders by user zipcode", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param integer                    $value        Condition data
@@ -894,6 +983,7 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters orders by customer name", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param integer                    $value        Condition data
@@ -914,6 +1004,7 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Generate fullname by firstname and lastname values
+     * @Api\Condition(description="Filters orders by customer firstname-lastname pair", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      *
@@ -980,6 +1071,7 @@ class Order extends \XLite\Model\Repo\ARepo
 
             } elseif (\XLite\View\ItemsList\Model\Order\Admin\Search::SORT_BY_MODE_CUSTOMER === $sortItem) {
                 $this->prepareCndOrderByFullname($queryBuilder);
+                $queryBuilder->addOrderBy('fullname', $order[$key]);
             }
 
             $queryBuilder->addOrderBy($sortItem, $order[$key]);
@@ -988,6 +1080,7 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters orders by shipping method name", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param string                     $value        Condition data
@@ -1004,6 +1097,7 @@ class Order extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters orders by payment method name", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param string                     $value        Condition data

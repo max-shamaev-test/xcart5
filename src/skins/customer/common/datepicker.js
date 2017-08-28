@@ -19,6 +19,7 @@ jQuery().ready(
         {
           dateFormat:        options.dateFormat,
           gotoCurrent:       true,
+          firstDay:          options.firstDay,
           yearRange:         options.highYear + '-' + options.lowYear,
           showButtonPanel:   false,
           beforeShow:        datePickerPostprocess,

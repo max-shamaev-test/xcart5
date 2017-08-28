@@ -19,16 +19,38 @@ XLite\Model\Config:
   - name: display_location_popup
     category: 'XC\Geolocation'
     type: XLite\View\FormField\Input\Checkbox\OnOffWithoutOffLabel
-    orderby: 10
+    orderby: 20
     value: 1
     translations:
       - code: en
         option_name: 'Display location select widget'
       - code: ru
         option_name: 'Отображать виджет смены местоположения'
+  - name: extended_database
+    category: 'XC\Geolocation'
+    type: XLite\View\FormField\FileUploader\ChunkUpload
+    orderby: 30
+    widgetParameters: { successAction: 'geolocation', extensions: '.mmdb' }
+    translations:
+      - code: en
+        option_name: 'Upload extended database'
+        option_comment: 'You can upload an extended .mmdb database to get user location by IP more accurately'
+      - code: ru
+        option_name: 'Загрузить расширенную базу данных'
+        option_comment: 'Вы можете загрузить расширенную базу данных в формате .mmdb для более точного определения местоположения'
+  - name: current_database
+    category: 'XC\Geolocation'
+    type: XLite\Module\XC\Geolocation\View\FormField\Label\CurrentDatabase
+    orderby: 40
+    translations:
+      - code: en
+        option_name: 'Database file in use'
+      - code: ru
+        option_name: 'Текущая база данных'
 
 XLite\Model\LanguageLabel:
   - { name: 'My location', translations: [{ code: en, label: 'My location' }] }
   - { name: 'Choose your location', translations: [{ code: en, label: 'Specify your location' }] }
   - { name: 'Save location', translations: [{ code: en, label: 'Save location' }] }
   - { name: 'Location was successfully set', translations: [{ code: en, label: 'Location was successfully set' }] }
+  - { name: 'Revert to default database', translations: [{ code: en, label: 'Revert to default database' }] }

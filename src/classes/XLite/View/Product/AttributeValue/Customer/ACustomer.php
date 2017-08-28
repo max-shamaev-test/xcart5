@@ -79,7 +79,7 @@ abstract class ACustomer extends \XLite\View\Product\AttributeValue\AAttributeVa
     }
 
     /**
-     * Return selected attribute values ids
+     * Return selected attribute values ids or values for text type
      *
      * @return array
      */
@@ -98,11 +98,24 @@ abstract class ACustomer extends \XLite\View\Product\AttributeValue\AAttributeVa
     protected function defineSelectedIds()
     {
         $result     = [];
+
+        if (method_exists(\XLite::getController(), 'getSelectedAttributeValuesIds')) {
+            /** @see \XLite\Controller\Customer\ChangeAttributeValues */
+            $result = \XLite::getController()->getSelectedAttributeValuesIds();
+        }
+
         $attrValues = $this->getProduct()->getAttrValues();
 
-        if (!empty($attrValues) && \XLite\Model\Attribute::TYPE_TEXT !== $this->getAttributeType()) {
+        if (!empty($attrValues)) {
             foreach ($attrValues as $k => $attributeValue) {
                 $actualAttributeValue = null;
+
+                if (is_array($attributeValue)
+                    && isset($attributeValue['attributeValue'], $attributeValue['value'])
+                ) {
+                    $actualValue = $attributeValue['value'];
+                    $attributeValue = $attributeValue['attributeValue'];
+                }
 
                 if ($attributeValue instanceof \XLite\Model\OrderItem\AttributeValue) {
                     $actualAttributeValue = $attributeValue->getAttributeValue();
@@ -116,25 +129,37 @@ abstract class ACustomer extends \XLite\View\Product\AttributeValue\AAttributeVa
 
                 if ($actualAttributeValue) {
                     if ($actualAttributeValue instanceof \XLite\Model\AttributeValue\AttributeValueText) {
-                        /** @see \XLite\Model\AttributeValue\AttributeValueTextTranslation */
-                        $value = $actualAttributeValue->getValue();
+                        if (isset($actualValue)
+                            || !isset($result[$actualAttributeValue->getAttribute()->getId()])
+                        ) {
+                            $result[$actualAttributeValue->getAttribute()->getId()] = isset($actualValue)
+                                ? $actualValue
+                                : $actualAttributeValue->getValue();
+                        }
 
                     } else {
-                        $value = $actualAttributeValue->getId();
+                        $result[$actualAttributeValue->getAttribute()->getId()] = $actualAttributeValue->getId();
                     }
-
-                    $result[$actualAttributeValue->getAttribute()->getId()] = $value;
                 }
             }
 
             ksort($result);
 
-        } elseif (method_exists(\XLite::getController(), 'getSelectedAttributeValuesIds')) {
-            /** @see \XLite\Controller\Customer\ChangeAttributeValues */
-            $result = \XLite::getController()->getSelectedAttributeValuesIds();
         }
 
         return $result;
+    }
+
+    /**
+     * Returns input-specific attributes
+     * 
+     * @return array
+     */
+    protected function getInputAttributes()
+    {
+        return [
+            'v-model' => 'attrs[' . $this->getAttribute()->getId() . ']'
+        ];
     }
 
     /**

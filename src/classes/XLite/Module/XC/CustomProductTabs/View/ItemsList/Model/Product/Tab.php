@@ -13,7 +13,6 @@ namespace XLite\Module\XC\CustomProductTabs\View\ItemsList\Model\Product;
  */
 class Tab extends \XLite\View\ItemsList\Model\Table
 {
-
     /**
      * Define columns structure
      *
@@ -21,40 +20,126 @@ class Tab extends \XLite\View\ItemsList\Model\Table
      */
     protected function defineColumns()
     {
-        return array(
-            'name' => array(
-                static::COLUMN_NAME          => \XLite\Core\Translation::lbl('Name'),
-                static::COLUMN_TEMPLATE      => 'modules/XC/CustomProductTabs/product/name.twig',
-            ),
-        );
+        return [
+            'enabled' => [
+                static::COLUMN_CLASS => 'XLite\View\FormField\Inline\Input\Checkbox\Switcher\ShowHide',
+            ],
+            'name'    => [
+                static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Name'),
+                static::COLUMN_MAIN     => true,
+                static::COLUMN_LINK     => true,
+                static::COLUMN_TEMPLATE => 'modules/XC/CustomProductTabs/product_tabs/parts/name.twig',
+            ],
+        ];
     }
 
     /**
-     * Get edit entity URL
+     * Get a list of CSS files
      *
-     * @return integer
+     * @return array
      */
-    protected function getEditURL(\XLite\Module\XC\CustomProductTabs\Model\Product\Tab $entity)
+    public function getCSSFiles()
     {
-        return \XLite\Core\Converter::buildUrl(
-            'product',
-            null,
-            array(
-                'product_id' => \XLite\Core\Request::getInstance()->product_id,
-                'page'       => 'tabs',
-                'tab_id'     => $entity->getId(),
-            )
-        );
+        $list = parent::getCSSFiles();
+
+        $list[] = 'modules/XC/CustomProductTabs/product_tabs/style.css';
+
+        return $list;
     }
 
     /**
-     * Get tab name
+     * Check if tab global
+     *
+     * @param \XLite\Module\XC\CustomProductTabs\Model\Product\Tab $entity Entity
+     *
+     * @return bool
+     */
+    protected function isGlobal($entity)
+    {
+        return $entity && $entity->isGlobal();
+    }
+
+    /**
+     * Return true if 'Edit' link should be displayed in column line
+     *
+     * @param \XLite\Model\AEntity $entity Entity
+     * @param array                $column Column data
+     *
+     * @return boolean
+     */
+    protected function isLink(array $column, \XLite\Model\AEntity $entity)
+    {
+        return parent::isLink($column, $entity) && !$entity->isGlobalStatic();
+    }
+
+    /**
+     * Build entity page URL
+     *
+     * @param \XLite\Model\AEntity $entity Entity
+     * @param array                $column Column data
      *
      * @return string
      */
-    protected function getTabName(\XLite\Module\XC\CustomProductTabs\Model\Product\Tab $entity)
+    protected function buildEntityURL(\XLite\Model\AEntity $entity, array $column)
     {
-        return $entity->GetName();
+        if ($entity->isGlobalCustom()) {
+            $url = \XLite\Core\Converter::buildURL(
+                'product',
+                '',
+                [
+                    'global_tab_id' => $entity->getGlobalTab()->getId(),
+                    'product_id' => \XLite\Core\Request::getInstance()->product_id,
+                    'page'       => 'tabs',
+                ]
+            );
+        } else {
+            $url = \XLite\Core\Converter::buildURL(
+                'product',
+                null,
+                [
+                    'product_id' => \XLite\Core\Request::getInstance()->product_id,
+                    'page'       => 'tabs',
+                    'tab_id'     => $entity->getId(),
+                ]
+            );
+        }
+
+        return $url;
+    }
+
+    /**
+     * Define line class as list of names
+     *
+     * @param integer              $index  Line index
+     * @param \XLite\Model\AEntity $entity Line model OPTIONAL
+     *
+     * @return array
+     */
+    protected function defineLineClass($index, \XLite\Model\AEntity $entity = null)
+    {
+        $classes = parent::defineLineClass($index, $entity);
+
+        if ($entity && $entity->isGlobal()) {
+            $classes[] = 'global-tab';
+        }
+
+        if ($entity && $entity->isGlobalCustom()) {
+            $classes[] = 'edit-allowed';
+        }
+
+        return $classes;
+    }
+
+    /**
+     * Get label for 'Edit' link
+     *
+     * @param \XLite\Module\XC\CustomProductTabs\Model\Product\Tab $entity Entity
+     *
+     * @return string
+     */
+    protected function getEditLinkLabel($entity)
+    {
+        return $entity->isGlobal() ? static::t('Edit Globally') : static::t('Edit');
     }
 
     /**
@@ -88,11 +173,11 @@ class Tab extends \XLite\View\ItemsList\Model\Table
         return \XLite\Core\Converter::buildUrl(
             'product',
             '',
-            array(
+            [
                 'page'       => 'tabs',
                 'tab_id'     => 0,
                 'product_id' => \XLite\Core\Request::getInstance()->product_id
-            )
+            ]
         );
     }
 
@@ -107,7 +192,7 @@ class Tab extends \XLite\View\ItemsList\Model\Table
     }
 
 
-        // {{{ Behaviors
+    // {{{ Behaviors
 
     /**
      * Mark list as removable
@@ -120,13 +205,15 @@ class Tab extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Mark list as switchyabvle (enable / disable)
+     * Check - remove entity or not
+     *
+     * @param \XLite\Model\AEntity $entity Entity
      *
      * @return boolean
      */
-    protected function isSwitchable()
+    protected function isAllowEntityRemove(\XLite\Model\AEntity $entity)
     {
-        return true;
+        return parent::isAllowEntityRemove($entity) && !$entity->isGlobal();
     }
 
     /**
@@ -138,8 +225,6 @@ class Tab extends \XLite\View\ItemsList\Model\Table
     {
         return static::SORT_TYPE_MOVE;
     }
-
-
 
     // }}}
 
@@ -156,13 +241,36 @@ class Tab extends \XLite\View\ItemsList\Model\Table
     /**
      * Get panel class
      *
-     * @return \XLite\View\Base\FormStickyPanel
+     * @return string
      */
     protected function getPanelClass()
     {
         return 'XLite\Module\XC\CustomProductTabs\View\StickyPanel\ItemsList\Product\Tab';
     }
 
+    /**
+     * Get top actions
+     *
+     * @return array
+     */
+    protected function getTopActions()
+    {
+        $actions = parent::getTopActions();
+
+        $actions[] = 'modules/XC/CustomProductTabs/product_tabs/manage_global_tabs.twig';
+
+        return $actions;
+    }
+
+    /**
+     * Returns global tabs link
+     *
+     * @return string
+     */
+    public function getGlobalTabsLink()
+    {
+        return $this->buildURL('global_tabs');
+    }
 
     // {{{ Search
 
@@ -173,13 +281,11 @@ class Tab extends \XLite\View\ItemsList\Model\Table
      */
     static public function getSearchParams()
     {
-        return array(
-        );
+        return [];
     }
 
     /**
      * Return params list to use for search
-     * TODO refactor
      *
      * @return \XLite\Core\CommonCell
      */
@@ -202,5 +308,4 @@ class Tab extends \XLite\View\ItemsList\Model\Table
     }
 
     // }}}
-
 }

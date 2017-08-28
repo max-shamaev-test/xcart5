@@ -34,16 +34,6 @@ class ProfileList extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
-     * doActionDelete
-     *
-     * @return void
-     */
-    protected function doActionDelete()
-    {
-        // :TODO: check if it's really needed
-    }
-
-    /**
      * Get itemsList class
      *
      * @return string

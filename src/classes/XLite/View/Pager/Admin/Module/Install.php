@@ -14,11 +14,6 @@ namespace XLite\View\Pager\Admin\Module;
 class Install extends \XLite\View\Pager\Admin\Module\AModule
 {
     /**
-     * What's new title text
-     */
-    const WHATS_NEW_TITLE = 'What\'s new';
-
-    /**
      * getItemsPerPageDefault
      *
      * @return integer
@@ -49,22 +44,6 @@ class Install extends \XLite\View\Pager\Admin\Module\AModule
     }
 
     /**
-     * Define the pager title
-     *
-     * @return string
-     */
-    protected function getPagerTitle()
-    {
-        $pagerTitle = $this->getModuleId()
-            ? ''
-            : parent::getPagerTitle();
-
-        return $this->isLandingPage()
-            ? static::t(static::WHATS_NEW_TITLE)
-            : $pagerTitle;
-    }
-
-    /**
      * Check if widget is visible
      *
      * @return boolean
@@ -82,7 +61,7 @@ class Install extends \XLite\View\Pager\Admin\Module\AModule
      */
     protected function getPagerBottomTitle()
     {
-        return '<a href="' . $this->buildURL('addons_list_marketplace') . '">' . static::t('View all modules') . '</a>';
+        return '';
     }
 
     /**

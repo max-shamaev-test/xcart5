@@ -306,6 +306,10 @@ popup.postprocess = function()
     );
 
   core.microhandlers.runAll(this.currentPopup.widget);
+
+  if (!this.isLoading) {
+      core.trigger('popup.postprocess', { widget: this });
+  }
 };
 
 // Freeze popup content
@@ -351,6 +355,7 @@ popup.unfreezePopup = function()
 // Open as wait box
 popup.openAsWait = function()
 {
+  this.isLoading = true;
   this.open(jQuery('<div data-dialog-class="block-wait-box"><div class="block-wait"><div></div></div></div>'));
 };
 

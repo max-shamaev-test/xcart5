@@ -104,7 +104,7 @@ CheckoutAddressView.prototype.assignHandlers = function(event, state)
 
       this.base.find('a.address-book').click(_.bind(this.openAddressBook, this));
 
-      UpdateStatesList(form);
+      StatesList.getInstance().updateStatesList(form);
 
       this.base.find('.create-warning a.continue').click(_.bind(this.handleContinueLink, this));
 

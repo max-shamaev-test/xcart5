@@ -30,6 +30,19 @@
   }
 }
 
+.mobile_header-slidebar {
+  &.recently-updated {
+    > a {
+      .recently-updated-icon;
+
+      &:after {
+        bottom: 18px;
+        left: 10px;
+      }
+    }
+  }
+}
+
 .account-link-compare {
   & > a {
     .icon-compare;
@@ -48,5 +61,17 @@
   .counter {
     padding-left: @rhythmic-unit;
     float: right;
+  }
+
+  .mm-menu & .counter {
+    padding-left: 0;
+    width: 40px;
+    text-align: center;
+  }
+
+  .mm-menu .additional-menu-wrapper .mm-nolistview.additional-menu & {
+    a {
+      padding-right: 10px;
+    }
   }
 }

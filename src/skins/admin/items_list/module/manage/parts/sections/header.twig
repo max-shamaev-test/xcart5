@@ -3,7 +3,6 @@
  #
  # @ListChild (list="modules-manage.top-controls", weight="100")
  #}
-
 {% if not this.isRecentlyInstalledPage() %}
 
 <div class="installed-modules-header">
@@ -13,11 +12,11 @@
   
       {% form '\\XLite\\View\\Form\\Module\\ManageSearch' with {formMethod: 'GET', className: 'search-form'} %}
         <div class="state">
-          {{ widget('\\XLite\\View\\FormField\\Select\\ModuleState', fieldOnly='true', fieldName='state', value=this.getState()) }}
+          {{ widget('XLite\\View\\ItemsList\\Module\\Filter\\Selector', name='state', items=this.getStateOptionsForSelector(), caption=t('All modules')) }}
         </div>
         <div class="substring">
+          <i class="fa fa-search" aria-hidden="true"></i>
           {{ widget('\\XLite\\View\\FormField\\Input\\Text', fieldOnly='true', fieldName='substring', value=this.getSubstring(), placeholder=t('Search for modules')) }}
-          {{ widget('\\XLite\\View\\Button\\Submit', label='') }}
         </div>
       {% endform %}
   
@@ -33,4 +32,10 @@
   </div>
 
 </div>
+{% else %}
+  <div class="installed-modules-header">
+    <div class="actions">
+      {{ widget('XLite\\View\\Button\\Addon\\ActivateLicenseKey') }}
+    </div>
+  </div>
 {% endif %}

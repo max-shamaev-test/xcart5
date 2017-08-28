@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\ThemeTweaker\Controller;
 
+use XLite\Module\XC\ThemeTweaker\Core\ThemeTweaker;
+
 /**
  * Payment method
  */
@@ -24,10 +26,23 @@ abstract class AController extends \XLite\Controller\AController implements \XLi
 
         if (!$this->suppressOutput
             && !$this->isAJAX()
+            && ThemeTweaker::getInstance()->isInWebmasterMode()
         ) {
             $viewer = $this->getViewer();
 
             echo $viewer::getHtmlTree();
         }
+    }
+
+    /**
+     * Retrieve AJAX output content from viewer
+     *
+     * @param mixed $viewer Viewer to display in AJAX
+     *
+     * @return string
+     */
+    protected function getAJAXOutputContent($viewer)
+    {
+        return parent::getAJAXOutputContent($viewer) . $viewer::getHtmlTree();
     }
 }

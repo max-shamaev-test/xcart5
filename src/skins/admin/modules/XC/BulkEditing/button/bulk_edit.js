@@ -20,16 +20,6 @@ var getRealItemsCount = function (itemsListBlock) {
 
 decorate(
     'StickyPanelModelList',
-    'process',
-    function () {
-      arguments.callee.previousMethod.apply(this, arguments);
-
-      core.loadLanguageHash(core.getCommentedData(this.base.find('.bulk-edit')));
-    }
-);
-
-decorate(
-    'StickyPanelModelList',
     'reposition',
     function (selector) {
       arguments.callee.previousMethod.apply(this, arguments);

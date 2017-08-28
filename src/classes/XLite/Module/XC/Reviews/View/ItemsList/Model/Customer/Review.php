@@ -50,13 +50,13 @@ class Review extends \XLite\View\ItemsList\AItemsList
      */
     static public function getSearchParams()
     {
-        return array(
+        return [
             \XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_ADDITION_DATE => static::PARAM_SEARCH_ADDITION_DATE,
             \XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_STATUS => static::PARAM_SEARCH_STATUS,
             \XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_PRODUCT => static::PARAM_SEARCH_PRODUCT,
             \XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_KEYWORDS => static::PARAM_SEARCH_KEYWORDS,
             \XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_RATING => static::PARAM_SEARCH_RATING,
-        );
+        ];
     }
 
     /**
@@ -160,11 +160,11 @@ class Review extends \XLite\View\ItemsList\AItemsList
             }
         }
 
-        $result->{\XLite\Module\XC\Reviews\Model\Repo\Review::P_ORDER_BY} = array('r.additionDate', 'DESC');
+        $result->{\XLite\Module\XC\Reviews\Model\Repo\Review::P_ORDER_BY} = ['r.additionDate', 'DESC'];
 
         $profile = \XLite\Core\Auth::getInstance()->getProfile() ? : null;
         $result->{\XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_ZONE}
-            = array(\XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_ZONE_CUSTOMER, $profile);
+            = [\XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_ZONE_CUSTOMER, $profile];
 
         $result->{\XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_PRODUCT} = $this->getProduct();
         $result->{\XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_TYPE}
@@ -327,7 +327,7 @@ class Review extends \XLite\View\ItemsList\AItemsList
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_CATEGORY_ID => new \XLite\Model\WidgetParam\ObjectId\Category(
                 'Category ID',
                 $this->getCategoryId()
@@ -336,7 +336,7 @@ class Review extends \XLite\View\ItemsList\AItemsList
                 'Product ID',
                 $this->getProductId()
             ),
-        );
+        ];
 
     }
 

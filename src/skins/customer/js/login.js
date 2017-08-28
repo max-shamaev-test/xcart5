@@ -15,6 +15,7 @@ jQuery(document).ready(
       'loginPopup',
       'a.log-in',
       function() {
+
         jQuery(this).click(
           function(event) {
             loadDialogByLink(
@@ -37,6 +38,26 @@ jQuery(document).ready(
       }
     );
 
+    var initiateTimer = function(base) {
+      var timeLeft = base.data('time-left');
+      if (timeLeft) {
+        (function() {
+          timeLeft--;
+          if (0 < timeLeft) {
+            var min = parseInt(timeLeft / 60);
+            var sec = timeLeft % 60;
+            jQuery('#timer', base).text((10 > min ? '0' : '') + min +  ':' + (10 > sec ? '0' : '') + sec);
+            setTimeout(arguments.callee, 1000);
+
+          } else {
+            jQuery(base).removeClass('locked-out');
+          }
+        })()
+      }
+    };
+
+    initiateTimer(jQuery('.login-form'));
+
     // Login popup form
     core.microhandlers.add(
       'loginPopupForm',
@@ -46,6 +67,18 @@ jQuery(document).ready(
 
           this.commonController.enableBackgroundSubmit();
           var form = this.commonController.$form;
+          var lockoutBase = form.find('.login-form');
+
+          core.bind(
+              'login.lockout',
+              function(event, data) {
+                lockoutBase.addClass('locked-out');
+                lockoutBase.data('time-left', data.time);
+                initiateTimer(lockoutBase);
+              }
+          );
+
+          initiateTimer(lockoutBase);
 
           form.find('a.forgot').click(
             function(event) {

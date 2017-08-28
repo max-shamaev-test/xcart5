@@ -1,35 +1,18 @@
 {##
- # ____file_title____
+ # Address
  #}
 <ul class="address-entry">
+{% for fieldName, fieldData in this.getSchemaFields() if this.getFieldValue(fieldName) %}
 
-{% for fieldName, fieldData in this.getSchemaFields() %}
-
-{% if this.getFieldValue(fieldName) %}
   <li class="address-text-{{ fieldName }}">
   
     <div class="clear"></div>
-  
-    <ul class="address-text">
-  
-      <li class="address-text-label-{{ fieldName }}">
-        {{ fieldData.label }}:
-      </li>
-  
-      <li class="address-text-value">
-        {{ this.getFieldValue(fieldName, 1) }}
-      </li>
-  
-      {% if this.getFieldValue(fieldName, 1) %}
-        <li class="address-text-comma-{{ fieldName }}">,</li>
-      {% endif %}
-  
-    </ul>
-  
+
+    {{ widget_list('main', type='inherited', fieldName=fieldName, fieldData=fieldData) }}
+
     <div class="clear"></div>
   
   </li>
-{% endif %}
 
 {% endfor %}
 

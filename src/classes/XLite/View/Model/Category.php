@@ -50,6 +50,7 @@ class Category extends \XLite\View\Model\AModel
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Textarea\Advanced',
             self::SCHEMA_LABEL    => 'Description',
             self::SCHEMA_REQUIRED => false,
+            self::SCHEMA_TRUSTED_PERMISSION => true,
             \XLite\View\FormField\Textarea\Advanced::PARAM_STYLE => 'category-description',
         ),
         'cleanURL' => array(

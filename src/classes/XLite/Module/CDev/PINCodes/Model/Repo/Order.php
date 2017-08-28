@@ -16,6 +16,27 @@ namespace XLite\Module\CDev\PINCodes\Model\Repo;
 class Order extends \XLite\Model\Repo\Order implements \XLite\Base\IDecorator
 {
     /**
+     * Prepare certain search condition
+     *
+     * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
+     * @param integer                    $value        Condition data
+     *
+     * @return void
+     */
+    protected function prepareCndRecent(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
+    {
+        parent::prepareCndRecent($queryBuilder, $value);
+
+        if ($value) {
+            $alias = 'PinCodesShippingStatusAlias';
+
+            $queryBuilder->innerJoin('o.shippingStatus', $alias)
+                         ->orWhere($alias . '.code = :shippingStatus')
+                         ->setParameter('shippingStatus', \XLite\Model\Order\Status\Shipping::STATUS_WAITING_FOR_APPROVE);
+        }
+    }
+
+    /**
      * Search orders with pincodes
      *
      * @param \XLite\Core\CommonCell $cnd       Search condition

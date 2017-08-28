@@ -134,6 +134,16 @@ class Uploaded extends \XLite\Upgrade\Entry\Module\AModule
     }
 
     /**
+     * Return module wave
+     *
+     * @return string
+     */
+    public function getWave()
+    {
+        return 127;
+    }
+
+    /**
      * Return module description
      *
      * @return string

@@ -50,7 +50,7 @@ class Autocomplete extends \XLite\Controller\Customer\ACustomer
             if (method_exists($this, $method)) {
 
                 // Method name assembled from 'assembleDictionary' + dictionary request argument
-                $data = $this->$method(strval(\XLite\Core\Request::getInstance()->erm));
+                $data = $this->$method((string)\XLite\Core\Request::getInstance()->term);
                 $this->data = $this->processData($data);
             }
         }

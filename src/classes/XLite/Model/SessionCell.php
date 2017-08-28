@@ -112,7 +112,6 @@ class SessionCell extends \XLite\Model\AEntity
                 break;
 
             case 'string':
-                $value = $value;
                 break;
 
             case 'array':

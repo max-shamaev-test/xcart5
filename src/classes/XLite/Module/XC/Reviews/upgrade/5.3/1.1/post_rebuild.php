@@ -12,22 +12,22 @@ return function()
     
     if (in_array(\XLite\Core\Config::getInstance()->General->default_products_sort_order, ['rateAsc', 'rateDesc'])) {
         \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
-            array(
+            [
                 'category' => 'General',
                 'name'     => 'default_products_sort_order',
                 'value'    => 'rate',
-            )
+            ]
         );
         $changed = true;
     }
     
     if (in_array(\XLite\Core\Config::getInstance()->General->default_search_sort_order, ['rateAsc', 'rateDesc'])) {
         \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
-            array(
+            [
                 'category' => 'General',
                 'name'     => 'default_search_sort_order',
                 'value'    => 'rate',
-            )
+            ]
         );
         $changed = true;
     }

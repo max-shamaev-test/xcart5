@@ -34,7 +34,11 @@ class Product extends \XLite\Model\Repo\Product implements \XLite\Base\IDecorato
      */
     protected function addDateCondition(\Doctrine\ORM\QueryBuilder $queryBuilder, $alias = null)
     {
-        if (!\XLite\Core\Config::getInstance()->CDev->ProductAdvisor->cs_enabled) {
+        if (
+            !\XLite\Core\Config::getInstance()->CDev
+            || !\XLite\Core\Config::getInstance()->CDev->ProductAdvisor
+            || !\XLite\Core\Config::getInstance()->CDev->ProductAdvisor->cs_enabled
+        ) {
             parent::addDateCondition($queryBuilder, $alias);
         }
     }
@@ -49,7 +53,7 @@ class Product extends \XLite\Model\Repo\Product implements \XLite\Base\IDecorato
         return array_merge(
             parent::getSearchModes(),
             array(
-                static::SEARCH_MODE_INDEXED     => 'searchIndexed',
+                static::SEARCH_MODE_INDEXED => 'searchIndexed',
             )
         );
     }
@@ -93,8 +97,8 @@ class Product extends \XLite\Model\Repo\Product implements \XLite\Base\IDecorato
     {
         if (is_array($value) && 2 === count($value)) {
 
-            $min = (int) trim(array_shift($value));
-            $max = (int) trim(array_shift($value));
+            $min = (int)trim(array_shift($value));
+            $max = (int)trim(array_shift($value));
 
             $min = (0 === $min ? null : $min);
             $max = (0 === $max ? null : $max);
@@ -114,12 +118,12 @@ class Product extends \XLite\Model\Repo\Product implements \XLite\Base\IDecorato
     {
         if (null !== $min) {
             $queryBuilder->andWhere('p.arrivalDate > :minDate')
-                ->setParameter('minDate', (float) $min);
+                ->setParameter('minDate', (float)$min);
         }
 
         if (null !== $max) {
             $queryBuilder->andWhere('p.arrivalDate < :maxDate')
-                ->setParameter('maxDate', (float) $max);
+                ->setParameter('maxDate', (float)$max);
         }
     }
 

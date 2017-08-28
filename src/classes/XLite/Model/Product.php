@@ -42,6 +42,12 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     const AMOUNT_DEFAULT_LOW_LIMIT = 10;
 
     /**
+     * Meta description type
+     */
+    const META_DESC_TYPE_AUTO   = 'A';
+    const META_DESC_TYPE_CUSTOM = 'C';
+
+    /**
      * Product unique ID
      *
      * @var integer
@@ -423,9 +429,21 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     protected $xcPendingExport = false;
 
     /**
+     * Return GlobalTabs
+     *
+     * @return \XLite\Model\Product\GlobalTab[]
+     */
+    public function getGlobalTabs()
+    {
+        return $this->executeCachedRuntime(function () {
+            return \XLite\Core\Database::getRepo('\XLite\Model\Product\GlobalTab')->findAll();
+        }, ['getGlobalTabs']);
+    }
+
+    /**
      * Clone
      *
-     * @return \XLite\Model\AEntity
+     * @return static
      */
     public function cloneEntity()
     {
@@ -1176,14 +1194,14 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
         $result = [
             'product_id'        => $this->getProductId(),
         ];
-        
+
         if ($withAttributes) {
             $result['attribute_values'] = $this->getAttributeValuesParams();
         }
-        
+
         return $result;
     }
-    
+
     /**
      * @return string
      */
@@ -1205,7 +1223,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
 
         return trim(join(',', $paramsStrings), ',');
     }
-    
+
     /**
      * Minimal available amount
      *
@@ -1355,7 +1373,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      *
      * @PostUpdate
      */
-    public function proccessPostUpdate()
+    public function processPostUpdate()
     {
         if ($this->isLowLimitReached()
             && $this->isShouldSend()
@@ -1602,8 +1620,10 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
         foreach ($this->getEditableAttributes() as $a) {
             if ($a->getType() === \XLite\Model\Attribute::TYPE_TEXT) {
                 $value = isset($ids[$a->getId()]) ? $ids[$a->getId()] : $a->getAttributeValue($this)->getValue();
+                $attrValue = $a->getAttributeValue($this);
+
                 $attributeValues[$a->getId()] = array(
-                    'attributeValue' => $a->getAttributeValue($this),
+                    'attributeValue' => $attrValue,
                     'value'          => $value,
                 );
 
@@ -1731,9 +1751,21 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     public function getMetaDesc()
     {
-        return 'A' === $this->getMetaDescType()
-            ? strip_tags($this->getCommonDescription())
+        return static::META_DESC_TYPE_AUTO === $this->getMetaDescType()
+            ? static::generateMetaDescription($this->getCommonDescription())
             : $this->getSoftTranslation()->getMetaDesc();
+    }
+
+    /**
+     * Generate meta description
+     *
+     * @param $description
+     *
+     * @return string
+     */
+    public static function generateMetaDescription($description)
+    {
+        return strip_tags($description);
     }
 
     /**
@@ -1750,7 +1782,9 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
                 return $carry ?: (bool) $item->getMetaDesc();
             }, false);
 
-            $result = $metaDescPresent ? 'C' : 'A';
+            $result = $metaDescPresent
+                ? static::META_DESC_TYPE_CUSTOM
+                : static::META_DESC_TYPE_AUTO;
         }
 
         return $result;
@@ -1793,7 +1827,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get product_id
      *
-     * @return integer 
+     * @return integer
      */
     public function getProductId()
     {
@@ -1827,7 +1861,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get enabled
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getEnabled()
     {
@@ -1861,7 +1895,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get useSeparateBox
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getUseSeparateBox()
     {
@@ -1883,7 +1917,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get boxWidth
      *
-     * @return decimal 
+     * @return decimal
      */
     public function getBoxWidth()
     {
@@ -1905,7 +1939,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get boxLength
      *
-     * @return decimal 
+     * @return decimal
      */
     public function getBoxLength()
     {
@@ -1927,7 +1961,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get boxHeight
      *
-     * @return decimal 
+     * @return decimal
      */
     public function getBoxHeight()
     {
@@ -1949,7 +1983,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get itemsPerBox
      *
-     * @return integer 
+     * @return integer
      */
     public function getItemsPerBox()
     {
@@ -1983,7 +2017,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get taxable
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getTaxable()
     {
@@ -2005,7 +2039,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get javascript
      *
-     * @return text 
+     * @return text
      */
     public function getJavascript()
     {
@@ -2027,7 +2061,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get arrivalDate
      *
-     * @return integer 
+     * @return integer
      */
     public function getArrivalDate()
     {
@@ -2049,7 +2083,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get date
      *
-     * @return integer 
+     * @return integer
      */
     public function getDate()
     {
@@ -2071,7 +2105,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get updateDate
      *
-     * @return integer 
+     * @return integer
      */
     public function getUpdateDate()
     {
@@ -2093,7 +2127,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get needProcess
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getNeedProcess()
     {
@@ -2115,7 +2149,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get attrSepTab
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getAttrSepTab()
     {
@@ -2149,7 +2183,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get xcPendingExport
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getXcPendingExport()
     {
@@ -2171,7 +2205,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get categoryProducts
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getCategoryProducts()
     {
@@ -2310,7 +2344,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get order_items
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getOrderItems()
     {
@@ -2332,7 +2366,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get images
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getImages()
     {
@@ -2342,7 +2376,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get productClass
      *
-     * @return \XLite\Model\ProductClass 
+     * @return \XLite\Model\ProductClass
      */
     public function getProductClass()
     {
@@ -2364,7 +2398,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get taxClass
      *
-     * @return \XLite\Model\TaxClass 
+     * @return \XLite\Model\TaxClass
      */
     public function getTaxClass()
     {
@@ -2386,7 +2420,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get attributes
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getAttributes()
     {
@@ -2408,7 +2442,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get attributeValueC
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getAttributeValueC()
     {
@@ -2430,7 +2464,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get attributeValueT
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getAttributeValueT()
     {
@@ -2452,7 +2486,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get attributeValueS
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getAttributeValueS()
     {
@@ -2474,7 +2508,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get quickData
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getQuickData()
     {
@@ -2496,7 +2530,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get memberships
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getMemberships()
     {
@@ -2589,7 +2623,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get cleanURLs
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getCleanURLs()
     {
@@ -2611,7 +2645,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get inventoryEnabled
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getInventoryEnabled()
     {
@@ -2621,7 +2655,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get amount
      *
-     * @return integer 
+     * @return integer
      */
     public function getAmount()
     {
@@ -2643,7 +2677,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get lowLimitEnabledCustomer
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getLowLimitEnabledCustomer()
     {
@@ -2665,7 +2699,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get lowLimitEnabled
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getLowLimitEnabled()
     {
@@ -2675,7 +2709,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     /**
      * Get lowLimitAmount
      *
-     * @return integer 
+     * @return integer
      */
     public function getLowLimitAmount()
     {
@@ -2686,7 +2720,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      * Checks if given property is available to modification through layout editor mode.
      *
      * @param  string  $property Checked entity property
-     * @return boolean
+     * @return array
      */
     public function getFieldMetadata($property)
     {
@@ -2694,6 +2728,17 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
             'data-model' => $this->getEntityName(),
             'data-identifier' => $this->getProductId(),
             'data-property' => $property,
+            'data-inline-editor-config' => json_encode($this->getInlineEditorConfig()),
         );
+    }
+
+    /**
+     * This is config for layout editor mode editor.
+     *
+     * @return array
+     */
+    public function getInlineEditorConfig()
+    {
+        return [];
     }
 }

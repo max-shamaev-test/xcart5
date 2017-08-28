@@ -91,4 +91,5 @@ div.onoffswitch {
   text-align: left;
   position: relative;
   white-space: nowrap;
+  min-width: calc(100% + 8px);
 }

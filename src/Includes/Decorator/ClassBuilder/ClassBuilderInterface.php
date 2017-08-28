@@ -13,4 +13,8 @@ interface ClassBuilderInterface
     public function buildClassname($class);
 
     public function buildPathname($pathname);
+
+    public function getDecoratedAncestorForPathname($pathname);
+
+    public function getDecoratedAncestorForClassname($class);
 }

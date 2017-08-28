@@ -146,7 +146,7 @@ define(
         this.$root.$broadcast('reloadingUnblock', 2);
       },
       global_updatecart: function(data) {
-        var triggerKeys = ['paymentMethodsHash', 'paymentMethodId'];
+        var triggerKeys = ['paymentMethodsHash', 'paymentMethodId', 'total'];
         var needsUpdate = _.some(triggerKeys, function(key) {
           return _.has(data, key);
         });

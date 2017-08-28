@@ -208,13 +208,14 @@ class Coupon extends \XLite\View\Model\AModel
 
         parent::setModelProperties($data);
 
+        /** @var \XLite\Module\CDev\Coupons\Model\Coupon $entity */
         $entity = $this->getModelObject();
 
         // Product classes
         foreach ($entity->getProductClasses() as $class) {
             $class->getCoupons()->removeElement($entity);
         }
-        $entity->getProductClasses()->clear();
+        $entity->clearProductClasses();
 
         if (is_array($productClasses)) {
             foreach ($productClasses as $id) {
@@ -230,7 +231,7 @@ class Coupon extends \XLite\View\Model\AModel
         foreach ($entity->getMemberships() as $m) {
             $m->getCoupons()->removeElement($entity);
         }
-        $entity->getMemberships()->clear();
+        $entity->clearMemberships();
 
         if (is_array($memberships)) {
             foreach ($memberships as $id) {
@@ -246,7 +247,7 @@ class Coupon extends \XLite\View\Model\AModel
         foreach ($entity->getCategories() as $c) {
             $c->getCoupons()->removeElement($entity);
         }
-        $entity->getCategories()->clear();
+        $entity->clearCategories();
 
         if (is_array($categories)) {
             foreach ($categories as $id) {

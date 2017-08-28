@@ -34,6 +34,21 @@ class Text extends \XLite\View\Product\AttributeValue\Customer\ACustomer
     }
 
     /**
+     * Returns input-specific attributes
+     * 
+     * @return array
+     */
+    protected function getInputAttributes()
+    {
+        return array_merge(
+            parent::getInputAttributes(),
+            [
+                'debounce' => '300'
+            ]
+        );
+    }
+
+    /**
      * Return title
      *
      * @return string
@@ -52,7 +67,11 @@ class Text extends \XLite\View\Product\AttributeValue\Customer\ACustomer
     {
         $result = null;
 
-        if ($this->getOrderItem()) {
+        $idsOrValues = $this->getSelectedIds();
+
+        if (isset($idsOrValues[$this->getAttribute()->getId()])) {
+            return $idsOrValues[$this->getAttribute()->getId()];
+        } elseif ($this->getOrderItem()) {
             foreach ($this->getOrderItem()->getAttributeValues() as $av) {
                 if ($av->getAttributeId() == $this->getAttribute()->getId()) {
                     $result = $av->getValue();

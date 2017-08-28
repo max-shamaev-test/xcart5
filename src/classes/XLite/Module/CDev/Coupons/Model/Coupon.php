@@ -1055,6 +1055,16 @@ class Coupon extends \XLite\Model\AEntity
     }
 
     /**
+     * Clear product classes
+     */
+    public function clearProductClasses()
+    {
+        foreach ($this->getProductClasses()->getKeys() as $key) {
+            $this->getProductClasses()->remove($key);
+        }
+    }
+
+    /**
      * Add memberships
      *
      * @param \XLite\Model\Membership $memberships
@@ -1074,6 +1084,16 @@ class Coupon extends \XLite\Model\AEntity
     public function getMemberships()
     {
         return $this->memberships;
+    }
+
+    /**
+     * Clear memberships
+     */
+    public function clearMemberships()
+    {
+        foreach ($this->getMemberships()->getKeys() as $key) {
+            $this->getMemberships()->remove($key);
+        }
     }
 
     /**
@@ -1106,7 +1126,7 @@ class Coupon extends \XLite\Model\AEntity
      */
     public function addCategories(\XLite\Model\Category $categories)
     {
-        $this->categories[] = $categories;
+        $this->getCategories()->add($categories);
         return $this;
     }
 
@@ -1118,5 +1138,15 @@ class Coupon extends \XLite\Model\AEntity
     public function getCategories()
     {
         return $this->categories;
+    }
+
+    /**
+     * Clear categories
+     */
+    public function clearCategories()
+    {
+        foreach ($this->getCategories()->getKeys() as $key) {
+            $this->getCategories()->remove($key);
+        }
     }
 }

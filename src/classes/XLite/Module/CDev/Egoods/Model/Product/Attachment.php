@@ -9,7 +9,7 @@
 namespace XLite\Module\CDev\Egoods\Model\Product;
 
 /**
- * Product attchament 
+ * Product attachment
  *
  * @MappedSuperclass
  * @HasLifecycleCallbacks
@@ -33,6 +33,26 @@ abstract class Attachment extends \XLite\Module\CDev\FileAttachments\Model\Produ
     protected $oldScope;
 
     /**
+     * Attachment history
+     *
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @OneToMany (targetEntity="XLite\Module\CDev\Egoods\Model\Product\Attachment\AttachmentHistoryPoint", mappedBy="attachment", cascade={"all"})
+     * @OrderBy   ({"date" = "ASC"})
+     */
+    protected $history;
+
+    /**
+     * Return Private
+     *
+     * @return boolean
+     */
+    public function getPrivate()
+    {
+        return $this->private && $this->canBePrivate();
+    }
+
+    /**
      * Set private scope flag
      * 
      * @param boolean $private Scope flag
@@ -48,6 +68,14 @@ abstract class Attachment extends \XLite\Module\CDev\FileAttachments\Model\Produ
         $this->private = intval($private);
 
         $this->prepareChangeScope();
+    }
+
+    /**
+     * Checks if this attachment can be private in current store conditions
+     */
+    public function canBePrivate()
+    {
+        return $this->getStorage() && (!$this->getStorage()->isURL() || $this->getStorage()->canBeSigned());
     }
 
     /**
@@ -118,5 +146,45 @@ abstract class Attachment extends \XLite\Module\CDev\FileAttachments\Model\Produ
                 )
             );
         }
+    }
+
+    /**
+     * Return History
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getHistory()
+    {
+        return $this->history;
+    }
+
+    /**
+     * Set History
+     *
+     * @param \XLite\Module\CDev\Egoods\Model\Product\Attachment\AttachmentHistoryPoint $attachmentHistoryPoint
+     *
+     * @return $this
+     */
+    public function addHistoryPoint($attachmentHistoryPoint)
+    {
+        $this->history[] = $attachmentHistoryPoint;
+        return $this;
+    }
+
+    /**
+     * Get attachment icon type
+     *
+     * @return string
+     */
+    public function getIconType()
+    {
+        /** @var \XLite\Module\CDev\Egoods\Model\Product\Attachment\Storage $storage */
+        $storage = $this->getStorage();
+
+        if ($storage && $storage->canBeSigned()) {
+            return 's3';
+        }
+
+        return parent::getIconType();
     }
 }

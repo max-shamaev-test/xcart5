@@ -54,9 +54,9 @@ class Customer extends \XLite\View\AView
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_PRODUCT => new \XLite\Model\WidgetParam\TypeObject('Product', null, false, 'XLite\Model\Product'),
-        );
+        ];
     }
 
     /**
@@ -88,6 +88,6 @@ class Customer extends \XLite\View\AView
      */
     protected function getAttachments()
     {
-        return $this->getProduct()->getAttachments()->toArray();
+        return $this->getProduct()->getFilteredAttachments(\XLite\Core\Auth::getInstance()->getProfile())->toArray();
     }
 }

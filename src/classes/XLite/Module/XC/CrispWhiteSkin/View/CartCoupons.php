@@ -12,7 +12,7 @@ namespace XLite\Module\XC\CrispWhiteSkin\View;
  * Cart coupons
  *
  * @Decorator\Depend("CDev\Coupons")
- * @Decorator\After("XC\CrispWhite")
+ * @Decorator\After("XC\CrispWhiteSkin")
  */
 abstract class CartCoupons extends \XLite\Module\CDev\Coupons\View\CartCoupons implements \XLite\Base\IDecorator
 {

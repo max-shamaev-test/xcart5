@@ -13,6 +13,8 @@
         .clearfix;
         .floating-label;
 
+        width: 100%;
+
         .table-value {
             width: 100%;
         }
@@ -22,16 +24,10 @@
             padding-top: 0px;
             width: auto;
         }
-
-        width: 100%;
-
-        .g-recaptcha {
-            margin-bottom: @rhythmic-unit;
-        }
     }
 
-    .form-item + .form-item {
-        margin-top: @rhythmic-unit;
+    .form-item {
+        margin-bottom: @rhythmic-unit;
     }
 
     .resizable-textarea {
@@ -47,12 +43,126 @@
     }
 }
 
+.contact-us-block {
+  margin-top: -1 * @rhythmic-unit;
+}
+
+// Form wrapper styles
+.form-wrapper {
+  .contact-us-form {
+    ul.default-table {
+      li {
+        float: none;
+        clear: none;
+      }
+      li.input-text-email,
+      li.input-text {
+        display: block;
+        width: auto;
+      }
+    }
+  }
+
+  .contact-us-description,
+  .contact-us-help-label {
+    color: @color-text-default;
+    font-weight: 300;
+  }
+
+  .contact-us-help-label {
+    text-align: center;
+  }
+}
+
+// Company info styles
+.contact-us-company-info {
+  font-weight: 300;
+}
+
+.profile-form, .contact-us-form {
+    div.table-value {
+        float: none;
+    }
+
+    .table {
+        width: 100%;
+        margin: 0 auto;
+        li.input:not(.input-label):not(.checkbox-label) {
+            .floating-label;
+        }
+
+        li.input-checkbox {
+            display: list-item;
+            padding-left: 0;
+
+            .table-label {
+                float: none;
+                display: inline-block;
+            }
+
+            .table-value {
+                float: left;
+            }
+        }
+
+        li.input-label .table-value {
+            display: none;
+        }
+
+    }
+    .model-form-buttons {
+        width: 100%;
+        margin-left: 0;
+        text-align: center;
+
+        & > * {
+            display: inline-block;
+            width: 50%;
+            text-align: center;
+
+            a {
+                line-height: @rhythmic-unit;
+                display: inline-block;
+            }
+        }
+
+        .button.delete_profile:empty {
+            display: none;
+        }
+
+        & > .button.delete_profile {
+            float: none;
+            margin-top: @rhythmic-unit;
+
+            a {
+                margin: 0 !important;
+            }
+        }
+
+        & > .button.signin {
+            margin-top: @rhythmic-unit;
+            width: 100%;
+        }
+
+        & > .submit {
+            clear: both;
+            float: none;
+            width: 100%;
+        }
+
+        button.submit {
+            .btn-lg;
+            width: 100%;
+        }
+    }
+}
+
 .contact-us-description-hr {
     display: none;
 }
 
 .contact-us-description {
-    margin-bottom: (@rhythmic-unit * 3);
+    margin-bottom: @rhythmic-unit;
 }
 
 .target-contact-us #main-wrapper {

@@ -21,6 +21,7 @@ class OnOff extends \XLite\View\FormField\Input\Checkbox
     const PARAM_ON_LABEL = 'onLabel';
     const PARAM_OFF_LABEL = 'offLabel';
     const PARAM_DISABLED = 'disabled';
+    const PARAM_DISABLED_TITLE = 'disabled_title';
 
     protected $currentId;
 
@@ -93,6 +94,7 @@ class OnOff extends \XLite\View\FormField\Input\Checkbox
             self::PARAM_ON_LABEL => new \XLite\Model\WidgetParam\TypeString('On label', $this->getDefaultOnLabel()),
             self::PARAM_OFF_LABEL => new \XLite\Model\WidgetParam\TypeString('Off label', $this->getDefaultOffLabel()),
             self::PARAM_DISABLED => new \XLite\Model\WidgetParam\TypeBool('Disabled', false),
+            self::PARAM_DISABLED_TITLE => new \XLite\Model\WidgetParam\TypeString('Disabled title', ''),
         );
     }
 
@@ -124,7 +126,7 @@ class OnOff extends \XLite\View\FormField\Input\Checkbox
     protected function getDefaultCssClass()
     {
         return 'onoffswitch';
-    } 
+    }
 
     /**
      * Returns param value
@@ -194,6 +196,16 @@ class OnOff extends \XLite\View\FormField\Input\Checkbox
     protected function isDisabled()
     {
         return $this->getParam(static::PARAM_DISABLED);
+    }
+
+    /**
+     * Returns disabled title
+     *
+     * @return string
+     */
+    protected function getDisabledTitle()
+    {
+        return $this->getParam(static::PARAM_DISABLED_TITLE);
     }
 
     /**

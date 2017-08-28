@@ -7,7 +7,7 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-define('Amazon/PayWithAmazon', ['js/jquery', 'ready'], function ($) {
+define('Amazon/PayWithAmazon', ['js/jquery', 'Amazon/Config', 'ready'], function ($, amazonConfig) {
   var Amazon = {
     orderReference: null,
 

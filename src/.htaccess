@@ -12,6 +12,9 @@ DirectoryIndex cart.php index.php
 FileETag none
 #ErrorDocument 404 ____WEB_DIR____/cart.php?target=page_not_found
 
+#Required for file downloading via X-Sendfile header
+#XSendFile On
+
 <IfModule mod_rewrite.c>
   RewriteEngine on
 
@@ -55,12 +58,15 @@ FileETag none
   ExpiresByType image/jpeg A1209600
   ExpiresByType image/ico A1209600
   ExpiresByType image/x-icon A1209600
+  ExpiresByType image/vnd.microsoft.icon A1209600
+  ExpiresByType image/svg+xml A1209600
 
   ExpiresByType image/svg+xml A1209600
   ExpiresByType application/vnd.ms-fontobject A1209600
   ExpiresByType application/x-font-ttf A1209600
   ExpiresByType application/x-font-opentype A1209600
   ExpiresByType application/x-font-woff A1209600
+  ExpiresByType application/font-sfnt A1209600
 
   # CSS/JS now work with dynamic unique query string. 1 year expires
   ExpiresByType text/css A31104000

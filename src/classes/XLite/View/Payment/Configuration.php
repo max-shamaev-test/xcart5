@@ -14,6 +14,11 @@ namespace XLite\View\Payment;
 class Configuration extends \XLite\View\AView
 {
     /**
+     * @var array
+     */
+    protected $banner;
+
+    /**
      * Register CSS files
      *
      * @return array
@@ -173,13 +178,64 @@ class Configuration extends \XLite\View\AView
     }
 
     /**
-     * Get G2A marketplace URL
+     * @return array
+     */
+    protected function getBanner()
+    {
+        if (null === $this->banner) {
+            $banners = \XLite\Core\Marketplace::getInstance()->getAllBanners();
+            foreach ($banners as $banner) {
+                if ($banner['banner_section'] === 'payment') {
+                    $this->banner = $banner;
+
+                    break;
+                }
+            }
+        }
+
+        return $this->banner;
+    }
+
+    /**
+     * Retrieve banner specific URL
+     *
+     * @param array $banner Banner
      *
      * @return string
      */
-    protected function getG2AUrl()
+    protected function getBannerURL($banner)
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')->getMarketplaceUrlByName('G2APay', 'G2APay');
+        return !empty($banner['banner_url'])
+            ? $banner['banner_url']
+            : $this->getBannerModuleURL($banner);
     }
+
+    /**
+     * Retrieve banner specific URL
+     *
+     * @param array $banner Banner
+     *
+     * @return string
+     */
+    protected function getBannerModuleURL($banner)
+    {
+        list($author, $module) = explode('-', $banner['banner_module']);
+
+        return \XLite\Core\Database::getRepo('XLite\Model\Module')
+            ->getMarketplaceUrlByName($author, $module);
+    }
+
+    /**
+     * Retrieve banner image
+     *
+     * @param array $banner Banner
+     *
+     * @return string
+     */
+    protected function getBannerImg($banner)
+    {
+        return preg_replace('/^https?:/', '', $banner['banner_img']);
+    }
+
     // }}}
 }

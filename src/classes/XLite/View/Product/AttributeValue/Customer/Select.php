@@ -84,6 +84,19 @@ class Select extends \XLite\View\Product\AttributeValue\Customer\ACustomer
     }
 
     /**
+     * Returns input-specific attributes
+     * 
+     * @return array
+     */
+    protected function getInputAttributes()
+    {
+        return array_merge(
+            parent::getInputAttributes(),
+            $this->getSelectAttributes()
+        );
+    }
+
+    /**
      * Return option title
      *
      * @param \XLite\Model\AttributeValue\AttributeValueSelect $value Value

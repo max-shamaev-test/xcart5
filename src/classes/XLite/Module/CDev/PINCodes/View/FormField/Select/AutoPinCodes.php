@@ -21,10 +21,10 @@ class AutoPinCodes extends \XLite\View\FormField\Select\Regular
      */
     protected function getDefaultOptions()
     {
-        return array(
-            true  => static::t('PIN codes are generated automatically'),
-            false => static::t('PIN codes are defined manually')
-        );
+        return [
+            true  => static::t('Automatically'),
+            false => static::t('Manually')
+        ];
     }
 
     /**

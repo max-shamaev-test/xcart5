@@ -57,7 +57,7 @@ abstract class AProduct extends \XLite\View\AView
      */
     protected function getBlockStyle()
     {
-        return 'dialog-block';
+        return '';
     }
 
     /**

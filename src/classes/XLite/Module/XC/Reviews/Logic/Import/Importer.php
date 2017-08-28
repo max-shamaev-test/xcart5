@@ -22,9 +22,9 @@ class Importer extends \XLite\Logic\Import\Importer implements \XLite\Base\IDeco
     {
         return array_merge(
             parent::getProcessorList(),
-            array(
+            [
                 'XLite\Module\XC\Reviews\Logic\Import\Processor\Reviews',
-            )
+            ]
         );
     }
 }

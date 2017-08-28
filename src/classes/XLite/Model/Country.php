@@ -120,7 +120,22 @@ class Country extends \XLite\Model\Base\I18n
      */
     public function hasStates()
     {
-        return 0 < count($this->states);
+        return 0 < $this->getStatesCount();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isForcedCustomState()
+    {
+        $countries = \Includes\Utils\ConfigParser::getOptions([
+            'storefront_options',
+            'autocomplete_states_for_countries'
+        ]);
+
+        $countries = array_filter(array_map('trim', explode(',', $countries)));
+
+        return in_array($this->getCode(), $countries) || in_array('All', $countries);
     }
 
     /**

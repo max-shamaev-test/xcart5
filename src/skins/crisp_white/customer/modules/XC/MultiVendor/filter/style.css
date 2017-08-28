@@ -7,10 +7,11 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-.product-filter div.filter.type-vendor .table-value {
-    margin-top: 10px;
+.product-filter div.filter.type-vendor .table-label {
+  margin-bottom: 20px;
+  line-height: 16px;
 }
 
 .product-filter div.filter.type-vendor {
-    margin-top: 60px;
+  margin-top: 40px;
 }

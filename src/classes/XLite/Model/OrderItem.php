@@ -546,7 +546,7 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
      */
     public function getKey()
     {
-        $result = self::PRODUCT_TYPE . '.' . $this->getProduct()->getId();
+        $result = self::PRODUCT_TYPE . '.' . ($this->getObject() ? $this->getObject()->getId() : null);
         foreach ($this->getAttributeValues() as $attributeValue) {
             $result .= '||'
                 . $attributeValue->getActualName()
@@ -566,10 +566,16 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
     {
         $result = array();
 
-        foreach ($this->getAttributeValues() as $attributeValue) {
-            $attributeValue = $attributeValue->getAttributeValue();
+        foreach ($this->getAttributeValues() as $itemValue) {
+            $attributeValue = $itemValue->getAttributeValue();
             if ($attributeValue) {
-                $result[$attributeValue->getAttribute()->getId()] = $attributeValue->getId();
+                if ($attributeValue instanceof \XLite\Model\AttributeValue\AttributeValueText) {
+                    $result[$attributeValue->getAttribute()->getId()] = $itemValue->getValue();
+
+                } else {
+                    $result[$attributeValue->getAttribute()->getId()] = $attributeValue->getId();
+                }
+
             }
         }
         ksort($result);

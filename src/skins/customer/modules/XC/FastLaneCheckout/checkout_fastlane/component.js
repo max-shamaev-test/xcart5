@@ -19,17 +19,6 @@ define('checkout_fastlane/loader', ['vue/vue', 'ready'], function(Vue){
     Vue.config.devtools = true;
   }
 
-  Vue.directive('data', {
-    update: function() {
-      var object = JSON.parse(this.expression);
-      for (var key in object) {
-        this.vm.$set(key, object[key]);
-      }
-    },
-  });
-
-  core.loadLanguageHash(core.getCommentedData('.checkout_fastlane_container'));
-
   define('checkout_fastlane/app', ['vue/vue', 'checkout_fastlane/sections', 'checkout_fastlane/store', 'checkout_fastlane/navigation', 'checkout_fastlane/deps'], function(Vue, Sections, Store, Navigation, Deps) {
     var App = Vue.extend({
       name: 'checkout',

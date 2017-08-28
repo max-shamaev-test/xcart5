@@ -22,7 +22,7 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
     {
         $columns = parent::defineColumns();
 
-        $columns['attachmentsPrivate'] = array();
+        $columns['attachmentsPrivate'] = [];
 
         return $columns;
     }
@@ -38,7 +38,7 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
      */
     protected function getAttachmentsPrivateColumnValue(array $dataset, $name, $i)
     {
-        $result = array();
+        $result = [];
 
         foreach ($dataset['model']->getAttachments() as $attachment) {
             $result[] = $this->formatBoolean($attachment->getPrivate());

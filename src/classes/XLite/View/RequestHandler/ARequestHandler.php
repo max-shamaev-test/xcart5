@@ -21,11 +21,13 @@ abstract class ARequestHandler extends \XLite\View\AView
     /**
      * Keys of JS array to send
      */
-    const W_CLASS                   = 'widget_class';
-    const W_TARGET                  = 'widget_target';
-    const W_PARAMS                  = 'widget_params';
-    const W_LISTEN_TO_HASH_PREFIX   = 'listenToHashPrefix';
-    const W_LISTEN_TO_HASH          = 'listenToHash';
+    const W_CLASS                 = 'widget_class';
+    const W_TARGET                = 'widget_target';
+    const W_PARAMS                = 'widget_params';
+    const W_LISTEN_TO_HASH_PREFIX = 'listenToHashPrefix';
+    const W_LISTEN_TO_HASH        = 'listenToHash';
+    const W_REPLACE_STATE_PREFIX  = 'replaceStatePrefix';
+    const W_REPLACE_STATE         = 'replaceState';
 
 
     /**
@@ -131,7 +133,7 @@ abstract class ARequestHandler extends \XLite\View\AView
     /**
      * Get widget parameters
      *
-     * @return string
+     * @return array
      */
     protected function getWidgetParameters()
     {
@@ -146,17 +148,19 @@ abstract class ARequestHandler extends \XLite\View\AView
     protected function getJSData()
     {
         return array(
-            static::W_CLASS                     => $this->getWidgetClass(),
-            static::W_TARGET                    => static::getWidgetTarget(),
-            static::W_PARAMS                    => $this->getWidgetParameters(),
-            static::W_LISTEN_TO_HASH            => $this->getListenToHash(),
-            static::W_LISTEN_TO_HASH_PREFIX     => $this->getListenToHashPrefix(),
+            static::W_CLASS                 => $this->getWidgetClass(),
+            static::W_TARGET                => static::getWidgetTarget(),
+            static::W_PARAMS                => $this->getWidgetParameters(),
+            static::W_LISTEN_TO_HASH        => $this->getListenToHash(),
+            static::W_LISTEN_TO_HASH_PREFIX => $this->getListenToHashPrefix(),
+            static::W_REPLACE_STATE         => $this->getReplaceState(),
+            static::W_REPLACE_STATE_PREFIX  => $this->getReplaceStatePrefix(),
         );
     }
 
     /**
      * Defines if the widget is listening to #hash changes
-     * 
+     *
      * @return boolean
      */
     protected function getListenToHash()
@@ -174,7 +178,27 @@ abstract class ARequestHandler extends \XLite\View\AView
     {
         return '';
     }
-        
+
+    /**
+     * Defines if the widget is replacing history state
+     *
+     * @return boolean
+     */
+    protected function getReplaceState()
+    {
+        return false;
+    }
+
+    /**
+     * Defines the replace state prefix of the data for the widget
+     *
+     * @return string
+     */
+    protected function getReplaceStatePrefix()
+    {
+        return '';
+    }
+
     /**
      * Check if passed request data are correspond to the current widget
      *

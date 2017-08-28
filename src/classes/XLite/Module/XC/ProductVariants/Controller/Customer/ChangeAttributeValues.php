@@ -33,16 +33,18 @@ class ChangeAttributeValues extends \XLite\Controller\Customer\ChangeAttributeVa
 
         if ($this->getItem()->getProduct()->mustHaveVariants()) {
             $variant = $this->getItem()->getProduct()->getVariantByAttributeValues($attributeValues);
+            $currentVariant = $this->getItem()->getVariant();
 
-            if ($variant && 0 < $variant->getAvailableAmount()) {
-                $this->getItem()->setVariant($variant);
+            if (!$variant || !$currentVariant || $variant->getId() !== $currentVariant->getId()) {
+                if ($variant && 0 < $variant->getAvailableAmount()) {
+                    $this->getItem()->setVariant($variant);
 
-            } else {
-                $result = false;
-                $this->errorMessage = static::t(
-                    'Product with selected attribute value(s) is not available or out of stock. Please select other.'
-                );
-
+                } else {
+                    $result             = false;
+                    $this->errorMessage = static::t(
+                        'Product with selected attribute value(s) is not available or out of stock. Please select other.'
+                    );
+                }
             }
         }
 

@@ -7,11 +7,7 @@
 {% if this.layout.isSidebarFirstVisible() %}
   <div id="sidebar-first" class="column sidebar">
     <div class="section">
-      {% if this.layout.isSidebarSingle() %}
-      	{{ widget('XLite\\View\\ListContainer', innerList='sidebar.single', group='sidebar') }}
-      {% else %}
-      	{{ widget('XLite\\View\\ListContainer', innerList='sidebar.first', group='sidebar') }}
-      {% endif %}
+      {{ widget('XLite\\View\\Layout\\Customer\\SidebarFirst', group='sidebar') }}
     </div>
   </div>
 {% endif %}

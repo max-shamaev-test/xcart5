@@ -114,7 +114,6 @@ var URLHandler = {
 
   mainParams: {target: true, action: true},
 
-  baseURLPart: 'cart.php?',
   argSeparator: '&',
   nameValueSeparator: '=',
 
@@ -194,6 +193,10 @@ var URLHandler = {
     return result;
   },
 
+  buildBaseUrlPart: function () {
+    return xliteConfig.clean_url ? '?' : 'cart.php?';
+  },
+
   // Compose target and action
   buildMainPart: function(params)
   {
@@ -216,7 +219,7 @@ var URLHandler = {
   // Compose URL
   buildURL: function(params)
   {
-    return this.getBuildURLPrefix() + this.baseURLPart + this.buildMainPart(params) + this.buildQueryPart(params);
+    return this.getBuildURLPrefix() + this.buildBaseUrlPart() + this.buildMainPart(params) + this.buildQueryPart(params);
   }
 }
 

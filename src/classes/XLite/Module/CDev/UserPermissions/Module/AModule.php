@@ -14,11 +14,7 @@ namespace XLite\Module\CDev\UserPermissions\Module;
 abstract class AModule extends \XLite\Module\AModule implements \XLite\Base\IDecorator
 {
     /**
-     * One entry permission registration
-     * It is called in static::registerPermissions() method
-     *
-     * @param string $permissionCode
-     * @param string $permissionName
+     * @inheritdoc
      */
     protected static function registerPermission($permissionCode, $permissionName)
     {
@@ -27,14 +23,13 @@ abstract class AModule extends \XLite\Module\AModule implements \XLite\Base\IDec
         $repo = \XLite\Core\Database::getRepo('XLite\Model\Role\Permission');
         $permission = $repo->findOneByCode($permissionCode);
 
-        return $permission ? $repo->update($permission, array('enabled' => true), false) : false;
+        if ($permission) {
+            $repo->update($permission, ['enabled' => true], false);
+        }
     }
 
     /**
-     * One entry permission unregistration
-     * It is called in static::unregisterPermissions() method
-     *
-     * @param string $permissionCode
+     * @inheritdoc
      */
     protected static function unregisterPermission($permissionCode)
     {
@@ -43,6 +38,8 @@ abstract class AModule extends \XLite\Module\AModule implements \XLite\Base\IDec
         $repo = \XLite\Core\Database::getRepo('XLite\Model\Role\Permission');
         $permission = $repo->findOneByCode($permissionCode);
 
-        return $permission ? $repo->update($permission, array('enabled' => false), false) : false;
+        if ($permission) {
+            $repo->update($permission, ['enabled' => false], false);
+        }
     }
 }

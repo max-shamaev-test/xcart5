@@ -13,7 +13,9 @@ function SubscribeBlockView(base)
   this.callSupermethod('constructor', args);
 
   // Form
-  var form = this.base.find('.subscription-form-block form').get(0);
+  var form = this.base
+    ? this.base.find('.subscription-form-block form').get(0)
+    : null;
   if (form) {
     form.commonController.enableBackgroundSubmit(
       undefined,

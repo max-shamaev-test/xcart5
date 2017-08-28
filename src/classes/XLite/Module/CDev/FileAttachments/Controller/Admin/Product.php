@@ -7,6 +7,7 @@
  */
 
 namespace XLite\Module\CDev\FileAttachments\Controller\Admin;
+use XLite\Core\Request;
 
 /**
  * Product controller
@@ -56,7 +57,7 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
     protected function doActionRemoveAttachment()
     {
         $attachment = \XLite\Core\Database::getRepo('XLite\Module\CDev\FileAttachments\Model\Product\Attachment')
-            ->find(\XLite\Core\Request::getInstance()->id);
+            ->find(Request::getInstance()->id);
 
         if ($attachment) {
             $attachment->getProduct()->getAttachments()->removeElement($attachment);
@@ -81,17 +82,26 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
     {
         $changed = false;
 
-        $data = \XLite\Core\Request::getInstance()->data;
-        if ($data && is_array($data)) {
-            $repository = \XLite\Core\Database::getRepo('XLite\Module\CDev\FileAttachments\Model\Product\Attachment');
-            foreach ($data as $id => $row) {
-                $attachment = $repository->find($id);
+        $repository = \XLite\Core\Database::getRepo('XLite\Module\CDev\FileAttachments\Model\Product\Attachment');
 
-                if ($attachment) {
-                    $attachment->map($row);
-                    $changed = true;
+        $toDelete = (array)Request::getInstance()->delete;
+        $data = Request::getInstance()->data;
+
+        if ($data && is_array($data)) {
+            foreach ($data as $id => $row) {
+                if (!in_array($id, $toDelete)) {
+                    $attachment = $repository->find($id);
+
+                    if ($attachment) {
+                        $attachment->map($row);
+                        $changed = true;
+                    }
                 }
             }
+        }
+
+        if (!empty($toDelete)) {
+            $repository->deleteInBatchById($toDelete);
         }
 
         if ($changed) {

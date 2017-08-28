@@ -20,10 +20,10 @@ class PopupLogin extends \XLite\View\Button\PopupLogin implements \XLite\Base\ID
      */
     protected function prepareURLParams()
     {
-        return array(
+        return [
             'target' => 'login',
             'widget' => '\XLite\View\Authorization',
-            'fromURL' => \XLite::getController()->getURL()
-        );
+            'fromURL' => $this->getFromURL(),
+        ];
     }
 }

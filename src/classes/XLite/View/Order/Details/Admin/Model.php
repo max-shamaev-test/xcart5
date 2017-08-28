@@ -8,6 +8,8 @@
 
 namespace XLite\View\Order\Details\Admin;
 
+use XLite\View\FormField\Inline\Select\ShippingMethod as ShippingMethodField;
+
 /**
  * Model
  */
@@ -57,6 +59,11 @@ class Model extends \XLite\View\Order\Details\Base\AModel
      * @var   array
      */
     protected $modifiers;
+
+    /**
+     * @var boolean
+     */
+    protected $recalculateMode = false;
 
     /**
      * Save current form reference and sections list, and initialize the cache
@@ -314,7 +321,7 @@ class Model extends \XLite\View\Order\Details\Base\AModel
     }
 
     /**
-     * Define payment methods
+     * Define shipping method
      *
      * @return \XLite\View\FormField\Inline\Select\ShippingMethod
      */
@@ -331,6 +338,7 @@ class Model extends \XLite\View\Order\Details\Base\AModel
                     \XLite\View\FormField\Inline\AInline::FIELD_NAME            => 'shippingId',
                     \XLite\View\FormField\Inline\AInline::PARAM_FIELD_NAMESPACE => 'shippingId',
                     \XLite\View\FormField\Inline\AInline::PARAM_VIEW_ONLY       => !$this->isOrderEditable(),
+                    ShippingMethodField::PARAM_MODE_ORDER                       => true
                 ],
                 'XLite\View\FormField\Inline\Select\ShippingMethod'
             );
@@ -392,6 +400,7 @@ class Model extends \XLite\View\Order\Details\Base\AModel
                 \XLite\View\FormField\Inline\AInline::PARAM_FIELD_NAME      => 'adminNotes',
                 \XLite\View\FormField\Inline\AInline::FIELD_NAME            => 'adminNotes',
                 \XLite\View\FormField\Inline\AInline::PARAM_FIELD_NAMESPACE => 'adminNotes',
+                \XLite\View\FormField\Inline\AInline::PARAM_VIEW_ONLY       => !$this->isOrderEditable(),
             ],
             'XLite\View\FormField\Inline\Textarea\OrderStaffNote'
         );
@@ -429,6 +438,7 @@ class Model extends \XLite\View\Order\Details\Base\AModel
                 \XLite\View\FormField\Inline\AInline::PARAM_FIELD_NAME      => 'notes',
                 \XLite\View\FormField\Inline\AInline::FIELD_NAME            => 'notes',
                 \XLite\View\FormField\Inline\AInline::PARAM_FIELD_NAMESPACE => 'notes',
+                \XLite\View\FormField\Inline\AInline::PARAM_VIEW_ONLY       => !$this->isOrderEditable(),
             ],
             'XLite\View\FormField\Inline\Textarea\OrderCustomerNote'
         );
@@ -830,6 +840,41 @@ class Model extends \XLite\View\Order\Details\Base\AModel
         \XLite\Core\Database::getEM()->flush();
 
         return true;
+    }
+
+    /**
+     * Perform some action for the model object
+     *
+     * @param string $action Action to perform
+     * @param array  $data   Form data OPTIONAL
+     *
+     * @return boolean
+     */
+    public function performAction($action, array $data = array())
+    {
+        if ($action === 'recalculate') {
+            $this->recalculateMode = true;
+        }
+
+        $result = parent::performAction($action, $data);
+
+        $this->recalculateMode = false;
+
+        return $result;
+    }
+
+    /**
+     * Add top message
+     *
+     * @return void
+     */
+    protected function addDataSavedTopMessage()
+    {
+        if($this->recalculateMode) {
+            \XLite\Core\TopMessage::addInfo('The totals have been recalculated. Press "Save changes" to adjust the order');
+        } else {
+            parent::addDataSavedTopMessage();
+        }
     }
 
     /**

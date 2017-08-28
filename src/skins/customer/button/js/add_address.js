@@ -16,7 +16,7 @@ var PopupButtonAddAddress = PopupButton.extend({
     callback: function(selector) {
         PopupButtonAddAddress.superclass.callback.apply(this, arguments);
         // Some autoloading could be added
-        UpdateStatesList();
+        StatesList.getInstance().updateStatesList();
 
         var self = this;
         jQuery('form', selector).each(function() {

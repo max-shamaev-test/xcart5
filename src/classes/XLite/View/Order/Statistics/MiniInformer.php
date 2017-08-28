@@ -10,6 +10,8 @@ namespace XLite\View\Order\Statistics;
 
 /**
  * Orders summary mini informer (used on Dashboard page)
+ *
+ * @ListChild (list="dashboard-sidebar", weight="100", zone="admin")
  */
 class MiniInformer extends \XLite\View\Dialog
 {

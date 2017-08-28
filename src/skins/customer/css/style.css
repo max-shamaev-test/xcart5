@@ -1218,7 +1218,6 @@ div.product-price {
   font-size: 14px;
   color: #df4414;
   vertical-align: middle;
-  padding-left: 7px;
 }
 
 .products-grid .product-items-available.low-stock{
@@ -3027,6 +3026,11 @@ body.target-cart .ui-multiselect-menu {
   width: 90%;
 }
 
+.checkout-block .payments label img {
+  max-width: 100%;
+  max-height: 100px;
+}
+
 .checkout-block div.radio,
 .checkout-block div.checkbox
 {
@@ -3524,7 +3528,6 @@ ul.location-subnodes li > a.current {
     padding-right: 0px;
   }
   .order-box .links .print {
-    float: right;
     padding-right: 0px;
   }
 }
@@ -3549,6 +3552,27 @@ div.page-tabs ul li
 
 table.login-form {
   margin: 10px 0 20px;
+}
+
+table.login-form:not(.locked-out) tbody.timer-table-body {
+  display: none;
+}
+
+table.login-form.locked-out tbody:not(.timer-table-body) {
+  display: none;
+}
+
+table.login-form.locked-out {
+  margin: 0;
+}
+
+table.login-form.locked-out .timer-table-body .timer-header td{
+  padding: 0;
+  font-size: 22px;
+  font-family: "Trebuchet MS", Helvetica, Jamrul, sans-serif;
+  font-weight: normal;
+  line-height: 1.1;
+  color: #579ed2;
 }
 
 table.login-form,

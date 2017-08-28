@@ -8,6 +8,10 @@
 
 namespace XLite\Model\Base;
 
+use XLite\Core\RemoteResource\IURL;
+use XLite\Core\RemoteResource\RemoteResourceException;
+use XLite\Core\RemoteResource\RemoteResourceFactory;
+
 /**
  * Storage abstract store
  *
@@ -105,7 +109,7 @@ abstract class Storage extends \XLite\Model\AEntity
     /**
      * Load error message
      *
-     * @var string
+     * @var array
      */
     protected $loadErrorMessage;
 
@@ -125,7 +129,7 @@ abstract class Storage extends \XLite\Model\AEntity
      * Set path
      *
      * @param string $path
-     * @return Vendor
+     * @return $this
      */
     public function setPath($path)
     {
@@ -147,7 +151,7 @@ abstract class Storage extends \XLite\Model\AEntity
      * Set fileName
      *
      * @param string $fileName
-     * @return Vendor
+     * @return $this
      */
     public function setFileName($fileName)
     {
@@ -169,7 +173,7 @@ abstract class Storage extends \XLite\Model\AEntity
      * Set mime
      *
      * @param string $mime
-     * @return Vendor
+     * @return $this
      */
     public function setMime($mime)
     {
@@ -191,7 +195,7 @@ abstract class Storage extends \XLite\Model\AEntity
      * Set storageType
      *
      * @param string $storageType
-     * @return Vendor
+     * @return $this
      */
     public function setStorageType($storageType)
     {
@@ -203,7 +207,7 @@ abstract class Storage extends \XLite\Model\AEntity
      * Set size
      *
      * @param integer $size
-     * @return Vendor
+     * @return $this
      */
     public function setSize($size)
     {
@@ -225,7 +229,7 @@ abstract class Storage extends \XLite\Model\AEntity
      * Set date
      *
      * @param integer $date
-     * @return Vendor
+     * @return $this
      */
     public function setDate($date)
     {
@@ -289,36 +293,35 @@ abstract class Storage extends \XLite\Model\AEntity
         $result = true;
 
         if ($this->isURL()) {
-            $body = \XLite\Core\Operator::getURLContent($this->getPath());
-            if ($body) {
-                if (isset($start)) {
-                    $body = isset($length) ? substr($body, $start, $length) : substr($body, $start);
-                }
-                print $body;
-
-            } else {
-                $result = false;
-            }
-
-        } elseif (isset($start)) {
-
-            $fp = @fopen($this->getStoragePath(), 'rb');
-            if ($fp) {
-                fseek($fp, $start);
-                if (isset($length)) {
-                    print fread($fp, min($length, filesize($this->getStoragePath()) - $start));
-
-                } else {
-                    print fread($fp, filesize($this->getStoragePath()) - $start);
-                }
-                fclose($fp);
-
-            } else {
-                $result = false;
-            }
-
+            $handle = @fopen($this->getPath(), 'rb');
         } else {
-            $result = (bool)@readfile($this->getStoragePath());
+            $handle = @fopen($this->getStoragePath(), 'rb');
+        }
+
+        if ($handle) {
+            if (null !== $start) {
+                fseek($handle, $start);
+            }
+
+            if (isset($length)) {
+                while (!feof($handle) && $length > 0) {
+                    $l = min(8192, $length);
+                    print fread($handle, $l);
+                    flush();
+                    ob_flush();
+                    $length -= 8192;
+                }
+            } else {
+                while (!feof($handle)) {
+                    print fread($handle, 8192);
+                    flush();
+                    ob_flush();
+                }
+            }
+
+            fclose($handle);
+        } else {
+            $result = false;
         }
 
         return $result;
@@ -340,7 +343,6 @@ abstract class Storage extends \XLite\Model\AEntity
             $exists = $headers && $headers->ContentLength > 0;
         } else {
             $exists = \Includes\Utils\FileManager::isFileReadable($path ?: $this->getStoragePath());
-
         }
 
         return $exists;
@@ -487,7 +489,7 @@ abstract class Storage extends \XLite\Model\AEntity
     /**
      * Get load error message
      *
-     * @return string
+     * @return array
      */
     public function getLoadErrorMessage()
     {
@@ -544,6 +546,8 @@ abstract class Storage extends \XLite\Model\AEntity
             if (!$this->savePath($path)) {
                 \Includes\Utils\FileManager::deleteFile($path);
                 $path = null;
+            } else {
+                $this->setFileName(func_basename($this->getPath()));
             }
 
         } else {
@@ -672,22 +676,17 @@ abstract class Storage extends \XLite\Model\AEntity
      */
     public function loadFromURL($url, $copy2fs = false)
     {
-        // $this->isUrl works incorrect
-        if (parse_url($url)) {
+        $remoteResource = $this->prepareURL($url);
+
+        if ($remoteResource) {
             if ($copy2fs) {
-                $result = $this->copyFromURL($url);
+                $result = $this->copyFromURL($remoteResource);
             } else {
-                $name = basename(parse_url($url, PHP_URL_PATH));
-                $savedPath = $this->getPath();
-                $this->setPath($url);
+                $name = $remoteResource->getName();
+                $this->setPath($remoteResource->getURL());
                 $this->setFileName($name);
 
-                $result = $this->renew();
-
-                if ($result) {
-                    $this->removeFile($savedPath);
-                    $this->setStorageType(static::STORAGE_URL);
-                }
+                $result = $this->isFileExists($remoteResource->getURL());
             }
 
             return $result;
@@ -697,19 +696,37 @@ abstract class Storage extends \XLite\Model\AEntity
     }
 
     /**
+     * @param string $url
+     *
+     * @return IURL
+     */
+    protected function prepareURL($url)
+    {
+        try {
+
+            return RemoteResourceFactory::getRemoteResourceByURL($url);
+
+        } catch (RemoteResourceException $e) {
+
+            return null;
+        }
+    }
+
+    /**
      * Copy file from URL
      *
-     * @param string  $url     URL
+     * @param IURL $remoteResource Remote resource
      *
      * @return boolean
      */
-    protected function copyFromURL($url)
+    protected function copyFromURL($remoteResource)
     {
         $result = false;
 
-        $name = basename(parse_url($url, PHP_URL_PATH));
-        $responseHeaders = \XLite\Core\Operator::checkURLAvailability($url);
-        if ($responseHeaders && $responseHeaders->ContentLength > 0) {
+        $name = $remoteResource->getName();
+        $url = $remoteResource->getURL();
+
+        if ($remoteResource->isAvailable()) {
             try {
                 $tmp = LC_DIR_TMP . $name;
 
@@ -782,7 +799,7 @@ abstract class Storage extends \XLite\Model\AEntity
         $webdir = \XLite::getInstance()->getOptions(array('host_details', 'web_dir'));
         $webdir = $webdir ? $webdir . '/' : '';
 
-        return ltrim(parse_url($path, PHP_URL_PATH), '/' . $webdir);
+        return preg_replace('#^' . $webdir . '#', '', parse_url($path, PHP_URL_PATH));
     }
 
     /**
@@ -1020,7 +1037,7 @@ abstract class Storage extends \XLite\Model\AEntity
      */
     protected function renewByPath($path)
     {
-        $this->setSize(intval(\Includes\Utils\FileManager::getFileSize($path)));
+        $this->setSize((int) \Includes\Utils\FileManager::getFileSize($path));
         $this->setDate(\XLite\Core\Converter::time());
 
         return true;
@@ -1068,20 +1085,15 @@ abstract class Storage extends \XLite\Model\AEntity
         $isTempFile = false;
 
         if ($this->isURL()) {
-            if (ini_get('allow_url_fopen')) {
-                $path = $this->getPath();
-
-            } else {
-                $path = tempnam(LC_DIR_TMP, 'analyse_file');
-                if (!\Includes\Utils\FileManager::write($path, $this->getBody())) {
-                    \XLite\Logger::getInstance()->log(
-                        'Unable to write data to file \'' . $path . '\'.',
-                        LOG_ERR
-                    );
-                    $path = false;
-                }
-                $isTempFile = true;
+            $path = tempnam(LC_DIR_TMP, 'analyse_file');
+            if (!\Includes\Utils\FileManager::write($path, $this->getBody())) {
+                \XLite\Logger::getInstance()->log(
+                    'Unable to write data to file \'' . $path . '\'.',
+                    LOG_ERR
+                );
+                $path = false;
             }
+            $isTempFile = true;
 
         } else {
             $path = $this->getStoragePath();

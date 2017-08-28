@@ -60,7 +60,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '2';
+        return '3';
     }
 
     /**
@@ -70,7 +70,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '3';
+        return '2';
     }
 
     /**
@@ -80,7 +80,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorRequiredCoreVersion()
     {
-        return '2';
+        return '3';
     }
 
     /**
@@ -127,5 +127,22 @@ abstract class Main extends \XLite\Module\AModule
         ];
 
         return $classes;
+    }
+
+    /**
+     * @return array
+     */
+    protected static function moveTemplatesInLists()
+    {
+        $templates = [
+            'layout/header/header.bar.checkout.logos.twig' => [
+                static::TO_DELETE => [],
+                static::TO_ADD => [
+                    ['checkout_fastlane.header.top', 100, \XLite\Model\ViewList::INTERFACE_CUSTOMER],
+                ],
+            ]
+        ];
+
+        return $templates;
     }
 }

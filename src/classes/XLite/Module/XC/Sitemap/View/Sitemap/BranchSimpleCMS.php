@@ -33,7 +33,7 @@ class BranchSimpleCMS extends \XLite\Module\XC\Sitemap\View\Sitemap\Branch imple
     {
         if (static::PAGE_STATIC_PAGE == $type) {
             $cnt = \XLite\Core\Database::getRepo('XLite\Module\CDev\SimpleCMS\Model\Page')
-                ->countBy(array('enabled' => true));
+                ->countBy(['enabled' => true]);
             $result = $cnt > 0;
 
         } else {
@@ -54,16 +54,19 @@ class BranchSimpleCMS extends \XLite\Module\XC\Sitemap\View\Sitemap\Branch imple
     protected function getChildren($type, $id)
     {
         if (static::PAGE_STATIC_PAGE == $type) {
-            $result = array();
+            $result = [];
             if (!$id) {
-                $pages = \XLite\Core\Database::getRepo('XLite\Module\CDev\SimpleCMS\Model\Page')->findBy(array('enabled' => true));
+                $pages = \XLite\Core\Database::getRepo('XLite\Module\CDev\SimpleCMS\Model\Page')->findBy(
+                    ['enabled' => true],
+                    ['position' => 'ASC']
+                );
                 foreach ($pages as $page) {
-                    $result[] = array(
+                    $result[] = [
                         'type' => static::PAGE_STATIC_PAGE,
                         'id'   => $page->getId(),
                         'name' => $page->getName(),
-                        'url'  => static::buildURL('page', null, array('id' => $page->getId())),
-                    );
+                        'url'  => static::buildURL('page', null, ['id' => $page->getId()]),
+                    ];
                 }
             }
 
@@ -71,11 +74,11 @@ class BranchSimpleCMS extends \XLite\Module\XC\Sitemap\View\Sitemap\Branch imple
             $result = parent::getChildren($type, $id);
 
             if (empty($type)) {
-                $result[] = array(
+                $result[] = [
                     'type' => static::PAGE_STATIC_PAGE,
                     'id'   => 0,
-                    'name' => static::t('Static pages'),
-                );
+                    'name' => static::t('Information'),
+                ];
             }
         }
 

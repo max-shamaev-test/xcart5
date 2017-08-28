@@ -24,7 +24,7 @@ class DefaultProvider extends \XLite\View\FormField\Select\Regular
     {
         if (!$this->providers) {
             $classes = \XLite\Module\XC\Geolocation\Logic\Geolocation::getInstance()->getProviders();
-            $providers = array();
+            $providers = [];
             if ($classes) {
                 foreach ($classes as $class) {
                     $provider = new $class;

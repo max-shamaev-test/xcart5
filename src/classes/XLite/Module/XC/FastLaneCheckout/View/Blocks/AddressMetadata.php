@@ -42,6 +42,13 @@ class AddressMetadata extends \XLite\View\ASingleView
         return json_encode($dto);
     }
 
+    public function buildStatesListObject()
+    {
+        $dto = \XLite\Core\Database::getRepo('XLite\Model\Country')->findCountriesStatesGrouped();
+
+        return json_encode($dto);
+    }
+
     public function buildStateNamesObject()
     {
         $dto = \XLite\Core\Database::getRepo('XLite\Model\State')->findAllStatesDTO();

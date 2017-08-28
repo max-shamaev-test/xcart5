@@ -7,6 +7,7 @@
  */
 
 namespace XLite\Module\CDev\PINCodes\Model;
+use XLite\Model\Order\Status\Shipping;
 
 /**
  * Order
@@ -51,12 +52,51 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
              \XLite\Core\Mailer::sendAcquirePinCodesFailedAdmin($this);
              \XLite\Core\TopMessage::addError(
                  'Could not assign X PIN codes to order #Y.',
-                 array(
+                 [
                      'count'   => $missingCount,
                      'orderId' => $this->getOrderNumber(),
-                 )
+                 ]
              );
         }
+    }
+
+    /**
+     * Check if order is allowed to acquire and sell pin codes
+     *
+     * @return bool
+     */
+    public function isAllowToProcessPinCodes()
+    {
+        return $this->isProcessed() && !in_array($this->getShippingStatusCode(), [
+            Shipping::STATUS_WAITING_FOR_APPROVE,
+            Shipping::STATUS_WILL_NOT_DELIVER,
+        ]);
+    }
+
+    /**
+     * Increase / decrease item product inventory
+     *
+     * @param \XLite\Model\OrderItem $item      Order item
+     * @param integer                $sign      Flag; "1" or "-1"
+     * @param boolean                $register  Register in order history OPTIONAL
+     *
+     * @return integer
+     */
+    protected function changeItemInventory($item, $sign, $register = true)
+    {
+        $result = parent::changeItemInventory($item, $sign, $register);
+
+        /** @var \XLite\Module\CDev\PINCodes\Model\Product $product */
+        $product = $item->getObject();
+
+        if ($product
+            && $product->getPinCodesEnabled()
+            && !$product->getAutoPinCodes()
+        ) {
+            $product->syncAmount();
+        }
+
+        return $result;
     }
 
     /**
@@ -66,29 +106,31 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
      */
     public function processPINCodes()
     {
-        $missingCount = 0;
-        foreach ($this->getItems() as $item) {
-            if ($item->getProduct()->getPinCodesEnabled()) {
-                if (!$item->countPinCodes()) {
-                    $item->acquirePinCodes();
-                    $missingCount += $item->countMissingPinCodes();
-                }
+        if ($this->isAllowToProcessPinCodes()) {
+            $missingCount = 0;
+            foreach ($this->getItems() as $item) {
+                if ($item->getProduct()->getPinCodesEnabled()) {
+                    if (!$item->countPinCodes()) {
+                        $item->acquirePinCodes();
+                        $missingCount += $item->countMissingPinCodes();
+                    }
 
-                if ($item->countPinCodes()) {
-                    $item->salePinCodes();
+                    if ($item->countPinCodes()) {
+                        $item->salePinCodes();
+                    }
                 }
             }
-        }
 
-        if ($missingCount) {
-             \XLite\Core\Mailer::getInstance()->sendAcquirePinCodesFailedAdmin($this);
-             \XLite\Core\TopMessage::addError(
-                 'Could not assign X PIN codes to order #Y.',
-                 array(
-                     'count'   => $missingCount,
-                     'orderId' => $this->getOrderNumber(),
-                 )
-             );
+            if ($missingCount) {
+                \XLite\Core\Mailer::getInstance()->sendAcquirePinCodesFailedAdmin($this);
+                \XLite\Core\TopMessage::addError(
+                    'Could not assign X PIN codes to order #Y.',
+                    [
+                        'count'   => $missingCount,
+                        'orderId' => $this->getOrderNumber(),
+                    ]
+                );
+            }
         }
     }
 
@@ -102,6 +144,14 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
         $this->acquirePINCodes();
 
         parent::processSucceed();
+
+        if (
+            $this->hasPinCodes()
+            && \XLite\Core\Config::getInstance()->CDev->PINCodes->approve_before_download
+            && $this->getShippingStatusCode() !== Shipping::STATUS_WAITING_FOR_APPROVE
+        ) {
+            $this->setShippingStatus(Shipping::STATUS_WAITING_FOR_APPROVE);
+        }
     }
 
     /**

@@ -73,6 +73,19 @@ abstract class Translation extends \XLite\Model\AEntity implements MetadataLoade
     }
 
     /**
+     * Set Owner
+     *
+     * @param \XLite\Model\AEntity $owner
+     *
+     * @return $this
+     */
+    public function setOwner($owner)
+    {
+        $this->owner = $owner;
+        return $this;
+    }
+
+    /**
      * Check cache after enity persist or remove
      *
      * @return void

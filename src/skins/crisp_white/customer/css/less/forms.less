@@ -286,6 +286,11 @@ output {
     .placeholder();
   }
 
+  // Floating label textarea placeholder fix BUG-4912
+  &:not(.focused) .form-control {
+    .hide-placeholder();
+  }
+
   .password-eye {
     width: @line-height-base;
     top: @line-height-base - 2;
@@ -726,7 +731,6 @@ input[type="checkbox"]:checked {
 /* switcher */
 
 .onoffswitch {
-  margin-left: 10px;
   display: inline-block;
   position: relative;
   min-width: 54px;

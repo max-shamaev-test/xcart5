@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Payment;
 
+use XLite\Core\Model\EntityLock\EntityLockTrait;
+
 /**
  * Payment transaction
  *
@@ -24,6 +26,10 @@ namespace XLite\Model\Payment;
  */
 class Transaction extends \XLite\Model\AEntity
 {
+    use EntityLockTrait;
+
+    const LOCK_TYPE_IPN = 'ipn';
+
     /**
      * Transaction status codes
      */
@@ -225,6 +231,14 @@ class Transaction extends \XLite\Model\AEntity
      * @var array
      */
     protected $registeredCache;
+
+    /**
+     * @return bool
+     */
+    public static function showInitializedTransactions()
+    {
+        return (bool) \XLite::getInstance()->getOptions(array('other', 'show_initialized_transactions'));
+    }
 
     /**
      * Get statuses
@@ -1120,6 +1134,16 @@ class Transaction extends \XLite\Model\AEntity
     }
 
     /**
+     * @param string $type
+     *
+     * @return integer
+     */
+    protected function getLockTTL($type = self::LOCK_TYPE_IPN)
+    {
+        return 3600;
+    }
+
+    /**
      * Get transaction_id
      *
      * @return integer 
@@ -1330,7 +1354,7 @@ class Transaction extends \XLite\Model\AEntity
     /**
      * Get payment_method
      *
-     * @return \XLite\Model\Payment\Method 
+     * @return \XLite\Model\Payment\Method
      */
     public function getPaymentMethod()
     {

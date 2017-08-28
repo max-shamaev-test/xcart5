@@ -24,7 +24,7 @@ class ShippingZone extends \XLite\View\FormField\Select\Regular
      */
     protected function getZonesList()
     {
-        $list = array();
+        $list = [];
         foreach (\XLite\Core\Database::getRepo('XLite\Model\Zone')->findAllZones() as $e) {
             $list[$e->getZoneId()] = $e->getZoneName();
         }
@@ -49,20 +49,28 @@ class ShippingZone extends \XLite\View\FormField\Select\Regular
      */
     protected function getOptions()
     {
-        $list = parent::getOptions();
+        $list = [];
 
         $method = $this->getParam(static::PARAM_METHOD);
-        if ($method) {
-            $zones = \XLite\Core\Database::getRepo('XLite\Model\Zone')->getOfflineShippingZones($method);
 
-            if ($zones[0]) {
-                $list = $zones[0];
-                $list += array(static::SEPARATOR_ID => str_repeat(static::SEPARATOR_SIGN, 10));
-                $list += $zones[1];
+        if ($method) {
+            $zonesGroups = \XLite\Core\Database::getRepo('XLite\Model\Zone')->getOfflineShippingZones($method);
+
+            $i = 0;
+            foreach ($zonesGroups as $zonesList) {
+                if (!empty($zonesList)) {
+                    $separatorId = static::SEPARATOR_ID . '_' . $i++;
+                    $list = $list + $zonesList + [$separatorId => str_repeat(static::SEPARATOR_SIGN, 10)];
+                }
+            }
+
+            if ($list) {
+                // removes last separator
+                array_pop($list);
             }
         }
 
-        return $list;
+        return $list ?: parent::getOptions();
     }
 
     /**
@@ -74,14 +82,14 @@ class ShippingZone extends \XLite\View\FormField\Select\Regular
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             static::PARAM_METHOD => new \XLite\Model\WidgetParam\TypeObject(
                 'Shipping method',
                 null,
                 false,
                 'XLite\Model\Shipping\Method'
             ),
-        );
+        ];
     }
 
     /**
@@ -93,7 +101,7 @@ class ShippingZone extends \XLite\View\FormField\Select\Regular
      */
     protected function isOptionDisabled($value)
     {
-        return static::SEPARATOR_ID === $value
+        return strpos($value, static::SEPARATOR_ID) !== false
             ? true
             : parent::isOptionDisabled($value);
     }

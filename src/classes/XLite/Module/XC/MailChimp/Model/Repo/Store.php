@@ -28,4 +28,13 @@ class Store extends \XLite\Model\Repo\ARepo
 
         return $store;   
     }
+
+    public function findStoreByListId($listId)
+    {
+        $qb = $this->createQueryBuilder();
+        $qb->andWhere('s.list = :list');
+        $qb->setParameter('list', $listId);
+
+        return $qb->getSingleResult();
+    }
 }

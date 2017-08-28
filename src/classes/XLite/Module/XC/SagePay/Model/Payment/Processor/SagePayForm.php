@@ -17,7 +17,7 @@ namespace XLite\Module\XC\SagePay\Model\Payment\Processor;
 class SagePayForm extends \XLite\Model\Payment\Base\WebBased
 {
     const THOUSAND_DELIMITER = ',';
-    const DECIMAL_DELIMITER = '.';
+    const DECIMAL_DELIMITER  = '.';
 
     /**
      * Get operation types
@@ -26,10 +26,10 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
      */
     public function getOperationTypes()
     {
-        return array(
+        return [
             self::OPERATION_SALE,
             self::OPERATION_AUTH,
-        );
+        ];
     }
 
     /**
@@ -53,7 +53,7 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
     {
         parent::processReturn($transaction);
 
-        $request = \XLite\Core\Request::getInstance();
+        $request     = \XLite\Core\Request::getInstance();
         $requestBody = $this->decode($request->crypt);
 
         $status = $transaction::STATUS_FAILED;
@@ -109,7 +109,25 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
             $this->setDetail('3DSecureStatus', $requestBody['3DSecureStatus'], '3DSecure checking status');
         }
 
-        $total = $requestBody['Amount'];
+        $total = $this->getSagePayTotal($requestBody);
+
+        if (!$this->checkTotal($total)) {
+            $this->setDetail('StatusDetail', 'Invalid amount value was received', 'Status details');
+            $status = $transaction::STATUS_FAILED;
+        }
+
+        $this->transaction->setStatus($status);
+    }
+
+    /**
+     * Returns calculated sage pay total to compare with order data. Excepts SagePay Surcharge.
+     *
+     * @param $requestData
+     * @return float
+     */
+    protected function getSagePayTotal($requestData)
+    {
+        $total = $requestData['Amount'];
 
         if (!is_float($total)) {
             $total = $this->parseMoneyFromString(
@@ -119,12 +137,17 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
             );
         }
 
-        if (!$this->checkTotal($total)) {
-            $this->setDetail('StatusDetail', 'Invalid amount value was received', 'Status details');
-            $status = $transaction::STATUS_FAILED;
+        $surcharge = isset($requestData['Surcharge']) ? $requestData['Surcharge'] : 0.0;
+
+        if ($surcharge && !is_float($surcharge)) {
+            $surcharge = $this->parseMoneyFromString(
+                $surcharge,
+                static::THOUSAND_DELIMITER,
+                static::DECIMAL_DELIMITER
+            );
         }
 
-        $this->transaction->setStatus($status);
+        return $total - $surcharge;
     }
 
     /**
@@ -140,6 +163,7 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
             ? \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_AUTH
             : \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_SALE;
     }
+
     /**
      * Check - payment method is configured or not
      *
@@ -151,18 +175,7 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
     {
         return parent::isConfigured($method)
             && $method->getSetting('vendorName')
-            && $method->getSetting('password')
-            && $this->isMcryptDecrypt();
-    }
-
-    /**
-     * Check if the mcrypt function is available
-     *
-     * @return boolean
-     */
-    public function isMcryptDecrypt()
-    {
-        return function_exists('mcrypt_decrypt');
+            && $method->getSetting('password');
     }
 
     /**
@@ -192,13 +205,13 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
      */
     public function getAvailableSettings()
     {
-        return array(
+        return [
             'vendorName',
             'password',
             'test',
             'type',
             'prefix',
-        );
+        ];
     }
 
     /**
@@ -222,7 +235,7 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
      */
     public function isTestMode(\XLite\Model\Payment\Method $method)
     {
-        return (bool)$method->getSetting('test');
+        return (bool) $method->getSetting('test');
     }
 
     /**
@@ -244,14 +257,14 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
      */
     protected function getFormFields()
     {
-        return array(
-            'VPSProtocol'   => '3.00',
-            'TxType'        => $this->getSetting('type') === self::OPERATION_SALE
+        return [
+            'VPSProtocol' => '3.00',
+            'TxType'      => $this->getSetting('type') === self::OPERATION_SALE
                 ? 'PAYMENT'
                 : 'DEFERRED',
-            'Vendor'        => $this->getSetting('vendorName'),
-            'Crypt'         => $this->getCrypt(),
-        );
+            'Vendor'      => $this->getSetting('vendorName'),
+            'Crypt'       => $this->getCrypt(),
+        ];
     }
 
     /**
@@ -263,7 +276,7 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
     {
         $fields = $this->getOrderingInformation();
 
-        $cryptedFields = array();
+        $cryptedFields = [];
         foreach ($fields as $key => $value) {
             $cryptedFields[] = $key . '=' . $value;
         }
@@ -285,22 +298,22 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
             $shippingAddress = $this->getProfile()->getBillingAddress();
         }
 
-        $fields = array(
-            'VendorTxCode'      => $this->getTransactionId(),
-            'ReferrerID'        => '653E8C42-AD93-4654-BB91-C645678FA97B',
-            'Amount'            => round($this->transaction->getValue(), 2),
-            'Currency'          => strtoupper($currency->getCode()),
-            'Description'       => 'Your Cart',
+        $fields = [
+            'VendorTxCode' => $this->getTransactionId(),
+            'ReferrerID'   => '653E8C42-AD93-4654-BB91-C645678FA97B',
+            'Amount'       => round($this->transaction->getValue(), 2),
+            'Currency'     => strtoupper($currency->getCode()),
+            'Description'  => 'Your Cart',
 
-            'SuccessURL'        => $this->getReturnURL(null, true),
-            'FailureURL'        => $this->getReturnURL(null, true, true),
+            'SuccessURL' => $this->getReturnURL(null, true),
+            'FailureURL' => $this->getReturnURL(null, true, true),
 
-            'CustomerName'      => $this->getProfile()->getBillingAddress()->getFirstname()
+            'CustomerName'  => $this->getProfile()->getBillingAddress()->getFirstname()
                 . ' '
                 . $this->getProfile()->getBillingAddress()->getLastname(),
-            'CustomerEMail'     => $this->getProfile()->getLogin(),
-            'VendorEMail'       => \XLite\Core\Config::getInstance()->Company->orders_department,
-            'SendEMail'         => $this->getOptionValueSendEMail(),
+            'CustomerEMail' => $this->getProfile()->getLogin(),
+            'VendorEMail'   => \XLite\Core\Mailer::getOrdersDepartmentMail(),
+            'SendEMail'     => $this->getOptionValueSendEMail(),
 
             'BillingSurname'    => $this->getProfile()->getBillingAddress()->getLastname(),
             'BillingFirstnames' => $this->getProfile()->getBillingAddress()->getFirstname(),
@@ -316,11 +329,11 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
             'DeliveryPostCode'   => $shippingAddress->getZipcode(),
             'DeliveryCountry'    => strtoupper($shippingAddress->getCountry()->getCode()),
 
-            'Basket'             => $this->getBasket(),
-            'AllowGiftAid'       => 0,
-            'ApplyAVSCV2'        => 0,
-            'Apply3DSecure'      => 0,
-        );
+            'Basket'        => $this->getBasket(),
+            'AllowGiftAid'  => 0,
+            'ApplyAVSCV2'   => 0,
+            'Apply3DSecure' => 0,
+        ];
 
         if ('US' === $fields['BillingCountry']) {
             $fields['BillingState'] = $this->getProfile()->getBillingAddress()->getState()->getCode();
@@ -362,8 +375,8 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
      */
     protected function decode($strIn)
     {
-        $sagePayResponse = array();
-        $decodedString =  $this->decodeAndDecrypt($strIn);
+        $sagePayResponse = [];
+        $decodedString   = $this->decodeAndDecrypt($strIn);
         parse_str($decodedString, $sagePayResponse);
 
         return $sagePayResponse;
@@ -378,14 +391,14 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
      */
     protected function encryptAndEncode($strIn)
     {
+        $aes = new \phpseclib\Crypt\AES();
+
+        $aes->setKey($this->getSetting('password'));
+        $aes->setIV($this->getSetting('password'));
+        $aes->setKeyLength(128);
+
         return '@' . bin2hex(
-            mcrypt_encrypt(
-                \MCRYPT_RIJNDAEL_128,
-                $this->getSetting('password'),
-                $this->pkcs5Pad($strIn, 16),
-                \MCRYPT_MODE_CBC,
-                $this->getSetting('password')
-            )
+            $aes->encrypt($strIn)
         );
     }
 
@@ -398,13 +411,13 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
      */
     protected function decodeAndDecrypt($strIn)
     {
-        return mcrypt_decrypt(
-            \MCRYPT_RIJNDAEL_128,
-            $this->getSetting('password'),
-            pack('H*', substr($strIn, 1)),
-            \MCRYPT_MODE_CBC,
-            $this->getSetting('password')
-        );
+        $aes = new \phpseclib\Crypt\AES();
+
+        $aes->setKey($this->getSetting('password'));
+        $aes->setIV($this->getSetting('password'));
+        $aes->setKeyLength(128);
+
+        return $aes->decrypt(pack('H*', substr($strIn, 1)));
     }
 
     /**

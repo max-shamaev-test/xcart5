@@ -8,33 +8,41 @@
 
 namespace XLite\Module\XC\Reviews\View;
 
+use XLite\Core\View\DynamicWidgetInterface;
+
 /**
  * Vote bar widget
  *
  */
-class VoteBar extends \XLite\View\VoteBar
+class VoteBar extends \XLite\View\VoteBar implements DynamicWidgetInterface
 {
     /**
-     * Get a list of CSS files
+     * Return list of tooltips
      *
      * @return array
      */
-    public function getCSSFiles()
+    protected function getStarTooltips()
     {
-        $list = parent::getCSSFiles();
-
-        $list[] = 'modules/XC/Reviews/vote_bar/vote_bar.css';
-
-        return $list;
+        return [
+            1 => static::t("star_tooltip_1"),
+            2 => static::t("star_tooltip_2"),
+            3 => static::t("star_tooltip_3"),
+            4 => static::t("star_tooltip_4"),
+            5 => static::t("star_tooltip_5"),
+        ];
     }
 
     /**
-     * Return widget default template
+     * Return star tooltip
+     *
+     * @param $num
      *
      * @return string
      */
-    protected function getDefaultTemplate()
+    protected function getStarTooltip($num)
     {
-        return 'modules/XC/Reviews/vote_bar/vote_bar.twig';
+        return isset($this->getStarTooltips()[$num])
+            ? $this->getStarTooltips()[$num]
+            : null;
     }
 }

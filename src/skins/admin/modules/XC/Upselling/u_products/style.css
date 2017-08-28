@@ -11,23 +11,6 @@
   min-width: 100px;
 }
 
-.u_products.items-list-table table.list td.cell.actions.right button.remove i.fa-trash-o {
-  transform: rotate(45deg);
-}
-
-.u_products.items-list-table table.list td.cell.actions.right button.remove i.fa-trash-o:before {
-  content: "+";
-  font-size: 25px;
-  font-weight: bold;
-}
-
-.items-list button.remove img {
-  background: transparent url(../../../../images/close_icon.png) no-repeat center -2px;
-  height: 19px;
-  width: 19px;
-  vertical-align: middle;
-}
-
 .items-list button.remove:hover img {
   background-position-y: -24px;
 }

@@ -9,7 +9,7 @@
 namespace XLite\Module\CDev\FileAttachments\Model\Product;
 
 /**
- * Product attchament 
+ * Product attachment
  *
  * @Entity
  * @Table  (name="product_attachments",
@@ -20,6 +20,9 @@ namespace XLite\Module\CDev\FileAttachments\Model\Product;
  */
 class Attachment extends \XLite\Model\Base\I18n
 {
+    const ACCESS_ANY = 'A';
+    const ACCESS_REGISTERED = 'R';
+
     // {{{ Collumns
 
     /**
@@ -64,6 +67,15 @@ class Attachment extends \XLite\Model\Base\I18n
      * @OneToOne  (targetEntity="XLite\Module\CDev\FileAttachments\Model\Product\Attachment\Storage", mappedBy="attachment", cascade={"all"}, fetch="EAGER")
      */
     protected $storage;
+
+    /**
+     * Access - membership id or [self::ACCESS_ANY, self::ACCESS_REGISTERED]
+     *
+     * @var string
+     *
+     * @Column (type="string")
+     */
+    protected $access = self::ACCESS_ANY;
 
     // }}}
 
@@ -179,5 +191,66 @@ class Attachment extends \XLite\Model\Base\I18n
     {
         $this->storage = $storage;
         return $this;
+    }
+
+    /**
+     * Return Access
+     *
+     * @return string
+     */
+    public function getAccess()
+    {
+        return !empty($this->access) ? $this->access : static::ACCESS_ANY;
+    }
+
+    /**
+     * Set Access
+     *
+     * @param string $access
+     *
+     * @return $this
+     */
+    public function setAccess($access)
+    {
+        if ($access instanceof \XLite\Model\Membership) {
+            $access = $access->getMembershipId();
+        }
+
+        $this->access = $access;
+        return $this;
+    }
+
+    /**
+     * Get attachment icon type
+     *
+     * @return string
+     */
+    public function getIconType()
+    {
+        $ext = strtolower($this->getStorage()->getExtension());
+
+        if (in_array($ext, \XLite\Core\Converter::getArchiveExtensions())) {
+            $icon = 'zip';
+        } elseif (in_array($ext, \XLite\Core\Converter::getImageExtensions())) {
+            $icon = 'image';
+        } elseif (in_array($ext, \XLite\Core\Converter::getPhotoshopExtensions())) {
+            $icon = 'ps';
+        } elseif (in_array($ext, \XLite\Core\Converter::getPresentationExtensions())) {
+            $icon = 'powerpoint';
+        } elseif (in_array($ext, \XLite\Core\Converter::getAudioExtensions())) {
+            $icon = 'music';
+        } elseif (in_array($ext, \XLite\Core\Converter::getVideoExtensions())) {
+            $icon = 'video';
+        } elseif (in_array($ext, ['pdf', 'csv', 'ai', 'exe'])) {
+            $icon = $ext;
+        } elseif (in_array($ext, \XLite\Core\Converter::getDocumentExtensions())) {
+            $icon = 'doc';
+        } elseif (in_array($ext, \XLite\Core\Converter::getMSWordExtensions())) {
+            $icon = 'word';
+        } else {
+            $icon = $this->getStorage()->isURL() ? 'url' : 'default';
+        }
+
+        return $icon;
     }
 }

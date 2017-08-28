@@ -219,7 +219,10 @@ class Converter extends \XLite\Base\Singleton
                                 new ClassPathResolver(LC_DIR_CLASSES)
                             );
 
-                            if (!$sourceStaticReflectorFactory->reflectClass($preclass)->isDecorator()) {
+                            if (
+                                !$sourceStaticReflectorFactory->reflectClass($preclass)->isDecorator()
+                                && class_exists($class)
+                            ) {
                                 $class = $preclass;
                                 break;
                             }
@@ -516,27 +519,104 @@ class Converter extends \XLite\Base\Singleton
     public static function convertWeightUnits($value, $srcUnit, $dstUnit)
     {
         $unitsInGrams = array(
-            'lbs' => 453.59,
-            'oz'  => 28.35,
+            'lb'  => 453.592,
+            'lbs' => 453.592,
+            'oz'  => 28.3495,
             'kg'  => 1000,
             'g'   => 1,
         );
 
-        if (array_diff(array($srcUnit, $dstUnit), array('lbs', 'oz'))) {
-            // Conversion between lbs/oz and kg/g
-            $multiplier = $unitsInGrams[$srcUnit] / $unitsInGrams[$dstUnit];
-
-        } else {
-            // Conversion between lbs and oz
-            // To make result more precise...
-            $unitsInOz = array(
-                'lbs' => 16,
-                'oz'  => 1,
-            );
-            $multiplier = $unitsInOz[$srcUnit] / $unitsInOz[$dstUnit];
-        }
+        $multiplier = $unitsInGrams[$srcUnit] / $unitsInGrams[$dstUnit];
 
         return $value * $multiplier;
+    }
+
+    /**
+     * Convert value from one to other weight units
+     *
+     * @param float  $value   Weight value
+     * @param string $srcUnit Source weight unit
+     * @param string $dstUnit Destination weight unit
+     *
+     * @return array
+     */
+    public static function convertWeightUnitsOrGramms($value, $srcUnit, $dstUnit, $limit)
+    {
+        $result = static::convertWeightUnits($value, $srcUnit, $dstUnit);
+
+        $map = [
+            'kg' => 'g',
+            'lb' => 'oz',
+            'lbs' => 'oz'
+        ];
+
+        if ((!$result || $result < $limit) && isset($map[$dstUnit])) {
+            $dstUnit = $map[$dstUnit];
+        }
+
+        return [$dstUnit, static::convertWeightUnits($value, $srcUnit, $dstUnit)];
+    }
+
+    /**
+     * Convert value from one to other dimension units
+     *
+     * @param float  $value   dimension value
+     * @param string $srcUnit Source dimension unit
+     * @param string $dstUnit Destination dimension unit
+     *
+     * @return float
+     */
+    public static function convertDimensionUnits($value, $srcUnit, $dstUnit)
+    {
+        $unitsInMeters = array(
+            'ft'  => 0.3048,
+            'in'  => 0.0254,
+            'mm'  => 0.001,
+            'cm'  => 0.01,
+            'dm'  => 0.1,
+            'm'   => 1.0,
+        );
+
+        $multiplier = $unitsInMeters[$srcUnit] / $unitsInMeters[$dstUnit];
+
+        return $value * $multiplier;
+    }
+
+    /**
+     * Get timezone
+     *
+     * @param mixed $timeZone
+     *
+     * @return \DateTimeZone
+     * @throws \Exception
+     */
+    public static function getTimeZone($timeZone = null)
+    {
+        if ($timeZone instanceof \DateTimeZone) {
+            return $timeZone;
+        }
+
+        $zones = [];
+
+        if (null !== $timeZone) {
+            $zones[] = $timeZone;
+        }
+
+        if (\XLite\Core\Config::getInstance()->Units->time_zone) {
+            $zones[] = \XLite\Core\Config::getInstance()->Units->time_zone;
+        }
+
+        $zones[] = date_default_timezone_get();
+
+        foreach ($zones as $zone) {
+            try {
+                return new \DateTimeZone($zone);
+            } catch (\Exception $e) {
+                \XLite\Logger::getInstance()->log($e->getMessage(), LOG_NOTICE);
+            }
+        }
+
+        throw new \Exception('Unable to get TimeZone');
     }
 
     /**
@@ -548,12 +628,7 @@ class Converter extends \XLite\Base\Singleton
      */
     public static function time($timeZone = null)
     {
-        if (!empty($timeZone) && is_string($timeZone)) {
-            // If timeZone is string create DateTimeZone object
-            $timeZone = new \DateTimeZone($timeZone);
-        }
-
-        $time = ($timeZone instanceof \DateTimeZone ? new \DateTime('now', $timeZone) : new \DateTime());
+        $time = new \DateTime('now', static::getTimeZone($timeZone));
 
         return $time->getTimestamp();
     }
@@ -890,7 +965,7 @@ class Converter extends \XLite\Base\Singleton
 
         $user = new \DateTime();
         $timeZone = \XLite\Core\Config::getInstance()->Units->time_zone ?: $user->getTimezone()->getName();
-        $user->setTimezone(new \DateTimeZone($timeZone));
+        $user->setTimezone(static::getTimeZone($timeZone));
         $user = $user->getTimezone()->getOffset($user);
 
         $offset = $server - $user;
@@ -916,7 +991,7 @@ class Converter extends \XLite\Base\Singleton
 
         $user = new \DateTime();
         $timeZone = \XLite\Core\Config::getInstance()->Units->time_zone ?: $user->getTimezone()->getName();
-        $user->setTimezone(new \DateTimezone($timeZone));
+        $user->setTimezone(static::getTimeZone($timeZone));
         $user = $user->getTimezone()->getOffset($user);
 
         $offset = $server - $user;
@@ -1152,6 +1227,102 @@ class Converter extends \XLite\Base\Singleton
     protected static function getDetectLocaleMethods()
     {
         return array('system', 'default');
+    }
+
+    // }}}
+
+    // {{{ Extensions
+
+
+
+    /**
+     * Return list of archive extensions
+     *
+     * @return array
+     */
+    public static function getArchiveExtensions()
+    {
+        return ['cab', '7z', 'aac', 'ace', 'alz', 'apk', 'at3', 'bke', 'arc', 'arj', 'ass', 'sas', 'b', 'ba', 'big', 'bik', 'bin', 'bkf', 'bzip2', 'bz2', 'bld', 'c4', 'cab', 'cals', 'clipflair', 'cpt', 'sea', 'daa', 'deb', 'dmg', 'ddz', 'dpe', 'egg', 'egt', 'ecab', 'ezip', 'ess', 'gho', 'ghs', 'gif', 'gzip', 'gz', 'ipg', 'jar', 'lbr', 'lawrence', 'lbr', 'lqr', 'lha', 'lzh', 'lzip', 'lz', 'lzo', 'lzma', 'lzx', 'mbw', 'mpq', 'nth', 'osz', 'pak', 'par', 'par2', 'paf', 'pyk', 'pk3', 'pk4', 'rar', 'rag', 'rags', 'rpm', 'sen', 'si', 'sitx', 'skb', 'szs', 'tar', 'tgz', 'tb', 'tib', 'uha', 'uue', 'viv', 'vol', 'vsa', 'wax', 'z', 'zoo', 'zip', 'iso', 'nrg', 'img', 'adf', 'adz', 'dms', 'dsk', 'd64', 'sdi', 'mds', 'mdx', 'dmg', 'cdi', 'cue', 'cif', 'c2d', 'daa', 'b6t',];
+    }
+
+    /**
+     * Return list of image extensions
+     *
+     * @return array
+     */
+    public static function getImageExtensions()
+    {
+        return ['ase', 'art', 'blp', 'bmp', 'bti', 'cd5', 'cit', 'cpt', 'cr2', 'cut', 'dds', 'dib', 'djvu', 'egt', 'exif', 'gif', 'gpl', 'grf', 'icns', 'ico', 'iff', 'ilbm', 'lbm', 'jng', 'jpeg', 'jfif', 'jpg', 'jp2', 'jps', 'lbm', 'max', 'miff', 'mng', 'msp', 'nitf', 'otb', 'pbm', 'pc1', 'pc2', 'pc3', 'pcf', 'pcx', 'pdn', 'pgm', 'pi1', 'pi2', 'pi3', 'pict', 'pct', 'png', 'pnm', 'pns', 'ppm', 'psb', 'psd', 'pdd', 'psp', 'px', 'pxm', 'pxr', 'qfx', 'raw', 'rle', 'sct', 'sgi', 'rgb', 'int', 'bw', 'tga', 'targa', 'icb', 'vda', 'vst', 'pix', 'tif', 'tiff', 'vtf', 'xbm', 'xcf', 'xpm', 'zif','3dv', 'amf', 'awg', 'ai', 'cgm', 'cdr', 'cmx', 'dxf', 'e2d', 'egt', 'eps', 'fs', 'gbr', 'odg', 'svg', 'scene', 'stl', 'vrml', 'x3d', 'sxd', 'v2d', 'vdoc', 'vsd', 'vsdx', 'vnd', 'wmf', 'emf', 'art', 'xar', '3dmf', '3dm', '3mf', '3ds', 'abc', 'ac', 'amf', 'an8', 'aoi', 'asm', 'b3d', 'blend', 'block', 'bmd3', 'bdl', 'brres', 'c4d', 'cal3d', 'ccp4', 'cfl', 'cob', 'core3d', 'ctm', 'dae', 'dff', 'dpm', 'dts', 'egg', 'fact', 'fbx', 'g', 'glm', 'iob', 'jas', 'lwo', 'lws', 'lxo', 'ma', 'max', 'mb', 'md2', 'md3', 'mdx', 'mesh', 'mesh', 'mm3d', 'mpo', 'mrc', 'nif', 'obj', 'off', 'ogex', 'ply', 'prc', 'prt', 'pov', 'r3d', 'rwx', 'sia', 'sib', 'skp', 'sldasm', 'sldprt', 'smd', 'u3d', 'vim', 'vrml97', 'vue', 'vwx', 'wings', 'w3d', 'x', 'x3d', 'z3d',];
+    }
+
+    /**
+     * Return list of photoshop extensions
+     *
+     * @return array
+     */
+    public static function getPhotoshopExtensions()
+    {
+        return ['abr', 'acb', 'aco', 'acv', 'ado', 'ahu', 'alv', 'asl', 'asv', 'atn', 'ava', 'axt', 'axt', 'cha', 'csf', 'csh', 'grd', 'hdt', 'pat', 'pmg', 'psd', 'psf', 'rcv', 'shc', 'shh', 'sta', 'tpl', 'zvt',];
+    }
+
+    /**
+     * Return list of presentation extensions
+     *
+     * @return array
+     */
+    public static function getPresentationExtensions()
+    {
+        return ['gslides', 'key', 'keynote', 'nb', 'nbp', 'odp', 'otp', 'pez', 'pot', 'pps', 'ppt', 'pptx', 'prz', 'sdd', 'shf', 'show', 'shw', 'slp', 'sspss', 'sti', 'sxi', 'thmx', 'watch',];
+    }
+
+    /**
+     * Return list of code extensions
+     *
+     * @return array
+     */
+    public static function getCodeExtensions()
+    {
+        return ['ahk', 'applescript', 'as', 'au3', 'bat', 'bas', 'cljs', 'cmd', 'coffee', 'duino', 'egg', 'egt', 'erb', 'hta', 'ibi', 'ici', 'ijs', 'ipynb', 'itcl', 'js', 'jsfl', 'lua', 'm', 'mrc', 'ncf', 'nuc', 'nud', 'nut', 'php', 'pl', 'pm', 'ps1', 'ps1xml', 'psc1', 'psd1', 'psm1', 'py', 'pyc', 'pyo', 'r', 'rb', 'rdp', 'scpt', 'scptd', 'sdl', 'sh', 'syjs', 'sypy', 'tcl', 'vbs', 'xpl', 'ebuild','ada', 'adb', 'ads', 'asm', 'bas', 'bb', 'bmx', 'c', 'clj', 'cls', 'cob', 'cpp', 'cs', 'csproj', 'd', 'dba', 'dbpro123', 'e', 'efs', 'egt', 'el', 'for', 'frm', 'frx', 'fth', 'ged', 'gm6', 'gmd', 'gmk', 'gml', 'go', 'h', 'hpp', 'hs', 'i', 'inc', 'java', 'l', 'lgt', 'lisp', 'm', 'm', 'm', 'm4', 'ml', 'msqr', 'n', 'nb', 'p', 'pas', 'piv', 'pl', 'prg', 'pro', 'pol', 'py', 'r', 'red', 'reds', 'rb', 'resx', 'rc', 'rkt', 'scala', 'sci', 'scm', 'sd7', 'skb', 'skd', 'skf', 'ski', 'skk', 'skm', 'sko', 'skp', 'sks', 'skz', 'sln', 'spin', 'stk', 'swg', 'tcl', 'vap', 'vb', 'vbg', 'vbp', 'vbproj', 'vcproj', 'vdproj', 'xpl', 'xq', 'xsl', 'y',];
+    }
+
+    /**
+     * Return list of audio extensions
+     *
+     * @return array
+     */
+    public static function getAudioExtensions()
+    {
+        return ['8svx', '16svx', 'aiff', 'aif', 'aifc', 'au', 'bwf', 'cdda', 'raw', 'wav', 'ra', 'flac', 'la', 'pac', 'm4a', 'ape', 'ofr', 'ofs', 'off', 'rka', 'shn', 'tak', 'tta', 'wv', 'wma', 'brstm', 'dts', 'dtshd', 'dtsma', 'ast', 'aw', 'amr', 'mp1', 'mp2', 'mp3', 'spx', 'gsm', 'wma', 'aac', 'mpc', 'vqf', 'ra', 'rm', 'ots', 'swa', 'vox', 'voc', 'dwd', 'smp', 'asf', 'aup', 'cust', 'dvr', 'gym', 'jam', 'mid', 'midi', 'mt2', 'mng', 'mod', 's3m', 'xm', 'it', 'nsf', 'psf', 'minipsf', 'psflib', '2sf', 'dsf', 'gsf', 'psf2', 'qsf', 'ssf', 'usf', 'rmj', 'sid', 'spc', 'txm', 'vgm', 'wtv', 'ym', 'aimppl', 'asx', 'm3u', 'pls', 'ram', 'xpl', 'xspf', 'zpl', 'als', 'alc', 'aup', 'band', 'cel', 'cpr', 'cwp', 'drm', 'dmkit', 'logic', 'mmr', 'mx6hs', 'npr', 'omfi', 'ses', 'sfl', 'sng', 'stf', 'snd', 'syn', 'flp', 'ftm', 'vcls', 'vsq', 'vsqx',];
+    }
+
+    /**
+     * Return list of video extensions
+     *
+     * @return array
+     */
+    public static function getVideoExtensions()
+    {
+        return ['aaf', '3gp', 'gif', 'asf', 'avchd', 'avi', 'cam', 'collab', 'dat', 'dsh', 'dvr', 'flv', 'm1v', 'm2v', 'fla', 'flr', 'sol', 'm4v', 'mkv', 'wrap', 'mng', 'mov', 'mpeg', 'mpg', 'mpe', 'thp', 'mpeg', 'mp4', 'mxf', 'roq', 'nsv', 'ogg', 'rm', 'svi', 'smi', 'swf', 'wmv', 'wtv', 'yuv',];
+    }
+
+    /**
+     * Return list of document extensions
+     *
+     * @return array
+     */
+    public static function getDocumentExtensions()
+    {
+        return ['1st', '600', '602', 'abw', 'acl', 'afp', 'ami', 'ans', 'asc', 'aww', 'ccf', 'csv', 'cwk', 'dbk', 'doc', 'docm', 'docx', 'dot', 'dotx', 'egt', 'epub', 'ezw', 'fdx', 'ftm', 'ftx', 'gdoc', 'html', 'hwp', 'hwpml', 'log', 'lwp', 'mbp', 'md', 'me', 'mcw', 'mobi', 'nb', 'nbp', 'neis', 'odm', 'odt', 'ott', 'omm', 'pages', 'pap', 'pdax', 'pdf', 'quox', 'rtf', 'rpt', 'sdw', 'se', 'stw', 'sxw', 'tex', 'info', 'txt', 'uof', 'uoml', 'via', 'wpd', 'wps', 'wpt', 'wrd', 'wrf', 'wri', 'xhtml', 'xml', 'xps',];
+    }
+
+    /**
+     * Return list of ms word extensions
+     *
+     * @return array
+     */
+    public static function getMSWordExtensions()
+    {
+        return ['doc', 'docm', 'docx', 'dot', 'mcw',];
     }
 
     // }}}

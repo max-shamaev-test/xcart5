@@ -7,6 +7,7 @@
  */
 
 namespace XLite\Module\CDev\Wholesale\Logic\Export\Step;
+use XLite\Module\CDev\Wholesale\Model\Base\AWholesalePrice;
 
 /**
  * Products
@@ -22,7 +23,7 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
     {
         $columns = parent::defineColumns();
 
-        $columns['wholesalePrices'] = array();
+        $columns['wholesalePrices'] = [];
 
         return $columns;
     }
@@ -55,8 +56,9 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
      */
     protected function convertWholesalePrices(array $prices)
     {
-        $result = array();
+        $result = [];
 
+        /** @var \XLite\Module\CDev\Wholesale\Model\Base\AWholesalePrice $price */
         foreach ($prices as $price) {
             $str = $price->getQuantityRangeBegin();
 
@@ -69,6 +71,10 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
             }
 
             $str .= '=' . $price->getPrice();
+
+            if ($price->getType() === AWholesalePrice::WHOLESALE_TYPE_PERCENT) {
+                $str .= '%';
+            }
 
             $result[] = $str;
         }

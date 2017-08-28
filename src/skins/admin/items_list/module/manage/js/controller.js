@@ -35,6 +35,8 @@ ModulesItemsList.prototype.initialize = function(elem, urlparams, urlajaxparams)
   if (result) {
     uninstallModules = [];
     updateUninstallButtons();
+    updateEnableButtons();
+    updateActionsStyle();
   }
 }
 
@@ -166,6 +168,7 @@ CommonForm.elementControllers.push(
         updateUninstallButtons();
         updateEnableButtons();
         updateFormComments();
+        updateActionsStyle();
       }
     );
   }
@@ -236,6 +239,7 @@ CommonForm.elementControllers.push(
         }
 
         updateEnableButtons();
+        updateActionsStyle();
       }
     );
 
@@ -285,27 +289,33 @@ function updateEnableButtons()
     // Get the input box element (checkbox)
     var box = jQuery('.module-main-section .actions .main-action .disable input[type="checkbox"]', elem);
     if (box.length) {
+      var actionBox = box.closest('.main-action');
+      var newValueElem = actionBox.find('.onoffswitch input[type="hidden"]');
+
       if (found) {
-        if (!jQuery(box).is(':disabled')) {
-          // Check and disable the checkbox
-          jQuery(box).attr('checked', true);
-          jQuery(box).attr('disabled', true);
-          jQuery(box).parents('.input-field-wrapper').addClass('read-only').removeClass('disabled').addClass('enabled');
-          var newValueElem = jQuery(box).parents('.input-field-wrapper').find('input[type="hidden"].new-value');
-          if (0 < newValueElem.length) {
-            jQuery(newValueElem).attr('value', 1);
-          }
-        }
-      } else if (jQuery(box).is(':disabled')){
+        // Check and disable the checkbox
+        box.attr('checked', true);
+        box.attr('disabled', true);
+        actionBox.addClass('read-only').removeClass('disabled').addClass('enabled');
+        newValueElem.attr('value', 1);
+
+        actionBox.hide();
+      } else {
         // Remove 'disabled' attribute of the checkbox
-        jQuery(box).attr('disabled', false);
-        jQuery(box).parents('.input-field-wrapper').removeClass('read-only');
-        var newValueElem = jQuery(box).parents('.input-field-wrapper').find('input[type="hidden"].new-value');
-        if (0 < newValueElem.length) {
-          jQuery(newValueElem).attr('value', 0);
-        }
+        box.attr('disabled', false);
+        actionBox.removeClass('read-only');
+        newValueElem.attr('value', 0);
+        actionBox.show();
       }
     }
 
+  });
+}
+
+function updateActionsStyle() {
+  var actions = jQuery('.widget.items-list tr.module-item');
+
+  actions.each(function () {
+    jQuery('.actions > li', this).removeClass('last').filter(':visible:last').addClass('last');
   });
 }

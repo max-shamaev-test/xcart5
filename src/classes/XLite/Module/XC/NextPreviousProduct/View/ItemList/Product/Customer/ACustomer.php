@@ -78,16 +78,6 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\Customer\ACustome
     }
 
     /**
-     * Public wrapper for getSearchCondition()
-     *
-     * @return \XLite\Core\CommonCell
-     */
-    public function getSearchConditionWrapper()
-    {
-        return $this->getSearchCondition();
-    }
-
-    /**
      * Get three items around $itemPosition
      *
      * @param integer $itemPosition Item position in condition
@@ -96,7 +86,7 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\Customer\ACustome
      */
     public function getNextPreviousItems($itemPosition)
     {
-        $cnd = $this->getPager()->getLimitCondition($itemPosition - 1, 3, $this->getSearchCondition());
+        $cnd = $this->getPager()->getLimitCondition($itemPosition - 1, 3, $this->getNextPreviousSearchCondition());
 
         return $this->getData($cnd);
     }
@@ -114,7 +104,7 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\Customer\ACustome
     /**
      * @return \XLite\Core\CommonCell
      */
-    protected function getSearchCondition()
+    protected function getNextPreviousSearchCondition()
     {
         $cellName = static::getSearchSessionCellName() . '_np';
 
@@ -126,7 +116,7 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\Customer\ACustome
             }
         }
 
-        $result   = parent::getSearchCondition();
+        $result = $this->getSearchCondition();
 
         \XLite\Core\Session::getInstance()->{$cellName} = $result;
 

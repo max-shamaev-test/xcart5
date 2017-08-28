@@ -52,11 +52,11 @@ class Begin extends \XLite\View\RequestHandler\ARequestHandler
     }
 
     /**
-     * Return widget default template
+     * Define sections list
      *
      * @return string[]
      */
-    protected function getSections()
+    protected function defineSections()
     {
         return array(
             'XLite\Logic\Export\Step\Products'   => 'Products',
@@ -66,6 +66,16 @@ class Begin extends \XLite\View\RequestHandler\ARequestHandler
             'XLite\Logic\Export\Step\Categories' => 'Categories',
             'XLite\Logic\Export\Step\Users'      => 'Customers',
         );
+    }
+
+    /**
+     * Return sections list
+     *
+     * @return string[]
+     */
+    protected function getSections()
+    {
+        return $this->defineSections();
     }
 
     /**

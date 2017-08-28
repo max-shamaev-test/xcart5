@@ -6,7 +6,7 @@
 # See https://www.x-cart.com/license-agreement.html for license details.
 
 XLite\Model\LanguageLabel:
-  directives: { insert: true }
+  - { directives: { forceInsertCommand: true } }
   - { name: "%", translations: [{ code: en, label: '%' }]}
   - { name: "module-sort-Most popular", translations: [{ code: en, label: 'Most popular' }]}
   - { name: "module-sort-Newest", translations: [{ code: en, label: 'Newest' }]}
@@ -361,7 +361,7 @@ XLite\Model\LanguageLabel:
   - { name: "Edit subcategories (X)", translations: [{ code: en, label: "Subcategories: {{count}}" }] }
   - { name: "Manage category (X)", translations: [{ code: en, label: "Manage category: {{category_name}}" }] }
   - { name: "Subcategories for", translations: [{ code: en, label: "Subcategories for" }] }
-  - { name: "Enter OrderID or email", translations: [{ code: en, label: "Enter OrderID or email" }] }
+  - { name: "OrderID or email, ID1-ID2 for range", translations: [{ code: en, label: "OrderID or email, ID1-ID2 for range" }] }
   - { name: "All Order Statuses", translations: [{ code: en, label: "All Order Statuses" }] }
   - { name: "Enter date range", translations: [{ code: en, label: "Enter date range" }] }
   - { name: "Authorized", translations: [{ code: en, label: "Authorized" }] }
@@ -431,9 +431,9 @@ XLite\Model\LanguageLabel:
   - { name: "X zones have been removed", translations: [{ code: en, label: "{{count}} zone(s) removed" }] }
   - { name: "X zones have been successfully created", translations: [{ code: en, label: "{{count}} zone(s) created" }] }
   - { name: "Default zone tooltip text", translations: [{ code: en, label: "This is the default zone which matches all possible addresses.<br />The default zone can be edited but cannot be removed." }] }
-  - { name: "Zone zipcode masks help", translations: [{ code: en, label: "Examples:<br /><br />2204%<br />38245<br />23%" }] }
-  - { name: "Zone city masks help", translations: [{ code: en, label: "Examples:<br /><br />New York<br />New%<br />%York" }] }
-  - { name: "Zone address masks help", translations: [{ code: en, label: "Examples:<br />%Water St%<br />%Coney Island%" }] }
+  - { name: "Zone zipcode masks help", translations: [{ code: en, label: "Examples:<br /><br />2204%<br />38?45<br />23%<br /><br /><b>?</b> - any character<br /><b>%</b> - any character sequence, even empty" }] }
+  - { name: "Zone city masks help", translations: [{ code: en, label: "Examples:<br /><br />New York<br />New%<br />%Y?rk<br /><br /><b>?</b> - any character<br /><b>%</b> - any character sequence, even empty" }] }
+  - { name: "Zone address masks help", translations: [{ code: en, label: "Examples:<br /><br />%Water St%<br />%Coney Is?and%<br /><br /><b>?</b> - any character<br /><b>%</b> - any character sequence, even empty" }] }
   - { name: "X shipping methods have been created", translations: [{ code: en, label: "{{count}} shipping method(s) created" }] }
   - { name: "X shipping methods have been removed", translations: [{ code: en, label: "{{count}} shipping method(s) removed" }] }
   - { name: "Edit rates (X)", translations: [{ code: en, label: "Edit rates ({{count}})" }] }
@@ -575,7 +575,7 @@ XLite\Model\LanguageLabel:
   - { name: "Cache rebuild is already started, please wait", translations: [{ code: en, label: "Cache rebuild is already started, please wait" }] }
   - { name: "Calculate rates", translations: [{ code: en, label: "Calculate rates" }] }
   - { name: "Can't be disabled. The module is required by:", translations: [{ code: en, label: "Cannot be disabled. The module is required by:" }] }
-  - { name: "Can't connect to the Modules Marketplace server", translations: [{ code: en, label: "Cannot connect to the Modules Marketplace server" }] }
+  - { name: "Can't connect to the Addons Marketplace server", translations: [{ code: en, label: "Cannot connect to the Addons Marketplace server" }] }
   - { name: "Capture status", translations: [{ code: en, label: "Capture status" }] }
   - { name: "Cart & checkout", translations: [{ code: en, label: "Cart & checkout" }] }
   - { name: "Catalog", translations: [{ code: en, label: "Catalog" }] }
@@ -761,6 +761,9 @@ XLite\Model\LanguageLabel:
   - { name: "From", translations: [{ code: en, label: "From" }] }
   - { name: "from", translations: [{ code: en, label: "from" }] }
   - { name: "Selected countries:", translations: [{ code: en, label: "Selected countries:" }] }
+  - { name: "Selected countries", translations: [{ code: en, label: "Selected countries" }] }
+  - { name: "All states", translations: [{ code: en, label: "All states" }] }
+  - { name: "Selected states", translations: [{ code: en, label: "Selected states" }] }
   - { name: "Back to Zones list", translations: [{ code: en, label: "Back to Zones list" }] }
   - { name: "Attributes block", translations: [{ code: en, label: "Attributes block" }] }
   - { name: "From email", translations: [{ code: en, label: "From email" }] }
@@ -829,7 +832,7 @@ XLite\Model\LanguageLabel:
   - { name: "Invalid login or password", translations: [{ code: en, label: "Invalid login or password" }] }
   - { name: "Inventory status", translations: [{ code: en, label: "Inventory status" }] }
   - { name: "Inventory tracking", translations: [{ code: en, label: "Inventory tracking" }] }
-  - { name: "Inventory tracking for this product is", translations: [{ code: en, label: "Inventory tracking for this product is" }] }
+  - { name: "Inventory tracking for this product is", translations: [{ code: en, label: "Inventory tracking" }] }
   - { name: "Invoice", translations: [{ code: en, label: "Invoice" }] }
   - { name: "It is impossible to delete or create user accounts because your store currently works as an integration with Drupal and shares users with Drupal. Deleting/creating user accounts is possible via Drupal administrator interface.", translations: [{ code: en, label: "It is not possible to delete or create user accounts because your store currently works as an integration with Drupal and shares users with Drupal. Deleting/creating user accounts is possible via Drupal administrator interface." }] }
   - { name: "It is impossible to edit some user profile fields because your store currently works as an integration with Drupal and shares users with Drupal. Modifying these fields is possible via Drupal administrator interface.", translations: [{ code: en, label: "It is not possible to edit some user profile fields because your store currently works as an integration with Drupal and shares users with Drupal. Modifying these fields is possible via Drupal administrator interface." }] }
@@ -903,7 +906,7 @@ XLite\Model\LanguageLabel:
   - { name: "Modify option groups exceptions", translations: [{ code: en, label: "Modify option group exceptions" }] }
   - { name: "Modify root category (the front shop page)", translations: [{ code: en, label: "Modify root category (the store's front page)" }] }
   - { name: "Module has been successfully installed", translations: [{ code: en, label: "The module has been successfully installed" }] }
-  - { name: "Modules Marketplace", translations: [{ code: en, label: "Modules Marketplace" }] }
+  - { name: "Addons Marketplace", translations: [{ code: en, label: "Addons Marketplace" }] }
   - { name: "More add-ons", translations: [{ code: en, label: "More add-ons" }] }
   - { name: "More details", translations: [{ code: en, label: "More details" }] }
   - { name: "Most Popular", translations: [{ code: en, label: "Most Popular" }] }
@@ -991,6 +994,7 @@ XLite\Model\LanguageLabel:
   - { name: "Pages", translations: [{ code: en, label: "Pages" }] }
   - { name: "Paid", translations: [{ code: en, label: "Paid" }] }
   - { name: "Parent category", translations: [{ code: en, label: "Parent category" }] }
+  - { name: "Password and its confirmation do not match", translations: [{ code: en, label: "Password and its confirmation do not match" }] }
   - { name: "Pattern search", translations: [{ code: en, label: "Pattern search" }] }
   - { name: "Payment gateways", translations: [{ code: en, label: "All payment methods" }] }
   - { name: "Payment info", translations: [{ code: en, label: "Payment info" }] }
@@ -1436,6 +1440,7 @@ XLite\Model\LanguageLabel:
   - { name: "Your store is currently unable to calculate taxes", translations: [{ code: en, label: "Your store is currently unable to calculate taxes" }] }
   - { name: "Zip code", translations: [{ code: en, label: "Zip code" }] }
   - { name: "Zip/postal code masks", translations: [{ code: en, label: "Zip/postal code masks" }] }
+  - { name: "City masks", translations: [{ code: en, label: "City masks" }] }
   - { name: "Zone", translations: [{ code: en, label: "Zone" }] }
   - { name: "Zone name", translations: [{ code: en, label: "Zone name" }] }
   - { name: "Zones", translations: [{ code: en, label: "Zones" }] }
@@ -1494,7 +1499,7 @@ XLite\Model\LanguageLabel:
   - { name: "The profiles have been merged", translations: [{ code: en, label: "The profiles have been merged" }] }
   - { name: "The profile has been registered. The password has been sent to the user's email address", translations: [{ code: en, label: "The profile has been registered. The password has been sent to the user's email address" }] }
   - { name: "Terms and conditions text", translations: [{ code: en, label: "<a href=\"terms-and-conditions.html\">Terms and conditions details</a><br /><br />Edit the \"Terms and conditions text\" label via the Admin area" }] }
-  - { name: "X module(s) selected", translations: [{ code: en, label: "<span class=\"modules-amount\">{{count}}</span> module(s) selected" }] }
+  - { name: "X addon(s) selected", translations: [{ code: en, label: "<span class=\"modules-amount\">{{count}}</span> addon(s) selected" }] }
   - { name: "State cannot be created with unknown country code X", translations: [{ code: en, label: "State cannot be created with an unknown country code ({{code}})" }] }
   - { name: "There are no labels translated to X", translations: [{ code: en, label: "There are no labels translated to {{language}}" }] }
   - { name: "Module with ID X is not found", translations: [{ code: en, label: "Module with ID \"{{id}}\" not found" }] }
@@ -1509,7 +1514,7 @@ XLite\Model\LanguageLabel:
   - { name: "After the upgrade is completed please check your website. If you find that the site is inoperative, please try to do the following", translations: [{ code: en, label: "After the upgrade is completed, please check your website. If you find that the site is not operating properly, please try the following" }] }
   - { name: "Start Import", translations: [{ code: en, label: "Start Import" }] }
   - { name: "New import", translations: [{ code: en, label: "New import" }] }
-  - { name: "Critical errors have been detected in the files you are trying to import. Please correct the errors and try again.", translations: [{ code: en, label: "Critical errors have been detected in the files you are trying to import. Please correct the errors and try again." }] }
+  - { name: "Critical errors have been detected in the files you are trying to import. Check the manual to correct the errors and try again.", translations: [{ code: en, label: "Critical errors have been detected in the files you are trying to import. Check the manual to correct the errors and try again." }] }
   - { name: "Data has not been found", translations: [{ code: en, label: "Data has not been found" }] }
   - { name: "Drop existing items before import", translations: [{ code: en, label: "Clear the item's data before importing this item" }] }
   - { name: "Do not verify images to increase speed of the process", translations: [{ code: en, label: "Do not verify images to run the process faster" }] }
@@ -1936,7 +1941,6 @@ XLite\Model\LanguageLabel:
   - { name: "View all modules", translations: [{ code: en, label: "View all modules" }] }
   - { name: "Storefront is closed", translations: [{ code: en, label: "Storefront is closed" }] }
   - { name: "Open", translations: [{ code: en, label: "Open" }] }
-  - { name: 'Access storefront via private link', translations: [{ code: en, label: 'Storefront is closed (<a href="{{shop_url}}" target="_blank">private link</a>)' }] }
   - { name: "Storefront is open", translations: [{ code: en, label: "Storefront is open" }] }
   - { name: "Closed", translations: [{ code: en, label: "Closed" }] }
   - { name: "The attribute group has been updated", translations: [{ code: en, label: "The attribute group has been updated" }] }
@@ -1964,7 +1968,7 @@ XLite\Model\LanguageLabel:
   - { name: "Enter search pattern", translations: [{ code: en, label: "Enter search pattern" }] }
   - { name: "Import language from CSV file", translations: [{ code: en, label: "Import language from CSV file" }] }
   - { name: "Requested zone does not exists", translations: [{ code: en, label: "Requested zone does not exist" }] }
-  - { name: "Install modules", translations: [{ code: en, label: "Install modules" }] }
+  - { name: "Install addons", translations: [{ code: en, label: "Install addons" }] }
   - { name: "Add products", translations: [{ code: en, label: "Add products" }] }
   - { name: "More actions for selected", translations: [{ code: en, label: "More actions for selected" }] }
   - { name: "Order #{{id}} details", translations: [{ code: en, label: "Order #{{id}} details" }] }
@@ -2027,7 +2031,7 @@ XLite\Model\LanguageLabel:
   - { name: "These links were already provided to you after this store was installed and will be emailed to you again after you start the upgrade process.", translations: [{ code: en, label: "These links were already provided to you after this store was installed and will be emailed to you again after you start the upgrade process." }] }
   - { name: "For any emergency you can use the hard, soft and restore-state links", translations: [{ code: en, label: "For any emergency you can use the hard, soft and restore-state links. Pay attention, that these links just disable certain modules in your store, but not make any backups." }] }
   - { name: "Not enough disk space. Required: {{req}} (+{{reserve}} reserve). Available: {{avail}}", translations: [{ code: en, label: "Not enough disk space. Required: {{req}} (+{{reserve}} reserve). Available: {{avail}}" }] }
-  - { name: "Can\'t connect to the marketplace server", translations: [{ code: en, label: "Cannot connect to the Marketplace server" }] }
+  - { name: 'Can''t connect to the marketplace server', translations: [{ code: en, label: "Cannot connect to the Marketplace server" }] }
   - { name: "Empty \"class\" parameter is passed to the {{method}}", translations: [{ code: en, label: "Empty \"class\" parameter is passed to the {{method}}" }] }
   - { name: "You need hard and soft reset links in case some 3rd party module crashes your web-store", translations: [{ code: en, label: "You need hard and soft reset links in case some 3rd party addon <a href=\"{{article}}\" target=\"_blank\">crashes your web store</a>" }] }
   - { name: "If your store is crashed after upgrade, you can recover it", translations: [{ code: en, label: "We strongly recommend <b>to make a full backup</b> of your live store before starting the upgrade process. If your store crashes as a result of a failed upgrade, you will be able to <a href=\"{{article}}\" target=\"_blank\">restore it</a> from backup." }] }
@@ -2040,7 +2044,7 @@ XLite\Model\LanguageLabel:
   - { name: "More info is available in X-Cart's Knowledge Base article 'What to do if you cannot access your store...'", translations: [{ code: en, label: "More info is available in X-Cart's Knowledge Base article <a href=\"{{article}}\" target=\"_blank\">What to do if you cannot access your store...</a>" }] }
   - { name: "Couldn't move image X", translations: [{ code: en, label: "Couldn't move image {{path}}" }] }
   - { name: "Couldn't move X images. See log for details.", translations: [{ code: en, label: "Couldn't move {{count}} images. See log for details." }] }
-  - { name: "This module uses PHP's cURL functions which are disabled on your web server", translations: [{ code: en, label: "This module uses PHP\'s cURL functions which are disabled on your web server" }] }
+  - { name: "This module uses PHP's cURL functions which are disabled on your web server", translations: [{ code: en, label: "This module uses PHP's cURL functions which are disabled on your web server" }] }
   - { name: "Package weight", translations: [{ code: en, label: "Package weight" }] }
   - { name: "Package weight (X)", translations: [{ code: en, label: "Package weight ({{units}})" }] }
   - { name: "Package subtotal", translations: [{ code: en, label: "Package subtotal" }] }
@@ -2077,12 +2081,12 @@ XLite\Model\LanguageLabel:
   - { name: "After activation Skrill will give you access to a new section in your Skrill account called \"Merchant tools\". Please choose a secret word (do not use your password for this) and enter it into the merchant tools section and below.", translations: [{ code: en, label: "After activation Skrill will give you access to a new section in your Skrill account called \"Merchant tools\". Please choose a secret word (do not use your password for this) and enter it into the Merchant tools section and the form below." }] }
   - { name: "(optional)", translations: [{ code: en, label: "(optional)" }] }
   - { name: "Request type must be POST", translations: [{ code: en, label: "Request type must be POST" }] }
-  - { name: "\'status\' request argument can not found", translations: [{ code: en, label: "\'status\' request argument not found" }] }
+  - { name: "'status' request argument can not found", translations: [{ code: en, label: "'status' request argument not found" }] }
   - { name: "Test/Live mode", translations: [{ code: en, label: "Test/Live mode" }] }
   - { name: "Purchase description", translations: [{ code: en, label: "Purchase description" }] }
   - { name: "Live mode", translations: [{ code: en, label: "Live mode" }] }
   - { name: "User", translations: [{ code: en, label: "User" }] }
-  - { name: "\'RESULT\' argument not found", translations: [{ code: en, label: "\'RESULT\' argument not found" }] }
+  - { name: "'RESULT' argument not found", translations: [{ code: en, label: "'RESULT' argument not found" }] }
   - { name: "Transaction amount mismatch", translations: [{ code: en, label: "Transaction amount mismatch" }] }
   - { name: "Compare", translations: [{ code: en, label: "Compare" }] }
   - { name: "Billing address is not defined", translations: [{ code: en, label: "Billing address is not defined" }] }
@@ -2117,11 +2121,11 @@ XLite\Model\LanguageLabel:
   - { name: "The module version is incompatible with your core version and cannot be enabled. Minimum core version required for this module is X.", translations: [{ code: en, label: "The module version is incompatible with your core version and cannot be enabled. The minimum core version required for this module is {{version}}." }] }
   - { name: "New module version available for core versions X", translations: [{ code: en, label: "New module version available for core versions {{versions}}." }] }
   - { name: "Payment status", translations: [{ code: en, label: "Payment status" }] }
-  - { name: "Shipping status", translations: [{ code: en, label: "Shipping status" }] }
+  - { name: "Shipping status", translations: [{ code: en, label: "Fulfilment status" }] }
   - { name: "All payment statuses", translations: [{ code: en, label: "All payment statuses" }] }
-  - { name: "All shipping statuses", translations: [{ code: en, label: "All shipping statuses" }] }
+  - { name: "All shipping statuses", translations: [{ code: en, label: "All fulfilment statuses" }] }
   - { name: "Order payment status changed from {{oldStatus}} to {{newStatus}}", translations: [{ code: en, label: "Order payment status changed from {{oldStatus}} to {{newStatus}}" }] }
-  - { name: "Order shipping status changed from {{oldStatus}} to {{newStatus}}", translations: [{ code: en, label: "Order shipping status changed from {{oldStatus}} to {{newStatus}}" }] }
+  - { name: "Order shipping status changed from {{oldStatus}} to {{newStatus}}", translations: [{ code: en, label: "Order fulfilment status changed from {{oldStatus}} to {{newStatus}}" }] }
   - { name: "Communication log", translations: [{ code: en, label: "Communication log" }] }
   - { name: "Input data", translations: [{ code: en, label: "Input data" }] }
   - { name: "Please create a new password", translations: [{ code: en, label: "Please create a new password" }] }
@@ -2433,7 +2437,8 @@ XLite\Model\LanguageLabel:
   - { name: 'Administrator account cannot be deleted via customer interface.', translations: [{ code: en, label: 'Administrator account cannot be deleted via customer interface.' }] }
   - { name: 'X-Cart license key has been successfully verified', translations: [{ code: en, label: 'X-Cart license key has been successfully verified and activated.' }] }
   - { name: 'X-Cart license key has been successfully verified and activated. But this key has expired and do not allow upgrade store.', translations: [{ code: en, label: 'X-Cart license key has been activated. However, this key is expired and does not allow getting upgrade packs from the Marketplace.' }] }
-  - { name: 'License key has been successfully verified and activated for "{{name}}" module by "{{author}}" author. But this key has expired and do not allow upgrade store.', translations: [{ code: en, label: 'The license key for the module "name" by "author" has been successfully verified and activated. However, this key is expired and does not allow getting module upgrade packs from the Marketplace.' }] }
+  - { name: 'License key has been successfully verified and activated for "{{name}}" module by "{{author}}" author.', translations: [{ code: en, label: 'The license key for the module "{{name}}" by "{{author}}" has been successfully verified and activated.' }] }
+  - { name: 'The key does not allow getting new features and upgrades.', translations: [{ code: en, label: 'The key does not allow getting new features and upgrades. <a href="{{renewalUrl}}" target="_blank">Renew your key now</a>' }] }
   - { name: 'Some of these updates are not available for you at the moment.', translations: [{ code: en, label: 'Some of these updates are not available for you at the moment. Please renew your access to upgrades to get new superior features from the latest releases.' }] }
   - { name: 'Please renew your access to upgrades to get new superior features from the latest releases.', translations: [{ code: en, label: 'Please renew your access to upgrades to get new superior features from the latest releases.' }] }
   - { name: 'License key', translations: [{ code: en, label: 'License key' }] }
@@ -2631,6 +2636,10 @@ XLite\Model\LanguageLabel:
   - { name: "Refunds", translations: [{ code: en, label: 'Refunds' }]}
   - { name: "App type", translations: [{ code: en, label: 'App type' }]}
   - { name: "Cloud Service", translations: [{ code: en, label: 'Cloud Service' }]}
+  - { name: "Cloud Zoom", translations: [{ code: en, label: 'Cloud Zoom' }]}
+  - { name: "Cloud Zoom mode", translations: [{ code: en, label: 'Cloud Zoom mode' }]}
+  - { name: "Cloud Zoom mode Inside", translations: [{ code: en, label: 'Inside' }]}
+  - { name: "Cloud Zoom mode Outside", translations: [{ code: en, label: 'Outside' }]}
   - { name: "Win app", translations: [{ code: en, label: 'Win app' }]}
 
   - { name: 'Amazon', translations: [{ code: en, label: 'Amazon' }]}
@@ -2818,6 +2827,7 @@ XLite\Model\LanguageLabel:
   - { name: "Do not see your payment method? Find it on our Marketplace', {'url': url('addons_list_marketplace', '', {'tag': 'Payment processing", translations: [{ code: en, label: "Do not see your payment method? Find it on our Marketplace', {'url': url('addons_list_marketplace', '', {'tag': 'Payment processing" }]}
   - { name: 'Enter product name or SKU', translations: [{ code: en, label: 'Enter product name or SKU' }]}
   - { name: 'Export all', translations: [{ code: en, label: 'Export all' }]}
+  - { name: "Export selected", translations: [{ code: en, label: 'Export selected' }]}
   - { name: 'File was successfully uploaded', translations: [{ code: en, label: 'File was successfully uploaded' }]}
   - { name: 'Hide and make them available only via a direct link', translations: [{ code: en, label: 'Hide and make them available only via a direct link' }]}
   - { name: 'Ignore membership', translations: [{ code: en, label: 'Ignore membership' }]}
@@ -2949,6 +2959,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Start', translations: [{ code: en, label: 'Start' }] }
 
   - { name: 'Orders awaiting processing', translations: [{ code: en, label: 'Orders awaiting processing' }] }
+  - { name: 'Awaiting processing', translations: [{ code: en, label: 'Awaiting processing' }] }
   - { name: 'Only orders awaiting processing', translations: [{ code: en, label: 'Only orders awaiting processing' }]}
 
   - { name: 'On category listing', translations: [{ code: en, label: 'On category listing' }]}
@@ -2961,7 +2972,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Wrong subtotal format', translations: [{ code: en, label: 'Wrong format of "subtotal" field' }]}
   - { name: 'Wrong total format', translations: [{ code: en, label: 'Wrong format of "total" field' }]}
   - { name: 'Wrong currency format', translations: [{ code: en, label: 'Wrong format of "currency" field' }]}
-  - { name: 'Shipping status not found, "New" will be used for order', translations: [{ code: en, label: 'Shipping status not found, "New" will be used for order' }]}
+  - { name: 'Shipping status not found, "New" will be used for order', translations: [{ code: en, label: 'Fulfilment status not found, "New" will be used for order' }]}
   - { name: 'Payment status not found, "Awaiting payment" will be used for order', translations: [{ code: en, label: 'Payment status not found, "Awaiting payment" will be used for order' }]}
   - { name: 'Order modifier not found', translations: [{ code: en, label: 'Order modifier "{{value}}" not found' }]}
   - { name: 'Wrong order modifier format', translations: [{ code: en, label: 'Wrong format of "order modifier" field' }]}
@@ -3015,7 +3026,11 @@ XLite\Model\LanguageLabel:
 
   - { name: 'Enable selected', translations: [{ code: en, label: 'Enable selected' }] }
   - { name: 'Disable selected', translations: [{ code: en, label: 'Disable selected' }] }
+  - { name: 'Enable all', translations: [{ code: en, label: 'Enable all' }] }
+  - { name: 'Disable all', translations: [{ code: en, label: 'Disable all' }] }
   - { name: 'Clone selected', translations: [{ code: en, label: 'Clone selected' }] }
+
+  - { name: 'Required state_id checkbox help text', translations: [{ code: en, label: 'This field will be required if the selected country has states, and will not be required if the selected country does not have states.' }] }
 
   - { name: 'Will be available if core update is selected', translations: [{ code: en, label: 'Will be available if core update is selected' }] }
   - { name: 'No category assigned', translations: [{ code: en, label: 'No category assigned' }] }
@@ -3044,6 +3059,12 @@ XLite\Model\LanguageLabel:
   - { name: 'Categories processed: X out of Y', translations: [{ code: en, label: 'Categories processed: {{X}} out of {{Y}}' }] }
   - { name: 'Categories processed: {{count}}', translations: [{ code: en, label: 'Categories processed: {{count}}' }] }
 
+  - { name: "Order X has been confirmed as delivered to the customer", translations: [{ code: en, label: "Order {{order_number}} has been confirmed as delivered to the customer." }] }
+
+  - { name: 'Products with no assigned categories', translations: [{ code: en, label: 'Products with no assigned categories' }] }
+  - { name: 'The selected categories have been deleted. There are products with no assigned category.', translations: [{ code: en, label: 'The selected categories have been deleted. As a result, there are products with no assigned category. You can re-arrange the location of these products by using bulk edit.' }] }
+  - { name: 'Show products with no assigned category', translations: [{ code: en, label: 'Show products with no assigned category' }] }
+
   - { name: 'The import process has been canceled', translations: [{ code: en, label: 'The import process has been canceled' }] }
   - { name: "Logout this user", translations: [{ code: en, label: "Logout this user" }] }
   - { name: "Profile actions", translations: [{ code: en, label: "Profile actions" }] }
@@ -3051,5 +3072,157 @@ XLite\Model\LanguageLabel:
   - { name: "itemslist.admin.subcategory.blank", translations: [{ code: en, label: "<p class='items-list-blank-description-heading text-center'>There are no subcategories in the category.</p>" }] }
 
   - { name: "The product you are trying to add to cart is unavailable", translations: [{ code: en, label: "The product you are trying to add to cart is unavailable." }] }
+  - { name: 'Current password', translations: [{ code: en, label: 'Current password' }] }
+  - { name: 'Send reset link', translations: [{ code: en, label: '<a href="{{url}}">Send reset link</a>' }] }
 
-  - { name: 'Required state_id checkbox help text', translations: [{ code: en, label: 'This field will be required if the selected country has states, and will not be required if the selected country does not have states.' }] }
+  - { name: 'Installation script', translations: [{ code: en, label: 'Installation script' }] }
+  - { name: 'install_script.error_message_1', translations: [{ code: en, label: 'The root folder of your installed X-Cart store still contains the file install.php that is used to launch X-Cart installation. Keeping this file in the said location ''as is'' is not secure. We strongly recommend that this file should be deleted or renamed to prevent unauthorized access to the store installation tools.' }] }
+
+  - { name: 'Config file', translations: [{ code: en, label: 'Config file' }] }
+  - { name: 'config_file.error_message_1', translations: [{ code: en, label: 'Config file does not exist and cannot be copied from the default config file. It is required for the installation.<br /><br />Please, follow these steps: <br /><br />1. Go to directory {{configPath}}<br />2. Copy <i>{{defaultConfigFileName}}</i> to <i>{{configFileName}}</i><br />3. Set writeable permissions on <i>{{configFileName}}</i><br /><br />Then try again.' }] }
+  - { name: 'config_file.label_message', translations: [{ code: en, label: 'Config file does not exist and cannot be copied from the default config file. It is required for the installation.<br /><br />Please, follow these steps: <br /><br />1. Go to directory {{configPath}}<br />2. Copy <i>{{defaultConfigFileName}}</i> to <i>{{configFileName}}</i><br />3. Set writeable permissions on <i>{{configFileName}}</i><br /><br />Then try again.' }] }
+
+  - { name: 'PHP version', translations: [{ code: en, label: 'PHP version' }] }
+  - { name: 'php_version.error_message_1', translations: [{ code: en, label: 'PHP Version must be at least {{minPhpVersion}}.' }] }
+  - { name: 'php_version.error_message_2', translations: [{ code: en, label: 'PHP Version must be not greater than {{maxPhpVersion}}.' }] }
+  - { name: 'php_version.error_message_3', translations: [{ code: en, label: 'Unsupported PHP version detected.' }] }
+  - { name: 'php_version.label_message', translations: [{ code: en, label: 'PHP versions <b>5.4.0+</b> are currently supported.' }] }
+
+  - { name: 'Disabled functions', translations: [{ code: en, label: 'Disabled functions' }] }
+  - { name: 'php_disabled_functions.error_message_1', translations: [{ code: en, label: 'The following functions are disabled:<br/>:missedFunctions<br/>These functions may be used by the software in some cases and should be enabled.' }] }
+  - { name: 'php_disabled_functions.label_message', translations: [{ code: en, label: 'Some functions, used by X-Cart, are found disabled. Make sure that these functions are not listed in "disable_functions" option and all php extensions required for these functions availability are enabled in the php.ini file. Please correct this and try again.' }] }
+
+  - { name: 'Memory limit', translations: [{ code: en, label: 'Memory limit' }] }
+  - { name: 'php_memory_limit.error_message_1', translations: [{ code: en, label: 'PHP memory_limit option must be at least {{memoryLimitMin}}.' }] }
+  - { name: 'php_memory_limit.label_message', translations: [{ code: en, label: 'PHP memory_limit option must be at least {{memoryLimitMin}}.' }] }
+
+  - { name: 'File uploads', translations: [{ code: en, label: 'File uploads' }] }
+  - { name: 'php_file_uploads.error_message_1', translations: [{ code: en, label: 'PHP file_uploads option must be set to On.' }] }
+  - { name: 'php_file_uploads.label_message', translations: [{ code: en, label: 'The configuration of the server where X-Cart will be installed meets the Server requirements; however, some server software issues, which can impair X-Cart operation, have been identified on the server.<br /><br />For proper operation of X-Cart the value of the upload_max_filesize variable in the php.ini file should indicate the maximum file size allowed for upload.' }] }
+
+  - { name: 'PDO extension', translations: [{ code: en, label: 'PDO extension' }] }
+  - { name: 'php_pdo_mysql.error_message_1', translations: [{ code: en, label: 'PDO extension with MySQL support must be installed.' }] }
+  - { name: 'php_pdo_mysql.label_message', translations: [{ code: en, label: 'PDO extension with enabled MySQL support is used by X-Cart for connecting to the database. Please make sure this extension is loaded in your php.ini file and try again.' }] }
+  - { name: 'php_pdo_mysql.kb_message', translations: [{ code: en, label: 'Check our <a href="http://kb.x-cart.com/en/general_setup/installation_guide.html#disabled-php-extensions" target="_blank">Knowledge Base</a> in order to find out how to solve the problem with PDO extension.' }] }
+
+  - { name: 'Upload file size limit', translations: [{ code: en, label: 'Upload file size limit' }] }
+  - { name: 'php_upload_max_file_size.error_message_1', translations: [{ code: en, label: 'PHP option upload_max_filesize must contain a value. It is currently empty.' }] }
+  - { name: 'php_upload_max_file_size.label_message', translations: [{ code: en, label: 'For proper operation of X-Cart the value of the upload_max_filesize option in the php.ini file should indicate the maximum file size allowed for upload. Please correct this option or contact your hosting provider''s support to have the parameter adjusted.' }] }
+
+  - { name: 'File permissions', translations: [{ code: en, label: 'File permissions' }] }
+  - { name: 'file_permissions.error_message_1', translations: [{ code: en, label: 'Not enough permissions to run the process. Please make sure the following files are writable:<br /><div class="permissions-list">{{pathsList}}</div>' }] }
+  - { name: 'file_permissions.error_message_2', translations: [{ code: en, label: 'Not enough permissions to run the process. Make sure the following permissions are set (UNIX-like systems only):<br /><div class="permissions-list">{{pathsList}}</div>Such permissions are required for a seamless automated installation or upgrade of X-Cart on your server. They do not take into account the specific configuration of your server or any security requirements. Once the process is completed, make sure you change the permissions to a more restrictive setting. <a target="_blank" href="http://kb.x-cart.com/en/setting_up_x-cart_5_environment/secure_configuration.html#why-x-cart-asks-for-666777-permissions">Read more</a>' }] }
+  - { name: 'file_permissions.kb_message', translations: [{ code: en, label: 'Check our <a href="http://kb.x-cart.com/en/general_setup/installation_guide.html#permissionchecking-failed" target="_blank">Knowledge Base</a> in order to find out how to solve the problem with incorrect permissions.' }] }
+
+  - { name: 'MySQL version', translations: [{ code: en, label: 'MySQL version' }] }
+  - { name: 'mysql_version.error_message_1', translations: [{ code: en, label: 'MySQL version must be at least {{minMysqlVersion}}.' }] }
+  - { name: 'mysql_version.error_message_2', translations: [{ code: en, label: 'InnoDB engine is not supported by MySQL server. InnoDB is required for X-Cart operation.' }] }
+  - { name: 'mysql_version.error_message_3', translations: [{ code: en, label: 'Cannot get MySQL server version ({{error}}).' }] }
+
+  - { name: 'MySQL cache', translations: [{ code: en, label: 'MySQL cache' }] }
+  - { name: 'mysql_cache.error_message_1', translations: [{ code: en, label: 'MySQL query cache is not enabled. See <a href="https://dev.mysql.com/doc/refman/5.7/en/query-cache-configuration.html" target="_blank">https://dev.mysql.com/doc/refman/5.7/en/query-cache-configuration.html</a> for how to enable it.' }] }
+
+  - { name: 'GDlib extension', translations: [{ code: en, label: 'GDlib extension' }] }
+  - { name: 'php_gdlib.error_message_1', translations: [{ code: en, label: 'GDlib extension v.2.0 or later is required for some modules.' }] }
+  - { name: 'php_gdlib.error_message_2', translations: [{ code: en, label: 'GDlib extension does not have the JPEG plugin.' }] }
+
+  - { name: 'Phar extension', translations: [{ code: en, label: 'Phar extension' }] }
+  - { name: 'php_phar.error_message_1', translations: [{ code: en, label: 'Phar extension v.2.0.1 or later is required to get upgrades and install modules; otherwise, these features may not work properly.' }] }
+  - { name: 'php_phar.label_message', translations: [{ code: en, label: 'Phar extension is required for installation of external X-Cart addons and upgrades from the Marketplace.  Phar v.2.0.1 or later is recommended, otherwise this features may fail to work properly. Please contact your hosting provider''s support to have this parameter adjusted.' }] }
+
+  - { name: 'HTTPS bouncers', translations: [{ code: en, label: 'HTTPS bouncers' }] }
+  - { name: 'https_bouncer.error_message_1', translations: [{ code: en, label: 'libcurl extension is found but does not support secure protocols.' }] }
+  - { name: 'https_bouncer.error_message_2', translations: [{ code: en, label: 'libcurl extension not found.' }] }
+  - { name: 'https_bouncer.label_message', translations: [{ code: en, label: 'The libCURL module with HTTPS protocol support and a valid SSL certificate is required for credit cards processing via Authorize.NET, PayPal or other payment gateways and using real-time shipping calculation services (these services require your website to accept secure connections via HTTPS/SSL). Please contact your hosting provider''s support to have these parameters adjusted.' }] }
+  - { name: 'https_bouncer.kb_message', translations: [{ code: en, label: 'Check our <a href="http://kb.x-cart.com/en/general_setup/installation_guide.html#https-bouncer-is-not-installed" target="_blank">Knowledge Base</a> in order to find out how to solve the problem with libCurl library.' }] }
+
+  - { name: 'XML extensions support', translations: [{ code: en, label: 'XML extensions support' }] }
+  - { name: 'xml_support.error_message_1', translations: [{ code: en, label: 'XML/Expat and DOM extensions are required for some modules.' }] }
+  - { name: 'xml_support.label_message', translations: [{ code: en, label: 'Xml/EXPAT and DOMDocument extensions for PHP are required for using real-time shipping modules and payment modules. Please contact your hosting provider''s support to have these parameters adjusted.' }] }
+
+  - { name: 'DocBlocks support', translations: [{ code: en, label: 'DocBlocks support' }] }
+  - { name: 'doc_blocks_support.error_message_1', translations: [{ code: en, label: 'The DocBlock feature is not supported by your PHP. This feature is required for X-Cart operation.' }] }
+  - { name: 'doc_blocks_support.error_message_2', translations: [{ code: en, label: 'The DocBlock feature is not supported by your PHP. This feature is required for X-Cart operation. The cause of DocBlock feature being blocked may be the eAccelerator extension. Disable this extension and try again.' }] }
+  - { name: 'doc_blocks_support.label_message', translations: [{ code: en, label: 'Check our <a href="http://kb.x-cart.com/en/general_setup/installation_guide.html#permissionchecking-failed" target="_blank">Knowledge Base</a> in order to find out how to solve the problem with incorrect permissions.' }] }
+  - { name: 'Category id or path is required', translations: [{ code: en, label: 'Category id or path is required' }] }
+  - { name: 'Last element of category path should be same as name', translations: [{ code: en, label: 'Last element of category path should be same as name if no category id is presented' }] }
+  - { name: 'Category with id X not found, new category will be created', translations: [{ code: en, label: 'Category with id "{{value}}" not found, new category with different id will be created' }] }
+  - { name: 'CSV format tables', translations: [{ code: en, label: 'CSV format tables' }] }
+  - { name: 'How to set up free shipping help', translations: [{ code: en, label: 'Need to set up free shipping? <a href="{{url}}" target="_blank">Learn how</a>.' }] }
+  - { name: 'Show states for selected countires only', translations: [{ code: en, label: 'Show states for selected countires only' }] }
+
+  - { name: 'Profile details', translations: [{ code: en, label: 'Profile details' }] }
+  - { name: 'Attention!', translations: [{ code: en, label: 'Attention!' }] }
+  - { name: 'Ok, Got it', translations: [{ code: en, label: 'Ok, Got it' }] }
+  - { name: 'Upgrade phar warning', translations: [{ code: en, label: "To install modules and get X-Cart upgrades, PHP's <a href=\"http://php.net/manual/en/book.phar.php\" target=\"_blank\">Phar extension</a> needs to be enabled on your server. Please contact your hosting provider." }] }
+  - { name: 'Also, you can review X-Cart recommended hosting providers', translations: [{ code: en, label: "Also, you can review X-Cart recommended hosting providers <a href=\"https://market.x-cart.com/experts-and-services#filter[tags]=Hosters\" target=\"_blank\">in our marketplace</a>." }] }
+
+
+  - { name: 'Your X-Cart Business trial has expired!', translations: [{ code: en, label: 'Your X-Cart Business trial has expired!' }] }
+  - { name: 'You must register your X-Cart installation before using it for real sales. Activate your existing license key or purchase a premium license to skyrocket your business.', translations: [{ code: en, label: 'You must register your X-Cart installation before using it for real sales. Activate your existing license key or purchase a <strong>premium license to skyrocket your business</strong>.' }] }
+  - { name: 'This message can be removed only through activation of a free or premium license.', translations: [{ code: en, label: 'This message can be removed only through activation of a free or premium license.' }] }
+  - { name: 'Refer to X-Cart license agreement for further details.', translations: [{ code: en, label: 'Refer to <a href="{{licenseAgreementURL}}" target="_blank">X-Cart license agreement</a> for further details.' }] }
+  - { name: 'Remind me on next sign-in', translations: [{ code: en, label: 'Remind me on next sign-in' }] }
+  - { name: 'Purchase a premium license key', translations: [{ code: en, label: 'Purchase a premium license key' }] }
+  - { name: 'I have a license key', translations: [{ code: en, label: 'I have a license key' }] }
+  - { name: 'Enter your premium license key', translations: [{ code: en, label: 'Enter your premium license key' }] }
+  - { name: 'Activate free license & remove premium features.', translations: [{ code: en, label: '<a href="{{url}}">Activate free license & remove premium features.</a>' }] }
+  - { name: 'Contact us if you have any questions.', translations: [{ code: en, label: '<a href="{{url}}" target="_blank">Contact us</a> if you have any questions.' }] }
+  - { name: 'License key registration', translations: [{ code: en, label: 'License key registration' }] }
+  - { name: 'X-Cart Business trial will expire in X day', translations: [{ code: en, label: 'X-Cart Business trial will expire in {{count}} day' }] }
+  - { name: 'X-Cart Business trial will expire in X days', translations: [{ code: en, label: 'X-Cart Business trial will expire in {{count}} days' }] }
+  - { name: 'X-Cart Business trial will expire in X days (5)', translations: [{ code: en, label: 'X-Cart Business trial will expire in {{count}} days' }] }
+  - { name: 'Please register your license key now or purchase a premium license to skyrocket your business.', translations: [{ code: en, label: 'Please register your license key now or purchase a <strong>premium license to skyrocket your business</strong>.' }] }
+  - { name: 'X day left', translations: [{ code: en, label: '{{count}} day left' }] }
+  - { name: 'X days left', translations: [{ code: en, label: '{{count}} days left' }] }
+  - { name: 'X days left (5)', translations: [{ code: en, label: '{{count}} days left' }] }
+  - { name: 'Trial has expired!', translations: [{ code: en, label: 'Trial has expired!' }] }
+  - { name: 'Register license key', translations: [{ code: en, label: 'Register license key' }] }
+  - { name: 'Warning! The image cannot be resized to reduce capacity for better site performance.', translations: [{ code: en, label: 'Warning! The image cannot be resized to reduce capacity for better site performance.' }] }
+
+  - { name: 'Previous order', translations: [{ code: en, label: 'Previous order' }] }
+  - { name: 'Next order', translations: [{ code: en, label: 'Next order' }] }
+  - { name: 'Click to expand menu', translations: [{ code: en, label: 'Click to expand menu' }] }
+
+  - { name: 'Need a way to set multicurrency prices? [Install the addon]', translations: [{ code: en, label: '<span>Need a way to set multicurrency prices?</span> <a href="{{url}}" target="_blank">Install the addon</a>' }] }
+  - { name: 'Need a way to set up product variants? [Install the addon]', translations: [{ code: en, label: '<span>Need a way to set up product variants?</span> <a href="{{url}}" target="_blank">Install the addon</a>' }] }
+  - { name: 'Need a way to set wholesale prices? [Install the addon]', translations: [{ code: en, label: '<span>Need a way to set wholesale prices?</span> <a href="{{url}}" target="_blank">Install the addon</a>' }] }
+
+  - { name: 'Image quality after resize', translations: [{ code: en, label: 'Image quality after resize' }] }
+  - { name: 'Apply unsharp mask filter on resize', translations: [{ code: en, label: 'Apply unsharp mask filter on resize' }] }
+
+  - { name: 'attributes_popover_text', translations: [{ code: en, label: 'Clearing this field hides the option for this product only. To remove the attribute for all the products, use the <a href="{{link}}" target="_blank">"Classes&Attrubutes" page</a>.' }] }
+  - { name: 'Apply attribute value changes for all the products', translations: [{ code: en, label: 'Apply attribute value changes for all the products' }] }
+  - { name: 'Will be added globally', translations: [{ code: en, label: 'Will be added globally' }] }
+  - { name: 'Will be added to the product class', translations: [{ code: en, label: 'Will be added to the product class' }] }
+  - { name: 'The name will be changed globally', translations: [{ code: en, label: 'The name will be changed globally' }] }
+  - { name: 'The totals have been recalculated. Press "Save changes" to adjust the order', translations: [{ code: en, label: 'The totals have been recalculated. Press "Save changes" to adjust the order' }] }
+
+  - { name: 'Your access to X-Cart Business features expires in X day', translations: [{ code: en, label: 'Your access to <a href="{{url}}">X-Cart Business features</a> expires in {{count}} day' }] }
+  - { name: 'Your access to X-Cart Business features expires in X days', translations: [{ code: en, label: 'Your access to <a href="{{url}}">X-Cart Business features</a> expires in {{count}} days' }] }
+  - { name: 'Your access to X-Cart Business features expires in X days (5)', translations: [{ code: en, label: 'Your access to <a href="{{url}}">X-Cart Business features</a> expires in {{count}} days' }] }
+  - { name: 'Discounts', translations: [{ code: en, label: 'Discounts' }] }
+  - { name: 'Sales channels', translations: [{ code: en, label: 'Sales channels' }] }
+  - { name: 'My addons', translations: [{ code: en, label: 'My addons' }] }
+  - { name: 'Custom CSS & JS', translations: [{ code: en, label: 'Custom CSS & JS' }] }
+  - { name: 'System tools', translations: [{ code: en, label: 'System tools' }] }
+  - { name: 'System logs', translations: [{ code: en, label: 'System logs' }] }
+  - { name: 'My profile', translations: [{ code: en, label: 'My profile' }] }
+  - { name: 'Quick menu', translations: [{ code: en, label: 'Quick menu' }] }
+  - { name: 'Add sales channel', translations: [{ code: en, label: 'Add sales channel' }] }
+  - { name: 'Saving', translations: [{ code: en, label: 'Saving' }] }
+
+  - { name: 'Users list', translations: [{ code: en, label: 'Users list' }] }
+  - { name: 'Image resizing requires libraries', translations: [{ code: en, label: 'Image resizing requires GDLib 2.0 or ImageMagick' }] }
+
+  - { name: 'Consistency check', translations: [{ code: en, label: 'Consistency check' }] }
+  - { name: 'Surcharges', translations: [{ code: en, label: 'Surcharges' }] }
+  - { name: 'There are %model% without valid %another_model% relation', translations: [{ code: en, label: 'There are {{model}} without valid {{another_model}} relation' }] }
+  - { name: 'We couldn''t find one correct root category', translations: [{ code: en, label: 'We couldn''t find one correct root category' }] }
+  - { name: 'We couldn''t find one correct root category, however there are possible candidates', translations: [{ code: en, label: 'We couldn''t find one correct root category, however there are possible candidates' }] }
+  - { name: 'There is one valid root category, however there are multiple root category candidates', translations: [{ code: en, label: 'There is one valid root category, however there are multiple root category candidates' }] }
+  - { name: 'Consistency has not yet been checked. Initiate an consistency check by clicking the button "Refresh consistency status".', translations: [{ code: en, label: 'Consistency has not yet been checked. Initiate an consistency check by clicking the button "Refresh consistency status".' }] }
+  - { name: 'Refresh consistency status', translations: [{ code: en, label: 'Refresh consistency status' }] }
+  - { name: 'There are no inconsistencies found', translations: [{ code: en, label: 'There are no inconsistencies found' }] }
+
+  - { name: 'Need a customizable contact us form with location map? [Get it now!]', translations: [{ code: en, label: '<span>Need a customizable contact us form with location map?</span> <a href="{{url}}" target="_blank">Get it now!</a>' }] }

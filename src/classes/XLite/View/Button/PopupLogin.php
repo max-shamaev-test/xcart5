@@ -8,7 +8,6 @@
 
 namespace XLite\View\Button;
 
-
 /**
  * Login form in popup
  */
@@ -36,12 +35,23 @@ class PopupLogin extends \XLite\View\Button\APopupButton
      */
     protected function prepareURLParams()
     {
-        return array(
+        return [
             'target' => 'login',
             'widget' => '\XLite\View\Authorization',
-            'popup' => '1',
-            'fromURL' => \XLite::getController()->getURL()
-        );
+            'fromURL' => $this->getFromURL(),
+            'popup'  => '1',
+        ];
+    }
+
+    /**
+     * Return from URL
+     *
+     * @return string
+     */
+    protected function getFromURL()
+    {
+        return \XLite\Core\Request::getInstance()->fromURL
+            ?: \XLite::getController()->getURL();
     }
 
     /**

@@ -146,7 +146,7 @@ abstract class APager extends \XLite\View\RequestHandler\ARequestHandler
      */
     public function getItemsPerPage()
     {
-        $current = $this->getParam(static::PARAM_ITEMS_PER_PAGE);
+        $current = (integer)$this->getParam(static::PARAM_ITEMS_PER_PAGE);
 
         return max(
             min($this->getItemsPerPageMax(), $current),
@@ -594,7 +594,7 @@ abstract class APager extends \XLite\View\RequestHandler\ARequestHandler
     protected function getPageId()
     {
         if (!isset($this->currentPageId)) {
-            $this->currentPageId = min($this->getParam(static::PARAM_PAGE_ID), $this->getPagesCount());
+            $this->currentPageId = min((integer)$this->getParam(static::PARAM_PAGE_ID), $this->getPagesCount());
         }
 
         return $this->currentPageId;

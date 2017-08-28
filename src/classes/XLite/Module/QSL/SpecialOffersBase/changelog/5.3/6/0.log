@@ -1,0 +1,4 @@
+Version 5.3.6.0
+
+Fixes
+- implemeted a workaround for the issue with Volume Discounts module using the wrong subtotal when checking the minimum allowed order subtotal (#0047862)

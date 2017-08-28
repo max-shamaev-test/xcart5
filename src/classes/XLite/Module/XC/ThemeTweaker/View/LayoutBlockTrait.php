@@ -18,7 +18,7 @@ trait LayoutBlockTrait
         return array_merge(
             parent::getJSFiles(),
             array(
-                'modules/XC/ThemeTweaker/layout_editor/layout_block_controller.js',
+                'modules/XC/ThemeTweaker/layout_block/layout_block_controller.js',
             )
         );
     }
@@ -34,11 +34,22 @@ trait LayoutBlockTrait
 
         $this->widgetParams += array(
             static::PARAM_DISPLAY_GROUP => new \XLite\Model\WidgetParam\TypeString('Widget display group', ''),
+            static::PARAM_DISPLAY_NAME => new \XLite\Model\WidgetParam\TypeString('Widget display name', $this->getDefaultDisplayName()),
         );
     }
 
     protected function getDisplayGroup()
     {
         return $this->getParam(static::PARAM_DISPLAY_GROUP);
+    }
+
+    protected function getDisplayName()
+    {
+        return $this->getParam(static::PARAM_DISPLAY_NAME);
+    }
+
+    protected function getDefaultDisplayName()
+    {
+        return $this->getHead();
     }
 }

@@ -8,10 +8,9 @@
  */
 
 .field .onoffswitch {
-  width: 100px;
-}
-.field .onoffswitch input[type=checkbox] + label {
-  margin: 0 22px;
+  width: 35px;
+  height: auto;
+  padding-top: 0;
 }
 .field .onoffswitch input[type=checkbox] + label .on-label {
   color: #fff;
@@ -29,12 +28,9 @@
 .items-list-table table.list thead th.enabledForCustomer,
 .items-list-table table.list tbody.lines tr.line td.enabledForAdmin,
 .items-list-table table.list tbody.lines tr.line td.enabledForCustomer {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-td.enabledForAdmin .cell {
-  text-align: right;
+  padding-left: 10px;
+  padding-right: 10px;
+  height: 35px;
 }
 
 td.enabledForAdmin .separator {
@@ -45,6 +41,7 @@ td.enabledForAdmin .separator {
   height: 22px;
   background: url(../items_list/model/table/images/line-separator.png) repeat-y top right;
   vertical-align: middle;
+  float: right;
 }
 
 .items-list.notifications .cell.name .plain-value {

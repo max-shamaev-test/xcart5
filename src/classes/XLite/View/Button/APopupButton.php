@@ -14,6 +14,7 @@ namespace XLite\View\Button;
 abstract class APopupButton extends \XLite\View\Button\AButton
 {
     const PARAM_WITHOUT_CLOSE = 'withoutClose';
+    const PARAM_JS_CONFIRM_TEXT = 'jsConfirmText';
 
     /**
      * Return URL parameters to use in AJAX popup
@@ -33,6 +34,7 @@ abstract class APopupButton extends \XLite\View\Button\AButton
 
         $this->widgetParams += array(
             static::PARAM_WITHOUT_CLOSE => new \XLite\Model\WidgetParam\TypeBool('Without close', $this->getDefaultWithoutCloseState()),
+            static::PARAM_JS_CONFIRM_TEXT => new \XLite\Model\WidgetParam\TypeString('JS confirm text', ''),
         );
     }
 
@@ -44,6 +46,16 @@ abstract class APopupButton extends \XLite\View\Button\AButton
     protected function getDefaultWithoutCloseState()
     {
         return false;
+    }
+
+    /**
+     * Return text for js confirm() function
+     *
+     * @return string
+     */
+    protected function getJSConfirmText()
+    {
+        return $this->getParam(static::PARAM_JS_CONFIRM_TEXT);
     }
 
     /**

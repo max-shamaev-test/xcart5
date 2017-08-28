@@ -102,7 +102,7 @@ class ProductTranslation extends \XLite\Model\Base\Translation
     /**
      * Set description
      *
-     * @param text $description
+     * @param string $description
      * @return ProductTranslation
      */
     public function setDescription($description)
@@ -114,7 +114,7 @@ class ProductTranslation extends \XLite\Model\Base\Translation
     /**
      * Get description
      *
-     * @return text 
+     * @return string
      */
     public function getDescription()
     {
@@ -124,7 +124,7 @@ class ProductTranslation extends \XLite\Model\Base\Translation
     /**
      * Set briefDescription
      *
-     * @param text $briefDescription
+     * @param string $briefDescription
      * @return ProductTranslation
      */
     public function setBriefDescription($briefDescription)
@@ -136,7 +136,7 @@ class ProductTranslation extends \XLite\Model\Base\Translation
     /**
      * Get briefDescription
      *
-     * @return text 
+     * @return string
      */
     public function getBriefDescription()
     {
@@ -168,7 +168,7 @@ class ProductTranslation extends \XLite\Model\Base\Translation
     /**
      * Set metaDesc
      *
-     * @param text $metaDesc
+     * @param string $metaDesc
      * @return ProductTranslation
      */
     public function setMetaDesc($metaDesc)
@@ -180,7 +180,7 @@ class ProductTranslation extends \XLite\Model\Base\Translation
     /**
      * Get metaDesc
      *
-     * @return text 
+     * @return string
      */
     public function getMetaDesc()
     {

@@ -22,10 +22,11 @@ class Notifications extends \XLite\View\Tabs\ATabs
      */
     public static function getAllowedTargets()
     {
-        $list = parent::getAllowedTargets();
+        $list   = parent::getAllowedTargets();
         $list[] = 'notifications';
         $list[] = 'notification_common';
         $list[] = 'notification_attachments';
+        $list[] = 'email_settings';
 
         return $list;
     }
@@ -36,12 +37,12 @@ class Notifications extends \XLite\View\Tabs\ATabs
     protected function defineTabs()
     {
         return [
-            'notifications' => [
-                'weight'   => 100,
-                'title'    => static::t('Settings'),
+            'notifications'            => [
+                'weight' => 100,
+                'title'  => static::t('Settings'),
                 'widget' => 'XLite\View\ItemsList\Model\Notification',
             ],
-            'notification_common' => [
+            'notification_common'      => [
                 'weight'   => 200,
                 'title'    => static::t('Header, greeting & signature'),
                 'template' => 'notifications/common.twig',
@@ -50,6 +51,11 @@ class Notifications extends \XLite\View\Tabs\ATabs
                 'weight'   => 300,
                 'title'    => static::t('Attachments'),
                 'template' => 'notifications/attachments.twig',
+            ],
+            'email_settings'           => [
+                'weight' => 400,
+                'title'  => static::t('SMTP'),
+                'widget' => 'XLite\View\Model\Settings',
             ],
         ];
     }

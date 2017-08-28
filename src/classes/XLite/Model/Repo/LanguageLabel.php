@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * Langauge labels repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\LanguageLabel", summary="Add new language label")
+ * @Api\Operation\Read(modelClass="XLite\Model\LanguageLabel", summary="Retrieve language label by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\LanguageLabel", summary="Retrieve language labels by condition")
+ * @Api\Operation\Update(modelClass="XLite\Model\LanguageLabel", summary="Update language label by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\LanguageLabel", summary="Delete language by id")
  */
 class LanguageLabel extends \XLite\Model\Repo\Base\I18n
 {
@@ -343,6 +349,7 @@ class LanguageLabel extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters labels by substring", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param \XLite\Model\Profile       $value        Profile

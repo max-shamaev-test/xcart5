@@ -8,6 +8,9 @@
 
 namespace XLite\Module\XC\CustomProductTabs\Logic\Import\Processor;
 
+use XLite\Core\Database;
+use XLite\Module\XC\CustomProductTabs\Model\Product\Tab;
+
 /**
  * Product tabs import processor
  */
@@ -52,7 +55,7 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function getRepository()
     {
-        return \XLite\Core\Database::getRepo('XLite\Module\XC\CustomProductTabs\Model\Product\Tab');
+        return Database::getRepo('XLite\Module\XC\CustomProductTabs\Model\Product\Tab');
     }
 
     /**
@@ -63,23 +66,146 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
     protected function defineColumns()
     {
         return [
-            'name' => [
+            'product'      => [
+                static::COLUMN_IS_KEY      => true,
+                static::COLUMN_IS_REQUIRED => true,
+            ],
+            'name'         => [
                 static::COLUMN_IS_KEY          => true,
                 static::COLUMN_IS_MULTILINGUAL => true,
+                static::COLUMN_IS_REQUIRED     => true,
             ],
-            'content' => [
+            'content'      => [
                 static::COLUMN_IS_MULTILINGUAL => true,
                 static::COLUMN_IS_TAGS_ALLOWED => true,
             ],
-            'enabled' => [],
-            'position' => [],
-            'product' => [
-                static::COLUMN_IS_KEY          => true,
+            'brief_info'   => [
+                static::COLUMN_IS_MULTILINGUAL => true,
             ],
+            'enabled'      => [],
+            'position'     => [],
+            'alias'        => [],
+            'service_name' => [],
+            'global_tab'   => [
+                static::COLUMN_IS_MULTICOLUMN  => true,
+                static::COLUMN_HEADER_DETECTOR => true,
+                static::COLUMN_IS_IMPORT_EMPTY => true
+            ]
         ];
     }
 
-    // }}}
+    /**
+     * Detect details header(s)
+     *
+     * @param array $column Column info
+     * @param array $row    Header row
+     *
+     * @return array
+     */
+    protected function detectGlobalTabHeader(array $column, array $row)
+    {
+        return $this->detectHeaderByPattern('(alias|name_[a-z]+|service_name)', $row);
+    }
+
+    /**
+     * Detect model
+     *
+     * @param array $data Data
+     *
+     * @return \XLite\Model\AEntity
+     */
+    protected function detectModel(array $data)
+    {
+        if (isset($data['alias']) && $this->normalizeValueAsBoolean($data['alias'])) {
+            $qb = $this->getRepository()->createQueryBuilder('t');
+
+            $qb->linkInner('t.product', 'p')
+                ->andWhere('p.sku = :sku AND t.global_tab = :globalTab')
+                ->setParameter(
+                    'globalTab',
+                    empty($data['service_name'])
+                        ? $this->getGlobalTabByNames($data['name'])
+                        : $this->getGlobalTabByServiceName($data['service_name'])
+                )
+                ->setParameter('sku', $data['product']);
+
+            return $qb->getSingleResult();
+        }
+
+        return parent::detectModel($data);
+    }
+
+    /**
+     * Find global tab by service name
+     *
+     * @param string $serviceName
+     *
+     * @return null|\XLite\Model\Product\GlobalTab
+     */
+    protected function getGlobalTabByServiceName($serviceName)
+    {
+        $qb = Database::getRepo('XLite\Model\Product\GlobalTab')->createQueryBuilder('gt');
+
+        $qb->andWhere('gt.service_name = :service_name')
+            ->setParameter('service_name', $serviceName);
+
+        return $qb->getSingleResult();
+    }
+
+    /**
+     * Find global tab by name
+     *
+     * @param array $name
+     *
+     * @return null|\XLite\Model\Product\GlobalTab
+     */
+    protected function getGlobalTabByNames($name)
+    {
+        return isset($name[\XLite\Logic\Import\Importer::getLanguageCode()])
+            ? $this->getGlobalTabByName($name[\XLite\Logic\Import\Importer::getLanguageCode()])
+            : null;
+    }
+
+    /**
+     * Find global tab by name
+     *
+     * @param array $name
+     *
+     * @return null|\XLite\Model\Product\GlobalTab
+     */
+    protected function getGlobalTabByName($name)
+    {
+        $qb = Database::getRepo('XLite\Model\Product\GlobalTab')->createQueryBuilder('gt');
+
+        $qb->innerJoin('gt.custom_tab', 'ct')
+            ->innerJoin('ct.translations', 'ctt')
+            ->where('ctt.name = :name')
+            ->setParameter('name', $name);
+
+        return $qb->getSingleResult();
+    }
+
+    /**
+     * Create model
+     *
+     * @param array $data Data
+     *
+     * @return \XLite\Model\AEntity
+     */
+    protected function createModel(array $data)
+    {
+        $tab = parent::createModel($data);
+
+        if (isset($data['alias']) && $this->normalizeValueAsBoolean($data['alias'])) {
+            $tab->setGlobalTab(
+                empty($data['service_name'])
+                    ? $this->getGlobalTabByNames($data['name'])
+                    : $this->getGlobalTabByServiceName($data['service_name'])
+            );
+        }
+
+        return $tab;
+    }
 
     // {{{ Verification
 
@@ -90,26 +216,13 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
      */
     public static function getMessages()
     {
-        return parent::getMessages()
-        + array(
+        return parent::getMessages() + [
             'TABS-PRODUCT-FMT'  => 'The product with "{{value}}" SKU does not exist',
             'TABS-NAME-FMT'     => 'The name is empty',
             'TABS-ENABLED-FMT'  => 'Wrong enabled format',
             'TABS-POSITION-FMT' => 'Wrong position format',
-        );
-    }
-
-    /**
-     * Get error texts
-     *
-     * @return array
-     */
-    public static function getErrorTexts()
-    {
-        return parent::getErrorTexts()
-        + array(
-            'ATTR-GROUP-FMT'    => 'New group will be created',
-        );
+            'TABS-GLOBAL-NF'    => 'Global tab not found',
+        ];
     }
 
     /**
@@ -124,7 +237,7 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
     {
         $value = $this->getDefLangValue($value);
         if ($this->verifyValueAsEmpty($value)) {
-            $this->addError('TABS-NAME-FMT', array('column' => $column, 'value' => $value));
+            $this->addError('TABS-NAME-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -150,8 +263,8 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function verifyPosition($value, array $column)
     {
-        if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsUinteger($value)) {
-            $this->addWarning('TABS-POSITION-FMT', array('column' => $column, 'value' => $value));
+        if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsFloat($value)) {
+            $this->addWarning('TABS-POSITION-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -166,7 +279,7 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyProduct($value, array $column)
     {
         if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsProduct($value)) {
-            $this->addWarning('TABS-PRODUCT-FMT', array('column' => $column, 'value' => $value));
+            $this->addWarning('TABS-PRODUCT-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -178,10 +291,38 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
      *
      * @return void
      */
-    protected function verifyTabsEnabled($value, array $column)
+    protected function verifyEnabled($value, array $column)
     {
         if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsBoolean($value)) {
-            $this->addWarning('TABS-ENABLED-FMT', array('column' => $column, 'value' => $value));
+            $this->addWarning('TABS-ENABLED-FMT', ['column' => $column, 'value' => $value]);
+        }
+    }
+
+    /**
+     * Verify complex value
+     *
+     * @param mixed $data   Value
+     * @param array $column Column info
+     *
+     * @return void
+     */
+    protected function verifyGlobalTab($data, array $column)
+    {
+        if (isset($data['alias']) && $this->normalizeValueAsBoolean($data['alias'])) {
+            $name = isset($data['name_' . \XLite\Logic\Import\Importer::getLanguageCode()])
+                ? $data['name_' . \XLite\Logic\Import\Importer::getLanguageCode()]
+                : null;
+
+            $globalTab = empty($data['service_name'])
+                ? $this->getGlobalTabByName($name)
+                : $this->getGlobalTabByServiceName($data['service_name']);
+
+            if (!$globalTab) {
+                $this->addError('TABS-GLOBAL-NF', [
+                    'column' => $column,
+                    'value' => empty($data['service_name']) ? $name : $data['service_name']
+                ]);
+            }
         }
     }
 
@@ -198,7 +339,7 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function normalizePositionValue($value)
     {
-        return $this->normalizeValueAsUinteger($value);
+        return $this->normalizeValueAsFloat($value);
     }
 
     /**
@@ -230,22 +371,78 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
     // {{{ Import
 
     /**
-     * Get tab by default lang name
+     * Import column value
      *
-     * @param \XLite\Model\Product $model
-     * @param                      $name
-     *
-     * @return null | \XLite\Module\XC\CustomProductTabs\Model\Product\Tab
+     * @param Tab    $tab    Order
+     * @param string $value  Value
+     * @param array  $column Column info
      */
-    protected function getTabByName(\XLite\Model\Product $model, $name)
+    protected function importNameColumn(Tab $tab, $value, array $column)
     {
-        foreach ($model->getTabs() as $tab) {
-            if ($tab->getName() === $name) {
-                return $tab;
-            }
+        if (!$tab->isGlobal()) {
+            $this->updateModelTranslations($tab, $value, 'name');
         }
+    }
 
-        return null;
+    /**
+     * Import column value
+     *
+     * @param Tab    $tab    Order
+     * @param string $value  Value
+     * @param array  $column Column info
+     */
+    protected function importContentColumn(Tab $tab, $value, array $column)
+    {
+        if (!$tab->isGlobal()) {
+            $this->updateModelTranslations($tab, $value, 'content');
+        }
+    }
+
+    /**
+     * Import column value
+     *
+     * @param Tab    $tab    Order
+     * @param string $value  Value
+     * @param array  $column Column info
+     */
+    protected function importBriefInfoColumn(Tab $tab, $value, array $column)
+    {
+        if (!$tab->isGlobal()) {
+            $this->updateModelTranslations($tab, $value, 'brief_info');
+        }
+    }
+
+    /**
+     * Import column value
+     *
+     * @param Tab    $tab    Order
+     * @param string $value  Value
+     * @param array  $column Column info
+     */
+    protected function importAliasColumn(Tab $tab, $value, array $column)
+    {
+    }
+
+    /**
+     * Import column value
+     *
+     * @param Tab    $tab    Order
+     * @param string $value  Value
+     * @param array  $column Column info
+     */
+    protected function importServiceNameColumn(Tab $tab, $value, array $column)
+    {
+    }
+
+    /**
+     * Import column value
+     *
+     * @param Tab    $tab    Order
+     * @param string $value  Value
+     * @param array  $column Column info
+     */
+    protected function importGlobalTabColumn(Tab $tab, $value, array $column)
+    {
     }
 
     // }}}

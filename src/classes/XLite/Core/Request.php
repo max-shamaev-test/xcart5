@@ -67,7 +67,7 @@ class Request extends \XLite\Base\Singleton
     {
         return $this->languageCode;
     }
-    
+
     /**
      * @param $languageCode
      *
@@ -621,7 +621,6 @@ class Request extends \XLite\Base\Singleton
         $url = $this->getCookieURL($secure);
 
         return isset($url['path']) ? $url['path'] : '/';
-        return !empty($url['path']) ? $url['path'] : '/';
     }
 
     /**
@@ -674,6 +673,7 @@ class Request extends \XLite\Base\Singleton
             'Googlebot-Mobile',
             'Googlebot-Image',
             'Adsbot-Google',
+            'Google Page Speed Insights',
         ),
         'Yahoo'            => array(
             'Slurp',

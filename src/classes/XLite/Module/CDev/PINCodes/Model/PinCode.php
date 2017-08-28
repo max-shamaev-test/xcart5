@@ -105,7 +105,7 @@ class PinCode extends \XLite\Model\AEntity
     
         $newValue = null;
         $repo = \XLite\Core\Database::getRepo('XLite\Module\CDev\PINCodes\Model\PinCode');
-        while (!$newValue || $repo->findOneBy(array('code' => $newValue, 'product' => $this->getProduct()->getId()))) {
+        while (!$newValue || $repo->findOneBy(['code' => $newValue, 'product' => $this->getProduct()->getId()])) {
             $newValue = $this->getRandomCode();
         }
         $this->code = $newValue;

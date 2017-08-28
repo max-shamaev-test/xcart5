@@ -62,16 +62,6 @@ div.tags div.tags-title {
   border-radius: 3px;
 }
 
-.top-controls.search-form button[type="submit"] {
-  background: #fff url(../images/search-modules-background.png) no-repeat center center;
-  margin: 0;
-  padding: 0;
-  width: 30px;
-  border: 0;
-  border-radius: 0;
-  border-radius: 0 10px 10px 0;
-}
-
 .top-controls.search-form input#substring {
   border: 0;
   padding: 4px 7px;
@@ -97,34 +87,36 @@ div.tags div.tags-title {
   border-top-width: 1px;
 }
 
-.modules-list .price,
 .modules-list .installed
 {
   margin-bottom: 10px;
 }
 
-.modules-list .price .currency {
-  color: #ee5f00;
-  text-transform: uppercase;
+.modules-list .paid {
+  margin-top: 10px;
+  text-align: center;
 }
 
 .modules-list .price .currency {
-  font-size: 18px;
+  color: #ee9c3c;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .modules-list .installed {
   color: #2baf46;
-  font-size: 16px;
+  display: inline;
+  margin-right: 10px;
+}
+
+.modules-list .installed-disabled {
+  color: #808080;
   display: inline;
   margin-right: 10px;
 }
 
 .modules-list .view-module-in-list {
   display: inline;
-}
-
-.modules-list .view-module-in-list a {
-  font-size: 14px;
 }
 
 .modules-list span.purchased {
@@ -137,19 +129,16 @@ div.tags div.tags-title {
 }
 
 .target-addons-list-marketplace .dialog-content .items-list {
-  width: 1024px;
-}
-
-.target-addons-list-marketplace .dialog-content .marketplace-landing .items-list {
-  width: 700px;
-}
-
-.items-list.modules-list tr td {
-  border-top: solid 1px #e5e5e5;
+  max-width: 1400px
 }
 
 .items-list.modules-list.module-list-has-promo-banner tr:first-child td {
   border-top: none;
+}
+
+.target-addons-list-marketplace .dialog-content .list-footer {
+  text-align: left;
+  padding-left: 20px;
 }
 
 /*
@@ -228,6 +217,11 @@ div.modules-filters div.activity a.current {
 
 div.modules-filters div.tags {
   float: left;
+}
+
+div.addons-filters .tags-menu .menu {
+  column-count: 3;
+  width: 580px;
 }
 
 ul.dependencies-list {
@@ -313,7 +307,41 @@ table.modules-list ul.actions {
 }
 
 img.promo-banner {
-  width: 1024px;
-  height: 90px;
+  width: 100%;
+  max-width: 1400px;
   margin-bottom: 10px;
+  margin-top: 20px;
+}
+
+.modules-selected-box > button {
+  border: none;
+}
+
+.modules-selected-box > button span {
+  color: #0055bd;
+}
+
+.modules-selected-box > button > span:first-child {
+  border-bottom: 1px dashed #0055bd;
+}
+
+.modules-selected-box > button:hover span {
+  color: #4a90e2;
+}
+
+.modules-selected-box > button:hover > span:first-child {
+  border-bottom-color: #4a90e2;
+}
+
+.modules-selected-box > button:hover,
+.modules-selected-box > button:hover:focus {
+  background: none;
+}
+
+.modules-selected-box > button:active {
+  box-shadow: none;
+}
+
+.modules-selected-box > button:hover:focus:active {
+  outline: none;
 }

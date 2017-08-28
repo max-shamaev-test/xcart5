@@ -18,11 +18,10 @@ class Begin extends \XLite\View\Export\Begin implements \XLite\Base\IDecorator
      *
      * @return string
      */
-    protected function getSections()
+    protected function defineSections()
     {
-        return parent::getSections()
-             + array(
-                'XLite\Module\XC\Reviews\Logic\Export\Step\Reviews'   => 'Reviews',
-             );
+        return parent::defineSections() + [
+            'XLite\Module\XC\Reviews\Logic\Export\Step\Reviews' => 'Reviews',
+        ];
     }
 }

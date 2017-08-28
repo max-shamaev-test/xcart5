@@ -173,7 +173,8 @@ ProductsListView.prototype.postprocess = function(isSuccess, initial)
         core.clearHash('pageId');
         return !self.load({
           'sortBy': jQuery(this).data('sort-by'),
-          'sortOrder': jQuery(this).data('sort-order')
+          'sortOrder': jQuery(this).data('sort-order'),
+          'mode': 'append'
         });
       }
     );

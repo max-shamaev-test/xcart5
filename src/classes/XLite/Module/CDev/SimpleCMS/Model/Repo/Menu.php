@@ -12,7 +12,7 @@ namespace XLite\Module\CDev\SimpleCMS\Model\Repo;
  * Menus repository
  *
  */
-class Menu extends \XLite\Model\Repo\ARepo
+class Menu extends \XLite\Model\Repo\Base\I18n
 {
     /**
      * Allowable search params
@@ -350,7 +350,7 @@ class Menu extends \XLite\Model\Repo\ARepo
      *
      * @param array $path Path
      *
-     * @return \XLite\Model\Menu
+     * @return \XLite\Module\CDev\SimpleCMS\Model\Menu
      */
     public function findOneByPath(array $path)
     {
@@ -872,7 +872,7 @@ class Menu extends \XLite\Model\Repo\ARepo
         }
 
         $entity->setParent($parent);
-        $entity->setDepth($parent->getDepth() + 1);
+        $entity->setDepth((integer)$parent->getDepth() + 1);
 
         return $parent;
     }
@@ -898,7 +898,7 @@ class Menu extends \XLite\Model\Repo\ARepo
      *
      * @param \XLite\Model\AEntity|array $entity Data to insert OPTIONAL
      *
-     * @return void
+     * @return \XLite\Model\AEntity|array
      */
     protected function performInsert($entity = null)
     {

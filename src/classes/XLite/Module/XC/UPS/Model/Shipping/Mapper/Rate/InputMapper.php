@@ -38,6 +38,12 @@ class InputMapper extends Shipping\Mapper\AMapper
         $result = '';
 
         $srcAddress = $this->inputData['srcAddress'];
+        if ($srcAddress['country'] === 'US' && isset($srcAddress['state']) && $srcAddress['state'] === 'PR') {
+            $srcAddress['country'] = 'PR';
+            $srcAddress['state'] = '';
+            $this->inputData['srcAddress'] = $srcAddress;
+        }
+
         if (in_array($srcAddress['country'], array('DO', 'PR', 'US', 'CA'), true)) {
             $this->weightUnit = 'LBS';
             $this->dimensionUnit = 'IN';
@@ -49,6 +55,12 @@ class InputMapper extends Shipping\Mapper\AMapper
 
         $config = $this->getConfiguration();
         $dstAddress = $this->inputData['dstAddress'];
+        if ($dstAddress['country'] === 'US' && isset($dstAddress['state']) && $dstAddress['state'] === 'PR') {
+            $dstAddress['country'] = 'PR';
+            $dstAddress['state'] = '';
+            $this->inputData['dstAddress'] = $dstAddress;
+        }
+
         $dstCountry = Core\Database::getRepo('XLite\Model\Country')
             ->findOneBy(array('code' => $dstAddress['country']));
         $this->destinationCurrency = $dstCountry && $dstCountry->getCurrency()

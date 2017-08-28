@@ -14,6 +14,17 @@ namespace XLite\Controller\Admin;
 class ProductSelections extends \XLite\Controller\Admin\AAdmin
 {
     /**
+     * Check ACL permissions
+     *
+     * @return boolean
+     */
+    public function checkACL()
+    {
+        return parent::checkACL()
+            || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage catalog');
+    }
+
+    /**
      * Define the actions with no secure token
      *
      * @return array

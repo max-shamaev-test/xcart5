@@ -4,6 +4,7 @@
 
 <script type="application/javascript">
 window.countryNames = {{ this.buildCountryNamesObject() | raw }};
+window.statesList = {{ this.buildStatesListObject() | raw }};
 window.stateNames = {{ this.buildStateNamesObject() | raw }};
 window.addressTypes = {{ this.buildAddressTypesObject() | raw }};
 </script>

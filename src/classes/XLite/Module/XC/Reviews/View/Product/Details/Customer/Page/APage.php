@@ -9,24 +9,26 @@
 namespace XLite\Module\XC\Reviews\View\Product\Details\Customer\Page;
 
 /**
- * Abstract product page 
- * 
+ * Abstract product page
+ *
  */
 abstract class APage extends \XLite\View\Product\Details\Customer\Page\APage implements \XLite\Base\IDecorator
 {
     /**
-     * Define tabs
+     * Process global tab addition into list
      *
-     * @return array
+     * @param                                  $list
+     * @param \XLite\Model\Product\IProductTab $tab
      */
-    protected function defineTabs()
+    protected function applyStaticTabListValue(&$list, $tab)
     {
-        $list = parent::defineTabs();
+        parent::applyStaticTabListValue($list, $tab);
 
-        $list['Reviews'] = array(
-            'list' => 'product.details.page.tab.reviews',
-        );
-
-        return $list;
+        if ($tab->getServiceName() === 'Reviews') {
+            $list[$tab->getServiceName()] = [
+                'list'   => 'product.details.page.tab.reviews',
+                'weight' => $tab->getPosition(),
+            ];
+        }
     }
 }

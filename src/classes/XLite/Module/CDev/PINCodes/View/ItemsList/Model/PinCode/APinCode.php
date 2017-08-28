@@ -31,7 +31,7 @@ abstract class APinCode extends \XLite\View\ItemsList\Model\Table
      */
     protected function getListNameSuffixes()
     {
-        return array('pincodes');
+        return ['pincodes'];
     }
 
     /**

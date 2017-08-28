@@ -30,7 +30,8 @@ class Logger extends \XLite\Base\Singleton
      */
     public function getLogFile()
     {
-        return LC_DIR_LOG . 'upgrade.log.' . date('Y-m-d') . '.php';
+        $pathPart = date('Y' . LC_DS . 'm');
+        return LC_DIR_LOG . $pathPart . LC_DS. 'upgrade.log.' . date('Y-m-d') . '.php';
     }
 
     /**

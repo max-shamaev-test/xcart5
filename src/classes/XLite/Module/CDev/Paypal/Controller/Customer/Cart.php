@@ -22,8 +22,6 @@ class Cart extends \XLite\Controller\Customer\Cart implements \XLite\Base\IDecor
 
     /**
      * URL to return after product is added
-     *
-     * @return string
      */
     protected function setURLToReturn()
     {

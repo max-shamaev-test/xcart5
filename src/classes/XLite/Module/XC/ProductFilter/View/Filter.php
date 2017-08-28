@@ -11,8 +11,7 @@ namespace XLite\Module\XC\ProductFilter\View;
 /**
  * Product comparison widget
  *
- * @ListChild (list="sidebar.single", zone="customer", weight="110")
- * @ListChild (list="sidebar.first", zone="customer", weight="110")
+ * @ListChild (list="sidebar.first", zone="customer", weight="300")
  */
 class Filter extends \XLite\View\SideBarBox
 {
@@ -173,23 +172,35 @@ class Filter extends \XLite\View\SideBarBox
     }
 
     /**
-     * Defines if the widget is listening to #hash changes
-     *
-     * @return boolean
+     * @inheritdoc
      */
     protected function getListenToHash()
     {
-        return true;
+        return \XLite\Module\XC\ProductFilter\Main::isUseHash();
     }
 
     /**
-     * Defines the #hash prefix of the data for the widget
-     *
-     * @return string
+     * @inheritdoc
      */
     protected function getListenToHashPrefix()
     {
         return 'product.category';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getReplaceState()
+    {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getReplaceStatePrefix()
+    {
+        return '';
     }
 
     /**

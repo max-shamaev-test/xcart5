@@ -22,7 +22,7 @@ class TmpVars extends \XLite\Base\Singleton
      */
     public function __get($name)
     {
-        return ($var = $this->getVar($name)) ? unserialize($var->getValue()) : null;
+        return $this->getRepo()->getVar($name);
     }
 
     /**
@@ -35,18 +35,10 @@ class TmpVars extends \XLite\Base\Singleton
      */
     public function __set($name, $value)
     {
-        $var = $this->getVar($name);
-
-        if (isset($value)) {
-            $data = array('value' => serialize($value));
-            if (isset($var)) {
-                $this->getRepo()->update($var, $data, false);
-            } else {
-                $var = $this->getRepo()->insert($data + array('name' => $name), false);
-            }
-            \XLite\Core\Database::getEM()->flush($var);
-        } elseif ($var) {
-            $this->getRepo()->delete($var, false);
+        if ($value === null) {
+            $this->getRepo()->removeVar($name);
+        } else {
+            $this->getRepo()->setVar($name, $value);
         }
     }
 
@@ -71,7 +63,7 @@ class TmpVars extends \XLite\Base\Singleton
      */
     protected function getVar($name)
     {
-        return $this->getRepo()->findOneBy(array('name' => $name));
+        return $this->getRepo()->findOneBy(['name' => $name]);
     }
 
     /**

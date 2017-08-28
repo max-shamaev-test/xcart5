@@ -44,7 +44,7 @@ abstract class Address extends \XLite\Model\Address implements \XLite\Base\IDeco
 
                 case 'state':
                     if ($fieldValue) {
-                        $result = \XLite\Core\Database::getRepo('XLite\Model\State')->findOneBy(array('code' => $fieldValue));
+                        $result = \XLite\Core\Database::getRepo('XLite\Model\State')->findOneBy(['code' => $fieldValue]);
                         $result = $result ?: null;
                     }
                     if (!$result || (!$fieldValue && isset($location['country']))) {

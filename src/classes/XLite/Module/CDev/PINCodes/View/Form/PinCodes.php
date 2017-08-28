@@ -69,6 +69,6 @@ class PinCodes extends \XLite\View\Form\AForm
      */
     protected function getDefaultParams()
     {
-        return parent::getDefaultParams() + array('product_id' => \XLite\Core\Request::getInstance()->product_id);
+        return parent::getDefaultParams() + ['product_id' => \XLite\Core\Request::getInstance()->product_id];
     }
 }

@@ -31,9 +31,14 @@ html {
   vertical-align: middle;
 }
 
-#main-wrapper{
+#main-wrapper {
   position: relative;
   padding-bottom: (@rhythmic-unit * 2);
+  min-height: 420px;
+}
+
+#main-wrapper #content .list-container > .block.block-block {
+  clear: both;
 }
 
 fieldset {
@@ -87,7 +92,6 @@ table {
   }
 
   .tablesort-indicator {
-    background: url(../images/sort.png) no-repeat 0 6px;
     position: relative;
     left: 0;
     top: -2px;
@@ -118,6 +122,10 @@ ul.primary li span {
 
 
 /* Product page */
+.product-details-info .product-buttons .buttons-row > * {
+  margin-bottom: @rhythmic-unit;
+}
+
 .product-details-tabs {
   .clearfix();
   clear: both;
@@ -125,11 +133,16 @@ ul.primary li span {
 
   div.tabs ul.tabs {
     .tabs-top;
+
+    & > li + li {
+      margin-left: @rhythmic-unit * 2;
+    }
+
     li {
       a {
         border-color: @color-link;
         &:hover {
-          border-color: @color-highlight;
+          border-color: @color-hover;
         }
       }
       &.active {
@@ -137,18 +150,31 @@ ul.primary li span {
           border-color: transparent
         }
       }
+
+      & + li {
+        margin-left: 0;
+      }
+
+      &:not(:last-of-type) {
+        margin-right: 40px;
+      }
     }
   }
   div.tabs-container {
     .tabs-top-content;
+    padding-top: @rhythmic-unit;
 
     @media(max-width: @screen-xs-max) {
       padding-top: 0px;
     }
   }
 
-  div.tab-container.hacky-container:first-child{
-    display: block;
+  div.tab-container{
+    &.hacky-container:first-child {
+      display: block;
+    }
+
+    margin-bottom: 80px;
   }
 
   @media(max-width: @screen-xs-max) {
@@ -162,6 +188,7 @@ ul.primary li span {
       .panel {
         border: none;
         box-shadow: none;
+        overflow: visible;
 
         + .panel {
           margin-top: 0;
@@ -448,6 +475,11 @@ ul.primary li span {
     .account-link-sign_in {
       padding-left: @rhythmic-unit * 2;
       margin-top: @rhythmic-unit;
+    }
+
+    .account-email {
+      color: #1cb5fc;
+      font-weight: normal;
     }
   }
 }
@@ -750,7 +782,7 @@ li.mm-vertical.mm-opened > .mm-panel {
   .transform(transform 0.4s ease);
 }
 
-html.mm-opened {
+html.mm-opened:not(.popup-opened) {
   overflow: hidden;
   position: relative;
 

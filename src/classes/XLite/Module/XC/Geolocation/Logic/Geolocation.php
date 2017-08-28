@@ -33,7 +33,7 @@ class Geolocation extends \XLite\Base\Singleton
                          ? \XLite\Core\Session::getInstance()->{static::GEOLOCATION_SESSION_CELL}
                          : null;
         if ($data && empty($location)) {
-            $suitable = array();
+            $suitable = [];
             $parts = explode('\\', get_class($data));
             $type = array_pop($parts);
             foreach ($this->getProviders() as $providerClass) {
@@ -82,8 +82,8 @@ class Geolocation extends \XLite\Base\Singleton
      */
     public function getProviders()
     {
-        return array(
+        return [
             'XLite\Module\XC\Geolocation\Model\Geolocation\MaxMindGeoIP'
-        );
+        ];
     }
 }

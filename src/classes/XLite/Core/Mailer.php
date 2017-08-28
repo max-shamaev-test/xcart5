@@ -8,35 +8,39 @@
 
 namespace XLite\Core;
 
+use XLite\Core\Job\SchedulingJobs;
+
 /**
  * Mailer core class
  */
 class Mailer extends \XLite\Base\Singleton
 {
+    use SchedulingJobs;
     /**
      * FROM: Site administrator
      */
-    const TYPE_PROFILE_CREATED_ADMIN            = 'siteAdmin';
-    const TYPE_PROFILE_CREATED_CUSTOMER         = 'siteAdmin';
-    const TYPE_REGISTER_ANONYMOUS_CUSTOMER      = 'siteAdmin';
-    const TYPE_PROFILE_UPDATED_ADMIN            = 'siteAdmin';
-    const TYPE_PROFILE_UPDATED_CUSTOMER         = 'siteAdmin';
-    const TYPE_PROFILE_DELETED_ADMIN            = 'siteAdmin';
-    const TYPE_FAILED_ADMIN_LOGIN_ADMIN         = 'siteAdmin';
-    const TYPE_FAILED_TRANSACTION_ADMIN         = 'siteAdmin';
-    const TYPE_ORDER_CREATED_ADMIN              = 'siteAdmin'; // todo: check
-    const TYPE_ORDER_PROCESSED_ADMIN            = 'siteAdmin'; // todo: check
-    const TYPE_ORDER_PROCESSED_CUSTOMER         = 'siteAdmin'; // todo: check
-    const TYPE_ORDER_CHANGED_ADMIN              = 'siteAdmin'; // todo: check
-    const TYPE_ORDER_CHANGED_CUSTOMER           = 'siteAdmin'; // todo: check
-    const TYPE_ORDER_ADVANCED_CHANGED_CUSTOMER  = 'siteAdmin'; // todo: check
-    const TYPE_ORDER_SHIPPED_CUSTOMER           = 'siteAdmin'; // todo: check
-    const TYPE_ORDER_FAILED_ADMIN               = 'siteAdmin'; // todo: check
-    const TYPE_ORDER_CANCELED_ADMIN             = 'siteAdmin'; // todo: check
-    const TYPE_ACCESS_LINK_CUSTOMER             = 'siteAdmin'; // todo: check
+    const TYPE_PROFILE_CREATED_ADMIN              = 'siteAdmin';
+    const TYPE_PROFILE_CREATED_CUSTOMER           = 'siteAdmin';
+    const TYPE_REGISTER_ANONYMOUS_CUSTOMER        = 'siteAdmin';
+    const TYPE_PROFILE_UPDATED_ADMIN              = 'siteAdmin';
+    const TYPE_PROFILE_UPDATED_CUSTOMER           = 'siteAdmin';
+    const TYPE_PROFILE_DELETED_ADMIN              = 'siteAdmin';
+    const TYPE_FAILED_ADMIN_LOGIN_ADMIN           = 'siteAdmin';
+    const TYPE_FAILED_TRANSACTION_ADMIN           = 'siteAdmin';
+    const TYPE_ORDER_CREATED_ADMIN                = 'siteAdmin'; // todo: check
+    const TYPE_ORDER_PROCESSED_ADMIN              = 'siteAdmin'; // todo: check
+    const TYPE_ORDER_PROCESSED_CUSTOMER           = 'siteAdmin'; // todo: check
+    const TYPE_ORDER_CHANGED_ADMIN                = 'siteAdmin'; // todo: check
+    const TYPE_ORDER_CHANGED_CUSTOMER             = 'siteAdmin'; // todo: check
+    const TYPE_ORDER_ADVANCED_CHANGED_CUSTOMER    = 'siteAdmin'; // todo: check
+    const TYPE_ORDER_SHIPPED_CUSTOMER             = 'siteAdmin'; // todo: check
+    const TYPE_ORDER_WAITING_FOR_APPROVE_CUSTOMER = 'siteAdmin'; // todo: check
+    const TYPE_ORDER_FAILED_ADMIN                 = 'siteAdmin'; // todo: check
+    const TYPE_ORDER_CANCELED_ADMIN               = 'siteAdmin'; // todo: check
+    const TYPE_ACCESS_LINK_CUSTOMER               = 'siteAdmin'; // todo: check
 
-    const TYPE_SAFE_MODE_ACCESS_KEY             = 'siteAdmin';
-    const TYPE_UPGRADE_SAFE_MODE_ACCESS_KEY     = 'siteAdmin';
+    const TYPE_SAFE_MODE_ACCESS_KEY         = 'siteAdmin';
+    const TYPE_UPGRADE_SAFE_MODE_ACCESS_KEY = 'siteAdmin';
 
     /**
      * FROM: Users department
@@ -76,7 +80,8 @@ class Mailer extends \XLite\Base\Singleton
      *
      * @var array
      */
-    protected static $mailRegistry = array();
+    protected static $mailRegistry = [];
+    protected static $schedule = true;
 
     // {{{ Profile created
 
@@ -107,16 +112,18 @@ class Mailer extends \XLite\Base\Singleton
     {
         static::register('profile', $profile);
 
-        static::compose(
-            static::TYPE_PROFILE_CREATED_ADMIN,
-            static::getSiteAdministratorMail(),
-            static::getUsersDepartmentMail(),
-            'profile_created',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+        foreach (static::getUsersDepartmentMails() as $mail) {
+            static::compose(
+                static::TYPE_PROFILE_CREATED_ADMIN,
+                static::getSiteAdministratorMail(),
+                $mail,
+                'profile_created',
+                [],
+                true,
+                \XLite::ADMIN_INTERFACE,
+                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+            );
+        }
     }
 
     /**
@@ -132,13 +139,14 @@ class Mailer extends \XLite\Base\Singleton
         \XLite\Model\Profile $profile,
         $password = null,
         $byCheckout = false
-    ) {
+    )
+    {
         static::register(
-            array(
-                'profile' => $profile,
-                'password' => $password,
+            [
+                'profile'    => $profile,
+                'password'   => $password,
                 'byCheckout' => $byCheckout,
-            )
+            ]
         );
 
         static::compose(
@@ -146,7 +154,7 @@ class Mailer extends \XLite\Base\Singleton
             static::getSiteAdministratorMail(),
             $profile->getLogin(),
             'profile_created',
-            array(),
+            [],
             true,
             \XLite::CUSTOMER_INTERFACE,
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $profile->getLanguage())
@@ -164,10 +172,10 @@ class Mailer extends \XLite\Base\Singleton
     public static function sendRegisterAnonymousCustomer(\XLite\Model\Profile $profile, $password)
     {
         static::register(
-            array(
-                'profile' => $profile,
+            [
+                'profile'  => $profile,
                 'password' => $password,
-            )
+            ]
         );
 
         static::compose(
@@ -175,7 +183,7 @@ class Mailer extends \XLite\Base\Singleton
             static::getSiteAdministratorMail(),
             $profile->getLogin(),
             'register_anonymous',
-            array(),
+            [],
             true,
             \XLite::CUSTOMER_INTERFACE,
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $profile->getLanguage())
@@ -212,16 +220,18 @@ class Mailer extends \XLite\Base\Singleton
     {
         static::register('profile', $profile);
 
-        static::compose(
-            static::TYPE_PROFILE_UPDATED_ADMIN,
-            static::getSiteAdministratorMail(),
-            static::getUsersDepartmentMail(),
-            'profile_modified',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+        foreach (static::getUsersDepartmentMails() as $mail) {
+            static::compose(
+                static::TYPE_PROFILE_UPDATED_ADMIN,
+                static::getSiteAdministratorMail(),
+                $mail,
+                'profile_modified',
+                array(),
+                true,
+                \XLite::ADMIN_INTERFACE,
+                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+            );
+        }
     }
 
     /**
@@ -239,15 +249,15 @@ class Mailer extends \XLite\Base\Singleton
             : \XLite::getCustomerScript();
 
         $url = \XLite::getInstance()->getShopURL(
-            \XLite\Core\Converter::buildURL('login', '', array(), $interface)
+            \XLite\Core\Converter::buildURL('login', '', [], $interface)
         );
 
         static::register(
-            array(
-                'profile' => $profile,
+            [
+                'profile'  => $profile,
                 'password' => $password,
-                'url' => $url,
-            )
+                'url'      => $url,
+            ]
         );
 
         static::compose(
@@ -255,7 +265,7 @@ class Mailer extends \XLite\Base\Singleton
             static::getSiteAdministratorMail(),
             $profile->getLogin(),
             'profile_modified',
-            array(),
+            [],
             true,
             \XLite::CUSTOMER_INTERFACE,
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $profile->getLanguage())
@@ -289,16 +299,18 @@ class Mailer extends \XLite\Base\Singleton
     {
         static::register('deletedLogin', $deletedLogin);
 
-        static::compose(
-            static::TYPE_PROFILE_DELETED_ADMIN,
-            static::getSiteAdministratorMail(),
-            static::getUsersDepartmentMail(),
-            'profile_deleted',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+        foreach (static::getUsersDepartmentMails() as $mail) {
+            static::compose(
+                static::TYPE_PROFILE_DELETED_ADMIN,
+                static::getSiteAdministratorMail(),
+                $mail,
+                'profile_deleted',
+                array(),
+                true,
+                \XLite::ADMIN_INTERFACE,
+                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+            );
+        }
     }
 
     // }}}
@@ -315,25 +327,27 @@ class Mailer extends \XLite\Base\Singleton
     public static function sendFailedAdminLoginAdmin($postedLogin)
     {
         static::register(
-            array(
-                'login' => null === $postedLogin ? 'unknown' : $postedLogin,
-                'REMOTE_ADDR' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'unknown',
+            [
+                'login'                => null === $postedLogin ? 'unknown' : $postedLogin,
+                'REMOTE_ADDR'          => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'unknown',
                 'HTTP_X_FORWARDED_FOR' => isset($_SERVER['HTTP_X_FORWARDED_FOR'])
                     ? $_SERVER['HTTP_X_FORWARDED_FOR']
                     : 'unknown',
-            )
+            ]
         );
 
-        static::compose(
-            static::TYPE_FAILED_ADMIN_LOGIN_ADMIN,
-            static::getSiteAdministratorMail(),
-            static::getSiteAdministratorMail(),
-            'failed_admin_login',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+        foreach (static::getSiteAdministratorMails() as $mail) {
+            static::compose(
+                static::TYPE_FAILED_ADMIN_LOGIN_ADMIN,
+                static::getSiteAdministratorMail(),
+                $mail,
+                'failed_admin_login',
+                array(),
+                true,
+                \XLite::ADMIN_INTERFACE,
+                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+            );
+        }
 
         if ($postedLogin && static::getSiteAdministratorMail() !== $postedLogin) {
             static::compose(
@@ -341,7 +355,7 @@ class Mailer extends \XLite\Base\Singleton
                 static::getSiteAdministratorMail(),
                 $postedLogin,
                 'failed_admin_login',
-                array(),
+                [],
                 true,
                 \XLite::ADMIN_INTERFACE,
                 static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
@@ -368,10 +382,10 @@ class Mailer extends \XLite\Base\Singleton
             \XLite\Core\Converter::buildURL(
                 'recover_password',
                 'confirm',
-                array(
-                    'email' => $userLogin,
+                [
+                    'email'      => $userLogin,
                     'request_id' => $userPasswordResetKey,
-                )
+                ]
             )
         );
 
@@ -390,7 +404,7 @@ class Mailer extends \XLite\Base\Singleton
     // {{{ Order tracking information
 
     /**
-     * Send notification about created profile to the user
+     * Send notification about tracking information to the user
      *
      * @param \XLite\Model\Order $order Order object
      *
@@ -402,21 +416,21 @@ class Mailer extends \XLite\Base\Singleton
             \XLite\Core\Converter::buildURL(
                 'order',
                 '',
-                array(
+                [
                     'order_number' => $order->getOrderNumber(),
-                ),
+                ],
                 \XLite::getCustomerScript()
             )
         );
 
         static::register(
-            array(
+            [
                 'order'           => $order,
                 'trackingNumbers' => $order->getTrackingNumbers(),
                 'orderURL'        => $orderUrl,
                 'address'         => $order->getProfile()->getBillingAddress(),
                 'recipientName'   => $order->getProfile()->getName(),
-            )
+            ]
         );
 
         static::compose(
@@ -424,7 +438,7 @@ class Mailer extends \XLite\Base\Singleton
             static::getOrdersDepartmentMail(),
             $order->getProfile()->getLogin(),
             'order_tracking_information',
-            array(),
+            [],
             true,
             \XLite::CUSTOMER_INTERFACE,
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
@@ -469,16 +483,19 @@ class Mailer extends \XLite\Base\Singleton
             static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
         }
 
-        $result = static::compose(
-            static::TYPE_ORDER_CREATED_ADMIN,
-            static::getOrdersDepartmentMail(),
-            static::getOrdersDepartmentMail(),
-            'order_created',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+        $result = null;
+        foreach (static::getOrdersDepartmentMails() as $mail) {
+            $result = (null === $result || $result) && static::compose(
+                static::TYPE_ORDER_CREATED_ADMIN,
+                static::getOrdersDepartmentMail(),
+                $mail,
+                'order_created',
+                array(),
+                true,
+                \XLite::ADMIN_INTERFACE,
+                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+            );
+        }
 
         if ($result) {
             \XLite\Core\OrderHistory::getInstance()->registerAdminEmailSent(
@@ -513,9 +530,9 @@ class Mailer extends \XLite\Base\Singleton
         $result = static::compose(
             static::TYPE_ORDER_CREATED_CUSTOMER,
             static::getOrdersDepartmentMail(),
-            \XLite\Core\Session::getInstance()->checkoutEmail ?: $order->getProfile()->getLogin(),
+            $order->getProfile()->getEmail(),
             'order_created',
-            array(),
+            [],
             true,
             \XLite::CUSTOMER_INTERFACE,
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
@@ -571,16 +588,19 @@ class Mailer extends \XLite\Base\Singleton
             static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
         }
 
-        $result = static::compose(
-            static::TYPE_ORDER_PROCESSED_ADMIN,
-            static::getOrdersDepartmentMail(),
-            static::getOrdersDepartmentMail(),
-            'order_processed',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+        $result = null;
+        foreach (static::getOrdersDepartmentMails() as $mail) {
+            $result = (null === $result || $result) && static::compose(
+                    static::TYPE_ORDER_PROCESSED_ADMIN,
+                    static::getOrdersDepartmentMail(),
+                    $mail,
+                    'order_processed',
+                    [],
+                    true,
+                    \XLite::ADMIN_INTERFACE,
+                    static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+                );
+        }
 
         if ($result) {
             \XLite\Core\OrderHistory::getInstance()->registerAdminEmailSent(
@@ -617,7 +637,7 @@ class Mailer extends \XLite\Base\Singleton
             static::getOrdersDepartmentMail(),
             $order->getProfile()->getLogin(),
             'order_processed',
-            array(),
+            [],
             true,
             \XLite::CUSTOMER_INTERFACE,
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
@@ -673,16 +693,19 @@ class Mailer extends \XLite\Base\Singleton
             static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
         }
 
-        $result = static::compose(
-            static::TYPE_ORDER_CHANGED_ADMIN,
-            static::getOrdersDepartmentMail(),
-            static::getOrdersDepartmentMail(),
-            'order_changed',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+        $result = null;
+        foreach (static::getOrdersDepartmentMails() as $mail) {
+            $result = (null === $result || $result) && static::compose(
+                    static::TYPE_ORDER_CHANGED_ADMIN,
+                    static::getOrdersDepartmentMail(),
+                    $mail,
+                    'order_changed',
+                    array(),
+                    true,
+                    \XLite::ADMIN_INTERFACE,
+                    static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+                );
+        }
 
         if ($result) {
             \XLite\Core\OrderHistory::getInstance()->registerAdminEmailSent(
@@ -707,11 +730,13 @@ class Mailer extends \XLite\Base\Singleton
      */
     public static function sendOrderChangedCustomer(\XLite\Model\Order $order)
     {
-        $isSent = static::checkMailRegistry(
-            'sendOrderAdvancedChangedCustomer',
+        $registryKey = static::getMailRegistryKey(
+            'sendOrderChangedCustomer',
             static::getOrdersDepartmentMail(),
             $order->getProfile()->getLogin()
-        );
+        ) . '_' . $order->getOrderId();
+
+        $isSent = static::checkMailRegistry($registryKey);
 
         if (!$isSent) {
 
@@ -729,10 +754,12 @@ class Mailer extends \XLite\Base\Singleton
                 static::getOrdersDepartmentMail(),
                 $order->getProfile()->getLogin(),
                 'order_changed',
-                array(),
+                [],
                 true,
                 \XLite::CUSTOMER_INTERFACE,
-                static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
+                static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage()),
+                false,
+                $registryKey
             );
 
             if ($result) {
@@ -763,41 +790,42 @@ class Mailer extends \XLite\Base\Singleton
      */
     public static function sendOrderAdvancedChangedCustomer(\XLite\Model\Order $order)
     {
-        $isSent = static::checkMailRegistry(
-            'sendOrderChangedCustomer',
-            static::getOrdersDepartmentMail(),
-            $order->getProfile()->getLogin()
-        );
+        $registryKey = static::getMailRegistryKey(
+                'sendOrderAdvancedChangedCustomer',
+                static::getOrdersDepartmentMail(),
+                $order->getProfile()->getLogin()
+            ) . '_' . $order->getOrderId();
+
+        $isSent = static::checkMailRegistry($registryKey);
 
         if (!$isSent) {
 
             // 'Order changed' notification wasn't sent earlier - send this notification
 
             static::register(
-                array(
-                    'order' => $order,
+                [
+                    'order'         => $order,
                     'recipientName' => $order->getProfile()->getName(),
-                )
+                ]
             );
 
             if (\XLite\Core\Config::getInstance()->NotificationAttachments->attach_pdf_invoices) {
                 static::attachInvoice($order, \XLite::CUSTOMER_INTERFACE);
             }
 
-        if (\XLite\Core\Config::getInstance()->NotificationAttachments->attach_pdf_invoices) {
-            static::attachInvoice($order, \XLite::CUSTOMER_INTERFACE);
-        }
 
-        $result = static::compose(
-            static::TYPE_ORDER_ADVANCED_CHANGED_CUSTOMER, // todo: remove
-            static::getOrdersDepartmentMail(),
-            $order->getProfile()->getLogin(),
-            'order_advanced_changed',
-            array(),
-            true,
-            \XLite::CUSTOMER_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
-        );
+            $result = static::compose(
+                static::TYPE_ORDER_ADVANCED_CHANGED_CUSTOMER, // todo: remove
+                static::getOrdersDepartmentMail(),
+                $order->getProfile()->getLogin(),
+                'order_advanced_changed',
+                [],
+                true,
+                \XLite::CUSTOMER_INTERFACE,
+                static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage()),
+                false,
+                $registryKey
+            );
 
             if ($result) {
                 \XLite\Core\OrderHistory::getInstance()->registerCustomerEmailSent(
@@ -851,7 +879,7 @@ class Mailer extends \XLite\Base\Singleton
             static::getOrdersDepartmentMail(),
             $order->getProfile()->getLogin(),
             'order_shipped',
-            array(),
+            [],
             true,
             \XLite::CUSTOMER_INTERFACE,
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
@@ -861,6 +889,63 @@ class Mailer extends \XLite\Base\Singleton
             \XLite\Core\OrderHistory::getInstance()->registerCustomerEmailSent(
                 $order->getOrderId(),
                 'Order is shipped'
+            );
+
+        } elseif (static::$errorMessage) {
+            \XLite\Core\OrderHistory::getInstance()->registerCustomerEmailFailed(
+                $order->getOrderId(),
+                static::$errorMessage
+            );
+        }
+    }
+
+    // }}}
+
+    // {{{ Order shipped
+
+    /**
+     * Send email notification about shipped order
+     *
+     * @param \XLite\Model\Order $order Order object
+     *
+     * @return void
+     */
+    public static function sendOrderWaitingForApprove(\XLite\Model\Order $order)
+    {
+        static::sendOrderWaitingForApproveCustomer($order);
+    }
+
+    /**
+     * Send email notification to customer about shipped order
+     *
+     * @param \XLite\Model\Order $order Order object
+     *
+     * @return void
+     */
+    public static function sendOrderWaitingForApproveCustomer(\XLite\Model\Order $order)
+    {
+        static::register('order', $order);
+        static::register('recipientName', $order->getProfile()->getName());
+
+        if (\XLite\Core\Config::getInstance()->NotificationAttachments->attach_pdf_invoices) {
+            static::attachInvoice($order, \XLite::CUSTOMER_INTERFACE);
+        }
+
+        $result = static::compose(
+            static::TYPE_ORDER_WAITING_FOR_APPROVE_CUSTOMER,
+            static::getOrdersDepartmentMail(),
+            $order->getProfile()->getEmail(),
+            'order_waiting_for_approve',
+            [],
+            true,
+            \XLite::CUSTOMER_INTERFACE,
+            static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
+        );
+
+        if ($result) {
+            \XLite\Core\OrderHistory::getInstance()->registerCustomerEmailSent(
+                $order->getOrderId(),
+                'Order awaiting for approval'
             );
 
         } elseif (static::$errorMessage) {
@@ -907,16 +992,19 @@ class Mailer extends \XLite\Base\Singleton
             static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
         }
 
-        $result = static::compose(
-            static::TYPE_ORDER_FAILED_ADMIN,
-            static::getOrdersDepartmentMail(),
-            static::getOrdersDepartmentMail(),
-            'order_failed',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+        $result = null;
+        foreach (static::getOrdersDepartmentMails() as $mail) {
+            $result = (null === $result || $result) && static::compose(
+                    static::TYPE_ORDER_FAILED_ADMIN,
+                    static::getOrdersDepartmentMail(),
+                    $mail,
+                    'order_failed',
+                    array(),
+                    true,
+                    \XLite::ADMIN_INTERFACE,
+                    static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+                );
+        }
 
         if ($result) {
             \XLite\Core\OrderHistory::getInstance()->registerAdminEmailSent(
@@ -953,7 +1041,7 @@ class Mailer extends \XLite\Base\Singleton
             static::getOrdersDepartmentMail(),
             $order->getProfile()->getLogin(),
             'order_failed',
-            array(),
+            [],
             true,
             \XLite::CUSTOMER_INTERFACE,
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
@@ -1009,16 +1097,19 @@ class Mailer extends \XLite\Base\Singleton
             static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
         }
 
-        $result = static::compose(
-            static::TYPE_ORDER_CANCELED_ADMIN,
-            static::getOrdersDepartmentMail(),
-            static::getOrdersDepartmentMail(),
-            'order_canceled',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+        $result = null;
+        foreach (static::getOrdersDepartmentMails() as $mail) {
+            $result = (null === $result || $result) && static::compose(
+                    static::TYPE_ORDER_CANCELED_ADMIN,
+                    static::getOrdersDepartmentMail(),
+                    $mail,
+                    'order_canceled',
+                    array(),
+                    true,
+                    \XLite::ADMIN_INTERFACE,
+                    static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+                );
+        }
 
         if ($result) {
             \XLite\Core\OrderHistory::getInstance()->registerAdminEmailSent(
@@ -1055,7 +1146,7 @@ class Mailer extends \XLite\Base\Singleton
             static::getOrdersDepartmentMail(),
             $order->getProfile()->getLogin(),
             'order_canceled',
-            array(),
+            [],
             true,
             \XLite::CUSTOMER_INTERFACE,
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
@@ -1108,7 +1199,7 @@ class Mailer extends \XLite\Base\Singleton
             static::getSiteAdministratorMail(),
             $profile->getLogin(),
             'access_link',
-            array(),
+            [],
             true,
             \XLite::CUSTOMER_INTERFACE,
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $profile->getLanguage())
@@ -1122,7 +1213,7 @@ class Mailer extends \XLite\Base\Singleton
     /**
      * Send notification about generated safe mode access key
      *
-     * @param string $key Access key
+     * @param string  $key        Access key
      * @param boolean $keyChanged is key new
      *
      * @return void
@@ -1137,16 +1228,19 @@ class Mailer extends \XLite\Base\Singleton
         static::register('soft_reset_url', \Includes\SafeMode::getResetURL(true));
         static::register('article_url', \XLite::getController()->getArticleURL());
 
-        static::compose(
-            static::TYPE_SAFE_MODE_ACCESS_KEY, // todo: remove
-            static::getSiteAdministratorMail(),
-            static::getSiteAdministratorMail(),
-            'safe_mode_key_generated',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+
+        foreach (static::getSiteAdministratorMails() as $mail) {
+            static::compose(
+                static::TYPE_SAFE_MODE_ACCESS_KEY, // todo: remove
+                static::getSiteAdministratorMail(),
+                $mail,
+                'safe_mode_key_generated',
+                array(),
+                true,
+                \XLite::ADMIN_INTERFACE,
+                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+            );
+        }
     }
 
     /**
@@ -1156,16 +1250,18 @@ class Mailer extends \XLite\Base\Singleton
      */
     public static function sendUpgradeSafeModeAccessKeyNotification()
     {
-        static::compose(
-            static::TYPE_UPGRADE_SAFE_MODE_ACCESS_KEY,
-            static::getSiteAdministratorMail(),
-            static::getSiteAdministratorMail(),
-            'upgrade_access_keys',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+        foreach (static::getSiteAdministratorMails() as $mail) {
+            static::compose(
+                static::TYPE_UPGRADE_SAFE_MODE_ACCESS_KEY,
+                static::getSiteAdministratorMail(),
+                $mail,
+                'upgrade_access_keys',
+                array(),
+                true,
+                \XLite::ADMIN_INTERFACE,
+                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+            );
+        }
     }
 
     // }}}
@@ -1184,7 +1280,7 @@ class Mailer extends \XLite\Base\Singleton
     public static function sendTestEmail($from, $to, $body = '')
     {
         static::register(
-            array('body' => $body,)
+            ['body' => $body,]
         );
 
         if (\XLite\Core\Config::getInstance()->NotificationAttachments->attach_pdf_invoices) {
@@ -1196,7 +1292,7 @@ class Mailer extends \XLite\Base\Singleton
             $from,
             $to,
             'test_email',
-            array(),
+            [],
             true,
             \XLite::ADMIN_INTERFACE
         );
@@ -1219,20 +1315,22 @@ class Mailer extends \XLite\Base\Singleton
     {
         static::register('product', $data);
 
-        static::compose(
-            static::TYPE_LOW_LIMIT_WARNING,
-            static::getOrdersDepartmentMail(),
-            static::getSiteAdministratorMail(),
-            'low_limit_warning',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+        foreach (static::getSiteAdministratorMails() as $mail) {
+            static::compose(
+                static::TYPE_LOW_LIMIT_WARNING,
+                static::getOrdersDepartmentMail(),
+                $mail,
+                'low_limit_warning',
+                array(),
+                true,
+                \XLite::ADMIN_INTERFACE,
+                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+            );
+        }
     }
 
     /**
-     * Send created order mail to admin
+     * Send failed order mail to admin
      *
      * @param \XLite\Model\Order $order Order model
      *
@@ -1243,32 +1341,33 @@ class Mailer extends \XLite\Base\Singleton
         $transactionSearchURL = \XLite\Core\Converter::buildFullURL(
             'payment_transactions',
             '',
-            array(
+            [
                 'public_id' => $transaction->getPublicId()
-            ),
+            ],
             \XLite::getAdminScript()
         );
         static::register('transactionSearchURL', $transactionSearchURL);
         static::register('order', $transaction->getOrder());
 
-
-        $result = static::compose(
-            static::TYPE_FAILED_TRANSACTION_ADMIN,
-            static::getOrdersDepartmentMail(),
-            static::getOrdersDepartmentMail(),
-            'failed_transaction',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+        foreach (static::getOrdersDepartmentMails() as $mail) {
+            static::compose(
+                static::TYPE_FAILED_TRANSACTION_ADMIN,
+                static::getOrdersDepartmentMail(),
+                $mail,
+                'failed_transaction',
+                array(),
+                true,
+                \XLite::ADMIN_INTERFACE,
+                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+            );
+        }
     }
 
     /**
      * Returns test pdf document
      *
-     * @param \XLite\Model\Order    $order           Order entity
-     * @param string                $interface       Document interface
+     * @param \XLite\Model\Order $order     Order entity
+     * @param string             $interface Document interface
      *
      * @return string
      */
@@ -1276,9 +1375,9 @@ class Mailer extends \XLite\Base\Singleton
     {
         $page = new \XLite\View\PdfPage\Test();
         $page->setWidgetParams(
-            array(
+            [
                 'interface' => $interface
-            )
+            ]
         );
 
         $handler = \XLite\Core\Pdf\Handler::getDefault();
@@ -1295,8 +1394,8 @@ class Mailer extends \XLite\Base\Singleton
     /**
      * Returns pdf document of order invoice
      *
-     * @param \XLite\Model\Order    $order           Order entity
-     * @param string                $interface       Document interface
+     * @param \XLite\Model\Order $order     Order entity
+     * @param string             $interface Document interface
      *
      * @return string
      */
@@ -1305,10 +1404,10 @@ class Mailer extends \XLite\Base\Singleton
         if ($order) {
             $page = new \XLite\View\PdfPage\Invoice();
             $page->setWidgetParams(
-                array(
-                    'order' => $order,
+                [
+                    'order'     => $order,
                     'interface' => $interface
-                )
+                ]
             );
 
             $handler = \XLite\Core\Pdf\Handler::getDefault();
@@ -1356,7 +1455,7 @@ class Mailer extends \XLite\Base\Singleton
      */
     protected static function register($name, $value = '')
     {
-        $variables = is_array($name) ? $name : array($name => $value);
+        $variables = is_array($name) ? $name : [$name => $value];
         $mailer = static::getMailer();
 
         foreach ($variables as $k => $v) {
@@ -1367,10 +1466,10 @@ class Mailer extends \XLite\Base\Singleton
     /**
      * Attach file into mail viewer
      *
-     * @param string    $path       Full path to file
-     * @param string    $name       Filename in mail OPTIONAL
-     * @param string    $encoding   File encoding (default: 'base64') OPTIONAL
-     * @param string    $mime       File MIME-type (default: 'Application/octet-stream') OPTIONAL
+     * @param string $path     Full path to file
+     * @param string $name     Filename in mail OPTIONAL
+     * @param string $encoding File encoding (default: 'base64') OPTIONAL
+     * @param string $mime     File MIME-type (default: 'Application/octet-stream') OPTIONAL
      *
      * @return void
      */
@@ -1384,10 +1483,10 @@ class Mailer extends \XLite\Base\Singleton
     /**
      * Attach file into mail viewer
      *
-     * @param string    $string     Base64 attachment string
-     * @param string    $name       Filename in mail OPTIONAL
-     * @param string    $encoding   File encoding (default: 'base64') OPTIONAL
-     * @param string    $mime       File MIME-type (default: 'Application/octet-stream') OPTIONAL
+     * @param string $string   Base64 attachment string
+     * @param string $name     Filename in mail OPTIONAL
+     * @param string $encoding File encoding (default: 'base64') OPTIONAL
+     * @param string $mime     File MIME-type (default: 'Application/octet-stream') OPTIONAL
      *
      * @return void
      */
@@ -1401,7 +1500,7 @@ class Mailer extends \XLite\Base\Singleton
     /**
      * Attach file into mail viewer
      *
-     * @param array    $files   Array of filepaths or records in the following format: array( 'path' => ?, 'name' => ?, 'encoding' = ?, 'mime' = ? )
+     * @param array $files Array of filepaths or records in the following format: array( 'path' => ?, 'name' => ?, 'encoding' = ?, 'mime' = ? )
      *
      * @return void
      */
@@ -1435,6 +1534,16 @@ class Mailer extends \XLite\Base\Singleton
         $mailer->clearAttachments();
     }
 
+    public static function setSchedule($value)
+    {
+        static::$schedule = $value;
+    }
+
+    public static function getSchedule()
+    {
+        return static::$schedule;
+    }
+
     /**
      * Compose and send wrapper for \XLite\View\Mailer::compose()
      *
@@ -1456,55 +1565,134 @@ class Mailer extends \XLite\Base\Singleton
         $from,
         $to,
         $dir,
-        array $customHeaders = array(),
+        array $customHeaders = [],
         $doSend = true,
         $interface = \XLite::CUSTOMER_INTERFACE,
         $languageCode = '',
-        $force = false
-    ) {
+        $force = false,
+        $mailRegistryKey = null
+    )
+    {
         $result = false;
         static::$errorMessage = null;
 
-        if (static::isNotificationEnabled($dir, $interface) || $force) {
-            static::getMailer()->compose(
-                static::prepareFrom($type, $from),
-                static::prepareTo($type, $to),
-                static::prepareDir($type, $dir),
-                static::prepareCustomHeaders($type, $customHeaders),
-                $interface,
-                $languageCode
-            );
+        // I'm really sorry for this, but its is much simpler than
+        // trying to serialize good half of environment
+        // or refactor whole Core\Mailer and View\Mailer
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+        $callee = $backtrace[1]['function'];
+        $arguments = [];
+        if (isset($backtrace[1]['args'])) {
+            $arguments = $backtrace[1]['args'];
+        }
 
-            if ($doSend) {
-                $result = static::getMailer()->send();
+        if (!$mailRegistryKey) {
+            $mailRegistryKey = static::getMailRegistryKey($callee, $from, $to);
+            foreach ($arguments as $arg) {
+                $part = $arg;
+                if ($arg instanceof \XLite\Model\AEntity) {
+                    $part = [
+                        get_class($arg),
+                        $arg->getUniqueIdentifier()
+                    ];
+                }
+                $mailRegistryKey .= md5(serialize($part));
             }
         }
 
-        if (!$result && static::getMailer()->getLastErrorMessage()) {
-            static::$errorMessage = static::getMailer()->getLastErrorMessage();
-        }
+        if (
+            static::getSchedule()
+            && method_exists('\XLite\Core\Mailer', $callee)
+            && !in_array($callee, static::getQueueExcludedCallees())
+        ) {
+            $sendMailJob = new \XLite\Core\Job\SendMail(
+                $callee,
+                $arguments
+            );
+            static::schedule($sendMailJob);
 
-        // Save sent email notification to the registry
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
-        if (!empty($backtrace[1]['function'])) {
-            static::$mailRegistry[] = static::getMailRegistryKey($backtrace[1]['function'], $from, $to);
+            $result = true;
+
+        } else {
+            if (static::isNotificationEnabled($dir, $interface) || $force) {
+
+                if (static::excludedFromRegistryCheck($callee, $from, $to)
+                    || !static::checkMailRegistry($mailRegistryKey)
+                ) {
+                    static::getMailer()->compose(
+                        static::prepareFrom($type, $from),
+                        static::prepareTo($type, $to),
+                        static::prepareDir($type, $dir),
+                        static::prepareCustomHeaders($type, $customHeaders),
+                        $interface,
+                        $languageCode
+                    );
+
+                    if ($doSend) {
+                        $result = static::getMailer()->send();
+                    }
+                }
+
+            } else {
+                static::clearAttachments();
+                static::getMailer()->clearStringAttachments();
+            }
+
+            if (!$result && static::getMailer()->getLastErrorMessage()) {
+                static::$errorMessage = static::getMailer()->getLastErrorMessage();
+            }
+
+            if (!empty($callee)) {
+                static::$mailRegistry[] = $mailRegistryKey;
+            }
         }
 
         return $result;
     }
 
     /**
-     * Return true if specified notification has already been sent
+     * Return list of callees which should not be queued
      *
-     * @param string $func Function name
-     * @param string $from From e-mail
-     * @param string $to   To e-mail
+     * @return array
+     */
+    protected static function getQueueExcludedCallees()
+    {
+        return [
+            'sendRecoverPasswordRequest',
+            'sendTestEmail',
+            'sendSafeModeAccessKeyNotification',
+            'sendUpgradeSafeModeAccessKeyNotification'
+        ];
+    }
+
+    /**
+     * Should we exclude from check registry
+     *
+     * @param string $callee    Function name
+     * @param string $from      From e-mail
+     * @param string $to        To e-mail
      *
      * @return boolean
      */
-    protected static function checkMailRegistry($func, $from, $to)
+    protected static function excludedFromRegistryCheck($callee, $from, $to)
     {
-        return in_array(static::getMailRegistryKey($func, $from, $to), static::$mailRegistry, true);
+        return false;
+    }
+
+    /**
+     * Return true if specified notification has already been sent
+     *
+     * @param $key
+     *
+     * @return bool
+     * @internal param string $func Function name
+     * @internal param string $from From e-mail
+     * @internal param string $to To e-mail
+     *
+     */
+    protected static function checkMailRegistry($key)
+    {
+        return in_array($key, static::$mailRegistry, true);
     }
 
     /**
@@ -1588,13 +1776,37 @@ class Mailer extends \XLite\Base\Singleton
      *
      * @return string
      */
-    protected static function getOrdersDepartmentMail($registerFromName = true)
+    public static function getOrdersDepartmentMail($registerFromName = true)
     {
         if ($registerFromName) {
             static::register('fromName', static::getCompanyName());
         }
-        return \XLite\Core\Config::getInstance()->Company->orders_department
-            ?: static::getSiteAdministratorMail();
+
+        $emails = @unserialize(\XLite\Core\Config::getInstance()->Company->orders_department);
+
+        return (is_array($emails) && !empty($emails))
+            ? array_shift($emails)
+            : static::getSiteAdministratorMail();
+    }
+
+    /**
+     * Sales department e-mail:
+     *
+     * @param boolean $registerFromName register company name as from name
+     *
+     * @return string[]
+     */
+    public static function getOrdersDepartmentMails($registerFromName = true)
+    {
+        if ($registerFromName) {
+            static::register('fromName', static::getCompanyName());
+        }
+
+        $emails = @unserialize(\XLite\Core\Config::getInstance()->Company->orders_department);
+
+        return (is_array($emails) && !empty($emails))
+            ? $emails
+            : static::getSiteAdministratorMails();
     }
 
     /**
@@ -1604,12 +1816,69 @@ class Mailer extends \XLite\Base\Singleton
      *
      * @return string
      */
-    protected static function getUsersDepartmentMail($registerFromName = true)
+    public static function getUsersDepartmentMail($registerFromName = true)
     {
         if ($registerFromName) {
             static::register('fromName', static::getCompanyName());
         }
-        return \XLite\Core\Config::getInstance()->Company->users_department;
+
+        $emails = @unserialize(\XLite\Core\Config::getInstance()->Company->users_department);
+
+        return (is_array($emails) && !empty($emails)) ? array_shift($emails) : '';
+    }
+
+    /**
+     * Customer relations e-mail
+     *
+     * @param boolean $registerFromName register company name as from name
+     *
+     * @return string[]
+     */
+    public static function getUsersDepartmentMails($registerFromName = true)
+    {
+        if ($registerFromName) {
+            static::register('fromName', static::getCompanyName());
+        }
+
+        $emails = @unserialize(\XLite\Core\Config::getInstance()->Company->users_department);
+
+        return (is_array($emails) && !empty($emails)) ? $emails : [];
+    }
+
+    /**
+     * Customer relations e-mail
+     *
+     * @param boolean $registerFromName register company name as from name
+     *
+     * @return string
+     */
+    public static function getSupportDepartmentMail($registerFromName = true)
+    {
+        if ($registerFromName) {
+            static::register('fromName', static::getCompanyName());
+        }
+
+        $emails = @unserialize(\XLite\Core\Config::getInstance()->Company->support_department);
+
+        return (is_array($emails) && !empty($emails)) ? array_shift($emails) : '';
+    }
+
+    /**
+     * Support e-mails
+     *
+     * @param boolean $registerFromName register company name as from name
+     *
+     * @return string[]
+     */
+    public static function getSupportDepartmentMails($registerFromName = true)
+    {
+        if ($registerFromName) {
+            static::register('fromName', static::getCompanyName());
+        }
+
+        $emails = @unserialize(\XLite\Core\Config::getInstance()->Company->support_department);
+
+        return (is_array($emails) && !empty($emails)) ? $emails : [];
     }
 
     /**
@@ -1619,12 +1888,33 @@ class Mailer extends \XLite\Base\Singleton
      *
      * @return string
      */
-    protected static function getSiteAdministratorMail($registerFromName = true)
+    public static function getSiteAdministratorMail($registerFromName = true)
     {
         if ($registerFromName) {
             static::register('fromName', static::getCompanyName());
         }
-        return \XLite\Core\Config::getInstance()->Company->site_administrator;
+
+        $emails = @unserialize(\XLite\Core\Config::getInstance()->Company->site_administrator);
+
+        return (is_array($emails) && !empty($emails)) ? array_shift($emails) : '';
+    }
+
+    /**
+     * Site administrator e-mail
+     *
+     * @param boolean $registerFromName register company name as from name
+     *
+     * @return string[]
+     */
+    public static function getSiteAdministratorMails($registerFromName = true)
+    {
+        if ($registerFromName) {
+            static::register('fromName', static::getCompanyName());
+        }
+
+        $emails = @unserialize(\XLite\Core\Config::getInstance()->Company->site_administrator);
+
+        return (is_array($emails) && !empty($emails)) ? $emails : [];
     }
 
     /**
@@ -1694,8 +1984,8 @@ class Mailer extends \XLite\Base\Singleton
     {
         $names = $this->getVariables();
 
-        $variables = array_map(array($this, 'getVariableName'), $names);
-        $values = array_map(array($this, 'getVariableValue'), $names);
+        $variables = array_map([$this, 'getVariableName'], $names);
+        $values = array_map([$this, 'getVariableValue'], $names);
 
         return array_combine($variables, $values);
     }
@@ -1711,8 +2001,8 @@ class Mailer extends \XLite\Base\Singleton
     {
         $names = $this->getVariables();
 
-        $variables = array_map(array($this, 'getVariableName'), $names);
-        $values = array_map(array($this, 'getVariableValue'), $names);
+        $variables = array_map([$this, 'getVariableName'], $names);
+        $values = array_map([$this, 'getVariableValue'], $names);
 
         return str_replace($variables, $values, $body);
     }
@@ -1724,7 +2014,7 @@ class Mailer extends \XLite\Base\Singleton
      */
     protected function getVariables()
     {
-        return array(
+        return [
             'logo',
             'company_name',
             'company_link',
@@ -1737,7 +2027,7 @@ class Mailer extends \XLite\Base\Singleton
             'company_zipcode',
             'company_phone',
             'recipient_name',
-        );
+        ];
     }
 
     /**

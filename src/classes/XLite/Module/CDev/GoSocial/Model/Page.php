@@ -13,8 +13,10 @@ namespace XLite\Module\CDev\GoSocial\Model;
  *
  * @Decorator\Depend ("CDev\SimpleCMS")
  */
-abstract class Page extends \XLite\Module\CDev\SimpleCMS\Model\Page implements \XLite\Base\IDecorator
+class Page extends \XLite\Module\CDev\SimpleCMS\Model\Page implements \XLite\Base\IDecorator
 {
+    use \XLite\Module\CDev\GoSocial\Core\OpenGraphTrait;
+
     /**
      * Custom Open graph meta tags
      *
@@ -34,17 +36,31 @@ abstract class Page extends \XLite\Module\CDev\SimpleCMS\Model\Page implements \
     protected $showSocialButtons = false;
 
     /**
-     * Get Open Graph meta tags
-     *
-     * @param boolean $preprocessed Preprocessed OPTIONAL
-     *
-     * @return string
+     * @inheritdoc
      */
-    public function getOpenGraphMetaTags($preprocessed = true)
+    protected function isUseOpenGraphImage()
     {
-        $tags = $this->getOgMeta() ?: $this->generateOpenGraphMetaTags();
+        return (boolean)$this->getImage();
+    }
 
-        return $preprocessed ? $this->preprocessOpenGraphMetaTags($tags) : $tags;
+    /**
+     * @inheritdoc
+     */
+    protected function getOpenGraphImageWidth()
+    {
+        return $this->getImage()
+            ? $this->getImage()->getWidth()
+            : 0;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getOpenGraphImageHeight()
+    {
+        return $this->getImage()
+            ? $this->getImage()->getHeight()
+            : 0;
     }
 
     /**
@@ -62,43 +78,7 @@ abstract class Page extends \XLite\Module\CDev\SimpleCMS\Model\Page implements \
     }
 
     /**
-     * Define Open Graph meta tags
-     *
-     * @return array
-     */
-    protected function defineOpenGraphMetaTags()
-    {
-        $list = array(
-            'og:title'       => $this->getOpenGraphTitle(),
-            'og:type'        => $this->getOpenGraphType(),
-            'og:url'         => $this->getOpenGraphURL(),
-            'og:site_name'   => $this->getOpenGraphSiteName(),
-            'og:description' => $this->getOpenGraphDescription(),
-            'og:locale'      => $this->getOpenGraphLocale(),
-        );
-
-        if ($this->getImage()) {
-            $list['og:image'] = $this->getOpenGraphImage();
-            $list['og:image:width'] = $this->getImage()->getWidth();
-            $list['og:image:height'] = $this->getImage()->getHeight();
-        }
-
-        $appId = $this->getOpenGraphAppId();
-        $admins = $this->getOpenGraphAdmins();
-        if ($appId) {
-            $list['fb:app_id'] = $appId;
-
-        } elseif ($admins) {
-            $list['fb:admins'] = $admins;
-        }
-
-        return $list;
-    }
-
-    /**
-     * Returns open graph title
-     *
-     * @return string
+     * @inheritdoc
      */
     protected function getOpenGraphTitle()
     {
@@ -106,9 +86,7 @@ abstract class Page extends \XLite\Module\CDev\SimpleCMS\Model\Page implements \
     }
 
     /**
-     * Returns open graph type
-     *
-     * @return string
+     * @inheritdoc
      */
     protected function getOpenGraphType()
     {
@@ -116,29 +94,7 @@ abstract class Page extends \XLite\Module\CDev\SimpleCMS\Model\Page implements \
     }
 
     /**
-     * Returns open graph url
-     *
-     * @return string
-     */
-    protected function getOpenGraphURL()
-    {
-        return '[PAGE_URL]';
-    }
-
-    /**
-     * Returns open graph site name
-     *
-     * @return string
-     */
-    protected function getOpenGraphSiteName()
-    {
-        return \XLite\Core\Config::getInstance()->Company->company_name;
-    }
-
-    /**
-     * Returns open graph description
-     *
-     * @return string
+     * @inheritdoc
      */
     protected function getOpenGraphDescription()
     {
@@ -146,80 +102,19 @@ abstract class Page extends \XLite\Module\CDev\SimpleCMS\Model\Page implements \
     }
 
     /**
-     * Returns open graph locale
-     *
-     * @return string
-     */
-    protected function getOpenGraphLocale()
-    {
-        return \XLite\Core\Session::getInstance()->getLocale();
-    }
-
-    /**
-     * Returns open graph image
-     *
-     * @return string
-     */
-    protected function getOpenGraphImage()
-    {
-        return '[IMAGE_URL]';
-    }
-
-    /**
-     * Returns open graph app id
-     *
-     * @return string
-     */
-    protected function getOpenGraphAppId()
-    {
-        return \XLite\Core\Config::getInstance()->CDev->GoSocial->fb_app_id;
-    }
-
-    /**
-     * Returns open graph admins
-     *
-     * @return string
-     */
-    protected function getOpenGraphAdmins()
-    {
-        return \XLite\Core\Config::getInstance()->CDev->GoSocial->fb_admins;
-    }
-
-    /**
-     * Get generated Open Graph meta tags
-     *
-     * @return string
-     */
-    protected function generateOpenGraphMetaTags()
-    {
-        $list = $this->defineOpenGraphMetaTags();
-
-        $html = array();
-        foreach ($list as $k => $v) {
-            $html[] = '<meta property="' . $k . '" content="' . htmlentities($v, ENT_COMPAT, 'UTF-8') . '" />';
-        }
-
-        return implode("\n", $html);
-    }
-
-    /**
-     * Preprocess Open Graph meta tags
-     *
-     * @param string $tags Tags content
-     *
-     * @return string
+     * @inheritdoc
      */
     protected function preprocessOpenGraphMetaTags($tags)
     {
         return str_replace(
-            array(
+            [
                 '[PAGE_URL]',
                 '[IMAGE_URL]',
-            ),
-            array(
+            ],
+            [
                 htmlentities($this->getFrontURL(), ENT_COMPAT, 'UTF-8'),
                 htmlentities($this->getImage() ? $this->getImage()->getFrontURL() : '', ENT_COMPAT, 'UTF-8'),
-            ),
+            ],
             $tags
         );
     }
@@ -227,8 +122,8 @@ abstract class Page extends \XLite\Module\CDev\SimpleCMS\Model\Page implements \
     /**
      * Set ogMeta
      *
-     * @param text $ogMeta
-     * @return Page
+     * @param string $ogMeta
+     * @return static
      */
     public function setOgMeta($ogMeta)
     {
@@ -237,9 +132,7 @@ abstract class Page extends \XLite\Module\CDev\SimpleCMS\Model\Page implements \
     }
 
     /**
-     * Get ogMeta
-     *
-     * @return text 
+     * @inheritdoc
      */
     public function getOgMeta()
     {

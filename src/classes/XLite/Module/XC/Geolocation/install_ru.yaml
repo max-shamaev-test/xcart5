@@ -10,3 +10,4 @@ XLite\Model\LanguageLabel:
   - { name: 'Choose your location', translations: [{ code: ru, label: 'Укажите ваш адрес' }] }
   - { name: 'Save location', translations: [{ code: ru, label: 'Сохранить адрес' }] }
   - { name: 'Location was successfully set', translations: [{ code: ru, label: 'Адрес был сохранен' }] }
+  - { name: 'Return to default database', translations: [{ code: ru, label: 'Вернуться к базе данных по умолчанию' }] }

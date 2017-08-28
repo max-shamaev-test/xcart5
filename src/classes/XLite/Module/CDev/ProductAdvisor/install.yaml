@@ -210,7 +210,7 @@ XLite\Model\LanguageLabel:
   - { name: "Recently viewed", translations: [{ code: en, label: "Recently viewed" }] }
   - { name: "This product will be shown in new arrivals", translations: [{ code: en, label: "This product will be shown in New arrivals" }] }
   - { name: "This product will be shown in coming soon section", translations: [{ code: en, label: "This product will be shown in the Coming soon section" }] }
-  - { name: "expected on", translations: [{ code: en, label: "expected on" }] }
+  - { name: 'Expected on', translations: [{ code: en, label: 'Expected on' }] }
   - { name: "Coming soon...", translations: [{ code: en, label: "Coming soon..." }] }
   - { name: "a2cp-source-code-PAB", translations: [{ code: en, label: "Customers who bought this product also bought (Product Advisor module)" }] }
   - { name: "Don't label", translations: [{ code: en, label: "Don't label" }] }

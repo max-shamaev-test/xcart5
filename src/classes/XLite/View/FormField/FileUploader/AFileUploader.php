@@ -40,6 +40,16 @@ abstract class AFileUploader extends \XLite\View\FormField\AFormField
     abstract protected function isImage();
 
     /**
+     * @inheritdoc
+     */
+    public function getJSFiles()
+    {
+        return array_merge(parent::getJSFiles(), [
+            'form_field/file_uploader/multiple.js'
+        ]);
+    }
+
+    /**
      * Return max width
      *
      * @return integer
@@ -84,9 +94,17 @@ abstract class AFileUploader extends \XLite\View\FormField\AFormField
      */
     protected function getFieldTemplate()
     {
-        return $this->getParam(static::PARAM_MULTIPLE)
+        return $this->isMultiple()
             ? 'file_uploader/multiple.twig'
             : 'file_uploader/single.twig';
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function isMultiple()
+    {
+        return (boolean)$this->getParam(static::PARAM_MULTIPLE);
     }
 
     /**
@@ -136,6 +154,10 @@ abstract class AFileUploader extends \XLite\View\FormField\AFormField
 
         if (is_array($result)) {
             foreach ($result as $k => $v) {
+                if (!is_array($v)) {
+                    continue;
+                }
+
                 $temporaryFile = isset($v['temp_id'])
                     ? \XLite\Core\Database::getRepo('\XLite\Model\TemporaryFile')->find($v['temp_id'])
                     : null;

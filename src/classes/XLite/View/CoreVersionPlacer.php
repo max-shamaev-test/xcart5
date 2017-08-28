@@ -11,7 +11,7 @@ namespace XLite\View;
 /**
  * Core version
  *
- * @ListChild (list="admin.main.page.header", weight="20", zone="admin")
+ * @ListChild (list="admin.main.page.header.left", weight="200", zone="admin")
  */
 class CoreVersionPlacer extends \XLite\View\AView
 {
@@ -35,7 +35,6 @@ class CoreVersionPlacer extends \XLite\View\AView
         return parent::isVisible()
             && \XLite\Core\Auth::getInstance()->isLogged()
             && \XLite\Core\Auth::getInstance()->isAdmin()
-            && !$this->getWidget(array(), '\XLite\\View\\CoreVersion')->isVisible();
+            && !$this->getWidget([], 'XLite\View\CoreVersion')->isVisible();
     }
-
 }

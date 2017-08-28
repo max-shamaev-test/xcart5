@@ -30,12 +30,15 @@ class Categories extends \XLite\Controller\Admin\ACL\Catalog
      */
     public function getTitle()
     {
-        return !$this->isVisible()
-            ? static::t('No category defined')
-            : (($categoryName = $this->getCategoryName())
+        if ($this->isAJAX() && \XLite\Core\Request::getInstance()->mode === 'removal_notice_popup') {
+            return static::t('Products with no assigned categories');
+        } elseif ($this->isVisible()) {
+            return ($categoryName = $this->getCategoryName())
                 ? static::t('Manage category (X)', array('category_name' => $categoryName))
-                : static::t('Manage categories')
-            );
+                : static::t('Manage categories');
+        } else {
+            return static::t('No category defined');
+        }
     }
 
     /**
@@ -108,7 +111,7 @@ class Categories extends \XLite\Controller\Admin\ACL\Catalog
     {
         if (is_null($this->category)) {
             $this->category = \XLite\Core\Database::getRepo('XLite\Model\Category')
-            ->find($this->getCategoryId());
+                ->find($this->getCategoryId());
         }
 
         return $this->category;
@@ -122,5 +125,51 @@ class Categories extends \XLite\Controller\Admin\ACL\Catalog
     public function getCategoryId()
     {
         return \XLite\Core\Request::getInstance()->id;
+    }
+
+    /**
+     * Return list of removed categories identifiers from request
+     *
+     * @return array
+     */
+    protected function getRemovedCategoriesIdentifiers()
+    {
+        $result = [];
+
+        $data = \XLite\Core\Request::getInstance()->getData();
+
+        if (!empty($data['delete']) && is_array($data['delete'])) {
+            $result = array_keys($data['delete']);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Update list
+     *
+     * @return void
+     */
+    protected function doActionUpdateItemsList()
+    {
+        $removalIdentifiers = $this->getRemovedCategoriesIdentifiers();
+
+        if (!empty($removalIdentifiers)) {
+            $this->processRemovalNotice($removalIdentifiers);
+        }
+
+        parent::doActionUpdateItemsList();
+    }
+
+    /**
+     * Process removal notice
+     *
+     * @param array $ids Category identifiers
+     */
+    protected function processRemovalNotice($ids)
+    {
+        if (\XLite\Core\Database::getRepo('XLite\Model\Category')->checkForInternalCategoryProducts($ids)) {
+            \XLite\Core\Session::getInstance()->{\XLite\View\ItemsList\Model\Category::IS_DISPLAY_REMOVAL_NOTICE} = true;
+        }
     }
 }

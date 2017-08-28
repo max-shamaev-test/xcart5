@@ -63,4 +63,24 @@ class ReviewsTab extends \XLite\View\AView
     {
         return 'modules/XC/Reviews/reviews_tab/body.twig';
     }
+
+    /**
+     * Is "Read all reviews for the product" link visible
+     *
+     * @return bool
+     */
+    protected function isDisplayReadAllReviewsLink()
+    {
+        return $this->getProduct() && $this->getProduct()->getReviewsCount() > $this->getPageReviewsCount();
+    }
+
+    /**
+     * Check if show fixed count of reviews on product page, otherwise pager will be used
+     *
+     * @return bool
+     */
+    protected function getPageReviewsCount()
+    {
+        return \XLite\Core\Config::getInstance()->XC->Reviews->reviewsCountPerTab;
+    }
 }

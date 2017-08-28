@@ -60,54 +60,50 @@ class Cart extends \XLite\Model\Order
 
             static::$instances[$className] = $cart;
 
-            if ($auth->isLogged()
-                && (!$cart->getProfile()
-                    || $auth->getProfile()->getProfileId() != $cart->getProfile()->getProfileId()
-                )
-            ) {
-                $cart->setProfile($auth->getProfile());
-                $cart->setOrigProfile($auth->getProfile());
-            }
-
-            // Check login state
-            if (\XLite\Core\Session::getInstance()->lastLoginUnique === null
-                && $cart->getProfile()
-                && $cart->getProfile()->getAnonymous()
-                && $cart->getProfile()->getLogin()
-            ) {
-                $tmpProfile = new \XLite\Model\Profile;
-                $tmpProfile->setProfileId(0);
-                $tmpProfile->setLogin($cart->getProfile()->getLogin());
-
-                $exists = \XLite\Core\Database::getRepo('XLite\Model\Profile')
-                    ->checkRegisteredUserWithSameLogin($tmpProfile);
-
-                \XLite\Core\Session::getInstance()->lastLoginUnique = !$exists;
-            }
-
-            if ($cart->isPersistent()) {
-                if (!$doCalculate) {
-                    $cart->setIgnoreLongCalculations();
-                }
-
-                if (!$cart->isIgnoreLongCalculations()
-                    && ($cart instanceof \XLite\Model\Cart
-                        || (\XLite\Core\Converter::time() - static::RENEW_PERIOD) > $cart->getLastRenewDate()
+            if ($doCalculate) {
+                if ($auth->isLogged()
+                    && (!$cart->getProfile()
+                        || $auth->getProfile()->getProfileId() != $cart->getProfile()->getProfileId()
                     )
                 ) {
-                    $cart->renew();
-
-                } else {
-                    $cart->calculate();
+                    $cart->setProfile($auth->getProfile());
+                    $cart->setOrigProfile($auth->getProfile());
                 }
 
-                if ($cart->getPaymentMethod() && !$cart->getPaymentMethod()->isEnabled()) {
-                    $cart->renewPaymentMethod();
+                // Check login state
+                if (\XLite\Core\Session::getInstance()->lastLoginUnique === null
+                    && $cart->getProfile()
+                    && $cart->getProfile()->getAnonymous()
+                    && $cart->getProfile()->getLogin()
+                ) {
+                    $tmpProfile = new \XLite\Model\Profile;
+                    $tmpProfile->setProfileId(0);
+                    $tmpProfile->setLogin($cart->getProfile()->getLogin());
+
+                    $exists = \XLite\Core\Database::getRepo('XLite\Model\Profile')
+                        ->checkRegisteredUserWithSameLogin($tmpProfile);
+
+                    \XLite\Core\Session::getInstance()->lastLoginUnique = !$exists;
                 }
 
-                $cart->renewSoft();
+                if ($cart->isPersistent()) {
+                    if ($cart instanceof \XLite\Model\Cart
+                        || (\XLite\Core\Converter::time() - static::RENEW_PERIOD) > $cart->getLastRenewDate()
+                    ) {
+                        $cart->renew();
 
-                \XLite\Core\Session::getInstance()->order_id = $cart->getOrderId();
+                    } else {
+                        $cart->calculate();
+                    }
+
+                    if ($cart->getPaymentMethod() && !$cart->getPaymentMethod()->isEnabled()) {
+                        $cart->renewPaymentMethod();
+                    }
+
+                    $cart->renewSoft();
+
+                    \XLite\Core\Session::getInstance()->order_id = $cart->getOrderId();
+                }
             }
         }
 
@@ -283,8 +279,6 @@ class Cart extends \XLite\Model\Order
     {
         if ($this->isPersistent()) {
             parent::calculate();
-
-            \XLite\Core\Session::getInstance()->lastCartInitialCalculate = \XLite\Core\Converter::time();
         }
     }
 
@@ -310,7 +304,7 @@ class Cart extends \XLite\Model\Order
     /**
      * Should we flush in order assign
      *
-     * @return boolen
+     * @return boolean
      */
     public function isFlushOnOrderNumberAssign()
     {
@@ -329,8 +323,6 @@ class Cart extends \XLite\Model\Order
 
     /**
      * Prepare order before save data operation
-     *
-     * @return void
      *
      * @PrePersist
      * @PreUpdate

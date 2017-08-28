@@ -15,7 +15,8 @@ CommonElement.prototype.handlers.push(
     handler: function () {
       var options = core.getCommentedData(this.$element.parents('.input-field-wrapper'));
       this.$element.datepicker({
-        dateFormat: options.dateFormat
+        dateFormat: options.dateFormat,
+        firstDay:   options.firstDay,
       });
     }
   }

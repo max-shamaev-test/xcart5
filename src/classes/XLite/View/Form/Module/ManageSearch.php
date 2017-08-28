@@ -41,6 +41,7 @@ class ManageSearch extends \XLite\View\Form\Module\AModule
     protected function getCommonFormParams()
     {
         $list = parent::getCommonFormParams();
+        $list['state'] = \XLite\Core\Request::getInstance()->state;
         $list['sessionCell'] = 'XLiteViewItemsListModuleManage';
         return $list;
     }

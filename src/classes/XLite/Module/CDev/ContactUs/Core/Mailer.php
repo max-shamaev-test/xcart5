@@ -42,27 +42,40 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
     /**
      * Send contact us message
      *
-     * @param array  $data  Data
-     * @param string $email Email
+     * @param \XLite\Module\CDev\ContactUs\Model\Contact  $contact
+     * @param string|array $email Email
      *
      * @return string | null
      */
-    public static function sendContactUsMessage(array $data, $email)
+    public static function sendContactUsMessage($contact, $email)
     {
-        static::$fromStorage = $data['email'];
-        $data['message'] = htmlspecialchars($data['message']);
+        static::$fromStorage = $contact->getEmail();
 
-        static::register('data', $data);
+        static::register('contact', $contact);
 
-        static::compose(
-            static::TYPE_CONTACT_US,
-            static::getSiteAdministratorMail(),
-            $email,
-            'modules/CDev/ContactUs/message',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE
-        );
+        if (is_array($email)) {
+            foreach ($email as $mail) {
+                static::compose(
+                    static::TYPE_CONTACT_US,
+                    static::getSiteAdministratorMail(),
+                    $mail,
+                    'modules/CDev/ContactUs/message',
+                    [],
+                    true,
+                    \XLite::ADMIN_INTERFACE
+                );
+            }
+        } else {
+            static::compose(
+                static::TYPE_CONTACT_US,
+                static::getSiteAdministratorMail(),
+                $email,
+                'modules/CDev/ContactUs/message',
+                [],
+                true,
+                \XLite::ADMIN_INTERFACE
+            );
+        }
 
         return static::getMailer()->getLastError();
     }

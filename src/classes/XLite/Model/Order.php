@@ -22,7 +22,8 @@ namespace XLite\Model;
  *          @Index (name="shipping_status", columns={"shipping_status_id"}),
  *          @Index (name="shipping_id", columns={"shipping_id"}),
  *          @Index (name="lastRenewDate", columns={"lastRenewDate"}),
- *          @Index (name="orderNumber", columns={"orderNumber"})
+ *          @Index (name="orderNumber", columns={"orderNumber"}),
+ *          @Index (name="is_order", columns={"is_order"})
  *      }
  * )
  *
@@ -759,7 +760,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
                 \XLite\Core\Database::getRepo('XLite\Model\Order')->findNextOrderNumber()
             );
         }
-        
+
         // Clone profile
         $newOrder->setOrigProfile($this->getOrigProfile());
 
@@ -1363,6 +1364,8 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         $this->transformItemsAttributes();
 
         $this->sendOrderCreatedIfNeeded();
+
+        $this->sendOrderWaitingForApproveIfNeeded();
     }
 
     /**
@@ -1370,7 +1373,8 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     public function sendOrderCreatedIfNeeded()
     {
-        if ($this->getPaymentStatus()
+        if (
+            $this->getPaymentStatus()
             && in_array(
                 $this->getPaymentStatus()->getCode(),
                 $this->getValidStatusesForCreateNotification(),
@@ -1381,6 +1385,18 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         }
     }
 
+    /**
+     * Send order awaiting for approval notification if needed
+     */
+    public function sendOrderWaitingForApproveIfNeeded()
+    {
+        if (
+            $this->getShippingStatus()
+            && $this->getShippingStatus()->getCode() === \XLite\Model\Order\Status\Shipping::STATUS_WAITING_FOR_APPROVE
+        ) {
+            \XLite\Core\Mailer::sendOrderWaitingForApprove($this);
+        }
+    }
 
     /**
      * Valid not paid statuses
@@ -1550,21 +1566,21 @@ class Order extends \XLite\Model\Base\SurchargeOwner
 
     /**
      * Check if given payment method can be applied to the order
-     * 
+     *
      * @param  \XLite\Model\Payment\Method  $method
      * @return boolean
      */
     protected function isPaymentMethodIsApplicable($method)
     {
-        return $method 
-            && $method->getProcessor() 
+        return $method
+            && $method->getProcessor()
             && $method->getProcessor()->isApplicable($this, $method);
     }
 
     /**
      * Get payment method
      *
-     * @return \XLite\Model\Payment\Method|void
+     * @return \XLite\Model\Payment\Method|null
      */
     public function getPaymentMethod()
     {
@@ -1773,7 +1789,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get first open (not payed) payment transaction
      *
-     * @return \XLite\Model\Payment\Transaction|void
+     * @return \XLite\Model\Payment\Transaction|null
      */
     public function getFirstOpenPaymentTransaction()
     {
@@ -2693,9 +2709,11 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         $profile = $this->getProfile();
         $origProfile = $this->getOrigProfile();
 
-        if ($profile && (!$origProfile || $profile->getProfileId() != $origProfile->getProfileId())) {
-            \XLite\Core\Database::getRepo('XLite\Model\Profile')->delete($profile, false);
-        }
+        try {
+            if ($profile && (!$origProfile || $profile->getProfileId() != $origProfile->getProfileId())) {
+                \XLite\Core\Database::getRepo('XLite\Model\Profile')->delete($profile, false);
+            }
+        } catch (\Doctrine\ORM\EntityNotFoundException $e) {}
     }
 
     /**
@@ -2710,6 +2728,8 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         if (static::ACTION_DELETE === $type) {
             $this->setOldPaymentStatus(null);
             $this->setOldShippingStatus(null);
+
+            $this->updateItemsSales(-1);
 
             $this->prepareBeforeRemove();
         }
@@ -2963,7 +2983,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         $statusHandlers = $class::getStatusHandlers();
 
         $result = [];
-        
+
         if ($oldCode && $newCode && isset($statusHandlers[$oldCode]) && isset($statusHandlers[$oldCode][$newCode])) {
             $result = is_array($statusHandlers[$oldCode][$newCode])
                 ? array_unique($statusHandlers[$oldCode][$newCode])
@@ -3052,6 +3072,20 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      *
      * @return void
      */
+    protected function processWaitingForApprove()
+    {
+        if ($this->isNotificationsAllowed() && !$this->isIgnoreCustomerNotifications()) {
+            \XLite\Core\Mailer::sendOrderWaitingForApprove($this);
+        }
+
+        $this->setIsNotificationSent(true);
+    }
+
+    /**
+     * A "change status" handler
+     *
+     * @return void
+     */
     protected function processIncrease()
     {
         $this->increaseInventory();
@@ -3064,11 +3098,6 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     protected function processDecline()
     {
-        if ($this->isNotificationsAllowed() && $this->getOrderNumber()) {
-            \XLite\Core\Mailer::sendOrderFailed($this, $this->isIgnoreCustomerNotifications());
-        }
-
-        $this->setIsNotificationSent(true);
     }
 
     /**
@@ -3078,6 +3107,11 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     protected function processFail()
     {
+        if ($this->isNotificationsAllowed() && $this->getOrderNumber()) {
+            \XLite\Core\Mailer::sendOrderFailed($this, $this->isIgnoreCustomerNotifications());
+        }
+
+        $this->setIsNotificationSent(true);
     }
 
     /**
@@ -3111,7 +3145,6 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         $data = array();
         foreach ($this->getItems() as $item) {
             $data[] = $this->getGroupedDataItem($item, $sign * $item->getAmount());
-            $amount = $this->changeItemInventory($item, $sign, !$registerAsGroup);
         }
 
         if ($registerAsGroup) {
@@ -3119,6 +3152,10 @@ class Order extends \XLite\Model\Base\SurchargeOwner
                 $this->getOrderId(),
                 $data
             );
+        }
+
+        foreach ($this->getItems() as $item) {
+            $amount = $this->changeItemInventory($item, $sign, !$registerAsGroup);
         }
     }
 
@@ -3652,6 +3689,35 @@ class Order extends \XLite\Model\Base\SurchargeOwner
             : null;
     }
 
+    /**
+     * @return bool
+     */
+    public function isOfflineProcessorUsed()
+    {
+        $processor = $this->getPaymentProcessor();
+
+        return $processor instanceof \XLite\Model\Payment\Processor\Offline;
+    }
+
+    /**
+     * @return \XLite\Model\Payment\Base\Processor
+     */
+    public function getPaymentProcessor()
+    {
+        $processor = null;
+
+        $transaction = $this->getPaymentTransactions()
+            ? $this->getPaymentTransactions()->last()
+            : null;
+
+        if ($transaction) {
+            $method = $transaction->getPaymentMethod() ?: $this->getPaymentMethod();
+            $processor = $method ? $method->getProcessor() : null;
+        }
+
+        return $processor;
+    }
+
     // {{{ Sales statistic
 
     /**
@@ -3736,7 +3802,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get order_id
      *
-     * @return integer 
+     * @return integer
      */
     public function getOrderId()
     {
@@ -3758,7 +3824,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get shipping_id
      *
-     * @return integer 
+     * @return integer
      */
     public function getShippingId()
     {
@@ -3804,7 +3870,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get tracking
      *
-     * @return string 
+     * @return string
      */
     public function getTracking()
     {
@@ -3826,7 +3892,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get date
      *
-     * @return integer 
+     * @return integer
      */
     public function getDate()
     {
@@ -3848,7 +3914,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get lastRenewDate
      *
-     * @return integer 
+     * @return integer
      */
     public function getLastRenewDate()
     {
@@ -3870,7 +3936,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get notes
      *
-     * @return text 
+     * @return text
      */
     public function getNotes()
     {
@@ -3892,7 +3958,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get adminNotes
      *
-     * @return text 
+     * @return text
      */
     public function getAdminNotes()
     {
@@ -3936,7 +4002,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get recent
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getRecent()
     {
@@ -3958,7 +4024,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get xcPendingExport
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getXcPendingExport()
     {
@@ -3968,7 +4034,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get total
      *
-     * @return decimal 
+     * @return float
      */
     public function getTotal()
     {
@@ -3978,7 +4044,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get subtotal
      *
-     * @return decimal 
+     * @return float
      */
     public function getSubtotal()
     {
@@ -3988,7 +4054,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get profile
      *
-     * @return \XLite\Model\Profile 
+     * @return \XLite\Model\Profile
      */
     public function getProfile()
     {
@@ -3998,7 +4064,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get orig_profile
      *
-     * @return \XLite\Model\Profile 
+     * @return \XLite\Model\Profile
      */
     public function getOrigProfile()
     {
@@ -4008,7 +4074,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get paymentStatus
      *
-     * @return \XLite\Model\Order\Status\Payment 
+     * @return \XLite\Model\Order\Status\Payment
      */
     public function getPaymentStatus()
     {
@@ -4018,7 +4084,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get shippingStatus
      *
-     * @return \XLite\Model\Order\Status\Shipping 
+     * @return \XLite\Model\Order\Status\Shipping
      */
     public function getShippingStatus()
     {
@@ -4062,7 +4128,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get trackingNumbers
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getTrackingNumbers()
     {
@@ -4084,7 +4150,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get events
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getEvents()
     {
@@ -4128,7 +4194,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get surcharges
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getSurcharges()
     {
@@ -4150,7 +4216,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get payment_transactions
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection|\XLite\Model\Payment\Transaction[]
      */
     public function getPaymentTransactions()
     {

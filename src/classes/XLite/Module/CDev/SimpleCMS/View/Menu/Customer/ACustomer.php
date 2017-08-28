@@ -110,7 +110,9 @@ abstract class ACustomer extends \XLite\View\Menu\Customer\ACustomer implements 
             && $item['url']
             && $this->isSameAsCurrent($item['url']);
 
-        return ($linkMatched || $this->checkChilden($item['id']))
+        $id = isset($item['id']) ? $item['id'] : null;
+
+        return ($linkMatched || $this->checkChilden($id))
             ?:
             $this->isActiveItemWithoutLink($item);
     }
@@ -123,16 +125,18 @@ abstract class ACustomer extends \XLite\View\Menu\Customer\ACustomer implements 
 
         $items = $this->executeCached([$this, 'getItems'], array_merge($cacheParams, ['getItems']));
 
-        $url   = \XLite\Core\URLManager::getCurrentURL();
-        $xlite = \XLite::getInstance();
-
         $matchedItemId = null;
 
-        foreach ($items as $item) {
-            if (isset($item['link']) && $xlite->getShopURL($item['link']) === $url || $this->isActiveItemWithoutLink($item)) {
-                $matchedItemId = $item['id'];
+        if (is_array($items)) {
+            $url   = \XLite\Core\URLManager::getCurrentURL();
+            $xlite = \XLite::getInstance();
 
-                break;
+            foreach ($items as $item) {
+                if (isset($item['link']) && $xlite->getShopURL($item['link']) === $url || $this->isActiveItemWithoutLink($item)) {
+                    $matchedItemId = $item['id'];
+
+                    break;
+                }
             }
         }
 

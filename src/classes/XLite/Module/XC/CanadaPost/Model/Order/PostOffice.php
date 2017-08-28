@@ -251,7 +251,7 @@ class PostOffice extends \XLite\Model\AEntity
     /**
      * Set distance
      *
-     * @param decimal $distance
+     * @param float $distance
      * @return PostOffice
      */
     public function setDistance($distance)
@@ -263,7 +263,7 @@ class PostOffice extends \XLite\Model\AEntity
     /**
      * Get distance
      *
-     * @return decimal 
+     * @return float
      */
     public function getDistance()
     {
@@ -317,7 +317,7 @@ class PostOffice extends \XLite\Model\AEntity
     /**
      * Set latitude
      *
-     * @param decimal $latitude
+     * @param float $latitude
      * @return PostOffice
      */
     public function setLatitude($latitude)
@@ -329,7 +329,7 @@ class PostOffice extends \XLite\Model\AEntity
     /**
      * Get latitude
      *
-     * @return decimal 
+     * @return float
      */
     public function getLatitude()
     {
@@ -339,7 +339,7 @@ class PostOffice extends \XLite\Model\AEntity
     /**
      * Set longitude
      *
-     * @param decimal $longitude
+     * @param float $longitude
      * @return PostOffice
      */
     public function setLongitude($longitude)
@@ -351,7 +351,7 @@ class PostOffice extends \XLite\Model\AEntity
     /**
      * Get longitude
      *
-     * @return decimal 
+     * @return float
      */
     public function getLongitude()
     {

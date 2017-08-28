@@ -43,6 +43,7 @@ class Settings extends \XLite\View\ModulesManager\Action\AAction
     protected function isVisible()
     {
         return parent::isVisible()
+            && $this->getModule()->getEnabled()
             && $this->getModule()->callModuleMethod('showSettingsForm');
     }
 }

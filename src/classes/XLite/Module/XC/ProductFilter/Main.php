@@ -41,7 +41,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '2';
+        return '3';
     }
 
     /**
@@ -50,6 +50,16 @@ abstract class Main extends \XLite\Module\AModule
      * @return string
      */
     public static function getBuildVersion()
+    {
+        return '2';
+    }
+
+    /**
+     * Get minor core version which is required for the module activation
+     *
+     * @return string
+     */
+    public static function getMinorRequiredCoreVersion()
     {
         return '3';
     }
@@ -62,14 +72,6 @@ abstract class Main extends \XLite\Module\AModule
     public static function getModuleName()
     {
         return 'Product Filter';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getMinorRequiredCoreVersion()
-    {
-        return '2';
     }
 
     /**
@@ -90,5 +92,16 @@ abstract class Main extends \XLite\Module\AModule
     public static function showSettingsForm()
     {
         return true;
+    }
+
+    /**
+     * Is use hash in url(else use URL)
+     *
+     * @return bool
+     */
+    public static function isUseHash()
+    {
+        return \XLite\Core\Config::getInstance()->XC->ProductFilter->url_part_type
+            === \XLite\Module\XC\ProductFilter\View\FormField\Select\UrlPartType::TYPE_HASH;
     }
 }

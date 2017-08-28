@@ -25,6 +25,16 @@ class Zones extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * @return null|\XLite\Model\Zone
+     */
+    public function getZone()
+    {
+        return isset(\XLite\Core\Request::getInstance()->zone_id)
+            ? \XLite\Core\Database::getRepo('XLite\Model\Zone')->find(\XLite\Core\Request::getInstance()->zone_id)
+            : null;
+    }
+
+    /**
      * Add elements into the specified zone
      *
      * @param \XLite\Model\Zone $zone Zone object
@@ -73,6 +83,13 @@ class Zones extends \XLite\Controller\Admin\AAdmin
         $postedData = \XLite\Core\Request::getInstance()->getData();
         $zoneId = intval($postedData['zone_id']);
 
+        if (isset($postedData['states_for_countries'])) {
+            \XLite\Core\Session::getInstance()->set(
+                \XLite\View\FormField\Input\Checkbox\StatesForCountries::SESSION_CELL_NAME,
+                (boolean)$postedData['states_for_countries']
+            );
+        }
+
         if (isset($postedData['zone_id']) && 0 < $zoneId) {
             $zone = \XLite\Core\Database::getRepo('XLite\Model\Zone')->find($zoneId);
         }
@@ -118,10 +135,10 @@ class Zones extends \XLite\Controller\Admin\AAdmin
                 \XLite\Core\TopMessage::addError(static::t('The countries list for zone is empty. Please specify it.'));
             }
 
-            $this->redirect(\XLite\Core\Converter::buildURL('zones', '', array('zone_id' => $zoneId)));
+            $this->redirect(\XLite\Core\Converter::buildURL('zones', '', ['zone_id' => $zoneId]));
 
         } else {
-            \XLite\Core\TopMessage::addError(static::t('Zone not found (X)', array('zoneId' => $zoneId)));
+            \XLite\Core\TopMessage::addError(static::t('Zone not found (X)', ['zoneId' => $zoneId]));
         }
     }
 
@@ -134,27 +151,27 @@ class Zones extends \XLite\Controller\Admin\AAdmin
      */
     protected function getElementsData($postedData)
     {
-        $data = array();
+        $data = [];
 
         $data[\XLite\Model\ZoneElement::ZONE_ELEMENT_COUNTRY] = !empty($postedData['zone_countries'])
-            ? array_filter(explode(';', $postedData['zone_countries']))
-            : array();
+            ? array_filter(explode(\XLite\View\FormField\Listbox\Country::LISTBOX_SEPARATOR, $postedData['zone_countries']))
+            : [];
 
         $data[\XLite\Model\ZoneElement::ZONE_ELEMENT_STATE] = !empty($postedData['zone_states'])
-            ? array_filter(explode(';', $postedData['zone_states']))
-            : array();
+            ? array_filter(explode(\XLite\View\FormField\Listbox\State::LISTBOX_SEPARATOR, $postedData['zone_states']))
+            : [];
 
         $data[\XLite\Model\ZoneElement::ZONE_ELEMENT_TOWN] = !empty($postedData['zone_cities'])
             ? array_filter(explode("\n", $postedData['zone_cities']))
-            : array();
+            : [];
 
         $data[\XLite\Model\ZoneElement::ZONE_ELEMENT_ZIPCODE] = !empty($postedData['zone_zipcodes'])
             ? array_filter(explode("\n", $postedData['zone_zipcodes']))
-            : array();
+            : [];
 
         $data[\XLite\Model\ZoneElement::ZONE_ELEMENT_ADDRESS] = !empty($postedData['zone_addresses'])
             ? array_filter(explode("\n", $postedData['zone_addresses']))
-            : array();
+            : [];
 
         foreach ($data[\XLite\Model\ZoneElement::ZONE_ELEMENT_STATE] as $value) {
 

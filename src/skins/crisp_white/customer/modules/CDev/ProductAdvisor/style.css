@@ -31,3 +31,18 @@ ul.products-sidebar ul.labels li, ul.products-sidebar ul.labels li.coming-soon d
   padding: 0;
   white-space: nowrap;
 }
+
+.product-details-info .coming-soon-label .labels {
+  display: inline-block;
+  margin-right: 7px;
+}
+
+.coming-soon-note {
+  display: inline-block;
+  vertical-align: bottom;
+  color: #5e7d76
+}
+
+.product-cell .coming-soon-note {
+  margin-top: 10px;
+}

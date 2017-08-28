@@ -413,7 +413,13 @@ class Zone extends \XLite\Model\AEntity
 
         foreach ($masksList as $mask) {
 
-            $mask = str_replace('%', '.*', preg_quote($mask));
+            $mask = str_replace([
+                '%',
+                '\?',
+            ], [
+                '.*',
+                '.',
+            ], preg_quote($mask));
 
             if (preg_match('/^' . $mask . '$/i', $value)) {
                 $found = true;

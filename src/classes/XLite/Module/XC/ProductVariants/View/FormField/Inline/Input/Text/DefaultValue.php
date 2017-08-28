@@ -22,7 +22,17 @@ class DefaultValue extends \XLite\View\FormField\Inline\Input\Text
      */
     protected function getFieldParams(array $field)
     {
-        return parent::getFieldParams($field) + array('min' => 0, 'mouseWheelIcon' => false, 'placeholder' => static::t('Default'));
+        return parent::getFieldParams($field) + array('min' => 0, 'mouseWheelIcon' => false, 'placeholder' => $this->getPlaceholder());
+    }
+
+    /**
+     * Return placeholder
+     *
+     * @return string
+     */
+    protected function getPlaceholder()
+    {
+        return static::t('Default');
     }
 
     /**

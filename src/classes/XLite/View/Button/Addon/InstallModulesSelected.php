@@ -75,7 +75,7 @@ class InstallModulesSelected extends \XLite\View\Button\Dropdown\ADropdown
     protected function getDefaultLabel()
     {
         return static::t(
-            'X module(s) selected',
+            'X addon(s) selected',
             ['count' => \XLite::getController()->countModulesSelected()]
         );
     }

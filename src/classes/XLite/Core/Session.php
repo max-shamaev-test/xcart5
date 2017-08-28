@@ -163,20 +163,20 @@ class Session extends \XLite\Base\Singleton
     /**
      * Reset session form id
      *
-     * @return void
+     * @return string
      */
     public function resetFormId()
     {
         if ($this->getSessionFormId()) {
             \XLite\Core\Database::getRepo('XLite\Model\FormId')->delete($this->getSessionFormId());
-            $this->createFormId(true);
+            return $this->createFormId(true);
         }
+
+        return null;
     }
 
     /**
      * Restart session
-     *
-     * @return void
      */
     public function restart($withCells = true)
     {
@@ -597,7 +597,7 @@ class Session extends \XLite\Base\Singleton
             // of other X-Cart installation (see BUG-2983)
             // We need to try each xid to detect which is correct...
             foreach (explode(';', $_SERVER['HTTP_COOKIE']) as $elem) {
-                list($name, $value) = explode('=', $elem);
+                @list($name, $value) = explode('=', $elem);
                 if (trim($name) == $arg) {
                     $session = $this->loadSession(trim($value));
                     if ($session) {

@@ -8,14 +8,11 @@
  */
 
 .installed-modules-header {
+  display: flex;
   margin-top: 30px;
-  margin-bottom: 16px;
-  display: table;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #ccd0d2;
   width: 100%;
-}
-
-.installed-modules-header > div {
-  display: table-cell;
 }
 
 .installed-modules-header .actions {
@@ -204,17 +201,13 @@ div.pack-warning a {
 }
 
 .addons-filters {
-  min-height: 0;
-  background: transparent;
-  width: auto;
-  min-width: 500px;
+  flex-grow: 1;
 }
 
 .addons-search-box div.substring {
   white-space: nowrap;
-  width: 300px;
+  width: 270px;
   display: inline-block;
-  vertical-align: middle;
 }
 
 .addons-search-box div.state {
@@ -228,8 +221,8 @@ div.pack-warning a {
 }
 
 .target-addons-list-installed .addons-search-box .search-form input#substring {
-  border-radius: 5px;
-  width: 300px;
+  border-radius: 4px;
+  width: 270px;
 }
 
 #substring:focus::-webkit-input-placeholder { color:transparent; }
@@ -238,43 +231,15 @@ div.pack-warning a {
 #substring:focus:-ms-input-placeholder { color:transparent; } /* IE 10+ */
 
 .target-addons-list-installed .addons-search-box .search-form select#state {
-  border-radius: 5px;
-  border: 1px solid #a3a3a3;
-  width: 170px;
+  border: none;
+  width: 140px;
+  box-shadow: none;
+  outline: none;
 }
 
 .actions span.separator-or {
   font-size: 14px;
   margin: 0 10px;
-}
-
-.actions a {
-  font-size: 14px;
-}
-
-.modules-list .name {
-  font-size: 16px;
-}
-
-.modules-list .version, .modules-list .author {
-  font-size: 12px;
-  margin: 0;
-}
-
-.modules-list .version, .modules-list .author {
-  display: inline;
-}
-
-.modules-list .module-main-section .author {
-  margin-left: 6px;
-}
-
-.modules-list .author a {
-  text-decoration: none;
-}
-
-.modules-list .author a:hover {
-  text-decoration: underline;
 }
 
 .sticky-panel a.link-to-marketplace span{
@@ -284,41 +249,4 @@ div.pack-warning a {
 
 .modules-list .module-main-section .messages {
   display: none;
-}
-
-@media(max-width: 1280px) {
-  .installed-modules-header .actions {
-    text-align: left;
-    margin-top: 10px;
-  }
-
-  .installed-modules-header > div {
-    display: block;
-  }
-
-  .addons-search-box div.substring {
-    width: 350px;
-  }
-
-  .target-addons-list-installed .addons-search-box .search-form input#substring {
-    width: 350px;
-  }
-
-  .target-addons-list-installed .addons-search-box .search-form select#state {
-    width: 250px;
-  }
-}
-
-@media(min-width: 1500px) {
-  .addons-search-box div.substring {
-    width: 350px;
-  }
-
-  .target-addons-list-installed .addons-search-box .search-form input#substring {
-    width: 350px;
-  }
-
-  .target-addons-list-installed .addons-search-box .search-form select#state {
-    width: 250px;
-  }
 }

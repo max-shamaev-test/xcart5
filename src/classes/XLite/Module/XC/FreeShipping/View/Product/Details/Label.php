@@ -53,6 +53,6 @@ class Label extends \XLite\View\Product\Details\Customer\Widget
      */
     protected function isVisible()
     {
-        return parent::isVisible() && $this->getProduct()->getFreeShip();
+        return parent::isVisible() && $this->getProduct()->getFreeShip() && $this->getProduct()->getShippable();
     }
 }

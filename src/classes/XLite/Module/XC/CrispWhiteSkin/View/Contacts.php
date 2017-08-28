@@ -55,7 +55,7 @@ class Contacts extends \XLite\View\AView
 
     public function getEmail()
     {
-        return \XLite\Core\Config::getInstance()->Company->support_department;
+        return \XLite\Core\Mailer::getSupportDepartmentMail();
     }
 
     protected function getDefaultTemplate()

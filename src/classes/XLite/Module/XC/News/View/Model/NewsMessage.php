@@ -34,6 +34,7 @@ class NewsMessage extends \XLite\View\Model\AModel
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Textarea\Advanced',
             self::SCHEMA_LABEL    => 'Content',
             self::SCHEMA_REQUIRED => true,
+            self::SCHEMA_TRUSTED_PERMISSION => true,
         ),
         'brief_description' => array(
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Textarea\Simple',

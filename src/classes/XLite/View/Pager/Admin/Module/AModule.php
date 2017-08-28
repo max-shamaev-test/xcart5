@@ -112,7 +112,7 @@ abstract class AModule extends \XLite\View\Pager\Admin\AAdmin
      */
     protected function getPagerTitle()
     {
-        return $this->getItemsTotal() . ' ' . static::t('modules');
+        return '';
     }
 
     /**

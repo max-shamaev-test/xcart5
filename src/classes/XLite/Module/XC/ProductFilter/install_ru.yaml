@@ -38,6 +38,13 @@ XLite\Model\Config:
     translations:
       - code: ru
         option_name: 'Порядок сортировки классовых атрибутов'
+        option_comment: 'Эта настройка влияет только на сами атрибуты, а не их значения. Значения сортируются в алфавитном порядке.'
+  - name: url_part_type
+    category: 'XC\ProductFilter'
+    translations:
+      - code: ru
+        option_name: 'Строить строку запроса в URL для фильтра используя'
+        option_comment: 'Данная настройка позволяет выбрать, каким образом должен собираться URL страницы при наборе параметров, по которым будет осуществляться фильтрация товаров.'
 
 XLite\Model\LanguageLabel:
   - { name: 'Shopping options', translations: [{ code: ru, label: 'Поиск' }] }
@@ -60,3 +67,5 @@ XLite\Model\LanguageLabel:
   - { name: 'Alphabetical', translations: [{ code: ru, label: 'По алфавиту' }] }
   - { name: 'Manual', translations: [{ code: ru, label: 'Вручную' }] }
   - { name: 'Wrong useClasses format', translations: [{ code: ru, label: "Неправильный формат значения useClasses. Возможные значения: 'A', 'N' or 'D'" }] }
+  - { name: 'Hash', translations: [{ code: ru, label: 'Хеш' }] }
+  - { name: 'Get params', translations: [{ code: ru, label: 'GET пареметры' }] }

@@ -11,7 +11,7 @@ namespace XLite\Module\CDev\USPS\View\Model;
 /**
  * Tabs related to shipping settings (USPS related pages)
  */
-class Methods extends \XLite\View\Tabs\ShippingSettings implements \XLite\Base\IDecorator
+abstract class Methods extends \XLite\View\Tabs\ShippingSettings implements \XLite\Base\IDecorator
 {
     /**
      * Get list of CSS files
@@ -22,7 +22,7 @@ class Methods extends \XLite\View\Tabs\ShippingSettings implements \XLite\Base\I
     {
         $list = parent::getCSSFiles();
 
-        if ('usps' == \XLite\Core\Request::getInstance()->processor) {
+        if ('usps' === \XLite\Core\Request::getInstance()->processor) {
             $list[] = 'modules/CDev/USPS/style.css';
         }
 

@@ -23,11 +23,11 @@ class LeftMenu extends \XLite\View\Menu\Admin\LeftMenu implements \XLite\Base\ID
         $list = parent::defineItems();
 
         if (isset($list['catalog'])) {
-            $list['catalog'][static::ITEM_CHILDREN]['reviews'] = array(
+            $list['catalog'][static::ITEM_CHILDREN]['reviews'] = [
                 static::ITEM_TITLE  => static::t('Reviews'),
                 static::ITEM_TARGET => 'reviews',
                 static::ITEM_WEIGHT => 320,
-            );
+            ];
         }
 
         return $list;

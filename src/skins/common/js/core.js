@@ -104,6 +104,12 @@ Base.prototype.getEventNamespace = function()
   return null;
 }
 
+var reverseArguments = function (func) {
+  return function () {
+    return func.apply(this, Array.prototype.reverse.call(arguments));
+  }
+};
+
 // Core definition
 window.core = {
 
@@ -318,17 +324,13 @@ window.core = {
 
     options = options || {};
 
+    var completeCallback = options.complete || function () {};
+    var successCallback = options.success || function () {};
+
     options = jQuery.extend(
       {
         async:       true,
         cache:       false,
-        complete:    function(XMLHttpRequest, textStatus)
-          {
-            var callCallback = core.preprocessResponse(XMLHttpRequest, options, callback);
-            data = core.processResponse(XMLHttpRequest);
-
-            return (callCallback && callback) ? callback(XMLHttpRequest, textStatus, data, this) : true;
-          },
         contentType: 'text/html',
         global:      false,
         timeout:     15000,
@@ -336,7 +338,17 @@ window.core = {
         url:         url,
         data:        data
       },
-      options
+      options,
+      {
+        complete: function () {
+          _.partial(core.onXhrComplete, callback, options, data).apply(this, arguments);
+          completeCallback.apply(this, arguments);
+        },
+        success: function () {
+          core.onXhrSuccess.apply(this, arguments);
+          successCallback.apply(this, arguments);
+        }
+      }
     );
 
     return jQuery.ajax(options);
@@ -351,29 +363,62 @@ window.core = {
 
     options = options || {};
 
+    var completeCallback = options.complete || function () {};
+    var successCallback = options.success || function () {};
+
     options = jQuery.extend(
       {
         async:       true,
         cache:       false,
-        complete:    function(XMLHttpRequest, textStatus)
-          {
-            var callCallback = core.preprocessResponse(XMLHttpRequest, options, callback);
-            data = core.processResponse(XMLHttpRequest);
-            var notValid = !!XMLHttpRequest.getResponseHeader('not-valid');
-
-            return (callCallback && callback) ? callback(XMLHttpRequest, textStatus, data, !notValid) : true;
-          },
         contentType: 'application/x-www-form-urlencoded',
         global:      false,
         timeout:     15000,
         type:        'POST',
         url:         url,
-        data:        data
+        data:        data,
       },
-      options
+      options,
+      {
+        complete: function () {
+          _.partial(core.onXhrComplete, callback, options, data).apply(this, arguments);
+          completeCallback.apply(this, arguments);
+        },
+        success: function () {
+          core.onXhrSuccess.apply(this, arguments);
+          successCallback.apply(this, arguments);
+        }
+      }
     );
 
     return jQuery.ajax(options);
+  },
+
+  onXhrSuccess: function(data, textStatus, XMLHttpRequest) {
+      var list = XMLHttpRequest.getAllResponseHeaders().split(/\n/);
+
+      var header = _.find(list, function(headerValue){
+          return -1 !== headerValue.search(/update-csrf: (.*)/i);
+      });
+
+      var matches = header
+          ? header.match(/update-csrf: (.*)/i)
+          : null;
+
+      if (matches && matches[1]) {
+          var headerData = JSON.parse(matches[1]);
+
+          if (headerData.name = 'xcart_form_id' && headerData.old === xliteConfig.form_id) {
+              xliteConfig.form_id = headerData.value;
+          }
+      }
+  },
+
+  onXhrComplete: function(callback, options, data, XMLHttpRequest, textStatus) {
+      var callCallback = core.preprocessResponse(XMLHttpRequest, options, callback);
+      data = core.processResponse(XMLHttpRequest);
+      var notValid = !!XMLHttpRequest.getResponseHeader('not-valid');
+
+      return (callCallback && callback) ? callback(XMLHttpRequest, textStatus, data, !notValid) : true;
   },
 
   // Response preprocess (run callback or not)
@@ -397,15 +442,21 @@ window.core = {
       var url = xhr.getResponseHeader('AJAX-Location');
 
       if (url) {
-        self.location = url;
-      } else {
-        self.location.reload(true);
+        window.location.replace(url);
+      }
+
+      if (!url || this.urlHasHash(url)) {
+        window.location.reload(true);
       }
 
       result = false;
     }
 
     return result;
+  },
+
+  urlHasHash: function(url) {
+    return url.indexOf("#") !== -1;
   },
 
   // Process response from server
@@ -447,39 +498,24 @@ window.core = {
     );
   },
 
-  languageLabels: [],
+  translator: null,
 
   t: function(label, substitute)
   {
-    var found = false;
-    for (var i = 0; i < this.languageLabels.length && !found; i++) {
-      if (this.languageLabels[i].name == label) {
-        label = this.languageLabels[i].label;
-        found = true;
-      }
+    return this.getTranslator().translate(label, substitute);
+  },
+
+  loadLanguageHash: function(hash)
+  {
+    return this.getTranslator().loadLanguageHash(hash);
+  },
+
+  getTranslator: function() {
+    if (this.translator === null) {
+      this.translator = new Translator();
     }
 
-    // TODO - add request language label from server-side
-    if (!found) {
-      var loadedLabel = core.rest.get('translation', label, false);
-      if (loadedLabel) {
-        this.languageLabels.push(
-          {
-            name:  label,
-            label: loadedLabel
-          }
-        );
-        label = loadedLabel;
-      }
-    }
-
-    if (substitute) {
-      for (var i in substitute) {
-        label = label.replace('{{' + i + '}}', substitute[i]);
-      }
-    }
-
-    return label;
+    return this.translator;
   },
 
   loadResource: function(resource, type)
@@ -573,33 +609,6 @@ window.core = {
       }
 
       console.err('Cannot parse JS object from string: JSON5 is not loaded');
-  },
-
-  loadLanguageHash: function(hash)
-  {
-    _.each(
-      hash,
-      _.bind(
-        function (data, label) {
-          var found = false;
-          for (var i = 0; i < this.languageLabels.length && !found; i++) {
-            if (this.languageLabels[i].name == label) {
-              found = true;
-            }
-          }
-
-          if (!found) {
-            this.languageLabels.push(
-              {
-                name:  label,
-                label: data
-              }
-            );
-          }
-        },
-        this
-      )
-    );
   },
 
   rest: {
@@ -741,7 +750,11 @@ window.core = {
   // Return value of variable that is given in comment block: e.g. <!-- 'productid': '100001', 'var': 'value', -->"
   getCommentedData: function(obj, name)
   {
-    var children = jQuery(obj).get(0).childNodes;
+    if (jQuery(obj).get(0)) {
+      var children = jQuery(obj).get(0).childNodes;
+    } else {
+      return name ? null : [];
+    }
     var m = false;
 
     for (var i = 0; i < children.length && !m; i++) {
@@ -942,6 +955,26 @@ window.core = {
         return results[1];
   },
 
+  getUrlParams: function (url) {
+    if (_.isUndefined(url)) {
+      url = window.location.search;
+    }
+
+    if (url.indexOf('?') >= 0) {
+      url = url.substr(url.indexOf('?') + 1);
+    }
+
+    var result = [];
+    var names = url.match(/[^&=]+(?==[^&=]+)/g);
+    var params = url.match(/[^&=]=[^&=]+/g);
+
+    names.forEach(function (i, k) {
+      result[i] = params[k].substr(2);
+    });
+
+    return result;
+  },
+
   getTarget: function () {
     return xliteConfig.target;
   },
@@ -1012,7 +1045,7 @@ core.bind(
 
 /* Microhandlers */
 
-core.microhandlers = {}
+core.microhandlers = {};
 
 core.microhandlers.list = {};
 
@@ -1102,6 +1135,16 @@ core.microhandlers.add(
   }
 );
 
+core.microhandlers.add(
+  'BootstrapPopover',
+  '[data-toggle="popover"]',
+  function(event) {
+    if (!_.isUndefined(jQuery(this).startTooltip)) {
+      jQuery(this).startTooltip();
+    }
+  }
+);
+
 core.bind(
   'load',
   function() {
@@ -1123,3 +1166,15 @@ core.bind(
     core.microhandlers.runAll(element);
   }
 );
+
+if (window.CoreAMD !== undefined) {
+  define('js/core', function () {
+    return core;
+  });
+} else {
+  document.addEventListener('amd-ready', function (event) {
+    define('js/core', function () {
+      return core;
+    });
+  });
+}

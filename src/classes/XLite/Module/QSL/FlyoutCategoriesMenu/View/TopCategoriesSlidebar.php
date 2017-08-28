@@ -11,7 +11,7 @@ namespace XLite\Module\QSL\FlyoutCategoriesMenu\View;
 /**
  * Sidebar categories list
  */
-class TopCategoriesSlidebar extends \XLite\View\TopCategoriesSlidebar implements \XLite\Base\IDecorator
+abstract class TopCategoriesSlidebar extends \XLite\View\TopCategoriesSlidebar implements \XLite\Base\IDecorator
 {
     /**
      * Preprocess DTO

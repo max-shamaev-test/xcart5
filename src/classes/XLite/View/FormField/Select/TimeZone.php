@@ -13,6 +13,8 @@ namespace XLite\View\FormField\Select;
  */
 class TimeZone extends \XLite\View\FormField\Select\Regular
 {
+    use \XLite\Core\Cache\ExecuteCachedTrait;
+
     /**
      * Get default options
      *
@@ -20,9 +22,17 @@ class TimeZone extends \XLite\View\FormField\Select\Regular
      */
     protected function getDefaultOptions()
     {
-        $list = \DateTimeZone::listIdentifiers();
+        return $this->executeCachedRuntime(function () {
+            $list = \DateTimeZone::listIdentifiers();
 
-        return array_combine($list, $list);
+            return array_combine($list, array_map(function ($timezone) {
+                $offset = (new \DateTimeZone($timezone))->getOffset(new \DateTime());
+
+                $offset = ($offset < 0 ? '-' : '+') . gmdate('G:i', abs($offset));
+
+                return "(UTC{$offset}) " . $timezone;
+            }, $list));
+        });
     }
 
     /**

@@ -111,61 +111,7 @@ class Storage extends \XLite\Model\Base\Storage
      */
     public function getAdminPermissions()
     {
-        return array('manage catalog');
-    }
-
-    /**
-     * Get id
-     *
-     * @return integer 
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Set path
-     *
-     * @param string $path
-     * @return Storage
-     */
-    public function setPath($path)
-    {
-        $this->path = $path;
-        return $this;
-    }
-
-    /**
-     * Get path
-     *
-     * @return string 
-     */
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    /**
-     * Set fileName
-     *
-     * @param string $fileName
-     * @return Storage
-     */
-    public function setFileName($fileName)
-    {
-        $this->fileName = $fileName;
-        return $this;
-    }
-
-    /**
-     * Get fileName
-     *
-     * @return string 
-     */
-    public function getFileName()
-    {
-        return $this->fileName;
+        return ['manage catalog'];
     }
 
     /**
@@ -200,50 +146,6 @@ class Storage extends \XLite\Model\Base\Storage
     {
         $this->storageType = $storageType;
         return $this;
-    }
-
-    /**
-     * Set size
-     *
-     * @param integer $size
-     * @return Storage
-     */
-    public function setSize($size)
-    {
-        $this->size = $size;
-        return $this;
-    }
-
-    /**
-     * Get size
-     *
-     * @return integer 
-     */
-    public function getSize()
-    {
-        return $this->size;
-    }
-
-    /**
-     * Set date
-     *
-     * @param integer $date
-     * @return Storage
-     */
-    public function setDate($date)
-    {
-        $this->date = $date;
-        return $this;
-    }
-
-    /**
-     * Get date
-     *
-     * @return integer 
-     */
-    public function getDate()
-    {
-        return $this->date;
     }
 
     /**

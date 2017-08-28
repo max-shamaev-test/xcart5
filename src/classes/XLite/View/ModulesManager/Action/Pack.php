@@ -43,6 +43,7 @@ class Pack extends \XLite\View\ModulesManager\Action\AAction
     protected function isVisible()
     {
         return parent::isVisible()
+            && $this->getModule()->getEnabled()
             && $this->isDeveloperMode();
     }
 }

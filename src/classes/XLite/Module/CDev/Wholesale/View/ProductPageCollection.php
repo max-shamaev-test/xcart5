@@ -22,9 +22,9 @@ class ProductPageCollection extends \XLite\View\ProductPageCollection implements
     {
         return array_merge(
             parent::defineWidgetsCollection(),
-            array(
+            [
                 '\XLite\Module\CDev\Wholesale\View\ProductPrice',
-            )
+            ]
         );
     }
 
@@ -85,7 +85,7 @@ class ProductPageCollection extends \XLite\View\ProductPageCollection implements
 
         $result = parent::getProductModifierTypes();
 
-        foreach (array($additional, $additionalVariants, $wholesale) as $modifierTypes) {
+        foreach ([$additional, $additionalVariants, $wholesale] as $modifierTypes) {
 
             if (isset($modifierTypes)) {
 

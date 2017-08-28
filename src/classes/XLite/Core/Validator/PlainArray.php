@@ -109,7 +109,7 @@ class PlainArray extends \XLite\Core\Validator\AValidator
                 $this->itemValidator->validate($v);
             }
 
-        } catch (\XLite\Core\ValidateException $exception) {
+        } catch (\XLite\Core\Validator\Exception $exception) {
             $exception->addPathItem($i);
             throw $exception;
         }

@@ -177,6 +177,7 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Account name of the user to attribute the Tweet to (optional)'
+        option_comment: 'Also used as username of website in Twitter Card Tags'
   - name: tweet_recommend
     category: 'CDev\GoSocial'
     type: text
@@ -229,6 +230,9 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Display the Pinterest button on product pages'
+
+XLite\Model\Product\GlobalTab:
+  - {service_name: 'Comments', position: 30}
 
 XLite\Model\LanguageLabel:
   - { name: "Tweet", translations: [{ code: en, label: "Tweet" }] }

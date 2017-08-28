@@ -70,7 +70,7 @@ class InstallModules extends \XLite\View\Button\APopupButton
      */
     protected function getDefaultLabel()
     {
-        return 'Install modules';
+        return 'Install addons';
     }
 
     /**
@@ -83,7 +83,7 @@ class InstallModules extends \XLite\View\Button\APopupButton
         return array(
             'target'   => \XLite\View\ModulesManager\ModuleLicense::MODULE_LICENSE_TARGET,
             'action'   => 'view_license',
-            'widget'   => '\XLite\View\ModulesManager\ModuleLicense',
+            'widget'   => 'XLite\View\ModulesManager\ModuleLicense',
         );
     }
 

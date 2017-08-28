@@ -137,6 +137,16 @@ class Attributes extends \XLite\Logic\Import\Processor\AProcessor
     }
 
     /**
+     * Returns csv format manual URL
+     *
+     * @return string
+     */
+    public static function getCSVFormatManualURL()
+    {
+        return '//kb.x-cart.com/en/import-export/csv_format_by_x-cart_data_type/csv_import_classes_&_attributes.html';
+    }
+
+    /**
      * Verify 'position' value
      *
      * @param mixed $value  Value
@@ -339,7 +349,10 @@ class Attributes extends \XLite\Logic\Import\Processor\AProcessor
                 \XLite\Core\Database::getRepo('\XLite\Model\AttributeOption')->delete($option, false);
                 $model->getAttributeOptions()->removeElement($option);
             }
-        } elseif ($value && !$this->verifyValueAsNull($value)) {
+        } elseif ($this->verifyValueAsNull($value)) {
+            foreach ($model->getAttributeOptions() as $option) {
+                \XLite\Core\Database::getEM()->remove($option);
+            }
             $model->getAttributeOptions()->clear();
         }
     }

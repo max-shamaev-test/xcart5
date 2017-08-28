@@ -55,7 +55,7 @@ class Shipping extends \XLite\Logic\Order\Modifier\Shipping implements \XLite\Ba
     /**
      * Get shipping rates
      *
-     * @return array(\XLite\Model\Shipping\Rate)
+     * @return \XLite\Model\Shipping\Rate[]
      */
     public function getRates()
     {
@@ -117,9 +117,7 @@ class Shipping extends \XLite\Logic\Order\Modifier\Shipping implements \XLite\Ba
                     $doUnset = true;
 
                 } else {
-                    $rates[$k]->setBaseRate(0);
-                    // Add fixed fee value to the base rate value
-                    $rates[$k]->setBaseRate($rate->getBaseRate() + $fixedFee);
+                    $rates[$k]->setFreightRate($fixedFee);
                 }
 
             } elseif ($this->isFixedFeeMethod($rate->getMethod())) {
@@ -197,7 +195,9 @@ class Shipping extends \XLite\Logic\Order\Modifier\Shipping implements \XLite\Ba
      */
     protected function isIgnoreProductsWithFixedFee()
     {
-        $mode = \XLite\Core\Config::getInstance()->XC->FreeShipping->freight_shipping_calc_mode;
+        $mode = \XLite\Core\Config::getInstance()->XC && \XLite\Core\Config::getInstance()->XC->FreeShipping
+            ? \XLite\Core\Config::getInstance()->XC->FreeShipping->freight_shipping_calc_mode
+            : null;
 
         return \XLite\Module\XC\FreeShipping\View\FormField\FreightMode::FREIGHT_ONLY == $mode;
     }

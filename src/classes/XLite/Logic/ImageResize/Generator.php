@@ -31,13 +31,6 @@ class Generator extends \XLite\Logic\AGenerator
     protected static $imageSizesCache = null;
 
     /**
-     * Options
-     *
-     * @var \ArrayObject
-     */
-    protected $options;
-
-    /**
      * Returns available image sizes
      *
      * @return array
@@ -212,31 +205,7 @@ class Generator extends \XLite\Logic\AGenerator
 
     // }}}
 
-    // {{{ Error / warning routines
-
-    // }}}
-
     // {{{ Service variable names
-
-    /**
-     * Get resizeTickDuration TmpVar name
-     *
-     * @return string
-     */
-    public static function getTickDurationVarName()
-    {
-        return 'resizeTickDuration';
-    }
-
-    /**
-     * Get resize cancel flag name
-     *
-     * @return string
-     */
-    public static function getCancelFlagVarName()
-    {
-        return 'resizeCancelFlag';
-    }
 
     /**
      * Get event name

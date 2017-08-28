@@ -14,7 +14,7 @@ namespace XLite\Module\CDev\GoSocial\Model\DTO\Product;
 class Info extends \XLite\Model\DTO\Product\Info implements \XLite\Base\IDecorator
 {
     /**
-     * @param mixed|\XLite\Model\Product $object
+     * @inheritdoc
      */
     protected function init($object)
     {
@@ -26,16 +26,17 @@ class Info extends \XLite\Model\DTO\Product\Info implements \XLite\Base\IDecorat
     }
 
     /**
-     * @param \XLite\Model\Product $object
-     * @param array|null           $rawData
-     *
-     * @return mixed
+     * @inheritdoc
      */
     public function populateTo($object, $rawData = null)
     {
         parent::populateTo($object, $rawData);
 
         $object->setUseCustomOG((boolean) $this->marketing->og_tags_type);
-        $object->setOgMeta((string) $rawData['marketing']['og_tags']);
+        if ($this->marketing->og_tags_type) {
+            $object->setOgMeta((string) $rawData['marketing']['og_tags']);
+        } else {
+            $object->setOgMeta($object->getOpenGraphMetaTags(false));
+        }
     }
 }

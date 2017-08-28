@@ -722,7 +722,7 @@ class Checkout extends \XLite\Controller\Customer\Cart
         $profile = $this->getCart()->getOrigProfile();
 
         // Send notification
-        \XLite\Core\Mailer::sendProfileCreated($profile, $password, true);
+        \XLite\Core\Mailer::sendProfileCreated($profile, null, true);
     }
 
     /**
@@ -745,12 +745,12 @@ class Checkout extends \XLite\Controller\Customer\Cart
         $cart->setOrigProfile($origProfile);
         $origProfile->setOrder(null);
 
-        if (\XLite\Core\Session::getInstance()->checkoutEmail
-            && \XLite\Core\Session::getInstance()->checkoutEmail !== $cart->getProfile()->getLogin()
+        if ($origProfile->getLastCheckoutEmail()
+            && $origProfile->getLastCheckoutEmail() !== $cart->getProfile()->getLogin()
         ) {
-            $cart->getProfile()->setLogin(\XLite\Core\Session::getInstance()->checkoutEmail);
+            $cart->getProfile()->setLogin($origProfile->getLastCheckoutEmail());
         }
-        unset(\XLite\Core\Session::getInstance()->checkoutEmail);
+        $cart->getProfile()->setLastCheckoutEmail('');
 
         \XLite\Core\Database::getEM()->flush();
     }
@@ -955,8 +955,12 @@ class Checkout extends \XLite\Controller\Customer\Cart
     {
         $login = $this->requestData['email'];
 
-        if (null !== $login) {
-            \XLite\Core\Session::getInstance()->checkoutEmail = $login;
+        $profile = $this->getCart()
+            ? $this->getCart()->getOrigProfile()
+            : null;
+
+        if (null !== $login && $profile) {
+            $profile->setLastCheckoutEmail($login);
         }
     }
 
@@ -1057,7 +1061,7 @@ class Checkout extends \XLite\Controller\Customer\Cart
             \XLite\Core\Session::getInstance()->same_address = (bool)$this->requestData['same_address'];
         }
 
-        if ($this->requestData['same_address'] && !$profile->isEqualAddress()) {
+        if ($this->requestData['same_address'] && !$profile->isEqualAddress(true)) {
             // Shipping and billing are same addresses
             $address = $profile->getBillingAddress();
 
@@ -1191,12 +1195,31 @@ class Checkout extends \XLite\Controller\Customer\Cart
             : \XLite\Core\Database::getRepo('XLite\Model\AddressField')->getBillingRequiredFields();
 
         foreach ($requiredFields as $fieldName) {
-            if (!isset($data[$fieldName]) && \XLite\Model\Address::getDefaultFieldValue($fieldName)) {
-                $data[$fieldName] = \XLite\Model\Address::getDefaultFieldValue($fieldName);
+            if (!isset($data[$fieldName])) {
+                if (!is_null($val = $this->extractFieldData($fieldName, $data))) {
+                    $data[$fieldName] = $val;
+                } elseif (\XLite\Model\Address::getDefaultFieldValue($fieldName)) {
+                    $data[$fieldName] = \XLite\Model\Address::getDefaultFieldValue($fieldName);
+                }
             }
         }
 
         return $data;
+    }
+
+    protected function extractFieldData($fieldName, $data)
+    {
+        if ($fieldName === 'country_code' && !empty($data['country'])) {
+            return $data['country']->getCode();
+        }
+
+        if ($fieldName === 'country' && !empty($data['country_code'])) {
+            if ($country = \XLite\Core\Database::getRepo('XLite\Model\Country')->find($data['country_code'])) {
+                return $country;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -1261,17 +1284,37 @@ class Checkout extends \XLite\Controller\Customer\Cart
      */
     public function checkCheckoutAction()
     {
+        $this->preprocessOrderBeforeCheckout();
+
         $result = true;
 
         $steps = new \XLite\View\Checkout\Steps();
+        /** @var \XLite\View\Checkout\Step\AStep $step */
         foreach (array_slice($steps->getSteps(), 0, -1) as $step) {
             if (!$step->isCompleted()) {
+                $step->processIncomplete();
                 $result = false;
                 break;
             }
         }
 
         return $result && $this->checkReviewStep();
+    }
+
+    /**
+     * Perform some actions on order before checking its consistency
+     */
+    protected function preprocessOrderBeforeCheckout()
+    {
+        $profile = $this->getCartProfile();
+
+        if ($profile && !$profile->isEqualAddress(true) && \XLite\Core\Session::getInstance()->same_address !== false) {
+            if ($profile->getShippingAddress() === null && $profile->getBillingAddress()) {
+                $profile->getBillingAddress()->setIsShipping(true);
+            } elseif ($profile->getBillingAddress() === null && $profile->getShippingAddress()) {
+                $profile->getShippingAddress()->setIsBilling(true);
+            }
+        }
     }
 
     /**
@@ -1312,5 +1355,15 @@ class Checkout extends \XLite\Controller\Customer\Cart
     protected function getCommonErrorMessage()
     {
         return 'An error occurred, please try again. If the problem persists, contact the administrator. (txnNote)';
+    }
+
+    /**
+     * Returns support email
+     *
+     * @return string
+     */
+    public function getSupportDepartmentMail()
+    {
+        return \XLite\Core\Mailer::getSupportDepartmentMail();
     }
 }

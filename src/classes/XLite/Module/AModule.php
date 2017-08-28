@@ -196,7 +196,7 @@ abstract class AModule
      */
     public static function showSettingsForm()
     {
-        return static::isPaymentModule();
+        return static::isPaymentModule() && static::getSettingsForm();
     }
 
     /**
@@ -216,7 +216,7 @@ abstract class AModule
      */
     public static function getPaymentSettingsForm()
     {
-        return \XLite\Core\Converter::buildURL('payment_settings');
+        return null;
     }
 
     /**
@@ -473,6 +473,7 @@ abstract class AModule
             'manage orders'  => 'Manage orders',
             'manage import'  => 'Manage import',
             'manage export'  => 'Manage export',
+            'unfiltered html' => 'Allow unfiltered HTML',
         );
     }
 

@@ -22,9 +22,9 @@ class Generator extends \XLite\Logic\Export\Generator implements \XLite\Base\IDe
     {
         return array_merge(
             parent::defineSteps(),
-            array(
+            [
                 'XLite\Module\XC\Reviews\Logic\Export\Step\Reviews',
-            )
+            ]
         );
     }
 }

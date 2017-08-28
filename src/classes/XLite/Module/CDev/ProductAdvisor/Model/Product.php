@@ -18,7 +18,8 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      *
      * @var   \XLite\Module\CDev\ProductAdvisor\Model\ProductStats
      *
-     * @OneToMany (targetEntity="XLite\Module\CDev\ProductAdvisor\Model\ProductStats", mappedBy="viewed_product", fetch="LAZY")
+     * @OneToMany (targetEntity="XLite\Module\CDev\ProductAdvisor\Model\ProductStats", mappedBy="viewed_product",
+     *            fetch="LAZY")
      */
     protected $views_stats;
 
@@ -27,14 +28,15 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      *
      * @var   \XLite\Module\CDev\ProductAdvisor\Model\ProductStats
      *
-     * @OneToMany (targetEntity="XLite\Module\CDev\ProductAdvisor\Model\ProductStats", mappedBy="bought_product", fetch="LAZY")
+     * @OneToMany (targetEntity="XLite\Module\CDev\ProductAdvisor\Model\ProductStats", mappedBy="bought_product",
+     *            fetch="LAZY")
      */
     protected $purchase_stats;
 
 
     /**
      * Returns true if product is classified as a new product
-     * 
+     *
      * @return boolean
      */
     public function isNewProduct()
@@ -44,23 +46,25 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
         $daysOffset = \XLite\Module\CDev\ProductAdvisor\Main::getNewArrivalsOffset();
 
         return \XLite\Core\Config::getInstance()->CDev->ProductAdvisor->na_enabled
-            && $this->getArrivalDate() 
-            && $this->getArrivalDate() < $currentDate 
-            && $this->getArrivalDate() > $currentDate - 86400 * $daysOffset;
+               && $this->getArrivalDate()
+               && $this->getArrivalDate() < $currentDate
+               && $this->getArrivalDate() > $currentDate - 86400 * $daysOffset;
     }
 
     /**
      * Returns true if product is classified as an upcoming product
-     * 
+     *
      * @return boolean
      */
     public function isUpcomingProduct()
     {
         $currentDate = static::getUserTime();
 
-        return \XLite\Core\Config::getInstance()->CDev->ProductAdvisor->cs_enabled
-            && $this->getArrivalDate() 
-            && $this->getArrivalDate() > $currentDate;
+        return \XLite\Core\Config::getInstance()->CDev
+               && \XLite\Core\Config::getInstance()->CDev->ProductAdvisor
+               && \XLite\Core\Config::getInstance()->CDev->ProductAdvisor->cs_enabled
+               && $this->getArrivalDate()
+               && $this->getArrivalDate() > $currentDate;
     }
 
     /**
@@ -79,6 +83,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      * Add views_stats
      *
      * @param \XLite\Module\CDev\ProductAdvisor\Model\ProductStats $viewsStats
+     *
      * @return Product
      */
     public function addViewsStats(\XLite\Module\CDev\ProductAdvisor\Model\ProductStats $viewsStats)
@@ -90,7 +95,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     /**
      * Get views_stats
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getViewsStats()
     {
@@ -101,6 +106,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      * Add purchase_stats
      *
      * @param \XLite\Module\CDev\ProductAdvisor\Model\ProductStats $purchaseStats
+     *
      * @return Product
      */
     public function addPurchaseStats(\XLite\Module\CDev\ProductAdvisor\Model\ProductStats $purchaseStats)
@@ -112,7 +118,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     /**
      * Get purchase_stats
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getPurchaseStats()
     {

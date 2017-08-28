@@ -38,10 +38,6 @@
   max-width: 962px;
 }
 
-.ui-dialog .items-list-table table.list {
-  max-width: 600px;
-}
-
 .items-list-table table.list thead {
   background: #f8f8f8;
   border-right: 1px solid #f8f8f8;
@@ -52,6 +48,10 @@
   font-weight: normal;
   text-align: left;
   font-size: 16px;
+}
+
+.items-list-table table.list tbody.no-items td {
+  padding: 10px 0;
 }
 
 .items-list-table table.list thead th {
@@ -479,7 +479,7 @@
 .items-list-table table.list tbody.lines td .plain-value {
   font-size: 14px;
   display: inline-block;
-  padding: 6px 10px 6px 9px;
+  padding: 6px 0px;
 }
 
 .items-list-table table.list tbody.lines td .plain-value span {
@@ -521,7 +521,6 @@
 }
 
 .items-list-table table.list a {
-  text-decoration: underline;
   font-size: 14px;
 }
 

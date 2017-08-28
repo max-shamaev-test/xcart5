@@ -81,7 +81,7 @@ class OperateAsUserNotification extends \XLite\View\AView
      */
     protected function getName()
     {
-        return $this->getProfile()->getName() !== static::t('n/a')
+        return $this->getProfile() && $this->getProfile()->getName() !== static::t('n/a')
              ? $this->getProfile()->getName() . ', '
              : ' ';
     }
@@ -93,7 +93,9 @@ class OperateAsUserNotification extends \XLite\View\AView
      */
     protected function getLogin()
     {
-        return $this->getProfile()->getLogin();
+        return $this->getProfile()
+            ? $this->getProfile()->getLogin()
+            : '';
     }
 
     /**

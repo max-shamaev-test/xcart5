@@ -10,7 +10,7 @@ XLite\Model\Payment\Method:
     class: Module\XC\Stripe\Model\Payment\Stripe
     type: C
     orderby: -10300
-    countries: [AU, CA, DK, US, FI, GB, IE, NO, SE, AT, BE, FR, DE, IT, JP, LU, MX, NL, ES, CH]
+    countries: [AU, CA, DK, FI, FR, IE, JP, NO, SG, ES, SE, GB, US, AT, BE, DE, HK, IT, LU, NL, PT, CH]
     translations:
       - code: en
         name: 'Stripe'
@@ -27,7 +27,7 @@ XLite\Model\Payment\Method:
         value: xcart
 
 XLite\Model\LanguageLabel:
-  directives: { addModel: 'XLite\Model\LanguageLabelTranslation' }
+  - { directives: { allowedModel: 'XLite\Model\LanguageLabelTranslation' } }
   - { name: 'X items ($)', translations: [{ code: 'en', label: '{{count}} items ({{total}})' }, { code: 'ru', label: '{{count}} продуктов ({{total}})' }] }
   - { name: 'Payment processed with errors. Please, try again or ask administrator', translations: [{ code: 'en', label: 'Token is empty' }, { code: 'ru', label: 'Токен пустой' }] }
   - { name: 'CVC verification: X', translations: [{ code: 'en', label: 'CVC verification: {{state}}' }, { code: 'ru', label: 'Проверка подлинности кредитной карты (CVC): {{state}}' }] }

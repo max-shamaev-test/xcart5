@@ -44,6 +44,19 @@ class Info extends \XLite\View\FormModel\AFormModel
     /**
      * @return array
      */
+    public function getCSSFiles()
+    {
+        return array_merge(
+            parent::getCSSFiles(),
+            [
+                'form_model/product/style.less'
+            ]
+        );
+    }
+
+    /**
+     * @return array
+     */
     protected function defineSections()
     {
         return array_replace(parent::defineSections(), [
@@ -67,7 +80,7 @@ class Info extends \XLite\View\FormModel\AFormModel
      */
     protected function defineFields()
     {
-        $skuMaxLength  = \XLite\Core\Database::getRepo('XLite\Model\Product')->getFieldInfo('sku', 'length');
+        $skuMaxLength = \XLite\Core\Database::getRepo('XLite\Model\Product')->getFieldInfo('sku', 'length');
         $nameMaxLength = \XLite\Core\Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('name', 'length');
 
         $memberships = [];
@@ -104,25 +117,27 @@ class Info extends \XLite\View\FormModel\AFormModel
             );
         }
 
-        $currency       = \XLite::getInstance()->getCurrency();
+        $currency = \XLite::getInstance()->getCurrency();
         $currencySymbol = $currency->getCurrencySymbol(false);
 
-        $weightFormat           = \XLite\Core\Config::getInstance()->Units->weight_format;
+        $weightFormat = \XLite\Core\Config::getInstance()->Units->weight_format;
         $weightFormatDelimiters = \XLite\View\FormField\Select\FloatFormat::getDelimiters($weightFormat);
 
-        $inventoryTrackingDescription = $this->getDataObject()->default->identity ? $this->getWidget([
-            'template' => 'form_model/product/info/inventory_tracking_description.twig',
-        ])->getContent() : '';
+        $inventoryTrackingDescription = $this->getDataObject()->default->identity && $this->getInventoryTrackingDescriptionTemplate()
+            ? $this->getWidget([
+                'template' => $this->getInventoryTrackingDescriptionTemplate(),
+            ])->getContent()
+            : '';
 
         $product = \XLite\Core\Database::getRepo('XLite\Model\Product')->find($this->getDataObject()->default->identity);
-        $images  = [];
+        $images = [];
         if ($product) {
             $images = $product->getImages();
         }
 
         $schema = [
             self::SECTION_DEFAULT  => [
-                'name'               => [
+                'name'                 => [
                     'label'       => static::t('Product name'),
                     'required'    => true,
                     'constraints' => [
@@ -137,7 +152,7 @@ class Info extends \XLite\View\FormModel\AFormModel
                     ],
                     'position'    => 100,
                 ],
-                'sku'                => [
+                'sku'                  => [
                     'label'       => static::t('SKU'),
                     'constraints' => [
                         'XLite\Core\Validator\Constraints\MaxLength' => [
@@ -148,31 +163,32 @@ class Info extends \XLite\View\FormModel\AFormModel
                     ],
                     'position'    => 200,
                 ],
-                'images'             => [
+                'images'               => [
                     'label'        => static::t('Images'),
-                    'type'         => 'XLite\View\FormModel\Type\OldType',
-                    'oldType'      => 'XLite\View\FormField\FileUploader\Image',
-                    'fieldOptions' => ['value' => $images, 'multiple' => true],
+                    'type'         => 'XLite\View\FormModel\Type\UploaderType',
+                    'imageClass'   => 'XLite\Model\Image\Product\Image',
+                    'files'        => $images,
+                    'multiple'     => true,
                     'position'     => 300,
                 ],
-                'category'           => [
+                'category'             => [
                     'label'       => static::t('Category'),
                     'description' => static::t('Switch to Category tree'),
                     'type'        => 'XLite\View\FormModel\Type\ProductCategoryType',
                     'multiple'    => true,
-                    'show_when' => [
+                    'show_when'   => [
                         'default' => [
                             'category_widget_type' => 'search',
                         ],
                     ],
                     'position'    => 400,
                 ],
-                'category_tree'      => [
+                'category_tree'        => [
                     'label'       => static::t('Category'),
                     'description' => static::t('Switch to Category search'),
                     'type'        => 'XLite\View\FormModel\Type\ProductCategoryTreeType',
                     'multiple'    => true,
-                    'show_when' => [
+                    'show_when'   => [
                         'default' => [
                             'category_widget_type' => 'tree',
                         ],
@@ -182,28 +198,32 @@ class Info extends \XLite\View\FormModel\AFormModel
                 'category_widget_type' => [
                     'type' => 'Symfony\Component\Form\Extension\Core\Type\HiddenType',
                 ],
-                'description'        => [
+                'description'          => [
                     'label'    => static::t('Description'),
                     'type'     => 'XLite\View\FormModel\Type\TextareaAdvancedType',
                     'position' => 500,
                 ],
-                'full_description'   => [
+                'full_description'     => [
                     'label'    => static::t('Full description'),
                     'type'     => 'XLite\View\FormModel\Type\TextareaAdvancedType',
                     'position' => 600,
                 ],
-                'available_for_sale' => [
+                'available_for_sale'   => [
                     'label'    => static::t('Available for sale'),
                     'type'     => 'XLite\View\FormModel\Type\SwitcherType',
                     'position' => 700,
                 ],
+            ],
+            'prices_and_inventory' => [
+                'promo'              => [
+                    'type'    => 'XLite\View\FormModel\Type\PromoType',
+                    'promoId' => 'wholesale-prices-1',
+                ],
                 'arrival_date'       => [
                     'label'    => static::t('Arrival date'),
                     'type'     => 'XLite\View\FormModel\Type\DatepickerType',
-                    'position' => 800,
+                    'position' => 350,
                 ],
-            ],
-            'prices_and_inventory' => [
                 'memberships'        => [
                     'label'             => static::t('Memberships'),
                     'type'              => 'XLite\View\FormModel\Type\Select2Type',
@@ -382,6 +402,13 @@ class Info extends \XLite\View\FormModel\AFormModel
             ],
         ];
 
+        if ((boolean)$this->getDataObject()->default->identity) {
+            $schema[self::SECTION_DEFAULT]['sku']['required'] = true;
+            $schema[self::SECTION_DEFAULT]['sku']['constraints']['Symfony\Component\Validator\Constraints\NotBlank'] = [
+                'message' => static::t('This field is required'),
+            ];
+        }
+
         return $schema;
     }
 
@@ -392,10 +419,10 @@ class Info extends \XLite\View\FormModel\AFormModel
      */
     protected function getFormButtons()
     {
-        $result   = parent::getFormButtons();
+        $result = parent::getFormButtons();
         $identity = $this->getDataObject()->default->identity;
 
-        $label            = $identity ? 'Update product' : 'Add product';
+        $label = $identity ? 'Update product' : 'Add product';
         $result['submit'] = new \XLite\View\Button\Submit(
             [
                 \XLite\View\Button\AButton::PARAM_LABEL    => $label,
@@ -405,7 +432,7 @@ class Info extends \XLite\View\FormModel\AFormModel
         );
 
         if ($identity) {
-            $url                     = $this->buildURL(
+            $url = $this->buildURL(
                 'product',
                 'clone',
                 ['product_id' => $identity]
@@ -418,23 +445,44 @@ class Info extends \XLite\View\FormModel\AFormModel
                 ]
             );
 
-            $url                       = \XLite\Core\Converter::buildURL(
-                'product',
-                'preview',
-                ['product_id' => $identity],
-                \XLite::getCustomerScript()
-            );
             $result['preview-product'] = new \XLite\View\Button\SimpleLink(
                 [
                     \XLite\View\Button\AButton::PARAM_LABEL => 'Preview product page',
                     \XLite\View\Button\AButton::PARAM_STYLE => 'model-button link action',
                     \XLite\View\Button\Link::PARAM_BLANK    => true,
-                    \XLite\View\Button\Link::PARAM_LOCATION => $url,
+                    \XLite\View\Button\Link::PARAM_LOCATION => $this->getProductPreviewURL(),
                 ]
             );
         }
 
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getProductPreviewURL()
+    {
+        $identity = $this->getDataObject()->default->identity;
+        return \XLite\Core\Converter::buildURL(
+            'product',
+            'preview',
+            ['product_id' => $identity],
+            \XLite::getCustomerScript()
+        );
+    }
+
+    protected function getProductEntity()
+    {
+        return \XLite\Core\Database::getRepo('XLite\Model\Product')->find($this->getDataObject()->default->identity);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getInventoryTrackingDescriptionTemplate()
+    {
+        return 'form_model/product/info/inventory_tracking_description.twig';
     }
 
     protected function getInventoryTrackingURL()

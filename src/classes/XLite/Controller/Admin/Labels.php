@@ -8,6 +8,8 @@
 
 namespace XLite\Controller\Admin;
 
+use XLite\Core\Translation;
+
 /**
  * Language labels controller
  */
@@ -19,7 +21,7 @@ class Labels extends \XLite\Controller\Admin\AAdmin
      *
      * @var string
      */
-    protected $params = array('target', 'code');
+    protected $params = ['target', 'code'];
 
     /**
      * Define the actions with no secure token
@@ -28,7 +30,7 @@ class Labels extends \XLite\Controller\Admin\AAdmin
      */
     public static function defineFreeFormIdActions()
     {
-        return array_merge(parent::defineFreeFormIdActions(), array('searchItemsList'));
+        return array_merge(parent::defineFreeFormIdActions(), ['searchItemsList']);
     }
 
     /**
@@ -49,9 +51,7 @@ class Labels extends \XLite\Controller\Admin\AAdmin
     public function getReturnURL()
     {
         if (\XLite\Core\Request::getInstance()->action) {
-
-            $data = array();
-
+            $data = [];
             if (\XLite\Core\Request::getInstance()->code) {
                 $data['code'] = \XLite\Core\Request::getInstance()->code;
             }
@@ -108,7 +108,7 @@ class Labels extends \XLite\Controller\Admin\AAdmin
         }
         unset($current);
 
-        $translated = !empty($requestData['translated']) ? $requestData['translated'] : null;
+        $translated    = !empty($requestData['translated']) ? $requestData['translated'] : null;
         $translateFail = false;
         if ($translated && is_array($translated)) {
 
@@ -151,7 +151,7 @@ class Labels extends \XLite\Controller\Admin\AAdmin
     {
         $requestData = \XLite\Core\Request::getInstance()->getNonFilteredData();
 
-        $name = substr($requestData['name'], 0, 255);
+        $name  = substr($requestData['name'], 0, 255);
         $label = $requestData['label'];
 
         if (!$name) {
@@ -188,14 +188,14 @@ class Labels extends \XLite\Controller\Admin\AAdmin
                     array_push($addedLabels, $lbl->getLabelId());
 
                 } else {
-                    $addedLabels =  array($lbl->getLabelId());
+                    $addedLabels = [$lbl->getLabelId()];
                 }
 
                 \XLite\Core\Session::getInstance()->added_labels = $addedLabels;
                 $this->setHardRedirect();
             }
 
-            \XLite\Core\Translation::getInstance()->reset();
+            Translation::getInstance()->reset();
 
             \XLite\Core\TopMessage::addInfo('The text label has been added successfully');
         }
@@ -210,35 +210,33 @@ class Labels extends \XLite\Controller\Admin\AAdmin
     {
         $requestData = \XLite\Core\Request::getInstance()->getNonFilteredData();
 
-        $label = $requestData['label'];
+        $label   = $requestData['label'];
         $labelId = intval(\XLite\Core\Request::getInstance()->label_id);
-        $lbl = \XLite\Core\Database::getRepo('\XLite\Model\LanguageLabel')->find($labelId);
+        $labelName = isset($requestData['label_name']) ? $requestData['label_name'] : null;
+
+        /** @var \XLite\Model\LanguageLabel $lbl */
+        $lbl = \XLite\Core\Database::getRepo('XLite\Model\LanguageLabel')->find($labelId)
+            ?: \XLite\Core\Database::getRepo('XLite\Model\LanguageLabel')->findOneBy(['name' => $labelName]);
 
         if (!$lbl) {
             \XLite\Core\TopMessage::addError('The edited language has not been found');
 
         } else {
-            $objects = array('insert' => array(), 'delete' => array());
-            
+            $objects = [];
+
             foreach ($label as $code => $text) {
-                if (!empty($text)) {
+                if (!empty($text) || $lbl->hasTranslation($code)) {
                     $translation = $lbl->getTranslation($code);
                     $translation->setLabel($text);
 
-                    $objects['insert'][] = $translation;
-                    
-                } elseif ($lbl->hasTranslation($code)) {
-                    $objects['delete'][] = $lbl->getTranslation($code);
-                }   
+                    $objects[] = $translation;
+                }
             }
 
-            \XLite\Core\Translation::getInstance()->reset();
-            \XLite\Core\TopMessage::addInfo('The text label has been modified successfully');
+            \XLite\Core\Database::getRepo('\XLite\Model\LanguageLabel')->insertInBatch($objects);
+            Translation::getInstance()->reset();
 
-            \XLite\Core\Database::getRepo('\XLite\Model\LanguageLabel')->insertInBatch($objects['insert']);
-            \XLite\Core\Database::getRepo('\XLite\Model\LanguageLabel')->deleteInBatch($objects['delete']);
-
-            $this->setSilenceClose();
+            $this->onEditSuccess($lbl);
         }
     }
 
@@ -256,30 +254,21 @@ class Labels extends \XLite\Controller\Admin\AAdmin
             array_keys($values)
         );
 
-        $list = array();
+        $list = [];
 
         foreach ($labels as $label) {
-            if (!empty($values[$label->getLabelId()])) {
-                $label->setEditLanguage($code)->setLabel($values[$label->getLabelId()]);
-                $list[] = $label;
+            $label->setEditLanguage($code)->setLabel($values[$label->getLabelId()]);
+            $list[] = $label;
+        }
 
-            } elseif ($label->hasTranslation($code)) {
-                $translation = $label->getTranslation($code);
-                $label->getTranslations()->removeElement($translation);
-                \XLite\Core\Database::getRepo('\XLite\Model\LanguageLabelTranslation')->delete($translation, false);
-                $list[] = $label;
-            }   
-        }   
-
-        \XLite\Core\Translation::getInstance()->reset();
-        
         \XLite\Core\Database::getRepo('\XLite\Model\LanguageLabel')->updateInBatch($list);
+        \XLite\Core\Translation::getInstance()->reset();
     }
 
     protected function doNoAction()
     {
         $sessionCellName = \XLite\View\ItemsList\Model\Translation\Labels::getSearchSessionCellName();
-        $sessionCell = \XLite\Core\Session::getInstance()->{$sessionCellName};
+        $sessionCell     = \XLite\Core\Session::getInstance()->{$sessionCellName};
 
         if ($sessionCell && \XLite\Core\Request::getInstance()->substring) {
             $sessionCell['substring'] = \XLite\Core\Request::getInstance()->substring;
@@ -290,5 +279,15 @@ class Labels extends \XLite\Controller\Admin\AAdmin
         parent::doNoAction();
     }
 
+    /**
+     * Is called when doActionEdit() has been performed successfully; sends the appropriate message to the user
+     *
+     * @param \XLite\Model\LanguageLabel $lbl Edited label entity
+     */
+    protected function onEditSuccess($lbl)
+    {
+        \XLite\Core\TopMessage::addInfo('The text label has been modified successfully');
 
+        $this->setSilenceClose();
+    }
 }

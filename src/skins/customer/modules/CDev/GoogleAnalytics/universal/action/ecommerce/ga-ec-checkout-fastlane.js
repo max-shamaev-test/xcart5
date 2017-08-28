@@ -49,7 +49,7 @@ define('googleAnalytics/eCommerceCheckoutFastlaneEvent', ['googleAnalytics/eComm
             Checkout.instance.getState().sections.current
           );
 
-          core.bind('ga-option-sent', callback);
+          core.bind('ga-option-sent', _.once(callback));
         },
 
         sectionChanged: function (event, data) {

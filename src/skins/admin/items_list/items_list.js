@@ -44,7 +44,7 @@ ItemsList.prototype.listeners.pagesCount = function(handler)
   jQuery('input.page-length', handler.container).change(
     function() {
       if (this.form) {
-        var hnd = function() { return false; }
+        var hnd = function() { return false; };
         jQuery(this.form).submit(hnd);
         var f = this.form;
         setTimeout(function() { jQuery(f).unbind('submit', hnd); }, 500);
@@ -169,8 +169,22 @@ ItemsList.prototype.initialize = function(elem, urlparams, urlajaxparams)
     result = true;
   }
 
-  return result
-}
+  return result;
+};
+
+ItemsList.prototype.reinitializeUrlParamsByCommentedData = function()
+{
+  var urlparams = core.getCommentedData(this.container, 'urlparams'),
+    urlajaxparams = core.getCommentedData(this.container, 'urlajaxparams');
+
+  if (!_.isUndefined(urlparams)) {
+    this.params.urlparams = urlparams;
+  }
+
+  if (!_.isUndefined(urlajaxparams)) {
+    this.params.urlajaxparams = urlajaxparams;
+  }
+};
 
 // Add event listeners
 ItemsList.prototype.addListeners = function()
@@ -186,7 +200,7 @@ ItemsList.prototype.addListeners = function()
 ItemsList.prototype.addListener = function(listener)
 {
   listener(this);
-}
+};
 
 // Change URL param
 ItemsList.prototype.setURLParam = function(paramName, paramValue)
@@ -206,7 +220,7 @@ ItemsList.prototype.cleanURLParams = function()
 {
   this.params.urlparams = [];
   this.params.urlajaxparams = [];
-}
+};
 
 // Set a param and send the request
 ItemsList.prototype.process = function(paramName, paramValue)
@@ -229,8 +243,8 @@ ItemsList.prototype.loadWidget = function(callback)
       type:     'get',
       url:      this.buildURL(true),
       timeout:  15000,
-      complete: _.bind(this.loadHandler, this),
-    }
+      complete: _.bind(this.loadHandler, this)
+    };
     this.loadCallback = callback;
     this.triggerVent('preload', {'widget': this, 'data': data});
 
@@ -246,7 +260,7 @@ ItemsList.prototype.showModalScreen = function()
 {
   assignWaitOverlay(this.container);
   this.triggerVent('shade', {'widget': this});
-}
+};
 
 // Hide modal screen
 ItemsList.prototype.hideModalScreen = function()
@@ -271,26 +285,51 @@ ItemsList.prototype.buildURL = function(forAJAX)
 // AJAX onload event handler
 ItemsList.prototype.loadHandler = function(xhr, s)
 {
-  var processed = false;
-  var flag = xhr.status == 200 && xhr.responseText;
+  var success = xhr.status == 200 && xhr.responseText;
+  var data = xhr.responseText;
 
-  if (flag) {
-    if (this.loadCallback) {
-      this.loadCallback(xhr.responseText);
-    };
-    this.placeNewContent(xhr.responseText);
-    processed = true;
-  }
+  if (success) {
 
-  this.hideModalScreen();
+    var container = this.getTemporaryContainer();
+    container.html(data);
+    var uuid = _.uniqueId();
 
-  if (!processed) {
+    core.bind(['resources.ready', 'resources.empty'], _.bind(
+      function(event, args) {
+        if (args.uuid === uuid) {
+          var content = this.extractRequestData(container);
+          container.remove();
+
+          if (this.loadCallback) {
+              this.loadCallback(content);
+          }
+
+          this.placeNewContent(content);
+          this.hideModalScreen();
+        }
+      }, this)
+    );
+
+    core.parseResources(container, uuid);
+  } else {
     self.location = this.buildURL();
   }
+};
 
-  if (!flag) {
-    this.addListeners();
-  }
+// Get temporary container
+ItemsList.prototype.getTemporaryContainer = function()
+{
+    var div = document.createElement('DIV');
+    div.style.display = 'none';
+    jQuery('body').get(0).appendChild(div);
+    return jQuery(div);
+};
+
+// Extract resources data
+ItemsList.prototype.extractRequestData = function(div)
+{
+    div.find('script[type!="text/x-cart-data"]').first().remove();
+    return div;
 };
 
 // Place new list content

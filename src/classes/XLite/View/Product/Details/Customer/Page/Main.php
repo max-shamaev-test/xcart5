@@ -28,7 +28,6 @@ class Main extends \XLite\View\Product\Details\Customer\Page\APage
         return $list;
     }
 
-
     /**
      * getDir
      *

@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * Zone element repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\ZoneElement", summary="Add new shipping zone element")
+ * @Api\Operation\Read(modelClass="XLite\Model\ZoneElement", summary="Retrieve shipping zone element by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\ZoneElement", summary="Retrieve all shipping zone elements")
+ * @Api\Operation\Update(modelClass="XLite\Model\ZoneElement", summary="Update shipping zone element by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\ZoneElement", summary="Delete shipping zone element by id")
  */
 class ZoneElement extends \XLite\Model\Repo\ARepo
 {

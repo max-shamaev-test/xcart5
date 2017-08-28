@@ -190,15 +190,15 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      *
      * @param \XLite\Model\Profile $profile Profile
      *
-     * @return \XLite\Module\XC\Reviews\Model\Review
+     * @return bool|Review
      */
     protected function getReviewAddedByUserFromDb(\XLite\Model\Profile $profile = null)
     {
         $review = null;
 
-        $data = array(
+        $data = [
             'product' => $this,
-        );
+        ];
 
         if ($profile) {
             // Find by profile of logged in user
@@ -219,10 +219,10 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     protected function findReviewByIp($ip)
     {
-        $data = array(
+        $data = [
             'product'   => $this,
             'ip'        => $ip,
-        );
+        ];
         $reviews = \XLite\Core\Database::getRepo('XLite\Module\XC\Reviews\Model\Review')->findBy($data);
 
         $resultReview = null;
@@ -251,9 +251,11 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     }
 
     /**
-     * Return TRUE if customer already addded review for the product
+     * Return TRUE if customer already added review for the product
      *
-     * @return boolean
+     * @param \XLite\Model\Profile $profile
+     *
+     * @return bool
      */
     public function isReviewedByUser(\XLite\Model\Profile $profile = null)
     {

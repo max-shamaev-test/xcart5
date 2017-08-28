@@ -109,7 +109,9 @@ class Registry extends \XLite\Base implements \Doctrine\Common\Cache\Cache
      */
     public function delete($id)
     {
-        $this->driver->delete($this->assembleId($id));
+        if ($this->driver->contains($this->assembleId($id))) {
+            $this->driver->delete($this->assembleId($id));
+        }
         $registry = $this->getRegistry();
         if (isset($registry[$id])) {
             unset($registry[$id]);

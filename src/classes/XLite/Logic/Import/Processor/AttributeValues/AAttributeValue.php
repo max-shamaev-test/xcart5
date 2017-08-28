@@ -143,6 +143,16 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
     }
 
     /**
+     * Returns csv format manual URL
+     *
+     * @return string
+     */
+    public static function getCSVFormatManualURL()
+    {
+        return '//kb.x-cart.com/en/import-export/csv_format_by_x-cart_data_type/csv_import_product_attribute_values.html';
+    }
+
+    /**
      * Check - specified file is imported by this processor or not
      *
      * @param \SplFileInfo $file File

@@ -108,6 +108,27 @@
     }
 }
 
+.regular-button.progress-state {
+  .fail, .success {
+    color: @btn-default-color;
+  }
+
+  .loader:after {
+    border-color: fade(@btn-default-color, 20%);
+    border-left-color: @btn-default-color;
+  }
+}
+
+.regular-main-button.progress-state {
+  .fail, .success {
+    color: #ffffff;
+  }
+
+  .loader:after {
+    border-color: fade(#ffffff, 20%);
+    border-left-color: #ffffff;
+  }
+}
 
 // Alternate buttons
 // --------------------------------------------------

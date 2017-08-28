@@ -15,5 +15,5 @@
   {% endfor %}
 </ul>
 {% if this.isDisplayShippingEmail() %}
-  <p class="email">{{ t('E-mail') }}: <a href="mailto:{{ this.order.profile.login }}">{{ this.order.profile.login }}</a></p>
+  <p class="email">{{ t('E-mail') }}: <a href="mailto:{{ this.order.profile.email }}">{{ this.order.profile.email }}</a></p>
 {% endif %}

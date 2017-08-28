@@ -235,6 +235,16 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
     }
 
     /**
+     * Returns csv format manual URL
+     *
+     * @return string
+     */
+    public static function getCSVFormatManualURL()
+    {
+        return '//kb.x-cart.com/en/import-export/csv_format_by_x-cart_data_type/csv_import_products.html';
+    }
+
+    /**
      * Verify 'SKU' value
      *
      * @param mixed $value  Value
@@ -520,6 +530,24 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyStockLevel($value, array $column)
     {
         if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsUinteger($value)) {
+            $this->addWarning('PRODUCT-STOCK-LEVEL-FMT', ['column' => $column, 'value' => $value]);
+        }
+    }
+
+    /**
+     * Verify 'stock level' value
+     *
+     * @param mixed $value  Value
+     * @param array $column Column info
+     *
+     * @return void
+     */
+    protected function verifyStockLevelWithModifier($value, array $column)
+    {
+        if (!$this->verifyValueAsEmpty($value)
+            && !$this->verifyValueAsUinteger($value)
+            && !$this->verifyValueAsModifier($value)
+        ) {
             $this->addWarning('PRODUCT-STOCK-LEVEL-FMT', ['column' => $column, 'value' => $value]);
         }
     }
@@ -1156,6 +1184,32 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
     }
 
     /**
+     * Import 'stock level' value
+     *
+     * @param \XLite\Model\Product $model  Product
+     * @param mixed                $value  Value
+     * @param array                $column Column info
+     *
+     * @return void
+     */
+    protected function importStockLevelWithModifier(\XLite\Model\Product $model, $value, array $column)
+    {
+        if ($this->verifyValueAsEmpty($value)) {
+            return;
+        }
+
+        if ($this->verifyValueAsUinteger($value)) {
+            $model->setAmount($this->normalizeValueAsUinteger($value));
+
+        } elseif ($this->verifyValueAsModifier($value)) {
+            $value = $this->normalizeValueAsModifier($value);
+            $newAmount = $model->getAmount() + $value;
+
+            $model->setAmount(max(0, $newAmount));
+        }
+    }
+
+    /**
      * Import 'low limit enabled' value
      *
      * @param \XLite\Model\Product $model  Product
@@ -1436,7 +1490,7 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
                     }
                 }
                 if ($shouldClear) {
-                    $attribute->setAttributeValue($model, null);
+                    $attribute->setAttributeValue($model, []);
                 } else {
                     $attribute->setAttributeValue($model, $data);
                 }

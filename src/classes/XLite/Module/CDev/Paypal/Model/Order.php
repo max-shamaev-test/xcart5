@@ -23,7 +23,7 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
         if ($this->isPaypalMethod($this->getPaymentMethod())) {
             // Unlock IPN processing for each transaction
             foreach ($this->getPaymentTransactions() as $transaction) {
-                $transaction->unlockCallbackProcessing();
+                $transaction->unsetEntityLock(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN);
             }
         }
     }

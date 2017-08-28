@@ -42,7 +42,7 @@ class WidgetCache
      * It's not possible to instantiate a derived class (using the "new" operator)
      * until that child class is not implemented public constructor
      *
-     * @return void
+     * @return \Doctrine\Common\Cache\CacheProvider
      */
     protected function getCacheDriver()
     {
@@ -115,7 +115,7 @@ class WidgetCache
     public function set(array $parameters, $content, $ttl = null)
     {
         $key = $this->getCacheKey($parameters);
-        $ttl = $ttl ?: \XLite\Model\Repo\ARepo::CACHE_DEFAULT_TTL;
+        $ttl = $ttl ?: \XLite\Core\Cache::getDefaultCacheTtl();
 
         $this->getCacheDriver()->save($key, serialize($content), $ttl);
     }

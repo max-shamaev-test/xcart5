@@ -11,7 +11,7 @@ namespace XLite\View;
 /**
  * Core version
  *
- * @ListChild (list="admin.main.page.header", weight="300", zone="admin")
+ * @ListChild (list="admin.main.page.header", weight="0", zone="admin")
  */
 class QueryMarketplace extends \XLite\View\AView
 {

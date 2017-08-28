@@ -47,9 +47,9 @@ class AverageRating extends \XLite\View\Form\AForm
      */
     protected function getDefaultParams()
     {
-        $params = array(
+        $params = [
             self::PARAM_RETURN_TARGET   => \XLite::getController()->getTarget(),
-        );
+        ];
 
         return $params;
     }
@@ -63,11 +63,11 @@ class AverageRating extends \XLite\View\Form\AForm
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_PRODUCT_ID      => new \XLite\Model\WidgetParam\TypeInt('Product Id', 0),
             self::PARAM_RETURN_TARGET   => new \XLite\Model\WidgetParam\TypeString('Return target', '', false),
             self::PARAM_TARGET_WIDGET   => new \XLite\Model\WidgetParam\TypeString('Target widget', '', false),
-        );
+        ];
     }
 
     /**
@@ -80,10 +80,10 @@ class AverageRating extends \XLite\View\Form\AForm
         parent::initView();
 
         $this->widgetParams[self::PARAM_FORM_PARAMS]->appendValue(
-            array(
+            [
                 self::PARAM_PRODUCT_ID      => $this->getParam(static::PARAM_PRODUCT_ID),
                 self::PARAM_TARGET_WIDGET   => $this->getParam(static::PARAM_TARGET_WIDGET),
-            )
+            ]
         );
     }
 }

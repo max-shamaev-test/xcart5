@@ -17,9 +17,10 @@ class Inventory extends \XLite\Model\DTO\Base\ADTO
      */
     protected function init($object)
     {
-        $default = [
+        $default       = [
             'identity' => $object->getProductId(),
 
+            'arrival_date'                      => $object->getArrivalDate() ?: time(),
             'inventory_tracking_status'         => $object->getInventoryEnabled(),
             'quantity_in_stock'                 => $object->getAmount(),
             'low_stock_warning_on_product_page' => $object->getLowLimitEnabledCustomer(),
@@ -39,6 +40,7 @@ class Inventory extends \XLite\Model\DTO\Base\ADTO
     {
         $default = $this->default;
 
+        $object->setArrivalDate((int) $default->arrival_date);
         $object->setInventoryEnabled($default->inventory_tracking_status);
         $object->setAmount($default->quantity_in_stock);
         $object->setLowLimitEnabledCustomer($default->low_stock_warning_on_product_page);

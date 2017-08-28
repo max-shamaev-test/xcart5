@@ -10,5 +10,14 @@ XLite\Model\LanguageLabel:
   - { name: 'New tab', translations: [{ code: en, label: 'New tab' }, { code: ru, label: 'Новая вкладка' }] }
   - { name: 'The product tab has been updated', translations: [{ code: en, label: 'The product tab has been updated' }, {code: ru, label: 'Вкладка обновлена'}] }
   - { name: 'The product tab has been added', translations: [{ code: en, label: 'The product tab has been added' }, {code: ru, label: 'Вкладка добавлена'}] }
-  - { name: 'Product tabs', translations: [{ code: en, label: 'Product tabs' }, {code: ru, label: 'Вкладки страницы продукта' }] }
+  - { name: 'Product tabs', translations: [{ code: en, label: 'Product tabs' }, {code: ru, label: 'Вкладки страницы товара' }] }
   - { name: 'Tabs imported', translations: [{ code: en, label: 'Tabs imported' }, {code: ru, label: 'Импорт вкладок завершен' }] }
+  - { name: 'Brief info', translations: [{ code: en, label: 'Brief info' }, {code: ru, label: 'Краткая информация' }] }
+  - { name: 'Manage global tabs', translations: [{ code: en, label: 'Manage global tabs' }, {code: ru, label: 'Управление глобальными вкладками' }] }
+  - { name: 'Edit Globally', translations: [{ code: en, label: 'Edit Globally' }, {code: ru, label: 'Редактировать глобально' }] }
+  - { name: 'Global product tabs', translations: [{ code: en, label: 'Global product tabs' }, {code: ru, label: 'Глобальные вкладки страницы товара' }] }
+  - { name: 'learn more', translations: [{ code: en, label: 'Learn more' }, {code: ru, label: 'Подробнее...' }] }
+  - { name: 'Apply sort and view settings for all products', translations: [{ code: en, label: 'Apply sort and view settings for all products' }, {code: ru, label: 'Применить сортировку и настройки видимости ко всем товарам' }] }
+  - { name: 'Brief info help', translations: [{ code: en, label: 'The text entered here will be displayed on the product details page on the storefront and will be followed by a "learn more" link pointing to the respective product tab.' }, {code: ru, label: 'Данный текст будет отображаться на странице информации товара в клиентской части магазина и сопровождаться ссылкой вида "Подробнее...", ведущей на соответствующую вкладку страницы товара.' }] }
+  - { name: 'Global tab not found', translations: [{ code: en, label: 'Global tab "{{value}}" not found' }, {code: ru, label: 'Глобальная вкладка продукта "{{value}}" не найдена' }] }
+  - { name: 'Global tab label', translations: [{ code: en, label: 'Global' }, {code: ru, label: 'Глобальная' }] }

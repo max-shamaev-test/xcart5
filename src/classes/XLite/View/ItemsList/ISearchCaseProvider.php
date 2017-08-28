@@ -19,4 +19,9 @@ interface ISearchCaseProvider
      * @return \XLite\Core\CommonCell
      */
     public function getSearchCase();
+
+    /**
+     * @param \XLite\View\ItemsList\ISearchValuesStorage $storage
+     */
+    public function setDefaultValuesStorage(ISearchValuesStorage $storage);
 }

@@ -7,6 +7,8 @@
  */
 
 namespace XLite\Module\CDev\Egoods\Model\Product\Attachment;
+use XLite\Core\Config;
+use XLite\Module\CDev\Egoods\Core\AmazonS3;
 
 /**
  * Storage
@@ -106,6 +108,55 @@ abstract class Storage extends \XLite\Module\CDev\FileAttachments\Model\Product\
         $path = $path ?: $this->getPath();
 
         return (bool)preg_match('/\.[a-f0-9]{32}$/Ss', $path);
+    }
+
+    /**
+     * Check if the attachment url can be signed to protect from unauthorized access
+     */
+    public function canBeSigned()
+    {
+        return Config::getInstance()->CDev->Egoods->enable_signed_urls && preg_match('/\/\/s3.*?amazonaws\.com/', $this->getPath());
+    }
+
+    /**
+     * Returns signed url to access Amazon S3 content
+     * @return string
+     */
+    public function getSignedUrl()
+    {
+        if ($this->canBeSigned()) {
+            preg_match('/\/\/s3.*?amazonaws\.com\/.*?\/(.*)/', $this->getPath(), $matches);
+            return AmazonS3::getInstance()->getPresignedUrl($matches[1]);
+        }
+
+        return $this->getURL();
+    }
+
+    /**
+     * Check if file exists
+     *
+     * @param string  $path      Path to check OPTIONAL
+     * @param boolean $forceFile Flag OPTIONAL
+     *
+     * @return boolean
+     */
+    public function isFileExists($path = null, $forceFile = false)
+    {
+        return $this->canBeSigned() ? true : parent::isFileExists($path, $forceFile);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function loadFromURL($url, $copy2fs = false)
+    {
+        if (!$copy2fs && $this->getAttachment() && $this->getAttachment()->getPrivate() && !$this->canBeSigned()) {
+            $this->loadError = 'public_url';
+            $this->loadErrorMessage = ['File is available by public URL'];
+            return false;
+        }
+
+        return parent::loadFromURL($url, $copy2fs);
     }
 }
 

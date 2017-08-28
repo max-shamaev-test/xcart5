@@ -24,9 +24,9 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
         $tpls = parent::getPageTemplates();
 
         if ($this->getOrder() && $this->getOrder()->hasPinCodes()) {
-            $tpls += array(
+            $tpls += [
                 'pin_codes' => 'modules/CDev/PINCodes/order/pin_codes.twig',
-            );
+            ];
         }
 
         return $tpls;

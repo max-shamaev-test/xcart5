@@ -72,10 +72,10 @@ abstract class Profile extends \XLite\Model\Repo\Profile implements \XLite\Base\
             ->linkInner('addressFields.addressField')
             ->andWhere('p.order IS NULL');
 
-        $conditions = array(
+        $conditions = [
             '(addressField.serviceName = \'firstname\' AND addressFields.value LIKE :firstname)',
             '(addressField.serviceName = \'lastname\' AND addressFields.value LIKE :lastname)',
-        );
+        ];
 
         if (count($parts) == 1) {
             $qb->andWhere(implode(' OR ', $conditions))

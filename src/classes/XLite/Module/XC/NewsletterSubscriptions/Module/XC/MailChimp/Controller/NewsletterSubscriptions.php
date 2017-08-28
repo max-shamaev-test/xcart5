@@ -46,10 +46,11 @@ class NewsletterSubscriptions extends \XLite\Module\XC\NewsletterSubscriptions\C
     {
         $profile = \XLite\Core\Auth::getInstance()->getProfile();
 
-        $tempProfile = $profile && $profile->getLogin() !== \XLite\Core\Request::getInstance()->email;
+        $email = \XLite\Core\Request::getInstance()->newlettersubscription_email;
+        $tempProfile = $profile && $profile->getLogin() !== $email;
         
         if (!$profile || $tempProfile) {
-            $profile = $this->getNewProfileToSubscribe();
+            $profile = $this->getNewProfileToSubscribe($email);
             $profile->create();
         }
 
@@ -63,12 +64,14 @@ class NewsletterSubscriptions extends \XLite\Module\XC\NewsletterSubscriptions\C
     }
 
     /**
+     * @param $email
+     *
      * @return \XLite\Model\Profile
      */
-    protected function getNewProfileToSubscribe()
+    protected function getNewProfileToSubscribe($email)
     {
         $profileToSubscribe = new \XLite\Model\Profile();
-        $profileToSubscribe->setLogin(\XLite\Core\Request::getInstance()->email);
+        $profileToSubscribe->setLogin($email);
         $profileToSubscribe->setAnonymous(true);
         
         return $profileToSubscribe;

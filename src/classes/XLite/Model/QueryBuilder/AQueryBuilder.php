@@ -225,16 +225,29 @@ abstract class AQueryBuilder extends \Doctrine\ORM\QueryBuilder implements \Coun
     }
 
     /**
-     * @deprecated 5.3.3
+     * Add AND WHERE IN () condition
      *
-     * Get IN () condition
-     *
+     * @param string $field Field in string format to be restricted by IN() function.
      * @param mixed  $data   Data
-     * @param string $prefix Parameter prefix OPTIONAL
      *
-     * @return string
+     * @return $this
      */
-    public function getInCondition($data, $prefix = 'id')
+    public function addInCondition($field, $data)
+    {
+        $this->andWhere($this->getInExpression($field, $data));
+
+        return $this;
+    }
+
+    /**
+     * Get IN () expression
+     *
+     * @param string $field Field in string format to be restricted by IN() function.
+     * @param mixed  $data   Data
+     *
+     * @return \Doctrine\ORM\Query\Expr\Func
+     */
+    public function getInExpression($field, $data)
     {
         if (is_scalar($data)) {
             $data = array($data);
@@ -249,9 +262,7 @@ abstract class AQueryBuilder extends \Doctrine\ORM\QueryBuilder implements \Coun
             }
         }
 
-        $keys = \XLite\Core\Database::buildInCondition($this, $data, $prefix);
-
-        return implode(', ', $keys);
+        return $this->expr()->in($field, $data);
     }
 
     /**

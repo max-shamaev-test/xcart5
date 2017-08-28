@@ -22,6 +22,14 @@ XLite\Model\Config:
       - code: en
         option_name: 'E-mail address of the message recipient'
         option_comment: 'If the field is blank, then administration email is used'
+  - name: showEmail
+    category: 'CDev\ContactUs'
+    type: 'XLite\View\FormField\Input\Checkbox\YesNo'
+    value: 1
+    orderby: 300
+    translations:
+      - code: en
+        option_name: 'Show email as text'
   - name: contact_us_sep_1
     category: 'CDev\ContactUs'
     type: separator
@@ -37,7 +45,7 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Site key'
-        option_comment: 'To use reCAPTCHA you should get an API key from <a href="https://www.google.com/recaptcha/admin/create">https://www.google.com/recaptcha/admin/create</a>'
+        option_comment: 'To use reCAPTCHA you should get Site and Secret keys from <a href="https://www.google.com/recaptcha/admin/create">https://www.google.com/recaptcha/admin/create</a>'
   - name: recaptcha_private_key
     category: 'CDev\ContactUs'
     type: text
@@ -46,13 +54,6 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Secret key'
-XLite\Model\LanguageLabel:
-  - { name: "This field is required.", translations: [{ code: en, label: "This field is required." }] }
-  - { name: "Please enter the correct captcha", translations: [{ code: en, label: "Please enter the correct code" }] }
-  - { name: "Message has been sent", translations: [{ code: en, label: "The message has been sent" }] }
-  - { name: "Your Message", translations: [{ code: en, label: "Your Message" }] }
-  - { name: 'Email Address', translations: [{ code: en, label: 'Email Address' }]}
-  - { name: 'Full Name', translations: [{ code: en, label: 'Full Name' }]}
 
 XLite\Model\Notification:
   - templatesDirectory: modules/CDev/ContactUs/message
@@ -78,3 +79,12 @@ XLite\Model\Notification:
         adminSubject: Поступило обращение через форму для связи с администрацией магазина
         adminText: ""
 
+XLite\Model\LanguageLabel:
+  - { name: "This field is required.", translations: [{ code: en, label: "This field is required." }] }
+  - { name: "Please enter the correct captcha", translations: [{ code: en, label: "Please enter the correct code" }] }
+  - { name: "Message has been sent", translations: [{ code: en, label: "The message has been sent" }] }
+  - { name: "Your Message", translations: [{ code: en, label: "Your Message" }] }
+  - { name: 'Email Address', translations: [{ code: en, label: 'Email Address' }]}
+  - { name: 'Full Name', translations: [{ code: en, label: 'Full Name' }]}
+  - { name: 'We are always glad to help you.', translations: [{ code: en, label: 'We are always glad to help you.' }]}
+  - { name: 'Send a message', translations: [{ code: en, label: 'Send a message' }]}

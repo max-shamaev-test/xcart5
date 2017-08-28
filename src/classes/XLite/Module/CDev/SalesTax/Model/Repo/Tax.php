@@ -11,7 +11,7 @@ namespace XLite\Module\CDev\SalesTax\Model\Repo;
 /**
  * Tax repository
  */
-class Tax extends \XLite\Model\Repo\ARepo
+class Tax extends \XLite\Model\Repo\Base\I18n
 {
     /**
      * Get tax

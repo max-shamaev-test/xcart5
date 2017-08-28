@@ -13,24 +13,48 @@ namespace XLite\Module\XC\ProductVariants\View\ItemsList\Model;
  */
 class ProductVariant extends \XLite\View\ItemsList\Model\Table
 {
-    const COLUMN_PRODUCT_ATTRIBUTE  = 'product_attribute';
+    public function getJSFiles()
+    {
+        return array_merge(parent::getJSFiles(), [
+            'modules/XC/ProductVariants/items_list/model/product_variant/script.js'
+        ]);
+    }
 
     /**
-     * Get column value
-     *
-     * @param array                $column Column
-     * @param \XLite\Model\AEntity $entity Model
-     *
-     * @return mixed
+     * @param array $variantAttributes
+     * @return array
      */
-    protected function getColumnValue(array $column, \XLite\Model\AEntity $entity)
+    protected function getVariantAttributesNames($variantAttributes)
     {
-        if (isset($column[static::COLUMN_PRODUCT_ATTRIBUTE])) {
-            $result = $entity->getAttributeValue($column[static::COLUMN_PRODUCT_ATTRIBUTE]);
-            $result = $result ? $result->asString() : '';
+        $result = [];
+        foreach ($variantAttributes as $variantAttribute) {
+            $result[] = $variantAttribute->getName();
+        }
 
-        } else {
-            $result = parent::getColumnValue($column, $entity);
+        return $result;
+    }
+
+    /**
+     * @param array $variantAttributes
+     * @return string
+     */
+    protected function getVariantAttributesSubheader($variantAttributes)
+    {
+        return implode(' • ', $this->getVariantAttributesNames($variantAttributes));
+    }
+
+    /**
+     * @param $entity
+     * @return array
+     */
+    protected function getVariantAttributeValues($entity)
+    {
+        $result = [];
+
+        foreach ($this->getVariantsAttributes() as $attribute) {
+            if ($av = $entity->getAttributeValue($attribute)) {
+                $result[$attribute->getName()] = $av->asString();
+            }
         }
 
         return $result;
@@ -43,75 +67,66 @@ class ProductVariant extends \XLite\View\ItemsList\Model\Table
      */
     protected function defineColumns()
     {
-        $columns = array(
-            'image' => array(
+        $columns = [
+            'image' => [
                 static::COLUMN_NAME         => '',
                 static::COLUMN_CLASS        => 'XLite\View\FormField\Inline\FileUploader\Image',
-                static::COLUMN_CREATE_CLASS => 'XLite\View\FormField\Inline\EmptyField',
-                static::COLUMN_PARAMS       => array('required' => false),
+                static::COLUMN_CREATE_CLASS => '\XLite\Module\XC\ProductVariants\View\ItemsList\Model\ProductVariant\AttributesNames',
+                static::COLUMN_PARAMS       => ['required' => false],
                 static::COLUMN_ORDERBY      => 100,
-            )
-        );
-        $step = 200;
-        foreach ($this->getVariantsAttributes() as $a) {
-            $columns['attributeValue' . $a->getId()] = array(
-                static::COLUMN_NAME              => $a->getName(),
-                static::COLUMN_SUBHEADER         =>  static::t(
-                    '{{count}} options',
-                    array(
-                        'count' => count($a->getAttributeValue($this->getProduct()))
-                    )
-                ),
-                static::COLUMN_NO_WRAP           => true,
-                static::COLUMN_PRODUCT_ATTRIBUTE => $a,
-                static::COLUMN_CREATE_CLASS      => 'XLite\Module\XC\ProductVariants\View\FormField\Inline\Select\AttributeValues',
-                static::COLUMN_PARAMS            => array(
-                    'attribute' => $a,
-                    'product'   => $this->getProduct(),
-                ),
-                static::COLUMN_ORDERBY  => $step,
-            );
+            ],
+        ];
 
-            $step += 100;
-        }
+        $columns['attributeValue'] = [
+            static::COLUMN_MAIN         => true,
+            static::COLUMN_NAME         => 'Attribute',
+            static::COLUMN_SUBHEADER    => $this->getVariantAttributesSubheader($this->getVariantsAttributes()),
+            static::COLUMN_CREATE_CLASS => '\XLite\Module\XC\ProductVariants\View\FormField\Inline\Input\Attributes',
+            static::COLUMN_TEMPLATE     => 'modules/XC/ProductVariants/field/view.twig',
+            static::COLUMN_ORDERBY      => 200,
+            static::COLUMN_PARAMS       => [
+                'variant_attributes' => $this->getVariantsAttributes(),
+                'product'            => $this->getProduct(),
+            ],
+        ];
 
-        return $columns + array(
-            'price' => array(
-                static::COLUMN_NAME      => static::t('Price'),
-                static::COLUMN_SUBHEADER => static::t('Default') . ': ' . $this->formatPrice($this->getProduct()->getPrice()),
-                static::COLUMN_CLASS     => 'XLite\Module\XC\ProductVariants\View\FormField\Inline\Input\Text\Price',
-                static::COLUMN_EDIT_ONLY => true,
-                static::COLUMN_ORDERBY  => $step + 100,
-            ),
-            'sku' => array(
-                static::COLUMN_NAME      => static::t('SKU'),
-                static::COLUMN_SUBHEADER => static::t('Default') . ': ' . $this->getProduct()->getSku(),
-                static::COLUMN_CLASS     => 'XLite\Module\XC\ProductVariants\View\FormField\Inline\Input\Text\SKU',
-                static::COLUMN_EDIT_ONLY => true,
-                static::COLUMN_ORDERBY  => $step + 200,
-            ),
-            'amount' => array(
-                static::COLUMN_NAME      => static::t('Quantity'),
-                static::COLUMN_SUBHEADER => static::t('Default') . ': '
-                    . ($this->getProduct()->getInventoryEnabled() ? $this->getProduct()->getPublicAmount() : static::t('unlimited')),
-                static::COLUMN_CLASS     => 'XLite\Module\XC\ProductVariants\View\FormField\Inline\Input\Text\Amount',
-                static::COLUMN_EDIT_ONLY => true,
-                static::COLUMN_ORDERBY  => $step + 300,
-            ),
-            'weight' => array(
-                static::COLUMN_NAME      => static::t('Weight'),
-                static::COLUMN_SUBHEADER => static::t('Default') . ': ' . $this->formatWeight($this->getProduct()->getWeight()),
-                static::COLUMN_CLASS     => 'XLite\Module\XC\ProductVariants\View\FormField\Inline\Input\Text\Weight',
-                static::COLUMN_EDIT_ONLY => true,
-                static::COLUMN_ORDERBY  => $step + 400,
-            ),
-        );
+        return $columns + [
+                'sku'    => [
+                    static::COLUMN_NAME      => static::t('SKU'),
+                    static::COLUMN_SUBHEADER => static::t('Default') . ': ' . $this->getProduct()->getSku(),
+                    static::COLUMN_CLASS     => 'XLite\Module\XC\ProductVariants\View\FormField\Inline\Input\Text\SKU',
+                    static::COLUMN_EDIT_ONLY => true,
+                    static::COLUMN_ORDERBY   => 300,
+                ],
+                'price'  => [
+                    static::COLUMN_NAME      => static::t('Price'),
+                    static::COLUMN_SUBHEADER => static::t('Default') . ': ' . $this->formatPrice($this->getProduct()->getPrice()),
+                    static::COLUMN_CLASS     => 'XLite\Module\XC\ProductVariants\View\FormField\Inline\Input\Text\Price',
+                    static::COLUMN_EDIT_ONLY => true,
+                    static::COLUMN_ORDERBY   => 400,
+                ],
+                'amount' => [
+                    static::COLUMN_NAME      => static::t('Quantity'),
+                    static::COLUMN_SUBHEADER => static::t('Default') . ': '
+                        . ($this->getProduct()->getInventoryEnabled() ? $this->getProduct()->getPublicAmount() : static::t('unlimited')),
+                    static::COLUMN_CLASS     => 'XLite\Module\XC\ProductVariants\View\FormField\Inline\Input\Text\Amount',
+                    static::COLUMN_EDIT_ONLY => true,
+                    static::COLUMN_ORDERBY   => 500,
+                ],
+                'weight' => [
+                    static::COLUMN_NAME      => static::t('Weight'),
+                    static::COLUMN_SUBHEADER => static::t('Default') . ': ' . $this->formatWeight($this->getProduct()->getWeight()),
+                    static::COLUMN_CLASS     => 'XLite\Module\XC\ProductVariants\View\FormField\Inline\Input\Text\Weight',
+                    static::COLUMN_EDIT_ONLY => true,
+                    static::COLUMN_ORDERBY   => 600,
+                ],
+            ];
     }
 
     /**
      * Check - has specified column attention or not
      *
-     * @param array                $column Column
+     * @param array $column Column
      * @param \XLite\Model\AEntity $entity Model OPTIONAL
      *
      * @return boolean
@@ -152,7 +167,7 @@ class ProductVariant extends \XLite\View\ItemsList\Model\Table
         return $this->isAllowVaraintAdd() ? static::CREATE_INLINE_TOP : null;
     }
 
-    /*
+    /**
      * Get empty list template
      *
      * @return string
@@ -225,8 +240,8 @@ class ProductVariant extends \XLite\View\ItemsList\Model\Table
     {
         $params = parent::getAJAXSpecificParams();
 
-        $params['product_id']   = $this->getProductId();
-        $params['page']         = 'variants';
+        $params['product_id'] = $this->getProductId();
+        $params['page'] = 'variants';
 
         return $params;
     }
@@ -250,7 +265,7 @@ class ProductVariant extends \XLite\View\ItemsList\Model\Table
      */
     static public function getSearchParams()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -280,9 +295,7 @@ class ProductVariant extends \XLite\View\ItemsList\Model\Table
     // {{{ Model processing
 
     /**
-     * Create entity
-     *
-     * @return \XLite\Model\AEntity
+     * @inheritdoc
      */
     protected function createEntity()
     {
@@ -300,6 +313,20 @@ class ProductVariant extends \XLite\View\ItemsList\Model\Table
     /**
      * @inheritdoc
      */
+    protected function undoCreatedEntity($entity)
+    {
+        $product = $entity->getProduct() ?: $this->getProduct();
+
+        if ($product) {
+            $product->getVariantsCollection()->removeElement($entity);
+        }
+
+        parent::undoCreatedEntity($entity);
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function prevalidateEntities()
     {
         if (parent::prevalidateEntities()) {
@@ -310,7 +337,7 @@ class ProductVariant extends \XLite\View\ItemsList\Model\Table
                 if (in_array($entity->getSku(), $skus)) {
                     $this->errorMessages[] = static::t('SKU must be unique');
                     return false;
-                } else {
+                } elseif ($entity->getSku() != '') {
                     $skus[] = $entity->getSku();
                 }
             }
@@ -322,11 +349,7 @@ class ProductVariant extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Post-validate new entity
-     *
-     * @param \XLite\Model\AEntity $entity Entity
-     *
-     * @return boolean
+     * @inheritdoc
      */
     protected function prevalidateNewEntity(\XLite\Model\AEntity $entity)
     {
@@ -338,8 +361,8 @@ class ProductVariant extends \XLite\View\ItemsList\Model\Table
 
             if ($attrValues) {
 
-                $ids = array();
-                $str = array();
+                $ids = [];
+                $str = [];
 
                 foreach ($attrValues as $av) {
                     $ids[$av->getAttribute()->getId()] = $av->getId();
@@ -350,7 +373,7 @@ class ProductVariant extends \XLite\View\ItemsList\Model\Table
                 $sameVariants = $this->getProduct()->getVariantByAttributeValuesIds($ids, false);
 
                 if (1 < count($sameVariants)) {
-                    $this->errorMessages[] = static::t('Variant with specified attribute values already exists', array('list' => implode(', ', $str)));
+                    $this->errorMessages[] = static::t('Variant with specified attribute values already exists', ['list' => implode(', ', $str)]);
                     $result = false;
                 }
             }
@@ -360,21 +383,15 @@ class ProductVariant extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Get create message
-     *
-     * @param integer $count Count
-     *
-     * @return string
+     * @inheritdoc
      */
     protected function getCreateMessage($count)
     {
-        return \XLite\Core\Translation::lbl('X variants have been created', array('count' => $count));
+        return \XLite\Core\Translation::lbl('X variants have been created', ['count' => $count]);
     }
 
     /**
-     * Get update message
-     *
-     * @return string
+     * @inheritdoc
      */
     protected function getUpdateMessage()
     {
@@ -382,18 +399,17 @@ class ProductVariant extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Remove entity
-     *
-     * @param \XLite\Model\AEntity $entity Entity
-     *
-     * @return boolean
+     * @inheritdoc
      */
     protected function removeEntity(\XLite\Model\AEntity $entity)
     {
-        $this->getProduct()->getVariants()->removeElement($entity);
-        parent::removeEntity($entity);
+        $product = $entity->getProduct() ?: $this->getProduct();
 
-        return true;
+        if ($product) {
+            $product->getVariantsCollection()->removeElement($entity);
+        }
+
+        return parent::removeEntity($entity);
     }
 
     // }}}

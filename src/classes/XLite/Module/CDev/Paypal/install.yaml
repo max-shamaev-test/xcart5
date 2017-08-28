@@ -168,7 +168,7 @@ XLite\Model\Payment\Method:
       - code: en
         name: 'PayPal Adaptive payments'
         title: 'PayPal'
-        altAdminDescription: "This method provides automatic transfer of payments to vendor users (the type of users enabled by the Multi-vendor module). The method may not be activated unless the module <a href='admin.php?target=addons_list_marketplace&moduleName=XC\MultiVendor' target='_blank'>Multi-vendor</a> is installed and enabled. To use this method, store administrator is required to have an Application ID for PayPal Adaptive Payments API."
+        altAdminDescription: "This method provides automatic transfer of payments to vendor users (the type of users enabled by the Multi-vendor module). The method may not be activated unless the module <a href='admin.php?target=addons_list_marketplace&moduleName=XC\\MultiVendor' target='_blank'>Multi-vendor</a> is installed and enabled. To use this method, store administrator is required to have an Application ID for PayPal Adaptive Payments API."
     settings:
       - name: app_id
       - name: api_username

@@ -5,7 +5,7 @@
 
 <span>{{ t('Sort by') }}</span>
 <select name="sortCriterion">
-  {% for key, name in this.getParam('sortCriterions') %}
+  {% for key, name in this.getParam('sortCriteria') %}
     <option value="{{ key }}" {% if this.isSortCriterionSelected(key) %} selected="selected" {% endif %}>{{ name }}</option>
   {% endfor %}
 </select>

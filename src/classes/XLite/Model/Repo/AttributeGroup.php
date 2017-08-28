@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * Attribute groups repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\AttributeGroup", summary="Add new attribute group")
+ * @Api\Operation\Read(modelClass="XLite\Model\AttributeGroup", summary="Retrieve attribute group by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\AttributeGroup", summary="Retrieve attribute groups by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\AttributeGroup", summary="Update attribute group by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\AttributeGroup", summary="Delete attribute group by id")
  */
 class AttributeGroup extends \XLite\Model\Repo\Base\I18n
 {
@@ -44,6 +50,7 @@ class AttributeGroup extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters attribute groups by product class ids", type="array", collectionFormat="multi", items=@Swg\Items(type="integer"))
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition OPTIONAL
@@ -65,6 +72,7 @@ class AttributeGroup extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters attribute groups by name", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition OPTIONAL

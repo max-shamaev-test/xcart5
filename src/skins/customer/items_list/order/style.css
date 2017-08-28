@@ -119,6 +119,12 @@ h2.order-search-title {
 
 .order-body-item .shipping-method-spec {
   border-bottom: solid 1px #dfdfdf;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.shipping-method-spec .shipping-method-spec-element {
+  width: 50%;
 }
 
 .order-body-items-list {

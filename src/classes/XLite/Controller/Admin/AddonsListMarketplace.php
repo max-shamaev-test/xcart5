@@ -8,6 +8,8 @@
 
 namespace XLite\Controller\Admin;
 
+use XLite\Core\Cache\ExecuteCached;
+
 /**
  * AddonsListMarketplace
  */
@@ -52,9 +54,31 @@ class AddonsListMarketplace extends \XLite\Controller\Admin\Base\AddonsList
      */
     public function getTitle()
     {
-        return $this->getModuleId()
-            ? $this->getModuleName($this->getModuleId())
-            : static::t('Modules Marketplace');
+        if ($this->getModuleId()) {
+            return $this->getModuleName($this->getModuleId());
+        }
+
+        $vendor = $this->getVendor();
+        if ($vendor) {
+            return $vendor;
+        }
+
+        return static::t('Addons Marketplace');
+    }
+
+    /**
+     * Add part to the location nodes list
+     *
+     * @return void
+     */
+    protected function addBaseLocation()
+    {
+        if ($this->getVendor()) {
+            $this->addLocationNode(
+                'All addons',
+                $this->buildURL('addons_list_marketplace')
+            );
+        }
     }
 
     /**
@@ -162,18 +186,35 @@ class AddonsListMarketplace extends \XLite\Controller\Admin\Base\AddonsList
      */
     public function getModuleId()
     {
-        $moduleID = \XLite\Core\Request::getInstance()->moduleID;
-        $moduleName = \XLite\Core\Request::getInstance()->moduleName;
+        return ExecuteCached::executeCachedRuntime(function () {
+            $moduleID = \XLite\Core\Request::getInstance()->moduleID;
+            $moduleName = \XLite\Core\Request::getInstance()->moduleName;
 
-        $repo = \XLite\Core\Database::getRepo('XLite\Model\Module');
-        if (!$moduleID && $moduleName && strpos($moduleName, '\\')) {
-            $module = $repo->findOneByModuleName($moduleName, true);
-            $moduleID = $module ? $module->getModuleId() : null;
-        }
+            $repo = \XLite\Core\Database::getRepo('XLite\Model\Module');
+            if (!$moduleID && $moduleName && strpos($moduleName, '\\')) {
+                $module = $repo->findOneByModuleName($moduleName, true);
+                $moduleID = $module ? $module->getModuleId() : null;
+            }
 
-        return $moduleID && $repo->find($moduleID)
-            ? $moduleID
-            : null;
+            if(!$moduleID && $this->getSubstring()) {
+                $searchResult = $repo->search(new \XLite\Core\CommonCell([
+                    'substring'       => $this->getSubstring(),
+                    'fromMarketplace' => true
+                ]));
+
+                if (count($searchResult) === 1) {
+                    $module = reset($searchResult);
+
+                    if ($module && $module instanceof \XLite\Model\Module) {
+                        $moduleID = $module->getModuleId();
+                    }
+                }
+            }
+
+            return $moduleID && $repo->find($moduleID) && !\XLite\Core\Request::getInstance()->sessionCell
+                ? $moduleID
+                : null;
+        }, []);
     }
 
     /**
@@ -186,6 +227,26 @@ class AddonsListMarketplace extends \XLite\Controller\Admin\Base\AddonsList
     public function getModuleName($id)
     {
         return \XLite\Core\Database::getRepo('XLite\Model\Module')->find($id)->getModuleName();
+    }
+
+    /**
+     * Return substring
+     *
+     * @return string
+     */
+    public function getSubstring()
+    {
+        return \XLite\Core\Request::getInstance()->substring;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getVendor()
+    {
+        $list = new \XLite\View\ItemsList\Module\Install();
+
+        return $list->getVendorValue();
     }
 
     /**

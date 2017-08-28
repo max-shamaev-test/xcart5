@@ -430,6 +430,18 @@ abstract class AProcessor extends \XLite\Base\SuperClass
         );
     }
 
+    /**
+     * Returns prepared delivery time
+     *
+     * @param \XLite\Model\Shipping\Rate $rate
+     *
+     * @return string|null
+     */
+    public function prepareDeliveryTime(\XLite\Model\Shipping\Rate $rate)
+    {
+        return null;
+    }
+
     // }}}
 
     // {{{ Configuration

@@ -8,63 +8,54 @@
 
 namespace XLite\Core;
 
+use XLite\Core\ImageOperator\ADTO;
+use XLite\Core\ImageOperator\AEngine;
+
 /**
  * Image operator
  */
 class ImageOperator extends \XLite\Base\SuperClass
 {
+    const ENGINE_IMAGE_MAGICK = 'image_magick';
+    const ENGINE_GD           = 'gd';
+    const ENGINE_SIMPLE       = 'simple';
+
     /**
      * Engine
      *
-     * @var \XLite\Core\ImageOperator\AImageOperator
+     * @var AEngine
      */
     protected static $engine;
 
     /**
-     * Model
-     *
-     * @var \XLite\Model\Base\Image
+     * @var string
      */
-    protected $model;
+    protected static $engineType;
 
     /**
-     * Prepared flag
-     *
-     * @var boolean
+     * @var ADTO
      */
-    protected $prepared = false;
-
-
-    /**
-     * Call engine (static)
-     *
-     * @param string $method Method name
-     * @param array  $args   Arguments OPTIONAL
-     *
-     * @return mixed
-     */
-    public static function __callStatic($method, array $args = array())
-    {
-        return call_user_func_array(array(get_class(static::getEngine()), $method), $args);
-    }
-
+    protected $image;
 
     /**
      * Get engine
      *
-     * @return \XLite\Core\ImageOperator\AImageOperator
+     * @return AEngine
      */
     protected static function getEngine()
     {
-        // Binary ImageMagic
-        if (!isset(static::$engine)) {
-            if (\XLite\Core\ImageOperator\ImageMagic::isEnabled()) {
-                static::$engine = new \XLite\Core\ImageOperator\ImageMagic;
+        if (self::$engine === null) {
+            if (ImageOperator\Engine\ImageMagick::isEnabled()) {
+                static::$engine = new ImageOperator\Engine\ImageMagick();
+                static::$engineType = self::ENGINE_IMAGE_MAGICK;
 
-            } elseif (\XLite\Core\ImageOperator\GD::isEnabled()) {
-                static::$engine = new \XLite\Core\ImageOperator\GD;
+            } elseif (ImageOperator\Engine\GD::isEnabled()) {
+                static::$engine = new ImageOperator\Engine\GD();
+                static::$engineType = self::ENGINE_GD;
+
             } else {
-                static::$engine = new \XLite\Core\ImageOperator\DefaultOperator;
+                static::$engine = new ImageOperator\Engine\Simple();
+                static::$engineType = self::ENGINE_SIMPLE;
             }
         }
 
@@ -72,46 +63,107 @@ class ImageOperator extends \XLite\Base\SuperClass
     }
 
     /**
-     * Constructor
+     * Return engine type
      *
-     * @param \XLite\Model\Base\Image $image Image
-     *
-     * @return void
+     * @return string
      */
-    public function __construct(\XLite\Model\Base\Image $image)
+    public static function getEngineType()
     {
-        $this->model = $image;
+        static::getEngine();
+
+        return self::$engineType;
     }
 
     /**
-     * Call engine
+     * Get cropped dimensions
      *
-     * @param string $method Method name
-     * @param array  $args   Arguments OPTIONAL
+     * @param integer $width     Original width
+     * @param integer $height    Original height
+     * @param integer $maxWidth  Maximum width
+     * @param integer $maxHeight Maximum height
      *
-     * @return mixed
+     * @return array (new width & height)
      */
-    public function __call($method, array $args = array())
+    public static function getCroppedDimensions($width, $height, $maxWidth, $maxHeight)
     {
-        $this->prepare();
+        $maxWidth  = max(0, (int) $maxWidth);
+        $maxHeight = max(0, (int) $maxHeight);
 
-        return $this->prepare() ? call_user_func_array(array(static::getEngine(), $method), $args) : false;
-    }
+        $isWidth = $width > 0;
+        $isHeight = $height > 0;
 
+        $resultWidth = $isWidth ? $width : $maxWidth;
+        $resultHeight = $isHeight ? $height : $maxHeight;
 
-    /**
-     * Prepare image
-     *
-     * @return boolean
-     */
-    protected function prepare()
-    {
-        $result = true;
-        if (!$this->prepared) {
-            $result = static::getEngine()->setImage($this->model);
-            $this->prepared = true;
+        $isMaxWidth = $maxWidth > 0;
+        $isMaxHeight = $maxHeight > 0;
+
+        if ($isWidth && $isHeight && ($isMaxWidth || $isMaxHeight)) {
+            if ($isMaxWidth && $isMaxHeight) {
+                $widthFactor = $width > $maxWidth ? $maxWidth / $width : 1;
+                $heightFactor = $height > $maxHeight ? $maxHeight / $height : 1;
+                $factor = $widthFactor < $heightFactor ? $widthFactor : $heightFactor;
+
+            } elseif ($isMaxWidth) {
+                $factor = $width > $maxWidth ? $maxWidth / $width : 1;
+
+            } else {
+                $factor = $height > $maxHeight ? $maxHeight / $height : 1;
+            }
+
+            $resultWidth = max(1, round($factor * $width, 0));
+            $resultHeight = max(1, round($factor * $height, 0));
         }
 
-        return $result;
+        return [
+            $resultWidth !== 0 ? $resultWidth : null,
+            $resultHeight !== 0 ? $resultHeight : null
+        ];
+    }
+
+    /**
+     * Constructor
+     *
+     * @param mixed $image
+     */
+    public function __construct($image)
+    {
+        $dto = ADTO::getDTO($image);
+
+        $this->setImage($dto);
+        static::getEngine()->setImage($this->image);
+    }
+
+    /**
+     * Resize by limits
+     *
+     * @param integer $width  Width top limit OPTIONAL
+     * @param integer $height Height top limit OPTIONAL
+     *
+     * @return array New width, new height and operation result
+     */
+    public function resize($width = null, $height = null)
+    {
+        $image = $this->getImage();
+
+        return ($width !== $image->getWidth() || $height !== $image->getHeight())
+            ? array($width, $height, static::getEngine()->resize($width, $height))
+            : array($width, $height, false);
+    }
+
+    /**
+     * @return ADTO
+     */
+    public function getImage()
+    {
+        return $this->image;
+    }
+
+    /**
+     * @param ADTO $image
+     */
+    public function setImage($image)
+    {
+        $this->image = $image;
     }
 }

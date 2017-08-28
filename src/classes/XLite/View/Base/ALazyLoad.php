@@ -177,7 +177,7 @@ abstract class ALazyLoad extends \XLite\View\AView
     protected function getStyleClasses()
     {
         $styleClasses = array();
-        $styleClasses[] = 'lazy-load';
+        $styleClasses[] = 'lazy-load-widget';
 
         if (!$this->hasLazyContent()) {
             $styleClasses[] = 'active';

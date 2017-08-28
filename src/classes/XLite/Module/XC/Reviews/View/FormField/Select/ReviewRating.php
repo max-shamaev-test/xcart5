@@ -20,13 +20,13 @@ class ReviewRating extends \XLite\View\FormField\Select\CheckboxList\ACheckboxLi
      */
     protected function getDefaultOptions()
     {
-        return array(
-            5 => \XLite\Core\Translation::lbl('X stars_5', array('count' => 5)),
-            4 => \XLite\Core\Translation::lbl('X stars_4', array('count' => 4)),
-            3 => \XLite\Core\Translation::lbl('X stars_3', array('count' => 3)),
-            2 => \XLite\Core\Translation::lbl('X stars_2', array('count' => 2)),
-            1 => \XLite\Core\Translation::lbl('X star_1', array('count' => 1)),
-        );
+        return [
+            5 => \XLite\Core\Translation::lbl('X stars_5', ['count' => 5]),
+            4 => \XLite\Core\Translation::lbl('X stars_4', ['count' => 4]),
+            3 => \XLite\Core\Translation::lbl('X stars_3', ['count' => 3]),
+            2 => \XLite\Core\Translation::lbl('X stars_2', ['count' => 2]),
+            1 => \XLite\Core\Translation::lbl('X star_1', ['count' => 1]),
+        ];
     }
 
     /**

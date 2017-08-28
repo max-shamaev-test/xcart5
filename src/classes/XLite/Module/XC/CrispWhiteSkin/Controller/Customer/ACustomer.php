@@ -69,4 +69,16 @@ class ACustomer extends \XLite\Controller\Customer\ACustomer implements \XLite\B
 
         return $result;
     }
+
+    /**
+     * Return profile email
+     *
+     * @return null|string
+     */
+    public function getProfileLogin()
+    {
+        return \XLite\Core\Auth::getInstance()->getProfile()
+            ? \XLite\Core\Auth::getInstance()->getProfile()->getLogin()
+            : null;
+    }
 }

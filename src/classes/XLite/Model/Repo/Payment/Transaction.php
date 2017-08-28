@@ -9,7 +9,13 @@
 namespace XLite\Model\Repo\Payment;
 
 /**
- * Transaction repository 
+ * Transaction repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Payment\Transaction", summary="Add new payment transaction")
+ * @Api\Operation\Read(modelClass="XLite\Model\Payment\Transaction", summary="Retrieve payment transaction by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Payment\Transaction", summary="Retrieve payment transactions by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\Payment\Transaction", summary="Update payment transaction by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Payment\Transaction", summary="Delete payment transaction by id")
  */
 class Transaction extends \XLite\Model\Repo\ARepo
 {
@@ -23,6 +29,8 @@ class Transaction extends \XLite\Model\Repo\ARepo
     
     const SEARCH_ZIPCODE   = 'zipcode';
     const SEARCH_CUSTOMER_NAME = 'customerName';
+
+    const SEARCH_EXCLUDE_INITIALIZED  = 'exclude_initialized';
 
     /**
      * Find transaction by data cell 
@@ -57,6 +65,7 @@ class Transaction extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filter transactions by order id", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition data
@@ -81,6 +90,7 @@ class Transaction extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filter transactions by user login or order number", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition data
@@ -107,6 +117,7 @@ class Transaction extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filter transactions by public id", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param array|string               $value        Condition data
@@ -124,6 +135,7 @@ class Transaction extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters transactions by date in format of d-M-Y ~ d-M-Y", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param array                      $value        Condition data
@@ -150,6 +162,25 @@ class Transaction extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Exclude initialized transactions", type="boolean")
+     *
+     * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
+     * @param array|string               $value        Condition data
+     * @param boolean                    $countOnly    "Count only" flag. Do not need to add "order by" clauses if only count is needed.
+     *
+     * @return void
+     */
+    protected function prepareCndExcludeInitialized(\Doctrine\ORM\QueryBuilder $queryBuilder, $value, $countOnly)
+    {
+        if ($value) {
+            $queryBuilder->andWhere('t.status <> :excStatus')
+                ->setParameter('excStatus', \XLite\Model\Payment\Transaction::STATUS_INITIALIZED);
+        }
+    }
+
+    /**
+     * Prepare certain search condition
+     * @Api\Condition(description="Filters transactions by status", type="string", enum={"I","P","W","S","F","C","V"})
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param array|string               $value        Condition data
@@ -171,7 +202,7 @@ class Transaction extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * Prepare certain search condition
+     * @Api\Condition(description="Filter transactions by amount", type="array", collectionFormat="multi", items=@Swg\Items(type="number"))
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param array                      $value        Condition data
@@ -195,7 +226,7 @@ class Transaction extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * Prepare certain search condition
+     * @Api\Condition(description="Filter transactions by customer zipcode", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param integer                    $value        Condition data
@@ -217,7 +248,7 @@ class Transaction extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * Prepare fields for fullname value (for 'order by')
+     * @Api\Condition(description="Filter transactions by address field name", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder object
      * @param string                     $fieldName    Field name
@@ -240,7 +271,7 @@ class Transaction extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * Prepare certain search condition
+     * @Api\Condition(description="Filter transactions by customer name or email", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param integer                    $value        Condition data

@@ -14,7 +14,7 @@ namespace XLite\View\ItemsList\Model\Product;
 abstract class AProduct extends \XLite\View\ItemsList\Model\Table
 {
     /**
-     * Allowed sort criterions
+     * Allowed sort criteria
      */
     const SORT_BY_MODE_PRICE  = 'p.price';
     const SORT_BY_MODE_NAME   = 'translations.name';

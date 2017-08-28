@@ -146,6 +146,28 @@ a[data-toggle=collapse] {
   }
 }
 
+.regular-button.progress-state {
+  .fail, .success {
+    color: @btn-default-color;
+  }
+
+  .loader:after {
+    border-color: fade(@btn-default-color, 20%);
+    border-left-color: @btn-default-color;
+  }
+}
+
+.regular-main-button.progress-state {
+  .fail, .success {
+    color: #fff;
+  }
+
+  .loader:after {
+    border-color: fade(#fff, 20%);
+    border-left-color: #fff;
+  }
+}
+
 // Alternate buttons
 // --------------------------------------------------
 

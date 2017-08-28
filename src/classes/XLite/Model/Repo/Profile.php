@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * The Profile model repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Profile", summary="Add new profile")
+ * @Api\Operation\Read(modelClass="XLite\Model\Profile", summary="Retrieve profile by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Profile", summary="Retrieve profiles by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\Profile", summary="Update profile by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Profile", summary="Delete profile by id")
  */
 class Profile extends \XLite\Model\Repo\ARepo
 {
@@ -145,6 +151,17 @@ class Profile extends \XLite\Model\Repo\ARepo
     public function findByLoginPassword($login, $password = null, $orderId = 0)
     {
         return $this->defineFindByLoginPasswordQuery($login, $password, $orderId)->getSingleResult();
+    }
+
+    /**
+     * @param integer $profileId
+     *
+     * @return string
+     */
+    public function getArrayData($profileId)
+    {
+        return $this->defineGetArrayDataQuery($profileId)->getQuery()
+            ->getSingleResult(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
     }
 
     /**
@@ -294,7 +311,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * prepareCndAnonymous
+     * @Api\Condition(description="Shows only anonymous (true) or registered (false) user profiles", type="boolean")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -311,7 +328,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * prepareCndOrderId
+     * @Api\Condition(description="Filters profiles by order id", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -328,7 +345,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * prepareCndReferer
+     * @Api\Condition(description="Filters profiles by referer", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -341,7 +358,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * prepareCndMembership
+     * @Api\Condition(description="Filters profiles by membership id", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -356,7 +373,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * Search condition by role(s)
+     * @Api\Condition(description="Filters profiles by role(s)", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -371,7 +388,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * Search condition by permission(s)
+     * @Api\Condition(description="Filters profiles by available permission code(s)", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -386,7 +403,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * prepareCndLanguage
+     * @Api\Condition(description="Filters profiles by language", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -399,7 +416,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * prepareCndPattern
+     * @Api\Condition(description="Filters profiles by name or email substring", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -412,7 +429,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * prepareCndPhone
+     * @Api\Condition(description="Filters profiles by phone number", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -427,7 +444,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * prepareCndLogin
+     * @Api\Condition(description="Filters profiles by email (OR clause)", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -442,7 +459,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * prepareCndLogin
+     * @Api\Condition(description="Filters profiles by email (AND clause)", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -457,7 +474,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * prepareCndCountry
+     * @Api\Condition(description="Filters profiles by country code", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -474,7 +491,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * prepareCndState
+     * @Api\Condition(description="Filters profiles by state id (for countries with states)", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -491,7 +508,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * prepareCndCustomState
+     * @Api\Condition(description="Filters profiles by custom state name", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -506,7 +523,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * prepareCndAddress
+     * @Api\Condition(description="Filters profiles by address id", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -519,7 +536,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * prepareCndUserType
+     * @Api\Condition(description="Filters profiles by user type", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param mixed                      $value        Searchable value
@@ -728,7 +745,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * Prepare 'status' condition
+     * @Api\Condition(description="Filters profiles by status id", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param string                     $value        Searchable value
@@ -743,7 +760,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * Prepare 'onlyReal' condition
+     * @Api\Condition(description="Exclude profile copies (snapshots for certain order)", type="boolean")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder QueryBuilder instance
      * @param string                     $value        Searchable value
@@ -920,6 +937,20 @@ class Profile extends \XLite\Model\Repo\ARepo
         }
 
         return $queryBuilder->mapAndConditions($conditions);
+    }
+
+    /**
+     * @param integer $profileId
+     *
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    protected function defineGetArrayDataQuery($profileId)
+    {
+        $qb = $this->createQueryBuilder();
+
+        return $qb->where('p.profile_id = :profileId')
+            ->setParameter('profileId', $profileId)
+            ->setMaxResults(1);
     }
 
     /**

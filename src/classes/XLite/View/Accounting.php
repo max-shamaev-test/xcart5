@@ -22,7 +22,7 @@ class Accounting extends \XLite\View\AView
      */
     public static function getAllowedTargets()
     {
-        return array_merge(parent::getAllowedTargets(), array('accounting'));
+        return array_merge(parent::getAllowedTargets(), [ 'accounting' ]);
     }
 
     /**
@@ -49,100 +49,79 @@ class Accounting extends \XLite\View\AView
         return $list;
     }
 
-    /**
-     * Register CSS files
-     *
-     * @return array
-     */
-    public function getJSFiles()
-    {
-        $list = parent::getJSFiles();
-
-        $list[] = 'accounting/controller.js';
-
-        return $list;
-    }
-
     // {{{ Template methods
 
     /**
      * Get marketplace module page link
-     * 
+     *
      * @param string $moduleName    Module name
      * @param string $tag           Tag name    OPTIONAL
-     * 
+     *
      * @return string
      */
     protected function getModuleLink($moduleName, $tag = 'Accounting')
     {
-        return $this->buildURL(
-            'addons_list_marketplace',
-            '',
-            array(
-                'tag'           => $tag,
-                'substring'     => $moduleName,
-            )
-        );
+        return \XLite\Core\Promo::getInstance()->getRecommendedModuleURL($moduleName);
     }
 
     /**
      * Get available modules
-     * 
+     *
      * @return array
      */
     protected function getAvailableModules()
     {
-        return array(
-            array(
-                'img' => array(
+        return [
+            [
+                'img' => [
                     'alt' => 'QuickBooks',
                     'src' => 'accounting/images/qb_logo.jpg',
-                ),
-                'link' => array(
+                ],
+                'link' => [
                     'name' => 'QuickBooks',
-                    'href' => $this->getModuleLink('QuickBooks'),
-                ),
-            ),
-            array(
-                'img' => array(
+                    'href' => 'https://market.x-cart.com/addons/x-cart-to-quickbooks-online-connector.html',
+                ],
+            ],
+            [
+                'img' => [
                     'alt' => 'Xero integration',
                     'src' => 'accounting/images/xero_logo.jpg',
-                ),
-                'link' => array(
+                ],
+                'link' => [
                     'name' => 'Xero integration',
-                    'href' => $this->getModuleLink('Xero'),
-                ),
-            ),
-            array(
-                'img' => array(
+                    'href' => 'https://market.x-cart.com/addons/xcart-to-xero-connector.html',
+                ],
+            ],
+            [
+                'img' => [
                     'alt' => '1C integration',
                     'src' => 'accounting/images/1c_logo.jpg',
-                ),
-                'link' => array(
+                ],
+                'link' => [
                     'name' => '1C integration',
-                    'href' => $this->getModuleLink('1C'),
-                ),
-            ),
-        );
+                    'href' => $this->getModuleLink('XC\\OneCIntegration'),
+                ],
+            ],
+        ];
     }
 
     protected function getExportNode()
     {
-        return array(
-            'img' => array(
+        return [
+            'img' => [
                 'alt' => static::t('Export orders'),
                 'src' => 'accounting/images/export.jpg',
-            ),
-            'link' => array(
+            ],
+            'link' => [
                 'name' => static::t('Export orders'),
-                'href' => $this->buildURL('export', '', array(\XLite\View\Export\Begin::PARAM_PRESELECT => 'XLite\Logic\Export\Step\Orders')),
-            ),
-        );
+                'href' => $this->buildURL('export', '', [\XLite\View\Export\Begin::PARAM_PRESELECT => 'XLite\Logic\Export\Step\Orders']),
+            ],
+        ];
     }
 
     /**
      * Get available modules
-     * 
+     *
      * @return array
      */
     protected function getInstalledModules()
@@ -172,7 +151,7 @@ class Accounting extends \XLite\View\AView
 
     /**
      * Is configured
-     * 
+     *
      * @return boolean
      */
     protected function isConfigured()

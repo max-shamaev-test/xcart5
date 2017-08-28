@@ -318,25 +318,6 @@ table.incompatible-modules-list {
   font-size: 16px;
 }
 
-/**
- * Premium license modules section
- */
-.premium-license-modules-section {
-  background: transparent url(../images/warning_circle.png) 0 15px no-repeat;
-}
-
-.premium-license-modules-message {
-  font-size: 14px;
-  color: #333333;
-  padding: 20px 0 30px 70px;
-  width: 800px;
-}
-
-.premium-license-modules-section .premium-license-modules-list {
-  margin-left: 70px;
-  width: 730px;
-}
-
 .target-upgrade #main > h1 {
   color: #000;
   margin-left: 18px;

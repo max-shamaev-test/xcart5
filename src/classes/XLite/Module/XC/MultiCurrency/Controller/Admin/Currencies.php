@@ -52,87 +52,10 @@ class Currencies extends \XLite\Controller\Admin\AAdmin
     {
         $data = \XLite\Core\Request::getInstance()->getData();
 
-        $configTable = \XLite\Core\Database::getInstance()->getTablePrefix() . 'config';
+        $configTable = \XLite\Core\Database::getRepo('XLite\Model\Config')->getTableName();
 
-        if (
-            isset($data['delete'])
-            && !empty($data['delete'])
-        ) {
-            foreach ($data['delete'] as $id => $value) {
-                $activeCurrency = \XLite\Core\Database::getRepo('XLite\Module\XC\MultiCurrency\Model\ActiveCurrency')
-                    ->find($id);
-
-                if (isset($activeCurrency)) {
-                    if (!$activeCurrency->isDefaultCurrency()) {
-                        $activeCurrency->delete();
-                    } else {
-                        \XLite\Core\TopMessage::addError('err_change_default_currency');
-                    }
-                }
-
-                if (isset($data['data'][$id])) {
-                    unset($data['data'][$id]);
-                }
-            }
-        }
-
-        foreach ($data['data'] as $id => $row) {
-            $activeCurrency = \XLite\Core\Database::getRepo('XLite\Module\XC\MultiCurrency\Model\ActiveCurrency')
-                ->find($id);
-
-            if (isset($activeCurrency)) {
-                $activeCurrency->setPosition($row['position']);
-
-                if (!$activeCurrency->isDefaultCurrency()) {
-                    if ($row['rate'] != $activeCurrency->getRate()) {
-                        $activeCurrency->setRate($row['rate']);
-                    }
-
-                    $activeCurrency->setEnabled($row['enabled']);
-                } elseif (
-                    $activeCurrency->isDefaultCurrency()
-                    && (
-                        $row['rate'] != $activeCurrency->getRate()
-                        || $row['enabled'] != $activeCurrency->getEnabled()
-                    )
-                ) {
-                    \XLite\Core\TopMessage::addError('err_change_default_currency');
-                }
-
-                $activeCurrency->setPrefix($row['prefix']);
-                $activeCurrency->setSuffix($row['suffix']);
-                $activeCurrency->setFormat($row['format']);
-
-                $activeCurrency->update();
-            }
-        }
-
-        if (
-            isset($data['defaultValue'])
-            && !empty($data['defaultValue'])
-        ) {
-            $newDefaultCurrency = \XLite\Core\Database::getRepo('XLite\Module\XC\MultiCurrency\Model\ActiveCurrency')
-                ->find($data['defaultValue']);
-
-            if (
-                isset($newDefaultCurrency)
-                && !$newDefaultCurrency->isDefaultCurrency()
-            ) {
-                \XLite\Core\Database::getEM()->getConnection()->exec(
-                    "UPDATE $configTable SET value='"
-                    . $newDefaultCurrency->getCurrency()->getCurrencyId()
-                    . '\' WHERE category=\'General\' AND name=\'shop_currency\''
-                );
-
-                \XLite\Core\Config::updateInstance();
-
-                $newDefaultCurrency->setEnabled(1);
-                $newDefaultCurrency->setRate(1);
-                $newDefaultCurrency->setRateDate(0);
-
-                $newDefaultCurrency->update();
-            }
-        }
+        $list = new \XLite\Module\XC\MultiCurrency\View\ItemsList\Model\Currency\ActiveCurrencies;
+        $list->processQuick();
 
         if (isset($data['rate_provider'])) {
             \XLite\Core\Database::getEM()->getConnection()->exec(

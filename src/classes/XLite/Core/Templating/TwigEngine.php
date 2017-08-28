@@ -89,7 +89,7 @@ class TwigEngine extends AbstractTwigEngine implements EngineInterface, Template
      */
     public function getSafeValue($string)
     {
-        return new Twig_Markup($string, null);
+        return new Twig_Markup($string, 'UTF-8');
     }
 
     /**

@@ -111,7 +111,7 @@ abstract class AAddressBlock extends \XLite\View\AView
                 }
             }
 
-        } elseif (in_array($fieldName, array('country_code', 'state_id', 'custom_state', 'zipcode'))) {
+        } elseif (in_array($fieldName, ['country_code', 'state_id', 'custom_state', 'zipcode', 'city'])) {
 
             $result = \XLite\Model\Address::getDefaultFieldPlainValue($fieldName);
         }
@@ -129,33 +129,33 @@ abstract class AAddressBlock extends \XLite\View\AView
         $result = \XLite::getController()->getAddressFields();
 
         if ($this->isEmailVisible()) {
-            $result['email'] = array(
+            $result['email'] = [
                 \XLite\View\Model\Address\Address::SCHEMA_CLASS            => 'XLite\View\FormField\Input\Text\CheckoutEmail',
                 \XLite\View\Model\Address\Address::SCHEMA_LABEL            => 'Email',
                 \XLite\View\Model\Address\Address::SCHEMA_REQUIRED         => true,
-                \XLite\View\Model\Address\Address::SCHEMA_MODEL_ATTRIBUTES => array(
+                \XLite\View\Model\Address\Address::SCHEMA_MODEL_ATTRIBUTES => [
                     \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 'length',
-                ),
+                ],
                 \XLite\View\FormField\AFormField::PARAM_WRAPPER_CLASS      => 'address-email',
                 \XLite\View\FormField\AFormField::PARAM_COMMENT            => static::t('Your order details will be sent to your e-mail address'),
-                \XLite\View\FormField\AFormField::PARAM_ATTRIBUTES         => array(
+                \XLite\View\FormField\AFormField::PARAM_ATTRIBUTES         => [
                     'class' => 'progress-mark-owner',
-                ),
+                ],
                 'additionalClass'                                          => $this->getEmailClassName(),
-            );
+            ];
         }
 
         if ($this->isPasswordVisible()) {
-            $result['password'] = array(
+            $result['password'] = [
                 \XLite\View\Model\Address\Address::SCHEMA_CLASS            => 'XLite\View\FormField\Input\PasswordVisible',
                 \XLite\View\Model\Address\Address::SCHEMA_LABEL            => 'Password',
                 \XLite\View\Model\Address\Address::SCHEMA_REQUIRED         => true,
-                \XLite\View\Model\Address\Address::SCHEMA_MODEL_ATTRIBUTES => array(
+                \XLite\View\Model\Address\Address::SCHEMA_MODEL_ATTRIBUTES => [
                     \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 'length',
-                ),
+                ],
                 \XLite\View\FormField\AFormField::PARAM_WRAPPER_CLASS      => 'password',
                 'additionalClass'                                          => $this->getPasswordClassName(),
-            );
+            ];
         }
 
         return $result;
@@ -240,7 +240,7 @@ abstract class AAddressBlock extends \XLite\View\AView
         $data[\XLite\View\Model\Address\Address::SCHEMA_ATTRIBUTES]
             = !empty($data[\XLite\View\Model\Address\Address::SCHEMA_ATTRIBUTES])
                 ? $data[\XLite\View\Model\Address\Address::SCHEMA_ATTRIBUTES]
-                : array();
+                : [];
 
         $data[\XLite\View\Model\Address\Address::SCHEMA_ATTRIBUTES] = array_merge(
             $data[\XLite\View\Model\Address\Address::SCHEMA_ATTRIBUTES],
@@ -250,7 +250,7 @@ abstract class AAddressBlock extends \XLite\View\AView
         $data[\XLite\View\Model\Address\Address::SCHEMA_ATTRIBUTES] +=
             isset($data[\XLite\View\Model\Address\Address::SCHEMA_MODEL_ATTRIBUTES])
             ? $data[\XLite\View\Model\Address\Address::SCHEMA_MODEL_ATTRIBUTES]
-            : array();
+            : [];
 
         $data[\XLite\View\Model\Address\Address::SCHEMA_VALUE] = $this->getFieldValue($name);
         $data[\XLite\View\Model\Address\Address::SCHEMA_PLACEHOLDER] = $this->getFieldPlaceholder($name);
@@ -268,14 +268,14 @@ abstract class AAddressBlock extends \XLite\View\AView
      */
     public function getFieldAttributes($fieldName, array $fieldData)
     {
-        $classes = array('field-' . $fieldName);
+        $classes = ['field-' . $fieldName];
 
         if (!empty($fieldData[\XLite\View\Model\Address\Address::SCHEMA_REQUIRED])) {
             $classes[] = 'field-required';
         }
 
         $attrs = empty($fieldData[\XLite\View\FormField\AFormField::PARAM_ATTRIBUTES])
-            ? array()
+            ? []
             : $fieldData[\XLite\View\FormField\AFormField::PARAM_ATTRIBUTES];
 
         if (!isset($attrs['class'])) {
@@ -415,7 +415,7 @@ abstract class AAddressBlock extends \XLite\View\AView
      */
     protected function getEmailClassName()
     {
-        $classes = array();
+        $classes = [];
 
         if ($this->isAllowCreateProfile()) {
             $classes[] = 'allow-create-profile';
@@ -435,7 +435,7 @@ abstract class AAddressBlock extends \XLite\View\AView
      */
     protected function getPasswordClassName()
     {
-        $classes = array();
+        $classes = [];
 
         if (!$this->isAllowCreateProfile() || !\XLite\Core\Session::getInstance()->order_create_profile) {
             $classes[] = 'hidden';
@@ -453,7 +453,7 @@ abstract class AAddressBlock extends \XLite\View\AView
      */
     protected function getFieldCommentedData($filedData)
     {
-        $commentedData = array();
+        $commentedData = [];
 
         if (isset($filedData[AModel::SCHEMA_DEPENDENCY])) {
             $commentedData['dependency'] = $filedData[AModel::SCHEMA_DEPENDENCY];

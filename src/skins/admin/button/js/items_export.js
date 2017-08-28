@@ -17,16 +17,6 @@ StickyPanelModelList.prototype.disableExportSelected = function () {
 };
 
 decorate(
-	'StickyPanelModelList',
-	'process',
-	function () {
-		arguments.callee.previousMethod.apply(this, arguments);
-
-		core.loadLanguageHash(core.getCommentedData(this.base.find('.export')));
-	}
-);
-
-decorate(
   'StickyPanelModelList',
   'reposition',
   function (selector) {

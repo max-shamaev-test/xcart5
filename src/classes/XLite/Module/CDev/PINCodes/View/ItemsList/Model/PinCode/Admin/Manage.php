@@ -24,22 +24,22 @@ class Manage extends \XLite\Module\CDev\PINCodes\View\ItemsList\Model\PinCode\AP
      */
     protected function defineColumns()
     {
-        return array(
-            'code' => array(
+        return [
+            'code' => [
                 static::COLUMN_NAME    => static::t('PIN code'),
                 static::COLUMN_MAIN    => true,
                 static::COLUMN_ORDERBY => 100,
-            ),
-            'statusData' => array(
+            ],
+            'statusData' => [
                 static::COLUMN_TEMPLATE => 'modules/CDev/PINCodes/pin_codes/status.twig',
                 static::COLUMN_ORDERBY  => 200,
-            ),
-            'createDate' => array(
+            ],
+            'createDate' => [
                 static::COLUMN_NAME     => static::t('Created'),
                 static::COLUMN_TEMPLATE => 'modules/CDev/PINCodes/pin_codes/date.twig',
                 static::COLUMN_ORDERBY  => 300,
-            ),
-        );
+            ],
+        ];
     }
 
     /**

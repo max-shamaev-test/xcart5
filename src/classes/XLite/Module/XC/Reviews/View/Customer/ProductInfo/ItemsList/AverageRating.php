@@ -40,9 +40,9 @@ class AverageRating extends \XLite\Module\XC\Reviews\View\AverageRating implemen
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_PRODUCT_ID => new TypeInt('ProductId'),
-        );
+        ];
     }
 
     /**

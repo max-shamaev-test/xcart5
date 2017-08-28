@@ -60,6 +60,51 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '2';
+        return '3';
+    }
+
+    /**
+     * Get module build number (4th number in the version)
+     *
+     * @return string
+     */
+    public static function getBuildVersion()
+    {
+        return '3';
+    }
+
+    /**
+     * Get minor core version which is required for the module activation
+     *
+     * @return string
+     */
+    public static function getMinorRequiredCoreVersion()
+    {
+        return '3';
+    }
+
+    /**
+     * Decorator run this method at the end of cache rebuild
+     *
+     * @return void
+     */
+    public static function runBuildCacheHandler()
+    {
+        parent::runBuildCacheHandler();
+
+        $qb = \XLite\Core\Database::getRepo('XLite\Model\Product\GlobalTab')->createQueryBuilder();
+
+        $alias = $qb->getMainAlias();
+        $qb->addSelect('COUNT(psa.id) as HIDDEN aliases_count')
+            ->leftJoin("{$alias}.product_specific_aliases", 'psa')
+            ->andWhere("{$alias}.service_name IS NOT NULL")
+            ->having('aliases_count < :products_count')
+            ->groupBy("{$alias}.id")
+            ->setParameter('products_count', \XLite\Core\Database::getRepo('XLite\Model\Product')->count());
+
+        foreach ($qb->getResult() as $globalTab) {
+            \XLite\Core\Database::getRepo('XLite\Model\Product\GlobalTab')->createGlobalTabAliases($globalTab);
+        }
+
     }
 }

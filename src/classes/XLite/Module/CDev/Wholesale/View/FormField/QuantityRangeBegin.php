@@ -46,7 +46,7 @@ class QuantityRangeBegin extends \XLite\View\FormField\Inline\Input\Text\Integer
      */
     protected function getFieldParams(array $field)
     {
-        return parent::getFieldParams($field) + array('min' => 1);
+        return parent::getFieldParams($field) + ['min' => 1];
     }
 
     /**

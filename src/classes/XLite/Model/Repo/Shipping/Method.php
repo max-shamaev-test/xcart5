@@ -10,6 +10,12 @@ namespace XLite\Model\Repo\Shipping;
 
 /**
  * Shipping method
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Shipping\Method", summary="Add new shipping methods")
+ * @Api\Operation\Read(modelClass="XLite\Model\Shipping\Method", summary="Retrieve shipping methods by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Shipping\Method", summary="Retrieve shipping methods by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Model\Shipping\Method", summary="Update shipping methods by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Shipping\Method", summary="Delete shipping methods by id")
  */
 class Method extends \XLite\Model\Repo\Base\I18n
 {
@@ -263,6 +269,7 @@ class Method extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filter methods by carrier name", type="string")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param string                     $value        Profile
@@ -277,6 +284,7 @@ class Method extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filter methods by added state", type="boolean")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param string                     $value        Profile

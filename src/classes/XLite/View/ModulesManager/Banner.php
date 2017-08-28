@@ -14,6 +14,11 @@ namespace XLite\View\ModulesManager;
 class Banner extends \XLite\View\ModulesManager\AModulesManager
 {
     /**
+     * @var array
+     */
+    protected $banners;
+
+    /**
      * Widget CSS files
      *
      * @return array
@@ -48,13 +53,32 @@ class Banner extends \XLite\View\ModulesManager\AModulesManager
     }
 
     /**
+     * @return array
+     */
+    protected function getBanners()
+    {
+        if ($this->banners === null) {
+            $banners = [];
+            foreach ($this->retrieveBannerCollection() as $banner) {
+                if ($banner['banner_section'] === 'landing') {
+                    $banners[] = $banner;
+                }
+            }
+
+            $this->banners = $banners;
+        }
+
+        return $this->banners;
+    }
+
+    /**
      * Return banner URL
      *
      * @return array
      */
     protected function getMainBanner()
     {
-        $banners = $this->retrieveBannerCollection();
+        $banners = $this->getBanners();
 
         return $banners[0];
     }
@@ -66,7 +90,7 @@ class Banner extends \XLite\View\ModulesManager\AModulesManager
      */
     protected function getBannersCollection()
     {
-        $banners = $this->retrieveBannerCollection();
+        $banners = $this->getBanners();
         unset($banners[0]);
 
         return $banners;

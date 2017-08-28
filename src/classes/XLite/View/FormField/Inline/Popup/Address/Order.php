@@ -217,7 +217,7 @@ class Order extends \XLite\View\FormField\Inline\Popup\Address
             $countryCode = $countryWidget->getValue();
             $country = \XLite\Core\Database::getRepo('XLite\Model\Country')->find($countryCode);
 
-            if ($country && $country->hasStates()) {
+            if ($country && $country->hasStates() && !$country->isForcedCustomState()) {
                 $fields[] = $this->getCustomStateFieldName();
             }
         }

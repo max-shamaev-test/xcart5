@@ -27,6 +27,19 @@ class Settings extends \XLite\View\AView
     }
 
     /**
+     * Get a list of JS files required to display the widget properly
+     *
+     * @return array
+     */
+    public function getJSFiles()
+    {
+        $list = parent::getJSFiles();
+        $list[] = 'layout_settings/controller.js';
+
+        return $list;
+    }
+
+    /**
      * Returns current skin
      *
      * @return \XLite\Model\Module

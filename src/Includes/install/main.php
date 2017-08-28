@@ -35,6 +35,8 @@ $filesToInclude = array(
     'init.php',  // Installation initialization
     'install.php', // Installation functions
     'templates/common_html.php', // Installation common html blocks functions
+
+    '../Requirements.php',
 );
 
 foreach ($filesToInclude as $_file) {

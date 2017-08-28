@@ -11,11 +11,11 @@ namespace XLite\View\Import;
 /**
  * Begin section
  */
-class Begin extends \XLite\View\AView
+class Begin extends \XLite\View\AView implements \XLite\Core\PreloadedLabels\ProviderInterface
 {
     const MODE_UPDATE_AND_CREATE = 'UC';
-    const MODE_UPDATE_ONLY = 'U';
-    const MODE_CREATE_ONLY = 'C';
+    const MODE_UPDATE_ONLY       = 'U';
+    const MODE_CREATE_ONLY       = 'C';
 
     /**
      * Return widget default template
@@ -36,7 +36,27 @@ class Begin extends \XLite\View\AView
     {
         return static::t(
             'CSV or ZIP files, total max size: {{size}}',
-            array('size' => ini_get('upload_max_filesize'))
+            ['size' => $this->getReadableUploadFileMaxSize()]
+        );
+    }
+
+    /**
+     * @return int
+     */
+    protected function getUploadFileMaxSize()
+    {
+        return \XLite\Core\Converter::convertShortSize(
+            \XLite\Core\Converter::getUploadFileMaxSize()
+        );
+    }
+
+    /**
+     * @return int
+     */
+    protected function getReadableUploadFileMaxSize()
+    {
+        return \XLite\Core\Converter::convertShortSizeToHumanReadable(
+            $this->getUploadFileMaxSize()
         );
     }
 
@@ -82,17 +102,17 @@ class Begin extends \XLite\View\AView
         $importer = $this->getImporter() ?: null;
 
         if (!$importer) {
-            $importer = new \XLite\Logic\Import\Importer(array());
+            $importer = new \XLite\Logic\Import\Importer([]);
         }
 
         $keys = $importer->getAvailableEntityKeys();
 
         if ($keys) {
-            $rows = array();
+            $rows = [];
             foreach ($keys as $key => $list) {
                 $rows[] = '<li>' . $key . ': <em>' . implode(', ', $list) . '</em></li>';
             }
-            $result = static::t('Import mode comment', array('keys' => implode('', $rows)));
+            $result = static::t('Import mode comment', ['keys' => implode('', $rows)]);
         }
 
         return $result;
@@ -105,9 +125,19 @@ class Begin extends \XLite\View\AView
      */
     protected function getImportModeOptions()
     {
-        return array(
+        return [
             static::MODE_UPDATE_AND_CREATE => static::t('Create new items and update existing items'),
-            static::MODE_UPDATE_ONLY => static::t('Update existing items, but skip new items'),
-        );
+            static::MODE_UPDATE_ONLY       => static::t('Update existing items, but skip new items'),
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'File size exceeds the maximum size' => static::t('File size exceeds the maximum size')
+        ];
     }
 }

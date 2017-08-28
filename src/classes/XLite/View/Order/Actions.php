@@ -47,7 +47,7 @@ class Actions extends \XLite\View\AView
     {
         $list = array();
 
-        foreach ($this->defineOrderActions($entity) as $action) {
+        foreach ($this->defineOrderActions() as $action) {
             $arguments = array(
                 'order_number' => $this->getOrder()->getOrderNumber(),
             );

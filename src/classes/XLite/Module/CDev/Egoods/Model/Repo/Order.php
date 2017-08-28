@@ -14,19 +14,42 @@ namespace XLite\Module\CDev\Egoods\Model\Repo;
 abstract class Order extends \XLite\Model\Repo\Order implements \XLite\Base\IDecorator
 {
     /**
+     * Prepare certain search condition
+     *
+     * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
+     * @param integer                    $value        Condition data
+     *
+     * @return void
+     */
+    protected function prepareCndRecent(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
+    {
+        parent::prepareCndRecent($queryBuilder, $value);
+
+        if ($value) {
+            $alias = 'EgoodsShippingStatusAlias';
+
+            $queryBuilder->innerJoin('o.shippingStatus', $alias)
+                ->orWhere($alias . '.code = :shippingStatus')
+                ->setParameter('shippingStatus', \XLite\Model\Order\Status\Shipping::STATUS_WAITING_FOR_APPROVE);
+        }
+    }
+
+    /**
      * Find all orders bu profile WithEgoods
      *
      * @param \XLite\Model\Profile $profile NOT OPTIONAL (default value is deprecated)
      *
-     * @return void
+     * @param bool                 $availableOnly
+     *
+     * @return array
      */
-    public function findAllOrdersWithEgoods(\XLite\Model\Profile $profile = null)
+    public function findAllOrdersWithEgoods(\XLite\Model\Profile $profile = null, $availableOnly = true)
     {
-        $list = array();
+        $list = [];
 
         if ($profile) {
             foreach ($this->defineFindAllOrdersWithEgoodsQuery($profile)->getResult() as $order) {
-                if ($order->getDownloadAttachments()) {
+                if ($order->getDownloadAttachments($availableOnly)) {
                     $list[] = $order;
                 }
             }
@@ -40,7 +63,7 @@ abstract class Order extends \XLite\Model\Repo\Order implements \XLite\Base\IDec
      *
      * @param \XLite\Model\Profile $profile Profile OPTIONAL
      *
-     * @return \XLite\Model\QuieryBuilder\AQueryBuilder
+     * @return \XLite\Model\QueryBuilder\AQueryBuilder
      */
     protected function defineFindAllOrdersWithEgoodsQuery(\XLite\Model\Profile $profile = null)
     {

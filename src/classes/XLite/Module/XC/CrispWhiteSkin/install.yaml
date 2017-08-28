@@ -31,3 +31,4 @@ XLite\Model\LanguageLabel:
   - { name: 'Low - High', translations: [{ code: en, label: 'Low - High' }, { code: ru, label: 'по возрастанию' }] }
   - { name: 'A - Z', translations: [{ code: en, label: 'A - Z' }, { code: ru, label: 'А - Я' }] }
   - { name: 'Z - A', translations: [{ code: en, label: 'Z - A' }, { code: ru, label: 'Я - А' }] }
+  - { name: 'Added to comparison table', translations: [{ code: en, label: 'Added to comparison table' }, { code: ru, label: 'Добавлено в таблицу сравнения' }] }

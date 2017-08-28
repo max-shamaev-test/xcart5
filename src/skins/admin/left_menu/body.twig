@@ -3,21 +3,21 @@
  #}
 
 <div {{ this.printTagAttributes(this.getContainerTagAttributes())|raw }}>
-
-  {% if this.getQuickLinks() %}
-    <ul class="quick-links">
-      {% for link in this.getQuickLinks() %}
-        {{ link.display() }}
-      {% endfor %}
-    </ul>
-  {% endif %}
-
-  {% if this.getItems() %}
-    <ul class="menu">
-      {% for item in this.getItems() %}
+  {% set items = this.getItems() %}
+  {% if items %}
+    <ul class="menu main-menu">
+      {% for item in items %}
         {{ item.display() }}
       {% endfor %}
     </ul>
   {% endif %}
 
+  {% set bottomItems = this.getBottomItems() %}
+  {% if bottomItems %}
+    <ul class="menu bottom-menu">
+      {% for link in bottomItems %}
+        {{ link.display() }}
+      {% endfor %}
+    </ul>
+  {% endif %}
 </div>

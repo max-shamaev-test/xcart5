@@ -6,6 +6,6 @@
 {% if this.item.getWeight() %}
   <p class="item-weight">
     <span>{{ t('Weight') }}:</span>
-    {{ this.formatWeight(this.item.getWeight()) }}
+    {{ this.formatWeight(this.item.getWeight())|raw }}
   </p>
 {% endif %}

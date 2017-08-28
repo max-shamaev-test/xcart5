@@ -50,7 +50,7 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
             static::getOrdersDepartmentMail(),
             $vendor->getLogin(),
             static::NEW_REVIEW_NOTIFICATION,
-            array(),
+            [],
             true,
             \XLite::ADMIN_INTERFACE,
             static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)

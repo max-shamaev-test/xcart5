@@ -13,6 +13,7 @@ namespace XLite\View\ItemsList\Model;
  */
 class Category extends \XLite\View\ItemsList\Model\Table
 {
+    const IS_DISPLAY_REMOVAL_NOTICE = 'is_display_removal_notice';
 
     /**
      * Create counter
@@ -46,7 +47,21 @@ class Category extends \XLite\View\ItemsList\Model\Table
 
         $list[] = 'items_list/model/table/category/controller.js';
 
+        if ($this->isDisplayRemovalNoticePopup()) {
+            $list[] = 'items_list/model/table/category/removal_notice_popup.js';
+        }
+
         return $list;
+    }
+
+    /**
+     * Check if removal notice popup should be displayed
+     *
+     * @return bool
+     */
+    public function isDisplayRemovalNoticePopup()
+    {
+        return (boolean)\XLite\Core\Session::getInstance()->{self::IS_DISPLAY_REMOVAL_NOTICE};
     }
 
     /**
@@ -358,9 +373,7 @@ class Category extends \XLite\View\ItemsList\Model\Table
     // }}}
 
     /**
-     * Get container class
-     *
-     * @return string
+     * @inheritdoc
      */
     protected function getContainerClass()
     {
@@ -368,9 +381,7 @@ class Category extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Get panel class
-     *
-     * @return \XLite\View\Base\FormStickyPanel
+     * @inheritdoc
      */
     protected function getPanelClass()
     {

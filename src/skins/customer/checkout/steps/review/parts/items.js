@@ -8,7 +8,7 @@
  */
 
 /**
- * Itemcs list widget
+ * Items list widget
  */
 function CartItemsView(base)
 {

@@ -7,8 +7,7 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-function StateSelector(countrySelectorId, stateSelectorId, stateInputId)
-{
+function StateSelector(countrySelectorId, stateSelectorId, stateInputId) {
   this.countrySelectBox = jQuery('#' + countrySelectorId);
   this.stateSelectBox = jQuery('#' + stateSelectorId);
   this.stateInputBox = jQuery('#' + stateInputId);
@@ -30,24 +29,24 @@ function StateSelector(countrySelectorId, stateSelectorId, stateInputId)
   var o = this;
 
   this.countrySelectBox.change(
-    function(event) {
+    function (event) {
       return o.changeCountry(this.value);
     }
   );
 
   this.stateSelectBox.change(
-    function(event) {
+    function (event) {
       return o.changeState(this.value);
     }
   );
 
-  this.stateSelectBox.getParentBlock = function() {
+  this.stateSelectBox.getParentBlock = function () {
     return o.getParentBlock(this);
-  }
+  };
 
-  this.stateInputBox.getParentBlock = function() {
+  this.stateInputBox.getParentBlock = function () {
     return o.getParentBlock(this);
-  }
+  };
 
   this.countrySelectBox.change();
 
@@ -65,8 +64,7 @@ StateSelector.prototype.stateSelectBox = null;
 StateSelector.prototype.stateInputBox = null;
 StateSelector.prototype.stateSavedValue = null;
 
-StateSelector.prototype.getParentBlock = function(selector)
-{
+StateSelector.prototype.getParentBlock = function (selector) {
   var block = selector.closest('li');
 
   if (!block.length) {
@@ -74,40 +72,56 @@ StateSelector.prototype.getParentBlock = function(selector)
   }
 
   return block;
-}
+};
 
-StateSelector.prototype.changeState = function(state)
-{
-  // if (-1 == state) {
-  //   this.stateInputBox.getParentBlock().show();
-
-  // } else {
-  //   this.stateInputBox.getParentBlock().hide();
-  // }
-}
-
-StateSelector.prototype.changeCountry = function(country)
-{
+StateSelector.prototype.changeCountry = function (country) {
   if (this.getParentBlock(this.countrySelectBox).length) {
-    if (statesList[country]) {
+    if (StatesList.getInstance().getStates(country)) {
 
-      this.removeOptions();
-      this.addStates(statesList[country]);
+      if (StatesList.getInstance().isForceCustomState(country)) {
+        this.stateSelectBox.getParentBlock().hide();
+        this.stateInputBox.getParentBlock().show();
 
-      this.stateSelectBox.getParentBlock().show();
-      this.stateInputBox.getParentBlock().hide();
-      // this.stateSelectBox.change();
+        $(this.stateInputBox).autocomplete({
+          source: StatesList.getInstance().getStatesArray(country),
+          minLength: 1
+        }).addClass('validate[required]')
+          .parents('.table-value:first')
+          .addClass('table-value-required')
+          .prev('.star')
+          .text('*')
+          .prev('.table-label')
+          .addClass('table-label-required');
+      } else {
+        this.removeOptions();
+        this.addStates(StatesList.getInstance().getStates(country));
+
+        this.stateSelectBox.getParentBlock().show();
+        this.stateInputBox.getParentBlock().hide();
+      }
 
     } else {
-
       this.stateSelectBox.getParentBlock().hide();
       this.stateInputBox.getParentBlock().show();
+
+      $(this.stateInputBox)
+        .autocomplete()
+        .autocomplete("destroy")
+        .removeClass('validate[required]')
+        .parents('.table-value:first')
+        .removeClass('table-value-required')
+        .prev('.star')
+        .html('&nbsp;')
+        .prev('.table-label')
+        .removeClass('table-label-required');
     }
   }
-}
+};
 
-StateSelector.prototype.removeOptions = function()
-{
+StateSelector.prototype.changeState = function (state) {
+};
+
+StateSelector.prototype.removeOptions = function () {
   var s = this.stateSelectBox.get(0);
 
   if (this.stateSelectBox.val()) {
@@ -123,16 +137,14 @@ StateSelector.prototype.removeOptions = function()
       s.options[i] = null;
     }
   }
-}
+};
 
-StateSelector.prototype.addDefaultOptions = function()
-{
+StateSelector.prototype.addDefaultOptions = function () {
   this.stateSelectBox.get(0).options[0] = new Option('Select one', '');
 //    this.stateSelectBox.get(0).options[1] = new Option('Other', '-1');
-}
+};
 
-StateSelector.prototype.addStates = function(states)
-{
+StateSelector.prototype.addStates = function (states) {
   this.addDefaultOptions();
 
   var s = this.stateSelectBox.get(0);
@@ -144,15 +156,15 @@ StateSelector.prototype.addStates = function(states)
       for (var id in states) {
         if (!states[id].label) {
           s.options[i + added] = new Option(states[id].name, states[id].key);
-        }else{
-            var optgroupValues = states[id];
-            var optgroup = jQuery('<optgroup/>');
-            optgroup.attr('label', optgroupValues['label']);
-            for (var i = 0; i < optgroupValues['options'].length; i++) {
-              optgroup.append('<option value="' + optgroupValues['options'][i].key + '">' + optgroupValues['options'][i].name + '</option>');
-            };
-            jQuery(s).append(optgroup)
-        };
+        } else {
+          var optgroupValues = states[id];
+          var optgroup = jQuery('<optgroup/>');
+          optgroup.attr('label', optgroupValues['label']);
+          for (var i = 0; i < optgroupValues['options'].length; i++) {
+            optgroup.append('<option value="' + optgroupValues['options'][i].key + '">' + optgroupValues['options'][i].name + '</option>');
+          }
+          jQuery(s).append(optgroup)
+        }
         i++;
       }
     }
@@ -167,9 +179,8 @@ StateSelector.prototype.addStates = function(states)
     this.stateSelectBox.get(0).fireEvent('change');
     StateSelector.updateStateValueOnce = false;
   }
-}
+};
 
-jQuery(document).ready(function () {
-  UpdateStatesList();
+jQuery(document).ready(function() {
+    StatesList.getInstance();
 });
-

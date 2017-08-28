@@ -40,7 +40,7 @@ class FailedTransactionTooltip extends \XLite\View\AView
      *
      * @param \XLite\Model\Payment\TransactionData $cell Transaction data cell
      *
-     * @return string
+     * @return array
      */
     protected function defineCellWidgets($cell)
     {

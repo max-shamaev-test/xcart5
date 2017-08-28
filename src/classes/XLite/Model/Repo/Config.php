@@ -10,6 +10,12 @@ namespace XLite\Model\Repo;
 
 /**
  * DB-based configuration registry
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Config", summary="Add new config entry")
+ * @Api\Operation\Read(modelClass="XLite\Model\Config", summary="Retrieve config entry by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Config", summary="Retrieve all config entries")
+ * @Api\Operation\Update(modelClass="XLite\Model\Config", summary="Update config entry by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Config", summary="Delete config entry by id")
  */
 class Config extends \XLite\Model\Repo\Base\I18n
 {
@@ -211,7 +217,7 @@ class Config extends \XLite\Model\Repo\Base\I18n
      */
     public function processOptions($data)
     {
-        $config = new \XLite\Core\ConfigCell();
+        $config = new \XLite\Core\ConfigCell(true);
 
         foreach ($data as $option) {
             $category = $option->getCategory();
@@ -262,6 +268,35 @@ class Config extends \XLite\Model\Repo\Base\I18n
             // Type cast
             $config->General->minimal_order_amount = (float) $config->General->minimal_order_amount;
             $config->General->maximal_order_amount = (float) $config->General->maximal_order_amount;
+        }
+
+        if (isset($config->Company)) {
+            $config->Company->locationCountry = \XLite\Core\Database::getRepo('XLite\Model\Country')
+                ->find($config->Company->location_country);
+
+            $hasStates = $config->Company->locationCountry && $config->Company->locationCountry->hasStates();
+
+            $locationState = null;
+            if ($hasStates) {
+                $locationState = \XLite\Core\Database::getRepo('XLite\Model\State')->find($config->Company->location_state);
+            } else {
+                $locationState = \XLite\Core\Database::getRepo('XLite\Model\State')->getOtherState($config->Company->location_custom_state);
+            }
+            $config->Company->locationState = $locationState;
+
+            // Add human readable store country and state names for Origin address options
+            $config->Company->originCountry = \XLite\Core\Database::getRepo('XLite\Model\Country')
+                ->find($config->Company->origin_country);
+
+            $hasStates = $config->Company->originCountry && $config->Company->originCountry->hasStates();
+
+            $originState = null;
+            if ($hasStates) {
+                $originState = \XLite\Core\Database::getRepo('XLite\Model\State')->find($config->Company->origin_state);
+            } else {
+                $originState = \XLite\Core\Database::getRepo('XLite\Model\State')->getOtherState($config->Company->origin_custom_state);
+            }
+            $config->Company->originState = $originState;
         }
 
         return $config;

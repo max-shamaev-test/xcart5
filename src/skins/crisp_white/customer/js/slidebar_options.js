@@ -39,7 +39,16 @@ core.bind('mm-menu.created', function(event, api){
       $panel.parent('#slidebar').removeClass('first-opened');
     };
   });
+
   api.bind('open', function () {
     jQuery('#slidebar').addClass('first-opened');
+  });
+
+  jQuery('#slidebar button.popup-button').on('popup.open', function () {
+    var mmenu = jQuery('#slidebar').data('mmenu');
+
+    if (mmenu) {
+      mmenu.close();
+    }
   });
 });

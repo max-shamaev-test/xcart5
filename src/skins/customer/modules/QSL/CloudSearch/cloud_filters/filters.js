@@ -220,6 +220,14 @@
         return hashAdd.call(this, _.omit(params, 'cloudFilters'));
     };
 
+    if (ALoadable.prototype.doReplaceState) {
+        var doReplaceState = ALoadable.prototype.doReplaceState;
+
+        ALoadable.prototype.doReplaceState = function (params) {
+            return doReplaceState.call(this, _.omit(params, 'cloudFilters'));
+        }
+    }
+
     var productList = (function () {
         var load, cloudFilters, searchListeners = [];
 
@@ -340,11 +348,11 @@
         facetApi = initialData.facetApi,
         currencyFormat = initialData.currencyFormat;
 
-    if (typeof filters.min_price == 'undefined') {
+    if (typeof filters.min_price === 'undefined') {
         filters.min_price = [null];
     }
 
-    if (typeof filters.max_price == 'undefined') {
+    if (typeof filters.max_price === 'undefined') {
         filters.max_price = [null];
     }
 
@@ -439,7 +447,7 @@
                     : this.values.slice(0, MAX_FOLDED_VALUES);
 
                 var numToggledInFolded = _.filter(folded, (function (v) {
-                    return this.isToggled(v.value);
+                    return this.isToggled(this.getFilterValue(v.value));
                 }).bind(this)).length;
 
                 return this.unfolded || numToggledInFolded < this.toggledValues.length
@@ -772,7 +780,7 @@
             $(window).on('popstate', (function (event) {
                 var state = event.originalEvent.state;
 
-                if (state && state.cloudFilters != 'undefined') {
+                if (state && typeof state.cloudFilters !== 'undefined') {
                     this.replaceStateFromHistory(state);
                 }
             }).bind(this));

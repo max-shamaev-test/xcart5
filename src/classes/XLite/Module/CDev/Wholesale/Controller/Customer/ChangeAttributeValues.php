@@ -25,11 +25,11 @@ class ChangeAttributeValues extends \XLite\Controller\Customer\ChangeAttributeVa
         if ($item->hasWrongMinQuantity()) {
             \XLite\Core\TopMessage::addWarning(
                 'The minimum amount of "{{product}}" product {{description}} allowed to purchase is {{min}} item(s). Please adjust the product quantity.',
-                array(
+                [
                     'product'     => $item->getProduct()->getName(),
                     'description' => $item->getExtendedDescription(),
                     'min'         => $item->getMinQuantity()
-                )
+                ]
             );
 
         } else {

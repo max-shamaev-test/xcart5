@@ -193,7 +193,8 @@ abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
 
         $message = strip_tags($message);
         $message = preg_replace('/(\s)+/', '\1', trim($message));
-        $path = LC_DIR_LOG . 'decorator.log.' . date('Y-m-d') . '.php';
+        $pathPart = date('Y' . LC_DS . 'm');
+        $path = LC_DIR_LOG . $pathPart . LC_DS . 'decorator.log.' . date('Y-m-d') . '.php';
         if (!\Includes\Utils\FileManager::isExists($path)) {
             $message = '<' . '?php die(); ?' . '>' . PHP_EOL . $message;
         }
@@ -1164,19 +1165,41 @@ OUT;
      */
     public static function rebuildCache()
     {
-        static::checkPermissions(LC_DIR_VAR);
+        if (static::isRebuildAllowed()) {
+            static::checkPermissions(LC_DIR_VAR);
 
-        static::checkPermissions(static::getCompileDir());
+            static::checkPermissions(static::getCompileDir());
 
-        static::checkRebuildBlock();
+            static::recreateHtaccessIfNeeded();
 
-        static::setProcessMark();
+            static::checkRebuildBlock();
 
-        foreach (static::$steps as $step) {
-            if (static::runStepConditionally($step) && static::isDoOneStepOnly()) {
-                // Break after first performed step if isDoOneStepOnly() returned true
-                break;
+            static::setProcessMark();
+
+            foreach (static::$steps as $step) {
+                if (static::runStepConditionally($step) && static::isDoOneStepOnly()) {
+                    // Break after first performed step if isDoOneStepOnly() returned true
+                    break;
+                }
             }
+        } elseif (static::isRebuildInProgress() || static::isRebuildNeeded(1)) {
+            static::triggerMaintenanceModeError();
+        }
+    }
+
+    public static function recreateHtaccessIfNeeded()
+    {
+        if (!file_exists(LC_DIR_VAR . LC_DS . '.htaccess')) {
+            file_put_contents(
+                LC_DIR_VAR . LC_DS . '.htaccess',
+                'Options -Indexes' . PHP_EOL
+                . PHP_EOL
+                . 'Deny from all' . PHP_EOL
+                . PHP_EOL
+                . '<Files ~ ".(?i:gif|jpe?g|png|bmp|css|js)$">' . PHP_EOL
+                . '  Allow from all' . PHP_EOL
+                . '</Files>' . PHP_EOL
+            );
         }
     }
 

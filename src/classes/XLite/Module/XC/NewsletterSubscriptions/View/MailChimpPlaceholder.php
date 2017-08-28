@@ -13,7 +13,6 @@ use XLite\Module\XC\MailChimp\Core;
 /**
  * Placeholder
  *
- * @Decorator\Depend ("XC\MailChimp")
  * @ListChild (list="admin.center", zone="admin", weight="0")
  */
 class MailChimpPlaceholder extends \XLite\View\AView
@@ -77,7 +76,50 @@ class MailChimpPlaceholder extends \XLite\View\AView
      */
     public function isMailChimpConfigured()
     {
-        return Core\MailChimp::hasAPIKey();
+        return $this->isMailChimpInstalled()
+            && Core\MailChimp::hasAPIKey();
+    }
+
+    /**
+     * Get recommended module URL
+     *
+     * @param string $moduleName
+     *
+     * @return string
+     */
+    protected function getAddonLink()
+    {
+        /** @var \XLite\Model\Module $module */
+        $module = \XLite\Core\Database::getRepo('XLite\Model\Module')->findOneBy(
+            [
+                'author' => 'XC',
+                'name'   => 'MailChimp',
+            ],
+            [ 'fromMarketplace' => 'ASC' ]
+        );
+
+        $result = null;
+
+        if ($module && !$module->getEnabled()) {
+            // Module disabled or not installed
+            $result = $module->getFromMarketplace()
+                ? $module->getMarketplaceURL()
+                : $module->getInstalledURL();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check if XC\MailChimp configured
+     *
+     * @return boolean
+     */
+    public function isMailChimpInstalled()
+    {
+        $repo = \XLite\Core\Database::getRepo('XLite\Model\Module');
+
+        return $repo->isModuleEnabled('XC\MailChimp');
     }
 
     /**
@@ -126,18 +168,5 @@ class MailChimpPlaceholder extends \XLite\View\AView
                 \XLite\View\Export\Begin::PARAM_PRESELECT => $subscribersStepName
             )
         );
-    }
-
-    /**
-     * Check if widget is visible
-     *
-     * @return boolean
-     */
-    protected function isVisible()
-    {
-        $repo = \XLite\Core\Database::getRepo('XLite\Model\Module');
-
-        return parent::isVisible()
-            && $repo->isModuleEnabled('XC\MailChimp');
     }
 }

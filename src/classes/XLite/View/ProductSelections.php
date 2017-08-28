@@ -36,6 +36,26 @@ class ProductSelections extends \XLite\View\AView
     }
 
     /**
+     * Return widget body template
+     *
+     * @return string
+     */
+    protected function getBodyTemplate()
+    {
+        return 'product_selections/list.twig';
+    }
+
+    /**
+     * Returns widget inner items list class
+     * 
+     * @return string
+     */
+    protected function getItemsListClass()
+    {
+        return 'XLite\View\ItemsList\Model\ProductSelection';
+    }
+
+    /**
      * Check - search box is visible or not
      *
      * @return boolean
@@ -52,6 +72,6 @@ class ProductSelections extends \XLite\View\AView
      */
     protected function getSearchPanelView()
     {
-        return '\XLite\View\SearchPanel\ProductSelections\Admin\Main';
+        return 'XLite\View\SearchPanel\ProductSelections\Admin\Main';
     }
 }

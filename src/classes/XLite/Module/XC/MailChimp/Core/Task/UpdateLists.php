@@ -26,6 +26,16 @@ class UpdateLists extends \XLite\Core\Task\Base\Periodic
     }
 
     /**
+     * Check - task ready or not
+     *
+     * @return boolean
+     */
+    public function isReady()
+    {
+        return (bool) \XLite\Core\Config::getInstance()->XC->MailChimp->updateInterval;
+    }
+
+    /**
      * Run step
      *
      * @return void
@@ -46,12 +56,15 @@ class UpdateLists extends \XLite\Core\Task\Base\Periodic
     }
 
     /**
-     * Task is valid only if API key has been  specified
+     * Check - task ready or not
      *
      * @return boolean
      */
     protected function isValid()
     {
-        return MailChimp::hasAPIKey();
+        // 'updateInterval' has 'never' state with value 0
+
+        return MailChimp::hasAPIKey()
+            && intval(\XLite\Core\Config::getInstance()->XC->MailChimp->updateInterval) > 0;
     }
 }

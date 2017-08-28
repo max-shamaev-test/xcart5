@@ -75,7 +75,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '3';
+        return '4';
     }
 
     /**
@@ -85,7 +85,17 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '4';
+        return '2';
+    }
+
+    /**
+     * Get minor core version which is required for the module activation
+     *
+     * @return string
+     */
+    public static function getMinorRequiredCoreVersion()
+    {
+        return '3';
     }
 
     /**
@@ -99,13 +109,22 @@ abstract class Main extends \XLite\Module\AModule
     }
 
     /**
-     * Return link to settings form
+     * Defines the link for the payment settings form
      *
      * @return string
      */
-    public static function getSettingsForm()
+    public static function getPaymentSettingsForm()
     {
-        return null;
+        return \XLite\Core\Converter::buildURL(
+            'module',
+            '',
+            array(
+                'moduleId'     => \XLite\Core\Database::getRepo('XLite\Model\Module')
+                    ->findOneBy(['author' => 'CDev', 'name' => 'Paypal', 'fromMarketplace' => false])
+                    ->getModuleId(),
+                'returnTarget' => 'addons_list_installed',
+            )
+        );
     }
 
     /**

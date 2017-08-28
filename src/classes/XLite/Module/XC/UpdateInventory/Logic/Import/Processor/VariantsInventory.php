@@ -86,6 +86,13 @@ class VariantsInventory extends \XLite\Module\XC\UpdateInventory\Logic\Import\Pr
                 $model->setAmount($this->normalizeValueAsUinteger($value));
                 $model->setDefaultAmount(false);
 
+            } elseif ($this->verifyValueAsModifier($value)) {
+                $value = $this->normalizeValueAsModifier($value);
+                $newAmount = $model->getAmount() + $value;
+
+                $model->setAmount(max(0, $newAmount));
+                $model->setDefaultAmount(false);
+
             } elseif ($this->verifyValueAsEmpty($value)) {
                 $model->setAmount(0);
                 $model->setDefaultAmount(true);

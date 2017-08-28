@@ -10,6 +10,8 @@ namespace XLite\Module\XC\FroalaEditor;
 
 /**
  * Froala editor module main class
+ *
+ * https://github.com/xcart/wysiwyg-editor (2.5.2)
  */
 abstract class Main extends \XLite\Module\AModule
 {
@@ -40,7 +42,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '0';
+        return '1';
     }
 
     /**
@@ -50,7 +52,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '2';
+        return '1';
     }
 
     /**
@@ -60,7 +62,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorRequiredCoreVersion()
     {
-        return '2';
+        return '3';
     }
 
     /**
@@ -95,4 +97,25 @@ abstract class Main extends \XLite\Module\AModule
 
         return $list;
     }
+
+    /**
+     * Determines if we need to show settings form link
+     *
+     * @return boolean
+     */
+    public static function showSettingsForm()
+    {
+        return true;
+    }
+
+    /**
+     * Return link to settings form
+     *
+     * @return string
+     */
+    public static function getSettingsForm()
+    {
+        return \XLite\Core\Converter::buildURL('froala_settings');
+    }
+
 }

@@ -20,13 +20,13 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\Customer\ACustome
      *
      * @return void
      */
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         parent::__construct($params);
 
-        $this->sortByModes += array(
+        $this->sortByModes += [
             static::SORT_BY_MODE_RATE => 'Rate sort',
-        );
+        ];
     }
 
     /**
@@ -37,9 +37,9 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\Customer\ACustome
     protected function getSortByFields()
     {
         $fields = parent::getSortByFields();
-        $fields += array(
+        $fields += [
             'rate' => static::SORT_BY_MODE_RATE,
-        );
+        ];
 
         return $fields;
     }

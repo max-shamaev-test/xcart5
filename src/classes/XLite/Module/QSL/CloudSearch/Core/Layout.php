@@ -12,36 +12,27 @@ use XLite\Module\QSL\CloudSearch\Main;
 
 /**
  * Layout manager
- *
- * @Decorator\Depend("XC\CrispWhiteSkin")
  */
 class Layout extends \XLite\Core\Layout implements \XLite\Base\IDecorator
 {
-    /**
-     * @return array
+    /*
+     * Store sidebar content so we can correctly change sidebar state after materializing FiltersBoxPlaceholder -> FiltersBox widget
      */
-    protected function getSidebarFirstHiddenTargets()
+    protected $cloudSearchSidebarContent;
+
+    /**
+     * @return string
+     */
+    public function getCloudSearchSidebarContent()
     {
-        $targets = parent::getSidebarFirstHiddenTargets();
-
-        if (Main::isCloudFiltersEnabled()) {
-            $targets = array_diff($targets, ['search']);
-        }
-
-        return $targets;
+        return $this->cloudSearchSidebarContent;
     }
 
     /**
-     * @return array
+     * @param string $content
      */
-    protected function getSidebarSecondHiddenTargets()
+    public function setCloudSearchSidebarContent($content)
     {
-        $targets = parent::getSidebarSecondHiddenTargets();
-
-        if (Main::isCloudFiltersEnabled()) {
-            $targets = array_diff($targets, ['search']);
-        }
-
-        return $targets;
+        $this->cloudSearchSidebarContent = $content;
     }
 }

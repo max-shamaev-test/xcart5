@@ -10,13 +10,17 @@ namespace XLite\Model\Repo;
 
 /**
  * Import log repository
+ *
+ * @Api\Operation\Read(modelClass="XLite\Model\ImportLog", summary="Retrieve import log entry by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\ImportLog", summary="Retrieve all import log entries")
+ * @Api\Operation\Delete(modelClass="XLite\Model\ImportLog", summary="Delete import log entry by id")
  */
 class ImportLog extends \XLite\Model\Repo\ARepo
 {
     /**
      * Return files list
      *
-     * @return array 
+     * @return array
      */
     public function findFiles()
     {
@@ -24,6 +28,7 @@ class ImportLog extends \XLite\Model\Repo\ARepo
             ->select('il.file')
             ->addSelect('SUM(IF(il.type = \'W\', 1, 0)) countW')
             ->addSelect('SUM(IF(il.type = \'E\', 1, 0)) countE')
+            ->addSelect('il.processor')
             ->groupBy('il.file')
             ->getResult();
     }

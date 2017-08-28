@@ -192,6 +192,14 @@ class UpsellingProduct extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
+     * @return bool
+     */
+    public function isCrossIcon()
+    {
+        return true;
+    }
+
+    /**
      * Mark list as sortable
      *
      * @return integer

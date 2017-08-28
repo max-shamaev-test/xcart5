@@ -102,4 +102,16 @@ class Offline extends \XLite\Model\Shipping\Processor\AProcessor
     {
         return true;
     }
+
+    /**
+     * Returns prepared delivery time
+     *
+     * @param \XLite\Model\Shipping\Rate $rate
+     *
+     * @return string|null
+     */
+    public function prepareDeliveryTime(\XLite\Model\Shipping\Rate $rate)
+    {
+        return $rate->getMethod() ? $rate->getMethod()->getDeliveryTime() : '';
+    }
 }

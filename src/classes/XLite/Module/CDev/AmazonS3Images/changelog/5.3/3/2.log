@@ -1,0 +1,5 @@
+Version 5.3.3.2
+
+Fixes
+2017-07-06 - [Bug] An error when migrating images to Amazon S3. Fixed. #BUG-5172 (Maxim Kuznetsov) #AmazonS3Images
+

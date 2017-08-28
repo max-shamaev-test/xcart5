@@ -10,13 +10,19 @@ namespace XLite\Model\Repo;
 
 /**
  * Zone repository
+ *
+ * @Api\Operation\Create(modelClass="XLite\Model\Zone", summary="Add new shipping zone")
+ * @Api\Operation\Read(modelClass="XLite\Model\Zone", summary="Retrieve shipping zone by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Model\Zone", summary="Retrieve all shipping zones")
+ * @Api\Operation\Update(modelClass="XLite\Model\Zone", summary="Update shipping zone by id")
+ * @Api\Operation\Delete(modelClass="XLite\Model\Zone", summary="Delete shipping zone by id")
  */
 class Zone extends \XLite\Model\Repo\ARepo
 {
     /**
      * Common search parameters
      */
-    
+
     /**
      * Default 'order by' field name
      *
@@ -36,9 +42,9 @@ class Zone extends \XLite\Model\Repo\ARepo
      *
      * @var array
      */
-    protected $alternativeIdentifier = array(
-        array('zone_name'),
-    );
+    protected $alternativeIdentifier = [
+        ['zone_name'],
+    ];
 
     // {{{ defineCacheCells
 
@@ -51,18 +57,22 @@ class Zone extends \XLite\Model\Repo\ARepo
     {
         $list = parent::defineCacheCells();
 
-        $list['all'] = array(
-            self::RELATION_CACHE_CELL => array('\XLite\Model\Zone'),
-        );
+        $list['all'] = [
+            self::RELATION_CACHE_CELL => ['\XLite\Model\Zone'],
+        ];
 
-        $list['default'] = array(
-            self::RELATION_CACHE_CELL => array('\XLite\Model\Zone'),
-        );
+        $list['with_special'] = [
+            self::RELATION_CACHE_CELL => ['\XLite\Model\Zone'],
+        ];
 
-        $list['zone'] = array(
-            self::ATTRS_CACHE_CELL    => array('zone_id'),
-            self::RELATION_CACHE_CELL => array('\XLite\Model\Zone'),
-        );
+        $list['default'] = [
+            self::RELATION_CACHE_CELL => ['\XLite\Model\Zone'],
+        ];
+
+        $list['zone'] = [
+            self::ATTRS_CACHE_CELL    => ['zone_id'],
+            self::RELATION_CACHE_CELL => ['\XLite\Model\Zone'],
+        ];
 
         return $list;
     }
@@ -74,15 +84,18 @@ class Zone extends \XLite\Model\Repo\ARepo
     /**
      * findAllZones
      *
+     * @param bool $includeSpecial
+     *
      * @return array
      */
-    public function findAllZones()
+    public function findAllZones($includeSpecial = false)
     {
-        $data = $this->getFromCache('all');
+        $type = $includeSpecial ? 'with_special' : 'all';
+        $data = $this->getFromCache($type);
 
         if (!isset($data)) {
-            $data = $this->defineFindAllZones()->getResult();
-            $this->saveToCache($data, 'all');
+            $data = $this->defineFindAllZones($includeSpecial)->getResult();
+            $this->saveToCache($data, $type);
         }
 
         return $data;
@@ -91,9 +104,11 @@ class Zone extends \XLite\Model\Repo\ARepo
     /**
      * defineGetZones
      *
+     * @param bool $includeSpecial
+     *
      * @return \Doctrine\ORM\QueryBuilder
      */
-    protected function defineFindAllZones()
+    protected function defineFindAllZones($includeSpecial = false)
     {
         return $this->createQueryBuilder()
             ->addSelect('ze')
@@ -115,13 +130,13 @@ class Zone extends \XLite\Model\Repo\ARepo
      */
     public function findZone($zoneId)
     {
-        $data = $this->getFromCache('zone', array('zone_id' => $zoneId));
+        $data = $this->getFromCache('zone', ['zone_id' => $zoneId]);
 
         if (!isset($data)) {
             $data = $this->defineFindZone($zoneId)->getSingleResult();
 
             if ($data) {
-                $this->saveToCache($data, 'zone', array('zone_id' => $zoneId));
+                $this->saveToCache($data, 'zone', ['zone_id' => $zoneId]);
             }
         }
 
@@ -162,8 +177,8 @@ class Zone extends \XLite\Model\Repo\ARepo
         }
 
         // Get all zones list
-        $allZones = $this->findAllZones();
-        $applicableZones = array();
+        $allZones = $this->findAllZones(true);
+        $applicableZones = [];
 
         // Get the list of zones that are applicable for address
         /** @var \XLite\Model\Zone $zone */
@@ -171,10 +186,10 @@ class Zone extends \XLite\Model\Repo\ARepo
             $zoneWeight = $zone->getZoneWeight($address);
 
             if (0 < $zoneWeight) {
-                $applicableZones[] = array(
+                $applicableZones[] = [
                     'weight' => $zoneWeight,
-                    'zone' => $zone,
-                );
+                    'zone'   => $zone,
+                ];
             }
         }
 
@@ -185,7 +200,7 @@ class Zone extends \XLite\Model\Repo\ARepo
                 : (($a['weight'] > $b['weight']) ? -1 : 1);
         });
 
-        $result = array();
+        $result = [];
         foreach ($applicableZones as $zone) {
             $result[] = $zone['zone'];
         }
@@ -203,7 +218,7 @@ class Zone extends \XLite\Model\Repo\ARepo
         $result = $this->getFromCache('default');
 
         if (!isset($result)) {
-            $result = $this->findOneBy(array('is_default' => 1));
+            $result = $this->findOneBy(['is_default' => 1]);
             $this->saveToCache($result, 'default');
         }
 
@@ -217,18 +232,28 @@ class Zone extends \XLite\Model\Repo\ARepo
     /**
      * @param \XLite\Model\Shipping\Method $method
      *
+     * @return \XLite\Model\Shipping\Method[]
+     */
+    public function findMethodZones($method)
+    {
+        return $this->findAllZones();
+    }
+
+    /**
+     * @param \XLite\Model\Shipping\Method $method
+     *
      * @return array
      */
     public function getOfflineShippingZones($method)
     {
-        $allZones = $this->findAllZones();
+        $allMethodZones = $this->findMethodZones($method);
         $usedZones = $this->getOfflineShippingUsedZones($method);
 
-        $usedList = array();
-        $unUsedList = array();
+        $usedList = [];
+        $unUsedList = [];
 
         if ($usedZones) {
-            foreach ($allZones as $zone) {
+            foreach ($allMethodZones as $zone) {
                 if (isset($usedZones[$zone->getZoneId()])) {
                     $usedList[$zone->getZoneId()] = sprintf('%s (%d)', $zone->getZoneName(), $usedZones[$zone->getZoneId()]);
 
@@ -242,12 +267,12 @@ class Zone extends \XLite\Model\Repo\ARepo
                 asort($unUsedList);
             }
         } else {
-            foreach ($allZones as $zone) {
+            foreach ($allMethodZones as $zone) {
                 $unUsedList[$zone->getZoneId()] = $zone->getZoneName();
             }
         }
 
-        return array($usedList, $unUsedList);
+        return [$usedList, $unUsedList];
     }
 
     /**
@@ -257,7 +282,7 @@ class Zone extends \XLite\Model\Repo\ARepo
      */
     protected function getOfflineShippingUsedZones($method)
     {
-        $list = array();
+        $list = [];
 
         if ($method->getShippingMarkups()) {
             foreach ($method->getShippingMarkups() as $markup) {
