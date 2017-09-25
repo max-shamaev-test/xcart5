@@ -17,4 +17,4 @@ XLite\Model\Config:
     value: 'user1'
   - name: additional_config_loaded
     category: XC\Concierge
-    value: ''
+    value: 'true'

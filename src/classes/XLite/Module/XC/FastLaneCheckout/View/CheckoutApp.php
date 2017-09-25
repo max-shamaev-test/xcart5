@@ -106,6 +106,7 @@ class CheckoutApp extends \XLite\View\AView implements ProviderInterface
     public function getPreloadedLanguageLabels()
     {
         $list = array(
+            'Menu',
             'Edit email',
             'Edit address',
             'Enter a correct email',

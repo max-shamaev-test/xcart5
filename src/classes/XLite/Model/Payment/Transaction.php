@@ -1005,7 +1005,12 @@ class Transaction extends \XLite\Model\AEntity
     {
         $result = array();
 
+        $excluded = $this->getExcludedTransactionDataFields();
+
         foreach ($this->getData() as $cell) {
+            if (in_array($cell->getName(), $excluded, true)) {
+                continue;
+            }
             $result[] = array(
                 'name'  => $cell->getLabel() ?: $cell->getName(),
                 'value' => $cell->getValue()
@@ -1013,6 +1018,16 @@ class Transaction extends \XLite\Model\AEntity
         }
 
         return $result;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getExcludedTransactionDataFields()
+    {
+        return [
+            'cart_items'
+        ];
     }
 
     /**

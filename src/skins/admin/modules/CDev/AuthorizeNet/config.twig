@@ -61,6 +61,12 @@
 
 <table cellspacing="1" cellpadding="5" class="settings-table">
   <tr>
+    <td colspan="2">
+      <p class="note">{{ t('Dont have an account? Sign Up Now', { link: 'http://reseller.authorize.net/application/?resellerId=20961'})|raw }}</p>
+    </td>
+  </tr>
+
+  <tr>
       <td colspan="2">
           <p class="note">{{ t('Relay Response URL note')|raw }}</p>
           {{ widget('XLite\\View\\Tooltip', id='relay_response_help', text=t('relay_response_help')|raw, caption='', isImageTag='true', className='help-icon') }}

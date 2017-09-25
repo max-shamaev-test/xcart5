@@ -134,7 +134,7 @@ class PinCode extends \XLite\Model\AEntity
      */
     protected function getRandomCode()
     {
-        return sprintf('%04d%04d%04d%04d', rand(0, 9999), rand(0, 9999), rand(0, 9999), rand(0, 9999));
+        return sprintf('%04d%04d%04d%04d', mt_rand(0, 9999), mt_rand(0, 9999), mt_rand(0, 9999), mt_rand(0, 9999));
     }
 
 

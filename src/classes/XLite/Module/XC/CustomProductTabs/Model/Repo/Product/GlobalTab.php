@@ -171,4 +171,42 @@ class GlobalTab extends \XLite\Model\Repo\Product\GlobalTab implements \XLite\Ba
             $this->createGlobalTabAliases($entity);
         }
     }
+
+    /**
+     * @param \XLite\Model\Product\GlobalTab|\XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab $tab
+     *
+     * @return string
+     */
+    public function generateTabLink(\XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab $tab)
+    {
+        $result = $link = \XLite\Core\Converter::convertToTranslit($tab->getName());
+
+        $i = 1;
+        while (!$this->checkLinkUniqueness($result, $tab)) {
+            $result = $link . '_' . $i;
+            $i++;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string                                                           $link
+     * @param \XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab $tab
+     *
+     * @return bool
+     *
+     */
+    public function checkLinkUniqueness($link, \XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab $tab)
+    {
+        $result = !$this->findOneBy([
+                'link' => $link,
+            ]) && !$this->findOneBy([
+                'service_name' => $link,
+            ]) && !\XLite\Core\Database::getRepo('XLite\Module\XC\CustomProductTabs\Model\Product\Tab')->findOneBy([
+                'link' => $link,
+            ]);
+
+        return $result;
+    }
 }

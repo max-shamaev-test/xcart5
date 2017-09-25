@@ -9,7 +9,21 @@
 namespace XLite\Module\CDev\SalesTax\Model\Repo\Tax;
 
 /**
- * Tax rate repository
+ * @Api\Operation\Create(modelClass="XLite\Module\CDev\SalesTax\Model\Tax\Rate", summary="Add tax rate")
+ * @Api\Operation\Read(modelClass="XLite\Module\CDev\SalesTax\Model\Tax\Rate", summary="Retrieve tax rate by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\CDev\SalesTax\Model\Tax\Rate", summary="Retrieve tax rates by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\CDev\SalesTax\Model\Tax\Rate", summary="Update tax rate by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\CDev\SalesTax\Model\Tax\Rate", summary="Delete tax rate by id")
+ *
+ * @SWG\Tag(
+ *   name="CDev\SalesTax\Tax\Rate",
+ *   x={"display-name": "Tax\Rate", "group": "CDev\SalesTax"},
+ *   description="Tax\Rate represents single tax rate record associated with the Sales tax type.",
+ *   @SWG\ExternalDocumentation(
+ *     description="Find out more about setting up taxes",
+ *     url="http://kb.x-cart.com/en/taxes/"
+ *   )
+ * )
  */
 class Rate extends \XLite\Model\Repo\ARepo
 {
@@ -21,6 +35,7 @@ class Rate extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters rates by taxable base", type="string", enum={"ST","DST","ST+SH","DST+SH","SH","P"})
      *
      * @param \Doctrine\ORM\QueryBuilder $qb    Query builder to prepare
      * @param mixed                      $value Condition data
@@ -35,6 +50,7 @@ class Rate extends \XLite\Model\Repo\ARepo
 
     /**
      * Prepare certain search condition
+     * @Api\Condition(description="Filters rates without certain taxable base", type="string", enum={"ST","DST","ST+SH","DST+SH","SH","P"})
      *
      * @param \Doctrine\ORM\QueryBuilder $qb    Query builder to prepare
      * @param mixed                      $value Condition data

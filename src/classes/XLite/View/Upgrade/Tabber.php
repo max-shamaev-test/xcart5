@@ -81,11 +81,13 @@ class Tabber extends \XLite\View\Tabber
             $url = $this->buildURL('upgrade', 'toggleHotfixMode');
 
             if ($upgradeCell->hasHotfixEntries() || $this->isUpdateModeSelectorAvailable()) {
-                $list['hotfix'] = [
-                    'title'    => static::t('Minor update'),
-                    'url'      => !$isHotfixMode ? $url : null,
-                    'selected' => $isHotfixMode,
-                ];
+                if (!$upgradeCell->hasOnlyIncompatibleHotfixEntries()) {
+                    $list['hotfix'] = [
+                        'title'    => static::t('Minor update'),
+                        'url'      => !$isHotfixMode ? $url : null,
+                        'selected' => $isHotfixMode,
+                    ];
+                }
             }
 
             if ($upgradeCell->hasNewFeaturesEntries() || $this->isUpdateModeSelectorAvailable()) {
@@ -111,6 +113,6 @@ class Tabber extends \XLite\View\Tabber
      */
     protected function isTabsNavigationVisible()
     {
-        return 0 < count($this->getTabberPages());
+        return 1 < count($this->getTabberPages());
     }
 }

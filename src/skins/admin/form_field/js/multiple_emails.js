@@ -15,6 +15,7 @@ CommonElement.prototype.handlers.push(
     handler: function () {
       var element = this.$element;
       element.css({display: 'none'});
+      element.data('jqv', {validateNonVisibleFields: true});
 
       var container = $('<div class="multiple-emails-container"></div>').insertAfter(element);
 

@@ -11,7 +11,14 @@ namespace XLite\Module\XC\MailChimp\Model\Repo;
 use XLite\Module\XC\MailChimp\Model;
 
 /**
- * The Segment model repository
+ * @Api\Operation\Read(modelClass="XLite\Module\XC\MailChimp\Model\MailChimpSegment", summary="Retrieve mailchimp segment by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\XC\MailChimp\Model\MailChimpSegment", summary="Retrieve mailchimp segments by conditions")
+ *
+ * @SWG\Tag(
+ *   name="XC\MailChimp\MailChimpSegment",
+ *   x={"display-name": "MailChimpSegment", "group": "XC\MailChimp"},
+ *   description="MailChimpSegment repo",
+ * )
  */
 class MailChimpSegment extends \XLite\Model\Repo\ARepo
 {

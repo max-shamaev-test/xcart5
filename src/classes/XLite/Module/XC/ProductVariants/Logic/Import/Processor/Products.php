@@ -523,7 +523,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     protected function importVariantImageColumn(\XLite\Model\Product $model, $value, array $column)
     {
         foreach ($this->variants as $rowIndex => $variant) {
-            if ($this->verifyValueAsNull($value[$rowIndex])) {
+            if (!isset($value[$rowIndex]) || $this->verifyValueAsNull($value[$rowIndex])) {
                 $image = $variant->getImage();
                 if ($image) {
                     \XLite\Core\Database::getEM()->remove($image);

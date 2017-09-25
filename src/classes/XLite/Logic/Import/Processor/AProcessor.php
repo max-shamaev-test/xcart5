@@ -1980,7 +1980,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
      */
     protected function verifyValueAsURL($value)
     {
-        return (bool)parse_url($value);
+        return (bool) filter_var($value, FILTER_VALIDATE_URL);
     }
 
     /**

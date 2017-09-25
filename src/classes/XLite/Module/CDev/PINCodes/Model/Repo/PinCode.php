@@ -9,13 +9,24 @@
 namespace XLite\Module\CDev\PINCodes\Model\Repo;
 
 /**
- * PinCode repository
+ * @Api\Operation\Create(modelClass="XLite\Module\CDev\PINCodes\Model\PinCode", summary="Add pincode")
+ * @Api\Operation\Read(modelClass="XLite\Module\CDev\PINCodes\Model\PinCode", summary="Retrieve pincode by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\CDev\PINCodes\Model\PinCode", summary="Retrieve pincodes by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\CDev\PINCodes\Model\PinCode", summary="Update pincode by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\CDev\PINCodes\Model\PinCode", summary="Delete pincode by id")
  *
+ * @SWG\Tag(
+ *   name="CDev\PINCodes\PinCode",
+ *   x={"display-name": "PinCode", "group": "CDev\PINCodes"},
+ *   description="Pincode allows to attach some text information (e.g. CD key, product registration code) to the product and sell it within"
+ * )
  */
 class PinCode extends \XLite\Model\Repo\ARepo
 {
     /**
      * Prepare certain search condition
+     *
+     * @Api\Condition(description="Filters pincodes by certain product id", type="integer")
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param string                     $value        Condition data

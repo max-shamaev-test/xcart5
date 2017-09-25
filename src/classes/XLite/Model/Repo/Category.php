@@ -71,6 +71,14 @@ class Category extends \XLite\Model\Repo\Base\I18n
     {
         if ($override || !isset(static::$rootCategory)) {
             static::$rootCategory = $this->findOneByLpos(static::ROOT_LPOS) ?: false;
+
+            if (!static::$rootCategory) {
+                static::$rootCategory = $this->findOneByParent(null) ?: false;
+            }
+
+            if (!static::$rootCategory) {
+                static::$rootCategory = $this->findOneByDepth(-1) ?: false;
+            }
         }
 
         return static::$rootCategory ?: null;
@@ -1405,10 +1413,10 @@ class Category extends \XLite\Model\Repo\Base\I18n
      */
     protected function prepareCndTerm(\XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder, $value)
     {
-        if ($value) {
-            /** @var \XLite\Model\QueryBuilder\AQueryBuilder $qb */
-            $qb = $this->searchState['queryBuilder'];
+        /** @var \XLite\Model\QueryBuilder\AQueryBuilder $qb */
+        $qb = $queryBuilder ?: $this->searchState['queryBuilder'];
 
+        if ($value) {
             if ($this->getTranslationCode() !== \XLite::getDefaultLanguage()) {
                 // Add additional join to translations with default language code
                 $this->addDefaultTranslationJoins(
@@ -1449,11 +1457,12 @@ class Category extends \XLite\Model\Repo\Base\I18n
      */
     protected function prepareCndLastUsage(\XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder, $value)
     {
-        if ($value) {
-            /** @var \XLite\Model\QueryBuilder\AQueryBuilder $qb */
-            $qb = $this->searchState['queryBuilder'];
+        if (!$queryBuilder) {
+            $queryBuilder = $this->searchState['queryBuilder'];
+        }
 
-            $qb->andWhere('c.lastUsage > 0');
+        if ($value) {
+            $queryBuilder->andWhere('c.lastUsage > 0');
         }
     }
 

@@ -45,7 +45,7 @@ class AddPinCodes extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionImport()
     {
-        $stream = fopen(\XLite\Core\Session::getInstance()->pinCodesImportFile, 'r');
+        $stream = fopen(\XLite\Core\Session::getInstance()->pinCodesImportFile, 'rb');
         $this->addFromStreamAction($stream);
         if ($stream) {
             fclose($stream);

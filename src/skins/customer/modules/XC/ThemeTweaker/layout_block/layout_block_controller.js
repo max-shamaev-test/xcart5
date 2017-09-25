@@ -61,7 +61,7 @@ LayoutBlockWidget.prototype.insertIntoDOM = function(box)
 LayoutBlockWidget.prototype.extractContent = function(box)
 {
   box = jQuery(this.containerRequestPattern, box);
-  return box;
+  return box.children();
 };
 
 LayoutBlockWidget.autoload = function() {

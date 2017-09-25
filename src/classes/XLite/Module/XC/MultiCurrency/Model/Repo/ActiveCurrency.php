@@ -11,7 +11,17 @@ namespace XLite\Module\XC\MultiCurrency\Model\Repo;
 use \XLite\Module\XC\MultiCurrency\Core\MultiCurrency;
 
 /**
- * The MailChimpList model repository
+ * @Api\Operation\Create(modelClass="XLite\Module\XC\MultiCurrency\Model\ActiveCurrency", summary="Add active currency")
+ * @Api\Operation\Read(modelClass="XLite\Module\XC\MultiCurrency\Model\ActiveCurrency", summary="Retrieve active currency by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\XC\MultiCurrency\Model\ActiveCurrency", summary="Retrieve active currencies by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\XC\MultiCurrency\Model\ActiveCurrency", summary="Update active currency by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\XC\MultiCurrency\Model\ActiveCurrency", summary="Delete active currency by id")
+ *
+ * @SWG\Tag(
+ *   name="XC\MultiCurrency\ActiveCurrency",
+ *   x={"display-name": "ActiveCurrency", "group": "XC\MultiCurrency"},
+ *   description="This repo contains currency record which are available for the users when MultiCurrency is enabled."
+ * )
  */
 class ActiveCurrency extends \XLite\Model\Repo\Base\I18n
 {

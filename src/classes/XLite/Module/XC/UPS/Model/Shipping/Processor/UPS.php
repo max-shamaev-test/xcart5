@@ -269,7 +269,9 @@ class UPS extends \XLite\Model\Shipping\Processor\AProcessor
                     'KGS' === $wUnit ? 'kg' : 'lbs'
                 );
 
-                $inputData['packages'][$key]['weight'] = max(0.1, $inputData['packages'][$key]['weight']);
+                $inputData['packages'][$key]['weight'] = $this->correctWeight(
+                    $inputData['packages'][$key]['weight']
+                );
 
                 $inputData['packages'][$key]['subtotal'] = $this->getPackagesSubtotal($package['subtotal']);
                 $inputData['total'] += $inputData['packages'][$key]['subtotal'];
@@ -282,6 +284,24 @@ class UPS extends \XLite\Model\Shipping\Processor\AProcessor
         return parent::postProcessInputData($inputData);
     }
 
+    /**
+     * @param float $weight
+     *
+     * @return mixed
+     */
+    protected function correctWeight($weight)
+    {
+        return max($this->getMinWeight(), $weight);
+    }
+
+    /**
+     * @return float
+     */
+    protected function getMinWeight()
+    {
+        return 0.1;
+    }
+    
     /**
      * Get package subtotal with consideration of currency conversion rate
      *

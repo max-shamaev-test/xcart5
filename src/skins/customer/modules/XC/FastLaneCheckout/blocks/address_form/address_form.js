@@ -50,16 +50,19 @@ define('checkout_fastlane/blocks/address_form', ['vue/vue'], function(Vue) {
       },
 
       countryHasStates: function() {
-        return typeof window['StatesList'] != "undefined"
-              && StatesList.getInstance().getStates(this.fields.country_code.toUpperCase());
+        return Boolean(typeof window['StatesList'] != "undefined"
+              && StatesList.getInstance().getStates(this.fields.country_code.toUpperCase()));
       },
 
-      isStateValid: function() {
-        return !!(
-          this.fields.state_id
-          || !this.countryHasStates
-          || StatesList.getInstance().isForceCustomState(this.fields.country_code.toUpperCase())
-        );
+      isStateValid: {
+        cache: false,
+        get: function () {
+          return !!(
+            this.fields.state_id
+            || !this.countryHasStates
+            || StatesList.getInstance().isForceCustomState(this.fields.country_code.toUpperCase())
+          );
+        }
       },
 
       isValid: {

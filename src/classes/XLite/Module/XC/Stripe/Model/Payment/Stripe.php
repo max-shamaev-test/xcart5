@@ -421,7 +421,12 @@ class Stripe extends \XLite\Model\Payment\Base\Online
                 $refundTransaction = null;
 
                 if ($payment->refunds) {
-                    foreach ($payment->refunds as $r) {
+                    /** @var array $refunds */
+                    $refunds = $payment->refunds instanceof \Stripe_List
+                        ? $payment->refunds->data
+                        : $payment->refunds;
+
+                    foreach ($refunds as $r) {
                         if (!$this->isRefundTransactionRegistered($r)) {
                             $refundTransaction = $r;
                             break;
@@ -431,7 +436,9 @@ class Stripe extends \XLite\Model\Payment\Base\Online
 
             } else {
                 $payment->refund();
-                $refunds = $payment->refunds;
+                $refunds = $payment->refunds instanceof \Stripe_List
+                    ? $payment->refunds->data
+                    : $payment->refunds;
                 $refundTransaction = reset($refunds);
             }
 
@@ -488,7 +495,11 @@ class Stripe extends \XLite\Model\Payment\Base\Online
 
     protected function getRefundObject($event)
     {
-        foreach ($event->data->object->refunds as $r) {
+        $refunds = $event->data->object->refunds instanceof \Stripe_List
+            ? $event->data->object->refunds->data
+            : $event->data->object->refunds;
+
+        foreach ($refunds as $r) {
             if (!$this->isRefundTransactionRegistered($r)) {
                 return $r;
             }
@@ -502,7 +513,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
     // {{{ Callback
 
     /**
-     * Get callback wner transaction 
+     * Get callback owner transaction
      * 
      * @return \XLite\Model\Payment\Transaction
      */

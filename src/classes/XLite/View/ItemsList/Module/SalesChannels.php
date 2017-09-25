@@ -138,4 +138,38 @@ class SalesChannels extends \XLite\View\ItemsList\Module\Install
     {
         return false;
     }
+
+    public function installViaButton()
+    {
+        return true;
+    }
+
+    protected function isCacheAvailable()
+    {
+        return true;
+    }
+
+    protected function getCacheParameters()
+    {
+        return array_merge(
+            parent::getCacheParameters(),
+            [
+                \XLite\Core\Database::getRepo('XLite\Model\Module')->getVersion()
+            ]
+        );
+    }
+
+    protected function getCacheTTL()
+    {
+        return 86400;
+    }
+
+    protected function getURLParams()
+    {
+        $result = parent::getURLParams();
+
+        unset($result[static::PARAM_SESSION_CELL]);
+
+        return $result;
+    }
 }

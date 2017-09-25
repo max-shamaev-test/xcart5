@@ -50,6 +50,12 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\Model\Payment\Processor\
      */
     protected $errorMessage = null;
 
+    /**
+     * Tracks state of doExpressCheckoutPayment in case of recursive call
+     * @var bool
+     */
+    protected $doExpressCheckoutPaymentRecursiveCall = false;
+
     // {{{ Common
 
     /**
@@ -392,6 +398,21 @@ HTML;
     }
 
     /**
+     * Checks if response data contains "Customer must choose new funding sources." error
+     *
+     * @param array $responseData
+     * @return bool
+     */
+    protected function isRetryExpressCheckoutCode($responseData)
+    {
+        return preg_match('/^Generic processor error: 10486/', $responseData['RESPMSG'])
+            || preg_match('/^10486/', $responseData['RESPMSG'])
+            || preg_match('/^Generic processor error: 10422/', $responseData['RESPMSG'])
+            || preg_match('/^10422/', $responseData['RESPMSG']);
+
+    }
+
+    /**
      * Is retryExpressCheckout allowed
      *
      * @return boolean
@@ -545,8 +566,8 @@ HTML;
 
         $transactionStatus = $transaction::STATUS_FAILED;
 
-        if (!empty($responseData)) {
-            if ('0' == $responseData['RESULT']) {
+        if ($responseData) {
+            if ('0' === $responseData['RESULT']) {
                 if ($this->isSuccessResponse($responseData)) {
                     $transactionStatus = $transaction::STATUS_SUCCESS;
                     $status = self::COMPLETED;
@@ -555,13 +576,9 @@ HTML;
                     $transactionStatus = $transaction::STATUS_PENDING;
                     $status = self::PENDING;
                 }
-
-            } elseif ((preg_match('/^Generic processor error: 10486/', $responseData['RESPMSG'])
-                || preg_match('/^10486/', $responseData['RESPMSG'])
-                )
-                && $this->isRetryExpressCheckoutAllowed()
-            ) {
-                $this->retryExpressCheckout(\XLite\Core\Session::getInstance()->ec_token);
+            } elseif ($status = $this->tryHandleExpressCheckoutError($responseData)) {
+                // WARNING: no fault here, assignment is intended.
+                return $status;
 
             } else {
                 $this->setDetail(
@@ -569,6 +586,8 @@ HTML;
                     'Failed: ' . $responseData['RESPMSG'],
                     'Status'
                 );
+
+                $transaction->setNote($this->getPaypalFailureNote($responseData));
             }
 
             // Save payment transaction data
@@ -580,6 +599,8 @@ HTML;
                 'Failed: unexpected response received from PayPal',
                 'Status'
             );
+
+            $transaction->setNote('Unexpected response received from PayPal');
         }
 
         $transaction->setStatus($transactionStatus);
@@ -592,6 +613,59 @@ HTML;
         \XLite\Core\Session::getInstance()->ec_type = null;
 
         return $status;
+    }
+
+
+    /**
+     * Returns human-readable Paypal error note.
+     *
+     * @param $responseData
+     * @return string
+     */
+    protected function getPaypalFailureNote($responseData)
+    {
+        $note = $responseData['RESPMSG'];
+
+        if (preg_match('/^Generic processor error: 10417/', $responseData['RESPMSG'])
+            || preg_match('/^10417/', $responseData['RESPMSG'])) {
+            $note = 'The credit card failed bank authorization. Retry the transaction using an alternative payment method from your PayPal wallet or contact PayPal Customer Service';
+        }
+
+        if (preg_match('/^Generic processor error: 10485/', $responseData['RESPMSG'])
+            || preg_match('/^10485/', $responseData['RESPMSG'])) {
+            $note = 'Payment has not been authorized by the user. Try to place the order again or contact PayPal Customer Service';
+        }
+
+        return $note;
+    }
+
+    /**
+     * Checks if the response message can be parsed and handled properly,
+     * handles it and returns the status of payment transaction.
+     * Returns false if cannot handle.
+     *
+     * @param $responseData
+     *
+     * @return boolean
+     */
+    protected function tryHandleExpressCheckoutError($responseData)
+    {
+        $result = false;
+
+        if ($this->isRetryExpressCheckoutCode($responseData)
+            && $this->isRetryExpressCheckoutAllowed()
+        ) {
+            $this->retryExpressCheckout(\XLite\Core\Session::getInstance()->ec_token);
+        } elseif (!$this->doExpressCheckoutPaymentRecursiveCall && isset($responseData['L_ERRORCODE0']) && '10419' === $responseData['L_ERRORCODE0']) {
+            \XLite\Core\Session::getInstance()->ec_payer_id = \XLite\Core\Request::getInstance()->PayerID;
+            $this->doExpressCheckoutPaymentRecursiveCall = true;
+
+            $result = $this->doDoExpressCheckoutPayment();
+        }
+
+        $this->doExpressCheckoutPaymentRecursiveCall = false;
+
+        return $result;
     }
 
     /**

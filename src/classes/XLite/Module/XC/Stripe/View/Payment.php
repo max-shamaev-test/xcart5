@@ -56,8 +56,8 @@ class Payment extends \XLite\View\AView
         if (\XLite\Core\Session::getInstance()->checkoutEmail) {
             $data['data-email'] = \XLite\Core\Session::getInstance()->checkoutEmail;
 
-        } elseif ($this->getCart()->getProfile()) {
-            $data['data-email'] = $this->getCart()->getProfile()->getLogin();
+        } elseif ($this->getCart() && $this->getCart()->getProfile()) {
+            $data['data-email'] = $this->getCart()->getProfile()->getEmail();
         }
 
         return $data;

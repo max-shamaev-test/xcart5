@@ -9,7 +9,21 @@
 namespace XLite\Module\CDev\Wholesale\Model\Repo;
 
 /**
- * Wholesale price model repository
+ * @Api\Operation\Create(modelClass="XLite\Module\CDev\Wholesale\Model\WholesalePrice", summary="Add wholesale price tier")
+ * @Api\Operation\Read(modelClass="XLite\Module\CDev\Wholesale\Model\WholesalePrice", summary="Retrieve wholesale price tier by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\CDev\Wholesale\Model\WholesalePrice", summary="Retrieve wholesale price tiers by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\CDev\Wholesale\Model\WholesalePrice", summary="Update wholesale price tier by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\CDev\Wholesale\Model\WholesalePrice", summary="Delete wholesale price tier by id")
+ *
+ * @SWG\Tag(
+ *   name="CDev\Wholesale\WholesalePrice",
+ *   x={"display-name": "WholesalePrice", "group": "CDev\Wholesale"},
+ *   description="WholesalePrice record keeps data about wholesale discount tiers of a certain product and membership",
+ *   @SWG\ExternalDocumentation(
+ *     description="Find out more about setting up wholesale price and minimum purchase quantities",
+ *     url="http://kb.x-cart.com/en/products/setting_up_wholesale_prices_and_minimum_purchase_quantites_for_different_membership_levels.html"
+ *   )
+ * )
  */
 class WholesalePrice extends \XLite\Module\CDev\Wholesale\Model\Repo\Base\AWholesalePrice
 {

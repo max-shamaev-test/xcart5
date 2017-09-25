@@ -58,7 +58,7 @@ define(
 
     computed: {
       isStateValid: function() {
-        return BillingAddressForm.super.options.computed.isStateValid.apply(this, arguments) || this.same_address;
+        return BillingAddressForm.super.options.computed.isStateValid.get.apply(this, arguments) || this.same_address;
       }
     },
 

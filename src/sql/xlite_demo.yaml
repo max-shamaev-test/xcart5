@@ -170,7 +170,7 @@ XLite\Model\Config:
   - { name: location_zipcode, category: Company, value: '10001' }
   - { name: company_name, category: Company, value: '*Your company name*' }
   - { name: company_phone, category: Company, value: '(555) 555-5555' }
-  - { name: company_fax, category: Company, value: '(555) 555-5555' }
+  - { name: company_fax, category: Company, value: '' }
   - { name: anonymous_state, category: Shipping, value: 562 }
   - { name: anonymous_zipcode, category: Shipping, value: '90001' }
   - { name: anonymous_city, category: Shipping, value: 'Los Angeles' }

@@ -237,6 +237,15 @@ ALoadable.prototype.getLoaderOptions = function()
   return {};
 }
 
+ALoadable.prototype.createTemporaryContainer = function(data){
+
+  var container = this.getTemporaryContainer();
+
+  container.html(data);
+
+  return container;
+};
+
 // onload handler
 ALoadable.prototype.loadHandler = function(xhr, s, data)
 {
@@ -246,9 +255,7 @@ ALoadable.prototype.loadHandler = function(xhr, s, data)
 
   if (false !== data) {
 
-    var container = this.getTemporaryContainer();
-
-    container.html(data);
+    var container = this.createTemporaryContainer(data);
 
     var uuid = _.uniqueId();
 
@@ -338,7 +345,7 @@ ALoadable.prototype.placeRequestData = function(box)
     this.replacePageTitle(box);
   }
 
-  box = this.extractContent(box).children();
+  box = this.extractContent(box);
 
   //TODO: find any reason to add random class.
   var id = 'temporary-ajax-id-' + (new Date()).getTime();
@@ -366,7 +373,7 @@ ALoadable.prototype.extractContent = function(box)
     box = jQuery('.block:first > .content', box.eq(0));
   }
 
-  return box;
+  return box.children();
 };
 
 // Place parsed request data into DOM

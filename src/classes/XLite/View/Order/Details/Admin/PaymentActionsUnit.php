@@ -21,6 +21,7 @@ class PaymentActionsUnit extends \XLite\View\AView
     const PARAM_TRANSACTION = 'transaction';
     const PARAM_UNIT        = 'unit';
     const PARAM_DISPLAY_SEPARATOR = 'displaySeparator';
+    const PARAM_ORDER_NUMBER = 'order_number';
 
     /**
      * Cache of unit message value
@@ -97,6 +98,7 @@ class PaymentActionsUnit extends \XLite\View\AView
             self::PARAM_TRANSACTION => new \XLite\Model\WidgetParam\TypeObject('Transaction', null, false, 'XLite\Model\Payment\Transaction'),
             self::PARAM_UNIT        => new \XLite\Model\WidgetParam\TypeString('Unit', '', false),
             self::PARAM_DISPLAY_SEPARATOR => new \XLite\Model\WidgetParam\TypeBool('Display separator', false, false),
+            self::PARAM_ORDER_NUMBER => new \XLite\Model\WidgetParam\TypeString('OrderNumber', '', false),
         );
     }
 
@@ -188,7 +190,7 @@ class PaymentActionsUnit extends \XLite\View\AView
             'order',
             $this->getParam(self::PARAM_UNIT),
             array(
-                'order_number' => $this->getParam(self::PARAM_TRANSACTION)->getOrder()->getOrderNumber(),
+                'order_number' => $this->getParam(self::PARAM_ORDER_NUMBER),
                 'trn_id'       => $this->getParam(self::PARAM_TRANSACTION)->getTransactionId(),
             )
         );

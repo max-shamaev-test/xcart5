@@ -19,7 +19,7 @@ class CleanURL extends \XLite\Model\CleanURL implements \XLite\Base\IDecorator
      * @var \XLite\Module\CDev\SimpleCMS\Model\Page
      *
      * @ManyToOne  (targetEntity="XLite\Module\CDev\SimpleCMS\Model\Page", inversedBy="cleanURLs")
-     * @JoinColumn (name="page_id", referencedColumnName="id")
+     * @JoinColumn (name="page_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $page;
 

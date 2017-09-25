@@ -17,6 +17,7 @@ class OrderHistory extends \XLite\Base\Singleton
      * Codes for registered events of order history
      */
     const CODE_PLACE_ORDER                  = 'PLACE ORDER';
+    const CODE_USER_IP                      = 'USER IP';
     const CODE_CHANGE_STATUS_ORDER          = 'CHANGE STATUS ORDER';
     const CODE_CHANGE_PAYMENT_STATUS_ORDER  = 'CHANGE PAYMENT STATUS ORDER';
     const CODE_CHANGE_SHIPPING_STATUS_ORDER = 'CHANGE SHIPPING STATUS ORDER';
@@ -37,6 +38,7 @@ class OrderHistory extends \XLite\Base\Singleton
      * Texts for the order history event descriptions
      */
     const TXT_PLACE_ORDER                   = 'Order placed';
+    const TXT_USER_IP                       = '{{ip}} IP address used';
     const TXT_CHANGE_STATUS_ORDER           = 'Order status changed from {{oldStatus}} to {{newStatus}}';
     const TXT_CHANGE_PAYMENT_STATUS_ORDER   = 'Order payment status changed from {{oldStatus}} to {{newStatus}}';
     const TXT_CHANGE_SHIPPING_STATUS_ORDER  = 'Order shipping status changed from {{oldStatus}} to {{newStatus}}';
@@ -194,6 +196,13 @@ class OrderHistory extends \XLite\Base\Singleton
             static::CODE_PLACE_ORDER,
             $this->getPlaceOrderDescription($orderId),
             $this->getPlaceOrderData($orderId)
+        );
+
+        $this->registerEvent(
+            $orderId,
+            static::CODE_USER_IP,
+            $this->getUserIpDescription(),
+            $this->getUserIpData()
         );
     }
 
@@ -586,6 +595,28 @@ class OrderHistory extends \XLite\Base\Singleton
     {
         return array(
             'orderId' => $orderId,
+        );
+    }
+
+    /**
+     * Text for user ip
+     *
+     * @return string
+     */
+    protected function getUserIpDescription()
+    {
+        return static::TXT_USER_IP;
+    }
+
+    /**
+     * Data for user ip
+     *
+     * @return array
+     */
+    protected function getUserIpData()
+    {
+        return array(
+            'ip' => \XLite\Core\Request::getInstance()->getClientIp(),
         );
     }
 

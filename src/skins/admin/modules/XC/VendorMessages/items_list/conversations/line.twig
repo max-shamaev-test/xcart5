@@ -3,7 +3,15 @@
  #}
 
 <tr {{ this.printTagAttributes(this.getLineTagAttributes(conversation))|raw }}>
-  <td class="conversation-link"><a href="{{ this.getConversationLink(conversation) }}">{{ conversation.getName() }}</a>
+  <td class="select">
+    <div class="action">
+      <div class="selector">
+        <input type="checkbox" name="select[{{ conversation.getId() }}]" value="1" class="selector" autocomplete="off">
+      </div>
+    </div>
+  </td>
+  <td class="conversation-link">
+    <a href="{{ this.getConversationLink(conversation) }}">{{ conversation.getName() }}</a>
   </td>
   <td class="text">
     <a href="{{ this.getConversationLink(conversation) }}" class="text-link">

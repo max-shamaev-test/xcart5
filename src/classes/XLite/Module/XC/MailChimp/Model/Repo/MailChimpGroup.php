@@ -12,7 +12,14 @@ use XLite\Module\XC\MailChimp\Core;
 use XLite\Module\XC\MailChimp\Model;
 
 /**
- * The Group model repository
+ * @Api\Operation\Read(modelClass="XLite\Module\XC\MailChimp\Model\MailChimpGroup", summary="Retrieve mailchimp group by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\XC\MailChimp\Model\MailChimpGroup", summary="Retrieve mailchimp groups by conditions")
+ *
+ * @SWG\Tag(
+ *   name="XC\MailChimp\MailChimpGroup",
+ *   x={"display-name": "MailChimpGroup", "group": "XC\MailChimp"},
+ *   description="MailChimpGroup repo",
+ * )
  */
 class MailChimpGroup extends \XLite\Model\Repo\ARepo
 {

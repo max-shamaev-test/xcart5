@@ -173,7 +173,7 @@ XLite\Model\Config:
     category: 'CDev\GoSocial'
     type: text
     orderby: 2200
-    value: x_cart
+    value: ''
     translations:
       - code: en
         option_name: 'Account name of the user to attribute the Tweet to (optional)'

@@ -10,8 +10,7 @@
 decorate(
   'ProductsListView',
   'postprocess',
-  function(isSuccess, initial)
-  {
+  function (isSuccess, initial) {
     arguments.callee.previousMethod.apply(this, arguments);
 
     if (isSuccess) {
@@ -21,9 +20,9 @@ decorate(
 
           return !popup.load(
             URLHandler.buildURL({
-              target:      'quick_look',
-              action:      '',
-              product_id:  core.getValueFromClass(this, 'quicklook-link'),
+              target: 'quick_look',
+              action: '',
+              product_id: core.getValueFromClass(this, 'quicklook-link'),
               only_center: 1
             }),
             function () {
@@ -34,8 +33,8 @@ decorate(
         }
       );
 
-      core.bind('block.product.details.postprocess', function() {
-         $('.cycle-slideshow').cycle();
+      core.bind('block.product.details.postprocess', function () {
+        core.trigger('init-cycle-gallery');
       });
     }
   }

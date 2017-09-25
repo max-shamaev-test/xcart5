@@ -9,7 +9,19 @@
 namespace XLite\Module\CDev\SalesTax\Model\Repo;
 
 /**
- * Tax repository
+ * @Api\Operation\Read(modelClass="XLite\Module\CDev\SalesTax\Model\Tax", summary="Retrieve tax type by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\CDev\SalesTax\Model\Tax", summary="Retrieve tax types")
+ * @Api\Operation\Update(modelClass="XLite\Module\CDev\SalesTax\Model\Tax", summary="Update tax type by id")
+ *
+ * @SWG\Tag(
+ *   name="CDev\SalesTax\Tax",
+ *   x={"display-name": "Tax", "group": "CDev\SalesTax"},
+ *   description="Tax model keeps track of tax types, such as VAT type, Sales Tax type etc. It can have from one to many tax rate records.",
+ *   @SWG\ExternalDocumentation(
+ *     description="Find out more about setting up taxes",
+ *     url="http://kb.x-cart.com/en/taxes/"
+ *   )
+ * )
  */
 class Tax extends \XLite\Model\Repo\Base\I18n
 {

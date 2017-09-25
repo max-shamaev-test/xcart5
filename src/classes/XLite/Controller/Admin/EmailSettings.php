@@ -14,4 +14,12 @@ namespace XLite\Controller\Admin;
 class EmailSettings extends \XLite\Controller\Admin\Settings
 {
     public $page = self::EMAIL_PAGE;
+
+    /**
+     * @return bool
+     */
+    public function isQueuesNoteVisible()
+    {
+        return !\XLite\Core\ConfigParser::getOptions(['queue', 'backgroundJobsSchedulingEnabled']);
+    }
 }

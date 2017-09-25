@@ -28,7 +28,7 @@ abstract class ACustomer extends \XLite\Controller\Customer\ACustomer implements
     {
         parent::handleRequest();
 
-        $rand = rand(1, static::CUSTOMERS_PERIOD);
+        $rand = mt_rand(1, static::CUSTOMERS_PERIOD);
         if ($rand === 1) {
             $models = \XLite\Core\Database::getRepo('\XLite\Module\XC\CustomerAttachments\Model\OrderItem\Attachment\Attachment')
                 ->findBy(array('orderItem' => null));

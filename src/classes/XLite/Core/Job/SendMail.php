@@ -36,6 +36,7 @@ class SendMail extends JobAbstract
 
         // This is hack to avoid recursive scheduling
         \XLite\Core\Mailer::setSchedule(false);
+        \XLite\Core\Mailer::setScheduledJob(null);
         call_user_func_array($function, $this->arguments);
         \XLite\Core\Mailer::setSchedule(true);
         $this->markAsFinished();

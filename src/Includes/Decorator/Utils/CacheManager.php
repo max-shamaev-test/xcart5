@@ -538,7 +538,7 @@ OUT;
         if (!isset(static::$currentPid)) {
             static::$currentPid = !empty($_REQUEST[static::CPID_NAME])
                 ? $_REQUEST[static::CPID_NAME]
-                : md5(microtime() . rand(1, 1000));
+                : md5(microtime() . mt_rand(1, 1000));
         }
 
         return static::$currentPid;
@@ -1357,7 +1357,7 @@ OUT;
      */
     protected static function generateKey()
     {
-        return md5(microtime() . rand(1, 1000));
+        return md5(microtime() . mt_rand(1, 1000));
     }
 
     // }}}

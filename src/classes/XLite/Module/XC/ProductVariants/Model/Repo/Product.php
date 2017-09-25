@@ -115,7 +115,7 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
         if ($profile
             && $profile->getMembership()
         ) {
-            $queryBuilder->getAllAliases()->innerJoin(
+            $queryBuilder->innerJoin(
                 $alias . '.quickData',
                 'qdMinPrice',
                 'WITH',

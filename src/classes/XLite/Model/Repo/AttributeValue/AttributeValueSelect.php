@@ -114,4 +114,17 @@ class AttributeValueSelect extends \XLite\Model\Repo\AttributeValue\Multiple
 
         $qb->execute();
     }
+
+    /**
+     * Define export iterator query builder
+     *
+     * @param integer $position Position
+     *
+     * @return \XLite\Model\QueryBuilder\AQueryBuilder
+     */
+    protected function defineExportIteratorQueryBuilder($position)
+    {
+        return parent::defineExportIteratorQueryBuilder($position)
+            ->addOrderBy($this->getDefaultAlias().'.position');
+    }
 }

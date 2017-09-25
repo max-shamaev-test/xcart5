@@ -12,7 +12,7 @@ function vendorMessages533migrateCount()
     $path = LC_DIR_DATA . 'order_messages_migration_orders_data.csv';
 
     if (file_exists($path)) {
-        $handle = fopen($path, 'r');
+        $handle = fopen($path, 'rb');
 
         while (fgetcsv($handle)) {
             $count++;
@@ -23,7 +23,7 @@ function vendorMessages533migrateCount()
         $path = LC_DIR_DATA . 'order_messages_migration_messages_data.csv';
 
         if (file_exists($path)) {
-            $handle = fopen($path, 'r');
+            $handle = fopen($path, 'rb');
 
             while (fgetcsv($handle)) {
                 $count++;
@@ -42,7 +42,7 @@ function vendorMessages533migrate($state)
     $path = LC_DIR_DATA . 'order_messages_migration_orders_data.csv';
 
     if (file_exists($path)) {
-        $handle = fopen($path, 'r');
+        $handle = fopen($path, 'rb');
 
         while (($row = fgetcsv($handle)) && $stepRows) {
             /** @var \XLite\Model\Order $order */
@@ -87,7 +87,7 @@ function vendorMessages533migrate($state)
         $path = LC_DIR_DATA . 'order_messages_migration_messages_data.csv';
 
         if (file_exists($path)) {
-            $handle = fopen($path, 'r');
+            $handle = fopen($path, 'rb');
 
             while (($row = fgetcsv($handle)) && $stepRows) {
                 $qb = \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\Message')->createQueryBuilder();

@@ -8,10 +8,8 @@
  */
 define(
   'checkout_fastlane/blocks/order_notes',
- ['vue/vue',
-  'checkout_fastlane/sections/shipping',
-  'checkout_fastlane/sections/payment'],
-  function(Vue, ShippingSection, PaymentSection) {
+ ['vue/vue'],
+  function(Vue) {
 
   var OrderNotes = Vue.extend({
     name: 'order-notes',
@@ -33,9 +31,6 @@ define(
       }
     },
   });
-
-  Vue.registerComponent(ShippingSection, OrderNotes);
-  Vue.registerComponent(PaymentSection, OrderNotes);
 
   return OrderNotes;
 });

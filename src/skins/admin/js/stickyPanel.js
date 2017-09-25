@@ -361,7 +361,7 @@ StickyPanel.prototype.getFormChangedButtons = function()
   // If there is any element inside the dropdown menu with the "always-enabled" state
   // then we do not disable the toggle list action button
   return (this.base.find('.dropdown-menu .always-enabled').length > 0)
-    ? buttons.not('.always-enabled, .toggle-list-action')
+    ? buttons.not('.always-enabled, .toggle-list-action, .more-action, .more-actions')
     : buttons.not('.always-enabled, .more-action, .more-actions');
 };
 

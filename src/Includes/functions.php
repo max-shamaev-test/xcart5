@@ -474,12 +474,12 @@ function query_upload_error($myerr, $ignoreErrors)
 function generate_code($length = 8)
 {
     $salt = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789';
-    srand(microtime(true) * 1000000);
+    mt_srand(microtime(true) * 1000000);
     $i = 0;
 
     $code = '';
     while ($i < $length) {
-        $num = rand() % 35;
+        $num = mt_rand() % 35;
         $tmp = substr($salt, $num, 1);
         $code = $code . $tmp;
         $i++;
@@ -545,7 +545,7 @@ function func_lock($lockname, $ttl = 15, $cycle_limit = 0)
     $fname = $lockDir."/".$lockname.".lock";
 
     // Generate current id
-    $id = md5(uniqid(rand(0, substr(floor(microtime(true) * 1000), 3)), true));
+    $id = md5(uniqid(mt_rand(0, substr(floor(microtime(true) * 1000), 3)), true));
     $_lock_hash[$lockname] = $id;
 
     $file_id = false;
@@ -554,7 +554,7 @@ function func_lock($lockname, $ttl = 15, $cycle_limit = 0)
         if (!file_exists($fname)) {
 
             # Write locking data
-            $fp = @fopen($fname, "w");
+            $fp = @fopen($fname, 'wb');
             if ($fp) {
                 @fwrite($fp, $id.time());
                 fclose($fp);

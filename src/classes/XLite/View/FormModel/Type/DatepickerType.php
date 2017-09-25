@@ -25,6 +25,11 @@ class DatepickerType extends AType
         return ['form_model/type/datepicker_type.js'];
     }
 
+    public static function getCSSFiles()
+    {
+        return ['form_field/input/text/date.less'];
+    }
+
     /**
      * @return string
      */

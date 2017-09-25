@@ -11,7 +11,7 @@ namespace XLite\View\FormField\Select;
 /**
  * \XLite\View\FormField\Select\Template
  */
-class Template extends \XLite\View\FormField\Select\Regular
+class Template extends \XLite\View\FormField\Select\Regular implements \XLite\Core\PreloadedLabels\ProviderInterface
 {
     const SKIN_STANDARD = 'standard';
 
@@ -264,5 +264,19 @@ class Template extends \XLite\View\FormField\Select\Regular
     protected function getFieldTemplate()
     {
         return 'template.twig';
+    }
+
+    /**
+     * Array of labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'To make your changes visible in the customer area, cache rebuild is required. It will take several seconds. You don’t need to close the storefront, the operation is executed in the background.' => static::t('To make your changes visible in the customer area, cache rebuild is required. It will take several seconds. You don’t need to close the storefront, the operation is executed in the background.')
+        ];
     }
 }

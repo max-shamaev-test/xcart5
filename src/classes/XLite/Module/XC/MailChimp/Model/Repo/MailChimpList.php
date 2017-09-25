@@ -11,7 +11,14 @@ namespace XLite\Module\XC\MailChimp\Model\Repo;
 use XLite\Module\XC\MailChimp\Core;
 
 /**
- * The MailChimpList model repository
+ * @Api\Operation\Read(modelClass="XLite\Module\XC\MailChimp\Model\MailChimpList", summary="Retrieve mailchimp list by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\XC\MailChimp\Model\MailChimpList", summary="Retrieve mailchimp lists by conditions")
+ *
+ * @SWG\Tag(
+ *   name="XC\MailChimp\MailChimpList",
+ *   x={"display-name": "MailChimpList", "group": "XC\MailChimp"},
+ *   description="MailChimpList repo",
+ * )
  */
 class MailChimpList extends \XLite\Model\Repo\ARepo
 {

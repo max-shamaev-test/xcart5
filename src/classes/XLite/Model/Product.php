@@ -59,6 +59,12 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     protected $product_id;
 
     /**
+     * @Version
+     * @Column(type="integer")
+     */
+    protected $version;
+
+    /**
      * Product price
      *
      * @var float
@@ -602,6 +608,16 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     public function getId()
     {
         return $this->getProductId();
+    }
+
+    /**
+     * Return Version
+     *
+     * @return mixed
+     */
+    public function getVersion()
+    {
+        return $this->version;
     }
 
     /**
@@ -1352,6 +1368,8 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
         if (\XLite\Core\Converter::isEmptyString($this->getSku())) {
             $this->setSku(null);
         }
+
+        $this->truncateFields();
     }
 
     /**
@@ -1466,6 +1484,33 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
         return $this->executeCachedRuntime(function () {
             return $this->defineEditableAttributes();
         }, ['getEditableAttributes', $this->getProductId()]);
+    }
+
+    /**
+     * Returns array of fields to be truncated upon update or create
+     * Array format:
+     *  key - getter property (e.g. 'name' for getName())
+     *  value - field length
+     *
+     * @return array
+     */
+    protected function defineTruncatedFields()
+    {
+        return [
+            'name' => \XLite\Core\Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('name', 'length'),
+            'metaTags' => \XLite\Core\Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('metaTags', 'length'),
+            'metaTitle' => \XLite\Core\Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('metaTitle', 'length')
+        ];
+    }
+
+    /**
+     * Truncates fields, limit their length. Called on prepareBeforeUpdate
+     */
+    protected function truncateFields()
+    {
+        foreach ($this->defineTruncatedFields() as $field => $length) {
+            $this->{$field} = mb_substr($this->{$field}, 0, $length);
+        }
     }
 
     /**
@@ -1741,6 +1786,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
         $link->setProduct($this);
         $link->setOrderby($value['position']);
 
+        \XLite\Core\Database::getEM()->persist($link);
         \XLite\Core\Database::getEM()->flush($link);
     }
 

@@ -49,7 +49,7 @@ class AccessControl extends \XLite\View\AView
      */
     public function getJSFiles()
     {
-        $list = parent::getCSSFiles();
+        $list = parent::getJSFiles();
         $list[] = 'access_control/access_control.js';
 
         return $list;

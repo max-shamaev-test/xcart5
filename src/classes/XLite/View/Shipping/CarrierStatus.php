@@ -59,7 +59,6 @@ class CarrierStatus extends \XLite\View\AView
     protected function defineWidgetParams()
     {
         parent::defineWidgetParams();
-
         $this->widgetParams += array(
             static::PARAM_METHOD
                 => new \XLite\Model\WidgetParam\TypeObject('Method', null, false, 'XLite\Model\Shipping\Method'),

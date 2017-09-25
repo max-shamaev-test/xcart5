@@ -12,7 +12,12 @@
     {% endif %}
   {% endif %}
    </li>
-   <li class="title">{{ payment.getName() }}</li>
+   <li class="title">
+    <span class="payment-name">{{ payment.getName() }}</span>
+     {% if payment.getAdminDescription() %}
+     <span class="description">{{ payment.getAdminDescription() }}</span>
+     {% endif %}
+   </li>
    <li class="actions">
     <div class="separator"></div>
     <div {% if payment.getAdded() %}class="switcher enabled" title="{{ t('Payment method has been added') }}"{% else %}class="switcher disabled" title="{{ t('Payment method was not added') }}"{% endif %}>

@@ -198,6 +198,9 @@ class Language extends \XLite\Model\Base\I18n
             'et' => 'ee',
             'ee' => 'gh',
             'aa' => 'et',
+            'km' => 'kh',
+            'ms' => 'my',
+            'my' => 'mm',
         ];
     }
 

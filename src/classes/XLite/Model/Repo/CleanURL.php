@@ -843,7 +843,9 @@ class CleanURL extends \XLite\Model\Repo\ARepo
 
         $queryBuilder->linkInner('c.category')
             ->andWhere('category.parent = :parent')
-            ->setParameter('parent', $parent)
+            ->setParameter('parent', $parent
+                ? $parent->getCategoryId()
+                : null)
             ->orderBy('c.id', 'DESC');
 
         return $queryBuilder;

@@ -9,7 +9,17 @@
 namespace XLite\Module\XC\CustomerAttachments\Model\Repo\OrderItem\Attachment;
 
 /**
- * Customer file attachment storage repository
+ * @Api\Operation\Create(modelClass="XLite\Module\XC\CustomerAttachments\Model\OrderItem\Attachment\Attachment", summary="Add customer attachment")
+ * @Api\Operation\Read(modelClass="XLite\Module\XC\CustomerAttachments\Model\OrderItem\Attachment\Attachment", summary="Retrieve customer attachment by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\XC\CustomerAttachments\Model\OrderItem\Attachment\Attachment", summary="Retrieve customer attachments by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\XC\CustomerAttachments\Model\OrderItem\Attachment\Attachment", summary="Update customer attachment by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\XC\CustomerAttachments\Model\OrderItem\Attachment\Attachment", summary="Delete customer attachment by id")
+ *
+ * @SWG\Tag(
+ *   name="XC\CustomerAttachments\OrderItem\Attachment\Attachment",
+ *   x={"display-name": "OrderItem\Attachment\Attachment", "group": "XC\CustomerAttachments"},
+ *   description="This repo stores user-created global product tabs.",
+ * )
  */
 class Attachment extends \XLite\Model\Repo\Base\Storage
 {

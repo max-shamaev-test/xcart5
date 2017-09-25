@@ -22,6 +22,20 @@ abstract class ACustomer extends \XLite\Controller\Customer\ACustomer implements
     protected $product = false;
 
     /**
+     * Runtime cache: review key
+     *
+     * @var \XLite\Module\XC\Reviews\Model\OrderReviewKey
+     */
+    protected $reviewKey = null;
+
+    /**
+     * Runtime cache: reviewer profile
+     *
+     * @var \XLite\Model\Profile
+     */
+    protected $reviewerProfile = null;
+
+    /**
      * Get product
      *
      * @return \XLite\Model\Product
@@ -54,6 +68,81 @@ abstract class ACustomer extends \XLite\Controller\Customer\ACustomer implements
     }
 
     /**
+     * Return true if a valid rkey parameter has been passed
+     *
+     * @return boolean
+     */
+    public function isValidReviewKey()
+    {
+        $result = false;
+
+        if (($rkeys = \XLite\Core\Session::getInstance()->savedReviewKeys) && is_array($rkeys)) {
+            foreach ($rkeys as $rkey) {
+                if (($reviewKey = $this->getReviewKey($rkey)) && $reviewKey->isValidForProduct($this->getProduct())) {
+                    $this->reviewKey = $reviewKey;
+                    $result = true;
+                    break;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get OrderReviewKey object
+     *
+     * @param string $rkey rkey value passed in URL OPTIONAL
+     *
+     * @return \XLite\Module\XC\Reviews\Model\OrderReviewKey
+     */
+    public function getReviewKey($rkey = null)
+    {
+        $result = $this->reviewKey;
+
+        if (isset($rkey)) {
+
+            $repo = \XLite\Core\Database::getRepo('XLite\Module\XC\Reviews\Model\OrderReviewKey');
+
+            if ($rkey === (int) $rkey) {
+                // Search by ID
+                $result = $repo->find($rkey);
+
+            } else {
+                // Search by keyValue
+                $result = $repo->findOneBy(['keyValue' => $rkey]);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Return current reviewer profile
+     *
+     * @return \XLite\Model\Profile
+     */
+    public function getReviewerProfile()
+    {
+        if (!isset($this->reviewerProfile)) {
+
+            $profile = \XLite\Core\Auth::getInstance()->getProfile();
+
+            if (!$profile && $this->isValidReviewKey()) {
+                // If user is not logged in then we check if review key is provided
+                $order = $this->getReviewKey()->getOrder();
+                if ($order) {
+                    $profile = $order->getOrigProfile();
+                }
+            }
+
+            $this->reviewerProfile = $profile ?: false;
+        }
+
+        return $this->reviewerProfile ?: null;
+    }
+
+    /**
      * Return TRUE if customer already reviewed product
      *
      * @param \XLite\Model\Product $product
@@ -67,8 +156,9 @@ abstract class ACustomer extends \XLite\Controller\Customer\ACustomer implements
         }
 
         $result = false;
-        if (isset($product) && $this->getProfile()) {
-            $result = $product->isReviewedByUser($this->getProfile());
+
+        if (isset($product) && $this->getReviewerProfile()) {
+            $result = $product->isReviewedByUser($this->getReviewerProfile());
         }
 
         return $result;
@@ -83,13 +173,25 @@ abstract class ACustomer extends \XLite\Controller\Customer\ACustomer implements
      */
     public function isAllowedAddReview($product = null)
     {
-        $result = !$this->isProductReviewedByUser($product);
+        $result = false;
 
-        if ($result
-            && $this->isPurchasedCustomerOnlyAbleLeaveFeedback()
-            && !$this->isUserPurchasedProduct($product)
-        ) {
-            $result = false;
+        if ($this->isValidReviewKey()) {
+            $result = true;
+
+        } else {
+
+            $result = (bool) $this->getReviewerProfile();
+
+            if ($result && $this->isProductReviewedByUser($product)) {
+                $result = false;
+            }
+
+            if ($result
+                && $this->isPurchasedCustomerOnlyAbleLeaveFeedback()
+                && !$this->isUserPurchasedProduct($product)
+            ) {
+                $result = false;
+            }
         }
 
         return $result;
@@ -102,7 +204,7 @@ abstract class ACustomer extends \XLite\Controller\Customer\ACustomer implements
      */
     public function isReplaceAddReviewWithLogin()
     {
-        return !(boolean)$this->getProfile();
+        return !$this->isValidReviewKey() && !(boolean)$this->getProfile();
     }
 
     /**
@@ -114,12 +216,19 @@ abstract class ACustomer extends \XLite\Controller\Customer\ACustomer implements
     {
         $message = null;
 
-        if (empty($message) && $this->getProfile() && $this->isProductReviewedByUser()) {
-            $message = 'You have already reviewed this product';
-        }
+        if (!$this->isValidReviewKey()) {
 
-        if (empty($message) && $this->isPurchasedCustomerOnlyAbleLeaveFeedback()) {
-            $message = 'Only customers who purchased this product can leave feedback on this product';
+            if (!$this->getReviewerProfile()) {
+                $message = 'Please sign in to add review';
+            }
+
+            if (empty($message) && $this->isProductReviewedByUser()) {
+                $message = 'You have already reviewed this product';
+            }
+
+            if (empty($message) && $this->isPurchasedCustomerOnlyAbleLeaveFeedback()) {
+                $message = 'Only customers who purchased this product can leave feedback on this product';
+            }
         }
 
         return static::t($message);
@@ -147,7 +256,7 @@ abstract class ACustomer extends \XLite\Controller\Customer\ACustomer implements
     protected function isUserPurchasedProduct($product)
     {
         return \XLite\Core\Database::getRepo('XLite\Model\OrderItem')
-            ->countItemsPurchasedByCustomer($product ? $product->getId() : $this->getProductId(), $this->getProfile());
+            ->countItemsPurchasedByCustomer($product ? $product->getId() : $this->getProductId(), $this->getReviewerProfile());
     }
 
     /**
@@ -161,7 +270,8 @@ abstract class ACustomer extends \XLite\Controller\Customer\ACustomer implements
     {
         $result = false;
 
-        $profile = \XLite\Core\Auth::getInstance()->getProfile();
+        $profile = $this->getReviewerProfile();
+
         if ($profile && $entity->getProfile()) {
             $result = ($entity->getProfile()->getProfileId() === $profile->getProfileId());
         }

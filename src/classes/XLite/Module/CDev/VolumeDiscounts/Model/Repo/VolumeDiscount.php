@@ -9,7 +9,21 @@
 namespace XLite\Module\CDev\VolumeDiscounts\Model\Repo;
 
 /**
- * VolumeDiscount repository
+ * @Api\Operation\Create(modelClass="XLite\Module\CDev\VolumeDiscounts\Model\VolumeDiscount", summary="Add volume discount")
+ * @Api\Operation\Read(modelClass="XLite\Module\CDev\VolumeDiscounts\Model\VolumeDiscount", summary="Retrieve volume discount by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\CDev\VolumeDiscounts\Model\VolumeDiscount", summary="Retrieve volume discounts by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\CDev\VolumeDiscounts\Model\VolumeDiscount", summary="Update volume discount by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\CDev\VolumeDiscounts\Model\VolumeDiscount", summary="Delete volume discount by id")
+ *
+ * @SWG\Tag(
+ *   name="CDev\VolumeDiscounts\VolumeDiscount",
+ *   x={"display-name": "VolumeDiscount", "group": "CDev\VolumeDiscounts"},
+ *   description="Volume discount record keeps data about discount tiers",
+ *   @SWG\ExternalDocumentation(
+ *     description="Find out more about setting up volume discounts",
+ *     url="http://kb.x-cart.com/en/seo_and_promotion/setting_up_volume_discounts_for_products.html"
+ *   )
+ * )
  */
 class VolumeDiscount extends \XLite\Model\Repo\ARepo
 {

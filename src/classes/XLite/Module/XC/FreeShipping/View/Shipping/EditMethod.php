@@ -27,6 +27,7 @@ class EditMethod extends \XLite\View\Shipping\EditMethod implements \XLite\Base\
      */
     protected function getOfflineHelpTemplate()
     {
+        /** @var \XLite\Module\XC\FreeShipping\Model\Shipping\Method $method */
         $method = $this->getMethod();
 
         return ($method->getFree() || $this->isFixedFeeMethod($method))

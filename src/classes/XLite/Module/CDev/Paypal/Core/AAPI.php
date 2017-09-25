@@ -199,14 +199,14 @@ class AAPI extends \XLite\Base\SuperClass
         $request = new \XLite\Core\HTTP\Request($this->createUrl($type, $params));
 
         if (function_exists('curl_version')) {
-            $request->setAdditionalOption(\CURLOPT_SSLVERSION, 6);
+            $request->setAdditionalOption(\CURLOPT_SSLVERSION, 1);
             $curlVersion = curl_version();
 
             if ($curlVersion
                 && $curlVersion['ssl_version']
                 && 0 !== strpos($curlVersion['ssl_version'], 'NSS')
             ) {
-                $request->setAdditionalOption(\CURLOPT_SSL_CIPHER_LIST, 'TLSv1.2');
+                $request->setAdditionalOption(\CURLOPT_SSL_CIPHER_LIST, 'TLSv1');
             }
         }
 

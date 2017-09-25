@@ -7,7 +7,10 @@
  */
 
 namespace XLite\View\Order\Details\Admin;
+
+use Doctrine\Common\Collections\Collection;
 use XLite\Model\Payment\BackendTransaction;
+use XLite\Model\Payment\Transaction;
 
 /**
  * Payment actions widget (capture, refund, void etc)
@@ -99,13 +102,34 @@ class PaymentActions extends \XLite\View\AView
     // {{{ Content helpers
 
     /**
+    /**
      * Get transactions
      *
      * @return array
      */
     protected function getTransactions()
     {
-        return $this->getParam(self::PARAM_ORDER)->getPaymentTransactions();
+        $transactions = $this->getParam(self::PARAM_ORDER)->getPaymentTransactions();
+
+        if (count($transactions) > 1) {
+            /** @var Collection $transactions */
+            $transactions = $transactions->filter(function($transaction) {
+                /** @var Transaction $transaction */
+                return $transaction->isCompleted();
+            });
+        }
+
+        return $transactions;
+    }
+
+    /*
+     * Get order number
+     *
+     * @return string
+     */
+    protected function getOrderNumber()
+    {
+        return $this->getParam(self::PARAM_ORDER)->getOrderNumber();
     }
 
     /**

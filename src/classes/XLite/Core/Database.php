@@ -705,10 +705,11 @@ class Database extends \XLite\Base\Singleton
         $options = array_merge_recursive(
             $options ?: [],
             [
-                'allowedModels'  => null,
-                'excludedModels' => null,
+                'allowedModels'  => [],
+                'excludedModels' => [],
             ]
         );
+
         $data = FileManager::parseYamlFile($path);
 
         if (is_array($data)) {

@@ -114,7 +114,7 @@ class RESTAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
 
             // URL where PayPal will return the merchant after they have
             // completed the signup flow on PayPal.
-            'returnToPartnerUrl' => urlencode($returnUrl),
+            'returnToPartnerUrl' => $returnUrl,
 
             // Indicates whether you want to receive the merchant’s API
             // credentials (TRUE) or whether you want PayPal to simply display

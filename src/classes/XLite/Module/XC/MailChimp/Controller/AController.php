@@ -21,6 +21,10 @@ class AController extends \XLite\Controller\AController implements \XLite\Base\I
         parent::run();
 
         try {
+            // See BUG-5263
+            if (!file_exists(LC_DIR_CLASSES . str_replace('\\', LC_DS, '\XLite\Module\XC\MailChimp\Core\MailChimpQueue') . '.php')){
+                return;
+            }
             $actions = MailChimpQueue::getInstance()->getActions();
 
             foreach ($actions as $action) {

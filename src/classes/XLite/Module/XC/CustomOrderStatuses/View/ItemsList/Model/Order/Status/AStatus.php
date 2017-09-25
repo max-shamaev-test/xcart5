@@ -94,12 +94,15 @@ abstract class AStatus extends \XLite\View\ItemsList\Model\Table
      */
     protected function getOrdersCount(\XLite\Model\AEntity $entity)
     {
-        if (null === $this->ordersCount) {
-            $this->ordersCount = \XLite\Core\Database::getRepo('\XLite\Model\Order')->countByStatus($this->getPage());
-        }
+        $ordersCount = \XLite\Core\Cache\ExecuteCached::executeCachedRuntime(
+            function () {
+                return \XLite\Core\Database::getRepo('\XLite\Model\Order')->countByStatus($this->getPage());
+            },
+            'orderStatusItemsList' . $this->getPage()
+        );
 
-        return isset($this->ordersCount[$entity->getId()])
-            ? $this->ordersCount[$entity->getId()]
+        return isset($ordersCount[$entity->getId()])
+            ? $ordersCount[$entity->getId()]
             : 0;
     }
 

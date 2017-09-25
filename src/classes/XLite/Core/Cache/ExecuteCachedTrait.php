@@ -10,11 +10,13 @@ namespace XLite\Core\Cache;
 
 /**
  * Trait ExecuteCachedTrait
- * @todo: add long lifetime cache
+ * @todo    : add long lifetime cache
  * @package XLite\Core\Cache
  */
 trait ExecuteCachedTrait
 {
+    private $ExecuteCachedTraitCache = [];
+
     /**
      * Callback will be executed only once unless it return null.
      * This cache is object ware.
@@ -41,6 +43,7 @@ trait ExecuteCachedTrait
      * If $cacheKeyParts is omitted then function name will be used, 'getData' in this example.
      *
      * @todo: add additional callback params; use them in cacheKeyParts.
+     *
      * @param callable          $callback      Callback (the way to get initial value)
      * @param array|string|null $cacheKeyParts Cache cell name (it may be caller method name) OPTIONAL
      * @param boolean           $force         Force flag OPTIONAL
@@ -53,7 +56,25 @@ trait ExecuteCachedTrait
             $cacheKeyParts = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function'];
         }
 
-        return ExecuteCached::executeCachedRuntime($callback, $this->getRuntimeCacheKeyParts($cacheKeyParts), $force);
+        $cacheKey = $this->getRuntimeCacheKey($this->getRuntimeCacheKeyParts($cacheKeyParts));
+
+        if (!isset($this->ExecuteCachedTraitCache[$cacheKey]) || $force) {
+            $this->ExecuteCachedTraitCache[$cacheKey] = $callback();
+        }
+
+        return $this->ExecuteCachedTraitCache[$cacheKey];
+    }
+
+    /**
+     * Calculate key for cache storage
+     *
+     * @param mixed $cacheKeyParts
+     *
+     * @return string
+     */
+    protected function getRuntimeCacheKey($cacheKeyParts)
+    {
+        return is_scalar($cacheKeyParts) ? (string)$cacheKeyParts : md5(serialize($cacheKeyParts));
     }
 
     /**
@@ -64,7 +85,8 @@ trait ExecuteCachedTrait
      */
     protected function setRuntimeCache($cacheKeyParts, $data)
     {
-        ExecuteCached::setRuntimeCache($this->getRuntimeCacheKeyParts($cacheKeyParts), $data);
+        $key = $this->getRuntimeCacheKey($this->getRuntimeCacheKeyParts($cacheKeyParts));
+        $this->ExecuteCachedTraitCache[$key] = $data;
     }
 
     /**
@@ -76,7 +98,10 @@ trait ExecuteCachedTrait
      */
     protected function getRuntimeCache($cacheKeyParts)
     {
-        return ExecuteCached::getRuntimeCache($this->getRuntimeCacheKeyParts($cacheKeyParts));
+        $key = $this->getRuntimeCacheKey($this->getRuntimeCacheKeyParts($cacheKeyParts));
+        return  isset($this->ExecuteCachedTraitCache[$key])
+            ? $this->ExecuteCachedTraitCache[$key]
+            : null;
     }
 
     /**
@@ -86,6 +111,6 @@ trait ExecuteCachedTrait
      */
     protected function getRuntimeCacheKeyParts($cacheKeyParts)
     {
-        return [$cacheKeyParts, spl_object_hash($this), get_class($this)];
+        return [$cacheKeyParts];
     }
 }

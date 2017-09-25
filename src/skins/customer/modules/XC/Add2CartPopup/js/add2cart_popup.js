@@ -9,18 +9,17 @@
 
 var showAdd2CartPopup = true;
 
-function PopupButtonAdd2CartPopup()
-{
+function PopupButtonAdd2CartPopup() {
   // Fallback
   var deboucedFallback = _.debounce(
-    function(){
+    function () {
       showAdd2CartPopup = true;
     },
     5000
   );
   core.bind(
     'addToCartViaDrop',
-    function(event, data) {
+    function (event, data) {
       if (!core.getCommentedData(jQuery('body'), 'a2cp_enable_for_dropping')) {
         showAdd2CartPopup = data.widget && data.widget.base.eq(0).hasClass('add-to-cart-popup');
       }
@@ -29,19 +28,22 @@ function PopupButtonAdd2CartPopup()
     }
   );
 
-  core.bind(['updateCart', 'tryOpenAdd2CartPopup'], _.debounce(
-      this.handleOpenPopup,
-      500
+  core.bind('tryOpenAdd2CartPopup', _.debounce(
+    this.handleOpenPopup,
+    500
   ));
 
-  core.bind('addToCartViaClick', function(data) {
-    showAdd2CartPopup = true;
+  core.bind('productAddedToCart', function () {
     core.trigger('tryOpenAdd2CartPopup');
+  });
+
+  core.bind('addToCartViaClick', function (data) {
+    showAdd2CartPopup = true;
   });
 
   core.bind(
     'afterPopupPlace',
-    function() {
+    function () {
       core.autoload(ProductsListController);
       popup.currentPopup.widget.addClass('add2cartpopup');
     }
@@ -50,32 +52,20 @@ function PopupButtonAdd2CartPopup()
   PopupButtonAdd2CartPopup.superclass.constructor.apply(this, arguments);
 }
 
-decorate(
-  'ProductDetailsView',
-  'postprocessAdd2Cart',
-  function (event, data) {
-    arguments.callee.previousMethod.apply(this, arguments);
-
-    core.trigger('tryOpenAdd2CartPopup');
-  }
-);
-
 // Extend AController
 extend(PopupButtonAdd2CartPopup, AController);
 
 PopupButtonAdd2CartPopup.prototype.popupResult = null;
 
 // Re-initialize products list controller
-PopupButtonAdd2CartPopup.prototype.handleOpenPopup = function(event)
-{
+PopupButtonAdd2CartPopup.prototype.handleOpenPopup = function (event) {
   setTimeout(
-    function()
-    {
+    function () {
       if (!showAdd2CartPopup) {
         return;
       }
       this.popupResult = !popup.load(
-        URLHandler.buildURL({ target: 'add2_cart_popup' }),
+        URLHandler.buildURL({target: 'add2_cart_popup'}),
         {
           dialogClass: 'add2cartpopup'
         }

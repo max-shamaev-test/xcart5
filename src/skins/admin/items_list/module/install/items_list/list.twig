@@ -7,5 +7,7 @@
   <div class="marketplace-wrapper{% if this.isLandingPage() %} marketplace-landing{% endif %}">
     {% include this.getBody() %}
   </div>
-  {{ widget('XLite\\View\\StickyPanel\\ItemsList\\InstallModules') }}
+  {% if this.showStickyPanel() %}
+    {{ widget('XLite\\View\\StickyPanel\\ItemsList\\InstallModules') }}
+  {% endif %}
 {% endform %}

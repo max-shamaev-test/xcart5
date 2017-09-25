@@ -38,6 +38,7 @@ class Marketplace extends \XLite\Base\Singleton
     const ACTION_UPDATE_PM         = 'update_pm';
     const ACTION_UPDATE_SHM        = 'update_shm';
     const ACTION_GET_DATASET       = 'get_dataset';
+    const ACTION_GET_TOKEN_DATA    = 'get_token_data';
 
     /**
      * Request/response fields
@@ -64,6 +65,7 @@ class Marketplace extends \XLite\Base\Singleton
     const FIELD_WAVE                  = 'wave';
     const FIELD_EMAIL                 = 'email';
     const FIELD_INSTALLATION_LNG      = 'installation_lng';
+    const FIELD_SHOP_COUNTRY_CODE     = 'shopCountryCode';
     const FIELD_DO_REGISTER           = 'doRegister';
     const FIELD_IS_UPGRADE_AVAILABLE  = 'isUpgradeAvailable';
     const FIELD_ARE_UPDATES_AVAILABLE = 'areUpdatesAvailable';
@@ -112,6 +114,7 @@ class Marketplace extends \XLite\Base\Singleton
     const FIELD_MODULE_ENABLED        = 'enabled';
     const FIELD_QUERIES               = 'querySets';
     const FIELD_SALES_CHANNEL_POS     = 'salesChannelPos';
+    const FIELD_TOKEN                 = 'token';
 
     const FIELD_TAG_NAME                    = 'tag_name';
     const FIELD_TAG_BANNER_EXPIRATION_DATE  = 'tag_banner_expiration_date';
@@ -187,7 +190,7 @@ class Marketplace extends \XLite\Base\Singleton
      */
     const PURCHASE_URL_HOST = 'market.x-cart.com';
 
-    const RENEWAL_ENDPOINT = 'secure.x-cart.com/customer.php?target=generate_invoice&action=buy';
+    const XB_ENDPOINT = 'secure.x-cart.com/customer.php';
 
     /**
      * Last error code
@@ -239,9 +242,52 @@ class Marketplace extends \XLite\Base\Singleton
         return \XLite::getXCartURL(
             'https://' . static::PURCHASE_URL_HOST . '/?' . implode('&', $urlParams)
         );
-
     }
 
+    /**
+     * @param \XLite\Model\Module $module
+     * @param array               $params
+     * @param bool                $ignoreId
+     *
+     * @return string
+     */
+    public static function getBuyNowURL($module, $params = [], $ignoreId = false)
+    {
+        $id       = $module->getXbProductId();
+        $moduleId = $module->getModuleID();
+
+        $commonParams = [
+            'target'           => 'generate_invoice',
+            'action'           => 'buy',
+            'proxy_checkout'   => 1,
+            'inapp_return_url' => \XLite\Core\URLManager::getShopURL(
+                \XLite\Core\Converter::buildURL('addons_list_marketplace', '', ['module_id' => $moduleId])
+            ),
+        ];
+
+        $licenseKey = \XLite::getXCNLicenseKey();
+        if ($licenseKey) {
+            $commonParams['lickey_1'] = md5($licenseKey);
+        }
+
+        if (\XLite\Core\Auth::getInstance()->isAdmin()) {
+            $commonParams['email'] = \XLite\Core\Auth::getInstance()->getProfile()->getLogin();
+        }
+
+        if (!$ignoreId) {
+            $commonParams['add_1'] = (int) $id !== 0
+                ? $id
+                : 391; // XC Business Edition xbid = 391
+        }
+        $params = array_merge($commonParams, $params);
+
+        $urlParams = [];
+        foreach ($params as $k => $v) {
+            $urlParams[] = $k . '=' . urlencode($v);
+        }
+
+        return 'https://' . static::XB_ENDPOINT . '?' . implode('&', $urlParams);
+    }
 
     /**
      * URL of the page where license can be purchased
@@ -252,7 +298,7 @@ class Marketplace extends \XLite\Base\Singleton
      */
     public static function getRenewalURL($key)
     {
-        return 'https://' . static::RENEWAL_ENDPOINT . '&' . static::getKeyURLParams(1, $key) . '&proxy_checkout=1';
+        return 'https://' . static::XB_ENDPOINT . '?target=generate_invoice&action=buy&' . static::getKeyURLParams(1, $key) . '&proxy_checkout=1';
     }
 
     /**
@@ -638,6 +684,67 @@ class Marketplace extends \XLite\Base\Singleton
                     $this->saveResultInCache($action, $actionResult, $saveInTmpVars);
                 }
             }
+        }
+
+        return $responseData;
+    }
+
+    // }}}
+
+    // {{{ "Get dataset" request
+
+    /**
+     * Request 'get_token_data'
+     *
+     * @param array $actions List of actions
+     *
+     * @return array
+     */
+    public function getTokenData($token)
+    {
+        //return [];
+        return $this->sendRequestToMarketplace(
+            static::ACTION_GET_TOKEN_DATA,
+            [
+                static::FIELD_TOKEN => $token
+            ]
+        );
+    }
+
+    /**
+     * Parse response
+     *
+     * @param \PEAR2\HTTP\Request\Response $response Response
+     *
+     * @return array
+     */
+    protected function parseResponseForGetTokenDataAction(\PEAR2\HTTP\Request\Response $response)
+    {
+        return $this->parseJSON($response);
+    }
+
+    /**
+     * Validate response data
+     *
+     * @param array $data Data to validate
+     *
+     * @return boolean
+     */
+    protected function validateResponseForGetTokenDataAction($data)
+    {
+        return true;
+    }
+
+    /**
+     * Process result of 'get_token_data' request
+     *
+     * @param array $responseData
+     *
+     * @return boolean
+     */
+    protected function processGetTokenDataResult($responseData)
+    {
+        if (is_array($responseData)) {
         }
 
         return $responseData;
@@ -2709,6 +2816,7 @@ class Marketplace extends \XLite\Base\Singleton
             ),
             static::FIELD_XCN_LICENSE_KEY => \XLite::getXCNLicenseKey(),
             static::FIELD_INSTALLATION_LNG  => \XLite::getInstallationLng(),
+            static::FIELD_SHOP_COUNTRY_CODE => \XLite\Core\Config::getInstance()->Company->location_country
         );
 
         if (\XLite::getAffiliateId()) {
@@ -3262,13 +3370,29 @@ class Marketplace extends \XLite\Base\Singleton
     // {{{ License check
 
     /**
-     * Return true if system detected unallowed modules
+     * Return true if system has detected unallowed modules
      *
-     * @return boolean
+     * @since 5.3.3.4 $onlyEnabled param was added
+     *
+     * @param bool $onlyEnabled Check only enabled unallowed modules
+     *
+     * @return bool
      */
-    public function hasUnallowedModules()
+    public function hasUnallowedModules($onlyEnabled = true)
     {
-        return (bool) $this->getInactiveContentData(false);
+        $modules = $this->getInactiveContentData(false);
+
+        if (!$onlyEnabled) {
+            return count($modules) > 0;
+        }
+
+        foreach ($modules as $module) {
+            if (isset($module['enabled']) && $module['enabled']) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -3368,6 +3492,7 @@ class Marketplace extends \XLite\Base\Singleton
                 'name'         => $module[0]->getName(),
                 'author'       => $module[0]->getAuthor(),
                 'key'          => $module['key'],
+                'enabled'      => $module[0]->getEnabled()
             );
         }
 

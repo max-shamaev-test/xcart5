@@ -81,6 +81,15 @@
   align-items: center;
 
   margin-bottom: 40px;
+
+  position: relative;
+  padding: 0;
+}
+
+.usps-pitney-bowes-promo .close {
+  position: absolute;
+  top: 5px;
+  right: 7px;
 }
 
 .usps-pitney-bowes-promo .pitney-bowes-logo {
@@ -90,4 +99,5 @@
 
 .usps-pitney-bowes-promo .usps-pitney-bowes-promo-header {
   padding: 10px 20px;
+  font-size: 14px;
 }

@@ -8,7 +8,8 @@
 
 namespace XLite\Module\CDev\Paypal\Model\Payment\Processor;
 
-use \XLite\Module\CDev\Paypal;
+use XLite\Model\Payment\BackendTransaction;
+use XLite\Module\CDev\Paypal;
 
 /**
  * Paypal Adaptive payment processor
@@ -137,14 +138,15 @@ class PaypalAdaptive extends \XLite\Model\Payment\Base\WebBased
     /**
      * Get allowed backend transactions
      *
-     * @return string Status code
+     * @return string[] Statuses
      */
     public function getAllowedTransactions()
     {
-        return array(
-            // Uncomment after #XCN-5553 implementation
-            // \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_REFUND,
-        );
+        return [
+            \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_REFUND,
+//            \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_REFUND_PART,
+//            \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_REFUND_MULTI
+        ];
     }
 
     /**
@@ -229,12 +231,33 @@ class PaypalAdaptive extends \XLite\Model\Payment\Base\WebBased
         if (isset($paypalAdaptiveResponse['payKey'])) {
             $params['paykey'] = $paypalAdaptiveResponse['payKey'];
 
+            $this->setDetail('used_paykey', $params['paykey']);
+
             $setPaymentOptionsResponse = $this->api->doSetPaymentOptionsCall(
                 $params['paykey']
             );
         }
 
         return $params;
+    }
+
+
+    /**
+     * Get transaction detail record
+     *
+     * @param string                                  $name               Code
+     * @param \XLite\Model\Payment\BackendTransaction $backendTransaction Backend transaction object OPTIONAL
+     *
+     * @return mixed
+     */
+    protected function getDetail($name, $backendTransaction = null)
+    {
+        $transaction = isset($backendTransaction) ? $backendTransaction : $this->transaction;
+
+        $cell = $transaction->getDataCell($name);
+        return $cell
+            ? $cell->getValue()
+            : null;
     }
 
     /**
@@ -280,6 +303,24 @@ class PaypalAdaptive extends \XLite\Model\Payment\Base\WebBased
     }
 
     /**
+     * Update status of backend transaction related to an initial payment transaction
+     *
+     * @param \XLite\Model\Payment\Transaction $transaction Payment transaction
+     * @param string                           $status      Transaction status
+     *
+     * @return void
+     */
+    public function updateInitialBackendTransaction(\XLite\Model\Payment\Transaction $transaction, $status)
+    {
+        $backendTransaction = $transaction->getInitialBackendTransaction();
+
+        if (null !== $backendTransaction) {
+            $backendTransaction->setStatus($status);
+            $this->saveDataFromRequest($backendTransaction);
+        }
+    }
+
+    /**
      * Process callback
      *
      * @param \XLite\Model\Payment\Transaction $transaction Callback-owner transaction
@@ -291,8 +332,13 @@ class PaypalAdaptive extends \XLite\Model\Payment\Base\WebBased
         parent::processCallback($transaction);
 
         if (Paypal\Model\Payment\Processor\PaypalIPN::getInstance()->isCallbackAdaptiveIPN()) {
-            Paypal\Model\Payment\Processor\PaypalIPN::getInstance()
+            $result = Paypal\Model\Payment\Processor\PaypalIPN::getInstance()
                 ->tryProcessCallbackIPN($transaction, $this);
+
+            if ($result) {
+                $transaction->getOrder()->setPaymentStatusByTransaction($transaction);
+                \XLite\Core\Database::getEM()->flush();
+            }
         }
 
         $this->saveDataFromRequest();
@@ -308,6 +354,103 @@ class PaypalAdaptive extends \XLite\Model\Payment\Base\WebBased
         header('HTTP/1.1 409 Conflict', true, 409);
         header('Status: 409 Conflict');
         header('X-Robots-Tag: noindex, nofollow');
+    }
+
+    /**
+     * Refund
+     *
+     * @param \XLite\Model\Payment\BackendTransaction $transaction Backend transaction
+     * @param boolean                                 $isDoVoid    Is void action OPTIONAL
+     *
+     * @return boolean
+     */
+    protected function doRefund(\XLite\Model\Payment\BackendTransaction $transaction, $isDoVoid = false)
+    {
+        $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_FAILED;
+
+        try {
+            $payKey = $this->getDetail('used_paykey');
+
+            if ($payKey) {
+                $result = $this->doInternalRefund($transaction, $payKey);
+
+                if ($result) {
+                    $backendTransactionStatus = $result;
+                }
+
+            } else {
+                Paypal\Main::addLog(
+                    'Adaptive payments error',
+                    'There is no PAYKEY for refund'
+                );
+            }
+
+        } catch (\Exception $e) {
+            $transaction->setDataCell('errorMessage', $e->getMessage());
+            \XLite\Logger::getInstance()->log($e->getMessage(), LOG_ERR);
+            \XLite\Core\TopMessage::addError($e->getMessage());
+        }
+
+        $transaction->setStatus($backendTransactionStatus);
+
+        return \XLite\Model\Payment\BackendTransaction::STATUS_FAILED !== $backendTransactionStatus;
+
+    }
+
+    /**
+     * @param \XLite\Model\Payment\BackendTransaction $transaction
+     * @param                                         $payKey
+     *
+     * @return bool
+     */
+    protected function doInternalRefund(\XLite\Model\Payment\BackendTransaction $transaction, $payKey)
+    {
+        return $this->doFullRefund($payKey);
+    }
+
+    /**
+     * @param $payKey
+     *
+     * @return bool
+     */
+    protected function doFullRefund($payKey)
+    {
+        $result = $this->api->doFullRefundCall(
+            $this->getOrder(),
+            $payKey
+        );
+
+        $fullyRefunded = false;
+
+        if ($result) {
+
+            if (isset($result['refundInfoList']['refundInfo'])
+                && isset($result['responseEnvelope']['ack'])
+                && $result['responseEnvelope']['ack'] === 'Success'
+                && is_array($result['refundInfoList']['refundInfo'])
+            ) {
+                $fullyRefunded = true;
+
+                foreach ($result['refundInfoList']['refundInfo'] as $infoBlock) {
+                    if ($infoBlock['refundStatus'] !== 'REFUNDED'
+                        || $infoBlock['refundHasBecomeFull'] !== 'true'
+                    ) {
+                        $fullyRefunded = false;
+                    }
+                }
+
+            }
+
+        } else {
+            Paypal\Main::addLog(
+                'Adaptive payments error',
+                'Refund was failed'
+            );
+        }
+
+        return $fullyRefunded
+            ? BackendTransaction::STATUS_PENDING
+            : BackendTransaction::STATUS_FAILED;
     }
 
     /**

@@ -155,6 +155,19 @@ class Converter extends \XLite\Base\Singleton
             $zone = 'Admin';
         }
 
+        return static::getControllerClassInZone($target, $zone);
+    }
+
+    /**
+     * Compose controller class name using target and zone
+     *
+     * @param $target
+     * @param $zone
+     *
+     * @return mixed|null|string
+     */
+    public static function getControllerClassInZone($target, $zone)
+    {
         $target = static::convertToCamelCase($target);
 
         // Initialize cache
@@ -452,7 +465,7 @@ class Converter extends \XLite\Base\Singleton
      */
     public static function generateRandomToken()
     {
-        return md5(microtime(true) + rand(0, 1000000));
+        return md5(microtime(true) + mt_rand(0, 1000000));
     }
 
     /**

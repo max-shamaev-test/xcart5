@@ -218,7 +218,7 @@ abstract class AConsole extends \XLite\Controller\AController
     {
         $result = false;
 
-        $stdin = @fopen('php://stdin', 'r');
+        $stdin = @fopen('php://stdin', 'rb');
         if ($stdin) {
             $stat = fstat($stdin);
             $result = 0 < $stat['size'];

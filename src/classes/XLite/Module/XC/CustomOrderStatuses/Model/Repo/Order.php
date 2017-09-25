@@ -25,18 +25,27 @@ abstract class Order extends \XLite\Model\Repo\Order implements \XLite\Base\IDec
         $statusType .= 'Status';
 
         $result = array();
-        $data = $this->createPureQueryBuilder('o')
-            ->select('COUNT(o.order_id)')
-            ->innerJoin('o.' . $statusType, 's')
-            ->addSelect('s.id')
-            ->andWhere('o.orderNumber IS NOT NULL')
-            ->groupBy('o.' . $statusType)
-            ->getResult();
+        $data = $this->defineCountByStatusQuery($statusType)->getResult();
 
         foreach ($data as $v) {
             $result[$v['id']] = $v[1];
         }
 
         return $result;
+    }
+
+    /**
+     * @param $statusType
+     *
+     * @return \XLite\Model\QueryBuilder\AQueryBuilder
+     */
+    protected function defineCountByStatusQuery($statusType)
+    {
+        return $this->createPureQueryBuilder('o')
+            ->select('COUNT(o.order_id)')
+            ->innerJoin('o.' . $statusType, 's')
+            ->addSelect('s.id')
+            ->andWhere('o.orderNumber IS NOT NULL')
+            ->groupBy('o.' . $statusType);
     }
 }

@@ -11,7 +11,7 @@ namespace XLite\View\Button\Menu;
 /**
  * Extensions action
  */
-class Extensions extends \XLite\View\Button\SimpleLink
+class Extensions extends \XLite\View\Button\APopupLink
 {
     /**
      * Return widget default template
@@ -24,6 +24,19 @@ class Extensions extends \XLite\View\Button\SimpleLink
     }
 
     /**
+     * Return URL parameters to use in AJAX popup
+     *
+     * @return array
+     */
+    protected function prepareURLParams()
+    {
+        return [
+            'target' => 'hot_addons_list',
+            'widget' => 'XLite\View\ItemsList\Module\HotAddons',
+        ];
+    }
+
+    /**
      * Return CSS classes
      *
      * @return string
@@ -31,16 +44,6 @@ class Extensions extends \XLite\View\Button\SimpleLink
     protected function getClass()
     {
         return parent::getClass() . ' extensions';
-    }
-
-    /**
-     * We make the full location path for the provided URL
-     *
-     * @return string
-     */
-    protected function getLocationURL()
-    {
-        return $this->buildURL('addons_list_marketplace', '', ['landing' => 1]);
     }
 
     /**
@@ -57,5 +60,13 @@ class Extensions extends \XLite\View\Button\SimpleLink
             'data-placement' => 'bottom',
             'title'          => static::t('Add addons'),
         ]);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isCacheAvailable()
+    {
+        return true;
     }
 }

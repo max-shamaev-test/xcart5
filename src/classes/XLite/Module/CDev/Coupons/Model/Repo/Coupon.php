@@ -9,7 +9,21 @@
 namespace XLite\Module\CDev\Coupons\Model\Repo;
 
 /**
- * Coupon repository
+ * @Api\Operation\Create(modelClass="XLite\Module\CDev\Coupons\Model\Coupon", summary="Add new coupon")
+ * @Api\Operation\Read(modelClass="XLite\Module\CDev\Coupons\Model\Coupon", summary="Retrieve coupon by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\CDev\Coupons\Model\Coupon", summary="Retrieve coupons by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\CDev\Coupons\Model\Coupon", summary="Update coupon by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\CDev\Coupons\Model\Coupon", summary="Delete coupon by id")
+ *
+ * @SWG\Tag(
+ *   name="CDev\Coupons\Coupon",
+ *   x={"display-name": "Coupon", "group": "CDev\Coupons"},
+ *   description="Coupon represents the code which can be given to customers to activate a discount. Coupon repo stores only unused codes. See UsedCoupon to check for coupons with the order relation.",
+ *   @SWG\ExternalDocumentation(
+ *     description="Find out more about discount coupons",
+ *     url="https://kb.x-cart.com/en/seo_and_promotion/setting_up_discount_coupons.html"
+ *   )
+ * )
  */
 class Coupon extends \XLite\Model\Repo\ARepo
 {

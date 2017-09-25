@@ -45,10 +45,12 @@ XLite\Model\LanguageLabel:
   - { name: 'Default variant price', translations: [{ code: en, label: 'Default variant price' }]}
   - { name: 'Price range (min - max)', translations: [{ code: en, label: 'Price range ($5 - $64)' }]}
   - { name: 'X variants are defined', translations: [{ code: en, label: '{{X}} variants are defined' }] }
+  - { name: 'Clear and disable inventory tracking for variants as well', translations: [{ code: en, label: 'Clear QTY and disable inventory tracking for variants as well' }] }
+  - { name: 'Product variants inventory clear help', translations: [{ code: en, label: 'Inventory tracking can be enabled or disabled for each specific variant. To disable inventory tracking for a variant, ensure that the inventory tracking option for your store is turned off and clear any non-default value, if any, from the QTY field of the variant. The variant inventory will not be tracked as long as the variant OTY field remains blank. To start tracking the inventory of a variant even when the general inventory tracking option is disabled, simply specify the number of items of the variant you currently have on hand in the variant QTY field. <br><br> To disable inventory tracking for all the variants, simply enable this option; note that it will clear any existing QTY values for all the variants in your store.' }] }
 
 XLite\Model\Notification:
   - templatesDirectory: modules/XC/ProductVariants/low_variant_limit_warning
-    availableForAdmin: false
+    availableForAdmin: true
     availableForCustomer: false
     enabledForAdmin: true
     enabledForCustomer: false

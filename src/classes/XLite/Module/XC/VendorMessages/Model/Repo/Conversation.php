@@ -180,4 +180,98 @@ class Conversation extends \XLite\Model\Repo\ARepo
 
         return null;
     }
+
+    /**
+     * @param array                $ids
+     * @param \XLite\Model\Profile $profile
+     */
+    public function markRead(array $ids, $profile)
+    {
+        $readTable = \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\MessageRead')->getTableName();
+        $messagesTable = \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\Message')->getTableName();
+        $conversationsTable = $this->getTableName();
+
+        $selectQuery = "SELECT :date, m.id, :profileId FROM {$messagesTable} m INNER JOIN {$conversationsTable} c ON c.id = m.conversation_id AND c.id IN (:identifiers)";
+        $query = "INSERT IGNORE INTO {$readTable}(date, message_id, profile_id) ($selectQuery)";
+
+        \XLite\Core\Database::getEM()->getConnection()->executeQuery($query, [
+            'profileId'   => $profile->getProfileId(),
+            'identifiers' => $ids,
+            'date'        => \XLite\Core\Converter::time(),
+        ], [
+            'profileId'   => \PDO::PARAM_INT,
+            'identifiers' => \Doctrine\DBAL\Connection::PARAM_INT_ARRAY,
+            'date'        => \PDO::PARAM_INT,
+        ]);
+    }
+
+    /**
+     * @param \XLite\Model\Profile $profile
+     */
+    public function markReadAll($profile)
+    {
+        $readTable = \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\MessageRead')->getTableName();
+        $messagesTable = \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\Message')->getTableName();
+
+        $selectQuery = "SELECT :date, m.id, :profileId FROM {$messagesTable} m";
+
+        if (!$profile->isPermissionAllowed('manage conversations')) {
+            $conversationsTable = $this->getTableName();
+            $tablePrefix = \XLite::getInstance()->getOptions(['database_details', 'table_prefix']);
+            $membersTable = $tablePrefix . 'conversation_members';
+
+            $selectQuery .= " INNER JOIN {$conversationsTable} c ON c.id = m.conversation_id LEFT JOIN {$membersTable} members ON members.conversation_id = c.id AND members.profile_id = :profileId WHERE members.profile_id IS NOT NULL";
+            if ($profile->isPermissionAllowed('manage orders')) {
+                $selectQuery .= ' OR c.order_id IS NOT NULL';
+            }
+        }
+
+        $query = "INSERT IGNORE INTO {$readTable}(date, message_id, profile_id) ($selectQuery)";
+
+        \XLite\Core\Database::getEM()->getConnection()->executeQuery($query, [
+            'profileId' => $profile->getProfileId(),
+            'date'      => \XLite\Core\Converter::time(),
+        ], [
+            'profileId' => \PDO::PARAM_INT,
+            'date'      => \PDO::PARAM_INT,
+        ]);
+    }
+
+    /**
+     * @param array                $ids
+     * @param \XLite\Model\Profile $profile
+     */
+    public function markUnread(array $ids, $profile)
+    {
+        $readTable = \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\MessageRead')->getTableName();
+        $messagesTable = \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\Message')->getTableName();
+        $conversationsTable = $this->getTableName();
+
+        $selectQuery = "SELECT m.id FROM {$messagesTable} m INNER JOIN {$conversationsTable} c ON c.id = m.conversation_id AND c.id IN (:identifiers)";
+        $query = "DELETE r FROM {$readTable} AS r WHERE r.message_id IN ($selectQuery) AND r.profile_id = :profileId";
+
+        \XLite\Core\Database::getEM()->getConnection()->executeQuery($query, [
+            'profileId'   => $profile->getProfileId(),
+            'identifiers' => $ids,
+        ], [
+            'profileId'   => \PDO::PARAM_INT,
+            'identifiers' => \Doctrine\DBAL\Connection::PARAM_INT_ARRAY,
+        ]);
+    }
+
+    /**
+     * @param \XLite\Model\Profile $profile
+     */
+    public function markUnreadAll($profile)
+    {
+        $readTable = \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\MessageRead')->getTableName();
+
+        $query = "DELETE r FROM {$readTable} AS r WHERE r.profile_id = :profileId";
+
+        \XLite\Core\Database::getEM()->getConnection()->executeQuery($query, [
+            'profileId' => $profile->getProfileId(),
+        ], [
+            'profileId' => \PDO::PARAM_INT,
+        ]);
+    }
 }

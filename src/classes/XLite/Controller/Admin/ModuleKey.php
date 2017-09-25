@@ -185,6 +185,7 @@ class ModuleKey extends \XLite\Controller\Admin\AAdmin
 
                     $keyData = $info['keyData'];
 
+                    /** @var \XLite\Model\Module $module */
                     $module = \XLite\Core\Database::getRepo('\XLite\Model\Module')->findOneBy(
                         array(
                             'author' => $info['author'],
@@ -202,6 +203,10 @@ class ModuleKey extends \XLite\Controller\Admin\AAdmin
                         } else {
                             unset($info['key']);
                             $entity = $repo->insert($info + array('keyValue' => $key));
+                        }
+
+                        if ($module->getPurchaseStatus() === \XLite\Model\Module::PURCHASE_STATUS_PENDING) {
+                            $module->setPurchaseStatus(\XLite\Model\Module::PURCHASE_STATUS_PURCHASED);
                         }
 
                         if (!empty($keyData['wave'])) {

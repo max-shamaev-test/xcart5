@@ -162,7 +162,7 @@ class Review extends \XLite\View\ItemsList\AItemsList
 
         $result->{\XLite\Module\XC\Reviews\Model\Repo\Review::P_ORDER_BY} = ['r.additionDate', 'DESC'];
 
-        $profile = \XLite\Core\Auth::getInstance()->getProfile() ? : null;
+        $profile = $this->getReviewerProfile();
         $result->{\XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_ZONE}
             = [\XLite\Module\XC\Reviews\Model\Repo\Review::SEARCH_ZONE_CUSTOMER, $profile];
 

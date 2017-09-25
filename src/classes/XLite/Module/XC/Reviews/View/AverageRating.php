@@ -91,16 +91,16 @@ class AverageRating extends \XLite\View\AView
      */
     public function isAllowedRateProduct()
     {
-        $result = \XLite\Core\Auth::getInstance()->getProfile()
-            ? true
-            : false;
+        $profile = $this->getReviewerProfile();
+
+        $result = $profile ? true : false;
 
         if ($result && $this->isProductRatedByUser()) {
             $result = false;
         }
 
         if ($result && $this->isPurchasedCustomerOnlyAbleLeaveFeedback()
-            && \XLite\Core\Auth::getInstance()->getProfile()
+            && $profile
             && !$this->isUserPurchasedProduct()
         ) {
             $result = false;
@@ -128,7 +128,7 @@ class AverageRating extends \XLite\View\AView
      */
     public function isProductRatedByUser()
     {
-        return $this->getRatedProduct()->isRatedByUser(\XLite\Core\Auth::getInstance()->getProfile());
+        return $this->getRatedProduct()->isRatedByUser($this->getReviewerProfile());
     }
 
     /**
@@ -141,7 +141,7 @@ class AverageRating extends \XLite\View\AView
     protected function isUserPurchasedProduct()
     {
         return \XLite\Core\Database::getRepo('XLite\Model\OrderItem')
-            ->countItemsPurchasedByCustomer($this->getRatedProductId(), \XLite\Core\Auth::getInstance()->getProfile());
+            ->countItemsPurchasedByCustomer($this->getRatedProductId(), $this->getReviewerProfile());
     }
 
     /**

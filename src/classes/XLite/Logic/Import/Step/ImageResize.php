@@ -13,6 +13,12 @@ namespace XLite\Logic\Import\Step;
  */
 class ImageResize extends \XLite\Logic\Import\Step\AStep
 {
+    /**
+     * Resize
+     *
+     * @var \XLite\Logic\ImageResize\Generator
+     */
+    protected $imageResizeGenerator = null;
 
     /**
      * Constructor

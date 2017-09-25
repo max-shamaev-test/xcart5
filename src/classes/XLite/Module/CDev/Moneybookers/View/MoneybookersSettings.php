@@ -76,7 +76,7 @@ class MoneybookersSettings extends \XLite\View\Dialog
      */
     protected function getRegisterURL()
     {
-        return 'https://content.skrill.com/en/ecommerce-solutions/xcart/';
+        return 'https://signup.skrill.com/business/#/?lang=EN&rid=21477277';
     }
 
     public function getSecretWordTooltipText()

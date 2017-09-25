@@ -17,7 +17,7 @@ function MinicartController(base)
 
   if (this.base && this.base.length) {
     this.block = new MinicartView(this.base);
-    core.bind('updateCart', _.bind(this.handleUpdateCart, this));
+    core.bind(['updateCart', 'updateMiniCart'], _.bind(this.handleUpdateCart, this));
   }
 }
 

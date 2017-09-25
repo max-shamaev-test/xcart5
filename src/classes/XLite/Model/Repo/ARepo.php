@@ -2506,7 +2506,10 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
      */
     protected function prepareCndLimit(\Doctrine\ORM\QueryBuilder $queryBuilder, array $value)
     {
-        $this->searchState['queryBuilder']->setFrameResults($value);
+        /** @var \XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder */
+        $queryBuilder = $queryBuilder ?: $this->searchState['queryBuilder'];
+
+        $queryBuilder->setFrameResults($value);
     }
 
     /**
@@ -2521,6 +2524,9 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
      */
     protected function prepareCndOrderBy(\Doctrine\ORM\QueryBuilder $queryBuilder, array $value)
     {
+        /** @var \XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder */
+        $queryBuilder = $queryBuilder ?: $this->searchState['queryBuilder'];
+
         if (!$value
             || $this->searchState['searchMode'] === static::SEARCH_MODE_COUNT
         ) {
@@ -2541,17 +2547,17 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
         }
 
         if ($orderByCnds) {
-            $this->searchState['queryBuilder']
+            $queryBuilder
                 ->resetDQLPart('orderBy');
 
             foreach ($orderByCnds as $orderByCnd) {
                 list($sort, $order) = $orderByCnd;
-                $this->searchState['queryBuilder']
+                $queryBuilder
                     ->addOrderBy($sort, $order);
             }
         }
 
-        $this->assignDefaultOrderBy($this->searchState['queryBuilder']);
+        $this->assignDefaultOrderBy($queryBuilder);
     }
 
     /**

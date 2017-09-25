@@ -116,8 +116,9 @@ function ProductDetailsView (base, productId) {
   core.bind('mm-menu.created', function(event, api){
     if (_.has(jQuery, 'colorbox')) {
       jQuery.colorbox.remove();
-    };
+    }
   });
+  core.bind('initialize-product-gallery', _.bind(this.initializeGallery, this));
 
   this.linkClickHandler = _.bind(
     function(event)

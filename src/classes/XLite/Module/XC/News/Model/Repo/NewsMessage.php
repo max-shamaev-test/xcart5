@@ -9,7 +9,17 @@
 namespace XLite\Module\XC\News\Model\Repo;
 
 /**
- * News messages repository
+ * @Api\Operation\Create(modelClass="XLite\Module\XC\News\Model\NewsMessage", summary="Add order review record")
+ * @Api\Operation\Read(modelClass="XLite\Module\XC\News\Model\NewsMessage", summary="Retrieve order review record by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\XC\News\Model\NewsMessage", summary="Retrieve order review records by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\XC\News\Model\NewsMessage", summary="Update order review record by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\XC\News\Model\NewsMessage", summary="Delete order review record by id")
+ *
+ * @SWG\Tag(
+ *   name="XC\News\NewsMessage",
+ *   x={"display-name": "NewsMessage", "group": "XC\News"},
+ *   description="This repo stores all news messages with their content.",
+ * )
  */
 class NewsMessage extends \XLite\Model\Repo\Base\I18n
 {

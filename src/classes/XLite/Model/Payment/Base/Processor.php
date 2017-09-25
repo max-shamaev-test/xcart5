@@ -519,6 +519,21 @@ abstract class Processor extends \XLite\Base
     }
 
     /**
+     * Get transaction detail record
+     *
+     * @param string                                  $name               Code
+     * @param \XLite\Model\Payment\BackendTransaction $backendTransaction Backend transaction object OPTIONAL
+     *
+     * @return mixed
+     */
+    protected function getDetail($name, $backendTransaction = null)
+    {
+        $transaction = isset($backendTransaction) ? $backendTransaction : $this->transaction;
+
+        return $transaction->getDataCell($name);
+    }
+
+    /**
      * Get input data labels list
      *
      * @return array

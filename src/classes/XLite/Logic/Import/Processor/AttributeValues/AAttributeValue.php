@@ -8,6 +8,8 @@
 
 namespace XLite\Logic\Import\Processor\AttributeValues;
 
+use XLite\Model\AttributeValue;
+
 /**
  * Products import processor
  */
@@ -85,36 +87,38 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function defineColumns()
     {
-        return array(
-            'productSKU'                       => array(
+        return [
+            'productSKU'        => [
                 static::COLUMN_IS_KEY => true,
-            ),
-            'type'           => array(
+            ],
+            'type'              => [
                 static::COLUMN_IS_KEY => true,
-            ),
-            'name'           => array(
-                static::COLUMN_IS_KEY => true,
-                static::COLUMN_LENGTH => 255,
-            ),
-            'class'          => array(
+            ],
+            'name'              => [
                 static::COLUMN_IS_KEY => true,
                 static::COLUMN_LENGTH => 255,
-            ),
-            'group'          => array(
+            ],
+            'class'             => [
                 static::COLUMN_IS_KEY => true,
                 static::COLUMN_LENGTH => 255,
-            ),
-            'owner'          => array(
+            ],
+            'group'             => [
                 static::COLUMN_IS_KEY => true,
-            ),
-            'value'          => array(
+                static::COLUMN_LENGTH => 255,
+            ],
+            'owner'             => [
                 static::COLUMN_IS_KEY => true,
-            ),
-            'default'        => array(),
-            'priceModifier'  => array(),
-            'weightModifier' => array(),
-            'editable'       => array(),
-        );
+            ],
+            'value'             => [
+                static::COLUMN_IS_KEY => true,
+            ],
+            'default'           => [],
+            'priceModifier'     => [],
+            'weightModifier'    => [],
+            'editable'          => [],
+            'attributePosition' => [],
+            'valuePosition'     => [],
+        ];
     }
 
     // }}}
@@ -712,5 +716,83 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
             'product'        => $product,
             'type'           => $data['type'],
         );
+    }
+
+
+    /**
+     * Import 'attributePosition' value
+     *
+     * @param \XLite\Model\AttributeValue\AttributeValueSelect $model  Attribute value object
+     * @param mixed                                            $value  Value
+     * @param array                                            $column Column info
+     *
+     * @return void
+     */
+    protected function importAttributePositionColumn($model, $value, array $column)
+    {
+        if ($value && !$this->isAttributePositionImported($model)) {
+            $model->getAttribute()->setPosition([
+                'product'  => $model->getProduct(),
+                'position' => $value
+            ]);
+            $this->setAttributePositionImported($model);
+        }
+    }
+
+    /**
+     * Import 'valuePosition' value
+     *
+     * @param \XLite\Model\AttributeValue\AttributeValueSelect $model  Attribute value object
+     * @param mixed                                            $value  Value
+     * @param array                                            $column Column info
+     *
+     * @return void
+     */
+    protected function importValuePositionColumn($model, $value, array $column)
+    {
+    }
+
+    /**
+     * @param AttributeValue\AAttributeValue $attributeValue
+     *
+     * @return bool
+     */
+    protected function isAttributePositionImported(AttributeValue\AAttributeValue $attributeValue)
+    {
+        $options = $this->importer->getOptions();
+
+        $key = $this->getAttributePositionImportedKey($attributeValue);
+
+        return isset($options[$key]) && $options[$key] === true;
+    }
+
+    /**
+     * @param AttributeValue\AAttributeValue $attributeValue
+     */
+    protected function setAttributePositionImported(AttributeValue\AAttributeValue $attributeValue)
+    {
+        $options = $this->importer->getOptions();
+
+        $key = $this->getAttributePositionImportedKey($attributeValue);
+
+        $options[$key] = true;
+        $this->importer->setOptions($options);
+    }
+
+    /**
+     * @param AttributeValue\AAttributeValue $attributeValue
+     *
+     * @return string
+     */
+    protected function getAttributePositionImportedKey(AttributeValue\AAttributeValue $attributeValue)
+    {
+        return implode('.', [
+            $attributeValue->getProduct()
+                ? $attributeValue->getProduct()->getProductId()
+                : 'none',
+            $attributeValue->getAttribute()
+                ? $attributeValue->getAttribute()->getId()
+                : 'none',
+        ]);
     }
 }

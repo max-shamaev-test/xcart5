@@ -200,6 +200,12 @@ class Scenario
                                 'position' => 200,
                             ],
                         ],
+                        'product_class' => [
+                            'class'   => 'XLite\Module\XC\BulkEditing\Logic\BulkEdit\Field\Product\TaxClass',
+                            'options' => [
+                                'position' => 300,
+                            ],
+                        ],
                     ],
                 ],
             ],

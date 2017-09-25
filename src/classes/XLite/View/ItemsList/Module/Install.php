@@ -8,11 +8,16 @@
 
 namespace XLite\View\ItemsList\Module;
 
+use XLite\Core\Cache\ExecuteCached;
+
 /**
  * Addons search and installation widget
  */
 class Install extends \XLite\View\ItemsList\Module\AModule
 {
+    const LANDING_HOT_ADDONS = 'hot_addons';
+    const LANDING_NOT_INSTALLED_ADDONS = 'not_installed_addons';
+
     /**
      * Sort option name definitions
      */
@@ -117,6 +122,15 @@ class Install extends \XLite\View\ItemsList\Module\AModule
         $list[] = 'button/js/progress-state.js';
 
         return $list;
+    }
+
+    protected function isMarketplaceAccessible()
+    {
+        $controller = \XLite::getController();
+
+        return method_exists($controller, 'isMarketplaceAccessible')
+            ? $controller->isMarketplaceAccessible()
+            : true;
     }
 
     /**
@@ -597,7 +611,7 @@ class Install extends \XLite\View\ItemsList\Module\AModule
 
             $authorName = \XLite\Model\Repo\Module::VENDOR_XCART_TEAM_AND_QUALITEAM;
         }
-        
+
         return $this->getActionURL(
             [
                 static::PARAM_VENDOR                                      => $authorName,
@@ -620,11 +634,31 @@ class Install extends \XLite\View\ItemsList\Module\AModule
     {
         return $this->getActionURL(
             [
+                'target'                                                  => 'addons_list_marketplace',
                 static::PARAM_TAG                                         => $tag,
                 \XLite\View\Pager\Admin\Module\AModule::PARAM_CLEAR_PAGER => 1,
                 static::PARAM_VENDOR                                      => '',
                 static::PARAM_PRICE                                       => ''
             ]
+        );
+    }
+
+    protected function getLandingMode()
+    {
+        $cacheParams = [
+            'getLandingMode',
+            get_class($this),
+            \XLite\Core\Database::getRepo('XLite\Model\Module')->getVersion(),
+        ];
+
+        return ExecuteCached::executeCached(
+            function() {
+                $count = $this->getData($this->getHotAddonsSearchConditions(), true);
+                return $count > 0
+                    ? self::LANDING_HOT_ADDONS
+                    : self::LANDING_NOT_INSTALLED_ADDONS;
+            },
+            $cacheParams
         );
     }
 
@@ -635,40 +669,108 @@ class Install extends \XLite\View\ItemsList\Module\AModule
      */
     protected function getSearchCondition()
     {
+        $cnd = null;
+
         if ($this->isLandingPage()) {
-            $cnd                                                 = new \XLite\Core\CommonCell();
-            $cnd->{\XLite\Model\Repo\Module::P_FROM_MARKETPLACE} = true;
-            $cnd->{\XLite\Model\Repo\Module::P_ISSYSTEM}         = false;
-            $cnd->{\XLite\Model\Repo\Module::P_IS_LANDING}       = true;
-            $cnd->{\XLite\Model\Repo\Module::P_ORDER_BY}         = [static::SORT_OPT_LANDING_POSITION, static::SORT_ORDER_ASC];
+            $landingMode = $this->getLandingMode();
+
+            if ($landingMode === self::LANDING_HOT_ADDONS) {
+                $cnd = $this->getHotAddonsSearchConditions();
+            } elseif ($landingMode === self::LANDING_NOT_INSTALLED_ADDONS) {
+                $cnd = $this->getNotInstalledSearchConditions();
+            }
+
+        }
+
+        return $cnd ?: $this->getDefaultSearchConditions();
+    }
+
+    /**
+     * @return \XLite\Core\CommonCell
+     */
+    protected function getHotAddonsSearchConditions()
+    {
+        $cnd = new \XLite\Core\CommonCell();
+        $cnd->{\XLite\Model\Repo\Module::P_FROM_MARKETPLACE} = true;
+        $cnd->{\XLite\Model\Repo\Module::P_INSTALLED_REVERSE} = false;
+        $cnd->{\XLite\Model\Repo\Module::P_ISSYSTEM} = false;
+        $cnd->{\XLite\Model\Repo\Module::P_IS_LANDING} = true;
+        $cnd->{\XLite\Model\Repo\Module::P_ORDER_BY} = [static::SORT_OPT_LANDING_POSITION, static::SORT_ORDER_ASC];
+
+        return $cnd;
+    }
+
+    /**
+     * @return \XLite\Core\CommonCell
+     */
+    protected function getNotInstalledSearchConditions()
+    {
+        $cnd = new \XLite\Core\CommonCell();
+        $cnd->{\XLite\Model\Repo\Module::P_FROM_MARKETPLACE} = true;
+        $cnd->{\XLite\Model\Repo\Module::P_INSTALLED_REVERSE} = false;
+        $cnd->{\XLite\Model\Repo\Module::P_ISSYSTEM} = false;
+        $cnd->{\XLite\Model\Repo\Module::P_ORDER_BY} = [static::SORT_OPT_NEWEST, static::SORT_ORDER_DESC];
+
+        return $cnd;
+    }
+
+    /**
+     * @return \XLite\Core\CommonCell
+     */
+    protected function getDefaultSearchConditions()
+    {
+        $cnd = parent::getSearchCondition();
+
+        $cnd->{\XLite\Model\Repo\Module::P_FROM_MARKETPLACE} = true;
+        $cnd->{\XLite\Model\Repo\Module::P_ISSYSTEM} = false;
+
+        if (isset(\XLite\Core\Request::getInstance()->clearCnd)) {
+            $cnd->{\XLite\Model\Repo\Module::P_ORDER_BY} = [static::SORT_OPT_ALPHA, static::SORT_ORDER_ASC];
         } else {
-            $cnd                                                 = parent::getSearchCondition();
-            $cnd->{\XLite\Model\Repo\Module::P_FROM_MARKETPLACE} = true;
-            $cnd->{\XLite\Model\Repo\Module::P_ISSYSTEM}         = false;
-
-            if (isset(\XLite\Core\Request::getInstance()->clearCnd)) {
-                $cnd->{\XLite\Model\Repo\Module::P_ORDER_BY} = [static::SORT_OPT_ALPHA, static::SORT_ORDER_ASC];
+            if ($this->getModuleId()) {
+                $cnd->{\XLite\Model\Repo\Module::P_MODULEIDS} = [$this->getModuleId()];
             } else {
-                if ($this->getModuleId()) {
-                    $cnd->{\XLite\Model\Repo\Module::P_MODULEIDS} = [$this->getModuleId()];
-                } else {
-                    $cnd->{\XLite\Model\Repo\Module::P_PRICE_FILTER} = $this->getParam(static::PARAM_PRICE);
-                    $cnd->{\XLite\Model\Repo\Module::P_SUBSTRING}    = $this->getSubstring();
+                $cnd->{\XLite\Model\Repo\Module::P_PRICE_FILTER} = $this->getParam(static::PARAM_PRICE);
+                $cnd->{\XLite\Model\Repo\Module::P_SUBSTRING} = $this->getSubstring();
 
-                    $tag = $this->getTagValue();
-                    if ($tag) {
-                        $cnd->{\XLite\Model\Repo\Module::P_TAG} = $tag;
-                    }
+                $tag = $this->getTagValue();
+                if ($tag) {
+                    $cnd->{\XLite\Model\Repo\Module::P_TAG} = $tag;
+                }
 
-                    $vendor = $this->getVendorValue();
-                    if ($vendor) {
-                        $cnd->{\XLite\Model\Repo\Module::P_VENDOR} = $vendor;
-                    }
+                $vendor = $this->getVendorValue();
+                if ($vendor) {
+                    $cnd->{\XLite\Model\Repo\Module::P_VENDOR} = $vendor;
                 }
             }
         }
 
         return $cnd;
+    }
+
+    /**
+     * Get limit condition
+     *
+     * @return \XLite\Core\CommonCell
+     */
+    protected function getLimitCondition()
+    {
+        return $this->isLandingPage()
+            ? $this->getPager()->getLimitCondition(null, $this->getMaxItemsCount(), $this->getSearchCondition())
+            : parent::getLimitCondition();
+    }
+
+    /**
+     * @return int
+     */
+    protected function getMaxItemsCount()
+    {
+        return 7;
+    }
+
+    public function installViaButton()
+    {
+        return false;
     }
 
     /**
@@ -679,6 +781,53 @@ class Install extends \XLite\View\ItemsList\Module\AModule
     protected function isVisibleAddonFilters()
     {
         return !$this->getModuleId();
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function isRecentlyPurchased()
+    {
+        $recentlyPurchased = \XLite\Core\Request::getInstance()->recently_purchased;
+
+        return $this->getModuleId()
+            && in_array(
+                $recentlyPurchased,
+                [
+                    \XLite\Controller\Admin\AddonsListMarketplace::PURCHASE_STATE_COMPLETE,
+                    \XLite\Controller\Admin\AddonsListMarketplace::PURCHASE_STATE_IN_PROGRESS,
+                ],
+                true
+            );
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function isPurchaseComplete()
+    {
+        /** @var \XLite\Model\Module $module */
+        $module = \XLite\Core\Database::getRepo('XLite\Model\Module')->find($this->getModuleId());
+
+        return $module && $module->getLicenseKey()
+            && \XLite\Core\Request::getInstance()->recently_purchased
+                === \XLite\Controller\Admin\AddonsListMarketplace::PURCHASE_STATE_COMPLETE;
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function isPurchaseInProgress(\XLite\Model\Module $module)
+    {
+        return $module->getPurchaseStatus() === \XLite\Model\Module::PURCHASE_STATUS_PENDING;
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function getPurchasedModulesCount()
+    {
+        return \XLite\Core\Database::getRepo('XLite\Model\Module')->getPurchasedModulesCount();
     }
 
     /**
@@ -840,7 +989,7 @@ class Install extends \XLite\View\ItemsList\Module\AModule
      */
     protected function showNotAvailModuleNotice(\XLite\Model\Module $module)
     {
-        return \XLite\Model\Module::NOT_AVAILABLE_MODULE == intval($module->getXcnPlan());
+        return \XLite\Model\Module::NOT_AVAILABLE_MODULE === (int) $module->getXcnPlan();
     }
 
     /**
@@ -982,6 +1131,11 @@ class Install extends \XLite\View\ItemsList\Module\AModule
 
     // }}}
 
+    public function isBannerVisible()
+    {
+        return $this->isLandingPage();
+    }
+
     /**
      * Defines the tag promo banner
      *
@@ -1058,5 +1212,15 @@ class Install extends \XLite\View\ItemsList\Module\AModule
 
         return \XLite\Core\Database::getRepo('XLite\Model\Module')
             ->getMarketplaceUrlByName($author, $module);
+    }
+
+    protected function isPopupFooter()
+    {
+        return false;
+    }
+
+    protected function showStickyPanel()
+    {
+        return true;
     }
 }

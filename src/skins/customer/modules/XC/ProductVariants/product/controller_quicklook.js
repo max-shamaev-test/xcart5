@@ -29,7 +29,7 @@ ProductQuickLookVariantView.autoload = function()
   if (jQuery('.ui-dialog.ui-widget').length > 1) {
     jQuery('.ui-dialog.ui-widget:not(:last)').off();
     jQuery('.ui-dialog.ui-widget:not(:last)').remove();
-  };
+  }
 
   jQuery('.widget-controller .product-quicklook .product-photo').each(
     function() {
@@ -61,7 +61,7 @@ ProductQuickLookVariantView.prototype.loadVariantsImages = function(productId, s
       { dataType: 'json' }
     );
   }
-}
+};
 
 // Get URL parameters for variant image loading routine
 ProductQuickLookVariantView.prototype.getURLParametersForLoadVariantsImages = function(productId)
@@ -70,7 +70,7 @@ ProductQuickLookVariantView.prototype.getURLParametersForLoadVariantsImages = fu
   params = array_merge(params, core.getWidgetsParams('update-product-page', params));
 
   return array_merge({'target': 'product', 'action': 'get_variant_images'}, params);
-}
+};
 
 // Load variant image handler
 ProductQuickLookVariantView.prototype.handleLoadVariantsImages = function (XMLHttpRequest, textStatus, data)
@@ -79,33 +79,134 @@ ProductQuickLookVariantView.prototype.handleLoadVariantsImages = function (XMLHt
     data = jQuery.parseJSON(data);
   }
 
-  this.processVariantImageAsImage(data);
+  if (this.base.parents('.product-details:first').find('.product-image-gallery:visible').length > 0) {
+    this.processVariantImageAsGallery(data);
+  } else {
+    this.processVariantImageAsImage(data);
+  }
 
   if (this.loadVariantsImagesShade) {
     this.base.find('.product-details-info .single-progress-mark').remove();
   }
 
   window.ProductQuickLookVariantViewLoading = false;
-}
+};
+
+ProductQuickLookVariantView.prototype.processVariantImageAsGallery = function (data) {
+  var self = this;
+
+  var imageChanged = false;
+
+  var galleries = this.base.parents('.product-details:first').find('.product-image-gallery');
+
+  galleries.each(function () {
+    var $gallery = jQuery(this);
+
+    if (data && _.isObject(data)) {
+
+      imageChanged = imageChanged || $gallery.find('li.variant-image a').attr('href') != data.full.url;
+
+      if (imageChanged) {
+
+        // Remove old variant image
+        var li = $gallery.find('li:eq(0)').clone(true);
+
+        $gallery.find('li.variant-image').remove();
+
+        // Change images
+        var elm = li.find('a img');
+        elm.attr('width', data.gallery.w)
+          .attr('height', data.gallery.h)
+          .attr('src', data.gallery.url)
+          .attr('srcset', data.gallery.srcset)
+          .attr('alt', data.gallery.alt)
+          .css({width: data.gallery.w + 'px', height: data.gallery.h + 'px'});
+
+        elm = li.find('img.middle');
+        elm.attr('width', data.main.w)
+          .attr('height', data.main.h)
+          .attr('src', data.main.url)
+          .attr('srcset', data.main.srcset)
+          .attr('alt', data.main.alt)
+          .css({width: data.main.w + 'px', height: data.main.h + 'px'});
+
+        // Change gallery link
+        li.find('a')
+          .attr('href', data.full.url)
+          .attr('rev', 'width: ' + data.full.w + ', height: ' + data.full.h);
+
+        li.addClass('variant-image');
+
+        $gallery.find('li:eq(0)').before(li);
+
+        // Gallery icon vertical aligment
+        var margin = (li.height() - li.find('a img').height()) / 2;
+
+        li.find('a img').css({
+          'margin-top': Math.ceil(margin) + 'px',
+          'margin-bottom': Math.floor(margin) + 'px'
+        });
+      }
+
+    } else if ($gallery.find('li.variant-image').length > 0) {
+
+      imageChanged = true;
+
+      // Remove old variant image
+      $gallery.find('li.variant-image').remove();
+
+    }
+  });
+  if (imageChanged) {
+    self.initializeGallery();
+    core.trigger('initialize-product-gallery');
+
+    self.applyToGalleries(function (gallery) {
+      if (gallery.get(0)) {
+        $(gallery.get(0)).find('a').click();
+      }
+    });
+  }
+};
+
+ProductQuickLookVariantView.prototype.initializeGallery = function ()
+{
+  var self = this;
+  self.galleries = [];
+  jQuery('.product-image-gallery', this.base.parents('.product-details:first')).each(function () {
+    self.galleries.push($(this).find('li'));
+  });
+};
+
+ProductQuickLookVariantView.prototype.applyToGalleries = function (callback)
+{
+  if (this.galleries) {
+    var self = this;
+    this.galleries.forEach(function (gallery) {
+      callback.apply(self, [gallery]);
+    })
+  }
+};
 
 ProductQuickLookVariantView.prototype.processVariantImageAsImage = function(data)
 {
   if (data && _.isObject(data)) {
     var elm = this.base.find('img.product-thumbnail');
-    elm.attr('width', data.main[0])
-      .attr('height', data.main[1])
-      .attr('src', data.main[2])
-      .attr('alt', data.main[3])
-      .css({ width: data.main[0] + 'px', height: data.main[1] + 'px' });
+    elm.attr('width', data.main.w)
+      .attr('height', data.main.h)
+      .attr('src', data.main.url)
+      .attr('srcset', data.main.srcset)
+      .attr('alt', data.main.alt)
+      .css({ width: data.main.w + 'px', height: data.main.h + 'px' });
 
-    this.base.find('a.cloud-zoom').attr('href', data.full[2]);
+    this.base.find('a.cloud-zoom').attr('href', data.full.url);
     this.base.find('.cloud-zoom').trigger('cloud-zoom');
 
   } else {
     this.applyDefaultImage();
   }
 
-}
+};
 
 ProductQuickLookVariantView.prototype.applyDefaultImage = function()
 {

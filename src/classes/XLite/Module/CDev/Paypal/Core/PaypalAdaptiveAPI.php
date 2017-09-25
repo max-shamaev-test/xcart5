@@ -8,7 +8,7 @@
 
 namespace XLite\Module\CDev\Paypal\Core;
 
-use \XLite\Module\CDev\Paypal;
+use XLite\Module\CDev\Paypal;
 
 /**
  * Paypal adaptive API
@@ -75,8 +75,14 @@ class PaypalAdaptiveAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
     {
         $receivers = array();
 
+        $amount = $order->getTotal();
+
+        if($order->getCurrency()) {
+            $amount = $order->getCurrency()->roundValue($amount);
+        }
+
         $receivers[0] = array(
-            'amount'    => $order->getTotal(),
+            'amount'    => round($amount, 2),
             'email'     => $this->getSetting('paypal_login'),
         );
 
@@ -118,7 +124,7 @@ class PaypalAdaptiveAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
     {
         $defaultFeesPayer = 'EACHRECEIVER';
 
-        $isChained = $this->isChained($order) && 1 <= $validReceiversCount;
+        $isChained = $this->isChained($order) && 1 < $validReceiversCount;
 
         $processedFeesPayer = $this->getSetting('feesPayer');
 
@@ -184,6 +190,29 @@ class PaypalAdaptiveAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
 
         return $this->call(
             'Pay',
+            $params
+        );
+    }
+
+    /**
+     * Do PAY api request
+     *
+     * @param \XLite\Model\Order $order Order
+     * @param                    $paykey
+     *
+     * @return array Paypal server response to PAY api call     *
+     */
+    public function doFullRefundCall(\XLite\Model\Order $order, $paykey)
+    {
+        $params = array(
+            'requestEnvelope' => [
+                'errorLanguage' => 'en_US'
+            ],
+            'payKey'          => $paykey,
+        );
+
+        return $this->call(
+            'Refund',
             $params
         );
     }
@@ -336,6 +365,10 @@ class PaypalAdaptiveAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
                 $url .= 'AdaptivePayments/ExecutePayment';
                 break;
 
+            case 'Refund':
+                $url .= 'AdaptivePayments/Refund';
+                break;
+
             default:
                 $url .= 'AdaptivePayments/Pay';
                 break;
@@ -383,7 +416,7 @@ class PaypalAdaptiveAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_POSTFIELDS     => json_encode($values),
             CURLOPT_CUSTOMREQUEST  => 'POST',
-            CURLOPT_TIMEOUT        => 10
+            CURLOPT_TIMEOUT        => 25
         );
 
         curl_setopt_array($curl, $options);
@@ -396,6 +429,25 @@ class PaypalAdaptiveAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
                 $response['error']
             );
         }
+
+        if (LC_DEVELOPER_MODE) {
+            $responseLog = $response
+                ?: $rep;
+
+            if (!$responseLog) {
+                $responseLog = curl_error($curl);
+            }
+
+            \XLite\Logger::logCustom(
+                'paypal_adaptive_communication',
+                [
+                    'url'      => $url,
+                    'request'  => $values,
+                    'response' => $responseLog
+                ]
+            );
+        }
+
         curl_close($curl);
 
         return $response;

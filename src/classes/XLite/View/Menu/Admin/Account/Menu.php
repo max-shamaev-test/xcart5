@@ -40,7 +40,7 @@ class Menu extends \XLite\View\Menu\Admin\AAdmin
      */
     protected function defineItems()
     {
-        return [
+        $result = [
             'profile'      => [
                 static::ITEM_TITLE         => static::t('My profile'),
                 static::ITEM_TARGET        => 'profile',
@@ -99,5 +99,20 @@ class Menu extends \XLite\View\Menu\Admin\AAdmin
                 static::ITEM_PUBLIC_ACCESS => true,
             ],
         ];
+
+        $purchasesCount = \XLite\Core\Database::getRepo('XLite\Model\Module')->getPurchasedModulesCount();
+        if ($purchasesCount) {
+
+            $result['my_purchases'] = [
+                static::ITEM_TITLE      => static::t('My purchases'),
+                static::ITEM_TARGET     => 'addons_list_purchased',
+                static::ITEM_LABEL      => $purchasesCount,
+                static::ITEM_LABEL_LINK => $this->buildURL('addons_list_purchased'),
+                static::ITEM_CLASS      => 'my-purchases',
+                static::ITEM_WEIGHT     => 250,
+            ];
+        }
+
+        return $result;
     }
 }

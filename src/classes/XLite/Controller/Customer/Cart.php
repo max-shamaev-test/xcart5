@@ -76,7 +76,10 @@ class Cart extends \XLite\Controller\Customer\ACustomer
     protected function markCartCalculate()
     {
         return (!$this->getAction() || in_array($this->getAction(), ['add', 'add_order'], true))
-            && !in_array(\XLite\Core\Request::getInstance()->widget, $this->getExcludedWidgets());
+            && (
+                !in_array(\XLite\Core\Request::getInstance()->widget, $this->getExcludedWidgets())
+                || $this->getTarget() === 'cart'
+            );
     }
 
     /**
@@ -392,6 +395,17 @@ class Cart extends \XLite\Controller\Customer\ACustomer
     protected function processAddItemSuccess()
     {
         \XLite\Core\TopMessage::addInfo('Product has been added to cart');
+        \XLite\Core\Event::productAddedToCart($this->assembleProductAddedToCartEvent());
+    }
+
+    /**
+     * Returns event data
+     *
+     * @return array
+     */
+    protected function assembleProductAddedToCartEvent()
+    {
+        return [];
     }
 
     /**

@@ -45,16 +45,16 @@ class Review extends \XLite\View\Model\AModel
             self::SCHEMA_REQUIRED => false,
         ],
         'response'     => [
-            self::SCHEMA_CLASS      => 'XLite\View\FormField\Textarea\Simple',
-            self::SCHEMA_LABEL      => 'Text of response',
-            self::SCHEMA_REQUIRED   => false,
+            self::SCHEMA_CLASS    => 'XLite\View\FormField\Textarea\Simple',
+            self::SCHEMA_LABEL    => 'Text of response',
+            self::SCHEMA_REQUIRED => false,
         ],
     ];
 
     /**
      * @inheritdoc
      */
-    public function __construct(array $params = array(), array $sections = array())
+    public function __construct(array $params = [], array $sections = [])
     {
         parent::__construct($params, $sections);
 
@@ -113,39 +113,35 @@ class Review extends \XLite\View\Model\AModel
 
         if ($this->getModelObject()->getId()) {
             if ($this->isApproved()) {
-                $result['submit'] = new \XLite\View\Button\Submit(
-                    [
-                        \XLite\View\Button\AButton::PARAM_LABEL    => 'Update',
-                        \XLite\View\Button\AButton::PARAM_BTN_TYPE => 'regular-main-button',
-                        \XLite\View\Button\AButton::PARAM_STYLE    => 'action',
-                    ]
-                );
+                $result['submit'] = new \XLite\View\Button\Submit([
+                    \XLite\View\Button\AButton::PARAM_LABEL    => 'Update',
+                    \XLite\View\Button\AButton::PARAM_BTN_TYPE => 'regular-main-button',
+                    \XLite\View\Button\AButton::PARAM_STYLE    => 'action',
+                ]);
             } else {
-                $result['approve'] = new \XLite\View\Button\Regular(
-                    [
-                        \XLite\View\Button\AButton::PARAM_LABEL    => 'Approve',
-                        \XLite\View\Button\AButton::PARAM_BTN_TYPE => 'regular-main-button',
-                        \XLite\View\Button\AButton::PARAM_STYLE    => 'action always-enabled',
-                        \XLite\View\Button\Regular::PARAM_ACTION   => 'approve',
-                    ]
-                );
-                $result['remove'] = new \XLite\View\Button\Regular(
-                    [
-                        \XLite\View\Button\AButton::PARAM_LABEL  => 'Remove',
-                        \XLite\View\Button\AButton::PARAM_STYLE  => 'action always-enabled',
-                        \XLite\View\Button\Regular::PARAM_ACTION => 'delete',
-                    ]
-                );
+                $result['approve'] = new \XLite\View\Button\Regular([
+                    \XLite\View\Button\AButton::PARAM_LABEL    => 'Approve',
+                    \XLite\View\Button\AButton::PARAM_BTN_TYPE => 'regular-main-button',
+                    \XLite\View\Button\AButton::PARAM_STYLE    => 'action always-enabled',
+                    \XLite\View\Button\Regular::PARAM_ACTION   => 'approve',
+                ]);
+                $result['remove'] = new \XLite\View\Button\Link([
+                    \XLite\View\Button\AButton::PARAM_LABEL => 'Remove',
+                    \XLite\View\Button\AButton::PARAM_STYLE => 'action always-enabled',
+                    \XLite\View\Button\Link::PARAM_LOCATION => $this->buildURL(
+                        'review',
+                        'delete',
+                        ['id' => $this->getModelObject()->getId()]
+                    ),
+                ]);
             }
 
         } else {
-            $result['submit'] = new \XLite\View\Button\Submit(
-                [
-                    \XLite\View\Button\AButton::PARAM_LABEL    => 'Create',
-                    \XLite\View\Button\AButton::PARAM_BTN_TYPE => 'regular-main-button',
-                    \XLite\View\Button\AButton::PARAM_STYLE    => 'action',
-                ]
-            );
+            $result['submit'] = new \XLite\View\Button\Submit([
+                \XLite\View\Button\AButton::PARAM_LABEL    => 'Create',
+                \XLite\View\Button\AButton::PARAM_BTN_TYPE => 'regular-main-button',
+                \XLite\View\Button\AButton::PARAM_STYLE    => 'action',
+            ]);
         }
 
         return $result;

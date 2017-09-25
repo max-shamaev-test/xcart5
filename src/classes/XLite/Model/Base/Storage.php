@@ -603,7 +603,7 @@ abstract class Storage extends \XLite\Model\AEntity
         $basename = $basename ?: basename($path);
         $relativePath = null;
 
-        if (\Includes\Utils\FileManager::isExists($path)) {
+        if (\Includes\Utils\FileManager::isExists($path) && $this->checkSecurity($path)) {
 
             if ($makeUnique) {
                 $local = false;
@@ -979,10 +979,13 @@ abstract class Storage extends \XLite\Model\AEntity
         }
 
         $result = $this->renew() && $this->updatePathByMIME();
-        $result = $result && $this->checkSecurity();
+        $secure = $this->checkSecurity();
+        $result = $result && $secure;
 
         if ($result && $toRemove) {
             $this->removeFile($pathToRemove);
+        } elseif (!$secure) {
+            $this->removeFile($this->getPath());
         }
 
         return $result;
@@ -1046,27 +1049,37 @@ abstract class Storage extends \XLite\Model\AEntity
     /**
      * Check storage security
      *
-     * @return boolean
+     * @since 5.3.3.4 Added $path param to allow check not uploaded files
+     *
+     * @param string $path File path to check (OPTIONAL)
+     *
+     * @return bool
      */
-    protected function checkSecurity()
+    protected function checkSecurity($path = null)
     {
-        return $this->checkPathExtension();
+        $path = $path ?: $this->getPath();
+        return $this->checkPathExtension($path);
     }
 
     /**
      * Check path extension
      *
-     * @return boolean
+     * @since 5.3.3.4 Added $path param to allow check not uploaded files
+     *
+     * @param string $path File path to check (OPTIONAL)
+     *
+     * @return bool
      */
-    protected function checkPathExtension()
+    protected function checkPathExtension($path)
     {
+        $path = $path ?: $this->getPath();
         $result = true;
 
-        if (preg_match('/\.(?:php3?|pl|cgi|py|htaccess|phtml)$/Ss', $this->getPath())) {
+        if (preg_match('/\.(?:php3?|pl|cgi|py|htaccess|phtml)$/Ss', $path)) {
             $this->loadError = 'extension';
             $this->loadErrorMessage = array(
                 'The file extension is forbidden ({{file}})',
-                array('file' => $this->getPath())
+                array('file' => $path)
             );
 
             $result = false;

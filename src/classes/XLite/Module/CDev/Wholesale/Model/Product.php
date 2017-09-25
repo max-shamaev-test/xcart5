@@ -200,6 +200,8 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     public function getCurrentMembership()
     {
+        $membership = null;
+
         if ($this->getWholesaleMembership() !== null) {
             $membership = $this->getWholesaleMembership() ?: null;
 
@@ -214,7 +216,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
         ) {
             $membership = \XLite::getController()->getCart()->getProfile()->getMembership();
 
-        } else{
+        } elseif (!\XLite::isAdminZone()) {
             $membership = \XLite\Core\Auth::getInstance()->getProfile()
                 ? \XLite\Core\Auth::getInstance()->getProfile()->getMembership()
                 : null;

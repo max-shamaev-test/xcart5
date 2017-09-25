@@ -267,7 +267,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     {
         return $this->isUseVariantImage()
             ? $this->getDefaultVariant()->getImage()
-            : parent::getImage();
+            : $this->getProductImage();
     }
 
     /**
@@ -287,9 +287,19 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     protected function isUseVariantImage()
     {
-        return !\XLite::isAdminZone()
+        $result = !\XLite::isAdminZone()
             && $this->getDefaultVariant()
             && $this->getDefaultVariant()->getImage();
+
+        if (
+            $result
+            && \XLite\Core\Config::getInstance()->General->force_choose_product_options
+            && $this->getProductImage()
+        ) {
+            return false;
+        }
+
+        return $result;
     }
 
     /**
@@ -508,13 +518,13 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
             }
         }
 
-        if (0 < $this->getVariants()->count()) {
+        if (0 < $this->getVariantsCollection()->count()) {
             if (0 === $this->getVariantsAttributes()->count()) {
                 \XLite\Core\Database::getRepo('\XLite\Module\XC\ProductVariants\Model\ProductVariant')->deleteInBatch(
-                    $this->getVariants()->toArray()
+                    $this->getVariantsCollection()->toArray()
                 );
 
-                $this->getVariants()->clear();
+                $this->getVariantsCollection()->clear();
                 $changed = true;
 
             } else {
@@ -522,7 +532,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
                     $variantsAttributes[$a->getId()] = $a->getId();
                 }
 
-                foreach ($this->getVariants() as $variant) {
+                foreach ($this->getVariantsCollection() as $variant) {
                     $toAdd = $variantsAttributes;
 
                     foreach ($variant->getValues() as $v) {
@@ -551,11 +561,11 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
                     }
                 }
 
-                foreach ($this->getVariants() as $v) {
+                foreach ($this->getVariantsCollection() as $v) {
                     if (!isset($checked[$v->getId()])) {
                         if ($v->getValues()) {
                             $hash = $v->getValuesHash();
-                            foreach ($this->getVariants() as $v2) {
+                            foreach ($this->getVariantsCollection() as $v2) {
                                 if ($v->getId() != $v2->getId()
                                     && $v2->getValues()
                                     && !isset($checked[$v2->getId()])

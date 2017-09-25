@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Repo;
 
+use XLite\Core\Cache\ExecuteCached;
+
 /**
  * Module repository
  */
@@ -32,6 +34,9 @@ class Module extends \XLite\Model\Repo\ARepo
     const P_VENDOR           = 'vendor';
     const P_IS_SKIN          = 'isSkin';
     const P_SALES_CHANNELS   = 'salesChannels';
+    const P_PURCHASED        = 'purchased';
+    
+    const P_INSTALLED_REVERSE = 'installedReverse';
 
     /**
      * Price criteria
@@ -91,6 +96,11 @@ class Module extends \XLite\Model\Repo\ARepo
     protected $updateModulesInfoCache;
 
     protected $mutualModulesRegistry = array();
+
+    /**
+     * @var integer
+     */
+    protected $purchasedCount;
 
     /**
      * Common search
@@ -446,6 +456,32 @@ class Module extends \XLite\Model\Repo\ARepo
      *
      * @return void
      */
+    protected function prepareCndInstalledReverse(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
+    {
+        if ($value !== null) {
+            $expr = $queryBuilder->expr()->andX();
+
+            $expr->add($this->getLinkCondition('mi'));
+            $expr->add('m.fromMarketplace != mi.fromMarketplace');
+
+            $queryBuilder->linkLeft('XLite\Model\Module', 'mi', 'WITH', $expr);
+
+            if ($value === false) {
+                $queryBuilder->andWhere('mi.installed IS NULL OR mi.installed = false');
+            } else {
+                $queryBuilder->andWhere('mi.installed = true');
+            }
+        }
+    }
+
+    /**
+     * Prepare certain search condition
+     *
+     * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
+     * @param boolean                    $value        Condition
+     *
+     * @return void
+     */
     protected function prepareCndIsLanding(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
     {
         $queryBuilder->andWhere('m.isLanding = :isLanding')
@@ -464,6 +500,31 @@ class Module extends \XLite\Model\Repo\ARepo
     {
         $queryBuilder->andWhere('m.salesChannelPos != -1')
             ->orderBy('m.salesChannelPos', 'ASC');
+    }
+
+    /**
+     * Prepare certain search condition
+     *
+     * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
+     * @param boolean                    $value        Condition
+     *
+     * @return void
+     */
+    protected function prepareCndPurchased(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
+    {
+        if ($value) {
+            $queryBuilder->andWhere('m.price > 0')
+                ->leftJoin('XLite\Model\ModuleKey', 'mk', 'WITH', 'm.author = mk.author AND m.name = mk.name')
+                ->andWhere(
+                    $queryBuilder->expr()->orX(
+                        'mk.keyId IS NOT NULL',
+                        'm.purchaseStatus = :purchased',
+                        'm.purchaseStatus = :pending'
+                    )
+                )
+                ->setParameter('purchased', \XLite\Model\Module::PURCHASE_STATUS_PURCHASED)
+                ->setParameter('pending', \XLite\Model\Module::PURCHASE_STATUS_PENDING);
+        }
     }
 
     // }}}
@@ -521,6 +582,30 @@ class Module extends \XLite\Model\Repo\ARepo
     }
 
     // }}}
+
+    /**
+     * @param \XLite\Core\CommonCell|null $cnd
+     *
+     * @return mixed
+     */
+    public function getCachedCount(\XLite\Core\CommonCell $cnd = null)
+    {
+        if ($cnd === null) {
+            $cnd = new \XLite\Core\CommonCell();
+            $cnd->{\XLite\Model\Repo\Module::P_FROM_MARKETPLACE} = false;
+        }
+
+        $cacheParams = [
+            'getCachedCount',
+            get_class($this),
+            $cnd,
+            $this->getVersion()
+        ];
+
+        return ExecuteCached::executeCached(function() use ($cnd) {
+            return \XLite\Core\Database::getRepo('XLite\Model\Module')->search($cnd, true);
+        }, $cacheParams);
+    }
 
     // {{{ Version-related routines
 
@@ -1211,31 +1296,43 @@ class Module extends \XLite\Model\Repo\ARepo
      */
     public function getTags()
     {
-        $tags = $this->defineGetTags()->getArrayResult();
+        $cacheParams = [
+            'getTags',
+            get_class($this),
+            $this->getVersion(),
+            \XLite\Core\Session::getInstance()->getLanguage()
+                ? \XLite\Core\Session::getInstance()->getLanguage()->getCode()
+                : '',
+        ];
 
-        $tags = array_unique(
-            array_reduce(
-                array_map(
-                    function ($a) {
-                        return isset($a['tags']) ? $a['tags'] : array();
-                    },
-                    $tags
-                ),
-                'array_merge',
-                array()
-            )
-        );
+        return ExecuteCached::executeCached(function() {
 
-        $result = array();
-        foreach ($tags as $tag) {
-            $localeTag = $this->getLocaleTagName($tag);
-            $result[$localeTag] = $tag;
-        }
+            $tags = $this->defineGetTags()->getArrayResult();
 
-        ksort($result);
-        $result = array_values($result);
+            $tags = array_unique(
+                array_reduce(
+                    array_map(
+                        function ($a) {
+                            return isset($a['tags']) ? $a['tags'] : array();
+                        },
+                        $tags
+                    ),
+                    'array_merge',
+                    array()
+                )
+            );
 
-        return array_combine($result, $result);
+            $result = array();
+            foreach ($tags as $tag) {
+                $localeTag = $this->getLocaleTagName($tag);
+                $result[$localeTag] = $tag;
+            }
+
+            ksort($result);
+            $result = array_values($result);
+
+            return array_combine($result, $result);
+        }, $cacheParams);
     }
 
     /**
@@ -1580,8 +1677,7 @@ class Module extends \XLite\Model\Repo\ARepo
         // Search for installed modules...
         $qb = $this->createQueryBuilder('m')
             ->andWhere('m.fromMarketplace = 0')
-            ->andWhere('m.installed = 1')
-            ->andWhere('m.enabled = 1');
+            ->andWhere('m.installed = 1');
 
         // Inner join with modules from marketplace...
         $qb->linkInner('\XLite\Model\Module', 'mm', 'WITH', 'mm.name = m.name AND mm.author = m.author AND mm.fromMarketplace = 1')
@@ -1633,5 +1729,31 @@ class Module extends \XLite\Model\Repo\ARepo
         }
 
         return $result;
+    }
+
+    /**
+     * @return integer
+     */
+    public function getPurchasedModulesCount()
+    {
+        if ($this->purchasedCount === null) {
+            $this->purchasedCount = $this->definePurchasedModulesCount()->getSingleScalarResult();
+        }
+
+        return $this->purchasedCount;
+    }
+
+    /**
+     * @return \XLite\Model\QueryBuilder\AQueryBuilder
+     */
+    protected function definePurchasedModulesCount()
+    {
+        $qb = $this->createQueryBuilder('m');
+        $qb->selectCount();
+
+        $this->prepareCndIsSystem($qb, false);
+        $this->prepareCndPurchased($qb, true);
+
+        return $qb;
     }
 }

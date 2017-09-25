@@ -2,7 +2,7 @@
  # Select state
  #}
 
-<select id="{{ this.getFieldId() }}" name="{{ this.getName() }}"{{ this.getAttributesCode()|raw }} data-value="{{ this.getValue() }}">
+<select {{ this.getAttributesCode()|raw }} data-value="{{ this.getValue() }}">
     {% if this.getParam('selectOne') %}
     <option value="" selected="{{ this.isStateOptionSelected(null) }}">{{ this.getParam('selectOneLabel') }}</option>
     {% endif %}

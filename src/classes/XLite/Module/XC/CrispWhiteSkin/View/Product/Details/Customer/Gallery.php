@@ -39,6 +39,8 @@ class Gallery extends \XLite\View\Product\Details\Customer\Gallery implements \X
     }
 
     /**
+     * @deprecated 5.3.4
+     *
      * Checks if slider mode is required for the gallery
      *
      * @return boolean

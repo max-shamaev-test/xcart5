@@ -341,6 +341,7 @@ table.data-table td .module-tags-list li:hover a {
 
 .modules-list .module-description-section .note,
 .modules-list .module-description-section .note div {
+  display: inline-block;
   font-size: 14px;
   line-height: 24px;
   padding: 8px 12px;
@@ -354,11 +355,19 @@ table.data-table td .module-tags-list li:hover a {
 .modules-list .module-description-section .note.dependencies,
 .modules-list .module-description-section .note.version.error,
 .modules-list .module-description-section .note div,
-.modules-list .module-description-section .xcn-module-notice
+.modules-list .module-description-section .xcn-module-notice,
+.modules-list .module-description-section .alert.alert-warning
 {
   background-color: #fcf8e3;
   color: #5d503b;
   border: solid 1px #faebcc;
+  border-radius: 4px;
+}
+
+.modules-list .module-description-section .note.version.upgrade {
+  color: #3c763d;
+  background-color: #dff0d8;
+  border: solid 1px #d6e9c6;
   border-radius: 4px;
 }
 
@@ -434,10 +443,16 @@ div.addons-filters div.table-value {
 
 .addons-filters .price-filter-box,
 .addons-filters .tag-filter-box,
-.addons-filters .vendor-filter-box
+.addons-filters .vendor-filter-box,
+.addons-filters .addons-my-purchases
 {
   display: inline-block;
   margin-right: 40px;
+}
+
+.addons-filters .addons-my-purchases a
+{
+  line-height: 35px;
 }
 
 .addons-filters .table-label,

@@ -848,7 +848,7 @@ a.report-close {
   -moz-border-radius: 0 11px 11px 0;
   border-radius: 0 11px 11px 0;
   -webkit-border-radius: 0 11px 11px 0;
-  background: url(<?php echo $skinsDir; ?>../../admin/images/icon_window_close.png) no-repeat scroll 10px 10px #7A7A7A;
+  background: url(<?php echo $skinsDir; ?>../admin/images/icon_window_close.png) no-repeat scroll 10px 10px #7A7A7A;
   display: block;
   height: 41px;
   margin-left: 780px;

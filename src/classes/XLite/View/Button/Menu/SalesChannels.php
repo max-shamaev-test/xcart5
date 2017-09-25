@@ -20,7 +20,7 @@ class SalesChannels extends \XLite\View\Button\APopupLink
      */
     public function getJSFiles()
     {
-        $list   = parent::getJSFiles();
+        $list = parent::getJSFiles();
         $list[] = 'left_menu/sales_channels/controller.js';
 
         return $list;
@@ -67,5 +67,13 @@ class SalesChannels extends \XLite\View\Button\APopupLink
     protected function getClass()
     {
         return parent::getClass() . ' sales-channels';
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isCacheAvailable()
+    {
+        return true;
     }
 }

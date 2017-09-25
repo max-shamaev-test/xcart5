@@ -96,7 +96,10 @@ class ShippingEstimate extends \XLite\Controller\Customer\ACustomer
 
         $state = null;
 
-        if (0 < intval(\XLite\Core\Request::getInstance()->destination_state)) {
+        if ($country
+            && $country->hasStates()
+            && 0 < intval(\XLite\Core\Request::getInstance()->destination_state)
+        ) {
             $state = \XLite\Core\Database::getRepo('XLite\Model\State')
                 ->find(\XLite\Core\Request::getInstance()->destination_state);
 

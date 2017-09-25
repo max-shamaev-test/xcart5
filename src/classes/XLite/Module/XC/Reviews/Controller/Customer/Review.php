@@ -115,9 +115,11 @@ class Review extends \XLite\Controller\Customer\ACustomer
         if (!$review || !$this->isOwnReview($review)) {
             $review = new \XLite\Module\XC\Reviews\Model\Review;
 
-            $review->setReviewerName($this->getProfileField('reviewerName'));
+            $profile = $this->getReviewerProfile();
+
             $review->setRating(\XLite\Module\XC\Reviews\Model\Review::MAX_RATING);
-            $review->setProfile(\XLite\Core\Auth::getInstance()->getProfile());
+            $review->setReviewerName($this->getProfileField('reviewerName'));
+            $review->setProfile($profile);
         }
 
         return $review;
@@ -134,7 +136,7 @@ class Review extends \XLite\Controller\Customer\ACustomer
 
         if (empty($id)) {
             $product = \XLite\Core\Database::getRepo('XLite\Model\Product')->find($this->getProductId(false));
-            $profile = $this->getProfile();
+            $profile = $this->getReviewerProfile();
             $review = $product ? $product->getReviewAddedByUser($profile) : null;
 
             if ($review) {
@@ -162,16 +164,6 @@ class Review extends \XLite\Controller\Customer\ACustomer
     }
 
     /**
-     * Return current profile
-     *
-     * @return \XLite\Model\Profile
-     */
-    public function getProfile()
-    {
-        return \XLite\Core\Auth::getInstance()->getProfile();
-    }
-
-    /**
      * Return field value from current profile
      *
      * @param string $field Field
@@ -181,17 +173,17 @@ class Review extends \XLite\Controller\Customer\ACustomer
     public function getProfileField($field)
     {
         $value = '';
-        $auth = \XLite\Core\Auth::getInstance();
-        if ($auth->isLogged()) {
+        $profile = $this->getReviewerProfile();
+        if ($profile) {
             switch ($field) {
                 case 'reviewerName':
-                    if (0 < $auth->getProfile()->getAddresses()->count()) {
-                        $value = $auth->getProfile()->getAddresses()->first()->getName();
+                    if (0 < $profile->getAddresses()->count()) {
+                        $value = $profile->getAddresses()->first()->getName();
                     }
                     break;
 
                 case 'email':
-                    $value = $auth->getProfile()->getLogin();
+                    $value = $profile->getLogin();
                     break;
 
                 default:
@@ -284,10 +276,12 @@ class Review extends \XLite\Controller\Customer\ACustomer
     {
         $data = $this->getRequestData();
 
+        $profile = $this->getReviewerProfile();
+
         $review = new \XLite\Module\XC\Reviews\Model\Review();
 
         $review->map($data);
-        $review->setProfile($this->getProfile());
+        $review->setProfile($profile);
         $review->setIp(utf8_encode(inet_pton($_SERVER['REMOTE_ADDR'])) ?: 0);
 
         if (!$review->getReviewerName()) {
@@ -299,6 +293,19 @@ class Review extends \XLite\Controller\Customer\ACustomer
             : \XLite\Module\XC\Reviews\Model\Review::STATUS_PENDING;
 
         $review->setStatus($status);
+
+        if (
+            $this->isValidReviewKey()
+            && $profile
+            && ($reviewKey = $this->getReviewKey())
+            && $reviewKey->getOrder()
+            && $reviewKey->getOrder()->getOrigProfile()
+            && $reviewKey->getOrder()->getOrigProfile()->getProfileId() == $profile->getProfileId()
+        ) {
+            // Set relation between review key and submitted review
+            $review->setReviewKey($reviewKey);
+            $reviewKey->addReviews($review);
+        }
 
         $product = \XLite\Core\Database::getRepo('XLite\Model\Product')->find($this->getProductId());
         $review->setProduct($product);

@@ -31,6 +31,28 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'The quantity of reviews for tabs product reviews'
+  - name: enableCustomersFollowup
+    category: 'XC\Reviews'
+    type: \XLite\View\FormField\Input\Checkbox\OnOff
+    orderby: 50
+    translations:
+      - code: en
+        option_name: 'Request customers to review the purchased products after successful orders'
+        option_comment: 'A successful order means an order that has been paid for and delivered.'
+      - code: ru
+        option_name: 'Отправлять покупателям приглашение оставить отзыв о купленных товарах после успешного заказа'
+        option_comment: 'Успешным заказом считается заказ, оплаченный и доставленный покупателю.'
+  - name: followupTimeout
+    category: 'XC\Reviews'
+    type: \XLite\View\FormField\Input\Text\Integer
+    widgetParameters: { min: 0 }
+    orderby: 60
+    value: 15
+    translations:
+      - code: en
+        option_name: 'How many days later to send a review request'
+      - code: ru
+        option_name: 'Через сколько дней отправлять приглашение оставить отзыв'
 
 XLite\Model\Product\GlobalTab:
   - {service_name: 'Reviews', position: 60}
@@ -120,6 +142,9 @@ XLite\Model\LanguageLabel:
   - { name: 'A new review has been submitted for the product "{{name}}".', translations: [{ code: 'en', label: 'A new review has been submitted for the product "{{name}}".' }] }
   - { name: 'Go to see the review [in the Admin area]', translations: [{ code: 'en', label: 'Go to see the review <a href="{{link}}">in the Admin area</a>' }] }
   - { name: 'itemslist.admin.review.blank', translations: [{ code: en, label: '<p class="items-list-blank-description-heading text-center">No one has rated your products yet.</p><p class="text-center">Once someone reviews your product (or you add a review manually), this is the place to track, moderate and remove reviews.</p>' },{ code: ru, label: '<p class="items-list-blank-description-heading text-center">Никто пока не оценил ваши продукты.</p><p class="text-center">Как только появятся отзывы о ваших продуктах, вы сможете управлять ими на этой странице.</p>' }] }
+  - { name: 'Please review purchased product {{product}}', translations: [{ code: en, label: 'Please review the product {{product}}' },{ code: ru, label: 'Пожалуйств, оставьте отзыв на товар {{product}}' }] }
+  - { name: 'Recently, you have made a purchase from our company:', translations: [{ code: en, label: "<p>Thank you for your recent purchase from {{company}} – Order #{{orderNumber}} ({{orderDate}}):</p>" },{ code: ru, label: "<p>Благодарим Вас за недавнюю покупку у {{company}} – Заказ #{{orderNumber}} ({{orderDate}}):</p>" }] }
+  - { name: 'Please review purchased products', translations: [{ code: en, label: "<p>Would you be willing to rate these products and write a review? Your opinion is important us.</p><p>To write a review:</p><p>1) Click on the product name to open the Customer reviews section for the product<br />2) Click Add review<br />3) Rate the product and write your feedback.</p><p>Thank you so much for taking the time to let us know what you think. It is truly appreciated.</p>" },{ code: ru, label: "<p>Готовы ли вы оценить эти товары и написать отзыв? Ваше мнение очень важно для нас!</p><p>Чтобы написать отзыв:</p><p>1) Нажмите на название товара, чтобы открыть раздел Отзывы для этого товара<br />2) Нажмите кнопку Добавить отзыв<br />3) Оцените товар и напишите свой отзыв.</p><p>Спасибо, что нашли время сообщить нам свое мнение. Мы очень ценим это.</p>" }] }
   - { name: 'star_tooltip_1', translations: [{ code: 'en', label: 'Excellent' }, { code: 'ru', label: 'Отлично' }] }
   - { name: 'star_tooltip_2', translations: [{ code: 'en', label: 'Good' }, { code: 'ru', label: 'Хорошо' }] }
   - { name: 'star_tooltip_3', translations: [{ code: 'en', label: 'Average' }, { code: 'ru', label: 'Нормально' }] }
@@ -127,6 +152,9 @@ XLite\Model\LanguageLabel:
   - { name: 'star_tooltip_5', translations: [{ code: 'en', label: 'Poor' }, { code: 'ru', label: 'Плохо' }] }
   - { name: 'Text of response', translations: [{ code: 'en', label: 'Text of response' }, { code: 'ru', label: 'Ответ' }] }
   - { name: 'Response date is in wrong format', translations: [{ code: 'en', label: 'Response date is in wrong format' }, { code: 'ru', label: 'Неверный формат поля "responseDate"' }] }
+
+XLite\Model\Task:
+  - owner: XLite\Module\XC\Reviews\Core\Task\SendReviewKeys
 
 XLite\Model\Notification:
   - templatesDirectory: modules/XC/Reviews/new_review
@@ -151,3 +179,25 @@ XLite\Model\Notification:
         description: "Данное сообщение используется для уведомления администратора о том, что клиент оставил отзыв о каком-либо товаре."
         adminSubject: "Получен новый отзыв о товаре"
         adminText: ""
+  - templatesDirectory: modules/XC/Reviews/review_key
+    availableForAdmin: false
+    availableForCustomer: false
+    enabledForAdmin: false
+    enabledForCustomer: true
+    adminHeaderEnabled: false
+    adminGreetingEnabled: false
+    adminSignatureEnabled: false
+    customerHeaderEnabled: true
+    customerGreetingEnabled: true
+    customerSignatureEnabled: true
+    translations:
+      - code: en
+        name: "Request to review purchased products - (Product Reviews module)"
+        description: "This message is used to invite customers to leave feedback on the products they have purchased."
+        customerSubject: "Please review your purchase"
+        customerText: ""
+      - code: ru
+        name: "Приглашение оставить отзыв на купленные товары - (модуль Product Reviews)"
+        description: "Данное сообщение используется для отправки покупателю приглашения оставить отзыв о купленных им товарах."
+        customerSubject: "Пожалуйста, оставьте отзыв о купленных товарах"
+        customerText: ""

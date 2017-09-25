@@ -16,7 +16,7 @@ class Simple extends \XLite\View\FormField\Textarea\ATextarea
     /**
      * Widget param names
      */
-    const PARAM_MIN_HEIGHT = 'maxWidth';
+    const PARAM_MIN_HEIGHT = 'minHeight';
     const PARAM_MAX_HEIGHT = 'maxHeight';
 
     /**

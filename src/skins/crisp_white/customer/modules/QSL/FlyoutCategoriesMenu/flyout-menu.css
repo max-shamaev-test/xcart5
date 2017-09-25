@@ -102,6 +102,11 @@
   -moz-transition: color .15s;
   -webkit-transition: color .15s;
   transition: color .15s;
+
+  padding: 10px 0;
+  line-height: normal;
+  word-break: break-all;
+  word-wrap: break-word;
 }
 
 .flyout-menu li:hover > a,
@@ -114,7 +119,10 @@
 }
 
 .flyout-menu li li span.primary-title,
-.flyout-menu li li a:active, .flyout-menu li li a:link, .flyout-menu li li a:visited, .flyout-menu li li a:hover {
+.flyout-menu li li a:active,
+.flyout-menu li li a:link,
+.flyout-menu li li a:visited,
+.flyout-menu li li a:hover {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -127,6 +135,11 @@
   -moz-transition: color .15s;
   -webkit-transition: color .15s;
   transition: color .15s;
+
+  line-height: normal;
+  padding: 10px 0;
+  word-wrap: break-word;
+  word-break: break-all;
 }
 
 .flyout-menu a.no-wrap:active,

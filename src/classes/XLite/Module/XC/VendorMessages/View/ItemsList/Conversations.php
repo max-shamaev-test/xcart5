@@ -47,7 +47,7 @@ class Conversations extends \XLite\View\ItemsList\AItemsList
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = $this->getPageBodyDir() . '/style.css';
+        $list[] = $this->getPageBodyDir() . '/style.less';
 
         return $list;
     }

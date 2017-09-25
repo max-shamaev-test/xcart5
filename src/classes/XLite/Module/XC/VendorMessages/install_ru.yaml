@@ -49,6 +49,8 @@ XLite\Model\LanguageLabel:
   - { name: 'Conversation: X', translations: [{ code: ru, label: 'Разговор: {{members}}' }]}
   - { name: 'X new messages', translations: [{ code: ru, label: '{{count}} новых сообщений' }]}
   - { name: 'New message', translations: [{ code: ru, label: 'Новое сообщение' }]}
+  - { name: 'Mark all', translations: [{ code: ru, label: 'Пометить все' }]}
+  - { name: 'Mark selected', translations: [{ code: ru, label: 'Пометить выбранные' }]}
 
 XLite\Model\Config:
   - { directives: { allowedModel: 'XLite\Model\ConfigTranslations' } }

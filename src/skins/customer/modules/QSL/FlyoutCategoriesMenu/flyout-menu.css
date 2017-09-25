@@ -120,6 +120,9 @@
   -webkit-transition: color .15s;
   transition: color .15s;
   border-top: 1px dotted #DFDFDF;
+
+  word-break: break-all;
+  word-wrap: break-word;
 }
 .flyout-menu li:hover > a,
 .flyout-menu li a:hover {
@@ -149,6 +152,9 @@
     transition: color .15s;
     color: #333;
     font-size: 16px;
+
+    word-wrap: break-word;
+    word-break: break-all;
 }
 
 .flyout-menu a.no-wrap:active,

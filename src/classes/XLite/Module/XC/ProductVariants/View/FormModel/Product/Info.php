@@ -13,6 +13,19 @@ use XLite\Core\Database;
 class Info extends \XLite\View\FormModel\Product\Info implements \XLite\Base\IDecorator
 {
     /**
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        return array_merge(
+            parent::getCSSFiles(),
+            [
+                'modules/XC/ProductVariants/form_model/product/info/style.less'
+            ]
+        );
+    }
+
+    /**
      * @param array $sections
      *
      * @return array
@@ -75,5 +88,44 @@ class Info extends \XLite\View\FormModel\Product\Info implements \XLite\Base\IDe
         return $product
             ? count($product->getVariants())
             : '';
+    }
+
+    protected function defineFields()
+    {
+        $fields = parent::defineFields();
+
+        if ($this->isDisplayVariantsInventorySwitcher()) {
+            $fields['prices_and_inventory']['inventory_tracking']['fields']['clear_variants_inventory'] = [
+                'label'     => static::t('Clear and disable inventory tracking for variants as well'),
+                'type'      => 'XLite\View\FormModel\Type\SwitcherType',
+                'position'  => 150,
+                'show_when' => [
+                    'prices_and_inventory' => [
+                        'inventory_tracking' => [
+                            'inventory_tracking' => false,
+                        ],
+                    ],
+                ],
+                'help'      => static::t('Product variants inventory clear help'),
+            ];
+        }
+
+        return $fields;
+    }
+
+    protected function isDisplayVariantsInventorySwitcher()
+    {
+        $product = \XLite\Core\Database::getRepo('XLite\Model\Product')->find($this->getDataObject()->default->identity);
+
+        if ($product && $product->hasVariants()) {
+            /** @var \XLite\Module\XC\ProductVariants\Model\ProductVariant $variant */
+            foreach ($product->getVariants() as $variant) {
+                if (!$variant->getDefaultAmount()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

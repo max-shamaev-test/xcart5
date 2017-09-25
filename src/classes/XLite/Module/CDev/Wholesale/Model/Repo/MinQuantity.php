@@ -9,7 +9,21 @@
 namespace XLite\Module\CDev\Wholesale\Model\Repo;
 
 /**
- * MinQuantity model repository
+ * @Api\Operation\Create(modelClass="XLite\Module\CDev\Wholesale\Model\MinQuantity", summary="Add minimum purchase quantity tier")
+ * @Api\Operation\Read(modelClass="XLite\Module\CDev\Wholesale\Model\MinQuantity", summary="Retrieve minimum purchase quantity tier by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\CDev\Wholesale\Model\MinQuantity", summary="Retrieve minimum purchase quantity tiers by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\CDev\Wholesale\Model\MinQuantity", summary="Update minimum purchase quantity tier by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\CDev\Wholesale\Model\MinQuantity", summary="Delete minimum purchase quantity tier by id")
+ *
+ * @SWG\Tag(
+ *   name="CDev\Wholesale\MinQuantity",
+ *   x={"display-name": "MinQuantity", "group": "CDev\Wholesale"},
+ *   description="MinQuantity record represents minumum purchase quantity tier for a certain product-membership pair",
+ *   @SWG\ExternalDocumentation(
+ *     description="Find out more about setting up wholesale price and minimum purchase quantities",
+ *     url="http://kb.x-cart.com/en/products/setting_up_wholesale_prices_and_minimum_purchase_quantites_for_different_membership_levels.html"
+ *   )
+ * )
  */
 class MinQuantity extends \XLite\Model\Repo\ARepo
 {

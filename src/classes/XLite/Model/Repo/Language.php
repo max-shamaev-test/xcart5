@@ -245,7 +245,7 @@ class Language extends \XLite\Model\Repo\Base\I18n
             $languages = array();
             $rows = array();
 
-            $f = fopen($path, 'r');
+            $f = fopen($path, 'rb');
 
             if ($f) {
 

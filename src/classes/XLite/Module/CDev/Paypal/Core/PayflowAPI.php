@@ -104,7 +104,7 @@ class PayflowAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
      */
     protected function generateSecureTokenId()
     {
-        return md5(time() + rand(1000, 99999));
+        return md5(time() + mt_rand(1000, 99999));
     }
 
     /**

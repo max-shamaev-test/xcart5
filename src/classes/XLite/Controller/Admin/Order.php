@@ -1356,6 +1356,17 @@ class Order extends \XLite\Controller\Admin\AAdmin
             }
         }
 
+
+        uasort($modifiers, function ($a, $b) {
+            $aWeight = $a['object']
+                ? $a['object']->getSortingWeight()
+                : 0;
+            $bWeight = $b['object']
+                ? $b['object']->getSortingWeight()
+                : 0;
+            return $aWeight < $bWeight ? -1 : $aWeight > $bWeight;
+        });
+
         return $modifiers;
     }
 

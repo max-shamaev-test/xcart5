@@ -60,6 +60,8 @@ XLite\Model\LanguageLabel:
   - { name: 'Conversation: X', translations: [{ code: en, label: 'Conversation: {{members}}' }]}
   - { name: 'X new messages', translations: [{ code: en, label: '{{count}} new messages' }]}
   - { name: 'New message', translations: [{ code: en, label: 'New message' }]}
+  - { name: 'Mark all', translations: [{ code: en, label: 'Mark all' }]}
+  - { name: 'Mark selected', translations: [{ code: en, label: 'Mark selected' }]}
 
 XLite\Model\Notification:
   - templatesDirectory: modules/XC/VendorMessages/notification

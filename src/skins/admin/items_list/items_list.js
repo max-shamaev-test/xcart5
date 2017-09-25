@@ -242,7 +242,7 @@ ItemsList.prototype.loadWidget = function(callback)
     var data = {
       type:     'get',
       url:      this.buildURL(true),
-      timeout:  15000,
+      timeout:  60000,
       complete: _.bind(this.loadHandler, this)
     };
     this.loadCallback = callback;

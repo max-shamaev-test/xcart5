@@ -296,7 +296,6 @@ class AddonsListInstalled extends \XLite\Controller\Admin\Base\AddonsList
                         'author'          => $data['author'],
                         'fromMarketplace' => 0,
                         'installed'       => 1,
-                        'enabled'         => 1,
                     )
                 );
 

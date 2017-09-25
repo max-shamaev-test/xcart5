@@ -8,6 +8,9 @@
 
 namespace XLite\View;
 
+use XLite\Core\Promo;
+use XLite\Module\XC\TaxJar;
+
 /**
  * Tax banner alert widget
  *
@@ -39,7 +42,7 @@ class TaxBannerAlert extends \XLite\View\ModuleBanner
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'tax_banner_alert/style.css';
+        $list[] = 'tax_banner_alert/style.less';
 
         return $list;
     }
@@ -61,7 +64,19 @@ class TaxBannerAlert extends \XLite\View\ModuleBanner
      */
     protected function getModuleName()
     {
-        return 'XC\\AvaTax';
+        return 'XC\\TaxJar';
+    }
+
+    /**
+     * Get logo url
+     *
+     * @return string
+     */
+    public function getLogoUrl()
+    {
+        return \XLite\Core\Layout::getInstance()->getResourceWebPath(
+            'tax_banner_alert/taxjar_logo.png'
+        );
     }
 
     /**
@@ -77,56 +92,65 @@ class TaxBannerAlert extends \XLite\View\ModuleBanner
     /**
      * Get module id
      *
-     * @return string
+     * @return \XLite\Model\Module
      */
     protected function getModule()
     {
         return \XLite\Core\Database::getRepo('XLite\Model\Module')->findOneByModuleName($this->getModuleName());
     }
 
-    /**
-     * Returns current target
-     *
-     * @return string
-     */
-    protected function getModuleSettingsLink()
+    public function isEnableCheckboxVisible()
     {
-        $link = '';
-        if ($this->isModuleInstalled()) { // enabled, actually
-            $link = $this->buildURL(
-                'module',
-                '',
-                array(
-                    "moduleId"      => $this->getModuleId(),
-                    "returnTarget"  => $this->getCurrentTarget(),
-                )
-            );
-        } elseif ($this->getModule() && $this->getModule()->isInstalled()) { // installed
-            $link = $this->buildURL(
-                'addons_list_installed',
-                '',
-                array(
-                    "clearCnd"  => 1,
-                    "pageId"    => 1,
-                )
-            ) . "#" . $this->getModule()->getName();
-        } else { // not installed
-            $link = $this->getModuleMarketplaceLink();
-        }
-        return $link;
+        return $this->isModuleInstalled() && $this->isModuleEnabled()
+            && TaxJar\Main::isConfigured();
     }
 
-    /**
-     * Return Module link
-     *
-     * @return string
-     */
-    protected function getModuleMarketplaceLink()
+    public function isJoinButtonVisible()
     {
-        list($author, $module) = explode('\\', $this->getModuleName());
+        return $this->isModuleInstalled() && $this->isModuleEnabled()
+            && !TaxJar\Main::isConfigured();
+    }
 
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')
-            ->getMarketplaceUrlByName($author, $module);
+    public function getTaxJarEnabledValue()
+    {
+        return \XLite\Core\Config::getInstance()->XC->TaxJar->taxcalculation;
+    }
+
+    public function getJoinLink()
+    {
+        return 'https://www.taxjar.com/xcart-sales-tax/?utm_source=xcart-module';
+    }
+
+    public function getModuleLink()
+    {
+        return $this->getModule() && $this->getModule()->getEnabled()
+            ? $this->getModule()->getSettingsForm()
+            : $this->getInstallLink();
+    }
+
+    public function isInstallButtonVisible()
+    {
+        return !$this->isModuleInstalled();
+    }
+
+    public function getInstallLink()
+    {
+        return Promo::getInstance()->getRecommendedModuleURL($this->getModuleName());
+    }
+
+    public function isDashboardButtonVisible()
+    {
+        return \XLite\Core\Config::getInstance()->XC->TaxJar->api_key;
+    }
+
+    public function getDashboardLink()
+    {
+        return 'https://app.taxjar.com/?utm_source=xcart-module';
+    }
+
+    protected function isModuleEnabled()
+    {
+        return \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled($this->getModuleName());
     }
 
     /**
@@ -147,7 +171,6 @@ class TaxBannerAlert extends \XLite\View\ModuleBanner
     protected function isVisible()
     {
         return \XLite\View\AView::isVisible()
-            && !$this->isBannerClosed()
             && \XLite\Controller\Admin\TaxClasses::isEnabled();
     }
 }

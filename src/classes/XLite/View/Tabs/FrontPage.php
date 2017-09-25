@@ -46,15 +46,34 @@ class FrontPage extends \XLite\View\Tabs\ATabs
     {
         return [
             'front_page' => [
-                'weight'   => 100,
-                'title'    => static::t('Front page'),
+                'weight' => 100,
+                'title' => static::t('Front page'),
                 'template' => 'front_page/body.twig',
             ],
             'banner_rotation' => [
                 'weight'   => 200,
                 'title'    => static::t('Banner rotation'),
                 'template' => 'banner_rotation/body.twig',
-            ],
+            ]
         ];
+    }
+
+    /**
+     * Sorting the tabs according their weight
+     *
+     * @return array
+     */
+    protected function prepareTabs()
+    {
+        $tabs = parent::prepareTabs();
+
+        if (!\XLite\Core\Auth::getInstance()->isPermissionAllowed('manage catalog')
+            && \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage banners')) {
+            $tabs = array_filter($tabs, function($key) {
+                return $key === 'banner_rotation';
+            }, ARRAY_FILTER_USE_KEY);
+        }
+
+        return $tabs;
     }
 }

@@ -104,6 +104,10 @@ class Menu extends \XLite\View\Menu\Admin\AAdmin
                 static::ITEM_WEIGHT     => 400,
                 static::ITEM_WIDGET     => 'XLite\View\Menu\Admin\Info\Node\Upgrade',
             ],
+            'licenseWarning' => [
+                static::ITEM_WEIGHT     => 500,
+                static::ITEM_WIDGET     => 'XLite\View\Menu\Admin\Info\Node\LicenseWarning',
+            ],
         ];
     }
 

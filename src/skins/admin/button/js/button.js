@@ -41,6 +41,14 @@ function submitForm(form, attrs)
   );
   var disableInputs = _.partial(disableInputsInForm, form);
 
+  if (form.commonController) {
+    var valid = form.commonController.validate({silent: true});
+
+    if (!valid) {
+      disableInputs = function () {};
+    }
+  }
+
   jQuery(form).submit();
   _.delay(disableInputs, 100);
 }

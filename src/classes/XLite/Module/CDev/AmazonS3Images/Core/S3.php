@@ -102,7 +102,7 @@ class S3 extends \XLite\Base\Singleton
     {
         $result = false;
 
-        if (\Includes\Utils\FileManager::isExists($from) && $f = fopen($from, 'r')) {
+        if (\Includes\Utils\FileManager::isExists($from) && $f = fopen($from, 'rb')) {
 
             try {
 
@@ -317,7 +317,7 @@ class S3 extends \XLite\Base\Singleton
      */
     public function isMatchS3Url($url)
     {
-        $possibleUrls = $this->executeCachedRuntime(function(){
+        $possibleUrls = $this->executeCachedRuntime(function () {
             $config = static::getConfig();
             $result = [];
 
@@ -336,6 +336,7 @@ class S3 extends \XLite\Base\Singleton
                 $result[] = str_replace($config->bucket . '.', '', $s3url) . '/' . $config->bucket . '/';
             }
 
+            return $result;
         });
 
         foreach ($possibleUrls as $possibleUrl) {

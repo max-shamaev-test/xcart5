@@ -14,7 +14,7 @@
 
 div.tab-content .tab-content {
   position: relative;
-  margin-top: 50px;
+  margin-top: 0;
 }
 
 .attrs div.dialog-block + div.dialog-block:before,

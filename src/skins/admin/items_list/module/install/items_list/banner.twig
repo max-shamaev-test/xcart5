@@ -3,7 +3,7 @@
  #
  # @ListChild (list="marketplace.top-controls", weight="200")
  #}
-{% if this.isLandingPage() %}
+{% if this.isBannerVisible() %}
   {{ widget('XLite\\View\\ModulesManager\\Banner') }}
 {% endif %}
 

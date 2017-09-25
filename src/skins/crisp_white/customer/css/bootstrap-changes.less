@@ -1420,7 +1420,11 @@ div.tabs ul.tabs {
 
   .next-previous-product {
     #rhythmless > .rhythm(@font-size-small);
-    margin-bottom: @rhythmic-unit;
+    position: relative;
+    top: 0;
+    margin-top: 0;
+    z-index: 10000;
+    margin-bottom: -1 * @rhythmic-unit;
 
     & + .product-photo-box {
       margin-top: 0;
@@ -1456,7 +1460,7 @@ div.tabs ul.tabs {
     background-color: #fff;
     padding: @rhythmic-unit;
     position: absolute;
-    z-index: 1;
+    z-index: 10000;
     display: none;
     text-align: center;
 
@@ -1476,6 +1480,7 @@ div.tabs ul.tabs {
     .justify-content(center);
     .align-items(center);
 
+    box-sizing: content-box;
     border: 1px solid @color-border;
     overflow: hidden;
 

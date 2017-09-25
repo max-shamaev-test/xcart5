@@ -9,7 +9,17 @@
 namespace XLite\Module\XC\Upselling\Model\Repo;
 
 /**
- * Upselling Product repository
+ * @Api\Operation\Create(modelClass="XLite\Module\XC\Upselling\Model\UpsellingProduct", summary="Add related product record")
+ * @Api\Operation\Read(modelClass="XLite\Module\XC\Upselling\Model\UpsellingProduct", summary="Retrieve related product record by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\XC\Upselling\Model\UpsellingProduct", summary="Retrieve related product records by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\XC\Upselling\Model\UpsellingProduct", summary="Update related product record by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\XC\Upselling\Model\UpsellingProduct", summary="Delete related product record by id")
+ *
+ * @SWG\Tag(
+ *   name="XC\Upselling\UpsellingProduct",
+ *   x={"display-name": "UpsellingProduct", "group": "XC\Upselling"},
+ *   description="UpsellingProduct repo contains the products (associated with the certain product), which are showed in the corresponding 'Related products' widget.",
+ * )
  */
 class UpsellingProduct extends \XLite\Model\Repo\ARepo
 {

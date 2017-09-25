@@ -18,3 +18,13 @@ core.microhandlers.add(
     })
   }
 );
+
+function PopupButtonHotAddons() {
+  PopupButtonHotAddons.superclass.constructor.apply(this, arguments);
+}
+
+extend(PopupButtonHotAddons, PopupButton);
+
+PopupButtonHotAddons.prototype.pattern = '.extensions';
+
+core.autoload(PopupButtonHotAddons);

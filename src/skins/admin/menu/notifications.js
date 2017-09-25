@@ -21,6 +21,14 @@ jQuery(function () {
     }
   );
 
+  core.microhandlers.add(
+    'assignPopupHandlersOnNotifications',
+    '.notification-menu',
+    function() {
+      core.autoload(PopupButton);
+    }
+  );
+
   var notificationMenu = jQuery('.menu.notification');
 
   notificationMenu.live('mouseenter', function () {

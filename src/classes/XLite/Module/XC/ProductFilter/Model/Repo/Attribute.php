@@ -26,8 +26,11 @@ abstract class Attribute extends \XLite\Model\Repo\Attribute implements \XLite\B
      */
     protected function prepareCndVisible(\Doctrine\ORM\QueryBuilder $queryBuilder, $value = null)
     {
+        /** @var \XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder */
+        $queryBuilder = $queryBuilder ?: $this->searchState['queryBuilder'];
+
         if ($value) {
-            $this->searchState['queryBuilder']->andWhere('a.visible = :state')
+            $queryBuilder->andWhere('a.visible = :state')
                 ->setParameter('state', $value);
         }
     }
@@ -42,11 +45,14 @@ abstract class Attribute extends \XLite\Model\Repo\Attribute implements \XLite\B
      */
     protected function prepareCndOrderBy(\Doctrine\ORM\QueryBuilder $queryBuilder, array $value)
     {
+        /** @var \XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder */
+        $queryBuilder = $queryBuilder ?: $this->searchState['queryBuilder'];
+
         if ($this->searchState['searchMode'] !== static::SEARCH_MODE_COUNT) {
             list($sort, $order) = $this->getSortOrderValue($value);
 
             if ('productClass.position' === $sort) {
-                $this->searchState['queryBuilder']->linkLeft('a.productClass');
+                $queryBuilder->linkLeft('a.productClass');
             }
         }
 

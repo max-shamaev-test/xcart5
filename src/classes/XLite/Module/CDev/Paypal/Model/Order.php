@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\Paypal\Model;
 
+use XLite\Model\Payment\Transaction;
+
 /**
  * Order model
  */
@@ -70,6 +72,29 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
         $list = $this->sortPaypalMethods($list);
 
         return $list;
+    }
+
+    /**
+     * Get payment method
+     *
+     * @return \XLite\Model\Payment\Method|null
+     */
+    public function getPaymentMethod()
+    {
+        $method = parent::getPaymentMethod();
+
+        if (!$method && count($this->getPaymentTransactions()) > 0) {
+            $lastMethod = $this->getPaymentTransactions()->last() && $this->getPaymentTransactions()->last()->getPaymentMethod()
+                ? $this->getPaymentTransactions()->last()->getPaymentMethod()
+                : null;
+            if ($lastMethod
+                && ($this->isExpressCheckout($lastMethod) || $this->isPaypalCredit($lastMethod))
+            ) {
+                $method = $lastMethod;
+            }
+        }
+
+        return $method;
     }
 
     /**
@@ -240,5 +265,29 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
                 ),
                 true
             );
+    }
+
+    /**
+     * Get failure reason
+     *
+     * @return string
+     */
+    public function getFailureReason()
+    {
+        $reason = parent::getFailureReason();
+
+        if (!$reason) {
+            $transactions = $this->getPaymentTransactions()->getValues();
+            /** @var \XLite\Model\Payment\Transaction $transaction */
+            foreach (array_reverse($transactions) as $transaction) {
+                if ($transaction->isFailed()) {
+                    if ($transaction->getNote() && $transaction->getNote() !== Transaction::getDefaultFailedReason()) {
+                        return $transaction->getNote();
+                    }
+                }
+            }
+        }
+
+        return $reason;
     }
 }

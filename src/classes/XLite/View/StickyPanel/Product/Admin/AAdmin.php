@@ -45,7 +45,7 @@ abstract class AAdmin extends \XLite\View\StickyPanel\Product\AProduct
                 'class'    => 'XLite\View\Button\DeleteSelected',
                 'params'   => [
                     'label'      => '',
-                    'style'      => 'more-action icon-only hide-on-disable',
+                    'style'      => 'more-action icon-only hide-on-disable hidden',
                     'icon-style' => 'fa fa-trash-o',
                 ],
                 'position' => 400,

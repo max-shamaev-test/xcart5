@@ -9,8 +9,21 @@
 namespace XLite\Module\CDev\SimpleCMS\Model\Repo;
 
 /**
- * Menus repository
+ * @Api\Operation\Create(modelClass="XLite\Module\CDev\SimpleCMS\Model\Menu", summary="Add menu item")
+ * @Api\Operation\Read(modelClass="XLite\Module\CDev\SimpleCMS\Model\Menu", summary="Retrieve menu item by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\CDev\SimpleCMS\Model\Menu", summary="Retrieve menu items by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\CDev\SimpleCMS\Model\Menu", summary="Update menu item by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\CDev\SimpleCMS\Model\Menu", summary="Delete menu item by id")
  *
+ * @SWG\Tag(
+ *   name="CDev\SimpleCMS\Menu",
+ *   x={"display-name": "Menu", "group": "CDev\SimpleCMS"},
+ *   description="Menu represents a menu item with possible subitems.",
+ *   @SWG\ExternalDocumentation(
+ *     description="Find out more about adding items to the header and footer menus",
+ *     url="http://kb.x-cart.com/en/look_and_feel/adding_new_items_to_your_stores_menus.html"
+ *   )
+ * )
  */
 class Menu extends \XLite\Model\Repo\Base\I18n
 {

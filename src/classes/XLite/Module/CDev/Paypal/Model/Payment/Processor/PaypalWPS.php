@@ -424,28 +424,31 @@ class PaypalWPS extends \XLite\Model\Payment\Base\WebBased
         $params = array_merge(
             $params,
             array(
-                'address_override' => 1,
                 'email'            => $profile->getLogin(),
             )
         );
 
-        if (null !== $shippingCost) {
-            /** @var \XLite\Model\Address $address */
-            $address = $profile->getShippingAddress();
+        /** @var \XLite\Model\Address $address */
+        $address = $profile->getShippingAddress();
 
+        if (null !== $shippingCost) {
             $params = array_merge(
                 $params,
-                array(
-                    'first_name'    => $address->getFirstname(),
-                    'last_name'     => $address->getLastname(),
-                    'country'       => $this->getCountryFieldValue(),
-                    'state'         => $this->getStateFieldValue(),
-                    'address1'      => $address->getStreet(),
-                    'address2'      => 'n/a',
-                    'city'          => $address->getCity(),
-                    'zip'           => $address->getZipcode(),
-                )
+                [
+                    'first_name' => $address->getFirstname(),
+                    'last_name'  => $address->getLastname(),
+                    'country'    => $this->getCountryFieldValue(),
+                    'state'      => $this->getStateFieldValue(),
+                    'address1'   => $address->getStreet(),
+                    'address2'   => 'n/a',
+                    'city'       => $address->getCity(),
+                    'zip'        => $address->getZipcode(),
+                    'address_override' => 1
+                ]
             );
+        } else {
+            $params['no_shipping'] = 1;
+            unset($params['shipping_1']);
         }
 
         $params = array_merge($params, $this->getPhone());

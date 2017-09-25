@@ -28,7 +28,7 @@ class BannerRotation extends \XLite\Controller\Admin\Settings
      */
     public function checkACL()
     {
-        return parent::checkACL() || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage catalog');
+        return parent::checkACL() || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage banners');
     }
 
     /**

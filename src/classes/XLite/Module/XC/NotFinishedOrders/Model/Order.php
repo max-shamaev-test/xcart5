@@ -10,6 +10,8 @@ namespace XLite\Module\XC\NotFinishedOrders\Model;
 
 /**
  * Class represents an order
+ *
+ * @Decorator\After("CDev\Paypal")
  */
 class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
 {
@@ -83,6 +85,22 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
         return \XLite\Core\Config::getInstance()->XC->NotFinishedOrders->limit_nf_order_ttl
             ? ((int) \XLite\Core\Config::getInstance()->XC->NotFinishedOrders->nf_order_ttl) * self::TTL_DAY_SECONDS
             : null;
+    }
+
+    /**
+     * Get payment method
+     *
+     * @return \XLite\Model\Payment\Method|null
+     */
+    public function getPaymentMethod()
+    {
+        $method = parent::getPaymentMethod();
+
+        if (!$method && $this->getNotFinishedOrder()) {
+            $method = $this->getNotFinishedOrder()->getPaymentMethod();
+        }
+
+        return $method;
     }
 
     /**

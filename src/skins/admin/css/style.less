@@ -417,6 +417,7 @@ a:focus {
 
   .account-menu .account {
     .login-text,
+    .my-purchases,
     .contact-us {
       &:after {
         content: '';
@@ -439,6 +440,20 @@ a:focus {
       font-size: 9px;
       margin-left: 12px;
       color: #7f929d;
+    }
+
+    .line {
+      position: relative;
+    }
+
+    .line .label {
+      position: absolute;
+      right: 0;
+      top: 0;
+      font-size: 14px;
+      padding: 0;
+      line-height: 20px;
+      color: #f69c3b;
     }
   }
 
@@ -1773,7 +1788,8 @@ div.tab-content {
   .clearfix;
 }
 
-.widget-itemslist-module-saleschannels {
+.widget-itemslist-module-saleschannels,
+.widget-itemslist-module-hotaddons {
   .ui-dialog &.ui-dialog-content {
     overflow: visible;
   }
@@ -1797,7 +1813,8 @@ div.tab-content {
     }
   }
 
-  .sales-channel-footer {
+  .sales-channel-footer,
+  .hot-addons-footer {
     .flex-display();
     .align-items(flex-end);
     .justify-content(center);

@@ -11,7 +11,7 @@ namespace XLite\View\Button;
 /**
  * 'copy this' button widget
  */
-class CopyLink extends \XLite\View\Button\AButton
+class CopyLink extends \XLite\View\Button\AButton implements \XLite\Core\PreloadedLabels\ProviderInterface
 {
     /**
      * Several inner constants
@@ -155,5 +155,19 @@ class CopyLink extends \XLite\View\Button\AButton
     protected function getDefaultLabel()
     {
         return 'Copy';
+    }
+
+    /**
+     * Array of labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'The link was copied to your clipboard' => static::t('The link was copied to your clipboard'),
+        ];
     }
 }

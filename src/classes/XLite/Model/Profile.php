@@ -760,7 +760,11 @@ class Profile extends \XLite\Model\AEntity
 
         $shippingAddress = $this->getShippingAddress();
         if ($shippingAddress
-            && (!$billingAddress || $billingAddress->getAddressId() != $shippingAddress->getAddressId())
+            && (!$billingAddress
+                || $billingAddress->getAddressId() != $shippingAddress->getAddressId()
+                || $billingAddress->getAddressId() === null
+                || $shippingAddress->getAddressId() === null
+            )
         ) {
             $newShippingAddress = $shippingAddress->cloneEntity();
             $newShippingAddress->setProfile($newProfile);

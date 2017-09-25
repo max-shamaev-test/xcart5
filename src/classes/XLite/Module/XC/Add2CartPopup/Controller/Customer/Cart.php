@@ -60,6 +60,9 @@ class Cart extends \XLite\Controller\Customer\Cart implements \XLite\Base\IDecor
      */
     protected function processAddItemSuccess()
     {
+        parent::processAddItemSuccess();
+
+        \Xlite\Core\TopMessage::getInstance()->unloadPreviousMessages();
     }
 
     /**

@@ -8,6 +8,9 @@
 
 namespace XLite\Module\CDev\Paypal\Model\Payment\Processor;
 
+use XLite\Model\Payment\BackendTransaction;
+use XLite\Module\XC\MultiVendor\Model\ProfileTransaction;
+
 /**
  * Paypal IPN processor (helper class)
  */
@@ -33,8 +36,14 @@ class PaypalIPN extends \XLite\Base\Singleton
 
     public function isCallbackAdaptiveIPN()
     {
-        return !empty(\XLite\Core\Request::getInstance()->transaction_type)
-            && urldecode(\XLite\Core\Request::getInstance()->transaction_type) === 'Adaptive Payment PAY';
+        $isPayCallback = !empty(\XLite\Core\Request::getInstance()->transaction_type)
+            && strtolower(urldecode(\XLite\Core\Request::getInstance()->transaction_type)) === 'adaptive payment pay';
+
+        $isRefundCallback = !empty(\XLite\Core\Request::getInstance()->transaction_type)
+            && strtolower(urldecode(\XLite\Core\Request::getInstance()->transaction_type)) === 'adjustment'
+            && strtolower(urldecode(\XLite\Core\Request::getInstance()->reason_code)) === 'refund';
+
+        return $isPayCallback || $isRefundCallback;
     }
 
     /**
@@ -80,6 +89,9 @@ class PaypalIPN extends \XLite\Base\Singleton
         if (!$locked && !$this->isOrderProcessed($transaction)) {
             $transaction->setEntityLock(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN);
             $result = false;
+        } elseif ($this->isOrderProcessed($transaction)) {
+            $transaction->unsetEntityLock(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN);
+            $result = true;
         }
 
         return $result;
@@ -108,7 +120,7 @@ class PaypalIPN extends \XLite\Base\Singleton
     {
         $request = \XLite\Core\Request::getInstance();
 
-        \XLite\Module\CDev\Paypal\Main::addLog('processCallbackIPN()', $request->getData());
+        \XLite\Module\CDev\Paypal\Main::addLog('processCallbackIPN()', $request->getPostDataWithArrayValues());
 
         $status = $transaction::STATUS_FAILED;
         $registerOriginalTransaction = true;
@@ -168,26 +180,46 @@ class PaypalIPN extends \XLite\Base\Singleton
                     case 'canceled_reversal':
                     case 'processed':
 
-                        $status = $transaction::STATUS_SUCCESS;
+                        if ($this->isCallbackAdaptiveIPN()
+                            && strtolower($request->reason_code) === 'refund'
+                        ) {
+                            $status = \XLite\Model\Payment\Transaction::STATUS_SUCCESS;
 
-                        $transTypes = array(
-                            \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_AUTH,
-                            \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_SALE,
-                        );
+                            $backendTransactions = $this->proceedAdaptiveRefund(
+                                $request,
+                                $transaction
+                            );
 
-                        if (in_array($transaction->getType(), $transTypes)) {
+                            $processor->updateInitialBackendTransaction($transaction, $status);
 
-                            if (
-                                \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_AUTH == $transaction->getType()
-                                && !isset($backendTransaction)
-                            ) {
-                                $backendTransaction = $this->registerBackendTransaction(
-                                    $transaction,
-                                    \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_CAPTURE
-                                );
+                            foreach ($backendTransactions as $bt) {
+                                $bt->registerTransactionInOrderHistory('callback, IPN');
                             }
 
-                            $backendTransactionStatus = $transaction::STATUS_SUCCESS;
+                            $registerOriginalTransaction = false;
+
+                        } else {
+                            $status = $transaction::STATUS_SUCCESS;
+
+                            $transTypes = array(
+                                \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_AUTH,
+                                \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_SALE,
+                            );
+
+                            if (in_array($transaction->getType(), $transTypes)) {
+
+                                if (
+                                    \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_AUTH == $transaction->getType()
+                                    && !isset($backendTransaction)
+                                ) {
+                                    $backendTransaction = $this->registerBackendTransaction(
+                                        $transaction,
+                                        \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_CAPTURE
+                                    );
+                                }
+
+                                $backendTransactionStatus = $transaction::STATUS_SUCCESS;
+                            }
                         }
 
                         break;
@@ -332,6 +364,245 @@ class PaypalIPN extends \XLite\Base\Singleton
     }
 
     /**
+     * @param \XLite\Core\Request              $request
+     * @param \XLite\Model\Payment\Transaction $transaction
+     *
+     * @return \XLite\Model\Payment\BackendTransaction[]
+     */
+    protected function proceedAdaptiveRefund(\XLite\Core\Request $request, \XLite\Model\Payment\Transaction $transaction)
+    {
+        $adaptiveData = $request->getPostDataWithArrayValues();
+
+        $transactions = $adaptiveData['transaction'];
+
+        $backendTransactions = [];
+
+        if (is_array($transactions)) {
+            foreach ($transactions as $PPAtransaction) {
+                $bt = $this->getPPARefundTransaction($PPAtransaction, $transaction);
+
+                if ($bt) {
+                    $bt->setStatus(BackendTransaction::STATUS_SUCCESS);
+                    $backendTransactions[] = $bt;
+                }
+            }
+        }
+
+        return $backendTransactions;
+    }
+
+    /**
+     * @param array                            $PPAtransaction
+     * @param \XLite\Model\Payment\Transaction $transaction
+     *
+     * @return null|\XLite\Model\Payment\BackendTransaction
+     */
+    protected function getPPARefundTransaction($PPAtransaction, \XLite\Model\Payment\Transaction $transaction)
+    {
+        $refundStatuses = ['refunded', 'partially_refunded'];
+
+        $paypalLogin = $PPAtransaction['receiver'];
+        $vendor = !$this->isAdminPaypalLogin($paypalLogin)
+            ? $this->getVendorByPaypalLogin($paypalLogin)
+            : null;
+
+        $status = $PPAtransaction['status'];
+        $refundId = isset($PPAtransaction['refund_id'])
+            ? $PPAtransaction['refund_id']
+            : null;
+        $refundAmount = $refundId && isset($PPAtransaction['refund_amount'])
+            ? $this->convertAdaptiveAmount($PPAtransaction['refund_amount'])
+            : null;
+        /** @var \XLite\Module\XC\MultiVendor\Model\Order $order */
+        $order = $transaction->getOrder();
+        $fullAmount = $order && $order->getChildByVendor($vendor)
+            ? $order->getChildByVendor($vendor)->getTotal()
+            : $transaction->getValue();
+
+        $foundTransaction = $vendor
+            ? $this->getInProgressRefundTransaction($vendor->getProfileId(), $transaction)
+            : $this->getInProgressRefundTransaction(null, $transaction);
+
+        $backendTransaction = null;
+        if ($refundAmount
+            && in_array(strtolower($status), $refundStatuses, true)
+            && !$this->isPPARefundProcessed($refundId, $transaction)
+        ) {
+            $backendTransaction = $foundTransaction;
+
+            if (!$backendTransaction) {
+                if ($refundAmount !== $fullAmount) {
+                    $backendTransaction = $this->registerBackendTransaction(
+                        $transaction,
+                        \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_REFUND_PART
+                    );
+                    $backendTransaction->setValue($refundAmount);
+
+                } else {
+                    $backendTransaction = $this->registerBackendTransaction(
+                        $transaction,
+                        \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_REFUND
+                    );
+                }
+
+                if ($vendor) {
+                    $backendTransaction->setDataCell('vendor_id', $vendor->getProfileId());
+                    $backendTransaction->setDataCell('Vendor', $vendor->getLogin());
+                }
+            }
+
+            $backendTransaction->setDataCell('refund_id', $refundId);
+
+            if ($vendor && $order && !$this->isAdminPaypalLogin($paypalLogin)) {
+                $order->createProfileTransaction(
+                    -1 * $refundAmount,
+                    'Paypal Adaptive: Commission refunded',
+                    ProfileTransaction::PROVIDER_PAYPAL,
+                    $order->getChildByVendor($vendor)
+                );
+            }
+        }
+
+        return $backendTransaction;
+    }
+
+    /**
+     * @param string $refundId
+     *
+     * @return \XLite\Model\Payment\BackendTransaction
+     */
+    protected function getInProgressRefundTransaction($vendorId, \XLite\Model\Payment\Transaction $transaction)
+    {
+        $found = null;
+
+        $backendTransactions = $transaction->getBackendTransactions();
+        foreach ($backendTransactions as $backendTransaction) {
+            /** @var \XLite\Model\Payment\BackendTransaction $backendTransaction */
+            if (!$backendTransaction->isRefund()) {
+                continue;
+            }
+
+            $isAdminRefundTransaction = $vendorId === null
+                && !$backendTransaction->getDataCell('vendor_id');
+
+            $isVendorRefundTransaction = $backendTransaction->getDataCell('vendor_id')
+                && (int)($backendTransaction->getDataCell('vendor_id')->getValue()) === $vendorId;
+
+            if (($isAdminRefundTransaction || $isVendorRefundTransaction)
+                && !$backendTransaction->isCompleted()
+                && !$backendTransaction->isFailed()
+            ) {
+                $found = $backendTransaction;
+                break;
+            }
+        }
+
+        return $found;
+    }
+
+    /**
+     * @param string $refundId
+     *
+     * @return boolean
+     */
+    protected function isPPARefundProcessed($refundId, \XLite\Model\Payment\Transaction $transaction)
+    {
+        $found = false;
+
+        $backendTransactions = $transaction->getBackendTransactions();
+        foreach ($backendTransactions as $backendTransaction) {
+            /** @var \XLite\Model\Payment\BackendTransaction $backendTransaction */
+            if ($backendTransaction->getDataCell('refund_id')
+                && $backendTransaction->getDataCell('refund_id')->getValue() === $refundId
+                && $backendTransaction->isCompleted()
+            ) {
+                $found = true;
+                break;
+            }
+        }
+
+        return $found;
+    }
+
+    /**
+     * @param string $paypalLogin
+     *
+     * @return \XLite\Model\Profile|null
+     */
+    protected function getVendorByPaypalLogin($paypalLogin)
+    {
+        return \XLite\Core\Database::getRepo('XLite\Model\Profile')
+            ->findOneByPaypalLogin($paypalLogin);
+    }
+
+    /**
+     * @param string $paypalLogin
+     *
+     * @return boolean
+     */
+    protected function isAdminPaypalLogin($paypalLogin)
+    {
+        $method = \XLite\Module\CDev\Paypal\Main::getPaymentMethod(
+            \XLite\Module\CDev\Paypal\Main::PP_METHOD_PAD
+        );
+
+        return $method->getSetting('paypal_login') === $paypalLogin;
+    }
+
+    /**
+     * @param $transactions
+     *
+     * @return mixed|null
+     */
+    protected function detectPrimaryTransaction($transactions)
+    {
+        $primary = null;
+
+        if (is_array($transactions)) {
+            if (count($transactions) === 1) {
+                $primary = reset($transactions);
+            } else {
+                foreach ($transactions as $t) {
+                    if ($t['is_primary_receiver']) {
+                        $primary = $t;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $primary;
+    }
+
+    /**
+     * @param string $adaptiveAmount
+     *
+     * @return float|null
+     */
+    protected function convertAdaptiveAmount($adaptiveAmount)
+    {
+        $explodedAmount = explode(' ', $adaptiveAmount);
+
+        $result = null;
+
+        if ($explodedAmount
+            && is_array($explodedAmount)
+            && count($explodedAmount) === 2
+        ) {
+            list($currencyCode, $amountInCurrency) = $explodedAmount;
+
+            /** @var \XLite\Model\Currency $currency */
+            $currency = \XLite\Core\Database::getRepo('XLite\Model\Currency')->findOneByCode($currencyCode);
+
+            $result = $currency
+                ? (float) $currency->roundValue((float) $amountInCurrency)
+                : (float) $amountInCurrency;
+        }
+
+        return $result;
+    }
+
+    /**
      * getRequestData
      *
      * @return array
@@ -420,11 +691,15 @@ class PaypalIPN extends \XLite\Base\Singleton
      */
     protected function getIPNVerification()
     {
+        if ($this->isTestModeEnabled() && \XLite\Core\Request::getInstance()->ignore_verification) {
+            return self::IPN_VERIFIED;
+        }
+
         $ipnRequest = new \XLite\Core\HTTP\Request($this->getFormURL());
         $ipnRequest->verb = 'POST';
 
         if (function_exists('curl_version')) {
-            $ipnRequest->setAdditionalOption(\CURLOPT_SSLVERSION, 6);
+            $ipnRequest->setAdditionalOption(\CURLOPT_SSLVERSION, 1);
             $curlVersion = curl_version();
 
             if (
@@ -432,7 +707,7 @@ class PaypalIPN extends \XLite\Base\Singleton
                 && $curlVersion['ssl_version']
                 && 0 !== strpos($curlVersion['ssl_version'], 'NSS')
             ) {
-                $ipnRequest->setAdditionalOption(\CURLOPT_SSL_CIPHER_LIST, 'TLSv1.2');
+                $ipnRequest->setAdditionalOption(\CURLOPT_SSL_CIPHER_LIST, 'TLSv1');
             }
         }
 

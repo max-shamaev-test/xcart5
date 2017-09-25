@@ -12,7 +12,7 @@
   
       {% form '\\XLite\\View\\Form\\Module\\ManageSearch' with {formMethod: 'GET', className: 'search-form'} %}
         <div class="state">
-          {{ widget('XLite\\View\\ItemsList\\Module\\Filter\\Selector', name='state', items=this.getStateOptionsForSelector(), caption=t('All modules')) }}
+          {{ widget('XLite\\View\\ItemsList\\Module\\Filter\\Selector', name='state', items=this.getStateOptionsForSelector(), caption=t('All addons')) }}
         </div>
         <div class="substring">
           <i class="fa fa-search" aria-hidden="true"></i>

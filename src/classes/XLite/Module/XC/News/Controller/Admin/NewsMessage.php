@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\News\Controller\Admin;
 
+use XLite\Core\Auth;
+
 /**
  * News message controller
  */
@@ -19,6 +21,16 @@ class NewsMessage extends \XLite\Controller\Admin\AAdmin
      * @var array
      */
     protected $params = array('target', 'id');
+
+    /**
+     * Check ACL permissions
+     *
+     * @return boolean
+     */
+    public function checkACL()
+    {
+        return parent::checkACL() || Auth::getInstance()->isPermissionAllowed('manage news');
+    }
 
     /**
      * Return the current page title (for the content area)

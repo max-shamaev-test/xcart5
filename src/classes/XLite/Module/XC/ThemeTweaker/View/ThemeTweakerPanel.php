@@ -47,7 +47,11 @@ class ThemeTweakerPanel extends \XLite\View\AView implements ProviderInterface
     {
         $list = parent::getCSSFiles();
 
-        $list[] = $this->getDir() . '/panel_style.css';
+        $list[] = [
+            'file'  => $this->getDir() . '/panel_style.less',
+            'media' =>  'screen',
+            'merge' =>  'bootstrap/css/bootstrap.less',
+        ];
 
         return $list;
     }

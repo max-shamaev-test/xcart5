@@ -19,3 +19,16 @@
   height: 18px;
 }
 
+.ppa-refund-status {
+  padding-top: 7px;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.ppa-refund-status span {
+  display: block;
+}
+
+.ppa-refund-status .status-name {
+  font-weight: bold;
+}

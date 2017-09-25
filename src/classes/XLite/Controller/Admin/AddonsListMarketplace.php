@@ -15,6 +15,9 @@ use XLite\Core\Cache\ExecuteCached;
  */
 class AddonsListMarketplace extends \XLite\Controller\Admin\Base\AddonsList
 {
+    const PURCHASE_STATE_COMPLETE    = 'complete';
+    const PURCHASE_STATE_IN_PROGRESS = 'in-progress';
+
     /**
      * Cache of landing page availability
      *
@@ -112,14 +115,18 @@ class AddonsListMarketplace extends \XLite\Controller\Admin\Base\AddonsList
      */
     public function getModulesToInstall()
     {
-        \XLite\Core\Session::getInstance()->modulesToInstall = (!\XLite\Core\Session::getInstance()->modulesToInstall) || $this->getModuleId()
+        $checked = (!\XLite\Core\Session::getInstance()->modulesToInstall) || $this->getModuleId()
             ? array()
             : array_filter(
                 \XLite\Core\Session::getInstance()->modulesToInstall,
                 array($this, 'checkModulesToInstall')
             );
 
-        return \XLite\Core\Session::getInstance()->modulesToInstall;
+        if ($checked != \XLite\Core\Session::getInstance()->modulesToInstall) {
+            \XLite\Core\Session::getInstance()->modulesToInstall = $checked;
+        }
+
+        return \XLite\Core\Session::getInstance()->modulesToInstall ?: [];
     }
 
     /**
@@ -247,6 +254,103 @@ class AddonsListMarketplace extends \XLite\Controller\Admin\Base\AddonsList
         $list = new \XLite\View\ItemsList\Module\Install();
 
         return $list->getVendorValue();
+    }
+
+    /**
+     * Preprocessor for no-action run
+     */
+    protected function doNoAction()
+    {
+        $token = \XLite\Core\Request::getInstance()->token;
+        if ($token) {
+            $module = $this->checkToken($token);
+
+            $moduleId = null;
+            if ($module) {
+                $module->setPurchaseStatus(\XLite\MOdel\Module::PURCHASE_STATUS_PURCHASED);
+                $moduleId      = $module->getModuleID();
+                $purchaseState = self::PURCHASE_STATE_COMPLETE;
+
+            } else {
+                $request = \XLite\Core\Request::getInstance()->getData();
+                /** @var \XLite\MOdel\Module $module */
+                $module  = \XLite\Core\Database::getRepo('XLite\Model\Module')->find($request['module_id']);
+
+                if ($module) {
+                    $module->setPurchaseStatus(\XLite\MOdel\Module::PURCHASE_STATUS_PENDING);
+                    $moduleId = $request['module_id'];
+                }
+                $purchaseState = self::PURCHASE_STATE_IN_PROGRESS;
+            }
+
+            \XLite\Core\Database::getEM()->flush();
+
+            if ($moduleId) {
+                $this->setReturnURL(
+                    $this->buildURL(
+                        'addons_list_marketplace',
+                        '',
+                        [
+                            'moduleID'           => $moduleId,
+                            'recently_purchased' => $purchaseState,
+                        ]
+                    )
+                );
+            } else {
+                $this->setReturnURL($this->buildURL('addons_list_marketplace'));
+            }
+        }
+    }
+
+    /**
+     * @param $token
+     *
+     * @return null|\XLite\Model\Module
+     */
+    protected function checkToken($token)
+    {
+        $tokenData = \XLite\Core\Marketplace::getInstance()->getTokenData($token);
+        $result    = null;
+
+        if (!empty($tokenData['purchase'])) {
+            $key      = $tokenData['purchase'][0];
+            $keysInfo = \XLite\Core\Marketplace::getInstance()->checkAddonKey($key);
+
+            if ($keysInfo && $keysInfo[$key]) {
+                $keysInfo = $keysInfo[$key];
+                $repo     = \XLite\Core\Database::getRepo('XLite\Model\ModuleKey');
+
+                foreach ($keysInfo as $info) {
+                    if (\XLite\Model\ModuleKey::KEY_TYPE_XCN !== (int) $info['keyType']) {
+
+                        /** @var \XLite\Model\Module $module */
+                        $module = \XLite\Core\Database::getRepo('XLite\Model\Module')->findOneBy(
+                            [
+                                'author' => $info['author'],
+                                'name'   => $info['name'],
+                            ]
+                        );
+
+                        if ($module) {
+                            $entity = $repo->findKey($info['author'], $info['name']);
+
+                            if ($entity) {
+                                $entity->setKeyValue($key);
+                                $repo->update($entity);
+
+                            } else {
+
+                                $repo->insert($info + ['keyValue' => $key]);
+                            }
+
+                            $result = $module;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**

@@ -108,6 +108,8 @@ abstract class Storage extends \XLite\Controller\Customer\Storage implements \XL
                     ]
                 );
 
+                $order->setRecent(false);
+
                 $order->setShippingStatus($deliveredStatus);
                 $order->setOldShippingStatus($deliveredStatus);
             }

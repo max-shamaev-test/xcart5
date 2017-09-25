@@ -418,7 +418,7 @@ abstract class AResourcesContainer extends \XLite\View\Container
 
             $urlData = parse_url($info['url']);
 
-            if (isset($urlData['host'])) {
+            if (isset($urlData['host']) && !isset($info['file'])) {
                 $groupByUrl = array_merge(
                     $groupByUrl,
                     empty($group) ? array() : array($this->$cacheHandler($group)),

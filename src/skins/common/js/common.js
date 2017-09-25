@@ -126,6 +126,26 @@ jQuery(document).ready(
         jQuery(block).hide();
       }
     );
+
+    jQuery('.promo-block-close').click(
+        function (event) {
+          var blockSelector = jQuery(this).data('promo-selector');
+          var block = null;
+
+          if (blockSelector) {
+            block = jQuery(blockSelector);
+          } else {
+            block = jQuery(this).parents('.promo-block').get(0)
+          }
+
+          var blockId = jQuery(block).data('promo-id');
+          if (0 < blockId.length) {
+            blockId = blockId + 'PromoBlock';
+            document.cookie = blockId + '=1';
+          }
+          jQuery(block).hide();
+        }
+    );
   }
 );
 

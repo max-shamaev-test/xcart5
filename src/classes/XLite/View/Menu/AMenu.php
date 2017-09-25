@@ -8,6 +8,8 @@
 
 namespace XLite\View\Menu;
 
+use XLite\Core\Cache\ExecuteCached;
+
 /**
  * Abstract menu
  */
@@ -68,9 +70,16 @@ abstract class AMenu extends \XLite\View\AView
     protected function getItems()
     {
         if (!isset($this->items)) {
-            $this->items = $this->defineItems();
-            $this->items = $this->prepareItems($this->items);
-            $this->items = $this->markSelected($this->items);
+            $cacheParams = [
+                'getItems',
+                get_class($this)
+            ];
+
+            $this->items = ExecuteCached::executeCachedRuntime(function() {
+                $items = $this->defineItems();
+                $items = $this->prepareItems($items);
+                return $this->markSelected($items);
+            }, $cacheParams);
         }
 
         return $this->items;

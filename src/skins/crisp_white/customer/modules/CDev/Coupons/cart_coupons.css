@@ -10,10 +10,19 @@
 .coupons {
   width: 100%;
   text-align: center;
+}
+
+.checkout_fastlane_details_wrapper .coupons {
   margin-top: 20px;
 }
 
 .checkout-block .coupons {
+  margin-top: 20px;
+  padding-bottom: 0;
+}
+
+.checkout-block .coupons:not(.opened) {
+  height: 0;
 }
 
 .coupons .new a {
@@ -36,13 +45,19 @@
 @media (max-width: 767px) {
   .coupons {
     bottom: -140px;
-    height: 0;
     padding-left: 20px;
     padding-right: 20px;
+    padding-bottom: 10px;
   }
+
   .coupons.opened{
     bottom: -300px;
     height: 200px;
+  }
+
+  .checkout_fastlane_details_wrapper .coupons {
+    margin-top: 10px;
+    margin-bottom: 10px;
   }
 }
 

@@ -85,11 +85,3 @@ $('[data-toggle="collapse"]').each(function(index, el) {
     $el.addClass('shown');
   })
 });
-
-
-jQuery(function() {
-  $('.product-details-tabs ul.tabs').tabCollapse({
-    tabsClass: 'hidden-xs',
-    accordionClass: 'visible-xs'
-  });
-})

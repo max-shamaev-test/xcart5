@@ -3,10 +3,11 @@
  #}
 
 {% if this.entity.isSold %}
+  {% set order = this.getDisplayOrder(this.entity.orderItem.order) %}
 
   <div class="pin-sold">{{ t('Sold') }}</div>
   {% if this.entity.orderItem %}
-    ( <a target="_blank" href="{{ url('order', '', {'order_number': this.entity.orderItem.order.orderNumber}) }}">#{{ this.entity.orderItem.order.orderNumber }}</a> )
+    ( <a target="_blank" href="{{ url('order', '', {'order_number': order.getOrderNumber() }) }}">{{ order.getPrintableOrderNumber() }}</a> )
   {% else %}
     ( {{ t('Order deleted') }} )
   {% endif %}
@@ -14,10 +15,11 @@
 {% else %}
 
   {% if this.entity.isBlocked %}
+    {% set order = this.getDisplayOrder(this.entity.orderItem.order) %}
 
     <div class="pin-blocked">{{ t('Blocked') }}</div>
     {% if this.entity.orderItem %}
-      ( <a target="_blank" href="{{ url('order', '', {'order_number': this.entity.orderItem.order.orderNumber}) }}">#{{ this.entity.orderItem.order.orderNumber }}</a> )
+      ( <a target="_blank" href="{{ url('order', '', {'order_number': order.getOrderNumber() }) }}">{{ order.getPrintableOrderNumber() }}</a> )
     {% else %}
       ( {{ t('Order deleted') }} )
     {% endif %}

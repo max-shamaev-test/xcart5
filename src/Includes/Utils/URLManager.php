@@ -196,7 +196,7 @@ abstract class URLManager extends \Includes\Utils\AUtils
     public static function getCurrentURL()
     {
         return 'http' . (static::isHTTPS() ? 's' : '') . '://' . $_SERVER['HTTP_HOST']
-        . (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '');
+        . (static::getSelfURI() ?: '');
     }
 
     /**

@@ -27,6 +27,10 @@ function xtr($label, array $substitute = array())
     $text = getTextByLabel($label);
 
     if (!empty($substitute)) {
+        uksort($substitute, function($a, $b) {
+            return strlen($b) - strlen($a);
+        });
+
         foreach ($substitute as $key => $value) {
             if (is_scalar($value)) {
                 $text = str_replace($key, $value, $text);
@@ -1823,7 +1827,7 @@ function message($txt) {
  */
 function rename_install_script()
 {
-    $install_name = 'install.'.md5(uniqid(rand(), true)) . '.php';
+    $install_name = 'install.'.md5(uniqid(mt_rand(), true)) . '.php';
     @rename(LC_DIR_ROOT . 'install.php', LC_DIR_ROOT . $install_name);
     @clearstatcache();
 
@@ -2881,7 +2885,7 @@ function module_install_cache(&$params, $silentMode = false)
 
             echo xtr('Uploading dump.sql into database...');
 
-            $randPrefix = rand(0, 99);
+            $randPrefix = mt_rand(0, 99);
 
             // Drop existing X-Cart tables
             if (doDropDatabaseTables($params)) {

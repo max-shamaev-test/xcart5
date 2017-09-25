@@ -30,6 +30,6 @@ class Install extends \XLite\View\ModulesManager\Action\AAction
      */
     protected function getDefaultTemplate()
     {
-        return 'items_list/module/sales_channels/parts/columns/info/actions/install.twig';
+        return 'items_list/module/install/parts/columns/info/actions/install_via_button.twig';
     }
 }

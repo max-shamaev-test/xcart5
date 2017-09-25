@@ -39,6 +39,7 @@ define(
     },
 
     ready: function() {
+      this.assignChosen();
     },
 
     data: function() {
@@ -119,6 +120,26 @@ define(
           methodId: this.methodId
         };
       },
+      onChosenChange: function(select) {
+        this.methodId = select.val();
+      },
+      assignChosen: function () {
+        var self = this;
+        var select = $(this.$el).find('.selector-view.rich select.rich');
+        if (select.length > 0) {
+          var options = {};
+          if (select.data('disable-search') == 1) {
+            options.disable_search = true;
+          }
+          select.chosen(options).on('change', function(e) {
+            self.onChosenChange($(this));
+          });
+          select.next('.chosen-container').css({
+            'width':     'auto',
+            'min-width': select.parent().width()
+          });
+        }
+      }
     }
   });
 

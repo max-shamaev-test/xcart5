@@ -8,9 +8,7 @@
  */
 
 .invoice-pin-codes {
-  background: #ebf7ff;
-  padding: 7px;
-  line-height: 33px;
+  display: block !important;
 }
 
 .invoice-box .items td .subitem * {
@@ -22,9 +20,9 @@
 }
 
 .invoice-pin-codes span {
-  display: block;
 }
 
 .invoice-pin-codes span.code {
   padding-left: 5px;
+  display: block !important;
 }

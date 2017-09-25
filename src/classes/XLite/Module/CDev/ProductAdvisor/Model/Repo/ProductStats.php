@@ -9,7 +9,18 @@
 namespace XLite\Module\CDev\ProductAdvisor\Model\Repo;
 
 /**
- * The ProductStats model repository
+ * @Api\Operation\Read(modelClass="XLite\Module\CDev\ProductAdvisor\Model\ProductStats", summary="Retrieve product stats record by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\CDev\ProductAdvisor\Model\ProductStats", summary="Get product stats record by conditions")
+ *
+ * @SWG\Tag(
+ *   name="CDev\ProductAdvisor\ProductStats",
+ *   x={"display-name": "ProductStats", "group": "CDev\ProductAdvisor"},
+ *   description="ProductStats store the statistic records for the 'Customers who viewed this product bought' widget",
+ *   @SWG\ExternalDocumentation(
+ *     description="Find out more about featured products",
+ *     url="http://kb.x-cart.com/en/products/adding_featured_products.html"
+ *   )
+ * )
  */
 class ProductStats extends \XLite\Model\Repo\ARepo
 {

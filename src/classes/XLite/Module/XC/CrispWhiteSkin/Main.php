@@ -63,7 +63,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
      */
     public static function getBuildVersion()
     {
-        return '2';
+        return '3';
     }
 
     /**
@@ -549,6 +549,17 @@ abstract class Main extends \XLite\Module\AModuleSkin
             ];
         }
 
+        if (static::isModuleEnabled('XC\ShopperApproved')) {
+            $templates['modules/XC/ShopperApproved/average_rating/details.twig'] = [
+                static::TO_DELETE => [
+                    ['product.details.quicklook.info', \XLite\Model\ViewList::INTERFACE_CUSTOMER],
+                ],
+                static::TO_ADD    => [
+                    ['product.details.quicklook.image', 29, \XLite\Model\ViewList::INTERFACE_CUSTOMER],
+                ],
+            ];
+        }
+
         return $templates;
     }
 
@@ -647,7 +658,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
                     ['product.details.page.info', \XLite\Model\ViewList::INTERFACE_CUSTOMER],
                 ],
                 static::TO_ADD => [
-                    ['product.details.page.image', 0, \XLite\Model\ViewList::INTERFACE_CUSTOMER],
+                    ['product.details.page', 17, \XLite\Model\ViewList::INTERFACE_CUSTOMER],
                 ],
             ];
         }

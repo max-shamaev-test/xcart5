@@ -657,8 +657,23 @@ abstract class AStep extends \XLite\Logic\ARepoStep
                     $out = <<<OUT
 Options -Indexes
 
-Deny from all
+<Files "*.php">
+  Deny from all
+</Files>
 
+<Files "*.php3">
+  Deny from all
+</Files>
+
+<Files "*.pl">
+  Deny from all
+</Files>
+
+<Files "*.py">
+  Deny from all
+</Files>
+
+Allow from all
 OUT;
                     \Includes\Utils\FileManager::write($dir . LC_DS . '.htaccess', $out);
                 }

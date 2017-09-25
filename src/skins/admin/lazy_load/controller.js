@@ -35,6 +35,12 @@ LazyLoadWidget.prototype.shadeWidget = false;
 // Use this flag to prevent extra widget reloads
 LazyLoadWidget.prototype.isScheduledReload = false;
 
+// Get event namespace (prefix)
+LazyLoadWidget.prototype.getEventNamespace = function()
+{
+  return 'lazy-load-widget';
+};
+
 LazyLoadWidget.autoload = function() {
   jQuery('.lazy-load-widget.active').each(function () {
     new LazyLoadWidget(this);

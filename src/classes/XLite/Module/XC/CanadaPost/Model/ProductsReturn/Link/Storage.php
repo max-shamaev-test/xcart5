@@ -82,10 +82,30 @@ class Storage extends \XLite\Model\Base\Storage
         $path = parent::getValidFileSystemRoot();
 
         if (!file_exists($path . LC_DS . '.htaccess')) {
+            $contents = <<<HTACCESS
+Options -Indexes
+
+<Files "*.php">
+  Deny from all
+</Files>
+
+<Files "*.php3">
+  Deny from all
+</Files>
+
+<Files "*.pl">
+  Deny from all
+</Files>
+
+<Files "*.py">
+  Deny from all
+</Files>
+
+Allow from all
+HTACCESS;
             file_put_contents(
                 $path . LC_DS . '.htaccess',
-                'Options -Indexes' . PHP_EOL
-                . 'Allow from all' . PHP_EOL
+                $contents
             );
         }
 

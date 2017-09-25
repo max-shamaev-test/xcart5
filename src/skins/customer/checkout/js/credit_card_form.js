@@ -62,7 +62,10 @@ function setCardType(type) {
     jQuery('#card_type').val('');
 
     if (typeof type == 'undefined') {
-        var accountNumber = jQuery('#cc_number').val().replace(/[^0-9]/g, '');
+        var ccNumberField = jQuery('#cc_number');
+        var accountNumber = ccNumberField.length
+            ? ccNumberField.val().replace(/[^0-9]/g, '')
+            : '';
 
         if ('' == accountNumber) {
             jQuery('.cardType .icon').addClass('blank');
@@ -104,7 +107,9 @@ function setCardType(type) {
 function cardTypeHandlersSetter() {
     if (jQuery('.cc-form').length) {
         var numberField = jQuery('#cc_number');
-        Payment.formatCardNumber(numberField);
+        if ('undefined' !== typeof(Payment)) {
+          Payment.formatCardNumber(numberField);
+        }
         numberField.change(function () { setCardType(); });
         numberField.keyup(function () { setCardType(); });
         setCardType();

@@ -312,7 +312,6 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
                 static::ITEM_TITLE    => static::t('Discounts'),
                 static::ITEM_ICON_SVG => 'images/fa-gift.svg',
                 static::ITEM_WEIGHT   => 300,
-                //static::ITEM_TARGET   => 'promotions',
                 static::ITEM_CHILDREN => [],
             ],
             'users'          => [
@@ -360,6 +359,16 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
             ],
         ];
 
+        if (!\XLite\Core\Auth::getInstance()->isPermissionAllowed('manage catalog')
+          && \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage banners')) {
+            $items['content'][static::ITEM_CHILDREN]['banner_rotation'] = [
+                static::ITEM_TITLE      => static::t('Banner rotation'),
+                static::ITEM_TARGET     => 'banner_rotation',
+                static::ITEM_PERMISSION => 'manage banners',
+                static::ITEM_WEIGHT     => 100,
+            ];
+        }
+
         // Check if cloned products exists and add menu item
         // TODO: need to be reviewed - search should not be used on each load of admin interface pages
         $cnd                                           = new \XLite\Core\CommonCell();
@@ -389,6 +398,10 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
             }
         }
 
+        if (!$items['promotions'][static::ITEM_CHILDREN]) {
+            $items['promotions'][static::ITEM_TARGET] = 'promotions';
+        }
+
         // Orders label
         $count = \XLite\Core\Database::getRepo('XLite\Model\Order')->searchRecentOrders(null, true);
 
@@ -406,7 +419,7 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
      */
     protected function getDir()
     {
-        return 'left_menu';
+    return 'left_menu';
     }
 
     /**

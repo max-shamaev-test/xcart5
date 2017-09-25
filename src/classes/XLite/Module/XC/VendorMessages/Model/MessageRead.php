@@ -12,7 +12,11 @@ namespace XLite\Module\XC\VendorMessages\Model;
  * Message
  *
  * @Entity
- * @Table (name="vendor_convo_message_reads")
+ * @Table (name="vendor_convo_message_reads",
+ *      uniqueConstraints={
+ *          @UniqueConstraint (name="id", columns={"message_id", "profile_id"})
+ *      }
+ *     )
  * @HasLifecycleCallbacks
  */
 class MessageRead extends \XLite\Model\AEntity

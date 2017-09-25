@@ -11,9 +11,6 @@
           {% include 'items_list/payment/online_methods/list.twig' %}
           <div class="clearfix"></div>
         </li>
-        {% if payment.getAdminDescription() %}
-          <li class="description">{{ payment.getAdminDescription() }}</li>
-        {% endif %}
         {% if payment.getLinks() %}
           <li class="links">
             <ul>

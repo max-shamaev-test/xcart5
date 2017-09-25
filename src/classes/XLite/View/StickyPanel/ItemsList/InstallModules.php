@@ -78,10 +78,10 @@ class InstallModules extends \XLite\View\StickyPanel\ItemsListForm
     public function isShowPharPopup()
     {
         $requirements = new \Includes\Requirements();
-        $result = $requirements->getResult();
+        $result = $requirements->getSingleResult('php_phar');
 
-        return !isset($result['php_phar']['data']['version'])
-            || empty($result['php_phar']['data']['version']);
+        return !isset($result['data']['version'])
+            || empty($result['data']['version']);
     }
 
     /**

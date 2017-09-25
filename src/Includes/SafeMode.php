@@ -344,7 +344,7 @@ abstract class SafeMode
     {
         return function_exists('openssl_random_pseudo_bytes')
             ? bin2hex(openssl_random_pseudo_bytes(16))
-            : md5(microtime(true) + rand(0, 1000000));
+            : md5(microtime(true) + mt_rand(0, 1000000));
     }
 
     /**

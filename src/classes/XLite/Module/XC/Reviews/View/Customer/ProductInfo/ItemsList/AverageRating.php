@@ -92,7 +92,7 @@ class AverageRating extends \XLite\Module\XC\Reviews\View\AverageRating implemen
 
         $list[] = Database::getRepo('XLite\Module\XC\Reviews\Model\Review')->getVersion();
 
-        $profile = Auth::getInstance()->getProfile();
+        $profile = $this->getReviewerProfile();
 
         $list[] = $profile !== null ? $profile->getProfileId() : 0;
 

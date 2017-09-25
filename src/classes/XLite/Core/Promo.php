@@ -84,6 +84,14 @@ class Promo extends \XLite\Base\Singleton
             'advanced-contact-us-1' => [
                 'module'    => 'QSL\AdvancedContactUs',
                 'content'   => 'Need a customizable contact us form with location map? [Get it now!]'
+            ],
+            'shopper-approved-1' => [
+                'module'    => 'XC\ShopperApproved',
+                'content'   => 'Or add a video review powered by ShopperApproved'
+            ],
+            'shopper-approved-2' => [
+                'module'    => 'XC\ShopperApproved',
+                'content'   => 'Want to customize review surveys and display video testimonials? Try Shopper Approved and collect up to 70x more ratings and reviews'
             ]
         ];
     }

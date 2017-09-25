@@ -46,6 +46,13 @@ class Module extends \XLite\Model\AEntity
     const IDENTITY_SEPARATOR = '.';
 
     /**
+     * Purchase status
+     */
+    const PURCHASE_STATUS_NOT_PURCHASED = 0;
+    const PURCHASE_STATUS_PURCHASED     = 1;
+    const PURCHASE_STATUS_PENDING       = 2;
+
+    /**
      * Module ID
      *
      * @var integer
@@ -426,6 +433,15 @@ class Module extends \XLite\Model\AEntity
      * @Column (type="integer")
      */
     protected $salesChannelPos = -1;
+
+    /**
+     * Purchase status
+     *
+     * @var integer
+     *
+     * @Column (type="integer", options={"default" : 0})
+     */
+    protected $purchaseStatus = self::PURCHASE_STATUS_NOT_PURCHASED;
 
     /**
      * Returns string representation of module entity
@@ -2033,5 +2049,21 @@ class Module extends \XLite\Model\AEntity
     public function setSalesChannelPos($salesChannelPos)
     {
         $this->salesChannelPos = $salesChannelPos;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPurchaseStatus()
+    {
+        return $this->purchaseStatus;
+    }
+
+    /**
+     * @param int $purchaseStatus
+     */
+    public function setPurchaseStatus($purchaseStatus)
+    {
+        $this->purchaseStatus = $purchaseStatus;
     }
 }

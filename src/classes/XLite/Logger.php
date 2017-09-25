@@ -180,9 +180,7 @@ class Logger extends \XLite\Base\Singleton
                 $parts[] = 'Request method: ' . $_SERVER['REQUEST_METHOD'];
             }
 
-            if (isset($_SERVER['REQUEST_URI'])) {
-                $parts[] = 'URI: ' . $_SERVER['REQUEST_URI'];
-            }
+            $parts[] = 'URI: ' . static::getCurrentURIForLog();
 
             if (\XLite\Core\Request::getInstance()->isBot()) {
                 $parts[] = 'Is BOT: true';
@@ -206,6 +204,35 @@ class Logger extends \XLite\Base\Singleton
         chdir($dir);
     }
 
+    /**
+     * @return string
+     */
+    protected static function getCurrentURIForLog()
+    {
+        $result = '';
+
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $result .= rtrim($_SERVER['REQUEST_URI'], '?&');
+        }
+
+        if ($result && \XLite\Core\Request::getInstance()->isPost()) {
+            $paramsQuery = parse_url($result, PHP_URL_QUERY);
+            $path = parse_url($result, PHP_URL_PATH);
+            parse_str($paramsQuery, $params);
+
+            if (!isset($params['target'])) {
+                $params['target'] = \XLite\Core\Request::getInstance()->target;
+            }
+
+            if (!isset($params['action'])) {
+                $params['action'] = \XLite\Core\Request::getInstance()->action;
+            }
+
+            $result = $path . '?' . http_build_query($params);
+        }
+
+        return $result;
+    }
     /**
      * Add postponed log record
      *
@@ -347,7 +374,7 @@ class Logger extends \XLite\Base\Singleton
      * Log custom message
      *
      * @param string  $type         Message type
-     * @param string  $message      Message
+     * @param mixed   $message      Message
      * @param boolean $useBackTrace User backtrace flag OPTIONAL
      * @param integer $slice        Trace slice count OPTIONAL
      *
@@ -371,7 +398,7 @@ class Logger extends \XLite\Base\Singleton
                    . 'SAPI: ' . PHP_SAPI . '; '
                    . 'IP: ' . (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'n/a') . PHP_EOL
                    . (\XLite\Core\Request::getInstance()->isBot() ? 'Is BOT: true' . PHP_EOL : '')
-                   . 'URI: ' . (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'n/a') . PHP_EOL
+                   . 'URI: ' . static::getCurrentURIForLog() . PHP_EOL
                    . 'Method: ' . (isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'n/a') . PHP_EOL;
 
         // Add debug backtrace

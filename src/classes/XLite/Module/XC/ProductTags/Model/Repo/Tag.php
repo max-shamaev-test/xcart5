@@ -9,7 +9,17 @@
 namespace XLite\Module\XC\ProductTags\Model\Repo;
 
 /**
- * Tag repository
+ * @Api\Operation\Create(modelClass="XLite\Module\XC\ProductTags\Model\Tag", summary="Add product tag")
+ * @Api\Operation\Read(modelClass="XLite\Module\XC\ProductTags\Model\Tag", summary="Retrieve product tag by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\XC\ProductTags\Model\Tag", summary="Retrieve product tags by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\XC\ProductTags\Model\Tag", summary="Update product tag by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\XC\ProductTags\Model\Tag", summary="Delete product tag by id")
+ *
+ * @SWG\Tag(
+ *   name="XC\ProductTags\Tag",
+ *   x={"display-name": "Tag", "group": "XC\ProductTags"},
+ *   description="This repo stores all available product tags",
+ * )
  */
 class Tag extends \XLite\Model\Repo\Base\I18n
 {

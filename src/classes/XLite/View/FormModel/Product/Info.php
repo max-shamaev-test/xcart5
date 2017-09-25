@@ -82,6 +82,8 @@ class Info extends \XLite\View\FormModel\AFormModel
     {
         $skuMaxLength = \XLite\Core\Database::getRepo('XLite\Model\Product')->getFieldInfo('sku', 'length');
         $nameMaxLength = \XLite\Core\Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('name', 'length');
+        $metaTagsMaxLength = \XLite\Core\Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('metaTags', 'length');
+        $metaTitleMaxLength = \XLite\Core\Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('metaTitle', 'length');
 
         $memberships = [];
         foreach (\XLite\Core\Database::getRepo('XLite\Model\Membership')->findActiveMemberships() as $membership) {
@@ -147,7 +149,7 @@ class Info extends \XLite\View\FormModel\AFormModel
                         'XLite\Core\Validator\Constraints\MaxLength'       => [
                             'length'  => $nameMaxLength,
                             'message' =>
-                                static::t('Name length must be less then {{length}}', ['length' => $nameMaxLength + 1]),
+                                static::t('{{field}} length must be less then {{length}}', ['field' => static::t('Product name'), 'length' => $nameMaxLength + 1]),
                         ],
                     ],
                     'position'    => 100,
@@ -384,11 +386,25 @@ class Info extends \XLite\View\FormModel\AFormModel
                 'meta_keywords'         => [
                     'label'    => static::t('Meta keywords'),
                     'position' => 300,
+                    'constraints' => [
+                        'XLite\Core\Validator\Constraints\MaxLength'       => [
+                            'length'  => $metaTagsMaxLength,
+                            'message' =>
+                                static::t('{{field}} length must be less then {{length}}', ['field' => static::t('Meta keywords'), 'length' => $metaTagsMaxLength + 1]),
+                        ],
+                    ],
                 ],
                 'product_page_title'    => [
                     'label'       => static::t('Product page title'),
                     'description' => static::t('Leave blank to use product name as Page Title.'),
                     'position'    => 400,
+                    'constraints' => [
+                        'XLite\Core\Validator\Constraints\MaxLength'       => [
+                            'length'  => $metaTitleMaxLength,
+                            'message' =>
+                                static::t('{{field}} length must be less then {{length}}', ['field' => static::t('Product page title'), 'length' => $metaTitleMaxLength + 1]),
+                        ],
+                    ],
                 ],
                 'clean_url'             => [
                     'label'           => static::t('Clean URL'),

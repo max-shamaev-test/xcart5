@@ -10,8 +10,10 @@ define(
   'checkout_fastlane/sections/shipping', 
   ['vue/vue',
    'checkout_fastlane/sections',
-   'checkout_fastlane/sections/section_mixin'],
-  function(Vue, Sections, SectionMixin){
+   'checkout_fastlane/sections/section_mixin',
+   'checkout_fastlane/blocks/address',
+   'checkout_fastlane/blocks/order_notes'],
+  function(Vue, Sections, SectionMixin, Address, OrderNotes){
 
   var ShippingSection = Vue.extend({
     mixins: [SectionMixin],
@@ -69,6 +71,8 @@ define(
   });
 
   Vue.registerComponent(Sections, ShippingSection);
+  Vue.registerComponent(ShippingSection, Address);
+  Vue.registerComponent(ShippingSection, OrderNotes);
 
   return ShippingSection;
 });

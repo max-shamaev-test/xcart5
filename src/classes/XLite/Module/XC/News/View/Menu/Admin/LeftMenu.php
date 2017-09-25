@@ -49,6 +49,7 @@ class LeftMenu extends \XLite\View\Menu\Admin\LeftMenu implements \XLite\Base\ID
         $list['content'][static::ITEM_CHILDREN]['news_messages'] = array(
             static::ITEM_TITLE  => static::t('News messages'),
             static::ITEM_TARGET => 'news_messages',
+            static::ITEM_PERMISSION => 'manage news',
         );
 
         return $list;

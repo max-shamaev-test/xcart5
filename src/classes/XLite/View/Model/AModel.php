@@ -1640,6 +1640,7 @@ abstract class AModel extends \XLite\View\Dialog
         if (preg_match('/\\\Module\\\(a-z0-9+)\\\(a-z0-9+)\\\View\\\Model\\\/Sis', get_called_class(), $match)) {
             $class = $match[1] . '.' . $match[2] . '.' . $class;
         }
+
         $class = strtolower($class);
 
         $list = 'crud.' . $class . '.' . $suffix;

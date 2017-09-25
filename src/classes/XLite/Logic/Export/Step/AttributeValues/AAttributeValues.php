@@ -8,6 +8,8 @@
 
 namespace XLite\Logic\Export\Step\AttributeValues;
 
+use XLite\Model\AttributeValue;
+
 /**
  * Products attribute values abstract class
  */
@@ -49,24 +51,107 @@ abstract class AAttributeValues extends \XLite\Logic\Export\Step\Base\I18n
      */
     protected function defineColumns()
     {
-        $columns = array(
-            'productSKU'     => array(),
-            'type'           => array(),
-            'name'           => array(),
-            'class'          => array(static::COLUMN_GETTER => 'getClassColumnValue'),
-            'group'          => array(static::COLUMN_GETTER => 'getGroupColumnValue'),
-            'owner'          => array(),
-            'value'          => array(),
-            'default'        => array(),
-            'priceModifier'  => array(),
-            'weightModifier' => array(),
-            'editable'       => array(), // Specific field, used only for textarea attribute type
-        );
+        $columns = [
+            'productSKU'        => [],
+            'type'              => [],
+            'name'              => [],
+            'class'             => [static::COLUMN_GETTER => 'getClassColumnValue'],
+            'group'             => [static::COLUMN_GETTER => 'getGroupColumnValue'],
+            'owner'             => [],
+            'value'             => [],
+            'default'           => [],
+            'priceModifier'     => [],
+            'weightModifier'    => [],
+            'editable'          => [], // Specific field, used only for textarea attribute type
+            'attributePosition' => [],
+            'valuePosition'     => [],
+        ];
 
         return $columns;
     }
 
+    /**
+     * Get column value for 'name' column
+     *
+     * @param array   $dataset Dataset
+     * @param string  $name    Column name
+     * @param integer $i       Subcolumn index
+     *
+     * @return string
+     */
+    protected function getAttributePositionColumnValue(array $dataset, $name, $i)
+    {
+        $result = '';
+
+        if (!$this->isAttributePositionExported($dataset['model'])) {
+            $result = $dataset['model']->getAttribute()->getPosition(
+                $dataset['model']->getProduct()
+            );
+            $this->setAttributePositionExported($dataset['model']);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get column value for 'sku' column
+     *
+     * @param array   $dataset Dataset
+     * @param string  $name    Column name
+     * @param integer $i       Subcolumn index
+     *
+     * @return string
+     */
+    protected function getValuePositionColumnValue(array $dataset, $name, $i)
+    {
+        return '';
+    }
+
     // }}}
+
+    /**
+     * @param AttributeValue\AAttributeValue $attributeValue
+     *
+     * @return bool
+     */
+    protected function isAttributePositionExported(AttributeValue\AAttributeValue $attributeValue)
+    {
+        $options = $this->generator->getOptions();
+
+        $key = $this->getAttributePositionExportedKey($attributeValue);
+
+        return isset($options[$key]) && $options[$key] === true;
+    }
+
+    /**
+     * @param AttributeValue\AAttributeValue $attributeValue
+     */
+    protected function setAttributePositionExported(AttributeValue\AAttributeValue $attributeValue)
+    {
+        $options = $this->generator->getOptions();
+
+        $key = $this->getAttributePositionExportedKey($attributeValue);
+
+        $options[$key] = true;
+        $this->generator->setOptions($options);
+    }
+
+    /**
+     * @param AttributeValue\AAttributeValue $attributeValue
+     *
+     * @return string
+     */
+    protected function getAttributePositionExportedKey(AttributeValue\AAttributeValue $attributeValue)
+    {
+        return implode('.', [
+            $attributeValue->getProduct()
+                ? $attributeValue->getProduct()->getProductId()
+                : 'none',
+            $attributeValue->getAttribute()
+                ? $attributeValue->getAttribute()->getId()
+                : 'none',
+        ]);
+    }
 
     // {{{ Getters and formatters
 

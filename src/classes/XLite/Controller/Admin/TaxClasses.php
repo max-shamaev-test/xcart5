@@ -32,4 +32,32 @@ class TaxClasses extends \XLite\Controller\Admin\ACL\Catalog
     {
         return static::t('Taxes');
     }
+
+    /**
+     * Export action
+     *
+     * @return void
+     */
+    protected function doActionToggleTaxJar()
+    {
+        $this->silent = true;
+
+        $value = !\XLite\Core\Config::getInstance()->XC->TaxJar->taxcalculation;
+
+        \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
+            array(
+                'category' => 'XC\\TaxJar',
+                'name'     => 'taxcalculation',
+                'value'    => $value,
+            )
+        );
+
+        \XLite\Core\TopMessage::addInfo(
+            $value
+                ? 'TaxJar tax calculation is enabled'
+                : 'TaxJar tax calculation is disabled'
+        );
+
+        $this->translateTopMessagesToHTTPHeaders();
+    }
 }

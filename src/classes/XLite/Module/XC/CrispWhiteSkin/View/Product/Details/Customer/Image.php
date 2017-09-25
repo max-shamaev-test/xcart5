@@ -22,7 +22,7 @@ class Image extends \XLite\View\Product\Details\Customer\Image implements \XLite
      */
     protected function isImageZoomable($image)
     {
-        return $image->getWidth() > 366 || $image->getHeight() > 440;
+        return $image->getWidth() > $this->getZoomWidth() || $image->getHeight() > $this->getZoomHeight();
     }
 
     /**
@@ -45,7 +45,7 @@ class Image extends \XLite\View\Product\Details\Customer\Image implements \XLite
      */
     protected function getZoomWidth()
     {
-        return 366;
+        return \XLite::getController()->getDefaultMaxImageSize(true);
     }
 
     /**
@@ -55,6 +55,6 @@ class Image extends \XLite\View\Product\Details\Customer\Image implements \XLite
      */
     protected function getZoomHeight()
     {
-        return 440;
+        return \XLite::getController()->getDefaultMaxImageSize(false);
     }
 }

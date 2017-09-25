@@ -9,7 +9,17 @@
 namespace XLite\Module\XC\ProductVariants\Model\Repo;
 
 /**
- * Product variants repository
+ * @Api\Operation\Create(modelClass="XLite\Module\XC\ProductVariants\Model\ProductVariant", summary="Add product variant")
+ * @Api\Operation\Read(modelClass="XLite\Module\XC\ProductVariants\Model\ProductVariant", summary="Retrieve product variant by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\XC\ProductVariants\Model\ProductVariant", summary="Retrieve product variants by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\XC\ProductVariants\Model\ProductVariant", summary="Update product variant by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\XC\ProductVariants\Model\ProductVariant", summary="Delete product variant by id")
+ *
+ * @SWG\Tag(
+ *   name="XC\ProductVariants\ProductVariant",
+ *   x={"display-name": "ProductVariant", "group": "XC\ProductVariants"},
+ *   description="This repo stores created product variants defined by a certain set of attribute values.",
+ * )
  */
 class ProductVariant extends \XLite\Model\Repo\ARepo
 {

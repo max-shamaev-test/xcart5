@@ -22,4 +22,18 @@ class AttributeValueSelect extends \XLite\Logic\Export\Step\AttributeValues\AAtt
     {
         return \XLite\Core\Database::getRepo('XLite\Model\AttributeValue\AttributeValueSelect');
     }
+
+    /**
+     * Get column value for 'sku' column
+     *
+     * @param array   $dataset Dataset
+     * @param string  $name    Column name
+     * @param integer $i       Subcolumn index
+     *
+     * @return string
+     */
+    protected function getValuePositionColumnValue(array $dataset, $name, $i)
+    {
+        return $dataset['model']->getPosition();
+    }
 }

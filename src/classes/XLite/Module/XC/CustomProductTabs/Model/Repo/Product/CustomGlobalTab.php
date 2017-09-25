@@ -9,7 +9,17 @@
 namespace XLite\Module\XC\CustomProductTabs\Model\Repo\Product;
 
 /**
- * CustomGlobalTab
+ * @Api\Operation\Create(modelClass="XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab", summary="Add custom global tab")
+ * @Api\Operation\Read(modelClass="XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab", summary="Retrieve custom global tab by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab", summary="Retrieve custom global tabs by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab", summary="Update custom global tab by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab", summary="Delete custom global tab by id")
+ *
+ * @SWG\Tag(
+ *   name="XC\CustomProductTabs\Product\CustomGlobalTab",
+ *   x={"display-name": "Product\CustomGlobalTab", "group": "XC\CustomProductTabs"},
+ *   description="This repo stores user-created global product tabs.",
+ * )
  */
 class CustomGlobalTab extends \XLite\Model\Repo\Base\I18n
 {

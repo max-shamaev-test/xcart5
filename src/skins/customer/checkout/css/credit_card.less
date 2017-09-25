@@ -55,7 +55,7 @@
 
 .cc-form {
     clear: both;
-    min-width: 265px;
+    min-width: 220px;
     max-width: 320px;
 
     position: relative;
@@ -197,20 +197,28 @@
             display: inline-block;
         }
 
+        @icon-width: 140px;
+        @icon-height: 70px;
+        @icon-scale: 0.4;
+
         a.icon {
             font-size: 0px;
             padding: 3px;
             display: block;
             box-shadow: none;
+
+            width: @icon-width * @icon-scale;
+            height: @icon-height * @icon-scale;
+            margin-right: @cc-form-padding-unit * 0.5;
+            margin-bottom: 5px;
         }
 
         span.card {
             display: block;
-            width: 140px;
-            height: 70px;
-            margin-right: @cc-form-padding-unit;
-            zoom: 0.4;
-            -moz-transform: scale(0.4);
+            width: @icon-width;
+            height: @icon-height;
+            zoom: @icon-scale;
+            -moz-transform: scale(@icon-scale);
             -moz-transform-origin: 0 0 0;
         }
 

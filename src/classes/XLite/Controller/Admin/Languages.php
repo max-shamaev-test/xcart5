@@ -97,7 +97,7 @@ class Languages extends \XLite\Controller\Admin\AAdmin
 
                 $fileName = LC_DIR_TMP . 'labels-' . $code . '.' . time() . '.php';
 
-                $f = fopen($fileName, 'w');
+                $f = fopen($fileName, 'wb');
 
                 foreach($labels as $label => $translation) {
                     $row = array(

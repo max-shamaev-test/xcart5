@@ -200,7 +200,8 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
             $paymentMethod = $this->getExpressCheckoutPaymentMethod();
             $processor = $paymentMethod->getProcessor();
 
-            $buyerData = $processor->doGetExpressCheckoutDetails($paymentMethod, $request->token);
+            /** @var \XLite\Module\CDev\Paypal\Model\Payment\Processor\ExpressCheckout|\XLite\Module\CDev\Paypal\Model\Payment\Processor\ExpressCheckoutMerchantAPI $processor */
+            $buyerData = $processor->doGetExpressCheckoutDetails($paymentMethod);
 
             if (empty($buyerData)) {
                 \XLite\Core\TopMessage::getInstance()->addError('Your address data was not received from PayPal. Please try again. If the problem persists, contact the administrator.');
@@ -261,6 +262,7 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
 
         parent::doPayment();
 
+        /** @var \XLite\Module\CDev\Paypal\Model\Order $cart */
         $cart = $this->getCart();
 
         if ($isEC && $cart->isExpressCheckout($cart->getPaymentMethod())) {

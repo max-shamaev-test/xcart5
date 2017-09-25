@@ -51,20 +51,6 @@ abstract class AItemsList extends \XLite\View\Container
      */
     protected $sortByModes = array();
 
-    // {{{ Runtime cache
-
-    /**
-     * @var integer
-     */
-    protected $totalItemsCount;
-
-    /**
-     * @var \XLite\View\Pager\APager
-     */
-    protected $pager;
-
-    // }}}
-
     protected function getSortByModesField()
     {
         return $this->sortByModes;
@@ -271,16 +257,14 @@ abstract class AItemsList extends \XLite\View\Container
      */
     protected function getItemsCount()
     {
-        if (null === $this->totalItemsCount) {
+        return $this->executeCachedRuntime(function () {
             $cacheParams   = $this->getCacheParameters();
             $cacheParams[] = 'getItemsCount';
 
-            $this->totalItemsCount = $this->executeCached(function () {
+            return $this->executeCached(function () {
                 return $this->getData($this->getSearchCondition(), true);
             }, $cacheParams);
-        }
-
-        return $this->totalItemsCount;
+        });
     }
 
     /**
@@ -487,11 +471,9 @@ abstract class AItemsList extends \XLite\View\Container
      */
     protected function getPager()
     {
-        if (null === $this->pager) {
-            $this->pager = $this->getWidget($this->getPagerParams(), $this->getPagerClass());
-        }
-
-        return $this->pager;
+        return $this->executeCachedRuntime(function () {
+            return $this->getWidget($this->getPagerParams(), $this->getPagerClass());
+        });
     }
 
     // {{{ SEARCH REGION

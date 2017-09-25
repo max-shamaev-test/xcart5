@@ -7,6 +7,8 @@
  */
 
 namespace XLite\Model;
+use Doctrine\Common\Collections\ArrayCollection;
+use XLite\Core\Doctrine\ORM\EntityManager;
 
 /**
  * Class represents an order
@@ -770,12 +772,12 @@ class Order extends \XLite\Model\Base\SurchargeOwner
             $clonedProfile->setOrder($newOrder);
         }
 
+        // Clone currency
+        $newOrder->setCurrency($this->getCurrency());
+
         // Clone order statuses
         $newOrder->setPaymentStatus($this->getPaymentStatus());
         $newOrder->setShippingStatus($this->getShippingStatus());
-
-        // Clone currency
-        $newOrder->setCurrency($this->getCurrency());
 
         // Clone order items
         $this->cloneOrderItems($newOrder);
@@ -3187,15 +3189,26 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     protected function changeItemInventory($item, $sign, $register = true)
     {
-        $history = \XLite\Core\OrderHistory::getInstance();
-        $amount = $sign * $item->getAmount();
+        $product = $item->getProduct();
 
-        if ($register) {
-            $history->registerChangeAmount($this->getOrderId(), $item->getProduct(), $amount);
-        }
-        $item->changeAmount($amount);
+        return \XLite\Core\Database::getEM()->transactionalWithRestarts(function (EntityManager $em)
+        use ($item, $sign, $register, $product) {
+            if ($product->isManaged()) {
+                $em->lock($product, \Doctrine\DBAL\LockMode::OPTIMISTIC, $product->getVersion());
+            }
 
-        return $amount;
+            $history = \XLite\Core\OrderHistory::getInstance();
+            $amount = $sign * $item->getAmount();
+
+            if ($register) {
+                $history->registerChangeAmount($this->getOrderId(), $item->getProduct(), $amount);
+            }
+            $item->changeAmount($amount);
+
+            return $amount;
+        }, function (EntityManager $em) use ($product) {
+            $em->refresh($product);
+        }, 10);
     }
 
     /**
@@ -4220,7 +4233,24 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     public function getPaymentTransactions()
     {
-        return $this->payment_transactions;
+        $result = $this->payment_transactions;
+
+        $compare = function ($a, $b) {
+            /** @var \XLite\Model\Payment\Transaction $a */
+            /** @var \XLite\Model\Payment\Transaction $b */
+            return ($a->getTransactionId() < $b->getTransactionId()) ? -1 : 1;
+        };
+
+        if ($result instanceof \Doctrine\Common\Collections\Collection) {
+            $iterator = $result->getIterator();
+            $iterator->uasort($compare);
+
+            $result = new ArrayCollection(iterator_to_array($iterator));
+        } elseif (is_array($result)) {
+            uasort($result, $compare);
+        }
+
+        return $result;
     }
 
     /**

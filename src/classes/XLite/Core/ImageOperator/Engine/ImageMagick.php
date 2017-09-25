@@ -80,11 +80,12 @@ class ImageMagick extends \XLite\Core\ImageOperator\AEngine
             && $this->execResize($newResource, $width, $height) === 0
         ) {
             copy($newResource, $this->resource);
-            unlink($newResource);
             $this->updateImageFromResource();
 
             $result = true;
         }
+
+        unlink($newResource);
 
         return $result;
     }
@@ -168,7 +169,17 @@ class ImageMagick extends \XLite\Core\ImageOperator\AEngine
     {
         parent::setImage($image);
 
+        if ($this->resource) {
+            unlink($this->resource);
+        }
         $this->resource = tempnam(LC_DIR_TMP, 'image');
         file_put_contents($this->resource, $image->getBody());
+    }
+
+    public function __destruct()
+    {
+        if ($this->resource) {
+            unlink($this->resource);
+        }
     }
 }

@@ -184,7 +184,7 @@ XLite\Model\Config:
         option_name: Добавлять новые методы USPS включенными
 
 XLite\Model\LanguageLabel:
-  - { name: 'U.S.P.S. module allows to use online shipping rates calculation via USPS Web Tools Ecommerce API.', translations: [{ code: ru, label: '<strong>U.S.P.S.</strong> module allows to use online shipping rates calculation via <a href="http://www.usps.com/webtools">USPS Web Tools Ecommerce API</a>.' }] }
+  - { name: 'U.S.P.S. module allows you to use online shipping rates calculation via USPS Web Tools Ecommerce API.', translations: [{ code: ru, label: '<strong>U.S.P.S.</strong> module allows you to use online shipping rates calculation via <a href="http://www.usps.com/webtools">USPS Web Tools Ecommerce API</a>.' }] }
   - { name: '"Cash on delivery" status', translations: [{ code: ru, label: 'Состояние варианта оплаты "Наложенный платеж"' }] }
   - { name: 'usps.CODStatusOptionComment', translations: [{ code: ru, label: 'Важно: Чтобы включить/отключить вариант оплаты "Наложенный платеж", необходимо включить/отключить способ оплаты "Наложеный платеж (U.S.P.S.)" на <a href="{{URL}}">странице Способов оплаты</a>.' }] }
   - { name: 'Refresh list of available methods', translations: [{ code: ru, label: 'Обновить список доступных методов' }] }

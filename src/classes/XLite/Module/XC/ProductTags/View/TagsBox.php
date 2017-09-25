@@ -110,9 +110,9 @@ class TagsBox extends \XLite\View\SideBarBox
             'search',
             null,
             array(
-                'action' => 'search',
+                'mode' => 'search',
                 'substring' => $params['tag'],
-                'including' => 'phrase',
+                'including' => \XLite\Model\Repo\Product::INCLUDING_PHRASE,
                 'by_tag' => 'Y'
             )
         );

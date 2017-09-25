@@ -356,7 +356,7 @@ abstract class AController extends \XLite\Core\Handler
      *
      * @return boolean
      */
-    protected function isRootAdmin()
+    public function isRootAdmin()
     {
         return \XLite::isAdminZone()
             && \XLite\Core\Auth::getInstance()->isLogged()
@@ -1471,11 +1471,12 @@ abstract class AController extends \XLite\Core\Handler
 
         // filter FORM ID from redirect url
         // FIXME - check if it's really needed
-        $action = $this->get('action');
 
-        if (empty($action)) {
-            $location = $this->filterXliteFormID($location);
-        }
+        //$action = $this->get('action');
+        //
+        //if (empty($action)) {
+        //    $location = $this->filterXliteFormID($location);
+        //}
 
         if ($this->isAJAX()) {
             \XLite\Core\Event::getInstance()->display();

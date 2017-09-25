@@ -8,8 +8,9 @@
  */
 define(
   'checkout_fastlane/sections',
-  ['vue/vue'],
-  function(Vue){
+  ['vue/vue',
+   'checkout_fastlane/blocks/address'],
+  function(Vue, Address){
 
     var Sections = Vue.extend({
       name: 'sections',
@@ -50,6 +51,8 @@ define(
         },
       },
     });
+
+    Vue.registerComponent(Sections, Address);
 
     return Sections;
   }

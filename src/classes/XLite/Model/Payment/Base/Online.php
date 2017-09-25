@@ -37,6 +37,10 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
     {
         $this->transaction = $transaction;
 
+        if ($this->transaction->getOrder()) {
+            $this->transaction->getOrder()->renewSoft();
+        }
+
         $this->logReturn(\XLite\Core\Request::getInstance()->getData());
     }
 
@@ -59,7 +63,7 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
     {
         $this->transaction = $transaction;
 
-        $this->logCallback(\XLite\Core\Request::getInstance()->getData());
+        $this->logCallback(\XLite\Core\Request::getInstance()->getPostDataWithArrayValues());
     }
 
     /**

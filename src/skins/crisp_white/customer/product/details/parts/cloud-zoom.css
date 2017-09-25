@@ -29,25 +29,24 @@
 .product-photo.cloud-zoom-photo {
   overflow: visible;
   border: 1px solid #e2e2e2;
-  height: 442px;
-  width: 368px;
+  height: auto;
+  width: auto;
 }
 
 .product-photo.cloud-zoom-photo.cloud-zoom-outside img.photo.product-thumbnail {
   object-fit: fill;
-  max-height: 440px;
-  max-width: 366px;
   width: auto;
   height: auto;
 }
 
-.product-photo.cloud-zoom-photo.cloud-zoom-inside img.photo.product-thumbnail {
-  height: 440px !important;
-  width: 366px !important;
-}
-
 .product-photo.cloud-zoom-photo .mousetrap {
   z-index: 9990 !important;
+}
+
+.product-photo.cloud-zoom-photo.cloud-zoom-inside .cloud-zoom-big {
+  border: 0;
+  width: 100% !important;
+  left: 0 !important;
 }
 
 .product-photo.cloud-zoom-inside .mousetrap:hover {

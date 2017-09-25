@@ -225,11 +225,9 @@ class ExpressCheckoutMerchantAPI extends \XLite\Module\CDev\Paypal\Model\Payment
                     $status = self::PENDING;
                 }
 
-            } elseif (isset($responseData['L_ERRORCODE0'])
-                && '10486' == $responseData['L_ERRORCODE0']
-                && $this->isRetryExpressCheckoutAllowed()
-            ) {
-                $this->retryExpressCheckout(\XLite\Core\Session::getInstance()->ec_token);
+            } elseif ($status = $this->tryHandleExpressCheckoutError($responseData)) {
+                // WARNING: no fault here, assignment is intended.
+                return $status;
 
             } else {
                 $this->setDetail(
@@ -237,6 +235,8 @@ class ExpressCheckoutMerchantAPI extends \XLite\Module\CDev\Paypal\Model\Payment
                     'Failed: ' . $responseData['L_LONGMESSAGE0'],
                     'Status'
                 );
+
+                $transaction->setNote($this->getPaypalFailureNote($responseData));
             }
 
             // Save payment transaction data
@@ -248,6 +248,8 @@ class ExpressCheckoutMerchantAPI extends \XLite\Module\CDev\Paypal\Model\Payment
                 'Failed: unexpected response received from PayPal',
                 'Status'
             );
+
+            $transaction->setNote('Unexpected response received from PayPal');
         }
 
         $transaction->setStatus($transactionStatus);
@@ -260,6 +262,56 @@ class ExpressCheckoutMerchantAPI extends \XLite\Module\CDev\Paypal\Model\Payment
         \XLite\Core\Session::getInstance()->ec_type = null;
 
         return $status;
+    }
+
+    /**
+     * Returns human-readable Paypal error note.
+     *
+     * @param $responseData
+     * @return string
+     */
+    protected function getPaypalFailureNote($responseData)
+    {
+        $note = $responseData['L_SHORTMESSAGE0'];
+
+        if ($responseData['L_ERRORCODE0'] === '10417') {
+            $note = 'The credit card failed bank authorization. Retry the transaction using an alternative payment method from your PayPal wallet or contact PayPal Customer Service';
+        }
+
+        if ($responseData['L_ERRORCODE0'] === '10485') {
+            $note = 'Payment has not been authorized by the user. Try to place the order again or contact PayPal Customer Service';
+        }
+
+        return $note;
+    }
+
+    /**
+     * Checks if the response message can be parsed and handled properly,
+     * handles it and returns the status of payment transaction.
+     * Returns false if cannot handle.
+     *
+     * @param $responseData
+     *
+     * @return boolean
+     */
+    protected function tryHandleExpressCheckoutError($responseData)
+    {
+        $result = false;
+
+        if ($this->isRetryExpressCheckoutCode($responseData)
+            && $this->isRetryExpressCheckoutAllowed()
+        ) {
+            $this->retryExpressCheckout(\XLite\Core\Session::getInstance()->ec_token);
+        } elseif (!$this->doExpressCheckoutPaymentErrorHandled && isset($responseData['L_ERRORCODE0']) && '10419' === $responseData['L_ERRORCODE0']) {
+            \XLite\Core\Session::getInstance()->ec_payer_id = \XLite\Core\Request::getInstance()->PayerID;
+            $this->doExpressCheckoutPaymentRecursiveCall = true;
+
+            $result = $this->doDoExpressCheckoutPayment();
+        }
+
+        $this->doExpressCheckoutPaymentRecursiveCall = false;
+
+        return $result;
     }
 
     /**
@@ -302,6 +354,19 @@ class ExpressCheckoutMerchantAPI extends \XLite\Module\CDev\Paypal\Model\Payment
         }
 
         return $result;
+    }
+
+    /**
+     * Checks if response data contains "Customer must choose new funding sources." error
+     *
+     * @param array $responseData
+     * @return bool
+     */
+    protected function isRetryExpressCheckoutCode($responseData)
+    {
+        return isset($responseData['L_ERRORCODE0'])
+            && ('10486' === $responseData['L_ERRORCODE0']
+             || '10422' === $responseData['L_ERRORCODE0']);
     }
 
     // }}}

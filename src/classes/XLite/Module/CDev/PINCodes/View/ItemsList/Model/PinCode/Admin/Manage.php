@@ -43,6 +43,16 @@ class Manage extends \XLite\Module\CDev\PINCodes\View\ItemsList\Model\PinCode\AP
     }
 
     /**
+     * @param \XLite\Model\Order $order
+     *
+     * @return string
+     */
+    public function getDisplayOrder(\XLite\Model\Order $order)
+    {
+        return $order;
+    }
+
+    /**
      * Get panel class
      *
      * @return \XLite\View\Base\FormStickyPanel

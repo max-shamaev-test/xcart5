@@ -2,5 +2,6 @@
  # Extensions plus button
  #}
 <a {{ this.printTagAttributes(this.getAttributes())|raw }}>
+  {{ this.displayCommentedData(this.getURLParams()) }}
   {{ this.getSVGImage('images/plus.svg')|raw }}
 </a>

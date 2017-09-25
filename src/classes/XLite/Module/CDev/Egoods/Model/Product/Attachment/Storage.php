@@ -79,7 +79,7 @@ abstract class Storage extends \XLite\Module\CDev\FileAttachments\Model\Product\
     public function maskStorage()
     {
         $path = $this->getStoragePath();
-        $suffix = md5(strval(microtime(true)) . strval(rand(0, 1000000)));
+        $suffix = md5(strval(microtime(true)) . strval(mt_rand(0, 1000000)));
         rename($path, $path . '.' . $suffix);
         $this->setPath($this->getPath() . '.' . $suffix);
     }

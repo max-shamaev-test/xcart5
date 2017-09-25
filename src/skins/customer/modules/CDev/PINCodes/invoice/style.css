@@ -8,12 +8,12 @@
  */
 
 .invoice-pin-codes {
-  background: #ebf7ff;
-  padding: 7px;
+  display: block !important;
 }
 
 .invoice-pin-codes .header {
   color: #666;
+  margin-bottom: 0;
 }
 
 .invoice-pin-codes span {
@@ -22,4 +22,5 @@
 
 .invoice-pin-codes span.code {
   padding-left: 5px;
+  display: block !important;
 }

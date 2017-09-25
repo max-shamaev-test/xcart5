@@ -8,6 +8,8 @@
 
 namespace XLite\Controller\Admin\Base;
 
+use XLite\Core\Cache\ExecuteCached;
+
 /**
  * AddonsList
  */
@@ -46,19 +48,26 @@ abstract class AddonsList extends \XLite\Controller\Admin\Base\Addon
      */
     public function isMarketplaceAccessible()
     {
-        // Check Phar availability and marketplace accessibility
-        $result = extension_loaded('phar') && \XLite\Core\Marketplace::getInstance()->doTestMarketplace();
+        $cacheParams = [
+            'isMarketplaceAccessible',
+            get_class($this)
+        ];
 
-        if ($result) {
-            // Check modules from marketplace is presented in the database
-            $cnd = new \XLite\Core\CommonCell();
-            $cnd->{\XLite\Model\Repo\Module::P_FROM_MARKETPLACE} = true;
-            $countModules = \XLite\Core\Database::getRepo('XLite\Model\Module')->search($cnd, true);
+        return ExecuteCached::executeCachedRuntime(function() {
+            // Check Phar availability and marketplace accessibility
+            $result = extension_loaded('phar') && \XLite\Core\Marketplace::getInstance()->doTestMarketplace();
 
-            $result = 0 < $countModules;
-        }
+            if ($result) {
+                // Check modules from marketplace is presented in the database
+                $cnd = new \XLite\Core\CommonCell();
+                $cnd->{\XLite\Model\Repo\Module::P_FROM_MARKETPLACE} = true;
+                $countModules = \XLite\Core\Database::getRepo('XLite\Model\Module')->getCachedCount($cnd);
 
-        return $result;
+                $result = 0 < $countModules;
+            }
+
+            return $result;
+        }, $cacheParams);
     }
 
     /**

@@ -1,0 +1,6 @@
+Version 5.3.3.4
+
+Fixes
+2017-09-15 - [Bug] Local images were not getting imported for variants. Fixed. #BUG-5495 (Maxim Kuznetsov) #Core #AmazonS3Images #ProductVariants
+2017-09-04 - [Bug] Fixed PHP 5.4 compatibility errors/warnings. #BUG-5439 (Eugene Dementjev) #Core #AmazonS3Images #Egoods #Paypal #RESTAPI #PINCodes #PitneyBowes #CustomerAttachments #VendorMessages
+

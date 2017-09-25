@@ -12,7 +12,7 @@ namespace XLite\Module\CDev\XMLSitemap\View\SitemapGeneration;
 use XLite\Module\CDev\XMLSitemap\Logic\Sitemap\Generator;
 
 /**
- * Sitemap generation Progress
+ * Google Feed generation Progress
  */
 class Progress extends \XLite\View\AView
 {

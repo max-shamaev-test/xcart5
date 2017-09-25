@@ -40,7 +40,7 @@ class DataCacheGarbageCleaner extends \XLite\Core\Task\Base\Periodic
             /** @var \SplFileInfo $file */
             while ($endTime > time() && $iterator->valid() && ($file = $iterator->current())) {
                 if ($file->isFile()) {
-                    $handle = fopen($file->getRealPath(), 'r');
+                    $handle = fopen($file->getRealPath(), 'rb');
                     $line = fgets($handle);
                     $lifetime = $line !== false ? (int)$line : false;
                     fclose($handle);

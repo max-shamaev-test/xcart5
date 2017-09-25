@@ -75,7 +75,7 @@ class Manage extends \XLite\View\ModulesManager\AModulesManager implements Provi
     protected function getStateOptions()
     {
         return [
-            ''  => static::t('All modules'),
+            ''  => static::t('All addons'),
             'E' => static::t('Enabled only'),
             'D' => static::t('Disabled only'),
         ];
@@ -106,7 +106,7 @@ class Manage extends \XLite\View\ModulesManager\AModulesManager implements Provi
     public function getPreloadedLanguageLabels()
     {
         return [
-            'All modules'   => static::t('All modules')
+            'All addons'   => static::t('All addons')
         ];
     }
 }

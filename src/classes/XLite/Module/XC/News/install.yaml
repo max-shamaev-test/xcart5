@@ -47,6 +47,9 @@ XLite\Model\Config:
         option_name: Priority for News Message page
         option_comment: The value should range from 0 to 1.
 
+XLite\Model\Role\Permission:
+  - { code: manage news, section: Content, translations: [{ code: en, name: Manage news }, { code: ru, name: 'Управление новостями' }] }
+
 XLite\Model\LanguageLabel:
   - { name: 'News messages', translations: [{ code: en, label: 'News messages' }, { code: ru, label: 'Новости' }] }
   - { name: 'News message', translations: [{ code: en, label: 'News message' }, { code: ru, label: 'Новость' }] }

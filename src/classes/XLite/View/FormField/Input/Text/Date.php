@@ -42,7 +42,7 @@ class Date extends \XLite\View\FormField\Input\Text
     {
         $list = parent::getCSSFiles();
 
-        $list[] = $this->getDir() . '/input/text/date.css';
+        $list[] = $this->getDir() . '/input/text/date.less';
 
         return $list;
     }

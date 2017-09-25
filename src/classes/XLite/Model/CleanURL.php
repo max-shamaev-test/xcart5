@@ -37,7 +37,7 @@ class CleanURL extends \XLite\Model\AEntity
      * @var \XLite\Model\Product
      *
      * @ManyToOne  (targetEntity="XLite\Model\Product", inversedBy="cleanURLs")
-     * @JoinColumn (name="product_id", referencedColumnName="product_id")
+     * @JoinColumn (name="product_id", referencedColumnName="product_id", onDelete="CASCADE")
      */
     protected $product;
 
@@ -47,7 +47,7 @@ class CleanURL extends \XLite\Model\AEntity
      * @var \XLite\Model\Category
      *
      * @ManyToOne  (targetEntity="XLite\Model\Category", inversedBy="cleanURLs")
-     * @JoinColumn (name="category_id", referencedColumnName="category_id")
+     * @JoinColumn (name="category_id", referencedColumnName="category_id", onDelete="CASCADE")
      */
     protected $category;
 

@@ -9,7 +9,14 @@
 namespace XLite\Module\XC\MailChimp\Model\Repo;
 
 /**
- * The Store model repository
+ * @Api\Operation\Read(modelClass="XLite\Module\XC\MailChimp\Model\Store", summary="Retrieve mailchimp stores by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\XC\MailChimp\Model\Store", summary="Retrieve mailchimp stores by conditions")
+ *
+ * @SWG\Tag(
+ *   name="XC\MailChimp\Store",
+ *   x={"display-name": "Store", "group": "XC\MailChimp"},
+ *   description="Store repo",
+ * )
  */
 class Store extends \XLite\Model\Repo\ARepo
 {

@@ -15,6 +15,11 @@ use XLite\Module\XC\NextPreviousProduct\View\Product\ListItem;
  */
 abstract class ACustomer extends \XLite\View\ItemsList\Product\Customer\ACustomer implements \XLite\Base\IDecorator
 {
+    /**
+     * Widget parameter names
+     */
+    const PARAM_CATEGORY_ID  = 'category_id';
+
     const NP_MODE_VIEW = 'npModeView';
     const NP_MODE_READ = 'npModeRead';
 
@@ -121,6 +126,17 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\Customer\ACustome
         \XLite\Core\Session::getInstance()->{$cellName} = $result;
 
         return $result;
+    }
+
+    /**
+     * Get session cell name for the certain list items widget
+     *
+     * @return string
+     */
+    public static function getSessionCellName()
+    {
+        return parent::getSessionCellName()
+            . \XLite\Core\Request::getInstance()->{self::PARAM_CATEGORY_ID};
     }
 
     /**

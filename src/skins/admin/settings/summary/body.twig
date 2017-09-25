@@ -109,29 +109,7 @@
 
   {% for name, requirement in this.getCriticalRequirements() %}
 
-    <tr class="{% if loop.index is odd %}dialog-box{% else %}highlight{% endif %}">
-      <td class="name">
-        {{ requirement.title }}
-        {% if not requirement.status %}
-          <div class="description">
-            {{ requirement.description|raw }}
-          </div>
-          <div class="kb-description">
-            {{ requirement.kb_description|raw }}
-          </div>
-        {% endif %}
-      </td>
-      <td class="status">
-        {% if requirement.status %}
-          <span class="passed success-message">{{ t('Passed') }}</span>
-        {% else %}
-          <span class="failed error-message">{{ t('Failed') }}</span>
-          {% if requirement.error_description %}
-            {{ widget('XLite\\View\\Tooltip', id='install_requirement_error_'~name, text=requirement.error_description|raw, caption='', isImageTag='true', className='help-icon') }}
-          {% endif %}
-        {% endif %}
-      </td>
-    </tr>
+    {{ widget('XLite\\View\\Requirement', requirement=requirement, name=name, odd=loop.index is odd) }}
 
   {% endfor %}
 
@@ -143,29 +121,7 @@
 
   {% for name, requirement in this.getNonCriticalRequirements() %}
 
-    <tr class="{% if loop.index is odd %}dialog-box{% else %}highlight{% endif %}">
-      <td class="name">
-        {{ requirement.title }}
-        {% if not requirement.status %}
-          <div class="description">
-            {{ requirement.description|raw }}
-          </div>
-          <div class="kb-description">
-            {{ requirement.kb_description|raw }}
-          </div>
-        {% endif %}
-      </td>
-      <td class="status">
-        {% if requirement.status %}
-          <span class="passed success-message">{{ t('Passed') }}</span>
-        {% else %}
-          <span class="failed error-message">{{ t('Failed') }}</span>
-          {% if requirement.error_description %}
-            {{ widget('XLite\\View\\Tooltip', id='install_requirement_error_'~name, text=requirement.error_description|raw, caption='', isImageTag='true', className='help-icon') }}
-          {% endif %}
-        {% endif %}
-      </td>
-    </tr>
+    {{ widget('XLite\\View\\Requirement', requirement=requirement, name=name, odd=loop.index is odd) }}
 
   {% endfor %}
 

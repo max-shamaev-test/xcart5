@@ -9,8 +9,17 @@
 namespace XLite\Module\XC\Reviews\Model\Repo;
 
 /**
- * Reviews repository
+ * @Api\Operation\Create(modelClass="XLite\Module\XC\Reviews\Model\Review", summary="Add product review")
+ * @Api\Operation\Read(modelClass="XLite\Module\XC\Reviews\Model\Review", summary="Retrieve product review by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\XC\Reviews\Model\Review", summary="Retrieve product reviews by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\XC\Reviews\Model\Review", summary="Update product review by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\XC\Reviews\Model\Review", summary="Delete product review by id")
  *
+ * @SWG\Tag(
+ *   name="XC\Reviews\Review",
+ *   x={"display-name": "Review", "group": "XC\Reviews"},
+ *   description="This repo stores customer feedback - product review records.",
+ * )
  */
 class Review extends \XLite\Model\Repo\ARepo
 {

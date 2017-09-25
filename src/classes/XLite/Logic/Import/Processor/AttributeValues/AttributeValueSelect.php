@@ -105,4 +105,20 @@ class AttributeValueSelect extends \XLite\Logic\Import\Processor\AttributeValues
     {
         $model->setModifier($value, 'weight');
     }
+
+    /**
+     * Import 'valuePosition' value
+     *
+     * @param \XLite\Model\AttributeValue\AttributeValueSelect $model  Attribute value object
+     * @param mixed                                            $value  Value
+     * @param array                                            $column Column info
+     *
+     * @return void
+     */
+    protected function importValuePositionColumn($model, $value, array $column)
+    {
+        if ($value) {
+            $model->setPosition($value);
+        }
+    }
 }

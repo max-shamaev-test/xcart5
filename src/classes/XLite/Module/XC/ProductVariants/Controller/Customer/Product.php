@@ -35,9 +35,18 @@ class Product extends \XLite\Controller\Customer\Product implements \XLite\Base\
                 }
             }
 
-            $productVariant = $this->getProduct()->getVariant(
-                $this->getProduct()->prepareAttributeValues($ids)
-            );
+            $attributeValues = $this->getProduct()->prepareAttributeValues($ids);
+
+            if (
+                \XLite\Core\Config::getInstance()->General->force_choose_product_options
+                && count($attributeValues) !== count($ids)
+            ) {
+                $attributeValues = null;
+            }
+
+            $productVariant = $attributeValues
+                ? $this->getProduct()->getVariant($attributeValues)
+                : null;
 
             if ($productVariant && $productVariant->getImage()) {
                 $data = $this->assembleVariantImageData($productVariant->getImage());

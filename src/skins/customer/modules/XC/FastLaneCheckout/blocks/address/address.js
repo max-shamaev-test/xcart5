@@ -9,12 +9,8 @@
 define(
   'checkout_fastlane/blocks/address',
   ['vue/vue',
-   'vue/vue.loadable',
-   'checkout_fastlane/sections',
-   'checkout_fastlane/sections/shipping',
-   'checkout_fastlane/sections/payment',
-   'checkout_fastlane/blocks/shipping_details'],
-  function(Vue, VueLoadableMixin, Sections, ShippingSection, PaymentSection, ShippingDetails) {
+   'vue/vue.loadable'],
+  function(Vue, VueLoadableMixin) {
 
   var Address = Vue.extend({
     mixins: [VueLoadableMixin],
@@ -185,11 +181,6 @@ define(
       }
     }
   });
-
-  Vue.registerComponent(Sections, Address);
-  Vue.registerComponent(ShippingSection, Address);
-  Vue.registerComponent(PaymentSection, Address);
-  Vue.registerComponent(ShippingDetails, Address);
 
   return Address;
 });

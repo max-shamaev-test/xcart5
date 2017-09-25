@@ -34,8 +34,8 @@ class Messages extends \XLite\Controller\Admin\AAdmin
     public function checkACL()
     {
         return parent::checkACL()
-               || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage orders')
-               || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage conversations');
+            || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage orders')
+            || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage conversations');
     }
 
     /**
@@ -120,5 +120,41 @@ class Messages extends \XLite\Controller\Admin\AAdmin
         return $searchParams;
     }
 
+    /**
+     * Mark conversations as read
+     */
+    public function doActionMarkConversationsRead()
+    {
+        $profile = \XLite\Core\Auth::getInstance()->getProfile();
 
+        if (
+            !empty(\XLite\Core\Request::getInstance()->select)
+            && is_array(\XLite\Core\Request::getInstance()->select)
+        ) {
+            $ids = array_keys(\XLite\Core\Request::getInstance()->select);
+
+            \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\Conversation')->markRead($ids, $profile);
+        } else {
+            \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\Conversation')->markReadAll($profile);
+        }
+    }
+
+    /**
+     * Unmark conversations as read
+     */
+    public function doActionMarkConversationsUnread()
+    {
+        $profile = \XLite\Core\Auth::getInstance()->getProfile();
+
+        if (
+            !empty(\XLite\Core\Request::getInstance()->select)
+            && is_array(\XLite\Core\Request::getInstance()->select)
+        ) {
+            $ids = array_keys(\XLite\Core\Request::getInstance()->select);
+
+            \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\Conversation')->markUnread($ids, $profile);
+        } else {
+            \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\Conversation')->markUnreadAll($profile);
+        }
+    }
 }

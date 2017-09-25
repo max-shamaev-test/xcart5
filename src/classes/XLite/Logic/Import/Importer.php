@@ -354,6 +354,14 @@ class Importer extends \XLite\Base
     }
 
     /**
+     * Set options
+     */
+    public function setOptions($options)
+    {
+        $this->options = $options;
+    }
+
+    /**
      * Check importer state
      *
      * @return boolean

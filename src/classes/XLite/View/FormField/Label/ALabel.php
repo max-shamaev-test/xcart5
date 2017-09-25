@@ -43,6 +43,11 @@ abstract class ALabel extends \XLite\View\FormField\AFormField
         );
     }
 
+    protected function isEscape()
+    {
+        return !$this->getParam(static::PARAM_UNESCAPE);
+    }
+
     /**
      * Get label value
      *
@@ -52,7 +57,7 @@ abstract class ALabel extends \XLite\View\FormField\AFormField
     {
         $value = strval($this->getValue());
 
-        if (!$this->getParam(static::PARAM_UNESCAPE)) {
+        if ($this->isEscape()) {
             $value = func_htmlspecialchars($value);
         }
 

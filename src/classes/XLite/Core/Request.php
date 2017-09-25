@@ -329,6 +329,16 @@ class Request extends \XLite\Base\Singleton
     }
 
     /**
+     * @return string
+     */
+    public function getAjaxRefererTarget()
+    {
+        return isset($_SERVER['HTTP_AJAXREFERERTARGET'])
+            ? $_SERVER['HTTP_AJAXREFERERTARGET']
+            : null;
+    }
+
+    /**
      * Check for secure connection
      *
      * @return boolean
@@ -441,10 +451,6 @@ class Request extends \XLite\Base\Singleton
      */
     protected function normalizeRequestData($request)
     {
-        if (ini_get('magic_quotes_gpc')) {
-            $request = $this->doUnescape($request);
-        }
-
         return $request;
     }
 

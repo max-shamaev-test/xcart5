@@ -19,7 +19,7 @@ use XLite\Core\Database\Migration\UnsupportedDatabaseOperationDuringMaintenanceE
  *     produces={"application/json", "application/xml"},
  *     consumes={"application/json", "application/x-www-form-urlencoded"},
  *     @Swg\Info (
- *         version="5.3.3.0",
+ *         version="5.3.3.3",
  *         title="X-Cart REST API",
  *         description="",
  *     ),
@@ -46,7 +46,7 @@ class XLite extends \XLite\Base
     /**
      * Core version
      */
-    const XC_VERSION = '5.3.3.3';
+    const XC_VERSION = '5.3.3.4';
 
     /**
      * Endpoints

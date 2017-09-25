@@ -9,6 +9,7 @@
 namespace XLite\Core;
 
 use XLite\Core\Job\SchedulingJobs;
+use XLite\Core\Job\SendMail;
 
 /**
  * Mailer core class
@@ -82,6 +83,7 @@ class Mailer extends \XLite\Base\Singleton
      */
     protected static $mailRegistry = [];
     protected static $schedule = true;
+    protected static $scheduledJob = null;
 
     // {{{ Profile created
 
@@ -497,7 +499,7 @@ class Mailer extends \XLite\Base\Singleton
             );
         }
 
-        if ($result) {
+        if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerAdminEmailSent(
                 $order->getOrderId(),
                 'Order is initially created'
@@ -538,7 +540,7 @@ class Mailer extends \XLite\Base\Singleton
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
         );
 
-        if ($result) {
+        if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerCustomerEmailSent(
                 $order->getOrderId(),
                 'Order is initially created'
@@ -602,7 +604,7 @@ class Mailer extends \XLite\Base\Singleton
                 );
         }
 
-        if ($result) {
+        if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerAdminEmailSent(
                 $order->getOrderId(),
                 'Order is processed'
@@ -643,7 +645,7 @@ class Mailer extends \XLite\Base\Singleton
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
         );
 
-        if ($result) {
+        if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerCustomerEmailSent(
                 $order->getOrderId(),
                 'Order is processed'
@@ -707,7 +709,7 @@ class Mailer extends \XLite\Base\Singleton
                 );
         }
 
-        if ($result) {
+        if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerAdminEmailSent(
                 $order->getOrderId(),
                 'Order is changed'
@@ -762,7 +764,7 @@ class Mailer extends \XLite\Base\Singleton
                 $registryKey
             );
 
-            if ($result) {
+            if ($result && !static::hasScheduledJob()) {
                 \XLite\Core\OrderHistory::getInstance()->registerCustomerEmailSent(
                     $order->getOrderId(),
                     'Order is changed'
@@ -827,7 +829,7 @@ class Mailer extends \XLite\Base\Singleton
                 $registryKey
             );
 
-            if ($result) {
+            if ($result && !static::hasScheduledJob()) {
                 \XLite\Core\OrderHistory::getInstance()->registerCustomerEmailSent(
                     $order->getOrderId(),
                     'Order is changed'
@@ -885,7 +887,7 @@ class Mailer extends \XLite\Base\Singleton
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
         );
 
-        if ($result) {
+        if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerCustomerEmailSent(
                 $order->getOrderId(),
                 'Order is shipped'
@@ -942,7 +944,7 @@ class Mailer extends \XLite\Base\Singleton
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
         );
 
-        if ($result) {
+        if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerCustomerEmailSent(
                 $order->getOrderId(),
                 'Order awaiting for approval'
@@ -1006,7 +1008,7 @@ class Mailer extends \XLite\Base\Singleton
                 );
         }
 
-        if ($result) {
+        if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerAdminEmailSent(
                 $order->getOrderId(),
                 'Order is failed'
@@ -1047,7 +1049,7 @@ class Mailer extends \XLite\Base\Singleton
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
         );
 
-        if ($result) {
+        if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerCustomerEmailSent(
                 $order->getOrderId(),
                 'Order is failed'
@@ -1111,7 +1113,7 @@ class Mailer extends \XLite\Base\Singleton
                 );
         }
 
-        if ($result) {
+        if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerAdminEmailSent(
                 $order->getOrderId(),
                 'Order is canceled'
@@ -1152,7 +1154,7 @@ class Mailer extends \XLite\Base\Singleton
             static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
         );
 
-        if ($result) {
+        if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerCustomerEmailSent(
                 $order->getOrderId(),
                 'Order is canceled'
@@ -1534,14 +1536,64 @@ class Mailer extends \XLite\Base\Singleton
         $mailer->clearAttachments();
     }
 
+    /**
+     * Clear string attachments from mail
+     *
+     * @return void
+     */
+    protected static function clearStringAttachments()
+    {
+        $mailer = static::getMailer();
+
+        $mailer->clearStringAttachments();
+    }
+
+    /**
+     * Returns scheduling availability flag.
+     *
+     * @param bool $value
+     */
     public static function setSchedule($value)
     {
         static::$schedule = $value;
     }
 
+    /**
+     * @return bool
+     */
     public static function getSchedule()
     {
         return static::$schedule;
+    }
+
+    /**
+     * Sets the last scheduled job
+     *
+     * @param SendMail $job
+     */
+    public static function setScheduledJob($job)
+    {
+        static::$scheduledJob = $job;
+    }
+
+    /**
+     * Returns the last scheduled job
+     *
+     * @return SendMail
+     */
+    public static function getScheduledJob()
+    {
+        return static::$scheduledJob;
+    }
+
+    /**
+     * Check if there is recently scheduled job
+     *
+     * @return bool
+     */
+    public static function hasScheduledJob()
+    {
+        return (bool) static::$scheduledJob;
     }
 
     /**
@@ -1605,11 +1657,17 @@ class Mailer extends \XLite\Base\Singleton
             && method_exists('\XLite\Core\Mailer', $callee)
             && !in_array($callee, static::getQueueExcludedCallees())
         ) {
-            $sendMailJob = new \XLite\Core\Job\SendMail(
+            $sendMailJob = new SendMail(
                 $callee,
                 $arguments
             );
+
+            static::clearAttachments();
+            static::clearStringAttachments();
+
             static::schedule($sendMailJob);
+            static::setScheduledJob($sendMailJob);
+            static::$errorMessage = null;
 
             $result = true;
 

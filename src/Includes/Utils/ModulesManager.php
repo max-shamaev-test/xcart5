@@ -384,7 +384,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
             static::correctDependencies();
 
             if (\Includes\Utils\ConfigParser::getOptions(['performance', 'ignore_system_modules'])) {
-                array_walk_recursive(static::getSystemModules(true), ['static', 'disableModule']);
+                array_walk_recursive(array_keys(static::getSystemModules(true)), ['static', 'disableModule']);
             }
 
             static::$isActiveModulesProcessed = true;

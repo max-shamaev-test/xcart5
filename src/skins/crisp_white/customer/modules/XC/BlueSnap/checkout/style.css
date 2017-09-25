@@ -15,6 +15,10 @@
   line-height: 39px;
 }
 
+.blue-snap-box div.content div.cardNumber {
+  margin-top: 20px;
+}
+
 .blue-snap-box div.content div.cardName .value {
   text-transform: uppercase;
 }
@@ -71,3 +75,5 @@
 {
   display: inline;
 }
+
+

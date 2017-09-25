@@ -170,6 +170,16 @@ class Review extends \XLite\Model\AEntity
     protected $xcPendingExport = false;
 
     /**
+     * Related order review key
+     *
+     * @var \XLite\Module\XC\Reviews\Model\OrderReviewKey
+     *
+     * @ManyToOne (targetEntity="XLite\Module\XC\Reviews\Model\OrderReviewKey", inversedBy="review", fetch="LAZY")
+     * @JoinColumn (name="rkey_id", referencedColumnName="id", onDelete="SET NULL")
+     */
+    protected $reviewKey;
+
+    /**
      * Define if review is new
      *
      * @return boolean
@@ -628,5 +638,27 @@ class Review extends \XLite\Model\AEntity
     public function getProduct()
     {
         return $this->product;
+    }
+
+    /**
+     * Get reviewKey
+     *
+     * @return \XLite\Module\XC\Reviews\Model\OrderReviewKey
+     */
+    public function getReviewKey()
+    {
+        return $this->reviewKey;
+    }
+
+    /**
+     * Set reviewKey
+     *
+     * @param \XLite\Module\XC\Reviews\Model\OrderReviewKey $value
+     * @return $this
+     */
+    public function setReviewKey($value)
+    {
+        $this->reviewKey = $value;
+        return $this;
     }
 }

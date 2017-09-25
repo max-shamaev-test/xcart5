@@ -60,7 +60,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '3';
+        return '4';
     }
 
     /**
@@ -101,7 +101,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getSettingsForm()
     {
-        return \XLite::ADMIN_SELF . '?target=mailchimp_options';
+        return \XLite\Core\Converter::buildURL('mailchimp_options');
     }
 
     public static function updateAllMainStores()

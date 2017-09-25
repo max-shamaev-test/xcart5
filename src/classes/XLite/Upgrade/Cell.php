@@ -128,6 +128,16 @@ class Cell extends \XLite\Base\Singleton
      */
     protected $isUpgradeHotfixModeSelectorAvailable;
 
+    /**
+     * Core non-hotfix data storage
+     *
+     * @var array
+     */
+    protected $hasNonHotfixData = [
+        'core' => false,
+        'modules' => false
+    ];
+
     // {{{ Public methods
 
     /**
@@ -206,6 +216,26 @@ class Cell extends \XLite\Base\Singleton
     public function hasHotfixEntries()
     {
         return (boolean)count($this->getHotfixEntries());
+    }
+
+    /**
+     * Check if hotfix only updates
+     *
+     * @return boolean
+     */
+    public function hasOnlyIncompatibleHotfixEntries()
+    {
+        if (!$this->hasHotfixEntries()) {
+            return false;
+        }
+
+        foreach ($this->getHotfixEntries() as $entry) {
+            if ($entry instanceof \XLite\Upgrade\Entry\Module\Marketplace && $entry->isAvailableForUpgradeWithoutCore()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -491,12 +521,13 @@ class Cell extends \XLite\Base\Singleton
 
                 $isHotfixMode = $this->isHotFixesModeSelected();
 
-                if (!$isHotfixMode) {
-                    // Not hotfix mode: Get module version for minor or major update
-                    $toUpgrade = $repo->getModuleForUpdate($module);
-                }
+                // Not hotfix mode: Get module version for minor or major update
+                $toUpgrade = $repo->getModuleForUpdate($module);
 
                 if ($isHotfixMode || (!$toUpgrade && !$isHotfixMode)) {
+                    if ($toUpgrade) {
+                        $this->hasNonHotfixData['modules'] = true;
+                    }
                     // Hotfix mode selected or not hotfix mode and there are no module version found for minor update
                     $toUpgrade = $repo->getModuleForHotfix($module);
                 }
@@ -511,14 +542,24 @@ class Cell extends \XLite\Base\Singleton
 
         $result = null;
 
-        if ($toUpgrade && ($toUpgrade->isModuleCompatible() || $this->hasCoreUpdate())) {
+        if ($this->isModuleEntryCanBeAdded($toUpgrade)) {
             $result = $this->addEntry($hash, 'Module\Marketplace', array($module, $toUpgrade));
-
         } elseif ($module->getEnabled()) {
             $this->incompatibleModules[$module->getMarketplaceID()] = false;
         }
 
         return $result;
+    }
+
+    /**
+     * Checks is module update entry can be created
+     *
+     * @param \XLite\Model\Module $moduleData
+     * @return bool
+     */
+    protected function isModuleEntryCanBeAdded($moduleData)
+    {
+        return $moduleData && ($moduleData->isModuleCompatible() || $this->hasCoreUpdate());
     }
 
     /**
@@ -848,6 +889,13 @@ class Cell extends \XLite\Base\Singleton
             // :NOTE: do not change call order!
             $this->checkForCoreUpgrade();
             $this->checkForModulesUpgrade();
+
+            if ($this->hasNonHotfixUpdate() && count($this->getEntries()) === 0) {
+                \XLite\Core\Database::getEM()->clear();
+                \XLite\Core\Session::getInstance()->upgradeHotfixMode = false;
+                $this->checkForCoreUpgrade();
+                $this->checkForModulesUpgrade();
+            }
         }
     }
 
@@ -873,13 +921,15 @@ class Cell extends \XLite\Base\Singleton
 
         $coreVersions = $this->getCoreVersions();
 
-        if (!$isHotfixMode) {
-            // Not hotfix mode: Get core minor or major update data
-            $version = $majorVersion;
-            $data = \Includes\Utils\ArrayManager::getIndex($coreVersions, $version, true);
-        }
+        // Not hotfix mode: Get core minor or major update data
+        $version = $majorVersion;
+        $data = \Includes\Utils\ArrayManager::getIndex($coreVersions, $version, true);
 
         if ($isHotfixMode || (empty($data) && !$isHotfixMode)) {
+            if (!empty($data)) {
+                $this->hasNonHotfixData['core'] = true;
+            }
+
             // Hotfix mode selected or not hotfix mode and there are no core data found for minor update
             $version = \XLite::getInstance()->getHotfixBranchVersion();
             $data = \Includes\Utils\ArrayManager::getIndex($coreVersions, $version, true);
@@ -893,6 +943,7 @@ class Cell extends \XLite\Base\Singleton
 
         return $result;
     }
+
 
     /**
      * Check and add (if needed) upgrade entries
@@ -1543,5 +1594,15 @@ class Cell extends \XLite\Base\Singleton
         }
 
         return $result;
+    }
+
+    /**
+     * Checks if update data also has core non-hotfix update
+     *
+     * @return boolean
+     */
+    protected function hasNonHotfixUpdate()
+    {
+        return $this->hasNonHotfixData['core'] || $this->hasNonHotfixData['modules'];
     }
 }

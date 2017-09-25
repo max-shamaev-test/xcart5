@@ -268,6 +268,12 @@ class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\IDecorator
     public function setVariant(\XLite\Module\XC\ProductVariants\Model\ProductVariant $variant = null)
     {
         $this->variant = $variant;
+
+        if ($variant && $variant->getProduct()) {
+            $this->setSKU($variant->getDisplaySku());
+            $this->setPrice($variant->getDisplayPrice());
+        }
+
         return $this;
     }
 

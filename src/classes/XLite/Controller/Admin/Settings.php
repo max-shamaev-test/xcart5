@@ -725,26 +725,73 @@ class Settings extends \XLite\Controller\Admin\AAdmin
     protected function getRequirements()
     {
         if ($this->requirements === null) {
-            $result = [];
             $requirements = new \Includes\Requirements();
-            foreach ($requirements->getResult() as $name => $requirement) {
-                $requirement['status'] = $requirement['state'] === \Includes\Requirements::STATE_SUCCESS;
-                $requirement['title'] = static::t($requirement['title']);
 
-                $requirement['error_description'] = isset($requirement['description'])
-                    ? $this->getRequirementTranslation($name . '.' . $requirement['description'], $requirement)
-                    : '';
-
-                $requirement['description'] = $this->getRequirementTranslation($name . '.label_message', $requirement);
-                $requirement['kb_description'] = $this->getRequirementTranslation($name . '.kb_message', $requirement);
-
-                $result[$name] = $requirement;
-            }
-
-            $this->requirements = $result;
+            $this->requirements = $this->skipCheck()
+                ? $this->getSkippedRequirements($requirements)
+                : $this->getCheckedRequirements($requirements);
         }
 
         return $this->requirements;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function skipCheck()
+    {
+        return \XLite\Core\Request::getInstance()->doNotSkipCheck
+            ? false
+            : true;
+    }
+
+    /**
+     * @param \Includes\Requirements $requirements
+     *
+     * @return array
+     */
+    protected function getSkippedRequirements(\Includes\Requirements $requirements)
+    {
+        $result = [];
+
+        foreach ($requirements->getUnchecked() as $name => $requirement) {
+            $requirement['status'] = true;
+            $requirement['title'] = static::t($requirement['title']);
+            $requirement['skipped'] = true;
+
+            $requirement['error_description'] = '';
+
+            $result[$name] = $requirement;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param \Includes\Requirements $requirements
+     *
+     * @return array
+     */
+    protected function getCheckedRequirements(\Includes\Requirements $requirements)
+    {
+        $result = [];
+
+        foreach ($requirements->getResult() as $name => $requirement) {
+            $requirement['status'] = $requirement['state'] === \Includes\Requirements::STATE_SUCCESS;
+            $requirement['title'] = static::t($requirement['title']);
+            $requirement['skipped'] = false;
+
+            $requirement['error_description'] = isset($requirement['description'])
+                ? $this->getRequirementTranslation($name . '.' . $requirement['description'], $requirement)
+                : '';
+
+            $requirement['description'] = $this->getRequirementTranslation($name . '.label_message', $requirement);
+            $requirement['kb_description'] = $this->getRequirementTranslation($name . '.kb_message', $requirement);
+
+            $result[$name] = $requirement;
+        }
+
+        return $result;
     }
 
     protected function getRequirementTranslation($name, $requirement)

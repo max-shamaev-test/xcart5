@@ -16,15 +16,12 @@ CommonElement.prototype.handlers.push(
     handler: function () {
 
       var pitneyBowesInfo = jQuery('.pitney-bowes-info');
-      var USPSInfo = jQuery('.usps-info');
 
       function toggleDataProviderInfo() {
         if (this.$element.val() === 'pitneyBowes') {
           pitneyBowesInfo.removeClass('hidden');
-          USPSInfo.addClass('hidden');
         } else {
           pitneyBowesInfo.addClass('hidden');
-          USPSInfo.removeClass('hidden');
         }
       }
 

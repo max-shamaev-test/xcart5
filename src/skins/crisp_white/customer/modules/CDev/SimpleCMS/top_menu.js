@@ -164,7 +164,9 @@ TopMenuAutoHide.prototype.getSiblingsWidth = function () {
 TopMenuAutoHide.prototype.getExtraPadding = function() {
   var searchPanel = jQuery('.header-right-bar .header_search-panel').get(0);
 
-  return searchPanel.getBoundingClientRect().width + 80;
+  return searchPanel.getBoundingClientRect().width > 0
+    ? searchPanel.getBoundingClientRect().width + 40
+    : 0
 };
 
 TopMenuAutoHide.prototype.checkSubMenuPosition = function (element, event) {

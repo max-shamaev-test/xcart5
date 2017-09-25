@@ -327,6 +327,9 @@ window.core = {
     var completeCallback = options.complete || function () {};
     var successCallback = options.success || function () {};
 
+    var headers = {
+      'ajaxRefererTarget': core.getTarget(),
+    };
     options = jQuery.extend(
       {
         async:       true,
@@ -336,7 +339,8 @@ window.core = {
         timeout:     15000,
         type:        'GET',
         url:         url,
-        data:        data
+        data:        data,
+        headers:     headers,
       },
       options,
       {
@@ -366,6 +370,10 @@ window.core = {
     var completeCallback = options.complete || function () {};
     var successCallback = options.success || function () {};
 
+    var headers = {
+      'ajaxRefererTarget': core.getTarget(),
+    };
+
     options = jQuery.extend(
       {
         async:       true,
@@ -376,6 +384,7 @@ window.core = {
         type:        'POST',
         url:         url,
         data:        data,
+        headers:     headers,
       },
       options,
       {

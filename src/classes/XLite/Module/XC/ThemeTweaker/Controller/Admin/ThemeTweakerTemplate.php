@@ -78,7 +78,7 @@ HTML;
         $rawData = \XLite\Core\Request::getInstance()->getNonFilteredData();
         $content = isset($rawData['content']) ? $rawData['content'] : null;
 
-        if ($templatePath && $content) {
+        if ($templatePath) {
             $entity = TemplateObjectProvider::getInstance()->getTemplateObject();
             $layout = \XLite\Core\Layout::getInstance();
 

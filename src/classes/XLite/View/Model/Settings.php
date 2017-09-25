@@ -222,6 +222,17 @@ class Settings extends \XLite\View\Model\AModel
      */
     protected function isOptionRequired(\XLite\Model\Config $option)
     {
+        $emailOptions = [
+            'site_administrator',
+            'support_department',
+            'users_department',
+            'orders_department'
+        ];
+
+        if (in_array($option->getName(), $emailOptions, true)) {
+            return true;
+        }
+
         return false;
     }
 

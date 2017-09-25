@@ -19,6 +19,12 @@ function UpgradeTopBoxController()
   if (this.base && this.base.length) {
     this.block = new UpgradeTopBox(this.base);
     core.bind('mp_event_check_for_updates', _.bind(this.handleUpdateUpgradeBlock, this));
+
+    $(document).ready(function () {
+      setTimeout(function () {
+        core.trigger('recalculateLeftMenuPosition');
+      }, 1100);
+    });
   }
 }
 
@@ -64,6 +70,8 @@ UpgradeTopBoxController.prototype.handleUpdateUpgradeBlock = function(event, dat
         1100
       );
     }
+
+    core.trigger('recalculateLeftMenuPosition');
   }
 }
 
@@ -116,6 +124,7 @@ UpgradeTopBox.prototype.process = function(base)
         setTimeout(
           function() {
             base.addClass('post-opened').removeClass('opened');
+            core.trigger('recalculateLeftMenuPosition');
           },
           1100
         );

@@ -52,6 +52,22 @@ class RecentlyViewed extends \XLite\View\ItemsList\Product\Customer\ACustomer
     }
 
     /**
+     * getPageBodyFile
+     *
+     * @return string
+     */
+    protected function getPageBodyFile()
+    {
+        if ($this->getWidgetType() === static::WIDGET_TYPE_CENTER
+            && $this->getDisplayMode() === static::DISPLAY_MODE_GRID
+        ) {
+            return 'body-css-layout.twig';
+        } else {
+            return parent::getPageBodyFile();
+        }
+    }
+
+    /**
      * Return name of the base widgets list
      *
      * @return string

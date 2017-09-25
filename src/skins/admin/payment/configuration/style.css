@@ -479,15 +479,14 @@ button.add-method.top-button-add-method {
 }
 
 .add-payment-box .payments-list .item-row .actions {
-  float: right;
-  text-align: right;
+  display: flex;
+  align-items: center;
 }
 
 .add-payment-box .payments-list .item-row .switcher {
   display: inline-block;
   vertical-align: middle;
-  margin-top: -20px;
-  padding: 0 5px 0 3px;
+  padding: 0 7px 0 3px;
 }
 
 .add-payment-box .payments-list .item-row .switcher .fa {
@@ -536,20 +535,30 @@ button.add-method.top-button-add-method {
 .payments-list ul.payment-method-entry {
   margin: 0;
   background-color: #ffffff;
-  height: 50px;
 }
 
-.payments-list .payment-method-entry .description,
- .title-row .title
-{
-  padding: 13px 22px 10px 0;
+.payments-list ul.payment-method-entry .title-row > ul {
+  display: flex;
+  max-width: 774px;
+  align-items: center;
+}
+
+.payments-list ul.payment-method-entry .title-row > ul > li:not(.title) {
+  flex-shrink: 0;
+}
+
+.payments-list ul.payment-method-entry .title-row > ul > li.title {
+  flex-grow: 1;
+  padding: 10px 22px 10px 0;
 }
 
 .payments-list .payment-method-entry .description {
   color: #8f8f8f;
-  padding-top: 0;
-  padding-bottom: 20px;
+  padding: 0;
   font-size: 14px;
+  display: block;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .add-payment-box .table-pager .box .left {
@@ -561,14 +570,11 @@ button.add-method.top-button-add-method {
 }
 
 .title-row .title {
-  float: left;
   font-size: 16px;
 }
 
 .title-row .payment-logo {
-  float: left;
   width: 150px;
-  height: 50px;
   padding: 10px 0 10px 20px;
   line-height: 30px;
   text-align: center;
@@ -582,7 +588,7 @@ button.add-method.top-button-add-method {
 .title-row .button {
   display: inline-block;
   vertical-align: middle;
-  margin: -23px 10px 0 5px;
+  margin: 0 10px 0 5px;
 }
 
 .title-row .button button {
@@ -602,7 +608,7 @@ button.add-method.top-button-add-method {
 .title-row .separator {
   background: transparent url(../../images/payments-list-separator.png) 0 16px no-repeat;
   width: 2px;
-  height: 40px;
+  height: 50px;
   margin-right: 5px;
   display: inline-block;
 }

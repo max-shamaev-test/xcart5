@@ -36,7 +36,7 @@ class Purchase extends \XLite\View\Button\AButton
         parent::defineWidgetParams();
 
         $this->widgetParams += array(
-            self::PARAM_MODULE => new \XLite\Model\WidgetParam\TypeObject('Module', null, false, '\XLite\Model\Module'),
+            self::PARAM_MODULE => new \XLite\Model\WidgetParam\TypeObject('Module', null, false, 'XLite\Model\Module'),
         );
     }
 
@@ -77,8 +77,12 @@ class Purchase extends \XLite\View\Button\AButton
      */
     protected function getJSCode()
     {
-        return 'onclick="javascript:self.location=\''
-            . \XLite\Core\Marketplace::getPurchaseURL($this->getParam(static::PARAM_MODULE)->getXbProductId())
-            . '\'"';
+        /** @var \XLite\Model\Module $module */
+        $module = $this->getParam(static::PARAM_MODULE);
+        $xbProductId = $module->getXbProductId();
+        $url = \XLite\Core\Marketplace::getBuyNowURL($module)
+            ?: \XLite\Core\Marketplace::getPurchaseURL($xbProductId);
+
+        return 'onclick="javascript:self.location=\'' . $url . '\'"';
     }
 }

@@ -19,7 +19,7 @@ class CleanURL extends \XLite\Model\CleanURL implements \XLite\Base\IDecorator
      * @var \XLite\Module\XC\News\Model\NewsMessage
      *
      * @ManyToOne  (targetEntity="XLite\Module\XC\News\Model\NewsMessage", inversedBy="cleanURLs")
-     * @JoinColumn (name="news_message_id", referencedColumnName="id")
+     * @JoinColumn (name="news_message_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $newsMessage;
 

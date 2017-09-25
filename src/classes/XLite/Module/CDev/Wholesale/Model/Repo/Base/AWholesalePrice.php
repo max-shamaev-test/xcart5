@@ -156,9 +156,6 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
                 } else {
                     $price = $entity->getPrice();
                 }
-
-                // to allow batch product update in \XLite\Core\QuickData
-                \XLite\Core\Database::getEM()->detach($prices[0]);
             }
         }
 

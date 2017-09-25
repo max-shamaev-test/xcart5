@@ -138,7 +138,7 @@ abstract class AAdmin extends \XLite\Controller\AController
         if (!$this->isPublicZone()
             && !\XLite\Core\Auth::getInstance()->isAuthorized($this)
         ) {
-            \XLite\Core\Session::getInstance()->lastWorkingURL = $this->get('url');
+            \XLite\Core\Session::getInstance()->lastWorkingURL = \XLite\Core\URLManager::getCurrentURL();
 
             $this->redirect($this->buildURL('login'));
 

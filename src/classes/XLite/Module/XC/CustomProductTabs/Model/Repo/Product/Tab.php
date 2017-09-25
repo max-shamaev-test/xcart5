@@ -9,7 +9,17 @@
 namespace XLite\Module\XC\CustomProductTabs\Model\Repo\Product;
 
 /**
- * Product tabs repository
+ * @Api\Operation\Create(modelClass="XLite\Module\XC\CustomProductTabs\Model\Product\Tab", summary="Add product tab")
+ * @Api\Operation\Read(modelClass="XLite\Module\XC\CustomProductTabs\Model\Product\Tab", summary="Retrieve product tab by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\XC\CustomProductTabs\Model\Product\Tab", summary="Retrieve product tabs by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\XC\CustomProductTabs\Model\Product\Tab", summary="Update product tab by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\XC\CustomProductTabs\Model\Product\Tab", summary="Delete product tab by id")
+ *
+ * @SWG\Tag(
+ *   name="XC\CustomProductTabs\Product\Tab",
+ *   x={"display-name": "Product\Tab", "group": "XC\CustomProductTabs"},
+ *   description="This repo stores product-specific tabs.",
+ * )
  */
 class Tab extends \XLite\Model\Repo\Base\I18n
 {
@@ -36,6 +46,44 @@ class Tab extends \XLite\Model\Repo\Base\I18n
                 ->setParameter('product', $value)
                 ->orderBy('t.position');
         }
+    }
+
+    /**
+     * @param \XLite\Module\XC\CustomProductTabs\Model\Product\Tab $tab
+     *
+     * @return string
+     */
+    public function generateTabLink(\XLite\Module\XC\CustomProductTabs\Model\Product\Tab $tab)
+    {
+        $result = $link = \XLite\Core\Converter::convertToTranslit($tab->getName());
+
+        $i = 1;
+        while (!$this->checkLinkUniqueness($result, $tab)) {
+            $result = $link . '_' . $i;
+            $i++;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string                                               $link
+     * @param \XLite\Module\XC\CustomProductTabs\Model\Product\Tab $tab
+     *
+     * @return bool
+     */
+    public function checkLinkUniqueness($link, \XLite\Module\XC\CustomProductTabs\Model\Product\Tab $tab)
+    {
+        $result = !$this->findOneBy([
+                'link'    => $link,
+                'product' => $tab->getProduct(),
+            ]) && !\XLite\Core\Database::getRepo('XLite\Model\Product\GlobalTab')->findOneBy([
+                'link' => $link,
+            ]) && !\XLite\Core\Database::getRepo('XLite\Model\Product\GlobalTab')->findOneBy([
+                'service_name' => $link,
+            ]);
+
+        return $result;
     }
 
 

@@ -136,6 +136,28 @@ final class Requirements
     }
 
     /**
+     * @return array
+     */
+    public function getUnchecked()
+    {
+        $result = [];
+
+        $defaults = [
+            'state'       => self::STATE_UNCHECKED,
+            'data'        => []
+        ];
+
+        foreach ($this->requirements as $name => $requirement) {
+            $result[$name] = array_intersect_key(
+                array_merge($defaults, $requirement),
+                array_flip(['title', 'state', 'level', 'description', 'data'])
+            );
+        }
+
+        return $result;
+    }
+
+    /**
      * @param $name
      *
      * @return array
@@ -873,6 +895,9 @@ final class Requirements
     private function getHttpsBouncerChecker()
     {
         return function () {
+            $result = false;
+            $version = '';
+
             if (function_exists('curl_init') && function_exists('curl_version')) {
                 $curlVersion = curl_version();
 
@@ -887,19 +912,17 @@ final class Requirements
 
                 $result = (!is_array($curlVersion) || in_array('https', $curlVersion['protocols'], true))
                     && (is_array($curlVersion) || preg_match('/ssl|tls/Si', $curlVersion));
-
-                return [
-                    $result,
-                    $version
-                        ? 'error_message_1' // libcurl extension is found but does not support secure protocols
-                        : 'error_message_2', // libcurl extension not found
-                    [
-                        'version' => $version,
-                    ],
-                ];
             }
 
-            return false;
+            return [
+                $result,
+                $version
+                    ? 'error_message_1' // libcurl extension is found but does not support secure protocols
+                    : 'error_message_2', // libcurl extension not found
+                [
+                    'version' => $version,
+                ],
+            ];
         };
     }
 

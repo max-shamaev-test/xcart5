@@ -8,6 +8,7 @@
  */
 
 function LeftMenu() {
+  var self = this;
   this.accordion = true;
 
   this.$menu = jQuery('#leftMenu');
@@ -24,7 +25,6 @@ function LeftMenu() {
     jQuery(this).css('top', 0);
   });
 
-  var self = this;
 
   jQuery('.left-menu-ctrl').bind('click', _.bind(this.toggleMenu, this));
 
@@ -70,6 +70,10 @@ function LeftMenu() {
   });
 
   this.recalculatePosition();
+
+  core.bind('recalculateLeftMenuPosition', function() {
+    self.recalculatePosition()
+  });
 }
 
 LeftMenu.prototype.getWindowHeight = function () {

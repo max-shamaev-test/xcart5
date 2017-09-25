@@ -127,7 +127,7 @@
 .conversations .empty svg {
     display: inline-block;
     width: 140px;
-    height: auto;
+    height: 140px;
 }
 
 .conversations .empty svg path {

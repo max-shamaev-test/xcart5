@@ -120,7 +120,7 @@ class Country extends \XLite\Model\Base\I18n
      */
     public function hasStates()
     {
-        return 0 < $this->getStatesCount();
+        return !$this->isForcedCustomState() && 0 < $this->getStatesCount();
     }
 
     /**

@@ -9,7 +9,21 @@
 namespace XLite\Module\CDev\FileAttachments\Model\Repo\Product;
 
 /**
- * Product attachment's repository
+ * @Api\Operation\Create(modelClass="XLite\Module\CDev\FileAttachments\Model\Product\Attachment", summary="Add product attachment")
+ * @Api\Operation\Read(modelClass="XLite\Module\CDev\FileAttachments\Model\Product\Attachment", summary="Retrieve product attachment by id")
+ * @Api\Operation\ReadAll(modelClass="XLite\Module\CDev\FileAttachments\Model\Product\Attachment", summary="Retrieve product attachments by conditions")
+ * @Api\Operation\Update(modelClass="XLite\Module\CDev\FileAttachments\Model\Product\Attachment", summary="Update product attachment by id")
+ * @Api\Operation\Delete(modelClass="XLite\Module\CDev\FileAttachments\Model\Product\Attachment", summary="Delete product attachment by id")
+ *
+ * @SWG\Tag(
+ *   name="CDev\FileAttachments\Product\Attachment",
+ *   x={"display-name": "Product\Attachment", "group": "CDev\FileAttachments"},
+ *   description="Attachment repo holds the record on the files attached to the product",
+ *   @SWG\ExternalDocumentation(
+ *     description="Find out more about attachments and digital goods",
+ *     url="http://kb.x-cart.com/en/products/adding_digital_goods.html"
+ *   )
+ * )
  */
 class Attachment extends \XLite\Model\Repo\Base\I18n
 {

@@ -13,7 +13,7 @@
         </div>
         <div class="packing-slip-title-data-item packing-slip-shipping-method">
             <strong class="date-title">{{ t('Shipping') }}</strong>
-            <span class="date-value">{{ this.getShippingMethodName() }}</span>
+            <span class="date-value">{{ this.getShippingMethodName()|raw }}</span>
         </div>
         <div class="packing-slip-title-data-item packing-slip-order-date">
             <strong class="date-title">{{ t('Order date') }}</strong>

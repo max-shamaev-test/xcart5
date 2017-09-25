@@ -273,7 +273,11 @@ abstract class AAttributeValue extends \XLite\Model\Repo\Base\I18n
     {
         return $this->createPureQueryBuilder()
             ->setFirstResult($position)
-            ->setMaxResults(\XLite\Core\EventListener\Export::CHUNK_LENGTH);
+            ->setMaxResults(\XLite\Core\EventListener\Export::CHUNK_LENGTH)
+            ->addOrderBy($this->getDefaultAlias().'.product')
+            ->linkLeft($this->getDefaultAlias().'.attribute', 'attr')
+            ->addOrderBy('attr.position')
+            ->addOrderBy($this->getDefaultAlias().'.attribute');
     }
 
     // }}}

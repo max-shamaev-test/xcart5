@@ -144,7 +144,7 @@ class Shipping extends \XLite\Base\Singleton
                 continue;
             }
 
-            if (!\XLite::getController()->isAJAX()) {
+            if (!$this->shouldAllowLongCalculations()) {
                 static::setIgnoreLongCalculationsMode(true);
             }
             // Get rates from processors
@@ -160,6 +160,14 @@ class Shipping extends \XLite\Base\Singleton
         $rates = $this->postProcessRates($rates);
 
         return $rates;
+    }
+
+    protected function shouldAllowLongCalculations()
+    {
+        $refererTarget = \XLite\Core\Request::getInstance()->getAjaxRefererTarget();
+        $isValidAjaxRequests = in_array($refererTarget, ['cart', 'checkout'], true);
+
+        return \XLite::getController()->isAJAX() && $isValidAjaxRequests;
     }
 
     /**

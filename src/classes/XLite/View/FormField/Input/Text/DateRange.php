@@ -106,7 +106,7 @@ class DateRange extends \XLite\View\FormField\Input\Text
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'form_field/input/text/date_range.css';
+        $list[] = 'form_field/input/text/date_range.less';
 
         return $list;
     }

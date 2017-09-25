@@ -23,4 +23,23 @@ class Info extends \XLite\Model\DTO\Product\Info implements \XLite\Base\IDecorat
 
         return false;
     }
+
+    protected function init($object)
+    {
+        parent::init($object);
+
+        $this->prices_and_inventory->inventory_tracking->clear_variants_inventory = false;
+    }
+
+    public function populateTo($object, $rawData = null)
+    {
+        parent::populateTo($object, $rawData);
+
+        if ($this->prices_and_inventory->inventory_tracking->clear_variants_inventory) {
+            /** @var \XLite\Module\XC\ProductVariants\Model\ProductVariant $variant */
+            foreach ($object->getVariants() as $variant) {
+                $variant->setDefaultAmount(true);
+            }
+        }
+    }
 }
