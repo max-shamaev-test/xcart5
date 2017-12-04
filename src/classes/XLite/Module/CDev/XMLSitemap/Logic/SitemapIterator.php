@@ -14,12 +14,12 @@ use XLite\Core\Converter;
 use XLite\Core\Router;
 
 /**
- * Sitemap links iterator 
+ * Sitemap links iterator
  */
 class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countable
 {
     /**
-     * Default priority 
+     * Default priority
      */
     const DEFAULT_PRIORITY = 0.5;
 
@@ -29,36 +29,36 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
     const CHUNK_SIZE = 1000;
 
     /**
-     * Position 
-     * 
+     * Position
+     *
      * @var integer
      */
     protected $position = 0;
 
     /**
-     * Categories length 
-     * 
+     * Categories length
+     *
      * @var integer
      */
     protected $categoriesLength;
 
     /**
-     * Products length 
-     * 
+     * Products length
+     *
      * @var integer
      */
     protected $productsLength;
 
     /**
      * Current chunk of products
-     * 
+     *
      * @var array
      */
     protected $productsChunk;
 
     /**
      * Current chunk index
-     * 
+     *
      * @var int
      */
     protected $currentChunkIndex = 0;
@@ -90,24 +90,36 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
         parent::__construct();
     }
 
+    protected static function getShopURL($url)
+    {
+        return URLManager::getShopURL(
+            $url,
+            \XLite\Core\Config::getInstance()->Security->customer_security,
+            [],
+            null,
+            false
+        );
+    }
+
     /**
-     * 
+     *
      */
-    protected function renewChunk($position){
+    protected function renewChunk($position)
+    {
         if (isset($this->productsChunk)) {
-            foreach ($this->productsChunk as $product) {                
+            foreach ($this->productsChunk as $product) {
                 \XLite\Core\Database::getEM()->detach($product);
             }
         }
 
         $this->currentChunkIndex++;
         $this->productsChunk = \XLite\Core\Database::getRepo('XLite\Model\Product')
-                                ->findAsSitemapLink($position, static::CHUNK_SIZE);
+            ->findAsSitemapLink($position, static::CHUNK_SIZE);
     }
 
     /**
      * Get current data
-     * 
+     *
      * @return array
      */
     public function current()
@@ -131,13 +143,13 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
 
         } elseif ($this->position < $this->getCategoriesLength() + $this->getProductsLength() + 1) {
             $positionInProducts = $this->position - $this->getCategoriesLength() - 1;
-            $positionInChunk    = $positionInProducts - static::CHUNK_SIZE * $this->currentChunkIndex;
+            $positionInChunk = $positionInProducts - static::CHUNK_SIZE * $this->currentChunkIndex;
             if ($positionInChunk >= static::CHUNK_SIZE) {
                 $this->renewChunk($positionInProducts);
                 $positionInChunk = 1;
             }
             $product = $this->productsChunk[$positionInChunk];
-            if(!is_null($product)){
+            if (!is_null($product)) {
                 $data = $this->assembleProductData($product);
             }
         }
@@ -146,8 +158,8 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
     }
 
     /**
-     * Get current key 
-     * 
+     * Get current key
+     *
      * @return integer
      */
     public function key()
@@ -157,7 +169,7 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
 
     /**
      * Go to next record
-     * 
+     *
      * @return void
      */
     public function next()
@@ -167,7 +179,7 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
 
     /**
      * Rewind position
-     * 
+     *
      * @return void
      */
     public function rewind()
@@ -179,7 +191,7 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
 
     /**
      * Check current position
-     * 
+     *
      * @return boolean
      */
     public function valid()
@@ -188,10 +200,10 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
     }
 
     /**
-     * Seek 
-     * 
+     * Seek
+     *
      * @param integer $position New position
-     *  
+     *
      * @return void
      */
     public function seek($position)
@@ -200,8 +212,8 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
     }
 
     /**
-     * Get length 
-     * 
+     * Get length
+     *
      * @return integer
      */
     public function count()
@@ -210,8 +222,8 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
     }
 
     /**
-     * Get categories length 
-     * 
+     * Get categories length
+     *
      * @return integer
      */
     protected function getCategoriesLength()
@@ -264,28 +276,28 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
     protected function assembleWelcomeData()
     {
         $result = [
-            'loc' => \XLite::getInstance()->getShopURL(Converter::buildURL(\XLite::TARGET_DEFAULT, '', [], \XLite::getCustomerScript(), true)),
-            'lastmod' => Converter::time(),
+            'loc'        => static::getShopURL(Converter::buildURL(\XLite::TARGET_DEFAULT, '', [], \XLite::getCustomerScript(), true)),
+            'lastmod'    => Converter::time(),
             'changefreq' => Config::getInstance()->CDev->XMLSitemap->welcome_changefreq,
-            'priority' => $this->processPriority(Config::getInstance()->CDev->XMLSitemap->welcome_priority),
+            'priority'   => $this->processPriority(Config::getInstance()->CDev->XMLSitemap->welcome_priority),
         ];
 
         if ($this->hasAlternateLangUrls()) {
             $url = Converter::buildURL(\XLite::TARGET_DEFAULT, '', [], \XLite::getCustomerScript(), true);
 
             if ($this->languageCode) {
-                $result['loc'] = URLManager::getShopURL($this->languageCode . '/' . $url);
+                $result['loc'] = static::getShopURL($this->languageCode . '/' . $url);
             }
 
             foreach (Router::getInstance()->getActiveLanguagesCodes() as $code) {
                 $langUrl = $code . '/' . $url;
                 $locale = \XLite\Core\Converter::langToLocale($code);
 
-                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . URLManager::getShopURL($langUrl) . '"';
+                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . static::getShopURL($langUrl) . '"';
                 $result[$tag] = null;
             }
 
-            $tag = 'xhtml:link rel="alternate" hreflang="x-default" href="' . URLManager::getShopURL($url) . '"';
+            $tag = 'xhtml:link rel="alternate" hreflang="x-default" href="' . static::getShopURL($url) . '"';
             $result[$tag] = null;
         }
 
@@ -293,27 +305,27 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
     }
 
     /**
-     * Assemble category data 
-     * 
+     * Assemble category data
+     *
      * @param \XLite\Model\Category $category Category
-     *  
+     *
      * @return array
      */
     protected function assembleCategoryData(\XLite\Model\Category $category)
     {
         $_url = Converter::buildURL('category', '', ['category_id' => $category->getCategoryId()], \XLite::getCustomerScript(), true);
-        $url = \XLite::getInstance()->getShopURL($_url);
+        $url = static::getShopURL($_url);
 
         $result = [
-            'loc' => $url,
-            'lastmod' => Converter::time(),
+            'loc'        => $url,
+            'lastmod'    => Converter::time(),
             'changefreq' => Config::getInstance()->CDev->XMLSitemap->category_changefreq,
-            'priority' => $this->processPriority(Config::getInstance()->CDev->XMLSitemap->category_changefreq),
+            'priority'   => $this->processPriority(Config::getInstance()->CDev->XMLSitemap->category_changefreq),
         ];
 
         if ($this->hasAlternateLangUrls()) {
             if ($this->languageCode) {
-                $result['loc'] = URLManager::getShopURL($this->languageCode . '/' . $_url);
+                $result['loc'] = static::getShopURL($this->languageCode . '/' . $_url);
             }
 
             foreach (Router::getInstance()->getActiveLanguagesCodes() as $code) {
@@ -321,7 +333,7 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
                 $langUrl = $code . '/' . $langUrl;
                 $locale = \XLite\Core\Converter::langToLocale($code);
 
-                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . URLManager::getShopURL($langUrl) . '"';
+                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . static::getShopURL($langUrl) . '"';
                 $result[$tag] = null;
             }
 
@@ -333,27 +345,27 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
     }
 
     /**
-     * Assemble product data 
-     * 
+     * Assemble product data
+     *
      * @param \XLite\Model\Product $product Product
-     *  
+     *
      * @return array
      */
     protected function assembleProductData(\XLite\Model\Product $product)
     {
         $_url = Converter::buildURL('product', '', ['product_id' => $product->getProductId()], \XLite::getCustomerScript(), true);
-        $url = \XLite::getInstance()->getShopURL($_url);
+        $url = static::getShopURL($_url);
 
         $result = [
-            'loc' => $url,
-            'lastmod' => Converter::time(),
+            'loc'        => $url,
+            'lastmod'    => Converter::time(),
             'changefreq' => Config::getInstance()->CDev->XMLSitemap->product_changefreq,
-            'priority' => $this->processPriority(Config::getInstance()->CDev->XMLSitemap->product_priority),
+            'priority'   => $this->processPriority(Config::getInstance()->CDev->XMLSitemap->product_priority),
         ];
 
         if ($this->hasAlternateLangUrls()) {
             if ($this->languageCode) {
-                $result['loc'] = URLManager::getShopURL($this->languageCode . '/' . $_url);
+                $result['loc'] = static::getShopURL($this->languageCode . '/' . $_url);
             }
 
             foreach (Router::getInstance()->getActiveLanguagesCodes() as $code) {
@@ -361,7 +373,7 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
                 $langUrl = $code . '/' . $langUrl;
                 $locale = Converter::langToLocale($code);
 
-                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . URLManager::getShopURL($langUrl) . '"';
+                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . static::getShopURL($langUrl) . '"';
                 $result[$tag] = null;
             }
 
@@ -373,10 +385,10 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
     }
 
     /**
-     * Process priority 
-     * 
+     * Process priority
+     *
      * @param mixed $priority Link priority
-     *  
+     *
      * @return string
      */
     protected function processPriority($priority)

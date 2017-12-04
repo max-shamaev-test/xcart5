@@ -56,5 +56,5 @@
     background-image: -webkit-linear-gradient(top, #494949 0%, #383838 100%);
     background-image: linear-gradient(to bottom, #494949 0%, #383838 100%);
     background-repeat: repeat-x;
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff494949', endColorstr='#ff383838', GradientType=0);
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff494949', endColorstr='#ff383838', GradientType=0)";
 }

@@ -186,4 +186,32 @@ abstract class Image extends \XLite\Model\Repo\Base\Storage
 
     // }}}
 
+    /**
+     * @param string $hash
+     *
+     * @return \XLite\Model\Base\Image
+     */
+    public function findOneByHash($hash)
+    {
+        /** @var \XLite\Model\Base\Image $className */
+        $className = $this->getClassName();
+
+        $scheduledEntityUpdates = \XLite\Core\Database::getEM()->getUnitOfWork()->getScheduledEntityUpdates();
+        foreach ($scheduledEntityUpdates as $scheduledEntityUpdate) {
+            if ($scheduledEntityUpdate instanceof $className && $scheduledEntityUpdate->getHash() === $hash) {
+
+                return $scheduledEntityUpdate;
+            }
+        }
+
+        $scheduledEntityInsertions = \XLite\Core\Database::getEM()->getUnitOfWork()->getScheduledEntityInsertions();
+        foreach ($scheduledEntityInsertions as $scheduledEntityInsertion) {
+            if ($scheduledEntityInsertion instanceof $className && $scheduledEntityInsertion->getHash() === $hash) {
+
+                return $scheduledEntityInsertion;
+            }
+        }
+
+        return parent::findOneByHash($hash);
+    }
 }

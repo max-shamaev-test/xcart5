@@ -50,6 +50,7 @@ XLite\Model\LanguageLabel:
 
 XLite\Model\Notification:
   - templatesDirectory: modules/XC/ProductVariants/low_variant_limit_warning
+    position: 400
     availableForAdmin: true
     availableForCustomer: false
     enabledForAdmin: true
@@ -62,7 +63,7 @@ XLite\Model\Notification:
     customerSignatureEnabled: true
     translations:
       - code: en
-        name: Variant low limit warning
+        name: <b>Variant</b> low limit warning
         description: 'This message is used to notify the administrator when the stock level of a product variant reaches the low stock limit as specified in the product details.'
         adminSubject: Variant low stock warning
         adminText: 'The inventory level of a product variant in your store has reached the low limit.'

@@ -53,6 +53,11 @@ class Categories extends \XLite\Module\CDev\XMLSitemap\Logic\Sitemap\Step\ASitem
             }
             $url = \XLite::getInstance()->getShopURL($_url);
 
+            if (LC_USE_CLEAN_URLS && !CleanURL::isCategoryUrlHasExt()) {
+                $url = rtrim($url, '/');
+                $url .= '/';
+            }
+
             $result = [
                 'loc' => $url,
                 'lastmod' => Converter::time(),

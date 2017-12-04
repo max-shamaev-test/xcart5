@@ -10,7 +10,7 @@
 var FroalaEditor = CommonElement.extend({
   constructor: function FroalaEditor(base) {
     if (base.length < 1) {
-      console.err('[FroalaEditor] got empty element in constructor');
+      console.error('[FroalaEditor] got empty element in constructor');
       return;
     }
 

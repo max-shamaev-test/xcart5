@@ -4,6 +4,8 @@
 
 {% form '\\XLite\\Module\\XC\\MultiCurrency\\View\\Form\\Currency\\ActiveCurrencies' %}
 
+{{ widget_list('active_currencies.before') }}
+
 <div>
   {{ widget('\\XLite\\Module\\XC\\MultiCurrency\\View\\FormField\\Input\\TrailingZeroesCheckbox', label=t('Hide trailing zeros in fractional part'), fieldId='trailing-zeroes', fieldName='trailing_zeroes') }}
   {{ widget('\\XLite\\View\\CurrencyViewInfo') }}

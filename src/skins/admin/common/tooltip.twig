@@ -18,7 +18,7 @@
 {% if this.isImageTag() %}
   <i {{ this.getAttributesCode()|raw }}></i>
 {% else %}
-  <span {{ this.getAttributesCode()|raw }}>{{ this.getParam('caption') }}</span>
+  <span {{ this.getAttributesCode()|raw }}>{{ this.getParam('caption')|raw }}</span>
 {% endif %}
 
 </span>

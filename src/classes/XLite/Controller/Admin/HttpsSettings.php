@@ -38,7 +38,8 @@ class HttpsSettings extends \XLite\Controller\Admin\AAdmin
      *
      * @return string
      */
-    public function getReadMoreUrl(){
+    public function getReadMoreUrl()
+    {
         return 'https://www.sslshopper.com/ssl-checker.html';
     }
 
@@ -79,17 +80,17 @@ class HttpsSettings extends \XLite\Controller\Admin\AAdmin
     {
         $oldValue = \XLite\Core\Config::getInstance()->Security->force_customers_to_https;
 
-        $ajaxResponse = array(
-            'Success'       => true,
-            'NewState'      => !(bool) $oldValue
-        );
+        $ajaxResponse = [
+            'Success'  => true,
+            'NewState' => !(bool)$oldValue,
+        ];
 
         \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
-            array(
+            [
                 'category' => 'Security',
                 'name'     => 'force_customers_to_https',
-                'value'    => !(bool) $oldValue
-            )
+                'value'    => !(bool)$oldValue,
+            ]
         );
 
         $this->printAJAX($ajaxResponse);
@@ -127,19 +128,17 @@ class HttpsSettings extends \XLite\Controller\Admin\AAdmin
      */
     protected function switchHTTPS($enableHTTPS)
     {
-        $options = array(
+        $options = [
             'customer_security',
             'admin_security',
-        );
+        ];
 
         foreach ($options as $option) {
-            \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
-                array(
-                    'name'     => $option,
-                    'category' => 'Security',
-                    'value'    => $enableHTTPS,
-                )
-            );
+            \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption([
+                'name'     => $option,
+                'category' => 'Security',
+                'value'    => $enableHTTPS,
+            ]);
         }
     }
 }

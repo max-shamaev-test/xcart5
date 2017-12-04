@@ -13,6 +13,11 @@ namespace XLite\Module\CDev\Paypal\View\Product;
  */
 class ExpressCheckoutButton extends \XLite\View\Product\Details\Customer\Widget
 {
+    protected function isVisible()
+    {
+        return parent::isVisible() && \XLite\Module\CDev\Paypal\Main::isExpressCheckoutEnabled($this->getCart());
+    }
+
     /**
      * Return the specific widget service name to make it visible as specific CSS class
      *

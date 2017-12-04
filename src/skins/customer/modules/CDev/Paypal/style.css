@@ -54,6 +54,13 @@ button.pp-ec-button
 .product-details .button.pp-button
 {
   display: inline-block;
+  width: 160px;
+}
+
+.product-details .button.pp-button .pp-express-checkout-button
+{
+  margin-top: 0;
+  display: block;
 }
 
 .product-quicklook .product-details .button.pp-button
@@ -105,8 +112,50 @@ button.pp-ec-button
 
 .products-list .add-to-cart-button.pp-button {
   margin-left: 15px;
+  width: 160px;
 }
 
 ul.account-links li.social-login {
   margin-left: 0;
+}
+
+.pp-express-checkout-button > div {
+  max-width: 174px;
+  margin: auto;
+}
+
+.pp-express-checkout-button.pp-funding-credit > div {
+  max-width: 290px;
+}
+
+.lc-minicart .items-list .buttons-row > .pp-funding-credit {
+  width: 100%;
+}
+
+.lc-minicart .items-list .buttons-row > .pp-funding-credit .paypal-button .xcomponent-outlet {
+  height: 68px !important;
+}
+
+.checkout_fastlane_details_wrapper .place .paypal-ec-checkout,
+.checkout-block .place .paypal-ec-checkout,
+.checkout_fastlane_details_wrapper .place .paypal-ec-checkout-credit,
+.checkout-block .place .paypal-ec-checkout-credit {
+  display: none;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.checkout_fastlane_details_wrapper .place .paypal-ec-checkout > div,
+.checkout-block .place .paypal-ec-checkout > div,
+.checkout_fastlane_details_wrapper .place .paypal-ec-checkout-credit > div,
+.checkout-block .place .paypal-ec-checkout-credit > div {
+  max-width: none;
+}
+
+.checkout_fastlane_details_wrapper .place .paypal-ec-checkout.nonready,
+.checkout-block .place .paypal-ec-checkout.nonready,
+.checkout_fastlane_details_wrapper .place .paypal-ec-checkout-credit.nonready,
+.checkout-block .place .paypal-ec-checkout-credit.nonready {
+  opacity: 0.5;
+  pointer-events: none;
 }

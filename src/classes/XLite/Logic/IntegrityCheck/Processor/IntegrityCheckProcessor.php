@@ -102,37 +102,45 @@ class IntegrityCheckProcessor
         }
 
         return [
-            'modified'  => static::postProcessFiles($result),
-            'added'     => static::postProcessFiles($addedFiles),
-            'removed'   => static::postProcessFiles($removedFiles),
+            'modified'  => static::postProcessFiles($result, 'modified'),
+            'added'     => static::postProcessFiles($addedFiles, 'added'),
+            'removed'   => static::postProcessFiles($removedFiles, 'removed'),
             'errors'    => $entry->getErrors(),
         ];
     }
 
     /**
-     * @param array $files
+     * @param array  $files
+     * @param string $type
      *
      * @return array
      */
-    protected static function postProcessFiles(array $files)
+    protected static function postProcessFiles(array $files, $type)
     {
-        $pattern = static::getExcludedPattern();
+        $pattern = static::getExcludedPattern($type);
+
         return array_filter($files, function($file) use ($pattern) {
             return !preg_match($pattern, $file);
         });
     }
 
     /**
+     * @param string $type
+     *
      * @return string
      */
-    protected static function getExcludedPattern()
+    protected static function getExcludedPattern($type)
     {
         $list = array_merge(
-            ['list' => [], 'raw' => []],
+            ['list' => [], 'raw' => [
+                'modified' => [],
+                'added'    => [],
+                'removed'  => [],
+            ]],
             static::getCommonExcludePatterns()
         );
 
-        $toImplode = $list['raw'];
+        $toImplode = $list['raw'][$type];
 
         foreach ($list['list'] as $pattern) {
             $toImplode[] = preg_quote($pattern, '/');
@@ -146,13 +154,22 @@ class IntegrityCheckProcessor
      */
     protected static function getCommonExcludePatterns()
     {
+        $patterns = [
+            ".*\/.gitattributes",
+            ".*\/.gitignore",
+            ".*\/?.htaccess",
+            ".*\/?.DS_Store",
+            ".*\/?.Modules.php",
+            ".*.log",
+            ".*skins\/common\/images\/flags_svg\/.*.svg"
+        ];
+
         return [
             'list'  => [],
             'raw'   => [
-                ".*\/.gitattributes",
-                ".*\/.gitignore",
-                ".*\/?.htaccess",
-                ".*.log",
+                'modified' => $patterns,
+                'added'    => $patterns,
+                'removed'  => $patterns,
             ]
         ];
     }

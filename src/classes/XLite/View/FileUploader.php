@@ -19,6 +19,7 @@ class FileUploader extends \XLite\View\AView
     const PARAM_OBJECT = 'object';
     const PARAM_OBJECT_ID = 'objectId';
     const PARAM_MESSAGE = 'message';
+    const PARAM_HELP_MESSAGE = 'helpMessage';
     const PARAM_MAX_WIDTH = 'maxWidth';
     const PARAM_MAX_HEIGHT = 'maxHeight';
     const PARAM_IS_IMAGE = 'isImage';
@@ -69,7 +70,7 @@ class FileUploader extends \XLite\View\AView
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/style.css';
+        $list[] = $this->getDir() . '/style.less';
 
         return $list;
     }
@@ -77,7 +78,7 @@ class FileUploader extends \XLite\View\AView
     /**
      * Return field value
      *
-     * @return mixed
+     * @return \XLite\Model\Base\Storage
      */
     protected function getObject()
     {
@@ -113,6 +114,24 @@ class FileUploader extends \XLite\View\AView
     protected function getMessage()
     {
         return $this->getParam(static::PARAM_MESSAGE);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getErrorMessageDefault()
+    {
+        return static::t('No file was uploaded');
+    }
+
+    /**
+     * Return message
+     *
+     * @return string
+     */
+    protected function getHelp()
+    {
+        return $this->getParam(static::PARAM_HELP_MESSAGE);
     }
 
     /**
@@ -263,6 +282,7 @@ class FileUploader extends \XLite\View\AView
             static::PARAM_OBJECT => new \XLite\Model\WidgetParam\TypeObject('Object', null),
             static::PARAM_OBJECT_ID => new \XLite\Model\WidgetParam\TypeInt('Object Id', 0),
             static::PARAM_MESSAGE => new \XLite\Model\WidgetParam\TypeString('Message', ''),
+            static::PARAM_HELP_MESSAGE => new \XLite\Model\WidgetParam\TypeString('Help message', ''),
             static::PARAM_MAX_WIDTH => new \XLite\Model\WidgetParam\TypeInt('Max. width', 120),
             static::PARAM_MAX_HEIGHT => new \XLite\Model\WidgetParam\TypeInt('Max. height', 120),
             static::PARAM_IS_IMAGE => new \XLite\Model\WidgetParam\TypeBool('Is image', false),
@@ -284,6 +304,17 @@ class FileUploader extends \XLite\View\AView
         $object = $this->getObject();
 
         return $object && $object->getId();
+    }
+    /**
+     * Set widget params
+     *
+     * @param array $params Handler params
+     *
+     * @return void
+     */
+    public function setWidgetParams(array $params)
+    {
+        parent::setWidgetParams($params);
     }
 
     /**
@@ -309,7 +340,7 @@ class FileUploader extends \XLite\View\AView
         return $this->hasFile()
                && (
                    $this->getParam(static::PARAM_IS_TEMPORARY)
-                   || 'XLite\Model\TemporaryFile' == get_class($this->getObject())
+                   || $this->getObject() instanceof \XLite\Model\TemporaryFile
                );
     }
 
@@ -372,9 +403,17 @@ class FileUploader extends \XLite\View\AView
      */
     protected function hasAlt()
     {
-        return $this->getParam(static::PARAM_IS_IMAGE)
-               && $this->hasFile()
-               && method_exists($this->getObject(), 'getAlt');
+        $result = $this->getParam(static::PARAM_IS_IMAGE) && method_exists($this->getObject(), 'getAlt');
+
+        if (
+            !$result
+            && $this->getParam(static::PARAM_IS_IMAGE)
+            && $this->getObject() instanceof \XLite\Model\TemporaryFile
+        ) {
+            $result = $this->getObject()->isImage() && $this->getObject()->getSize();
+        }
+
+        return $result;
     }
 
     /**

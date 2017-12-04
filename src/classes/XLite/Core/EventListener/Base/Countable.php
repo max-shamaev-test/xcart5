@@ -150,7 +150,7 @@ abstract class Countable extends \XLite\Core\EventListener\AEventListener
         $repo = \XLite\Core\Database::getRepo('XLite\Model\TmpVar');
         $items = $this->getItems();
         if ($items) {
-            foreach ($this->getItems() as $item) {
+            foreach ($items as $item) {
                 if ($this->processItem($item)) {
                     $this->record['position']++;
                     if ($repo->getEventState($this->getEventName())) {

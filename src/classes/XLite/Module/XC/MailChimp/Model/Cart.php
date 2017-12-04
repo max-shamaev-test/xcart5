@@ -28,10 +28,11 @@ abstract class Cart extends \XLite\Model\Cart implements \XLite\Base\IDecorator
     {
         parent::prepareBeforeSave();
 
-        if ($this->isECommerce360Cart()
-            && Core\MailChimp::hasAPIKey()
+        if (Core\MailChimp::hasAPIKey()
             && Main::isMailChimpAbandonedCartEnabled()
             && !$this->getOrderNumber()
+            && $this->getProfile()
+            && $this->getProfile()->getEmail()
         ) {
             MailChimpQueue::getInstance()->addAction(
                 'cartUpdate',

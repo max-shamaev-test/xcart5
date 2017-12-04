@@ -38,7 +38,6 @@
   padding: 0px;
   background-color: rgb(0, 0, 0);
   background-color: rgba(0, 0, 0, 0.15);
-  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#dd000000, endColorstr=#dd000000);
   -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#dd000000, endColorstr=#dd000000)";
   z-index: 1000;
 }

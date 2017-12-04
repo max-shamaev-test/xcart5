@@ -18,44 +18,49 @@ class CheckoutApp extends \XLite\View\AView implements ProviderInterface
 {
     public function getJSFiles()
     {
-        return array(
+        return [
             FastLaneCheckout\Main::getSkinDir() . 'checkout_fastlane/component.js',
             FastLaneCheckout\Main::getSkinDir() . 'checkout_fastlane/store_modules/sections.js',
             FastLaneCheckout\Main::getSkinDir() . 'checkout_fastlane/store_modules/order.js',
             FastLaneCheckout\Main::getSkinDir() . 'checkout_fastlane/store.js',
             FastLaneCheckout\Main::getSkinDir() . 'checkout_fastlane/actions.js',
-        );
+        ];
     }
 
     public function getCSSFiles()
     {
-        return array(
-            array(
-                'file'  => FastLaneCheckout\Main::getSkinDir() . 'checkout_fastlane/style.less',
+        return [
+            [
+                'file' => FastLaneCheckout\Main::getSkinDir() . 'checkout_fastlane/style.less',
                 'media' => 'screen',
                 'merge' => 'bootstrap/css/bootstrap.less',
-            ),
-        );
+            ],
+            [
+                'file' => FastLaneCheckout\Main::getSkinDir() . 'checkout_fastlane/animations.less',
+                'media' => 'screen',
+                'merge' => 'bootstrap/css/bootstrap.less',
+            ],
+        ];
     }
 
     public function getCommonFiles()
     {
-        return array(
-            static::RESOURCE_JS => array(
-                array(
+        return [
+            static::RESOURCE_JS => [
+                [
                     'file' => $this->isDeveloperMode() ? 'vue/vue.js' : 'vue/vue.min.js',
                     'no_minify' => true
-                ),
-                array(
+                ],
+                [
                     'file' => $this->isDeveloperMode() ? 'vue/vuex.js' : 'vue/vuex.min.js',
                     'no_minify' => true,
-                ),
+                ],
                 'vue/vue.loadable.js',
                 'vue/vue.registerComponent.js',
                 'js/vue/vue.js',
                 'js/vue/component.js'
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -105,7 +110,7 @@ class CheckoutApp extends \XLite\View\AView implements ProviderInterface
      */
     public function getPreloadedLanguageLabels()
     {
-        $list = array(
+        $list = [
             'Menu',
             'Edit email',
             'Edit address',
@@ -121,9 +126,10 @@ class CheckoutApp extends \XLite\View\AView implements ProviderInterface
             'Next step',
             'Shipping to',
             'Billing to',
-        );
+            'Transaction is in progress'
+        ];
 
-        $data = array();
+        $data = [];
         foreach ($list as $name) {
             $data[$name] = static::t($name);
         }

@@ -85,80 +85,10 @@ class Session extends \Includes\Utils\AUtils
      */
     protected static function setCookieWrapper($name, $value)
     {
-        if (
-            !headers_sent()
-            && 'cli' != PHP_SAPI
+        if (!headers_sent()
+            && 'cli' !== PHP_SAPI
         ) {
-            $httpDomain = static::getCookieDomain();
-            $httpsDomain = static::getCookieDomain(true);
-
-            setcookie(
-                $name,
-                $value,
-                0,
-                static::getCookiePath(),
-                $httpDomain,
-                false,
-                true
-            );
-
-            if ($httpDomain != $httpsDomain) {
-                setcookie(
-                    $name,
-                    $value,
-                    0,
-                    static::getCookiePath(true),
-                    $httpsDomain,
-                    false,
-                    true
-                );
-            }
+            \XLite\Core\Request::getInstance()->setCookie($name, $value);
         }
-    }
-
-    /**
-     * Get parsed URL for Set-Cookie
-     *
-     * @param boolean $secure Secure protocol or not OPTIONAL
-     *
-     * @return array
-     */
-    protected static function getCookieURL($secure = false)
-    {
-        $url = $secure
-            ? 'http://' .  \Includes\Utils\ConfigParser::getOptions(array('host_details', 'http_host'))
-            : 'https://' . \Includes\Utils\ConfigParser::getOptions(array('host_details', 'https_host'));
-
-        $url .= \Includes\Utils\ConfigParser::getOptions(array('host_details', 'web_dir'));
-
-        return parse_url($url);
-    }
-
-    /**
-     * Get host / domain for Set-Cookie
-     *
-     * @param boolean $secure Secure protocol or not OPTIONAL
-     *
-     * @return string
-     */
-    protected static function getCookieDomain($secure = false)
-    {
-        $url = static::getCookieURL($secure);
-
-        return false === strstr($url['host'], '.') ? false : $url['host'];
-    }
-
-    /**
-     * Get URL path for Set-Cookie
-     *
-     * @param boolean $secure Secure protocol or not OPTIONAL
-     *
-     * @return string
-     */
-    protected static function getCookiePath($secure = false)
-    {
-        $url = static::getCookieURL($secure);
-
-        return isset($url['path']) ? $url['path'] : '/';
     }
 }

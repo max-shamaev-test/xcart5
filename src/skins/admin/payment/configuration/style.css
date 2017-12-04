@@ -329,22 +329,6 @@ button.add-method.top-button-add-method {
   100% {transform: translateX(0);}
 }
 
-@-moz-keyframes shake { /* Firefox */
-  20% {transform: translateX(-5px);}
-  40% {transform: translateX(5px);}
-  60% {transform: translateX(-5px);}
-  80% {transform: translateX(5px);}
-  100% {transform: translateX(0);}
-}
-
-@-webkit-keyframes shake { /* Safari and Chrome */
-  20% {transform: translateX(-5px);}
-  40% {transform: translateX(5px);}
-  60% {transform: translateX(-5px);}
-  80% {transform: translateX(5px);}
-  100% {transform: translateX(0);}
-}
-
 .payment-conf .methods li .subseparator {
   background-color: #d7d7d7;
   width: 1px;
@@ -558,7 +542,7 @@ button.add-method.top-button-add-method {
   font-size: 14px;
   display: block;
   white-space: normal;
-  word-break: break-word;
+  word-wrap: break-word;
 }
 
 .add-payment-box .table-pager .box .left {

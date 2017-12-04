@@ -22,12 +22,7 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
      */
     protected function callAction()
     {
-        $subscriptionInfo = \XLite\Core\Request::getInstance()->{Core\MailChimp::SUBSCRIPTION_FIELD_NAME};
         $subscribeToAll = \XLite\Core\Request::getInstance()->{Core\MailChimp::SUBSCRIPTION_TO_ALL_FIELD_NAME};
-
-        if (isset($subscriptionInfo)) {
-            \XLite\Core\Session::getInstance()->{Core\MailChimp::SUBSCRIPTION_FIELD_NAME} = $subscriptionInfo;
-        }
 
         if (isset($subscribeToAll)) {
             \XLite\Core\Session::getInstance()->{Core\MailChimp::SUBSCRIPTION_TO_ALL_FIELD_NAME} = $subscribeToAll;

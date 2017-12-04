@@ -63,3 +63,7 @@
     border: solid #f7f7f7 6px;
     padding: 7px;
 }
+
+.table.company_contacts-table .input.contactuscomment {
+  margin-top: 7px;
+}

@@ -170,4 +170,18 @@ abstract class AComingSoon extends \XLite\View\ItemsList\Product\Customer\ACusto
     {
         return false;
     }
+
+    /**
+     * Get cache parameters
+     *
+     * @return array
+     */
+    protected function getCacheParameters()
+    {
+        $list = parent::getCacheParameters();
+        $list[] = $this->getMaxCountInBlock();
+        $list[] = \XLite\Core\Converter::getDayEnd(\XLite\Base\SuperClass::getUserTime());;
+
+        return $list;
+    }
 }

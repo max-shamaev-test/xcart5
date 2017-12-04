@@ -13,6 +13,8 @@ namespace XLite\Module\CDev\Paypal\Controller\Customer;
  */
 class PaypalLogin extends \XLite\Controller\Customer\ACustomer
 {
+    const STATE_DELIMITER = '||';
+
     /**
      * Perform login action
      *
@@ -194,9 +196,9 @@ class PaypalLogin extends \XLite\Controller\Customer\ACustomer
      */
     protected function getAuthReturnURL($failure = false)
     {
-        $state = \XLite\Core\Request::getInstance()->{\XLite\Module\CDev\Paypal\Core\PaypalAuthProvider::STATE_PARAM_NAME};
+        $state = \XLite\Core\Request::getInstance()->state;
         $state = $state
-            ? explode(\XLite\Module\CDev\SocialLogin\Core\AAuthProvider::STATE_DELIMITER, urldecode($state))
+            ? explode(static::STATE_DELIMITER, urldecode($state))
             : [];
         $controller = isset($state[0]) ? $state[0] : null;
         $returnURL = isset($state[1]) ? $state[1] : null;

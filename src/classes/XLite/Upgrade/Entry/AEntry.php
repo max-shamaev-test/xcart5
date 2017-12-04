@@ -277,13 +277,39 @@ abstract class AEntry
     }
 
     /**
+     * Return true if current entry is an update within update branch version (first 2 digits are same: X.X.y.y)
+     *
+     * @return boolean
+     */
+    public function isUpdate()
+    {
+        return $this->isLastDigitUpdate(
+            $this->getMinorVersion($this->getVersionOld()),
+            $this->getMinorVersion($this->getVersionNew())
+        );
+    }
+
+    /**
+     * Return true if current entry is an update within upgrade branch version (first 1 digits are same: X.y.y.y)
+     *
+     * @return boolean
+     */
+    public function isUpgrade()
+    {
+        return $this->isLastDigitUpdate(
+            $this->getMajorVersion($this->getVersionOld()),
+            $this->getMajorVersion($this->getVersionNew())
+        );
+    }
+
+    /**
      * Get hotfix branch version of installed entry
      *
      * @return string
      */
     public function getHotfixBranchVersionOld()
     {
-        return $this->getHotfixBranchVersion($this->getVersionOld());
+        return $this->getMinorVersion($this->getVersionOld());
     }
 
     /**
@@ -293,25 +319,59 @@ abstract class AEntry
      */
     public function getHotfixBranchVersionNew()
     {
-        return $this->getHotfixBranchVersion($this->getVersionNew());
+        return $this->getMinorVersion($this->getVersionNew());
     }
 
     /**
-     * Get hotfix branch (remove 4th digit from full version number)
+     * @param string $old
+     * @param string $new
      *
-     * @param string $version Full version number
+     * @return bool
+     */
+    protected function isLastDigitUpdate($old, $new)
+    {
+        list($oldBranch, $oldLastDigit) = $this->detachLastDigit($old);
+        list($newBranch, $newLastDigit) = $this->detachLastDigit($new);
+
+        return version_compare($oldBranch, $newBranch, '=')
+            && $oldLastDigit < $newLastDigit;
+    }
+
+    /**
+     * @param string $version
+     *
+     * @return array
+     */
+    protected function detachLastDigit($version)
+    {
+        $digits = explode('.', $version);
+        $lastDigit = (int) array_pop($digits);
+
+        return [implode('.', $digits), $lastDigit];
+    }
+
+    /**
+     * @param string $version
      *
      * @return string
      */
-    public function getHotfixBranchVersion($version)
+    protected function getMinorVersion($version)
     {
         $digits = explode('.', $version);
 
-        if (isset($digits[3])) {
-            unset($digits[3]);
-        }
+        return implode('.', array_slice($digits, 0, 3));
+    }
 
-        return implode('.', $digits);
+    /**
+     * @param string $version
+     *
+     * @return string
+     */
+    protected function getMajorVersion($version)
+    {
+        $digits = explode('.', $version);
+
+        return implode('.', array_slice($digits, 0, 2));
     }
 
     /**
@@ -729,6 +789,15 @@ abstract class AEntry
                     array('dir' => $topDir)
                 );
                 $this->wrongPermissions[] = $topDir;
+            } else {
+                $source = $this->getFileSource($path);
+
+                if ($this->manageFile($path, 'write', array($source))) {
+                    $this->manageFile($path, 'deleteFile');
+
+                } else {
+                    $this->addFileErrorMessage('Unable to add file', $path, true);
+                }
             }
 
         } else {

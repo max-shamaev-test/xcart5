@@ -160,7 +160,9 @@ function reloadXpcIframe()
 
   var paymentId = Checkout.instance.getState().order.payment_method;
 
-  var iframe = jQuery('.xpc_iframe:visible');
+  var iframeSelector = (paymentId) ? '#xpc_iframe_' + paymentId : '.xpc_iframe';
+
+  var iframe = jQuery(iframeSelector + ':visible');
 
   if (iframe.length == 0) {
     // Iframe not found or not visible

@@ -564,7 +564,7 @@ ul.account-links span.email {
   margin: 30px 30px 7px 30px;
   width: auto;
   white-space: normal;
-  word-break: break-word;
+  word-wrap: break-word;
   padding-bottom: 3px;
 }
 

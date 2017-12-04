@@ -521,28 +521,11 @@ abstract class AModule extends \XLite\View\ItemsList\AItemsList
      *
      * @param string $majorVersion core version to check
      *
-     * @return void
+     * @return boolean
      */
     protected function isCoreUpgradeAvailable($majorVersion)
     {
-        return (bool) \Includes\Utils\ArrayManager::getIndex($this->getCoreVersions(), $majorVersion, true);
-    }
-
-    /**
-     * Check if there are updates (new core revision and/or module revisions)
-     *
-     * @return boolean
-     */
-    protected function areUpdatesAvailable()
-    {
-        if (!isset($this->updateFlags)) {
-            $this->updateFlags = \XLite\Core\Marketplace::getInstance()->checkForUpdates();
-            if (!is_array($this->updateFlags)) {
-                $this->updateFlags = array();
-            }
-        }
-
-        return !empty($this->updateFlags[\XLite\Core\Marketplace::FIELD_ARE_UPDATES_AVAILABLE]);
+        return \XLite\Upgrade\Cell::getInstance()->hasCoreUpdate();
     }
 
     /**

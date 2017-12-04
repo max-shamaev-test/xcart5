@@ -156,6 +156,7 @@ XLite\Model\LanguageLabel:
 
 XLite\Model\Notification:
   - templatesDirectory: modules/CDev/Egoods/egoods_links
+    position: 600
     availableForAdmin: false
     availableForCustomer: true
     enabledForAdmin: false

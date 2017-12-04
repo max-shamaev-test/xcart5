@@ -617,7 +617,11 @@ window.core = {
         return JSON5.parse(objectString);
       }
 
-      console.err('Cannot parse JS object from string: JSON5 is not loaded');
+      console.error('Cannot parse JS object from string: JSON5 is not loaded');
+  },
+
+  getLayoutOptions: function() {
+    return window.xliteLayoutOptions || {};
   },
 
   rest: {

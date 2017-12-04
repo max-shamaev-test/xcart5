@@ -53,7 +53,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
      */
     public static function getMinorVersion()
     {
-        return '3';
+        return '4';
     }
 
     /**
@@ -63,7 +63,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
      */
     public static function getBuildVersion()
     {
-        return '3';
+        return '2';
     }
 
     /**
@@ -73,7 +73,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
      */
     public static function getMinorRequiredCoreVersion()
     {
-        return '3';
+        return '4';
     }
 
     /**
@@ -757,14 +757,32 @@ abstract class Main extends \XLite\Module\AModuleSkin
         ]);
     }
 
-
-
     /**
      * Check if skin supports cloud zoom
      *
      * @return boolean
      */
     public static function isUseCloudZoom()
+    {
+        return true;
+    }
+
+    /**
+     * Check if image lazy loading is supported by skin
+     *
+     * @return boolean
+     */
+    public static function isUseLazyLoad()
+    {
+        return true;
+    }
+
+    /**
+     * Check if skin supports preloaded images
+     *
+     * @return boolean
+     */
+    public static function isUsePreloadedImages()
     {
         return true;
     }

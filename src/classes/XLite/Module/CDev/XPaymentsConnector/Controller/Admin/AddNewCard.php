@@ -33,13 +33,14 @@ class AddNewCard extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
-     * Get customer profile ID from request
+     * Check ACL permissions
      *
-     * @return int
+     * @return boolean
      */
-    public function getCustomerProfileId()
+    public function checkACL()
     {
-        return intval(\XLite\Core\Request::getInstance()->profile_id);
+        return parent::checkACL()
+            || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage users');
     }
 
     /**
@@ -49,9 +50,23 @@ class AddNewCard extends \XLite\Controller\Admin\AAdmin
      */
     protected function getCustomerProfile()
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Profile')->find(
-            $this->getCustomerProfileId()
-        );
+        $profileId = \XLite\Core\Request::getInstance()->profile_id;
+        if (empty($profileId)) {
+            $profileId = \XLite\Core\Auth::getInstance()->getProfile()->getProfileId();
+        }
+
+        return \XLite\Core\Database::getRepo('XLite\Model\Profile')
+            ->find(intval($profileId));
+    }
+
+    /**
+     * Get customer profile Id
+     *
+     * @return integer
+     */
+    public function getCustomerProfileId()
+    {
+        return $this->getCustomerProfile()->getProfileId();
     }
 
     /**

@@ -26,8 +26,8 @@ class Tab extends \XLite\Model\Repo\Base\I18n
     /**
      * Allowable search params
      */
-    const SEARCH_PRODUCT         = 'product';
-    const P_POSITION             = 'position';
+    const SEARCH_PRODUCT = 'product';
+    const P_POSITION     = 'position';
 
     // {{{ Search
 
@@ -55,7 +55,15 @@ class Tab extends \XLite\Model\Repo\Base\I18n
      */
     public function generateTabLink(\XLite\Module\XC\CustomProductTabs\Model\Product\Tab $tab)
     {
-        $result = $link = \XLite\Core\Converter::convertToTranslit($tab->getName());
+        $result = $link = preg_replace(
+            '/[^a-z0-9-_:.]/i',
+            '',
+            str_replace(
+                ' ',
+                '_',
+                \XLite\Core\Converter::convertToTranslit($tab->getName())
+            )
+        );
 
         $i = 1;
         while (!$this->checkLinkUniqueness($result, $tab)) {
@@ -89,4 +97,21 @@ class Tab extends \XLite\Model\Repo\Base\I18n
 
     // }}}
 
+    public function loadFixture(array $record, array $regular = [], array $assocs = [], \XLite\Model\AEntity $parent = null, array $parentAssoc = [])
+    {
+        $entity = parent::loadFixture($record, $regular, $assocs, $parent, $parentAssoc);
+
+        if (
+            !$entity->isGlobal()
+            && !$entity->getLink()
+        ) {
+
+            $entity->setLink(
+                \XLite\Core\Database::getRepo('\XLite\Module\XC\CustomProductTabs\Model\Product\Tab')
+                    ->generateTabLink($entity)
+            );
+        }
+
+        return $entity;
+    }
 }

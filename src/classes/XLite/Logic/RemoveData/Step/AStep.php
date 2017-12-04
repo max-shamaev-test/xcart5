@@ -25,7 +25,6 @@ abstract class AStep extends \XLite\Logic\ARepoStep
             $options = $this->generator->getOptions();
             if (!isset($options['count' . get_class($this)])) {
                 $options['count' . get_class($this)] = $this->getRepository()->countForRemoveData();
-                $this->generator->setOptions($options);
             }
             $this->countCache = $options['count' . get_class($this)];
         }

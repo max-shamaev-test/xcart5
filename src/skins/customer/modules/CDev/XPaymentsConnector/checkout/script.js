@@ -325,7 +325,7 @@ core.bind(
 
 function reloadXpcIframe (event, data)
 {
-  var iframe = jQuery('.xpc_iframe');
+  var iframe = jQuery((currentPaymentId) ? '#xpc_iframe_' + currentPaymentId : '.xpc_iframe');
   var src = iframe.attr('src');
 
   if (!src) {

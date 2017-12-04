@@ -233,7 +233,7 @@ class Config extends \XLite\Model\Repo\Base\I18n
                 list($author, $module) = explode('\\', $category);
 
                 if (!isset($config->$author)) {
-                    $config->$author = new \XLite\Core\ConfigCell();
+                    $config->$author = new \XLite\Core\ConfigCell(true);
                 }
 
                 if (!isset($config->$author->$module)) {
@@ -310,7 +310,7 @@ class Config extends \XLite\Model\Repo\Base\I18n
      * @return void
      * @throws \Exception
      */
-    public function createOption($data)
+    public function createOption($data, $silent = false)
     {
         // Array of allowed fields and flag required/optional
         $fields = $this->getAllowedFields();
@@ -350,8 +350,24 @@ class Config extends \XLite\Model\Repo\Base\I18n
             \XLite\Core\Database::getEM()->persist($option);
         }
 
-        \XLite\Core\Database::getEM()->flush();
+        if (!$silent) {
+            \XLite\Core\Database::getEM()->flush();
+            \XLite\Core\Config::updateInstance();
+        }
+    }
 
+    /**
+     * @see createOption
+     *
+     * @param array $options
+     */
+    public function createOptions(array $options)
+    {
+        foreach ($options as $option) {
+            $this->createOption($option, true);
+        }
+
+        \XLite\Core\Database::getEM()->flush();
         \XLite\Core\Config::updateInstance();
     }
 

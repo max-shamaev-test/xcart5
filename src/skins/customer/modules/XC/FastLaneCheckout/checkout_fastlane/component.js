@@ -32,7 +32,7 @@ define('checkout_fastlane/loader', ['vue/vue', 'ready'], function(Vue){
 
       ready: function() {
         this.$broadcast('checkStartSection');
-        this.finishLoadAnimation();
+        $(this.$el).removeClass('reloading reloading-animated');
         this.assignGlobalListeners();
         core.trigger('checkout.main.ready');
       },
@@ -46,18 +46,16 @@ define('checkout_fastlane/loader', ['vue/vue', 'ready'], function(Vue){
         getState: function() {
           return this.$store.state;
         },
-        startLoadAnimation: function() {
-          $('body').addClass('reloading reloading-animated');
-          // if ($('#content').length) {
-          //   $('#content').addClass('reloading');
-          // };
+        startLoadAnimation: function(message) {
+          message = message || '';
+          var msgBox = document.createElement('div');
+          $(msgBox).text(message).addClass('reloading-message');
+          $('body').children().remove('.reloading-message').remove('.reloading-element');
+          $('body').addClass('reloading reloading-circles').append('<div class="reloading-element"></div>').append(msgBox);
         },
         finishLoadAnimation: function() {
-          $('body').removeClass('reloading reloading-animated');
-          // if ($('#content').length) {
-          //   $('#content').removeClass('reloading');
-          // };
-          $(this.$el).removeClass('reloading reloading-animated');
+          $('body').children().remove('.reloading-message').remove('.reloading-element');
+          $('body').removeClass('reloading reloading-circles');
         },
         reloadBlock: function(blockName) {
           if (jQuery(blockName).length) {

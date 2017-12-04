@@ -11,13 +11,10 @@
     margin-bottom: 1em;
 }
 
-.category-description > div {
-    display: none;
-}
-
 .carousel-inner a{
     height: 100%;
 }
+
 .carousel-inner img{
     max-height: 100%;
     margin: auto;

@@ -36,4 +36,8 @@ define('form_model/constraints', ['vue/vue', 'js/jquery'], function (Vue, $) {
     return (!rule.min || value > rule.min) && (!rule.max || value < rule.max);
   });
 
+  Vue.validator('GreaterThanOrEqual', function (value, rule) {
+    return value >= rule.value;
+  });
+
 });

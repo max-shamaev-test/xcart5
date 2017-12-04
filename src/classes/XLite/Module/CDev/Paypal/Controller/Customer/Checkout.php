@@ -114,6 +114,9 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
     protected function doActionStartExpressCheckout()
     {
         if (Paypal\Main::isExpressCheckoutEnabled()) {
+            $this->silent = true;
+            $this->setSuppressOutput(true);
+
             $paymentMethod = $this->getExpressCheckoutPaymentMethod();
 
             $this->getCart()->setPaymentMethod($paymentMethod);
@@ -133,15 +136,8 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
                 \XLite\Core\Session::getInstance()->ec_payer_id = null;
                 \XLite\Core\Session::getInstance()->ec_ignore_checkout = (bool)\XLite\Core\Request::getInstance()->ignoreCheckout;
 
-                if ($this->isAJAX()) {
-                    \XLite\Core\Event::PayPalToken(array('token' => $processor->getExpressCheckoutRedirectURL($token)));
 
-                } else {
-                    $processor->redirectToPaypal($token);
-                    exit;
-                }
-
-
+                echo json_encode(['token' => $token]);
             } else {
                 if (\XLite\Core\Request::getInstance()->inContext) {
                     \XLite\Core\Session::getInstance()->cancelUrl = \XLite\Core\Request::getInstance()->cancelUrl;
@@ -149,13 +145,7 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
                     $this->setReturnURL($this->buildURL('checkout'));
                 }
 
-                \XLite\Core\TopMessage::addError(
-                    $processor->getErrorMessage() ?: 'Failure to redirect to PayPal.'
-                );
-
-                if ($this->isAJAX()) {
-                    \XLite\Core\Event::PayPalToken(array('token' => ''));
-                }
+                echo json_encode(['error' => $processor->getErrorMessage() ?: 'Failure to get PayPal token']);
             }
         }
     }

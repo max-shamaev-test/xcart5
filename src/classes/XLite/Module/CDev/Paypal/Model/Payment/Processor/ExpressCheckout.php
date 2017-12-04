@@ -87,11 +87,11 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\Model\Payment\Processor\
     /**
      * Get input template
      *
-     * @return string|void
+     * @return string
      */
     public function getInputTemplate()
     {
-        return 'modules/CDev/Paypal/checkout/in_context_checkout.twig';
+        return 'modules/CDev/Paypal/checkout/ec_checkout_box.twig';
     }
 
     /**
@@ -229,204 +229,7 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\Model\Payment\Processor\
     {
         $this->transaction->createBackendTransaction($this->getInitialTransactionType());
 
-        $result = self::FAILED;
-
-        if (!$this->isTokenValid() || self::EC_TYPE_MARK == \XLite\Core\Session::getInstance()->ec_type) {
-            \XLite\Core\Session::getInstance()->ec_type = self::EC_TYPE_MARK;
-
-            $token = $this->doSetExpressCheckout($this->transaction->getPaymentMethod());
-
-            if (isset($token)) {
-                \XLite\Core\Session::getInstance()->ec_token = $token;
-                \XLite\Core\Session::getInstance()->ec_date = \XLite\Core\Converter::time();
-                \XLite\Core\Session::getInstance()->ec_payer_id = null;
-
-                $result = static::PROLONGATION;
-
-                $this->redirectToPaypal($token);
-
-                if (self::EC_TYPE_MARK !== \XLite\Core\Session::getInstance()->ec_type) {
-                    exit ();
-                }
-
-            } else {
-                $this->transaction->setDataCell(
-                    'status',
-                    $this->errorMessage ?: 'Failure to redirect to PayPal.',
-                    null,
-                    'C'
-                );
-            }
-
-        } else {
-            $result = $this->doDoExpressCheckoutPayment();
-        }
-
-        return $result;
-    }
-
-    // }}}
-
-    // {{{ Redirect to Paypal
-
-    /**
-     * Redirect customer to Paypal server for authorization and address selection
-     *
-     * @param string $token Express Checkout token
-     *
-     * @return void
-     */
-    public function redirectToPaypal($token)
-    {
-        $url = $this->getRedirectURL($this->getPostParams($token));
-
-        \XLite\Module\CDev\Paypal\Main::addLog(
-            'redirectToPaypal()',
-            $url
-        );
-
-        $page = <<<HTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-</head>
-<body onload="self.location = '$url';">
-</body>
-</html>
-HTML;
-
-        print ($page);
-    }
-
-    /**
-     * Get express checkout redirect url
-     *
-     * @param string $token Express Checkout token
-     *
-     * @return array
-     */
-    public function getExpressCheckoutRedirectURL($token)
-    {
-        return $this->getRedirectURL($this->getPostParams($token));
-    }
-
-    /**
-     * Get post URL
-     * todo: use http_build_query
-     *
-     * @param array $params Array of URL parameters OPTIONAL
-     *
-     * @return string
-     */
-    public function getRedirectURL($params = [])
-    {
-        $postURL = $this->getExpressCheckoutPostURL();
-
-        $postData = [];
-
-        foreach ($params as $k => $v) {
-            $postData[] = sprintf('%s=%s', $k, $v);
-        }
-
-        return $postURL . '?' . implode('&', $postData);
-    }
-
-    /**
-     * Get array of parameters for redirecting customer to Paypal server
-     *
-     * @param string $token Express Checkout token
-     *
-     * @return array
-     */
-    public function getPostParams($token)
-    {
-        $params = [
-            'token' => $token,
-        ];
-
-        if (!\XLite\Core\Request::getInstance()->inContext) {
-            $params['cmd'] = '_express-checkout';
-        }
-
-        if (\XLite\Core\Session::getInstance()->ec_ignore_checkout) {
-            $params['useraction'] = 'commit';
-        }
-
-        return $params;
-    }
-
-    /**
-     * Get PostURL to redirect customer to Paypal
-     *
-     * @return string
-     */
-    protected function getExpressCheckoutPostURL()
-    {
-        $testMode = $this->isTestMode($this->transaction->getPaymentMethod());
-        $inContext = \XLite\Core\Request::getInstance()->inContext;
-
-
-        if ($inContext) {
-            $result = $testMode
-                ? 'https://www.sandbox.paypal.com/checkoutnow'
-                : 'https://www.paypal.com/checkoutnow';
-        } else {
-            $result = $testMode
-                ? 'https://www.sandbox.paypal.com/cgi-bin/webscr'
-                : 'https://www.paypal.com/cgi-bin/webscr';
-        }
-
-        return $result;
-    }
-
-    /**
-     * Retry ExpressCheckout
-     *
-     * @param string $token Express Checkout token value
-     *
-     * @return void
-     */
-    protected function retryExpressCheckout($token)
-    {
-        \XLite\Core\Session::getInstance()->expressCheckoutRetry
-            = (\XLite\Core\Session::getInstance()->expressCheckoutRetry ?: 0) + 1;
-
-        $this->redirectToPaypal($token);
-
-        exit ();
-    }
-
-    /**
-     * Checks if response data contains "Customer must choose new funding sources." error
-     *
-     * @param array $responseData
-     * @return bool
-     */
-    protected function isRetryExpressCheckoutCode($responseData)
-    {
-        return preg_match('/^Generic processor error: 10486/', $responseData['RESPMSG'])
-            || preg_match('/^10486/', $responseData['RESPMSG'])
-            || preg_match('/^Generic processor error: 10422/', $responseData['RESPMSG'])
-            || preg_match('/^10422/', $responseData['RESPMSG']);
-
-    }
-
-    /**
-     * Is retryExpressCheckout allowed
-     *
-     * @return boolean
-     */
-    protected function isRetryExpressCheckoutAllowed()
-    {
-        $result = is_null(\XLite\Core\Session::getInstance()->expressCheckoutRetry)
-            || \XLite\Core\Session::getInstance()->expressCheckoutRetry < static::MAX_TRIES;
-
-        if (!$result) {
-            \XLite\Core\Session::getInstance()->expressCheckoutRetry = 0;
-        }
-
-        return $result;
+        return $this->doDoExpressCheckoutPayment();
     }
 
     // }}}
@@ -756,17 +559,6 @@ HTML;
         ];
 
         return $data;
-    }
-
-    /**
-     * Returns true if token initialized and is not expired
-     *
-     * @return boolean
-     */
-    protected function isTokenValid()
-    {
-        return !empty(\XLite\Core\Session::getInstance()->ec_token)
-            && self::TOKEN_TTL > \XLite\Core\Converter::time() - \XLite\Core\Session::getInstance()->ec_date;
     }
 
     /**

@@ -19,10 +19,6 @@ namespace XLite\Model\Repo;
 class Notification extends \XLite\Model\Repo\Base\I18n
 {
     /**
-     * Allowable search params
-     */
-
-    /**
      * Alternative record identifiers
      *
      * @var array
@@ -31,5 +27,5 @@ class Notification extends \XLite\Model\Repo\Base\I18n
         array('templatesDirectory'),
     );
 
-    // }}}
+    protected $defaultOrderBy = 'position';
 }

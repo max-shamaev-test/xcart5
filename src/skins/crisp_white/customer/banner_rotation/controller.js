@@ -16,6 +16,8 @@ core.microhandlers.add(
     $this.carousel(options);
     $this.carousel('cycle');
 
+    $this.find('.not-initialized').removeClass('not-initialized');
+
     var firstItem = $this.find('.item').first();
     firstItem.addClass('active');
 

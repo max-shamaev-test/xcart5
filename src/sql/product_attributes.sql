@@ -586,10 +586,10 @@ INSERT INTO `%%XC%%_upselling_products` (`id`, `product_id`, `parent_product_id`
 -- Dumping data for table `%%XC%%_product_tabs`
 --
 
-INSERT INTO `%%XC%%_product_tabs` (`product_id`, `position`, `enabled`) VALUES (37,0,1);
+INSERT INTO `%%XC%%_product_tabs` (`product_id`, `link`, `position`, `enabled`) VALUES (37,'Privacy',0,1);
 SET @tab1 = LAST_INSERT_ID();
 
-INSERT INTO `%%XC%%_product_tabs` (`product_id`, `position`, `enabled`) VALUES (42,0,1);
+INSERT INTO `%%XC%%_product_tabs` (`product_id`, `link`, `position`, `enabled`) VALUES (42,'Privacy',0,1);
 SET @tab2 = LAST_INSERT_ID();
 
 UPDATE `%%XC%%_products` SET lowLimitEnabled = 1;

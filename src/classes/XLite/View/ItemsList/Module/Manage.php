@@ -11,7 +11,7 @@ namespace XLite\View\ItemsList\Module;
 /**
  * Addons search and installation widget
  */
-class Manage extends \XLite\View\ItemsList\Module\AModule
+class Manage extends \XLite\View\ItemsList\Module\AModule implements \XLite\Core\PreloadedLabels\ProviderInterface
 {
     /**
      * Return list of targets allowed for this widget
@@ -24,6 +24,16 @@ class Manage extends \XLite\View\ItemsList\Module\AModule
         $result[] = 'addons_list_installed';
 
         return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'X modules selected' => static::t('X modules selected')
+        ];
     }
 
     /**

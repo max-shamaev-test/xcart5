@@ -151,10 +151,11 @@ CommonForm.elementControllers.push(
 
     jQuery('button.remove', this).click(
       function () {
-        var name = jQuery(this).parents('tr.module-item').eq(0).find('.module-main-section a.module-name').eq(0).text();
+        var moduleItem = jQuery(this).parents('tr.module-item');
+        var name = moduleItem.eq(0).find('.module-main-section a.module-name').eq(0).text();
         var inp = jQuery(this).parents('.remove-wrapper').eq(0).find('input');
         var re = /^.* module-(\d+) .*$/;
-        var moduleId = jQuery(this).parents('tr.module-item').attr('class').replace(re, "$1");
+        var moduleId = moduleItem.attr('class').replace(re, "$1");
 
         if (inp.is(':checked')) {
           uninstallModules[moduleId] = 1;
@@ -168,7 +169,7 @@ CommonForm.elementControllers.push(
         updateUninstallButtons();
         updateEnableButtons();
         updateFormComments();
-        updateActionsStyle();
+        updateActionsStyle(moduleItem);
       }
     );
   }
@@ -227,9 +228,10 @@ CommonForm.elementControllers.push(
 
     jQuery('.disable input[type="checkbox"]', this).click(
       function () {
-        var name = jQuery(this).parents('tr.module-item').eq(0).find('.module-main-section a.module-name').eq(0).text();
+        var moduleItem = jQuery(this).parents('tr.module-item');
+        var name = moduleItem.eq(0).find('.module-main-section a.module-name').eq(0).text();
         var re = /^.* module-(\d+) .*$/;
-        var moduleId = jQuery(this).parents('tr.module-item').attr('class').replace(re, "$1");
+        var moduleId = moduleItem.attr('class').replace(re, "$1");
 
         if (jQuery(this).is(':checked')) {
           moduleStatuses[moduleId] = 1;
@@ -239,7 +241,7 @@ CommonForm.elementControllers.push(
         }
 
         updateEnableButtons();
-        updateActionsStyle();
+        updateActionsStyle(moduleItem);
       }
     );
 
@@ -312,8 +314,14 @@ function updateEnableButtons()
   });
 }
 
-function updateActionsStyle() {
-  var actions = jQuery('.widget.items-list tr.module-item');
+function updateActionsStyle(item) {
+  var actions = [];
+
+  if (item) {
+    actions = jQuery(item);
+  } else {
+    actions = jQuery('.widget.items-list tr.module-item');
+  }
 
   actions.each(function () {
     jQuery('.actions > li', this).removeClass('last').filter(':visible:last').addClass('last');

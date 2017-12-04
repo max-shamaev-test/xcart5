@@ -43,6 +43,7 @@ class DynamicWidgetRenderer
                 'class'  => get_class($widget),
                 'params' => $this->widgetParamsSerializer->serialize($widget->getWidgetParams()),
             ]);
+            $placeholderData = base64_encode($placeholderData);
         } catch (WidgetParamsSerializationException $e) {
             throw new WidgetParamsSerializationException($e->getMessage() . ' (' . get_class($widget) . ')');
         }
@@ -71,7 +72,7 @@ class DynamicWidgetRenderer
             $replacedContent .= substr($content, $pos, $placeholderPos - $pos);
             $pos = $placeholderPos;
 
-            $pos = $pos + strlen($placeholder);
+            $pos += strlen($placeholder);
 
             $length = '';
 
@@ -84,6 +85,7 @@ class DynamicWidgetRenderer
             $pos++; // skip '_'
 
             $serialized = substr($content, $pos, $length);
+            $serialized = base64_decode($serialized);
 
             $pos += $length;
 

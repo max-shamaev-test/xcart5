@@ -2716,8 +2716,6 @@ XLite\Model\LanguageLabel:
 
   - { name: 'This method is displayed because you are logged in as admin and operating as another user', translations: [{ code: en, label: 'This method is displayed because you are logged in as admin and operating as another user' }] }
 
-  - { name: 'Order staff notes changed by {{user}}', translations: [{ code: en, label: 'Order staff notes changed by {{user}}' }] }
-  - { name: 'Order customer notes changed by {{user}}', translations: [{ code: en, label: 'Order customer notes changed by {{user}}' }] }
   - { name: 'Old customer note', translations: [{ code: en, label: 'Old customer note' }] }
   - { name: 'New customer note', translations: [{ code: en, label: 'New customer note' }] }
   - { name: 'Add comment here', translations: [{ code: en, label: 'Add comment here' }] }
@@ -2838,7 +2836,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Login is locked out', translations: [{ code: en, label: 'Login is locked out' }]}
   - { name: 'Manage zones', translations: [{ code: en, label: 'Manage zones' }]}
   - { name: 'Marketing', translations: [{ code: en, label: 'Marketing' }]}
-  - { name: 'Minimum value is X', translations: [{ code: en, label: 'Minimum value is X' }]}
+  - { name: 'Minimum value is X', translations: [{ code: en, label: 'Minimum value is {{value}}' }]}
   - { name: 'Modules', translations: [{ code: en, label: 'Modules' }]}
   - { name: 'Options', translations: [{ code: en, label: 'Options' }]}
   - { name: 'Order cannot be placed because there is no shipping methods available.', translations: [{ code: en, label: 'Order cannot be placed because there is no shipping methods available.' }]}
@@ -3150,7 +3148,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Category with id X not found, new category will be created', translations: [{ code: en, label: 'Category with id "{{value}}" not found, new category with different id will be created' }] }
   - { name: 'CSV format tables', translations: [{ code: en, label: 'CSV format tables' }] }
   - { name: 'How to set up free shipping help', translations: [{ code: en, label: 'Need to set up free shipping? <a href="{{url}}" target="_blank">Learn how</a>.' }] }
-  - { name: 'Show states for selected countires only', translations: [{ code: en, label: 'Show states for selected countires only' }] }
+  - { name: 'Show states for selected countries only', translations: [{ code: en, label: 'Show states for selected countries only' }] }
 
   - { name: 'Profile details', translations: [{ code: en, label: 'Profile details' }] }
   - { name: 'Attention!', translations: [{ code: en, label: 'Attention!' }] }
@@ -3220,6 +3218,14 @@ XLite\Model\LanguageLabel:
   - { name: 'Purchased addons', translations: [{ code: en, label: 'Purchased addons' }] }
   - { name: 'My purchases', translations: [{ code: en, label: 'My purchases' }] }
 
+  - { name: 'new core', translations: [{ code: en, label: 'new core' }] }
+  - { name: 'X addon', translations: [{ code: en, label: '{{count}} addon' }] }
+  - { name: 'X addons', translations: [{ code: en, label: '{{count}} addons' }] }
+  - { name: 'X addons (5)', translations: [{ code: en, label: '{{count}} addons' }] }
+  - { name: 'new core and X addon', translations: [{ code: en, label: 'new core and {{count}} addon' }] }
+  - { name: 'new core and X addons', translations: [{ code: en, label: 'new core and {{count}} addons' }] }
+  - { name: 'new core and X addons (5)', translations: [{ code: en, label: 'new core and {{count}} addons' }] }
+
   - { name: 'Or add a video review powered by ShopperApproved', translations: [{ code: 'en', label: '<a href="{{url}}">Or add a video review powered by Shopper Approved</a>' }] }
   - { name: 'Want to customize review surveys and display video testimonials? Try Shopper Approved and collect up to 70x more ratings and reviews', translations: [{ code: 'en', label: 'Want to customize review surveys and display video testimonials? <a href="{{url}}">Try Shopper Approved and collect up to 70x more ratings and reviews</a>' }] }
   - { name: 'Consistency check', translations: [{ code: en, label: 'Consistency check' }] }
@@ -3235,7 +3241,19 @@ XLite\Model\LanguageLabel:
   - { name: 'Refresh consistency status', translations: [{ code: en, label: 'Refresh consistency status' }] }
   - { name: 'There are no inconsistencies found', translations: [{ code: en, label: 'There are no inconsistencies found' }] }
 
+  - { name: 'RoundUp', translations: [{ code: en, label: 'RoundUp' }] }
+  - { name: 'No roundup', translations: [{ code: en, label: 'No roundup' }] }
+  - { name: 'up to 2 decimals', translations: [{ code: en, label: 'up to 2 decimals' }] }
+  - { name: 'up to 1 decimal', translations: [{ code: en, label: 'up to 1 decimal' }] }
+  - { name: 'up to integer', translations: [{ code: en, label: 'up to integer' }] }
+  - { name: 'up to 10', translations: [{ code: en, label: 'up to 10' }] }
+  - { name: 'up to 100', translations: [{ code: en, label: 'up to 100' }] }
+
   - { name: 'Need a customizable contact us form with location map? [Get it now!]', translations: [{ code: en, label: '<span>Need a customizable contact us form with location map?</span> <a href="{{url}}" target="_blank">Get it now!</a>' }] }
+
+  - { name: 'Order staff notes changed', translations: [{ code: en, label: 'Order staff notes changed' }] }
+  - { name: 'Order customer notes changed', translations: [{ code: en, label: 'Order customer notes changed' }] }
+  - { name: 'Order has been edited', translations: [{ code: en, label: 'Order has been edited' }] }
 
   - { name: 'Let TaxJar automate your sales tax calculations, reporting, and filings in minutes.', translations: [{ code: en, label: 'Let TaxJar automate your sales tax calculations, reporting, and filings in minutes.' }] }
   - { name: 'TaxJar enabled', translations: [{ code: en, label: 'TaxJar enabled' }] }
@@ -3245,3 +3263,26 @@ XLite\Model\LanguageLabel:
   - { name: 'TaxJar Category', translations: [{ code: en, label: 'TaxJar Category' }] }
 
   - { name: 'To send email asynchronously and improve website performance we recommend to set up queues in on your server. [Learn how to do it].', translations: [{ code: en, label: 'We recommend to configure the background job processing on your server to send emails asynchronously, improving the website performance. <a href="{{url}}" target="_blank">Learn how to do this</a>.' }] }
+
+  - { name: 'Change payment status for selected', translations: [{ code: en, label: 'Change payment status for selected' }] }
+  - { name: 'Change fulfillment status for selected', translations: [{ code: en, label: 'Change fulfillment status for selected' }] }
+  - { name: 'Installing addons', translations: [{ code: en, label: 'Installing addons' }] }
+  - { name: 'Attention! You are creating an account with full access. Roles warning', translations: [{ code: en, label: 'Attention! You are creating an account with full access. If necessary, you can set a lower level of access by choosing an appropriate role. <a href="{{roles_link}}" target="_blank">Manage roles</a>. <a href="{{kb_link}}" target="_blank">Learn more</a> about permissions and roles.' }] }
+
+  - { name: 'Contact Us page settings', translations: [{ code: en, label: 'Contact Us page settings' }] }
+
+  - { name: 'Date and time on the server', translations: [{ code: en, label: 'Date and time on the server' }] }
+  - { name: 'Date and time in the store', translations: [{ code: en, label: 'Date and time in the store' }] }
+
+  - { name: 'File uploading error 1', translations: [{ code: en, label: 'The file you are trying to upload is too large. Try using a smaller one.' }] }
+  - { name: 'File uploading error 2', translations: [{ code: en, label: 'The file you are trying to upload is too large. Try using a smaller one.' }] }
+  - { name: 'File uploading error 3', translations: [{ code: en, label: 'For some reason, the file upload has not been completed. Please try again or use a different file.' }] }
+  - { name: 'File uploading error 4', translations: [{ code: en, label: 'For some reason, the file upload has not been completed. Please try again or use a different file.' }] }
+  - { name: 'File uploading error 6', translations: [{ code: en, label: 'Server-side problem with image upload. Contact your server administrator.' }] }
+  - { name: 'File uploading error 7', translations: [{ code: en, label: 'Server-side problem with image upload. Contact your server administrator.' }] }
+  - { name: 'File uploading error 8', translations: [{ code: en, label: 'Server-side problem with image upload. Contact your server administrator.' }] }
+  - { name: 'No file was uploaded', translations: [{ code: en, label: 'No file was uploaded' }] }
+
+  - { name: "Make sure the URL is correct and the file referenced by the URL is a PNG/JPG/JPEG", translations: [{ code: en, label: "Failed to download image from URL. Make sure the URL is correct and the file referenced by the URL is a PNG/JPG/JPEG" }] }
+
+  - { name: "Transaction is in progress", translations: [{ code: en, label: "Transaction is in progress, please wait..." }] }

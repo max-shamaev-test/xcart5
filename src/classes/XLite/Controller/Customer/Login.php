@@ -148,7 +148,7 @@ class Login extends \XLite\Controller\Customer\ACustomer
         if ($this->profile instanceof \XLite\Model\Profile
             && $this->profile->isAdmin()
         ) {
-            $url = \XLite\Core\Converter::buildURL('', '', [], \XLite::ADMIN_SELF);
+            $url = \XLite\Core\Converter::buildURL('', '', [], \XLite::getAdminScript());
         }
 
         return $url;

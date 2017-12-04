@@ -34,10 +34,10 @@ class Kount extends \XLite\Base\Singleton
             foreach ($transactions as $transaction) {
 
                 if (
-                    $transaction->getDataCell('xpc_kount')
-                    && $transaction->getDataCell('xpc_kount')->getValue()
+                    $transaction->getXpcDataCell('xpc_kount')
+                    && $transaction->getXpcDataCell('xpc_kount')->getValue()
                 ) {
-                    $this->kountData[$order->getOrderId()] = unserialize($transaction->getDataCell('xpc_kount')->getValue());
+                    $this->kountData[$order->getOrderId()] = unserialize($transaction->getXpcDataCell('xpc_kount')->getValue());
 
                     break;
                 }

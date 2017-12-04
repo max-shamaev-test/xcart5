@@ -435,6 +435,8 @@ ProductDetailsView.prototype.checkLocation = function()
           var link = jQuery(this);
           if (link.data('id') == hash) {
             found = link;
+          } else if (link.data('alt-id') == hash) {
+            found = link;
           }
         }
       );

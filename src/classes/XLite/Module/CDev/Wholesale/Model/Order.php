@@ -13,7 +13,6 @@ namespace XLite\Module\CDev\Wholesale\Model;
  */
 class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
 {
-
     /**
      * Add item to order
      *
@@ -26,18 +25,35 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
         $result = parent::addItem($newItem);
     
         if ($result && $newItem->isValid()) {
-
             $minQuantity = \XLite\Core\Database::getRepo('XLite\Module\CDev\Wholesale\Model\MinQuantity')
                 ->getMinQuantity(
                     $newItem->getProduct(),
                     $this->getProfile() ? $this->getProfile()->getMembership() : null
                 );
 
-            if (
-                $minQuantity
-                && $newItem->getAmount() < $minQuantity->getQuantity()
-            ) {
+            if ($minQuantity && $newItem->getAmount() < $minQuantity->getQuantity()) {
                 $newItem->setAmount($minQuantity->getQuantity());
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check order subtotal
+     *
+     * @return boolean
+     */
+    public function isMaxOrderAmountError()
+    {
+        $result = parent::isMaxOrderAmountError();
+        $items = $this->getItems();
+
+        if ($result && count($items) === 1) {
+            $product = $items[0]->getProduct();
+
+            if ($product->getMaxPurchaseLimit() === $product->getMinQuantity($product->getCurrentMembership())) {
+                $result = false;
             }
         }
 

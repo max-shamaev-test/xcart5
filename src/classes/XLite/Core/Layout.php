@@ -792,7 +792,7 @@ class Layout extends \XLite\Base\Singleton
     /**
      * Returns current layout images settings (sizes)
      *
-     * @return array
+     * @return \XLite\Model\ImageSettings[]
      */
     public function getCurrentImagesSettings()
     {
@@ -870,6 +870,18 @@ class Layout extends \XLite\Base\Singleton
         $skin = \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
 
         return $skin ? $skin->callModuleMethod('isUseCloudZoom') : true;
+    }
+
+    /**
+     * Check if image lazy loading is supported by skin
+     *
+     * @return bool|mixed
+     */
+    public function isLazyLoadEnabled()
+    {
+        $skin = \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
+
+        return $skin ? $skin->callModuleMethod('isUseLazyLoad') : false;
     }
 
     // }}}

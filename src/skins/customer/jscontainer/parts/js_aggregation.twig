@@ -8,6 +8,7 @@
   <script type="text/javascript"
           src="{{ this.getResourceURL(file.url) }}"
           {% if file.async %} async{% endif %}
-          {% if file.defer %} defer{% endif %}></script>
+          {% if file.defer %} defer{% endif %}
+          {% if file.code %} {{ file.code }}{% endif %}></script>
 {% endfor %}
 {% endif %}

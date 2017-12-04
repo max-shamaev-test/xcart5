@@ -13,4 +13,19 @@ namespace XLite\View\Menu\Admin\LeftMenu;
  */
 class Node extends \XLite\View\Menu\Admin\LeftMenu\ANode
 {
+    protected function isCacheAvailable()
+    {
+        return true;
+    }
+
+    protected function getCacheParameters()
+    {
+        return array_merge(
+            parent::getCacheParameters(),
+            [
+                get_class($this),
+                $this->getWidgetParams()
+            ]
+        );
+    }
 }

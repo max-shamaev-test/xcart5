@@ -49,13 +49,16 @@ var EventTaskProgress = Object.extend({
   },
 
   closeIfCanceling: function() {
+    var self = this;
     if (this.userCanceling && !this.cancelingRequested) {
       var form = this.$cancelButton.closest('form').get(0);
       this.$cancelButton.addClass('disabled');
 
       if (form) {
         form.commonController.enableBackgroundSubmit();
-        form.commonController.submitBackground();
+        form.commonController.submitBackground(function () {
+          self.triggerError({});
+        });
         this.$message.html(core.t('Canceled'));
         this.cancelingRequested = true;
       }
@@ -70,7 +73,7 @@ var EventTaskProgress = Object.extend({
     // is used in case progress hanged out
     _.delay(function(){
       core.trigger('step-completed');
-    }, 10000);
+    }, this.cancelTimeout);
 
     event.preventDefault();
 
@@ -82,6 +85,10 @@ var EventTaskProgress = Object.extend({
       this.$message.html(message);
     }
   },
+
+  assignTopMessage: _.once(function(message) {
+    core.trigger('message', {type: 'error', message: message});
+  }),
 
   triggerError: function(data) {
     this.$bar.addClass('progress-bar-danger');
@@ -138,11 +145,13 @@ var EventTaskProgress = Object.extend({
     if (percent < 100 && !this.userCanceling) {
       this.runEventTask(eventName, oldData);
 
-    } else {
-      if (data.error || this.userCanceling) {
+    } else if (!this.userCanceling) {
+      if (data.error) {
         self.triggerError(data);
       }
       self.triggerComplete(data);
+    } else {
+      core.trigger('step-completed');
     }
   },
 
@@ -159,13 +168,15 @@ var EventTaskProgress = Object.extend({
         },
         error: function (xhr, textStatus, errorThrown) {
           if (oldData.attempt < 10) {
+            self.assignTopMessage(errorThrown || 'Event task runner internal error');
             setTimeout(function () {
               self.initializeNextStep(oldData.event, oldData.data, oldData.eventName, oldData.attempt + 1);
             }, 2000);
           } else {
             self.triggerError({message: 'Event task runner internal error'});
           }
-        }}
+        }
+      }
     ).always(function() {
       core.trigger('step-completed')
     });

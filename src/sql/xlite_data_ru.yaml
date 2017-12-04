@@ -177,10 +177,3 @@ XLite\Model\Language:
   - code: en
     enabled: false
 
-XLite\Model\Payment\Method:
-  - service_name: ExpressCheckout
-    added: false
-
-  - service_name: PaypalCredit
-    added: false
-

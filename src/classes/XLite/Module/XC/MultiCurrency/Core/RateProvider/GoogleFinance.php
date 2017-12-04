@@ -18,7 +18,7 @@ class GoogleFinance extends \XLite\Module\XC\MultiCurrency\Core\RateProvider\ARa
      *
      * @var string
      */
-    protected $url = 'http://www.google.com/finance/converter';
+    protected $url = 'https://finance.google.com/finance/converter';
 
     /**
      * Get currency conversion rate
@@ -32,13 +32,13 @@ class GoogleFinance extends \XLite\Module\XC\MultiCurrency\Core\RateProvider\ARa
     {
         $result = null;
 
-        $data = array(
+        $data = [
             'a'    => 1,
             'from' => $from,
             'to'   => $to,
-        );
+        ];
 
-        $postData = array();
+        $postData = [];
 
         foreach ($data as $k => $v) {
             $postData[] = "$k=$v";
@@ -54,7 +54,7 @@ class GoogleFinance extends \XLite\Module\XC\MultiCurrency\Core\RateProvider\ARa
             $rate = $this->parseResponse($from, $to, $response->body);
 
             if ($rate) {
-                $result = doubleval($rate);
+                $result = (float) $rate;
             }
         }
 

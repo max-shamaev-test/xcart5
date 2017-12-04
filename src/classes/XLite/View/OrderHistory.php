@@ -8,12 +8,14 @@
 
 namespace XLite\View;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
+
 /**
  * Order history widget
  *
  * @ListChild (list="order", weight="150", zone="admin")
  */
-class OrderHistory extends \XLite\View\AView
+class OrderHistory extends \XLite\View\AView implements ProviderInterface
 {
     /**
      * Widget parameters
@@ -245,5 +247,27 @@ class OrderHistory extends \XLite\View\AView
     protected function getHeaderBlock($index)
     {
         return $index;
+    }
+
+    /**
+     * Array of labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        $list = array(
+            'View order history',
+            'Hide order history'
+        );
+
+        $data = array();
+        foreach ($list as $name) {
+            $data[$name] = static::t($name);
+        }
+
+        return $data;
     }
 }

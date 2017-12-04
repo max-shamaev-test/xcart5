@@ -13,4 +13,15 @@ namespace XLite\Model\Repo;
  */
 class AttributeProperty extends \XLite\Model\Repo\ARepo
 {
+    public function generateClassAttributeProperties(\XLite\Model\Product $product, \XLite\Model\ProductClass $class)
+    {
+        /** @var \XLite\Model\Attribute $attribute  */
+        foreach ($class->getAttributes() as $attribute) {
+            /** @var \XLite\Model\AttributeProperty $prop  */
+            $prop = $this->insert(null);
+            $prop->setProduct($product);
+            $prop->setAttribute($attribute);
+            $prop->setPosition($attribute->getPosition());
+        }
+    }
 }

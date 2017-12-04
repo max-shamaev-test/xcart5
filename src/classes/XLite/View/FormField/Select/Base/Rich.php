@@ -34,6 +34,19 @@ abstract class Rich extends \XLite\View\FormField\Select\Regular
     }
 
     /**
+     * Register CSS files
+     *
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        $list = parent::getCSSFiles();
+
+        $list[] = $this->getDir() . '/css/rich.less';
+
+        return $list;
+    }
+    /**
      * Register files from common repository
      *
      * @return array

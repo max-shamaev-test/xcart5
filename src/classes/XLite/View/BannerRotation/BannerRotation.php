@@ -77,12 +77,12 @@ class BannerRotation extends \XLite\View\AView
     protected function getImages()
     {
         $slides = \XLite\Core\Database::getRepo('XLite\Model\BannerRotationSlide')->findBy(
-            array('enabled' => true),
-            array('position' => 'ASC')
+            ['enabled' => true],
+            ['position' => 'ASC']
         );
 
         $images = array_map(
-            function($slide) {
+            function ($slide) {
                 return $slide->getImage();
             },
             $slides
@@ -98,7 +98,7 @@ class BannerRotation extends \XLite\View\AView
      */
     protected function getImageCount()
     {
-        $cacheParams   = $this->getCacheParameters();
+        $cacheParams = $this->getCacheParameters();
         $cacheParams[] = 'getImageCount';
 
         return $this->executeCached(function () {
@@ -124,9 +124,9 @@ class BannerRotation extends \XLite\View\AView
     protected function isVisible()
     {
         return parent::isVisible()
-               && !$this->isForceChangePassword()
-               && \XLite\Core\Config::getInstance()->BannerRotation->enabled
-               && $this->getImageCount() > 0;
+            && !$this->isForceChangePassword()
+            && \XLite\Core\Config::getInstance()->BannerRotation->enabled
+            && $this->getImageCount() > 0;
     }
 
     /**
@@ -136,10 +136,10 @@ class BannerRotation extends \XLite\View\AView
      */
     protected function getCommentedData()
     {
-        return array(
-            'pause'     => false,
-            'interval'  => round(\XLite\Core\Config::getInstance()->BannerRotation->interval * 1000),
-        );
+        return [
+            'pause'    => false,
+            'interval' => round(\XLite\Core\Config::getInstance()->BannerRotation->interval * 1000),
+        ];
     }
 
     /**
@@ -150,5 +150,43 @@ class BannerRotation extends \XLite\View\AView
     protected function isCacheAvailable()
     {
         return true;
+    }
+
+    /**
+     * @param \XLite\Model\Base\Image $image
+     *
+     * @return string
+     */
+    protected function getBlurredImageData($image)
+    {
+        return $image
+            ? $image->getBlurredImageData(
+                $this->getBlurredImageDimensions()['w'],
+                $this->getBlurredImageDimensions()['h']
+            )
+            : null;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getBlurredImageDimensions()
+    {
+        return [
+            'w' => 60,
+            'h' => 20,
+        ];
+    }
+
+    /**
+     * @param \XLite\Model\Base\Image $image
+     *
+     * @return string
+     */
+    protected function getBlurredImageId($image)
+    {
+        return $image
+            ? 'bi' . md5($this->getBlurredImageData($image))
+            : null;
     }
 }

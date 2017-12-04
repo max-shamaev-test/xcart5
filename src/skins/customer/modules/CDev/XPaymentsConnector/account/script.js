@@ -102,7 +102,9 @@ function unshadeIframe()
 
 function initXpcIframe()
 {
-  shadeIframe();
   var iframe = jQuery('iframe#add_new_card_iframe');
-  iframe.attr('src', iframe.data('src'));
+  if (iframe.length) {
+    shadeIframe();
+    iframe.attr('src', iframe.data('src'));
+  }
 }

@@ -8,11 +8,15 @@
 
 namespace XLite\View\Button\Dropdown;
 
+use XLite\View\Button\Features\TooltippedTrait;
+
 /**
  * Order print
  */
 class PaymentStatuses extends \XLite\View\Button\Dropdown\ADropdown
 {
+    use TooltippedTrait;
+
     /**
      * Define additional buttons
      *
@@ -71,5 +75,15 @@ class PaymentStatuses extends \XLite\View\Button\Dropdown\ADropdown
         return [
             'A'
         ];
+    }
+
+    /**
+     * getDefaultLabel
+     *
+     * @return string
+     */
+    protected function getDefaultTitle()
+    {
+        return static::t('Change payment status for selected');
     }
 }

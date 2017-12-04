@@ -8,6 +8,8 @@
 
 namespace XLite\View;
 
+use XLite\Core\Cache\ExecuteCached;
+
 /**
  * Upgrade top box
  *
@@ -27,13 +29,13 @@ class UpgradeTopBox extends \XLite\View\AView
     protected $updateFlags;
 
     /**
-     * Get JS files 
-     * 
+     * Get JS files
+     *
      * @return array
      */
     public function getJSFiles()
     {
-        $list = parent::getJSFiles();
+        $list   = parent::getJSFiles();
         $list[] = 'top_links/version_notes/parts/upgrade.js';
 
         return $list;
@@ -82,6 +84,45 @@ class UpgradeTopBox extends \XLite\View\AView
     }
 
     /**
+     * @return bool
+     */
+    protected function hasHotfixes()
+    {
+        return \XLite\Upgrade\Cell::getInstance()->hasHotfixEntries();
+    }
+
+    /**
+     * @return bool
+     */
+    protected function hasUpdates()
+    {
+        return \XLite\Upgrade\Cell::getInstance()->hasUpdateEntries();
+    }
+
+    /**
+     * @return bool
+     */
+    protected function hasUpgrades()
+    {
+        $infoHash = \XLite\Core\Database::getRepo('XLite\Model\Module')->getUpgradeModulesInfoHash();
+
+        $hasCoreUpgrade = false;
+        if (!$infoHash['hotfix'] && !$infoHash['update']) {
+            $coreVersions = \XLite\Upgrade\Cell::getInstance()->getCoreVersions();
+            $currentCoreMajorVersion = \XLite::getInstance()->getMajorVersion();
+            foreach ($coreVersions as $coreVersion) {
+                $version = implode('.', array_slice(explode('.', $coreVersion[0]), 0, 2));
+                if (version_compare($currentCoreMajorVersion, $version, '<')) {
+                    $hasCoreUpgrade = true;
+                    break;
+                }
+            }
+        }
+
+        return $hasCoreUpgrade;
+    }
+
+    /**
      * Return true if box should be active
      *
      * @return boolean
@@ -98,9 +139,9 @@ class UpgradeTopBox extends \XLite\View\AView
      */
     protected function isCoreUpgradeAvailable()
     {
-        $flags = $this->getUpdateFlags();
-
-        return !empty($flags[\XLite\Core\Marketplace::FIELD_IS_UPGRADE_AVAILABLE]);
+        $hasCoreUpdate = \XLite\Upgrade\Cell::getInstance()->hasCoreUpdate();
+        
+        return $hasCoreUpdate || $this->hasUpgrades();
     }
 
     /**
@@ -110,41 +151,28 @@ class UpgradeTopBox extends \XLite\View\AView
      */
     protected function areUpdatesAvailable()
     {
-        $flags = $this->getUpdateFlags();
-        return !empty($flags[\XLite\Core\Marketplace::FIELD_ARE_UPDATES_AVAILABLE]);
+        $infoHash = \XLite\Core\Database::getRepo('XLite\Model\Module')->getUpgradeModulesInfoHash();
+
+        return $infoHash['total'] > 0;
     }
 
     /**
-     * Return upgrade flags
+     * Get container tag attributes
      *
-     * @return array
-     */
-    protected function getUpdateFlags()
-    {
-        if (!isset($this->updateFlags)) {
-            $this->updateFlags = \XLite\Core\Marketplace::getInstance()->checkForUpdates();
-        }
-
-        return is_array($this->updateFlags) ? $this->updateFlags : array();
-    }
-
-    /**
-     * Get container tag attributes 
-     * 
      * @return array
      */
     protected function getContainerTagAttributes()
     {
-        $data = array();
+        $data   = [];
         $data[] = 'upgrade-box';
 
-        $state = 'opened';
+        $state      = 'opened';
         $tmpVarHash = \XLite\Core\TmpVars::getInstance()->{static::READ_MARK_KEY};
-        $realHash = \XLite\Core\Marketplace::getInstance()->unseenUpdatesHash();
+        $realHash   = \XLite\Core\Marketplace::getInstance()->unseenUpdatesHash();
         if ($realHash !== $tmpVarHash) {
             \XLite\Core\TmpVars::getInstance()->{static::READ_MARK_KEY} = null;
 
-        } elseif(!empty($tmpVarHash)) {
+        } elseif (!empty($tmpVarHash)) {
             $state = 'post-closed';
         }
 
@@ -154,16 +182,65 @@ class UpgradeTopBox extends \XLite\View\AView
             $data[] = 'invisible';
         }
 
-        if (\XLite\Upgrade\Cell::getInstance()->hasHotfixEntries()) {
+        $isHotfixMode = \XLite\Upgrade\Cell::getInstance()->isUpgradeHotfixModeSelectorAvailable()
+            ? \XLite\Core\Session::getInstance()->upgradeHotfixMode
+            : null;
+
+        $cacheUpgradeParams = [
+            'hasHotfixEntries',
+            get_class($this),
+            \XLite\Core\Database::getRepo('XLite\Model\Module')->getVersion(),
+            \XLite\Core\Marketplace::getInstance()->getCores(
+                \XLite\Core\Marketplace::TTL_SHORT
+            ),
+            $isHotfixMode
+        ];
+
+        $hasNewFeaturesEntries = ExecuteCached::executeCached(function () {
+            return $this->hasUpdates() || $this->hasUpgrades();
+        }, array_merge($cacheUpgradeParams, ['hasNewFeaturesEntries']));
+
+        $isHotfix = ExecuteCached::executeCached(function () {
+            return \XLite\Upgrade\Cell::getInstance()->hasHotfixEntries();
+        }, array_merge($cacheUpgradeParams, ['isHotfix']));
+
+        if ($hasNewFeaturesEntries) {
+            $data[] = 'update';
+        } elseif ($isHotfix) {
             $data[] = 'hotfix';
         }
 
-        if (\XLite\Upgrade\Cell::getInstance()->hasNewFeaturesEntries()) {
-            $data[] = 'update';
+        return [
+            'class' => $data,
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    protected function getDescription()
+    {
+        $coreAvailable = $this->isCoreUpgradeAvailable();
+
+        $infoHash = \XLite\Core\Database::getRepo('XLite\Model\Module')->getUpgradeModulesInfoHash();
+        if ($this->hasHotfixes()) {
+            $count = $infoHash['hotfix'];
+        } elseif ($this->hasUpdates()) {
+            $count = $infoHash['update'];
+        } else {
+            $count = $infoHash['upgrade'];
         }
 
-        return array(
-            'class' => $data,
-        );
+        if ($coreAvailable && $count) {
+            $result = static::t('new core and X addons', ['count' => $count]);
+
+        } elseif ($count) {
+            $result = static::t('X addons', ['count' => $count]);
+
+        } else {
+            $result = static::t('new core');
+        }
+
+        return $result;
     }
 }

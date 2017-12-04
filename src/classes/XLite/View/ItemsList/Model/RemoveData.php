@@ -253,6 +253,7 @@ class RemoveData extends \XLite\View\ItemsList\Model\Table
      */
     protected function buildMetodName(\XLite\Model\AEntity $entity, $pattern)
     {
+        $name = '';
         switch ($entity->getId()) {
             case static::TYPE_PRODUCTS:
                 $name = 'Products';

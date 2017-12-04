@@ -38,6 +38,10 @@
     z-index: 9999999999;
 }
 
+.xlite-translation-popover .xlite-translation-help .xlite-translation-label {
+    font-size: 12px;
+}
+
 .xlite-translation-button {
     font-size: 14px;
     z-index: 2;

@@ -314,6 +314,10 @@ class Converter extends \XLite\Base\Singleton
                 $interface = \XLite::getInstance()->getScript();
             }
 
+            if ((LC_USE_CLEAN_URLS || $cuFlag) && \XLite::getInstance()->getCustomerScript() === $interface) {
+                $interface = null;
+            }
+
             $result = \Includes\Utils\Converter::buildURL($target, $action, $params, $interface);
         }
 
@@ -491,9 +495,7 @@ class Converter extends \XLite\Base\Singleton
      */
     public static function isURL($url)
     {
-        static $pattern = '(?:([a-z][a-z0-9\*\-\.]*):\/\/(?:(?:(?:[\w\.\-\+!$&\'\(\)*\+,;=]|%[0-9a-f]{2})+:)*(?:[\w\.\-\+%!$&\'\(\)*\+,;=]|%[0-9a-f]{2})+@)?(?:(?:[a-z0-9\-\.]|%[0-9a-f]{2})+|(?:\[(?:[0-9a-f]{0,4}:)*(?:[0-9a-f]{0,4})\]))(?::[0-9]+)?(?:[\/|\?](?:[\w#!:\.\?\+=&@!$\'~*,;\/\(\)\[\]\-]|%[0-9a-f]{2})*)?)';
-
-        return is_string($url) && 0 < preg_match('/^' . $pattern . '$/Ss', $url);
+        return (bool) filter_var($url, \FILTER_VALIDATE_URL);
     }
 
     /**
@@ -835,6 +837,61 @@ class Converter extends \XLite\Base\Singleton
         }
 
         return $date;
+    }
+
+    /**
+     * @param string $range
+     * @param string $format
+     * @param string $separator
+     *
+     * @return array
+     */
+    public static function convertRangeStringToArray($range, $format, $separator)
+    {
+        $result = [0, 0];
+
+        $format .= ' H:i:s';
+
+        if (!empty($range) && is_string($range)) {
+            $dates = explode($separator, $range);
+
+            if (!empty($dates[0])) {
+                $startDate = \DateTime::createFromFormat($format, trim($dates[0]) . ' 0:00:00');
+                if ($startDate) {
+                    $result[0] = static::convertTimeToServer($startDate->getTimestamp());
+                }
+            }
+
+            if (!empty($dates[1])) {
+                $endDate = \DateTime::createFromFormat($format, trim($dates[1]) . ' 23:59:59');
+                if ($endDate) {
+                    $result[1] = static::convertTimeToServer($endDate->getTimestamp());
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array  $rangeArray
+     * @param string $format
+     *
+     * @return string
+     */
+    public static function convertArrayToRangeString(array $rangeArray, $format, $separator)
+    {
+        $result = '';
+
+        if ($rangeArray
+            && count($rangeArray) === 2
+        ) {
+            $rangeArray[0] = !empty($rangeArray[0]) ? date($format, $rangeArray[0]) : date($format);
+            $rangeArray[1] = !empty($rangeArray[1]) ? date($format, $rangeArray[1]) : date($format);
+            $result = implode($separator, $rangeArray);
+        }
+
+        return $result;
     }
 
     /**

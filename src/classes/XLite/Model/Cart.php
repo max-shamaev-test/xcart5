@@ -449,12 +449,12 @@ class Cart extends \XLite\Model\Order
      */
     public function checkCart()
     {
-        return
-            !$this->isEmpty()
+        return !$this->isEmpty()
             && !((bool) $this->getItemsWithWrongAmounts())
             && !$this->isMinOrderAmountError()
             && !$this->isMaxOrderAmountError()
-            && $this->isConfigured();
+            && $this->isConfigured()
+            && $this->isAllItemsValid();
     }
 
     /**

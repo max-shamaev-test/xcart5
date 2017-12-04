@@ -17,7 +17,7 @@ class FloatFormat extends \XLite\View\FormField\Select\Regular
      * Parts of number
      */
     const THOUSAND_PART     = '1';
-    const HUNDRENDS_PART    = '999';
+    const HUNDRENDS_PART    = '234';
     const DECIMAL_PART      = '9';
 
     /**

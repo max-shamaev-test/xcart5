@@ -393,6 +393,9 @@ table.data-table td .module-tags-list li:hover a {
 {
   width: 84px;
   height: 84px;
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-all;
 }
 
 .icon-container .addon-icon .addon-default-icon {

@@ -10,6 +10,8 @@ namespace XLite\Module\CDev\Paypal\Core;
 
 /**
  * Maintains the list of auth providers
+ *
+ * @Decorator\Depend("CDev\SocialLogin")
  */
 class AuthManager extends \XLite\Module\CDev\SocialLogin\Core\AuthManager implements \XLite\Base\IDecorator
 {

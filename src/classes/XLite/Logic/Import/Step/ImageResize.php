@@ -62,7 +62,9 @@ class ImageResize extends \XLite\Logic\Import\Step\AStep
      */
     public function process()
     {
-        $result = $this->getImageResizeGenerator()->current()->run();
+        $result = $this->getImageResizeGenerator()->getStep()
+            ? $this->getImageResizeGenerator()->current()->run()
+            : false;
 
         if ($result) {
             if (empty($this->getOptions()->commonData['irProcessed'])) {

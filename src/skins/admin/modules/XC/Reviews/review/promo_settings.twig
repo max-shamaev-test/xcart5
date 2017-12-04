@@ -9,15 +9,8 @@
 
   {% set moduleName = this.getModule().getActualName() %}
 
-  <style type="text/css">
-    .promo-block.shopper-approved-2-promo {
-      position: absolute;
-      right: 10px;
-    }
-  </style>
-
   {% if moduleName == 'XC\\Reviews' %}
-    {{ widget('XLite\\View\\SimplePromoBlock', promoId="shopper-approved-2") }}
+    {{ widget('XLite\\Module\\XC\\Reviews\\View\\Promo\\ShopperApproved') }}
   {% endif %}
 
 {% endif %}

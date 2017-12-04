@@ -1156,6 +1156,11 @@ abstract class AView extends \XLite\Core\Handler
             $currency = \XLite::getInstance()->getCurrency();
         }
 
+        if ($currency->getRoundUp() !== \XLite\Model\Currency::ROUNDUP_NONE && !\XLite::isAdminZone()) {
+            $pow = pow(10, (int)$currency->getRoundUp());
+            $value = ceil($value * $pow) / $pow;
+        }
+
         $parts = $currency->formatParts($value);
 
         if (isset($parts['sign']) && '-' === $parts['sign']) {
@@ -1203,6 +1208,11 @@ abstract class AView extends \XLite\Core\Handler
     {
         if (null === $currency) {
             $currency = \XLite::getInstance()->getCurrency();
+        }
+
+        if ($currency->getRoundUp() !== \XLite\Model\Currency::ROUNDUP_NONE && !\XLite::isAdminZone()) {
+            $pow = pow(10, (int)$currency->getRoundUp());
+            $value = ceil($value * $pow) / $pow;
         }
 
         $parts = $currency->formatParts($value);
@@ -2323,7 +2333,7 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function getActivateFreeLicenseURL()
     {
-        return \XLite\Core\Converter::buildURL('activate_free_license', '', [], \XLite::ADMIN_SELF);
+        return \XLite\Core\Converter::buildURL('activate_free_license', '', [], \XLite::getAdminScript());
     }
 
     /**

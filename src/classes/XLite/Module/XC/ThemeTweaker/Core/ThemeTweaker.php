@@ -91,7 +91,9 @@ class ThemeTweaker extends \XLite\Base\Singleton
      */
     public static function isTargetAllowedInInlineEditorMode()
     {
-        return 'product' === \XLite\Core\Request::getInstance()->target;
+        $targets = ['product', 'category', 'page', 'main'];
+
+        return in_array(\XLite\Core\Request::getInstance()->target, $targets, true);
     }
 
     /**

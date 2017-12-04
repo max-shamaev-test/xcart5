@@ -248,4 +248,17 @@ class NewArrivals extends \XLite\Module\CDev\ProductAdvisor\View\ANewArrivals
     {
         return \XLite\Core\Translation::getInstance()->translate('All newest products');
     }
+
+    /**
+     * Get cache parameters
+     *
+     * @return array
+     */
+    protected function getCacheParameters()
+    {
+        $list = parent::getCacheParameters();
+        $list[] = $this->getRootId();
+
+        return $list;
+    }
 }

@@ -8,7 +8,7 @@
 
 namespace XLite\Model;
 use Doctrine\Common\Collections\ArrayCollection;
-use XLite\Core\Doctrine\ORM\EntityManager;
+use XLite\Model\Payment\Transaction;
 
 /**
  * Class represents an order
@@ -390,11 +390,11 @@ class Order extends \XLite\Model\Base\SurchargeOwner
             $warningText = '';
 
             if ($item) {
-                $item->setAmount($item->getAmount() + $newItem->getAmount());
-
                 $warningText = $item->getAmountWarning(
                     $item->getAmount() + $newItem->getAmount()
                 );
+
+                $item->setAmount($item->getAmount() + $newItem->getAmount());
 
             } else {
                 $this->addItems($newItem);
@@ -566,6 +566,10 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         /** @var \XLite\Model\Payment\Transaction $transaction */
         foreach (array_reverse($transactions) as $transaction) {
             if ($transaction->isFailed()) {
+                if ($transaction->getNote() && $transaction->getNote() !== Transaction::getDefaultFailedReason()) {
+                    return $transaction->getNote();
+                }
+
                 $reason = $transaction->getDataCell('status');
 
                 if ($reason && $reason->getValue()) {
@@ -1362,6 +1366,9 @@ class Order extends \XLite\Model\Base\SurchargeOwner
             $this->decreaseInventory();
         }
 
+        // Register 'Place order' event in the order history
+        \XLite\Core\OrderHistory::getInstance()->registerPlaceOrder($this->getOrderId());
+
         // Transform attributes
         $this->transformItemsAttributes();
 
@@ -1741,7 +1748,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         $transaction = $this->getFirstOpenPaymentTransaction();
 
         if ($transaction) {
-            $this->getPaymentTransactions()->removeElement($transaction);
+            $this->payment_transactions->removeElement($transaction);
             \XLite\Core\Database::getEM()->remove($transaction);
         }
     }
@@ -3189,26 +3196,15 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     protected function changeItemInventory($item, $sign, $register = true)
     {
-        $product = $item->getProduct();
+        $history = \XLite\Core\OrderHistory::getInstance();
+        $amount = $sign * $item->getAmount();
 
-        return \XLite\Core\Database::getEM()->transactionalWithRestarts(function (EntityManager $em)
-        use ($item, $sign, $register, $product) {
-            if ($product->isManaged()) {
-                $em->lock($product, \Doctrine\DBAL\LockMode::OPTIMISTIC, $product->getVersion());
-            }
+        if ($register) {
+            $history->registerChangeAmount($this->getOrderId(), $item->getProduct(), $amount);
+        }
+        $item->changeAmount($amount);
 
-            $history = \XLite\Core\OrderHistory::getInstance();
-            $amount = $sign * $item->getAmount();
-
-            if ($register) {
-                $history->registerChangeAmount($this->getOrderId(), $item->getProduct(), $amount);
-            }
-            $item->changeAmount($amount);
-
-            return $amount;
-        }, function (EntityManager $em) use ($product) {
-            $em->refresh($product);
-        }, 10);
+        return $amount;
     }
 
     /**
@@ -3636,6 +3632,25 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         }
 
         return $list;
+    }
+
+    /**
+     * Check if all order items in order is valid
+     *
+     * @return boolean
+     */
+    protected function isAllItemsValid()
+    {
+        $result = true;
+
+        foreach ($this->getItems() as $item) {
+            if (!$item->isValid()) {
+                $result = false;
+                break;
+            }
+        }
+
+        return $result;
     }
 
     /**

@@ -167,7 +167,8 @@ class Shipping extends \XLite\Base\Singleton
         $refererTarget = \XLite\Core\Request::getInstance()->getAjaxRefererTarget();
         $isValidAjaxRequests = in_array($refererTarget, ['cart', 'checkout'], true);
 
-        return \XLite::getController()->isAJAX() && $isValidAjaxRequests;
+        return (\XLite::getController()->isAJAX() && $isValidAjaxRequests)
+            || \XLite::isAdminZone();
     }
 
     /**

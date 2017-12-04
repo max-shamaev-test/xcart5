@@ -33,9 +33,9 @@
 {% else %}
 
   <div class="alert alert-danger add-new-card-error">
-    <strong class="important-label">{{ t('Important') }}!</strong>
-    {{ t('No addresses for the profile.') }}
-    {{ widget('\\XLite\\Module\\CDev\\XPaymentsConnector\\View\\Button\\AddAddress', label='Setup address', profileId=this.getCustomerProfileId()) }}
+    <strong class="important-label">{{ t('Warning') }}!</strong>
+    {{ t('No billing address is defined. To add new card please ') }}
+    {{ widget('\\XLite\\Module\\CDev\\XPaymentsConnector\\View\\Button\\AddAddress', label='enter address for this profile', profileId=this.getCustomerProfileId()) }}
   </div>
 
 {% endif %}

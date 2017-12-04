@@ -186,12 +186,7 @@ abstract class AAdmin extends \XLite\Controller\AController
         if ($auth->isLogged()
             && $auth->getProfile()->isAdmin() == \XLite::isAdminZone()
         ) {
-            $flags = \XLite\Core\Marketplace::getInstance()->checkForUpdates();
-            if (is_array($flags)
-                && (!empty($flags[\XLite\Core\Marketplace::FIELD_ARE_UPDATES_AVAILABLE])
-                    || !empty($flags[\XLite\Core\Marketplace::FIELD_IS_UPGRADE_AVAILABLE])
-                )
-            ) {
+            if (count(\XLite\Upgrade\Cell::getInstance()->getEntries())) {
                 $classes[] = 'upgrade-box-visible';
             }
 

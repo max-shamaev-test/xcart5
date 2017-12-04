@@ -231,7 +231,7 @@ class Config extends \XLite\Model\Base\I18n
     /**
      * Set value
      *
-     * @param text $value
+     * @param string $value
      * @return Config
      */
     public function setValue($value)

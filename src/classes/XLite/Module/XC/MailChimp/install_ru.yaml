@@ -11,8 +11,9 @@ XLite\Model\Config:
   - { name: 'mailChimpAPIKey', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'API ключ MailChimp' }] }
   - { name: 'analytics360enabled', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Включить аналитику Ecommerce' }] }
   - { name: 'abandonedCartEnabled', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Включить Abandoned Carts' }] }
+  - { name: 'selectedAbandonedCartsListid', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Список рассылок для Abandoned Carts' }] }
   - { name: 'doubleOptinDisabled', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Включить режим подписки "single opt-in"', option_comment: 'Когда этоа опция включена клиенты не будут получать запрос на подтверждение подписки (в отличие от метода "double opt-in"). Злоупотребление данной опцией может привести к блокировке вашей учетной записи MailChimp!'}] }
-  - { name: 'subscriptionElementType', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Тип элемента выбора подписки', option_comment: 'Эта опция управляет тем, как ваши клиенты выбирают подписку на рассылку. Список позволяет подписаться только на одну рассылку из списка за раз, когда как галочка позволяет подписаться на несколько рассылок сразу.'}] }
+  - { name: 'subscriptionElementType', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Тип элемента выбора подписки', option_comment: 'Эта опция управляет тем, как ваши клиенты выбирают подписку на рассылку. Список позволяет подписаться только на одну рассылку из списка за раз, когда как галочка позволяет подписаться на несколько рассылок сразу. Для страницы оплаты всегда остаётся галочка.'}] }
   - { name: 'updateInterval', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Обновлять список рассылок MailChimp каждые', option_comment: 'Выберите временной интервал для обновления информации о списках рассылок.'}] }
 
 XLite\Model\LanguageLabel:

@@ -9,6 +9,7 @@
 
 .products {
   overflow: hidden;
+  width: 100%;
 }
 
 .products .added-to-cart {
@@ -428,6 +429,7 @@ ul.products-sidebar li .clearfix {
 
 .items-list .products-list .product-info .add-to-cart-button {
   margin-top: 20px;
+  vertical-align: top;
 }
 
 .products-grid .product-cell .product {

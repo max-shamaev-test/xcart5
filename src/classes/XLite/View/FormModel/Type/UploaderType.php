@@ -27,6 +27,9 @@ class UploaderType extends AType
                 'imageClass'    => '\XLite\Model\TemporaryFile',
                 'files'         => null,
                 'multiple'      => false,
+                'helpMessage'   => null,
+                'previewWidth'  => null,
+                'previewHeight' => null
             ]
         );
     }
@@ -40,13 +43,22 @@ class UploaderType extends AType
     {
         $varsToPopulate = [
             'options'   => [
-                'value'     => $this->prepareValue($form->getViewData(), $options['imageClass']),
+                'value'     => $options['files'],
                 'multiple'  => $options['multiple'],
                 'fieldOnly' => true,
                 'fieldName' => $view->vars['full_name'],
+                'helpMessage'   => $options['helpMessage'],
             ],
-            'uploaderClass'     => $options['uploaderClass']
+            'uploaderClass'     => $options['uploaderClass'],
         ];
+
+        if ($options['previewHeight']) {
+            $varsToPopulate['options']['maxHeight'] = $options['previewHeight'];
+        }
+
+        if ($options['previewWidth']) {
+            $varsToPopulate['options']['maxWidth'] = $options['previewWidth'];
+        }
 
         $view->vars = array_replace(
             $view->vars,

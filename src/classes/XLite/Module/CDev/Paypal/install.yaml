@@ -237,6 +237,14 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: Test/Live mode
+  - name: loginScopes
+    category: CDev\Paypal
+    type: XLite\Module\CDev\Paypal\View\FormField\Select\Scopes
+    value: 'a:6:{i:0;s:6:"openid";i:1;s:5:"email";i:2;s:7:"profile";i:3;s:7:"address";i:4;s:5:"phone";i:5;s:47:"https://uri.paypal.com/services/expresscheckout";}'
+    orderby: 700
+    translations:
+      - code: en
+        option_name: Login scopes
 
 XLite\Model\LanguageLabel:
   - { name: 'PayPal ID / Email', translations: [{ code: en, label: 'PayPal ID / Email' }] }
@@ -326,3 +334,5 @@ XLite\Model\LanguageLabel:
   - { name: 'MATCH_CRITERIA_DISABLED', translations: [{ code: en, label: 'Disable' }] }
   - { name: 'Refund status:', translations: [{ code: en, label: 'Refund status:' }] }
   - { name: '[BT] In progress', translations: [{ code: en, label: 'In progress' }] }
+
+  - { name: '__pdt-paypal-warning__', translations: [{ code: en, label: 'Payment processing with PayPal Standard involves using PayPal''s IPN service. If your merchant account is set to use <a href="{{link}}" target="_blank">Payment Data Transfer (PDT)</a>, be sure to disable it in your account settings and enable IPN instead.' }] }

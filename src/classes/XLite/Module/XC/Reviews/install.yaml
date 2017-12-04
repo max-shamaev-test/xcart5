@@ -158,6 +158,7 @@ XLite\Model\Task:
 
 XLite\Model\Notification:
   - templatesDirectory: modules/XC/Reviews/new_review
+    position: 1000
     availableForAdmin: true
     availableForCustomer: false
     enabledForAdmin: true

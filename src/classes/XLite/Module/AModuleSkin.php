@@ -62,4 +62,24 @@ abstract class AModuleSkin extends AModule
     {
         return true;
     }
+
+    /**
+     * Check if skin supports cloud zoom
+     *
+     * @return boolean
+     */
+    public static function isUseLazyLoad()
+    {
+        return false;
+    }
+
+    /**
+     * Check if skin supports preloaded images
+     *
+     * @return boolean
+     */
+    public static function isUsePreloadedImages()
+    {
+        return false;
+    }
 }

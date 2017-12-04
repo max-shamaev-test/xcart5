@@ -843,7 +843,6 @@ div.tabs ul.tabs {
     width: 18px;
     height: 18px;
     text-align: center;
-    line-height: 16px;
     vertical-align: top;
 
     i {
@@ -910,9 +909,14 @@ div.tabs ul.tabs {
   }
 
   .product-added & .added-to-cart,
-  .product:hover & .add-to-compare label,
   .products-table & .add-to-compare input[type="checkbox"] + label {
     display: inline-block;
+  }
+
+  @media(min-width: (@screen-md-min + 1)) {
+    .product:hover & .add-to-compare label {
+      display: inline-block;
+    }
   }
 
   @media(max-width: @screen-xs-max) {
@@ -950,7 +954,7 @@ div.tabs ul.tabs {
     background-color: #fff;
     position: relative;
 
-    @media(min-width: @screen-sm-min) {
+    @media(min-width: (@screen-sm-min + 1)) {
       &:not(.prevent-hover):hover, &.touched, &.ui-draggable-dragging {
         .product-photo a,
         .labels {
@@ -987,6 +991,7 @@ div.tabs ul.tabs {
       height: 100%;
       text-align: center;
       transition: opacity .1s ease-in;
+      padding: 0 2px;
 
       img {
         .center-image-in-flex();
@@ -1173,8 +1178,21 @@ div.tabs ul.tabs {
     margin-right: @grid-gutter-width;
 
     @media(max-width: @screen-sm-max) {
-      min-width: initial;
+      min-width: 140px;
+      width: 140px;
+      height: 150px;
       margin-right: 20px;
+    }
+  }
+
+  @media(max-width: @screen-sm-max) {
+    .labels {
+      top: 0;
+    }
+
+    .product-marks {
+      top: 0;
+      right: 0;
     }
   }
 
@@ -1723,6 +1741,10 @@ div.tabs ul.tabs {
       width: 366px;
       text-align: center;
       display: inline-block;
+
+      @media(max-width: @screen-sm-max) {
+        max-width: 100%;
+      }
     }
     .add-to-compare {
       display: block;
@@ -1985,6 +2007,10 @@ form.select-address .add-new-address-button a {
   .address-dialog {
     max-width: 530px;
   }
+}
+
+.address-form .default-section {
+  .flex-display();
 }
 
 .address-dialog ul.default-table {

@@ -14,17 +14,12 @@ namespace XLite\Module\XC\MultiCurrency\View\Menu\Admin;
 abstract class AAdmin extends \XLite\View\Menu\Admin\AAdmin implements \XLite\Base\IDecorator
 {
     /**
-     * Define and set handler attributes; initialize handler
-     *
-     * @param array $params Handler params OPTIONAL
-     *
-     * @return void
+     * @inheritdoc
      */
     public function __construct(array $params = array())
     {
         parent::__construct($params);
 
         $this->relatedTargets['units_formats'][] = 'currencies';
-        $this->relatedTargets['units_formats'][] = 'currency_countries';
     }
 }

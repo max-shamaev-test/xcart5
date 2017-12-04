@@ -287,7 +287,6 @@ XLite\Model\LanguageLabel:
   - { name: Difference, translations: [{ code: en, label: Difference }] }
   - { name: 'Payment information', translations: [{ code: en, label: 'Payment information' }] }
   - { name: 'Connection with X-Payments is OK.', translations: [{ code: en, label: 'Connection with X-Payments is OK.' }] }
-  - { name: 'No addresses for the profile.', translations: [{ code: en, label: 'No addresses for the profile.' }] }
   - { name: 'Order status mapping rules', translations: [{ code: en, label: 'Order status mapping rules' }] }
   - { name: 'Refer to on-line manual', translations: [{ code: en, label: 'Refer to on-line manual' }] }
   - { name: 'Save credit card setup', translations: [{ code: en, label: 'Save credit card setup' }] }

@@ -137,7 +137,9 @@ class PaymentActionsUnit extends \XLite\View\AView
      */
     protected function isTransactionUnitAllowed($transaction, $unit)
     {
-        return $transaction->getPaymentMethod()->getProcessor()->isTransactionAllowed($transaction, $unit);
+        return $transaction->getPaymentMethod()
+            && $transaction->getPaymentMethod()->getProcessor()
+            && $transaction->getPaymentMethod()->getProcessor()->isTransactionAllowed($transaction, $unit);
     }
 
     /**

@@ -165,6 +165,10 @@ class Profile extends \XLite\Model\Profile implements \XLite\Base\IDecorator
      */
     public function isCardIdValid($cardId, $strict = false)
     {
+        if (empty($this->default_card_id)) {
+            return false;
+        }
+
         $cnd = new \XLite\Core\CommonCell();
 
         $class = '\XLite\Module\CDev\XPaymentsConnector\Model\Repo\Payment\XpcTransactionData';

@@ -98,19 +98,19 @@ class SavedCard extends \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Proc
 
                 $key = 'xpc_can_do_' . $field;
                 if (
-                    $parentTransaction->getDataCell($key)
-                    && $parentTransaction->getDataCell($key)->getValue()
+                    $parentTransaction->getXpcDataCell($key)
+                    && $parentTransaction->getXpcDataCell($key)->getValue()
                 ) {
-                    $this->transaction->setDataCell($key, $parentTransaction->getDataCell($key)->getValue(), null, 'C');
+                    $this->transaction->setXpcDataCell($key, $parentTransaction->getXpcDataCell($key)->getValue());
                 }
             }
 
             $this->copyMaskedCard($parentTransaction, $this->transaction);
 
-            $patentTxnId = $parentTransaction->getDataCell('xpc_txnid')->getValue();
+            $parentTxnId = $parentTransaction->getDataCell('xpc_txnid')->getValue();
 
             $recharge = $this->client->requestPaymentRecharge(
-                $patentTxnId,
+                $parentTxnId,
                 $this->transaction,
                 'Payment via saved card'
             );
@@ -128,6 +128,12 @@ class SavedCard extends \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Proc
 
                 if (isset($response['transaction_id'])) {
                     $this->transaction->setDataCell('xpc_txnid', $response['transaction_id'], 'X-Payments transaction id');
+                    // Get updated transaction info from X-Payments
+                    $info = $this->client->requestPaymentInfo($response['transaction_id']);
+                    if ($info->isSuccess()) {
+                        $response = $info->getResponse();
+                        $this->processTransactionUpdate($this->transaction, $response);
+                    }
                 }
 
                 if (isset($response['status'])) {
@@ -144,8 +150,6 @@ class SavedCard extends \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Proc
                 }
             }       
         }
-
-        \XLite\Core\Session::getInstance()->xpc_skip_process_success = true;
 
         return $status;
     }

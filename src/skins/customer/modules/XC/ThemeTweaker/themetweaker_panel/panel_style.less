@@ -1,7 +1,7 @@
 /* vim: set ts=2 sw=2 sts=2 et: */
 
 /**
- * Slidebar styles
+ * Themetweaker styles
  *
  * Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
  * See https://www.x-cart.com/license-agreement.html for license details.
@@ -56,7 +56,7 @@
   -khtml-opacity: .3;
   -webkit-opacity: .3;
   opacity: .3;
-  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(opacity=30);
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(opacity=30)";
   filter: alpha(opacity=30);
 }
 
@@ -340,118 +340,4 @@ a.themetweaker-action:not(.disabled):hover span {
 .themetweaker-close-icon:after {
 	-webkit-transform: translate(-50%, -50%) rotate(-45deg);
 	        transform: translate(-50%, -50%) rotate(-45deg);
-}
-
-/*
- * the following styles are auto-applied to elements with
- * v-transition="expand" when their visiblity is toggled
- * by Vue.js.
- *
- * You can easily play with the modal transition by editing
- * these styles.
- */
-
-/* always present */
-.themetweaker-panel.expand-transition {
-	-webkit-transition: all .2s ease;
-	transition: all .2s ease;
-}
-
-/* .expand-enter defines the starting state for entering */
-/* .expand-leave defines the ending state for leaving */
-.themetweaker-panel.expand-enter,
-.themetweaker-panel.expand-leave {
-	height: 0 !important;
-	opacity: 0;
-}
-
-/*
- * Reloading animation styles
- */
-
-.themetweaker-panel-wrapper .reloading {
-	position: relative;
-}
-
-.themetweaker-panel-wrapper .reloading:before {
-	position: absolute;
-	left: 0;
-	top: 0;
-	bottom: 0;
-	right: 0;
-	content: "";
-	display:block;
-	z-index: 1000;
-
-	background: rgba(255,255,255, 0.9);
-
-	-webkit-animation: tt-appear 0.3s ease-in-out;
-	animation: tt-appear 0.3s ease-in-out;
-}
-
-.themetweaker-panel-wrapper .reloading.reloading-animated:after {
-	position: absolute;
-	width: 10px;
-	height: 10px;
-	content: "";
-	display:block;
-	left: 0;
-	right: 0;
-	top: 0;
-	margin: auto;
-	opacity: 0.99;
-	z-index: 1002;
-	bottom: 0;
-	border-radius: 100%;
-	box-shadow: 10px 10px @color-reloading-base, -10px 10px @color-reloading-highlight, -10px -10px @color-reloading-base, 10px -10px @color-reloading-highlight;
-	-webkit-animation: tt-spin ease infinite 2s;
-	animation: tt-spin ease infinite 2s;
-}
-
-.themetweaker-panel-wrapper .reloading-animated:after {
-	-webkit-transform: scale(0.8);
-	        transform: scale(0.8);
-}
-
-@-webkit-keyframes tt-spin {
-	0%,
-	100% {
-		box-shadow: 10px 10px @color-reloading-base, -10px 10px @color-reloading-highlight, -10px -10px @color-reloading-base, 10px -10px @color-reloading-highlight;
-	}
-	25% {
-		box-shadow: -10px 10px @color-reloading-highlight, -10px -10px @color-reloading-base, 10px -10px @color-reloading-highlight, 10px 10px @color-reloading-base;
-	}
-	50% {
-		box-shadow: -10px -10px @color-reloading-base, 10px -10px @color-reloading-highlight, 10px 10px @color-reloading-base, -10px 10px @color-reloading-highlight;
-	}
-	75% {
-		box-shadow: 10px -10px @color-reloading-highlight, 10px 10px @color-reloading-base, -10px 10px @color-reloading-highlight, -10px -10px @color-reloading-base;
-	}
-}
-
-
-@keyframes tt-spin {
-	0%,
-	100% {
-		box-shadow: 10px 10px @color-reloading-base, -10px 10px @color-reloading-highlight, -10px -10px @color-reloading-base, 10px -10px @color-reloading-highlight;
-	}
-	25% {
-		box-shadow: -10px 10px @color-reloading-highlight, -10px -10px @color-reloading-base, 10px -10px @color-reloading-highlight, 10px 10px @color-reloading-base;
-	}
-	50% {
-		box-shadow: -10px -10px @color-reloading-base, 10px -10px @color-reloading-highlight, 10px 10px @color-reloading-base, -10px 10px @color-reloading-highlight;
-	}
-	75% {
-		box-shadow: 10px -10px @color-reloading-highlight, 10px 10px @color-reloading-base, -10px 10px @color-reloading-highlight, -10px -10px @color-reloading-base;
-	}
-}
-
-@-webkit-keyframes tt-appear {
-	0% { opacity: 0; }
-	100% { opacity: 1; }
-}
-
-@keyframes tt-appear {
-	0% { opacity: 0; }
-	100% { opacity: 1; }
 }

@@ -66,6 +66,9 @@ class ThemeTweakerTemplates extends \XLite\Controller\Admin\AAdmin
     {
         $list = new \XLite\Module\XC\ThemeTweaker\View\ItemsList\Model\Template;
         $list->processQuick();
+        \XLite\Core\Cache::getInstance()->getDriver()->delete(
+            \XLite\Module\XC\ThemeTweaker\Core\Layout::THEME_TWEAKER_TEMPLATES_CACHE_KEY
+        );
     }
 
     /**

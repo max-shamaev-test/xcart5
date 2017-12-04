@@ -29,5 +29,14 @@ class Roles extends \XLite\View\FormField\Select\Tags\ATags
         return $list;
     }
 
+    protected function getAttributes()
+    {
+        return array_merge(
+            parent::getAttributes(),
+            [
+                'data-root-value' => \XLite\Core\Database::getRepo('XLite\Model\Role')->getRootId()
+            ]
+        );
+    }
 }
 

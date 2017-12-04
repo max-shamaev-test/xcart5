@@ -14,6 +14,10 @@ html {
   -webkit-font-smoothing: subpixel-antialiased;
 }
 
+html img {
+  image-rendering: -webkit-optimize-contrast;
+}
+
 h1 {
   margin: 0 0 9px;
   color: #404549;
@@ -270,7 +274,7 @@ ul.primary li span {
 
 .mm-panel {
   .transform(translate3d(100%, 0, 0));
-  .transition(-webkit-transform 0.4s ease);
+  .transition-transform(0.4s ease);
 
   &.mm-opened{
     .transform(translate3d(0%, 0, 0));
@@ -648,7 +652,7 @@ li.mm-vertical.mm-opened > .mm-panel {
 }
 
 .mm-slideout {
-  .transform(transform 0.4s ease);
+  .transition-transform(0.4s ease);
 }
 
 html.mm-opened:not(.popup-opened) {

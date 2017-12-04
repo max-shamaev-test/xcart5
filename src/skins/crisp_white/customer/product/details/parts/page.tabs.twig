@@ -11,7 +11,10 @@
       <ul class="tabs primary">
         {% for index, tab in this.getTabs() %}
           <li class="{{ this.getTabClass(tab) }}">
-            <a data-id="{{ tab.id|raw }}" href="{{ url('product', '', {'product_id': this.product.productId}) }}#{{ tab.id|raw }}" data-toggle="tab">{{ tab.name }}</a>
+            <a data-id="{{ tab.id|raw }}"
+               {% if tab.alt_id %}data-alt-id="{{ tab.alt_id }}"{% endif %}
+               href="{{ url('product', '', {'product_id': this.product.productId}) }}#{{ tab.id|raw }}"
+               data-toggle="tab">{{ tab.name }}</a>
           </li>
         {% endfor %}
       </ul>
@@ -19,6 +22,9 @@
 
     <div class="tabs-container">
       {% for tab in this.getTabs() %}
+        {% if tab.alt_id %}
+          <div id="{{ tab.alt_id }}"></div>
+        {% endif %}
         <div id="{{ tab.id|raw }}" class="tab-container hacky-container">
           <a name="{{ tab.id|raw }}"></a>
           {% if tab.template %}

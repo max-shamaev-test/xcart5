@@ -28,6 +28,15 @@ class Template extends \XLite\Model\AEntity
     protected $id;
 
     /**
+     * Is enabled
+     *
+     * @var string
+     *
+     * @Column (type="boolean", options={"default": 1})
+     */
+    protected $enabled = true;
+
+    /**
      * Original template
      *
      * @var string
@@ -64,6 +73,29 @@ class Template extends \XLite\Model\AEntity
     public function setTemplate($template)
     {
         $this->template = $template;
+        return $this;
+    }
+
+    /**
+     * Return Enabled
+     *
+     * @return string
+     */
+    public function getEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * Set Enabled
+     *
+     * @param string $enabled
+     *
+     * @return $this
+     */
+    public function setEnabled($enabled)
+    {
+        $this->enabled = $enabled;
         return $this;
     }
 

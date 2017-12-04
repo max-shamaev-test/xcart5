@@ -25,14 +25,14 @@ abstract class DataStep extends \XLite\Logic\Import\Step\AStep
      *
      * @param \XLite\Logic\Import\Importer $importer Importer
      * @param integer                      $index    Step index
-     *
-     * @return void
      */
     public function __construct(\XLite\Logic\Import\Importer $importer, $index)
     {
         parent::__construct($importer, $index);
 
-        $this->importer->getOptions()->rowsCount = $this->count();
+        if ($this->importer->getOptions()->rowsCount === 0) {
+            $this->importer->getOptions()->rowsCount = $this->count();
+        }
     }
 
     /**

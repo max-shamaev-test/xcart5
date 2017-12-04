@@ -2,6 +2,6 @@
  # Category page
  #}
 
-{% if this.getDescription() %}
-<div class="category-description">{{ this.getDescription()|raw }}</div>
+{% if this.getDescription() or this.isInInlineEditorMode() %}
+<div class="category-description" data-inline-editable {{ this.printTagAttributes(this.category.getFieldMetadata('description'))|raw }}>{{ this.getDescription()|raw }}</div>
 {% endif %}

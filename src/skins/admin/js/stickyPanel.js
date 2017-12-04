@@ -222,10 +222,11 @@ StickyPanel.prototype.isFormDoNotChangeActivation = function()
 // Mark as changed
 StickyPanel.prototype.markAsChanged = function(event, data)
 {
-  if (!_.isUndefined(data) && !data.valid) {
-    this.unmarkAsChanged();
-    return;
-  }
+  // Disable submit button if invalid form
+  // if (!_.isUndefined(data) && !data.valid) {
+  //   this.unmarkAsChanged();
+  //   return;
+  // }
 
   this.triggerVent('markAsChanged', { 'widget': this });
 

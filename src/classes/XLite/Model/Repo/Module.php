@@ -570,15 +570,8 @@ class Module extends \XLite\Model\Repo\ARepo
         }
 
         // Add new modules
-        $this->insertInBatch($data, false);
+        $this->insertInBatch($data, true);
         $this->updateModulesCache = null;
-
-        if (\XLite::getController()->getTarget() === 'addons_list_marketplace'
-            && (!\XLite::getController()->getAction()
-                || \XLite::getController()->getAction() === 'clear_cache')
-        ) {
-            $this->flushChanges();
-        }
     }
 
     // }}}
@@ -712,28 +705,25 @@ class Module extends \XLite\Model\Repo\ARepo
     {
         if (!isset($this->updateModulesInfoCache)) {
 
-            $fields = array('hotfix', 'update', 'upgrade');
+            $fields = ['hotfix', 'update', 'upgrade'];
 
-            $result = array_fill_keys($fields, false);
+            $result = array_fill_keys($fields, 0);
+            $total  = [];
 
             $modules = $this->getModules();
 
             foreach ($modules as $id => $m) {
-
                 if ($m['installed']) {
-
-                    $stop = true;
-
                     foreach ($fields as $field) {
-                        $result[$field] = $result[$field] || !empty($m[$field]);
-                        $stop = $stop && $result[$field];
-                    }
-
-                    if ($stop) {
-                        break;
+                        if (!empty($m[$field])) {
+                            $result[$field]++;
+                            $total[$id] = 1;
+                        }
                     }
                 }
             }
+
+            $result['total'] = count($total);
 
             $this->updateModulesInfoCache = $result;
         }
@@ -891,13 +881,20 @@ class Module extends \XLite\Model\Repo\ARepo
      */
     public function calculateEnabledModulesRegistryHash()
     {
-        $hash = '';
+        $cacheParams = [
+            'EnabledModulesRegistryHashCache',
+            \XLite\Core\Database::getRepo('XLite\Model\Module')->getVersion()
+        ];
 
-        foreach ($this->findBy(array('enabled' => true)) as $module) {
-            $hash .= $module->getActualName() . $module->getVersion();
-        }
+        return ExecuteCached::executeCached(function() {
+            $hash = '';
 
-        return hash('md4', $hash);
+            foreach ($this->findBy(array('enabled' => true)) as $module) {
+                $hash .= $module->getActualName() . $module->getVersion();
+            }
+
+            return hash('md4', $hash);
+        }, $cacheParams);
     }
 
     /**

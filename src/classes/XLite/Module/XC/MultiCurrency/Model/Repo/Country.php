@@ -16,7 +16,7 @@ class Country extends \XLite\Model\Repo\Country implements \XLite\Base\IDecorato
     const P_ORDER_BY_ACTIVE_CURRENCY = 'orderByActiveCurrency';
 
     const P_ACTIVE_CURRENCY = 'activeCurrency';
-    const P_ENABLED = 'enabled';
+    const P_ENABLED         = 'enabled';
 
     /**
      * Check if country has assigned currencies
@@ -79,9 +79,9 @@ class Country extends \XLite\Model\Repo\Country implements \XLite\Base\IDecorato
 
         $countries = $qb->getQuery()->getScalarResult();
 
-        $_tmp = array();
+        $_tmp = [];
         foreach ($countries as $i => $country) {
-            $_tmp[$i] = array();
+            $_tmp[$i] = [];
 
             foreach ($country as $field => $value) {
                 if (strpos($field, 'c_') === 0) {
@@ -137,7 +137,8 @@ class Country extends \XLite\Model\Repo\Country implements \XLite\Base\IDecorato
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder
      * @param integer                    $value        Active currency ID
-     * @param boolean                    $countOnly    "Count only" flag. Do not need to add "order by" clauses if only count is needed.
+     * @param boolean                    $countOnly    "Count only" flag. Do not need to add "order by" clauses if only
+     *                                                 count is needed.
      *
      * @return void
      */
@@ -159,6 +160,30 @@ class Country extends \XLite\Model\Repo\Country implements \XLite\Base\IDecorato
     protected function prepareCndEnabled(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
     {
         $queryBuilder->andWhere('c.enabled = :is_enabled')
-            ->setParameter('is_enabled', (boolean) $value);
+            ->setParameter('is_enabled', (boolean)$value);
+    }
+
+    /**
+     * Set active currency for countries
+     *
+     * @param \XLite\Module\XC\MultiCurrency\Model\ActiveCurrency $activeCurrency
+     * @param array                                               $codes ISO_3166-1
+     * @param bool                                                $overwrite
+     */
+    public function setActiveCurrency($activeCurrency, $codes, $overwrite = false)
+    {
+        $qb = $this->createPureQueryBuilder();
+        $alias = $this->getMainAlias($qb);
+
+        $qb->update()
+            ->set("{$alias}.active_currency", $activeCurrency->getActiveCurrencyId())
+            ->where("{$alias}.code IN (:codes)")
+            ->setParameter('codes', (array)$codes);
+
+        if (!$overwrite) {
+            $qb->andWhere("{$alias}.active_currency IS NULL");
+        }
+
+        $qb->execute();
     }
 }

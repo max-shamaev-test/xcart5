@@ -152,6 +152,8 @@ class Upgrade extends \XLite\Controller\Admin\Base\Addon
 
         } elseif ($this->getAction() === 'view' && \XLite\Core\Request::getInstance()->hide_title) {
             $result = null;
+        } elseif (\XLite\Upgrade\Cell::getInstance()->isInstallationMode()) {
+            $result = static::t('Installing addons');
         } else {
             $version = \XLite\Upgrade\Cell::getInstance()->getCoreMajorVersion();
 
@@ -831,6 +833,7 @@ class Upgrade extends \XLite\Controller\Admin\Base\Addon
         // Set cell status
         \XLite\Upgrade\Cell::getInstance()->clear(true, false, false);
         \XLite\Upgrade\Cell::getInstance()->setUpgraded(true);
+        \XLite\Core\Session::getInstance()->selectedEntries = [];
 
         // Rebuild cache
         if (!($this->isForce() && $this->isOnlySkins())) {

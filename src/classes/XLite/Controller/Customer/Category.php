@@ -80,7 +80,8 @@ class Category extends \XLite\Controller\Customer\Base\Catalog
 
     protected function isNeedToRedirectToMain()
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Category')->getRootCategoryId()
+        return $this->getCategory()
+            && \XLite\Core\Database::getRepo('XLite\Model\Category')->getRootCategoryId()
             === $this->getCategory()->getCategoryId();
     }
 

@@ -7,18 +7,25 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-.lazy-load {
-    background-color: #f8f8f8;
-}
-
 .lazy-load img {
-    opacity: 0;
-}
-
-.lazy-load-transition {
-    transition: background .5s ease-in, opacity .5s ease-in !important;
+    -webkit-filter: blur(25px);
+    filter: blur(25px);
+    object-position: -99999px 99999px;
 }
 
 .lazy-load-transition img {
-    transition: opacity .5s ease-in !important;
+    transition: 0.2s filter linear, 0.2s -webkit-filter linear !important;
+    -webkit-filter: blur(26px);
+    filter: blur(26px);
+    object-position: 0 0;
+}
+
+.lazy-load.lazy-load-transition.lazy-load-out img {
+    transition: 0.4s filter linear, 0.4s -webkit-filter linear !important;
+    -webkit-filter: blur(0);
+    filter: blur(0);
+}
+
+.lazy-load-loaded img {
+    background: none !important;
 }

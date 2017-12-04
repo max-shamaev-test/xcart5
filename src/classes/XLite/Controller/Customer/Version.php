@@ -42,25 +42,15 @@ class Version extends \XLite\Controller\Customer\ACustomer
     {
         header('Content-Type: text/html; charset=utf-8');
 
-        \Includes\Utils\Operator::flush($this->getInfoMessage());
-    }
+        $versionWidget = new \XLite\View\Page\Version([
+            \XLite\View\Page\Version::PARAM_VERSION_MESSAGE      => $this->getVersionMessage(),
+            \XLite\View\Page\Version::PARAM_LICENSE_MESSAGE      => $this->getLicenseMessage(),
+            \XLite\View\Page\Version::PARAM_INSTALLATION_MESSAGE => $this->getInstallationMessage(),
+            \XLite\View\Page\Version::PARAM_PRIVATE_MODULES      => $this->getPrivateModules(),
+            \XLite\View\Page\Version::PARAM_PUBLIC_MODULES       => $this->getPublicModules(),
+        ]);
 
-    /**
-     * Method to compose different messages
-     *
-     * @return string
-     */
-    protected function getInfoMessage()
-    {
-        $result = '';
-
-        $result .= $this->getVersionMessage() . LC_EOL;
-        $result .= $this->getLicenseMessage() . LC_EOL;
-        $result .= $this->getInstallationMessage() . LC_EOL;
-        $result .= LC_EOL . $this->getPrivateModulesMessage() . LC_EOL;
-        $result .= LC_EOL . $this->getPublicModulesMessage() . LC_EOL;
-
-        return $result;
+        $versionWidget->display();
     }
 
     /**
@@ -70,7 +60,7 @@ class Version extends \XLite\Controller\Customer\ACustomer
      */
     protected function getVersionMessage()
     {
-        return static::t('Version') . ': ' . \XLite::getInstance()->getVersion() . LC_EOL;
+        return static::t('Version') . ': ' . \XLite::getInstance()->getVersion();
     }
 
     /**
@@ -100,77 +90,38 @@ class Version extends \XLite\Controller\Customer\ACustomer
     }
 
     /**
-     * Return info about public installed modules
+     * Return public installed modules
      *
-     * @return string
+     * @return array
      */
-    protected function getPublicModulesMessage()
+    protected function getPublicModules()
     {
-        $result = array();
+        $result = [];
 
         foreach ($this->getActiveModules() as $module) {
             if (!$module->isCustom() && !$module->isPrivate()) {
-                $result[] = array(
-                    $module->getAuthorName(),
-                    $module->getModuleName(),
-                    $module->getMajorVersion(),
-                    $module->getFullMinorVersion(),
-                );
+                $result[] = $module;
             }
         }
 
-        usort(
-            $result,
-            function ($a, $b) {
-                return strcasecmp($a[1], $b[1]);
-            }
-        );
-
-        $list = array_map(
-            function ($a) {
-                return vsprintf('(%s): %s (v.%s.%s)', $a);
-            },
-            $result
-        );
-
-        return 'Public installed modules:' . LC_EOL . ($list ? implode(LC_EOL, $list) : static::t('None'));
+        return $result;
     }
 
     /**
-     * Return info about private & custom installed modules
+     * Return private & custom installed modules
      *
-     * @return string
+     * @return array
      */
-    protected function getPrivateModulesMessage()
+    protected function getPrivateModules()
     {
-        $result = array();
+        $result = [];
 
         foreach ($this->getActiveModules() as $module) {
             if ($module->isCustom() || $module->isPrivate()) {
-                $result[] = array(
-                    $module->getAuthorName(),
-                    $module->getModuleName(),
-                    $module->getMajorVersion(),
-                    $module->getFullMinorVersion(),
-                );
+                $result[] = $module;
             }
         }
-
-        usort(
-            $result,
-            function ($a, $b) {
-                return strcasecmp($a[1], $b[1]);
-            }
-        );
-
-        $list = array_map(
-            function ($a) {
-                return vsprintf('(%s): %s (v.%s.%s)', $a);
-            },
-            $result
-        );
-
-        return 'Private and custom modules:' . LC_EOL . ($list ? implode(LC_EOL, $list) : static::t('None'));
+        return $result;
     }
 
     /**

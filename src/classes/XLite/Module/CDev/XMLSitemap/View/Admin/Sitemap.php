@@ -56,6 +56,8 @@ class Sitemap extends \XLite\View\Dialog
      */
     protected function getSitemapURL()
     {
-        return \XLite::getInstance()->getShopURL(\XLite\Core\Converter::buildURL('sitemap', '', array(), \XLite::getCustomerScript()));
+        return \XLite::getInstance()->getShopURL(
+            \XLite\Core\Converter::buildURL('sitemap', '', array(), \XLite::getCustomerScript())
+        );
     }
 }

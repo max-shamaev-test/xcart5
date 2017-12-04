@@ -272,7 +272,8 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
         }
 
         if (
-            $result->errors
+            $result
+            && $result->errors
             && !$result->Auto
         ) {
             $transaction->getOrder()->setFraudStatusXpc(\XLite\Model\Order::FRAUD_STATUS_FRAUD);
@@ -332,6 +333,27 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
             $fraudCheckData->setCode($service['code']);
             $fraudCheckData->setService($service['service']);
 
+            $module = '';
+            switch ($fraudCheckData->getCode()) {
+                case \XLite\Module\CDev\XPaymentsConnector\Model\Payment\FraudCheckData::CODE_ANTIFRAUD:
+                    $module = $service['module'];
+                    break;
+                case \XLite\Module\CDev\XPaymentsConnector\Model\Payment\FraudCheckData::CODE_KOUNT:
+                    $module = 'Kount';
+                    break;
+                case \XLite\Module\CDev\XPaymentsConnector\Model\Payment\FraudCheckData::CODE_NOFRAUD:
+                    $module = 'NoFraud';
+                    break;
+            }
+            if (
+                version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.8') < 0
+                && $module
+            ) {
+                // Convert old api service code to modern
+                $fraudCheckData->setCode(\XLite\Module\CDev\XPaymentsConnector\Model\Payment\FraudCheckData::CODE_ANTIFRAUD);
+            }
+            $fraudCheckData->setModule($module);
+
             if (!empty($service['result'])) {
                 $fraudCheckData->setResult($service['result']);
 
@@ -359,6 +381,11 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
 
             if (!empty($service['message'])) {
                 $fraudCheckData->setMessage($service['message']);
+
+                if (\XLite\Module\CDev\XPaymentsConnector\Model\Payment\FraudCheckData::RESULT_UNKNOWN == $service['result']) {
+                    // Unknown result with message should be shown as error
+                    $errorsFound = true;
+                }
             }
 
             if (!empty($service['errors'])) {
@@ -393,7 +420,8 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
                 $transaction->getOrder()->setFraudStatusXpc(\XLite\Model\Order::FRAUD_STATUS_CLEAN);
                 break;
 
-            case \XLite\Module\CDev\XPaymentsConnector\Model\Payment\FraudCheckData::RESULT_REVIEW:
+            case \XLite\Module\CDev\XPaymentsConnector\Model\Payment\FraudCheckData::RESULT_MANUAL:
+            case \XLite\Module\CDev\XPaymentsConnector\Model\Payment\FraudCheckData::RESULT_PENDING:
                 $transaction->getOrder()->setFraudStatusXpc(\XLite\Model\Order::FRAUD_STATUS_REVIEW);
                 break;
 
@@ -419,7 +447,7 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
     protected static function getCardValidationText($status)
     {
         static $text = array(
-            '0' => 'Unknown',
+            '0' => 'Not checked',
             '1' => 'Match',
             '2' => 'Mismatch',
         );
@@ -453,7 +481,7 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
             foreach ($cardValidation as $key => $label) {
 
                 if (isset($data['cardValidation'][$key])) {
-                    $transaction->setDataCell('xpc_' . $key, $data['cardValidation'][$key], null, 'C');
+                    $transaction->setXpcDataCell('xpc_' . $key, $data['cardValidation'][$key]);
                     $transaction->setDataCell('xpc_' . $key . '_text', self::getCardValidationText($data['cardValidation'][$key]), $label, 'C');
                 }
             }
@@ -487,27 +515,43 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
                 $data['expire_year']
             );
 
-            if ($transaction->getXpcData()->getBillingAddress()) {
+            if (!$transaction->getXpcData()->getBillingAddress()) {
+                $profile = $transaction->getOrder()->getOrigProfile();
+                if ($profile) {
+                    $address = null;
+                    if ($profile->getBillingAddress()) {
+                        $address = $profile->getBillingAddress();
+                    } elseif ($profile->getShippingAddress()) {
+                        $address = $profile->getShippingAddress();
+                    }
+                    if ($address) {
+                        $transaction->getXpcData()->setBillingAddress($address);
+                    }
+                }
+            }
 
-                $address = $transaction->getXpcData()->getBillingAddress();
+            $address = $transaction->getXpcData()->getBillingAddress();
 
-                if ($data['b_address']) {
+            if ($address) {
+                if (!empty($data['b_address'])) {
                     $address->setStreet($data['b_address']);
                 }
 
-                if ($data['b_city']) {
+                if (!empty($data['b_city'])) {
                     $address->setCity($data['b_city']);
                 }
 
-                if ($data['b_zipcode']) {
+                if (!empty($data['b_zipcode'])) {
                     $address->setZipcode($data['b_zipcode']);
                 }
 
-                if ($data['b_phone']) {
-                    $address->setZipcode($data['b_phone']);
+                if (!empty($data['b_phone'])) {
+                    $address->setPhone($data['b_phone']);
                 }
 
+                // TODO: match raw b_country and b_state as well
             }
+
         }
     }
 
@@ -532,7 +576,7 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
             foreach ($data['3dsecure'] as $s3dKey => $s3dValue) {
                 if (!empty($s3dValue)) {
                     $s3dMessage .= $s3dKey . ': ' . $s3dValue . PHP_EOL;
-                    $transaction->setDataCell('xpc_' . $s3dKey, $s3dValue, null, 'C');
+                    $transaction->setXpcDataCell('xpc_' . $s3dKey, $s3dValue);
                 }
             }
 
@@ -544,18 +588,34 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
     }
 
     /**
-     * Process callback data
+     * Process callback/initial data to update transaction details
      *
      * @param \XLite\Model\Payment\Transaction $transaction Callback-owner transaction
      * @param array $data Data
      *
      * @return void
      */
-    protected function processCallbackData(\XLite\Model\Payment\Transaction $transaction, $data)
+    protected function processTransactionUpdate(\XLite\Model\Payment\Transaction $transaction, $data)
     {
+        $transaction->setDataCell('status', 'Transaction successful', 'X-Payments message', 'C');
+
+        if (isset($data['advinfo']) && is_array($data['advinfo'])) {
+
+            if (!empty($data['advinfo']['Error'])) {
+                $transaction->setDataCell('status', $data['advinfo']['Error'], 'X-Payments error', 'C');
+                $transaction->setNote($data['advinfo']['Error']);
+            }
+
+            if (!empty($data['advinfo']['Message'])) {
+                $transaction->setDataCell('status', $data['advinfo']['Message'], 'X-Payments message', 'C');
+                $transaction->setNote($data['advinfo']['Message']);
+            }
+        }
+
         $transactionData = array(
             'xpc_authorized'        => $data['authorized'],
-            'xpc_paid'              => max($data['capturedAmount'], $data['chargedAmount']),
+            'xpc_captured'          => $data['capturedAmount'],
+            'xpc_charged'           => $data['chargedAmount'] + $data['refundedAmount'],
             'xpc_voided'            => $data['voidedAmount'],
             'xpc_refunded'          => $data['refundedAmount'],
             'xpc_can_capture'       => $data['capturedAmountAvail'],
@@ -573,7 +633,12 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
             $transaction->getOrder()->setFraudStatusXpc(\XLite\Model\Order::FRAUD_STATUS_REVIEW);
         }
 
-        if ($transaction->getDataCell('xpc_txnid')) {
+        if (
+            version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.6') <= 0
+            && $transaction->getDataCell('xpc_txnid')
+        ) {
+
+            // API 1.6 backwards compatiblity Kount info update
 
             $transactions = array();
             $kountData = false;
@@ -609,8 +674,7 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
         }
 
         foreach ($transactionData as $key => $value) {
-
-            $transaction->setDataCell($key, $value, null, 'C');
+            $transaction->setXpcDataCell($key, $value);
         }
 
         $this->processCardValidationData($transaction, $data);
@@ -631,6 +695,8 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
      */
     public function processCallback(\XLite\Model\Payment\Transaction $transaction)
     {
+        $this->transaction = $transaction;
+
         $request = \XLite\Core\Request::getInstance();
 
         if (
@@ -638,7 +704,14 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
             || !\XLite\Module\CDev\XPaymentsConnector\Core\XPaymentsClient::getInstance()->getUpdateData()
         ) {
             // This is not X-Payments callback. We should not be here actually
-            return;
+            throw new \XLite\Core\Exception\PaymentProcessing\CallbackRequestError('Not an X-Payments callback.');
+        }
+
+        if (
+            $transaction->getXpcDataCell('xpc_deny_callbacks')
+            && intval($transaction->getXpcDataCell('xpc_deny_callbacks')->getValue())
+        ) {
+            throw new \XLite\Core\Exception\PaymentProcessing\CallbackNotReady();
         }
 
         $updateData = \XLite\Module\CDev\XPaymentsConnector\Core\XPaymentsClient::getInstance()->getUpdateData();
@@ -658,20 +731,8 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
             }
         }
 
-        if (isset($updateData['advinfo']) && is_array($updateData['advinfo'])) {
+        $this->processTransactionUpdate($transaction, $updateData);
 
-            if (!empty($updateData['advinfo']['Error'])) {
-                $transaction->setDataCell('status', $updateData['advinfo']['Error'], 'X-Payments error', 'C');
-                $transaction->setNote($updateData['advinfo']['Error']);
-            }
-
-            if (!empty($updateData['advinfo']['Message'])) {
-                $transaction->setDataCell('status', $updateData['advinfo']['Message'], 'X-Payments message', 'C');
-                $transaction->setNote($updateData['advinfo']['Message']);
-            }
-        }
-
-        $this->processCallbackData($transaction, $updateData);
         \XLite\Core\Database::getEM()->flush();
     }
 
@@ -739,7 +800,7 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
             if (!isset($updateData['parentId'])) {
                 // Parent ID is not received
                 // This is calback of X-Payments payment method
-                $logMessage = 'Card present payment method callback request';
+                $logMessage = 'Payment update callback request';
                 $this->detectedTransaction = $transaction;
                 break;
             }
@@ -749,8 +810,8 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
             if ($this->isSavedCardsPaymentMethod()) {
 
                 if (
-                   $transaction->getDataCell('is_recharge')
-                   && 'Y' == $transaction->getDataCell('is_recharge')->getValue()
+                   $transaction->getXpcDataCell('is_recharge')
+                   && 'Y' == $transaction->getXpcDataCell('is_recharge')->getValue()
                 ) {
                     // This transaction is recharge for AOM
                     $logMessage = 'Recharge transaction for AOM found';
@@ -872,8 +933,8 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
                     || empty($data['isFraudStatus']);
 
                 if (
-                    $transaction->getDataCell('xpc_is_fraud_status')
-                    && 1 == $transaction->getDataCell('xpc_is_fraud_status')->getValue()
+                    $transaction->getXpcDataCell('xpc_is_fraud_status')
+                    && 1 == $transaction->getXpcDataCell('xpc_is_fraud_status')->getValue()
                     && $fraudStatusInDataIsNotSet
                 ) {
                     // This is a decline of fraudulent transaction made by X-Payments admin
@@ -1259,11 +1320,15 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
         $method = $this->secondaryActionsMap[$paymentAction]['method'];
         $action = $this->secondaryActionsMap[$paymentAction]['action'];
 
+        $txnId = $pt->getDataCell('xpc_txnid')->getValue();
+
         $result = $this->client->$method(
-            $pt->getDataCell('xpc_txnid')->getValue(),
+            $txnId,
             $pt,
             \XLite\Core\Request::getInstance()->amount
         );
+
+        $isTransactionSuccess = false;
 
         if ($result->isSuccess()) {
 
@@ -1274,21 +1339,26 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
                 \XLite\Core\TopMessage::getInstance()->addInfo(
                     $response['message']
                         ? 'Transaction was ' . $action . ' with message: ' . $response['message']
-                        : 'Operation successfull'
+                        : 'Operation successful'
                 );
 
-                $controller = \XLite::getController()->redirectBackToOrder();
-
-                exit;
+                // Get updated transaction info from X-Payments
+                $info = $this->client->requestPaymentInfo($txnId);
+                if ($info->isSuccess()) {
+                    $response = $info->getResponse();
+                    $this->processTransactionUpdate($pt, $response);
+                }
+                $transaction->setStatus(\XLite\Model\Payment\BackendTransaction::STATUS_SUCCESS);
+                $isTransactionSuccess = true;
 
             } else {
 
                 if ($response['error']) {
-                    $message = 'Transaction was not ' . $action  . 'with error: ' . $response['error'];
+                    $message = 'Transaction was not ' . $action  . ' with error: ' . $response['error'];
                 } elseif ($response['message']) {
-                    $message = 'Transaction was not ' . $action  . 'with message: ' . $response['message'];
+                    $message = 'Transaction was not ' . $action  . ' with message: ' . $response['message'];
                 } else {
-                    $mesage = 'Operation failed';
+                    $message = 'Operation failed';
                 }
 
                 \XLite\Core\TopMessage::getInstance()->addError($message);
@@ -1303,9 +1373,12 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
             }
 
             \XLite\Core\TopMessage::getInstance()->addError($message);
+
+            $transaction->setStatus(\XLite\Model\Payment\BackendTransaction::STATUS_FAILED);
+
         }
 
-        return false;
+        return $isTransactionSuccess;
     }
 
     /**
@@ -1382,17 +1455,18 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
      * @param \XLite\Model\Order $order Order which is recharged
      * @param \XLite\Model\Payment\Transaction $parentCardTransaction Trandaction with saved card
      * @param float $amount Amount to recharge
+     * @param boolean $sendCart Send or not cart in request OPTIONAL
      *
      * @return boolean
      */
-    public function doRecharge(\XLite\Model\Order $order, \XLite\Model\Payment\Transaction $parentCardTransaction, $amount)
+    public function doRecharge(\XLite\Model\Order $order, \XLite\Model\Payment\Transaction $parentCardTransaction, $amount, $sendCart = true)
     {
         $newTransaction = new \XLite\Model\Payment\Transaction;
 
         $newTransaction->setPaymentMethod($this->getSavedCardsPaymentMethod());
         $newTransaction->setStatus(\XLite\Model\Payment\Transaction::STATUS_INPROGRESS);
 
-        $newTransaction->setDataCell('is_recharge', 'Y', null, 'C');
+        $newTransaction->setXpcDataCell('is_recharge', 'Y');
         $newTransaction->setValue($amount);
 
         $order->addPaymentTransactions($newTransaction);
@@ -1402,10 +1476,10 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
 
             $key = 'xpc_can_do_' . $field;
             if (
-                $parentCardTransaction->getDataCell($key)
-                && $parentCardTransaction->getDataCell($key)->getValue()
+                $parentCardTransaction->getXpcDataCell($key)
+                && $parentCardTransaction->getXpcDataCell($key)->getValue()
             ) {
-                $newTransaction->setDataCell($key, $parentCardTransaction->getDataCell($key)->getValue(), null, 'C');
+                $newTransaction->setXpcDataCell($key, $parentCardTransaction->getXpcDataCell($key)->getValue());
             }
         }
 
@@ -1414,7 +1488,9 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
 
         $recharge = $this->client->requestPaymentRecharge(
             $parentCardTransaction->getDataCell('xpc_txnid')->getValue(),
-            $newTransaction
+            $newTransaction,
+            null,
+            $sendCart
         );
 
         if ($recharge->isSuccess()) {
@@ -1424,6 +1500,17 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
 
             $response = $recharge->getResponse();
 
+            if ($response['transaction_id']) {
+                $txnId = $response['transaction_id'];
+                $newTransaction->setDataCell('xpc_txnid', $txnId, 'X-Payments transaction ID', 'C');
+                // Get updated transaction info from X-Payments
+                $info = $this->client->requestPaymentInfo($txnId);
+                if ($info->isSuccess()) {
+                    $infoResponse = $info->getResponse();
+                    $this->processTransactionUpdate($newTransaction, $infoResponse);
+                }
+            }
+
             if (
                 self::STATUS_AUTH == $response['status']
                 || self::STATUS_CHARGED == $response['status']
@@ -1432,13 +1519,8 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
                 \XLite\Core\TopMessage::getInstance()->addInfo(
                     $response['message']
                         ? $response['message']
-                        : 'Operation successfull'
+                        : 'Operation successful'
                 );
-
-
-                if ($response['transaction_id']) {
-                    $newTransaction->setDataCell('xpc_txnid', $response['transaction_id'], 'X-Payments transaction ID', 'C');
-                }
 
             } else {
 
@@ -1486,28 +1568,28 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
         if (\XLite\Model\Payment\BackendTransaction::TRAN_TYPE_CAPTURE == $transactionType) {
 
             if (
-                $transaction->getDataCell('xpc_can_do_capture')
-                && $transaction->getDataCell('xpc_can_capture')
+                $transaction->getXpcDataCell('xpc_can_do_capture')
+                && $transaction->getXpcDataCell('xpc_can_capture')
             ) {
-                $result = ($transaction->getDataCell('xpc_can_capture')->getValue() > 0);
+                $result = ($transaction->getXpcDataCell('xpc_can_capture')->getValue() > 0);
             }
 
         } elseif (\XLite\Model\Payment\BackendTransaction::TRAN_TYPE_VOID == $transactionType) {
 
             if (
-                $transaction->getDataCell('xpc_can_do_void')
-                && $transaction->getDataCell('xpc_can_void')
+                $transaction->getXpcDataCell('xpc_can_do_void')
+                && $transaction->getXpcDataCell('xpc_can_void')
             ) {
-                $result = ($transaction->getDataCell('xpc_can_void')->getValue() > 0);
+                $result = ($transaction->getXpcDataCell('xpc_can_void')->getValue() > 0);
             }
 
         } elseif (\XLite\Model\Payment\BackendTransaction::TRAN_TYPE_REFUND == $transactionType) {
 
             if (
-                $transaction->getDataCell('xpc_can_do_refund')
-                && $transaction->getDataCell('xpc_can_refund')
+                $transaction->getXpcDataCell('xpc_can_do_refund')
+                && $transaction->getXpcDataCell('xpc_can_refund')
             ) {
-                $result = ($transaction->getDataCell('xpc_can_refund')->getValue() > 0);
+                $result = ($transaction->getXpcDataCell('xpc_can_refund')->getValue() > 0);
             }
 
         } elseif (
@@ -1516,8 +1598,8 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
         ) {
 
             if (
-                $transaction->getDataCell('xpc_is_fraud_status')
-                && $transaction->getDataCell('xpc_is_fraud_status')->getValue()
+                $transaction->getXpcDataCell('xpc_is_fraud_status')
+                && $transaction->getXpcDataCell('xpc_is_fraud_status')->getValue()
             ) {
                 $result = true;
             }

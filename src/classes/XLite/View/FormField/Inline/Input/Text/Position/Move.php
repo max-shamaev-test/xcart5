@@ -71,4 +71,25 @@ class Move extends \XLite\View\FormField\Inline\Input\Text\Position
         return false;
     }
 
+    /**
+     * Save field value
+     *
+     * @param array $field Field
+     *
+     * @return void
+     */
+    protected function saveFieldValue(array $field)
+    {
+        $value = $field['widget']->getValue();
+        $value = $this->preprocessValueBeforeSave($value);
+
+        $method = 'preprocessValueBeforeSave' . ucfirst($field['field'][static::FIELD_NAME]);
+        if (method_exists($this, $method)) {
+            // $method assemble from 'preprocessValueBeforeSave' + field name
+            $value = $this->$method($value);
+        }
+
+        $this->saveFieldEntityValue($field, $value);
+    }
+
 }

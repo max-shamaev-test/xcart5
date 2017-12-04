@@ -51,7 +51,7 @@ abstract class Storage extends \XLite\Model\Repo\ARepo
      */
     public function getAllowedFileSystemRoots()
     {
-        $result = array();
+        $result   = [];
         $result[] = $this->getFileSystemRoot();
 
         return $result;
@@ -61,24 +61,24 @@ abstract class Storage extends \XLite\Model\Repo\ARepo
 
     /**
      * Has one or more entity with specified path
-     * 
+     *
      * @param string                    $path   Path
      * @param \XLite\Model\Base\Storage $entity Exclude entity
-     *  
+     *
      * @return boolean
      */
     public function findOneByFullPath($path, \XLite\Model\Base\Storage $entity)
     {
-        $id = ($this->getEntityName() == get_class($entity) || is_subclass_of($entity, $this->getEntityName()))
+        $id = ($this->getEntityName() === get_class($entity) || is_subclass_of($entity, $this->getEntityName()))
             ? $entity->getId()
             : null;
 
-        $found = 0 < intval($this->defineFindOneByFullPathQuery($path, true, $id)->getSingleScalarResult());
+        $found = 0 < (int) $this->defineFindOneByFullPathQuery($path, true, $id)->getSingleScalarResult();
         if (!$found) {
             $root = $this->getFileSystemRoot();
-            if (0 == strncmp($root, $path, strlen($root))) {
-                $path = substr($path, strlen($root));
-                $found = 0 < intval($this->defineFindOneByFullPathQuery($path, false, $id)->getSingleScalarResult());
+            if (0 === strncmp($root, $path, strlen($root))) {
+                $path  = substr($path, strlen($root));
+                $found = 0 < (int) $this->defineFindOneByFullPathQuery($path, false, $id)->getSingleScalarResult();
             }
         }
 
@@ -86,27 +86,27 @@ abstract class Storage extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * Find storages by full path 
-     * 
+     * Find storages by full path
+     *
      * @param string                    $path   Path
      * @param \XLite\Model\Base\Storage $entity Exclude path
-     *  
+     *
      * @return array
      */
     public function findByFullPath($path, \XLite\Model\Base\Storage $entity)
     {
-        $id = ($this->getEntityName() == get_class($entity) || is_subclass_of($entity, $this->getEntityName()))
+        $id = ($this->getEntityName() === get_class($entity) || is_subclass_of($entity, $this->getEntityName()))
             ? $entity->getId()
             : null;
 
         $absolute = $this->defineFindByFullPathQuery($path, true, $id)->getResult();
-        $root = $this->getFileSystemRoot();
-        if (0 == strncmp($root, $path, strlen($root))) {
-            $path = substr($path, strlen($root));
+        $root     = $this->getFileSystemRoot();
+        if (0 === strncmp($root, $path, strlen($root))) {
+            $path     = substr($path, strlen($root));
             $relative = $this->defineFindByFullPathQuery($path, false, $id)->getResult();
 
         } else {
-            $relative = array();
+            $relative = [];
         }
 
         return array_merge($absolute, $relative);
@@ -114,10 +114,10 @@ abstract class Storage extends \XLite\Model\Repo\ARepo
 
     /**
      * Check - allow remove path or not
-     * 
+     *
      * @param string                    $path   Path
      * @param \XLite\Model\Base\Storage $entity Exclude entity
-     *  
+     *
      * @return boolean
      */
     public function allowRemovePath($path, \XLite\Model\Base\Storage $entity)
@@ -136,29 +136,39 @@ abstract class Storage extends \XLite\Model\Repo\ARepo
 
     /**
      * Define all storage-based repositories classes list
-     * 
+     *
      * @return array
      */
     protected function defineStorageRepositories()
     {
-        return array(
+        return [
             'XLite\Model\Image\Product\Image',
             'XLite\Model\Image\Category\Image',
             'XLite\Model\Image\Category\Banner',
-        );
+        ];
     }
 
     /**
      * Define query for findOneByFull() method
-     * 
+     *
      * @param string  $path     Path
      * @param boolean $absolute Absolute path flag
      * @param integer $id       Excluding entity id OPTIONAL
-     *  
-     * @return \XLite\Model\QueryBuilder\AQueryBuilder
+     *
+     * @return \Doctrine\ORM\QueryBuilder|\XLite\Model\QueryBuilder\AQueryBuilder
      */
     protected function defineFindOneByFullPathQuery($path, $absolute, $id = null)
     {
+        $deletions                = [];
+        $scheduledEntityDeletions = \XLite\Core\Database::getEM()->getUnitOfWork()->getScheduledEntityDeletions();
+        /** @var \XLite\Model\Base\Storage $className */
+        $className = $this->getClassName();
+        foreach ($scheduledEntityDeletions as $scheduledEntityDeletion) {
+            if ($scheduledEntityDeletion instanceof $className) {
+                $deletions[] = $scheduledEntityDeletion->getUniqueIdentifier();
+            }
+        }
+
         $qb = $this->createQueryBuilder('s')
             ->select('COUNT(s.id)')
             ->andWhere('s.path = :path AND s.storageType = :stype')
@@ -169,7 +179,11 @@ abstract class Storage extends \XLite\Model\Repo\ARepo
             );
 
         if ($id) {
-            $qb->andWhere('s.id != :id')->setParameter('id', $id);
+            $deletions[] = $id;
+        }
+
+        if ($deletions) {
+            $qb->andWhere($qb->expr()->notIn('s.id', $deletions));
         }
 
         return $qb;
@@ -182,7 +196,7 @@ abstract class Storage extends \XLite\Model\Repo\ARepo
      * @param boolean $absolute Absolute path flag
      * @param integer $id       Excluding entity id OPTIONAL
      *
-     * @return \XLite\Model\QueryBuilder\AQueryBuilder
+     * @return \Doctrine\ORM\QueryBuilder|\XLite\Model\QueryBuilder\AQueryBuilder
      */
     protected function defineFindByFullPathQuery($path, $absolute, $id = null)
     {
@@ -215,7 +229,7 @@ abstract class Storage extends \XLite\Model\Repo\ARepo
      *
      * @return void
      */
-    public function loadRawFixture(\XLite\Model\AEntity $entity, array $record, array $regular = array(), array $assocs = array())
+    public function loadRawFixture(\XLite\Model\AEntity $entity, array $record, array $regular = [], array $assocs = [])
     {
         parent::loadRawFixture($entity, $record, $regular, $assocs);
 

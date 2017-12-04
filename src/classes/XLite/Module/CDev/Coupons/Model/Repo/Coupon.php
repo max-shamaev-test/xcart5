@@ -74,7 +74,7 @@ class Coupon extends \XLite\Model\Repo\ARepo
      *
      * @param string $code Code
      *
-     * @return array
+     * @return null|\XLite\Model\AEntity
      */
     public function findOneByCode($code)
     {

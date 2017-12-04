@@ -333,7 +333,28 @@ class Zone extends \XLite\Model\AEntity
             && isset($address['country'])
         ) {
             $need = false;
-            $state = isset($address['state']) ? $address['state'] : '';
+
+            /** @var \XLite\Model\Country $countryObj */
+            $countryObj = \XLite\Core\Database::getRepo('XLite\Model\Country')->findOneByCode(
+                $address['country']
+            );
+            $hasStates = $countryObj && $countryObj->hasStates();
+
+            $state = isset($address['state']) && $hasStates
+                ? $address['state']
+                : '';
+
+            if (!$state) {
+                $stateObj = \XLite\Core\Database::getRepo('XLite\Model\State')->findOneBy([
+                    'state'   => $address['custom_state'],
+                    'country' => $countryObj,
+                ]);
+
+                $state = $stateObj
+                    ? $stateObj->getCode()
+                    : '';
+            }
+
             foreach ($elements as $code) {
                 if ($code === $address['country'] . '_' . $state) {
                     $found = true;

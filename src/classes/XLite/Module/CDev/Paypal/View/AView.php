@@ -24,36 +24,11 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
 
         if (!\XLite::isAdminZone()) {
             $list[] = 'modules/CDev/Paypal/style.css';
-            $list[] = array(
+            $list[] = [
                 'file'  => 'modules/CDev/Paypal/style.less',
                 'media' => 'screen',
                 'merge' => 'bootstrap/css/bootstrap.less',
-            );
-        }
-
-        return $list;
-    }
-
-    /**
-     * getJSFiles
-     *
-     * @return array
-     */
-    public function getJSFiles()
-    {
-        $list = parent::getJSFiles();
-
-        if (!\XLite::isAdminZone()
-            && \XLite\Module\CDev\Paypal\Main::isExpressCheckoutEnabled()
-            && \XLite\Module\CDev\Paypal\Main::isInContextCheckoutAvailable()
-        ) {
-            $list[] = array(
-                'url'   => 'https://www.paypalobjects.com/api/checkout.js',
-                'async' => true
-            );
-            $list[] = 'modules/CDev/Paypal/button/in_context.js';
-        } else {
-            $list[] = 'modules/CDev/Paypal/button/default.js';
+            ];
         }
 
         return $list;

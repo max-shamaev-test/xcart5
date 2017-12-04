@@ -36,7 +36,7 @@ abstract class Main extends \XLite\Module\AModule
      *
      * @var \XLite\Model\Payment\Method[]
      */
-    protected static $paymentMethod = array();
+    protected static $paymentMethod = [];
 
     /**
      * Author name
@@ -75,7 +75,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '5';
+        return '6';
     }
 
     /**
@@ -85,7 +85,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '1';
+        return '3';
     }
 
     /**
@@ -95,7 +95,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorRequiredCoreVersion()
     {
-        return '3';
+        return '4';
     }
 
     /**
@@ -118,12 +118,12 @@ abstract class Main extends \XLite\Module\AModule
         return \XLite\Core\Converter::buildURL(
             'module',
             '',
-            array(
+            [
                 'moduleId'     => \XLite\Core\Database::getRepo('XLite\Model\Module')
                     ->findOneBy(['author' => 'CDev', 'name' => 'Paypal', 'fromMarketplace' => false])
                     ->getModuleId(),
                 'returnTarget' => 'addons_list_installed',
-            )
+            ]
         );
     }
 
@@ -138,10 +138,10 @@ abstract class Main extends \XLite\Module\AModule
     public static function addLog($message = null, $data = null)
     {
         if ($message && $data) {
-            $msg = array(
+            $msg = [
                 'message' => $message,
                 'data'    => $data,
-            );
+            ];
 
         } else {
             $msg = ($message ?: ($data ?: null));
@@ -169,16 +169,16 @@ abstract class Main extends \XLite\Module\AModule
     {
         if (!isset(static::$paymentMethod[$serviceName])) {
             static::$paymentMethod[$serviceName] = \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')
-                ->findOneBy(array('service_name' => $serviceName));
+                ->findOneBy(['service_name' => $serviceName]);
             if (!static::$paymentMethod[$serviceName]) {
                 static::$paymentMethod[$serviceName] = false;
             }
         }
         return static::$paymentMethod[$serviceName]
-            && (
-                is_null($enabled)
-                || static::$paymentMethod[$serviceName]->getEnabled() === (bool) $enabled
-            )
+        && (
+            is_null($enabled)
+            || static::$paymentMethod[$serviceName]->getEnabled() === (bool)$enabled
+        )
             ? static::$paymentMethod[$serviceName]
             : null;
     }
@@ -209,64 +209,6 @@ abstract class Main extends \XLite\Module\AModule
     }
 
     /**
-     * Check if In-Context checkout available
-     *
-     * @return boolean
-     */
-    public static function isInContextCheckoutAvailable()
-    {
-        static $result;
-
-        if (null === $result) {
-            // https://developer.paypal.com/docs/classic/express-checkout/in-context/#eligibility-review
-            $allowedCountries = array(
-                'US', 'GB', 'FR', 'DE', 'AU',
-                'CA', 'IT', 'ES', 'AT', 'BE',
-                'DK', 'NO', 'NL', 'PL', 'SE',
-                'CH', 'TR'
-            );
-            $allowedCurrencies = array(
-                'USD', 'EUR', 'GBP', 'CAD', 'AUD',
-                'DKK', 'NOK', 'PLN', 'SEK', 'CHF',
-                'TRY'
-            );
-
-            /** @var \XLite\Model\Cart $cart */
-            $cart = \XLite\Model\Cart::getInstance();
-            $currency = $cart->getCurrency()->getCode();
-
-            /** @var \XLite\Model\Address $billingAddress */
-            $billingAddress = $cart->getProfile()
-                ? $cart->getProfile()->getBillingAddress()
-                : null;
-
-            $customerCountry = $billingAddress
-                ? $billingAddress->getCountryCode()
-                : null;
-
-            $result = in_array($currency, $allowedCurrencies, true)
-                && (null === $customerCountry || in_array($customerCountry, $allowedCountries, true))
-                && static::getMerchantId();
-        }
-
-        return $result;
-    }
-
-    /**
-     * Returns Merchant Id for In-Context Checkout
-     *
-     * @return string
-     */
-    public static function getMerchantId()
-    {
-        $paymentMethod = static::getPaymentMethod(static::PP_METHOD_EC, true);
-
-        return $paymentMethod
-            ? $paymentMethod->getSetting('merchantId')
-            : '';
-    }
-
-    /**
      * Returns BuyNow button availability status
      *
      * @return boolean
@@ -278,7 +220,7 @@ abstract class Main extends \XLite\Module\AModule
         if (null === $result) {
             $paymentMethod = static::getPaymentMethod(static::PP_METHOD_EC, true);
 
-            $result = (bool) $paymentMethod->getSetting('buyNowEnabled');
+            $result = (bool)$paymentMethod->getSetting('buyNowEnabled');
         }
 
         return $result;
@@ -383,7 +325,7 @@ abstract class Main extends \XLite\Module\AModule
         return \XLite\Core\URLManager::getShopURL(
             \XLite\Core\Layout::getInstance()->getLogo(),
             true,
-            array(),
+            [],
             \XLite\Core\URLManager::URL_OUTPUT_FULL,
             false
         );
@@ -405,7 +347,7 @@ abstract class Main extends \XLite\Module\AModule
         return \XLite\Core\URLManager::getShopURL(
             $logo,
             true,
-            array(),
+            [],
             \XLite\Core\URLManager::URL_OUTPUT_FULL,
             false
         );
@@ -432,13 +374,13 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getServiceCodes()
     {
-        return array(
+        return [
             static::PP_METHOD_PPA,
             static::PP_METHOD_PFL,
             static::PP_METHOD_EC,
             static::PP_METHOD_PPS,
             static::PP_METHOD_PC,
             static::PP_METHOD_PAD,
-        );
+        ];
     }
 }

@@ -8,12 +8,14 @@
 
 namespace XLite\View;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
+
 /**
  * Storefront status
  *
  * @ListChild (list="admin.main.page.header.right", weight="100", zone="admin")
  */
-class StorefrontStatus extends \XLite\View\AView
+class StorefrontStatus extends \XLite\View\AView implements ProviderInterface
 {
     public function getJSFiles()
     {
@@ -119,5 +121,19 @@ class StorefrontStatus extends \XLite\View\AView
     protected function getClosedShopURL()
     {
         return \XLite::getController()->getAccessibleShopURL(false);
+    }
+
+    /**
+     * Array of labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'Do you really want to close storefront?' => static::t('Do you really want to close storefront?'),
+        ];
     }
 }

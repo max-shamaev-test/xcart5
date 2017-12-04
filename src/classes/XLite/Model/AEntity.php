@@ -364,6 +364,21 @@ abstract class AEntity extends \XLite\Base\SuperClass implements SerializableEnt
     }
 
     /**
+     * Returns available metadata for an entity field to use in frontend
+     *
+     * @param  string  $property Entity property
+     * @return array
+     */
+    public function getFieldMetadata($property)
+    {
+        return array(
+            'data-model' => $this->getEntityName(),
+            'data-identifier' => $this->getUniqueIdentifier(),
+            'data-property' => $property,
+        );
+    }
+
+    /**
      * Update entity
      *
      * @return boolean

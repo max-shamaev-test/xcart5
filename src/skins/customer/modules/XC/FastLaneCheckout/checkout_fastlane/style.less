@@ -7,12 +7,6 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-// N.B. backwards compatibility for minor release and CrispWhite-base skins
-.define-color-reloading-highlight-if-not-defined() {@color-reloading-highlight: #ffa000}
-.define-color-reloading-highlight-if-not-defined();
-.define-color-reloading-base-if-not-defined() {@color-reloading-base: #676767};
-.define-color-reloading-base-if-not-defined();
-
 .checkout_fastlane_back_button {
   display: block;
   text-decoration: none;
@@ -45,95 +39,4 @@
       display: inline-block;
     }
   }
-}
-
-/* Header */
-.reloading {
-  position: relative;
-}
-
-.reloading:before {
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  content: "";
-  display:block;
-  z-index: 1000;
-
-  background: fade(@body-bg, 65%);
-
-  -webkit-animation: appear 0.3s ease-in-out;
-  animation: appear 0.3s ease-in-out;
-}
-
-.reloading:after {
-  position: fixed;
-  width: 40px;
-  height: 40px;
-  background-color: @color-reloading-highlight;
-  content: "";
-  display:block;
-  left: 0;
-  right: 0;
-  top: 0;
-  margin: auto;
-  opacity: 0.99;
-  z-index: 1002;
-  bottom: 0;
-
-  // -webkit-animation: sk-rotateplane 1.2s infinite ease-in-out;
-  // animation: sk-rotateplane 1.2s infinite ease-in-out;
-  border-radius: 100%;  
-  -webkit-animation: sk-scaleout 0.75s infinite ease-in-out;
-  animation: sk-scaleout 0.75s infinite ease-in-out;
-}
-
-@-webkit-keyframes sk-rotateplane {
-  0% { -webkit-transform: perspective(120px) }
-  50% { -webkit-transform: perspective(120px) rotateY(180deg) }
-  100% { -webkit-transform: perspective(120px) rotateY(180deg)  rotateX(180deg) }
-}
-
-@keyframes sk-rotateplane {
-  0% { 
-    transform: perspective(120px) rotateX(0deg) rotateY(0deg);
-    -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg) 
-  } 50% { 
-    transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
-    -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg) 
-  } 100% { 
-    transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
-    -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
-  }
-}
-
-@-webkit-keyframes sk-scaleout {
-  0% { -webkit-transform: scale(0) }
-  100% {
-    -webkit-transform: scale(1.0);
-    opacity: 0;
-  }
-}
-
-@keyframes sk-scaleout {
-  0% { 
-    -webkit-transform: scale(0);
-    transform: scale(0);
-  } 100% {
-    -webkit-transform: scale(1.0);
-    transform: scale(1.0);
-    opacity: 0;
-  }
-}
-
-@-webkit-keyframes appear {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-@keyframes appear {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
 }

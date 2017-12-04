@@ -57,7 +57,9 @@
                 this.$data = oldData;
               }
               this.$reloading = false;
-              this.$options.loadable.resolve.apply(this, [data]);
+              if ('function' === typeof(this.$options.loadable.resolve)) {
+                this.$options.loadable.resolve.apply(this, [data]);
+              }
 
               delete cache[this._getCacheKey()];
             }
@@ -69,7 +71,9 @@
       },
       _reject: function (data) {
         this.$reloading = false;
-        this.$options.loadable.reject.apply(this, [data]);
+        if ('function' === typeof(this.$options.loadable.reject)) {
+          this.$options.loadable.reject.apply(this, [data]);
+        }
 
         delete cache[this._getCacheKey()];
       },

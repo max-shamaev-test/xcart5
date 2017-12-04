@@ -39,7 +39,10 @@ class Method extends \XLite\Model\Payment\Method implements \XLite\Base\IDecorat
             /** @var \XLite\Model\Payment\Base\Processor $processor */
             $processor = \XLite\Core\Operator::isClassExists($className) ? $className::getInstance() : null;
 
-            if ($this->getExpressCheckoutPaymentMethod()->isForceMerchantAPI($processor)) {
+            if (
+                $this->getExpressCheckoutPaymentMethod()
+                && $this->getExpressCheckoutPaymentMethod()->isForceMerchantAPI($processor)
+            ) {
                 $class = 'Module\CDev\Paypal\Model\Payment\Processor\PaypalCreditMerchantAPI';
             }
         }
@@ -152,9 +155,12 @@ class Method extends \XLite\Model\Payment\Method implements \XLite\Base\IDecorat
      */
     protected function isForceMerchantAPI($processor)
     {
-        $parentMethod = $processor->getParentMethod();
+        $parentMethod = $processor
+            ? $processor->getParentMethod()
+            : null;
 
-        return !$processor->isForcedEnabled($this)
+        return $processor
+            && !$processor->isForcedEnabled($this)
             && (
                 'email' === parent::getSetting('api_type')
                 || 'paypal' === parent::getSetting('api_solution')

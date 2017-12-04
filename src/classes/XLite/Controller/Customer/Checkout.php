@@ -303,9 +303,6 @@ class Checkout extends \XLite\Controller\Customer\Cart
                     $cart->setShippingMethodName(null);
                 }
 
-                // Register 'Place order' event in the order history
-                \XLite\Core\OrderHistory::getInstance()->registerPlaceOrder($cart->getOrderId());
-
                 // Register 'Order packaging' event in the order history
                 \XLite\Core\OrderHistory::getInstance()->registerOrderPackaging(
                     $cart->getOrderId(),

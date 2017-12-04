@@ -32,7 +32,7 @@ abstract class Storage extends \XLite\Model\AEntity
      *
      * @var array
      */
-    protected static $types = array();
+    protected static $types = [];
 
     /**
      * Unique id
@@ -118,7 +118,7 @@ abstract class Storage extends \XLite\Model\AEntity
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -129,6 +129,7 @@ abstract class Storage extends \XLite\Model\AEntity
      * Set path
      *
      * @param string $path
+     *
      * @return $this
      */
     public function setPath($path)
@@ -140,7 +141,7 @@ abstract class Storage extends \XLite\Model\AEntity
     /**
      * Get path
      *
-     * @return string 
+     * @return string
      */
     public function getPath()
     {
@@ -151,6 +152,7 @@ abstract class Storage extends \XLite\Model\AEntity
      * Set fileName
      *
      * @param string $fileName
+     *
      * @return $this
      */
     public function setFileName($fileName)
@@ -162,7 +164,7 @@ abstract class Storage extends \XLite\Model\AEntity
     /**
      * Get fileName
      *
-     * @return string 
+     * @return string
      */
     public function getFileName()
     {
@@ -173,6 +175,7 @@ abstract class Storage extends \XLite\Model\AEntity
      * Set mime
      *
      * @param string $mime
+     *
      * @return $this
      */
     public function setMime($mime)
@@ -184,7 +187,7 @@ abstract class Storage extends \XLite\Model\AEntity
     /**
      * Get mime
      *
-     * @return string 
+     * @return string
      */
     public function getMime()
     {
@@ -195,6 +198,7 @@ abstract class Storage extends \XLite\Model\AEntity
      * Set storageType
      *
      * @param string $storageType
+     *
      * @return $this
      */
     public function setStorageType($storageType)
@@ -207,6 +211,7 @@ abstract class Storage extends \XLite\Model\AEntity
      * Set size
      *
      * @param integer $size
+     *
      * @return $this
      */
     public function setSize($size)
@@ -218,7 +223,7 @@ abstract class Storage extends \XLite\Model\AEntity
     /**
      * Get size
      *
-     * @return integer 
+     * @return integer
      */
     public function getSize()
     {
@@ -229,6 +234,7 @@ abstract class Storage extends \XLite\Model\AEntity
      * Set date
      *
      * @param integer $date
+     *
      * @return $this
      */
     public function setDate($date)
@@ -240,7 +246,7 @@ abstract class Storage extends \XLite\Model\AEntity
     /**
      * Get date
      *
-     * @return integer 
+     * @return integer
      */
     public function getDate()
     {
@@ -472,7 +478,7 @@ abstract class Storage extends \XLite\Model\AEntity
         $ext = $this->getExtension();
 
         return $ext
-            ? static::t('X file type', array('ext' => $ext))
+            ? static::t('X file type', ['ext' => $ext])
             : '';
     }
 
@@ -515,10 +521,10 @@ abstract class Storage extends \XLite\Model\AEntity
      */
     protected function getGetterParams()
     {
-        return array(
+        return [
             'storage' => get_called_class(),
             'id'      => $this->getId(),
-        );
+        ];
     }
 
     // }}}
@@ -551,10 +557,36 @@ abstract class Storage extends \XLite\Model\AEntity
             }
 
         } else {
+            if ($error = $this->getUploadError($_FILES[$key]['error'])) {
+                $this->loadErrorMessage = [$error];
+            }
+
             \XLite\Logger::getInstance()->log('The file was not loaded', LOG_ERR);
         }
 
         return !empty($path);
+    }
+
+    protected function getUploadError($code)
+    {
+        switch($code) {
+            case UPLOAD_ERR_INI_SIZE:
+                return 'File uploading error 1';
+            case UPLOAD_ERR_FORM_SIZE:
+                return 'File uploading error 2';
+            case UPLOAD_ERR_PARTIAL:
+                return 'File uploading error 3';
+            case UPLOAD_ERR_NO_FILE:
+                return 'File uploading error 4';
+            case UPLOAD_ERR_NO_TMP_DIR:
+                return 'File uploading error 6';
+            case UPLOAD_ERR_CANT_WRITE:
+                return 'File uploading error 7';
+            case UPLOAD_ERR_EXTENSION:
+                return 'File uploading error 8';
+        }
+
+        return null;
     }
 
     /**
@@ -632,10 +664,10 @@ abstract class Storage extends \XLite\Model\AEntity
                 } else {
 
                     $this->loadError = 'unwriteable';
-                    $this->loadErrorMessage = array(
+                    $this->loadErrorMessage = [
                         '{{file}} file could not be copied to a new location {{newPath}}',
-                        array('file' => $path, 'newPath' => $newPath)
-                    );
+                        ['file' => $path, 'newPath' => $newPath],
+                    ];
                     \XLite\Logger::getInstance()->log(
                         '\'' . $path . '\' file could not be copied to a new location \'' . $newPath . '\'.',
                         LOG_ERR
@@ -690,6 +722,11 @@ abstract class Storage extends \XLite\Model\AEntity
             }
 
             return $result;
+        } else {
+            $this->loadErrorMessage = [
+                'Unable to download the contents of {{url}}',
+                ['url' => $url],
+            ];
         }
 
         return false;
@@ -735,10 +772,10 @@ abstract class Storage extends \XLite\Model\AEntity
                     \Includes\Utils\FileManager::deleteFile($tmp);
                 } else {
                     $this->loadError = 'unwriteable';
-                    $this->loadErrorMessage = array(
+                    $this->loadErrorMessage = [
                         'Unable to write data to file {{file}}',
-                        array('file' => $tmp)
-                    );
+                        ['file' => $tmp],
+                    ];
 
                     \XLite\Logger::getInstance()->log(
                         'Unable to write data to file \'' . $tmp . '\'.',
@@ -749,10 +786,10 @@ abstract class Storage extends \XLite\Model\AEntity
             } catch (\Exception $e) {
                 \Includes\Utils\FileManager::deleteFile($tmp);
                 $this->loadError = 'undownloadable';
-                $this->loadErrorMessage = array(
+                $this->loadErrorMessage = [
                     'Unable to download the contents of {{url}}',
-                    array('url' => $url)
-                );
+                    ['url' => $url],
+                ];
                 \XLite\Logger::getInstance()->log(
                     'Unable to download the contents of \'' . $url . '\'.',
                     LOG_ERR
@@ -761,10 +798,10 @@ abstract class Storage extends \XLite\Model\AEntity
 
         } else {
             $this->loadError = 'URLAvailability';
-            $this->loadErrorMessage = array(
+            $this->loadErrorMessage = [
                 'Unable to get at the contents of {{url}}',
-                array('url' => $url)
-            );
+                ['url' => $url],
+            ];
             \XLite\Logger::getInstance()->log(
                 'Unable to get at the contents of \'' . $url . '\'.',
                 LOG_ERR
@@ -796,7 +833,7 @@ abstract class Storage extends \XLite\Model\AEntity
      */
     public static function getLocalPathFromURL($path)
     {
-        $webdir = \XLite::getInstance()->getOptions(array('host_details', 'web_dir'));
+        $webdir = \XLite::getInstance()->getOptions(['host_details', 'web_dir']);
         $webdir = $webdir ? $webdir . '/' : '';
 
         return preg_replace('#^' . $webdir . '#', '', parse_url($path, PHP_URL_PATH));
@@ -1040,7 +1077,7 @@ abstract class Storage extends \XLite\Model\AEntity
      */
     protected function renewByPath($path)
     {
-        $this->setSize((int) \Includes\Utils\FileManager::getFileSize($path));
+        $this->setSize((int)\Includes\Utils\FileManager::getFileSize($path));
         $this->setDate(\XLite\Core\Converter::time());
 
         return true;
@@ -1077,10 +1114,10 @@ abstract class Storage extends \XLite\Model\AEntity
 
         if (preg_match('/\.(?:php3?|pl|cgi|py|htaccess|phtml)$/Ss', $path)) {
             $this->loadError = 'extension';
-            $this->loadErrorMessage = array(
+            $this->loadErrorMessage = [
                 'The file extension is forbidden ({{file}})',
-                array('file' => $path)
-            );
+                ['file' => $path],
+            ];
 
             $result = false;
         }
@@ -1112,7 +1149,7 @@ abstract class Storage extends \XLite\Model\AEntity
             $path = $this->getStoragePath();
         }
 
-        return array($path, $isTempFile);
+        return [$path, $isTempFile];
     }
 
     /**
@@ -1187,6 +1224,6 @@ abstract class Storage extends \XLite\Model\AEntity
      */
     public function getAdminPermissions()
     {
-        return array();
+        return [];
     }
 }

@@ -266,28 +266,4 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
                 true
             );
     }
-
-    /**
-     * Get failure reason
-     *
-     * @return string
-     */
-    public function getFailureReason()
-    {
-        $reason = parent::getFailureReason();
-
-        if (!$reason) {
-            $transactions = $this->getPaymentTransactions()->getValues();
-            /** @var \XLite\Model\Payment\Transaction $transaction */
-            foreach (array_reverse($transactions) as $transaction) {
-                if ($transaction->isFailed()) {
-                    if ($transaction->getNote() && $transaction->getNote() !== Transaction::getDefaultFailedReason()) {
-                        return $transaction->getNote();
-                    }
-                }
-            }
-        }
-
-        return $reason;
-    }
 }

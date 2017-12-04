@@ -53,4 +53,11 @@ interface RenderingContextInterface
      * @return mixed
      */
     public function isBuffering();
+
+    /**
+     * Return output buffering level
+     *
+     * @return mixed
+     */
+    public function getBufferingLevel();
 }

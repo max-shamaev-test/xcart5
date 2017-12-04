@@ -25,12 +25,14 @@ class PaymentReturn extends \XLite\Controller\Customer\PaymentReturn implements 
     {
         if (\XLite\Module\XC\FastLaneCheckout\Main::isFastlaneEnabled()) {
 
-            $transaction = $this->detectXpcTransaction();
-            if ($transaction) {
-                if ($transaction->getOrder()->hasCartStatus()) {
-                    // Set flag only if payment has been canceled and cart is not converted to order
-                    \XLite\Core\Session::getInstance()->returnedAfterXpc = true;
-                }
+            $transaction = $this->detectTransaction();
+            if (
+                $transaction
+                && $transaction->isXpc()
+                && $transaction->getOrder()->hasCartStatus()
+            ) {
+                // Set flag only if payment has been canceled and cart is not converted to order
+                \XLite\Core\Session::getInstance()->returnedAfterXpc = true;
             }
 
         }

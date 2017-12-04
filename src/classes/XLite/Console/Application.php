@@ -31,6 +31,7 @@ class Application extends Console\Application
         $defaultCommands[] = new Command\Other\CheckYamlCommand();
         $defaultCommands[] = new Command\Other\CheckRepoCommand();
         $defaultCommands[] = new Command\Other\StoreDataToYamlCommand();
+        $defaultCommands[] = new Command\Other\ReloadCommonLabels();
 
         $defaultCommands[] = new Command\Utils\RebuildViewLists();
         $defaultCommands[] = new Command\Utils\LoadYaml();

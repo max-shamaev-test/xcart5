@@ -21,7 +21,8 @@ define('file_uploader', [
       'position': false,
       'alt': false,
       'delete': false,
-      'basePath': ''
+      'basePath': '',
+      'helpMessage': ''
     },
 
     watch: {
@@ -44,8 +45,26 @@ define('file_uploader', [
         commonData: {},
         viaUrlPopup: {},
         reloadFromContent: false,
-        reloadContent: null
+        reloadContent: null,
+        errorMessage: null,
+        realErrorMessage: null,
+        showsMessages: true,
+        elementWidth: 0
       };
+    },
+
+    computed: {
+      shouldShowMessage: function() {
+        return this.showsMessages
+          && this.message
+          && (
+            !this.temp_id
+            || this.errorMessage
+          ) && this.elementWidth > 100;
+      },
+      message: function () {
+        return this.errorMessage ? this.errorMessage : this.helpMessage;
+      }
     },
 
     loadable: {
@@ -102,7 +121,16 @@ define('file_uploader', [
       this.commonData = jQuery(this.getFileUploaderElement()).parent().data();
       this.commonData.target = 'files';
 
+      if (this.realErrorMessage) {
+        core.trigger('message', {
+          type: 'warning',
+          message: this.realErrorMessage
+        })
+      }
+
       this.prepareWidget();
+
+      this.elementWidth = this.getFileUploaderElement().width();
     },
 
     methods: {
@@ -113,6 +141,7 @@ define('file_uploader', [
         this.getFileUploaderElement().html('<div class="spinner"></div>');
       },
       prepareWidget: function () {
+        CommonForm.autoassign(this.getFileUploaderElement());
         var base = this.getFileUploaderElement();
 
         base.find('div.via-url-popup .copy-to-file').change(function () {
@@ -139,6 +168,20 @@ define('file_uploader', [
             this
           )
         });
+
+        var alt = base.find('.alt');
+
+        alt.on('shown.bs.dropdown', function () {
+          $(this).find('input').focus();
+        });
+
+        alt.find('input').change(function () {
+          if ($(this).val().length) {
+            alt.addClass('filled');
+          } else {
+            alt.removeClass('filled');
+          }
+        }).change();
       },
       toggleDelete: function () {
         var base = this.getFileUploaderElement();
@@ -236,7 +279,7 @@ define('file_uploader', [
 
         self.assignWait();
 
-        jQuery.ajax({
+        return jQuery.ajax({
           url: URLHandler.buildURL(self.commonData),
           type: 'post',
           xhr: function () {

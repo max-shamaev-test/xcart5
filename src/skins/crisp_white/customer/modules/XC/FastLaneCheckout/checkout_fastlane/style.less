@@ -7,12 +7,6 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-// N.B. backwards compatibility for minor release and CrispWhite-base skins
-.define-color-reloading-highlight-if-not-defined() {@color-reloading-highlight: @color-highlight}
-.define-color-reloading-highlight-if-not-defined();
-.define-color-reloading-base-if-not-defined() {@color-reloading-base: @color-text-default};
-.define-color-reloading-base-if-not-defined();
-
 body.reloading:before,
 body.reloading:after
 {
@@ -100,86 +94,4 @@ body.reloading:after
   i + span {
     margin-left: 10px;
   }
-}
-
-.reloading {
-  position: relative;
-}
-
-.reloading:before {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  content: "";
-  display:block;
-  z-index: 1000;
-
-  background: rgba(255,255,255, 0.9);
-
-  -webkit-animation: flc-appear 0.3s ease-in-out;
-  animation: flc-appear 0.3s ease-in-out;
-}
-
-.reloading.reloading-animated:after {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  content: "";
-  display:block;
-  left: 0;
-  right: 0;
-  top: 0;
-  margin: auto;
-  opacity: 0.99;
-  z-index: 1002;
-  bottom: 0;
-  border-radius: 100%;
-  box-shadow: 10px 10px @color-reloading-base, -10px 10px @color-reloading-highlight, -10px -10px @color-reloading-base, 10px -10px @color-reloading-highlight;
-  -webkit-animation: flc-spin ease infinite 2s;
-  animation: flc-spin ease infinite 2s;
-}
-
-@-webkit-keyframes flc-spin {
-  0%,
-  100% {
-    box-shadow: 10px 10px @color-reloading-base, -10px 10px @color-reloading-highlight, -10px -10px @color-reloading-base, 10px -10px @color-reloading-highlight;
-  }
-  25% {
-    box-shadow: -10px 10px @color-reloading-highlight, -10px -10px @color-reloading-base, 10px -10px @color-reloading-highlight, 10px 10px @color-reloading-base;
-  }
-  50% {
-    box-shadow: -10px -10px @color-reloading-base, 10px -10px @color-reloading-highlight, 10px 10px @color-reloading-base, -10px 10px @color-reloading-highlight;
-  }
-  75% {
-    box-shadow: 10px -10px @color-reloading-highlight, 10px 10px @color-reloading-base, -10px 10px @color-reloading-highlight, -10px -10px @color-reloading-base;
-  }
-}
-
-
-@keyframes flc-spin {
-  0%,
-  100% {
-    box-shadow: 10px 10px @color-reloading-base, -10px 10px @color-reloading-highlight, -10px -10px @color-reloading-base, 10px -10px @color-reloading-highlight;
-  }
-  25% {
-    box-shadow: -10px 10px @color-reloading-highlight, -10px -10px @color-reloading-base, 10px -10px @color-reloading-highlight, 10px 10px @color-reloading-base;
-  }
-  50% {
-    box-shadow: -10px -10px @color-reloading-base, 10px -10px @color-reloading-highlight, 10px 10px @color-reloading-base, -10px 10px @color-reloading-highlight;
-  }
-  75% {
-    box-shadow: 10px -10px @color-reloading-highlight, 10px 10px @color-reloading-base, -10px 10px @color-reloading-highlight, -10px -10px @color-reloading-base;
-  }
-}
-
-@-webkit-keyframes flc-appear {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-@keyframes flc-appear {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
 }

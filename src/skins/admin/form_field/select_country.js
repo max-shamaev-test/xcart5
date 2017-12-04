@@ -56,7 +56,11 @@ StateSelector.prototype.stateInputBox = null;
 StateSelector.prototype.stateSavedValue = null;
 
 StateSelector.prototype.getParentBlock = function (selector) {
-  var block = selector.closest('li');
+  var block = selector.closest('.parent-block');
+
+  if (!block.length) {
+    block = selector.closest('li');
+  }
 
   if (!block.length) {
     block = selector.closest('div');

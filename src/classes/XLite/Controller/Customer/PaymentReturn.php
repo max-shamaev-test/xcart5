@@ -104,7 +104,7 @@ class PaymentReturn extends \XLite\Controller\Customer\ACheckoutReturn
             \XLite\Core\TopMessage::addWarning('Unknown payment. If you see this message after returning from the payment page, please contact the store administrator for information about the status of your payment.');
 
             // Set return URL
-            $url = $this->buildURL('');
+            $url = $this->buildFullURL();
 
             // Make redirect with destroying iframe (as it's unknown whether payment was via iframe method or not)
             $this->doHTMLRedirectWithIframeDestroying($url);

@@ -20,28 +20,7 @@ class CheckoutFailed extends \XLite\Controller\Customer\CheckoutFailed implement
      */
     protected function doNoAction()
     {
-        if (\XLite\Core\Session::getInstance()->inContextRedirect) {
-            unset(\XLite\Core\Session::getInstance()->inContextRedirect);
-
-            echo <<<HTML
-            <html><head></head><body>
-<script type="text/javascript">
-
-(function(d, s, id){
-  var js, ref = d.getElementsByTagName(s)[0];
-  if (!d.getElementById(id)){
-    js = d.createElement(s); js.id = id; js.async = true;
-    js.src = "//www.paypalobjects.com/js/external/paypal.v1.js";
-    ref.parentNode.insertBefore(js, ref);
-  }
-}(document, "script", "paypal-js"));
-
-</script>
-            </body></html>
-HTML;
-            exit;
-
-        } elseif (\XLite\Core\Session::getInstance()->cancelUrl) {
+        if (\XLite\Core\Session::getInstance()->cancelUrl) {
             $this->setReturnURL(\XLite\Core\Session::getInstance()->cancelUrl);
 
             unset(\XLite\Core\Session::getInstance()->cancelUrl);

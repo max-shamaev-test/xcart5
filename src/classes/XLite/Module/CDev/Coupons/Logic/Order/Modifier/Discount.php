@@ -63,15 +63,18 @@ class Discount extends \XLite\Logic\Order\Modifier\Discount
         foreach ($this->getUsedCoupons() as $used) {
             if ($used->getCoupon()) {
                 $used->setValue($used->getCoupon()->getAmount($this->order));
+                $used->setType($used->getCoupon()->getType());
             }
             $total += $used->getValue();
 
-            if ($used->getCoupon()) {
-                $this->distributeDiscountAmongItems(
-                    $used->getValue(),
-                    $this->getOrder()->getValidItemsByCoupon($used->getCoupon())
-                );
-            }
+            $itemsToDistribute = $used->getCoupon()
+                ? $this->getOrder()->getValidItemsByCoupon($used->getCoupon())
+                : $this->getOrder()->getItems();
+
+            $this->distributeDiscountAmongItems(
+                $used->getValue(),
+                $itemsToDistribute
+            );
         }
 
         if ($this->isValidTotal($total)) {

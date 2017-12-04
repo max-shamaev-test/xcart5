@@ -108,4 +108,14 @@ class RenderingContext implements RenderingContextInterface
     {
         return $this->bufferingLevel > 0;
     }
+
+    /**
+     * Return output buffering level
+     *
+     * @return mixed
+     */
+    public function getBufferingLevel()
+    {
+        return $this->bufferingLevel;
+    }
 }

@@ -67,6 +67,16 @@ abstract class ACustomer extends \XLite\Controller\AController
     }
 
     /**
+     * Stub for XC\ThemeTweaker module.
+     *
+     * @return bool
+     */
+    public function isInInlineEditorMode()
+    {
+        return false;
+    }
+
+    /**
      * Define the account links availability
      *
      * @return boolean
@@ -220,11 +230,12 @@ abstract class ACustomer extends \XLite\Controller\AController
         }
 
         // Add pageId if it's presented in the current request params for SEO purposes (see BUG-3118)
-        $pageId = intval(\XLite\Core\Request::getInstance()->{\XLite\View\Pager\APager::PARAM_PAGE_ID});
-
-        if (1 < $pageId) {
-            $params[\XLite\View\Pager\APager::PARAM_PAGE_ID] = $pageId;
-        }
+        // And remove it again because (yes, i know) SEO purposes
+//        $pageId = intval(\XLite\Core\Request::getInstance()->{\XLite\View\Pager\APager::PARAM_PAGE_ID});
+//
+//        if (1 < $pageId) {
+//            $params[\XLite\View\Pager\APager::PARAM_PAGE_ID] = $pageId;
+//        }
 
         $method = \XLite\Core\Config::getInstance()->Security->customer_security
             ? 'getSecureShopURL'
@@ -393,6 +404,21 @@ abstract class ACustomer extends \XLite\Controller\AController
         }
 
         parent::handleRequest();
+    }
+
+    /**
+     * Send headers
+     *
+     * @param  array $additional Additional headers OPTIONAL
+     *
+     * @return void
+     */
+    public static function sendHeaders($additional = array())
+    {
+        $contentSecurityPolicy = \XLite::getInstance()->getOptions(array('other', 'content_security_policy'));
+        if ($contentSecurityPolicy !== null && 'disabled' !== $contentSecurityPolicy) {
+            header('Content-Security-Policy:' . $contentSecurityPolicy);
+        }
     }
 
     /**
@@ -795,7 +821,15 @@ abstract class ACustomer extends \XLite\Controller\AController
             unset($data['target']);
         }
 
-        $this->setReturnURL(\XLite\Core\Converter::buildFullURL($target, '', $data));
+        $url = \XLite\Core\Converter::buildFullURL($target, '', $data);
+
+        $ttl = 86400;
+        $expiresTime = gmdate('D, d M Y H:i:s', time() + $ttl) . ' GMT';
+
+        header("Cache-Control: max-age=$ttl, must-revalidate");
+        header("Expires: $expiresTime");
+
+        $this->redirect($url, 301);
     }
 
     // }}}

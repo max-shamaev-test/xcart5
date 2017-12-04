@@ -1,7 +1,7 @@
 {##
  # Shipping methods block
  #}
-<shipping-methods inline-template>
+<shipping-methods inline-template :deferred="{{ this.shouldReload() ? 'true' : 'false' }}">
 
   {% if this.isShippingAvailable() %}
 

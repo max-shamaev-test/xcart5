@@ -28,7 +28,6 @@ class Currency extends \XLite\View\Model\AModel
             self::SCHEMA_CLASS      => '\XLite\View\FormField\Input\Checkbox',
             self::SCHEMA_LABEL      => 'Hide trailing zeros in fractional part',
             self::SCHEMA_REQUIRED   => false,
-            \XLite\View\FormField\AFormField::PARAM_USE_COLON => false,
         ),
         'currency_id' => array(
             self::SCHEMA_CLASS      => '\XLite\View\FormField\Select\CurrencyRich',
@@ -41,6 +40,11 @@ class Currency extends \XLite\View\Model\AModel
             self::SCHEMA_LABEL    => 'Format',
             self::SCHEMA_REQUIRED => false,
         ),
+//        'roundUp' => array(
+//            self::SCHEMA_CLASS    => '\XLite\View\FormField\Select\RoundUp',
+//            self::SCHEMA_LABEL    => 'RoundUp',
+//            self::SCHEMA_REQUIRED => false,
+//        ),
         'prefix' => array(
             self::SCHEMA_CLASS    => '\XLite\View\FormField\Input\Text',
             self::SCHEMA_LABEL    => 'Prefix',

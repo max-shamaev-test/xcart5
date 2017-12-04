@@ -7,6 +7,7 @@
  */
 
 namespace XLite\Model\Repo;
+use XLite\Core\Cache\ExecuteCached;
 
 /**
  * Role repository
@@ -74,7 +75,26 @@ class Role extends \XLite\Model\Repo\Base\I18n
      */
     public function findOneRoot()
     {
-        return $this->defineFindOneRootQuery()->getSingleResult();
+        $cacheParams = [
+            'rolesRoot',
+            \XLite\Core\Database::getRepo('XLite\Model\Role')->getVersion()
+        ];
+
+        return ExecuteCached::executeCached(function() {
+            return $this->defineFindOneRootQuery()->getSingleResult();
+        }, $cacheParams);
+    }
+
+    /**
+     * Find one root-based role int
+     *
+     * @return int
+     */
+    public function getRootId()
+    {
+        return $this->findOneRoot()
+            ? $this->findOneRoot()->getId()
+            : null;
     }
 
     /**

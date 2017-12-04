@@ -235,22 +235,7 @@ abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
             . <<<HTML
 <style type="text/css">
 <!--
-@-webkit-keyframes spin { /* Safari */
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
-}
-
-@-moz-keyframes spin { /* Firefox */
-  0% { -moz-transform: rotate(0deg); }
-  100% { -moz-transform: rotate(360deg); }
-}
-
-@-ms-keyframes spin { /* IE */
-  0% { -ms-transform: rotate(0deg); }
-  100% { -ms-transform: rotate(360deg); }
-}
-
-@-o-keyframes spin { /* Opera */
+@keyframes spin { /* Opera */
   0% { -o-transform: rotate(0deg); }
   100% { -o-transform: rotate(360deg); }
 }

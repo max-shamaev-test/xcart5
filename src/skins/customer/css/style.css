@@ -219,10 +219,32 @@ form.invalid-form .form-error {
   margin-bottom: 4px;
 }
 
+.items-list .head-h2,
+.items-list .list-pager {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.items-list .list-pager {
+  margin: 42px 0 16px;
+  height: auto;
+  float: right;
+}
+
 @media (max-width: 480px) {
-  .list-pager  {
+  .items-list .head-h2 {
     height: auto;
     text-align: center;
+    display: block;
+  }
+
+  .items-list .list-pager  {
+    height: auto;
+    text-align: center;
+    display: block;
+    float: none;
+    margin: 0;
+    margin-bottom: 14px;
   }
 
   .list-pager .pager-items-total {
@@ -806,7 +828,7 @@ ul.subcategory-list.subcategory-view-list li a {
 {
   text-decoration: none;
   text-align: left;
-  word-break: break-word;
+  word-wrap: break-word;
 }
 
 .products-grid .product-name,
@@ -1307,7 +1329,7 @@ div.product-price {
   padding-right: 4px;
 }
 .product-details-info .product-buttons .buttons-row > * {
-  vertical-align: middle;
+  vertical-align: top;
   margin-top: 10px
 }
 
@@ -1711,7 +1733,7 @@ body.store-cart #main h1 {
 #shopping-cart table.selected-products {
   border-collapse: separate;
   margin-bottom: 3px;
-*  border-top: 1px solid #dddddd;
+  border-top: 1px solid #dddddd;
 }
 
 #shopping-cart .selected-products td {
@@ -2186,7 +2208,7 @@ img.fade {
   background: -o-linear-gradient(left,  rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
   background: -ms-linear-gradient(left,  rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
   background: linear-gradient(to right,  rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=1 );
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=1 )";
   display: block;
   position: absolute;
   right: 0px;
@@ -2503,27 +2525,6 @@ iframe#pay_iframe {
   to {
     -ms-transform: rotate(360deg);
     transform:rotate(360deg);
-  }
-}
-@-moz-keyframes rotateGear {
-  from { }
-  to {
-    -moz-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-@-webkit-keyframes rotateGear {
-  from { }
-  to {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-@-o-keyframes rotateGear {
-  from { }
-  to {
-    -o-transform: rotate(360deg);
-    transform: rotate(360deg);
   }
 }
 
@@ -2945,7 +2946,7 @@ ul.shipping-rates li span.value {
   background: -o-linear-gradient(left,  rgba(226,237,248,0) 0%,rgba(226,237,248,1) 100%);
   background: -ms-linear-gradient(left,  rgba(226,237,248,0) 0%,rgba(226,237,248,1) 100%);
   background: linear-gradient(to right,  rgba(226,237,248,0) 0%,rgba(226,237,248,1) 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00e2edf8', endColorstr='#e2edf8',GradientType=1 );
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient( startColorstr='#00e2edf8', endColorstr='#e2edf8',GradientType=1 )";
   width: 40px;
 }
 

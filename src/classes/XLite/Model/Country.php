@@ -32,7 +32,7 @@ class Country extends \XLite\Model\Base\I18n
     protected $code;
 
     /**
-     * Country code (ISO 3166-1 numeric)
+     * Id
      *
      * @var integer
      *

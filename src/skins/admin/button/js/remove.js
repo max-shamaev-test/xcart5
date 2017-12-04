@@ -50,6 +50,8 @@ CommonForm.elementControllers.push(
         function () {
 
           var list = jQuery(this).parents('.items-list').eq(0);
+          var form = jQuery(this).parents('form');
+
           jQuery(this).parents('tr').eq(0).remove();
           if (0 == list.find('tr.create-line').length && 0 == list.find('tbody.lines tr.line').length) {
             jQuery('table.list', list).addClass('list-no-items');
@@ -60,7 +62,7 @@ CommonForm.elementControllers.push(
 
           list.get(0).itemsListController.triggerVent('line.new.remove');
 
-          jQuery(this).parents('form').change();
+          form.change();
         }
       );
 

@@ -32,4 +32,10 @@ class RestoreLinks extends \XLite\View\Upgrade\Step\ReadyToInstall\AReadyToInsta
     {
         return parent::getListName() . '.restore_links';
     }
+
+    protected function isVisible()
+    {
+        return parent::isVisible()
+            && !\XLite\Upgrade\Cell::getInstance()->isInstallationMode();
+    }
 }

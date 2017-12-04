@@ -182,7 +182,8 @@ shared_secret_key = ""
 ;
 [performance]
 developer_mode = Off
-cache_namespace_hash = On
+
+; Enable to cache resource paths
 skins_cache = off
 
 ;
@@ -326,6 +327,29 @@ trusted_domains =
 ; x_frame_options = 'disabled'
 ; x_frame_options = 'sameorigin'
 x_frame_options = 'sameorigin'
+
+; X-XSS-Protection value
+; For possible values see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
+; Examples:
+; x_xss_protection = 'disabled' # prevent X-XSS-Protection header sending
+; x_xss_protection = '0'
+; x_xss_protection = '1; mode=block'
+x_xss_protection = '1; mode=block'
+
+; Content-Security-Policy value
+; For possible values see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
+; Examples:
+; content_security_policy = 'disabled' # prevent Content-Security-Policy header sending
+; content_security_policy = "default-src 'self'"
+; content_security_policy = "default-src 'self'; img-src *;"
+content_security_policy = 'disabled'
+
+; X-Content-Type-Options value
+; For possible values see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
+; Examples:
+; x_content_type_options = 'disabled' # prevent X-Content-Type-Options header sending
+; x_content_type_options = 'nosniff'
+x_content_type_options = 'nosniff'
 
 ; CSRF token strategy
 ; possible values: per-session, per-form

@@ -65,7 +65,7 @@ class SignUp extends \XLite\View\Button\SimpleLink
 
         return $api->isInContextSignUpAvailable()
             ? $method->getReferralPageURL($method)
-            : $this->buildURL('paypal_settings', '', array('method_id' => $method->getMethodId()));
+            : $this->buildURL('paypal_settings', '', ['method_id' => $method->getMethodId()]);
     }
 
     /**
@@ -75,15 +75,15 @@ class SignUp extends \XLite\View\Button\SimpleLink
      */
     protected function getDefaultAttributes()
     {
-        $params = array(
+        $params = [
             'target'             => 'PPFrame',
             'data-paypal-button' => 'true',
-        );
+        ];
 
         $api = \XLite\Module\CDev\Paypal\Main::getRESTAPIInstance();
 
         return $api->isInContextSignUpAvailable()
             ? $params
-            : array();
+            : [];
     }
 }

@@ -7,49 +7,27 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-define('js/vue/component', ['js/underscore'], function (_) {
+define('js/vue/component', ['js/underscore', 'vue/vue'], function (_, Vue) {
 
   var XLiteVueComponent = function (name, definition) {
     this.name = name;
-    this.definition = definition;
+    this.definition = Vue.extend(definition);
   };
 
   XLiteVueComponent.prototype.extend = function (definition) {
-    this._createExtend('props', [], this._extendProps)(definition);
-    this._createExtend('methods', {}, this._extendMethods)(definition);
-    this._createExtend('directives', {}, this._extendDirectives)(definition);
+    this.definition = this.definition.extend(definition);
+    this._provideParentMethods();
   };
 
-  XLiteVueComponent.prototype._createExtend = function (field, def, extend) {
-    return _.bind(function (definition) {
-      if (definition[field]) {
-        if (!this.definition[field]) {
-          this.definition[field] = def;
-        }
+  XLiteVueComponent.prototype._provideParentMethods = function () {
+    var methods = this.definition.options.methods;
+    var parent = this.definition.super.options.methods;
 
-        _.bind(extend, this)(definition);
+    for (var methodName in methods) if ('undefined' === typeof(methods.hasOwnProperty) || methods.hasOwnProperty(methodName)) {
+      if (parent[methodName]) {
+        methods[methodName].parent = parent[methodName];
       }
-    }, this);
-  };
-
-  XLiteVueComponent.prototype._extendProps = function (definition) {
-    this.definition.props = this.definition.props.concat(definition.props);
-  };
-
-  XLiteVueComponent.prototype._extendMethods = function (definition) {
-    var methods = definition.methods;
-
-    for (var methodName in methods) if (methods.hasOwnProperty(methodName)) {
-      if (this.definition.methods[methodName]) {
-        methods[methodName].parent = this.definition.methods[methodName];
-      }
-
-      this.definition.methods[methodName] = methods[methodName];
     }
-  };
-
-  XLiteVueComponent.prototype._extendDirectives = function (definition) {
-    this.definition.directives = _.extend(this.definition.directives || {}, definition.directives);
   };
 
   return XLiteVueComponent;

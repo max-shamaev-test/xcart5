@@ -58,9 +58,17 @@ class MailChimp extends \XLite\Base\Singleton
     /**
      * @return mixed
      */
-    public function getStoreName()
+    public function getStoreName($listId)
     {
-        return \XLite\Core\Config::getInstance()->Company->company_name;
+        /** @var \XLite\Module\XC\MailChimp\Model\MailChimpList $list */
+        $list = \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\MailChimpList')->find($listId);
+
+        return sprintf('%s (%s)',
+            \XLite\Core\Config::getInstance()->Company->company_name,
+            $list
+                ? $list->getName()
+                : 'unknown'
+        );
     }
 
     /**
@@ -564,58 +572,69 @@ class MailChimp extends \XLite\Base\Singleton
      *
      * @param \XLite\Model\Cart $cart
      *
-     * @return array
+     * @return bool
      */
     public function createOrUpdateCart(\XLite\Model\Cart $cart)
     {
-        $storeName = static::getInstance()->getStoreName();
-        $storeId = static::getInstance()->getStoreIdByCampaign(
+        $stores = [];
+
+        if ($ACStore = Main::getStoreForAbandonedCarts()) {
+            $stores[] = $ACStore->getId();
+        }
+
+        $providedStoreId = static::getInstance()->getStoreIdByCampaign(
             \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
         );
 
-        $data = Cart::getDataByCart(
-            \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID},
-            \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_USER_ID},
-            \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_TRACKING_CODE},
-            $cart,
-            MailChimpECommerce::getInstance()->isCustomerExists(
-                $storeId,
-                $cart->getProfile()->getProfileId()
-                    ?: \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_USER_ID}
-            )
-        );
-        $storeData = [
-            'campaign_id'   => $data['campaign_id'],
-            'store_id'      => $storeId,
-            'store_name'    => $storeName,
-            'currency_code' => $data['currency_code']
-        ];
+        if ($providedStoreId) {
+            $stores[] = $providedStoreId;
+        }
 
         $ecCore = MailChimpECommerce::getInstance();
 
-        // Create store if not exists
-        if (!$ecCore->getCart($storeId, $cart->getOrderId())) {
-            $result = $this->execCartRelatedRequest(
-                "ecommerce/stores/{$storeId}/carts",
-                $data,
-                $cart->getItems(),
-                $storeData,
-                false
+        $result = [];
+
+        foreach ($stores as $storeId) {
+            $data = Cart::getDataByCart(
+                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID},
+                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_USER_ID},
+                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_TRACKING_CODE},
+                $cart,
+                MailChimpECommerce::getInstance()->isCustomerExists(
+                    $storeId,
+                    $cart->getProfile()->getProfileId()
+                        ?: \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_USER_ID}
+                )
             );
 
-        } else {
-            $cartId = $data['id'];
+            // Create store if not exists
+            if (!$ecCore->getCart($storeId, $cart->getOrderId())) {
+                $result[] = $this->execCartRelatedRequest(
+                    "ecommerce/stores/{$storeId}/carts",
+                    $data,
+                    $cart->getItems(),
+                    $storeId,
+                    false
+                );
 
-            $result = $this->execCartRelatedRequest(
-                "ecommerce/stores/{$storeId}/carts/{$cartId}",
-                $data,
-                $cart->getItems(),
-                $storeData,
-                true
-            );
+            } else {
+                $cartId = $data['id'];
+
+                $result[] = $this->execCartRelatedRequest(
+                    "ecommerce/stores/{$storeId}/carts/{$cartId}",
+                    $data,
+                    $cart->getItems(),
+                    $storeId,
+                    true
+                );
+            }
         }
-        
-        return $result;
+
+        $failedRequests = array_filter($result, function($res) {
+            return $res === false;
+        });
+
+        return count($failedRequests) === 0;
     }
 
     /**
@@ -627,7 +646,11 @@ class MailChimp extends \XLite\Base\Singleton
      */
     public function createCart(\XLite\Model\Cart $cart)
     {
-        $storeName = static::getInstance()->getStoreName();
+        $storeName = static::getInstance()->getStoreName(
+            static::getInstance()->getListIdByCampaignId(
+                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
+            )
+        );
         $storeId = static::getInstance()->getStoreIdByCampaign(
             \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
         );
@@ -690,7 +713,11 @@ class MailChimp extends \XLite\Base\Singleton
      */
     public function createOrder(\XLite\Model\Order $order)
     {
-        $storeName = static::getInstance()->getStoreName();
+        $storeName = static::getInstance()->getStoreName(
+            static::getInstance()->getListIdByCampaignId(
+                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
+            )
+        );
         $storeId = static::getInstance()->getStoreIdByCampaign(
             \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
         );
@@ -750,18 +777,18 @@ class MailChimp extends \XLite\Base\Singleton
      * @param string                   $url
      * @param array                    $data
      * @param \XLite\Model\OrderItem[] $lines
-     * @param array                    $storeData
+     * @param string                   $storeId
      * @param bool                     $update
      *
      * @return array|bool|false
      */
-    public function execCartRelatedRequest($url, $data, $lines, $storeData, $update = false)
+    public function execCartRelatedRequest($url, $data, $lines, $storeId, $update = false)
     {
         $ecCore = MailChimpECommerce::getInstance();
 
         // Create products
         foreach ($lines as $item) {
-            $ecCore->createProductFast($storeData['store_id'], $item->getObject());
+            $ecCore->createProductFast($storeId, $item->getObject());
         }
 
 

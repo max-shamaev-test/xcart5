@@ -99,10 +99,27 @@ class OrderHistoryEvents extends \XLite\Model\AEntity
      * @var \XLite\Model\Profile
      *
      * @ManyToOne   (targetEntity="XLite\Model\Profile", inversedBy="event", cascade={"merge","detach","persist"})
-     * @JoinColumn (name="author_id", referencedColumnName="profile_id", onDelete="CASCADE")
+     * @JoinColumn (name="author_id", referencedColumnName="profile_id", onDelete="SET NULL")
      */
     protected $author;
 
+    /**
+     * Author name
+     *
+     * @var string
+     *
+     * @Column (type="string", length=255, nullable=true)
+     */
+    protected $authorName;
+
+    /**
+     * Author IP
+     *
+     * @var string
+     *
+     * @Column (type="string", length=255, nullable=true)
+     */
+    protected $authorIp = '';
 
     /**
      * Prepare order event before save data operation
@@ -332,6 +349,11 @@ class OrderHistoryEvents extends \XLite\Model\AEntity
     public function setAuthor(\XLite\Model\Profile $author = null)
     {
         $this->author = $author;
+
+        if ($author && $author->isAdmin()) {
+            $this->setAuthorName($author->getLogin());
+        }
+
         return $this;
     }
 
@@ -343,5 +365,50 @@ class OrderHistoryEvents extends \XLite\Model\AEntity
     public function getAuthor()
     {
         return $this->author;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthorIp()
+    {
+        return $this->authorIp;
+    }
+
+    /**
+     * @param string $authorIp
+     *
+     * @return $this
+     */
+    public function setAuthorIp($authorIp)
+    {
+        $this->authorIp = $authorIp;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthorName()
+    {
+        return $this->authorName;
+    }
+
+    /**
+     * @param string $authorName
+     *
+     * @return $this
+     */
+    public function setAuthorName($authorName)
+    {
+        $this->authorName = $authorName;
+        return $this;
+    }
+
+    public function showAuthor()
+    {
+        return ($this->getAuthor() && $this->getAuthor()->isAdmin())
+            || $this->getAuthorName()
+            || $this->getAuthorIp();
     }
 }

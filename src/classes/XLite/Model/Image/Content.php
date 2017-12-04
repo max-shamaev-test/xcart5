@@ -25,18 +25,4 @@ class Content extends \XLite\Model\Base\Image
     {
         return 0 < $this->getWidth();
     }
-
-    /**
-     * Renew properties by path
-     *
-     * @param string $path Path
-     *
-     * @return void
-     */
-    protected function renewByPath($path)
-    {
-        $result = parent::renewByPath($path);
-
-        return true;
-    }
 }

@@ -127,7 +127,7 @@
   text-decoration: none;
   color: black;
   white-space: normal;
-  word-break: break-word;
+  word-wrap: break-word;
   max-width: calc(100% - 80px);
   display: inline-block;
 }

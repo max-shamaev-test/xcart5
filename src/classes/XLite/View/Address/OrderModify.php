@@ -181,6 +181,6 @@ class OrderModify extends \XLite\View\AView
      */
     protected function isDisplayAddressButton()
     {
-        return 1 < count($this->getOrder()->getAddresses());
+        return true;
     }
 }

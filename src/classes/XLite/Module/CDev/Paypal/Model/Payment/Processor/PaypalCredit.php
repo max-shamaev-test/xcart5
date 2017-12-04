@@ -56,6 +56,16 @@ class PaypalCredit extends Paypal\Model\Payment\Processor\ExpressCheckout
     }
 
     /**
+     * Get input template
+     *
+     * @return string
+     */
+    public function getInputTemplate()
+    {
+        return 'modules/CDev/Paypal/checkout/ec_credit_checkout_box.twig';
+    }
+
+    /**
      * Get the list of merchant countries where this payment processor can work
      *
      * @return array

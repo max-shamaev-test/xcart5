@@ -9,7 +9,9 @@
 
 jQuery(function () {
 
-  shadeIframe();
+  if (jQuery('#add_new_card_iframe').length) {
+    shadeIframe();
+  }
 
   jQuery('#submit-button').click(function () {
 

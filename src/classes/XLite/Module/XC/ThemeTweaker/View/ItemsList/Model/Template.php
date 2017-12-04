@@ -9,6 +9,7 @@
 namespace XLite\Module\XC\ThemeTweaker\View\ItemsList\Model;
 
 use XLite\Core\Templating\CacheManagerInterface;
+use XLite\Module\XC\ThemeTweaker\Core\Layout;
 
 /**
  * Theme tweaker templates items list
@@ -77,6 +78,11 @@ class Template extends \XLite\View\ItemsList\Model\Table
 
     // {{{ Behaviors
 
+    protected function isSwitchable()
+    {
+        return true;
+    }
+
     /**
      * Mark list as removable
      *
@@ -117,7 +123,7 @@ class Template extends \XLite\View\ItemsList\Model\Table
      *
      * @return string
      */
-    protected function getFullPathByShortPath($shortPath, $skin = 'theme_tweaker/customer')
+    protected function getFullPathByShortPath($shortPath, $skin = Layout::THEME_TWEAKER_CUSTOMER_INTERFACE)
     {
         $result = '';
 
@@ -154,7 +160,7 @@ class Template extends \XLite\View\ItemsList\Model\Table
      */
     protected function removeEntity(\XLite\Model\AEntity $entity)
     {
-        $pathSkin = 'theme_tweaker/customer';
+        $pathSkin = Layout::THEME_TWEAKER_CUSTOMER_INTERFACE;
         $localPath = $entity->getTemplate();
 
         $shortPath = substr($localPath, strpos($localPath, LC_DS, strlen($pathSkin)));

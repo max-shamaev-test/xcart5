@@ -94,6 +94,7 @@ class CreateBackup extends \XLite\View\Upgrade\Step\ReadyToInstall\AReadyToInsta
      */
     protected function isVisible()
     {
-        return parent::isVisible();
+        return parent::isVisible()
+            && !\XLite\Upgrade\Cell::getInstance()->isInstallationMode();
     }
 }

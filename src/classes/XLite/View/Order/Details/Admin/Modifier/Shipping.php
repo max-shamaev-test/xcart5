@@ -22,6 +22,7 @@ class Shipping extends \XLite\View\Order\Details\Admin\Modifier
     {
         /** @var $shippingModifier \XLite\Logic\Order\Modifier\Shipping */
         $shippingModifier = $this->getOrder()->getModifier(\XLite\Model\Base\Surcharge::TYPE_SHIPPING, 'SHIPPING');
+        $cost = $this->getOrder()->getSurchargesSubtotal(\XLite\Model\Base\Surcharge::TYPE_SHIPPING);
 
         $shippable = false;
         foreach ($this->getOrder()->getItems() as $item) {
@@ -29,7 +30,9 @@ class Shipping extends \XLite\View\Order\Details\Admin\Modifier
                 $shippable = true;
             }
         }
-        $result = $shippable || ($shippingModifier && $shippingModifier->canApply() && $shippingModifier->getSelectedRate());
+
+        $result = $shippable
+            || ($shippingModifier && $shippingModifier->canApply() && ($shippingModifier->getSelectedRate() || $cost > 0));
 
         return parent::isVisible() && $result;
     }

@@ -8,6 +8,8 @@
 
 namespace XLite\View\Menu\Admin\Info\Node;
 
+use XLite\Core\Cache\ExecuteCached;
+
 /**
  * Upgrade node
  */
@@ -124,7 +126,9 @@ class Upgrade extends \XLite\View\Menu\Admin\ANodeNotification
 
         return [
             'status' => $status,
-            'count'  => $this->getCounter(),
+            'count'  => $status === static::STATUS_NO_UPDATES
+                ? 0
+                : $this->getCounter(),
         ];
     }
 
@@ -174,9 +178,7 @@ class Upgrade extends \XLite\View\Menu\Admin\ANodeNotification
      */
     protected function isCoreUpgradeAvailable()
     {
-        $flags = $this->getUpdateFlags();
-
-        return !empty($flags[\XLite\Core\Marketplace::FIELD_IS_UPGRADE_AVAILABLE]);
+        return \XLite\Upgrade\Cell::getInstance()->hasCoreUpdate();
     }
 
     /**
@@ -186,23 +188,9 @@ class Upgrade extends \XLite\View\Menu\Admin\ANodeNotification
      */
     protected function areUpdatesAvailable()
     {
-        $flags = $this->getUpdateFlags();
+        $infoHash = \XLite\Core\Database::getRepo('XLite\Model\Module')->getUpgradeModulesInfoHash();
 
-        return !empty($flags[\XLite\Core\Marketplace::FIELD_ARE_UPDATES_AVAILABLE]);
-    }
-
-    /**
-     * Return update flags
-     *
-     * @return array
-     */
-    protected function getUpdateFlags()
-    {
-        if (null === $this->updateFlags) {
-            $this->updateFlags = \XLite\Core\Marketplace::getInstance()->checkForUpdates();
-        }
-
-        return is_array($this->updateFlags) ? $this->updateFlags : [];
+        return $infoHash['total'] > 0;
     }
 
     // {{{ View helpers
@@ -262,9 +250,19 @@ class Upgrade extends \XLite\View\Menu\Admin\ANodeNotification
      */
     protected function getCounter()
     {
-        $entries = \XLite\Upgrade\Cell::getInstance()->getEntries();
+        $cacheParams = [
+            'upgrade_counter',
+            \XLite\Core\Database::getRepo('XLite\Model\Module')->getVersion(),
+            \XLite\Core\Marketplace::getInstance()->getCores(
+                \XLite\Core\Marketplace::TTL_SHORT
+            ),
+        ];
 
-        return count($entries);
+        return ExecuteCached::executeCached(function() {
+            $entries = \XLite\Upgrade\Cell::getInstance()->getEntries();
+
+            return count($entries);
+        }, $cacheParams);
     }
 
     // }}}

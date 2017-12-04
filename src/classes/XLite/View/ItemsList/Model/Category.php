@@ -280,6 +280,8 @@ class Category extends \XLite\View\ItemsList\Model\Table
         }
         $this->createCount++;
         parent::insertNewEntity($entity);
+
+        \XLite\Core\Database::getRepo('XLite\Model\Category')->correctCategoriesStructure();
     }
 
     /**

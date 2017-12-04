@@ -31,7 +31,7 @@ class LeftMenu extends \XLite\View\Menu\Admin\LeftMenu implements \XLite\Base\ID
             if (version_compare($version, '5.3.3') >= 0) {
                 $title = 'CloudSearch & CloudFilters';
 
-                $list['catalog'][static::ITEM_CHILDREN]['tags'] = [
+                $list['catalog'][static::ITEM_CHILDREN]['cloud_search'] = [
                     static::ITEM_TITLE      => $title,
                     static::ITEM_TARGET     => 'cloud_search',
                     static::ITEM_PERMISSION => 'manage catalog',

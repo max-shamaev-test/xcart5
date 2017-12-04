@@ -14,6 +14,8 @@ function BannerRotationController(element) {
   this.markActive();
   this.fixHeight();
   this.assignHandlers();
+
+  this.base.find('.not-initialized').removeClass('not-initialized');
 }
 
 BannerRotationController.prototype.base = null;

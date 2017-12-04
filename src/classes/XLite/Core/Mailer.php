@@ -1628,15 +1628,7 @@ class Mailer extends \XLite\Base\Singleton
         $result = false;
         static::$errorMessage = null;
 
-        // I'm really sorry for this, but its is much simpler than
-        // trying to serialize good half of environment
-        // or refactor whole Core\Mailer and View\Mailer
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-        $callee = $backtrace[1]['function'];
-        $arguments = [];
-        if (isset($backtrace[1]['args'])) {
-            $arguments = $backtrace[1]['args'];
-        }
+        list($callee, $arguments) = static::tryGetCallee();
 
         if (!$mailRegistryKey) {
             $mailRegistryKey = static::getMailRegistryKey($callee, $from, $to);
@@ -1721,6 +1713,47 @@ class Mailer extends \XLite\Base\Singleton
             'sendSafeModeAccessKeyNotification',
             'sendUpgradeSafeModeAccessKeyNotification'
         ];
+    }
+
+
+    /**
+     * I'm really sorry for this, but its is much simpler than
+     * trying to serialize good half of environment
+     * or refactor whole Core\Mailer and View\Mailer
+     * @return array
+     */
+    public static function tryGetCallee()
+    {
+        $maxDepth = 512;
+
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT);
+
+        $maxDepth = min($maxDepth, count($backtrace));
+
+        for ($index = 2; $index < $maxDepth; $index++) {
+            $calleeRaw = static::getCalleeAndArgsFromTraceEntry($backtrace[$index++]);
+            list($calleeFound, ) = $calleeRaw;
+
+            if ($calleeFound !== 'compose') {
+                return $calleeRaw;
+            }
+        }
+
+        return ['', []];
+    }
+
+    /**
+     * @param $entry
+     */
+    protected static function getCalleeAndArgsFromTraceEntry($entry)
+    {
+        $callee = $entry['function'];
+        $arguments = [];
+        if (isset($entry['args'])) {
+            $arguments = $entry['args'];
+        }
+
+        return [$callee, $arguments];
     }
 
     /**
@@ -2136,7 +2169,7 @@ class Mailer extends \XLite\Base\Singleton
         $shopURL = \XLite::getInstance()->getShopURL();
 
         return sprintf(
-            '<a href="%s"><img src="%s" alt="%s" style="max-width:100%%;" /></a>',
+            '<a href="%s"><img src="%s" alt="%s" style="max-width:100%%;" width="100%%" /></a>',
             $shopURL,
             $logo,
             $companyName

@@ -23,11 +23,6 @@ class Selector extends \XLite\View\ShippingList
         return FastLaneCheckout\Main::getSkinDir() . 'blocks/shipping_methods/';
     }
 
-    /**
-     * Get JS files
-     *
-     * @return array
-     */
     public function getJSFiles()
     {
         $list = parent::getJSFiles();
@@ -37,11 +32,22 @@ class Selector extends \XLite\View\ShippingList
         return $list;
     }
 
-    /**
-     * Return widget default template
-     *
-     * @return string
-     */
+    public function getCSSFiles()
+    {
+        return array_merge(parent::getCSSFiles(), [
+            'form_field/form_field.css'
+        ]);
+    }
+
+    protected function getCommonFiles()
+    {
+        $list = parent::getCommonFiles();
+
+        $list[static::RESOURCE_CSS][] = 'css/chosen/chosen.css';
+
+        return $list;
+    }
+
     protected function getDefaultTemplate()
     {
         return $this->getDir() . 'selector.twig';

@@ -10,6 +10,8 @@
 .add2cart-popup .pp-button {
   display: inline-block;
   margin-top: 5px;
+  vertical-align: middle;
+  width: 160px;
 }
 
 .add2cart-popup button.cart {

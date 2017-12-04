@@ -46,6 +46,12 @@ class Checkout extends \XLite\View\Dialog implements ProviderInterface
     {
         $list = parent::getCSSFiles();
         $list[] = 'checkout/css/checkout.css';
+        $list[] = [
+            'file'  => 'checkout/css/animations.less',
+            'media' => 'screen',
+            'merge' => 'bootstrap/css/bootstrap.less',
+        ];
+
         if (
             $checkoutCanceled = \XLite\Core\Session::getInstance()->checkoutCanceled
             && \XLite\Core\Request::getInstance()->checkoutCanceled
@@ -114,6 +120,7 @@ class Checkout extends \XLite\View\Dialog implements ProviderInterface
             'Enter a correct email',
             'Order can not be placed because not all required fields are completed. Please check the form and try again.',
             'Field is required!',
+            'Transaction is in progress'
         );
 
         $data = array();

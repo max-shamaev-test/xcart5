@@ -10,22 +10,31 @@
       <h2>{{ t('Secure credit card payment') }}</h2>
     </div>
 
+    <div class="need-to-reload">
+      {{ t('The token has expired, please click here to reload the form and then fill the card details again.')|raw }}
+    </div>
+
     <div class="cc-form">
-      <div class="cardName">
-        <div class="title">{{ t('Cardholder name') }}:</div>
-        <div class="value">
-          <input size="40" id="cc_name" class="form-control validate[required]" placeholder="{{ t('Cardholder name') }}" type="text" autocomplete="off" v-model="payment.cc_holder_name" lazy>
+      <div class="cardName-CVV-wrapper">
+        <div class="cardName field">
+          <div class="title">{{ t('Cardholder name') }}:</div>
+          <div class="value">
+            <input size="40" id="cc_name" class="form-control validate[required]" placeholder="{{ t('Cardholder name') }}" type="text" autocomplete="off" v-model="payment.cc_holder_name" lazy>
+          </div>
+        </div>
+
+        <div class="cardType">
         </div>
       </div>
 
-      <div class="cardType">
-      </div>
-
-      <div class="cardNumber">
+      <div class="cardNumber field">
+        <div class="label">{{ t('Card number') }}</div>
         <div class="value form-control" data-bluesnap="ccn"></div>
+        <div class="required">{{ t('Field is required!') }}</div>
       </div>
 
-      <div class="cardExpire">
+      <div class="cardExpire field">
+        <div class="label">{{ t('Exp. date') }}</div>
         <div class="value">
           <div class="top-line">
             <div class="top-text lite-hide">{{ t('MONTH') }} / {{ t('YEAR') }}</div>
@@ -40,9 +49,11 @@
             <div class="form-control" data-bluesnap="exp"></div>
           </div>
         </div>
+        <div class="required">{{ t('Field is required!') }}</div>
       </div>
 
-      <div class="cardCVV2">
+      <div class="cardCVV2 field">
+        <div class="label">{{ t('Security code') }}</div>
         <div class="value">
           <div data-bluesnap="cvv" class="form-control"></div>
 
@@ -57,6 +68,7 @@
         <div class="icon-container">
           <div class="icon"></div>
         </div>
+        <div class="required">{{ t('Field is required!') }}</div>
       </div>
 
     </div>

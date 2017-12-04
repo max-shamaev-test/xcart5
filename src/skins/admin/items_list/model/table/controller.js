@@ -404,6 +404,12 @@ TableItemsList.prototype.listeners.headSort = function(handler)
 {
   jQuery('thead th a.sort', handler.container).click(
     function() {
+      if (jQuery(this).hasClass('current-sort')
+        && jQuery(this).hasClass('single-order-sort')
+      ) {
+        return false;
+      }
+
       return jQuery(this).hasClass('current-sort')
         ? !handler.process('sortOrder', 'asc' == jQuery(this).data('direction') ? 'desc' : 'asc')
         : !handler.process('sortBy', jQuery(this).data('sort'));

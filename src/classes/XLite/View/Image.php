@@ -46,7 +46,7 @@ class Image extends \XLite\View\AView
      *
      * @var array
      */
-    protected $allowedProperties = array(
+    protected $allowedProperties = [
         'className'   => 'class',
         'id'          => 'id',
         'onclick'     => 'onclick',
@@ -56,14 +56,14 @@ class Image extends \XLite\View\AView
         'onmousedown' => 'onmousedown',
         'onmouseover' => 'onmouseover',
         'onmouseout'  => 'onmouseout',
-    );
+    ];
 
     /**
      * Additioanl properties
      *
      * @var array
      */
-    protected $properties = array();
+    protected $properties = [];
 
     /**
      * Resized thumbnail URL
@@ -80,11 +80,16 @@ class Image extends \XLite\View\AView
     protected $retinaResizedURL = null;
 
     /**
-     * Use default image 
-     * 
+     * Use default image
+     *
      * @var boolean
      */
     protected $useDefaultImage = false;
+
+    /**
+     * @var string
+     */
+    protected $blurredImage = null;
 
     /**
      * Set widget parameters
@@ -138,7 +143,7 @@ class Image extends \XLite\View\AView
 
         if (!$url && $this->getParam(self::PARAM_USE_DEFAULT_IMAGE)) {
             // Default image
-            $url = \XLite::getInstance()->getOptions(array('images', 'default_image'));
+            $url = \XLite::getInstance()->getOptions(['images', 'default_image']);
 
             if (!\XLite\Core\Converter::isURL($url)) {
                 $url = \XLite\Core\Layout::getInstance()->getResourceWebPath(
@@ -217,7 +222,7 @@ class Image extends \XLite\View\AView
      */
     protected function prepareURL($url)
     {
-        return str_replace(array('http://', 'https://'), '//', $url);
+        return str_replace(['http://', 'https://'], '//', $url);
     }
 
     /**
@@ -239,7 +244,7 @@ class Image extends \XLite\View\AView
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_IMAGE             => new \XLite\Model\WidgetParam\TypeObject('Image', null, false, '\XLite\Model\Base\Image'),
             self::PARAM_ALT               => new \XLite\Model\WidgetParam\TypeString('Alt. text', '', false),
             self::PARAM_MAX_WIDTH         => new \XLite\Model\WidgetParam\TypeInt('Max. width', 0),
@@ -249,7 +254,7 @@ class Image extends \XLite\View\AView
             self::PARAM_USE_CACHE         => new \XLite\Model\WidgetParam\TypeBool('Use cache', 1),
             self::PARAM_USE_DEFAULT_IMAGE => new \XLite\Model\WidgetParam\TypeBool('Use default image', 1),
             self::PARAM_IMAGE_SIZE_TYPE   => new \XLite\Model\WidgetParam\TypeString('Imeage size type', ''),
-        );
+        ];
     }
 
     /**
@@ -271,7 +276,7 @@ class Image extends \XLite\View\AView
     protected function checkDefaultImage()
     {
         return $this->getParam(self::PARAM_USE_DEFAULT_IMAGE)
-            && \XLite::getInstance()->getOptions(array('images', 'default_image'));
+            && \XLite::getInstance()->getOptions(['images', 'default_image']);
     }
 
     /**
@@ -310,17 +315,17 @@ class Image extends \XLite\View\AView
 
         switch ($this->getParam(self::PARAM_VERTICAL_ALIGN)) {
             case self::VERTICAL_ALIGN_TOP:
-                $top    = 0;
+                $top = 0;
                 $bottom = 0;
                 break;
 
             case self::VERTICAL_ALIGN_BOTTOM:
-                $top    = $this->getParam(self::PARAM_MAX_HEIGHT) - $this->properties['height'];
+                $top = $this->getParam(self::PARAM_MAX_HEIGHT) - $this->properties['height'];
                 $bottom = 0;
                 break;
 
             default:
-                $top    = max(0, ceil($vertical));
+                $top = max(0, ceil($vertical));
                 $bottom = max(0, floor($vertical));
         }
 
@@ -361,7 +366,7 @@ class Image extends \XLite\View\AView
             $this->properties['height'],
             $this->resizedURL,
             $this->retinaResizedURL
-        ) = $this->getParam(self::PARAM_IMAGE)->getResizedURL($maxw, $maxh);
+            ) = $this->getParam(self::PARAM_IMAGE)->getResizedURL($maxw, $maxh);
 
         // Center the image vertically and horizontally
         if ($this->getParam(self::PARAM_CENTER_IMAGE)) {
@@ -387,5 +392,41 @@ class Image extends \XLite\View\AView
         if ($this->getParam(self::PARAM_CENTER_IMAGE)) {
             $this->setImageMargin();
         }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getBlurredImageData()
+    {
+        if (!$this->blurredImage) {
+            $this->blurredImage = $this->getParam(static::PARAM_IMAGE)
+                ? $this->getParam(static::PARAM_IMAGE)->getBlurredImageData(
+                    $this->getBlurredImageDimensions()['w'],
+                    $this->getBlurredImageDimensions()['h']
+                )
+                : null;
+        }
+
+        return $this->blurredImage;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getBlurredImageDimensions()
+    {
+        return [
+            'w' => 10,
+            'h' => 10,
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    protected function getBlurredImageId()
+    {
+        return 'bi' . md5($this->getBlurredImageData());
     }
 }

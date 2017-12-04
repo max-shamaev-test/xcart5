@@ -390,4 +390,18 @@ class Menu extends \XLite\View\ItemsList\Model\Table
     }
 
     // }}}
+
+    /**
+     * Insert new entity
+     *
+     * @param \XLite\Model\AEntity $entity Entity
+     *
+     * @return void
+     */
+    protected function insertNewEntity(\XLite\Model\AEntity $entity)
+    {
+        parent::insertNewEntity($entity);
+
+        \XLite\Core\Database::getRepo('XLite\Module\CDev\SimpleCMS\Model\Menu')->recalculateTreeStructure();
+    }
 }

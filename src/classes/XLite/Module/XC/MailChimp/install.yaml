@@ -40,6 +40,16 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Enable Abandoned Carts'
+  - name: 'selectedAbandonedCartsListid'
+    category: XC\MailChimp
+    type: \XLite\Module\XC\MailChimp\View\FormField\Select\Lists
+    orderby: 375
+    value: false
+    widgetParameters:
+      dependency: { show: { abandonedCartEnabled: [ true ]} }
+    translations:
+      - code: en
+        option_name: 'Abandoned Carts default list'
   - name: 'doubleOptinDisabled'
     category: XC\MailChimp
     type: \XLite\View\FormField\Input\Checkbox\OnOff
@@ -57,7 +67,7 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Subscription select element type'
-        option_comment: 'This option controls the way your customers select a subscription. Select box allows subscription to only one mail list while check box allows subscription to multiple lists.'
+        option_comment: 'This option controls the way your customers select a subscription. Select box allows subscription to only one mail list while check box allows subscription to multiple lists. For Checkout page always stays checkbox.'
   - name: 'updateInterval'
     category: XC\MailChimp
     type: XLite\Module\XC\MailChimp\View\FormField\Select\UpdateInterval

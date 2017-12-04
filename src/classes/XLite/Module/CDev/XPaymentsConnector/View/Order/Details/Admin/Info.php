@@ -169,6 +169,7 @@ class Info extends \XLite\View\Order\Details\Admin\Info implements \XLite\Base\I
                     if (
                         \XLite\Module\CDev\XPaymentsConnector\Model\Payment\FraudCheckData::CODE_KOUNT == $fraudCheckData->getCode()
                         || \XLite\Module\CDev\XPaymentsConnector\Model\Payment\FraudCheckData::CODE_NOFRAUD == $fraudCheckData->getCode()
+                        || \XLite\Module\CDev\XPaymentsConnector\Model\Payment\FraudCheckData::CODE_ANTIFRAUD == $fraudCheckData->getCode()
                     ) {
                         $result = false;
                         break;

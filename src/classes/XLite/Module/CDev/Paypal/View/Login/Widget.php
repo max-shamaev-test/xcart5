@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\Paypal\View\Login;
 
+use XLite\Module\CDev\Paypal\Controller\Customer\PaypalLogin;
+
 /**
  * Social sign-in widget
  */
@@ -30,6 +32,7 @@ class Widget extends \XLite\View\AView
     {
         $list = parent::getCSSFiles();
         $list[] = 'modules/CDev/Paypal/login/style.css';
+        $list[] = 'modules/CDev/Paypal/login/social_button_style.css';
 
         return $list;
     }
@@ -95,10 +98,15 @@ class Widget extends \XLite\View\AView
      */
     protected function getAuthURL()
     {
+        $returnUrl = \XLite\Core\Request::getInstance()->fromURL
+            ?: \XLite::getController()->getURL();
+
+        $state = get_class(\XLite::getController()) . PaypalLogin::STATE_DELIMITER . urlencode($returnUrl);
+
         return $this->buildURL(
             'paypal_login',
             '',
-            array('state' => get_class(\XLite::getController()))
+            ['state' => $state]
         );
     }
 

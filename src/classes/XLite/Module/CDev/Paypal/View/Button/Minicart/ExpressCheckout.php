@@ -31,54 +31,20 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\View\Button\AExpressChec
             && $cart->checkCart();
     }
 
-    /**
-     * Returns widget default template
-     *
-     * @return string
-     */
-    protected function getDefaultTemplate()
+    public function getJSFiles()
     {
-        return 'modules/CDev/Paypal/button/minicart/default/express_checkout.twig';
+        return array_merge(parent::getJSFiles(), [
+            'modules/CDev/Paypal/button/js/cart.js'
+        ]);
     }
 
-    /**
-     * Return current template
-     *
-     * @return string
-     */
-    protected function getTemplate()
+    protected function getButtonClass()
     {
-        return $this->isInContextAvailable()
-            ? 'modules/CDev/Paypal/button/minicart/in_context/express_checkout.twig'
-            : 'modules/CDev/Paypal/button/minicart/default/express_checkout.twig';
-    }
-
-    /**
-     * Returns additional link params
-     *
-     * @return array
-     */
-    protected function getAdditionalLinkParams()
-    {
-        $result = parent::getAdditionalLinkParams();
-
-        if ($this->isInContextAvailable()) {
-            $result['inContext'] = true;
-            $result['cancelUrl'] = $this->isAjax()
-                ? $this->getReferrerURL()
-                : \XLite\Core\URLManager::getSelfURI();
-        }
-
-        return $result;
-    }
-
-    /**
-     * getId
-     *
-     * @return string
-     */
-    protected function getId()
-    {
-        return 'ec_minicart';
+        return parent::getButtonClass() . ' cart-checkout'
+            . (
+            \XLite\Module\CDev\Paypal\Main::isPaypalCreditEnabled($this->getCart())
+                ? ' pp-funding-credit'
+                : ''
+            );
     }
 }

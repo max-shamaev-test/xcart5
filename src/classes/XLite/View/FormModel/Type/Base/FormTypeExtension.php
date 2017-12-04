@@ -97,6 +97,7 @@ class FormTypeExtension extends AbstractTypeExtension
         $vValidatePath = implode('_', array_map(['XLite\Core\Converter', 'convertToCamelCase'], $vValidatePath));
 
         $vValidator = '$' . $validationRoot . '.' . strtolower($vValidatePath);
+        $vForm = '$' . $validationRoot;
         $vValidators = [];
         foreach ($options['v_validate'] as $constraint => $rule) {
             if ($constraint !== 'Backend') {
@@ -136,6 +137,7 @@ class FormTypeExtension extends AbstractTypeExtension
             'v_validate'      => $options['v_validate'] ? json_encode($options['v_validate']) : '',
             'v_validators'    => $vValidators,
             'v_validator'     => $vValidator,
+            'v_form'          => $vForm,
             'v_validate_trigger' => $vValidateTrigger,
 
             'data_object' => $options['data_object'],

@@ -38,6 +38,9 @@ class ANode extends \XLite\View\AView
     const PARAM_LABEL_TITLE   = 'labelTitle';
     const PARAM_EXPANDED      = 'expanded';
 
+    const PARAM_SELECTED_DECIDER = 'selectedDecider';
+    const PARAM_NAME = 'name';
+
     /**
      * Return widget default template
      *
@@ -79,6 +82,10 @@ class ANode extends \XLite\View\AView
             static::PARAM_LABEL_LINK    => new \XLite\Model\WidgetParam\TypeString('Label link', ''),
             static::PARAM_LABEL_TITLE   => new \XLite\Model\WidgetParam\TypeString('Label title', ''),
             static::PARAM_EXPANDED      => new \XLite\Model\WidgetParam\TypeBool('Expanded', false),
+            static::PARAM_SELECTED_DECIDER => new \XLite\Model\WidgetParam\TypeObject(
+                'SelectedDecider', null, false, '\XLite\View\Menu\Admin\SelectedDecider'
+            ),
+            static::PARAM_NAME   => new \XLite\Model\WidgetParam\TypeString('Name', ''),
         );
     }
 
@@ -125,6 +132,14 @@ class ANode extends \XLite\View\AView
         return '' !== $this->getParam(static::PARAM_LIST)
             && 0 == strlen(trim($this->getViewListContent($this->getListName())))
             && !$this->getChildren();
+    }
+
+    /**
+     * @return SelectedDecider
+     */
+    protected function getSelectedDecider()
+    {
+        return $this->getParam(static::PARAM_SELECTED_DECIDER);
     }
 
     /**
@@ -204,6 +219,29 @@ class ANode extends \XLite\View\AView
     }
 
     /**
+     * @return string
+     */
+    protected function getName()
+    {
+        return $this->getParam(static::PARAM_NAME);
+    }
+
+    /**
+     * Get content of the dynamic widget that renders 'product-added' css class if product was added to cart.
+     *
+     * @return string
+     */
+    public function getActiveClasses()
+    {
+        $widget = $this->getChildWidget('XLite\View\Menu\Admin\ExpandedMenuNodeClass', [
+            ExpandedMenuNodeClass::PARAM_DECIDER => $this->getSelectedDecider(),
+            ExpandedMenuNodeClass::PARAM_NAME    => $this->getName(),
+        ]);
+
+        return $widget->getContent();
+    }
+
+    /**
      * Return CSS class for the link item
      *
      * @return string
@@ -212,14 +250,9 @@ class ANode extends \XLite\View\AView
     {
         $class = $this->getParam(static::PARAM_CLASS);
 
-        if ($this->isCurrentPageLink()) {
-            $class .= ' active';
-        }
-
         $class .= $this->getIcon() ? ' icon' : ' no-icon';
-        if ($this->isExpanded()) {
-            $class .= ' active pre-expanded';
-        }
+
+        $class .= ' ' . $this->getActiveClasses();
 
         if ($this->getLabel()) {
             $class .= ' has-label';

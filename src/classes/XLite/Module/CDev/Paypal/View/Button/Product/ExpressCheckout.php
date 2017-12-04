@@ -20,29 +20,18 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\View\Button\AExpressChec
      */
     protected function isVisible()
     {
-        return parent::isVisible()
-            && \XLite\Module\CDev\Paypal\Main::isBuyNowEnabled();
+        return parent::isVisible() && \XLite\Module\CDev\Paypal\Main::isBuyNowEnabled();
     }
 
-    /**
-     * Returns widget default template
-     *
-     * @return string
-     */
-    protected function getDefaultTemplate()
+    public function getJSFiles()
     {
-        return 'modules/CDev/Paypal/button/product/default/express_checkout.twig';
+        return array_merge(parent::getJSFiles(), [
+            'modules/CDev/Paypal/button/js/form.js'
+        ]);
     }
 
-    /**
-     * Return current template
-     *
-     * @return string
-     */
-    protected function getTemplate()
+    protected function getButtonClass()
     {
-        return $this->isInContextAvailable()
-            ? 'modules/CDev/Paypal/button/product/in_context/express_checkout.twig'
-            : 'modules/CDev/Paypal/button/product/default/express_checkout.twig';
+        return parent::getButtonClass() . '  button pp-button pp-style-buynow pp-ec-form';
     }
 }

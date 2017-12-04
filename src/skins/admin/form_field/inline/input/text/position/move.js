@@ -15,6 +15,10 @@ CommonForm.elementControllers.push(
 
       jQuery(this).find('.inline-move').disableSelection();
 
+      if (!jQuery(this).closest('.items-list').is('.position-sort')) {
+        return;
+      }
+
       var tds = jQuery(this).find('td');
 
       tds.each(
@@ -42,7 +46,7 @@ CommonForm.elementControllers.push(
 
           } else {
 
-            ui.helper.find('td').each(
+            ui.helper.find('td:visible').each(
               function (index) {
                 var td = jQuery(this);
                 td.width(td.data('saved-width'));

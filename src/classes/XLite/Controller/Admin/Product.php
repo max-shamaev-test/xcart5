@@ -667,6 +667,10 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
                     $this->getProduct(),
                     true
                 );
+                \XLite\Core\Database::getRepo('\XLite\Model\AttributeProperty')->generateClassAttributeProperties(
+                    $this->getProduct(),
+                    $productClass
+                );
             }
 
             \XLite\Core\Database::getEM()->flush();

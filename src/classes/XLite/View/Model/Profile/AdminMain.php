@@ -105,6 +105,15 @@ class AdminMain extends \XLite\View\Model\AModel
             self::SCHEMA_LABEL    => 'Access level',
             self::SCHEMA_REQUIRED => true,
         ],
+        'roles'                 => [
+            self::SCHEMA_CLASS      => '\XLite\View\FormField\Select\Tags\Roles',
+            self::SCHEMA_LABEL      => 'Roles',
+            self::SCHEMA_DEPENDENCY => [
+                self::DEPENDENCY_SHOW => [
+                    'access_level' => [100],
+                ],
+            ],
+        ],
         'status'                => [
             self::SCHEMA_CLASS    => '\XLite\View\FormField\Select\AccountStatus',
             self::SCHEMA_LABEL    => 'Account status',
@@ -127,15 +136,6 @@ class AdminMain extends \XLite\View\Model\AModel
             self::SCHEMA_CLASS    => '\XLite\View\FormField\Label',
             self::SCHEMA_LABEL    => 'Pending membership',
             self::SCHEMA_REQUIRED => false,
-        ],
-        'roles'                 => [
-            self::SCHEMA_CLASS      => '\XLite\View\FormField\Select\Tags\Roles',
-            self::SCHEMA_LABEL      => 'Roles',
-            self::SCHEMA_DEPENDENCY => [
-                self::DEPENDENCY_SHOW => [
-                    'access_level' => [100],
-                ],
-            ],
         ],
         'forceChangePassword'   => [
             self::SCHEMA_CLASS    => '\XLite\View\FormField\Input\Checkbox\Enabled',
@@ -175,6 +175,7 @@ class AdminMain extends \XLite\View\Model\AModel
         $list = parent::getJSFiles();
         $list[] = 'model/profile/email.js';
         $list[] = 'model/profile/password.js';
+        $list[] = 'model/profile/roles.js';
 
         return $list;
     }
@@ -304,6 +305,14 @@ class AdminMain extends \XLite\View\Model\AModel
                         }
 
                         $value = implode(', ', $roles);
+                    }
+                }
+
+                if (!$value || !count($value)) {
+                    $rootRole = \XLite\Core\Database::getRepo('XLite\Model\Role')->findOneRoot();
+
+                    if ($rootRole) {
+                        $value = $rootRole;
                     }
                 }
 
@@ -484,6 +493,17 @@ class AdminMain extends \XLite\View\Model\AModel
             unset($this->accessSchema['forceChangePassword']);
             $this->accessSchema['roles'][static::SCHEMA_CLASS] = '\XLite\View\FormField\Label';
             $this->accessSchema['roles'][static::SCHEMA_REQUIRED] = false;
+        }
+
+        $persistentModel = $this->getModelObject() && $this->getModelObject()->isPersistent();
+        if (!$persistentModel) {
+            $this->accessSchema['roles'][self::SCHEMA_COMMENT] = static::t(
+                'Attention! You are creating an account with full access. Roles warning',
+                [
+                    'roles_link' => $this->buildURL('roles'),
+                    'kb_link'    => 'http://kb.x-cart.com/en/users/user_roles.html',
+                ]
+            );
         }
 
         return $this->getFieldsBySchema($this->accessSchema);

@@ -30,7 +30,7 @@ class WholesalePrices extends \XLite\View\FormField\Inline\Label
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'modules/CDev/Wholesale/form_field/wholesale_prices.css';
+        $list[] = 'modules/CDev/Wholesale/form_field/wholesale_prices.less';
 
         return $list;
     }

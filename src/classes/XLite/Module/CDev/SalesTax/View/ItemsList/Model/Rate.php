@@ -13,6 +13,14 @@ namespace XLite\Module\CDev\SalesTax\View\ItemsList\Model;
  */
 class Rate extends \XLite\View\ItemsList\Model\Table
 {
+    protected $sortByModes = array(
+        'r.position'   => 'Position',
+        'r.zone'       => 'Zone',
+        'r.membership' => 'User membership',
+        'r.taxClass'   => 'Tax class',
+        'r.value'      => 'Value',
+    );
+
     /**
      * Define columns structure
      *
@@ -26,11 +34,13 @@ class Rate extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_CLASS         => 'XLite\View\Taxes\Inline\Zone',
                 static::COLUMN_ORDERBY       => 100,
                 static::COLUMN_HEAD_TEMPLATE => 'modules/CDev/SalesTax/zone_head.twig',
+                static::COLUMN_SORT          => 'r.zone',
             ),
             'membership' => array(
                 static::COLUMN_NAME          => static::t('User membership'),
                 static::COLUMN_CLASS         => 'XLite\View\FormField\Inline\Select\Membership',
                 static::COLUMN_ORDERBY       => 300,
+                static::COLUMN_SORT          => 'r.membership',
             ),
             'taxableBase' => array(
                 static::COLUMN_NAME          => static::t('Taxable base'),
@@ -44,6 +54,7 @@ class Rate extends \XLite\View\ItemsList\Model\Table
                     \XLite\View\FormField\Input\Text\FloatInput::PARAM_E => 4,
                 ),
                 static::COLUMN_ORDERBY       => 400,
+                static::COLUMN_SORT          => 'r.value',
             ),
         );
 
@@ -54,10 +65,19 @@ class Rate extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_NAME          => static::t('Tax class'),
                 static::COLUMN_CLASS         => 'XLite\View\Taxes\Inline\TaxClass',
                 static::COLUMN_ORDERBY       => 200,
+                static::COLUMN_SORT          => 'r.taxClass',
             );
         }
 
         return $columns;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isPositionSortable()
+    {
+        return true;
     }
 
     /**
@@ -165,6 +185,10 @@ class Rate extends \XLite\View\ItemsList\Model\Table
 
         $result->{\XLite\Module\CDev\SalesTax\Model\Repo\Tax\Rate::PARAM_EXCL_TAXABLE_BASE}
             = \XLite\Module\CDev\SalesTax\Model\Tax\Rate::TAXBASE_SHIPPING;
+
+        if ($this->getOrderBy()) {
+            $result->{\XLite\Model\Repo\Order::P_ORDER_BY} = $this->getOrderBy();
+        }
 
         return $result;
     }

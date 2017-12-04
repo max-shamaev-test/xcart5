@@ -70,14 +70,14 @@ abstract class AStep extends \XLite\Base implements \SeekableIterator, \Countabl
     /**
      * Get error language label
      *
-     * @return array
+     * @return string
      */
     abstract public function getErrorLanguageLabel();
 
     /**
      * Get normal language label
      *
-     * @return array
+     * @return string
      */
     abstract public function getNormalLanguageLabel();
 
@@ -86,8 +86,6 @@ abstract class AStep extends \XLite\Base implements \SeekableIterator, \Countabl
      *
      * @param \XLite\Logic\Import\Importer $importer Importer
      * @param integer                      $index    Step index
-     *
-     * @return void
      */
     public function __construct(\XLite\Logic\Import\Importer $importer, $index)
     {

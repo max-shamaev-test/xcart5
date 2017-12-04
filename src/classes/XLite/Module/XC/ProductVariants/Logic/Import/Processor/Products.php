@@ -296,8 +296,9 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     {
         $this->variants = $this->variantsAttributes = [];
 
-        if (isset($data[static::VARIANT_PREFIX . 'ID'])) {
-            foreach ($data[static::VARIANT_PREFIX . 'ID'] as $index => $vId) {
+        $key = static::VARIANT_PREFIX . 'ID';
+        if (isset($data[$key]) && is_array($data[$key])) {
+            foreach ($data[$key] as $index => $vId) {
                 $entity = \XLite\Core\Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')
                     ->findOneBy(['variant_id' => $vId]);
                 if ($entity) {
@@ -305,6 +306,8 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                 }
             }
         }
+
+        unset($data[$key]);
 
         return parent::importData($data);
     }
@@ -386,6 +389,9 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                         }
 
                         $variant = $model->getVariantByAttributeValues($values, true);
+                        $oldVariantId = $variant
+                            ? $variant->getVariantId()
+                            : null;
 
                         if (!$variant || (isset($idVariant) && $idVariant->getId() !== $variant->getId())) {
                             if (isset($variant)) {
@@ -408,7 +414,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                                 $attributeValue->addVariants($variant);
                             }
 
-                            if (!$variant->getVariantId()) {
+                            if (!$oldVariantId) {
                                 $variant->setVariantId($variantsRepo->assembleUniqueVariantId($variant));
                             }
                         }
@@ -522,6 +528,8 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
      */
     protected function importVariantImageColumn(\XLite\Model\Product $model, $value, array $column)
     {
+        $oldImages = [];
+
         foreach ($this->variants as $rowIndex => $variant) {
             if (!isset($value[$rowIndex]) || $this->verifyValueAsNull($value[$rowIndex])) {
                 $image = $variant->getImage();
@@ -534,12 +542,9 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                 $path = $value[$rowIndex];
                 $file = $this->verifyValueAsLocalURL($path) ? $this->getLocalPathFromURL($path) : $path;
                 if ($this->verifyValueAsFile($file)) {
-                    $image = $variant->getImage();
-                    $isNew = false;
-                    if (!$image) {
-                        $isNew = true;
-                        $image = new \XLite\Module\XC\ProductVariants\Model\Image\ProductVariant\Image();
-                    }
+                    /** @var \XLite\Module\XC\ProductVariants\Model\Image\ProductVariant\Image $oldImage */
+                    $oldImage = $variant->getImage();
+                    $image = new \XLite\Module\XC\ProductVariants\Model\Image\ProductVariant\Image();
 
                     if ($this->verifyValueAsURL($file)) {
                         $success = $image->loadFromURL($file, true);
@@ -560,9 +565,14 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                                 'value'  => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file,
                             ]);
                         }
-                    } elseif ($isNew) {
+                    } else {
                         $image->setProductVariant($variant);
                         $variant->setImage($image);
+                        if ($oldImage) {
+                            $oldImage->setProductVariant(null);
+                            \XLite\Core\Database::getEM()->flush($oldImage);
+                            $oldImages[] = $oldImage;
+                        }
                         \XLite\Core\Database::getEM()->persist($image);
                     }
 
@@ -578,6 +588,10 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                     ]);
                 }
             }
+        }
+
+        foreach ($oldImages as $oldImage) {
+            \XLite\Core\Database::getEM()->remove($oldImage);
         }
     }
 

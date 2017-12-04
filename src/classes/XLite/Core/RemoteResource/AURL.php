@@ -59,8 +59,12 @@ abstract class AURL implements IURL
      */
     public function isAvailable()
     {
-        $headers       = $this->getHeaders();
-        $contentLength = $headers->ContentLength;
+        try {
+            $headers       = $this->getHeaders();
+            $contentLength = $headers->ContentLength;
+        } catch (\Exception $e) {
+            return false;
+        }
 
         if (null === $contentLength) {
 

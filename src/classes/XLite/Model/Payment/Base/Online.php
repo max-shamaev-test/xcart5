@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Payment\Base;
 
+use XLite\Core\Request;
+
 /**
  * Abstract online (gateway-based) processor
  */
@@ -103,19 +105,22 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
 
 
     /**
-     * Get client IP
+     * Get client IP (v4 or v6)
      *
+     * @param bool $ipv6 Pass true to allow IPv6 addresses.
      * @return string
      */
-    protected function getClientIP()
+    protected function getClientIP($ipv6 = false)
     {
-        $result = null;
+        $result = Request::getInstance()->getClientIp();
 
-        if (
-            isset($_SERVER['REMOTE_ADDR'])
-            && preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/Ss', $_SERVER['REMOTE_ADDR'])
-        ) {
-            $result = $_SERVER['REMOTE_ADDR'];
+        if (!$ipv6) {
+            $ipv4 = '/^((25[0-5]|2[0-4][\d]|[01]?[\d][\d]?)\.){3}(25[0-5]|2[0-4][\d]|[01]?[\d][\d]?)$/';
+            if (preg_match($ipv4, $result)) {
+                return $result;
+            }
+
+            return null;
         }
 
         return $result;

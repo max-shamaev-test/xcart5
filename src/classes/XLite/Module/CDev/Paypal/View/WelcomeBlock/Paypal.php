@@ -63,7 +63,16 @@ class Paypal extends \XLite\View\AWelcomeBlock
     {
         return parent::isVisible()
             && $this->isRootAccess()
-            && $this->isNotHiddenByUser();
+            && $this->isNotHiddenByUser()
+            && !$this->isHiddenByConfig();
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isHiddenByConfig()
+    {
+        return !\XLite\Core\Config::getInstance()->CDev->Paypal->show_admin_welcome;
     }
 
     protected function getBlockName()

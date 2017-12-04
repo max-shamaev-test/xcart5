@@ -8,6 +8,10 @@
 
   <div class="middle">
 
+    <div class="PDT-warning alert alert-warning">
+      {{ t('__pdt-paypal-warning__', {link: 'https://developer.paypal.com/docs/classic/products/payment-data-transfer/'})|raw }}
+    </div>
+
     {{ widget('\\XLite\\Module\\CDev\\Paypal\\View\\Model\\PaypalWPS', paymentMethod=this.getPaymentMethod()) }}
 
     <div class="help">

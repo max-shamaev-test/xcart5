@@ -35,8 +35,8 @@ class RequestFactory
         ],
         self::MODE_SANDBOX    => [
             'developerId' => '46660746',
-            'clientId'    => 'mtZIFrz2HH3AinAPDbf5zIe5o3RvhxwV',
-            'secret'      => 'aRyUATxAP7ncIt86',
+            'clientId'    => '9bWL8QBHOqyV8A7e01llnBQlpqnBpjFL',
+            'secret'      => 'gmpjwQDeZuOvzTGU',
         ],
     ];
 

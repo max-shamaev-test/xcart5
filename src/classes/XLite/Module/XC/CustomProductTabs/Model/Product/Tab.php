@@ -19,6 +19,7 @@ namespace XLite\Module\XC\CustomProductTabs\Model\Product;
  *          @UniqueConstraint (name="product_global_tab", columns={"product_id", "global_tab_id"})
  *      }
  * )
+ * @HasLifecycleCallbacks
  */
 class Tab extends \XLite\Model\Base\I18n implements \XLite\Model\Product\IProductTab
 {
@@ -52,6 +53,15 @@ class Tab extends \XLite\Model\Base\I18n implements \XLite\Model\Product\IProduc
     protected $enabled = true;
 
     /**
+     * Link
+     *
+     * @var string
+     *
+     * @Column (type="string",nullable=true)
+     */
+    protected $link = null;
+
+    /**
      * Tab product
      *
      * @var \XLite\Model\Product
@@ -68,6 +78,33 @@ class Tab extends \XLite\Model\Base\I18n implements \XLite\Model\Product\IProduc
      * @JoinColumn (name="global_tab_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $global_tab;
+
+    /**
+     * Lifecycle callback
+     *
+     * @PrePersist
+     */
+    public function prepareBeforeSave()
+    {
+        $this->assignLink();
+    }
+
+    /**
+     * Assign new link to tab if empty
+     */
+    public function assignLink()
+    {
+        if (
+            !$this->isGlobal()
+            && !$this->getLink()
+        ) {
+
+            $this->setLink(
+                \XLite\Core\Database::getRepo('\XLite\Module\XC\CustomProductTabs\Model\Product\Tab')
+                    ->generateTabLink($this)
+            );
+        }
+    }
 
     /**
      * @inheritdoc
@@ -135,6 +172,29 @@ class Tab extends \XLite\Model\Base\I18n implements \XLite\Model\Product\IProduc
     public function getEnabled()
     {
         return $this->enabled;
+    }
+
+    /**
+     * Return Link
+     *
+     * @return mixed
+     */
+    public function getLink()
+    {
+        return $this->link;
+    }
+
+    /**
+     * Set Link
+     *
+     * @param mixed $link
+     *
+     * @return $this
+     */
+    public function setLink($link)
+    {
+        $this->link = $link;
+        return $this;
     }
 
     /**

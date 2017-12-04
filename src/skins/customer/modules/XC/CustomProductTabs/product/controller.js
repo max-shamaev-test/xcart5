@@ -17,8 +17,14 @@ ProductDetailsView.prototype.postprocess = function(isSuccess, initial) {
       _.bind(
         function (event) {
           event.preventDefault();
+          var id = $(event.currentTarget).data('id');
 
-          var link = jQuery($('.product-details .product-details-tabs a[data-id="' + $(event.currentTarget).data('id') + '"]'));
+          var link = jQuery($('.product-details .product-details-tabs a[data-id="' + id + '"]'));
+
+          if (!link.length) {
+            link = jQuery($('.product-details .product-details-tabs a[data-alt-id="' + id + '"]'));
+          }
+
           this.openTab(link);
 
           if (history.pushState) {

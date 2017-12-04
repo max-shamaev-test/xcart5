@@ -85,6 +85,17 @@ class RegisterSubscriptions extends \XLite\Module\XC\MailChimp\View\ItemsList\Su
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getJSFiles()
+    {
+        $list = parent::getJSFiles();
+        $list[] = $this->getDir() . '/subscriptions_register_all.js';
+
+        return $list;
+    }
+
+    /**
      * Return widget default template
      *
      * @return string

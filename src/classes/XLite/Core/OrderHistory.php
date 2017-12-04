@@ -42,8 +42,8 @@ class OrderHistory extends \XLite\Base\Singleton
     const TXT_CHANGE_STATUS_ORDER           = 'Order status changed from {{oldStatus}} to {{newStatus}}';
     const TXT_CHANGE_PAYMENT_STATUS_ORDER   = 'Order payment status changed from {{oldStatus}} to {{newStatus}}';
     const TXT_CHANGE_SHIPPING_STATUS_ORDER  = 'Order shipping status changed from {{oldStatus}} to {{newStatus}}';
-    const TXT_CHANGE_NOTES_ORDER            = 'Order staff notes changed by {{user}}';
-    const TXT_CHANGE_CUSTOMER_NOTES_ORDER   = 'Order customer notes changed by {{user}}';
+    const TXT_CHANGE_NOTES_ORDER            = 'Order staff notes changed';
+    const TXT_CHANGE_CUSTOMER_NOTES_ORDER   = 'Order customer notes changed';
     const TXT_CHANGE_AMOUNT_ADDED           = '[Inventory] Return back to stock: "{{product}}" product amount in stock changes from "{{oldInStock}}" to "{{newInStock}}" ({{qty}} items)';
     const TXT_CHANGE_AMOUNT_REMOVED         = '[Inventory] Removed from stock: "{{product}}" product amount in stock changes from "{{oldInStock}}" to "{{newInStock}}" ({{qty}} items)';
     const TXT_UNABLE_RESERVE_AMOUNT         = '[Inventory] Unable to reduce stock for product: "{{product}}", amount: "{{qty}}" items';
@@ -57,7 +57,7 @@ class OrderHistory extends \XLite\Base\Singleton
     const TXT_EMAIL_ADMIN_FAILED            = 'Failure sending email to the admin';
     const TXT_TRANSACTION                   = 'Transaction made';
     const TXT_ORDER_PACKAGING               = 'Products have been split into parcels in order to estimate the shipping cost';
-    const TXT_ORDER_EDITED                  = 'Order has been edited by {{user}}';
+    const TXT_ORDER_EDITED                  = 'Order has been edited';
 
     /**
      * Register event to the order history. Main point of action.
@@ -296,9 +296,7 @@ class OrderHistory extends \XLite\Base\Singleton
      */
     protected function getOrderEditedData($orderId, $changes)
     {
-        return array(
-            'user' => \XLite\Core\Auth::getInstance()->getProfile() ? \XLite\Core\Auth::getInstance()->getProfile()->getLogin() : 'unknown',
-        );
+        return [];
     }
 
     /**
@@ -810,9 +808,7 @@ class OrderHistory extends \XLite\Base\Singleton
      */
     protected function getOrderChangeNotesData($orderId, $change)
     {
-        return array(
-            'user' => \XLite\Core\Auth::getInstance()->getProfile() ? \XLite\Core\Auth::getInstance()->getProfile()->getLogin() : 'unknown',
-        );
+        return [];
     }
 
     /**

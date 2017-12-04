@@ -124,7 +124,7 @@ PlaceOrderButtonView.prototype.checkState = function(supressErrors)
   if (!state.result) {
     core.trigger('checkout.common.state.nonready', state);
 
-  } else if (!state.blocked) {
+  } else if (state.blocked) {
     core.trigger('checkout.common.state.blocked', state);
 
   } else {

@@ -13,13 +13,15 @@ define(
   'checkout_fastlane/sections/shipping'],
   function(Vue, VueLoadableMixin, ShippingSection) {
 
+  var shippingMethodInitialLoaded = false;
+
   var ShippingMethods = Vue.extend({
     mixins: [VueLoadableMixin],
     name: 'shipping-methods',
     replace: false,
+    props: ['deferred'],
 
     loadable: {
-      loadOnCompile: $('#shipping-methods-list').data('deferred'),
       transferState: false,
       loader: function() {
         this.$root.$broadcast('reloadingBlock', 1);
@@ -39,7 +41,12 @@ define(
     },
 
     ready: function() {
-      this.assignChosen();
+      if (this.deferred && !shippingMethodInitialLoaded) {
+        shippingMethodInitialLoaded = true;
+        this.$reload();
+      } else {
+        this.assignChosen();
+      }
     },
 
     data: function() {

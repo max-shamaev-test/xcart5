@@ -32,6 +32,35 @@ trait TooltippedTrait
     }
 
     /**
+     * Get a list of JavaScript files required to display the widget properly
+     *
+     * @return array
+     */
+    public function getJSFiles()
+    {
+        $list = parent::getJSFiles();
+        $list[] = 'button/js/tooltipped_init.js';
+
+        return $list;
+    }
+
+    /**
+     * Get style
+     *
+     * @return string
+     */
+    protected function getClass()
+    {
+        $result = parent::getClass();
+
+        if ($this->isTitleShownAsTooltip()) {
+            $result .= ' with-tooltip';
+        }
+
+        return $result;
+    }
+
+    /**
      * Defines the button specific attributes
      *
      * @return array

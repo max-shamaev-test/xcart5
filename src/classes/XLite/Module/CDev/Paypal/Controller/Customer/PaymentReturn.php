@@ -29,8 +29,8 @@ class PaymentReturn extends \XLite\Controller\Customer\PaymentReturn implements 
      */
     public function setReturnURL($url)
     {
-        if (\XLite\Module\CDev\Paypal\Main::isExpressCheckoutEnabled()
-            && \XLite\Module\CDev\Paypal\Main::isInContextCheckoutAvailable()
+        if (
+            \XLite\Module\CDev\Paypal\Main::isExpressCheckoutEnabled()
             && \XLite\Core\Request::getInstance()->cancelUrl
         ) {
             $url = $this->getShopURL(

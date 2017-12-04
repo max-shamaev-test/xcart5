@@ -13,7 +13,7 @@ namespace XLite\Logic\ImageResize;
  */
 class Generator extends \XLite\Logic\AGenerator
 {
-    const MODEL_PRODUCT = 'XLite\Model\Image\Product\Image';
+    const MODEL_PRODUCT  = 'XLite\Model\Image\Product\Image';
     const MODEL_CATEGORY = 'XLite\Model\Image\Category\Image';
 
     /**
@@ -21,14 +21,14 @@ class Generator extends \XLite\Logic\AGenerator
      *
      * @var array
      */
-    protected static $imageSizes = array();
+    protected static $imageSizes = [];
 
     /**
      * Image sizes cache
      *
      * @var array
      */
-    protected static $imageSizesCache = null;
+    protected static $imageSizesCache;
 
     /**
      * Returns available image sizes
@@ -37,27 +37,29 @@ class Generator extends \XLite\Logic\AGenerator
      */
     public static function defineImageSizes()
     {
-        return array(
-            static::MODEL_PRODUCT => array(
-                'XXSThumbnail'     => array(40, 40),
-                'XSThumbnail'      => array(60, 60), // Product thumbnail in the list of detailed images (details page)
-                'SMThumbnail'      => array(80, 80), // Product thumbnail on the cart items list
-                'MDThumbnail'      => array(122, 122),
-                'CommonThumbnail'  => array(110, 110), // Products list thumbnail (mainly for sidebar lists)
-                'SBSmallThumbnail' => array(160, 160), // Sidebar products list small thumbnail
-                'SBBigThumbnail'   => array(160, 160), // Sidebar products list big thumbnail
-                'LGThumbnailList'  => array(160, 160), // Center products list thumbnail
-                'LGThumbnailGrid'  => array(160, 160), // Center products grid thumbnail
-                'Default'          => array(300, 300), // Product thumbnail on the details page
-                'LGDefault'        => array(600, 600), // Product detailed image on the details page
-            ),
-            static::MODEL_CATEGORY => array(
-                'XXSThumbnail' => array(40, 40),
-                'MDThumbnail'  => array(122, 122),
-                'LGThumbnail'  => array(160, 160),
-                'Default'      => array(160, 160), // Category thumbnail
-            )
-        );
+        return [
+            static::MODEL_PRODUCT  => [
+                'XXSThumbnail'     => [40, 40],
+                'XSThumbnail2'     => [58, 58], // Items list (admin area)
+                'XSThumbnail'      => [60, 60], // Product thumbnail in the list of detailed images (details page)
+                'SMThumbnail'      => [80, 80], // Product thumbnail on the cart items list
+                'MDThumbnail'      => [122, 122],
+                'CommonThumbnail'  => [110, 110], // Products list thumbnail (mainly for sidebar lists)
+                'SBSmallThumbnail' => [160, 160], // Sidebar products list small thumbnail
+                'SBBigThumbnail'   => [160, 160], // Sidebar products list big thumbnail
+                'LGThumbnailList'  => [160, 160], // Center products list thumbnail
+                'LGThumbnailGrid'  => [160, 160], // Center products grid thumbnail
+                'Default'          => [300, 300], // Product thumbnail on the details page
+                'LGDefault'        => [600, 600], // Product detailed image on the details page
+            ],
+            static::MODEL_CATEGORY => [
+                'XXSThumbnail' => [40, 40],
+                'XSThumbnail2' => [58, 58],
+                'MDThumbnail'  => [122, 122],
+                'LGThumbnail'  => [160, 160],
+                'Default'      => [160, 160], // Category thumbnail
+            ],
+        ];
     }
 
     /**
@@ -67,16 +69,16 @@ class Generator extends \XLite\Logic\AGenerator
      */
     public static function getEditableImageSizes()
     {
-        return array(
-            static::MODEL_PRODUCT => array(
+        return [
+            static::MODEL_PRODUCT  => [
                 'LGThumbnailList',
                 'LGThumbnailGrid',
                 'Default',
-            ),
-            static::MODEL_CATEGORY => array(
+            ],
+            static::MODEL_CATEGORY => [
                 'Default',
-            )
-        );
+            ],
+        ];
     }
 
     /**
@@ -106,7 +108,7 @@ class Generator extends \XLite\Logic\AGenerator
 
             foreach ($modelSizes as $name => $size) {
                 if (!isset($baseSizes[$model])) {
-                    $baseSizes[$model] = array();
+                    $baseSizes[$model] = [];
                 }
 
                 if (is_numeric($name)) {
@@ -132,7 +134,7 @@ class Generator extends \XLite\Logic\AGenerator
     {
         $sizes = static::getImageSizes();
 
-        return isset($sizes[$class]) ? $sizes[$class] : array();
+        return isset($sizes[$class]) ? $sizes[$class] : [];
     }
 
     /**
@@ -145,8 +147,8 @@ class Generator extends \XLite\Logic\AGenerator
      */
     public static function getImageSizes($model = null, $code = null)
     {
-        if (!isset(static::$imageSizesCache)) {
-            $baseSizes = static::defineImageSizes();
+        if (static::$imageSizesCache === null) {
+            $baseSizes               = static::defineImageSizes();
             static::$imageSizesCache = static::mergeImageSizes($baseSizes, static::$imageSizes);
 
             $dbImageSizes = static::getDbImageSizes();
@@ -155,7 +157,7 @@ class Generator extends \XLite\Logic\AGenerator
             }
         }
 
-        if (!is_null($model) && !is_null($code)) {
+        if (null !== $model && null !== $code) {
             $result = isset(static::$imageSizesCache[$model][$code]) ? static::$imageSizesCache[$model][$code] : null;
 
         } else {
@@ -172,16 +174,16 @@ class Generator extends \XLite\Logic\AGenerator
      */
     public static function getDbImageSizes()
     {
-        $result = array();
+        $result = [];
 
         $sizes = \XLite\Core\Layout::getInstance()->getCurrentImagesSettings();
 
         if ($sizes) {
             foreach ($sizes as $size) {
-                $result[$size->getModel()][$size->getCode()] = array(
+                $result[$size->getModel()][$size->getCode()] = [
                     $size->getWidth(),
                     $size->getHeight(),
-                );
+                ];
             }
         }
 
@@ -197,10 +199,10 @@ class Generator extends \XLite\Logic\AGenerator
      */
     protected function defineSteps()
     {
-        return array(
+        return [
             'XLite\Logic\ImageResize\Step\Categories',
             'XLite\Logic\ImageResize\Step\Products',
-        );
+        ];
     }
 
     // }}}

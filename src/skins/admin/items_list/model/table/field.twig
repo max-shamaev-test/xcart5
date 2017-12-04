@@ -8,7 +8,7 @@
       <a
         href="{{ this.buildEntityURL(this.entity, this.column) }}"
         {% if this.column.noWrap %} title="{{ this.getColumnValue(this.column, this.entity) }}"{% endif %}
-        class="link">{{ this.getColumnValue(this.column, this.entity) }}
+        class="link">{{ this.getColumnValue(this.column, this.entity)|raw }}
       </a>
     </span>
   {% endif %}

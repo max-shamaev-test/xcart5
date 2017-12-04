@@ -447,10 +447,6 @@ class Order extends \XLite\Model\Repo\ARepo
      */
     public function findNextOrder($order)
     {
-        if ($order->getOrderNumber() === '') {
-            return null;
-        }
-
         return $this->defineFindNextOrder($order)->getSingleResult();
     }
 
@@ -462,10 +458,10 @@ class Order extends \XLite\Model\Repo\ARepo
     protected function defineFindNextOrder($order)
     {
         return $this->createQueryBuilder()
-            ->andWhere('o.orderNumber > :orderNumber')
-            ->setParameter('orderNumber', (int) $order->getOrderNumber())
-            ->orderBy('LENGTH(o.orderNumber)', 'ASC')
-            ->addOrderBy('o.orderNumber', 'ASC');
+            ->andWhere('o.order_id > :orderId')
+            ->andWhere('o.orderNumber IS NOT NULL')
+            ->setParameter('orderId', (int) $order->getOrderId())
+            ->orderBy('o.order_id', 'ASC');
     }
 
     /**
@@ -475,10 +471,6 @@ class Order extends \XLite\Model\Repo\ARepo
      */
     public function findPreviousOrder($order)
     {
-        if ($order->getOrderNumber() === '') {
-            return null;
-        }
-
         return $this->defineFindPreviousOrder($order)->getSingleResult();
     }
 
@@ -490,10 +482,10 @@ class Order extends \XLite\Model\Repo\ARepo
     protected function defineFindPreviousOrder($order)
     {
         return $this->createQueryBuilder()
-            ->andWhere('o.orderNumber < :orderNumber')
-            ->setParameter('orderNumber', (int) $order->getOrderNumber())
-            ->orderBy('LENGTH(o.orderNumber)', 'DESC')
-            ->addOrderBy('o.orderNumber', 'DESC');
+            ->andWhere('o.order_id < :orderId')
+            ->andWhere('o.orderNumber IS NOT NULL')
+            ->setParameter('orderId', (int) $order->getOrderId())
+            ->orderBy('o.order_id', 'DESC');
     }
 
     /**

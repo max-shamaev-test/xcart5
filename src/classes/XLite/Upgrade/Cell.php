@@ -9,6 +9,7 @@
 namespace XLite\Upgrade;
 
 use XLite\Core\Cache\ExecuteCachedTrait;
+use XLite\Upgrade\Entry\AEntry;
 
 /**
  * Cell
@@ -179,6 +180,23 @@ class Cell extends \XLite\Base\Singleton
     }
 
     /**
+     * @return bool
+     */
+    public function isInstallationMode()
+    {
+        $upgradeEntries = array_filter(
+            $this->getEntries(),
+            function($entry) {
+                /** @var AEntry $entry */
+                return $entry->isInstalled();
+            }
+        );
+
+        return count($upgradeEntries) === 0;
+    }
+
+
+    /**
      * Getter
      *
      * @return \XLite\Upgrade\Entry\AEntry[]
@@ -219,6 +237,58 @@ class Cell extends \XLite\Base\Singleton
     }
 
     /**
+     * @return array
+     */
+    public function getUpdateEntries()
+    {
+        return $this->executeCachedRuntime(function () {
+            $result = [];
+
+            foreach ($this->getEntries() as $entry) {
+                if ($entry->isUpdate()) {
+                    $result[] = $entry;
+                }
+            }
+
+            return $result;
+        });
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasUpdateEntries()
+    {
+        return (bool) count($this->getUpdateEntries());
+    }
+
+    /**
+     * @return array
+     */
+    public function getUpgradeEntries()
+    {
+        return $this->executeCachedRuntime(function () {
+            $result = [];
+
+            foreach ($this->getEntries() as $entry) {
+                if ($entry->isUpgrade()) {
+                    $result[] = $entry;
+                }
+            }
+
+            return $result;
+        });
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasUpgradeEntries()
+    {
+        return (bool) count($this->getUpgradeEntries());
+    }
+
+    /**
      * Check if hotfix only updates
      *
      * @return boolean
@@ -230,7 +300,11 @@ class Cell extends \XLite\Base\Singleton
         }
 
         foreach ($this->getHotfixEntries() as $entry) {
-            if ($entry instanceof \XLite\Upgrade\Entry\Module\Marketplace && $entry->isAvailableForUpgradeWithoutCore()) {
+            $compatibleModule = $entry instanceof \XLite\Upgrade\Entry\Module\Marketplace
+                && $entry->isAvailableForUpgradeWithoutCore();
+            $hotfixCore = $entry instanceof \XLite\Upgrade\Entry\Core
+                && $entry->isHotfixUpdate();
+            if ($compatibleModule || $hotfixCore) {
                 return false;
             }
         }
@@ -429,6 +503,7 @@ class Cell extends \XLite\Base\Singleton
         }
 
         $this->incompatibleModules = array();
+
         $this->setUpgraded(false);
 
         if ($clearCoreVersion) {
@@ -1585,15 +1660,14 @@ class Cell extends \XLite\Base\Singleton
      */
     public function hasCoreUpdate()
     {
-        $result = false;
-
         foreach ($this->getEntries() as $entry) {
-            if ('XLite\Upgrade\Entry\Core' === get_class($entry)) {
-                $result = true;
+            if ($entry instanceof \XLite\Upgrade\Entry\Core) {
+
+                return true;
             }
         }
 
-        return $result;
+        return false;
     }
 
     /**

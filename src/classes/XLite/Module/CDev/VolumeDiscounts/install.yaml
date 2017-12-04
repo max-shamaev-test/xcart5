@@ -6,7 +6,7 @@
 # See https://www.x-cart.com/license-agreement.html for license details.
 
 XLite\Model\Order\Modifier:
-  - { class: '\XLite\Module\CDev\VolumeDiscounts\Logic\Order\Modifier\Discount', weight: 100 }
+  - { class: 'XLite\Module\CDev\VolumeDiscounts\Logic\Order\Modifier\Discount', weight: 50 }
 
 XLite\Model\Role\Permission:
   - { code: manage volume discounts, section: Volume discounts, translations: [{ code: en, name: Manage volume discounts }] }

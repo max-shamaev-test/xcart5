@@ -83,6 +83,9 @@ class RunHook extends Command
 
         $progress->setMessage('Done');
         $progress->setMessage('Done', 'file');
+        if (!$progress->getMaxSteps()) {
+            $progress->start(1);
+        }
         $progress->finish();
     }
 

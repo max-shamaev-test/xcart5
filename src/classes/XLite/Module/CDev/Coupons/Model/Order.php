@@ -134,7 +134,7 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
     public function containsCoupon(\XLite\Module\CDev\Coupons\Model\Coupon $coupon)
     {
         return array_reduce($this->getUsedCoupons()->toArray(), function ($carry, $item) use ($coupon) {
-            return $carry || $item->getCoupon()->getId() === $coupon->getId();
+            return $carry || ($item->getCoupon() && $item->getCoupon()->getId() === $coupon->getId());
         }, false);
     }
 
@@ -146,7 +146,7 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
     public function hasSingleUseCoupon()
     {
         return $this->getUsedCoupons()->exists(function ($key, $item) {
-            return $item->getCoupon()->getSingleUse();
+            return $item->getCoupon() && $item->getCoupon()->getSingleUse();
         });
     }
 

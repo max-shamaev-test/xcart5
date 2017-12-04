@@ -16,7 +16,7 @@ class Logger extends \XLite\Base\Singleton
     /**
      * Log file name regexp pattern
      */
-    const LOG_FILE_NAME_PATTERN = '/^[a-zA-Z_]+\.log\.\d{4}-\d{2}-\d{2}\.php$/Ss';
+    const LOG_FILE_NAME_PATTERN = '#^([0-9]{4}/[0-9]{2}/)?[a-zA-Z_]+\.log\.\d{4}-\d{2}-\d{2}\.php$#Ss';
 
     /**
      * Security file header
@@ -438,13 +438,40 @@ class Logger extends \XLite\Base\Singleton
     /**
      * Get custom log URL
      *
-     * @param string $type Type
+     * @param        $type
+     * @param string $mode 'view', 'download'
+     *
+     * @param bool   $full
      *
      * @return string
      */
-    public static function getCustomLogURL($type)
+    public static function getLastCustomLogURL($type, $mode = 'view', $full = false)
     {
-        return \XLite\Core\Converter::buildURL('log', '', ['log' => static::getCustomLogFileName($type)]);
+        return static::getCustomLogURL(static::getCustomLogPath($type), $mode, $full);
+    }
+
+    /**
+     * Get custom log URL
+     *
+     * @param        $path
+     * @param string $mode 'view', 'download'
+     *
+     * @param bool   $full
+     *
+     * @return string
+     */
+    public static function getCustomLogURL($path, $mode = 'view', $full = false)
+    {
+        $url = \XLite\Core\Converter::buildURL(
+            'log',
+            $mode,
+            [
+                'log' => str_replace(LC_DIR_LOG, '', $path)
+            ]
+        );
+        return $full
+            ? \XLite::getInstance()->getShopURL($url)
+            : $url;
     }
 
     /**

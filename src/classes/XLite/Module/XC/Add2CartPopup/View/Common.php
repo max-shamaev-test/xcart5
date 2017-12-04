@@ -50,6 +50,7 @@ class Common extends \XLite\View\AView
         );
 
         $list[] = 'modules/XC/Add2CartPopup/css/style.css';
+        $list[] = 'vote_bar/vote_bar.css';
 
         return $list;
     }

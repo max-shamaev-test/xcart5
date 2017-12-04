@@ -70,7 +70,6 @@ if (!defined('XLITE_INSTALL_MODE')) {
 
 // So called "developer" mode. Set it to "false" for production mode!
 define('LC_DEVELOPER_MODE', (bool) \Includes\Utils\ConfigParser::getOptions(array('performance', 'developer_mode')));
-define('LC_CACHE_NAMESPACE_HASH', (bool) \Includes\Utils\ConfigParser::getOptions(array('performance', 'cache_namespace_hash')));
 
 // Correct error handling mode
 ini_set('display_errors', LC_DEVELOPER_MODE);
@@ -85,6 +84,11 @@ require_once (LC_DIR_INCLUDES . 'prepend.php');
 
 Autoloader::registerClassCacheProductionAutoloader();
 
+// Safe mode
+if (!defined('XLITE_INSTALL_MODE')) {
+    \Includes\SafeMode::initialize();
+}
+
 // Check and (if needed) rebuild classes cache
 if (!defined('LC_DO_NOT_REBUILD_CACHE')) {
     CacheManager::rebuildCache();
@@ -97,8 +101,4 @@ if (LC_DEVELOPER_MODE && !CacheManager::isRebuildInProgress() && !defined('LC_DO
     Autoloader::registerClassCacheDevelopmentAutoloader();
 } else {
     Autoloader::registerClassCacheProductionAutoloader();
-}
-// Safe mode
-if (!defined('XLITE_INSTALL_MODE')) {
-    \Includes\SafeMode::initialize();
 }

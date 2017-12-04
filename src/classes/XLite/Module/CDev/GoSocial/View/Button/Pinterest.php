@@ -24,9 +24,18 @@ class Pinterest extends \XLite\Module\CDev\GoSocial\View\Button\ASocialButton
     {
         $list = array();
 
-        $image = $this->getModelObject()->getImage();
-        $list['data-media'] = isset($image) ? $image->getFrontURL() : null;
-        $list['data-description'] = $this->getModelObject()->getName();
+        $product = $this->getModelObject();
+        $image = $product->getImage();
+
+        $list['href'] = 'https://www.pinterest.com/pin/create/button/';
+        $list['data-pin-do'] = 'buttonPin';
+        $list['data-pin-custom'] = 'true';
+        $list['data-pin-url'] = $product->getFrontURL();
+        $list['data-pin-media'] = isset($image)
+            ? $image->getFrontURL()
+            : null;
+        $list['data-pin-description'] = $product->getName();
+
 
         return $list;
     }
@@ -64,5 +73,36 @@ class Pinterest extends \XLite\Module\CDev\GoSocial\View\Button\ASocialButton
     function getButtonLabel()
     {
         return static::t('Pin');
+    }
+
+    public function getJSFiles()
+    {
+        $list = parent::getJSFiles();
+
+        $list[] = [
+            'url' => '//assets.pinterest.com/js/pinit.js',
+            'async'=> true,
+            'defer'=> true,
+        ];
+
+        return $list;
+    }
+
+    public function getCSSFiles()
+    {
+        return array_merge(
+            parent::getCSSFiles(),
+            [ 'modules/CDev/GoSocial/button/social_button_pinterest.css' ]
+        );
+    }
+
+    /**
+     * Return widget default template
+     *
+     * @return string
+     */
+    protected function getDefaultTemplate()
+    {
+        return 'modules/CDev/GoSocial/button/social_button_pinterest.twig';
     }
 }

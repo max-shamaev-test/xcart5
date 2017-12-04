@@ -115,6 +115,16 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     }
 
     /**
+     * Maximal available amount
+     *
+     * @return integer
+     */
+    public function getMaxPurchaseLimit()
+    {
+        return max(parent::getMaxPurchaseLimit(), $this->getMinQuantity($this->getCurrentMembership()));
+    }
+
+    /**
      * @return \Doctrine\Common\Collections\Collection
      */
     public function getWholesalePrices()

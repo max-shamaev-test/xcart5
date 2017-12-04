@@ -102,8 +102,7 @@ abstract class I18n extends \XLite\Model\AEntity implements MetadataLoaderInterf
         $result = $this->getHardTranslation($code);
 
         if (!isset($result) && !$allowEmptyResult) {
-            $class  = $this instanceof \Doctrine\ORM\Proxy\Proxy ? get_parent_class($this) : get_class($this);
-            $class .= 'Translation';
+            $class = \Doctrine\Common\Util\ClassUtils::getClass($this) . 'Translation';
 
             $result = new $class();
             $result->setOwner($this);

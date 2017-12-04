@@ -24,14 +24,13 @@ abstract class ACustomer extends \XLite\Controller\Customer\ACustomer implements
     {
         $list = parent::defineCommonJSData();
 
-        if (Paypal\Main::isInContextCheckoutAvailable()) {
+        if (Paypal\Main::isExpressCheckoutEnabled()) {
             $method = Paypal\Main::getPaymentMethod(Paypal\Main::PP_METHOD_EC);
             if ($method && $method->getProcessor()) {
 
                 $list = array_merge(
                     $list,
                     array(
-                        'PayPalMerchantId' => Paypal\Main::getMerchantId(),
                         'PayPalEnvironment' => $method->getProcessor()->isTestMode($method) ? 'sandbox' : 'production',
                     )
                 );

@@ -4,8 +4,7 @@
 
 {% set selector = this.isDisplaySelector() ? 'true' : 'false' %}
 
-<div class="shipping-methods-list" data-deferred="{{ this.shouldReload() ? 'true' : 'false' }}"
-     v-bind:class="classes" v-data='{ "selector": {{ selector }} }'>
+<div class="shipping-methods-list" v-bind:class="classes" v-data='{ "selector": {{ selector }} }'>
   {% if this.isDisplaySelector() %}
     <div class="selector-view{% if not this.isMobileDevice() %} rich{% endif %}">
       {{ widget('XLite\\View\\FormField\\Select\\ShippingMethod', disableSearch='true', fieldName=this.getFieldName(), options=this.getMethodsAsList(), value=this.selectedMethod.methodId, fieldOnly='true', label=t('Shipping rates'), attributes={'v-el:richselect':'', 'v-model': this.getFieldName()}) }}

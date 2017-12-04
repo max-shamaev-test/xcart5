@@ -13,6 +13,8 @@ namespace XLite\Module\XC\CustomProductTabs\Model\Product;
  *
  * @Entity
  * @Table  (name="custom_global_tabs")
+ *
+ * @HasLifecycleCallbacks
  */
 class CustomGlobalTab extends \XLite\Model\Base\I18n
 {
@@ -35,6 +37,31 @@ class CustomGlobalTab extends \XLite\Model\Base\I18n
      * @JoinColumn (name="global_tab_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $global_tab;
+
+    /**
+     * Lifecycle callback
+     *
+     * @PrePersist
+     */
+    public function prepareBeforeSave()
+    {
+        $this->assignLink();
+    }
+
+    /**
+     * Assign new link to tab if empty
+     */
+    public function assignLink()
+    {
+        if (
+            $this->getGlobalTab()
+            && !$this->getGlobalTab()->getLink()
+        ) {
+            $this->getGlobalTab()->setLink(
+                \XLite\Core\Database::getRepo('\XLite\Model\Product\GlobalTab')->generateTabLink($this)
+            );
+        }
+    }
 
     /**
      * Create entity

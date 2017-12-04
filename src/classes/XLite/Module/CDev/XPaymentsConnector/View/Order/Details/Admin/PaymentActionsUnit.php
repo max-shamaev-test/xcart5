@@ -95,8 +95,8 @@ class PaymentActionsUnit extends \XLite\View\Order\Details\Admin\PaymentActionsU
         }
 
         if (
-            $this->getTransaction()->getDataCell('xpc_is_fraud_status')
-            && $this->getTransaction()->getDataCell('xpc_is_fraud_status')->getValue()
+            $this->getTransaction()->isFraudStatus()
+            && !$this->getTransaction()->isPendingFraudCheck()
         ) {
             $class .= ' fraud-disabled';
         }
@@ -174,13 +174,13 @@ class PaymentActionsUnit extends \XLite\View\Order\Details\Admin\PaymentActionsU
             if (
                 (
                     \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_CAPTURE == $type
-                    && $transaction->getDataCell('xpc_can_do_capturePart')
+                    && $transaction->getXpcDataCell('xpc_can_do_capturePart')
                 ) || (
                     \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_VOID == $type
-                    && $transaction->getDataCell('xpc_can_do_voidPart')
+                    && $transaction->getXpcDataCell('xpc_can_do_voidPart')
                 ) || (
                     \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_REFUND == $type
-                    && $transaction->getDataCell('xpc_can_do_refundPart')
+                    && $transaction->getXpcDataCell('xpc_can_do_refundPart')
                 )      
             ) {
                 $result = true;
@@ -219,24 +219,24 @@ class PaymentActionsUnit extends \XLite\View\Order\Details\Admin\PaymentActionsU
  
             if (
                 \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_CAPTURE == $type
-                && $transaction->getDataCell('xpc_can_capture')
+                && $transaction->getXpcDataCell('xpc_can_capture')
             ) {
 
-                $value = $transaction->getDataCell('xpc_can_capture')->getValue();
+                $value = $transaction->getXpcDataCell('xpc_can_capture')->getValue();
 
             } elseif (
                 \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_VOID == $type
-                && $transaction->getDataCell('xpc_can_void')
+                && $transaction->getXpcDataCell('xpc_can_void')
             ) {
 
-                $value = $transaction->getDataCell('xpc_can_void')->getValue();
+                $value = $transaction->getXpcDataCell('xpc_can_void')->getValue();
 
             } elseif (
                 \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_REFUND == $type
-                && $transaction->getDataCell('xpc_can_refund')
+                && $transaction->getXpcDataCell('xpc_can_refund')
             ) {
 
-                $value = $transaction->getDataCell('xpc_can_refund')->getValue();
+                $value = $transaction->getXpcDataCell('xpc_can_refund')->getValue();
             }
         }
 

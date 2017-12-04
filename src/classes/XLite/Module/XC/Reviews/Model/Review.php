@@ -250,7 +250,7 @@ class Review extends \XLite\Model\AEntity
                 \XLite\Core\Converter::buildFullURL('product', '', [
                     'product_id'    => $this->getProduct()->getProductId(),
                     'page'          => 'product_reviews'
-                ],  \XLite::ADMIN_SELF)
+                ], \XLite::getAdminScript())
             )
             : '';
     }

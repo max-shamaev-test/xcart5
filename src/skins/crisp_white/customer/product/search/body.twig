@@ -24,24 +24,18 @@
 
         </td>
 
-        <td class="less-search-options-cell hidden-xs hidden-sm">
-          {% if this.showAdvancedPanel() %}
-            <a href="javascript:void(0);" onclick="javascript:core.toggleText(this,'{{ t('More search options') }}','#advanced_search_options');">{{ t('Less search options') }}</a>
-          {% else %}
-            <a href="javascript:void(0);" onclick="javascript:core.toggleText(this,'{{ t('Less search options') }}','#advanced_search_options');">{{ t('More search options') }}</a>
-          {% endif %}
+        <td class="less-search-options-cell hidden-xs hidden-sm{% if this.showAdvancedPanel() %} expanded{% endif %}">
+            <a href="javascript:void(0);" class="less" onclick="javascript:jQuery('.less-search-options-cell').toggleClass('expanded');jQuery('#advanced_search_options').toggle()">{{ t('Less search options') }}</a>
+            <a href="javascript:void(0);" class="more" onclick="javascript:jQuery('.less-search-options-cell').toggleClass('expanded');jQuery('#advanced_search_options').toggle()">{{ t('More search options') }}</a>
         </td>
 
     </table>
 
     <table class="search-form-main-part visible-xs visible-sm second">
       <tr>
-        <td class="less-search-options-cell">
-          {% if this.showAdvancedPanel() %}
-            <a href="javascript:void(0);" onclick="javascript:core.toggleText(this,'{{ t('More search options') }}','#advanced_search_options');">{{ t('Less search options') }}</a>
-          {% else %}
-            <a href="javascript:void(0);" onclick="javascript:core.toggleText(this,'{{ t('Less search options') }}','#advanced_search_options');">{{ t('More search options') }}</a>
-          {% endif %}
+        <td class="less-search-options-cell{% if this.showAdvancedPanel() %} expanded{% endif %}">
+            <a href="javascript:void(0);" class="less" onclick="javascript:jQuery('.less-search-options-cell').toggleClass('expanded');jQuery('#advanced_search_options').toggle()">{{ t('Less search options') }}</a>
+            <a href="javascript:void(0);" class="more" onclick="javascript:jQuery('.less-search-options-cell').toggleClass('expanded');jQuery('#advanced_search_options').toggle()">{{ t('More search options') }}</a>
         </td>
       </tr>
     </table>

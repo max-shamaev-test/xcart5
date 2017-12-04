@@ -9,7 +9,9 @@
 namespace XLite\Module\CDev\Paypal\Core;
 
 /**
- * Google auth provider
+ * Paypal auth provider
+ *
+ * @Decorator\Depend("CDev\SocialLogin")
  */
 class PaypalAuthProvider extends \XLite\Module\CDev\SocialLogin\Core\AAuthProvider
 {

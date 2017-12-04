@@ -276,19 +276,7 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel
             $this->columns = array();
 
             if ($this->getLeftActions()) {
-                $this->columns[] = array(
-                    static::COLUMN_CODE     => 'actions left',
-                    static::COLUMN_NAME     => '',
-                    static::COLUMN_TEMPLATE => 'items_list/model/table/left_actions.twig',
-                    static::COLUMN_SERVICE  => true,
-                    static::COLUMN_HEAD_TEMPLATE => static::SORT_TYPE_INPUT === $this->getSortType()
-                        ? 'items_list/model/table/parts/pos_input.twig'
-                        : (static::SORT_TYPE_MOVE === $this->getSortType()
-                            ? 'items_list/model/table/parts/pos_move.twig'
-                            : ''
-                        ),
-                    static::COLUMN_SELECTOR => $this->isSelectable(),
-                );
+                $this->columns[] = $this->getLeftActionsColumn();
             }
 
             foreach ($this->prepareColumns() as $idx => $column) {
@@ -329,6 +317,87 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel
     }
 
     /**
+     * @return array
+     */
+    protected function getLeftActionsColumn()
+    {
+        $result = [
+            static::COLUMN_CODE     => 'actions left',
+            static::COLUMN_NAME     => '',
+            static::COLUMN_TEMPLATE => 'items_list/model/table/left_actions.twig',
+            static::COLUMN_SERVICE  => true,
+            static::COLUMN_HEAD_TEMPLATE => static::SORT_TYPE_INPUT === $this->getSortType()
+                ? 'items_list/model/table/parts/pos_input.twig'
+                : (static::SORT_TYPE_MOVE === $this->getSortType()
+                    ? 'items_list/model/table/parts/pos_move.twig'
+                    : ''
+                ),
+            static::COLUMN_SELECTOR => $this->isSelectable(),
+        ];
+
+        if ($this->isPositionSortable()) {
+            $result[static::COLUMN_SORT] = $this->getSortableDefaultSortBy();
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isPositionSortable()
+    {
+        return false;
+    }
+
+    /**
+     * Set widget params
+     *
+     * @param array $params Handler params
+     *
+     * @return void
+     */
+    public function setWidgetParams(array $params)
+    {
+        parent::setWidgetParams($params);
+
+        if (!$this->isPositionSortable()
+            && in_array($this->getSortableType(), [static::SORT_TYPE_MOVE, static::SORT_TYPE_INPUT], true)
+        ) {
+            unset($this->widgetParams[static::PARAM_SORT_BY]);
+        }
+    }
+
+    /**
+     * getSortByModeDefault
+     *
+     * @return string
+     */
+    protected function getSortByModeDefault()
+    {
+        $result = parent::getSortByModeDefault();
+
+        if ($this->sortByModes) {
+            $default = $this->getSortableDefaultSortBy();
+            if (array_key_exists($result, $this->sortByModes)) {
+                $result = $default;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getSortableDefaultSortBy()
+    {
+        $repo = $this->getRepository();
+
+        return $repo->getDefaultAlias() . '.' . $this->getSortFieldName();
+    }
+
+    /**
      * Return columns count
      *
      * @return integer
@@ -351,6 +420,30 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel
                 $result = true;
                 break;
             }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTableTagClassString()
+    {
+        return implode(' ', $this->getTableTagClasses());
+    }
+
+    /**
+     * @return array
+     */
+    protected function getTableTagClasses()
+    {
+        $result = [
+            'list'
+        ];
+
+        if (!$this->hasResults()) {
+            $result[] = 'list-no-items';
         }
 
         return $result;
@@ -730,7 +823,32 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel
 
         $class .= ' ' . $this->getIdentifierClass();
 
+        if (!$this->isPositionSortable()
+            || $this->isPositionSort($this->getSortBy())
+        ) {
+            $class .= ' position-sort';
+        } else {
+            $class .= ' visual-sort';
+        }
+
         return trim($class);
+    }
+
+    /**
+     * @param $sortBy
+     *
+     * @return bool
+     */
+    protected function isPositionSort($sortBy)
+    {
+        return $sortBy === $this->getSortableDefaultSortBy();
+    }
+
+    protected function getSortOrder()
+    {
+        return $this->isPositionSort($this->getSortBy())
+            ? static::SORT_ORDER_ASC
+            : parent::getSortOrder();
     }
 
     /**
@@ -1157,6 +1275,10 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel
         $classes = 'sort';
         if ($this->isColumnSorted($column)) {
             $classes .= ' current-sort ' . $this->getSortOrder() . '-direction';
+        }
+
+        if (!empty($column[static::COLUMN_SORT]) && $this->getSortByModeDefault() == $column[static::COLUMN_SORT]) {
+            $classes .= ' single-order-sort';
         }
 
         return $classes;

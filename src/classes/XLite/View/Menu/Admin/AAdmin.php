@@ -8,6 +8,8 @@
 
 namespace XLite\View\Menu\Admin;
 
+use XLite\Core\Cache\ExecuteCached;
+
 /**
  * Abstract admin menu
  */
@@ -122,6 +124,27 @@ abstract class AAdmin extends \XLite\View\Menu\AMenu
     protected $selectedItem = array();
 
     /**
+     * @var SelectedDecider
+     */
+    protected $selectedDecider;
+
+    /**
+     * @param SelectedDecider $selectedDecider
+     */
+    public function setSelectedDecider($selectedDecider)
+    {
+        $this->selectedDecider = $selectedDecider;
+    }
+
+    /**
+     * @return SelectedDecider
+     */
+    public function getSelectedDecider()
+    {
+        return $this->selectedDecider;
+    }
+
+    /**
      * Return widget directory
      *
      * @return string
@@ -219,6 +242,53 @@ abstract class AAdmin extends \XLite\View\Menu\AMenu
     }
 
     /**
+     * Get menu items
+     *
+     * @return array
+     */
+    protected function getItems()
+    {
+        if (!isset($this->items)) {
+            $items = $this->defineItems();
+
+            $this->setSelectedDecider(
+                $this->createSelectedDecider('getItemsForDecider')
+            );
+
+            $this->items = $this->prepareItems($items);
+        }
+
+        return $this->items;
+    }
+
+    /**
+     * Get menu items
+     *
+     * @return array
+     */
+    public function getItemsForDecider()
+    {
+        $cacheParams = [
+            'getItemsForDecider',
+            get_class($this)
+        ];
+
+        return ExecuteCached::executeCachedRuntime(function() {
+            return $this->defineItems();
+        }, $cacheParams);
+    }
+
+    /**
+     * @param $getter
+     *
+     * @return SelectedDecider
+     */
+    protected function createSelectedDecider($getter)
+    {
+        return new SelectedDecider(get_class($this), $getter);
+    }
+
+    /**
      * Prepare items
      *
      * @param array $items Items
@@ -227,6 +297,8 @@ abstract class AAdmin extends \XLite\View\Menu\AMenu
      */
     protected function prepareItems($items)
     {
+        $selectedDecider = $this->getSelectedDecider();
+
         uasort($items, array($this, 'sortItems'));
         foreach ($items as $index => $item) {
             if (isset($item[static::ITEM_CHILDREN])
@@ -249,40 +321,11 @@ abstract class AAdmin extends \XLite\View\Menu\AMenu
                 // : static::t($item[static::ITEM_TOOLTIP]);
                 : $item[static::ITEM_TOOLTIP];
 
+            $item[\XLite\View\Menu\Admin\LeftMenu\Node::PARAM_SELECTED_DECIDER] = $selectedDecider;
+            $item[\XLite\View\Menu\Admin\LeftMenu\Node::PARAM_NAME] = $index;
+
             if (empty($item[\XLite\View\Menu\Admin\LeftMenu\Node::PARAM_CLASS]) && is_string($index)) {
                 $item[\XLite\View\Menu\Admin\LeftMenu\Node::PARAM_CLASS] = str_replace('_', '-', $index);
-            }
-
-            if (isset($item[static::ITEM_TARGET])
-                && in_array($this->getTarget(), $this->getRelatedTargets($item[static::ITEM_TARGET]))
-            ) {
-                $selected = true;
-                $weight = 1;
-
-                if (isset($item[static::ITEM_EXTRA])
-                    && $item[static::ITEM_EXTRA]
-                    && is_array($item[static::ITEM_EXTRA])
-                ) {
-                    foreach ($item[static::ITEM_EXTRA] as $k => $v) {
-                        if (\XLite\Core\Request::getInstance()->$k == $v) {
-                            $weight++;
-                        } else {
-                            $selected = false;
-                            break;
-                        }
-                    }
-                }
-
-                if ($selected
-                    && (empty($this->selectedItem)
-                        || $weight > $this->selectedItem['weight']
-                    )
-                ) {
-                    $this->selectedItem = array(
-                        'weight' => $weight,
-                        'index'  => $index,
-                    );
-                }
             }
 
             $items[$index] = $this->getWidget(

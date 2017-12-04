@@ -225,6 +225,15 @@ class MailChimpECommerce extends \XLite\Base\Singleton
             : null;
     }
 
+    public function removeAllStores_DEBUG()
+    {
+        $stores = $this->mailChimpAPI->get("ecommerce/stores");
+
+        foreach ($stores['stores'] as $storeData) {
+            $this->mailChimpAPI->delete("ecommerce/stores/" . $storeData['id']);
+        }
+    }
+
     /**
      * @param $storeId
      *
@@ -251,7 +260,7 @@ class MailChimpECommerce extends \XLite\Base\Singleton
             return;
         }
 
-        $storeName = MailChimp::getInstance()->getStoreName();
+        $storeName = MailChimp::getInstance()->getStoreName($listId);
 
         if ($selected) {
             if (!$this->getStore($storeId)) {
@@ -323,7 +332,7 @@ class MailChimpECommerce extends \XLite\Base\Singleton
         } catch (\Exception $e) {}
 
         return [
-            'name'          => MailChimp::getInstance()->getStoreName(),
+            'name'          => \XLite\Core\Config::getInstance()->Company->company_name,
             'platform'      => 'X-Cart',
             'domain'        => \XLite\Core\URLManager::getShopURL(),
             'email_address' => \XLite\Core\Mailer::getUsersDepartmentMail(),

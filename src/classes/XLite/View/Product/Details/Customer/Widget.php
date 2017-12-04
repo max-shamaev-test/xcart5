@@ -45,7 +45,7 @@ abstract class Widget extends \XLite\View\Product\AProduct
             static::PARAM_ATTRIBUTE_VALUES => new \XLite\Model\WidgetParam\TypeString('Attribute values IDs', $this->getDefaultAttributeValues()),
         ];
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -72,19 +72,19 @@ abstract class Widget extends \XLite\View\Product\AProduct
     {
         return isset(\XLite\Core\Request::getInstance()->product_id)
             ? \XLite\Core\Request::getInstance()->product_id
-            : 0;   
+            : 0;
     }
 
     /**
-     * @return array
+     * @return string
      */
     protected function getDefaultAttributeValues()
     {
         return isset(\XLite\Core\Request::getInstance()->attribute_values)
             ? \XLite\Core\Request::getInstance()->attribute_values
-            : '';   
+            : '';
     }
-    
+
     /**
      * Get product
      *
@@ -92,16 +92,12 @@ abstract class Widget extends \XLite\View\Product\AProduct
      */
     protected function getProduct()
     {
-        $productId = $this->getParam(self::PARAM_PRODUCT_ID) ?: $this->getParam(self::PARAM_PRODUCT)->getProductId();
+        $productId = $this->getParam(self::PARAM_PRODUCT)->getProductId();
 
         $product = $this->getRuntimeCache(['getProduct', $productId]);
         if (!$product) {
             $product = $this->executeCachedRuntime(function () {
-                $productId = $this->getParam(self::PARAM_PRODUCT_ID);
-                /** @var \XLite\Model\Product $product */
-                $product = $productId
-                    ? \XLite\Core\Database::getRepo('XLite\Model\Product')->find($productId)
-                    : $this->getParam(self::PARAM_PRODUCT);
+                $product = $this->getParam(self::PARAM_PRODUCT);
 
                 return $product;
             }, ['getProduct', $productId]);
@@ -122,7 +118,7 @@ abstract class Widget extends \XLite\View\Product\AProduct
         $attributeValuesParam = $this->getParam(static::PARAM_ATTRIBUTE_VALUES);
 
         return $this->executeCachedRuntime(function () use ($attributeValuesParam) {
-            $result          = [];
+            $result = [];
 
             if (is_array($attributeValuesParam)) {
                 $result = $attributeValuesParam;

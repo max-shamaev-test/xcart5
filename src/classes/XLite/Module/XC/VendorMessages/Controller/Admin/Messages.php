@@ -49,6 +49,16 @@ class Messages extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * @return boolean
+     */
+    public function hasResults()
+    {
+        $itemsList = new \XLite\Module\XC\VendorMessages\View\ItemsList\Admin\Conversations();
+
+        return $itemsList->hasResultsPublic();
+    }
+
+    /**
      * Get search condition parameter by name
      *
      * @param string $paramName Parameter name

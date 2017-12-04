@@ -137,8 +137,8 @@ class RealChargeWarning extends \XLite\View\AView
 
         $defaultCurrency->setE(4);
 
-        $return = $this->formatPrice(1, $selectedCurrency, false, true)
-            . ' = ' . $this->formatPrice($rate, $defaultCurrency, false, true);
+        $return = static::formatPrice(1, $selectedCurrency, false, true)
+            . ' = ' . static::formatPrice($rate, $defaultCurrency, false, true);
 
         $defaultCurrency->setE($precision);
 

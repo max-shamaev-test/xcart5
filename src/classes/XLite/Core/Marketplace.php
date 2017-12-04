@@ -8,6 +8,8 @@
 
 namespace XLite\Core;
 
+use XLite\Core\Cache\ExecuteCached;
+
 /**
  * Marketplace
  */
@@ -2449,7 +2451,7 @@ class Marketplace extends \XLite\Base\Singleton
         $isLastRequestExpired = !\XLite\Core\TmpVars::getInstance()->{$name}
             || \XLite\Core\TmpVars::getInstance()->{$name} < time();
 
-        return !$module->isCustom() && $isLastRequestExpired;
+        return !$module->isCustom() && $isLastRequestExpired && !$module->isDeprecated();
     }
 
     /**
@@ -2543,9 +2545,15 @@ class Marketplace extends \XLite\Base\Singleton
      */
     public function getXC5Notifications($ttl = null)
     {
-        $result = $this->performActionWithTTL($ttl ?: static::TTL_SHORT, static::ACTION_GET_XC5_NOTIFICATIONS);
+        $cacheParams = [
+            'getXC5Notifications',
+            $ttl
+        ];
 
-        return is_array($result) ? $result : array();
+        return ExecuteCached::executeCachedRuntime(function() use ($ttl) {
+            $result = $this->performActionWithTTL($ttl ?: static::TTL_SHORT, static::ACTION_GET_XC5_NOTIFICATIONS);
+            return is_array($result) ? $result : array();
+        }, $cacheParams);
     }
 
     /**
@@ -2557,7 +2565,7 @@ class Marketplace extends \XLite\Base\Singleton
     {
         $result = array();
         $messages       = $this->getXC5Notifications();
-        $coreVersion    = \XLite\Upgrade\Cell::getInstance()->getCoreVersion();
+        $coreVersions    = $this->getCores(static::TTL_SHORT);
         if ($messages) {
             foreach ($messages as $message) {
                 if ($message['type'] === 'module') {
@@ -2565,7 +2573,8 @@ class Marketplace extends \XLite\Base\Singleton
                 }
             }
         }
-        return md5(serialize($result) . serialize($coreVersion));
+
+        return md5(serialize($result) . serialize($coreVersions));
     }
 
     /**

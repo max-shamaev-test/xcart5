@@ -39,6 +39,7 @@ XLite\Model\LanguageLabel:
 
 XLite\Model\Notification:
   - templatesDirectory: modules/CDev/PINCodes/acquire_pin_codes_failed
+    position: 700
     availableForAdmin: true
     availableForCustomer: false
     enabledForAdmin: true

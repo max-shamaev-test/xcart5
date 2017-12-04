@@ -1089,41 +1089,35 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function importCategoriesColumn(\XLite\Model\Product $model, $value, array $column)
     {
-        if ($value) {
-            if (!$this->verifyValueAsNull($value)) {
-                $position = [];
-                foreach ($model->getCategoryProducts() as $link) {
-                    $position[$link->getCategory()->getCategoryId()] = $link->getOrderby();
+        if ($value && !$this->verifyValueAsNull($value)) {
+            $linksToRemove = $model->getCategoryProducts();
+            $linksToRemoveKeys = $linksToRemove->map(function($link) {
+                /** @var \XLite\Model\CategoryProducts $link */
+                return $link->getCategory()->getCategoryId();
+            });
+
+            $linksToRemove = array_combine($linksToRemoveKeys->toArray(), $linksToRemove->getValues());
+
+            foreach (array_unique($value, \SORT_REGULAR) as $path) {
+                $category = $this->addCategoryByPath($path);
+                $catId = $category->getCategoryId();
+
+                if (isset($linksToRemove[$catId])) {
+                    unset($linksToRemove[$catId]);
+
+                } else {
+                    $link = new \XLite\Model\CategoryProducts;
+                    $link->setProduct($model);
+                    $link->setCategory($category);
+                    $model->addCategoryProducts($link);
+                    \XLite\Core\Database::getEM()->persist($link);
                 }
             }
 
             \XLite\Core\Database::getRepo('\XLite\Model\CategoryProducts')->deleteInBatch(
-                $model->getCategoryProducts()->toArray()
+                $linksToRemove,
+                false
             );
-
-            $model->getCategoryProducts()->clear();
-
-            if (!$this->verifyValueAsNull($value)) {
-                foreach (array_unique($value) as $path) {
-                    $category = $this->addCategoryByPath($path);
-                    $link  = \XLite\Core\Database::getRepo('\XLite\Model\CategoryProducts')->findOneBy(
-                        [
-                            'category' => $category,
-                            'product'  => $model,
-                        ]
-                    );
-                    if (!$link) {
-                        $link = new \XLite\Model\CategoryProducts;
-                        $link->setProduct($model);
-                        $link->setCategory($category);
-                        if (isset($position[$category->getCategoryId()])) {
-                            $link->setOrderby($position[$category->getCategoryId()]);
-                        }
-                        $model->addCategoryProducts($link);
-                        \XLite\Core\Database::getEM()->persist($link);
-                    }
-                }
-            }
         }
     }
 

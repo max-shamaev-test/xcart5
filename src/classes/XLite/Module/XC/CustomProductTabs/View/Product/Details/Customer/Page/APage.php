@@ -67,14 +67,24 @@ class APage extends \XLite\View\Product\Details\Customer\Page\APage implements \
             if ($tab->isGlobalStatic()) {
                 $this->processGlobalTab($list, $tab);
             } else {
-                $list['tab' . $tab->getId()] = [
+                $id = 'tab' . $tab->getId();
+                $list[$id] = [
                     'widget'     => '\XLite\Module\XC\CustomProductTabs\View\Product\Tabs\Tab',
                     'parameters' => [
                         'tab' => $tab,
                     ],
                     'name'       => $tab->getName(),
                     'weight'     => $tab->getPosition(),
+                    'alt_id'     => preg_replace('/\W+/Ss', '-', strtolower($id)),
                 ];
+
+                if ($tab->getGlobalTab() && $tab->getGlobalTab()->getLink()) {
+                    $list[$id]['id'] = $tab->getGlobalTab()->getLink();
+                } elseif ($tab->getLink()) {
+                    $list[$id]['id'] = $tab->getLink();
+                } else {
+                    unset($list[$id]['alt_id']);
+                }
             }
         }
     }
@@ -90,9 +100,18 @@ class APage extends \XLite\View\Product\Details\Customer\Page\APage implements \
 
         foreach ($this->getProduct()->getTabs() as $tab) {
             if ($tab->getEnabled() && $tab->getBriefInfo()) {
-                $result['product-details-tab-' . preg_replace('/\W+/Ss', '-', strtolower('tab' . $tab->getId()))] = [
+
+                if ($tab->getGlobalTab() && $tab->getGlobalTab()->getLink()) {
+                    $link = $tab->getGlobalTab()->getLink();
+                } elseif ($tab->getLink()) {
+                    $link = $tab->getLink();
+                } else {
+                    $link = preg_replace('/\W+/Ss', '-', strtolower('tab' . $tab->getId()));
+                }
+
+                $result['product-details-tab-' . $link] = [
                     'brief_info' => $tab->getBriefInfo(),
-                    'title' => $tab->getName()
+                    'title'      => $tab->getName(),
                 ];
             }
         }

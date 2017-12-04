@@ -12,16 +12,6 @@ div.new-currency-container {
   clear: both;
 }
 
-div.currencies-list-container {
-  width: 1000px;
-}
-
-div.currencies-list-container table td.name,
-div.currencies-list-container table td.name div.cell {
-  width: 180px !important;
-  min-width: 180px !important;
-}
-
 div.new-currency-select {
   float: left;
 }
@@ -47,4 +37,55 @@ div.subfield-rate input {
 div.last-rate-update {
   font-style: italic;
   padding-left: 5px;
+}
+
+.activecurrency-countries .select2-container {
+  width: 100% !important;
+  min-width: 150px;
+}
+
+.activecurrency-countries .select2-selection {
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  background: #fff none;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.activecurrency-countries .select2-container--focus .select2-selection {
+  border-color: #66afe9;
+  outline: 0;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,0.6);
+}
+
+.activecurrency-countries .select2-selection .select2-selection__choice {
+  background-color: #76afcd;
+  border: none;
+  color: #fff;
+  margin-top: 3px;
+  padding: 1px 6px 1px 6px;
+  border-radius: 3px;
+  background-clip: padding-box;
+  font-size: 12px;
+}
+
+.activecurrency-countries .select2-selection .select2-selection__choice:hover {
+  color: #0062a0;
+}
+
+.activecurrency-countries .select2-selection .select2-selection__choice .select2-selection__choice__remove {
+  float: right;
+  cursor: pointer;
+  color: #FFFFFF;
+  font-size: 18px;
+  margin-left: 3px;
+}
+
+.activecurrency-countries .select2-selection .select2-selection__choice .select2-selection__choice__remove:hover {
+  color: #333;
+}
+
+.promo-block.geolocation-1-promo {
+  position: absolute;
+  right: 20px;
 }

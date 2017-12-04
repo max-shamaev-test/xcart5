@@ -65,8 +65,3 @@ XLite\Model\Config:
 XLite\Model\Language:
   - code: en
     enabled: false
-
-XLite\Model\Payment\Method:
-  - service_name: SagePay form protocol
-    class: Module\XC\SagePay\Model\Payment\Processor\SagePayForm
-    added: true

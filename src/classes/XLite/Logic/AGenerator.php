@@ -56,7 +56,7 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
     /**
      * Returns generator if it is initialised or FALSE otherwise
      *
-     * @return AGenerator|boolean
+     * @return static|boolean
      */
     public static function getInstance()
     {

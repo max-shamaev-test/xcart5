@@ -24,38 +24,7 @@ abstract class AExpressCheckout extends \XLite\View\Button\Link
     {
         $cart = $this->getCart();
 
-        return parent::isVisible()
-            && \XLite\Module\CDev\Paypal\Main::isExpressCheckoutEnabled($cart);
-    }
-
-    /**
-     * Get CSS class name
-     *
-     * @return string
-     */
-    protected function getClass()
-    {
-        return 'pp-ec-button';
-    }
-
-    /**
-     * Get merchant id
-     *
-     * @return string
-     */
-    protected function getMerchantId()
-    {
-        return \XLite\Module\CDev\Paypal\Main::getMerchantId();
-    }
-
-    /**
-     * Check for merchant id is present
-     *
-     * @return boolean
-     */
-    protected function hasMerchantId()
-    {
-        return (bool) $this->getMerchantId();
+        return parent::isVisible() && \XLite\Module\CDev\Paypal\Main::isExpressCheckoutEnabled($cart);
     }
 
     /**
@@ -71,62 +40,82 @@ abstract class AExpressCheckout extends \XLite\View\Button\Link
             'Redirect to',
             $this->buildURL('checkout', 'start_express_checkout')
         );
-
-        $this->widgetParams[static::PARAM_IN_CONTEXT] = new \XLite\Model\WidgetParam\TypeBool(
-            'Is In-Context checkout',
-            $this->defineInContext()
-        );
     }
 
-    /**
-     * Returns additional link params
-     *
-     * @return array
-     */
-    protected function getAdditionalLinkParams()
+    protected function getDefaultTemplate()
     {
-        return array(
-            'ignoreCheckout'    => false
-        );
+        return 'modules/CDev/Paypal/button/ec_button.twig';
     }
 
-    /**
-     * Define inContext widget param
-     *
-     * @return boolean
-     */
-    protected function defineInContext()
+    public function getJSFiles()
     {
-        return \XLite\Module\CDev\Paypal\Main::isInContextCheckoutAvailable();
+        return array_merge(parent::getJSFiles(), [
+            'modules/CDev/Paypal/checkout.js',
+            'modules/CDev/Paypal/button/js/button.js',
+        ]);
     }
 
     /**
-     * Check if In-Context checkout available
-     *
-     * @return boolean
-     */
-    protected function isInContextAvailable()
-    {
-        return $this->getParam(static::PARAM_IN_CONTEXT);
-    }
-
-    /**
-     * We make the full location path for the provided URL
-     *
      * @return string
      */
-    protected function getLocationURL()
+    protected function getButtonClass()
     {
-        $url = $this->getParam(static::PARAM_LOCATION);
+        return 'pp-express-checkout-button';
+    }
 
-        $params = $this->getAdditionalLinkParams();
-        if ($params) {
-            $url = $this->buildURL('checkout', 'start_express_checkout', $params);
+    protected function getAllowedLocales()
+    {
+        return [
+            'en_US',
+            'en_AU',
+            'en_GB',
+            'fr_CA',
+            'es_ES',
+            'it_IT',
+            'fr_FR',
+            'de_DE',
+            'pt_BR',
+            'zh_CN',
+            'da_DK',
+            'zh_HK',
+            'id_ID',
+            'he_IL',
+            'ja_JP',
+            'nl_NL',
+            'no_NO',
+            'pl_PL',
+            'pt_PT',
+            'ru_RU',
+            'sv_SE',
+            'th_TH',
+            'zh_TW',
+        ];
+    }
+
+    protected function getLocale()
+    {
+        $locale = @mb_substr(\XLite\Core\Converter::getLocaleByCode(), 0, 5);
+
+        return in_array($locale, $this->getAllowedLocales())
+            ? $locale
+            : null;
+    }
+
+    protected function getButtonAdditionalParams()
+    {
+        $result = [];
+
+        if ($this->getLocale()) {
+            $result['data-locale'] = $this->getLocale();
         }
 
-        return \XLite::getInstance()->getShopURL(
-            $url,
-            \XLite\Core\Config::getInstance()->Security->customer_security
-        );
+        return $result;
+    }
+
+    protected function getButtonAdditionalParamsCode()
+    {
+        return implode(' ', array_map(function ($k, $v) {
+            return "{$k}={$v}";
+        }, array_keys($this->getButtonAdditionalParams()), $this->getButtonAdditionalParams()));
     }
 }

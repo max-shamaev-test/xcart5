@@ -22,12 +22,8 @@ abstract class Payment extends \XLite\View\Checkout\Payment implements \XLite\Ba
     {
         $list = parent::getJSFiles();
 
-        if ((!$this->isTokenValid()
-                || \XLite\Module\CDev\Paypal\Model\Payment\Processor\ExpressCheckout::EC_TYPE_SHORTCUT
-                    !== \XLite\Core\Session::getInstance()->ec_type
-            )
-            && \XLite\Module\CDev\Paypal\Main::isExpressCheckoutEnabled()
-            && \XLite\Module\CDev\Paypal\Main::isInContextCheckoutAvailable()
+        if (
+            \XLite\Module\CDev\Paypal\Main::isExpressCheckoutEnabled()
         ) {
             $list[] = 'modules/CDev/Paypal/checkout/payment.js';
         }

@@ -137,12 +137,12 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
 
                 $xpcFound = true;
 
-                list($authorized, $captured, $voided, $refunded) = $t->getXpcValues(); 
+                $xpcValues = $t->getXpcValues(); 
 
-                $orderAuthorized += $authorized;
-                $orderCaptured   += $captured;
-                $orderVoided     += $voided;
-                $orderRefunded   += $refunded;
+                $orderAuthorized += $xpcValues['authorized'];
+                $orderCaptured   += max($xpcValues['captured'], $xpcValues['charged']);
+                $orderVoided     += $xpcValues['voided'];
+                $orderRefunded   += $xpcValues['refunded'];
             }
         }
 
@@ -150,73 +150,175 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
     }
     
     /**
+     * Checks if at least one transaction is handled by X-Payments
+     *
+     * @return boolean
+     */
+    protected function isXpc()
+    {
+        $transactions = $this->getPaymentTransactions();
+
+        $isXpc = false;
+        foreach ($transactions as $t) {
+            if ($t->isXpc(true)) {
+                $isXpc = true;
+                break;
+            }
+        }
+
+        return $isXpc;
+    }
+
+    /**
+     * Get calculated payment status
+     *
+     * @param boolean $override Override calculation cache OPTIONAL
+     *
+     * @return string
+     */
+    public function getCalculatedPaymentStatus($override = false)
+    {
+        if ($this->isXpc()) {
+            return $this->getXpcPaymentStatus();
+        } else {
+            return parent::getCalculatedPaymentStatus($override);
+        }
+    }
+
+    /**
+     * Get calculated payment status by transaction
+     *
+     * @param \XLite\Model\Payment\Transaction $transaction Transaction which changes status
+     *
+     * @return string
+     */
+    public function getXpcPaymentStatus(\XLite\Model\Payment\Transaction $transaction = null)
+    {
+        $config = \XLite\Core\Config::getInstance()->CDev->XPaymentsConnector;
+
+        list($authorized, $captured, $voided, $refunded) = $this->getXpcTransactionSums();
+
+        if (
+            !is_null($transaction)
+            && $transaction->getXpcDataCell('xpc_is_fraud_status')
+            && 1 == $transaction->getXpcDataCell('xpc_is_fraud_status')->getValue()
+            && self::ORDER_ZERO >= $authorized
+            && self::ORDER_ZERO >= $captured
+            && self::ORDER_ZERO >= $voided
+            && self::ORDER_ZERO >= $refunded
+            && $transaction->getValue() > self::ORDER_ZERO
+        ) {
+
+            $status = $config->xpc_status_declined;
+
+        } elseif ($refunded > 0) {
+
+            if ($refunded >= $captured) {
+                $status = $config->xpc_status_refunded; 
+            } else {
+                $status = $config->xpc_status_refunded_part;
+            }
+
+        } elseif ($voided > 0) {
+
+            $status = $config->xpc_status_declined;
+
+        } elseif ($captured > 0) {
+
+            if ($captured >= $authorized) {
+                $status = $config->xpc_status_charged;
+            } else {
+                $status = $config->xpc_status_charged_part;
+            }
+
+        } elseif (
+            $authorized > 0
+            || (
+                $authorized <= self::ORDER_ZERO
+                && $this->getTotal() <= self::ORDER_ZERO
+            )
+        ) {
+
+            $status = $config->xpc_status_auth;
+
+        } else {
+
+            $status = $config->xpc_status_new;
+        } 
+
+        return $status;
+    }
+
+    /**
      * Set order status by transaction
      *
      * @param \XLite\Model\Payment\transaction $transaction Transaction which changes status
      *
      * @return void
      */
-    public function setPaymentStatusByTransaction(\XLite\Model\Payment\transaction $transaction)
+    public function setPaymentStatusByTransaction(\XLite\Model\Payment\Transaction $transaction)
     {
         if ($transaction->isXpc(true)) {
 
-            $config = \XLite\Core\Config::getInstance()->CDev->XPaymentsConnector;
-        
-            list($authorized, $captured, $voided, $refunded) = $this->getXpcTransactionSums();
-
-            if (
-                $transaction->getDataCell('xpc_is_fraud_status')
-                && 1 == $transaction->getDataCell('xpc_is_fraud_status')->getValue()
-                && self::ORDER_ZERO >= $authorized
-                && self::ORDER_ZERO >= $captured
-                && self::ORDER_ZERO >= $voided
-                && self::ORDER_ZERO >= $refunded
-                && $transaction->getValue() > self::ORDER_ZERO
-            ) {
-
-                $status = $config->xpc_status_declined;
-
-            } elseif ($refunded > 0) {
-
-                if ($refunded >= $captured) {
-                    $status = $config->xpc_status_refunded; 
-                } else {
-                    $status = $config->xpc_status_refunded_part;
-                }
-
-            } elseif ($voided > 0) {
-
-                $status = $config->xpc_status_declined;
-
-            } elseif ($captured > 0) {
-
-                if ($captured >= $authorized) {
-                    $status = $config->xpc_status_charged;
-                } else {
-                    $status = $config->xpc_status_charged_part;
-                }
-
-            } elseif (
-                $authorized > 0
-                || (
-                    $authorized <= self::ORDER_ZERO
-                    && $this->getTotal() <= self::ORDER_ZERO
-                )
-            ) {
-
-                $status = $config->xpc_status_auth;
-
-            } else {
-
-                $status = $config->xpc_status_new;
-            } 
-
-            $this->setPaymentStatus($status);
+            $this->setPaymentStatus($this->getXpcPaymentStatus($transaction));
 
         } else {
             parent::setPaymentStatusByTransaction($transaction);
         }
 
+    }
+
+    /**
+     * Get array of raw payment transaction sums
+     *
+     * @param boolean $override Override cache OPTIONAL
+     *
+     * @return array
+     */
+    public function getRawPaymentTransactionSums($override = false)
+    {
+        if (null === $this->paymentTransactionSums || $override) {
+
+            if (!$this->isXpc()) {
+
+                $this->paymentTransactionSums = parent::getRawPaymentTransactionSums($override);
+
+            } else {
+
+                $this->paymentTransactionSums = array(
+                    'authorized' => 0,
+                    'captured'   => 0,
+                    'refunded'   => 0,
+                    'sale'       => 0,
+                    'blocked'    => 0,
+                );
+
+                $transactions = $this->getPaymentTransactions();
+
+                $voided = 0;
+
+                foreach ($transactions as $t) {
+                    if ($t->isXpc(true)) {
+                        $xpcValues = $t->getXpcValues();
+
+                        $this->paymentTransactionSums['captured']   +=
+                            max($xpcValues['captured'] - $xpcValues['refunded'], 0);
+                        $this->paymentTransactionSums['authorized'] +=
+                            max($xpcValues['authorized'] - $xpcValues['voided'] - $xpcValues['captured'], 0);
+                        $this->paymentTransactionSums['sale']       +=
+                            max($xpcValues['charged'] - $xpcValues['refunded'] - $this->paymentTransactionSums['captured'], 0);
+                        $this->paymentTransactionSums['refunded']   +=
+                            $xpcValues['refunded'];
+                    }
+                }
+
+                $this->paymentTransactionSums['blocked'] = $this->paymentTransactionSums['authorized'] + $this->paymentTransactionSums['captured'] + $this->paymentTransactionSums['sale'];
+
+            }
+
+        }
+
+        return $this->paymentTransactionSums;
     }
 
     /**
@@ -226,55 +328,10 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
      */
     public function getPaymentTransactionSums()
     {
-        static $paymentTransactionSums = null;
+        $paymentTransactionSums = parent::getPaymentTransactionSums();
 
-        if (!isset($paymentTransactionSums)) {
-
-            list($authorized, $captured, $voided, $refunded, $xpcFound) = $this->getXpcTransactionSums();
-
-            if (!$xpcFound) {
-
-                $paymentTransactionSums = parent::getPaymentTransactionSums();
-
-            } else {
-
-                if ($captured > self::ORDER_ZERO) {
-                    // Substract the captured amount from the authorized.
-                    // This makes only actual authorized amount being displayed.
-                    $authorized = max($authorized - $captured, 0);
-                }
-
-                if ($voided > self::ORDER_ZERO) {
-                    // Substract the declined amount from the authorized.
-                    // This makes only actual authorized amount being displayed,
-                    // and we hide the declined amount.
-                    $authorized = max($authorized - $voided, 0);
-                    $voided = 0;
-                }
-           
-                $paymentTransactionSums = array(
-                    static::t('Authorized amount') => $authorized,
-                    static::t('Charged amount')    => $captured,
-                    static::t('Refunded amount')   => $refunded,
-                    static::t('Declined amount')   => $voided, // This is zero anyway, but let it stay just in case.
-                );
-            }
-
-            if (
-                $xpcFound
-                || $this->hasSavedCardsInProfile()
-            ) {
-
-                $differenceLabel = static::getDifferenceLabel();
-                $paymentTransactionSums[$differenceLabel] = $this->getAomTotalDifference();
-
-                // Remove from array all zero sums
-                foreach ($paymentTransactionSums as $k => $v) {
-                    if ($v <= self::ORDER_ZERO) {
-                        unset($paymentTransactionSums[$k]);
-                    }
-                }
-            }
+        if ($this->isAllowRecharge()) {
+            $paymentTransactionSums[static::t('Difference between total and paid amount')] = $this->getAomTotalDifference();
         }
 
         return $paymentTransactionSums;
@@ -319,18 +376,9 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
      */
     public function isAllowRecharge()
     {
-        return $this->isAomTotalDifferencePositive()
+        return $this->isXpc()
+            && $this->isAomTotalDifferencePositive()
             && $this->hasSavedCardsInProfile(); 
-    }
-
-    /**
-    * Get difference text label
-    *
-    * @return string
-    */
-    public static function getDifferenceLabel()
-    {
-        return static::t('Difference');
     }
 
     /**

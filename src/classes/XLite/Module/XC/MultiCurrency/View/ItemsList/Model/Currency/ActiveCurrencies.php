@@ -34,7 +34,6 @@ class ActiveCurrencies extends \XLite\View\ItemsList\Model\Table
             'name'          => [
                 static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Name'),
                 static::COLUMN_CLASS   => '\XLite\View\FormField\Inline\Label',
-                static::COLUMN_MAIN    => true,
                 static::COLUMN_NO_WRAP => true,
                 static::COLUMN_ORDERBY => 100,
             ],
@@ -70,11 +69,16 @@ class ActiveCurrencies extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_NO_WRAP => true,
                 static::COLUMN_ORDERBY => 600,
             ],
-            'countriesList' => [
+//            'roundUp' => [
+//                static::COLUMN_NAME    => \XLite\Core\Translation::lbl('RoundUp'),
+//                static::COLUMN_CLASS   => '\XLite\View\FormField\Inline\Select\RoundUp',
+//                static::COLUMN_ORDERBY => 700,
+//            ],
+            'countries' => [
                 static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Countries'),
                 static::COLUMN_MAIN    => true,
-                static::COLUMN_LINK    => 'currency_countries',
-                static::COLUMN_ORDERBY => 700,
+                static::COLUMN_CLASS   => '\XLite\View\FormField\Inline\Select\Select2\Countries',
+                static::COLUMN_ORDERBY => 800,
             ],
         ];
     }
@@ -86,7 +90,7 @@ class ActiveCurrencies extends \XLite\View\ItemsList\Model\Table
      */
     protected function isRemoved()
     {
-        return true;
+        return $this->getItemsCount() > 1;
     }
 
     /**
@@ -97,6 +101,39 @@ class ActiveCurrencies extends \XLite\View\ItemsList\Model\Table
     protected function isDefault()
     {
         return true;
+    }
+
+    /**
+     * @param \XLite\Module\XC\MultiCurrency\Model\ActiveCurrency $entity
+     *
+     * @inheritdoc
+     */
+    protected function isAllowEntityRemove(\XLite\Model\AEntity $entity)
+    {
+        return parent::isAllowEntityRemove($entity) && !$entity->isDefaultCurrency();
+    }
+
+    /**
+     * @param \XLite\Module\XC\MultiCurrency\Model\ActiveCurrency $entity
+     *
+     * @inheritdoc
+     */
+    protected function removeEntity(\XLite\Model\AEntity $entity)
+    {
+        if (parent::removeEntity($entity)) {
+            if ($entity->getCurrency()) {
+                $entity->getCurrency()->setActiveCurrency(null);
+            }
+
+            /* @var \XLite\Model\Country $country */
+            foreach ($entity->getCountries() as $country) {
+                $country->setActiveCurrency(null);
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -176,62 +213,42 @@ class ActiveCurrencies extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Get active currency ID
-     *
-     * @param \XLite\Module\XC\MultiCurrency\Model\ActiveCurrency $activeCurrency Active multi currency
-     *
-     * @return integer
-     */
-    protected function getActiveCurrencyId(\XLite\Module\XC\MultiCurrency\Model\ActiveCurrency $activeCurrency)
-    {
-        return $activeCurrency->getId();
-    }
-
-    /**
-     * Check if active currency is default currency
-     *
-     * @param \XLite\Module\XC\MultiCurrency\Model\ActiveCurrency $activeCurrency Active multi currency
-     *
-     * @return boolean
-     */
-    protected function isDefaultCurrency(\XLite\Module\XC\MultiCurrency\Model\ActiveCurrency $activeCurrency)
-    {
-        return $activeCurrency->isDefaultCurrency();
-    }
-
-    /**
-     * Get format selector name
-     *
-     * @param array                                               $column         Column
-     * @param \XLite\Module\XC\MultiCurrency\Model\ActiveCurrency $activeCurrency Active currency
-     *
-     * @return string
-     */
-    protected function getFormatSelectorName($column, \XLite\Module\XC\MultiCurrency\Model\ActiveCurrency $activeCurrency)
-    {
-        return 'data[' . $activeCurrency->getId() . '][format]';
-    }
-
-    /**
-     * Get format selector id
-     *
-     * @param array                                               $column         Column
-     * @param \XLite\Module\XC\MultiCurrency\Model\ActiveCurrency $activeCurrency Active currency
-     *
-     * @return string
-     */
-    protected function getFormatSelectorId($column, \XLite\Module\XC\MultiCurrency\Model\ActiveCurrency $activeCurrency)
-    {
-        return 'currency-format-' . $activeCurrency->getId();
-    }
-
-    /**
-     * Get panel class
-     *
-     * @return \XLite\View\Base\FormStickyPanel
+     * @inheritdoc
      */
     protected function getPanelClass()
     {
-        return 'XLite\Module\XC\MultiCurrency\View\StickyPanel\CurrencyCountriesListForm';
+        return 'XLite\Module\XC\MultiCurrency\View\StickyPanel\ActiveCurrencies';
+    }
+
+    /**
+     * Returns list of available country codes
+     *
+     * @return array
+     */
+    protected function getUnavailableCountries()
+    {
+        $qb = \XLite\Core\Database::getRepo('XLite\Model\Country')->createQueryBuilder();
+        $alias = $qb->getMainAlias();
+        $qb->select("{$alias}.code")
+            ->andWhere("{$alias}.active_currency IS NOT NULL")
+            ->groupBy("{$alias}.code");
+
+        $list = $qb->getResult();
+
+        return array_filter(array_map(function ($row) {
+            return isset($row['code'])
+                ? $row['code']
+                : null;
+        }, $list));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function displayCommentedData(array $data)
+    {
+        $data['unavailableCountries'] = $this->getUnavailableCountries();
+
+        parent::displayCommentedData($data);
     }
 }

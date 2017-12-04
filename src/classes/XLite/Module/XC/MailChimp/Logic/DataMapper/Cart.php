@@ -17,7 +17,7 @@ class Cart
      *
      * @param                    $mc_cid
      * @param                    $mc_eid
-     * @param \XLite\Model\Cart $order
+     * @param \XLite\Model\Cart  $order
      *
      * @return array
      */
@@ -27,20 +27,17 @@ class Cart
             \XLite\Core\Config::getInstance()->General->default_language
         );
 
-        $customerData = [];
-
         if ($object->getProfile()) {
             $customerData = !$customerExists
                 ? Customer::getData($mc_eid, $object->getProfile())
-                : [ 'id' => strval($object->getProfile()->getProfileId()) ];
+                : [ 'id' => (string)$object->getProfile()->getProfileId()];
         } else {
-            $customerData = [ 'id' => strval($mc_eid) ];
+            $customerData = [ 'id' => (string)$mc_eid];
         }
 
         $return = array(
-            'id'                    => strval($object->getOrderId()),
+            'id'                    => (string)$object->getOrderId(),
             'customer'              => $customerData,
-            'campaign_id'           => $mc_cid,
             'checkout_url'          => \XLite::getInstance()->getShopURL(
                 \XLite\Core\Converter::buildURL('cart'),
                 \XLite\Core\Config::getInstance()->Security->customer_security
@@ -51,9 +48,13 @@ class Cart
             'shipping_total'        => $object->getSurchargeSumByType(\XLite\Model\Base\Surcharge::TYPE_SHIPPING),
             'lines'                 => static::getLines($object),
         );
-        
+
+        if ($mc_cid) {
+            $return['campaign_id'] = (string)$mc_cid;
+        }
+
         if ($mc_tc) {
-            $return['tracking_code'] = strval($mc_tc);
+            $return['tracking_code'] = (string)$mc_tc;
         }
         
         if ($object->getProfile()) {

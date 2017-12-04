@@ -8,7 +8,7 @@
 XLite\Model\Config:
   - name: enable_form
     category: 'CDev\ContactUs'
-    type: checkbox
+    type: 'XLite\View\FormField\Input\Checkbox\YesNo'
     orderby: 100
     value: true
     translations:
@@ -57,6 +57,7 @@ XLite\Model\Config:
 
 XLite\Model\Notification:
   - templatesDirectory: modules/CDev/ContactUs/message
+    position: 500
     availableForAdmin: false
     availableForCustomer: false
     enabledForAdmin: true

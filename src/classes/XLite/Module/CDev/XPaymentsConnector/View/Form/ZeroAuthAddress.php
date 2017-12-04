@@ -49,6 +49,20 @@ class ZeroAuthAddress extends \XLite\View\Form\AForm
     }
 
     /**
+     * Get customer profile id
+     *
+     * @return integer
+     */
+    protected function getCustomerProfileId()
+    {   
+        $profileId = \XLite\Core\Request::getInstance()->profile_id;
+        if (empty($profileId)) {
+            $profileId = \XLite\Core\Auth::getInstance()->getProfile()->getProfileId();
+        }
+        return $profileId;
+    }
+
+    /**
      * Return list of the form default parameters
      *
      * @return array
@@ -59,7 +73,7 @@ class ZeroAuthAddress extends \XLite\View\Form\AForm
 
         if (\XLite::isAdminZone()) {
             $params = array(
-                'profile_id' => \XLite\Core\Request::getInstance()->profile_id
+                'profile_id' => $this->getCustomerProfileId()
             );    
         };
 

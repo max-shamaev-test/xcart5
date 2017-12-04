@@ -20,7 +20,7 @@ CurrencyManageForm.prototype.initialize = function ()
 
   var defaultId = jQuery('input[name="defaultValue"]:checked').val();
 
-  jQuery('#currency-format-' + defaultId).change(function() {
+  jQuery('#data-' + defaultId + '-format').change(function() {
     var tz = jQuery('#trailing-zeroes');
 
     jQuery(obj.patternCurrencyViewInfo).trigger(
@@ -53,11 +53,45 @@ CurrencyManageForm.prototype.initialize = function ()
   });
 
   jQuery(document).ready(function () {
-    jQuery('#currency-format-' + defaultId).trigger('change');
+    jQuery('#data-' + defaultId + '-format').trigger('change');
 
     jQuery('#data-' + defaultId + '-prefix, #data-' + defaultId + '-suffix').trigger('keyup');
 
     jQuery('#trailing-zeroes').trigger('trailingZeroesClick');
+  });
+
+  var unavailableCountries = core.getCommentedData(
+    $('.items-list.xc-multicurrency-itemslist-model-currency-activecurrencies'),
+    'unavailableCountries'
+  );
+
+  var renewCountriesList = function () {
+    setTimeout(function () {
+      $('.input-countries-select2 > select option:not(:disabled, :selected)').filter(function () {
+        return unavailableCountries.indexOf($(this).val()) >= 0;
+      }).attr('disabled', true);
+      $('.input-countries-select2 > select option:disabled').filter(function () {
+        return unavailableCountries.indexOf($(this).val()) === -1;
+      }).attr('disabled', false);
+
+      $('.input-countries-select2 > select').each(function () {
+        $(this).select2($(this).data('select2').options.options);
+      });
+    });
+  };
+  renewCountriesList();
+
+  $('.input-countries-select2 > select').each(function () {
+    this.oldCountries = $(this).val();
+  });
+
+  $('.input-countries-select2 > select').change(function (event) {
+    var removed = $(this.oldCountries).not($(this).val()).get();
+    var added = $($(this).val()).not(this.oldCountries).get();
+
+    unavailableCountries = $.merge($(unavailableCountries).not(removed), added).get();
+    renewCountriesList();
+    this.oldCountries = $(this).val();
   });
 };
 

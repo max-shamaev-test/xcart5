@@ -117,6 +117,15 @@ class Notification extends \XLite\Model\Base\I18n
     protected $customerSignatureEnabled = true;
 
     /**
+     * A position of the notification among other notifications
+     *
+     * @var integer
+     *
+     * @Column (type="integer", options={"default" : 0})
+     */
+    protected $position = 0;
+
+    /**
      * Set templatesDirectory
      *
      * @param string $templatesDirectory
@@ -330,5 +339,23 @@ class Notification extends \XLite\Model\Base\I18n
     public function setCustomerSignatureEnabled($customerSignatureEnabled)
     {
         $this->customerSignatureEnabled = $customerSignatureEnabled;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    /**
+     * @param int $position
+     * @return $this
+     */
+    public function setPosition($position)
+    {
+        $this->position = $position;
+        return $this;
     }
 }

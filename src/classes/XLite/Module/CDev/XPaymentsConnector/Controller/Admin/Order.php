@@ -49,7 +49,8 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
             $parentCardTransaction->getPaymentMethod()->getProcessor()->doRecharge(
                 $this->getOrder(),
                 $parentCardTransaction,
-                $amount
+                $amount,
+                false
             );
         }
 
@@ -64,16 +65,6 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
     public function getOrderNumber() 
     {
         return $this->getOrder()->getOrderNumber();
-    }
-
-    /**
-    * Get difference text label
-    *
-    * @return string
-    */
-    public function getDifferenceLabel()
-    {
-        return \XLite\Module\CDev\XPaymentsConnector\Model\Order::getDifferenceLabel();
     }
 
     /**

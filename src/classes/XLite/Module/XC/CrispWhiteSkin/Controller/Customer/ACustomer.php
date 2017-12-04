@@ -8,6 +8,7 @@
 
 namespace XLite\Module\XC\CrispWhiteSkin\Controller\Customer;
 
+use XLite\Core\Auth;
 use XLite\Module\XC\CrispWhiteSkin;
 
 class ACustomer extends \XLite\Controller\Customer\ACustomer implements \XLite\Base\IDecorator
@@ -19,23 +20,15 @@ class ACustomer extends \XLite\Controller\Customer\ACustomer implements \XLite\B
      */
     public function getCurrentCountry()
     {
-        $country = null;
-
         if (CrispWhiteSkin\Main::isModuleEnabled('XC\MultiCurrency')) {
-            $country = \XLite\Module\XC\MultiCurrency\Core\MultiCurrency::getInstance()->getSelectedCountry();
+            return \XLite\Module\XC\MultiCurrency\Core\MultiCurrency::getInstance()->getSelectedCountry();
+        } elseif (Auth::getInstance()->getProfile() && Auth::getInstance()->getProfile()->getShippingAddress()) {
+            return Auth::getInstance()->getProfile()->getShippingAddress()->getCountry();
         } elseif (CrispWhiteSkin\Main::isModuleEnabled('XC\Geolocation')) {
-            $address = $this->getCart() && $this->getCart()->getProfile() && $this->getCart()->getProfile()->getShippingAddress()
-                ? $this->getCart()->getProfile()->getShippingAddress()
-                : null;
-
-            if (!$address) {
-                $country = \XLite\Model\Address::getDefaultFieldValue('country');
-            } else {
-                $country = $address->getCountry();
-            }
+            return \XLite\Model\Address::getDefaultFieldValue('country');
         }
 
-        return $country;
+        return null;
     }
 
     /**
@@ -77,8 +70,8 @@ class ACustomer extends \XLite\Controller\Customer\ACustomer implements \XLite\B
      */
     public function getProfileLogin()
     {
-        return \XLite\Core\Auth::getInstance()->getProfile()
-            ? \XLite\Core\Auth::getInstance()->getProfile()->getLogin()
+        return Auth::getInstance()->getProfile()
+            ? Auth::getInstance()->getProfile()->getLogin()
             : null;
     }
 }

@@ -32,3 +32,18 @@
     min-width: 220px;
   }
 }
+
+.checkout_fastlane_sections.section-payment {
+  .checkout_fastlane_section-place_order {
+    &.disabled,
+    &[disabled] {
+      transition: opacity ease-in-out .1s;
+      cursor: pointer !important;
+
+      &:hover {
+        opacity: 0.8;
+        transition: opacity ease-in-out .3s;
+      }
+    }
+  }
+}

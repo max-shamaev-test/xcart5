@@ -72,22 +72,6 @@ abstract class AModel extends \XLite\View\ItemsList\AItemsList
 
     static protected $savedDataCache = null;
 
-    /**
-     * Set widget params
-     *
-     * @param array $params Handler params
-     *
-     * @return void
-     */
-    public function setWidgetParams(array $params)
-    {
-        parent::setWidgetParams($params);
-
-        if (in_array($this->getSortableType(), [static::SORT_TYPE_MOVE, static::SORT_TYPE_INPUT], true)) {
-            unset($this->widgetParams[static::PARAM_SORT_BY]);
-        }
-    }
-
     // {{{ Fields
 
     /**

@@ -52,6 +52,6 @@ class RootAdmin extends \XLite\View\AWelcomeBlock
      */
     protected function isVisible()
     {
-        return $this->isRootAccess() && $this->isNotHiddenByUser();
+        return false && $this->isRootAccess() && $this->isNotHiddenByUser();
     }
 }

@@ -10,7 +10,7 @@ XLite\Model\Payment\Method:
     class: Module\XC\IdealPayments\Model\Payment\Processor\IdealProfessional
     type: C
     orderby: -10100
-    countries: [AD, AN, AT, AU, AW, BE, BG, BS, BZ, CA, CH, CR, CW, CY, DE, DK, DO, EE, ES, FI, FR, GB, GH, GI, HK, HU, IE, IL, IT, LT, LU, MT, MU, MY, NI, NL, NO, PL, PT, CN, SC, SE, SG, SR, TH, TR, UA, US, VE, ZA]
+    countries: [BE, BG, CZ, DK, DE, EE, IE, EL, ES, FR, HR, IT, CY, LV, LT, LU, HU, MT, NL, AT, PL, PT, RO, SI, SK, FI, SE, UK]
     translations:
       - code: en
         name: iDEAL Professional (Rabobank)

@@ -50,7 +50,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '3';
+        return '5';
     }
 
     /**
@@ -60,7 +60,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '4';
+        return '2';
     }
 
     /**
@@ -70,7 +70,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorRequiredCoreVersion()
     {
-        return '3';
+        return '4';
     }
 
     /**
@@ -126,6 +126,19 @@ abstract class Main extends \XLite\Module\AModule
         foreach ($stores as $store) {
             $ecCore->changeStoreSyncingStatus($store->getId(), $flagValue);
         }
+    }
+
+    /**
+     * @return \XLite\Module\XC\MailChimp\Model\Store
+     */
+    public static function getStoreForAbandonedCarts()
+    {
+        /** @var \XLite\Module\XC\MailChimp\Model\Repo\Store $repo */
+        $repo = \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\Store');
+
+        return $repo->findStoreByListId(
+            \XLite\Core\Config::getInstance()->XC->MailChimp->selectedAbandonedCartsListid
+        );
     }
 
     /**

@@ -5,11 +5,15 @@
  #}
 
 <div {{ this.printTagAttributes(this.getShippingContainerAttributes())|raw }}>
-  <h3>{{ t('Shipping address') }}</h2>
+  <h3>{{ t('Shipping address') }}</h3>
   <div class="expander"><a href="#">{{ t('Show') }}</a></div>
   <div class="collapser"><a href="#">{{ t('Hide') }}</a></div>
   {% if this.isDisplayAddressButton() %}
-    <a href="{{ url('order', '', {'order_number': this.order.orderNumber, 'atype': 's', 'widget': 'XLite\\View\\SelectAddressOrder'}) }}" class="btn btn-default address-book">{{ t('Address book') }}</a>
+    {{ widget('XLite\\View\\Button\\SimpleLink',
+      label='Address book',
+      style='btn regular-button address-book',
+      location=url('order', '', {'order_number': this.order.orderNumber, 'atype': 's', 'widget': 'XLite\\View\\SelectAddressOrder'})
+    ) }}
   {% endif %}
   <div class="same-note">
     <span>{{ t('Order will be delivered to the billing address.') }}</span>

@@ -314,13 +314,15 @@ class Category extends \XLite\Model\Repo\Base\I18n
      * Find one by path
      *
      * @param array   $path   Category path
-     * @param boolean $strict Flag: true - use strict match categories by name, false - suggest &amp; and & as the same string
+     * @param boolean $strict Flag: true - use strict match categories by name,
+     *                        false - suggest &amp; and & as the same string
+     * @param null    $root
      *
      * @return \XLite\Model\Category
      */
-    public function findOneByPath(array $path, $strict = true)
+    public function findOneByPath(array $path, $strict = true, $root = null)
     {
-        $result = $this->getRootCategory();
+        $result = $root ?: $this->getRootCategory();
 
         if (!empty($path)) {
             do {
@@ -364,9 +366,76 @@ class Category extends \XLite\Model\Repo\Base\I18n
     }
 
     /**
+     * Find all by path
+     *
+     * @param array   $path   Category path
+     * @param boolean $strict Flag: true - use strict match categories by name,
+     *                        false - suggest &amp; and & as the same string
+     * @param null    $root
+     *
+     * @return [\XLite\Model\Category[], \XLite\Model\Category]
+     */
+    public function findAllByPath(array $path, $strict = true, $root = null)
+    {
+        if ($root) {
+            $result = $root;
+            $completeResult = [];
+        } else {
+            $result = $this->getRootCategory();
+            $completeResult = [$result->getCategoryId() => $result];
+        }
+
+        if (!empty($path)) {
+            do {
+                $name = array_shift($path);
+
+                $qb = $this->createQueryBuilder()
+                    ->andWhere('c.parent = :parent')
+                    ->setParameter('parent', $result);
+
+                $names = [];
+
+                if (!$strict) {
+                    $names[] = $name;
+                    $names[] = html_entity_decode($name);
+                    $names[] = htmlspecialchars($name);
+                    $names   = array_unique($names);
+                }
+
+                if (1 < count($names)) {
+
+                    $orCnd = new \Doctrine\ORM\Query\Expr\Orx();
+
+                    foreach ($names as $k => $v) {
+                        $orCnd->add('translations.name = :name' . $k);
+                        $qb->setParameter('name' . $k, $v);
+                    }
+
+                    $qb->andWhere($orCnd);
+
+                } else {
+                    $qb->andWhere('translations.name = :name')
+                        ->setParameter('name', $name);
+                }
+
+                $result = $qb->getSingleResult();
+
+                if ($result) {
+                    $completeResult[$result->getCategoryId()] = $result;
+                }
+
+            } while ($result && $path);
+        }
+
+        return [$completeResult, $result];
+    }
+
+    /**
      * Get plain list for tree
      *
      * @param integer $categoryId Category id OPTIONAL
+     *
+     * @param null    $excludeId
      *
      * @return array
      */
@@ -467,7 +536,8 @@ class Category extends \XLite\Model\Repo\Base\I18n
             ->linkInner('c.translations')
             ->linkInner('c.parent')
             ->andWhere('parent.category_id = :cid')
-            ->setParameter('cid', $categoryId);
+            ->setParameter('cid', $categoryId)
+            ->orderBy('c.pos');
     }
 
     /**
@@ -905,8 +975,8 @@ class Category extends \XLite\Model\Repo\Base\I18n
                 \XLite\Core\Database::getEM()->merge($parent);
 
                 // Update indexes in the nested set
-                $this->defineUpdateIndexQuery('lpos', $parent->getLpos())->execute();
-                $this->defineUpdateIndexQuery('rpos', $parent->getLpos())->execute();
+                //$this->defineUpdateIndexQuery('lpos', $parent->getLpos())->execute();
+                //$this->defineUpdateIndexQuery('rpos', $parent->getLpos())->execute();
 
                 // Create record in DB
                 $this->prepareNewCategoryData($entity, $parent);
@@ -1265,6 +1335,8 @@ class Category extends \XLite\Model\Repo\Base\I18n
                 return [];
             }
 
+            $rawCategories = $this->sortCategoriesTree($rawCategories);
+
             $categories = [];
             foreach ($rawCategories as $category) {
                 if (!$category['name']) {
@@ -1302,6 +1374,71 @@ class Category extends \XLite\Model\Repo\Base\I18n
     }
 
     /**
+     * @param array $list
+     *
+     * @return array
+     */
+    protected function sortCategoriesTree($list)
+    {
+        $result = [];
+
+        if (!empty($list)) {
+            $collected = [];
+
+            do {
+                $count = count($result);
+                if ($result) {
+                    $tmpResult = [];
+                    foreach ($result as $key => $category) {
+                        $tmpResult[] = $category;
+                        if (!isset($collected[$category['id']])) {
+                            $tmpResult = array_merge($tmpResult, $this->sortCategoriesTreeForParent($list, $category['id']));
+                            $collected[$category['id']] = true;
+                        }
+                    }
+                    $result = $tmpResult;
+                } else {
+                    $result = $this->sortCategoriesTreeForParent($list);
+                }
+            } while ($count !== count($result));
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param      $list
+     * @param null $identity
+     *
+     * @return array
+     */
+    protected function sortCategoriesTreeForParent($list, $identity = null)
+    {
+        $categories = [];
+
+        foreach ($list as $category) {
+            if ($identity && $category['parent_id'] == $identity) {
+                $categories[] = $category;
+            } else if (!$identity && $category['depth'] == 0) {
+                $categories[] = $category;
+            }
+        }
+
+        usort($categories, function ($cat1, $cat2) {
+            $pos1 = $cat1['pos'];
+            $pos2 = $cat2['pos'];
+
+            if ($pos1 > $pos2) {
+                return 1;
+            } else {
+                return $pos1 === $pos2 ? 0 : -1;
+            }
+        });
+
+        return $categories;
+    }
+
+    /**
      * Get categories as dtos queryBuilder
      *
      * @return \XLite\Model\QueryBuilder\AQueryBuilder
@@ -1330,6 +1467,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
 
         $queryBuilder->addSelect('IDENTITY(c.parent) as parent_id');
         $queryBuilder->addSelect('c.depth as depth');
+        $queryBuilder->addSelect('c.pos as pos');
 
         $queryBuilder->linkLeft('c.children', 'conditional_children');
 

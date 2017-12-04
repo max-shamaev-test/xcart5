@@ -194,32 +194,63 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
     /**
      * Get category by path
      *
-     * @param mixed   $path     Path
+     * @param mixed   $path     Path (id -> name)
      * @param boolean $useCache Use cache to get data
      *
-     * @return \XLite\Model\Category
+     * @return \XLite\Model\Category|null
      */
     protected function getCategoryByPath($path, $useCache = true)
     {
-        $result = null;
-
         if (!is_array($path)) {
             $path = $path ? array_map('trim', explode('>>>', $path)) : array();
         }
 
-        if ($useCache && isset($this->categoriesCache[implode('/', $path)])) {
-            $result = $this->categoriesCache[implode('/', $path)];
+        if (count($path) === 1 && is_object($category = reset($path))) {
+
+            return $category;
         }
 
-        if (!$result) {
-            $result = \XLite\Core\Database::getRepo('XLite\Model\Category')->findOneByPath($path, false);
+        $cacheKey = implode('/', $path);
+        if ($useCache && $this->hasCategoryByPathCache($cacheKey)) {
+            $category = $this->getCategoryByPathCache($cacheKey);
 
-            if ($useCache) {
-                $this->categoriesCache[implode('/', $path)] = $result;
+            if (is_numeric($category)) {
+                $category = \XLite\Core\Database::getRepo('XLite\Model\Category')->find($category);
             }
+
+            $this->setCategoryByPathCache($cacheKey, $category);
+
+            return $category;
         }
 
-        return $result;
+        $parentPath = $path;
+        $parent = null;
+        $path = [];
+
+        while (($node = array_pop($parentPath)) && !$parent) {
+            array_unshift($path, $node);
+            $parentCacheKey = implode('/', $parentPath);
+            $parent = $this->hasCategoryByPathCache($parentCacheKey)
+                ? $this->getCategoryByPathCache($parentCacheKey)
+                : null;
+        }
+
+        if (is_numeric($parent)) {
+            $parent = \XLite\Core\Database::getRepo('XLite\Model\Category')->find($parent);
+        }
+
+        list($pathCategories, $category) = \XLite\Core\Database::getRepo('XLite\Model\Category')->findAllByPath($path, false, $parent);
+
+        foreach ($pathCategories as $name => $pathCategory) {
+            $parentPath[] = $name;
+            $this->setCategoryByPathCache(implode('/', $parentPath), $pathCategory);
+        }
+
+        if ($useCache) {
+            $this->setCategoryByPathCache($cacheKey, $category);
+        }
+
+        return $category;
     }
 
     /**
@@ -239,13 +270,47 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
 
         if (!$category) {
             $category = new \XLite\Model\Category();
-            $this->categoriesCache[implode('/', $path)] = $category;
+            $cacheKey = implode('/', $path);
             $category->setName(array_pop($path));
             $category->setParent($this->addCategoryByPath($path));
             \XLite\Core\Database::getRepo('XLite\Model\Category')->insert($category);
+
+            $this->setCategoryByPathCache($cacheKey, $category);
         }
 
         return $category;
+    }
+
+    protected function setCategoryByPathCache($cacheKey, $category)
+    {
+        $cacheKey = trim($cacheKey, '/');
+
+        $this->categoriesCache[$cacheKey] = $category;
+        $this->importer->getOptions()->categoryByPathCache[$cacheKey] = $category ? $category->getId() : null;
+    }
+
+    protected function hasCategoryByPathCache($cacheKey)
+    {
+        $cacheKey = trim($cacheKey, '/');
+
+        return array_key_exists($cacheKey, $this->categoriesCache)
+            || (array_key_exists('categoryByPathCache', $this->importer->getOptions())
+                && is_array($this->importer->getOptions()->categoryByPathCache)
+                && array_key_exists($cacheKey, $this->importer->getOptions()->categoryByPathCache));
+    }
+
+    protected function getCategoryByPathCache($cacheKey)
+    {
+        $cacheKey = trim($cacheKey, '/');
+
+        if (array_key_exists($cacheKey, $this->categoriesCache)) {
+
+            return $this->categoriesCache[$cacheKey];
+        }
+
+        return array_key_exists($cacheKey, $this->importer->getOptions()->categoryByPathCache)
+            ? $this->importer->getOptions()->categoryByPathCache[$cacheKey]
+            : null;
     }
 
     // {{{ Files
@@ -1319,9 +1384,9 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
         if (!$model && !$this->isUpdateMode()) {
             // Create model
             $model = $this->createModel($data);
+
             if (null !== $model) {
                 $this->setMetaData('addCount', ((int) $this->getMetaData('addCount')) + 1);
-                \XLite\Core\Database::getEM()->persist($model);
             }
         } elseif ($model && $this->isCreateMode()) {
             $model = null;
@@ -1332,7 +1397,12 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
             $result = $this->updateModel($model, $data);
             if ($result) {
                 try {
-                    \XLite\Core\Database::getEM()->flush();
+                    if (!$model->isManaged()) {
+                        $model->getRepository()->insert($model);
+                    } else {
+                        \XLite\Core\Database::getEM()->persist($model);
+                        \XLite\Core\Database::getEM()->flush();
+                    }
                 } catch (\Exception $e) {
                     \XLite\Logger::getInstance()->registerException($e);
                     $result = false;
@@ -1624,15 +1694,17 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
      */
     protected function updateModelTranslations(\XLite\Model\AEntity $model, array $value, $name = 'name')
     {
-        $repo = \XLite\Core\Database::getRepo(get_class($model))->getTranslationRepository();
+        $repo = $model->getRepository()->getTranslationRepository();
+
         foreach ($value as $code => $val) {
-            $translation = $model->getTranslation($code);
-            if ($translation || !$translation->getLabelId()) {
+            $translation = $model->getTranslation($code, true);
+            if (!$translation) {
                 $translation = $model->getTranslation($code);
                 $repo->insert($translation, false);
                 $model->addTranslations($translation);
             }
-            $repo->update($translation, array($name => $val), false);
+
+            $repo->update($translation, [$name => $val], false);
         }
 
         return $model;
@@ -1879,8 +1951,9 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
         $result = false;
 
         if (is_array($value) && count($value) === 1) {
-            if (is_array($value[0])) {
-                foreach ($value[0] as $lngValue) {
+            $realValue = reset($value);
+            if (is_array($realValue)) {
+                foreach ($realValue as $lngValue) {
                     if (static::NULL_VALUE === $lngValue) {
                         $result = true;
 
@@ -1888,7 +1961,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
                     }
                 }
             } else {
-                $result = static::NULL_VALUE === $value[0];
+                $result = static::NULL_VALUE === $realValue;
             }
         } else {
             $result = static::NULL_VALUE === $value;
@@ -2489,7 +2562,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
      *
      * @param mixed @value Value
      *
-     * @return float
+     * @return integer
      */
     protected function normalizeValueAsUinteger($value)
     {
@@ -2938,7 +3011,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
 
             if ($this->isColumnMultiple($column)) {
                 foreach ($result as $name => $value) {
-                    $result[$name] = explode(static::SUBVALUE_DELIMITER, $value);
+                    $result[$name] = static::parseMultipleValue($value);
                 }
                 if ($this->isColumnMultilingual($column)) {
                     $_result = array();
@@ -2956,6 +3029,21 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
         }
 
         return $result;
+    }
+
+    /**
+     * @param      $value
+     * @param bool $removeEmpty
+     *
+     * @return array
+     */
+    public static function parseMultipleValue($value, $removeLastEmpty = true)
+    {
+        if ($removeLastEmpty) {
+            $value = preg_replace('/&&$/', '', $value);
+        }
+
+        return explode(static::SUBVALUE_DELIMITER, $value);
     }
 
     // }}}
@@ -3085,11 +3173,13 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
      */
     protected function getDefLangValue($value)
     {
-        $code = $this->importer->getLanguageCode();
+        if (is_array($value)) {
+            $code = \XLite\Logic\Import\Importer::getLanguageCode();
 
-        return is_array($value)
-            ? (isset($value[$code]) ? $value[$code] : null)
-            : trim($value);
+            return (isset($value[$code]) ? $value[$code] : null);
+        }
+
+        return trim($value);
     }
 
     // }}}

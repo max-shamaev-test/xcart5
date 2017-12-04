@@ -630,9 +630,19 @@ abstract class AController extends \XLite\Core\Handler
         foreach (\XLite\Core\URLManager::getAllowedDomains() as $domain) {
             header('Access-Control-Allow-Origin: ' . $domain, false);
         }
-        $option = \XLite::getInstance()->getOptions(array('other', 'x_frame_options'));
-        if (isset($option) && 'disabled' !== $option) {
-            header('X-Frame-Options:' . $option);
+        $XFrameOptions = \XLite::getInstance()->getOptions(array('other', 'x_frame_options'));
+        if ($XFrameOptions !== null && 'disabled' !== $XFrameOptions) {
+            header('X-Frame-Options: ' . $XFrameOptions);
+        }
+
+        $XXSSProtection = \XLite::getInstance()->getOptions(array('other', 'x_xss_protection'));
+        if ($XXSSProtection !== null && 'disabled' !== $XXSSProtection) {
+            header('X-XSS-Protection: ' . $XXSSProtection);
+        }
+
+        $XContentTypeOptions = \XLite::getInstance()->getOptions(array('other', 'x_content_type_options'));
+        if ($XContentTypeOptions !== null && 'disabled' !== $XContentTypeOptions) {
+            header('X-Content-Type-Options: ' . $XContentTypeOptions);
         }
 
         foreach ($additional as $header => $value) {
@@ -2202,7 +2212,7 @@ RES;
             }
         }
 
-        $this->setReturnURL($referrerUrl);
+        $this->setReturnURL($referrerUrl ?: $this->buildFullURL());
     }
 
     // }}}

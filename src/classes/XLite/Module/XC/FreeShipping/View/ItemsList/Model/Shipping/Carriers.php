@@ -14,6 +14,19 @@ namespace XLite\Module\XC\FreeShipping\View\ItemsList\Model\Shipping;
 class Carriers extends \XLite\View\ItemsList\Model\Shipping\Carriers implements \XLite\Base\IDecorator
 {
     /**
+     * Get a list of CSS files
+     *
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        $list   = parent::getCSSFiles();
+        $list[] = 'modules/XC/FreeShipping/items_list/model/table/shipping/carriers/style.css';
+
+        return $list;
+    }
+
+    /**
      * Disable removing special methods
      *
      * @param \XLite\Model\AEntity $entity Shipping method object
@@ -61,10 +74,10 @@ class Carriers extends \XLite\View\ItemsList\Model\Shipping\Carriers implements 
     {
         return array_merge(
             parent::getRightActions(),
-            array(
+            [
                 'modules/XC/FreeShipping/free_shipping_tooltip.twig',
-                'modules/XC/FreeShipping/shipping_freight_tooltip.twig'
-            )
+                'modules/XC/FreeShipping/shipping_freight_tooltip.twig',
+            ]
         );
     }
 
@@ -77,10 +90,10 @@ class Carriers extends \XLite\View\ItemsList\Model\Shipping\Carriers implements 
     {
         return array_merge(
             parent::getLeftActions(),
-            array(
+            [
                 'modules/XC/FreeShipping/free_shipping_tooltip.twig',
-                'modules/XC/FreeShipping/shipping_freight_tooltip.twig'
-            )
+                'modules/XC/FreeShipping/shipping_freight_tooltip.twig',
+            ]
         );
     }
 
@@ -97,7 +110,7 @@ class Carriers extends \XLite\View\ItemsList\Model\Shipping\Carriers implements 
         $result = parent::isTemplateColumnVisible($column, $entity);
 
         if ($result
-            && 'handlingFee' === $column[static::COLUMN_CODE]
+            && in_array($column[static::COLUMN_CODE], ['handlingFee', 'taxClass'], true)
             && 'offline' === $entity->getProcessor()
             && (\XLite\Model\Shipping\Method::METHOD_TYPE_FIXED_FEE === $entity->getCode()
                 || $entity->getFree())
@@ -121,7 +134,7 @@ class Carriers extends \XLite\View\ItemsList\Model\Shipping\Carriers implements 
         $result = parent::isClassColumnVisible($column, $entity);
 
         if ($result
-            && 'handlingFee' === $column[static::COLUMN_CODE]
+            && in_array($column[static::COLUMN_CODE], ['handlingFee', 'taxClass'], true)
             && 'offline' === $entity->getProcessor()
             && (\XLite\Model\Shipping\Method::METHOD_TYPE_FIXED_FEE === $entity->getCode()
                 || $entity->getFree())

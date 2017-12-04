@@ -41,6 +41,16 @@ ul.event-details li.date {
 ul.event-details li.description {
 }
 
+ul.event-details li.author {
+  float: right;
+  white-space: nowrap;
+  margin-left: auto;
+  text-decoration: none;
+
+  font-size: 14px;
+  color: #8f8f8f;
+}
+
 .event-details .details .action {
   cursor: pointer;
   line-height: 1;
@@ -61,7 +71,7 @@ ul.event-details .details + .description {
 
 .order-event-details .details {
   padding: 10px;
-  word-break: break-word;
+  word-wrap: break-word;
 }
 
 .order-event-details .details.show-details {

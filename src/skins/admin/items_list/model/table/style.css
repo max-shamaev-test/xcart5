@@ -74,8 +74,17 @@
   display: inline-block;
 }
 
+.items-list-table table.list thead th.actions.left .head-position {
+  color: inherit;
+  display: inline;
+}
+
+.items-list-table table.list thead th.actions.left .header-sort {
+  min-width: 50px;
+}
+
 .items-list-table table.list thead th.actions.left .head-position.no-position {
-  width: 27px;
+  width: auto;
 }
 
 .items-list-table table.list thead th.actions.right button.remove {
@@ -354,6 +363,10 @@
 
 .items-list-table table.list tbody.lines td.actions .inline-move {
   width: 27px;
+}
+
+.items-list-table.visual-sort table.list tbody.lines td.actions .inline-move {
+  opacity: .35;
 }
 
 .items-list-table table.list tbody.lines td.actions .inline-switcher .field {

@@ -23,6 +23,17 @@ class PopupAddInfo extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * Check ACL permissions
+     *
+     * @return boolean
+     */
+    public function checkACL()
+    {
+        return parent::checkACL()
+            || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage orders');
+    }
+
+    /**
      * Check whether the title is to be displayed in the content area
      *
      * @return boolean

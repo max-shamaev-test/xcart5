@@ -140,25 +140,6 @@
 }
 
 /* Hide/show animation */
-
-@-webkit-keyframes list-item-hide {
-  0% {
-    opacity: 1;
-    -webkit-transform: scale(1);
-            transform: scale(1);
-  }
-  30% {
-    opacity: 0.3;
-    -webkit-transform: scale(1);
-            transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    -webkit-transform: scale(0.9);
-            transform: scale(0.9);
-  }
-}
-
 @keyframes list-item-hide {
   0% {
     opacity: 1;

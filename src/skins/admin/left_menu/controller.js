@@ -109,6 +109,11 @@ LeftMenu.prototype.getHeaderSpace = function () {
 };
 
 LeftMenu.prototype.recalculatePosition = function (heightDelta) {
+  // don't do anything on overscroll
+  if (document.body.scrollTop + window.innerHeight > document.body.scrollHeight) {
+    return;
+  }
+
   var viewPortHeight = window.innerHeight;
   var headerSpace = this.getHeaderSpace();
   this.$menu.css('min-height', viewPortHeight - headerSpace);

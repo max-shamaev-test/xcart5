@@ -2,7 +2,7 @@
  # Common table-based model list
  #}
 
-<table class="list{% if not this.hasResults() %} list-no-items{% endif %}" cellspacing="0">
+<table class="{{ this.getTableTagClassString() }}" cellspacing="0">
 
   {% if this.isTableHeaderVisible() %}
     <thead>

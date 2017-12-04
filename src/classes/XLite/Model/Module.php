@@ -901,6 +901,19 @@ class Module extends \XLite\Model\AEntity
     }
 
     /**
+     * Check for deprecated module
+     *
+     * @return boolean
+     */
+    public function isDeprecated()
+    {
+        /** @var \XLite\Model\Module $module */
+        $module = $this->getRepository()->getModuleFromMarketplace($this);
+
+        return $module && preg_match('/\[DEPRECATED\]$/', $module->getModuleName());
+    }
+
+    /**
      * Check for private module
      *
      * @return boolean
@@ -1372,7 +1385,7 @@ class Module extends \XLite\Model\AEntity
     /**
      * Set rating
      *
-     * @param decimal $rating
+     * @param float $rating
      * @return Module
      */
     public function setRating($rating)
@@ -1384,7 +1397,7 @@ class Module extends \XLite\Model\AEntity
     /**
      * Get rating
      *
-     * @return decimal 
+     * @return float
      */
     public function getRating()
     {
@@ -1438,7 +1451,7 @@ class Module extends \XLite\Model\AEntity
     /**
      * Set price
      *
-     * @param decimal $price
+     * @param float $price
      * @return Module
      */
     public function setPrice($price)
@@ -1450,7 +1463,7 @@ class Module extends \XLite\Model\AEntity
     /**
      * Get price
      *
-     * @return decimal 
+     * @return float
      */
     public function getPrice()
     {

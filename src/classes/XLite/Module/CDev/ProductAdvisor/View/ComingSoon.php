@@ -248,4 +248,18 @@ class ComingSoon extends \XLite\Module\CDev\ProductAdvisor\View\AComingSoon
     {
         return \XLite\Core\Translation::getInstance()->translate('All upcoming products');
     }
+
+    /**
+     * Get cache parameters
+     *
+     * @return array
+     */
+    protected function getCacheParameters()
+    {
+        $list = parent::getCacheParameters();
+        $list[] = $this->getRootId();
+        $list[] = \XLite\Core\Config::getInstance()->CDev->ProductAdvisor->na_from_current_category;
+
+        return $list;
+    }
 }

@@ -15,7 +15,7 @@ if (!defined('XLITE_INSTALL_MODE')) {
 }
 
 // Current X-Cart version
-define('LC_VERSION', '5.3.3.4');
+define('LC_VERSION', '5.3.4.4');
 
 // Minimum PHP version supported
 define('LC_PHP_VERSION_MIN', '5.4.0');
@@ -73,20 +73,21 @@ $lcSettings = array(
             'sql' . LC_DS . 'xlite_data.yaml',
             'sql' . LC_DS . 'xlite_data_lng.yaml',
         ),
+        'base_after' => array(
+        ),
         'demo' => XLITE_EDITION_LNG === 'ru' ? array(
             'sql' . LC_DS . 'xlite_demo.yaml',
             'sql' . LC_DS . 'xlite_demo_featured.yaml',
             'sql' . LC_DS . 'xlite_demo_orders_ru.yaml',
             'sql' . LC_DS . 'xlite_demo_ru.yaml',
-            'sql' . LC_DS . 'xlite_data_ru.yaml',
             'sql' . LC_DS . 'xlite_demo_sale.yaml',
             'sql' . LC_DS . 'product_attributes.sql',
             'sql' . LC_DS . 'xlite_demo_reviews.sql',
             'sql' . LC_DS . 'xlite_menu.yaml',
+            'sql' . LC_DS . 'module.XC.Onboarding.yaml',
 
         ) : XLITE_EDITION_LNG === 'zh' ? array(
             'sql' . LC_DS . 'xlite_demo_zh.yaml',
-            'sql' . LC_DS . 'xlite_data_zh.yaml',
             'sql' . LC_DS . 'product_attributes_zh.sql',
             'sql' . LC_DS . 'xlite_menu_zh.yaml',
             'sql' . LC_DS . 'xlite_demo_sale_zh.yaml',
@@ -100,6 +101,7 @@ $lcSettings = array(
             'sql' . LC_DS . 'product_attributes.sql',
             'sql' . LC_DS . 'xlite_demo_reviews.sql',
             'sql' . LC_DS . 'xlite_menu.yaml',
+            'sql' . LC_DS . 'module.XC.Onboarding.yaml',
         ),
     ),
 
@@ -137,7 +139,8 @@ $lcSettings = array(
             'BulkEditing',
             'FroalaEditor',
             'MailChimp',
-            'Concierge'
+            'Concierge',
+            'Onboarding'
         ),
         'QSL' => array(
             'CloudSearch',
@@ -147,6 +150,9 @@ $lcSettings = array(
 );
 
 if (XLITE_EDITION_LNG === 'ru') {
+    $lcSettings['yaml_files']['base'][] = 'sql' . LC_DS . 'xlite_data_ru.yaml';
+    $lcSettings['yaml_files']['base_after'][] = 'sql' . LC_DS . 'xlite_data_after_ru.yaml';
+
     $lcSettings['enable_modules'] = array_merge_recursive(
         $lcSettings['enable_modules'],
         array(
@@ -166,6 +172,8 @@ if (XLITE_EDITION_LNG === 'ru') {
         )
     );
 } elseif (XLITE_EDITION_LNG === 'zh') {
+    $lcSettings['yaml_files']['base'][] = 'sql' . LC_DS . 'xlite_data_zh.yaml';
+
     $lcSettings['enable_modules'] = array_merge_recursive(
         $lcSettings['enable_modules'],
         array(
@@ -205,7 +213,8 @@ if (XLITE_EDITION_LNG === 'ru') {
         )
     );
 } elseif (XLITE_EDITION_LNG === 'gb') {
-    $lcSettings['yaml_files']['demo'][] = 'sql' . LC_DS . 'xlite_data_gb.yaml';
+    $lcSettings['yaml_files']['base'][] = 'sql' . LC_DS . 'xlite_data_gb.yaml';
+    $lcSettings['yaml_files']['base_after'][] = 'sql' . LC_DS . 'xlite_data_after_gb.yaml';
     $lcSettings['yaml_files']['demo'][] = 'sql' . LC_DS . 'xlite_demo_gb.yaml';
 
     $lcSettings['enable_modules'] = array_merge_recursive(

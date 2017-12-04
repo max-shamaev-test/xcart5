@@ -25,6 +25,25 @@ CurrencyManageForm.prototype.initialize = function ()
     }
   );
 
+  formatHundredsPart = function (value) {
+    var exp = jQuery('#roundup').val();
+
+    if (exp !== 'N' && exp < 0) {
+      exp = -exp;
+      console.log(
+        exp,
+        value,
+        Math.pow(10, exp),
+        value / Math.pow(10, exp),
+        Math.ceil(value / Math.pow(10, exp)),
+        Math.ceil(value / Math.pow(10, exp)) * Math.pow(10, exp)
+      );
+      return Math.ceil(value / Math.pow(10, exp)) * Math.pow(10, exp);
+    }
+
+    return value;
+  };
+
   jQuery('#format').change(function() {
     jQuery(obj.patternCurrencyViewInfo).trigger(
       'formatCurrencyChange',
@@ -32,10 +51,14 @@ CurrencyManageForm.prototype.initialize = function ()
         jQuery(this).val(),
         jQuery(this).data('e'),
         jQuery(this).data('thousandpart'),
-        jQuery(this).data('hundredspart'),
+        formatHundredsPart(jQuery(this).data('hundredspart')),
         jQuery(this).data('delimiter')
       ]
     );
+  });
+
+  jQuery('#roundup').change(function() {
+    jQuery('#format').change();
   });
 
   jQuery('#prefix').keyup(function(event) {

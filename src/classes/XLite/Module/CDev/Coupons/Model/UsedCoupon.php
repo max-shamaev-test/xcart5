@@ -66,6 +66,15 @@ class UsedCoupon extends \XLite\Model\AEntity
      */
     protected $coupon;
 
+    /**
+     * Type
+     *
+     * @var   string
+     *
+     * @Column (type="string", options={ "fixed": true }, length=1, nullable=true)
+     */
+    protected $type;
+
     // {{{ Getters / setters
 
     /**
@@ -98,9 +107,22 @@ class UsedCoupon extends \XLite\Model\AEntity
      */
     public function getPublicName()
     {
-        return $this->getCoupon()
-            ? $this->getCoupon()->getPublicName()
-            : $this->getPublicCode();
+        $suffix = '';
+
+        if (
+            $this->getType()
+            && $this->getType() === \XLite\Module\CDev\Coupons\Model\Coupon::TYPE_PERCENT
+            && $this->getOrder()
+        ) {
+            $percent = round($this->getValue() / $this->getOrder()->getSubtotal() * 100, 2);
+
+            $suffix = sprintf('(%s%%)', $percent);
+        } elseif ($this->getCoupon()) {
+            return $this->getCoupon()->getPublicName();
+        }
+
+
+        return $this->getPublicCode() . ' ' . $suffix;
     }
 
     /**
@@ -120,7 +142,7 @@ class UsedCoupon extends \XLite\Model\AEntity
      */
     public function isDeleted()
     {
-        return !(bool) $this->getCoupon();
+        return !(bool)$this->getCoupon();
     }
 
     // }}}
@@ -156,7 +178,7 @@ class UsedCoupon extends \XLite\Model\AEntity
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -167,6 +189,7 @@ class UsedCoupon extends \XLite\Model\AEntity
      * Set code
      *
      * @param string $code
+     *
      * @return UsedCoupon
      */
     public function setCode($code)
@@ -178,7 +201,7 @@ class UsedCoupon extends \XLite\Model\AEntity
     /**
      * Get code
      *
-     * @return string 
+     * @return string
      */
     public function getCode()
     {
@@ -189,6 +212,7 @@ class UsedCoupon extends \XLite\Model\AEntity
      * Set value
      *
      * @param float $value
+     *
      * @return UsedCoupon
      */
     public function setValue($value)
@@ -211,6 +235,7 @@ class UsedCoupon extends \XLite\Model\AEntity
      * Set order
      *
      * @param \XLite\Model\Order $order
+     *
      * @return UsedCoupon
      */
     public function setOrder(\XLite\Model\Order $order = null)
@@ -222,7 +247,7 @@ class UsedCoupon extends \XLite\Model\AEntity
     /**
      * Get order
      *
-     * @return \XLite\Model\Order 
+     * @return \XLite\Model\Order
      */
     public function getOrder()
     {
@@ -232,11 +257,34 @@ class UsedCoupon extends \XLite\Model\AEntity
     /**
      * Get coupon
      *
-     * @return \XLite\Module\CDev\Coupons\Model\Coupon 
+     * @return \XLite\Module\CDev\Coupons\Model\Coupon
      */
     public function getCoupon()
     {
         return $this->coupon;
+    }
+
+    /**
+     * Return Type
+     *
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set Type
+     *
+     * @param string $type
+     *
+     * @return $this
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+        return $this;
     }
 
     /**

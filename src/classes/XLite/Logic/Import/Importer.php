@@ -48,7 +48,7 @@ class Importer extends \XLite\Base
     /**
      * Import processors list (cache)
      *
-     * @var   array
+     * @var \XLite\Logic\Import\Processor\AProcessor[]
      */
     protected $processors;
 
@@ -110,7 +110,6 @@ class Importer extends \XLite\Base
      */
     public static function getLanguageCode()
     {
-
         return static::$languageCode;
     }
 
@@ -368,7 +367,7 @@ class Importer extends \XLite\Base
      */
     public function valid()
     {
-        return $this->getStep() && $this->getStep()->isValid() && !$this->hasErrors();
+        return $this->getStep() && $this->getStep()->isValid() && !static::hasErrors();
     }
 
     /**
@@ -615,12 +614,12 @@ class Importer extends \XLite\Base
     /**
      * Get processors
      *
-     * @return array
+     * @return \XLite\Logic\Import\Processor\AProcessor[]
      */
     public function getProcessors()
     {
-        if (!isset($this->processors)) {
-            $this->processors = $this->getProcessorList();
+        if ($this->processors === null) {
+            $this->processors = static::getProcessorList();
             $this->prepareProcessors();
         }
 
@@ -647,8 +646,6 @@ class Importer extends \XLite\Base
 
     /**
      * Prepare processors
-     *
-     * @return void
      */
     protected function prepareProcessors()
     {

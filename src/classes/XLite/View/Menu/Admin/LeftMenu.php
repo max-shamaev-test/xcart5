@@ -8,6 +8,8 @@
 
 namespace XLite\View\Menu\Admin;
 
+use XLite\Core\Cache\ExecuteCached;
+
 /**
  * Left side menu widget
  *
@@ -47,15 +49,75 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
     }
 
     /**
+     * Get menu items
+     *
+     * @return array
+     */
+    protected function getItems()
+    {
+        if (!isset($this->items)) {
+            $items = $this->defineItems();
+
+            $this->setSelectedDecider(
+                $this->createSelectedDecider('getItemsLeftMenuForDecider')
+            );
+
+            $this->items = $this->prepareItems($items);
+        }
+
+        return $this->items;
+    }
+
+    /**
+     * Get menu items
+     *
+     * @return array
+     */
+    public function getItemsLeftMenuForDecider()
+    {
+        $cacheParams = [
+            'getItemsLeftMenuForDecider',
+            get_class($this)
+        ];
+
+        return ExecuteCached::executeCachedRuntime(function() {
+            return $this->defineItems();
+        }, $cacheParams);
+    }
+
+    /**
      * @return array
      */
     public function getBottomItems()
     {
         if ($this->bottomItems === null) {
-            $this->bottomItems = $this->markSelected($this->prepareItems($this->defineBottomItems()));
+            $items = $this->defineBottomItems();
+
+            $this->setSelectedDecider(
+                $this->createSelectedDecider('getBottomItemsForDecider')
+            );
+
+            $this->bottomItems = $this->prepareItems($items);
         }
 
         return $this->bottomItems;
+    }
+
+    /**
+     * Get menu items
+     *
+     * @return array
+     */
+    public function getBottomItemsForDecider()
+    {
+        $cacheParams = [
+            'getBottomItemsForDecider',
+            get_class($this)
+        ];
+
+        return ExecuteCached::executeCachedRuntime(function() {
+            return $this->defineBottomItems();
+        }, $cacheParams);
     }
 
     /**
@@ -202,10 +264,8 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
                     ],
                     'view_log_file'     => [
                         static::ITEM_TITLE      => static::t('System logs'),
-                        static::ITEM_TARGET     => 'upgrade',
-                        static::ITEM_EXTRA      => ['action' => 'view_log_file'],
+                        static::ITEM_TARGET     => 'logs',
                         static::ITEM_WEIGHT     => 500,
-                        static::ITEM_BLANK_PAGE => true,
                     ],
                     'safe_mode'         => [
                         static::ITEM_TITLE  => static::t('Safe mode'),
@@ -359,30 +419,21 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
             ],
         ];
 
-        if (!\XLite\Core\Auth::getInstance()->isPermissionAllowed('manage catalog')
-          && \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage banners')) {
-            $items['content'][static::ITEM_CHILDREN]['banner_rotation'] = [
-                static::ITEM_TITLE      => static::t('Banner rotation'),
-                static::ITEM_TARGET     => 'banner_rotation',
-                static::ITEM_PERMISSION => 'manage banners',
-                static::ITEM_WEIGHT     => 100,
-            ];
-        }
+        $items['catalog'][static::ITEM_CHILDREN]['banner_rotation'] = [
+            static::ITEM_TITLE      => static::t('Banner rotation'),
+            static::ITEM_WIDGET     => 'XLite\View\Menu\Admin\LeftMenu\BannerRotation',
+            static::ITEM_TARGET     => 'banner_rotation',
+            static::ITEM_PERMISSION => 'manage banners',
+            static::ITEM_WEIGHT     => 100,
+        ];
 
-        // Check if cloned products exists and add menu item
-        // TODO: need to be reviewed - search should not be used on each load of admin interface pages
-        $cnd                                           = new \XLite\Core\CommonCell();
-        $cnd->{\XLite\Model\Repo\Product::P_SUBSTRING} = '[ clone ]';
-        $cnd->{\XLite\Model\Repo\Product::P_BY_TITLE}  = 'Y';
-
-        if (0 < \XLite\Core\Database::getRepo('XLite\Model\Product')->search($cnd, true)) {
-            $items['catalog'][static::ITEM_CHILDREN]['clone_products'] = [
-                static::ITEM_TITLE      => static::t('Cloned products'),
-                static::ITEM_TARGET     => 'cloned_products',
-                static::ITEM_PERMISSION => 'manage catalog',
-                static::ITEM_WEIGHT     => 220,
-            ];
-        }
+        $items['catalog'][static::ITEM_CHILDREN]['clone_products'] = [
+            static::ITEM_TITLE      => static::t('Cloned products'),
+            static::ITEM_WIDGET     => 'XLite\View\Menu\Admin\LeftMenu\ClonedProducts',
+            static::ITEM_TARGET     => 'cloned_products',
+            static::ITEM_PERMISSION => 'manage catalog',
+            static::ITEM_WEIGHT     => 220,
+        ];
 
         $pagesStatic = \XLite\Controller\Admin\Promotions::getPagesStatic();
         if ($pagesStatic) {
@@ -398,18 +449,25 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
             }
         }
 
+        $items['sales'][static::ITEM_LABEL] = $this->getRecentOrdersCount();
+
         if (!$items['promotions'][static::ITEM_CHILDREN]) {
             $items['promotions'][static::ITEM_TARGET] = 'promotions';
         }
 
-        // Orders label
-        $count = \XLite\Core\Database::getRepo('XLite\Model\Order')->searchRecentOrders(null, true);
-
-        if ($count) {
-            $items['sales'][static::ITEM_LABEL] = $count;
-        }
-
         return $items;
+    }
+
+    /**
+     * Get content of the dynamic widget that renders 'product-added' css class if product was added to cart.
+     *
+     * @return string
+     */
+    public function getRecentOrdersCount()
+    {
+        $widget = $this->getChildWidget('XLite\View\Menu\Admin\RecentOrdersCount');
+
+        return $widget->getContent();
     }
 
     /**
@@ -419,7 +477,7 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
      */
     protected function getDir()
     {
-    return 'left_menu';
+        return 'left_menu';
     }
 
     /**
@@ -466,5 +524,28 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
         }
 
         return $attributes;
+    }
+
+    protected function isCacheAvailable()
+    {
+        return true;
+    }
+
+    protected function getCacheParameters()
+    {
+        $menuCompressed = isset($_COOKIE['XCAdminLeftMenuCompressed'])
+            ? $_COOKIE['XCAdminLeftMenuCompressed']
+            : false;
+
+        return array_merge(
+            parent::getCacheParameters(),
+            [
+                $menuCompressed,
+                \XLite\Core\Auth::getInstance()->getProfile()
+                    ? \XLite\Core\Auth::getInstance()->getProfile()->getProfileId()
+                    : 'no_profile',
+                \XLite::isFreeLicense(),
+            ]
+        );
     }
 }

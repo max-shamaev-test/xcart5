@@ -20,7 +20,7 @@
         @stop 100%);
     background: -o-linear-gradient(@stop,
         @start);
-    filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",@stop,@start));
+    -ms-filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",@stop,@start));
 }
 .bw-gradient(@color: #F5F5F5, @start: 0, @stop: 255) {
     background: @color;
@@ -37,7 +37,7 @@
         rgb(@stop,@stop,@stop) 100%);
     background: -o-linear-gradient(rgb(@stop,@stop,@stop),
         rgb(@start,@start,@start));
-    filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",rgb(@stop,@stop,@stop),rgb(@start,@start,@start)));
+    -ms-filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",rgb(@stop,@stop,@stop),rgb(@start,@start,@start)));
 }
 .bordered(@top-color: #EEE, @right-color: #EEE, @bottom-color: #EEE, @left-color: #EEE) {
     border-top: solid 1px @top-color;
@@ -98,12 +98,6 @@
 }
 .scale(@ratio:1.5){
     .transform(scale(@ratio));
-}
-.transition(@duration:0.2s, @ease:ease-out) {
-    -webkit-transition: all @duration @ease;
-    -moz-transition: all @duration @ease;
-    -o-transition: all @duration @ease;
-    transition: all @duration @ease;
 }
 .inner-shadow(@horizontal:0, @vertical:1px, @blur:2px, @alpha: 0.4) {
     -webkit-box-shadow: inset @horizontal @vertical @blur rgba(0, 0, 0, @alpha);

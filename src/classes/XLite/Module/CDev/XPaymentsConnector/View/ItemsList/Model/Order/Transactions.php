@@ -251,20 +251,6 @@ class Transactions extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Is transaction marked as fraud
-     *
-     * @return bool
-     */
-    public function isFraudStatus(\XLite\Model\AEntity $entity)
-    {
-        $transaction = $entity->getTransaction();
-
-        return $transaction->getDataCell('xpc_is_fraud_status')
-            && $transaction->getDataCell('xpc_is_fraud_status')->getValue();
-
-    }
-
-    /**
      * Get text for the warning for potentially fraudulent transaction
      *
      * @param \XLite\Model\AEntity $entity Entity
@@ -277,6 +263,8 @@ class Transactions extends \XLite\View\ItemsList\Model\Table
 
         $text = false;
 
+        $allIsPending = true;
+
         if ($transaction->getFraudCheckData()) {
 
             $text = array();
@@ -284,6 +272,10 @@ class Transactions extends \XLite\View\ItemsList\Model\Table
             foreach ($transaction->getFraudCheckData() as $fraudCheckData) {
 
                 if (!$fraudCheckData->isPending()) {
+                    $allIsPending = false;
+                }
+
+                if (!$fraudCheckData->isManualReview()) {
                     continue;
                 }
 
@@ -298,7 +290,9 @@ class Transactions extends \XLite\View\ItemsList\Model\Table
         }
 
         if (empty($text)) {            
-            $text = static::t('X-Payments considers this transaction as potentially fraudulent.');
+            $text = ($allIsPending)
+                    ? static::t('Transaction is being reviewed for fraud.')
+                    : static::t('X-Payments considers this transaction as potentially fraudulent.');
         }
 
         return $text;

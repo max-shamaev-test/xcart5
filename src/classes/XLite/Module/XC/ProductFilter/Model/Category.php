@@ -302,6 +302,31 @@ class Category extends \XLite\Model\Category implements \XLite\Base\IDecorator
         return $this;
     }
 
+    public function clearProductClasses()
+    {
+        foreach ($this->getProductClasses()->getKeys() as $key) {
+            $this->getProductClasses()->remove($key);
+        }
+    }
+
+    /**
+     * Add productClasses
+     *
+     * @param \XLite\Model\ProductClass[] $productClasses
+     *
+     * @return Category
+     */
+    public function setProductClasses(array $productClasses)
+    {
+        $this->clearProductClasses();
+
+        foreach ($productClasses as $productClass) {
+            $this->addProductClasses($productClass);
+        }
+
+        return $this;
+    }
+
     /**
      * Get productClasses
      *

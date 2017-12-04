@@ -111,12 +111,12 @@
   left: 30px;
 }
 
-@-webkit-keyframes xc_progress_reveal {
+@keyframes xc_progress_reveal {
   from { transform: scale(0.001); }
   to { transform: scale(1); }
 }
 
-@-webkit-keyframes xc_progress_slide {
+@keyframes xc_progress_slide {
   from {
     transform: translate(0, 0);
   }

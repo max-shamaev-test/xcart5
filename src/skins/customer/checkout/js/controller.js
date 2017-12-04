@@ -144,13 +144,30 @@ CheckoutView.prototype.handleOpenTerms = function(event)
 
 CheckoutView.prototype.handlePlaceOrder = function(event)
 {
-  this.shade();
+  this.shade(core.t('Transaction is in progress'));
 };
 
 CheckoutView.prototype.handleNonReady = function(event)
 {
   this.unshade();
 };
+
+CheckoutView.prototype.shade = function(message)
+{
+  message = message || '';
+  var shadeTarget = $('body');
+  var msgBox = document.createElement('div');
+  $(msgBox).text(message).addClass('reloading-message');
+  shadeTarget.children().remove('.reloading-message').remove('.reloading-element');
+  shadeTarget.addClass('reloading reloading-animated').append('<div class="reloading-element"></div>').append(msgBox);
+}
+
+CheckoutView.prototype.unshade = function()
+{
+  var shadeTarget = $('body');
+  shadeTarget.children().remove('.reloading-message').remove('.reloading-element');
+  shadeTarget.removeClass('reloading reloading-animated');
+}
 
 CheckoutView.prototype.handleChange = function(event)
 {

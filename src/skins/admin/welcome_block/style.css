@@ -27,7 +27,7 @@
   background: -o-linear-gradient(top,  rgba(248,252,255,1) 0%,rgba(232,245,255,1) 100%);
   background: -ms-linear-gradient(top,  rgba(248,252,255,1) 0%,rgba(232,245,255,1) 100%);
   background: linear-gradient(to bottom,  rgba(248,252,255,1) 0%,rgba(232,245,255,1) 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f8fcff', endColorstr='#e8f5ff',GradientType=0 );
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient( startColorstr='#f8fcff', endColorstr='#e8f5ff',GradientType=0 )";
 }
 
 .admin-welcome.root .inner-box {

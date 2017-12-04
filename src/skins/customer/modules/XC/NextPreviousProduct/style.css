@@ -38,7 +38,7 @@
 }
 .next-previous-dropdown h3 a {
     text-decoration: none;
-    word-break: break-word;
+    word-wrap: break-word;
 }
 .next-previous-dropdown h3 {
     margin: 0;

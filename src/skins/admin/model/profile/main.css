@@ -25,3 +25,9 @@
   top: -24px;
   float: right;
 }
+
+.roles-comment {
+  display: inline-block;
+  vertical-align: top;
+  margin-left: 14px;
+}

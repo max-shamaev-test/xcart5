@@ -76,10 +76,16 @@ class XPayments extends \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Proc
      */
     public function processReturn(\XLite\Model\Payment\Transaction $transaction)
     {
-        $txnId = \XLite\Core\Request::getInstance()->txnId;
-        $info = $this->client->requestPaymentInfo($txnId);
+        $this->transaction = $transaction;
 
-        $transactionStatus = $transaction::STATUS_FAILED;
+        $txnId = \XLite\Core\Request::getInstance()->txnId;
+
+        // Forces xpc_txnid to be actual in case of duplicate transaction issues
+        $transaction->setDataCell('xpc_txnid', $txnId, 'X-Payments transaction ID', 'C');
+        // Initialize transaction status
+        $transaction->setStatus($transaction::STATUS_FAILED);
+
+        $info = $this->client->requestPaymentInfo($txnId);
 
         $this->client->clearInitDataFromSession();
 
@@ -87,10 +93,10 @@ class XPayments extends \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Proc
 
             $response = $info->getResponse();
 
-            $transaction->setDataCell('xpc_message', $response['message'], 'X-Payments response');
+            $transaction->setDataCell('xpc_message', $response['message'], 'X-Payments status');
 
             if ($response['isFraudStatus']) {
-                $transaction->setDataCell('xpc_fmf', 'blocked', 'Fraud status');
+                $transaction->setDataCell('xpc_fmf', 'Triggered', 'X-Payments fraud check');
             }
 
             $errorDescription = false;
@@ -127,23 +133,49 @@ class XPayments extends \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Proc
             } else {
 
                 // Set the transaction status
-                $transactionStatus = $this->getTransactionStatus($response, $transaction);
+                $transaction->setStatus($this->getTransactionStatus($response, $transaction));
 
-                if (
-                    !empty($response['saveCard'])
-                    && version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.6') >= 0
-                ) {
+            }
 
-                    if ($transaction->getXpcData()) {
-                        $transaction->getXpcData()->setUseForRecharges(($response['saveCard'] == 'Y') ? 'Y' : 'N');
+            // API 1.5 backwards compatibility masked card data parsing
+            // For newer versions it will be saved in processTransactionUpdate()
+            if (
+                empty($response['maskedCardData'])
+                && \XLite\Core\Request::getInstance()->last_4_cc_num
+                && \XLite\Core\Request::getInstance()->card_type
+
+            ) {
+                $transaction->saveCard(
+                    '******',
+                     \XLite\Core\Request::getInstance()->last_4_cc_num,
+                     \XLite\Core\Request::getInstance()->card_type
+                );
+
+                // Now set current address for saved card
+                $profile = $transaction->getOrder()->getOrigProfile();
+                if ($profile) {
+                    $address = null;
+                    if ($profile->getBillingAddress()) {
+                        $address = $profile->getBillingAddress();
+                    } elseif ($profile->getShippingAddress()) {
+                        $address = $profile->getShippingAddress();
                     }
-
+                    if ($address) {
+                        $transaction->getXpcData()->setBillingAddress($address);
+                    }
                 }
             }
-        }
 
-        if ($transactionStatus) {
-            $transaction->setStatus($transactionStatus);
+            $this->processTransactionUpdate($transaction, $response);
+
+            if (
+                !empty($response['saveCard'])
+                && version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.6') >= 0
+                && $transaction->getXpcData()
+            ) {
+                $transaction->getXpcData()->setUseForRecharges(($response['saveCard'] == 'Y') ? 'Y' : 'N');
+            }
+
         }
 
         // AntiFraud check block by AVS
@@ -162,8 +194,9 @@ class XPayments extends \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Proc
             }
         }
 
+        $transaction->setXpcDataCell('xpc_deny_callbacks', '0');
 
-        $this->transaction = $transaction;
+        \XLite\Core\Database::getEM()->flush();
     }
 
     /**
@@ -240,11 +273,11 @@ class XPayments extends \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Proc
 
             $key = 'xpc_can_do_' . $field;
             if ($paymentMethod->getSetting($field)) {
-                $transaction->setDataCell($key, $paymentMethod->getSetting($field), null, 'C');
+                $transaction->setXpcDataCell($key, $paymentMethod->getSetting($field));
             }
         }
 
-        $transaction->setDataCell('xpc_session_id', \XLite\Core\Session::getInstance()->getID(), null, 'C');
+        $transaction->setXpcDataCell('xpc_session_id', \XLite\Core\Session::getInstance()->getID());
     }
 
     /**

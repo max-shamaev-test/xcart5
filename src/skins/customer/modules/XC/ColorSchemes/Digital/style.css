@@ -45,7 +45,7 @@ img.fade {
   background: -o-linear-gradient(left,  rgba(255,255,255,0) 0%,rgba(34,34,34,1) 100%);
   background: -ms-linear-gradient(left,  rgba(255,255,255,0) 0%,rgba(34,34,34,1) 100%);
   background: linear-gradient(to right,  rgba(255,255,255,0) 0%,rgba(34,34,34,1) 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#222222',GradientType=1 );
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#222222',GradientType=1 )";
 }
 
 .ui-dialog .ui-dialog-title {
@@ -1611,7 +1611,6 @@ ul.account-links .language-selector li.current a {
 .wait-block-overlay{
   background-color: #4f4f4f;
   background-color: rgba(79, 79, 79, 0.80);
-  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#4f4f4f00, endColorstr=#4f4f4f00);
   -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#4f4f4f00, endColorstr=#4f4f4f00)";
 }
 

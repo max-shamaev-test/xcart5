@@ -199,4 +199,12 @@ class ShippingMethods extends \XLite\View\Checkout\ShippingMethodsList
 
         return $this->rates;
     }
+
+    /**
+     * @return boolean
+     */
+    public function shouldReload()
+    {
+        return \XLite\Model\Shipping::getInstance()->hasOnlineProcessors();
+    }
 }

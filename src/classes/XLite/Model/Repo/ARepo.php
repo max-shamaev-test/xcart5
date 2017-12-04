@@ -364,7 +364,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
      *
      * @param string $alias Table alias OPTIONAL
      *
-     * @return \Doctrine\ORM\QueryBuilder
+     * @return \XLite\Model\QueryBuilder\AQueryBuilder
      */
     public function createPureQueryBuilder($alias = null)
     {

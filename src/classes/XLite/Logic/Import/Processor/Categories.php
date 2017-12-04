@@ -534,18 +534,28 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function importImageColumn(\XLite\Model\Category $model, $value, array $column)
     {
-        $path = $value;
-        if ($value && !$this->verifyValueAsNull($value) && $this->verifyValueAsFile($path)) {
-            $image = $model->getImage();
+        if (!$value) {
+            return;
+        }
 
-            $file = $this->verifyValueAsLocalURL($path) ? $this->getLocalPathFromURL($path) : $path;
-
-            if (!$image) {
-                /* @var \XLite\Model\Image\Category\Image $newImage */
-                $image = \XLite\Core\Database::getRepo('\XLite\Model\Image\Category\Image')->insert(null, false);
+        if ($this->verifyValueAsNull($value)) {
+            if ($model->getImage()) {
+                \XLite\Core\Database::getEM()->remove($model->getImage());
+                $model->setImage();
+                \XLite\Core\Database::getEM()->flush();
             }
 
-            $success = $image->loadFromPath($path);
+            return;
+        }
+
+        if ($this->verifyValueAsFile($value)) {
+            $image = $model->getImage();
+            if (!$image) {
+                /* @var \XLite\Model\Image\Category\Image $newImage */
+                $image = \XLite\Core\Database::getRepo('XLite\Model\Image\Category\Image')->insert(null, false);
+            }
+
+            $success = $image->loadFromPath($value);
 
             if ($success) {
                 $image->setNeedProcess(1);
@@ -556,31 +566,24 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
                     \XLite\Core\Database::getEM()->remove($image);
                 }
 
+                $file = $this->verifyValueAsLocalURL($value) ? $this->getLocalPathFromURL($value) : $value;
                 if ($image->getLoadError() === 'unwriteable') {
                     $this->addError('CATEGORY-IMG-LOAD-FAILED', [
                         'column' => $column,
-                        'value'  => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file
+                        'value'  => $this->verifyValueAsURL($file) ? $value : LC_DIR_ROOT . $file
                     ]);
                 } elseif ($image->getLoadError()) {
                     $this->addWarning('CATEGORY-IMG-URL-LOAD-FAILED', [
                         'column' => $column,
-                        'value'  => $this->verifyValueAsURL($file) ? $path : LC_DIR_ROOT . $file
+                        'value'  => $this->verifyValueAsURL($file) ? $value : LC_DIR_ROOT . $file
                     ]);
                 }
             }
-        } elseif ($value && $this->verifyValueAsURL($value) && !$this->verifyValueAsFile($value)) {
+        } elseif ($this->verifyValueAsURL($value)) {
             $this->addWarning('CATEGORY-IMG-URL-LOAD-FAILED', [
                 'column' => $column,
                 'value'  => $value
             ]);
-        }
-
-        if ($value && $this->verifyValueAsNull($value)) {
-            if ($model->getImage()) {
-                \XLite\Core\Database::getEM()->remove($model->getImage());
-                $model->setImage(null);
-                \XLite\Core\Database::getEM()->flush();
-            }
         }
     }
 

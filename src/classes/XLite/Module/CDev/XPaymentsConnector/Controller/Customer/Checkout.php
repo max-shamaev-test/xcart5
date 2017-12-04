@@ -144,23 +144,6 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
     }
 
     /**
-     * Order placement is success
-     *
-     * @param boolean $fullProcess Full process or not OPTIONAL
-     *
-     * @return void
-     */
-    public function processSucceed($fullProcess = true)
-    {
-        if (!\XLite\Core\Session::getInstance()->xpc_skip_process_success) {
-            parent::processSucceed($fullProcess);
-        } else {
-            parent::processSucceed(false);
-            \XLite\Core\Session::getInstance()->xpc_skip_process_success = null;
-        }
-    }
-
-    /**
      * Get X-Payments payment methods ids
      *
      * @return array
@@ -344,7 +327,7 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
             if ($lastTransaction && $lastTransaction->isXpc()) {
                 $order->setPaymentStatusByTransaction($lastTransaction);
 
-                $lastTransaction->setDataCell('xpc_session_id', '', null, 'C');
+                $lastTransaction->setXpcDataCell('xpc_session_id', '');
 
                 \XLite\Core\Database::getEM()->flush();
             }

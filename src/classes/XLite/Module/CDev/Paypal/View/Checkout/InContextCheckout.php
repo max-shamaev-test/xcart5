@@ -36,8 +36,7 @@ class InContextCheckout extends \XLite\View\AView
                 || \XLite\Module\CDev\Paypal\Model\Payment\Processor\ExpressCheckout::EC_TYPE_SHORTCUT
                     !== \XLite\Core\Session::getInstance()->ec_type
             )
-            && \XLite\Module\CDev\Paypal\Main::isExpressCheckoutEnabled()
-            && \XLite\Module\CDev\Paypal\Main::isInContextCheckoutAvailable();
+            && \XLite\Module\CDev\Paypal\Main::isExpressCheckoutEnabled();
     }
 
     /**

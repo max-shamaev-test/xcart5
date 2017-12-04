@@ -652,17 +652,16 @@ final class Requirements
             $result = call_user_func_array('array_merge', $result);
 
             if ($result) {
-                $isWin = stripos(preg_replace('/^([^ ]+)/', '\\1', PHP_OS), 'win') === 0;
-
                 $perms = [];
                 foreach ($result as $file => $perm) {
-                    if ($isWin) {
+                    if (LC_OS_IS_WIN) {
                         $perms[] = $file;
 
                     } else {
                         if (is_dir($file)) {
-                            $perms[] = 'find ' . $file . ' -type d -exec chmod 0' . $perm . ' {} \\;';
-                            $perms[] = 'find ' . $file . ' -type f -exec chmod 0' . $perm . ' {} \\;';
+                            $perms[] = 'chmod 0' . self::PERMISSION_DIR . ' ' . $file;
+                            $perms[] = 'find ' . $file . ' -type d -exec chmod 0' . self::PERMISSION_DIR . ' {} \\;';
+                            $perms[] = 'find ' . $file . ' -type f -exec chmod 0' . self::PERMISSION_FILE . ' {} \\;';
 
                         } else {
                             $perms[] = 'chmod 0' . $perm . ' ' . $file;
@@ -696,22 +695,28 @@ final class Requirements
      */
     private function checkPermissions($path)
     {
-        if (!is_writable($path) && !preg_match('/^\./', basename($path))) {
-            return [$path => is_dir($path) ? self::PERMISSION_DIR : self::PERMISSION_FILE];
+        if (strpos(basename($path), '.') !== 0) {
+            if (!is_writable($path)) {
+                return [$path => is_dir($path) ? self::PERMISSION_DIR : self::PERMISSION_FILE];
+            }
+
+            if (!LC_OS_IS_WIN && is_dir($path) && !is_executable($path)) {
+                return [$path => self::PERMISSION_DIR];
+            }
         }
 
         $result = [];
         if (is_dir($path) && $handle = @opendir($path)) {
             while (($file = readdir($handle)) !== false) {
                 // Skip '.', '..', '.htaccess' and other files those names starts from '.'
-                if (preg_match('/^\./', $file)) {
+                if (strpos($file, '.') === 0) {
                     continue;
                 }
 
                 $fileRealPath = $path . DIRECTORY_SEPARATOR . $file;
 
                 if (!is_writable($fileRealPath)) {
-                    $result[$fileRealPath] = is_dir($path) ? self::PERMISSION_DIR : self::PERMISSION_FILE;
+                    $result[$fileRealPath] = is_dir($fileRealPath) ? self::PERMISSION_DIR : self::PERMISSION_FILE;
 
                 } elseif (is_dir($fileRealPath)) {
                     $result = array_merge($result, $this->checkPermissions($fileRealPath));

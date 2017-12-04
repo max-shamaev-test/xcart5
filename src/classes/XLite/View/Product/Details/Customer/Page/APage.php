@@ -99,6 +99,10 @@ abstract class APage extends \XLite\View\Product\Details\Customer\ACustomer
                     'weight' => isset($data['weight']) ? $data['weight'] : $i,
                 );
 
+                if(!empty($data['alt_id'])) {
+                    $list[$k]['alt_id'] = 'product-details-tab-' . $data['alt_id'];
+                }
+
                 if (is_string($data)) {
                     $list[$k]['template'] = $data;
 

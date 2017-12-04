@@ -421,6 +421,8 @@ class ZeroAuth extends \XLite\Base\Singleton
 
                 $transaction->setDataCell('xpc_txnid', $data['txnId'], 'X-Payments transaction id', 'C');
                 $transaction->setDataCell('xpcBackReference', $xpcBackReference, 'X-Payments back reference', 'C');
+                // Set flag to deny callbacks until final processing
+                $transaction->setXpcDataCell('xpc_deny_callbacks', '1');
 
                 // AntiFraud service
                 if (method_exists($transaction, 'processAntiFraudCheck')) {
@@ -468,42 +470,30 @@ class ZeroAuth extends \XLite\Base\Singleton
             && $transaction
         ) {
 
-            if (
-                $transaction->getOrder()
-                && $transaction->getOrder()->getPaymentStatus()
-            ) {
-                $status = $transaction->getOrder()->getPaymentStatus()->getCode();
-            } else {
-                $status = false;
+            $transaction->getPaymentMethod()->getProcessor()->processReturn($transaction);
+
+            $cart = $transaction->getOrder();
+            if ($cart instanceof \XLite\Model\Cart) {
+                $cart->tryClose();
             }
+            $transaction->getOrder()->setPaymentStatusByTransaction($transaction);
+            $transaction->getOrder()->update();
 
-            $request = \XLite\Core\Request::getInstance();
+            $isOldApi = (version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.6') < 0);
 
             if (
-                $request->last_4_cc_num
-                && $request->card_type
-                && !$transaction->getCard()
+                $transaction->isCompleted()
+                && (
+                    $isOldApi
+                    || 'Y' == $transaction->getXpcData()->getUseForRecharges()
+                )
             ) {
-                $transaction->saveCard('******', $request->last_4_cc_num, $request->card_type);
-            }
 
-            if (in_array($status, \XLite\Model\Order\Status\Payment::getPaidStatuses())) {
-
-                $transaction->getXpcData()->setUseForRecharges('Y');
-
-                $transaction->getXpcData()->setBillingAddress(
-                    $transaction->getOrder()->getOrigProfile()->getBillingAddress()
-                );
-
-                \XLite\Core\TopMessage::addInfo('Card saved');
-
-                // Fake cart doesn't get converted to order, this is WA
-                $this->processSucceedFakeCart($profile);
-
-                // If default card is not set then set it to new one
-                if (!$profile->getDefaultCardId()) {
-                    $profile->setDefaultCardId($transaction->getXpcData()->getId());
+                if ($isOldApi) {
+                    $transaction->getXpcData()->setUseForRecharges('Y');
                 }
+
+                \XLite\Core\TopMessage::addInfo('Card has been successfully saved');
 
             } else {
 

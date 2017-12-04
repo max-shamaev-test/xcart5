@@ -21,6 +21,7 @@ abstract class AFileUploader extends \XLite\View\FormField\AFormField
     const PARAM_MAX_HEIGHT         = 'maxHeight';
     const PARAM_IS_VIA_URL_ALLOWED = 'isViaUrlAllowed';
     const PARAM_IS_REMOVABLE       = 'removable';
+    const PARAM_HELP_MESSAGE       = 'helpMessage';
 
     /**
      * Return field type
@@ -84,6 +85,7 @@ abstract class AFileUploader extends \XLite\View\FormField\AFormField
             static::PARAM_MAX_HEIGHT         => new \XLite\Model\WidgetParam\TypeInt('Max. height', 122),
             static::PARAM_IS_VIA_URL_ALLOWED => new \XLite\Model\WidgetParam\TypeInt('Is ViaUrl allowed', true),
             static::PARAM_IS_REMOVABLE       => new \XLite\Model\WidgetParam\TypeBool('Is removable', true),
+            static::PARAM_HELP_MESSAGE       => new \XLite\Model\WidgetParam\TypeString('Help message', true),
         );
     }
 
@@ -97,6 +99,14 @@ abstract class AFileUploader extends \XLite\View\FormField\AFormField
         return $this->isMultiple()
             ? 'file_uploader/multiple.twig'
             : 'file_uploader/single.twig';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getFileUploaderWidget()
+    {
+        return 'XLite\View\FileUploader';
     }
 
     /**

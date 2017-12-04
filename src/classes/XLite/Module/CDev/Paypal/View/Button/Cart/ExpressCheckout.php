@@ -31,42 +31,25 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\View\Button\AExpressChec
             && $cart->checkCart();
     }
 
-    /**
-     * Returns widget default template
-     *
-     * @return string
-     */
     protected function getDefaultTemplate()
     {
-        return 'modules/CDev/Paypal/button/cart/default/express_checkout.twig';
+        return 'modules/CDev/Paypal/button/cart/ec_button.twig';
     }
 
-    /**
-     * Return current template
-     *
-     * @return string
-     */
-    protected function getTemplate()
+    public function getJSFiles()
     {
-        return $this->isInContextAvailable()
-            ? 'modules/CDev/Paypal/button/cart/in_context/express_checkout.twig'
-            : 'modules/CDev/Paypal/button/cart/default/express_checkout.twig';
+        return array_merge(parent::getJSFiles(), [
+            'modules/CDev/Paypal/button/js/cart.js',
+        ]);
     }
 
-    /**
-     * Returns additional link params
-     *
-     * @return array
-     */
-    protected function getAdditionalLinkParams()
+    protected function getButtonClass()
     {
-        $result = parent::getAdditionalLinkParams();
-
-        if ($this->isInContextAvailable()) {
-            $result['inContext'] = true;
-            $result['ignoreCheckout'] = true;
-        }
-
-        return $result;
+        return parent::getButtonClass() . ' paypal-ec'
+            . (
+            \XLite\Module\CDev\Paypal\Main::isPaypalCreditEnabled($this->getCart())
+                ? ' pp-funding-credit'
+                : ''
+            );
     }
 }

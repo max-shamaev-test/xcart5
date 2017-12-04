@@ -253,27 +253,6 @@ span.input-text-attributeoption .wait-overlay-progress
     transform:rotate(360deg);
   }
 }
-@-moz-keyframes rotateGear {
-  from { }
-  to {
-    -moz-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-@-webkit-keyframes rotateGear {
-  from { }
-  to {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-@-o-keyframes rotateGear {
-  from { }
-  to {
-    -o-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
 
 .single-progress-mark {
   position: absolute;
@@ -938,7 +917,7 @@ button.switch-state.disabled-state img {
   background: -moz-linear-gradient(left,  rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
   background: -webkit-linear-gradient(left,  rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
   background: linear-gradient(to right,  rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=1 );
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=1 )";
 
   display: block;
   position: absolute;
@@ -2325,12 +2304,14 @@ ol.ordered-list {
 .ui-dialog .ui-dialog-content {
   background-color: #fff;
   overflow: auto;
+  overflow: overlay; /* Chrome reflow-bug fix */
   -moz-border-radius: 0px 0px 3px 3px;
   -webkit-border-radius: 0px 0px 3px 3px;
   border-radius: 0px 0px 3px 3px;
   padding: 20px;
   padding-top: 10px;
   position: relative;
+  padding-bottom: 22px; /* Firefox mini-scrollbar bug fix */
 }
 
 .ui-dialog.no-title .ui-dialog-title {

@@ -16,7 +16,7 @@
     {% spaceless %}
         <div class="{{ block('form_row_class') }}
         {%- if (not compound or force_error|default(false)) and not valid %} has-error{% endif -%}"
-        {% if v_validators|length > 0 %} v-bind:class="{{ '{' }}'has-error': {{ v_validator }}.invalid {{ '}' }}" {% endif %}
+        {% if v_validators|length > 0 %} v-bind:class="{{ '{' }} 'has-error': {{ v_validator }}.invalid && ( {{ v_form }}.submitted || {{ v_validator }}.dirty ) {{ '}' }}" {% endif %}
         {% if v_show|length > 0 %} v-show="{{ v_show }}" {% endif %}
         >
 

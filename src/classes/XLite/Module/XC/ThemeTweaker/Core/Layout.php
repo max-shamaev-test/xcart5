@@ -13,6 +13,48 @@ namespace XLite\Module\XC\ThemeTweaker\Core;
  */
 class Layout extends \XLite\Core\Layout implements \XLite\Base\IDecorator
 {
+    const THEME_TWEAKER_CUSTOMER_INTERFACE = 'theme_tweaker/customer';
+    const THEME_TWEAKER_MAIL_INTERFACE = 'theme_tweaker/mail';
+
+    const THEME_TWEAKER_TEMPLATES_CACHE_KEY = 'theme_tweaker_templates';
+
+    private $disabledTemplates;
+
+    protected function getDisabledTemplates()
+    {
+        if (null === $this->disabledTemplates) {
+            $cacheDriver = \XLite\Core\Cache::getInstance()->getDriver();
+            if (!$list = $cacheDriver->fetch(static::THEME_TWEAKER_TEMPLATES_CACHE_KEY)) {
+                $templates = \XLite\Core\Database::getRepo('XLite\Module\XC\ThemeTweaker\Model\Template')->findBy([
+                    'enabled' => false
+                ]);
+
+                $list = array_map(function ($template) {
+                    /** @var \XLite\Module\XC\ThemeTweaker\Model\Template $template */
+                    return ltrim(str_replace([
+                        static::THEME_TWEAKER_CUSTOMER_INTERFACE,
+                        static::THEME_TWEAKER_MAIL_INTERFACE
+                    ], '', $template->getTemplate()), '/');
+                }, $templates);
+
+                $cacheDriver->save(
+                    static::THEME_TWEAKER_TEMPLATES_CACHE_KEY,
+                    $list,
+                    \XLite\Core\Task\Base\Periodic::INT_1_WEEK
+                );
+            }
+
+            $this->disabledTemplates = $list;
+        }
+
+        return $this->disabledTemplates;
+    }
+
+    public function isDisabledTemplate($template)
+    {
+        return in_array($template, $this->getDisabledTemplates());
+    }
+
     /**
      * Get skin paths (file system and web)
      *
@@ -106,10 +148,21 @@ class Layout extends \XLite\Core\Layout implements \XLite\Base\IDecorator
     public function getTweakerSkinByInterface($interface)
     {
         $skins = [
-            \XLite::CUSTOMER_INTERFACE => 'theme_tweaker/customer',
-            \XLite::MAIL_INTERFACE     => 'theme_tweaker/mail',
+            \XLite::CUSTOMER_INTERFACE => static::THEME_TWEAKER_CUSTOMER_INTERFACE,
+            \XLite::MAIL_INTERFACE     => static::THEME_TWEAKER_MAIL_INTERFACE,
         ];
 
         return $skins[$interface];
+    }
+
+    protected function isResourceAvailableByPath($path)
+    {
+        $result = file_exists($path);
+
+        if ($result && strpos($path, LC_DIR_SKINS . static::THEME_TWEAKER_CUSTOMER_INTERFACE) === 0) {
+            return false;
+        }
+
+        return $result;
     }
 }

@@ -43,33 +43,27 @@ class FraudCheckData extends \XLite\Model\AEntity
      */
     const RESULT_UNKNOWN  = 0;
     const RESULT_ACCEPTED = 1;
-    const RESULT_REVIEW   = 2;
+    const RESULT_MANUAL   = 2;
     const RESULT_FAIL     = 3;
+    const RESULT_PENDING  = 4;
 
     /**
      * Codes defining anti fraud service/system
      */
     const CODE_KOUNT     = 'kount';
     const CODE_NOFRAUD   = 'nofraud';
+    const CODE_ANTIFRAUD = 'antifraud';
     const CODE_GATEWAY   = 'gateway';
     const CODE_XPAYMENTS = 'xpayments';
 
     /**
-     * Kount messages
+     * Result messages
      */
-    private $kountMessages = array(
+    private $resultMessages = array(
        self::RESULT_FAIL     => 'High fraud risk detected',
        self::RESULT_ACCEPTED => 'Antifraud check passed',
-       self::RESULT_REVIEW   => 'Manual Review required',
-    );
-
-    /**
-     * NoFraud messages
-     */
-    private $noFraudMessages = array(
-       self::RESULT_FAIL     => 'High fraud risk detected',
-       self::RESULT_ACCEPTED => 'Antifraud check passed',
-       self::RESULT_REVIEW   => 'Being Reviewed by NoFraud',
+       self::RESULT_MANUAL   => 'Manual review required',
+       self::RESULT_PENDING  => 'Being reviewed',
     );
 
     /**
@@ -78,7 +72,8 @@ class FraudCheckData extends \XLite\Model\AEntity
     private $scoreClass = array(
        self::RESULT_FAIL     => 'danger',
        self::RESULT_ACCEPTED => 'success',
-       self::RESULT_REVIEW   => 'warning',
+       self::RESULT_MANUAL   => 'warning',
+       self::RESULT_PENDING  => 'warning',
     );
 
     /**
@@ -109,6 +104,15 @@ class FraudCheckData extends \XLite\Model\AEntity
      * @Column (type="string")
      */
     protected $service = '';
+
+    /**
+     * Name of the antifraud module
+     *
+     * @var string
+     *
+     * @Column (type="string")
+     */
+    protected $module = '';
 
     /**
      * Result of the fraud check
@@ -211,13 +215,33 @@ class FraudCheckData extends \XLite\Model\AEntity
     protected $transaction;
 
     /**
-     * Check if transaction is potentially fraudulent
+     * Check if transaction is not yet reviewed by service
      *
      * @return bool
      */
     public function isPending()
     {
-        return self::RESULT_REVIEW == $this->getResult();
+        return self::RESULT_PENDING == $this->getResult();
+    }
+
+    /**
+     * Check if transaction is potentially fraudulent
+     *
+     * @return bool
+     */
+    public function isManualReview()
+    {
+        return self::RESULT_MANUAL == $this->getResult();
+    }
+
+    /**
+     * True if fraud check returned error
+     *
+     * @return bool
+     */
+    public function isError()
+    {
+        return self::RESULT_UNKNOWN == $this->getResult();
     }
 
     /**
@@ -229,19 +253,8 @@ class FraudCheckData extends \XLite\Model\AEntity
     {
         $message = $this->getMessage();
 
-        if (
-            self::CODE_KOUNT == $this->getCode()
-            && isset($this->kountMessages[$this->getResult()])
-        ) {
-
-            $message = $this->kountMessages[$this->getResult()];
-
-        } elseif (
-            self::CODE_NOFRAUD == $this->getCode()
-            && isset($this->noFraudMessages[$this->getResult()])
-        ) {
-            
-            $message = $this->noFraudMessages[$this->getResult()];
+        if (array_key_exists($this->getResult(), $this->resultMessages)) {
+            $message = $this->resultMessages[$this->getResult()];
         }
 
         return $message;
@@ -294,11 +307,14 @@ class FraudCheckData extends \XLite\Model\AEntity
 
         if (
             !empty($rules)
-            && self::CODE_KOUNT == $this->getCode()
+            && (
+                self::CODE_KOUNT == $this->getCode()
+                || 'Kount' == $this->getModule()
+            )
         ) {
             foreach ($rules as $key => $rule) {
 
-                // Remove rule ID fro the beginning
+                // Remove rule ID from the beginning of rule description
                 $rules[$key] = preg_replace('/^\d+ /', '', $rule);
             }
         }
@@ -361,6 +377,40 @@ class FraudCheckData extends \XLite\Model\AEntity
     }
 
     /**
+     * Set module
+     *
+     * @param string $module
+     * @return FraudCheckData
+     */
+    public function setModule($module)
+    {
+        $this->module = $module;
+        return $this;
+    }
+
+    /**
+     * Get module
+     *
+     * @return string 
+     */
+    public function getModule()
+    {
+        $module = $this->module;
+        if (empty($module)) {
+            // Get module from API 1.7 service codes
+            switch ($this->getCode()) {
+                case \XLite\Module\CDev\XPaymentsConnector\Model\Payment\FraudCheckData::CODE_KOUNT:
+                    $module = 'Kount';
+                    break;
+                case \XLite\Module\CDev\XPaymentsConnector\Model\Payment\FraudCheckData::CODE_NOFRAUD:
+                    $module = 'NoFraud';
+                    break;
+            }
+        }
+        return $module;
+    }
+
+    /**
      * Set result
      *
      * @param integer $result
@@ -379,7 +429,15 @@ class FraudCheckData extends \XLite\Model\AEntity
      */
     public function getResult()
     {
-        return $this->result;
+        $result = $this->result;
+        if (
+            self::RESULT_MANUAL == $result
+            && self::CODE_NOFRAUD == $this->getCode()
+        ) {
+            // Convert API 1.7 NoFraud status
+            $result = self::RESULT_PENDING;
+        }
+        return $result;
     }
 
     /**
@@ -561,12 +619,12 @@ class FraudCheckData extends \XLite\Model\AEntity
     /**
      * Set data
      *
-     * @param string $data
+     * @param array $data
      * @return FraudCheckData
      */
     public function setData($data)
     {
-        $this->data = $data;
+        $this->data = serialize($data);
         return $this;
     }
 
@@ -577,7 +635,7 @@ class FraudCheckData extends \XLite\Model\AEntity
      */
     public function getData()
     {
-        return $this->data;
+        return @unserialize($this->data) ?: array();
     }
 
     /**

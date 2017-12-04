@@ -81,8 +81,6 @@ class ActiveCurrency extends \XLite\Model\Repo\Base\I18n
      */
     public function addCurrency($currencyId)
     {
-        $return = false;
-
         $currency = \XLite\Core\Database::getRepo('XLite\Model\Currency')->find($currencyId);
 
         if (
@@ -114,10 +112,17 @@ class ActiveCurrency extends \XLite\Model\Repo\Base\I18n
 
             $activeCurrency->create();
 
-            $return = true;
+            $countriesParser = new \XLite\Module\XC\MultiCurrency\Core\CountriesParser();
+
+            \XLite\Core\Database::getRepo('XLite\Model\Country')->setActiveCurrency(
+                $activeCurrency,
+                $countriesParser->getCurrencyCountryCodes($activeCurrency->getCode())
+            );
+
+            return true;
         }
 
-        return $return;
+        return false;
     }
 
     /**

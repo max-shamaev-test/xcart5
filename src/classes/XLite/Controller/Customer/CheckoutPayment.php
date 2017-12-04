@@ -24,6 +24,36 @@ class CheckoutPayment extends \XLite\Controller\Customer\ACustomer
     }
 
     /**
+     * Define if the checkout is available
+     * On the other hand the sign-in page is available only
+     *
+     * @return boolean
+     */
+    public function isCheckoutAvailable()
+    {
+        $controllerCheckout = new \XLite\Controller\Customer\Checkout();
+
+        return $controllerCheckout->isCheckoutAvailable()
+            && $this->getCart()->checkCart();
+    }
+
+    /**
+     * Go to cart view if cart is empty
+     *
+     * @return void
+     */
+    public function handleRequest()
+    {
+        if (!$this->isCheckoutAvailable()) {
+            $this->setHardRedirect();
+            $this->setReturnURL($this->buildURL('cart'));
+            $this->doRedirect();
+        }
+
+        parent::handleRequest();
+    }
+
+    /**
      * isSecure
      * TODO: check if this method is used
      *

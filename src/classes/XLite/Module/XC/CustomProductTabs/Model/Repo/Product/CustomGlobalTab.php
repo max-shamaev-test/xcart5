@@ -23,4 +23,19 @@ namespace XLite\Module\XC\CustomProductTabs\Model\Repo\Product;
  */
 class CustomGlobalTab extends \XLite\Model\Repo\Base\I18n
 {
+    public function loadFixture(array $record, array $regular = [], array $assocs = [], \XLite\Model\AEntity $parent = null, array $parentAssoc = [])
+    {
+        $entity = parent::loadFixture($record, $regular, $assocs, $parent, $parentAssoc);
+
+        if (
+            $entity->getGlobalTab()
+            && !$entity->getGlobalTab()->getLink()
+        ) {
+            $entity->getGlobalTab()->setLink(
+                \XLite\Core\Database::getRepo('\XLite\Model\Product\GlobalTab')->generateTabLink($entity)
+            );
+        }
+
+        return $entity;
+    }
 }

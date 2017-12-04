@@ -85,7 +85,11 @@
 .order-address-dialog .address-book {
   float: right;
   text-decoration: none;
-  margin-top: 1px;
+  margin-top: 14px;
+}
+
+.order-address-dialog .address-book span{
+  line-height: 20px;
 }
 
 .order-address-dialog .model-properties,

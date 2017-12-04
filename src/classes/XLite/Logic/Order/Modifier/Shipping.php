@@ -497,6 +497,7 @@ class Shipping extends \XLite\Logic\Order\Modifier\AShipping
         $subtotal = 0;
 
         foreach ($this->getItemsCondition() as $item) {
+            /** @var \XLite\Model\OrderItem $item */
             $subtotal += $item->getTotal();
         }
 

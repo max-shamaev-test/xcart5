@@ -400,6 +400,10 @@ function doPrepareFixtures(&$params, $silentMode = false)
         }
     }
 
+    foreach ($lcSettings['yaml_files']['base_after'] as $f) {
+        $yamlFiles[] = $f;
+    }
+
     // Remove fixtures file (if exists)
     \Includes\Decorator\Plugin\Doctrine\Utils\FixturesManager::removeFixtures();
 

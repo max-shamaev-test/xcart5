@@ -165,6 +165,18 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
             'iframeStyleFiles'      => $this->getIframeStyleFiles(),
             'toolbarSticky'         => true,
             'charCounterCount'      => false,
+            'videoAllowedTypes'     => ['webm', 'jpg', 'ogg', 'mp4', 'avi'],
+            'videoMaxSize'          => 50 * 1024 * 1024,
+            'videoUploadURL'        => \XLite\Core\Converter::buildURL(
+                'files',
+                'upload_from_file',
+                [
+                    'mode'           => 'json',
+                    'type'           => 'video',
+                    'url_param_name' => 'link',
+                    'register'       => true,
+                ]
+            ),
             'imageUploadURL'        => \XLite\Core\Converter::buildURL(
                 'files',
                 'upload_from_file',
@@ -197,7 +209,7 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
             'appendToDefault'       => $this->getFroalaAppendConfiguration(),
         ];
 
-        if($this->useCustomColors() && $this->getCustomColors()) {
+        if ($this->useCustomColors() && $this->getCustomColors()) {
             $config['colorsBackground'] = $this->getCustomColors();
             $config['colorsText'] = $this->getCustomColors();
             $config['colorsStep'] = 7;

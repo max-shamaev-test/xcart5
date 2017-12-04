@@ -4,12 +4,12 @@
 
 {% if this.entity.getDefaultPrice() %}
 
-  {{ widget('\\XLite\\View\\Tooltip', isImageTag='true', imageClass='wp-tooltip', helpId='wp-%d'|format(this.entity.getId())) }}
+  {{ widget('\\XLite\\View\\Tooltip', isImageTag=false, caption=this.getSVGImage('modules/CDev/Wholesale/wp.svg'), className='wp-tooltip', helpId='wp-%d'|format(this.entity.getId())) }}
 
 {% else %}
 
   <a href="{{ this.getLink() }}" class="tooltip-caption">
-  {{ widget('\\XLite\\View\\Tooltip', isImageTag='true', imageClass='wp-link-tooltip', helpId='wp-%d'|format(this.entity.getId()), placement="right", delay=800) }}
+  {{ widget('\\XLite\\View\\Tooltip', isImageTag=false, caption=this.getSVGImage('modules/CDev/Wholesale/wp.svg'), className='wp-link-tooltip', helpId='wp-%d'|format(this.entity.getId()), placement="right", delay=800) }}
   </a>
 {% endif %}
 

@@ -68,3 +68,14 @@ ul.address-box li.address-text-city .address-text-comma,
   margin-bottom: 40px;
 }
 
+.place .regular-main-button.place-order.disabled:hover,
+.place .regular-main-button.place-order[disabled]:hover {
+  opacity: 0.8;
+  transition: opacity ease-in-out .3s;
+}
+
+.place .regular-main-button.place-order.disabled,
+.place .regular-main-button.place-order[disabled] {
+  transition: opacity ease-in-out .1s;
+  cursor: pointer !important;
+}

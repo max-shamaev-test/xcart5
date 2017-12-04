@@ -35,13 +35,13 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
      */
     protected $jsUrls = [
         'test' => [
-            'EUR' => 'https://static-eu.payments-amazon.com/OffAmazonPayments/de/sandbox/js/Widgets.js',
-            'GBP' => 'https://static-eu.payments-amazon.com/OffAmazonPayments/uk/sandbox/js/Widgets.js',
+            'EUR' => 'https://static-eu.payments-amazon.com/OffAmazonPayments/eur/sandbox/lpa/js/Widgets.js',
+            'GBP' => 'https://static-eu.payments-amazon.com/OffAmazonPayments/gbp/sandbox/lpa/js/Widgets.js',
             'USD' => 'https://static-na.payments-amazon.com/OffAmazonPayments/us/sandbox/js/Widgets.js',
         ],
         'live' => [
-            'EUR' => 'https://static-eu.payments-amazon.com/OffAmazonPayments/de/js/Widgets.js',
-            'GBP' => 'https://static-eu.payments-amazon.com/OffAmazonPayments/uk/js/Widgets.js',
+            'EUR' => 'https://static-eu.payments-amazon.com/OffAmazonPayments/eur/lpa/js/Widgets.js',
+            'GBP' => 'https://static-eu.payments-amazon.com/OffAmazonPayments/gbp/lpa/js/Widgets.js',
             'USD' => 'https://static-na.payments-amazon.com/OffAmazonPayments/us/js/Widgets.js',
         ],
     ];

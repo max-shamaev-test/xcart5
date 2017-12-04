@@ -54,10 +54,15 @@ class Login extends \XLite\Module\CDev\Paypal\Core\RESTAPI
      */
     protected function getScope()
     {
-        return array(
-            'openid', 'email', 'profile', 'address', 'phone',
-            'https://uri.paypal.com/services/expresscheckout'
-        );
+        $result = \XLite\Core\Config::getInstance()->CDev->Paypal->loginScopes;
+
+        if ($result) {
+            $result = @unserialize($result);
+        }
+
+        return is_array($result)
+            ? $result
+            : [ 'openid' ];
     }
 
     // }}}
@@ -83,7 +88,7 @@ class Login extends \XLite\Module\CDev\Paypal\Core\RESTAPI
             'state' => \XLite\Core\Request::getInstance()->state
         ];
 
-        return sprintf('%s/v1/authorize?%s', $url, http_build_query($params));
+        return sprintf('%s/v1/authorize?%s', $url, http_build_query($params, null, '&', PHP_QUERY_RFC3986));
     }
 
     /**

@@ -8,11 +8,15 @@
 
 namespace XLite\View\Button\Dropdown;
 
+use XLite\View\Button\Features\TooltippedTrait;
+
 /**
  * Order print
  */
 class FulfillmentStatuses extends \XLite\View\Button\Dropdown\ADropdown
 {
+    use TooltippedTrait;
+
     /**
      * Define additional buttons
      *
@@ -72,5 +76,15 @@ class FulfillmentStatuses extends \XLite\View\Button\Dropdown\ADropdown
             'WFA',
             'NF'
         ];
+    }
+
+    /**
+     * getDefaultLabel
+     *
+     * @return string
+     */
+    protected function getDefaultTitle()
+    {
+        return static::t('Change fulfillment status for selected');
     }
 }

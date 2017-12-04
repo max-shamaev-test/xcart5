@@ -15,14 +15,6 @@ use XLite\Module\Amazon\PayWithAmazon\Main;
  */
 class Method extends \XLite\View\Payment\Method
 {
-    public static function getAllowedTargets()
-    {
-        $result = parent::getAllowedTargets();
-        $result[] = 'pay_with_amazon';
-
-        return $result;
-    }
-
     /**
      * Get payment method
      *

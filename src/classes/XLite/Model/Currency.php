@@ -20,6 +20,8 @@ namespace XLite\Model;
  */
 class Currency extends \XLite\Model\Base\I18n
 {
+    const ROUNDUP_NONE = 'N';
+
     /**
      * Currency unique id (ISO 4217 number)
      *
@@ -109,6 +111,15 @@ class Currency extends \XLite\Model\Base\I18n
      * @OneToMany (targetEntity="XLite\Model\Country", mappedBy="currency", cascade={"all"})
      */
     protected $countries;
+
+    /**
+     * RoundUp
+     *
+     * @var string
+     *
+     * @Column (type="string", options={"default" : "N"})
+     */
+    protected $roundUp = self::ROUNDUP_NONE;
 
 
     /**
@@ -428,5 +439,28 @@ class Currency extends \XLite\Model\Base\I18n
     public function getCountries()
     {
         return $this->countries;
+    }
+
+    /**
+     * Return RoundUp
+     *
+     * @return string
+     */
+    public function getRoundUp()
+    {
+        return $this->roundUp;
+    }
+
+    /**
+     * Set RoundUp
+     *
+     * @param string $roundUp
+     *
+     * @return $this
+     */
+    public function setRoundUp($roundUp)
+    {
+        $this->roundUp = $roundUp;
+        return $this;
     }
 }

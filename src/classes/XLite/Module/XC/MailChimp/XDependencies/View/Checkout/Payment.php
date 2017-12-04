@@ -8,8 +8,6 @@
 
 namespace XLite\Module\XC\MailChimp\XDependencies\View\Checkout;
 
-use \XLite\Module\XC\MailChimp\Core;
-
 /**
  * Checkout
  *
@@ -18,7 +16,7 @@ use \XLite\Module\XC\MailChimp\Core;
 class Payment extends \XLite\View\Checkout\Payment implements \XLite\Base\IDecorator
 {
     /**
-     * TODO: resolve the situation that calls for this workaround (normal form submission on checkout)
+     * TODO: remove in next major release
      * 
      * Get JS files
      *
@@ -28,9 +26,11 @@ class Payment extends \XLite\View\Checkout\Payment implements \XLite\Base\IDecor
     {
         $list = parent::getJSFiles();
 
-        foreach ($list as $i => $script) {
-            if ($script == 'modules/CDev/Paypal/checkout/payment.js') {
-                $list[$i] = 'modules/XC/MailChimp/checkout/payment.js';
+        if (version_compare(\XLite\Module\CDev\Paypal\Main::getVersion(), '5.3.6', '<')) {
+            foreach ($list as $i => $script) {
+                if ($script == 'modules/CDev/Paypal/checkout/payment.js') {
+                    $list[$i] = 'modules/XC/MailChimp/checkout/payment.js';
+                }
             }
         }
 

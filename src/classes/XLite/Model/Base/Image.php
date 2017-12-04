@@ -227,6 +227,28 @@ abstract class Image extends \XLite\Model\Base\Storage
         return $result;
     }
 
+    /**
+     * Load from local file
+     *
+     * @param string  $path       Absolute path
+     * @param string  $basename   File name OPTIONAL
+     * @param boolean $makeUnique True - create unique named file
+     *
+     * @return boolean
+     */
+    public function loadFromLocalFile($path, $basename = null, $makeUnique = false)
+    {
+        $hash = \Includes\Utils\FileManager::getHash($path);
+        /** @var static $existing */
+        $existing = $this->getRepository()->findOneByHash($hash);
+        if ($existing) {
+            $path = $existing->getStoragePath();
+            $basename = null;
+        }
+
+        return parent::loadFromLocalFile($path, $basename, $makeUnique);
+    }
+
     // {{{ Resized icons
 
     /**
@@ -622,5 +644,47 @@ abstract class Image extends \XLite\Model\Base\Storage
     public function getNeedProcess()
     {
         return $this->needProcess;
+    }
+
+    /**
+     * Return base64 image data
+     *
+     * @param int|null $width
+     * @param int|null $height
+     *
+     * @return string
+     */
+    public function getBlurredImageData($width = null, $height = null)
+    {
+        $skin = \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
+        if (
+            \XLite\Core\ImageOperator::getEngineType() === \XLite\Core\ImageOperator::ENGINE_SIMPLE
+            || !$skin
+            || !$skin->callModuleMethod('isUsePreloadedImages')
+        ) {
+            return null;
+        }
+
+        list($_w, $_h, $path, $_retinaPath) = $this->doResize(
+            $width ?: $this->getBlurredImageDimensions()['w'],
+            $height ?: $this->getBlurredImageDimensions()['h']
+        );
+
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $data = file_get_contents($path);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+
+        return $base64;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getBlurredImageDimensions()
+    {
+        return [
+            'w' => 10,
+            'h' => 10,
+        ];
     }
 }

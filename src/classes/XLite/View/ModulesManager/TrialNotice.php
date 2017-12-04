@@ -156,7 +156,7 @@ class TrialNotice extends \XLite\View\ModulesManager\AModulesManager
      */
     protected function getRegisterLicenseURL()
     {
-        return \XLite\Core\Converter::buildURL('', '', ['activate_key' => true], \XLite::ADMIN_SELF);
+        return \XLite\Core\Converter::buildURL('', '', ['activate_key' => true], \XLite::getAdminScript());
     }
 
     /**

@@ -59,7 +59,7 @@ class RESTAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
     {
         return in_array(
             \XLite\Core\Config::getInstance()->Company->location_country,
-            array('US', 'UK')
+            array('US', 'GB')
         );
     }
 

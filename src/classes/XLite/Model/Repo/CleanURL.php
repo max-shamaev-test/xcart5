@@ -567,7 +567,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     public static function getConfigCleanUrlAliases()
     {
-        return \Includes\Utils\ConfigParser::getOptions(array('clean_urls_aliases'));
+        return (array) \Includes\Utils\ConfigParser::getOptions(array('clean_urls_aliases'));
     }
 
     /**
@@ -1096,6 +1096,11 @@ class CleanURL extends \XLite\Model\Repo\ARepo
         }
 
         return array($urlParts, $params);
+    }
+
+    protected function buildURLMain($params)
+    {
+        return [[''], $params];
     }
 
     /**

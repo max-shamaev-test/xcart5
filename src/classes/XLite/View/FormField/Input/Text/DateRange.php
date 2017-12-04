@@ -30,30 +30,7 @@ class DateRange extends \XLite\View\FormField\Input\Text
      */
     public static function convertToArray($string, $format = null)
     {
-        $result = array(0, 0);
-
-        if (!empty($string) && is_string($string)) {
-
-            $format = ($format ?: static::getDateFormat()) . ' H:i:s';
-
-            $dates = explode(static::getDatesSeparator(), $string);
-
-            if (!empty($dates[0])) {
-                $startDate = \DateTime::createFromFormat($format, trim($dates[0]) . ' 0:00:00');
-                if ($startDate) {
-                    $result[0] = \XLite\Core\Converter::convertTimeToServer($startDate->getTimestamp());
-                }
-            }
-
-            if (!empty($dates[1])) {
-                $endDate = \DateTime::createFromFormat($format, trim($dates[1]) . ' 23:59:59');
-                if ($endDate) {
-                    $result[1] = \XLite\Core\Converter::convertTimeToServer($endDate->getTimestamp());
-                }
-            }
-        }
-
-        return $result;
+        return \XLite\Core\Converter::convertRangeStringToArray($string, $format ?: static::getDateFormat(), static::getDatesSeparator());
     }
 
     /**
@@ -148,17 +125,11 @@ class DateRange extends \XLite\View\FormField\Input\Text
      */
     protected function convertToString(array $value)
     {
-        if (!empty($value[0]) || !empty($value[1])) {
-            $format = static::getDateFormat();
-            $value[0] = !empty($value[0]) ? date($format, $value[0]) : date($format);
-            $value[1] = !empty($value[1]) ? date($format, $value[1]) : date($format);
-            $value = implode(' ~ ', $value);
-
-        } else {
-            $value = '';
-        }
-
-        return $value;
+        return \XLite\Core\Converter::convertArrayToRangeString(
+            $value,
+            static::getDateFormat(),
+            static::getDatesSeparator()
+        );
     }
 
     /**

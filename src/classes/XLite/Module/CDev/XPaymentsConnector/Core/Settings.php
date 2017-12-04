@@ -56,6 +56,7 @@ class Settings extends \XLite\Base\Singleton
      * List of API versions
      */
     public $apiVersions = array(
+        '1.8',
         '1.7',
         '1.6',
         '1.5',
@@ -798,9 +799,20 @@ class Settings extends \XLite\Base\Singleton
     {
         $result = false;
 
+        if (0 === strpos($paymentMethod->getServiceName(), 'XPayments.Allowed')) {
+            $xpModuleClass = str_replace('XPayments.Allowed', '', $paymentMethod->getServiceName());
+        } else {
+            $xpModuleClass = str_replace('XPayments.', '', $paymentMethod->getServiceName());
+        }
+
         foreach ($list as $key => $data) {
             if (
-                $paymentMethod->getName() == $data['moduleName']
+                (
+                    !empty($data['class'])
+                    && $xpModuleClass == $data['class']
+                    ||
+                    $paymentMethod->getSetting('moduleName') == $data['moduleName']
+                )
                 && $paymentMethod->getSetting('id') == $data['id'] 
             ) {
                 $result = true;
@@ -864,7 +876,7 @@ class Settings extends \XLite\Base\Singleton
 
                     $pm->setClass('Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPayments');
                     $pm->setServiceName('XPayments.' . $xpModuleClass);
-                    $pm->setName($settings['moduleName']);
+                    $pm->setName($settings['name']);
                     $pm->setType(\XLite\Model\Payment\Method::TYPE_CC_GATEWAY);
                     $pm->setAdminOrderby(static::getPaymentMethodOrderby('XPayments.' . $xpModuleClass));
                     $pm->setAdded(true);
@@ -875,8 +887,9 @@ class Settings extends \XLite\Base\Singleton
 
                 } else {
 
-                    // Use existsting payment method
+                    // Use existing payment method
                     $pm = \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')->find($settings['paymentMethodId']); 
+                    $pm->setName($settings['name']);
                 }
 
                 $this->setPaymentMethodSettings($pm, $settings);

@@ -113,7 +113,11 @@ class SavedCards extends \XLite\View\ItemsList\Model\Table
     */
     protected function getCreateURL()
     {
-        return \XLite\Core\Converter::buildURL('add_new_card','',array('profile_id' => \XLite\Core\Request::getInstance()->profile_id));
+        $profile = $this->getCustomerProfile();
+
+        $urlParams = ['profile_id' => $profile->getProfileId()];
+
+        return \XLite\Core\Converter::buildURL('add_new_card', '', $urlParams);
     }
 
     /**
@@ -147,8 +151,13 @@ class SavedCards extends \XLite\View\ItemsList\Model\Table
      */
     protected function getCustomerProfile()
     {
+        $profileId = \XLite\Core\Request::getInstance()->profile_id;
+        if (empty($profileId)) {
+            $profileId = \XLite\Core\Auth::getInstance()->getProfile()->getProfileId();
+        }
+
         return \XLite\Core\Database::getRepo('XLite\Model\Profile')
-            ->find(\XLite\Core\Request::getInstance()->profile_id);
+            ->find(intval($profileId));
     }
 
     /**

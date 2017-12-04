@@ -269,7 +269,7 @@ abstract class Image extends \XLite\Model\Base\Image implements \XLite\Base\IDec
      */
     public function loadFromLocalFile($path, $basename = null, $makeUnique = false)
     {
-        if (!$this->isS3Forbid() && $this->getS3() && !$this->isTemporaryFile()) {
+        if (!$this->isS3Forbid() && $this->getS3() && !$this->isTemporaryFile() && !$this->isContentFile()) {
             // Load image to make it valid to save to the database
             $result = strpos($path, \LC_DIR_TMP) === 0
                 ?: parent::loadFromLocalFile($path, $basename, $makeUnique);
@@ -469,6 +469,16 @@ abstract class Image extends \XLite\Model\Base\Image implements \XLite\Base\IDec
     protected function isTemporaryFile()
     {
         return $this instanceOf \XLite\Model\TemporaryFile;
+    }
+
+    /**
+     * Return true if current object is Content Image model
+     *
+     * @return boolean
+     */
+    protected function isContentFile()
+    {
+        return $this instanceOf \XLite\Model\Image\Content;
     }
 
     /**

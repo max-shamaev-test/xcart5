@@ -14,8 +14,8 @@ namespace XLite\Module\CDev\Paypal\View\Button;
 class AButtonsSeparator extends \XLite\View\Button\ButtonsSeparator
 {
     /**
-     * isExpressCheckoutEnabled 
-     * 
+     * isExpressCheckoutEnabled
+     *
      * @return boolean
      */
     protected function isVisible()

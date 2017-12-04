@@ -156,10 +156,11 @@ class XPaymentsClient extends \XLite\Base\Singleton
      * @param string                           $txnId       Transaction ID
      * @param \XLite\Model\Payment\Transaction $transaction Payment transaction
      * @param string                           $description Description OPTIONAL
+     * @param boolean                          $sendCart    Send or not cart in request OPTIONAL
      *
      * @return array
      */
-    public function requestPaymentRecharge($txnId, \XLite\Model\Payment\Transaction $transaction, $description = null)
+    public function requestPaymentRecharge($txnId, \XLite\Model\Payment\Transaction $transaction, $description = null, $sendCart = true)
     {
         if (!$transaction->getPublicId()) {
             // WA fix for this change: http://xcn.myjetbrains.com/youtrack/issue/BUG-2463
@@ -171,24 +172,47 @@ class XPaymentsClient extends \XLite\Base\Singleton
 
         // Save back refernece to transaction from  X-Payments
         $transaction->setDataCell('xpcBackReference', $xpcBackReference, 'X-Payments back reference', 'C');
+        // Set flag to deny callbacks until final processing
+        $transaction->setXpcDataCell('xpc_deny_callbacks', '1');
+
         \XLite\Core\Database::getEM()->flush();
 
         $paymentMethod = $transaction->getPaymentMethod();
 
-        // Prepare cart
-        $preparedCart = $this->prepareCart($transaction->getOrder(), $transaction->getPaymentMethod(), $xpcBackReference);
+        $cart = $transaction->getOrder();
+
+        if (is_null($description)) {
+            $description = 'New payment for ';
+            if ($cart->getOrderNumber()) {
+                $description .= 'Order #' . $cart->getOrderNumber();
+            } elseif (
+                $cart->getFirstOpenPaymentTransaction()
+                && $cart->getFirstOpenPaymentTransaction()->getPublicId()
+            ) {
+                $description .= 'transaction #' . $cart->getFirstOpenPaymentTransaction()->getPublicId();
+            } else {
+                $description .= 'transaction #' . $txnId;
+            }
+        }
+
+        $params = array(
+            'callbackUrl' => self::getCallbackUrl($xpcBackReference),
+            'txnId'       => $txnId,
+            'amount'      => $transaction->getValue(),
+            'description' => $description,
+            'refId'       => $xpcBackReference,
+        );
+
+        if ($sendCart) {
+            // Prepare cart
+            $preparedCart = $this->prepareCart($cart, $transaction->getPaymentMethod(), $xpcBackReference);
+            $params['cart'] = $preparedCart;
+        }
 
         return $this->apiRequest->send(
             'payment',
             'recharge',
-            array(
-                'callbackUrl' => self::getCallbackUrl($xpcBackReference),
-                'txnId'       => $txnId,
-                'amount'      => $transaction->getValue(),
-                'description' => !isset($description) ? 'New payment for transaction #' . $txnId : $description,
-                'refId'       => $xpcBackReference,
-                'cart'        => $preparedCart, 
-            )
+            $params
         );
     }
 
@@ -404,6 +428,9 @@ class XPaymentsClient extends \XLite\Base\Singleton
 
             // Save back refernece to transaction from  X-Payments 
             $transaction->setDataCell('xpcBackReference', $data['xpcBackReference'], 'X-Payments back reference', 'C');
+
+            // Set flag to deny callbacks until final processing
+            $transaction->setXpcDataCell('xpc_deny_callbacks', '1');
 
             try {
                 \XLite\Core\Database::getEM()->flush();
@@ -892,6 +919,17 @@ class XPaymentsClient extends \XLite\Base\Singleton
 
             $data = $formData[$paymentId];
 
+            if (isset($data['expiryTime'])) {
+                if (\XLite\Core\Converter::time() >= $data['expiryTime']) {
+                    // Payment session was expired already
+                    $data = false;
+                } else {
+                    // Renew expiry time by adding 15 minutes to current time
+                    $data['expiryTime'] = \XLite\Core\Converter::time() + 900;
+                    $this->saveInitDataToSession($transaction, $data);
+                }
+            }
+
         } else {
 
             $data = false;
@@ -922,6 +960,7 @@ class XPaymentsClient extends \XLite\Base\Singleton
                 'xpcBackReference' => $response['xpcBackReference'],
                 'txnId'            => $response['txnId'],
                 'fields'           => $response['fields'],
+                'expiryTime'       => \XLite\Core\Converter::time() + 900,
             );
 
             if (\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_use_iframe) {
@@ -1083,7 +1122,7 @@ class XPaymentsClient extends \XLite\Base\Singleton
         $showForPayment = 'Y' == $transaction->getPaymentMethod()->getSetting('saveCards');
 
         if ($showToUser && $showForPayment) {
-            if ($transaction->getProfile()->getPendingZeroAuth() == $transaction->getPublicId()) {
+            if ($transaction->isPendingZeroAuth()) {
                 // This is a "Card setup" transaction 
                 $allowSaveCard = static::SAVE_CARD_REQUIRED;
             } else {
@@ -1304,6 +1343,40 @@ class XPaymentsClient extends \XLite\Base\Singleton
     {
         $xml = $this->apiRequest->convertHashToXml($data);
         return $this->apiRequest->encryptXml($xml);
+    }
+
+    /**
+     * Closes connection so that PHP can work in background
+     *
+     * @param string $content Content to output before close
+     * @param string $forceCode HTTP response code, like "200 OK"
+     *
+     * @return void
+     */
+    public function forceCloseConnection($content = '', $forceCode = '')
+    {
+        ignore_user_abort(true);
+        ob_end_clean();
+        ob_start();
+
+        echo $content;
+
+        if (!empty($forceCode)) {
+            $serverProtocol = filter_input(INPUT_SERVER, 'SERVER_PROTOCOL', FILTER_SANITIZE_STRING);
+            header($serverProtocol . ' ' . $forceCode);
+        }
+        header('Content-Encoding: none');
+        header('Content-Length: '. ob_get_length());
+        header('Connection: close');
+        ob_end_flush();
+        ob_flush();
+        flush();
+
+        if (is_callable('fastcgi_finish_request')) {
+            // Required for nginx
+            session_write_close();
+            fastcgi_finish_request();
+        }
     }
 
     /**

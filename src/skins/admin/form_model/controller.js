@@ -43,6 +43,7 @@ define('form_model', ['js/vue/vue', 'form_model/sticky_panel'], function (XLiteV
     },
 
     ready: function() {
+      this.$form.submitted = false;
       core.trigger('vue-form.ready', this.$el);
 
       new CommonForm(this.$el);
@@ -70,6 +71,16 @@ define('form_model', ['js/vue/vue', 'form_model/sticky_panel'], function (XLiteV
     },
 
     methods: {
+      reset: function () {
+        var self = this;
+        this.$form.submitted = false;
+        this.$set('form', JSON.parse(JSON.stringify(this.original)));
+        this.$dispatch('form-model-reset', self);
+
+        this.$nextTick(function() {
+          self.$resetValidation();
+        });
+      },
       isChanged: function (model, event) {
         if (state === false) {
           state = objectHash.sha1(this.form);
@@ -128,6 +139,7 @@ define('form_model', ['js/vue/vue', 'form_model/sticky_panel'], function (XLiteV
 
       onSubmit: function (event) {
         var self = this;
+        this.$form.submitted = true;
         this.$validate(true, function () {
           if (self.$form.invalid) {
             event.preventDefault()

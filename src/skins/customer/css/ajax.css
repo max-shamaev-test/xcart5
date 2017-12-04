@@ -58,7 +58,6 @@
   padding: 0px;
   background-color: #fff;
   background-color: rgba(255, 255, 255, 0.80);
-  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff00, endColorstr=#ffffff00);
   -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff00, endColorstr=#ffffff00)";
   z-index: 10;
 }
@@ -70,7 +69,6 @@
   padding: 0px;
   background-color: #fff;
   background-color: rgba(255, 255, 255, 0.80);
-  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff00, endColorstr=#ffffff00);
   -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff00, endColorstr=#ffffff00)";
   z-index: 10;
 }

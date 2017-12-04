@@ -8,11 +8,15 @@
 
 namespace XLite\View\Button\Dropdown;
 
+use XLite\View\Button\Features\TooltippedTrait;
+
 /**
  * Order print
  */
 class OrderPrint extends \XLite\View\Button\Dropdown\ADropdown
 {
+    use TooltippedTrait;
+
     /**
      * Define additional buttons
      *
@@ -40,5 +44,15 @@ class OrderPrint extends \XLite\View\Button\Dropdown\ADropdown
                 'position' => 200,
             ],
         ];
+    }
+
+    /**
+     * getDefaultLabel
+     *
+     * @return string
+     */
+    protected function getDefaultTitle()
+    {
+        return static::t('Print selected');
     }
 }

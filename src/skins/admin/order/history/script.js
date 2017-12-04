@@ -25,6 +25,8 @@ OrderEventDetails.prototype.postprocess = function(isSuccess, initial)
 {
   ALoadable.prototype.postprocess.apply(this, arguments);
 
+  jQuery('.author [data-toggle="popover"]').popover();
+
   if (isSuccess && initial) {
     jQuery('.order-info .title-box .history a').click(_.bind(this.handleSwitch, this));
   }

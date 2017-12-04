@@ -33,12 +33,33 @@ class CheckoutFailed extends \XLite\Controller\Customer\Cart
         $this->setReturnURL($this->buildURL('checkout'));
 
         if ($this->getCart()) {
-            $cart = $this->getFailedCart();
-            $reason = $cart->getFailureReason()
-                ?: $this->getDefaultFailureReason();
+            $this->assignFailureReason($this->getFailureReason());
+        }
+    }
 
+    protected function assignFailureReason($reason)
+    {
+        if (is_array($reason)) {
+            foreach ($reason as $realReason) {
+                \XLite\Core\TopMessage::addError($realReason);
+            }
+        } else {
             \XLite\Core\TopMessage::addError($reason);
         }
+    }
+
+    /**
+     * @return string|array
+     */
+    protected function getFailureReason()
+    {
+        $cart = $this->getFailedCart();
+        $reason = $cart
+            ? $cart->getFailureReason()
+            : null;
+
+        return $reason
+            ?: $this->getDefaultFailureReason();
     }
 
     /**

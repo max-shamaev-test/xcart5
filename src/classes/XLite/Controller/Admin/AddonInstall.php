@@ -180,13 +180,7 @@ class AddonInstall extends \XLite\Controller\Admin\AAdmin
      */
     protected function hasCoreUpdate()
     {
-        $update = \XLite\Core\Marketplace::getInstance()->checkForUpdates();
-
-        return !empty($update)
-            && (
-                $update[\XLite\Core\Marketplace::FIELD_ARE_UPDATES_AVAILABLE]
-                && !$update[\XLite\Core\Marketplace::FIELD_IS_UPGRADE_AVAILABLE]
-            );
+        return \XLite\Upgrade\Cell::getInstance()->hasCoreUpdate();
     }
 
     /**

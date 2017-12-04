@@ -31,9 +31,6 @@ StorefrontStatusView.prototype.initialize = function()
           this.blocked = true;
           jQuery(this.base).addClass('disabled');
           result = core.get(jQuery(event.currentTarget).attr('href'));
-          if (result) {
-            this.switchState();
-          }
         }
 
         return !result;
@@ -73,7 +70,7 @@ StorefrontStatusView.prototype.handleSwicthStorefront = function(event,data)
   }
 
   if (data.privatelink) {
-    this.base.find('.link.closed a').attr('href', data.privatelink);
+    this.base.find('a.link.closed').attr('href', data.privatelink);
   }
 
   jQuery(this.base).removeClass('disabled');

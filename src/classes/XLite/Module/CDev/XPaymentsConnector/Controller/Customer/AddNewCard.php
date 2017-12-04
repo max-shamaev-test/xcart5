@@ -171,24 +171,4 @@ class AddNewCard extends \XLite\Controller\Customer\ACustomer
         \XLite\Module\CDev\XPaymentsConnector\Core\ZeroAuth::getInstance()->doActionReturn();
     }
 
-    /**
-     * Callback from X-Payments 
-     *
-     * @return void
-     */
-    protected function doActionCallback()
-    {
-        \XLite\Module\CDev\XPaymentsConnector\Core\ZeroAuth::getInstance()->doActionCallback();
-    }
-
-    /**
-     * Check cart callback 
-     *
-     * @return void
-     */
-    protected function doActionCheckCart()
-    {
-        \XLite\Module\CDev\XPaymentsConnector\Core\ZeroAuth::getInstance()->doActionCheckCart();
-    }
-
 }

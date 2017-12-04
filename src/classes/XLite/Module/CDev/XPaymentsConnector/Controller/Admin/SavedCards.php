@@ -23,6 +23,17 @@ class SavedCards extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * Check ACL permissions
+     *
+     * @return boolean
+     */
+    public function checkACL()
+    {
+        return parent::checkACL()
+            || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage users');
+    }
+
+    /**
      * Get saved cards
      *
      * @return array
@@ -41,9 +52,13 @@ class SavedCards extends \XLite\Controller\Admin\AAdmin
      */
     protected function getCustomerProfile()
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Profile')->find(
-            intval(\XLite\Core\Request::getInstance()->profile_id)
-        );
+        $profileId = \XLite\Core\Request::getInstance()->profile_id;
+        if (empty($profileId)) {
+            $profileId = \XLite\Core\Auth::getInstance()->getProfile()->getProfileId();
+        }
+
+        return \XLite\Core\Database::getRepo('XLite\Model\Profile')
+            ->find(intval($profileId));
     }
 
     /**
@@ -53,7 +68,7 @@ class SavedCards extends \XLite\Controller\Admin\AAdmin
      */
     public function getCustomerProfileId()
     {
-        return intval(\XLite\Core\Request::getInstance()->profile_id);
+        return $this->getCustomerProfile()->getProfileId();
     }
 
     /**

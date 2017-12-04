@@ -36,8 +36,11 @@
       {% endif %}
 
       {% if data.getDisplayMessage() %}
-        <p class="lead">
-          {{ data.getDisplayMessage()|raw }}.
+        <p class="{% if data.isError() %}alert alert-danger{% else %}lead{% endif %}">
+          {% if data.isError() %}
+            <strong>{{ t('Check was not performed due to error occurred!') }}</strong><br />
+          {% endif %}
+          {{ data.getDisplayMessage()|raw }}
   
           {% if data.score %}
             {{ t('Score') }}: 
@@ -70,6 +73,19 @@
         {% endfor %}
         </ul>
       {% endif %}
+
+      {# uncomment to show extra info
+      {% if data.data %}
+
+        <h3>{{ t('Additional information') }}:</h3>
+
+        <ul class="kount-result-lines">
+        {% for key, value in data.data %}
+          <li>{{ key}}: {{ value|raw }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+      #}
 
     </div>
 

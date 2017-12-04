@@ -50,7 +50,7 @@ define('js/vue/vue', ['vue/vue', 'js/vue/component'], function (Vue, XLiteVueCom
 
   XLiteVue.prototype.start = function (element) {
     for (var componentName in this.components) if (this.components.hasOwnProperty(componentName)) {
-      Vue.component(componentName, Vue.extend(this.components[componentName].definition))
+      Vue.component(componentName, this.components[componentName].definition)
     }
 
     var elementToInit = element || 'body';

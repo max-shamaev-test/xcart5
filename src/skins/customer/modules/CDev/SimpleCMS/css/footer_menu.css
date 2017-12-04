@@ -74,7 +74,7 @@
     font-size: 13px;
     text-decoration: none;
     white-space: normal;
-    word-break: break-word;
+    word-wrap: break-word;
 }
 #secondary-menu ul .leaf ul .leaf ul{
     padding-left: 10px;

@@ -8,9 +8,10 @@
 XLite\Model\Payment\Method:
   - service_name: PayWithAmazon
     class: Module\Amazon\PayWithAmazon\Model\Payment\Processor\PayWithAmazon
-    type: Z
-    countries: [US, UK, DE, JP]
-    added: true
+    type: C
+    orderby: -101600
+    adminOrderby: -101600
+    countries: [US, GB, DE, JP]
     translations:
       - code: en
         name: Amazon Pay

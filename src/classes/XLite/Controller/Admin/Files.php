@@ -14,7 +14,7 @@ namespace XLite\Controller\Admin;
 class Files extends \XLite\Controller\Admin\AAdmin
 {
     const RESPONSE_WIDGET = 'widget';
-    const RESPONSE_JSON = 'json';
+    const RESPONSE_JSON   = 'json';
 
     /**
      * Check if current page is accessible
@@ -48,6 +48,10 @@ class Files extends \XLite\Controller\Admin\AAdmin
         if ($file
             && \XLite\Core\Request::getInstance()->is_image
             && !$file->isImage()
+            && !(
+                $file instanceof \XLite\Model\TemporaryFile
+                && $file->isURL()
+            )
         ) {
             $file->removeFile();
             $this->sendResponse(null, static::t('File is not an image'));
@@ -65,12 +69,22 @@ class Files extends \XLite\Controller\Admin\AAdmin
         $file = \XLite\Core\Request::getInstance()->register
             ? new \XLite\Model\Image\Content()
             : new \XLite\Model\TemporaryFile();
+
+        if (\XLite\Core\Request::getInstance()->type === 'video') {
+            $file = \XLite\Core\Request::getInstance()->register
+                ? new \XLite\Model\Video\Content()
+                : new \XLite\Model\Video\Temporary();
+        }
+
         $message = '';
         if ($file->loadFromRequest('file')) {
             $this->checkFile($file);
             \XLite\Core\Database::getEM()->persist($file);
             \XLite\Core\Database::getEM()->flush();
 
+        } elseif ($file->getLoadErrorMessage()) {
+            $message = call_user_func_array(['\XLite\Controller\Admin\Files',
+                't'], $file->getLoadErrorMessage());
         } else {
             $message = static::t('File is not uploaded');
         }
@@ -96,7 +110,7 @@ class Files extends \XLite\Controller\Admin\AAdmin
             \XLite\Core\Database::getEM()->flush();
 
         } else {
-            $message = static::t('File is not uploaded');
+            $message = static::t('Make sure the URL is correct and the file referenced by the URL is a PNG/JPG/JPEG');
         }
 
         $this->sendResponse($file, $message);
@@ -120,8 +134,9 @@ class Files extends \XLite\Controller\Admin\AAdmin
     /**
      * Calls response strategy for chosen response mode
      *
-     * @param \XLite\Model\TemporaryFile $file Uploaded file object
-     * @param string $message Possible error message
+     * @param \XLite\Model\Base\Storage $file    Uploaded file object
+     * @param string                    $message Possible error message
+     *
      * @return void
      */
     protected function sendResponse($file, $message)
@@ -130,8 +145,8 @@ class Files extends \XLite\Controller\Admin\AAdmin
 
         $strategies = $this->getResponseStrategies();
 
-        if (in_array($mode, array_keys($strategies))) {
-            call_user_func_array($strategies[$mode], array($file, $message));
+        if (array_key_exists($mode, $strategies)) {
+            call_user_func($strategies[$mode], $file, $message);
         }
     }
 
@@ -153,17 +168,17 @@ class Files extends \XLite\Controller\Admin\AAdmin
      */
     protected function getResponseStrategies()
     {
-        return array(
-            static::RESPONSE_WIDGET => array($this, 'sendResponseAsWidget'),
-            static::RESPONSE_JSON => array($this, 'sendResponseAsJSON'),
-        );
+        return [
+            static::RESPONSE_WIDGET => [$this, 'sendResponseAsWidget'],
+            static::RESPONSE_JSON   => [$this, 'sendResponseAsJSON'],
+        ];
     }
 
     /**
      * Prints widget content
      *
      * @param  \XLite\Model\TemporaryFile $file    Image file
-     * @param  string $message Possible error message
+     * @param  string                     $message Possible error message
      */
     protected function sendResponseAsWidget($file, $message)
     {
@@ -173,8 +188,8 @@ class Files extends \XLite\Controller\Admin\AAdmin
     /**
      * Prints json output with image data
      *
-     * @param  \XLite\Model\TemporaryFile $file    Image file
-     * @param  string $message Possible error message
+     * @param  \XLite\Model\Base\Storage $file    Image file
+     * @param  string                    $message Possible error message
      */
     protected function sendResponseAsJSON($file, $message)
     {
@@ -183,9 +198,9 @@ class Files extends \XLite\Controller\Admin\AAdmin
 
         if ($message || !$file) {
             $this->headerStatus(500);
-            $response = array(
+            $response = [
                 'message' => $message,
-            );
+            ];
         } else {
             $response = $this->getSuccessResponseData($file);
         }
@@ -196,7 +211,7 @@ class Files extends \XLite\Controller\Admin\AAdmin
     /**
      * Builds image data
      *
-     * @param  \XLite\Model\TemporaryFile $file    Image file
+     * @param  \XLite\Model\Base\Storage $file Image file
      */
     protected function getSuccessResponseData($file)
     {
@@ -204,14 +219,22 @@ class Files extends \XLite\Controller\Admin\AAdmin
             ? str_replace(\XLite\Core\URLManager::getShopURL(), '', $file->getFrontURL())
             : $file->getFrontURL();
 
-        $response = array(
-            'size'    => $file->getSize(),
-            'width'   => $file->getWidth(),
-            'height'  => $file->getHeight(),
-            'url'     => $url,
-            'id'      => $file->getId(),
-            'message' => static::t('File was successfully uploaded'),
-        );
+        if ($file instanceof \XLite\Model\Base\Image) {
+            $response = [
+                'size'    => $file->getSize(),
+                'width'   => $file->getWidth(),
+                'height'  => $file->getHeight(),
+                'url'     => $url,
+                'id'      => $file->getId(),
+                'message' => static::t('File was successfully uploaded'),
+            ];
+        } elseif ($file instanceof \XLite\Model\Base\Video) {
+            $response = [
+                'link'    => $url,
+                'id'      => $file->getId(),
+                'message' => static::t('File was successfully uploaded'),
+            ];
+        }
 
         if (\XLite\Core\Request::getInstance()->url_param_name) {
             $response[\XLite\Core\Request::getInstance()->url_param_name] = $url;
@@ -230,20 +253,25 @@ class Files extends \XLite\Controller\Admin\AAdmin
      */
     protected function getContent($file, $message = '')
     {
-        static::sendHeaders($this->getAdditionalHeaders());
+        $headers = $this->getAdditionalHeaders();
+        if ($message) {
+            $headers['X-Upload-Error'] = $message;
+        }
+        static::sendHeaders($headers);
 
-        $viewer = new \XLite\View\FileUploader(
-            array(
-                \XLite\View\FileUploader::PARAM_NAME         => \XLite\Core\Request::getInstance()->name,
-                \XLite\View\FileUploader::PARAM_MULTIPLE     => \XLite\Core\Request::getInstance()->multiple,
-                \XLite\View\FileUploader::PARAM_OBJECT       => $file,
-                \XLite\View\FileUploader::PARAM_OBJECT_ID    => \XLite\Core\Request::getInstance()->object_id,
-                \XLite\View\FileUploader::PARAM_MESSAGE      => $message,
-                \XLite\View\FileUploader::PARAM_IS_TEMPORARY => true,
-                \XLite\View\FileUploader::PARAM_MAX_WIDTH    => \XLite\Core\Request::getInstance()->max_width,
-                \XLite\View\FileUploader::PARAM_MAX_HEIGHT   => \XLite\Core\Request::getInstance()->max_height,
-            )
-        );
+        $viewer = new \XLite\View\FileUploader([
+            \XLite\View\FileUploader::PARAM_NAME         => \XLite\Core\Request::getInstance()->name,
+            \XLite\View\FileUploader::PARAM_MULTIPLE     => \XLite\Core\Request::getInstance()->multiple,
+            \XLite\View\FileUploader::PARAM_OBJECT       => $file,
+            \XLite\View\FileUploader::PARAM_OBJECT_ID    => \XLite\Core\Request::getInstance()->object_id,
+            \XLite\View\FileUploader::PARAM_MESSAGE      => $message,
+            \XLite\View\FileUploader::PARAM_IS_TEMPORARY => true,
+            \XLite\View\FileUploader::PARAM_MAX_WIDTH    => \XLite\Core\Request::getInstance()->max_width,
+            \XLite\View\FileUploader::PARAM_MAX_HEIGHT   => \XLite\Core\Request::getInstance()->max_height,
+            \XLite\View\FileUploader::PARAM_IS_IMAGE     => $file instanceof \XLite\Model\TemporaryFile
+                ? \XLite\Core\Request::getInstance()->is_image
+                : null,
+        ]);
 
         $this->printAJAXOutput($viewer);
         exit(0);

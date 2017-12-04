@@ -10,7 +10,7 @@
 define('form_model/sticky_panel', ['js/vue/vue'], function (XLiteVue) {
 
   XLiteVue.component('xlite-sticky-panel', {
-    props: ['changed'],
+    props: ['changed', 'formState'],
     activate: function (done) {
       done();
 
@@ -35,6 +35,11 @@ define('form_model/sticky_panel', ['js/vue/vue'], function (XLiteVue) {
     },
     watch: {
       'changed': function (newValue, oldValue) {
+        this.processChange(newValue, oldValue);
+      }
+    },
+    methods: {
+      processChange: function(newValue, oldValue) {
         if (newValue !== oldValue) {
           var buttons = jQuery(this.$el).find('button').not('.always-enabled');
 
@@ -50,9 +55,7 @@ define('form_model/sticky_panel', ['js/vue/vue'], function (XLiteVue) {
           }
 
         }
-      }
-    },
-    methods: {
+      },
       processReposition: function () {
         this.$base.height(this.$panel.outerHeight() + 3);
 

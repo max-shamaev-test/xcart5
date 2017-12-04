@@ -54,8 +54,10 @@ abstract class Product extends \XLite\Model\Product implements \XLite\Base\IDeco
 
         $changeSet = \XLite\Core\Database::getEM()->getUnitOfWork()->getEntityChangeSet($this);
 
-        if (isset($changeSet['enabled'])) {
-            unset($changeSet['enabled']);
+        foreach ($this->getExcludedFieldsForMailchimpUpdate() as $field) {
+            if (isset($changeSet[$field])) {
+                unset($changeSet[$field]);
+            }
         }
 
         if (Main::isMailChimpECommerceConfigured() && Main::getMainStores()
@@ -67,6 +69,16 @@ abstract class Product extends \XLite\Model\Product implements \XLite\Base\IDeco
                 new Action\ProductUpdate($this)
             );
         }
+    }
+
+    /**
+     * Return list of excluded fields
+     *
+     * @return array
+     */
+    protected function getExcludedFieldsForMailchimpUpdate()
+    {
+        return [ 'enabled' ];
     }
 
     /**

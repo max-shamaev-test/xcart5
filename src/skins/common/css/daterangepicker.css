@@ -1,19 +1,12 @@
-.date-picker
-{
-	width:170px;
-	height:25px;
-	padding:0;
-	border:0;
-	line-height:25px;
-	padding-left:10px;
-	font-size:12px;
-	font-family:Arial;
-	font-weight:bold;
-	cursor:pointer;
-	color:#303030;
-	position:relative;
-	z-index:2;
-}
+/* vim: set ts=2 sw=2 sts=2 et: */
+
+/**
+ * Date range picker
+ *
+ * Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+ * See https://www.x-cart.com/license-agreement.html for license details.
+ */
+
 .date-picker-wrapper
 {
 	position:absolute;
@@ -177,7 +170,7 @@
 	background: #0095cd;
 	background: -webkit-gradient(linear, left top, left bottom, from(#00adee), to(#0078a5));
 	background: -moz-linear-gradient(top,  #00adee,  #0078a5);
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#00adee', endColorstr='#0078a5');
+	-ms-filter:  "progid:DXImageTransform.Microsoft.gradient(startColorstr='#00adee', endColorstr='#0078a5')";
 	color:white;
 }
 
@@ -189,5 +182,5 @@
 	background: #fff;
 	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ededed));
 	background: -moz-linear-gradient(top,  #fff,  #ededed);
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#ededed');
+	-ms-filter:  "progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#ededed')";
 }

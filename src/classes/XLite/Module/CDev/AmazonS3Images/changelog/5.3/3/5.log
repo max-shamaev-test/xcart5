@@ -1,0 +1,5 @@
+Version 5.3.3.5
+
+Fixes
+2017-10-19 - [Bug] Image upload in the Froala WYSIWYG editor did not work if the Amazon S3 addon was installed and active. #BUG-5572 (Eugene Dementjev) #AmazonS3Images
+

@@ -7,45 +7,42 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-core.bind(
-  'checkout.main.initialize',
-  function() {
-    core.bind(
-      'checkout.common.ready',
-      function(event, state) {
-        var box = jQuery('.paypal-in-context-box');
-        if (box.length) {
-          // Submit .place form to save fields in this form before start ExpressCheckout
-          var form = box.closest('form').get(0);
-          var actionElement = jQuery(form).find('input[type="hidden"][name="action"]');
-          var oldAction = actionElement.val();
-          actionElement.val('setOrderNote');
-          form.submitBackground();
-          actionElement.val(oldAction);
+core.bind([
+  'checkout.main.ready',
+  'checkout.common.anyChange',
+  'checkout.sections.payment.persist',
+  'checkout.paymentTpl.loaded',
+  'checkout.common.state.ready'
+], function (event, controller) {
+  if ($('.paypal-checkout-box').length > 0) {
+    $('.review-step form.place .button-row').hide();
+    $('form.place .paypal-ec-checkout').show();
+    $('form.place .paypal-ec-checkout-credit').hide();
 
-          // Initialize Paypal checkout
-          paypal.checkout.initXO();
+    //fastlane
+    $('.checkout_fastlane_section-buttons form.place .checkout_fastlane_section-place_order').hide();
+  } else if ($('.paypal-checkout-credit-box').length > 0) {
+    $('.review-step form.place .button-row').hide();
+    $('form.place .paypal-ec-checkout').hide();
+    $('form.place .paypal-ec-checkout-credit').show();
 
-          var postOptions = {
-            target: 'checkout',
-            action: 'startExpressCheckout',
-            inContext: true
-          };
-          postOptions[form.commonController.formIdName] = form.commonController.getFormId();
-          core.post(
-            URLHandler.buildURL(postOptions), null, {ignoreCheckout: true});
+    //fastlane
+    $('.checkout_fastlane_section-buttons form.place .checkout_fastlane_section-place_order').hide();
+  } else {
+    $('.review-step form.place .button-row').show();
+    $('form.place .paypal-ec-checkout').hide();
+    $('form.place .paypal-ec-checkout-credit').hide();
 
-          core.bind('paypaltoken', function (event, result) {
-            if (result.token) {
-              paypal.checkout.startFlow(result.token);
-            } else {
-              paypal.checkout.closeFlow();
-            }
-          });
-
-          state.state = false;
-        }
-      }
-    );
+    //fastlane
+    $('.checkout_fastlane_section-buttons form.place .checkout_fastlane_section-place_order').show();
   }
-);
+});
+
+core.bind('checkout.common.state.nonready', function (state) {
+  $('form.place .paypal-ec-checkout').addClass('nonready');
+});
+
+core.bind('checkout.common.state.ready', function (state) {
+  $('form.place .paypal-ec-checkout').removeClass('nonready');
+});
+

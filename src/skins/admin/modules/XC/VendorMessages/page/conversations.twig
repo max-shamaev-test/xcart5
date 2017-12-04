@@ -8,5 +8,7 @@
 
 {% form '\\XLite\\Module\\XC\\VendorMessages\\View\\Form\\ItemsList\\Conversations' %}
   {{ widget('\\XLite\\Module\\XC\\VendorMessages\\View\\ItemsList\\Admin\\Conversations') }}
-  {{ widget('\\XLite\\Module\\XC\\VendorMessages\\View\\StickyPanel\\Conversations') }}
+  {% if this.hasResults() %}
+    {{ widget('\\XLite\\Module\\XC\\VendorMessages\\View\\StickyPanel\\Conversations') }}
+  {% endif %}
 {% endform %}

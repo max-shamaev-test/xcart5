@@ -7,19 +7,20 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-.category-description > div {
-    display: none;
+.carousel-inner.not-initialized > .item {
+  display: block;
 }
 
-.carousel-inner a{
-    height: 100%;
-}
-.carousel-inner img{
-    max-height: 100%;
-    margin: auto;
+.carousel-inner a {
+  height: 100%;
 }
 
-.carousel-indicators{
-    margin-bottom: 0px;
-    bottom: 10px;
+.carousel-inner img {
+  max-height: 100%;
+  margin: auto;
+}
+
+.carousel-indicators {
+  margin-bottom: 0px;
+  bottom: 10px;
 }

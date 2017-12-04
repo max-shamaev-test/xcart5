@@ -129,6 +129,16 @@ class Header extends \XLite\View\AResourcesContainer
      *
      * @return string
      */
+    protected function isDisplayAdminScript()
+    {
+        return \XLite\Core\Auth::getInstance()->isAdmin();
+    }
+
+    /**
+     * Get script
+     *
+     * @return string
+     */
     protected function getAdminScript()
     {
         return \XLite::getInstance()->getAdminScript();

@@ -65,6 +65,7 @@ XLite\Model\LanguageLabel:
 
 XLite\Model\Notification:
   - templatesDirectory: modules/XC/VendorMessages/notification
+    position: 1100
     availableForAdmin: true
     availableForCustomer: true
     enabledForAdmin: true
@@ -89,6 +90,7 @@ XLite\Model\Notification:
           %message%
           </p>
   - templatesDirectory: modules/XC/VendorMessages/new_message_notification
+    position: 1200
     availableForAdmin: true
     availableForCustomer: true
     enabledForAdmin: true

@@ -46,7 +46,7 @@ class XLite extends \XLite\Base
     /**
      * Core version
      */
-    const XC_VERSION = '5.3.3.4';
+    const XC_VERSION = '5.3.4.4';
 
     /**
      * Endpoints
@@ -269,8 +269,6 @@ class XLite extends \XLite\Base
             };
 
             if (!$class) {
-                \XLite\Core\Request::getInstance()->target = static::TARGET_DEFAULT;
-                \XLite\Logger::logCustom('access', 'Controller class ' . $class . ' not found!');
                 \XLite\Core\Request::getInstance()->target = static::TARGET_404;
                 $class = static::getControllerClass();
             }
@@ -854,6 +852,12 @@ class XLite extends \XLite\Base
                 $code = $isRedirectToLanguageNeeded
                     ? 302
                     : 301;
+
+                $ttl = 86400;
+                $expiresTime = gmdate('D, d M Y H:i:s', time() + $ttl) . ' GMT';
+
+                header("Cache-Control: max-age=$ttl, must-revalidate");
+                header("Expires: $expiresTime");
 
                 \XLite\Core\Operator::redirect(
                     \XLite\Core\URLManager::getShopURL($redirectUrl),

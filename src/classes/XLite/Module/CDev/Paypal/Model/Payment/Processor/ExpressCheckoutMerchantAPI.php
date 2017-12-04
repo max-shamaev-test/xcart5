@@ -392,7 +392,7 @@ class ExpressCheckoutMerchantAPI extends \XLite\Module\CDev\Paypal\Model\Payment
      *
      * @param \XLite\Model\Payment\BackendTransaction $transaction Transaction
      *
-     * @return array
+     * @return boolean
      * @see    https://developer.paypal.com/webapps/developer/docs/classic/api/merchant/DoVoid_API_Operation_NVP/
      */
     public function doVoid(\XLite\Model\Payment\BackendTransaction $transaction)
@@ -452,7 +452,7 @@ class ExpressCheckoutMerchantAPI extends \XLite\Module\CDev\Paypal\Model\Payment
      *
      * @param \XLite\Model\Payment\BackendTransaction $transaction Transaction
      *
-     * @return array
+     * @return boolean
      * @see    https://developer.paypal.com/webapps/developer/docs/classic/api/merchant/DoCapture_API_Operation_NVP/
      */
     public function doCapture(\XLite\Model\Payment\BackendTransaction $transaction)
@@ -518,7 +518,7 @@ class ExpressCheckoutMerchantAPI extends \XLite\Module\CDev\Paypal\Model\Payment
      *
      * @param \XLite\Model\Payment\BackendTransaction $transaction Transaction
      *
-     * @return array
+     * @return boolean
      * @see    https://developer.paypal.com/webapps/developer/docs/classic/api/merchant/RefundTransaction_API_Operation_NVP/
      */
     public function doRefund(\XLite\Model\Payment\BackendTransaction $transaction)

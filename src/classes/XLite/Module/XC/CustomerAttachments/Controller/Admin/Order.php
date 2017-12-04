@@ -17,7 +17,7 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
     /**
      * Order history description pattern
      */
-    const TXT_CUSTOMER_ATTACHMENT_DESCRIPTION = 'Customer`s attachments were changed by X';
+    const TXT_CUSTOMER_ATTACHMENT_DESCRIPTION = 'Customer`s attachments were changed';
 
     /**
      * Changes history for customer attachments
@@ -51,16 +51,10 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
                 $this->setAttachmentsOrderChanges($productName, $msg);
             }
 
-            $description = static::t(
-                static::TXT_CUSTOMER_ATTACHMENT_DESCRIPTION,
-                array(
-                    'user' => \XLite\Core\Auth::getInstance()->getProfile() ? \XLite\Core\Auth::getInstance()->getProfile()->getLogin() : 'unknown'
-                )
-            );
             \XLite\Core\OrderHistory::getInstance()->registerEvent(
                 $this->getOrder()->getOrderId(),
                 \XLite\Core\OrderHistory::CODE_ORDER_EDITED,
-                $description,
+                static::t(static::TXT_CUSTOMER_ATTACHMENT_DESCRIPTION),
                 array(),
                 serialize(static::$customerAttachmentsChanges)
             );

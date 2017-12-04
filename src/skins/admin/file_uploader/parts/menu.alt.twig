@@ -5,7 +5,7 @@
  #}
 
 {% if this.hasAlt() %}
-    <li role="presentation" class="divider"></li>
+    <li role="presentation" class="divider alt-divider"></li>
     <li role="presentation" class="alt-text">
         <div class="value" @click.prevent.stop="showAlt">
             <b>{{ t('Alt') }}:</b>
@@ -14,7 +14,7 @@
         </div>
         <div class="input-group input-group-sm">
             <span class="input-group-addon">{{ t('Alt') }}:</span>
-            <input type="text" name="{{ this.getName() }}[alt]" v-model="alt"
+            <input name="{{ this.getName() }}[alt]" v-model="alt"
                    value="{{ this.object.alt }}" class="form-control input-alt"
                    @change="doChangeAlt"
                    @keydown="doChangeAlt"

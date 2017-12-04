@@ -11,3 +11,11 @@ div.btn-dropdown ul li button {
   width: 100%;
   text-align: left;
 }
+
+div.btn-dropdown.dropup.open .tooltip {
+  display: none !important;
+}
+
+div.btn-dropdown.dropup .tooltip {
+  width: 150px;
+}

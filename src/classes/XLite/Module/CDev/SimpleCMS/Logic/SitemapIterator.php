@@ -74,7 +74,7 @@ class SitemapIterator extends \XLite\Module\CDev\XMLSitemap\Logic\SitemapIterato
     protected function assemblePageData(\XLite\Module\CDev\SimpleCMS\Model\Page $page)
     {
         $_url = Converter::buildURL('page', '', ['id' => $page->getId()], \XLite::getCustomerScript(), true);
-        $url = \XLite::getInstance()->getShopURL($_url);
+        $url = static::getShopURL($_url);
 
         $result = [
             'loc' => $url,
@@ -85,7 +85,7 @@ class SitemapIterator extends \XLite\Module\CDev\XMLSitemap\Logic\SitemapIterato
 
         if ($this->hasAlternateLangUrls()) {
             if ($this->languageCode) {
-                $result['loc'] = \Includes\Utils\URLManager::getShopURL($this->languageCode . '/' . $_url);
+                $result['loc'] = static::getShopURL($this->languageCode . '/' . $_url);
             }
 
             foreach (\XLite\Core\Router::getInstance()->getActiveLanguagesCodes() as $code) {
@@ -93,7 +93,7 @@ class SitemapIterator extends \XLite\Module\CDev\XMLSitemap\Logic\SitemapIterato
                 $langUrl = $code . '/' . $langUrl;
                 $locale = Converter::langToLocale($code);
 
-                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . \Includes\Utils\URLManager::getShopURL($langUrl) . '"';
+                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . static::getShopURL($langUrl) . '"';
                 $result[$tag] = null;
             }
 

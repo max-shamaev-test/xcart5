@@ -20,7 +20,18 @@ class Log extends \XLite\Controller\Admin\AAdmin
      */
     public function checkAccess()
     {
-        return parent::checkAccess() && $this->getLogPath();
+        return parent::checkAccess();
+    }
+
+    public static function defineFreeFormIdActions()
+    {
+        return array_merge(
+            parent::defineFreeFormIdActions(),
+            [
+                'view',
+                'download'
+            ]
+        );
     }
 
     /**
@@ -45,6 +56,28 @@ class Log extends \XLite\Controller\Admin\AAdmin
      * @return void
      */
     protected function doNoAction()
+    {
+        $this->doActionView();
+    }
+
+    protected function doActionView()
+    {
+        $this->silent = true;
+
+        $path = $this->getLogPath();
+
+        header('Content-Type: text/plain');
+
+        if ($path) {
+            readfile($path);
+        } else {
+            echo 'Log file doesn\'t exists';
+        }
+
+        $this->setSuppressOutput(true);
+    }
+
+    protected function doActionDownload()
     {
         $this->silent = true;
 

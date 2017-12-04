@@ -76,7 +76,7 @@ class ActiveCurrency extends \XLite\Model\AEntity
      * @var \XLite\Model\Currency
      *
      * @OneToOne (targetEntity="XLite\Model\Currency", inversedBy="active_currency")
-     * @JoinColumn (name="currency_id", referencedColumnName="currency_id")
+     * @JoinColumn (name="currency_id", referencedColumnName="currency_id", onDelete="CASCADE")
      */
     protected $currency;
 
@@ -465,6 +465,29 @@ class ActiveCurrency extends \XLite\Model\AEntity
     }
 
     /**
+     * Set Countries
+     *
+     * @param \XLite\Model\Country[] $countries
+     *
+     * @return $this
+     */
+    public function setCountries($countries)
+    {
+        foreach ($this->getCountries() as $country) {
+            if ($country->getActiveCurrency() === $this) {
+                $country->setActiveCurrency(null);
+            }
+        }
+
+        foreach ($countries as $country) {
+            $country->setActiveCurrency($this);
+        }
+
+        $this->countries = $countries;
+        return $this;
+    }
+
+    /**
      * Get countries
      *
      * @return \Doctrine\Common\Collections\Collection 
@@ -472,5 +495,32 @@ class ActiveCurrency extends \XLite\Model\AEntity
     public function getCountries()
     {
         return $this->countries;
+    }
+
+    /**
+     * Return RoundUp
+     *
+     * @return string
+     */
+    public function getRoundUp()
+    {
+        return $this->getCurrency()
+            ? $this->getCurrency()->getRoundUp()
+            : \XLite\Model\Currency::ROUNDUP_NONE;
+    }
+
+    /**
+     * Set RoundUp
+     *
+     * @param string $roundUp
+     *
+     * @return $this
+     */
+    public function setRoundUp($roundUp)
+    {
+        if ($this->getCurrency()) {
+            $this->getCurrency()->setRoundUp($roundUp);
+        }
+        return $this;
     }
 }

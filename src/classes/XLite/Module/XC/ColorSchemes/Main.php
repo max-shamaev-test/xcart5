@@ -54,7 +54,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
      */
     public static function getMinorVersion()
     {
-        return '3';
+        return '4';
     }
 
     /**
@@ -64,7 +64,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
      */
     public static function getBuildVersion()
     {
-        return '0';
+        return '1';
     }
 
     /**
@@ -74,7 +74,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
      */
     public static function getMinorRequiredCoreVersion()
     {
-        return '3';
+        return '4';
     }
 
     /**
@@ -189,5 +189,15 @@ abstract class Main extends \XLite\Module\AModuleSkin
     public static function isUseCloudZoom()
     {
         return true;
+    }
+
+    /**
+     * Check if skin supports cloud zoom
+     *
+     * @return boolean
+     */
+    public static function isUseLazyLoad()
+    {
+        return false;
     }
 }

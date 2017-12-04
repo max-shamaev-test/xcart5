@@ -46,16 +46,17 @@ class OrderHistoryEvents extends \XLite\Model\Repo\ARepo
      */
     public function registerEvent($orderId, $code, $description, array $data = array(), $comment = '', $details = array())
     {
+        /** @var \Xlite\Model\Order $order */
         $order = \XLite\Core\Database::getRepo('XLite\Model\Order')->find($orderId);
 
         if ($order && !$order->isRemoving()) {
             $event = new \XLite\Model\OrderHistoryEvents(
                 array(
-                    'date'         => \XLite\Core\Converter::time(),
-                    'code'         => $code,
-                    'description'  => $description,
-                    'data'         => $data,
-                    'comment'      => $comment,
+                    'date'        => \XLite\Core\Converter::time(),
+                    'code'        => $code,
+                    'description' => $description,
+                    'data'        => $data,
+                    'comment'     => $comment,
                 )
             );
 
@@ -63,8 +64,16 @@ class OrderHistoryEvents extends \XLite\Model\Repo\ARepo
                 $event->setDetails($details);
             }
 
-            if (\XLite\Core\Auth::getInstance()->getProfile()) {
-                $event->setAuthor(\XLite\Core\Auth::getInstance()->getProfile());
+            if ($this->shouldAddAuthorToEvent($code, $order, \XLite\Core\Auth::getInstance()->getProfile())) {
+                if (\XLite\Core\Auth::getInstance()->getProfile()) {
+                    $event->setAuthor(\XLite\Core\Auth::getInstance()->getProfile());
+                } elseif (strtolower(\XLite\Core\Request::getInstance()->target) === 'restapi') {
+                    $event->setAuthorName('REST API');
+                }
+
+                if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR']) {
+                    $event->setAuthorIp($_SERVER['REMOTE_ADDR']);
+                }
             }
 
             $event->setOrder($order);
@@ -73,6 +82,18 @@ class OrderHistoryEvents extends \XLite\Model\Repo\ARepo
 
             $this->insert($event);
         }
+    }
+
+    /**
+     * @param                      $code
+     * @param \XLite\Model\Order   $order
+     * @param \XLite\Model\Profile $profile
+     *
+     * @return boolean
+     */
+    protected function shouldAddAuthorToEvent($code, $order, $profile)
+    {
+        return !($order instanceof \XLite\Model\Cart);
     }
 
     /**

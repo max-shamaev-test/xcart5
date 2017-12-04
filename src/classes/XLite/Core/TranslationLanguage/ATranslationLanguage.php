@@ -39,6 +39,9 @@ abstract class ATranslationLanguage extends \XLite\Base
             'X days left'                                 => 'XDaysLeft',
 
             'Your access to X-Cart Business features expires in X days' => 'AccessToBusinessFeaturesExpiresInXDays',
+
+            'X addons'              => 'XAddons',
+            'new core and X addons' => 'NewCoreAndXAddons',
         ];
     }
 
@@ -310,6 +313,46 @@ abstract class ATranslationLanguage extends \XLite\Base
             [
                 'X day left',
                 'X days left',
+            ],
+            $arguments['count']
+        );
+
+        return \XLite\Core\Translation::getInstance()->translateByString($label, $arguments);
+    }
+
+    /**
+     * Translate label 'X addons'
+     *
+     * @param array $arguments Arguments
+     *
+     * @return string
+     */
+    public function translateLabelXAddons(array $arguments)
+    {
+        $label = $this->getLabelByRule(
+            [
+                'X addon',
+                'X addons',
+            ],
+            $arguments['count']
+        );
+
+        return \XLite\Core\Translation::getInstance()->translateByString($label, $arguments);
+    }
+
+    /**
+     * Translate label 'new core and X addons'
+     *
+     * @param array $arguments Arguments
+     *
+     * @return string
+     */
+    public function translateLabelNewCoreAndXAddons(array $arguments)
+    {
+        $label = $this->getLabelByRule(
+            [
+                'new core and X addon',
+                'new core and X addons',
             ],
             $arguments['count']
         );

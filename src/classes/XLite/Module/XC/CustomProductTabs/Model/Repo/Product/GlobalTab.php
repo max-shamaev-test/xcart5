@@ -50,19 +50,19 @@ class GlobalTab extends \XLite\Model\Repo\Product\GlobalTab implements \XLite\Ba
     public function createNonExistentAliases()
     {
         $shiftValue = $this->getMaxPosition() + 10;
-        $tablePrefix = \XLite::getInstance()->getOptions(array('database_details', 'table_prefix'));
+        $tablePrefix = \XLite::getInstance()->getOptions(['database_details', 'table_prefix']);
         $tabsTable = $tablePrefix . 'product_tabs';
         $productsTable = $tablePrefix . 'products';
         $globalTabsTable = $tablePrefix . 'global_product_tabs';
 
         $query = "INSERT IGNORE " .
-                 "INTO {$tabsTable}(enabled, product_id, global_tab_id, position) " .
-                 "SELECT " .
-                     "gt.enabled as enabled, " .
-                     "p.product_id as product_id, " .
-                     "gt.id as global_tab_id, " .
-                     "(gt.position - :shiftValue) as position " .
-                 "FROM {$globalTabsTable} as gt, {$productsTable} as p";
+            "INTO {$tabsTable}(enabled, product_id, global_tab_id, position) " .
+            "SELECT " .
+            "gt.enabled as enabled, " .
+            "p.product_id as product_id, " .
+            "gt.id as global_tab_id, " .
+            "(gt.position - :shiftValue) as position " .
+            "FROM {$globalTabsTable} as gt, {$productsTable} as p";
 
         Database::getEM()->getConnection()->executeQuery($query, [
             'shiftValue' => $shiftValue,
@@ -78,7 +78,7 @@ class GlobalTab extends \XLite\Model\Repo\Product\GlobalTab implements \XLite\Ba
     {
         $shiftValue = $this->getMaxPosition() + 10;
 
-        $tablePrefix = \XLite::getInstance()->getOptions(array('database_details', 'table_prefix'));
+        $tablePrefix = \XLite::getInstance()->getOptions(['database_details', 'table_prefix']);
         $tabsTable = $tablePrefix . 'product_tabs';
         $productsTable = $tablePrefix . 'products';
 
@@ -88,9 +88,9 @@ class GlobalTab extends \XLite\Model\Repo\Product\GlobalTab implements \XLite\Ba
         $position = $globalTab->getPosition() - $shiftValue;
 
         $query = "INSERT IGNORE "
-                 . "INTO {$tabsTable}(enabled, product_id, global_tab_id, position) "
-                 . "SELECT :enabled as enabled, p.product_id as product_id, :globalTabId as global_tab_id, :position as position "
-                 . "FROM {$productsTable} as p";
+            . "INTO {$tabsTable}(enabled, product_id, global_tab_id, position) "
+            . "SELECT :enabled as enabled, p.product_id as product_id, :globalTabId as global_tab_id, :position as position "
+            . "FROM {$productsTable} as p";
 
         Database::getEM()->getConnection()->executeQuery($query, [
             'enabled'     => $enabled,
@@ -108,18 +108,18 @@ class GlobalTab extends \XLite\Model\Repo\Product\GlobalTab implements \XLite\Ba
     {
         $shiftValue = $this->getMaxPosition() + 10;
 
-        $tablePrefix = \XLite::getInstance()->getOptions(array('database_details', 'table_prefix'));
+        $tablePrefix = \XLite::getInstance()->getOptions(['database_details', 'table_prefix']);
         $tabsTable = $tablePrefix . 'product_tabs';
         $globalTabsTable = $tablePrefix . 'global_product_tabs';
 
         $query = "INSERT IGNORE "
-                 . "INTO {$tabsTable}(enabled, product_id, global_tab_id, position) "
-                 . "SELECT gt.enabled as enabled, :productId as product_id, gt.id as global_tab_id, (gt.position - :shiftValue) as position "
-                 . "FROM {$globalTabsTable} as gt";
+            . "INTO {$tabsTable}(enabled, product_id, global_tab_id, position) "
+            . "SELECT gt.enabled as enabled, :productId as product_id, gt.id as global_tab_id, (gt.position - :shiftValue) as position "
+            . "FROM {$globalTabsTable} as gt";
 
         Database::getEM()->getConnection()->executeQuery($query, [
             'productId'  => $product->getId(),
-            'shiftValue' => $shiftValue
+            'shiftValue' => $shiftValue,
         ]);
     }
 
@@ -130,19 +130,19 @@ class GlobalTab extends \XLite\Model\Repo\Product\GlobalTab implements \XLite\Ba
     {
         $shiftValue = $this->getMaxPosition() + 10;
 
-        $tablePrefix = \XLite::getInstance()->getOptions(array('database_details', 'table_prefix'));
+        $tablePrefix = \XLite::getInstance()->getOptions(['database_details', 'table_prefix']);
         $tabsTable = $tablePrefix . 'product_tabs';
         $globalTabsTable = $tablePrefix . 'global_product_tabs';
 
         $query = "UPDATE {$tabsTable} as t "
-                 . "INNER JOIN {$globalTabsTable} as gt "
-                 . "ON gt.id = t.global_tab_id "
-                 . "SET "
-                 . "t.enabled = gt.enabled, t.position = gt.position - :shiftValue"
-                 . " WHERE t.global_tab_id IS NOT NULL";
+            . "INNER JOIN {$globalTabsTable} as gt "
+            . "ON gt.id = t.global_tab_id "
+            . "SET "
+            . "t.enabled = gt.enabled, t.position = gt.position - :shiftValue"
+            . " WHERE t.global_tab_id IS NOT NULL";
 
         Database::getEM()->getConnection()->executeQuery($query, [
-            'shiftValue' => $shiftValue
+            'shiftValue' => $shiftValue,
         ]);
     }
 
@@ -159,8 +159,8 @@ class GlobalTab extends \XLite\Model\Repo\Product\GlobalTab implements \XLite\Ba
     public function loadRawFixture(
         \XLite\Model\AEntity $entity,
         array $record,
-        array $regular = array(),
-        array $assocs = array()
+        array $regular = [],
+        array $assocs = []
     )
     {
         $persistent = $entity->isPersistent();
@@ -179,7 +179,15 @@ class GlobalTab extends \XLite\Model\Repo\Product\GlobalTab implements \XLite\Ba
      */
     public function generateTabLink(\XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab $tab)
     {
-        $result = $link = \XLite\Core\Converter::convertToTranslit($tab->getName());
+        $result = $link = preg_replace(
+            '/[^a-z0-9-_:.]/i',
+            '',
+            str_replace(
+                ' ',
+                '_',
+                \XLite\Core\Converter::convertToTranslit($tab->getName())
+            )
+        );
 
         $i = 1;
         while (!$this->checkLinkUniqueness($result, $tab)) {

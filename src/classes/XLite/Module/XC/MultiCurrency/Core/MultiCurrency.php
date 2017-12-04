@@ -13,12 +13,12 @@ namespace XLite\Module\XC\MultiCurrency\Core;
  */
 class MultiCurrency extends \XLite\Base
 {
-    const RATE_UPDATE_INTERVAL  = 3600;
+    const RATE_UPDATE_INTERVAL = 3600;
 
-    const RATE_UPDATE_CELL      = 'MultiCurrencyRateUpdateDate';
-    const CURRENCY_CODE_CELL    = 'MultiCurrencySelectedCurrencyCode';
-    const CURRENCY_ID_CELL      = 'MultiCurrencySelectedCurrencyId';
-    const COUNTRY_CODE_CELL     = 'MultiCurrencySelectedCountry';
+    const RATE_UPDATE_CELL   = 'MultiCurrencyRateUpdateDate';
+    const CURRENCY_CODE_CELL = 'MultiCurrencySelectedCurrencyCode';
+    const CURRENCY_ID_CELL   = 'MultiCurrencySelectedCurrencyId';
+    const COUNTRY_CODE_CELL  = 'MultiCurrencySelectedCountry';
 
     /**
      * Has multiple currencies
@@ -111,7 +111,7 @@ class MultiCurrency extends \XLite\Base
         if (0 == $precision) {
             $return = (float)($value * $rate);
         } else {
-            $return = (float) round((float)($value * $rate), $precision);
+            $return = (float)round((float)($value * $rate), $precision);
         }
 
         return $return;
@@ -186,7 +186,7 @@ class MultiCurrency extends \XLite\Base
         if (is_null(static::$availableCountries)) {
             $cnd = new \XLite\Core\CommonCell();
 
-            $cnd->{\XLite\Model\Repo\Country::P_ORDER_BY} = array('translations.country');
+            $cnd->{\XLite\Model\Repo\Country::P_ORDER_BY} = ['translations.country'];
             $cnd->{\XLite\Model\Repo\Country::P_ENABLED} = true;
 
             static::$availableCountries = \XLite\Core\Database::getRepo('XLite\Model\Country')
@@ -300,23 +300,12 @@ class MultiCurrency extends \XLite\Base
     public function getSelectedCountry()
     {
         if (is_null(static::$selectedCountry)) {
-            $selectedCountry = \XLite\Core\Database::getRepo('XLite\Model\Country')->findOneBy(
-                array(
-                    'code' => $this->getSelectedCountryCode()
-                )
-            );
+            $selectedCountry = \XLite\Core\Database::getRepo('XLite\Model\Country')->findOneBy([
+                'code' => $this->getSelectedCountryCode(),
+            ]);
 
             if (!isset($selectedCountry)) {
-                $selectedCurrency = $this->getSelectedCurrency();
-
-                if (
-                    !isset($selectedCurrency)
-                    || !$selectedCurrency->getActiveCurrency()->hasAssignedCountries()
-                ) {
-                    $selectedCountry = $this->getDefaultCountry();
-                } else {
-                    $selectedCountry = $selectedCurrency->getActiveCurrency()->getFirstCountry();
-                }
+                $selectedCountry = $this->selectCountry();
 
                 $this->setSelectedCountry($selectedCountry);
             }
@@ -325,6 +314,29 @@ class MultiCurrency extends \XLite\Base
         }
 
         return static::$selectedCountry;
+    }
+
+    protected function selectCountry()
+    {
+        $selectedCurrency = $this->getSelectedCurrency();
+
+        /* @var \XLite\Model\Profile $profile */
+        $profile = \XLite\Core\Auth::getInstance()->getProfile();
+
+        if ($profile && ($address = $profile->getShippingAddress())) {
+            $selectedCountry = $address->getCountry();
+        } elseif (\XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\Geolocation')) {
+            $selectedCountry = \XLite\Model\Address::getDefaultFieldValue('country');
+        } elseif (
+            !isset($selectedCurrency)
+            || !$selectedCurrency->getActiveCurrency()->hasAssignedCountries()
+        ) {
+            $selectedCountry = $this->getDefaultCountry();
+        } else {
+            $selectedCountry = $selectedCurrency->getActiveCurrency()->getFirstCountry();
+        }
+
+        return $selectedCountry;
     }
 
     /**
@@ -389,8 +401,8 @@ class MultiCurrency extends \XLite\Base
     public function needRateUpdate()
     {
         return $this->hasMultipleCurrencies()
-        && \XLite\Module\XC\MultiCurrency\Core\CurrencyRate::PROVIDER_NONE
-        != \XLite\Core\Config::getInstance()->XC->MultiCurrency->rateProvider;
+            && \XLite\Module\XC\MultiCurrency\Core\CurrencyRate::PROVIDER_NONE
+            != \XLite\Core\Config::getInstance()->XC->MultiCurrency->rateProvider;
     }
 
     /**

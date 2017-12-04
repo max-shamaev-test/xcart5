@@ -33,7 +33,9 @@ core.bind(
               });
             }
 
-            if (subscribe != null) {
+            if (jQuery('input[name=subscribeToAll]').is(':checked')) {
+              data.subscribeToAll = 1;
+            } else if (subscribe != null) {
               data.subscribe = subscribe;
             }
 

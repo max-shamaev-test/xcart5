@@ -54,7 +54,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '1';
+        return '2';
     }
 
     /**
@@ -105,16 +105,6 @@ abstract class Main extends \XLite\Module\AModule
     public static function showSettingsForm()
     {
         return false;
-    }
-
-    /**
-     * Return link to settings form
-     *
-     * @return string
-     */
-    public static function getSettingsForm()
-    {
-        return \XLite\Core\Converter::buildURL('pay_with_amazon');
     }
 
     public static function log($message)

@@ -23,10 +23,20 @@ class GlobalTab extends \XLite\Model\Product\GlobalTab implements \XLite\Base\ID
     protected $enabled = true;
 
     /**
+     * Link
+     *
+     * @var string
+     *
+     * @Column (type="string",nullable=true)
+     */
+    protected $link = null;
+
+    /**
      * Global custom tab
      *
      * @var \XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab
-     * @OneToOne  (targetEntity="XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab", mappedBy="global_tab", cascade={"all"})
+     * @OneToOne  (targetEntity="XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab",
+     *            mappedBy="global_tab", cascade={"all"})
      */
     protected $custom_tab;
 
@@ -43,7 +53,7 @@ class GlobalTab extends \XLite\Model\Product\GlobalTab implements \XLite\Base\ID
      *
      * @param array $data Entity properties OPTIONAL
      */
-    public function __construct(array $data = array())
+    public function __construct(array $data = [])
     {
         $this->product_specific_aliases = new \Doctrine\Common\Collections\ArrayCollection();
 
@@ -70,6 +80,29 @@ class GlobalTab extends \XLite\Model\Product\GlobalTab implements \XLite\Base\ID
     public function setEnabled($enabled)
     {
         $this->enabled = $enabled;
+        return $this;
+    }
+
+    /**
+     * Return Link
+     *
+     * @return string
+     */
+    public function getLink()
+    {
+        return $this->link;
+    }
+
+    /**
+     * Set Link
+     *
+     * @param string $link
+     *
+     * @return $this
+     */
+    public function setLink($link)
+    {
+        $this->link = $link;
         return $this;
     }
 

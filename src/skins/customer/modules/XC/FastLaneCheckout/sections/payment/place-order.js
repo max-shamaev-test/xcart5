@@ -82,7 +82,7 @@ define(
       },
 
       fillForm: function(event) {
-        this.$root.startLoadAnimation();
+        this.$root.startLoadAnimation(core.t('Transaction is in progress'));
         var form = $('form.place');
 
         if (form.find('.collected-params').length) {
@@ -116,16 +116,19 @@ define(
       },
 
       placeOrder: function() {
+        var root = this.$root;
         if (this.ready) {
-          this.$root.startLoadAnimation();
-          _.defer(_.bind(function() {
-            this.onReadyPlaceOrder();
-            if (this.state.state !== false) {
-              this.sendForm();
-            } else {
-              this.$root.finishLoadAnimation();
-            }
-          }, this));
+          root.startLoadAnimation();
+          _.defer(
+            _.bind(function() {
+              this.onReadyPlaceOrder();
+              if (this.state.state !== false) {
+                this.sendForm();
+              } else {
+                root.finishLoadAnimation();
+              }
+            }, this)
+          );
         } else {
           this.onNotReadyPlaceOrder();
         }

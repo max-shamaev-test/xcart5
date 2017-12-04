@@ -52,6 +52,11 @@ class ThemeTweakerPanel extends \XLite\View\AView implements ProviderInterface
             'media' =>  'screen',
             'merge' =>  'bootstrap/css/bootstrap.less',
         ];
+        $list[] = [
+            'file'  => $this->getDir() . '/animations.less',
+            'media' =>  'screen',
+            'merge' =>  'bootstrap/css/bootstrap.less',
+        ];
 
         return $list;
     }

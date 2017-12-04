@@ -264,6 +264,14 @@ class Info extends \XLite\Model\DTO\Base\ADTO
      * @param \XLite\Model\Product $object
      * @param array|null           $rawData
      */
+    public function afterUpdate($object, $rawData = null)
+    {
+    }
+
+    /**
+     * @param \XLite\Model\Product $object
+     * @param array|null           $rawData
+     */
     public function afterPopulate($object, $rawData = null)
     {
         $object->updateQuickData();
@@ -281,13 +289,5 @@ class Info extends \XLite\Model\DTO\Base\ADTO
             $sku = \XLite\Core\Database::getRepo('XLite\Model\Product')->generateSKU($object);
             $object->setSku((string) $sku);
         }
-    }
-
-    /**
-     * @param \XLite\Model\Product $object
-     * @param array|null           $rawData
-     */
-    public function afterUpdate($object, $rawData = null)
-    {
     }
 }

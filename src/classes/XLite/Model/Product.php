@@ -59,12 +59,6 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     protected $product_id;
 
     /**
-     * @Version
-     * @Column(type="integer")
-     */
-    protected $version;
-
-    /**
      * Product price
      *
      * @var float
@@ -596,6 +590,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
         $this->attributeValueT  = new \Doctrine\Common\Collections\ArrayCollection();
         $this->attributes       = new \Doctrine\Common\Collections\ArrayCollection();
         $this->quickData        = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->free_shipping    = !\XLite\Core\Config::getInstance()->General->requires_shipping_default;
 
         parent::__construct($data);
     }
@@ -608,16 +603,6 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     public function getId()
     {
         return $this->getProductId();
-    }
-
-    /**
-     * Return Version
-     *
-     * @return mixed
-     */
-    public function getVersion()
-    {
-        return $this->version;
     }
 
     /**
@@ -2760,31 +2745,5 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     public function getLowLimitAmount()
     {
         return $this->lowLimitAmount;
-    }
-
-    /**
-     * Checks if given property is available to modification through layout editor mode.
-     *
-     * @param  string  $property Checked entity property
-     * @return array
-     */
-    public function getFieldMetadata($property)
-    {
-        return array(
-            'data-model' => $this->getEntityName(),
-            'data-identifier' => $this->getProductId(),
-            'data-property' => $property,
-            'data-inline-editor-config' => json_encode($this->getInlineEditorConfig()),
-        );
-    }
-
-    /**
-     * This is config for layout editor mode editor.
-     *
-     * @return array
-     */
-    public function getInlineEditorConfig()
-    {
-        return [];
     }
 }
