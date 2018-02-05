@@ -209,7 +209,7 @@ tr.buttons td:first-child input {
   font-size: 14px;
 }
 
-.comparison-table tr.buttons td form,
+.comparison-table tr.buttons td > *,
 .comparison-table tr.images td {
   text-align: center;
 }

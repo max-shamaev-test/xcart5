@@ -17,6 +17,8 @@ namespace XLite\Module\CDev\Coupons\Model;
  *          @Index (name="ce", columns={"code", "enabled"})
  *      }
  * )
+ *
+ * @HasLifecycleCallbacks
  */
 class Coupon extends \XLite\Model\AEntity
 {

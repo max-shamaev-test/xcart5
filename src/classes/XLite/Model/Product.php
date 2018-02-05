@@ -217,7 +217,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      * @var \Doctrine\ORM\PersistentCollection
      *
      * @OneToMany (targetEntity="XLite\Model\CategoryProducts", mappedBy="product", cascade={"all"})
-     * @OrderBy   ({"orderby" = "ASC"})
+     * @OrderBy   ({"orderbyInProduct" = "ASC"})
      */
     protected $categoryProducts;
 
@@ -1353,8 +1353,6 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
         if (\XLite\Core\Converter::isEmptyString($this->getSku())) {
             $this->setSku(null);
         }
-
-        $this->truncateFields();
     }
 
     /**
@@ -1469,33 +1467,6 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
         return $this->executeCachedRuntime(function () {
             return $this->defineEditableAttributes();
         }, ['getEditableAttributes', $this->getProductId()]);
-    }
-
-    /**
-     * Returns array of fields to be truncated upon update or create
-     * Array format:
-     *  key - getter property (e.g. 'name' for getName())
-     *  value - field length
-     *
-     * @return array
-     */
-    protected function defineTruncatedFields()
-    {
-        return [
-            'name' => \XLite\Core\Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('name', 'length'),
-            'metaTags' => \XLite\Core\Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('metaTags', 'length'),
-            'metaTitle' => \XLite\Core\Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('metaTitle', 'length')
-        ];
-    }
-
-    /**
-     * Truncates fields, limit their length. Called on prepareBeforeUpdate
-     */
-    protected function truncateFields()
-    {
-        foreach ($this->defineTruncatedFields() as $field => $length) {
-            $this->{$field} = mb_substr($this->{$field}, 0, $length);
-        }
     }
 
     /**
@@ -1657,6 +1628,24 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
                     'value'          => $value,
                 );
 
+            } elseif ($a->getType() === \XLite\Model\Attribute::TYPE_CHECKBOX) {
+                $found = null;
+
+                if (isset($ids[$a->getId()])) {
+                    foreach ($a->getAttributeValue($this) as $av) {
+                        if ($av->getId() === (int) $ids[$a->getId()]) {
+                            $found = $av;
+                            break;
+                        }
+                    }
+                }
+
+                $value = $found
+                    ? $found
+                    : $a->getDefaultAttributeValue($this);
+
+                $attributeValues[$a->getId()] = $value;
+
             } else {
                 if (!$this->showPlaceholderOption()) {
                     $attributeValues[$a->getId()] = $a->getDefaultAttributeValue($this);
@@ -1664,7 +1653,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
 
                 if (isset($ids[$a->getId()])) {
                     foreach ($a->getAttributeValue($this) as $av) {
-                        if ($av->getId() == $ids[$a->getId()]) {
+                        if ($av->getId() === (int) $ids[$a->getId()]) {
                             $attributeValues[$a->getId()] = $av;
                             break;
                         }

@@ -29,6 +29,6 @@ class FreeShippingHowTo extends \XLite\View\AView
      */
     public function getFreeShippingHowToText()
     {
-        return static::t('How to set up free shipping help', ['url' => 'http://kb.x-cart.com/en/shipping/free_shipping.html']);
+        return static::t('How to set up free shipping help', ['url' => 'https://kb.x-cart.com/en/shipping/free_shipping.html']);
     }
 }

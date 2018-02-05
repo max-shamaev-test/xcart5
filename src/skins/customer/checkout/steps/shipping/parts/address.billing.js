@@ -70,8 +70,6 @@ BillingAddressView.prototype.handleSameAddress = function(event)
       .removeClass('address-invisible');
     this.base.find('#billingaddress-country-code').change();
   }
-
-  this.triggerChange();
 };
 
 BillingAddressView.prototype.handleUpdateCart = function(event, data)

@@ -830,11 +830,11 @@ class Order extends \XLite\Controller\Admin\AAdmin
 
         $this->updatePaymentMethods();
 
-        // Process change order statuses
-        $this->updateOrderStatus();
-
         // Process order tracking
         $this->updateTracking();
+
+        // Process change order statuses
+        $this->updateOrderStatus();
 
         // Update staff note
         $this->updateAdminNotes();

@@ -501,7 +501,7 @@ class AdminMain extends \XLite\View\Model\AModel
                 'Attention! You are creating an account with full access. Roles warning',
                 [
                     'roles_link' => $this->buildURL('roles'),
-                    'kb_link'    => 'http://kb.x-cart.com/en/users/user_roles.html',
+                    'kb_link'    => 'https://kb.x-cart.com/en/users/user_roles.html',
                 ]
             );
         }

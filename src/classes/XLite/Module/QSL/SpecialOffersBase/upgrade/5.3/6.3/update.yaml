@@ -1,0 +1,49 @@
+XLite\Model\LanguageLabel:
+  - name: "After you install and enable one of special offer addons, this page will provide tools to configure promotions."
+    translations:
+      - code: en
+        label: 'After you install and enable one of <a href="{{link}}">X-Cart&#39;s special offer addons</a>, this page will provide tools to configure promotions.'
+      - code: ru
+        label: 'На этой странице можно будет настраивать специальные предложения после <a href="{{link}}">установки соответствующих модулей</a>.'
+  - name: "Special Offers promo: Buy X Get Y description"
+    translations:
+      - code: en
+        label: '<p>With the addon &quot;<a href="{{link}}">Buy X Get Y</a>&quot; you can encourage your customers to buy more items by running promotions like &quot;Buy one, get one half off&quot;, &quot;Buy two, get one free&quot;, &quot;Buy 5 items, get $5 off the cheapest one&quot; and so on.<p>'
+      - code: ru
+        label: '<p>Модуль &quot;<a href="{{link}}">Buy X Get Y</a>&quot; стимулирует пользователей покупать больше товаров, позволяя настроить в магазине такие специальные предложения, как &quot;Каждая вторая рубашка за полцены&quot;, &quot;При покупке 5 книг получи скидку до 500 рублей с самой дешёвой из них&quot;, &quot;Каждый третий товар - бесплатно!&quot; и другие.<p>'
+  - name: "Special Offers promo: Spend X Get Y description"
+    translations:
+      - code: en
+        label: '<p>Another addon, &quot;<a href="{{link}}">Spend X Get Y</a>&quot;, allows you to boost sales by creating promotions like &quot;Spend $250 on shirts and get two for free&quot;.<p>'
+      - code: ru
+        label: '<p>Ещё один модуль, &quot;<a href="{{link}}">Spend X Get Y</a>&quot;, расширяет список поддерживаемых типов специальных предложений, позволяя проводить такие акции, как &quot;Потрать 6000 рублей на рубашки, и получи скидку в размере стоимости двух самых дешёвых из них&quot;.<p>'
+  - name: "Special Offers promo: Common description"
+    translations:
+      - code: en
+        label: '<p>Both the addons:</p><ul><li><i class="fa fa-check"></i>support multiple ongoing promotions</li><li><i class="fa fa-check"></i>can restrict promotions based on date, specific product category and/or membership level</li><li><i class="fa fa-check"></i>allow you to specify which promotions may be combined, and which ones may not</li></ul>'
+      - code: ru
+        label: '<p>Оба модуля:</p><ul><li><i class="fa fa-check"></i>поддерживают проведение нескольких акций одновременно;</li><li><i class="fa fa-check"></i>могут ограничивать проведение акций указанными датами, категориями товаров и/или типами покупателей;</li><li><i class="fa fa-check"></i>позволяют указать, какие специальные предложения могут комбинироваться и применяться к одному и тому же товару, а какие &mdash; нет.</li></ul>'
+  - name: "Special Offers promo: You may also like"
+    translations:
+      - code: en
+        label: 'You may also like:'
+      - code: ru
+        label: 'Вам также могут быть интересны:'
+  - name: "Special Offers promo: Coupon Roulette short"
+    translations:
+      - code: en
+        label: 'This addon stops users before they leave your site and collects their email addresses for you.'
+      - code: ru
+        label: 'этот модуль останавливает покупателей перед тем, как они покинут сайт, и позволяет собрать их e-mail адреса.'
+  - name: "Special Offers promo: Loyalty Program short"
+    translations:
+      - code: en
+        label: 'This addon enables your customers to earn reward points for purchases and actions on your site.'
+      - code: ru
+        label: 'этот модуль начисляет покупателям бонусные очки за покупки и действия в магазине.'
+  - name: "Special Offers promo: Popup Anywhere short"
+    translations:
+      - code: en
+        label: 'This addon helps you to capture your customers attention and promote special offers and discounts in your store.'
+      - code: ru
+        label: 'этот модуль помогает привлечь внимание покупателей к специальным предложениями и акциям магазина.'

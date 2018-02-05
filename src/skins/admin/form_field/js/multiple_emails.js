@@ -41,7 +41,7 @@ CommonElement.prototype.handlers.push(
       });
 
       container.bind('try2CreateOption', function () {
-        var input = $(this).find('[contenteditable="true"]');
+        var input = $(this).find('[contenteditable="true"]').first();
         var val = input.text();
 
         var duplicates = element.find('option').filter(function () {

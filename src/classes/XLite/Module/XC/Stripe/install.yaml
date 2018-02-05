@@ -25,6 +25,8 @@ XLite\Model\Payment\Method:
         value: sale
       - name: prefix
         value: xcart
+      - name: userId
+      - name: refreshToken
 
 XLite\Model\LanguageLabel:
   - { directives: { allowedModel: 'XLite\Model\LanguageLabelTranslation' } }

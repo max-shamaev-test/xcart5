@@ -163,7 +163,9 @@ class AddonsListMarketplace extends \XLite\Controller\Admin\Base\AddonsList
      */
     public function countModulesSelected()
     {
-        return count(\XLite\Core\Session::getInstance()->modulesToInstall);
+        return is_array(\XLite\Core\Session::getInstance()->modulesToInstall)
+            ? count(\XLite\Core\Session::getInstance()->modulesToInstall)
+            : 0;
     }
 
     /**

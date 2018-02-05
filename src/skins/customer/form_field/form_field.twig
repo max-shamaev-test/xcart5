@@ -26,7 +26,7 @@
   {% endif %}
   {% if this.getFormFieldJSData() %}{{ this.displayCommentedData(this.getFormFieldJSData()) }}{% endif %}
   {% if this.getInlineJSCode() %}
-    <script type="text/javascript">{{ this.getInlineJSCode() }}</script>
+    <script>{{ this.getInlineJSCode() }}</script>
   {% endif %}
 </div>
 

@@ -1895,6 +1895,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
         $this->getQueryBuilder()
              ->update($this->_entityName, $alias)
              ->set($alias . '.xcPendingExport', 0)
+             ->andWhere($alias . '.xcPendingExport = 1')
              ->execute();
     }
 

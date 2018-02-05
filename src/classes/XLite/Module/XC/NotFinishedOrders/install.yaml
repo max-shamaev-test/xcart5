@@ -56,4 +56,4 @@ XLite\Model\LanguageLabel:
   - { name: "Not finished order", translations: [{ code: en, label: "Not finished order" }, { code: ru, label: "Незавершенный заказ" }] }
   - { name: "not finished", translations: [{ code: en, label: "not finished" }, { code: ru, label: "не завершен" }] }
   - { name: "by payment callback (Failed + Cancel)", translations: [{ code: en, label: "in case of failed or cancelled payment" }, { code: ru, label: "В случае неудачной оплаты" }] }
-  - { name: "by pressing Place order button", translations: [{ code: en, label: "as soon as 'Place order’ button is pressed" }, { code: ru, label: "При размещении заказа" }] }
+  - { name: "by pressing Place order button", translations: [{ code: en, label: "before payment" }, { code: ru, label: "до оплаты" }] }

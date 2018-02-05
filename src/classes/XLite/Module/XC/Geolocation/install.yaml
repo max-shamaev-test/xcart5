@@ -54,3 +54,4 @@ XLite\Model\LanguageLabel:
   - { name: 'Save location', translations: [{ code: en, label: 'Save location' }] }
   - { name: 'Location was successfully set', translations: [{ code: en, label: 'Location was successfully set' }] }
   - { name: 'Revert to default database', translations: [{ code: en, label: 'Revert to default database' }] }
+  - { name: 'Geolocation header promo', translations: [{ code: en, label: 'X-Cart uses free "GeoLite2 Country" database by <a href="https://www.maxmind.com/en/geoip2-databases?%refID=xcart" target="_blank">MaxMind</a>. You can upload the more accurate database to determine the country, subdivisions, city, and postal code. <a href="https://www.maxmind.com/en/geoip2-databases?%refID=xcart%" target="_blank">Learn more</a>' }] }

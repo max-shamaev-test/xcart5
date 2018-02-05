@@ -5,6 +5,6 @@
  #}
 {% if this.doCSSAggregation() %}
 {% for file in this.getAggregateCSSResources() %}
-  <link href="{{ this.getResourceURL(file.url) }}" rel="stylesheet" type="text/css" media="{{ file.media }}" />
+  <link href="{{ this.getResourceURL(file.url, file) }}" rel="stylesheet" type="text/css" media="{{ file.media }}" />
 {% endfor %}
 {% endif %}

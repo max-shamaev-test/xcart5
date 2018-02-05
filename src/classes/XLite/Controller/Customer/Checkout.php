@@ -858,7 +858,6 @@ class Checkout extends \XLite\Controller\Customer\Cart
         $this->setCheckoutAvailable();
 
         if (empty($this->requestData['shippingAddress'])
-            && empty($this->requestData['billingAddress'])
             && isset($this->requestData['same_address'])
         ) {
             \XLite\Core\Session::getInstance()->same_address = (bool)$this->requestData['same_address'];
@@ -889,11 +888,13 @@ class Checkout extends \XLite\Controller\Customer\Cart
     /**
      * Update anonymous profile
      *
-     * @return void
+     * @throws \Exception
      */
     protected function updateAnonymousProfile()
     {
-        $login = $this->requestData['email'];
+        $login = isset($this->requestData['email'])
+            ? $this->requestData['email']
+            : null;
 
         if (null !== $login) {
             $tmpProfile = new \XLite\Model\Profile;

@@ -21,7 +21,7 @@ class Scenario extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Scenario impl
         $result = parent::defineScenario();
         $result['product_attachments'] = [
             'title'   => \XLite\Core\Translation::getInstance()->translate('Attachments'),
-            'url'     => 'http://ideas.x-cart.com/forums/229428-x-cart-5-x/suggestions/15147645-bulk-products-editing-attachments',
+            'url'     => 'https://ideas.x-cart.com/forums/229428-x-cart-5-x/suggestions/15147645-bulk-products-editing-attachments',
         ];
 
         return $result;

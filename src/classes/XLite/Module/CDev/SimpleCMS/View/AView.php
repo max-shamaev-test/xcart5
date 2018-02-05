@@ -37,7 +37,12 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
     {
         $url = str_replace(LC_DS, '/', \XLite\Core\Config::getInstance()->CDev->SimpleCMS->favicon);
 
-        return $url ?: parent::getFavicon();
+
+        if (!$url) {
+            $url = parent::getFavicon();
+        }
+
+        return \XLite::getInstance()->getShopURL($url);
     }
 
     /**

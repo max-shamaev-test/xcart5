@@ -25,8 +25,7 @@ class OrderItemAttributes extends \XLite\View\AView
      *
      * @var \XLite\Model\OrderItem
      */
-    protected $orderItem = null;
-
+    protected $orderItem;
 
     /**
      * Get order item entity
@@ -35,12 +34,13 @@ class OrderItemAttributes extends \XLite\View\AView
      */
     public function getEntity()
     {
-        if (is_null($this->orderItem)) {
+        if (null === $this->orderItem) {
             $this->orderItem = $this->getParam(self::PARAM_ORDER_ITEM);
         }
 
-        if (is_null($this->orderItem) && $this->getParam(self::PARAM_PRODUCT_ID)) {
-            $product = \XLite\Core\Database::getRepo('XLite\Model\Product')->find($this->getParam(self::PARAM_PRODUCT_ID));
+        if (null === $this->orderItem && $this->getParam(self::PARAM_PRODUCT_ID)) {
+            $product = \XLite\Core\Database::getRepo('XLite\Model\Product')
+                ->find($this->getParam(self::PARAM_PRODUCT_ID));
 
             if ($product) {
                 $this->orderItem = new \XLite\Model\OrderItem();
@@ -71,12 +71,12 @@ class OrderItemAttributes extends \XLite\View\AView
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
-            self::PARAM_ORDER_ITEM => new \XLite\Model\WidgetParam\TypeObject('OrderItem', null, false, '\XLite\Model\OrderItem'),
+        $this->widgetParams += [
+            self::PARAM_ORDER_ITEM => new \XLite\Model\WidgetParam\TypeObject('OrderItem', null, false, 'XLite\Model\OrderItem'),
             self::PARAM_PRODUCT_ID => new \XLite\Model\WidgetParam\TypeInt('Product ID', null, false),
-            self::PARAM_IDX => new \XLite\Model\WidgetParam\TypeInt('Index of order item', 0, false),
+            self::PARAM_IDX        => new \XLite\Model\WidgetParam\TypeInt('Index of order item', 0, false),
 
-        );
+        ];
     }
 
     /**
@@ -99,12 +99,12 @@ class OrderItemAttributes extends \XLite\View\AView
      */
     protected function isPopoverDisplayed()
     {
-        $attrsCount = max(
+        $сount = max(
             $this->getEntity()->getAttributeValuesCount(),
             count($this->getEntity()->getProduct()->getEditableAttributes())
         );
 
-        return $this->getPopoverMaxOptions() > $attrsCount;
+        return $this->getPopoverMaxOptions() > $сount;
     }
 
     /**
@@ -124,21 +124,39 @@ class OrderItemAttributes extends \XLite\View\AView
      *
      * @return string
      */
-    protected function getOptionsPopupURL($params = array())
+    protected function getOptionsPopupURL(array $params = [])
     {
         $entity = $this->getEntity();
 
-        return static::buildURL(
+        return $this->buildURL(
             'change_attribute_values',
             null,
             array_merge(
-                array(
+                [
                     'widget'  => '\XLite\View\ChangeAttributeValues',
                     'item_id' => $entity->getItemId(),
-                ),
+                ],
                 $params
             )
         );
+    }
+
+    /**
+     * Get attribute value
+     *
+     * @param \XLite\Model\OrderItem\AttributeValue
+     *
+     * @return \XLite\Model\Attribute
+     */
+    protected function getAttribute(\XLite\Model\OrderItem\AttributeValue $attrValue)
+    {
+        $attribute = $attrValue->getAttributeValue() ? $attrValue->getAttributeValue()->getAttribute() : null;
+
+        if (!$attribute && $attrValue->getAttributeId()) {
+            $attribute = \XLite\Core\Database::getRepo('XLite\Model\Attribute')->find($attrValue->getAttributeId());
+        }
+
+        return $attribute;
     }
 
     /**
@@ -150,21 +168,17 @@ class OrderItemAttributes extends \XLite\View\AView
      */
     protected function getAttributeId(\XLite\Model\OrderItem\AttributeValue $attrValue)
     {
-        $attribute = $attrValue->getAttributeValue() ? $attrValue->getAttributeValue()->getAttribute() : null;
-
-        if (!$attribute && $attrValue->getAttributeId()) {
-            $attribute = \XLite\Core\Database::getRepo('XLite\Model\Attribute')->find($attrValue->getAttributeId());
-        }
+        $attribute = $this->getAttribute($attrValue);
 
         return $attribute ? $attribute->getId() : $attrValue->getAttributeValueId();
     }
 
     /**
-     * Get attribute input name 
-     * 
+     * Get attribute input name
+     *
      * @param \XLite\Model\OrderItem                $entity Order item
      * @param \XLite\Model\OrderItem\AttributeValue $av     Attribute value
-     *  
+     *
      * @return string
      */
     protected function getAttributeInputName(\XLite\Model\OrderItem $entity, \XLite\Model\OrderItem\AttributeValue $av)
@@ -177,18 +191,13 @@ class OrderItemAttributes extends \XLite\View\AView
     /**
      * Get attribute value
      *
-     * @param \XLite\Model\OrderItem\AttributeValue
+     * @param \XLite\Model\OrderItem\AttributeValue $attrValue
      *
      * @return string|integer
      */
-    protected function getAttributeValue($attrValue)
+    protected function getAttributeValue(\XLite\Model\OrderItem\AttributeValue $attrValue)
     {
-        $attribute = $attrValue->getAttributeValue() ? $attrValue->getAttributeValue()->getAttribute() : null;
-
-        if (!$attribute && $attrValue->getAttributeId()) {
-            $attribute = \XLite\Core\Database::getRepo('XLite\Model\Attribute')->find($attrValue->getAttributeId());
-        }
-
+        $attribute = $this->getAttribute($attrValue);
         $attributeType = $attribute ? $attribute->getType() : null;
 
         $result = null;
@@ -204,7 +213,7 @@ class OrderItemAttributes extends \XLite\View\AView
                 break;
 
             case \XLite\Model\Attribute::TYPE_CHECKBOX:
-                $result = $attrValue->getAttributeValue()->getValue();
+                $result = $attrValue->getAttributeValueId();
         }
 
         return $result;
@@ -228,5 +237,31 @@ class OrderItemAttributes extends \XLite\View\AView
     protected function getProductId()
     {
         return $this->getEntity()->getProduct()->getProductId();
+    }
+
+    /**
+     * @param \XLite\Model\OrderItem\AttributeValue $attrValue
+     *
+     * @return bool
+     */
+    protected function isCheckbox(\XLite\Model\OrderItem\AttributeValue $attrValue)
+    {
+        $attribute = $this->getAttribute($attrValue);
+        $attributeType = $attribute ? $attribute->getType() : null;
+
+        return $attributeType === \XLite\Model\Attribute::TYPE_CHECKBOX;
+    }
+
+    /**
+     * @param \XLite\Model\OrderItem\AttributeValue $attrValue
+     *
+     * @return mixed
+     */
+    protected function getUncheckedValue(\XLite\Model\OrderItem\AttributeValue $attrValue)
+    {
+        $attribute = $this->getAttribute($attrValue);
+        $values = $attribute->getAttributeValue($this->getEntity()->getProduct());
+
+        return $values[1]->getId();
     }
 }

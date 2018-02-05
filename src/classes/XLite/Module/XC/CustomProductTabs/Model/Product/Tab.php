@@ -264,7 +264,7 @@ class Tab extends \XLite\Model\Base\I18n implements \XLite\Model\Product\IProduc
     public function isAvailable()
     {
         $result = $this->isGlobalStatic()
-            ? $this->getGlobalTab()->isAvailable()
+            ? $this->getGlobalTab()->checkProviders()
             : true;
 
         return $result && $this->getEnabled();

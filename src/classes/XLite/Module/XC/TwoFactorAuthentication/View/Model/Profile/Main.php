@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\TwoFactorAuthentication\View\Model\Profile;
 
+use XLite\Core\Config;
+
 /**
  * \XLite\View\Model\Profile\Main
  */
@@ -41,10 +43,9 @@ class Main extends \XLite\View\Model\Profile\Main implements \XLite\Base\IDecora
      */
     protected function getFormFieldsForSectionMain()
     {
-        $schema = array_merge($this->mainSchema, $this->auth_phone);
-
-        // Modify the main schema
-        $this->mainSchema = $schema;
+        if (Config::getInstance()->XC->TwoFactorAuthentication->customer_interface) {
+            $this->mainSchema = array_merge($this->mainSchema, $this->auth_phone);
+        }
 
         return parent::getFormFieldsForSectionMain();
     }

@@ -91,5 +91,9 @@ div.onoffswitch {
   text-align: left;
   position: relative;
   white-space: nowrap;
-  min-width: calc(100% + 8px);
+}
+
+.onoffswitch .onoffswitch-inner .on-caption,
+.onoffswitch .onoffswitch-inner .off-caption {
+  padding: 0 8px;
 }

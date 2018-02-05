@@ -1,3 +1,12 @@
+/* vim: set ts=2 sw=2 sts=2 et: */
+
+/**
+ * Wizard progress widget component
+ *
+ * Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+ * See https://www.x-cart.com/license-agreement.html for license details.
+ */
+
 define('wizard/progress', ['js/vue/vue'], function (XLiteVue) {
   XLiteVue.component('xlite-wizard-progress', {
     props: ['currentStep', 'step', 'steps', 'landmarks', 'lastProduct'],

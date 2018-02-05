@@ -96,6 +96,8 @@ abstract class Product extends \XLite\Model\Product implements \XLite\Base\IDeco
      */
     public function constrainCloudSearchProductVariants($filterVariants)
     {
+        $this->defaultVariant = null;
+
         $this->constrainCloudSearchProductVariants = $filterVariants;
     }
 

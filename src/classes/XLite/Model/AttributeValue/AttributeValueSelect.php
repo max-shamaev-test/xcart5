@@ -80,10 +80,14 @@ class AttributeValueSelect extends \XLite\Model\AttributeValue\Multiple
      * Set attribute_option
      *
      * @param \XLite\Model\AttributeOption $attributeOption
+     *
+     * @return static
      */
     public function setAttributeOption(\XLite\Model\AttributeOption $attributeOption = null)
     {
         $this->attribute_option = $attributeOption;
+
+        return $this;
     }
 
     /**
@@ -106,9 +110,13 @@ class AttributeValueSelect extends \XLite\Model\AttributeValue\Multiple
 
     /**
      * @param integer $position
+     *
+     * @return static
      */
     public function setPosition($position)
     {
         $this->position = $position;
+
+        return $this;
     }
 }

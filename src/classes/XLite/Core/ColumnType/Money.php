@@ -8,6 +8,8 @@
 
 namespace XLite\Core\ColumnType;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 /**
  * Money (value without currency)
  */
@@ -33,9 +35,20 @@ class Money extends \Doctrine\DBAL\Types\DecimalType
     public function getSQLDeclaration(array $fieldDeclaration, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
     {
         $fieldDeclaration['precision'] = 14;
-        $fieldDeclaration['scale'] = 4;
+        $fieldDeclaration['scale']     = 4;
 
         return parent::getSQLDeclaration($fieldDeclaration, $platform);
+    }
+
+    /**
+     * @param mixed            $value
+     * @param AbstractPlatform $platform
+     *
+     * @return mixed
+     */
+    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    {
+        return (string) (float) $value;
     }
 
     /**
@@ -48,7 +61,7 @@ class Money extends \Doctrine\DBAL\Types\DecimalType
      */
     public function convertToPHPValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
     {
-        return (null === $value) ? null : doubleval($value);
+        return (null === $value) ? null : (float) $value;
     }
 
     /**
@@ -64,15 +77,5 @@ class Money extends \Doctrine\DBAL\Types\DecimalType
     public function requiresSQLCommentHint(\Doctrine\DBAL\Platforms\AbstractPlatform $platform)
     {
         return true;
-    }
-
-    /**
-     * Define binding database type
-     *
-     * @return integer
-     */
-    public function getBindingType()
-    {
-        return \PDO::PARAM_INT;
     }
 }

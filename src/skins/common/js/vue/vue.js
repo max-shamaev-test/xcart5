@@ -75,7 +75,7 @@ define('js/vue/vue', ['vue/vue', 'js/vue/component'], function (Vue, XLiteVueCom
 
 jQuery(document).ready(function () {
   define('xlite_vue_model_start', ['js/vue/vue', 'ready'], function (XLiteVue) {
-    if ('undefined' === typeof(xliteConfig.admin_script)) {
+    if ('admin' === xliteConfig.zone) {
         XLiteVue.start();
     }
   });

@@ -29,7 +29,7 @@ class PaypalWPS extends \XLite\Model\Payment\Base\WebBased
      *
      * @var string
      */
-    protected $knowledgeBasePageURL = 'http://kb.x-cart.com/en/payments/paypal/setting_up_paypal_payments_standard.html';
+    protected $knowledgeBasePageURL = 'https://kb.x-cart.com/en/payments/paypal/setting_up_paypal_payments_standard.html';
 
     /**
      * Constructor
@@ -80,7 +80,7 @@ class PaypalWPS extends \XLite\Model\Payment\Base\WebBased
      */
     public function getPartnerPageURL(\XLite\Model\Payment\Method $method)
     {
-        return \XLite::getXCartURL('http://www.x-cart.com/paypal_shopping_cart.html');
+        return \XLite::getXCartURL('https://www.x-cart.com/paypal_shopping_cart.html');
     }
 
     /**

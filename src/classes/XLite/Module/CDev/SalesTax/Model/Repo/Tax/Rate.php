@@ -21,7 +21,7 @@ namespace XLite\Module\CDev\SalesTax\Model\Repo\Tax;
  *   description="Tax\Rate represents single tax rate record associated with the Sales tax type.",
  *   @SWG\ExternalDocumentation(
  *     description="Find out more about setting up taxes",
- *     url="http://kb.x-cart.com/en/taxes/"
+ *     url="https://kb.x-cart.com/en/taxes/"
  *   )
  * )
  */

@@ -16,7 +16,7 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
 {
 
     /**
-     * Public wrapper for check checkout action
+     * Used by skin to determine if iframe should be shown
      *
      * @return void
      */
@@ -39,56 +39,12 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
      *
      * @return void
      */
-    public function handleRequest()
+    protected function doActionCheckout()
     {
-
-        if (
-            'checkout' == \XLite\Core\Request::getInstance()->action
-            && !\XLite\Core\Request::getInstance()->xpc_iframe
-            && version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.6') < 0
-        ) {
-
-            \XLite\Core\Session::getInstance()->cardSavedAtCheckout = \XLite\Core\Request::getInstance()->save_card;
-
-        } elseif (
-            \XLite\Core\Request::getInstance()->xpc_iframe
-            && 'checkout' == \XLite\Core\Request::getInstance()->action
-        ) {
+        if (\XLite\Core\Request::getInstance()->xpc_iframe) {
 
             // Enable iframe
             $this->getIframe()->enable();
-
-            // If checkout is not ready finalize the iframe
-            if (
-                !$this->isCheckoutReady()
-                || !$this->checkCheckoutAction()
-            ) {
-                $this->getIframe()->setError('');
-                $this->getIframe()->setType(\XLite\Module\CDev\XPaymentsConnector\Core\Iframe::IFRAME_DO_NOTHING);
-                $this->getIframe()->finalize();
-            }
-           
-            // It's not initialized yet
-            $this->initialCartFingerprint = $this->getCart()->getEventFingerprint();
- 
-            // Update cart and just in case check the items.
-            // Copy-pasted from \XLite\Controller\Customer::doActionCheckout()
-            $itemsBeforeUpdate = $this->getCart()->getItemsFingerprint();
-            $this->updateCart();
-            $itemsAfterUpdate = $this->getCart()->getItemsFingerprint();
-
-            if (
-                $this->get('absence_of_product')
-                || $this->getCart()->isEmpty()
-                || $itemsAfterUpdate != $itemsBeforeUpdate
-            ) {
-                // Cart is changed
-                $this->set('absence_of_product', true);
-                $this->setReturnUrl($this->buildURL('cart'));
-                $this->getIframe()->setError('Cart changed...');
-                $this->getIframe()->setType(\XLite\Module\CDev\XPaymentsConnector\Core\Iframe::IFRAME_ALERT);
-                $this->getIframe()->finalize();
-            }
 
             $transaction = $this->getCart()->getFirstOpenPaymentTransaction();
 
@@ -101,13 +57,18 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
                 // Action Checkout with "xpc_iframe" parameter was called.
                 // But open transaction was not found, or a different processor is used
                 // So exit.
-                print ('DEBUG. No transaction...');
-                die (0);
+                $this->getIframe()->setError('X-Payments transaction not found!');
+                $this->getIframe()->setType(\XLite\Module\CDev\XPaymentsConnector\Core\Iframe::IFRAME_DO_NOTHING);
+                $this->getIframe()->finalize();
             }
 
+        } elseif (
+            version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.6') < 0
+        ) {
+            \XLite\Core\Session::getInstance()->cardSavedAtCheckout = \XLite\Core\Request::getInstance()->save_card;
         }
 
-        parent::handleRequest();
+        parent::doActionCheckout();
     }
 
     /**

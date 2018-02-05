@@ -88,6 +88,10 @@ class Menu extends \XLite\View\Menu\Admin\AAdmin
     protected function defineItems()
     {
         return [
+            'phpOldVersion' => [
+                static::ITEM_WEIGHT     => 50,
+                static::ITEM_WIDGET     => 'XLite\View\Menu\Admin\Info\Node\PhpOldVersion',
+            ],
             'warning' => [
                 static::ITEM_WEIGHT     => 100,
                 static::ITEM_WIDGET     => 'XLite\View\Menu\Admin\Info\Node\Warning',
@@ -107,6 +111,10 @@ class Menu extends \XLite\View\Menu\Admin\AAdmin
             'licenseWarning' => [
                 static::ITEM_WEIGHT     => 500,
                 static::ITEM_WIDGET     => 'XLite\View\Menu\Admin\Info\Node\LicenseWarning',
+            ],
+            'pendingMemberships' => [
+                static::ITEM_WEIGHT     => 600,
+                static::ITEM_WIDGET     => 'XLite\View\Menu\Admin\Info\Node\Membership',
             ],
         ];
     }

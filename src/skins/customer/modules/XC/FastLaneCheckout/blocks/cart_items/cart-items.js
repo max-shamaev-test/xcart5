@@ -57,11 +57,6 @@ define(
     },
 
     computed: {
-      classes: function () {
-        return {
-          'reloading': this.$reloading
-        }
-      },
       itemsList: function() {
         return {
           display: this.itemsVisible ? 'block' : 'none',

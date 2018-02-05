@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\ProductVariants\Logic\Import\Processor;
 
+use XLite\Core\Database;
+
 /**
  * Products
  */
@@ -123,7 +125,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
             $sku = trim(array_shift($values['sku']));
 
             foreach ($values[static::VARIANT_PREFIX . 'ID'] as $vId) {
-                $entity = \XLite\Core\Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')
+                $entity = Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')
                     ->findOneBy(['variant_id' => $vId]);
 
                 if ($entity && $entity->getProduct()->getSku() !== $sku) {
@@ -198,7 +200,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
         parent::verifySku($value, $column);
 
         if (!$this->verifyValueAsEmpty($value)) {
-            $entity = \XLite\Core\Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')
+            $entity = Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')
                 ->findOneBySku($value);
 
             if ($entity) {
@@ -299,7 +301,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
         $key = static::VARIANT_PREFIX . 'ID';
         if (isset($data[$key]) && is_array($data[$key])) {
             foreach ($data[$key] as $index => $vId) {
-                $entity = \XLite\Core\Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')
+                $entity = Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')
                     ->findOneBy(['variant_id' => $vId]);
                 if ($entity) {
                     $this->variants[$index] = $entity;
@@ -330,7 +332,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
         parent::importAttributesColumn($model, $value, $column);
 
         if ($this->multAttributes) {
-            \XLite\Core\Database::getEM()->flush();
+            Database::getEM()->flush();
 
             $variantsAttributes = [];
             foreach ($this->multAttributes as $id => $values) {
@@ -345,7 +347,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
             }
 
             if ($variantsAttributes) {
-                $variantsRepo = \XLite\Core\Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant');
+                $variantsRepo = Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant');
 
                 $tmp = [];
                 foreach ($variantsAttributes as $k => $v) {
@@ -355,12 +357,12 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                     foreach ($variantsAttributes as $rowIndex => $values) {
                         foreach ($values as $id => $value) {
                             if (!isset($this->variantsAttributes[$id])) {
-                                $this->variantsAttributes[$id] = \XLite\Core\Database::getRepo('XLite\Model\Attribute')
+                                $this->variantsAttributes[$id] = Database::getRepo('XLite\Model\Attribute')
                                     ->find($id);
                             }
                             $attribute = $this->variantsAttributes[$id];
 
-                            $repo = \XLite\Core\Database::getRepo($attribute->getAttributeValueClass($attribute->getType()));
+                            $repo = Database::getRepo($attribute->getAttributeValueClass($attribute->getType()));
                             if ($attribute::TYPE_CHECKBOX == $attribute->getType()) {
                                 $values[$id] = $repo->findOneBy(
                                     [
@@ -371,7 +373,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                                 );
 
                             } else {
-                                $attributeOption = \XLite\Core\Database::getRepo('XLite\Model\AttributeOption')
+                                $attributeOption = Database::getRepo('XLite\Model\AttributeOption')
                                     ->findOneByNameAndAttribute($value, $attribute);
                                 $values[$id] = $repo->findOneBy(
                                     [
@@ -395,7 +397,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
 
                         if (!$variant || (isset($idVariant) && $idVariant->getId() !== $variant->getId())) {
                             if (isset($variant)) {
-                                \XLite\Core\Database::getEM()->remove($variant);
+                                Database::getEM()->remove($variant);
                             }
 
                             if (isset($idVariant)) {
@@ -522,9 +524,11 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     /**
      * Import 'variantImage' value
      *
-     * @param \XLite\Model\Product $model Product
-     * @param array $value Value
-     * @param array $column Column info
+     * @param \XLite\Model\Product $model  Product
+     * @param array                $value  Value
+     * @param array                $column Column info
+     *
+     * @throws \Exception
      */
     protected function importVariantImageColumn(\XLite\Model\Product $model, $value, array $column)
     {
@@ -534,7 +538,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
             if (!isset($value[$rowIndex]) || $this->verifyValueAsNull($value[$rowIndex])) {
                 $image = $variant->getImage();
                 if ($image) {
-                    \XLite\Core\Database::getEM()->remove($image);
+                    Database::getEM()->remove($image);
                 }
                 $variant->setImage(null);
 
@@ -566,14 +570,14 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                             ]);
                         }
                     } else {
-                        $image->setProductVariant($variant);
-                        $variant->setImage($image);
                         if ($oldImage) {
                             $oldImage->setProductVariant(null);
-                            \XLite\Core\Database::getEM()->flush($oldImage);
+                            Database::getEM()->flush();
                             $oldImages[] = $oldImage;
                         }
-                        \XLite\Core\Database::getEM()->persist($image);
+                        $image->setProductVariant($variant);
+                        $variant->setImage($image);
+                        Database::getEM()->persist($image);
                     }
 
                 } elseif (!$this->verifyValueAsFile($file) && $this->verifyValueAsURL($file)) {
@@ -591,7 +595,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
         }
 
         foreach ($oldImages as $oldImage) {
-            \XLite\Core\Database::getEM()->remove($oldImage);
+            Database::getEM()->remove($oldImage);
         }
     }
 

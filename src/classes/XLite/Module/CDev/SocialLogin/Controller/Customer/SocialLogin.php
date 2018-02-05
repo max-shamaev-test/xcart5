@@ -228,4 +228,14 @@ class SocialLogin extends \XLite\Controller\Customer\ACustomer
 
         return array_unique(array_filter($domains));
     }
+
+    /**
+     * Check - need to redirect
+     *
+     * @return boolean
+     */
+    public function checkLanguage()
+    {
+        return true;
+    }
 }

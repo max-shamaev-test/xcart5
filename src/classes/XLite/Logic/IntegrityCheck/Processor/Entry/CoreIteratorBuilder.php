@@ -82,6 +82,7 @@ class CoreIteratorBuilder
             'raw' => [
                 "skins\/.*\/modules",
                 ".*\/.log",
+                "install(\.[A-Za-z0-9])?\.php",
             ]
         ];
     }

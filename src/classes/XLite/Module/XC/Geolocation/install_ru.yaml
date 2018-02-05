@@ -11,3 +11,4 @@ XLite\Model\LanguageLabel:
   - { name: 'Save location', translations: [{ code: ru, label: 'Сохранить адрес' }] }
   - { name: 'Location was successfully set', translations: [{ code: ru, label: 'Адрес был сохранен' }] }
   - { name: 'Return to default database', translations: [{ code: ru, label: 'Вернуться к базе данных по умолчанию' }] }
+  - { name: 'Geolocation header promo', translations: [{ code: ru, label: 'X-Cart использует бесплатную базу данных "GeoLite2 Country" от <a href="https://www.maxmind.com/en/geoip2-databases?%refID=xcart" target="_blank">MaxMind</a>. Вы можете загрузить более точную базу данных для определения страны, территориального подразделения, города и почтового кода. <a href="https://www.maxmind.com/en/geoip2-databases?%refID=xcart" target="_blank">Подробнее</a>' }] }

@@ -24,7 +24,7 @@ use XLite\Module\QSL\CloudSearch\Model\Repo\Product;
 class FiltersBox extends \XLite\View\SideBarBox
 {
     const PARAM_FILTER_CONDITIONS = 'filterConditions';
-    const PARAM_IS_ASYNC_FILTERS  = 'isAsyncFilters';
+    const PARAM_IS_ASYNC_FILTERS = 'isAsyncFilters';
 
     /**
      * Get a list of JS files required to display the widget
@@ -112,7 +112,7 @@ class FiltersBox extends \XLite\View\SideBarBox
         $searchResults = $this->getSearchResults();
 
         return $searchResults !== null
-               && $searchResults['facets'] !== null; // CloudFilters is disabled if service returned null in the 'facets' key
+            && $searchResults['facets'] !== null; // CloudFilters is disabled if service returned null in the 'facets' key
     }
 
     /**
@@ -189,14 +189,14 @@ class FiltersBox extends \XLite\View\SideBarBox
      */
     public function getCommonFiles()
     {
-        return array(
-            static::RESOURCE_JS => array(
-                array(
+        return [
+            static::RESOURCE_JS => [
+                [
                     'file'      => $this->isDeveloperMode() ? 'vue/vue.js' : 'vue/vue.min.js',
                     'no_minify' => true,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     /**
@@ -270,10 +270,10 @@ class FiltersBox extends \XLite\View\SideBarBox
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_FILTER_CONDITIONS => new TypeCollection('Filter conditions', []),
             self::PARAM_IS_ASYNC_FILTERS  => new TypeBool('Filter conditions'),
-        );
+        ];
     }
 
     /**

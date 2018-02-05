@@ -149,6 +149,8 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
                    'CATEGORY-CATEGORY-ID-NF'         => 'Category with id X not found, new category will be created',
                    'CATEGORY-IDENTITY-FMT'           => 'Category id or path is required',
                    'CATEGORY-PATH-NAME-FMT'          => 'Last element of category path should be same as name',
+                   'CATEGORY-PATH-COLLATION'         => 'Category path contains invalid symbols',
+                   'CATEGORY-NAME-COLLATION'         => 'Category name contains invalid symbols',
                ];
     }
 
@@ -176,6 +178,10 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
             }
         } elseif (isset($value['path'])) {
             $model = $this->getCategoryByPath($value['path'], false);
+
+            if (!$this->verifyValueAsUtf8mb3($value['path'])) {
+                $this->addError('CATEGORY-PATH-COLLATION', ['column' => $column]);
+            }
 
             if (!$model) {
                 $path = explode('>>>', $value['path']);
@@ -313,8 +319,11 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyName($value, array $column)
     {
         $value = $this->getDefLangValue($value);
+
         if ($this->verifyValueAsEmpty($value)) {
             $this->addError('CATEGORY-NAME-FMT', ['column' => $column, 'value' => $value]);
+        } else if (!$this->verifyValueAsUtf8mb3($value)) {
+            $this->addError('CATEGORY-NAME-COLLATION', ['column' => $column]);
         }
     }
 

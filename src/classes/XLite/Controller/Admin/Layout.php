@@ -53,7 +53,7 @@ class Layout extends \XLite\Controller\Admin\AAdmin
      */
     public function getFreeQuoteURL()
     {
-        return \XLite::getXCartURL('http://www.x-cart.com/contact-us.html?reason=subj_2');
+        return \XLite::getXCartURL('https://www.x-cart.com/contact-us.html?reason=subj_2');
     }
 
     /**

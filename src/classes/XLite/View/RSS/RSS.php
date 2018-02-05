@@ -99,8 +99,8 @@ class RSS extends \XLite\View\Dialog
     protected function getRSSUrl()
     {
         return \XLite::getInstallationLng() === 'ru'
-            ? 'http://www.x-cart.ru/rss_x_cart_5.xml'
-            : 'http://www.x-cart.com/rss_x_cart_5.xml';
+            ? 'https://www.x-cart.ru/rss_x_cart_5.xml'
+            : 'https://www.x-cart.com/rss_x_cart_5.xml';
     }
 
     /**
@@ -111,8 +111,8 @@ class RSS extends \XLite\View\Dialog
     protected function getBlogUrl()
     {
         return \XLite::getInstallationLng() === 'ru'
-            ? 'http://www.x-cart.ru/blog'
-            : 'http://blog.x-cart.com';
+            ? 'https://www.x-cart.ru/blog'
+            : 'https://blog.x-cart.com';
     }
 
     /**
@@ -124,7 +124,10 @@ class RSS extends \XLite\View\Dialog
      */
     protected function prepareFeeds($url)
     {
-        $feed = simplexml_load_file($url);
+        $feed = simplexml_load_string(
+            $this->getContentByUrl($url)
+        );
+
         $result = array();
         if ($feed && $feed->channel->item) {
             foreach ($feed->channel->item as $story) {
@@ -148,6 +151,19 @@ class RSS extends \XLite\View\Dialog
         }
 
         return $result;
+    }
+
+    /**
+     * @param $url
+     *
+     * @return string
+     */
+    protected function getContentByUrl($url)
+    {
+        $request = new \XLite\Core\HTTP\Request($url);
+        $response = $request->sendRequest();
+
+        return $response->body;
     }
 
     /**

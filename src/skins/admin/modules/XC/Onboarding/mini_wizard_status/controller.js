@@ -1,3 +1,12 @@
+/* vim: set ts=2 sw=2 sts=2 et: */
+
+/**
+ * Mini status widget
+ *
+ * Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+ * See https://www.x-cart.com/license-agreement.html for license details.
+ */
+
 define('wizard_mini_status', ['ready'], function() {
   var WizardMiniStatus = Object.extend({
     constructor: function(base) {

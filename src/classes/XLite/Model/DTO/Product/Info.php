@@ -10,6 +10,7 @@ namespace XLite\Model\DTO\Product;
 
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use XLite\Core\Translation;
+use XLite\Model\CategoryProducts;
 use XLite\Model\DTO\Base\CommonCell;
 
 class Info extends \XLite\Model\DTO\Base\ADTO
@@ -165,8 +166,26 @@ class Info extends \XLite\Model\DTO\Base\ADTO
 
         $object->processFiles('images', $default->images);
 
-        $categories = \XLite\Core\Database::getRepo('XLite\Model\Category')->findByIds($default->category);
-        $object->replaceCategoryProductsLinksByCategories($categories);
+        $categories = \XLite\Core\Database::getRepo('XLite\Model\Category')
+            ->findByIds($default->category);
+
+        $order = array_flip($default->category);
+
+        $object->replaceCategoryProductsLinksByCategories($categories, $default->category);
+
+        foreach ($object->getCategoryProducts() as $categoryProductLink) {
+            /** @var CategoryProducts $categoryProductLink */
+
+            if (!$categoryProductLink->getCategory()) {
+                continue;
+            }
+
+            $categoryId = $categoryProductLink->getCategory()->getCategoryId();
+
+            if (isset($order[$categoryId])) {
+                $categoryProductLink->setOrderbyInProduct($order[$categoryId] * 10);
+            }
+        }
 
         $description = $this->isContentTrustedByPermission('description')
             ? (string) $rawData['default']['description']

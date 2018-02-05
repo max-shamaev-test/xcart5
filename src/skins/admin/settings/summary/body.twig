@@ -2,6 +2,8 @@
  # ____file_title____
  #}
 
+{{ widget_list('environment.before') }}
+
 <table cellspacing="1" cellpadding="5" class="settings-table">
 
 <tr>
@@ -59,6 +61,16 @@
 <tr>
   <td class="setting-name">{{ t('Operating system') }}:</td>
   <td>{{ this.os_type|raw }}</td>
+</tr>
+
+<tr>
+  <td class="setting-name">{{ t('Date and time on the server') }}:</td>
+  <td>{{ this.getServerDateTime() }} {{ this.getServerTimeZone() }}</td>
+</tr>
+
+<tr>
+  <td class="setting-name">{{ t('Date and time in the shop') }}:</td>
+  <td>{{ this.getShopDateTime() }} {{ this.getShopTimezone() }}</td>
 </tr>
 
 <tr>

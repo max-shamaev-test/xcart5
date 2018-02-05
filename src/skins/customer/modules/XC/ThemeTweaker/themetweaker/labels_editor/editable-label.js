@@ -251,6 +251,7 @@ var EditableLabel = Object.extend({
       this.init();
 
       EditableLabel.hidePopover(this.element);
+      core.trigger('editable-label.enable');
     }
   }
 });

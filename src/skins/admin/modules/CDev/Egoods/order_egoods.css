@@ -166,4 +166,7 @@
   margin: 0 3px;
 }
 
-
+.page-tabs button.button.egoods {
+  margin-top: 9px;
+  margin-right: 9px;
+}

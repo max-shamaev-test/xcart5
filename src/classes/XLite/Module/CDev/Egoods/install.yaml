@@ -85,10 +85,10 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Enable usage of Presigned URLs for Amazon S3 links'
-        option_comment: 'Use Amazon S3 to host your digital files on Amazon and control access to your e-goods by presigned URLs. Learn more at <a href="http://kb.x-cart.com/en/modules/egoods/" target="_blank">E-goods module</a> article at X-Cart Knowledge Base.'
+        option_comment: 'Use Amazon S3 to host your digital files on Amazon and control access to your e-goods by presigned URLs. Learn more at <a href="https://kb.x-cart.com/en/modules/egoods/" target="_blank">E-goods module</a> article at X-Cart Knowledge Base.'
       - code: ru
         option_name: 'Включить ссылки, подписанные ключом, для файлов на хранилище Amazon S3'
-        option_comment: 'С помощью хранилища Amazon S3 можно экономить серверное дисковое пространство и контролировать доступ к скачиваемым товарам. Подробнее о конфигурации можно узнать на странице <a href="http://kb.x-cart.com/en/modules/egoods/" target="_blank">E-goods</a> в базе знаний X-Cart.'
+        option_comment: 'С помощью хранилища Amazon S3 можно экономить серверное дисковое пространство и контролировать доступ к скачиваемым товарам. Подробнее о конфигурации можно узнать на странице <a href="https://kb.x-cart.com/en/modules/egoods/" target="_blank">E-goods</a> в базе знаний X-Cart.'
   - name: amazon_access
     category: CDev\Egoods
     type: 'XLite\View\FormField\Input\Text'
@@ -121,38 +121,174 @@ XLite\Model\Config:
     orderby: 1500
     value: ''
 
+# FIXME: move translations from XLite/Module/CDev/RuTranslation/install.yaml
 XLite\Model\LanguageLabel:
-  - { name: "Product removed", translations: [{ code: en, label: "Product removed" }] }
-  - { name: "Attachment removed", translations: [{ code: en, label: "Attachment removed" }] }
-  - { name: "Order is not processed", translations: [{ code: en, label: "Order has not yet been processed" }] }
-  - { name: "Expired by limit", translations: [{ code: en, label: "Expired: Downloads limit has been reached" }] }
-  - { name: "Downloads left", translations: [{ code: en, label: "Downloads left" }] }
-  - { name: "Expired by TTL", translations: [{ code: en, label: "Download TTL has expired" }] }
-  - { name: "Expires in", translations: [{ code: en, label: "Expires in" }] }
-  - { name: "Blocked by administrator", translations: [{ code: en, label: "Blocked by administrator" }] }
-  - { name: "Available for download", translations: [{ code: en, label: "Available for download" }] }
-  - { name: "Can be downloaded only after buying the product", translations: [{ code: en, label: "Can be downloaded only after buying the product" }] }
-  - { name: "Global eGood settings", translations: [{ code: en, label: "Global eGoods settings" }] }
-  - { name: "Download link is blocked", translations: [{ code: en, label: "Download link is blocked" }] }
-  - { name: "Download link did not found", translations: [{ code: en, label: "Download link has not been found" }] }
-  - { name: "Download link is not active", translations: [{ code: en, label: "Download link is not active" }] }
-  - { name: "Download link is renew", translations: [{ code: en, label: "Download link has been renewed" }] }
-  - { name: "less one hour", translations: [{ code: en, label: "less than one hour" }] }
-  - { name: E-goods, translations: [{ code: en, label: E-goods }] }
-  - { name: 'Ordered files', translations: [{ code: en, label: 'Ordered files' }] }
-  - { name: 'Egoods paid', translations: [{ code: en, label: 'Paid' },{ code: ru, label: 'Платный' }] }
-  - { name: 'Egoods free', translations: [{ code: en, label: 'Free' },{ code: ru, label: 'Бесплатный' }] }
-  - { name: 'Your payment module to accept payments for digital items. [Get it now]!', translations: [{ code: en, label: 'Your payment module to accept payments for digital items. <a href="{{url}}" target="_blank">Get it now</a>!' }, { code: ru, label: 'Продаёшь цифровые товары? Устрой тест-драйв нашему <a href="{{url}}" target="_blank">новому модулю</a> и начни принимать платежи прямо сейчас.' }] }
-  - { name: 'Available after purchase', translations: [{ code: en, label: 'Available after purchase' }, { code: ru, label: 'Доступен после покупки' }] }
-  - { name: 'Re-upload file', translations: [{ code: en, label: 'Re-upload file' }, { code: ru, label: 'Повторно загрузить' }] }
-  - { name: 'History of downloads', translations: [{ code: en, label: 'History of downloads' }, { code: ru, label: 'История загрузок' }] }
-  - { name: "The product's history of downloads is empty", translations: [{ code: en, label: "The product's history of downloads is empty" }, { code: ru, label: 'История загрузок для этого товара пуста' }] }
-  - { name: "The history of downloads feature for this product is disabled. You can enable it here", translations: [{ code: en, label: "The history of downloads feature for this product is disabled. You can enable it <a href='{{link}}'>here</a>" }, { code: ru, label: 'Сохранение истории загрузок для данного товара отключено. Вы можете включить его <a href="{{link}}">здесь</a>' }] }
-  - { name: "File is available by public URL", translations: [{ code: en, label: "File is available by public URL" }, { code: ru, label: 'Файл доступен по публичной ссылке' }] }
-  - { name: 'Order fulfilment status changed from {{oldStatus}} to {{newStatus}} by file download', translations: [{ code: en, label: 'Order fulfilment status changed from {{oldStatus}} to {{newStatus}} due to the file having been downloaded by the user.' }, { code: ru, label: 'Статус доставки изменился с {{oldStatus}} на {{newStatus}} в связи с загрузкой файла пользователем' }] }
-  - { name: 'Use X-Sendfile to facilitate the download of large file attachments (100 Mb and larger) by customers:', translations: [{ code: en, label: 'Use X-Sendfile to facilitate the download of large file attachments (100 Mb and larger) by customers:' }, { code: ru, label: 'Используйте X-Sendfile для улучшения производительности при скачивании покупателями объемных прикрепляемых файлов (100 и более Мбайт):' }] }
-  - { name: 'Contact your hosting provider to make sure X-Sendfile is installed on the server.', translations: [{ code: en, label: 'Contact your hosting provider to make sure X-Sendfile is installed on the server.' }, { code: ru, label: 'Уточните у своего хостинг провайдера, доступен ли для использования X-Sendfile.' }] }
-  - { name: 'Configure your X-Cart installation to support large file downloads.', translations: [{ code: en, label: 'Configure your X-Cart installation to support large file downloads.' }, { code: ru, label: 'Настройте поддержку скачивания больших файлов для вашей инсталляции X-Cart.' }] }
+  - name: 'Product removed'
+    translations:
+      - code: en
+        label: 'Product removed'
+  - name: 'Attachment removed'
+    translations:
+      - code: en
+        label: 'Attachment removed'
+  - name: 'Order is not processed'
+    translations:
+      - code: en
+        label: 'Order has not yet been processed'
+  - name: 'Expired by limit'
+    translations:
+      - code: en
+        label: 'Expired: Downloads limit has been reached'
+  - name: 'Downloads left'
+    translations:
+      - code: en
+        label: 'Downloads left'
+  - name: 'Expired by TTL'
+    translations:
+      - code: en
+        label: 'Download TTL has expired'
+  - name: 'Expires in'
+    translations:
+      - code: en
+        label: 'Expires in'
+  - name: 'Blocked by administrator'
+    translations:
+      - code: en
+        label: 'Blocked by administrator'
+  - name: 'Available for download'
+    translations:
+      - code: en
+        label: 'Available for download'
+  - name: 'Can be downloaded only after buying the product'
+    translations:
+      - code: en
+        label: 'Can be downloaded only after buying the product'
+  - name: 'Global eGood settings'
+    translations:
+      - code: en
+        label: 'Global eGoods settings'
+  - name: 'Download link is blocked'
+    translations:
+      - code: en
+        label: 'Download link is blocked'
+      - code: ru
+        label: 'Ссылка для скачивания заблокирована'
+  - name: 'Download links is blocked'
+    translations:
+      - code: en
+        label: 'Download links is blocked'
+      - code: ru
+        label: 'Ссылки для скачивания заблокирована'
+  - name: 'Download link did not found'
+    translations:
+      - code: en
+        label: 'Download link has not been found'
+  - name: 'Download link is not active'
+    translations:
+      - code: en
+        label: 'Download link is not active'
+  - name: 'Download link is renew'
+    translations:
+      - code: en
+        label: 'Download link has been renewed'
+      - code: ru
+        label: 'Ссылка для скачивания обновлена'
+  - name: 'Download links is renew'
+    translations:
+      - code: en
+        label: 'Download links has been renewed'
+      - code: ru
+        label: 'Ссылки для скачивания обновлены'
+  - name: 'less one hour'
+    translations:
+      - code: en
+        label: 'less than one hour'
+  - name: E-goods
+    translations:
+      - code: en
+        label: E-goods
+  - name: 'Ordered files'
+    translations:
+      - code: en
+        label: 'Ordered files'
+  - name: 'Egoods paid'
+    translations:
+      - code: en
+        label: Paid
+      - code: ru
+        label: Платный
+  - name: 'Egoods free'
+    translations:
+      - code: en
+        label: Free
+      - code: ru
+        label: Бесплатный
+  - name: 'Your payment module to accept payments for digital items. [Get it now]!'
+    translations:
+      - code: en
+        label: 'Your payment module to accept payments for digital items. <a href="{{url}}" target="_blank">Get it now</a>!'
+      - code: ru
+        label: 'Продаёшь цифровые товары? Устрой тест-драйв нашему <a href="{{url}}" target="_blank">новому модулю</a> и начни принимать платежи прямо сейчас.'
+  - name: 'Available after purchase'
+    translations:
+      - code: en
+        label: 'Available after purchase'
+      - code: ru
+        label: 'Доступен после покупки'
+  - name: 'Re-upload file'
+    translations:
+      - code: en
+        label: 'Re-upload file'
+      - code: ru
+        label: 'Повторно загрузить'
+  - name: 'History of downloads'
+    translations:
+      - code: en
+        label: 'History of downloads'
+      - code: ru
+        label: 'История загрузок'
+  - name: 'The product''s history of downloads is empty'
+    translations:
+      - code: en
+        label: 'The product''s history of downloads is empty'
+      - code: ru
+        label: 'История загрузок для этого товара пуста'
+  - name: 'The history of downloads feature for this product is disabled. You can enable it here'
+    translations:
+      - code: en
+        label: 'The history of downloads feature for this product is disabled. You can enable it <a href=''{{link}}''>here</a>'
+      - code: ru
+        label: 'Сохранение истории загрузок для данного товара отключено. Вы можете включить его <a href="{{link}}">здесь</a>'
+  - name: 'File is available by public URL'
+    translations:
+      - code: en
+        label: 'File is available by public URL'
+      - code: ru
+        label: 'Файл доступен по публичной ссылке'
+  - name: 'Order fulfilment status changed from {{oldStatus}} to {{newStatus}} by file download'
+    translations:
+      - code: en
+        label: 'Order fulfilment status changed from {{oldStatus}} to {{newStatus}} due to the file having been downloaded by the user.'
+      - code: ru
+        label: 'Статус доставки изменился с {{oldStatus}} на {{newStatus}} в связи с загрузкой файла пользователем'
+  - name: 'Use X-Sendfile to facilitate the download of large file attachments (100 Mb and larger) by customers:'
+    translations:
+      - code: en
+        label: 'Use X-Sendfile to facilitate the download of large file attachments (100 Mb and larger) by customers:'
+      - code: ru
+        label: 'Используйте X-Sendfile для улучшения производительности при скачивании покупателями объемных прикрепляемых файлов (100 и более Мбайт):'
+  - name: 'Contact your hosting provider to make sure X-Sendfile is installed on the server.'
+    translations:
+      - code: en
+        label: 'Contact your hosting provider to make sure X-Sendfile is installed on the server.'
+      - code: ru
+        label: 'Уточните у своего хостинг провайдера, доступен ли для использования X-Sendfile.'
+  - name: 'Configure your X-Cart installation to support large file downloads.'
+    translations:
+      - code: en
+        label: 'Configure your X-Cart installation to support large file downloads.'
+      - code: ru
+        label: 'Настройте поддержку скачивания больших файлов для вашей инсталляции X-Cart.'
 
 XLite\Model\Notification:
   - templatesDirectory: modules/CDev/Egoods/egoods_links

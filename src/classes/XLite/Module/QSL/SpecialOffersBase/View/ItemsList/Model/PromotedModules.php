@@ -2,35 +2,21 @@
 // vim: set ts=4 sw=4 sts=4 et:
 
 /**
- * X-Cart
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the software license agreement
- * that is bundled with this package in the file LICENSE.txt.
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to licensing@x-cart.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not modify this file if you wish to upgrade X-Cart to newer versions
- * in the future. If you wish to customize X-Cart for your needs please
- * refer to http://www.x-cart.com/ for more information.
- *
- * @category  X-Cart 5
- * @author    Qualiteam software Ltd <info@x-cart.com>
- * @copyright Copyright (c) 2017 Qualiteam software Ltd <info@x-cart.com>. All rights reserved
- * @link      http://www.x-cart.com/
+ * Copyright (c) 2016-present Qualiteam software Ltd. All rights reserved.
+ * See https://www.x-cart.com/module-marketplace-terms-of-use.html for license details.
  */
 
 namespace XLite\Module\QSL\SpecialOffersBase\View\ItemsList\Model;
+
+use XLite\Core\Database;
 
 /**
  * Promoted special offer modules.
  */
 class PromotedModules extends \XLite\View\AView
 {
+    protected $modules;
+
     /**
      * Return widget default template
      *
@@ -43,38 +29,84 @@ class PromotedModules extends \XLite\View\AView
 
     /**
      * Returns an array of special offer related modules.
-     * 
+     *
      * @return array
      */
     protected function getPromotedModules()
     {
-        $repo = \XLite\Core\Database::getRepo('XLite\Model\Module');
+        if (!isset($this->modules)) {
+            $repo = Database::getRepo('XLite\Model\Module');
 
-        $result = [
-            [
-                'author' => 'QSL',
-                'code' => 'SpecialOffersBuyXGetY',
-                'cssClass' => 'special-offer-mod--buy-x-get-y',
-                'promo' => $this->t('This module adds variations of the "Buy X Get Y" special offer type. For example, you can give the 50% discount on each third product from Toys category.'),                
-            ],
-            [
-                'author' => 'QSL',
-                'code' => 'SpecialOffersSpendXGetY',
-                'cssClass' => 'special-offer-mod--spend-x-get-y',
-                'promo' => $this->t('This module adds variations of the "Spend X Get Y" special offer type. For example, in every $100 spent by customer you can give the cheapest product away as a gift.'),                
-            ],
-        ];
-        
-        foreach ($result as $k=>$m) {
-            $module = $repo->findOneBy(['author' => $m['author'], 'name' => $m['code']], ['fromMarketplace' => 'ASC']);
-            if ($module) {
-                $result[$k]['name'] = $module->getName();
-                $result[$k]['url'] = $module->getMarketplaceURL();                
-            } else {
-                unset($result[$k]);
+            $this->modules = [
+                'bxgy' => [
+                    'author' => 'QSL',
+                    'code' => 'SpecialOffersBuyXGetY',
+                    'cssClass' => 'special-offer-mod--buy-x-get-y',
+                ],
+                'sxgy' => [
+                    'author' => 'QSL',
+                    'code' => 'SpecialOffersSpendXGetY',
+                    'cssClass' => 'special-offer-mod--spend-x-get-y',
+                ],
+                'roulette' => [
+                    'author' => 'QSL',
+                    'code' => 'Roulette',
+                    'cssClass' => 'special-offer-mod--roulette',
+                ],
+                'loyalty' => [
+                    'author' => 'QSL',
+                    'code' => 'LoyaltyProgram',
+                    'cssClass' => 'special-offer-mod--loyalty',
+                ],
+                'popups' => [
+                    'author' => 'QSL',
+                    'code' => 'PopupAnywhere',
+                    'cssClass' => 'special-offer-mod--popups',
+                ],
+            ];
+
+            foreach ($this->modules as $k=>$m) {
+                $module = $repo->findOneBy(
+                    [
+                        'author' => $m['author'],
+                        'name' => $m['code']
+                    ],
+                    [
+                        'fromMarketplace' => 'ASC'
+                    ]
+                );
+                if ($module) {
+                    $this->modules[$k]['name'] = $module->getName();
+                    $this->modules[$k]['url'] = $module->getMarketplaceURL();
+                } else {
+                    unset($this->modules[$k]);
+                }
             }
         }
 
-        return $result;
+        return $this->modules;
+    }
+
+    function getPromotedModuleInfo($moduleName, $fieldName)
+    {
+        $info = $this->getPromotedModules();
+
+        return $info[$moduleName][$fieldName];
+    }
+
+    function getModulesPromoLink()
+    {
+        return $this->buildUrl(
+            'addons_list_marketplace',
+            '',
+            ['substring' => 'special offers']
+        );
+    }
+
+    function getScreenshotPath()
+    {
+        return \XLite::getInstance()->getShopURL(
+            'skins/admin/modules/QSL/SpecialOffersBase/special_offers/promo'
+        );
     }
 }

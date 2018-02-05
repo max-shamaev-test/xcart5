@@ -20,9 +20,9 @@ class XpcPopup extends \XLite\Controller\Customer\ACustomer
      */
     public function getTitle()
     {
-        return \XLite\Module\CDev\XPaymentsConnector\Core\Iframe::IFRAME_DO_NOTHING == $this->getType()
-            ? static::t('X-Payments info')
-            : static::t('X-Payments error');
+        return ($this->isError())
+            ? static::t('Error')
+            : static::t('Information');
     }
 
     /**
@@ -33,6 +33,19 @@ class XpcPopup extends \XLite\Controller\Customer\ACustomer
     public function isTitleVisible()
     {
         return \XLite\Core\Request::getInstance()->widget;
+    }
+
+    /**
+     * Checks if iframe type is for error
+     *
+     * @return boolean
+     */
+    public function isError()
+    {
+        return (
+            \XLite\Module\CDev\XPaymentsConnector\Core\Iframe::IFRAME_DO_NOTHING != $this->getType()
+            && !$this->isSessionExpiredMessage()
+        );
     }
 
     /**
@@ -77,13 +90,21 @@ class XpcPopup extends \XLite\Controller\Customer\ACustomer
     /**
      * Check if this is error for unaccepted changes of templates in X-Payments
      *
-     * @param string $message Message
-     *
-     * @return array
+     * @return boolean
      */
-    public function isUnacceptedTemplateError($message)
+    public function isUnacceptedTemplateError()
     {
-        return \XLite\Module\CDev\XPaymentsConnector\Core\XPaymentsClient::getInstance()->isUnacceptedTemplateError($message);
+        return \XLite\Module\CDev\XPaymentsConnector\Core\XPaymentsClient::getInstance()->isUnacceptedTemplateError($this->getMessage());
+    }
+
+    /**
+     * Check if this is error for expired payment session in X-Payments
+     *
+     * @return boolean
+     */
+    public function isSessionExpiredMessage()
+    {
+        return ('Payment session expired' == $this->getMessage());
     }
 
     /**
@@ -265,7 +286,7 @@ class XpcPopup extends \XLite\Controller\Customer\ACustomer
 
             case \XLite\Module\CDev\XPaymentsConnector\Core\Iframe::IFRAME_CHANGE_METHOD:
 
-                $methodId = $this->isUnacceptedTemplateError(urldecode(\XLite\Core\Request::getInstance()->message))
+                $methodId = $this->isUnacceptedTemplateError()
                     ? $this->getNonXpcPaymentMethodId()
                     : $this->getNextPaymentMethodId();
 

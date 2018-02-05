@@ -2,7 +2,7 @@
  # Language selector
  #}
 
-<script type="text/javascript">
+<script>
   var currenciesByCountry = [];
 {% for countryCode, currencyCode in this.getCountriesByCurrency() %}
   currenciesByCountry['{{ countryCode }}'] = '{{ currencyCode }}';

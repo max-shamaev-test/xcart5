@@ -391,6 +391,7 @@ class Method extends \XLite\Model\Repo\Base\I18n
                 foreach ($data as $i => $extMethod) {
                     if (!empty($extMethod['processor'])) {
                         $extMethod['fromMarketplace'] = 1;
+                        unset($extMethod['added'], $extMethod['enabled'], $extMethod['position']);
 
                         $data[$i] = $extMethod;
 

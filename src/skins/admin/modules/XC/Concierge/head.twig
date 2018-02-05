@@ -6,6 +6,9 @@ analytics.load(concierge.writeKey);
 analytics.ready(
     function() {
         concierge.ready = true;
+        if (typeof userlike !== 'undefined') {
+            userlike.segment_analytics_enabled = false;
+        }
     }
 );
 

@@ -493,7 +493,22 @@ class ListItem extends \XLite\View\AView implements DynamicWidgetInterface
 
         $params[] = $policy->isOutOfStock($cart);
         $params[] = $this->getItemListWidgetTarget();
+        $params[] = $this->getCategoryId();
 
         return $params;
+    }
+
+    /**
+     * @return int|null
+     */
+    protected function getCategoryId()
+    {
+        $controller = \XLite::getController();
+
+        if (method_exists($controller, 'getCategoryId')) {
+            return $controller->getCategoryId();
+        }
+
+        return null;
     }
 }

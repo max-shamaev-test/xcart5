@@ -279,7 +279,7 @@ class PaypalLogin extends \XLite\Controller\Customer\ACustomer
 
             echo (
             <<<HTML
-    <script type="text/javascript">
+    <script>
     window.opener.location.replace("{$returnURL}");
     window.close();
 </script>
@@ -289,7 +289,7 @@ HTML
         } else {
             echo (
             <<<HTML
-    <script type="text/javascript">
+    <script>
     window.opener.location.reload();
     window.close();
 </script>

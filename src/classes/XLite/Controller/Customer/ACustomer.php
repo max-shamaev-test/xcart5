@@ -1065,7 +1065,7 @@ abstract class ACustomer extends \XLite\Controller\AController
                     $andAsBilling = false;
                     if ($old) {
                         $old->setIsShipping(false);
-                        $andAsBilling = $old->getIsBilling();
+                        $andAsBilling = \XLite\Core\Session::getInstance()->same_address;
                         if ($old->getIsWork() && !$andAsBilling) {
                             $this->getCart()->getProfile()->getAddresses()->removeElement($old);
                             \XLite\Core\Database::getEM()->remove($old);
@@ -1088,7 +1088,7 @@ abstract class ACustomer extends \XLite\Controller\AController
                     $andAsShipping = false;
                     if ($old) {
                         $old->setIsBilling(false);
-                        $andAsShipping = $old->getIsShipping();
+                        $andAsShipping = \XLite\Core\Session::getInstance()->same_address;
                         if ($old->getIsWork() && !$andAsShipping) {
                             $this->getCart()->getProfile()->getAddresses()->removeElement($old);
                             \XLite\Core\Database::getEM()->remove($old);

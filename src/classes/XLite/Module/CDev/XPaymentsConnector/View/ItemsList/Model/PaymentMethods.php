@@ -131,6 +131,16 @@ class PaymentMethods extends \XLite\View\ItemsList\Model\Table
         return 'XLite\Module\CDev\XPaymentsConnector\View\StickyPanel\PaymentMethods';
     }
 
+    /**
+     * Description for blank items list
+     *
+     * @return string
+     */
+    protected function getEmptyListDescription()
+    {
+        return static::t('No payment methods are available.');
+    }
+
     // }}}
 
     // {{{ Search
@@ -163,19 +173,6 @@ class PaymentMethods extends \XLite\View\ItemsList\Model\Table
     }
 
     // }}}
-
-    /**
-     * Get column cell class
-     *
-     * @param array                $column Column
-     * @param \XLite\Model\AEntity $entity Model OPTIONAL
-     *
-     * @return string
-     */
-    protected function getColumnClass(array $column, \XLite\Model\AEntity $entity = null)
-    {
-        return parent::getColumnClass($column, $entity);
-    }
 
     /**
      * Get column value

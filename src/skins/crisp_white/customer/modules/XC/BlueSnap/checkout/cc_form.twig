@@ -18,9 +18,7 @@
       <div class="cardName-CVV-wrapper">
         <div class="cardName field">
           <div class="title">{{ t('Cardholder name') }}:</div>
-          <div class="value">
-            <input size="40" id="cc_name" class="form-control validate[required]" placeholder="{{ t('Cardholder name') }}" type="text" autocomplete="off" v-model="payment.cc_holder_name" lazy>
-          </div>
+          <div class="value"></div>
         </div>
 
         <div class="cardType">
@@ -31,6 +29,7 @@
         <div class="label">{{ t('Card number') }}</div>
         <div class="value form-control" data-bluesnap="ccn"></div>
         <div class="required">{{ t('Field is required!') }}</div>
+        <div class="unsupported">{{ t('CC type is not supported by the merchant') }}</div>
       </div>
 
       <div class="cardExpire field">
@@ -56,7 +55,7 @@
         <div class="label">{{ t('Security code') }}</div>
         <div class="value">
           <div data-bluesnap="cvv" class="form-control"></div>
-
+          <a id="cvv2-hint" class="cvv2-hint" role="button" data-toggle="popover" data-placement="top" data-content=" ">?</a>
           <div class="right-text">
             <span class="default-text">{{ t('Credit card security code (if present)') }}</span>
             <span class="Visa">{{ t('Last three numbers on the back side of your card') }}</span>

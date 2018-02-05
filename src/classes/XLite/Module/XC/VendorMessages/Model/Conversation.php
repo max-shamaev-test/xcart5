@@ -253,7 +253,7 @@ class Conversation extends \XLite\Model\AEntity
                     (!$profile || $order->getVendor()->getProfileId() !== $profile->getProfileId())
                     && $order->getParent()->getChildren()->count() > 1
                 ) {
-                    return static::t('Order X',['id' => ($orderNumber . ' - ' . ($order->getVendor()->getNameForMessages()))]);
+                    return static::t('Order X',['id' => ($orderNumber . ' - ' . ($order->getNameForMessages()))]);
                 }
             }
 

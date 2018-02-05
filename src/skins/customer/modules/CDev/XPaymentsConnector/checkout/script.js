@@ -21,6 +21,11 @@ decorate(
         _.bind(
           function() {
 
+            if (xpcLoading) {
+              // Iframe is not yet loaded, cancel submit
+              return false;
+            }
+
             saveCheckoutFormDataXpc('#place_order_note', '#save-card');
 
             if (jQuery('.xpc_iframe').length && !this.base.find('form.place').hasClass('allowed')) {

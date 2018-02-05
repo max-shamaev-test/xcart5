@@ -59,6 +59,16 @@ function TopMessages(container) {
         this
       )
     );
+
+    core.bind(
+      'messages',
+      function(event, data) {
+        for (var i in data) {
+          core.trigger('message', data[i])
+        }
+      }
+    );
+
     core.bind(
       'clearMessages',
       _.bind(

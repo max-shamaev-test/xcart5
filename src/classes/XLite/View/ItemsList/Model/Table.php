@@ -1148,6 +1148,18 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel
         return (bool)$this->getSwitcherField();
     }
 
+    /**
+     * Check - is entity selectable or not
+     *
+     * @param \XLite\Model\AEntity $entity Entity
+     *
+     * @return boolean
+     */
+    protected function isAllowEntitySelect(\XLite\Model\AEntity $entity)
+    {
+        return true;
+    }
+
     // }}}
 
     // {{{ Inherited methods

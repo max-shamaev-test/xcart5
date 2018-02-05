@@ -8,7 +8,7 @@
  */
 
 var PopupButtonAddAddress = PopupButton.extend({
-    pattern: '.add-address',
+    pattern: '.popup-button.add-address',
     enableBackgroundSubmit: true,
     constructor: function PopupButtonAddAddress() {
         PopupButtonAddAddress.superclass.constructor.apply(this, arguments);

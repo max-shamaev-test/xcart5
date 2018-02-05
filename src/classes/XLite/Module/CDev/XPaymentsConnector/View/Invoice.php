@@ -27,6 +27,18 @@ class Invoice extends \XLite\View\Invoice implements \XLite\Base\IDecorator
     }
 
     /**
+     * Register files from common repository
+     *
+     * @return array
+     */
+    public function getCommonFiles()
+    {
+        $list = parent::getCommonFiles();
+        $list['css'][] = 'modules/CDev/XPaymentsConnector/cc_type_sprites.css';
+        return $list;
+    }
+
+    /**
      * Display Kount result on the invoice or not
      *
      * @return bool 

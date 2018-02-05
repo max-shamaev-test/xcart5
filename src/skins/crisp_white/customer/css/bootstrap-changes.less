@@ -1383,6 +1383,7 @@ div.tabs ul.tabs {
       cursor: pointer;
 
       &:before {
+        display: block; // Needed for IE 11 pseudoelements
         content: '';
         background: url(../images/arrow_down_sheet.svg) center no-repeat;
         background-position: 0 0px;
@@ -1443,6 +1444,7 @@ div.tabs ul.tabs {
     margin-top: 0;
     z-index: 10000;
     margin-bottom: -1 * @rhythmic-unit;
+    display: table;
 
     & + .product-photo-box {
       margin-top: 0;

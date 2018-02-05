@@ -7,11 +7,24 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
+.tabs-container .page-tabs {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.tabs-container .actions {
+  margin-left: auto;
+}
+
 .tabs-container .page-tabs .btn-group.btn-dropdown {
-    float: right;
-    display: inline-block;
-    margin-top: -25px;
-    margin-right: 10px;
+  display: inline-block;
+  margin-top: -40px;
+  margin-right: 10px;
 }
 
 .tabs-container .page-tabs .btn-group.btn-dropdown .dropdown-menu {

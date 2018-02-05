@@ -4,7 +4,7 @@
  # @ListChild (list="product.details.page", weight="1000")
  #}
 {% if this.product.getJavascript() %}
-  <script type="text/javascript">
+  <script>
   $(document).ready(
     function() {
       $('form[name="add_to_cart"]').submit(

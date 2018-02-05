@@ -1,3 +1,13 @@
+/* vim: set ts=2 sw=2 sts=2 et: */
+
+/**
+ * Layout editor video button
+ *
+ * Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+ * See https://www.x-cart.com/license-agreement.html for license details.
+ */
+
+
 .layout-editor-button .gray {
     color: #9b9b9b;
     text-decoration: none;

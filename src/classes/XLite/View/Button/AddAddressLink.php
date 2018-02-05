@@ -51,6 +51,6 @@ class AddAddressLink extends \XLite\View\Button\AddAddress
      */
     protected function getClass()
     {
-        return 'add-address';
+        return 'popup-button add-address';
     }
 }

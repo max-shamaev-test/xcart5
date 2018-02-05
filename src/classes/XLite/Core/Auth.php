@@ -8,6 +8,9 @@
 
 namespace XLite\Core;
 
+use XLite\Model\Cart;
+use XLite\Model\Profile;
+
 /**
  * Authorization routine
  */
@@ -158,20 +161,20 @@ class Auth extends \XLite\Base
     /**
      * Updates the specified profile on login. Saves profile to session
      *
-     * @param \XLite\Model\Profile $profile Profile object
+     * @param Profile $profile Profile object
      *
      * @return boolean
      */
-    public function loginProfile(\XLite\Model\Profile $profile, $withCells = true)
+    public function loginProfile(Profile $profile, $withCells = true)
     {
         $result = $profile->isPersistent();
 
         if ($result) {
 
             // Restart session
-            \XLite\Core\Session::getInstance()->restart($withCells);
+            Session::getInstance()->restart($withCells);
 
-            $loginTime = \XLite\Core\Converter::time();
+            $loginTime = Converter::time();
 
             // Check for the first time login
             if (!$profile->getFirstLogin()) {
@@ -189,8 +192,8 @@ class Auth extends \XLite\Base
             $profile->update();
 
             // Save profile Id in session
-            \XLite\Core\Session::getInstance()->profile_id = $profile->getProfileId();
-            \XLite\Core\Session::getInstance()->forceChangePassword = $profile->getForceChangePassword();
+            Session::getInstance()->profile_id = $profile->getProfileId();
+            Session::getInstance()->forceChangePassword = $profile->getForceChangePassword();
 
             // Save login in cookies
             $this->rememberLogin($profile->getLogin());
@@ -203,8 +206,6 @@ class Auth extends \XLite\Base
      * Add variable to the list of session vars that must be cleared on logoff
      *
      * @param string $name Session variable name
-     *
-     * @return void
      */
     public function addSessionVarToClear($name)
     {
@@ -243,12 +244,12 @@ class Auth extends \XLite\Base
 
             } else {
                 // Initialize order Id
-                $orderId = \XLite\Core\Request::getInstance()->anonymous
-                    ? \XLite\Model\Cart::getInstance()->getOrderId()
+                $orderId = Request::getInstance()->anonymous
+                    ? Cart::getInstance()->getOrderId()
                     : 0;
 
                 // Try to get user profile by login and order id
-                $profile = \XLite\Core\Database::getRepo('XLite\Model\Profile')->findByLoginPassword(
+                $profile = Database::getRepo('XLite\Model\Profile')->findByLoginPassword(
                     $login,
                     null,
                     $orderId
@@ -267,15 +268,15 @@ class Auth extends \XLite\Base
                 }
 
                 if ($profile && $profile->isAdmin()) {
-                    if (\XLite\Core\Converter::time() < (\XLite\Core\Session::getInstance()->dateOfLockLogin + static::TIME_OF_LOCK_LOGIN)) {
+                    if (Converter::time() < (Session::getInstance()->dateOfLockLogin + static::TIME_OF_LOCK_LOGIN)) {
                         $result = static::RESULT_LOGIN_IS_LOCKED;
 
                     } elseif (
                         $profile
-                        && \XLite\Core\Converter::time() < ($profile->getDateOfLoginAttempt() + static::TIME_OF_LOCK_LOGIN)
+                        && Converter::time() < ($profile->getDateOfLoginAttempt() + static::TIME_OF_LOCK_LOGIN)
                         && static::MAX_COUNT_OF_LOGIN_ATTEMPTS <= $profile->getCountOfLoginAttempts()
                     ) {
-                        \XLite\Core\Session::getInstance()->dateOfLockLogin = $profile->getDateOfLoginAttempt();
+                        Session::getInstance()->dateOfLockLogin = $profile->getDateOfLoginAttempt();
                         $result = static::RESULT_LOGIN_IS_LOCKED;
                     }
                 }
@@ -292,7 +293,7 @@ class Auth extends \XLite\Base
      * @param string $password   User's password
      * @param string $secureHash Secret token OPTIONAL
      *
-     * @return \XLite\Model\Profile|integer
+     * @return Profile|integer
      */
     public function login($login, $password, $secureHash = null)
     {
@@ -308,16 +309,16 @@ class Auth extends \XLite\Base
             }
 
             if (isset($profile) && $result === static::RESULT_PASSWORD_NOT_EQUAL) {
-                $countOfLoginAttempts = \XLite\Core\Converter::time() < ($profile->getDateOfLoginAttempt() + static::TIME_OF_LOCK_LOGIN)
+                $countOfLoginAttempts = Converter::time() < ($profile->getDateOfLoginAttempt() + static::TIME_OF_LOCK_LOGIN)
                     ? $profile->getCountOfLoginAttempts() + 1
                     : 1;
                 $profile->setCountOfLoginAttempts($countOfLoginAttempts);
-                $profile->setDateOfLoginAttempt(\XLite\Core\Converter::time());
+                $profile->setDateOfLoginAttempt(Converter::time());
                 $profile->update();
 
                 if (\XLite::isAdminZone() && static::MAX_COUNT_OF_LOGIN_ATTEMPTS <= $profile->getCountOfLoginAttempts()) {
-                    \XLite\Core\Session::getInstance()->dateOfLockLogin = \XLite\Core\Converter::time();
-                    \XLite\Core\Mailer::sendFailedAdminLoginAdmin($profile->getLogin());
+                    Session::getInstance()->dateOfLockLogin = Converter::time();
+                    Mailer::sendFailedAdminLoginAdmin($profile->getLogin());
                 }
                 $profile = null;
             }
@@ -332,8 +333,8 @@ class Auth extends \XLite\Base
             }
 
             // Initialize order Id
-            $orderId = \XLite\Core\Request::getInstance()->anonymous
-                ? \XLite\Model\Cart::getInstance()->getOrderId()
+            $orderId = Request::getInstance()->anonymous
+                ? Cart::getInstance()->getOrderId()
                 : 0;
 
             // Return profile object if it's ok
@@ -347,8 +348,8 @@ class Auth extends \XLite\Base
                 $result = $profile;
 
                 // Renew order
-                $orderId = $orderId ?: \XLite\Core\Session::getInstance()->order_id;
-                $order = \XLite\Core\Database::getRepo('XLite\Model\Cart')->find($orderId);
+                $orderId = $orderId ?: Session::getInstance()->order_id;
+                $order = Database::getRepo('XLite\Model\Cart')->find($orderId);
                 if ($order) {
                     $order->renew();
                 }
@@ -364,11 +365,11 @@ class Auth extends \XLite\Base
     /**
      * Logs off the currently logged profile
      *
-     * @return void
+     * @throws \Exception
      */
     public function logoff()
     {
-        $session = \XLite\Core\Session::getInstance();
+        $session = Session::getInstance();
         $session->last_profile_id = $session->profile_id;
         $session->resetFormId();
 
@@ -377,9 +378,9 @@ class Auth extends \XLite\Base
         // Invalidate cache
         $this->resetProfileCache();
 
-        \XLite\Core\Session::getInstance()->forceChangePassword = false;
+        Session::getInstance()->forceChangePassword = false;
 
-        \XLite\Core\Database::getEM()->flush();
+        Database::getEM()->flush();
     }
 
     /**
@@ -405,25 +406,21 @@ class Auth extends \XLite\Base
 
     /**
      * Finish "Operating as" mode
-     *
-     * @return void
      */
     public function finishOperatingAs()
     {
-        \XLite\Core\Session::getInstance()->operating_as_profile_id = null;
-        unset(\XLite\Core\Session::getInstance()->order_id);
+        Session::getInstance()->operating_as_profile_id = null;
+        unset(Session::getInstance()->order_id);
     }
 
     /**
      * Set "Operating as" profile id
      *
-     * @param \XLite\Model\Profile $profile Profile
-     *
-     * @return void
+     * @param Profile $profile Profile
      */
-    public function setOperatingAs(\XLite\Model\Profile $profile)
+    public function setOperatingAs(Profile $profile)
     {
-        \XLite\Core\Session::getInstance()->operating_as_profile_id = $profile->getProfileId();
+        Session::getInstance()->operating_as_profile_id = $profile->getProfileId();
     }
 
     /**
@@ -433,7 +430,7 @@ class Auth extends \XLite\Base
      */
     public function getOperatingAs()
     {
-        return \XLite\Core\Session::getInstance()->operating_as_profile_id;
+        return Session::getInstance()->operating_as_profile_id;
     }
 
     /**
@@ -455,7 +452,7 @@ class Auth extends \XLite\Base
      */
     public function getOperateAsUserPaymentMethods()
     {
-        $phoneOrdering = \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')->findOneBy(
+        $phoneOrdering = Database::getRepo('XLite\Model\Payment\Method')->findOneBy(
             array(
                 'service_name' => 'PhoneOrdering'
             )
@@ -471,12 +468,12 @@ class Auth extends \XLite\Base
      *
      * @param integer $profileId Profile Id OPTIONAL
      *
-     * @return \XLite\Model\Profile
+     * @return Profile
      */
     public function getProfile($profileId = null)
     {
         if (isset($profileId)) {
-            $profile = \XLite\Core\Database::getRepo('XLite\Model\Profile')->find($profileId);
+            $profile = Database::getRepo('XLite\Model\Profile')->find($profileId);
             $result = $this->checkProfile($profile) ? $profile : null;
 
         } else {
@@ -488,16 +485,16 @@ class Auth extends \XLite\Base
                 $entity = null;
 
                 if ((bool) $this->getOperatingAs() && !\XLite::isAdminScript()) {
-                    $entity = \XLite\Core\Database::getRepo('XLite\Model\Profile')->find($this->getOperatingAs());
+                    $entity = Database::getRepo('XLite\Model\Profile')->find($this->getOperatingAs());
                 }
 
                 if (!$entity) {
                     if ((bool) $this->getOperatingAs()) {
-                        \XLite\Core\TopMessage::addInfo('Finished operating as user');
+                        TopMessage::addInfo('Finished operating as user');
                         $this->finishOperatingAs();
                     }
 
-                    $entity = \XLite\Core\Database::getRepo('XLite\Model\Profile')->find($this->getStoredProfileId());
+                    $entity = Database::getRepo('XLite\Model\Profile')->find($this->getStoredProfileId());
                 }
 
                 $this->profile['object'] = $entity;
@@ -526,14 +523,26 @@ class Auth extends \XLite\Base
     }
 
     /**
+     * Return membership of active profile
+     *
+     * @return \XLite\Model\AEntity|\XLite\Model\Membership|null
+     */
+    public function getMembership()
+    {
+        return $this->getMembershipId()
+            ? Database::getRepo('XLite\Model\Membership')->find($this->getMembershipId())
+            : null;
+    }
+
+    /**
      * Check if passed profile is currently logged in
      * @todo It could be a bug since it always be true if the currently logged user is admin and profile - any profile
      *
-     * @param \XLite\Model\Profile $profile Profile to check OPTIONAL
+     * @param Profile $profile Profile to check OPTIONAL
      *
      * @return boolean
      */
-    public function checkProfile(\XLite\Model\Profile $profile = null)
+    public function checkProfile(Profile $profile = null)
     {
         return $this->isLogged() && $profile && $this->checkProfileAccessibility($profile);
     }
@@ -541,11 +550,11 @@ class Auth extends \XLite\Base
     /**
      * Checks whether the currently logged user is an administrator
      *
-     * @param \XLite\Model\Profile $profile User profile OPTIONAL
+     * @param Profile $profile User profile OPTIONAL
      *
      * @return boolean
      */
-    public function isAdmin(\XLite\Model\Profile $profile = null)
+    public function isAdmin(Profile $profile = null)
     {
         if (!isset($profile)) {
             $profile = $this->getProfile();
@@ -558,11 +567,11 @@ class Auth extends \XLite\Base
     /**
      * Return true if profile has permissions to manage admin profiles
      *
-     * @param \XLite\Model\Profile $profile User profile OPTIONAL
+     * @param Profile $profile User profile OPTIONAL
      *
      * @return boolean
      */
-    public function isAdminProfilesManager(\XLite\Model\Profile $profile = null)
+    public function isAdminProfilesManager(Profile $profile = null)
     {
         if (!isset($profile)) {
             $profile = $this->getProfile();
@@ -645,13 +654,11 @@ class Auth extends \XLite\Base
      * See "checkSecureHash()" method
      *
      * @param string $hashString Hash string to save
-     *
-     * @return void
      */
     public function setSecureHash($hashString)
     {
         $cell = self::SESSION_SECURE_HASH_CELL;
-        \XLite\Core\Session::getInstance()->$cell = $hashString;
+        Session::getInstance()->$cell = $hashString;
     }
 
     /**
@@ -670,13 +677,14 @@ class Auth extends \XLite\Base
      * @param string $login    Administrator user login
      * @param string $password Administrator user password
      *
-     * @return \XLite\Model\Profile
+     * @return Profile
+     * @throws \Exception
      */
     public function loginAdministrator($login, $password)
     {
         $profile = $this->login($login, $password);
 
-        if ($profile instanceof \XLite\Model\Profile && !$profile->isAdmin()) {
+        if ($profile instanceof Profile && !$profile->isAdmin()) {
 
             // Logoff user from session
             $this->logoff();
@@ -685,7 +693,7 @@ class Auth extends \XLite\Base
             $profile = static::RESULT_ACCESS_DENIED;
 
             // Send notification about failed log in attempt
-            \XLite\Core\Mailer::sendFailedAdminLoginAdmin(\XLite\Core\Request::getInstance()->login);
+            Mailer::sendFailedAdminLoginAdmin(Request::getInstance()->login);
         }
 
         return $profile;
@@ -716,8 +724,6 @@ class Auth extends \XLite\Base
 
     /**
      * Reset default values for the "profile" property
-     *
-     * @return void
      */
     protected function resetProfileCache()
     {
@@ -729,24 +735,22 @@ class Auth extends \XLite\Base
      * 1) he/she is an admin
      * 2) its the user's own account
      *
-     * @param \XLite\Model\Profile $profile Profile to check
+     * @param Profile $profile Profile to check
      *
      * @return boolean
      */
-    protected function checkProfileAccessibility(\XLite\Model\Profile $profile)
+    protected function checkProfileAccessibility(Profile $profile)
     {
         return (\XLite::isAdminZone() && $this->isAdmin($this->getProfile())) || $this->getProfile()->getProfileId() == $profile->getProfileId();
     }
 
     /**
      * Clear some session variables on logout
-     *
-     * @return void
      */
     protected function clearSessionVars()
     {
         foreach ($this->getSessionVarsToClear() as $name) {
-            unset(\XLite\Core\Session::getInstance()->$name);
+            unset(Session::getInstance()->$name);
         }
     }
 
@@ -765,11 +769,11 @@ class Auth extends \XLite\Base
         $cell = self::SESSION_SECURE_HASH_CELL;
 
         if (!empty($hashString)) {
-            $result = \XLite\Core\Session::getInstance()->$cell === $hashString;
+            $result = Session::getInstance()->$cell === $hashString;
         }
 
         // Using this method, it's not possible to log in several times
-        unset(\XLite\Core\Session::getInstance()->$cell);
+        unset(Session::getInstance()->$cell);
 
         return $result;
     }
@@ -778,15 +782,13 @@ class Auth extends \XLite\Base
      * Remember login in cookie
      *
      * @param mixed $login User's login
-     *
-     * @return void
      */
     protected function rememberLogin($login)
     {
-        \XLite\Core\Request::getInstance()->setCookie(
+        Request::getInstance()->setCookie(
             static::RECENT_LOGIN_COOKIE_NAME,
             $login,
-            86400 * intval(\XLite\Core\Config::getInstance()->General->login_lifetime)
+            86400 * intval(Config::getInstance()->General->login_lifetime)
         );
     }
 
@@ -797,13 +799,11 @@ class Auth extends \XLite\Base
      */
     protected function getStoredProfileId()
     {
-        return \XLite\Core\Session::getInstance()->profile_id;
+        return Session::getInstance()->profile_id;
     }
 
     /**
      * Protected constructor
-     *
-     * @return void
      */
     protected function __construct()
     {
@@ -876,14 +876,13 @@ class Auth extends \XLite\Base
      */
     public function isClosedStorefront()
     {
-        return 'Y' == \XLite\Core\Config::getInstance()->Internal->shop_closed;
+        return 'Y' == Config::getInstance()->Internal->shop_closed;
     }
 
     /**
      * Clears the storefront closed flag
      * Clears the special access shop key value
-     *
-     * @return void
+     * @throws \Exception
      */
     public function openStorefront()
     {
@@ -894,8 +893,7 @@ class Auth extends \XLite\Base
     /**
      * Sets the storefront closed flag
      * Generates the special access shop key value
-     *
-     * @return void
+     * @throws \Exception
      */
     public function closeStorefront()
     {
@@ -910,7 +908,7 @@ class Auth extends \XLite\Base
      */
     public function getShopKey()
     {
-        return \XLite\Core\Config::getInstance()->Internal->shop_key;
+        return Config::getInstance()->Internal->shop_key;
     }
 
     /**
@@ -918,24 +916,23 @@ class Auth extends \XLite\Base
      *
      * @param boolean $status Activity status OPTIONAL
      *
-     * @return void
+     * @throws \Exception
      */
     protected function changeStorefrontActivity($status = true)
     {
-        \XLite\Core\Database::getRepo('\XLite\Model\Config')->createOption(
+        Database::getRepo('\XLite\Model\Config')->createOption(
             array(
                 'category' => 'Internal',
                 'name'     => 'shop_closed',
                 'value'    => true === $status ? 'N' : 'Y'
             )
         );
-        \XLite\Core\Config::updateInstance();
+        Config::updateInstance();
     }
 
     /**
      * Generates the shop key
-     *
-     * @return void
+     * @throws \Exception
      */
     protected function generateShopKey()
     {
@@ -944,8 +941,7 @@ class Auth extends \XLite\Base
 
     /**
      * Clears the special access shop key value
-     *
-     * @return void
+     * @throws \Exception
      */
     protected function cleanShopKey()
     {
@@ -957,11 +953,11 @@ class Auth extends \XLite\Base
      *
      * @param string $value Shop key value OPTIONAL
      *
-     * @return void
+     * @throws \Exception
      */
     protected function storeShopKey($value = '')
     {
-        \XLite\Core\Database::getRepo('\XLite\Model\Config')->createOption(
+        Database::getRepo('\XLite\Model\Config')->createOption(
             array(
                 'category' => 'Internal',
                 'name'     => 'shop_key',
@@ -979,8 +975,8 @@ class Auth extends \XLite\Base
      */
     protected function getRequestShopKey()
     {
-        $request = \XLite\Core\Request::getInstance();
-        $session = \XLite\Core\Session::getInstance();
+        $request = Request::getInstance();
+        $session = Session::getInstance();
         $result = null;
 
         if ($request->shopKey) {
@@ -1004,7 +1000,7 @@ class Auth extends \XLite\Base
      */
     public function getAccessControlCells()
     {
-        $session = \XLite\Core\Session::getInstance();
+        $session = Session::getInstance();
         
         return $session->getAccessControlCells();
     }

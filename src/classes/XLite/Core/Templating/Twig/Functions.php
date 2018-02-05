@@ -19,14 +19,10 @@ use XLite\Core\Translation;
  */
 class Functions
 {
-    protected $translator;
-
     protected $layout;
 
     public function __construct()
     {
-        $this->translator = Translation::getInstance();
-
         $this->layout = Layout::getInstance();
     }
 
@@ -82,7 +78,7 @@ class Functions
 
     public function t($name, array $arguments = [], $code = null)
     {
-        return $this->translator->translate($name, $arguments, $code);
+        return Translation::lbl($name, $arguments, $code);
     }
 
     public function svg(Twig_Environment $env, $context, $path, $interface = null)

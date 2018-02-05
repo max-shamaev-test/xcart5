@@ -115,7 +115,7 @@ abstract class APaypal extends \XLite\Model\Payment\Base\Iframe
      */
     public function getPartnerPageURL(\XLite\Model\Payment\Method $method)
     {
-        return \XLite::getXCartURL('http://www.x-cart.com/paypal_shopping_cart.html');
+        return \XLite::getXCartURL('https://www.x-cart.com/paypal_shopping_cart.html');
     }
 
     /**

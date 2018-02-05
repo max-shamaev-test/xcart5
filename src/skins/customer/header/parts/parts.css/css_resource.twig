@@ -5,7 +5,7 @@
 {% if this.async %}
   <link href="{{ this.url }}"
         rel="preload"
-        as="style" onload='this.rel="stylesheet"'
+        as="style" onload='this.onload=null;this.rel="stylesheet"'
         type="text/css"
         media="{{ this.media }}" />
   <noscript>

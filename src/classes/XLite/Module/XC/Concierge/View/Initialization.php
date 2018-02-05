@@ -121,11 +121,14 @@ class Initialization extends \XLite\View\AView
      */
     protected function getSettings()
     {
+        $adminProfile = \XLite\Core\Auth::getInstance()->getProfile();
+
         return [
-            'writeKey' => $this->getMediator()->getWriteKey(),
-            'messages' => $this->getMessages(),
-            'ready'    => true,
-            'context'  => $this->getMediator()->getOptions(),
+            'writeKey'    => $this->getMediator()->getWriteKey(),
+            'messages'    => $this->getMessages(),
+            'ready'       => true,
+            'context'     => $this->getMediator()->getOptions(),
+            'admin_email' => $adminProfile ? $adminProfile->getLogin() : '',
         ];
     }
 }

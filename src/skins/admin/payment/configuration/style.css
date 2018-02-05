@@ -248,13 +248,23 @@ button.add-method.top-button-add-method {
 .payment-conf .methods li .title {
   color: #333;
   font-size: 14px;
-  padding: 18px 23px;
+  padding: 7px 23px;
   vertical-align: top;
   overflow: hidden;
   width: 250px;
   float: left;
   font-weight: bold;
   position: relative;
+
+  min-height: 56px;
+  white-space: normal;
+
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
 }
 
 .payment-conf .methods li .title .fade {

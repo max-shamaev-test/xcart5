@@ -38,11 +38,11 @@ define('wizard/tracking', [], function () {
     pushEvent: function(event) {
       var mixpanel = {
         type: event.type,
-        arguments: [event.name, event.props, event.options]
+        arguments: [event.name, event.props, _.extend({}, event.options, {integrations: {All: true, Intercom: false}})]
       };
       var intercom = {
         type: event.type,
-        arguments: [event.intercomName, event.props, event.options]
+        arguments: [event.intercomName, event.props, _.extend({}, event.options, {integrations: {All: false, Intercom: true}})]
       };
       core.trigger('concierge.push', { list: [mixpanel, intercom] });
     },

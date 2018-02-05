@@ -212,6 +212,7 @@ function loadDialog(url, dialogOptions, callback, link, $this) {
 
         div.html(jQuery.trim(data));
 
+        core.parsePreloadedLabels(div, uuid);
         core.parseResources(div, uuid);
       }
     }

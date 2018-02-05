@@ -74,56 +74,10 @@ div.cell div.card-icon-container {
   overflow: hidden;
 }
 
-td.cell.card div.cell {
-  min-width: 280px;
-}
-
-div.cell div.card-icon-container img {
+div.cell div.card-icon-container .xpc-card-type img {
   float: left;
 }  
 
-div.cell span.card {
-  display: inline-block;
-  width: 140px;
-  height: 70px;
-  zoom: 0.5;
-  -moz-transform: scale(0.5);
-  -moz-transform-origin: 0 0 0;
+td.cell.card div.cell {
+  min-width: 280px;
 }
-
-td.cell.card.mc div.cell span.card {
-  background: url(card_types.png) 0px 0px no-repeat;
-}
-
-td.cell.card.visa div.cell span.card {
-  background: url(card_types.png) 0px -71px no-repeat;
-}
-
-td.cell.card.jcb div.cell span.card {
-  background: url(card_types.png) 0px -141px no-repeat;
-}
-
-td.cell.card.amex div.cell span.card {
-  background: url(card_types.png) 0px -211px no-repeat;
-}
-
-td.cell.card.dc div.cell span.card {
-  background: url(card_types.png) 0px -281px no-repeat;
-}
-
-td.cell.card.dicl div.cell span.card {
-  background: url(card_types.png) 0px -351px no-repeat;
-}
-
-td.cell.card.sw div.cell span.card {
-  background: url(card_types.png) 0px -421px no-repeat;
-}
-
-td.cell.card.cup div.cell span.card {
-  background: url(card_types.png) 0px -491px no-repeat;
-}
-
-td.cell.card.bc div.cell span.card {
-  background: url(card_types.png) 0px -561px  no-repeat;
-}
-

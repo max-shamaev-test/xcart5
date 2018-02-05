@@ -143,15 +143,14 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
     {
         $this->acquirePINCodes();
 
-        parent::processSucceed();
-
-        if (
-            $this->hasPinCodes()
+        if ($this->hasPinCodes()
             && \XLite\Core\Config::getInstance()->CDev->PINCodes->approve_before_download
             && $this->getShippingStatusCode() !== Shipping::STATUS_WAITING_FOR_APPROVE
         ) {
             $this->setShippingStatus(Shipping::STATUS_WAITING_FOR_APPROVE);
         }
+
+        parent::processSucceed();
     }
 
     /**

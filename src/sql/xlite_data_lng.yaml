@@ -101,7 +101,7 @@ XLite\Model\LanguageLabel:
   - { name: "Show Category title", translations: [{ code: en, label: "Show category title" }] }
   - { name: "Category icon", translations: [{ code: en, label: "Category icon" }] }
   - { name: "Top banner", translations: [{ code: en, label: "Top banner" }] }
-  - { name: "Learn more about the top banner and how it shows in the page layout", translations: [{ code: en, label: "<a href=\"http://devs.x-cart.com/en/how-to_articles/how_to_change_the_height_of_the_top_category_banner.html\">Learn more about the top banner and how it shows in the page layout</a>" }] }
+  - { name: "Learn more about the top banner and how it shows in the page layout", translations: [{ code: en, label: "<a href=\"https://devs.x-cart.com/en/how-to_articles/how_to_change_the_height_of_the_top_category_banner.html\">Learn more about the top banner and how it shows in the page layout</a>" }] }
   - { name: "Meta tags", translations: [{ code: en, label: "Meta tags" }] }
   - { name: "Meta desc", translations: [{ code: en, label: "Meta desc" }] }
   - { name: "View image", translations: [{ code: en, label: "View image" }] }
@@ -583,7 +583,9 @@ XLite\Model\LanguageLabel:
   - { name: "Category", translations: [{ code: en, label: "Category" }] }
   - { name: "Category info", translations: [{ code: en, label: "Category info" }] }
   - { name: "Category name", translations: [{ code: en, label: "Category name" }] }
+  - { name: "Category name contains invalid symbols", translations: [{ code: en, label: "Category name contains invalid UTF-8 characters or 4-byte UTF-8 characters which are not supported. Please correct and try again." }] }
   - { name: "Category page title", translations: [{ code: en, label: "Category page title" }] }
+  - { name: "Category path contains invalid symbols", translations: [{ code: en, label: "Category path contains invalid UTF-8 characters or 4-byte UTF-8 characters which are not supported. Please correct and try again." }] }
   - { name: "Change", translations: [{ code: en, label: "Change" }] }
   - { name: "Change address", translations: [{ code: en, label: "Change address" }] }
   - { name: "Change method", translations: [{ code: en, label: "Change method" }] }
@@ -809,6 +811,7 @@ XLite\Model\LanguageLabel:
   - { name: "If you have a plugin in the .tar format, you can install it by uploading it here", translations: [{ code: en, label: "If you have a plugin in the .tar format, you can install it by uploading it here" }] }
   - { name: "Image", translations: [{ code: en, label: "Image" }] }
   - { name: "Image border will not be displayed in customer's frontend", translations: [{ code: en, label: "Image border will not be displayed in the storefront" }] }
+  - { name: "Image has been identified as a duplicate and has not been imported", translations: [{ code: en, label: "Image has been identified as a duplicate and has not been imported: {{value}}" }] }
   - { name: "Import", translations: [{ code: en, label: "Import" }] }
   - { name: "Import / Export", translations: [{ code: en, label: "Import / Export" }] }
   - { name: "Import from file", translations: [{ code: en, label: "Import from file" }] }
@@ -1017,7 +1020,7 @@ XLite\Model\LanguageLabel:
   - { name: "Perform order search", translations: [{ code: en, label: "Perform order search" }] }
   - { name: "Performance", translations: [{ code: en, label: "Performance" }] }
   - { name: "Permissions", translations: [{ code: en, label: "Permissions" }] }
-  - { name: "Permissions checking failed", translations: [{ code: en, label: "Not enough permissions to run the process. Make sure the following permissions are set (UNIX-like systems only).<br />Such permissions are required for a seamless automated installation or upgrade of X-Cart on your server. They do not take into account the specific configuration of your server or any security requirements. Once the process is completed, make sure you change the permissions to a more restrictive setting. <a target='_blank' href='http://kb.x-cart.com/en/setting_up_x-cart_5_environment/secure_configuration.html#why-x-cart-asks-for-666777-permissions'>Read more</a>" }] }
+  - { name: "Permissions checking failed", translations: [{ code: en, label: "Not enough permissions to run the process. Make sure the following permissions are set (UNIX-like systems only).<br />Such permissions are required for a seamless automated installation or upgrade of X-Cart on your server. They do not take into account the specific configuration of your server or any security requirements. Once the process is completed, make sure you change the permissions to a more restrictive setting. <a target='_blank' href='https://kb.x-cart.com/en/setting_up_x-cart_5_environment/secure_configuration.html#why-x-cart-asks-for-666777-permissions'>Read more</a>" }] }
   - { name: "Personal info", translations: [{ code: en, label: "Personal info" }] }
   - { name: "Phone", translations: [{ code: en, label: "Phone" }] }
   - { name: "Pick address from address book", translations: [{ code: en, label: "Pick address from address book" }] }
@@ -1419,10 +1422,10 @@ XLite\Model\LanguageLabel:
   - { name: "Please, contact administrator", translations: [{ code: en, label: "Please <a href=\"{{contact_link}}\">contact the administrator</a>" }] }
   - { name: "You have selected to delete your profile. Please, confirm you want to proceed", translations: [{ code: en, label: "You have selected to delete your profile. Please confirm that you want to proceed" }] }
 
-  - { name: "No Phar extension for PHP error", translations: [{ code: en, label: "PHP <a href='//php.net/phar' target='_blank'>.phar</b> extension is not enabled on your server. Here is a <a href='http://kb.x-cart.com/en/setting_up_x-cart_5_environment/setting_up_.phar.html' target='_blank'>manual</a> for setting up the extension." }] }
-  - { name: "No Curl extension for PHP error", translations: [{ code: en, label: "PHP cURL extension is not enabled on your server. Here is a <a href='http://kb.x-cart.com/en/setting_up_x-cart_5_environment/setting_up_curl.html' target='_blank'>manual</a> for setting up the extension." }] }
-  - { name: "No OpenSSL extension for PHP error", translations: [{ code: en, label: "PHP openSSL extension is not enabled on your server. Here is a <a href='http://kb.x-cart.com/en/setting_up_x-cart_5_environment/setting_up_openssl.html' target='_blank'>manual</a> for setting up the extension." }] }
-  - { name: "SSL Error", translations: [{ code: en, label: "Your server does not have an SSL certificate. Ask your hosting team to install an SSL certificate or create a self-signed one according to this <a href='http://kb.x-cart.com/en/setting_up_x-cart_5_environment/creating_self-signed_ssl_certificate.html' target='_blank'>guide</a>." }] }
+  - { name: "No Phar extension for PHP error", translations: [{ code: en, label: "PHP <a href='//php.net/phar' target='_blank'>.phar</b> extension is not enabled on your server. Here is a <a href='https://kb.x-cart.com/en/setting_up_x-cart_5_environment/setting_up_.phar.html' target='_blank'>manual</a> for setting up the extension." }] }
+  - { name: "No Curl extension for PHP error", translations: [{ code: en, label: "PHP cURL extension is not enabled on your server. Here is a <a href='https://kb.x-cart.com/en/setting_up_x-cart_5_environment/setting_up_curl.html' target='_blank'>manual</a> for setting up the extension." }] }
+  - { name: "No OpenSSL extension for PHP error", translations: [{ code: en, label: "PHP openSSL extension is not enabled on your server. Here is a <a href='https://kb.x-cart.com/en/setting_up_x-cart_5_environment/setting_up_openssl.html' target='_blank'>manual</a> for setting up the extension." }] }
+  - { name: "SSL Error", translations: [{ code: en, label: "Your server does not have an SSL certificate. Ask your hosting team to install an SSL certificate or create a self-signed one according to this <a href='https://kb.x-cart.com/en/setting_up_x-cart_5_environment/creating_self-signed_ssl_certificate.html' target='_blank'>guide</a>." }] }
   - { name: "Timeout error", translations: [{ code: en, label: "Previous attempt to connect to the Marketplace server failed." }] }
   - { name: "cURL error", translations: [{ code: en, label: "cURL returned an error while establishing a connection: {{error code}} {{error message}}" }] }
   - { name: "After the problem has been fixed, try to connect again.", translations: [{ code: en, label: "After the problem has been fixed, try to <a href='{{clear_cache}}'>connect</a> again." }] }
@@ -2820,7 +2823,7 @@ XLite\Model\LanguageLabel:
   - { name: "About clean urls", translations: [{ code: en, label: "About clean urls" }] }
   - { name: "These options separated by X, you can change it by modify X label", translations: [{ code: en, label: "Page title consists of the following elements separated by the delimiter \"{{delimiter}}\"; you can change the delimiter by editing the <a href=\"{{modify_url}}\">title-delimiter</a> label" }] }
   - { name: "Every object stores history with 8 clean urls which were previously used for this object.", translations: [{ code: en, label: "Every object stores a history of up to 8 clean urls that were used for the object previously. X-Cart sets 301 redirects for these URLs automatically." }] }
-  - { name: "Also, to manage your redirects you can define 301 redirects in .htaccess file.", translations: [{ code: en, label: "Also, you can adjust your 301 redirects in the .htaccess file (See <a href=\"http://kb.x-cart.com/en/general_setup/setting_up_seo-friendly_urls.html\" target=\"blank\">Setting up seo-friendly URLs</a> for Nginx or IIS configuration), or use a special extension by 3d party module developers (<a href=\"http://market.x-cart.com/addons/redirects-by-Nova-Horizon.html\"  target=\"blank\">Redirects module</a>)" }] }
+  - { name: "Also, to manage your redirects you can define 301 redirects in .htaccess file.", translations: [{ code: en, label: "Also, you can adjust your 301 redirects in the .htaccess file (See <a href=\"https://kb.x-cart.com/en/general_setup/setting_up_seo-friendly_urls.html\" target=\"blank\">Setting up seo-friendly URLs</a> for Nginx or IIS configuration), or use a special extension by 3d party module developers (<a href=\"https://market.x-cart.com/addons/redirects-by-Nova-Horizon.html\"  target=\"blank\">Redirects module</a>)" }] }
   - { name: 'Connecting to the marketplace...', translations: [{ code: en, label: 'Connecting to the marketplace...' }]}
   - { name: "Do not see your payment method? Find it on our Marketplace', {'url': url('addons_list_marketplace', '', {'tag': 'Payment processing", translations: [{ code: en, label: "Do not see your payment method? Find it on our Marketplace', {'url': url('addons_list_marketplace', '', {'tag': 'Payment processing" }]}
   - { name: 'Enter product name or SKU', translations: [{ code: en, label: 'Enter product name or SKU' }]}
@@ -3041,16 +3044,16 @@ XLite\Model\LanguageLabel:
   - { name: "Canceling", translations: [{ code: en, label: "Canceling" }] }
   - { name: "mbstring.extension.alert", translations: [{ code: en, label: "Installing native <a target='_blank' href='http://php.net/manual/en/mbstring.installation.php'><b>mbstring extension</b></a> is highly recommended due to the major speedup of PDF generation and general string processing." }] }
 
-  - { name: "itemslist.admin.order.search.blank", translations: [{ code: en, label: "<p class='items-list-blank-description-heading text-center'>There are currently no orders in the store.</p><p class='text-center'>Once your store has orders, this is where you’ll process and track them. Get accustomed with the order workflow at <a target='_blank' href='http://kb.x-cart.com/en/orders/understanding_x-cart_order_statuses.html'>X-Cart Knowledge Base</a>.</p>" }] }
+  - { name: "itemslist.admin.order.search.blank", translations: [{ code: en, label: "<p class='items-list-blank-description-heading text-center'>There are currently no orders in the store.</p><p class='text-center'>Once your store has orders, this is where you’ll process and track them. Get accustomed with the order workflow at <a target='_blank' href='https://kb.x-cart.com/en/orders/understanding_x-cart_order_statuses.html'>X-Cart Knowledge Base</a>.</p>" }] }
   - { name: "itemslist.admin.order.blank", translations: [{ code: en, label: "There are currently no orders in the store." }] }
 
   - { name: "itemslist.admin.transaction.blank", translations: [{ code: en, label: "<p class='items-list-blank-description-heading text-center'>No payment transactions have been made yet.</p><p class='text-center'>Once a customer will place an order, this is where you can track payment status and transaction details.</p>" }] }
 
-  - { name: "itemslist.admin.product.search.blank", translations: [{ code: en, label: "<p class='items-list-blank-description-heading text-center'>Products catalog is empty.</p><p class='text-center'>Start your sales by adding products using the <b>\"Add product\"</b> button or via import. Learn how to configure a product at <a target='_blank' href='http://kb.x-cart.com/en/products/adding_products.html#adding-a-new-product'>X-Cart Knowledge Base</a>.</p>" }] }
+  - { name: "itemslist.admin.product.search.blank", translations: [{ code: en, label: "<p class='items-list-blank-description-heading text-center'>Products catalog is empty.</p><p class='text-center'>Start your sales by adding products using the <b>\"Add product\"</b> button or via import. Learn how to configure a product at <a target='_blank' href='https://kb.x-cart.com/en/products/adding_products.html#adding-a-new-product'>X-Cart Knowledge Base</a>.</p>" }] }
   - { name: "itemslist.admin.product.blank", translations: [{ code: en, label: "Products catalog is empty." }] }
 
   - { name: "itemslist.admin.category.blank", translations: [{ code: en, label: "<p class='items-list-blank-description-heading text-center'>There are no categories in the store.</p><p class='text-center'>Group your products by adding categories using the <b>\"New category\"</b> button or via import.</p>" }] }
-  - { name: "itemslist.admin.membership.blank", translations: [{ code: en, label: "<p class='items-list-blank-description-heading text-center'>There are no memberships in the store.</p><p class='text-center'>Memberships allow you to group your customers and give them different privileges. You can add them by clicking the <b>\"New membership\"</b> button, Learn more at <a target='_blank' href='http://kb.x-cart.com/en/users/adding_user_membership_levels.html'>X-Cart Knowledge Base</a>.</p>" }] }
+  - { name: "itemslist.admin.membership.blank", translations: [{ code: en, label: "<p class='items-list-blank-description-heading text-center'>There are no memberships in the store.</p><p class='text-center'>Memberships allow you to group your customers and give them different privileges. You can add them by clicking the <b>\"New membership\"</b> button, Learn more at <a target='_blank' href='https://kb.x-cart.com/en/users/adding_user_membership_levels.html'>X-Cart Knowledge Base</a>.</p>" }] }
 
   - { name: 'Categories processed', translations: [{ code: en, label: 'Categories processed' }] }
   - { name: 'Processing categories...', translations: [{ code: en, label: 'Processing categories...' }] }
@@ -3102,7 +3105,7 @@ XLite\Model\LanguageLabel:
   - { name: 'PDO extension', translations: [{ code: en, label: 'PDO extension' }] }
   - { name: 'php_pdo_mysql.error_message_1', translations: [{ code: en, label: 'PDO extension with MySQL support must be installed.' }] }
   - { name: 'php_pdo_mysql.label_message', translations: [{ code: en, label: 'PDO extension with enabled MySQL support is used by X-Cart for connecting to the database. Please make sure this extension is loaded in your php.ini file and try again.' }] }
-  - { name: 'php_pdo_mysql.kb_message', translations: [{ code: en, label: 'Check our <a href="http://kb.x-cart.com/en/general_setup/installation_guide.html#disabled-php-extensions" target="_blank">Knowledge Base</a> in order to find out how to solve the problem with PDO extension.' }] }
+  - { name: 'php_pdo_mysql.kb_message', translations: [{ code: en, label: 'Check our <a href="https://kb.x-cart.com/en/general_setup/installation_guide.html#disabled-php-extensions" target="_blank">Knowledge Base</a> in order to find out how to solve the problem with PDO extension.' }] }
 
   - { name: 'Upload file size limit', translations: [{ code: en, label: 'Upload file size limit' }] }
   - { name: 'php_upload_max_file_size.error_message_1', translations: [{ code: en, label: 'PHP option upload_max_filesize must contain a value. It is currently empty.' }] }
@@ -3110,8 +3113,8 @@ XLite\Model\LanguageLabel:
 
   - { name: 'File permissions', translations: [{ code: en, label: 'File permissions' }] }
   - { name: 'file_permissions.error_message_1', translations: [{ code: en, label: 'Not enough permissions to run the process. Please make sure the following files are writable:<br /><div class="permissions-list">{{pathsList}}</div>' }] }
-  - { name: 'file_permissions.error_message_2', translations: [{ code: en, label: 'Not enough permissions to run the process. Make sure the following permissions are set (UNIX-like systems only):<br /><div class="permissions-list">{{pathsList}}</div>Such permissions are required for a seamless automated installation or upgrade of X-Cart on your server. They do not take into account the specific configuration of your server or any security requirements. Once the process is completed, make sure you change the permissions to a more restrictive setting. <a target="_blank" href="http://kb.x-cart.com/en/setting_up_x-cart_5_environment/secure_configuration.html#why-x-cart-asks-for-666777-permissions">Read more</a>' }] }
-  - { name: 'file_permissions.kb_message', translations: [{ code: en, label: 'Check our <a href="http://kb.x-cart.com/en/general_setup/installation_guide.html#permissionchecking-failed" target="_blank">Knowledge Base</a> in order to find out how to solve the problem with incorrect permissions.' }] }
+  - { name: 'file_permissions.error_message_2', translations: [{ code: en, label: 'Not enough permissions to run the process. Make sure the following permissions are set (UNIX-like systems only):<br /><div class="permissions-list">{{pathsList}}</div>Such permissions are required for a seamless automated installation or upgrade of X-Cart on your server. They do not take into account the specific configuration of your server or any security requirements. Once the process is completed, make sure you change the permissions to a more restrictive setting. <a target="_blank" href="https://kb.x-cart.com/en/setting_up_x-cart_5_environment/secure_configuration.html#why-x-cart-asks-for-666777-permissions">Read more</a>' }] }
+  - { name: 'file_permissions.kb_message', translations: [{ code: en, label: 'Check our <a href="https://kb.x-cart.com/en/general_setup/installation_guide.html#permissionchecking-failed" target="_blank">Knowledge Base</a> in order to find out how to solve the problem with incorrect permissions.' }] }
 
   - { name: 'MySQL version', translations: [{ code: en, label: 'MySQL version' }] }
   - { name: 'mysql_version.error_message_1', translations: [{ code: en, label: 'MySQL version must be at least {{minMysqlVersion}}.' }] }
@@ -3133,7 +3136,7 @@ XLite\Model\LanguageLabel:
   - { name: 'https_bouncer.error_message_1', translations: [{ code: en, label: 'libcurl extension is found but does not support secure protocols.' }] }
   - { name: 'https_bouncer.error_message_2', translations: [{ code: en, label: 'libcurl extension not found.' }] }
   - { name: 'https_bouncer.label_message', translations: [{ code: en, label: 'The libCURL module with HTTPS protocol support and a valid SSL certificate is required for credit cards processing via Authorize.NET, PayPal or other payment gateways and using real-time shipping calculation services (these services require your website to accept secure connections via HTTPS/SSL). Please contact your hosting provider''s support to have these parameters adjusted.' }] }
-  - { name: 'https_bouncer.kb_message', translations: [{ code: en, label: 'Check our <a href="http://kb.x-cart.com/en/general_setup/installation_guide.html#https-bouncer-is-not-installed" target="_blank">Knowledge Base</a> in order to find out how to solve the problem with libCurl library.' }] }
+  - { name: 'https_bouncer.kb_message', translations: [{ code: en, label: 'Check our <a href="https://kb.x-cart.com/en/general_setup/installation_guide.html#https-bouncer-is-not-installed" target="_blank">Knowledge Base</a> in order to find out how to solve the problem with libCurl library.' }] }
 
   - { name: 'XML extensions support', translations: [{ code: en, label: 'XML extensions support' }] }
   - { name: 'xml_support.error_message_1', translations: [{ code: en, label: 'XML/Expat and DOM extensions are required for some modules.' }] }
@@ -3142,7 +3145,7 @@ XLite\Model\LanguageLabel:
   - { name: 'DocBlocks support', translations: [{ code: en, label: 'DocBlocks support' }] }
   - { name: 'doc_blocks_support.error_message_1', translations: [{ code: en, label: 'The DocBlock feature is not supported by your PHP. This feature is required for X-Cart operation.' }] }
   - { name: 'doc_blocks_support.error_message_2', translations: [{ code: en, label: 'The DocBlock feature is not supported by your PHP. This feature is required for X-Cart operation. The cause of DocBlock feature being blocked may be the eAccelerator extension. Disable this extension and try again.' }] }
-  - { name: 'doc_blocks_support.label_message', translations: [{ code: en, label: 'Check our <a href="http://kb.x-cart.com/en/general_setup/installation_guide.html#permissionchecking-failed" target="_blank">Knowledge Base</a> in order to find out how to solve the problem with incorrect permissions.' }] }
+  - { name: 'doc_blocks_support.label_message', translations: [{ code: en, label: 'Check our <a href="https://kb.x-cart.com/en/general_setup/installation_guide.html#permissionchecking-failed" target="_blank">Knowledge Base</a> in order to find out how to solve the problem with incorrect permissions.' }] }
   - { name: 'Category id or path is required', translations: [{ code: en, label: 'Category id or path is required' }] }
   - { name: 'Last element of category path should be same as name', translations: [{ code: en, label: 'Last element of category path should be same as name if no category id is presented' }] }
   - { name: 'Category with id X not found, new category will be created', translations: [{ code: en, label: 'Category with id "{{value}}" not found, new category with different id will be created' }] }
@@ -3160,13 +3163,13 @@ XLite\Model\LanguageLabel:
   - { name: 'Your X-Cart Business trial has expired!', translations: [{ code: en, label: 'Your X-Cart Business trial has expired!' }] }
   - { name: 'You must register your X-Cart installation before using it for real sales. Activate your existing license key or purchase a premium license to skyrocket your business.', translations: [{ code: en, label: 'You must register your X-Cart installation before using it for real sales. Activate your existing license key or purchase a <strong>premium license to skyrocket your business</strong>.' }] }
   - { name: 'This message can be removed only through activation of a free or premium license.', translations: [{ code: en, label: 'This message can be removed only through activation of a free or premium license.' }] }
-  - { name: 'Refer to X-Cart license agreement for further details.', translations: [{ code: en, label: 'Refer to <a href="{{licenseAgreementURL}}" target="_blank">X-Cart license agreement</a> for further details.' }] }
+  - { name: 'Refer to X-Cart license agreement for further details.', translations: [{ code: en, label: 'Refer to <a href="{{licenseAgreementURL}}" target="_blank" rel="nofollow">X-Cart license agreement</a> for further details.' }] }
   - { name: 'Remind me on next sign-in', translations: [{ code: en, label: 'Remind me on next sign-in' }] }
   - { name: 'Purchase a premium license key', translations: [{ code: en, label: 'Purchase a premium license key' }] }
   - { name: 'I have a license key', translations: [{ code: en, label: 'I have a license key' }] }
   - { name: 'Enter your premium license key', translations: [{ code: en, label: 'Enter your premium license key' }] }
-  - { name: 'Activate free license & remove premium features.', translations: [{ code: en, label: '<a href="{{url}}">Activate free license & remove premium features.</a>' }] }
-  - { name: 'Contact us if you have any questions.', translations: [{ code: en, label: '<a href="{{url}}" target="_blank">Contact us</a> if you have any questions.' }] }
+  - { name: 'Activate free license & remove premium features.', translations: [{ code: en, label: '<a href="{{url}}">Activate free X-Cart license & remove premium features.</a>' }] }
+  - { name: 'Contact us if you have any questions.', translations: [{ code: en, label: '<a href="{{url}}" target="_blank" rel="nofollow">Contact X-Cart</a> if you have any questions.' }] }
   - { name: 'License key registration', translations: [{ code: en, label: 'License key registration' }] }
   - { name: 'X-Cart Business trial will expire in X day', translations: [{ code: en, label: 'X-Cart Business trial will expire in {{count}} day' }] }
   - { name: 'X-Cart Business trial will expire in X days', translations: [{ code: en, label: 'X-Cart Business trial will expire in {{count}} days' }] }
@@ -3283,6 +3286,11 @@ XLite\Model\LanguageLabel:
   - { name: 'File uploading error 8', translations: [{ code: en, label: 'Server-side problem with image upload. Contact your server administrator.' }] }
   - { name: 'No file was uploaded', translations: [{ code: en, label: 'No file was uploaded' }] }
 
+  - { name: 'Your PHP version is outdated', translations: [{ code: en, label: 'Your PHP {{version}} is outdated' }] }
+  - { name: 'Your PHP version is outdated and no longer supported', translations: [{ code: en, label: 'Your PHP {{version}} is outdated and no longer supported (<a href="http://php.net/eol.php" target="_blank">http://php.net/eol.php</a>). We recommend updating PHP to the latest stable version to improve your store performance. To update your PHP version, contact your hosting provider.' }] }
+
   - { name: "Make sure the URL is correct and the file referenced by the URL is a PNG/JPG/JPEG", translations: [{ code: en, label: "Failed to download image from URL. Make sure the URL is correct and the file referenced by the URL is a PNG/JPG/JPEG" }] }
 
   - { name: "Transaction is in progress", translations: [{ code: en, label: "Transaction is in progress, please wait..." }] }
+  - { name: "to be uninstalled", translations: [{ code: en, label: "to be uninstalled" }] }
+  - { name: "Review modules", translations: [{ code: en, label: "Review modules" }] }

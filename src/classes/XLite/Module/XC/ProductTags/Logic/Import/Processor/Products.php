@@ -52,11 +52,13 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
      */
     protected function importTagsColumn(\XLite\Model\Product $model, array $value, array $column)
     {
-        // TODO: add verifyValueAsNull()
-        if ($model->getTags()) {
-            $model->getTags()->clear();
+        if ($tags = $model->getTags()) {
+            foreach ($tags as $k => $tag) {
+                $tags->remove($k);
+            }
         }
 
+        // TODO: add verifyValueAsNull()
         if ($value) {
             foreach ($value as $index => $tag) {
                 if ($tag) {

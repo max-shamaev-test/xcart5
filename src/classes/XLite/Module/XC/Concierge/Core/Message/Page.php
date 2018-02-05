@@ -67,12 +67,16 @@ class Page extends AMessage
     {
         $title = $this->getTitle();
 
+        $admin = \XLite\Core\Auth::getInstance()->getProfile();
+        $admin_email = $admin ? $admin->getLogin() : '';
+
         // @tricky: like on x-cart.com
         return [
             'title'       => $title,
             'Page Name'   => 'Concierge: ' . $title,
             'host'        => $_SERVER['HTTP_HOST'],
             'EventSource' => 'Concierge',
+            'admin_email' => $admin_email,
         ];
     }
 

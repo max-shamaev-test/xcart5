@@ -23,7 +23,15 @@
        only screen and (min-device-pixel-ratio: 1.5) {
 
   .stripe-connect {
-    background-image: url(images/blue@2.png);
+    background-image: url(images/blue@2x.png) !important;
+    background-size: contain;
+    background-position: bottom;
+    outline: none !important;
+    min-height: 33px !important;
+  }
+
+  .stripe-connect:active {
+    box-shadow: inset 0px -4px 4px 1px rgba(0,0,0,0.125);
   }
 
 }

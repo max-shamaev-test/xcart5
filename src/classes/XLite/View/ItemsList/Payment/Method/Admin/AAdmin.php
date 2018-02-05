@@ -40,7 +40,8 @@ abstract class AAdmin extends \XLite\View\ItemsList\AItemsList
     }
 
     /**
-     * Returns a list of CSS classes (separated with a space character) to be attached to the items list
+     * Returns a list of CSS classes (separated with a space character) to be attached to the items
+     * list
      *
      * @return string
      */
@@ -80,7 +81,10 @@ abstract class AAdmin extends \XLite\View\ItemsList\AItemsList
 
         $cnd->{\XLite\Model\Repo\Payment\Method::P_MODULE_ENABLED} = true;
         $cnd->{\XLite\Model\Repo\Payment\Method::P_ADDED} = true;
-        $cnd->{\XLite\Model\Repo\Payment\Method::P_ORDER_BY} = array('m.class, translations.name', 'asc');
+        $cnd->{\XLite\Model\Repo\Payment\Method::P_ORDER_BY} = [
+            'm.adminOrderby, translations.name',
+            'asc'
+        ];
 
         return $cnd;
     }
@@ -88,7 +92,7 @@ abstract class AAdmin extends \XLite\View\ItemsList\AItemsList
     /**
      * Return products list
      *
-     * @param \XLite\Core\CommonCell $cnd       Search condition
+     * @param \XLite\Core\CommonCell $cnd Search condition
      * @param boolean                $countOnly Return items list or only its size OPTIONAL
      *
      * @return array|integer
@@ -111,7 +115,7 @@ abstract class AAdmin extends \XLite\View\ItemsList\AItemsList
      */
     protected function getLineClass(\XLite\Model\Payment\Method $method)
     {
-        $classes = array('cell');
+        $classes = ['cell'];
 
         if (!$this->canSwitch($method)) {
             $classes[] = 'blocked-switch';

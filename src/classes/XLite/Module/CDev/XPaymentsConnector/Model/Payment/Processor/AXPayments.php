@@ -704,14 +704,24 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
             || !\XLite\Module\CDev\XPaymentsConnector\Core\XPaymentsClient::getInstance()->getUpdateData()
         ) {
             // This is not X-Payments callback. We should not be here actually
-            throw new \XLite\Core\Exception\PaymentProcessing\CallbackRequestError('Not an X-Payments callback.');
+            if (class_exists('\XLite\Core\Exception\PaymentProcessing\CallbackRequestError')) {
+                throw new \XLite\Core\Exception\PaymentProcessing\CallbackRequestError('Not an X-Payments callback.');
+            } else {
+                $this->markCallbackRequestAsInvalid(static::t('Not an X-Payments callback.'));
+                return;
+            }
         }
 
         if (
             $transaction->getXpcDataCell('xpc_deny_callbacks')
             && intval($transaction->getXpcDataCell('xpc_deny_callbacks')->getValue())
         ) {
-            throw new \XLite\Core\Exception\PaymentProcessing\CallbackNotReady();
+            if (class_exists('\XLite\Core\Exception\PaymentProcessing\CallbackNotReady')) {
+                throw new \XLite\Core\Exception\PaymentProcessing\CallbackNotReady();
+            } else {
+                $this->markCallbackRequestAsInvalid(static::t('X-Payments callback received before order placement. Skipped.'));
+                return;
+            }
         }
 
         $updateData = \XLite\Module\CDev\XPaymentsConnector\Core\XPaymentsClient::getInstance()->getUpdateData();
@@ -764,7 +774,7 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
             // Check IP address
             if (!$this->checkIpAddress()) {
                 $logMessage = self::getIncorrectIpAddrressError();
-                $this->detectedTransaction = $transaction;
+                $this->detectedTransaction = null;
                 break;
             }
 
@@ -861,6 +871,9 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
                 . 'Parent ID: ' . ($parentId ? $parentId : 'n/a') . PHP_EOL
                 . 'Data: ' . ($updateData ? var_export($updateData, true): 'n/a');
 
+        }
+
+        if ($logMessage) {
             \XLite\Logger::getInstance()->logCustom(static::LOG_FILE_NAME, $logMessage);
         }
 
@@ -1276,7 +1289,7 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
     protected static function getIncorrectIpAddrressError()
     {
         return 'Callback request from unallowed IP address: "' . $_SERVER['REMOTE_ADDR'] . '"' . PHP_EOL
-             . 'List of allwed IP addresses: "' . \XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_allowed_ip_addresses . '"';
+             . 'List of allowed IP addresses: "' . \XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_allowed_ip_addresses . '"';
     }
 
     /**

@@ -78,7 +78,12 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
     {
         $coupons = array();
         foreach ($this->getUsedCoupons() as $coupon) {
-            $coupons[] = $coupon->getCoupon()->getId();
+            /** @var \XLite\Module\CDev\Coupons\Model\UsedCoupon $coupon */
+            if ($coupon->getCoupon()) {
+                $coupons[] = $coupon->getCoupon()->getId();
+            } else {
+                $coupons[] = 'CODE:' . $coupon->getCode();
+            }
         }
 
         return $coupons;

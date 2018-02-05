@@ -1637,15 +1637,18 @@ abstract class AController extends \XLite\Core\Handler
      */
     protected function translateTopMessagesToHTTPHeaders()
     {
-        foreach (\XLite\Core\TopMessage::getInstance()->getAJAXMessages() as $message) {
-            $encodedMessage = json_encode(
-                array(
-                    'type'    => $message[\XLite\Core\TopMessage::FIELD_TYPE],
-                    'message' => $message[\XLite\Core\TopMessage::FIELD_TEXT],
-                )
-            );
-            header('event-message: ' . $encodedMessage);
-        }
+        $messages = \XLite\Core\TopMessage::getInstance()->getAJAXMessages();
+        $processed = array_map(
+            function($message) {
+                return [
+                        'type'    => $message[\XLite\Core\TopMessage::FIELD_TYPE],
+                        'message' => $message[\XLite\Core\TopMessage::FIELD_TEXT],
+                ];
+            },
+            $messages
+        );
+
+        header('event-messages: ' . json_encode($processed));
 
         \XLite\Core\TopMessage::getInstance()->clearAJAX();
     }
@@ -1818,7 +1821,8 @@ abstract class AController extends \XLite\Core\Handler
         $content = $viewer->getContent();
 
         return $this->printAJAXResources() . PHP_EOL
-             . $content;
+            . $this->printAJAXPreloadedLabels() . PHP_EOL
+            . $content;
     }
 
     /**
@@ -1856,18 +1860,13 @@ abstract class AController extends \XLite\Core\Handler
     }
 
     /**
-     * Print AJAX request output
+     * Print AJAX resources output
      *
-     * @return void
+     * @return string
      */
     protected function printAJAXResources()
     {
         $resources = \XLite\Core\Layout::getInstance()->getRegisteredPreparedResources();
-        $widget = json_encode(
-            array(
-                'widget' => $this->getViewerClass(),
-            )
-        );
 
         $resContainer = array(
             'widget' => $this->getViewerClass(),
@@ -1893,6 +1892,30 @@ abstract class AController extends \XLite\Core\Handler
     $resJson
 </script>
 RES;
+
+        return $code;
+    }
+
+    /**
+     * Print AJAX preloaded labels output
+     *
+     * @return string
+     */
+    protected function printAJAXPreloadedLabels()
+    {
+        $labels = \XLite\Core\PreloadedLabels\Registrar::getInstance()->getRegistered();
+
+        $labelsContainer = array(
+            'widget' => $this->getViewerClass(),
+            'labels' => $labels
+        );
+
+        $labelsJson = json_encode(
+            $labelsContainer,
+            JSON_UNESCAPED_UNICODE
+        );
+
+        $code = "<script type='application/json' data-preloaded-labels>$labelsJson</script>";
 
         return $code;
     }

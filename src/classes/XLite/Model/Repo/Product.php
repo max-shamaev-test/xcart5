@@ -22,7 +22,7 @@ namespace XLite\Model\Repo;
  *   description="Product is the building block of your store. It contains data about certain good you trade and is identified by SKU. Product is tightly coupled with its Category and Attributes.",
  *   @SWG\ExternalDocumentation(
  *     description="Find out more about product fields and options",
- *     url="http://kb.x-cart.com/en/products/adding_products.html"
+ *     url="https://kb.x-cart.com/en/products/adding_products.html"
  *   )
  * )
  */

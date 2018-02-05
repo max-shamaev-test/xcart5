@@ -5,7 +5,7 @@
 
 <div class="saved-card">
   <div class="card-icon-container">
-    <span class="card"><img src="{{ asset('images/spacer.gif') }}" alt="{{ this.entity.getCardType() }}"/></span>
+    <span class="xpc-card-type {{ this.entity.getCardType()|lower }}"><img src="{{ asset('images/spacer.gif') }}" alt="{{ this.entity.getCardType() }}"/></span>
   </div>
   <div class="card-number">
     {{ this.entity.getCardNumber() }}

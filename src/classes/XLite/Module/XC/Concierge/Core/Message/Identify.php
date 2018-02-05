@@ -85,6 +85,7 @@ class Identify extends AMessage
             $result['email']     = $profile->getLogin();
             $result['name']      = $profile->getName();
             $result['createdAt'] = $profile->getAdded();
+            $result['loggedIntoTrial'] = 'true';
         }
 
         $config = $this->getConfig();

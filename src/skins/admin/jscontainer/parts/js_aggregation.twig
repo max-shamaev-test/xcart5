@@ -5,6 +5,6 @@
  #}
 {% if this.doJSAggregation() %}
 {% for file in this.getAggregateJSResources() %}
-  <script type="text/javascript" src="{{ this.getResourceURL(file.url) }}"></script>
+  <script type="text/javascript" src="{{ this.getResourceURL(file.url, file) }}"></script>
 {% endfor %}
 {% endif %}

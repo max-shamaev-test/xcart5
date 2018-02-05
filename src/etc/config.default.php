@@ -300,7 +300,8 @@ iframe[] = allowfullscreen:CDATA
 [storefront_options]
 ; Do not close target=callback for payments if storefront is closed
 callback_opened = On
-optimize_css = Off
+; Works only with 'Aggregate CSS files' option enabled
+optimize_css = On
 
 ; All the following countries always uses custom state with autocomplete(if available)
 ; possible values - country codes ('GB,US,DE' as example), 'All' or empty ''

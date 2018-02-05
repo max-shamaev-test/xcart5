@@ -27,7 +27,7 @@ class Version extends \XLite\View\AView
         return \XLite::getInstance()->getShopURL('skins/customer/page/version/style.css');
     }
 
-    public function getScriptFileUrl()
+    public function getControllerFileUrl()
     {
         return \XLite::getInstance()->getShopURL('skins/customer/page/version/script.js');
     }
@@ -82,8 +82,9 @@ class Version extends \XLite\View\AView
         $modules = $this->getParam(self::PARAM_PRIVATE_MODULES);
 
         usort($modules, function ($a, $b) {
-            $a = $a->getAuthorName();
-            $b = $b->getAuthorName();
+            $a = strtolower($a->getAuthorName());
+            $b = strtolower($b->getAuthorName());
+
             if ($a === $b) {
                 return 0;
             }
@@ -102,8 +103,9 @@ class Version extends \XLite\View\AView
         $modules = $this->getParam(self::PARAM_PUBLIC_MODULES);
 
         usort($modules, function ($a, $b) {
-            $a = $a->getAuthorName();
-            $b = $b->getAuthorName();
+            $a = strtolower($a->getAuthorName());
+            $b = strtolower($b->getAuthorName());
+
             if ($a === $b) {
                 return 0;
             }
@@ -113,14 +115,4 @@ class Version extends \XLite\View\AView
 
         return $modules;
     }
-
-    /**
-     * @param \XLite\Model\Module $module
-     *
-     * @return float
-     */
-    protected function getModuleVersionSortableValue(\XLite\Model\Module $module)
-     {
-         return (float)($module->getMajorVersion() . str_replace('.', '', $module->getFullMinorVersion()));
-     }
 }

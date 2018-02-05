@@ -47,7 +47,7 @@ jQuery().ready(
     var removeExtension = function (url) {
       var extension = jQuery('#cleanurl + .input-group-addon').data('extension');
 
-      return url.replace(new RegExp('\.' + extension + '$'), '');
+      return String(url).replace(new RegExp('\.' + extension + '$'), '');
     };
 
     var input = jQuery('#cleanurl');

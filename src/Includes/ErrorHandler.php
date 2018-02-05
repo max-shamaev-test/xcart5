@@ -419,11 +419,13 @@ abstract class ErrorHandler
      */
     public static function handleCommonError($errno, $errstr, $errfile = null, $errline = null)
     {
-        if ($errfile && $errline) {
-            $errstr .= ' in file ' . $errfile . ' : ' . $errline;
-        }
+        if (error_reporting() !== 0) {
+            if ($errfile && $errline) {
+                $errstr .= ' in file ' . $errfile . ' : ' . $errline;
+            }
 
-        static::logInfo($errstr, $errno);
+            static::logInfo($errstr, $errno);
+        }
     }
 
     /**

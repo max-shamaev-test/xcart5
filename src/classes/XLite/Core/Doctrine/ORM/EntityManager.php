@@ -49,4 +49,23 @@ class EntityManager extends \Doctrine\ORM\EntityManager
             throw $e;
         }
     }
+
+    /**
+     * @param null|object|array $entity
+     *
+     * @throws \Exception
+     */
+    public function flush($entity = null)
+    {
+        try {
+            parent::flush();
+
+        } catch (\Exception $e) {
+            if (!$this->isOpen()) {
+                \XLite\Logger::getInstance()->registerException($e);
+            }
+
+            throw $e;
+        }
+    }
 }

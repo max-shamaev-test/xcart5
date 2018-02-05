@@ -326,7 +326,13 @@ class Uploaded extends \XLite\Upgrade\Entry\Module\AModule
      */
     protected function getModuleInstalled()
     {
-        return \XLite\Core\Database::getRepo('\XLite\Model\Module')->findOneBy($this->getModuleData());
+        $data = $this->getModuleData();
+
+        if (isset($data['authorEmail'])) {
+            unset($data['authorEmail']);
+        }
+
+        return \XLite\Core\Database::getRepo('\XLite\Model\Module')->findOneBy($data);
     }
 
     /**

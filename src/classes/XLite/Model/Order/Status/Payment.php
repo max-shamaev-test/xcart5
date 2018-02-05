@@ -39,7 +39,8 @@ class Payment extends \XLite\Model\Order\Status\AStatus
     public static function getDisallowedToSetManuallyStatuses()
     {
         return [
-            self::STATUS_AUTHORIZED
+            self::STATUS_AUTHORIZED,
+            self::STATUS_DECLINED
         ];
     }
 

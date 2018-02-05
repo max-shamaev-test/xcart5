@@ -73,7 +73,8 @@ class PaymentStatuses extends \XLite\View\Button\Dropdown\ADropdown
     protected function getExcludedStatuses()
     {
         return [
-            'A'
+            'A',
+            'D'
         ];
     }
 

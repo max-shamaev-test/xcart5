@@ -102,7 +102,9 @@ class MigrationFactory
             $disabledTables,
             $disabledColumns,
             $enabledTables,
-            $this->database->getTablePrefix()
+            $this->database->getTablePrefix(),
+            $this->em->getConnection()
+
         );
 
         $schemaDiff = $comparator->compare($fromSchema, $toSchema);

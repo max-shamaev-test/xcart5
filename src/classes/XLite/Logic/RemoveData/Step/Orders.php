@@ -16,7 +16,7 @@ class Orders extends \XLite\Logic\RemoveData\Step\AStep
     /**
      * Get repository
      *
-     * @return \XLite\Model\Repo\ARepo
+     * @return \XLite\Model\Repo\Order
      */
     protected function getRepository()
     {
@@ -24,4 +24,14 @@ class Orders extends \XLite\Logic\RemoveData\Step\AStep
     }
     
     // }}}
+
+    /**
+     * Finalize
+     *
+     * @return void
+     */
+    public function finalize()
+    {
+        $this->getRepository()->initializeNextOrderNumber();
+    }
 }

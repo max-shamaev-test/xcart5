@@ -400,6 +400,20 @@ div.file-uploader {
     }
   }
 
+  &.loading {
+    & > :not(.spinner) {
+      display: none;
+    }
+  }
+
+  &:not(.ready) {
+    .link {
+      & > i {
+        display: none;
+      }
+    }
+  }
+
   div.alt {
     left: 0;
     bottom: 0;

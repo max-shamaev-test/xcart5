@@ -108,6 +108,8 @@ class CommonResources extends \XLite\View\AView
                 'js/core.form.js',
                 'js/lazy-load.js',
                 'js/loadCSS.min.js',
+                'js/cssrelpreload.min.js',
+                'js/onloadCSS.min.js',
                 'js/functionNamePolyfill/Function.name.js',
                 array(
                     'file'      => 'js/php.min.js',

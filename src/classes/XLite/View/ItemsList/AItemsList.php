@@ -476,6 +476,19 @@ abstract class AItemsList extends \XLite\View\Container
         });
     }
 
+    /**
+     * @return void
+     */
+    protected function initView()
+    {
+        parent::initView();
+
+        $pager = $this->getPager();
+        if ($pager) {
+            $pager->initView();
+        }
+    }
+
     // {{{ SEARCH REGION
 
     /**
@@ -757,7 +770,7 @@ abstract class AItemsList extends \XLite\View\Container
         $paramSortBy = $this->getParam(static::PARAM_SORT_BY);
 
         if (empty($paramSortBy)
-            || !in_array($paramSortBy, array_keys($this->sortByModes), true)
+            || !array_key_exists($paramSortBy, $this->sortByModes)
         ) {
             $paramSortBy = $this->getSortByModeDefault();
         }

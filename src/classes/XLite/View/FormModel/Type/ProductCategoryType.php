@@ -8,6 +8,7 @@
 
 namespace XLite\View\FormModel\Type;
 
+use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -28,6 +29,7 @@ class ProductCategoryType extends AType
     {
         return [
             AView::RESOURCE_JS  => ['select2/dist/js/select2.min.js'],
+            AView::RESOURCE_JS  => ['select2_plugins/select2.sortable.js'],
             AView::RESOURCE_CSS => ['select2/dist/css/select2.min.css'],
         ];
     }
@@ -83,6 +85,12 @@ class ProductCategoryType extends AType
             $fullNames[$category['id']] = $category['fullName'];
         }
 
+        list($namesSorted, $choicesSorted) = $this->getSortedNamesAndChoices(
+            $fullNames,
+            $view->vars['choices'],
+            $view->vars['value']
+        );
+
         $view->vars = array_replace($view->vars, [
             'attr' => array_replace(
                 $view->vars['attr'],
@@ -91,9 +99,48 @@ class ProductCategoryType extends AType
                     'searching-lbl'            => static::t('Searching...'),
                     'no-results-lbl'           => static::t('No results found.'),
                     'enter-term-lbl'           => static::t('Enter a keyword to search.'),
-                    'data-categories'          => json_encode($fullNames),
+                    'data-categories'          => json_encode($namesSorted),
                 ]
             ),
+            'choices' => $choicesSorted,
         ]);
+    }
+
+    /**
+     * @param array $names
+     * @param array $choices
+     *
+     * @return array
+     */
+    protected function getSortedNamesAndChoices($names, $choices, $selectedCategories)
+    {
+        $namesSorted = [];
+        $choicesSorted = [];
+
+        $choicesIds = array_map(function($choice) {
+            /** @var ChoiceView $choice */
+            return $choice->data;
+        }, $choices);
+        $choices = array_combine($choicesIds, $choices);
+
+        foreach ($selectedCategories as $id) {
+            $namesSorted[$id] = $names[$id];
+            $choicesSorted[$id] = $choices[$id];
+        }
+
+        $namesSorted = array_replace(
+            $namesSorted,
+            $names
+        );
+
+        $choicesSorted = array_replace(
+            $choicesSorted,
+            $choices
+        );
+
+        return [
+            $namesSorted,
+            $choicesSorted
+        ];
     }
 }

@@ -5,7 +5,7 @@
  #}
 {% if this.isAmazonConfigured() %}
   {% set amazonConfig = this.getAmazonConfig() %}
-  <script type="text/javascript">
+  <script>
     var amazonConfig = {
       sid: '{{ amazonConfig.merchant_id }}',
       mode: '{{ amazonConfig.mode }}',

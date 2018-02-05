@@ -174,12 +174,14 @@ abstract class Image extends \XLite\Model\Base\Storage
             $newExtension = $this->getExtensionByMIME();
             $pathinfo = pathinfo($path);
 
+            $extension = isset($pathinfo['extension']) ? $pathinfo['extension'] : '';
+
             // HARDCODE for BUG-2520
-            if (strtolower($pathinfo['extension']) == 'jpg' && $newExtension == 'jpeg') {
+            if (strtolower($extension) === 'jpg' && $newExtension === 'jpeg') {
                 $newExtension = 'jpg';
             }
 
-            if ($newExtension !== $pathinfo['extension']) {
+            if ($newExtension !== $extension) {
                 $newPath = \Includes\Utils\FileManager::getUniquePath(
                     $pathinfo['dirname'],
                     $pathinfo['filename'] . '.' . $newExtension
@@ -533,22 +535,27 @@ abstract class Image extends \XLite\Model\Base\Storage
      */
     public function removeResizedImages($path = null)
     {
-        if (!$this->isURL()) {
-            $name = $path ?: $this->getPath();
+        if ($this->isURL()) {
+            return;
+        }
 
-            $sizes = $this->getAllSizes();
-            foreach ($sizes as $size) {
-                list($width, $height) = $size;
+        $name = $path ?: $this->getPath();
+        if ($name === null) {
+            return;
+        }
 
-                $size = ($width ?: 'x') . '.' . ($height ?: 'x');
-                $path = $this->getResizedPath($size, $name);
+        $sizes = $this->getAllSizes();
+        foreach ($sizes as $size) {
+            list($width, $height) = $size;
 
-                if (\Includes\Utils\FileManager::isExists($path)) {
-                    $isDeleted = \Includes\Utils\FileManager::deleteFile($path);
+            $size = ($width ?: 'x') . '.' . ($height ?: 'x');
+            $path = $this->getResizedPath($size, $name);
 
-                    if (!$isDeleted) {
-                        \XLite\Logger::getInstance()->log('Can\'t delete resized image ' . $path, LOG_DEBUG);
-                    }
+            if (\Includes\Utils\FileManager::isExists($path)) {
+                $isDeleted = \Includes\Utils\FileManager::deleteFile($path);
+
+                if (!$isDeleted) {
+                    \XLite\Logger::getInstance()->log('Can\'t delete resized image ' . $path, LOG_DEBUG);
                 }
             }
         }
@@ -665,10 +672,16 @@ abstract class Image extends \XLite\Model\Base\Storage
             return null;
         }
 
-        list($_w, $_h, $path, $_retinaPath) = $this->doResize(
+        list($_w, $_h, $url, $_retinaUrl) = $this->doResize(
             $width ?: $this->getBlurredImageDimensions()['w'],
             $height ?: $this->getBlurredImageDimensions()['h']
         );
+
+        if (static::isValueLocalURL($url)) {
+            $path = static::getLocalPathFromURL($url);   
+        } else {
+            $path = $url;
+        }
 
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $data = file_get_contents($path);

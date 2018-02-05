@@ -29,6 +29,18 @@ class ZeroAuthAddress extends \XLite\View\Form\AForm
     }
 
     /**
+     * Register files from common repository
+     *
+     * @return array
+     */
+    public function getCommonFiles()
+    {
+        $list = parent::getCommonFiles();
+        $list['css'][] = 'modules/CDev/XPaymentsConnector/cc_type_sprites.css';
+        return $list;
+    }
+
+    /**
      * getDefaultTarget
      *
      * @return string

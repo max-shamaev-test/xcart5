@@ -29,7 +29,8 @@ class Local extends AURL
     public static function isMatch($url)
     {
         return static::isURL($url)
-            && static::isLocalDomain($url);
+            && static::isLocalDomain($url)
+            && \Includes\Utils\FileManager::isFileReadable(static::getLocalPath($url));
     }
 
     /**
@@ -57,10 +58,9 @@ class Local extends AURL
      */
     protected static function getLocalPath($url)
     {
-        $webDir = \XLite::getInstance()->getOptions(['host_details', 'web_dir']);
-        $webDir = $webDir ? $webDir . '/' : '';
+        $webDir = ltrim(\XLite::getInstance()->getOptions(['host_details', 'web_dir']) . '/', '/');
 
-        return LC_DIR_ROOT . preg_replace('#^' . $webDir . '#', '', parse_url($url, PHP_URL_PATH));
+        return LC_DIR_ROOT . preg_replace('#^' . preg_quote($webDir) . '#', '', parse_url($url, PHP_URL_PATH));
     }
 
     /**
@@ -70,7 +70,7 @@ class Local extends AURL
     {
         parent::__construct($url);
 
-        $this->path = static::getLocalPath($this->getURL());
+        $this->setPath(static::getLocalPath($this->getURL()));
     }
 
     /**
@@ -101,9 +101,13 @@ class Local extends AURL
 
     /**
      * @param string $path
+     *
+     * @return $this
      */
     public function setPath($path)
     {
         $this->path = $path;
+
+        return $this;
     }
 }

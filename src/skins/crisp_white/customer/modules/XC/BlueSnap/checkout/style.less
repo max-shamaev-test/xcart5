@@ -85,7 +85,8 @@
       &.Visa div.right-text span.default-text,
       &.MasterCard div.right-text span.default-text,
       &.JCB div.right-text span.default-text,
-      &.AmericanExpress div.right-text span.default-text {
+      &.AmericanExpress div.right-text span.default-text
+      {
         display: none;
       }
 
@@ -93,7 +94,8 @@
       &.Visa div.right-text span.Visa,
       &.MasterCard div.right-text span.MasterCard,
       &.JCB div.right-text span.JCB,
-      &.AmericanExpress div.right-text span.AmericanExpress {
+      &.AmericanExpress div.right-text span.AmericanExpress
+      {
         display: inline;
       }
     }
@@ -106,17 +108,26 @@
           display: none;
         }
 
-        &.empty > .required {
+        & > .unsupported {
+          display: none;
+        }
+
+        &.empty > .required,
+        &.unsupported > .unsupported {
           font-size: 10px;
           color: #ff0000;
           display: block;
           height: 0;
-          margin-top: -2px;
         }
+      }
+
+      .cvv2-hint {
+        pointer-events: none;
       }
 
       .field {
         & > .label {
+          text-transform: capitalize;
           color: #444;
         }
       }

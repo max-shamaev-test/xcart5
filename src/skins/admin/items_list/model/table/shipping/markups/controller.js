@@ -15,6 +15,7 @@ function ShippingMarkupItemsList(base)
     this.removeAddContainer();
     this.updateAddContainer();
     this.checkRemoveButton();
+    this.formulaHandler(this.container.find('.cell.formula:last'));
   });
 
   this.bind('local.line.new.remove', function () {

@@ -21,7 +21,7 @@ class Scenario extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Scenario impl
         $result = parent::defineScenario();
         $result['product_product_tabs'] = [
             'title'   => \XLite\Core\Translation::getInstance()->translate('Product tabs'),
-            'url'     => 'http://ideas.x-cart.com/forums/229428-x-cart-5-x/suggestions/15147660-bulk-products-editing-product-tabs',
+            'url'     => 'https://ideas.x-cart.com/forums/229428-x-cart-5-x/suggestions/15147660-bulk-products-editing-product-tabs',
         ];
 
         return $result;

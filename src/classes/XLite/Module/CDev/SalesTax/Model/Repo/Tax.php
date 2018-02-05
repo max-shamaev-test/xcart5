@@ -19,7 +19,7 @@ namespace XLite\Module\CDev\SalesTax\Model\Repo;
  *   description="Tax model keeps track of tax types, such as VAT type, Sales Tax type etc. It can have from one to many tax rate records.",
  *   @SWG\ExternalDocumentation(
  *     description="Find out more about setting up taxes",
- *     url="http://kb.x-cart.com/en/taxes/"
+ *     url="https://kb.x-cart.com/en/taxes/"
  *   )
  * )
  */

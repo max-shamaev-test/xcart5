@@ -25,14 +25,14 @@ class ServiceApiClient
     /**
      * CloudSearch service access details
      */
-    const CLOUD_SEARCH_URL                    = 'https://cloudsearch.x-cart.com';
+    const CLOUD_SEARCH_URL = 'https://cloudsearch.x-cart.com';
     const CLOUD_SEARCH_REQUEST_SECRET_KEY_URL = '/api/v1/getkey';
-    const CLOUD_SEARCH_REMOTE_IFRAME_URL      = '/api/v1/iframe?key=';
-    const CLOUD_SEARCH_REGISTER_URL           = '/api/v1/register';
-    const CLOUD_SEARCH_SEARCH_URL             = '/api/v1/search';
-    const CLOUD_SEARCH_PLAN_INFO_URL          = '/api/v1/plan-info';
+    const CLOUD_SEARCH_REMOTE_IFRAME_URL = '/api/v1/iframe?key=';
+    const CLOUD_SEARCH_REGISTER_URL = '/api/v1/register';
+    const CLOUD_SEARCH_SEARCH_URL = '/api/v1/search';
+    const CLOUD_SEARCH_PLAN_INFO_URL = '/api/v1/plan-info';
 
-    const SEARCH_REQUEST_TIMEOUT    = 5;
+    const SEARCH_REQUEST_TIMEOUT = 5;
     const PLAN_INFO_REQUEST_TIMEOUT = 3;
 
     /**
@@ -72,20 +72,13 @@ class ServiceApiClient
     /**
      * Search functionality on the product list
      *
-     * @param string $query Substring pattern for search
-     * @param        $categoryId
-     * @param        $searchInSubcats
-     * @param        $filters
-     * @param        $membership
-     * @param        $sort
-     * @param        $offset
-     * @param        $limit
+     * @param array $params
      *
      * @return array
      */
-    public function search($query, $categoryId, $searchInSubcats, $filters, $membership, $sort, $offset, $limit)
+    public function search(array $params)
     {
-        $response = $this->performSearchRequest($query, $categoryId, $searchInSubcats, $filters, $membership, $sort, $offset, $limit);
+        $response = $this->performSearchRequest($params);
 
         return $response && $response->code == 200
             ? $this->extractSearchResultsFromResponse($response)
@@ -134,8 +127,8 @@ class ServiceApiClient
         $input = json_decode($response->body, true);
 
         $products = $input
-                    && $input['products']
-                    && count($input['products']) > 0 ? $input['products'] : [];
+        && $input['products']
+        && count($input['products']) > 0 ? $input['products'] : [];
 
         $facets = $input && isset($input['facets']) ? $input['facets'] : null;
         $stats  = $input && isset($input['stats']) ? $input['stats'] : null;
@@ -151,42 +144,20 @@ class ServiceApiClient
     /**
      * Perform product search request (ALL) into the CloudSearch service
      *
-     * @param string $query Query pattern
-     * @param        $categoryId
-     * @param        $searchInSubcats
-     * @param        $filters
-     * @param        $membership
-     * @param        $sort
-     * @param        $offset
-     * @param        $limit
+     * @param array $params
      *
      * @return \PEAR2\HTTP\Request\Response
      */
-    protected function performSearchRequest(
-        $query, $categoryId, $searchInSubcats, $filters, $membership, $sort, $offset, $limit
-    ) {
+    protected function performSearchRequest(array $params)
+    {
         $request = new Request($this->getSearchApiUrl());
 
         $request->setAdditionalOption(\CURLOPT_TIMEOUT, self::SEARCH_REQUEST_TIMEOUT);
 
         $data = [
-            'apiKey'          => $this->getApiKey(),
-            'q'               => $query,
-            'categoryId'      => $categoryId,
-            'searchInSubcats' => $searchInSubcats,
-            'all'             => 1,
-            'facet'           => true,
-            'filters'         => $filters,
-            'membership'      => $membership,
-            'sort'            => $sort,
-            'offset'          => $offset,
-            'limits'          => [
-                'products'      => $limit,
-                'categories'    => 0,
-                'manufacturers' => 0,
-                'pages'         => 0,
-            ],
-        ];
+                'apiKey' => $this->getApiKey(),
+                'all'    => 1,
+            ] + $params;
 
         $request->body = json_encode($data);
         $request->verb = 'POST';
@@ -253,9 +224,9 @@ class ServiceApiClient
         $features = ['cloud_filters'];
 
         return static::CLOUD_SEARCH_URL
-               . static::CLOUD_SEARCH_REMOTE_IFRAME_URL
-               . $secretKey
-               . '&' . http_build_query($params + ['client_features' => $features]);
+            . static::CLOUD_SEARCH_REMOTE_IFRAME_URL
+            . $secretKey
+            . '&' . http_build_query($params + ['client_features' => $features]);
     }
 
     /**
@@ -282,7 +253,7 @@ class ServiceApiClient
             $host   = parse_url($url, PHP_URL_HOST);
 
             $url = $scheme . '://' . $original_host
-                   . substr($url, strlen($scheme) + strlen('://') + strlen($host));
+                . substr($url, strlen($scheme) + strlen('://') + strlen($host));
         }
 
         return $url;

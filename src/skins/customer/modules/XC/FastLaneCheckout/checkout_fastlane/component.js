@@ -26,11 +26,11 @@ define('checkout_fastlane/loader', ['vue/vue', 'ready'], function(Vue){
 
       created: function() {
         core.trigger('checkout.main.initialize');
-        core.trigger('checkout.main.postprocess');
         core.bind('fastlane_section_switched', _.bind(this.updateSectionHandler, this));
       },
 
       ready: function() {
+        core.trigger('checkout.main.postprocess');
         this.$broadcast('checkStartSection');
         $(this.$el).removeClass('reloading reloading-animated');
         this.assignGlobalListeners();

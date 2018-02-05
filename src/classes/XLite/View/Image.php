@@ -190,6 +190,14 @@ class Image extends \XLite\View\AView
                 . ' ' . \XLite\Model\Base\Image::RETINA_RATIO . 'x';
         }
 
+        if ($this->getBlurredImageData()) {
+            $backgroundStyle = " background: url({$this->getBlurredImageData()}); background-size: cover;";
+
+            $this->properties['style'] = isset($this->properties['style'])
+                ? $this->properties['style'] . $backgroundStyle
+                : $backgroundStyle;
+        }
+
         return $this->properties;
     }
 
@@ -420,13 +428,5 @@ class Image extends \XLite\View\AView
             'w' => 10,
             'h' => 10,
         ];
-    }
-
-    /**
-     * @return string
-     */
-    protected function getBlurredImageId()
-    {
-        return 'bi' . md5($this->getBlurredImageData());
     }
 }

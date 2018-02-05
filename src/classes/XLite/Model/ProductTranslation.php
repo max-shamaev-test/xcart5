@@ -85,7 +85,7 @@ class ProductTranslation extends \XLite\Model\Base\Translation
      */
     public function setName($name)
     {
-        $this->name = $name;
+        $this->name = mb_substr($name, 0 , $this->getFieldLength('name'));
         return $this;
     }
 
@@ -151,7 +151,7 @@ class ProductTranslation extends \XLite\Model\Base\Translation
      */
     public function setMetaTags($metaTags)
     {
-        $this->metaTags = $metaTags;
+        $this->metaTags = mb_substr($metaTags, 0, $this->getFieldLength('metaTags'));
         return $this;
     }
 
@@ -195,7 +195,7 @@ class ProductTranslation extends \XLite\Model\Base\Translation
      */
     public function setMetaTitle($metaTitle)
     {
-        $this->metaTitle = $metaTitle;
+        $this->metaTitle = mb_substr($metaTitle, 0, $this->getFieldLength('metaTitle'));
         return $this;
     }
 
@@ -239,5 +239,10 @@ class ProductTranslation extends \XLite\Model\Base\Translation
     public function getCode()
     {
         return $this->code;
+    }
+
+    protected function getFieldLength($name)
+    {
+        return $this->getRepository()->getFieldInfo($name, 'length');
     }
 }

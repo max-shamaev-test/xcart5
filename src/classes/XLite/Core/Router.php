@@ -57,7 +57,7 @@ class Router extends \XLite\Base\Singleton
                 $request->url = str_replace(\XLite::getInstance()->getScript(), '', $request->url);
 
                 preg_match(
-                    '#^((([./_a-z0-9-]+)/)?([._a-z0-9-]+?)/)?([._a-z0-9-]+?)(/?)(\.([_a-z0-9-]+))?$#i',
+                    '#^((([./\w-]+)/)?([.\w-]+?)/)?([.\w-]+?)(/?)(\.([\w-]+))?$#ui',
                     $request->url,
                     $matches
                 );

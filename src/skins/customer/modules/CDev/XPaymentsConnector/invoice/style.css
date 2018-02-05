@@ -26,48 +26,10 @@ div.xpc-card {
   line-height: 26px;
 }
 
-div.xpc-card span.card {
-  width: 140px;
-  height: 70px;
+div.xpc-card .card-icon-container {
   display: inline-block;
-  zoom: 0.3;
-  -moz-transform: scale(0.3);
-  -moz-transform-origin: 0 0 0;
+  width: 42px;
+  height: 21px;
+  vertical-align: top;
+  line-height: 24px;
 }
-
-div.xpc-card span.card.mc {
-  background: url(card_types.png) 0px 0px no-repeat;
-}
-
-div.xpc-card span.card.visa {
-  background: url(card_types.png) 0px -71px no-repeat;
-}
-
-div.xpc-card span.card.jcb {
-  background: url(card_types.png) 0px -141px no-repeat;
-}
-
-div.xpc-card span.card.amex {
-  background: url(card_types.png) 0px -211px no-repeat;
-}
-
-div.xpc-card span.card.dc {
-  background: url(card_types.png) 0px -281px no-repeat;
-}
-
-div.xpc-card span.card.dicl {
-  background: url(card_types.png) 0px -351px no-repeat;
-}
-
-div.xpc-card span.card.sw {
-  background: url(card_types.png) 0px -421px no-repeat;
-}
-
-div.xpc-card span.card.cup {
-  background: url(card_types.png) 0px -491px no-repeat;
-}
-
-div.xpc-card span.card.bc {
-  background: url(card_types.png) 0px -561px  no-repeat;
-}
-

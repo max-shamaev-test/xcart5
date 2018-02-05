@@ -6,7 +6,10 @@
 <html>
 <head>
   <link rel="stylesheet" href="{{ this.getStyleFileUrl() }}">
-  <script src="{{ this.getScriptFileUrl() }}"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jqc-1.12.3/dt-1.10.16/datatables.min.css"/>
+
+  <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jqc-1.12.3/dt-1.10.16/datatables.min.js"></script>
+  <script src="{{ this.getControllerFileUrl() }}"></script>
 </head>
 <body>
 
@@ -30,7 +33,7 @@
     </div>
 
     {% if this.getPrivateModules() %}
-      <table class="sortable">
+      <table id="private-modules">
         <thead>
         <tr>
           <th>{{ t('Developer') }}</th>
@@ -44,8 +47,8 @@
           <tr>
             <td>{{ module.getAuthorName() }}</td>
             <td>{{ module.getModuleName() }}</td>
-            <td sorttable_customkey="{{ this.getModuleVersionSortableValue(module) }}">{{ module.getMajorVersion() }}.{{ module.getFullMinorVersion() }}</td>
-            <td sorttable_customkey="{{ module.getDate() }}">{{ this.formatDate(module.getDate()) }}</td>
+            <td>{{ module.getMajorVersion() }}.{{ module.getFullMinorVersion() }}</td>
+            <td>{{ this.formatDate(module.getDate()) }}</td>
           </tr>
         {% endfor %}
         </tbody>
@@ -60,7 +63,7 @@
     </div>
 
     {% if this.getPublicModules() %}
-      <table class="sortable">
+      <table id="public-modules">
         <thead>
         <tr>
           <th>{{ t('Developer') }}</th>
@@ -74,8 +77,8 @@
           <tr>
             <td>{{ module.getAuthorName() }}</td>
             <td>{{ module.getModuleName() }}</td>
-            <td sorttable_customkey="{{ this.getModuleVersionSortableValue(module) }}">{{ module.getMajorVersion() }}.{{ module.getFullMinorVersion() }}</td>
-            <td sorttable_customkey="{{ module.getDate() }}">{{ this.formatTime(module.getDate()) }}</td>
+            <td>{{ module.getMajorVersion() }}.{{ module.getFullMinorVersion() }}</td>
+            <td>{{ this.formatTime(module.getDate()) }}</td>
           </tr>
         {% endfor %}
         </tbody>

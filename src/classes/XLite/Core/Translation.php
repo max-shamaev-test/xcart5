@@ -62,7 +62,9 @@ class Translation extends \XLite\Base\Singleton implements \XLite\Base\IREST
      */
     public static function lbl($name, array $arguments = array(), $code = null)
     {
-        return static::getInstance()->translate($name, $arguments, $code);
+        return $name instanceof \XLite\Core\Translation\Label
+            ? $name
+            : new \XLite\Core\Translation\Label($name, $arguments, $code);
     }
 
     /**
@@ -115,6 +117,10 @@ class Translation extends \XLite\Base\Singleton implements \XLite\Base\IREST
     public function translate($name, array $arguments = array(), $code = null)
     {
         $result = '';
+
+        if ($name instanceof \XLite\Core\Translation\Label) {
+            return (string)$name;
+        }
 
         if (!empty($name)) {
             if (empty($code)) {

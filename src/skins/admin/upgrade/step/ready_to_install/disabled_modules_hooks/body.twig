@@ -5,7 +5,6 @@
 <div class="modified-files-section disabled-modules-hooks-section">
   <a name="modules_to_uninstall"></a>
   <div class="modified-files-section-frame disabled-modules-hooks-section-frame">
-
     <div class="disabled-modules-hooks-message">
       <div class="head">{{ t('Disabled modules hooks message head')|raw }}</div>
       <div class="body">{{ t('Disabled modules hooks message body', {'link':this.getDisabledModulesListLink()})|raw }}</div>
@@ -20,17 +19,20 @@
   {% for entry in this.getDisabledModulesHooks() %}
     <tr class="module-entry">
       <td class="module-info">
-        <span class="name">{{ entry.getModuleName() }}</span>
+        <a href="{{ entry.getInstalledURL() }}"><span class="name">{{ entry.getModuleName() }}</span></a>
         <span class="author">({{ entry.getAuthorName() }})</span>
       </td>
       <td class="disabled-module-action">
-        <select name="disabledModulesHooks[{{ entry.getMarketplaceId() }}]" disabled="disabled">
+        <span>{{ t('to be uninstalled') }}</span>
+        <select name="disabledModulesHooks[{{ entry.getMarketplaceId() }}]" disabled="disabled" class="hidden">
           <option value="0">{{ t('Uninstall') }}</option>
         </select>
       </td>
     </tr>
   {% endfor %}
 </table>
+
+    {{ widget('XLite\\View\\Button\\Link', location=this.getDisabledModulesListLink(), label="Review modules", blank=true) }}
 
   </div>
 </div>

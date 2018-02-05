@@ -21,7 +21,7 @@ class Scenario extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Scenario impl
         $result = parent::defineScenario();
         $result['product_pin_codes'] = [
             'title'   => \XLite\Core\Translation::getInstance()->translate('PIN codes'),
-            'url'     => 'http://ideas.x-cart.com/forums/229428-x-cart-5-x/suggestions/15147651-bulk-products-editing-pin-codes',
+            'url'     => 'https://ideas.x-cart.com/forums/229428-x-cart-5-x/suggestions/15147651-bulk-products-editing-pin-codes',
         ];
 
         return $result;

@@ -37,6 +37,18 @@ abstract class Checkout extends \XLite\View\Checkout implements \XLite\Base\IDec
     }
 
     /**
+     * Register files from common repository
+     *
+     * @return array
+     */
+    public function getCommonFiles()
+    {
+        $list = parent::getCommonFiles();
+        $list['css'][] = 'modules/CDev/XPaymentsConnector/cc_type_sprites.css';
+        return $list;
+    }
+
+    /**
      * Register JS files
      *
      * @return array

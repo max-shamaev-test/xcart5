@@ -32,7 +32,7 @@ define(
       },
       resolve: function() {
         // updates window.shippingMethodsList
-        $.globalEval($('shipping-methods script[type="application/javascript"]').text());
+        $.globalEval($('#ShippingMethodsWidgetData').text());
         this.$root.$broadcast('reloadingUnblock', 1);
       },
       reject: function() {
@@ -73,18 +73,22 @@ define(
 
     watch: {
       methodId: function(value, oldValue){
-        if (oldValue !== null) {
+        var silent = (oldValue === null);
+
+        if (!silent) {
           this.$reloading = true;
           this.$root.$broadcast('reloadingBlock', 1);
         }
+
         this.triggerUpdate({
-          silent: oldValue === null
+          silent: silent
         });
       }
     },
 
     events: {
       sectionPersist: function(data) {
+        this.$reloading = false;
         this.$root.$broadcast('reloadingUnblock', 1);
       },
       global_createshippingaddress: function(data) {

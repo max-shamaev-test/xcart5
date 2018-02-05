@@ -68,6 +68,21 @@
         self.vm.$set(self.expression, newValue);
       });
 
+      jQuery(this.el).select2Sortable(function() {
+        var ul = $el.next('.select2-container')
+          .first('ul.select2-selection__rendered');
+
+        var reservedChoices = jQuery(ul).find('.select2-selection__choice').get().reverse();
+
+        jQuery(reservedChoices).each(function() {
+          var id = $(this).data('data').id;
+          var option = $this.find('option[value="' + id + '"]')[0];
+          $this.prepend(option);
+        });
+
+        self.vm.$set('form.default.category_tree', $el.val());
+      });
+
       setTimeout(function () {
         $el.closest('.input-widget').find('span.help-block a').click(function () {
           self.vm.$set('form.default.category_widget_type', 'tree');

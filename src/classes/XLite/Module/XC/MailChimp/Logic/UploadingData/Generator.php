@@ -43,8 +43,6 @@ class Generator extends \XLite\Logic\AGenerator
     protected function getStepsList()
     {
         return array(
-            'XLite\Module\XC\MailChimp\Logic\UploadingData\Step\RemoveProducts',
-            'XLite\Module\XC\MailChimp\Logic\UploadingData\Step\RemoveOrders',
             'XLite\Module\XC\MailChimp\Logic\UploadingData\Step\Products',
             'XLite\Module\XC\MailChimp\Logic\UploadingData\Step\Orders',
         );
@@ -57,27 +55,7 @@ class Generator extends \XLite\Logic\AGenerator
      */
     protected function defineSteps()
     {
-        $steps = array();
-        $options = $this->getOptions();
-        if (isset($options['steps'])) {
-            $requestedSteps = array_map(function($stepName) {
-                return strtolower($stepName);
-            }, $options['steps']);
-
-            if (is_array($requestedSteps)) {
-                foreach ($this->getStepsList() as $step) {
-                    $_step = explode('\\', $step);
-                    $_step = array_pop($_step);
-                    $_step = strtolower($_step);
-
-                    if (in_array($_step, $requestedSteps)) {
-                        $steps[] = $step;
-                    }
-                }
-            }
-        }
-
-        return $steps;
+        return $this->getStepsList();
     }
 
     /**

@@ -214,7 +214,7 @@ class Operator extends \XLite\Base\Singleton
 
             // HTML meta tags-based redirect
             echo (
-                '<script type="text/javascript">' . "\n"
+                '<script>' . "\n"
                 . '<!--' . "\n"
                 . 'self.location=\'' . $location . '\';' . "\n"
                 . '-->' . "\n"

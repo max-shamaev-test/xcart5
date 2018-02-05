@@ -83,7 +83,7 @@ abstract class SuperClass
      */
     protected static function t($name, array $arguments = array(), $code = null)
     {
-        return \XLite\Core\Translation::getInstance()->translate($name, $arguments, $code);
+        return \XLite\Core\Translation::lbl($name, $arguments, $code);
     }
 
     /**

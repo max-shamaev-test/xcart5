@@ -20,7 +20,7 @@
 
   <fieldset class="attribute-values-storage">
     {% for av in this.entity.getAttributeValues() %}
-      <input type="hidden" name="{{ this.getAttributeInputName(this.entity, av) }}" value="{{ this.getAttributeValue(av) }}" />
+      <input type="hidden" name="{{ this.getAttributeInputName(this.entity, av) }}" value="{{ this.getAttributeValue(av) }}"{% if this.isCheckbox(av) %} data-unchecked="{{ this.getUncheckedValue(av) }}"{% endif %} />
     {% endfor %}
   </fieldset>
 

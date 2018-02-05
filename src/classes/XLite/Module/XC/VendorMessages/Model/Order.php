@@ -18,7 +18,7 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
      *
      * @var \XLite\Module\XC\VendorMessages\Model\Conversation
      *
-     * @OneToOne (targetEntity="XLite\Module\XC\VendorMessages\Model\Conversation", mappedBy="order")
+     * @OneToOne (targetEntity="XLite\Module\XC\VendorMessages\Model\Conversation", mappedBy="order", cascade={"remove"})
      */
     protected $conversation;
 
@@ -75,6 +75,16 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
         $this->setConversation($conversation);
 
         return $conversation;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNameForMessages()
+    {
+        return $this->getVendor()
+            ? $this->getVendor()->getNameForMessages()
+            : \XLite\Core\Config::getInstance()->Company->company_name;
     }
 
     /**

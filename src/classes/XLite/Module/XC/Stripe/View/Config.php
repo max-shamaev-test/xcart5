@@ -68,5 +68,19 @@ class Config extends \XLite\View\AView
     {
         return 'modules/XC/Stripe/config.twig';
     }
+
+    /**
+     * Check - Stripe integration connected or not
+     *
+     * @return boolean
+     */
+    protected function isConnected()
+    {
+        /** @var \XLite\Model\Payment\Method $method */
+        $method = \XLite\Core\Database::getRepo('\XLite\Model\Payment\Method')
+            ->find(\XLite\Core\Request::getInstance()->method_id);
+
+        return (bool) $method->getSetting('refreshToken');
+    }
 }
 

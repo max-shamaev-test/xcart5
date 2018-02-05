@@ -21,7 +21,7 @@ namespace XLite\Module\CDev\Wholesale\Model\Repo;
  *   description="MinQuantity record represents minumum purchase quantity tier for a certain product-membership pair",
  *   @SWG\ExternalDocumentation(
  *     description="Find out more about setting up wholesale price and minimum purchase quantities",
- *     url="http://kb.x-cart.com/en/products/setting_up_wholesale_prices_and_minimum_purchase_quantites_for_different_membership_levels.html"
+ *     url="https://kb.x-cart.com/en/products/setting_up_wholesale_prices_and_minimum_purchase_quantites_for_different_membership_levels.html"
  *   )
  * )
  */

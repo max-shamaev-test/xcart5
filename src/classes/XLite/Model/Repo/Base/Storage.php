@@ -119,19 +119,34 @@ abstract class Storage extends \XLite\Model\Repo\ARepo
      * @param \XLite\Model\Base\Storage $entity Exclude entity
      *
      * @return boolean
+     * @throws \Exception
      */
     public function allowRemovePath($path, \XLite\Model\Base\Storage $entity)
     {
-        $result = true;
-
         foreach ($this->defineStorageRepositories() as $class) {
             if (\XLite\Core\Database::getRepo($class)->findOneByFullPath($path, $entity)) {
-                $result = false;
-                break;
+                return false;
             }
         }
 
-        return $result;
+        $uow = $this->getEntityManager()->getUnitOfWork();
+
+        $classes = array_map(function ($e) {
+            return ltrim($e, '\\');
+        }, $this->defineStorageRepositories());
+
+        foreach ($uow->getScheduledEntityInsertions() as $e) {
+            /* @var \XLite\Model\AEntity|\XLite\Model\Base\Storage $e */
+            if (
+                in_array($e->getEntityName(), $classes)
+                && $entity !== $e
+                && $entity->getStoragePath() === $e->getStoragePath()
+            ) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

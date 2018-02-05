@@ -30,6 +30,7 @@ class FiltersBoxPlaceholder extends \XLite\View\AView
 
         $result[] = 'search';
         $result[] = 'category';
+        $result[] = 'brand';
 
         return $result;
     }

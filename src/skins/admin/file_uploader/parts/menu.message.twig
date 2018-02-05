@@ -4,9 +4,7 @@
  # @ListChild (list="file-uploader.menu", weight="10")
  #}
 
-{% if this.getMessage() %}
-  <li role="presentation" class="dropdown-header message">
-    <i class="fa fa-exclamation-triangle"></i> {{ this.getMessage() }}
-  </li>
-  <li role="presentation" class="divider"></li>
-{% endif %}
+<li role="presentation" class="dropdown-header message" v-if="errorMessage">
+  <i class="fa fa-exclamation-triangle"></i> <span v-html="realErrorMessage">{{ this.getMessage() }}</span>
+</li>
+<li role="presentation" class="divider" v-if="message"></li>

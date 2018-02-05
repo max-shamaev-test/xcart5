@@ -21,7 +21,7 @@ namespace XLite\Module\CDev\SimpleCMS\Model\Repo;
  *   description="Menu represents a menu item with possible subitems.",
  *   @SWG\ExternalDocumentation(
  *     description="Find out more about adding items to the header and footer menus",
- *     url="http://kb.x-cart.com/en/look_and_feel/adding_new_items_to_your_stores_menus.html"
+ *     url="https://kb.x-cart.com/en/look_and_feel/adding_new_items_to_your_stores_menus.html"
  *   )
  * )
  */

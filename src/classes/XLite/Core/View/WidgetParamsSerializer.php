@@ -10,11 +10,13 @@
 namespace XLite\Core\View;
 
 use Serializable;
+use XLite\Core\Serialization\SerializableNative;
 
 
 /**
  * WidgetParamsSerializer provides serialization support for widget params.
- * Widget param values are serialized when dynamic widget placeholder is generated and unserialized when placeholder is reified into a rendered widget.
+ * Widget param values are serialized when dynamic widget placeholder is generated and unserialized
+ * when placeholder is reified into a rendered widget.
  *
  */
 class WidgetParamsSerializer
@@ -74,7 +76,8 @@ class WidgetParamsSerializer
     }
 
     /**
-     * Check if the given value is serializable. Serializable values are objects of classes implementing Serializable, scalars, nulls, and arrays of serializable values.
+     * Check if the given value is serializable. Serializable values are objects of classes
+     * implementing Serializable, scalars, nulls, and arrays of serializable values.
      *
      * @param mixed $value
      *
@@ -83,11 +86,16 @@ class WidgetParamsSerializer
     protected function isSerializable($value)
     {
         return is_scalar($value)
-               || is_null($value)
-               || (is_object($value) && $value instanceof Serializable)
-               || is_array($value)
-                  && array_reduce($value, function ($result, $arrayItem) {
-                        return $result && $this->isSerializable($arrayItem);
-                    }, true);
+            || is_null($value)
+            || (
+                is_object($value) && (
+                    $value instanceof Serializable
+                    || $value instanceof SerializableNative
+                )
+            )
+            || is_array($value)
+            && array_reduce($value, function ($result, $arrayItem) {
+                return $result && $this->isSerializable($arrayItem);
+            }, true);
     }
 }

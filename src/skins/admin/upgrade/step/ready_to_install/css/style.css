@@ -96,6 +96,11 @@ table.downloaded-components tr.module-entry td
   padding: 10px 15px;
 }
 
+.downloaded-components td.module-info a > span.name {
+  color: inherit;
+  font-size: 16px;
+}
+
 .downloaded-components td.module-info span.name {
   color: #333333;
   font-size: 16px;

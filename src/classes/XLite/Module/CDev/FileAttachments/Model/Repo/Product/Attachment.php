@@ -21,7 +21,7 @@ namespace XLite\Module\CDev\FileAttachments\Model\Repo\Product;
  *   description="Attachment repo holds the record on the files attached to the product",
  *   @SWG\ExternalDocumentation(
  *     description="Find out more about attachments and digital goods",
- *     url="http://kb.x-cart.com/en/products/adding_digital_goods.html"
+ *     url="https://kb.x-cart.com/en/products/adding_digital_goods.html"
  *   )
  * )
  */

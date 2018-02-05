@@ -114,7 +114,7 @@ abstract class AComingSoon extends \XLite\View\ItemsList\Product\Customer\ACusto
      */
     protected function getOrderBy()
     {
-        return [static::SORT_BY_MODE_DATE, static::SORT_ORDER_DESC];
+        return [$this->getSortByModeDefault(), static::SORT_ORDER_ASC];
     }
 
     /**

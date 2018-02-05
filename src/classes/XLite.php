@@ -25,7 +25,7 @@ use XLite\Core\Database\Migration\UnsupportedDatabaseOperationDuringMaintenanceE
  *     ),
  *     @Swg\ExternalDocumentation (
  *         description="Find out more about X-Cart REST API",
- *         url="http://devs.x-cart.com/en/basics/rest_api_documentation.html"
+ *         url="https://devs.x-cart.com/en/basics/rest_api_documentation.html"
  *     )
  * )
  *
@@ -46,7 +46,7 @@ class XLite extends \XLite\Base
     /**
      * Core version
      */
-    const XC_VERSION = '5.3.4.4';
+    const XC_VERSION = '5.3.4.5';
 
     /**
      * Endpoints
@@ -93,7 +93,7 @@ class XLite extends \XLite\Base
     /**
      * Producer site URL
      */
-    const PRODUCER_SITE_URL = 'http://www.x-cart.com/';
+    const PRODUCER_SITE_URL = 'https://www.x-cart.com/';
 
     /**
      * Name of the form id
@@ -482,7 +482,7 @@ class XLite extends \XLite\Base
         }
 
         return $affiliateId
-            ? 'http://www.x-cart.com/aff/?aff_id=' . $affiliateId . '&amp;url=' . urlencode($url)
+            ? 'https://www.x-cart.com/aff/?aff_id=' . $affiliateId . '&amp;url=' . urlencode($url)
             : $url;
     }
 

@@ -668,3 +668,5 @@ jQuery('.cloud-zoom').parent().bind("append", function() {
   var imageUrl = core.getCommentedData(jQuery('.cloud-zoom'), 'imageUrl');
   jQuery(this).find('.mousetrap').css('background-image', 'url("' + imageUrl + '")');
 });
+
+define("ProductDetails", function () {});

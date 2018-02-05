@@ -14,48 +14,46 @@ namespace XLite\Module\XC\Reviews\View\Model;
 class Review extends \XLite\View\Model\AModel
 {
     /**
-     * Schema default
-     *
-     * @var array
-     */
-    protected $schemaDefault = [
-        'product'      => [
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\Model\ProductSelector',
-            self::SCHEMA_LABEL    => 'Product',
-            self::SCHEMA_REQUIRED => true,
-        ],
-        'rating'       => [
-            self::SCHEMA_CLASS    => 'XLite\Module\XC\Reviews\View\FormField\Input\VoteBar',
-            self::SCHEMA_LABEL    => 'Rating',
-            self::SCHEMA_REQUIRED => false,
-        ],
-        'reviewerName' => [
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Text',
-            self::SCHEMA_LABEL    => 'Reviewer name',
-            self::SCHEMA_REQUIRED => true,
-        ],
-        'profile'      => [
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\Model\ProfileSelector',
-            self::SCHEMA_LABEL    => 'Profile',
-            self::SCHEMA_REQUIRED => false,
-        ],
-        'review'       => [
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Textarea\Simple',
-            self::SCHEMA_LABEL    => 'Text of review',
-            self::SCHEMA_REQUIRED => false,
-        ],
-        'response'     => [
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Textarea\Simple',
-            self::SCHEMA_LABEL    => 'Text of response',
-            self::SCHEMA_REQUIRED => false,
-        ],
-    ];
-
-    /**
      * @inheritdoc
      */
     public function __construct(array $params = [], array $sections = [])
     {
+        $this->schemaDefault = [
+            'product'      => [
+                self::SCHEMA_CLASS       => 'XLite\View\FormField\Select\Model\ProductSelector',
+                self::SCHEMA_LABEL       => 'Product',
+                self::SCHEMA_PLACEHOLDER => static::t('SKU or Product name'),
+                self::SCHEMA_REQUIRED    => true,
+            ],
+            'rating'       => [
+                self::SCHEMA_CLASS    => 'XLite\Module\XC\Reviews\View\FormField\Input\VoteBar',
+                self::SCHEMA_LABEL    => 'Rating',
+                self::SCHEMA_REQUIRED => false,
+            ],
+            'profile'      => [
+                self::SCHEMA_CLASS       => 'XLite\View\FormField\Select\Model\ProfileSelector',
+                self::SCHEMA_LABEL       => 'Profile',
+                self::SCHEMA_PLACEHOLDER => static::t('First name, Last name or E-mail'),
+                self::SCHEMA_REQUIRED    => false,
+            ],
+            'reviewerName' => [
+                self::SCHEMA_CLASS       => 'XLite\View\FormField\Input\Text',
+                self::SCHEMA_LABEL       => 'Reviewer name',
+                self::SCHEMA_PLACEHOLDER => static::t('Enter a name to be published with the review'),
+                self::SCHEMA_REQUIRED    => true,
+            ],
+            'review'       => [
+                self::SCHEMA_CLASS    => 'XLite\View\FormField\Textarea\Simple',
+                self::SCHEMA_LABEL    => 'Text of review',
+                self::SCHEMA_REQUIRED => false,
+            ],
+            'response'     => [
+                self::SCHEMA_CLASS    => 'XLite\Module\XC\Reviews\View\FormField\Textarea\Response',
+                self::SCHEMA_LABEL    => 'Text of response',
+                self::SCHEMA_REQUIRED => false,
+            ],
+        ];
+
         parent::__construct($params, $sections);
 
         /** @var \XLite\Module\XC\Reviews\Model\Review $review */
@@ -68,6 +66,17 @@ class Review extends \XLite\View\Model\AModel
         ) {
             $this->schemaDefault['response'][self::SCHEMA_ATTRIBUTES] = ['disabled' => 'disabled'];
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function getJSFiles()
+    {
+        $list   = parent::getJSFiles();
+        $list[] = 'modules/XC/Reviews/form_field/input/email.js';
+
+        return $list;
     }
 
     /**
@@ -125,7 +134,7 @@ class Review extends \XLite\View\Model\AModel
                     \XLite\View\Button\AButton::PARAM_STYLE    => 'action always-enabled',
                     \XLite\View\Button\Regular::PARAM_ACTION   => 'approve',
                 ]);
-                $result['remove'] = new \XLite\View\Button\Link([
+                $result['remove']  = new \XLite\View\Button\Link([
                     \XLite\View\Button\AButton::PARAM_LABEL => 'Remove',
                     \XLite\View\Button\AButton::PARAM_STYLE => 'action always-enabled',
                     \XLite\View\Button\Link::PARAM_LOCATION => $this->buildURL(
@@ -171,5 +180,10 @@ class Review extends \XLite\View\Model\AModel
         }
 
         parent::setModelProperties($data);
+    }
+
+    public function isValid()
+    {
+        return parent::isValid() && $this->getModelObject()->getProduct();
     }
 }

@@ -43,10 +43,15 @@ define('file_uploader', [
     data: function () {
       return {
         commonData: {},
+        isRemovable: false,
+        isTemporary: false,
+        isImage: false,
+        hasFile: false,
         viaUrlPopup: {},
         reloadFromContent: false,
         reloadContent: null,
-        errorMessage: null,
+        error: null,
+        defaultErrorMessage: null,
         realErrorMessage: null,
         showsMessages: true,
         elementWidth: 0
@@ -54,16 +59,25 @@ define('file_uploader', [
     },
 
     computed: {
-      shouldShowMessage: function() {
+      isDisplayCamera: function () {
+        return !this.errorMessage && !this.hasFile && this.isImage;
+      },
+      isDisplayPreview: function () {
+        return !this.errorMessage && this.hasFile;
+      },
+      shouldShowMessage: function () {
         return this.showsMessages
-          && this.message
+          && !!this.message
           && (
             !this.temp_id
-            || this.errorMessage
+            || this.error
           ) && this.elementWidth > 100;
       },
       message: function () {
-        return this.errorMessage ? this.errorMessage : this.helpMessage;
+        return this.error ? this.defaultErrorMessage : this.helpMessage;
+      },
+      errorMessage: function () {
+        return this.error ? this.defaultErrorMessage : '';
       }
     },
 
@@ -129,8 +143,6 @@ define('file_uploader', [
       }
 
       this.prepareWidget();
-
-      this.elementWidth = this.getFileUploaderElement().width();
     },
 
     methods: {
@@ -138,7 +150,15 @@ define('file_uploader', [
         return $(this.$el).closest('.file-uploader');
       },
       assignWait: function () {
-        this.getFileUploaderElement().html('<div class="spinner"></div>');
+        this.getFileUploaderElement()
+          .addClass('loading')
+          .append('<div class="spinner"></div>');
+      },
+      unassignWait: function () {
+        this.getFileUploaderElement()
+          .removeClass('loading')
+          .find('> div.spinner')
+          .remove();
       },
       prepareWidget: function () {
         CommonForm.autoassign(this.getFileUploaderElement());
@@ -182,6 +202,10 @@ define('file_uploader', [
             alt.removeClass('filled');
           }
         }).change();
+
+        this.getFileUploaderElement().addClass('ready').removeClass('loading');
+
+        this.elementWidth = this.getFileUploaderElement().width();
       },
       toggleDelete: function () {
         var base = this.getFileUploaderElement();
@@ -300,12 +324,22 @@ define('file_uploader', [
 
             handler(xhr, status, data);
           },
-          error: function (xhr, status, errorThrown) {
-            core.trigger('message', {
-              message: errorThrown,
-              type: 'error'
-            });
-            self.$reload();
+          error: function (jqXHR, status, errorThrown) {
+            if (jqXHR.status === 413) {
+              self.realErrorMessage = core.t('File uploading error 1');
+              self.error = true;
+              core.trigger('message', {
+                message: self.realErrorMessage,
+                type: 'warning'
+              });
+              self.unassignWait();
+            } else {
+              core.trigger('message', {
+                message: errorThrown,
+                type: 'warning'
+              });
+              self.$reload();
+            }
           },
           data: formData,
           cache: false,

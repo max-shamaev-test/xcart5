@@ -511,7 +511,7 @@ OUT;
      */
     public function getArticleURL()
     {
-        return 'http://kb.x-cart.com/en/general_setup/what_to_do_if_your_store_says_we_are_deploying_new_changes_and_you_cannot_access_it.html';
+        return 'https://kb.x-cart.com/en/general_setup/what_to_do_if_your_store_says_we_are_deploying_new_changes_and_you_cannot_access_it.html';
     }
 
     // {{{ Search filter methods

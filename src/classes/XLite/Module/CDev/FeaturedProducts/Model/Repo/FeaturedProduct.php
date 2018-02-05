@@ -21,7 +21,7 @@ namespace XLite\Module\CDev\FeaturedProducts\Model\Repo;
  *   description="FeaturedProduct represents the presence of the product marked as featured in the certain category",
  *   @SWG\ExternalDocumentation(
  *     description="Find out more about featured products",
- *     url="http://kb.x-cart.com/en/products/adding_featured_products.html"
+ *     url="https://kb.x-cart.com/en/products/adding_featured_products.html"
  *   )
  * )
  */

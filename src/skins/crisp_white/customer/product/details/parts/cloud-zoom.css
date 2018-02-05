@@ -22,7 +22,7 @@
   right: -1px;
 }
 
-.product-photo.cloud-zoom-photo.cloud-zoom-outside img.photo.product-thumbnail {
+.product-photo.cloud-zoom-photo img.photo.product-thumbnail {
   object-fit: fill;
   width: auto;
   height: auto;

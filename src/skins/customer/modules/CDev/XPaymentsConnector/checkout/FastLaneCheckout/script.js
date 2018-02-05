@@ -54,7 +54,6 @@ function xpcMessageListener(event)
         || XPC_IFRAME_CLEAR_INIT_DATA == type
         || XPC_IFRAME_ALERT == type
       ) {
-        xpcPopupError = true;
         jQuery('.xpc-box').hide();
       }
 
@@ -69,7 +68,6 @@ function xpcMessageListener(event)
 
   } else {
     xpcLoading = false;
-    xpcShadeFlag = false;
     jQuery('.save-card-box').show();
     Checkout.instance.finishLoadAnimation();
     core.trigger('checkout.common.unblock');
@@ -79,7 +77,6 @@ function xpcMessageListener(event)
 };
 
 var xpcLoading = false;
-var xpcPopupError = false;
 
 function isXpcIframeMethod()
 {
@@ -118,7 +115,10 @@ function isXpcSavedCardMethod()
 
 function submitXpcIframe(event, state)
 {
-  if (!isXpcIframeMethod()) {
+  if (
+    !isXpcIframeMethod()
+    || xpcLoading
+  ) {
     return false;
   }
 
@@ -176,6 +176,7 @@ function reloadXpcIframe()
 
   iframe.attr('src', src);
 
+  xpcLoading = true;
   Checkout.instance.startLoadAnimation();
   core.trigger('checkout.common.block');
 

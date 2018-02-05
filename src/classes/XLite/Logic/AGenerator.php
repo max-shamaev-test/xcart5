@@ -8,6 +8,9 @@
 
 namespace XLite\Logic;
 
+use XLite\Core\Database;
+use XLite\Core\Lock\FileLock;
+
 /**
  * Abstract generator
  */
@@ -61,7 +64,7 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
     public static function getInstance()
     {
         if (null === static::$instance) {
-            $state = \XLite\Core\Database::getRepo('XLite\Model\TmpVar')->getEventState(static::getEventName());
+            $state = Database::getRepo('XLite\Model\TmpVar')->getEventState(static::getEventName());
             static::$instance = ($state && isset($state['options']))
                 ? new static($state['options'])
                 : false;
@@ -79,12 +82,12 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
      */
     public static function run(array $options)
     {
-        \XLite\Core\Database::getRepo('XLite\Model\TmpVar')->setVar(static::getCancelFlagVarName(), false);
-        \XLite\Core\Database::getRepo('XLite\Model\TmpVar')->initializeEventState(
+        Database::getRepo('XLite\Model\TmpVar')->setVar(static::getCancelFlagVarName(), false);
+        Database::getRepo('XLite\Model\TmpVar')->initializeEventState(
             static::getEventName(),
-            array('options' => $options)
+            ['options' => $options]
         );
-        call_user_func(array('XLite\Core\EventTask', static::getEventName()));
+        call_user_func(['XLite\Core\EventTask', static::getEventName()]);
     }
 
     /**
@@ -94,8 +97,8 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
      */
     public static function cancel()
     {
-        \XLite\Core\Database::getRepo('XLite\Model\TmpVar')->setVar(static::getCancelFlagVarName(), true);
-        \XLite\Core\Database::getRepo('XLite\Model\TmpVar')->removeEventState(static::getEventName());
+        Database::getRepo('XLite\Model\TmpVar')->setVar(static::getCancelFlagVarName(), true);
+        Database::getRepo('XLite\Model\TmpVar')->removeEventState(static::getEventName());
     }
 
     /**
@@ -103,15 +106,15 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
      *
      * @param array $options Options OPTIONAL
      */
-    public function __construct(array $options = array())
+    public function __construct(array $options = [])
     {
-        $this->options = array(
-                'include'   => isset($options['include']) ? $options['include'] : array(),
-                'position'  => isset($options['position']) ? intval($options['position']) + 1 : 0,
-                'errors'    => isset($options['errors']) ? $options['errors'] : array(),
-                'warnings'  => isset($options['warnings']) ? $options['warnings'] : array(),
-                'time'      => isset($options['time']) ? intval($options['time']) : 0,
-            ) + $options;
+        $this->options = [
+                'include'  => isset($options['include']) ? $options['include'] : [],
+                'position' => isset($options['position']) ? intval($options['position']) + 1 : 0,
+                'errors'   => isset($options['errors']) ? $options['errors'] : [],
+                'warnings' => isset($options['warnings']) ? $options['warnings'] : [],
+                'time'     => isset($options['time']) ? intval($options['time']) : 0,
+            ] + $options;
 
         $this->options = new \ArrayObject($this->options, \ArrayObject::ARRAY_AS_PROPS);
 
@@ -148,7 +151,7 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
      */
     public function finalize()
     {
-        \XLite\Core\Database::getRepo('XLite\Model\TmpVar')->setVar(
+        Database::getRepo('XLite\Model\TmpVar')->setVar(
             static::getTickDurationVarName(),
             $this->count() ? round($this->getOptions()->time / $this->count(), 3) : 0
         );
@@ -180,14 +183,16 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
             $result = $this->getOptions()->time / $this->getOptions()->position;
 
         } else {
-            $tick = \XLite\Core\Database::getRepo('XLite\Model\TmpVar')
+            $tick = Database::getRepo('XLite\Model\TmpVar')
                 ->getVar(static::getTickDurationVarName());
             if ($tick) {
                 $result = $tick;
             }
         }
 
-        return $result ? (ceil($result * 1000) / 1000) : static::DEFAULT_TICK_DURATION;
+        return $result
+            ? ($result > 0.1 ? ceil($result * 1000) / 1000 : $result)
+            : static::DEFAULT_TICK_DURATION;
     }
 
     /**
@@ -277,7 +282,7 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
     {
         $currentStep = null;
 
-        if (!\XLite\Core\Database::getRepo('XLite\Model\TmpVar')->getVar(static::getCancelFlagVarName())) {
+        if (!Database::getRepo('XLite\Model\TmpVar')->getVar(static::getCancelFlagVarName())) {
             $i = $this->getOptions()->position;
             foreach ($this->getSteps() as $n => $step) {
                 if ($i < $step->count()) {
@@ -343,8 +348,13 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
         $this->getOptions()->position++;
         $this->getStep()->next();
         if ($this->getStep()->key() >= $this->getStep()->count()) {
-            $this->getStep(true);
+            $this->switchStep();
         }
+    }
+
+    protected function switchStep()
+    {
+        $this->getStep(true);
     }
 
     /**
@@ -397,10 +407,10 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
      */
     public function addError($title, $body)
     {
-        $this->getOptions()->errors[] = array(
+        $this->getOptions()->errors[] = [
             'title' => $title,
             'body'  => $body,
-        );
+        ];
     }
 
     /**
@@ -410,7 +420,7 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
      */
     public function getErrors()
     {
-        return empty($this->getOptions()->errors) ? array() : $this->getOptions()->errors;
+        return empty($this->getOptions()->errors) ? [] : $this->getOptions()->errors;
     }
 
     /**
@@ -464,7 +474,7 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
      */
     public static function lock()
     {
-        \XLite\Core\Lock\FileLock::getInstance()->setRunning(
+        FileLock::getInstance()->setRunning(
             static::getLockKey()
         );
     }
@@ -474,7 +484,7 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
      */
     public static function isLocked()
     {
-        return \XLite\Core\Lock\FileLock::getInstance()->isRunning(
+        return FileLock::getInstance()->isRunning(
             static::getLockKey(),
             true
         );
@@ -485,7 +495,7 @@ abstract class AGenerator extends \XLite\Base implements \SeekableIterator, \Cou
      */
     public static function unlock()
     {
-        \XLite\Core\Lock\FileLock::getInstance()->release(
+        FileLock::getInstance()->release(
             static::getLockKey()
         );
     }

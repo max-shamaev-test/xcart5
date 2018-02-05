@@ -25,12 +25,21 @@ class InfoVariants extends \XLite\View\FormModel\Product\Info implements \XLite\
         /** @var \XLite\Module\CDev\Wholesale\Model\Product $product */
         $product = $this->getProductEntity();
 
-        if ($product && $product->hasVariants()) {
-            return $product && $product->isWholesalePricesEnabled() && count($product->getWholesalePrices()) > 0
-                ? 'modules/CDev/Wholesale/form_model/product/info/wholesale_variants_defined_link.twig'
-                : parent::getPriceDescriptionTemplate();
+        if (
+            $product
+            && $product->hasVariants()
+            && $product->isWholesalePricesEnabled()
+            && count($product->getWholesalePrices()) > 0
+        ) {
+            return 'modules/CDev/Wholesale/form_model/product/info/wholesale_variants_defined_link.twig';
+        } elseif (
+            $product
+            && $product->isWholesalePricesEnabled()
+            && count($product->getWholesalePrices()) > 0
+        ) {
+            return 'modules/CDev/Wholesale/form_model/product/info/wholesale_defined_link.twig';
         }
 
-        return 'modules/CDev/Wholesale/form_model/product/info/wholesale_defined_link.twig';
+        return parent::getPriceDescriptionTemplate();
     }
 }

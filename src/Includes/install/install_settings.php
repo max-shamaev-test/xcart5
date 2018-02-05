@@ -15,7 +15,7 @@ if (!defined('XLITE_INSTALL_MODE')) {
 }
 
 // Current X-Cart version
-define('LC_VERSION', '5.3.4.4');
+define('LC_VERSION', '5.3.4.5');
 
 // Minimum PHP version supported
 define('LC_PHP_VERSION_MIN', '5.4.0');
@@ -86,22 +86,24 @@ $lcSettings = array(
             'sql' . LC_DS . 'xlite_menu.yaml',
             'sql' . LC_DS . 'module.XC.Onboarding.yaml',
 
-        ) : XLITE_EDITION_LNG === 'zh' ? array(
-            'sql' . LC_DS . 'xlite_demo_zh.yaml',
-            'sql' . LC_DS . 'product_attributes_zh.sql',
-            'sql' . LC_DS . 'xlite_menu_zh.yaml',
-            'sql' . LC_DS . 'xlite_demo_sale_zh.yaml',
-            'sql' . LC_DS . 'xlite_demo_orders_zh.yaml',
+        ) : (
+            XLITE_EDITION_LNG === 'zh' ? array(
+                'sql' . LC_DS . 'xlite_demo_zh.yaml',
+                'sql' . LC_DS . 'product_attributes_zh.sql',
+                'sql' . LC_DS . 'xlite_menu_zh.yaml',
+                'sql' . LC_DS . 'xlite_demo_sale_zh.yaml',
+                'sql' . LC_DS . 'xlite_demo_orders_zh.yaml',
 
-        ) : array(
-            'sql' . LC_DS . 'xlite_demo.yaml',
-            'sql' . LC_DS . 'xlite_demo_featured.yaml',
-            'sql' . LC_DS . 'xlite_demo_orders_en.yaml',
-            'sql' . LC_DS . 'xlite_demo_sale.yaml',
-            'sql' . LC_DS . 'product_attributes.sql',
-            'sql' . LC_DS . 'xlite_demo_reviews.sql',
-            'sql' . LC_DS . 'xlite_menu.yaml',
-            'sql' . LC_DS . 'module.XC.Onboarding.yaml',
+            ) : array(
+                'sql' . LC_DS . 'xlite_demo.yaml',
+                'sql' . LC_DS . 'xlite_demo_featured.yaml',
+                'sql' . LC_DS . 'xlite_demo_orders_en.yaml',
+                'sql' . LC_DS . 'xlite_demo_sale.yaml',
+                'sql' . LC_DS . 'product_attributes.sql',
+                'sql' . LC_DS . 'xlite_demo_reviews.sql',
+                'sql' . LC_DS . 'xlite_menu.yaml',
+                'sql' . LC_DS . 'module.XC.Onboarding.yaml',
+            )
         ),
     ),
 
@@ -204,7 +206,6 @@ if (XLITE_EDITION_LNG === 'ru') {
                 'Stripe',
                 'SagePay',
                 'CanadaPost',
-                'AuctionInc',
                 'PitneyBowes'
             ),
             'Amazon' => array(
@@ -237,7 +238,6 @@ if (XLITE_EDITION_LNG === 'ru') {
                 'Stripe',
                 'SagePay',
                 'GbTranslation',
-                'AuctionInc'
             ),
         )
     );

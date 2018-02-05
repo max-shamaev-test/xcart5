@@ -18,6 +18,7 @@ use XLite\Core\Templating\Twig\Functions;
 use XLite\Core\Templating\Twig\TokenParser\Form;
 use XLite\Core\Templating\Twig\TokenParser\Widget;
 use XLite\Core\Templating\Twig\TokenParser\WidgetList;
+use XLite\Core\Translation\Label;
 
 class XCart extends Twig_Extension
 {
@@ -107,7 +108,16 @@ class XCart extends Twig_Extension
 function xcart_twig_escape_filter(
     Twig_Environment $env, $string, $strategy = 'html', $charset = null, $autoescape = false
 ) {
-    if ($autoescape && $string instanceof Twig_Markup) {
+    if (
+        $autoescape
+        && (
+            $string instanceof Twig_Markup
+            || (
+                $string instanceof Label
+                && $string->translate() instanceof Twig_Markup
+            )
+        )
+    ) {
         return $string;
     }
 

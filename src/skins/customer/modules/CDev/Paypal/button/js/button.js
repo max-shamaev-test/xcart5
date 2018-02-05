@@ -143,7 +143,7 @@ core.bind('resources.ready', _.once(function () {
   core.trigger('renderPPButtons');
 }));
 
-jQuery(function () {
+define(["ProductDetails"], function () {
   decorate(
     'ProductDetailsView',
     'postprocessAdd2Cart',

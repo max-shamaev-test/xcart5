@@ -17,12 +17,12 @@ class Settings extends \XLite\Controller\Admin\AAdmin
     /**
      * Clean URL article url
      */
-    const CLEAN_URL_ARTICLE_URL = 'http://kb.x-cart.com/en/general_setup/setting_up_seo-friendly_urls.html';
+    const CLEAN_URL_ARTICLE_URL = 'https://kb.x-cart.com/en/general_setup/setting_up_seo-friendly_urls.html';
 
     /**
      * Installation directory article url
      */
-    const INSTALLATION_DIRECTORY_ARTICLE_URL = 'http://kb.x-cart.com/en/general_setup/moving_x-cart_to_another_location.html';
+    const INSTALLATION_DIRECTORY_ARTICLE_URL = 'https://kb.x-cart.com/en/general_setup/moving_x-cart_to_another_location.html';
 
     /**
      * Values to use for $page identification
@@ -295,6 +295,54 @@ class Settings extends \XLite\Controller\Admin\AAdmin
     public function getTranslationDriver()
     {
         return \XLite\Core\Translation::getInstance()->getDriver()->getName();
+    }
+
+    /**
+     * Get translation driver identifier
+     *
+     * @return string
+     */
+    public function getServerDateTime()
+    {
+        $time = new \DateTime('now');
+
+        return $time->format('c');
+    }
+
+    /**
+     * Get translation driver identifier
+     *
+     * @return string
+     */
+    public function getServerTimezone()
+    {
+        $time = new \DateTime('now');
+
+        return $time->getTimezone()->getName();
+    }
+
+    /**
+     * Get translation driver identifier
+     *
+     * @return string
+     */
+    public function getShopDateTime()
+    {
+        $time = new \DateTime('now', \XLite\Core\Converter::getTimeZone());
+
+        return $time->format('c');
+    }
+
+    /**
+     * Get translation driver identifier
+     *
+     * @return string
+     */
+    public function getShopTimezone()
+    {
+        $time = new \DateTime('now', \XLite\Core\Converter::getTimeZone());
+
+        return $time->getTimezone()->getName();
     }
 
     /**

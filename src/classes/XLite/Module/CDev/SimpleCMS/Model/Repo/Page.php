@@ -21,7 +21,7 @@ namespace XLite\Module\CDev\SimpleCMS\Model\Repo;
  *   description="Page repo contains the static pages of the site.",
  *   @SWG\ExternalDocumentation(
  *     description="Find out more about adding pages to your store",
- *     url="http://kb.x-cart.com/en/look_and_feel/adding_pages_to_your_store.html"
+ *     url="https://kb.x-cart.com/en/look_and_feel/adding_pages_to_your_store.html"
  *   )
  * )
  */

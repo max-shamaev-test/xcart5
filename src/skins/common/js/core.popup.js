@@ -240,6 +240,7 @@ popup.postprocessRequest = function(XMLHttpRequest, textStatus, data, isValid)
         this)
       );
 
+      core.parsePreloadedLabels(jQuery.parseHTML(data), uuid);
       core.parseResources(jQuery.parseHTML(data), uuid);
 
     } else {

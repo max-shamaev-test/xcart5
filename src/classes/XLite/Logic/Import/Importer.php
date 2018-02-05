@@ -88,7 +88,7 @@ class Importer extends \XLite\Base
 
         $this->options = new \ArrayObject($this->options, \ArrayObject::ARRAY_AS_PROPS);
 
-        if (0 == $this->getOptions()->step && 0 == $this->getOptions()->position && !isset($this->getOptions()->initialized)) {
+        if ($options && 0 == $this->getOptions()->step && 0 == $this->getOptions()->position && !isset($this->getOptions()->initialized)) {
             $this->initialize();
         }
     }

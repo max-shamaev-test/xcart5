@@ -48,19 +48,6 @@ class SelectAddress extends \XLite\View\Dialog
     }
 
     /**
-     * Get a list of JS files required to display the widget properly
-     *
-     * @return array
-     */
-    public function getJSFiles()
-    {
-        $list = parent::getJSFiles();
-        $list[] = 'select_address/controller.js';
-
-        return $list;
-    }
-
-    /**
      * Check - specified address is selected or not
      *
      * @param \XLite\Model\Address $address Address

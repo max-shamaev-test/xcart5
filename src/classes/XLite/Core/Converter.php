@@ -1303,8 +1303,6 @@ class Converter extends \XLite\Base\Singleton
 
     // {{{ Extensions
 
-
-
     /**
      * Return list of archive extensions
      *
@@ -1396,4 +1394,11 @@ class Converter extends \XLite\Base\Singleton
     }
 
     // }}}
+
+    public static function getCanonicalPhpVersion()
+    {
+        return \XLite\Core\Cache\ExecuteCached::executeCachedRuntime(function () {
+            return preg_filter('/([0-9.]+).*/i', '$1', PHP_VERSION);
+        }, 'canonicalPHPVersion');
+    }
 }

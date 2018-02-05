@@ -178,6 +178,11 @@ class Marketplace extends \XLite\Base\Singleton
     const REQUEST_LONG_TTL = 60;
 
     /**
+     * HTTP request TTL for extra long actions(a.e. get packs)
+     */
+    const REQUEST_EXTRA_LONG_TTL = 300;
+
+    /**
      * Interval between attempts to access marketplace after error of connection
      */
     const ERROR_REQUEST_TTL = 3600;
@@ -325,7 +330,7 @@ class Marketplace extends \XLite\Base\Singleton
      */
     public static function getContactUsURL()
     {
-        return \XLite::getXCartURL('http://www.x-cart.com/contact-us.html');
+        return \XLite::getXCartURL('https://www.x-cart.com/contact-us.html');
     }
 
     /**
@@ -335,7 +340,7 @@ class Marketplace extends \XLite\Base\Singleton
      */
     public static function getLicenseAgreementURL()
     {
-        return \XLite::getXCartURL('http://www.x-cart.com/license-agreement.html');
+        return \XLite::getXCartURL('https://www.x-cart.com/license-agreement.html');
     }
 
     /**
@@ -346,12 +351,23 @@ class Marketplace extends \XLite\Base\Singleton
     public static function getLongActions()
     {
         return array(
-            static::ACTION_GET_CORE_PACK,
             static::ACTION_GET_CORE_HASH,
-            static::ACTION_GET_ADDON_PACK,
             static::ACTION_GET_ADDON_HASH,
             static::ACTION_GET_ADDON_INFO,
             static::ACTION_GET_ADDONS_LIST,
+        );
+    }
+
+    /**
+     * Get long actions
+     *
+     * @return array
+     */
+    public static function getExtraLongActions()
+    {
+        return array(
+            static::ACTION_GET_CORE_PACK,
+            static::ACTION_GET_ADDON_PACK,
         );
     }
 
@@ -2767,6 +2783,17 @@ class Marketplace extends \XLite\Base\Singleton
         return static::ACTION_GET_DATASET !== $action;
     }
 
+    protected static function getActionRequestTTL($action)
+    {
+        if (in_array($action, static::getExtraLongActions())) {
+            return static::REQUEST_EXTRA_LONG_TTL;
+        } elseif (in_array($action, static::getLongActions())) {
+            return static::REQUEST_LONG_TTL;
+        }
+
+        return static::REQUEST_TTL;
+    }
+
     /**
      * Return prepared request object
      *
@@ -2795,12 +2822,7 @@ class Marketplace extends \XLite\Base\Singleton
             }
         }
 
-        if (in_array($action, static::getLongActions())) {
-            $request->requestTimeout = static::REQUEST_LONG_TTL;
-
-        } else {
-            $request->requestTimeout = static::REQUEST_TTL;
-        }
+        $request->requestTimeout = static::getActionRequestTTL($action);
 
         $this->logInfo($action, 'The "{{url}}" URL requested', array('url' => $url), $data);
 

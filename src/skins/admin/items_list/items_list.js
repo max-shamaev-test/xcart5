@@ -310,6 +310,7 @@ ItemsList.prototype.loadHandler = function(xhr, s)
       }, this)
     );
 
+    core.parsePreloadedLabels(container, uuid);
     core.parseResources(container, uuid);
   } else {
     self.location = this.buildURL();

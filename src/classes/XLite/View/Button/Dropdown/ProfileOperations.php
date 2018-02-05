@@ -9,9 +9,7 @@
 namespace XLite\View\Button\Dropdown;
 
 /**
- * Profile operations
- *
- * @ListChild (list="tabs.items", zone="admin", weight="100")
+ * Profile operation
  */
 class ProfileOperations extends \XLite\View\Button\Dropdown\ADropdown
 {

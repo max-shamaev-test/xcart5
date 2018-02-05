@@ -377,6 +377,7 @@ class Profile extends \XLite\Model\AEntity
      */
     public function setPendingMembership(\XLite\Model\Membership $pendingMembership = null)
     {
+        \XLite\Core\TmpVars::getInstance()->pendingMembershipsUpdateTimestamp = LC_START_TIME;
         $this->pending_membership = $pendingMembership;
     }
 

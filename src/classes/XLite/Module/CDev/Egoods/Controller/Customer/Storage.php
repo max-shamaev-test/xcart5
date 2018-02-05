@@ -89,7 +89,11 @@ abstract class Storage extends \XLite\Controller\Customer\Storage implements \XL
      */
     protected function processOrderStatus()
     {
-        if ($this->storageKey->getItem() && $this->storageKey->getItem()->getOrder()) {
+        if (
+            $this->storageKey->getItem()
+            && $this->storageKey->getItem()->getOrder()
+            && $this->isNeedToMarkOrderAsDelivered($this->storageKey->getItem()->getOrder())
+        ) {
             $order = $this->storageKey->getItem()->getOrder();
 
             if (in_array($order->getShippingStatusCode(), [
@@ -114,6 +118,27 @@ abstract class Storage extends \XLite\Controller\Customer\Storage implements \XL
                 $order->setOldShippingStatus($deliveredStatus);
             }
         }
+    }
+
+    /**
+     * @param \XLite\Model\Order $order
+     *
+     * @return bool
+     */
+    protected function isNeedToMarkOrderAsDelivered(\XLite\Model\Order $order)
+    {
+        if ($order->isShippable()) {
+            return false;
+        }
+
+        /** @var \XLite\Module\CDev\Egoods\Model\OrderItem\PrivateAttachment $privateAttachment */
+        foreach ($order->getPrivateAttachments() as $privateAttachment) {
+            if ($privateAttachment->getAttempt() <= 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

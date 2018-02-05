@@ -25,6 +25,6 @@ function PopupButtonHotAddons() {
 
 extend(PopupButtonHotAddons, PopupButton);
 
-PopupButtonHotAddons.prototype.pattern = '.extensions';
+PopupButtonHotAddons.prototype.pattern = '.action-widget .extensions';
 
 core.autoload(PopupButtonHotAddons);

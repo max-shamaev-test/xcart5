@@ -6,10 +6,9 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-
 namespace Includes\Database\Migration;
 
-
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
@@ -47,20 +46,32 @@ class SchemaComparator
     private $tablePrefix;
 
     /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
      * DisabledStructuresPreservingComparator constructor.
+     *
      * @param Comparator $comparator
      * @param string[]   $disabledTables
      * @param string[]   $disabledColumns
      * @param string[]   $enabledTables
      * @param string     $tablePrefix
+     * @param Connection $connection
      */
-    public function __construct(Comparator $comparator, $disabledTables, $disabledColumns, $enabledTables, $tablePrefix)
+    public function __construct(Comparator $comparator, $disabledTables, $disabledColumns, $enabledTables, $tablePrefix, Connection $connection)
     {
         $this->tablePrefix     = $tablePrefix;
         $this->comparator      = $comparator;
-        $this->disabledTables  = array_map(function ($t) { return $this->tablePrefix . $t; }, $disabledTables);
+        $this->disabledTables  = array_map(function ($t) {
+            return $this->tablePrefix . $t;
+        }, $disabledTables);
         $this->disabledColumns = $disabledColumns;
-        $this->enabledTables   = array_map(function ($t) { return $this->tablePrefix . $t; }, $enabledTables);
+        $this->enabledTables   = array_map(function ($t) {
+            return $this->tablePrefix . $t;
+        }, $enabledTables);
+        $this->connection      = $connection;
     }
 
     /**
@@ -112,14 +123,14 @@ class SchemaComparator
 
             foreach ($diff->orphanedForeignKeys as $k => $key) {
                 if (in_array($key->getLocalTableName(), $this->disabledTables)) {
-                    unset ($diff->orphanedForeignKeys[$k]);
+                    unset($diff->orphanedForeignKeys[$k]);
                 }
             }
 
             if (!empty($diff->removedTables)) {
                 $diff->removedTables = array_filter($diff->removedTables, function (Table $table) {
                     return !in_array($table->getName(), $this->disabledTables)
-                           && !in_array($table->getName(), $this->enabledTables);
+                        && !in_array($table->getName(), $this->enabledTables);
                 });
             }
 
@@ -149,7 +160,7 @@ class SchemaComparator
             if ($preservedForeignKeys) {
                 foreach ($diff->changedTables as $changedTable) {
                     foreach ($changedTable->removedIndexes as $k => $index) {
-                        $indexForAForeignKey = (bool)array_filter($preservedForeignKeys, function ($fkey) use ($index) {
+                        $indexForAForeignKey = (bool) array_filter($preservedForeignKeys, function ($fkey) use ($index) {
                             return $fkey->intersectsIndexColumns($index);
                         });
 
@@ -199,25 +210,19 @@ class SchemaComparator
      */
     protected function getColumnDefaultValue($columnType)
     {
-        switch($columnType->getBindingType()) {
-
+        switch ($columnType->getBindingType()) {
             case \PDO::PARAM_INT:
-            case \PDO::PARAM_BOOL: {
+            case \PDO::PARAM_BOOL:
                 $result = 0;
                 break;
-            }
-
-            case \PDO::PARAM_STR: {
+            case \PDO::PARAM_STR:
                 $result = '';
                 break;
-            }
-
             case \PDO::PARAM_LOB:
-            default: {
+            default:
                 $result = null;
-            }
         }
 
-        return $result;
+        return $columnType->convertToDatabaseValue($result, $this->connection->getDatabasePlatform());
     }
 }

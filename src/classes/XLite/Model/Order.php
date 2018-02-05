@@ -25,7 +25,8 @@ use XLite\Model\Payment\Transaction;
  *          @Index (name="shipping_id", columns={"shipping_id"}),
  *          @Index (name="lastRenewDate", columns={"lastRenewDate"}),
  *          @Index (name="orderNumber", columns={"orderNumber"}),
- *          @Index (name="is_order", columns={"is_order"})
+ *          @Index (name="is_order", columns={"is_order"}),
+ *          @Index (name="xcPendingExport", columns={"xcPendingExport"})
  *      }
  * )
  *
@@ -1367,7 +1368,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         }
 
         // Register 'Place order' event in the order history
-        \XLite\Core\OrderHistory::getInstance()->registerPlaceOrder($this->getOrderId());
+        $this->registerPlaceOrder();
 
         // Transform attributes
         $this->transformItemsAttributes();
@@ -1375,6 +1376,11 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         $this->sendOrderCreatedIfNeeded();
 
         $this->sendOrderWaitingForApproveIfNeeded();
+    }
+
+    protected function registerPlaceOrder()
+    {
+        \XLite\Core\OrderHistory::getInstance()->registerPlaceOrder($this->getOrderId());
     }
 
     /**
@@ -3282,10 +3288,14 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     {
         $paymentTransactionSums = $this->getRawPaymentTransactionSums();
 
+        $lblAuth = (string) static::t('Authorized amount');
+        $lblCapture = (string) static::t('Captured amount');
+        $lblRefunded = (string) static::t('Refunded amount');
+
         $paymentTransactionSums = array(
-            static::t('Authorized amount') => $paymentTransactionSums['authorized'],
-            static::t('Captured amount')   => $paymentTransactionSums['captured'],
-            static::t('Refunded amount')   => $paymentTransactionSums['refunded'],
+            $lblAuth     => $paymentTransactionSums['authorized'],
+            $lblCapture  => $paymentTransactionSums['captured'],
+            $lblRefunded => $paymentTransactionSums['refunded'],
         );
 
         // Remove from array all zero sums
@@ -3813,8 +3823,6 @@ class Order extends \XLite\Model\Base\SurchargeOwner
                 $product->getSales() + $delta * $item->getAmount()
             );
         }
-
-        \XLite\Core\Database::getEM()->flush();
     }
 
     /**
@@ -4260,7 +4268,10 @@ class Order extends \XLite\Model\Base\SurchargeOwner
             $iterator = $result->getIterator();
             $iterator->uasort($compare);
 
-            $result = new ArrayCollection(iterator_to_array($iterator));
+            $result->clear();
+            foreach ($iterator as $item) {
+                $result->add($item);
+            }
         } elseif (is_array($result)) {
             uasort($result, $compare);
         }

@@ -516,8 +516,12 @@ class XPaymentsClient extends \XLite\Base\Singleton
 
             $transaction->setValue($total);
 
+            \XLite\Core\Database::getEM()->persist($transaction);
+
             $cart->addPaymentTransactions($transaction);
             $transaction->setOrder($cart);
+
+            \XLite\Core\Database::getEM()->flush();
         }
 
         return $cart;

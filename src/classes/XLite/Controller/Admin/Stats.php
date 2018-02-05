@@ -8,6 +8,8 @@
 
 namespace XLite\Controller\Admin;
 
+use XLite\Core\Converter;
+
 /**
  * Store statistics page controller
  */
@@ -223,7 +225,7 @@ class Stats extends \XLite\Controller\Admin\AAdmin
      */
     protected function getStartTime($interval = self::P_ALL)
     {
-        $methodName = 'get' . \XLite\Core\Converter::convertToCamelCase($interval) . 'StartTime';
+        $methodName = 'get' . Converter::convertToCamelCase($interval) . 'StartTime';
 
         return method_exists($this, $methodName)
             ? call_user_func(array($this, $methodName))
@@ -237,7 +239,8 @@ class Stats extends \XLite\Controller\Admin\AAdmin
      */
     protected function getTodayStartTime()
     {
-        return \XLite\Core\Converter::getDayStart();
+        $time = Converter::convertTimeToUser(Converter::time());
+        return Converter::convertTimeToServer(Converter::getDayStart($time));
     }
 
     /**
@@ -247,7 +250,8 @@ class Stats extends \XLite\Controller\Admin\AAdmin
      */
     protected function getWeekStartTime()
     {
-        return LC_START_TIME - (date('w', LC_START_TIME) * 86400);
+        $time = Converter::convertTimeToUser(Converter::time());
+        return $this->getTodayStartTime() - (date('w', $time) * 86400);
     }
 
     /**
@@ -257,7 +261,8 @@ class Stats extends \XLite\Controller\Admin\AAdmin
      */
     protected function getMonthStartTime()
     {
-        return mktime(0, 0, 0, date('m', LC_START_TIME), 1, date('Y', LC_START_TIME));
+        $time = Converter::convertTimeToUser(Converter::time());
+        return Converter::convertTimeToServer(mktime(0, 0, 0, date('m', $time), 1, date('Y', $time)));
     }
 
     /**
@@ -267,7 +272,8 @@ class Stats extends \XLite\Controller\Admin\AAdmin
      */
     protected function getYearStartTime()
     {
-        return mktime(0, 0, 0, 1, 1, date('Y', LC_START_TIME));
+        $time = Converter::convertTimeToUser(Converter::time());
+        return Converter::convertTimeToServer(mktime(0, 0, 0, 1, 1, date('Y', $time)));
     }
 
     /**

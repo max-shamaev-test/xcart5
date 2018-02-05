@@ -18,7 +18,7 @@ namespace XLite\Module\CDev\ProductAdvisor\Model\Repo;
  *   description="ProductStats store the statistic records for the 'Customers who viewed this product bought' widget",
  *   @SWG\ExternalDocumentation(
  *     description="Find out more about featured products",
- *     url="http://kb.x-cart.com/en/products/adding_featured_products.html"
+ *     url="https://kb.x-cart.com/en/products/adding_featured_products.html"
  *   )
  * )
  */

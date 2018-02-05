@@ -25,17 +25,6 @@ class PaymentMethods extends \XLite\Module\CDev\XPaymentsConnector\View\Settings
     }
 
     /**
-     * Check if widget is visible
-     *
-     * @return boolean
-     */
-    protected function isVisible()
-    {
-        return parent::isVisible()
-            && \XLite\Module\CDev\XPaymentsConnector\Core\Settings::hasPaymentMethods();
-    }
-
-    /**
      * List of tabs/pages where this setting should be displayed
      *
      * @return boolean

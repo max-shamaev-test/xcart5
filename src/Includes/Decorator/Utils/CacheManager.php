@@ -233,11 +233,16 @@ abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
 
         return static::getJSMessage()
             . <<<HTML
-<style type="text/css">
+<style>
 <!--
-@keyframes spin { /* Opera */
-  0% { -o-transform: rotate(0deg); }
-  100% { -o-transform: rotate(360deg); }
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
 }
 
 .spinner {
@@ -246,10 +251,8 @@ abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
   height: 26px;
 
   -webkit-animation: spin 0.5s infinite linear;
-  -moz-animation: spin 0.5s infinite linear;
-  -ms-animation: spin 0.5s infinite linear;
-  -o-animation: spin 0.5s infinite linear;
-  animation: spin 0.5s infinite linear;
+
+          animation: spin 0.5s infinite linear;
 }
 
 .spinner .box {

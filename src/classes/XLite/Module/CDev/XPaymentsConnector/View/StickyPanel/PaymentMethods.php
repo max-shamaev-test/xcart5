@@ -14,6 +14,16 @@ namespace XLite\Module\CDev\XPaymentsConnector\View\StickyPanel;
 class PaymentMethods extends \XLite\View\StickyPanel\ItemsListForm 
 {
     /**
+     * Sticky panel must be visible always so "Re-import" is available
+     *
+     * @return string
+     */
+    protected function getClass()
+    {
+        return parent::getClass() . ' always-visible';
+    }
+
+    /**
      * Check panel has more actions buttons
      *
      * @return boolean

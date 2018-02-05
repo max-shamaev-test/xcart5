@@ -440,7 +440,7 @@ class NextPreviousProduct extends \XLite\View\AView
     {
         return $this->executeCachedRuntime(function () {
             $itemsList = $this->getItemsList();
-            $result    = $itemsList ? $itemsList->getNextPreviousItems($this->getItemPosition()) : null;
+            $result    = $itemsList ? $itemsList->getNextPreviousItems($this->getItemPosition()) : [];
 
             return array_values($result);
         });

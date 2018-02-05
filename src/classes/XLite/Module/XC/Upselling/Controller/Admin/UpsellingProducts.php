@@ -14,6 +14,17 @@ namespace XLite\Module\XC\Upselling\Controller\Admin;
 class UpsellingProducts extends \XLite\Controller\Admin\AAdmin
 {
     /**
+     * Check ACL permissions
+     *
+     * @return boolean
+     */
+    public function checkACL()
+    {
+        return parent::checkACL()
+            || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage catalog');
+    }
+
+    /**
      * The parent product ID definition
      *
      * @return string

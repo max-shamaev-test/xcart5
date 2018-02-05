@@ -14,18 +14,18 @@ var PopupButtonAddressBook = PopupButton.extend({
 
   pattern: '.address-book-button',
 
-  callback: function () {
+  callback: function (selector, link) {
     PopupButtonAddressBook.superclass.callback.apply(this, arguments);
     
     core.autoload(PopupButtonAddAddress);
 
-    var form = jQuery('form.select-address').eq(0);
+    var form = jQuery('form.select-address', selector).eq(0);
     jQuery(form).commonController(
       'enableBackgroundSubmit',
       _.bind(this.onBeforeSubmit, this),
       _.bind(this.onAfterSubmit, this)
     );
-    jQuery('.select-address .addresses > li').click(
+    jQuery('.select-address .addresses > li', selector).click(
       function() {
         form.get(0).elements.namedItem('addressId').value = $(this).data('address-id');
         form.submit();

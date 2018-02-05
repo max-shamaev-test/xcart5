@@ -17,7 +17,8 @@ namespace XLite\Model;
  *          @UniqueConstraint (name="pair", columns={"category_id","product_id"})
  *      },
  *      indexes={
- *          @Index (name="orderby", columns={"orderby"})
+ *          @Index (name="orderby", columns={"orderby"}),
+ *          @Index (name="orderbyInProduct", columns={"orderbyInProduct"})
  *      }
  * )
  */
@@ -42,6 +43,15 @@ class CategoryProducts extends \XLite\Model\AEntity
      * @Column (type="integer", length=11, nullable=false)
      */
     protected $orderby = 0;
+
+    /**
+     * Category position in the product
+     *
+     * @var integer
+     *
+     * @Column (type="integer", length=11, nullable=false)
+     */
+    protected $orderbyInProduct = 0;
 
     /**
      * Relation to a category entity
@@ -137,5 +147,21 @@ class CategoryProducts extends \XLite\Model\AEntity
     public function getProduct()
     {
         return $this->product;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOrderbyInProduct()
+    {
+        return $this->orderbyInProduct;
+    }
+
+    /**
+     * @param int $orderbyInProduct
+     */
+    public function setOrderbyInProduct($orderbyInProduct)
+    {
+        $this->orderbyInProduct = $orderbyInProduct;
     }
 }

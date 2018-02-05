@@ -95,9 +95,9 @@ define('themetweaker/custom_css', ['js/vue/vue'], function (XLiteVue) {
                     var text = this.$css.text();
 
                     if (value) {
-                        this.$css.replaceWith('<style rel="stylesheet" type="text/css" media="screen" data-custom-css>');
+                        this.$css.replaceWith('<style rel="stylesheet" media="screen" data-custom-css>');
                     } else {
-                        this.$css.replaceWith('<script type="text/css" data-custom-css>');
+                        this.$css.replaceWith('<script data-custom-css>');
                     }
 
                     this.updateStoreState({use: value});

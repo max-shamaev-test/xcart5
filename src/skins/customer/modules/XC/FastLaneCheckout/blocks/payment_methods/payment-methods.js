@@ -57,6 +57,13 @@ define(
       new CommonForm(this.form);
       core.trigger('checkout.paymentTpl.postprocess');
       core.trigger('checkout.paymentTpl.loaded');
+
+      decorate(
+        'PaymentTplView',
+        'shade',
+        function() {
+        }
+      );
     },
 
     data: function() {

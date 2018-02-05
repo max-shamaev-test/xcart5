@@ -66,6 +66,25 @@ class Stripe extends \XLite\Model\Payment\Base\Online
     }
 
     /**
+     * @return string
+     */
+    public function getActualClientSecret(\XLite\Model\Payment\Method $method)
+    {
+        $suffix = $this->isTestMode($method) ? 'Test' : '';
+        return $method->getSetting('accessToken' . $suffix);
+    }
+
+    /**
+     * @return string
+     */
+    public function getOAuthClientSecret(\XLite\Model\Payment\Method $method)
+    {
+        return $this->isTestMode($method)
+            ? \XLite\Module\XC\Stripe\Core\OAuth::getInstance()->getClientSecretTest()
+            : \XLite\Module\XC\Stripe\Core\OAuth::getInstance()->getClientSecretLive();
+    }
+
+    /**
      * Get allowed backend transactions
      *
      * @return string Status code
@@ -95,7 +114,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
     /**
      * Get input template
      *
-     * @return string|void
+     * @return string
      */
     public function getInputTemplate()
     {
@@ -311,14 +330,12 @@ class Stripe extends \XLite\Model\Payment\Base\Online
 
             if ($this->transaction) {
                 $method = $this->transaction->getPaymentMethod();
-                $suffix = $this->isTestMode($method) ? 'Test' : '';
-                $key = $method->getSetting('accessToken' . $suffix);
+                $key = $this->getActualClientSecret($method);
 
             } else {
                 $method = \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')
                     ->findOneBy(array('service_name' => 'Stripe'));
-                $suffix = $this->isTestMode($method) ? 'Test' : '';
-                $key = $method->getSetting('accessToken' . $suffix);
+                $key = $this->getActualClientSecret($method);
             }
 
             \Stripe::setApiKey($key);

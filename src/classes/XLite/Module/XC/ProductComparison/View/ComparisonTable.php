@@ -76,4 +76,11 @@ class ComparisonTable extends \XLite\Module\XC\ProductComparison\View\Comparison
         }
         return static::$style;
     }
+
+    protected function getProductButtonWidget(\XLite\Model\Product $product)
+    {
+        return $this->getWidget([
+            AddToCart::PARAM_PRODUCT => $product
+        ], '\XLite\Module\XC\ProductComparison\View\AddToCart');
+    }
 }

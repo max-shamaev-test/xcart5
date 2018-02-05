@@ -16,16 +16,8 @@
 
   <div class="carousel-inner not-initialized" role="listbox">
     {% for image in this.getImages() %}
-      {% if this.getBlurredImageData(image) %}
-        <style>
-          #{{ this.getBlurredImageId(image) }} {
-            background-image: url({{ this.getBlurredImageData(image) }});
-            background-size: cover;
-          }
-        </style>
-      {% endif %}
       <a {% if image.bannerRotationSlide.getFrontLink() %} href="{{ image.bannerRotationSlide.getFrontLink() }}"{% endif %} class="item">
-        <img {% if this.getBlurredImageData(image) %}id="{{ this.getBlurredImageId(image) }}"{% endif %} src="{{ image.getFrontURL() }}" alt="{{ image.getAlt() }}" >
+        <img {% if this.getBlurredImageData(image) %}style="background: url({{ this.getBlurredImageData(image) }}); background-size: cover" {% endif %} src="{{ image.getFrontURL() }}" alt="{{ image.getAlt() }}" >
       </a>
     {% endfor %}
   </div>

@@ -1923,6 +1923,12 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
 
     // {{{ Verification helpers
 
+    protected function verifyValueAsUtf8mb3($value)
+    {
+        return mb_detect_encoding($value, 'UTF-8', true) !== false
+            && max(array_map('ord', str_split($value))) < 240;
+    }
+
     /**
      * Verify value as empty
      *
@@ -2244,10 +2250,9 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
      */
     public function getLocalPathFromURL($path)
     {
-        $webdir = \XLite::getInstance()->getOptions(array('host_details', 'web_dir'));
-        $webdir = $webdir ? $webdir . '/' : '';
+        $webDir = ltrim(\XLite::getInstance()->getOptions(['host_details', 'web_dir']) . '/', '/');
 
-        return preg_replace('#^' . $webdir . '#', '', parse_url($path, PHP_URL_PATH));
+        return LC_DIR_ROOT . preg_replace('#^' . preg_quote($webDir) . '#', '', parse_url($path, PHP_URL_PATH));
     }
 
     /**

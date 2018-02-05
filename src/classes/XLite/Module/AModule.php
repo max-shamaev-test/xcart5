@@ -628,8 +628,8 @@ abstract class AModule
      *          array('product.inventory.parts2', \XLite\Model\ViewList::INTERFACE_ADMIN),
      *      ),
      *      static::TO_ADD => array(
-     *          array('product.inventory.parts3', \XLite\Model\ViewList::INTERFACE_ADMIN),
-     *          array('product.inventory.parts4', \XLite\Model\ViewList::INTERFACE_ADMIN),
+     *          array('product.inventory.parts3', 100, \XLite\Model\ViewList::INTERFACE_ADMIN),
+     *          array('product.inventory.parts4', 200, \XLite\Model\ViewList::INTERFACE_ADMIN),
      *      ),
      * ),
      * 'product/inventory/inv_track_selector.twig' => array(

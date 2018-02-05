@@ -69,7 +69,7 @@ class Promo extends \XLite\Base\Singleton
             ],
             'seo-promo-1' => [
                 'content'   => static::t('Want help with SEO? Ask X-Cart Guru', [
-                    'url' => \XLite::getXCartURL('http://www.x-cart.com/seo-consulting.html')
+                    'url' => \XLite::getXCartURL('https://www.x-cart.com/seo-consulting.html')
                 ])
             ],
             'g2a-egoods-1' => [

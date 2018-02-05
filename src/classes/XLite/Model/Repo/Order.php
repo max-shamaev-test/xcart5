@@ -170,7 +170,9 @@ class Order extends \XLite\Model\Repo\ARepo
         $result = parent::createPureQueryBuilder($alias);
 
         if ($placedOnly) {
-            $result->andWhere('o INSTANCE OF XLite\Model\Order');
+            $aliases = $result->getRootAliases();
+            $alias = $aliases[0];
+            $result->andWhere($alias . ' INSTANCE OF XLite\Model\Order');
         }
 
         return $result;
@@ -255,13 +257,26 @@ class Order extends \XLite\Model\Repo\ARepo
     /**
      * Search result routine.
      *
-     * @return \Doctrine\ORM\PersistentCollection|integer
+     * @return array
      */
     protected function searchTotals()
     {
+        /** @var \Doctrine\ORM\QueryBuilder $queryBuilder */
         $queryBuilder = $this->searchState['queryBuilder'];
 
-        return $queryBuilder->getResult();
+        $dql = $queryBuilder->select('o.order_id')->orderBy('o.order_id')->getDQL();
+        $params = $queryBuilder->getParameters();
+
+        $qb = $this->createPureQueryBuilder('o1', false);
+        $qb->select('SUM(o1.total) as orders_total')
+            ->addSelect('c1.currency_id as currency_id')
+            ->linkInner('o1.currency', 'c1')
+            ->addGroupBy('c1.currency_id')
+            ->orderBy('orders_total', 'DESC')
+            ->andWhere('o1.order_id IN (' . $dql . ')')
+            ->setParameters($params);
+
+        return $qb->getResult();
     }
 
     /**
@@ -294,7 +309,6 @@ class Order extends \XLite\Model\Repo\ARepo
                 ->linkInner('o.profile', 'p')
                 ->linkInner('o.currency', 'c')
                 ->linkLeft('o.orig_profile', 'op')
-                ->addGroupBy('c.currency_id')
                 ->addOrderBy('orders_total', 'DESC');
         }
 
@@ -325,13 +339,11 @@ class Order extends \XLite\Model\Repo\ARepo
     protected function defineGetSearchTotalQuery(\XLite\Core\CommonCell $cnd)
     {
         $this->searchState['queryBuilder'] = $this->createQueryBuilder()
-            ->select('SUM(o.total) as orders_total')
-            ->addSelect('c.currency_id as currency_id')
+            ->select('o.order_id')
             ->linkInner('o.profile', 'p')
             ->linkInner('o.currency', 'c')
             ->linkLeft('o.orig_profile', 'op')
-            ->addGroupBy('c.currency_id')
-            ->addOrderBy('orders_total', 'DESC');
+            ->addGroupBy('o.order_id');
 
         foreach ($cnd as $key => $value) {
             if (self::P_LIMIT !== $key && self::P_ORDER_BY !== $key) {
@@ -369,7 +381,7 @@ class Order extends \XLite\Model\Repo\ARepo
     {
         $result = $this->defineMaxOrderNumberQuery()->getSingleResult();
 
-        return empty($result) ? 1 : array_pop($result);
+        return empty($result) ? 0 : array_pop($result);
     }
 
     /**
@@ -457,11 +469,16 @@ class Order extends \XLite\Model\Repo\ARepo
      */
     protected function defineFindNextOrder($order)
     {
-        return $this->createQueryBuilder()
-            ->andWhere('o.order_id > :orderId')
-            ->andWhere('o.orderNumber IS NOT NULL')
-            ->setParameter('orderId', (int) $order->getOrderId())
-            ->orderBy('o.order_id', 'ASC');
+        $qb = $this->createQueryBuilder();
+        $cnd = $qb->expr()->orX();
+        $cnd->add('o.date > :date AND o.orderNumber IS NOT NULL');
+        $cnd->add('o.orderNumber > :orderNumber');
+
+        return $qb->andWhere($cnd)
+            ->setParameter('date', (int) $order->getDate())
+            ->setParameter('orderNumber', $order->getOrderNumber())
+            ->orderBy('o.date', 'ASC')
+            ->addOrderBy('o.orderNumber', 'ASC');
     }
 
     /**
@@ -481,11 +498,16 @@ class Order extends \XLite\Model\Repo\ARepo
      */
     protected function defineFindPreviousOrder($order)
     {
-        return $this->createQueryBuilder()
-            ->andWhere('o.order_id < :orderId')
-            ->andWhere('o.orderNumber IS NOT NULL')
-            ->setParameter('orderId', (int) $order->getOrderId())
-            ->orderBy('o.order_id', 'DESC');
+        $qb = $this->createQueryBuilder();
+        $cnd = $qb->expr()->orX();
+        $cnd->add('o.date < :date AND o.orderNumber IS NOT NULL');
+        $cnd->add('o.orderNumber < :orderNumber');
+
+        return $qb->andWhere($cnd)
+            ->setParameter('date', (int) $order->getDate())
+            ->setParameter('orderNumber', $order->getOrderNumber())
+            ->orderBy('o.date', 'DESC')
+            ->addOrderBy('o.orderNumber', 'DESC');
     }
 
     /**

@@ -27,14 +27,14 @@ class AItemsListSearch extends \XLite\View\Form\AForm
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_ITEMS_LIST => new \XLite\Model\WidgetParam\TypeObject(
                 'ItemsList object',
                 null,
                 false,
                 'XLite\View\ItemsList\Model\Table'
             ),
-        );
+        ];
     }
 
     /**
@@ -75,9 +75,9 @@ class AItemsListSearch extends \XLite\View\Form\AForm
      */
     protected function getDefaultParams()
     {
-        return parent::getDefaultParams() + array(
-            'mode'      => 'search',
-        );
+        return parent::getDefaultParams() + [
+                'mode' => 'search',
+            ];
     }
 
     /**
@@ -87,9 +87,10 @@ class AItemsListSearch extends \XLite\View\Form\AForm
      */
     protected function getCommonFormParams()
     {
-        return parent::getCommonFormParams() + array(
-            'itemsList' => get_class($this->getItemsList()),
-        );
+        $itemsList = $this->getItemsList();
+
+        return parent::getCommonFormParams()
+            + ($itemsList ? ['itemsList' => $itemsList] : []);
     }
 
     /**

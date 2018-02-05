@@ -21,7 +21,7 @@ namespace XLite\Module\CDev\VolumeDiscounts\Model\Repo;
  *   description="Volume discount record keeps data about discount tiers",
  *   @SWG\ExternalDocumentation(
  *     description="Find out more about setting up volume discounts",
- *     url="http://kb.x-cart.com/en/seo_and_promotion/setting_up_volume_discounts_for_products.html"
+ *     url="https://kb.x-cart.com/en/seo_and_promotion/setting_up_volume_discounts_for_products.html"
  *   )
  * )
  */

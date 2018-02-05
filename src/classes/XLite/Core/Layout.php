@@ -183,8 +183,11 @@ class Layout extends \XLite\Base\Singleton
         $image = 'images/icon192x192' . ($color ? ('_' . $color) : '') . '.png';
         $url = $this->getResourceWebPath($image, static::WEB_PATH_OUTPUT_URL, \XLite::COMMON_INTERFACE);
 
-        return $url
-            ?: $this->getResourceWebPath('images/icon192x192.png', static::WEB_PATH_OUTPUT_URL, \XLite::COMMON_INTERFACE);
+        if (!$url) {
+            $url = $this->getResourceWebPath('images/icon192x192.png', static::WEB_PATH_OUTPUT_URL, \XLite::COMMON_INTERFACE);
+        }
+
+        return \XLite::getInstance()->getShopURL($url);
     }
 
     // {{{ Layout changers methods

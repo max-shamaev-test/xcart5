@@ -60,7 +60,7 @@ class AddressBook extends \XLite\View\Button\PopupButton
      */
     protected function getClass()
     {
-        return 'popup-button address-book-button';
+        return "{$this->getParam(static::PARAM_STYLE)} popup-button address-book-button";
     }
 
     /**

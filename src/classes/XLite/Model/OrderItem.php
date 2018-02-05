@@ -928,10 +928,7 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
      */
     public function isDeleted()
     {
-        return !(in_array(
-            get_called_class(),
-            array('XLite\Model\OrderItem', 'XLite\Model\Proxy\XLiteModelOrderItemProxy')
-        ) && (bool)$this->getObject());
+        return !$this->getObject();
     }
 
     /**

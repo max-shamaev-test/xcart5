@@ -243,12 +243,7 @@ class FileUploader extends \XLite\View\AView
      */
     protected function getPreview()
     {
-        $result = '';
-
-        if ($this->getMessage()) {
-            $result = '<i class="icon fa warning fa-exclamation-triangle"></i>';
-
-        } else if ($this->isImage() && $this->hasFile()) {
+        if ($this->isImage() && $this->hasFile()) {
             $viewer = new \XLite\View\Image([
                 'image' => $this->getObject(),
                 'maxWidth' => $this->getParam(static::PARAM_MAX_WIDTH),
@@ -257,15 +252,10 @@ class FileUploader extends \XLite\View\AView
                 'centerImage' => true
             ]);
 
-            $result = '<div class="preview">'
-                . $viewer->getContent()
-                . '</div>';
-
-        } elseif ($this->isImage()) {
-            $result = '<i class="icon fa fa-camera"></i>';
+            return $viewer->getContent();
         }
 
-        return $result;
+        return '';
     }
 
     /**

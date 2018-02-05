@@ -90,7 +90,7 @@ class PaypalIPN extends \XLite\Base\Singleton
             $transaction->setEntityLock(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN);
             $result = false;
         } elseif ($this->isOrderProcessed($transaction)) {
-            $transaction->unsetEntityLock(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN);
+            $transaction->setEntityLock(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN, 300);
             $result = true;
         }
 
@@ -105,7 +105,9 @@ class PaypalIPN extends \XLite\Base\Singleton
      */
     protected function isOrderProcessed(\XLite\Model\Payment\Transaction $transaction)
     {
-        return !$transaction->isOpen() && !$transaction->isInProgress() && $transaction->getOrder()->getOrderNumber();
+        return !$transaction->isOpen()
+            && !$transaction->isInProgress()
+            && $transaction->getOrder()->getOrderNumber();
     }
 
     /**

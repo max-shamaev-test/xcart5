@@ -55,7 +55,7 @@ class ThemeTweakerTemplate extends \XLite\Controller\Admin\AAdmin
             if (\Xlite\Core\Request::getInstance()->isCreate) {
 
                 echo <<<HTML
-<script type="text/javascript">window.opener.location.reload();window.close()</script>
+<script>window.opener.location.reload();window.close()</script>
 HTML;
                 exit;
 

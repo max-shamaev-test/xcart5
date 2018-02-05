@@ -37,6 +37,18 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
      */
     public function getCloudSearchResults(CommonCell $cnd)
     {
+        return $this->getCloudSearchResultsCached($this->getCloudSearchRequestParams($cnd));
+    }
+
+    /**
+     * Convert CommonCell conditions to CloudSearch request parameters
+     *
+     * @param CommonCell $cnd
+     *
+     * @return array
+     */
+    protected function getCloudSearchRequestParams(CommonCell $cnd)
+    {
         $query           = $cnd->{self::P_SUBSTRING};
         $categoryId      = $cnd->{self::P_CATEGORY_ID};
         $searchInSubcats = $cnd->{self::P_SEARCH_IN_SUBCATS};
@@ -64,25 +76,40 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
         }
 
         $searchParams = [
-            $query,
-            $categoryId,
-            $searchInSubcats,
-            $filters,
-            $membership,
-            $sort,
-            $offset,
-            $limit,
+            'q'               => $query,
+            'categoryId'      => $categoryId,
+            'searchInSubcats' => $searchInSubcats,
+            'filters'         => $filters,
+            'facet'           => true,
+            'membership'      => $membership,
+            'sort'            => $sort,
+            'offset'          => $offset,
+            'limits'          => [
+                'products'      => $limit,
+                'categories'    => 0,
+                'manufacturers' => 0,
+                'pages'         => 0,
+            ],
         ];
 
-        $paramsHash = md5(serialize($searchParams));
+        return $searchParams;
+    }
+
+    /**
+     * Call CloudSearch API or get results from cache if available
+     *
+     * @param array $params
+     *
+     * @return array
+     */
+    protected function getCloudSearchResultsCached(array $params)
+    {
+        $paramsHash = md5(serialize($params));
 
         if (!array_key_exists($paramsHash, $this->cloudSearchResults)) {
             $apiClient = new ServiceApiClient();
 
-            $this->cloudSearchResults[$paramsHash] = call_user_func_array(
-                [$apiClient, 'search'],
-                $searchParams
-            );
+            $this->cloudSearchResults[$paramsHash] = $apiClient->search($params);
         }
 
         return $this->cloudSearchResults[$paramsHash];
@@ -122,6 +149,29 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
     }
 
     /**
+     * Prepare conditions for search
+     *
+     * @return void
+     */
+    protected function processConditions()
+    {
+        parent::processConditions();
+
+        if ($this->loadProductsWithCloudSearch()) {
+            $queryBuilder = $this->searchState['queryBuilder'];
+
+            $ids = $this->getCloudSearchProductIds($this->getCloudSearchConditions());
+
+            if (!empty($ids)) {
+                $queryBuilder->andWhere('p.product_id IN (' . implode(', ', $ids) . ')');
+            } else {
+                // Force empty result set:
+                $queryBuilder->andWhere('p.product_id IN (0)');
+            }
+        }
+    }
+
+    /**
      * Prepare certain search condition
      *
      * @param QueryBuilder $queryBuilder Query builder to prepare
@@ -131,17 +181,38 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
      */
     protected function prepareCndSubstring(QueryBuilder $queryBuilder, $value)
     {
-        if ($this->loadProductsWithCloudSearch()) {
-            $ids = $this->getCloudSearchProductIds($this->getCloudSearchConditions());
-
-            if (!empty($ids)) {
-                $queryBuilder->andWhere('p.product_id IN (' . implode(', ', $ids) . ')');
-            } else {
-                // Force empty result set:
-                $queryBuilder->andWhere('p.product_id IN (0)');
-            }
-        } else {
+        if (!$this->loadProductsWithCloudSearch()) {
             parent::prepareCndSubstring($queryBuilder, $value);
+        }
+    }
+
+    /**
+     * Prepare certain search condition
+     *
+     * @param QueryBuilder $queryBuilder Query builder to prepare
+     * @param mixed        $value        Condition data
+     *
+     * @return void
+     */
+    protected function prepareCndCategoryId(QueryBuilder $queryBuilder, $value)
+    {
+        if (!$this->loadProductsWithCloudSearch()) {
+            parent::prepareCndCategoryId($queryBuilder, $value);
+        }
+    }
+
+    /**
+     * Prepare certain search condition
+     *
+     * @param QueryBuilder $queryBuilder Query builder to prepare
+     * @param array        $value        Condition data
+     *
+     * @return void
+     */
+    protected function prepareCndLimit(QueryBuilder $queryBuilder, array $value)
+    {
+        if (!$this->loadProductsWithCloudSearch()) {
+            parent::prepareCndLimit($queryBuilder, $value);
         }
     }
 
@@ -164,45 +235,6 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
             }
         } else {
             parent::prepareCndOrderBy($queryBuilder, $value);
-        }
-    }
-
-    /**
-     * Prepare certain search condition
-     *
-     * @param QueryBuilder $queryBuilder Query builder to prepare
-     * @param mixed        $value        Condition data
-     *
-     * @return void
-     */
-    protected function prepareCndCategoryId(QueryBuilder $queryBuilder, $value)
-    {
-        if ($this->loadProductsWithCloudSearch()) {
-            $ids = $this->getCloudSearchProductIds($this->getCloudSearchConditions());
-
-            if (!empty($ids)) {
-                $queryBuilder->andWhere('p.product_id IN (' . implode(', ', $ids) . ')');
-            } else {
-                // Force empty result set:
-                $queryBuilder->andWhere('p.product_id IN (0)');
-            }
-        }
-
-        parent::prepareCndCategoryId($queryBuilder, $value);
-    }
-
-    /**
-     * Prepare certain search condition
-     *
-     * @param QueryBuilder $queryBuilder Query builder to prepare
-     * @param array        $value        Condition data
-     *
-     * @return void
-     */
-    protected function prepareCndLimit(QueryBuilder $queryBuilder, array $value)
-    {
-        if (!$this->loadProductsWithCloudSearch()) {
-            parent::prepareCndLimit($queryBuilder, $value);
         }
     }
 
@@ -284,7 +316,7 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
         $cnd = $this->getCloudSearchConditions();
 
         return Main::isConfigured()
-               && $cnd->{self::P_LOAD_PRODUCTS_WITH_CLOUD_SEARCH}
-               && $this->getCloudSearchResults($this->getCloudSearchConditions()) !== null;
+            && $cnd->{self::P_LOAD_PRODUCTS_WITH_CLOUD_SEARCH}
+            && $this->getCloudSearchResults($this->getCloudSearchConditions()) !== null;
     }
 }

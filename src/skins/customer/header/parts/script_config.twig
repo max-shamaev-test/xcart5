@@ -4,7 +4,7 @@
  # @ListChild (list="head", weight="1300")
  #}
 
-<script type="text/javascript">
+<script>
   var xliteConfig = {
     script: '{{ this.getScript()|raw }}',
 
@@ -12,6 +12,7 @@
     admin_script: '{{ this.getAdminScript()|raw }}',
     {% endif %}
 
+    zone: 'customer',
     target: '{{ this.getTarget()|raw }}',
     language: '{{ this.currentLanguage.getCode() }}',
     ajax_prefix: '{{ this.getAjaxPrefix() }}',

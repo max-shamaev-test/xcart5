@@ -152,6 +152,10 @@ XLite\Model\LanguageLabel:
   - { name: 'star_tooltip_5', translations: [{ code: 'en', label: 'Poor' }, { code: 'ru', label: 'Плохо' }] }
   - { name: 'Text of response', translations: [{ code: 'en', label: 'Text of response' }, { code: 'ru', label: 'Ответ' }] }
   - { name: 'Response date is in wrong format', translations: [{ code: 'en', label: 'Response date is in wrong format' }, { code: 'ru', label: 'Неверный формат поля "responseDate"' }] }
+  - { name: 'Add response', translations: [{ code: 'en', label: 'Add response' }, { code: 'ru', label: 'Добавить ответ' }] }
+  - { name: 'SKU or Product name', translations: [{ code: 'en', label: 'SKU or Product name' }, { code: 'ru', label: 'Артикул или название товара' }] }
+  - { name: 'First name, Last name or E-mail', translations: [{ code: 'en', label: 'First name, Last name or E-mail' }, { code: 'ru', label: 'Имя, фамилия или e-mail' }] }
+  - { name: 'Enter a name to be published with the review', translations: [{ code: 'en', label: 'Enter a name to be published with the review' }, { code: 'ru', label: 'Введите имя для отображения в отзыве' }] }
 
 XLite\Model\Task:
   - owner: XLite\Module\XC\Reviews\Core\Task\SendReviewKeys

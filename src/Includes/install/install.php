@@ -1741,7 +1741,7 @@ function x_display_help_block($hidden = true)
 {
     global $params;
 
-    $url = 'http://www.x-cart.com/create-online-store.html?'
+    $url = 'https://www.x-cart.com/create-online-store.html?'
         . (!empty($params['login']) ? 'email=' . urlencode($params['login']) . '&amp;' : '')
         . 'utm_source=XC5Install&amp;utm_medium=reqsFailure&amp;utm_campaign=XC5Install';
 
@@ -2974,7 +2974,7 @@ setTimeout('isProcessComplete()', 1000);
 
 ?>
 
-<div id="cache-rebuild-failed" class="cache-error" style="display: none;"><span><?php echo xtr('Oops! Cache rebuild failed.'); ?></span> <?php echo xtr('Check for possible reasons <a href="http://kb.x-cart.com/en/setting_up_x-cart_5_environment/setting_time_limit_of_your_server.html">here</a>.'); ?></div>
+<div id="cache-rebuild-failed" class="cache-error" style="display: none;"><span><?php echo xtr('Oops! Cache rebuild failed.'); ?></span> <?php echo xtr('Check for possible reasons <a href="https://kb.x-cart.com/en/setting_up_x-cart_5_environment/setting_time_limit_of_your_server.html">here</a>.'); ?></div>
 
 <iframe id="process_iframe" style="padding-top: 15px;" src="admin.php?doNotRedirectAfterCacheIsBuilt&<?php echo time(); ?>" width="100%" height="300" frameborder="0" marginheight="10" marginwidth="10"></iframe>
 

@@ -144,7 +144,8 @@ abstract class Settings extends \XLite\View\Model\Settings implements \XLite\Bas
         ) {
             $path = null;
 
-            $realName = preg_replace('/([^a-zA-Z0-9_\-\.]+)/', '_', $_FILES[$imageType]['name']);
+            $originalName = $_FILES[$imageType]['name'];
+            $realName = preg_replace('/([^a-zA-Z0-9_\-\.]+)/', '_', $originalName);
             $realName = $imageType . '_' . $realName;
 
             $validImage = $imageType === 'appleIcon'
@@ -195,14 +196,14 @@ abstract class Settings extends \XLite\View\Model\Settings implements \XLite\Bas
                     \XLite\Core\TopMessage::addError(
                         'The AppleIcon image could not be uploaded (Unallowed image type. Must be a .png image with the resolution of 192x192 px)',
                         array(
-                            'file' => $realName,
+                            'file' => $originalName,
                         )
                     );
                 } else {
                     \XLite\Core\TopMessage::addError(
                         'The "{{file}}" file is not allowed image and was not uploaded. Allowed images are: {{extensions}}',
                         array(
-                            'file' => $realName,
+                            'file' => $originalName,
                             'extensions' => implode(', ', $this->getImageExtensions()),
                         )
                     );

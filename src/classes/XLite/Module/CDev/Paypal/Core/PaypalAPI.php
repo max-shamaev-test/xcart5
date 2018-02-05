@@ -406,7 +406,9 @@ class PaypalAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
         /** @var \XLite\Model\Profile $profile */
         $profile = $order->getProfile();
 
-        if ($profile
+        if (
+            !is_null($shippingCost)
+            && $profile
             && $profile->getShippingAddress()
             && $profile->getShippingAddress()->isCompleted(\XLite\Model\Address::SHIPPING)
         ) {

@@ -820,9 +820,15 @@ abstract class Storage extends \XLite\Model\AEntity
      */
     public static function isValueLocalURL($value)
     {
-        $isSameHost = in_array(parse_url($value, PHP_URL_HOST), \XLite\Core\URLManager::getShopDomains(), true);
+        $domains = \XLite\Core\URLManager::getShopDomains();
+
+        if (LC_DEVELOPER_MODE) {
+            $domains[] = $_SERVER['HTTP_HOST'];
+        }
+
+        $isSameHost = in_array(parse_url($value, PHP_URL_HOST), $domains, true);
         $path = static::getLocalPathFromURL($value);
-        $isReadable = \Includes\Utils\FileManager::isFileReadable(LC_DIR_ROOT . $path);
+        $isReadable = \Includes\Utils\FileManager::isFileReadable($path);
         return parse_url($value) && $isSameHost && $isReadable;
     }
 
@@ -833,10 +839,15 @@ abstract class Storage extends \XLite\Model\AEntity
      */
     public static function getLocalPathFromURL($path)
     {
-        $webdir = \XLite::getInstance()->getOptions(['host_details', 'web_dir']);
-        $webdir = $webdir ? $webdir . '/' : '';
+        $webDir = ltrim(\XLite::getInstance()->getOptions(['host_details', 'web_dir']) . '/', '/');
 
-        return preg_replace('#^' . $webdir . '#', '', parse_url($path, PHP_URL_PATH));
+        $localPath = preg_replace(
+            '#^' . preg_quote($webDir) . '#',
+            '',
+            ltrim(parse_url($path, PHP_URL_PATH), '/')
+        );
+
+        return LC_DIR_ROOT . str_replace('/', LC_DS, $localPath);
     }
 
     /**

@@ -17,8 +17,6 @@ abstract class Order extends \XLite\Controller\Admin\Order implements \XLite\Bas
 
     /**
      * Block egood link
-     *
-     * @return void
      */
     protected function doActionEgoodsBlock()
     {
@@ -36,9 +34,23 @@ abstract class Order extends \XLite\Controller\Admin\Order implements \XLite\Bas
     }
 
     /**
+     * Block egood link
+     */
+    protected function doActionEgoodsBlockAll()
+    {
+        foreach ($this->getOrder()->getPrivateAttachments() as $attachment) {
+            $attachment->setBlocked(true);
+            $changed = true;
+        }
+
+        if (isset($changed)) {
+            \XLite\Core\Database::getEM()->flush();
+            \XLite\Core\TopMessage::addInfo('Download links is blocked');
+        }
+    }
+
+    /**
      * Renew egood link
-     *
-     * @return void
      */
     protected function doActionEgoodsRenew()
     {
@@ -56,6 +68,23 @@ abstract class Order extends \XLite\Controller\Admin\Order implements \XLite\Bas
             \XLite\Core\Database::getEM()->flush();
             \XLite\Core\Mailer::sendEgoodsLinks($attachment->getItem()->getOrder());
             \XLite\Core\TopMessage::addInfo('Download link is renew');
+        }
+    }
+
+    /**
+     * Renew egood link
+     */
+    protected function doActionEgoodsRenewAll()
+    {
+        foreach ($this->getOrder()->getPrivateAttachments() as $attachment) {
+            $attachment->renew();
+            $changed = true;
+        }
+
+        if (isset($changed)) {
+            \XLite\Core\Database::getEM()->flush();
+            \XLite\Core\Mailer::sendEgoodsLinks($attachment->getItem()->getOrder());
+            \XLite\Core\TopMessage::addInfo('Download links is renew');
         }
     }
 

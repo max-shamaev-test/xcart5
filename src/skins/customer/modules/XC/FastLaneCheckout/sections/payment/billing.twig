@@ -8,6 +8,6 @@
 
 {% if this.isAddressBookVisible() %}
 <div class="checkout_fastlane_change_address">
-    {{ widget('XLite\\View\\Button\\AddressBook', addressType='b', label=t('Choose another address')) }}
+    {{ widget('XLite\\View\\Button\\AddressBook', style="always-reload", addressType='b', label=t('Choose another address')) }}
 </div>
 {% endif %}

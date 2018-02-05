@@ -286,35 +286,6 @@ class ExpressCheckoutMerchantAPI extends \XLite\Module\CDev\Paypal\Model\Payment
     }
 
     /**
-     * Checks if the response message can be parsed and handled properly,
-     * handles it and returns the status of payment transaction.
-     * Returns false if cannot handle.
-     *
-     * @param $responseData
-     *
-     * @return boolean
-     */
-    protected function tryHandleExpressCheckoutError($responseData)
-    {
-        $result = false;
-
-        if ($this->isRetryExpressCheckoutCode($responseData)
-            && $this->isRetryExpressCheckoutAllowed()
-        ) {
-            $this->retryExpressCheckout(\XLite\Core\Session::getInstance()->ec_token);
-        } elseif (!$this->doExpressCheckoutPaymentErrorHandled && isset($responseData['L_ERRORCODE0']) && '10419' === $responseData['L_ERRORCODE0']) {
-            \XLite\Core\Session::getInstance()->ec_payer_id = \XLite\Core\Request::getInstance()->PayerID;
-            $this->doExpressCheckoutPaymentRecursiveCall = true;
-
-            $result = $this->doDoExpressCheckoutPayment();
-        }
-
-        $this->doExpressCheckoutPaymentRecursiveCall = false;
-
-        return $result;
-    }
-
-    /**
      * Return array of parameters for 'DoExpressCheckoutPayment' request
      *
      * @return array
@@ -354,19 +325,6 @@ class ExpressCheckoutMerchantAPI extends \XLite\Module\CDev\Paypal\Model\Payment
         }
 
         return $result;
-    }
-
-    /**
-     * Checks if response data contains "Customer must choose new funding sources." error
-     *
-     * @param array $responseData
-     * @return bool
-     */
-    protected function isRetryExpressCheckoutCode($responseData)
-    {
-        return isset($responseData['L_ERRORCODE0'])
-            && ('10486' === $responseData['L_ERRORCODE0']
-             || '10422' === $responseData['L_ERRORCODE0']);
     }
 
     // }}}

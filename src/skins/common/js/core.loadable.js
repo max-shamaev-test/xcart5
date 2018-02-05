@@ -274,6 +274,7 @@ ALoadable.prototype.loadHandler = function(xhr, s, data)
       this)
     );
 
+    core.parsePreloadedLabels(container, uuid);
     core.parseResources(container, uuid);
   }
 };

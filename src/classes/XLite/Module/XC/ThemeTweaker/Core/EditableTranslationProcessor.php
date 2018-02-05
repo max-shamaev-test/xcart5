@@ -25,7 +25,7 @@ class EditableTranslationProcessor implements ITranslationProcessor {
     protected function registerDisplayedLabel($translation, $name, $arguments, $code) {
         $this->requestLabels[$name] = [
             'translation' => (string) $translation,
-            'name' => $name,
+            'name' => (string) $name,
             'arguments' => $arguments,
             'code' => $code
         ];

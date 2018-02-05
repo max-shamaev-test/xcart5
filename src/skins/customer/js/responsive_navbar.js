@@ -35,6 +35,7 @@
         this)
       );
 
+      core.parsePreloadedLabels(widget, uuid);
       core.parseResources(widget, uuid);
     });
   }

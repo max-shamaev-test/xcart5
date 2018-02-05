@@ -76,7 +76,7 @@ XLite\Model\Notification:
           <p>
           %message%
           </p>
-  - templatesDirectory: modules/XC/VendorMessages/notification
+  - templatesDirectory: modules/XC/VendorMessages/new_message_notification
     translations:
       - code: ru
         name: 'Новое сообщение (модуль Order messages)'

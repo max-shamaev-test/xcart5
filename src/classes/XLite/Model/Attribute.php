@@ -732,6 +732,7 @@ class Attribute extends \XLite\Model\Base\I18n
         array $data
     ) {
         $ids = array();
+        krsort($data['value']);
         foreach ($data['value'] as $id => $value) {
             $value = trim($value);
             if (strlen($value) > 0 && is_int($id)) {
@@ -809,6 +810,17 @@ class Attribute extends \XLite\Model\Base\I18n
 
         } elseif ($attributeOption) {
             $attributeValue = $this->createAttributeValue($product);
+
+            $attributeValue->setPosition(
+                array_reduce($product->getAttributeValueS()->toArray(), function ($carry, $item) {
+                    /* @var \XLite\Model\AttributeValue\AttributeValueSelect $item */
+                    return $item->getAttribute() === $this
+                        ? max($carry, $item->getPosition())
+                        : $carry;
+                }, 0) + 10
+            );
+
+            $product->addAttributeValueS($attributeValue);
         }
 
         if ($attributeValue) {

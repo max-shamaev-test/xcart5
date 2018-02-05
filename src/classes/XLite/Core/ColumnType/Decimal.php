@@ -8,33 +8,36 @@
 
 namespace XLite\Core\ColumnType;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 /**
- * Decimal 
+ * Decimal
  */
 class Decimal extends \Doctrine\DBAL\Types\DecimalType
 {
     /**
-     * Convert DB value to PHP value 
-     * 
-     * @param string                                    $value    DB value
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform Platform
-     *  
-     * @return float
+     * @param mixed            $value
+     * @param AbstractPlatform $platform
+     *
+     * @return mixed
      */
-    public function convertToPHPValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
+    public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        $value = parent::convertToPHPValue($value, $platform);
-
-        return isset($value) && !is_double($value) ? doubleval($value) : $value;
+        return (string) (float) $value;
     }
 
     /**
-     * Define binding database type
+     * Convert DB value to PHP value
      *
-     * @return integer
+     * @param string           $value    DB value
+     * @param AbstractPlatform $platform Platform
+     *
+     * @return float
      */
-    public function getBindingType()
+    public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        return \PDO::PARAM_INT;
+        $value = parent::convertToPHPValue($value, $platform);
+
+        return $value !== null && !is_double($value) ? doubleval($value) : $value;
     }
 }

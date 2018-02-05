@@ -87,3 +87,5 @@ XLite\Model\LanguageLabel:
   - { name: 'Install Mailchimp addon', translations: [{ code: ru, label: 'Установить модуль MailChimp' }] }
   - { name: 'Enter your MailChimp API key manually', translations: [{ code: ru, label: 'Введите API ключ MailChimp вручную' }] }
   - { name: 'e-Commerce Analytics disable warning', translations: [{ code: ru, label: "Функция e-Commerce Analytics является ключевым компонентом функциональности данной интеграции." }] }
+  - { name: 'send all discount coupons', translations: [{ code: ru, label: "Все купоны" }] }
+  - { name: 'send only discount coupons with matched rules', translations: [{ code: ru, label: "Только купоны, которые соответствуют промо-правилам MailChimp" }] }

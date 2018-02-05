@@ -95,6 +95,8 @@ class SaleBlock extends \XLite\Module\CDev\Sale\View\ASale
                 true
             ),
         ];
+
+        $this->widgetParams[self::PARAM_WIDGET_TYPE]->setValue(self::WIDGET_TYPE_SIDEBAR);
     }
 
     /**

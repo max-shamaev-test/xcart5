@@ -7,6 +7,7 @@
  */
 
 namespace XLite\Model\Repo;
+use XLite\Model\QueryBuilder\AQueryBuilder;
 
 /**
  * The Profile model repository
@@ -1202,4 +1203,20 @@ class Profile extends \XLite\Model\Repo\ARepo
         }
     }
     // }}}
+
+
+    /**
+     * @return int
+     */
+    public function countPendingMemberships()
+    {
+        /** @var \XLite\Model\QueryBuilder\Profile $qb */
+        $qb = $this->createQueryBuilder();
+        $qb->bindCustomer();
+        $qb->andWhere('p.pending_membership IS NOT NULL');
+        $qb->selectCount();
+
+        return $qb->getSingleScalarResult();
+    }
+
 }

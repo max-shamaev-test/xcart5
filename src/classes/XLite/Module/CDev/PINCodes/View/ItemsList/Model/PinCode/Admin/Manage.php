@@ -47,7 +47,7 @@ class Manage extends \XLite\Module\CDev\PINCodes\View\ItemsList\Model\PinCode\AP
      *
      * @return string
      */
-    public function getDisplayOrder(\XLite\Model\Order $order)
+    public function getDisplayOrder($order)
     {
         return $order;
     }

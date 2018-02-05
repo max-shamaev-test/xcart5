@@ -83,18 +83,13 @@ class Controller extends \XLite\View\Controller implements \XLite\Base\IDecorato
                 'lng'                  => $lng,
                 'dynamicPricesEnabled' => $this->isCloudSearchDynamicPricesEnabledCached(),
                 'requestData'          => [
-                    'limits' => [
+                    'limits'     => [
                         'products' => $this->getCloudSearchMaxProductCountInPopup(),
                     ],
+                    'membership' => Auth::getInstance()->getMembershipId(),
                 ],
             ],
         ];
-
-        $membership = Auth::getInstance()->getMembershipId();
-
-        if ($membership) {
-            $data['cloudSearch']['requestData']['membership'] = $membership;
-        }
 
         return $data;
     }

@@ -67,6 +67,7 @@
           this)
         );
 
+        core.parsePreloadedLabels(data, uuid);
         core.parseResources(data, uuid);
       },
       _reject: function (data) {

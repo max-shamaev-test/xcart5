@@ -221,14 +221,12 @@ form.invalid-form .form-error {
 
 .items-list .head-h2,
 .items-list .list-pager {
-  display: inline-block;
   vertical-align: middle;
 }
 
 .items-list .list-pager {
   margin: 42px 0 16px;
   height: auto;
-  float: right;
 }
 
 @media (max-width: 480px) {

@@ -8,6 +8,8 @@
 
 namespace XLite\View;
 
+use XLite\Core\ConfigParser;
+
 /**
  * Resources container routine
  */
@@ -36,7 +38,7 @@ abstract class AResourcesContainer extends \XLite\View\Container
      */
     public static function getResourceCacheDir(array $params)
     {
-        return LC_DIR_CACHE_RESOURCES . implode(LC_DS, $params). LC_DS;
+        return LC_DIR_CACHE_RESOURCES . implode(LC_DS, $params) . LC_DS;
     }
 
     /**
@@ -61,15 +63,15 @@ abstract class AResourcesContainer extends \XLite\View\Container
     public function getCSSResourceFromCache(array $resources)
     {
         return $this->getResourceFromCache(
-            static::RESOURCE_CSS,
-            $resources,
-            array(
                 static::RESOURCE_CSS,
-                \XLite\Core\Request::getInstance()->isHTTPS() ? 'https' : 'http',
-                $resources[0]['media'],
-            ),
-            'prepareCSSCache'
-        ) + array('media' => $resources[0]['media']);
+                $resources,
+                [
+                    static::RESOURCE_CSS,
+                    \XLite\Core\Request::getInstance()->isHTTPS() ? 'https' : 'http',
+                    $resources[0]['media'],
+                ],
+                'prepareCSSCache'
+            ) + ['media' => $resources[0]['media']];
     }
 
     /**
@@ -97,7 +99,12 @@ abstract class AResourcesContainer extends \XLite\View\Container
      */
     protected function getJSResourceFromCache(array $resources)
     {
-        return $this->getResourceFromCache(static::RESOURCE_JS, $resources, array(static::RESOURCE_JS), 'prepareJSCache');
+        return $this->getResourceFromCache(
+            static::RESOURCE_JS,
+            $resources,
+            [static::RESOURCE_JS],
+            'prepareJSCache'
+        );
     }
 
     /**
@@ -105,8 +112,10 @@ abstract class AResourcesContainer extends \XLite\View\Container
      *
      * @param string $type                   File type of resource (js/css)
      * @param array  $resources              Resources for caching
-     * @param array  $paramsForCache         Parameters of file cache (directory structure path to file)
-     * @param string $prepareCacheFileMethod Method of $this object to read one resource entity and do some inner work if it is necessary
+     * @param array  $paramsForCache         Parameters of file cache (directory structure path to
+     *                                       file)
+     * @param string $prepareCacheFileMethod Method of $this object to read one resource entity and
+     *                                       do some inner work if it is necessary
      *
      * @return array
      */
@@ -121,29 +130,33 @@ abstract class AResourcesContainer extends \XLite\View\Container
         if (!\Includes\Utils\FileManager::isFile($filePath)) {
             $content = '';
             foreach ($resources as $resource) {
-                $content .= $this->$prepareCacheFileMethod($resource);
+                $content .= $this->$prepareCacheFileMethod(
+                    $resource,
+                    $pathToCacheDir
+                );
             }
             \Includes\Utils\FileManager::write($filePath, $content);
         }
 
-        return array(
+        return [
             'file' => $filePath,
             'url'  => \XLite::getInstance()
                 ->getShopURL(
                     str_replace(LC_DS, '/', substr($filePath, strlen(LC_DIR_ROOT))),
                     \XLite\Core\Request::getInstance()->isHTTPS()
                 ),
-        );
+        ];
     }
 
     /**
-     * Prepares CSS cache to use. Main issue - replace url($resourcePath) construction with url($shopUrl/$resourcePath)
+     * Prepares CSS cache to use. Main issue - replace url($resourcePath) construction with
+     * url($aggregatedResourcePath) or url($minifiedResourcePath)
      *
      * @param array $resource Array with CSS file data
      *
      * @return string
      */
-    protected function prepareCSSCache($resource)
+    protected function prepareCSSCache($resource, $dir)
     {
         $data = '';
         if (isset($resource['file'])) {
@@ -152,31 +165,42 @@ abstract class AResourcesContainer extends \XLite\View\Container
             $minFilePath = dirname($minFilePath) . LC_DS . basename($minFilePath, '.css') . '.min.css';
             $minified = false;
 
+            $origPath = $filePath;
+
             if (\Includes\Utils\FileManager::isFileReadable($minFilePath)) {
                 $data = \Includes\Utils\FileManager::read($minFilePath);
                 $minified = true;
+                $origPath = $minFilePath;
             } else {
                 $data = \Includes\Utils\FileManager::read($filePath);
             }
 
-            $container = $this;
-            $filePrefix = str_replace(LC_DS, '/', dirname(substr($filePath, strlen(LC_DIR_ROOT)))) . '/';
-            $data = preg_replace_callback(
-                '/url\(([^)]+)\)/Ss',
-                function (array $matches) use ($container, $filePrefix) {
-                    return $container->processCSSURLHandler($matches, $filePrefix);
-                },
-                $data
-            );
-
             $noMinify = !empty($resource['no_minify']) || !empty($resource['no-minify']);
 
             if (!$minified && !$noMinify && strpos(basename($filePath), '.min.css') == false) {
+                $data = preg_replace_callback(
+                    '/url\(([^)]+)\)/Ss',
+                    function (array $matches) use ($minFilePath, $filePath) {
+                        return $this->processCSSURLHandler($matches, $minFilePath, $filePath);
+                    },
+                    $data
+                );
+
                 // Minify CSS content
                 $data = $this->minifyCSS($data, $filePath);
 
                 \Includes\Utils\FileManager::write($minFilePath, $data);
+
+                $origPath = $minFilePath;
             }
+
+            $data = preg_replace_callback(
+                '/url\(([^)]+)\)/Ss',
+                function (array $matches) use ($dir, $origPath) {
+                    return $this->processCSSURLHandler($matches, $dir, $origPath);
+                },
+                $data
+            );
 
             $data = trim($data);
         }
@@ -204,14 +228,15 @@ abstract class AResourcesContainer extends \XLite\View\Container
     /**
      * Process CSS URL callback
      *
-     * @param array  $mathes     Matches
-     * @param string $filePrefix File prefix
+     * @param array  $matches  Matches
+     * @param string $filePath File prefix
+     * @param string $origPath
      *
      * @return string
      */
-    public function processCSSURLHandler(array $mathes, $filePrefix)
+    public function processCSSURLHandler(array $matches, $filePath, $origPath)
     {
-        $url = trim($mathes[1]);
+        $url = trim($matches[1]);
 
         if (!preg_match('/^[\'"]?data:/Ss', $url)) {
             $first = substr($url, 0, 1);
@@ -221,15 +246,18 @@ abstract class AResourcesContainer extends \XLite\View\Container
             }
 
             if (!preg_match('/^(?:https?:)?\/\//Ss', $url)) {
-                if ('/' != substr($url, 0, 1)) {
-                    $url = $filePrefix . $url;
+                if ('/' === substr($url, 0, 1)) {
+                    $dir = LC_DIR_ROOT;
+                } else {
+                    $dir = dirname($origPath) . LC_DS;
                 }
 
-                $url = \Includes\Utils\URLManager::getProtoRelativeShopURL(
-                    $url,
-                    array(),
-                    \Includes\Utils\URLManager::URL_OUTPUT_SHORT
-                );
+                $url = str_replace(LC_DS, '/', \Includes\Utils\FileManager::makeRelativePath(
+                    $filePath,
+                    $dir . str_replace('/', LC_DS, $url)
+                ));
+
+                $url = $this->fixUrl($url);
             }
 
 
@@ -239,6 +267,15 @@ abstract class AResourcesContainer extends \XLite\View\Container
         }
 
         return 'url(' . $url . ')';
+    }
+
+    protected function fixUrl($url)
+    {
+        $fixed = preg_replace('#[^/.]++/(\.\.)++/?#', '', $url);
+
+        return $fixed === $url
+            ? $fixed
+            : $this->fixUrl($fixed);
     }
 
     /**
@@ -331,7 +368,8 @@ abstract class AResourcesContainer extends \XLite\View\Container
      */
     protected function doCSSOptimization()
     {
-        return (bool)\Includes\Utils\ConfigParser::getOptions(['storefront_options', 'optimize_css']);
+        return $this->doCSSAggregation()
+            && \Includes\Utils\ConfigParser::getOptions(['storefront_options', 'optimize_css']);
     }
 
     /**
@@ -351,9 +389,11 @@ abstract class AResourcesContainer extends \XLite\View\Container
      *
      * @return string
      */
-    protected function getResourceURL($url)
+    protected function getResourceURL($url, $params = [])
     {
-        return $url . (strpos($url, '?') === false ? '?' : '&') . static::getLatestCacheTimestamp();
+        return isset($params['no_timestamp']) && $params['no_timestamp']
+            ? $url
+            : $url . (strpos($url, '?') === false ? '?' : '&') . static::getLatestCacheTimestamp();
     }
 
     /**
@@ -408,8 +448,8 @@ abstract class AResourcesContainer extends \XLite\View\Container
      */
     public function groupResourcesByUrl($resources, $cacheHandler)
     {
-        $groupByUrl = array();
-        $group = array();
+        $groupByUrl = [];
+        $group = [];
 
         foreach ($resources as $info) {
             if (0 === strpos($info['url'], '//')) {
@@ -421,17 +461,17 @@ abstract class AResourcesContainer extends \XLite\View\Container
             if (isset($urlData['host']) && !isset($info['file'])) {
                 $groupByUrl = array_merge(
                     $groupByUrl,
-                    empty($group) ? array() : array($this->$cacheHandler($group)),
-                    array($info)
+                    empty($group) ? [] : [$this->$cacheHandler($group)],
+                    [$info]
                 );
 
-                $group = array();
+                $group = [];
             } else {
                 $group[] = $info;
             }
         }
 
-        return array_merge($groupByUrl, empty($group) ? array() : array($this->$cacheHandler($group)));
+        return array_merge($groupByUrl, empty($group) ? [] : [$this->$cacheHandler($group)]);
     }
 
     /**
@@ -454,7 +494,7 @@ abstract class AResourcesContainer extends \XLite\View\Container
         $list = $this->getCSSResources();
 
         // Group CSS resources by media type
-        $groupByMedia = array();
+        $groupByMedia = [];
 
         foreach ($list as $fileInfo) {
 
@@ -464,7 +504,7 @@ abstract class AResourcesContainer extends \XLite\View\Container
             $groupByMedia[$index][] = $fileInfo;
         }
 
-        $list = array();
+        $list = [];
         foreach ($groupByMedia as $group) {
             $list = array_merge($list, $this->groupResourcesByUrl($group, 'getCSSResourceFromCache'));
         }
@@ -485,7 +525,9 @@ abstract class AResourcesContainer extends \XLite\View\Container
             return '';
         }
 
-        $content = file_get_contents($resource['file']);
+        $filePath = $resource['file'];
+
+        $content = file_get_contents($filePath);
 
         if (isset($resource['media'])) {
             switch ($resource['media']) {
@@ -498,7 +540,26 @@ abstract class AResourcesContainer extends \XLite\View\Container
             }
         }
 
-        $content = "<style type='text/css'>" . $content . '</style>';
+        $webDir = ConfigParser::getOptions(['host_details', 'web_dir']);
+
+        $content = preg_replace_callback(
+            '/url\(([^)]+)\)/Ss',
+            function (array $matches) use ($filePath, $webDir) {
+                $relativeUrl = $this->processCSSURLHandler($matches, LC_DIR_ROOT, $filePath);
+
+                if (
+                    !preg_match('/^[\'"]?data:/Ss', $matches[1])
+                    && !preg_match('/^(?:https?:)?\/\//Ss', $matches[1])
+                ) {
+                    return 'url(' . $webDir . '/' . mb_substr($relativeUrl, 4);
+                }
+
+                return $relativeUrl;
+            },
+            $content
+        );
+
+        $content = '<style>' . $content . '</style>';
 
         return $content;
     }
@@ -548,6 +609,9 @@ abstract class AResourcesContainer extends \XLite\View\Container
         if (!is_array($viewedResources)) {
             $viewedResources = [];
         }
+
+        // leave only 50 last resources hashes in cookie
+        $viewedResources = array_slice($viewedResources, -50);
 
         $viewedResources[] = $resourceKey;
         $request->setCookie('viewedResources', serialize(array_unique($viewedResources)), 3600);

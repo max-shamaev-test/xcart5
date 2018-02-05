@@ -2,7 +2,7 @@
  # Trial notice popup dialog (iframe content)
  #}
 
-<style type="text/css">
+<style>
   {% include 'trial_notice_v2/css/style.css' %}
 </style>
 
@@ -18,7 +18,7 @@
   <div class="faq">{{ t('Refer to X-Cart license agreement for further details.', {'licenseAgreementURL': this.getLicenseAgreementURL()})|raw }}</div>
 </div>
 
-<script type="application/javascript">
+<script>
   document
     .getElementsByClassName('additional-link')[0]
     .getElementsByTagName('a')[0].onclick = function () {

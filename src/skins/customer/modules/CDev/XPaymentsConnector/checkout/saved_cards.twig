@@ -17,7 +17,7 @@
 
         <label for="saved-card-radio-{{ cc.card_id }}" id="saved-card-label-{{ cc.card_id }}" data-address-id="{{ cc.address_id }}" data-card-id="{{ cc.card_id }}" data-title="{{ t('Billing address')}}">
           <span class="card-icon-container">
-            <span class="card {{ cc.card_type_css }}"></span>
+            <span class="xpc-card-type {{ cc.card_type_css }}"></span>
             <img src="{{ asset('images/spacer.gif') }}" alt="{{ cc.card_type }}" />
           </span>
           <span class="number">{{ cc.card_number }} {% if cc.expire %}({{ cc.expire }}){% endif %}</span>

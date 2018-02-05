@@ -27,11 +27,15 @@ abstract class ATrack extends AMessage
 
     public function getArguments()
     {
+        $admin       = \XLite\Core\Auth::getInstance()->getProfile();
+        $admin_email = $admin ? $admin->getLogin() : '';
+
         // @tricky: like on x-cart.com
         $defaultProperties = [
             'Form Name'   => 'Concierge: ' . $this->getEvent(),
             'host'        => $_SERVER['HTTP_HOST'],
             'EventSource' => 'Concierge',
+            'admin_email' => $admin_email,
         ];
 
         return [

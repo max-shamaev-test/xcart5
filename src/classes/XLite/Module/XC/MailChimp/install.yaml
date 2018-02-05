@@ -77,6 +77,18 @@ XLite\Model\Config:
       - code: en
         option_name: 'Update MailChimp lists every'
         option_comment: 'Select the time interval for the periodical list updates.'
+  - name: 'send_coupons'
+    category: XC\MailChimp
+    type: XLite\Module\XC\MailChimp\View\FormField\Select\SendCoupons
+    orderby: 700
+    value: 'all'
+    translations:
+      - code: en
+        option_name: 'Type of discount coupons that should be uploaded to MailChimp'
+        option_comment: 'The MailChimp promo rules are:<br> - Code<br> - Discount amount<br> - Active from<br> - Active till <br>Discount coupons configured using any rules outside this rule set will be treated as not matching the MailChimp rules.'
+      - code: ru
+        option_name: 'Тип купонов на скидку, который следует загружать в MailChimp'
+        option_comment: 'Промо-правила MailChimp: <br> - Код<br> - Сумма скидки<br> - Активен с<br> - Активен по <br>Купоны, настроенные с использованием каких-либо правил сверх этого набора, будут считаться не соответствующим промо-правилам MailChimp.'
 
 XLite\Model\LanguageLabel:
   - { name: 'MailChimp', translations: [{ code: en, label: 'MailChimp' }] }
@@ -148,3 +160,5 @@ XLite\Model\LanguageLabel:
   - { name: 'Install Mailchimp addon', translations: [{ code: en, label: 'Install Mailchimp addon' }] }
   - { name: 'Enter your MailChimp API key manually', translations: [{ code: en, label: 'Enter your MailChimp API key manually' }] }
   - { name: 'e-Commerce Analytics disable warning', translations: [{ code: en, label: "The e-Commerce Analytics feature is the core component of the integration functionality." }] }
+  - { name: 'send all discount coupons', translations: [{ code: en, label: "All discount coupons" }] }
+  - { name: 'send only discount coupons with matched rules', translations: [{ code: en, label: "Only the discount coupons that match the MailChimp promo rules" }] }

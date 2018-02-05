@@ -19,7 +19,7 @@
 
   {{ widget_list('checkout_fastlane.blocks.shipping_methods.append') }}
 
-  <script type="application/javascript">
+  <script id="ShippingMethodsWidgetData">
     if ('undefined' === typeof(window.WidgetData)) { window.WidgetData = {}; }
     window.WidgetData["shipping-methods"] = {{ this.getWidgetData()|raw }};
     window.shippingMethodsList = {{ this.getShippingMethodsList() | raw }};

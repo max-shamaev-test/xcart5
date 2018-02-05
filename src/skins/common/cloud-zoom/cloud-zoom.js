@@ -116,9 +116,11 @@
 
         this.controlLoop = function () {
             if (lens) {
-                var leftCorner = 0;
+                var p = sImg.position();
+                var leftCorner = p.left;
                 var rightCorner = sImg.outerWidth() - cw;
-                var bottomCorner = sImg.outerHeight() - ch;
+                var topCorner = p.top;
+                var bottomCorner = sImg.outerHeight() - ch + p.top;
                 var marginLeft = intval(sImg.offset().left - sImg.parent().offset().left);
 
                 if (opts.position !== 'inside') {
@@ -128,7 +130,7 @@
                 }
 
                 var x = (mx - sImg.offset().left - (cw * 0.5) + leftCorner + intval(lens.css('borderTopWidth'))) >> 0;
-                var y = (my - sImg.offset().top - (ch * 0.5) + intval(lens.css('borderTopWidth'))) >> 0;
+                var y = (my - sImg.offset().top - (ch * 0.5) + topCorner + intval(lens.css('borderTopWidth'))) >> 0;
 
                 if (x < leftCorner) {
                     x = leftCorner;
@@ -136,8 +138,8 @@
                     x = rightCorner;
                 }
 
-                if (y < 0) {
-                    y = 0;
+                if (y < topCorner) {
+                    y = topCorner;
                 } else if (y > bottomCorner) {
                     y = bottomCorner;
                 }
@@ -148,13 +150,13 @@
                 });
 
                 if (opts.position !== 'inside') {
-                  lens.css('background-position', (-x + leftCorner) + 'px ' + (-y) + 'px');
+                  lens.css('background-position', (-x + leftCorner) + 'px ' + (-y + topCorner) + 'px');
                 } else {
                   lens.css('background-position', (-x) + 'px ' + (-y) + 'px');
                 }
 
                 destU = (((x - leftCorner) / sImg.outerWidth()) * zoomImage.width) >> 0;
-                destV = (((y) / sImg.outerHeight()) * zoomImage.height) >> 0;
+                destV = (((y - topCorner) / sImg.outerHeight()) * zoomImage.height) >> 0;
 
                 if (opts.position !== 'inside') {
                   var rightOuterCorner = zoomImage.width - zoomDiv.width();
@@ -340,7 +342,8 @@
                     // fix for large image
                     lens.css('background-size', sImg.outerWidth()  + 'px ' + sImg.outerHeight() + 'px');
 
-                    $tint = jWin.append(format('<div class="cloud-zoom-tint" style="display:none;position:absolute; left:0px; top:0px; width:%0px; height:%1px; background-color:%2;" />', sImg.outerWidth(), sImg.outerHeight(), opts.tint)).find(':last');
+                    var p = sImg.position();
+                    $tint = jWin.append(format('<div class="cloud-zoom-tint" style="display:none;position:absolute; left:'+p.left+'px; top:'+p.top+'px; width:%0px; height:%1px; background-color:%2;" />', sImg.outerWidth(), sImg.outerHeight(), opts.tint)).find(':last');
                     $tint = $('.cloud-zoom-tint',jWin);
 
                     $tint.css({

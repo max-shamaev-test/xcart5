@@ -231,6 +231,7 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
                 'PRODUCT-IN-CAT-POSITION-CNT'   => 'The count of categories specified for a product and the count of orderBy position numbers describing the position of the product within these categories must be the same.',
                 'PRODUCT-CATEGORY-PATH-EMPTY'   => 'Category name should not be empty',
                 'PRODUCT-IN-CAT-POSITION-FMT'   => 'OrderBy position number must be specified as a non-negative integer.',
+                'DUPLICATE-IMAGE'   => 'Image has been identified as a duplicate and has not been imported',
         ];
     }
 
@@ -1098,20 +1099,24 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
 
             $linksToRemove = array_combine($linksToRemoveKeys->toArray(), $linksToRemove->getValues());
 
+            $i = 0;
             foreach (array_unique($value, \SORT_REGULAR) as $path) {
                 $category = $this->addCategoryByPath($path);
                 $catId = $category->getCategoryId();
 
                 if (isset($linksToRemove[$catId])) {
+                    $linksToRemove[$catId]->setOrderbyInProduct($i);
                     unset($linksToRemove[$catId]);
 
                 } else {
                     $link = new \XLite\Model\CategoryProducts;
                     $link->setProduct($model);
                     $link->setCategory($category);
+                    $link->setOrderbyInProduct($i);
                     $model->addCategoryProducts($link);
                     \XLite\Core\Database::getEM()->persist($link);
                 }
+                $i += 10;
             }
 
             \XLite\Core\Database::getRepo('\XLite\Model\CategoryProducts')->deleteInBatch(
@@ -1262,6 +1267,8 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
 
             $toDelete = $model->getImages()->toArray();
 
+            $hashes = [];
+
             foreach ($value as $index => $path) {
                 $file = $this->verifyValueAsLocalURL($path) ? $this->getLocalPathFromURL($path) : $path;
 
@@ -1280,8 +1287,23 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
                             if (($key = array_search($existingImage, $toDelete, true)) !== false) {
                                 unset($toDelete[$key]);
                             }
+
+                            if (in_array($image->getHash(), $hashes)) {
+                                $this->addWarning(
+                                    'DUPLICATE-IMAGE',
+                                    [
+                                        'value' => $path,
+                                        'column' => $column
+                                    ]
+                                );
+                            } else {
+                                $hashes[] = $image->getHash();
+                            }
+
                             \XLite\Core\Database::getEM()->remove($image);
                             $image = null;
+                        } else {
+                            $hashes[] = $image->getHash();
                         }
                     }
 

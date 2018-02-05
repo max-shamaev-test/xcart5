@@ -1,3 +1,12 @@
+/* vim: set ts=2 sw=2 sts=2 et: */
+
+/**
+ * Wizard progress widget styles
+ *
+ * Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+ * See https://www.x-cart.com/license-agreement.html for license details.
+ */
+
 .onboarding-wizard-progress {
     margin-top: 20px;
     margin-bottom: 0;
@@ -117,6 +126,8 @@
 .onboarding-wizard-progress .landmark .landmark-text {
     position: absolute;
     bottom: -80px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     justify-content: center;
     width: 110px;

@@ -54,6 +54,21 @@ class MailChimpECommerce extends \XLite\Base\Singleton
     }
 
     /**
+     * Get stores info
+     *
+     * @return array|false
+     */
+    public function getStores()
+    {
+        $this->mailChimpAPI->setActionMessageToLog('Getting stores');
+        $result = $this->mailChimpAPI->get("ecommerce/stores");
+
+        return $this->mailChimpAPI->success()
+            ? $result['stores']
+            : null;
+    }
+
+    /**
      * Get store info
      *
      * @param string $id Store id

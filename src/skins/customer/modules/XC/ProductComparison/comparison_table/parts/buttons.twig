@@ -12,7 +12,7 @@
   </td>
   {% for product in this.getProducts() %}
     <td>
-      {{ widget('\\XLite\\Module\\XC\\ProductComparison\\View\\AddToCart', product=product) }}
+      {{ this.getProductButtonWidget(product) }}
     </td>
   {% endfor %}
 </tr>

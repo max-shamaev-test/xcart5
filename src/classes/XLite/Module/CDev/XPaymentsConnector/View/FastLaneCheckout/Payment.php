@@ -38,6 +38,18 @@ class Payment extends XLite\Module\XC\FastLaneCheckout\View\Sections\Payment imp
     }
 
     /**
+     * Register files from common repository
+     *
+     * @return array
+     */
+    public function getCommonFiles()
+    {
+        $list = parent::getCommonFiles();
+        $list['css'][] = 'modules/CDev/XPaymentsConnector/cc_type_sprites.css';
+        return $list;
+    }
+
+    /**
      * Register JS files
      *
      * @return array

@@ -36,22 +36,13 @@ div.card-container div.card-icon {
   overflow: hidden;
 }
 
-div.card-container div.card-icon span.card img {
+.card-container .card-icon .xpc-card-type {
+  display: block;
+}
+
+.card-container .card-icon .xpc-card-type img {
   float: left;
 }  
-
-div.card-container div.card-icon span.card {
-  display: inline-block;
-  width: 140px;
-  height: 70px;
-  zoom: 0.75;
-  -moz-transform: scale(0.75);
-  -moz-transform-origin: 0 0 0;
-}
-
-div.card-container div.card-icon span.card img {
-  float: left;
-}
 
 div.card-container div.card-number {
   line-height: 53px !important;
@@ -65,42 +56,6 @@ div.card-container div.card-number span.card-expire {
   left: 119px;
   top: -24px;
   font-size: 16px;
-}
-
-td.cell.card.mc div.cell span.card {
-  background: url(transactions/card_types.png) 0px 0px no-repeat;
-}
-
-td.cell.card.visa div.cell span.card {
-  background: url(transactions/card_types.png) 0px -71px no-repeat;
-}
-
-td.cell.card.jcb div.cell span.card {
-  background: url(transactions/card_types.png) 0px -141px no-repeat;
-}
-
-td.cell.card.amex div.cell span.card {
-  background: url(transactions/card_types.png) 0px -211px no-repeat;
-}
-
-td.cell.card.dc div.cell span.card {
-  background: url(transactions/card_types.png) 0px -281px no-repeat;
-}
-
-td.cell.card.dicl div.cell span.card {
-  background: url(transactions/card_types.png) 0px -351px no-repeat;
-}
-
-td.cell.card.sw div.cell span.card {
-  background: url(transactions/card_types.png) 0px -421px no-repeat;
-}
-
-td.cell.card.cup div.cell span.card {
-  background: url(transactions/card_types.png) 0px -491px no-repeat;
-}
-
-td.cell.card.bc div.cell span.card {
-  background: url(transactions/card_types.png) 0px -561px  no-repeat;
 }
 
 /* Transaction link block */

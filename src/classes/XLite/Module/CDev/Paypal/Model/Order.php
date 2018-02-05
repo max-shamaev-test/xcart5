@@ -20,14 +20,17 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
      */
     public function processSucceed()
     {
-        parent::processSucceed();
-
         if ($this->isPaypalMethod($this->getPaymentMethod())) {
-            // Unlock IPN processing for each transaction
+            // Lock IPN processing for each transaction
             foreach ($this->getPaymentTransactions() as $transaction) {
-                $transaction->unsetEntityLock(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN);
+                $transaction->setEntityLock(
+                    \XLite\Model\Payment\Transaction::LOCK_TYPE_IPN,
+                    300
+                );
             }
         }
+
+        parent::processSucceed();
     }
 
     /**

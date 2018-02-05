@@ -71,7 +71,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '2';
+        return '4';
     }
 
     /**
@@ -81,7 +81,6 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorRequiredCoreVersion()
     {
-        // The minimum required version of X-Cart 5 is 5.2.11
         return '0';
     }
 
@@ -107,17 +106,17 @@ abstract class Main extends \XLite\Module\AModule
         \XLite\Core\Layout::getInstance()->removeTemplateFromList('shopping_cart/parts/item.subtotal.twig', 'cart.item');
 
         static::updateOfferTypes();
-        
+
         if (class_exists('\XLite\Module\CDev\SimpleCMS\Model\Menu')) {
-            static::addSimpleCMSMenuLink();            
+            static::addSimpleCMSMenuLink();
         }
-        
+
         \XLite\Core\Database::getEM()->flush();
     }
-    
+
     /**
      * Updates offer types and disable those that have no enabled modules.
-     * 
+     *
      * @return void
      */
     protected static function updateOfferTypes()
@@ -131,29 +130,29 @@ abstract class Main extends \XLite\Module\AModule
                 }
             }
         }
-        
+
     }
-    
+
     /**
      * Adds the Special Offers entry to the primary storefront menu if it is not there yet.
-     * 
+     *
      * @return void
      */
     protected static function addSimpleCMSMenuLink()
     {
         $repo = \XLite\Core\Database::getRepo('XLite\Module\CDev\SimpleCMS\Model\Menu');
         $repoLang = \XLite\Core\Database::getRepo('XLite\Module\CDev\SimpleCMS\Model\MenuTranslation');
-        
+
         $link = \XLite\Module\QSL\SpecialOffersBase\Model\Menu::DEFAULT_OFFERS_PAGE;
-        
+
         $item = $repo->findOneByLink('?target=special_offers');
         if ($item) {
             $item->setLink($link);
         } else {
-            
+
             $item = $repo->findOneByLink($link);
             if (!$item) {
-                
+
                 $item = new \XLite\Module\CDev\SimpleCMS\Model\Menu(
                     array(
                         'enabled'  => false,
@@ -163,7 +162,7 @@ abstract class Main extends \XLite\Module\AModule
                     )
                 );
                 $repo->insert($item);
-                
+
                 $en = new \XLite\Module\CDev\SimpleCMS\Model\MenuTranslation(
                     array(
                         'code' => 'en',
@@ -173,7 +172,7 @@ abstract class Main extends \XLite\Module\AModule
                 $en->setOwner($item);
                 $item->addTranslations($en);
                 $repoLang->insert($en);
-                
+
                 $ru = new \XLite\Module\CDev\SimpleCMS\Model\MenuTranslation(
                     array(
                         'code' => 'ru',

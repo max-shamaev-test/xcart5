@@ -177,16 +177,4 @@ class BannerRotation extends \XLite\View\AView
             'h' => 20,
         ];
     }
-
-    /**
-     * @param \XLite\Model\Base\Image $image
-     *
-     * @return string
-     */
-    protected function getBlurredImageId($image)
-    {
-        return $image
-            ? 'bi' . md5($this->getBlurredImageData($image))
-            : null;
-    }
 }

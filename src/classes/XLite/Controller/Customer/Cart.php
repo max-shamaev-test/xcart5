@@ -77,7 +77,7 @@ class Cart extends \XLite\Controller\Customer\ACustomer
     {
         return (!$this->getAction() || in_array($this->getAction(), ['add', 'add_order'], true))
             && (
-                !in_array(\XLite\Core\Request::getInstance()->widget, $this->getExcludedWidgets())
+                !in_array(\XLite\Core\Request::getInstance()->widget, $this->getExcludedWidgets(), true)
                 || $this->getTarget() === 'cart'
             );
     }
@@ -339,7 +339,9 @@ class Cart extends \XLite\Controller\Customer\ACustomer
     protected function addItem($item)
     {
         if ($item) {
+            /** @var \XLite\Model\Cart $cart */
             $cart = $this->getCart();
+            $cart->setIgnoreLongCalculations();
 
             if (!$cart->isPersistent()) {
                 \XLite\Core\Database::getEM()->persist($cart);

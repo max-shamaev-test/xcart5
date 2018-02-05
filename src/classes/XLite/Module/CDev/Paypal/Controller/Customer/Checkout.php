@@ -121,6 +121,10 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
 
             $this->getCart()->setPaymentMethod($paymentMethod);
 
+            if (!$this->getCart()->getPaymentStatus()) {
+                $this->getCart()->setPaymentStatus(\XLite\Model\Order\Status\Payment::STATUS_QUEUED);
+            }
+
             $this->prepareProfile();
             $this->updateCart();
 
@@ -297,23 +301,32 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
     {
         $data = $processor->prepareBuyerData($paypalData);
 
-        if (!\XLite\Core\Auth::getInstance()->isLogged()) {
-            $data += array(
-                'email' => str_replace(' ', '+', $paypalData['EMAIL']),
+        $profile = $this->getProfile();
+
+        if (!$profile && $this->getCart()) {
+            $profile = $this->getCart()->getProfile();
+        }
+
+        if (
+            !\XLite\Core\Auth::getInstance()->isLogged()
+            && empty($profile->getLogin())
+        ) {
+            $data += [
+                'email'          => str_replace(' ', '+', $paypalData['EMAIL']),
                 'create_profile' => false,
-            );
+            ];
         }
 
         if(isset($data['shippingAddress'])
-            && $this->getProfile()
-            && $this->getProfile()->getShippingAddress()
+            && $profile
+            && $profile->getShippingAddress()
         ) {
             $data['shippingAddress'] = array_filter(
                 $data['shippingAddress']
             );
 
             $data['shippingAddress'] = array_replace(
-                $this->getProfile()->getShippingAddress()->serialize(),
+                $profile->getShippingAddress()->serialize(),
                 $data['shippingAddress']
             );
         }

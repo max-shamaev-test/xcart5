@@ -78,10 +78,12 @@ abstract class Storage extends \XLite\Module\CDev\FileAttachments\Model\Product\
      */
     public function maskStorage()
     {
-        $path = $this->getStoragePath();
-        $suffix = md5(strval(microtime(true)) . strval(mt_rand(0, 1000000)));
-        rename($path, $path . '.' . $suffix);
-        $this->setPath($this->getPath() . '.' . $suffix);
+        if ($this->getPath()) {
+            $path = $this->getStoragePath();
+            $suffix = md5(strval(microtime(true)) . strval(mt_rand(0, 1000000)));
+            rename($path, $path . '.' . $suffix);
+            $this->setPath($this->getPath() . '.' . $suffix);
+        }
     }
 
     /**
@@ -91,9 +93,11 @@ abstract class Storage extends \XLite\Module\CDev\FileAttachments\Model\Product\
      */
     public function unmaskStorage()
     {
-        $path = $this->getStoragePath();
-        rename($path, substr($path, 0, static::PRIVATE_SUFFIX_LENGTH * -1));
-        $this->setPath(substr($this->getPath(), 0, static::PRIVATE_SUFFIX_LENGTH * -1));
+        if ($this->getPath()) {
+            $path = $this->getStoragePath();
+            rename($path, substr($path, 0, static::PRIVATE_SUFFIX_LENGTH * -1));
+            $this->setPath(substr($this->getPath(), 0, static::PRIVATE_SUFFIX_LENGTH * -1));
+        }
     }
 
     /**

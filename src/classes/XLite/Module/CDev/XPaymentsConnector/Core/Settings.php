@@ -901,6 +901,15 @@ class Settings extends \XLite\Base\Singleton
 
         } elseif (is_array($list)) {
 
+            foreach ($this->getPaymentMethods() as $pm) {
+                \XLite\Core\Database::getEM()->remove($pm);
+            }
+
+            if (self::RESULT_API_VERSION_CHANGED === $connectResult) {
+                \XLite\Module\CDev\XPaymentsConnector\Core\ZeroAuth::cleanupFakeCarts();
+                \XLite\Module\CDev\XPaymentsConnector\Core\XPaymentsClient::getInstance()->clearAllInitData();
+            }
+
             \XLite\Core\TopMessage::addWarning('There are no payment configurations for this store.');
 
         } else {

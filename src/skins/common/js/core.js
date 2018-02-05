@@ -612,6 +612,30 @@ window.core = {
     return deferred.promise();
   },
 
+  parsePreloadedLabels: function(element, uuid)
+  {
+    element = jQuery(element);
+    uuid = uuid || '';
+    var labelsContainer = element.find('script[data-preloaded-labels]').first();
+
+    if (labelsContainer.length) {
+      var data = JSON.parse(labelsContainer.html());
+      labelsContainer.remove();
+
+      if (data.labels) {
+        core.loadLabels(data.labels);
+        core.trigger('preloaded_labels.ready', {widget: data.widget, uuid: uuid});
+      } else {
+        core.trigger('preloaded_labels.empty', {widget: data.widget, uuid: uuid});
+      }
+    }
+  },
+
+  loadLabels: function(list)
+  {
+    this.loadLanguageHash(list);
+  },
+
   parseObjectString: function(objectString) {
       if (typeof(JSON5) !== 'undefined') {
         return JSON5.parse(objectString);

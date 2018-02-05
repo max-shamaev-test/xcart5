@@ -78,7 +78,7 @@ trait FilterWithCloudSearchTrait
 
     /**
      * A flag indicating that getItemsCount should not call getData but rather return a fake PHP_INT_MAX value. This is to avoid infinite loop in getData when calling getLimitCondition which in turn calls getPager -> getItemsCount -> getData -> getLimitCondition ...
-     * Effectively this enables us to create a pager with fake PHP_INT_MAX items but correct startItem and itemsPerPage. These are needed to perform CloudSearch search request with correct offset and limit parameters.
+     * Effectively this enables us to create a pager with fake PHP_INT_MAX items but correct startItem and itemsPerPage. These are needed to execute CloudSearch search request with correct offset and limit parameters.
      *
      * @var bool
      */

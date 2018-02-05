@@ -189,17 +189,25 @@ abstract class AAuthProvider extends \XLite\Base\Singleton
      */
     protected function getRedirectUrl()
     {
-        return \XLite\Core\URLManager::getShopURL(
+        \XLite\Core\Router::getInstance()->disableLanguageUrlsTmp();
+
+        $url = \XLite\Core\URLManager::getShopURL(
             \XLite\Core\Converter::buildURL(
                 'social_login',
                 'login',
                 array('auth_provider' => $this->getName()),
-                'cart.php'
+                'cart.php',
+                false,
+                true
             ),
             \XLite\Core\Request::getInstance()->isHTTPS(),
             array(),
             null,
             false
         );
+
+        \XLite\Core\Router::getInstance()->releaseLanguageUrlsTmp();
+
+        return $url;
     }
 }

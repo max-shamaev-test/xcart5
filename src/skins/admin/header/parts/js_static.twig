@@ -13,6 +13,7 @@ var xliteConfig = {
   base_url:            '{{ this.getBaseShopURL() }}',
   form_id:             '{{ this.xlite.formId }}',
   form_id_name:        '{{ constant('XLite::FORM_ID') }}',
+  zone:                'admin',
   developer_mode:      {{ this.isDeveloperMode() ? 'true' : 'false' }},
 };
 </script>

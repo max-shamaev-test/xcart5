@@ -85,6 +85,28 @@ class Category extends \XLite\Controller\Customer\Base\Catalog
             === $this->getCategory()->getCategoryId();
     }
 
+    protected function checkAccess()
+    {
+        return parent::checkAccess() && $this->isCategoryAccessible();
+    }
+
+    /**
+     * Check if current user as required membership
+     *
+     * @return bool
+     */
+    protected function isCategoryAccessible()
+    {
+        if ($this->getCategory() && $this->getCategory()->getMembershipIds()) {
+            return in_array(
+                \XLite\Core\Auth::getInstance()->getMembershipId(),
+                $this->getCategory()->getMembershipIds()
+            );
+        }
+
+        return true;
+    }
+
     /**
      * Check controller visibility
      *

@@ -25,19 +25,26 @@ class ACustomer extends \XLite\Controller\Customer\ACustomer implements \XLite\B
     }
 
     /**
-     * Redirect
+     * Perform redirect
      *
-     * @return boolean
+     * @param string $url Redirect URL OPTIONAL
+     * @param null   $code
      */
-    public function doRedirect() 
+    protected function redirect($url = null, $code = null)
     {
         if ($this->getIframe()->getEnabled()) {
+            if ('checkout' == \XLite\Core\Request::getInstance()->action) {
+                if ($this->get('absence_of_product')) {
+                    $this->getIframe()->setError('Error initializing payment form. Please try to refresh the page.');
+                    $this->getIframe()->setType(\XLite\Module\CDev\XPaymentsConnector\Core\Iframe::IFRAME_ALERT);
+                } else {
+                    $this->getIframe()->setError('');
+                    $this->getIframe()->setType(\XLite\Module\CDev\XPaymentsConnector\Core\Iframe::IFRAME_DO_NOTHING);
+                }
+            }
             $this->getIframe()->finalize();
-
         } else {
-
-            return parent::doRedirect();
-
+            parent::redirect($url, $code);
         }
     }
 

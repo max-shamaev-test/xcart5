@@ -101,7 +101,7 @@ class SearchTotal extends \XLite\View\ItemsList\Model\Order\Admin\Search
             $cnd->{$modelParam} = $value;
         }
 
-        return \XLite\Core\Database::getRepo('XLite\Model\Order')->search($cnd, \XLite\Model\Repo\Order::SEARCH_MODE_TOTALS);
+        return \XLite\Core\Database::getRepo('XLite\Model\Order')->getSearchTotal($cnd);
     }
 
     /**

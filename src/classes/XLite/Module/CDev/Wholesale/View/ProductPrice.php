@@ -8,6 +8,9 @@
 
 namespace XLite\Module\CDev\Wholesale\View;
 
+use XLite\Core\Auth;
+use XLite\Core\Database;
+
 /**
  * Wholesale prices for product
  */
@@ -61,9 +64,11 @@ class ProductPrice extends \XLite\View\Product\Details\Customer\Widget
      */
     protected function defineWholesalePrices()
     {
-        return \XLite\Core\Database::getRepo('XLite\Module\CDev\Wholesale\Model\WholesalePrice')->getWholesalePrices(
+        return Database::getRepo('XLite\Module\CDev\Wholesale\Model\WholesalePrice')->getWholesalePrices(
             $this->getProduct(),
-            $this->getCart()->getProfile() ? $this->getCart()->getProfile()->getMembership() : null
+            $this->getCart()->getProfile()
+                ? $this->getCart()->getProfile()->getMembership()
+                : Auth::getInstance()->getMembership()
         );
     }
 

@@ -28,7 +28,7 @@ abstract class ASocialButton extends \XLite\View\AView
     public function getJSFiles()
     {
         $list = parent::getJSFiles();
-        $list[] = 'modules/CDev/GoSocial/likely.js';
+        $list[] = 'modules/CDev/GoSocial/likely.min.js';
 
         return $list;
     }

@@ -40,7 +40,7 @@ class PoweredBy extends \XLite\View\AView
      * @var array
      */
     protected $siteURLs = array(
-        'ru' => 'http://www.x-cart.ru',
+        'ru' => 'https://www.x-cart.ru',
     );
 
     /**
@@ -70,6 +70,8 @@ class PoweredBy extends \XLite\View\AView
      * Return a Powered By message
      *
      * @return string
+     *
+     * @throws \Exception
      */
     public function getMessage()
     {
@@ -79,7 +81,7 @@ class PoweredBy extends \XLite\View\AView
             : '';
 
         $replace = $this->isLink()
-                 ? array('[' => '<a href="' . \XLite::getXCartURL($siteURL, empty($siteURL)) . '" target="_blank">', ']' => '</a>',)
+                 ? array('[' => '<a href="' . \XLite::getXCartURL($siteURL, empty($siteURL)) . '" rel=“nofollow” target="_blank">', ']' => '</a>',)
                  : array('[' => '', ']' => '');
 
         return strtr($this->getPhrase(), $replace);
@@ -99,6 +101,8 @@ class PoweredBy extends \XLite\View\AView
      * Get a Powered By phrase
      *
      * @return string
+     *
+     * @throws \Exception
      */
     protected function getPhrase()
     {

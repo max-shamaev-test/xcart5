@@ -674,7 +674,7 @@ final class Requirements
 
                 return [
                     false,
-                    $isWin
+                    LC_OS_IS_WIN
                         ? 'error_message_1' // Not enough permissions to run the process. Please make sure the following files are writable:<br /><i class="copy2clipboard fa fa-clipboard"></i><div class="copy2clipboard-alert alert-success" style="display: none;"></div><div class="permissions-list">:pathsList</div>
                         : 'error_message_2', // Not enough permissions to run the process. Make sure the following permissions are set (UNIX-like systems only):<br /><i class="copy2clipboard fa fa-clipboard"></i><div class="copy2clipboard-alert alert-success" style="display: none;"></div><div class="permissions-list">:pathsList</div>Such permissions are required for a seamless automated installation or upgrade of X-Cart on your server. They do not take into account the specific configuration of your server or any security requirements. Once the process is completed, make sure you change the permissions to a more restrictive setting. <a target="_blank" href="http://kb.x-cart.com/en/setting_up_x-cart_5_environment/secure_configuration.html#why-x-cart-asks-for-666777-permissions">Read more</a>
                     [

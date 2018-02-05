@@ -41,7 +41,7 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\Model\Payment\Processor\
      *
      * @var string
      */
-    protected $knowledgeBasePageURL = 'http://kb.x-cart.com/en/payments/paypal/setting_up_paypal_express_checkout.html';
+    protected $knowledgeBasePageURL = 'https://kb.x-cart.com/en/payments/paypal/setting_up_paypal_express_checkout.html';
 
     /**
      * Error message
@@ -455,11 +455,11 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\Model\Payment\Processor\
     {
         $result = false;
 
-        if ($this->isRetryExpressCheckoutCode($responseData)
-            && $this->isRetryExpressCheckoutAllowed()
+        if (
+            !$this->doExpressCheckoutPaymentRecursiveCall
+            && isset($responseData['L_ERRORCODE0'])
+            && '10419' === $responseData['L_ERRORCODE0']
         ) {
-            $this->retryExpressCheckout(\XLite\Core\Session::getInstance()->ec_token);
-        } elseif (!$this->doExpressCheckoutPaymentRecursiveCall && isset($responseData['L_ERRORCODE0']) && '10419' === $responseData['L_ERRORCODE0']) {
             \XLite\Core\Session::getInstance()->ec_payer_id = \XLite\Core\Request::getInstance()->PayerID;
             $this->doExpressCheckoutPaymentRecursiveCall = true;
 

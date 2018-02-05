@@ -46,7 +46,7 @@ class PaypalAdaptive extends \XLite\Model\Payment\Base\WebBased
      */
     public function getPartnerPageURL(\XLite\Model\Payment\Method $method)
     {
-        return \XLite::getXCartURL('http://www.x-cart.com/paypal_shopping_cart.html');
+        return \XLite::getXCartURL('https://www.x-cart.com/paypal_shopping_cart.html');
     }
 
     /**

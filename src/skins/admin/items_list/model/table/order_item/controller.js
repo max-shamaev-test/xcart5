@@ -432,13 +432,16 @@ OrderItemsList.prototype.saveOptionCheckbox = function(idx, elm)
       return this.type == 'hidden' && this.name == name;
     }
   );
-  target.val(elm.is(':checked') ? '1' : '');
+
+  var unchecked = elm.siblings('input[type="hidden"]').val();
+  target.val(elm.is(':checked') ? elm.val() : unchecked);
+  target.data('unchecked', unchecked);
   target.trigger('change');
 
   this.lastOptionContainer = target.parents('td').eq(0);
   this.lastOptionContainer
     .find('.av-' + elm.data('attribute-id'))
-    .html(target.val() ? core.t('Yes') : core.t('No'));
+    .html(elm.is(':checked') ? core.t('Yes') : core.t('No'));
 }
 
 OrderItemsList.prototype.prepareOptionSelect = function(idx, elm)
@@ -474,7 +477,7 @@ OrderItemsList.prototype.prepareOptionCheckbox = function(idx, elm)
       return this.type == 'hidden' && this.name == name;
     }
   );
-  if (target.val()) {
+  if (target.val() != target.data('unchecked')) {
     elm.attr('checked', 'checked');
 
   } else {

@@ -2,13 +2,4 @@
  # Image
  #}
 
-  {% if this.getBlurredImageData() %}
-    <style>
-      #{{ this.getBlurredImageId() }}
-      {
-        background-image: url({{ this.getBlurredImageData() }});
-        background-size: cover;
-      }
-    </style>
-  {% endif %}
-<img {% if this.getBlurredImageData() %}id="{{ this.getBlurredImageId() }}"{% endif %} src="{{ this.getURL() }}" alt="{{ this.getAlt() }}" {% for name, value in this.getProperties() %} {{ name }}="{{ value }}"{% endfor %} />
+<img src="{{ this.getURL() }}" alt="{{ this.getAlt() }}" {% for name, value in this.getProperties() %} {{ name }}="{{ value }}"{% endfor %} />

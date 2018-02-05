@@ -304,6 +304,6 @@ class Info extends \XLite\View\AView
      */
     protected function getAntiFraudAdLink()
     {
-        return 'http://www.x-cart.com/extensions/addons/antifraud.html?utm_source=xcart5&utm_medium=link&utm_campaign=xcart5_antifraud_link';
+        return 'https://www.x-cart.com/extensions/addons/antifraud.html?utm_source=xcart5&utm_medium=link&utm_campaign=xcart5_antifraud_link';
     }
 }

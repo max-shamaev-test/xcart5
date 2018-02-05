@@ -82,10 +82,6 @@ class MailchimpStoreData extends \XLite\Controller\Admin\AAdmin
         $lists = \XLite\Core\Request::getInstance()->lists;
 
         UploadingData\Generator::run([
-            'steps' => [
-                'products',
-                'orders',
-            ],
             'lists' => $lists
         ]);
     }

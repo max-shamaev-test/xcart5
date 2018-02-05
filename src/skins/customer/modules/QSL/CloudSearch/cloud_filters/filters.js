@@ -1,185 +1,5 @@
 (function (_, $) {
-    var colors = {
-        'aliceblue': '#f0f8ff',
-        'antiquewhite': '#faebd7',
-        'aqua': '#00ffff',
-        'aquamarine': '#70db93',
-        'azure': '#f0ffff',
-        'beige': '#f5f5dc',
-        'bisque': '#ffe4c4',
-        'black': '#000000',
-        'blanchedalmond': '#ffebcd',
-        'blue': '#3232cd',
-        'blueviolet': '#8a2be2',
-        'brass': '#b5a642',
-        'brightgold': '#d9d919',
-        'bronze': '#8c7853',
-        'bronzeii': '#a67d3d',
-        'brown': '#a52a2a',
-        'burlywood': '#deb887',
-        'cadetblue': '#5f9ea0',
-        'chartreuse': '#7fff00',
-        'chocolate': '#5c3317',
-        'coolcopper': '#d98719',
-        'copper': '#b87333',
-        'coral': '#ff7f00',
-        'cornflowerblue': '#42426f',
-        'cornsilk': '#fff8dc',
-        'crimson': '#dc143c',
-        'cyan': '#00ffff',
-        'darkblue': '#00008b',
-        'darkbrown': '#5c4033',
-        'darkcyan': '#008b8b',
-        'darkgoldenrod': '#b8860b',
-        'darkgreen': '#2f4f2f',
-        'darkgreencopper': '#4a766e',
-        'darkgrey': '#a9a9a9',
-        'darkkhaki': '#bdb76b',
-        'darkmagenta': '#8b008b',
-        'darkolivegreen': '#4f4f2f',
-        'darkorange': '#ff8c00',
-        'darkorchid': '#9932cd',
-        'darkpurple': '#871f78',
-        'darkred': '#8b0000',
-        'darksalmon': '#e9967a',
-        'darkseagreen': '#8fbc8f',
-        'darkslateblue': '#6b238e',
-        'darkslategrey': '#2f4f4f',
-        'darktan': '#97694f',
-        'darkturquoise': '#7093db',
-        'darkviolet': '#9400d3',
-        'darkwood': '#855e42',
-        'deeppink': '#ff1493',
-        'deepskyblue': '#00bfff',
-        'dimgrey': '#545454',
-        'dodgerblue': '#1e90ff',
-        'dustyrose': '#856363',
-        'fadedbrown': '#f5ccb0',
-        'feldspar': '#d19275',
-        'firebrick': '#8e2323',
-        'floralwhite': '#fffaf0',
-        'forestgreen': '#238e23',
-        'fuchsia': '#ff00ff',
-        'gainsboro': '#dcdcdc',
-        'ghostwhite': '#f8f8ff',
-        'gold': '#ffd700',
-        'goldenrod': '#dbdb70',
-        'green': '#238e23',
-        'greencopper': '#527f76',
-        'greenyellow': '#93db70',
-        'grey': '#d8d8d8',
-        'gray': '#d8d8d8',
-        'honeydew': '#f0fff0',
-        'hotpink': '#ff69b4',
-        'huntergreen': '#215e21',
-        'indianred': '#4e2f2f',
-        'indigo': '#4b0082',
-        'ivory': '#fffff0',
-        'khaki': '#9f9f5f',
-        'lavender': '#e6e6fa',
-        'lavenderblush': '#fff0f5',
-        'lawngreen': '#7cfc00',
-        'lemonchiffon': '#fffacd',
-        'lightblue': '#c0d9d9',
-        'lightcoral': '#f08080',
-        'lightcyan': '#e0ffff',
-        'lightgoldenrodyellow': '#fafad2',
-        'lightgreen': '#90ee90',
-        'lightgrey': '#a8a8a8',
-        'lightpink': '#ffb6c1',
-        'lightsalmon': '#ffa07a',
-        'lightseagreen': '#20b2aa',
-        'lightskyblue': '#87cefa',
-        'lightslateblue': '#8470ff',
-        'lightslategrey': '#778899',
-        'lightsteelblue': '#8f8fbd',
-        'lightwood': '#e9c2a6',
-        'lightyellow': '#ffffe0',
-        'lime': '#00ff00',
-        'limegreen': '#32cd32',
-        'linen': '#faf0e6',
-        'magenta': '#ff00ff',
-        'mandarianorange': '#e47833',
-        'maroon': '#800000',
-        'mediumaquamarine': '#32cd99',
-        'mediumblue': '#3232cd',
-        'mediumforestgreen': '#6b8e23',
-        'mediumgoldenrod': '#eaeaae',
-        'mediumorchid': '#9370db',
-        'mediumpurple': '#9370db',
-        'mediumseagreen': '#426f42',
-        'mediumslateblue': '#7f00ff',
-        'mediumspringgreen': '#7fff00',
-        'mediumturquoise': '#70dbdb',
-        'mediumvioletred': '#db7093',
-        'mediumwood': '#a68064',
-        'midnightblue': '#2f2f4f',
-        'mintcream': '#f5fffa',
-        'mistyrose': '#ffe4e1',
-        'moccasin': '#ffe4b5',
-        'navajowhite': '#ffdead',
-        'navy': '#000080',
-        'navyblue': '#23238e',
-        'neonblue': '#4d4dff',
-        'neonpink': '#ff6ec7',
-        'newmidnightblue': '#00009c',
-        'newtan': '#ebc79e',
-        'oldgold': '#cfb53b',
-        'oldlace': '#fdf5e6',
-        'olive': '#808000',
-        'olivedrab': '#6b8e23',
-        'orange': '#ff7f00',
-        'orangered': '#ff2400',
-        'orchid': '#db70db',
-        'palegoldenrod': '#eee8aa',
-        'palegreen': '#8fbc8f',
-        'paleturquoise': '#afeeee',
-        'palevioletred': '#d87093',
-        'papayawhip': '#ffefd5',
-        'peachpuff': '#ffdab9',
-        'peru': '#cd853f',
-        'pink': '#bc8f8f',
-        'plum': '#eaadea',
-        'powderblue': '#b0e0e6',
-        'purple': '#800080',
-        'quartz': '#d9d9f3',
-        'red': '#ff0000',
-        'richblue': '#5959ab',
-        'rosybrown': '#bc8f8f',
-        'royalblue': '#4169e1',
-        'rosegold': '#f3cec8',
-        'saddlebrown': '#8b4513',
-        'salmon': '#fa8072',
-        'sandybrown': '#f4a460',
-        'scarlet': '#8c1717',
-        'seagreen': '#238e68',
-        'seashell': '#fff5ee',
-        'semi-sweetchocolate': '#6b4226',
-        'sienna': '#8e6b23',
-        'silver': '#e6e8fa',
-        'skyblue': '#87ceeb',
-        'slateblue': '#007fff',
-        'slategrey': '#708090',
-        'snow': '#fffafa',
-        'spacegray': '#65737e',
-        'spicypink': '#ff1cae',
-        'springgreen': '#00ff7f',
-        'steelblue': '#236b8e',
-        'summersky': '#38b0de',
-        'tan': '#db9370',
-        'teal': '#008080',
-        'thistle': '#d8bfd8',
-        'tomato': '#ff6347',
-        'turquoise': '#adeaea',
-        'verylightgrey': '#cdcdcd',
-        'violet': '#4f2f4f',
-        'violetred': '#cc3299',
-        'wheat': '#d8d8bf',
-        'white': '#ffffff',
-        'whitesmoke': '#f5f5f5',
-        'yellow': '#ffff00',
-        'yellowgreen': '#99cc32',
-    };
+    var colors = {'aliceblue': '#f0f8ff', 'antiquewhite': '#faebd7', 'aqua': '#00ffff', 'aquamarine': '#70db93', 'azure': '#f0ffff', 'beige': '#f5f5dc', 'bisque': '#ffe4c4', 'black': '#000000', 'blanchedalmond': '#ffebcd', 'blue': '#3232cd', 'blueviolet': '#8a2be2', 'brass': '#b5a642', 'brightgold': '#d9d919', 'bronze': '#8c7853', 'bronzeii': '#a67d3d', 'brown': '#a52a2a', 'burlywood': '#deb887', 'cadetblue': '#5f9ea0', 'chartreuse': '#7fff00', 'chocolate': '#5c3317', 'coolcopper': '#d98719', 'copper': '#b87333', 'coral': '#ff7f00', 'cornflowerblue': '#42426f', 'cornsilk': '#fff8dc', 'crimson': '#dc143c', 'cyan': '#00ffff', 'darkblue': '#00008b', 'darkbrown': '#5c4033', 'darkcyan': '#008b8b', 'darkgoldenrod': '#b8860b', 'darkgreen': '#2f4f2f', 'darkgreencopper': '#4a766e', 'darkgrey': '#a9a9a9', 'darkkhaki': '#bdb76b', 'darkmagenta': '#8b008b', 'darkolivegreen': '#4f4f2f', 'darkorange': '#ff8c00', 'darkorchid': '#9932cd', 'darkpurple': '#871f78', 'darkred': '#8b0000', 'darksalmon': '#e9967a', 'darkseagreen': '#8fbc8f', 'darkslateblue': '#6b238e', 'darkslategrey': '#2f4f4f', 'darktan': '#97694f', 'darkturquoise': '#7093db', 'darkviolet': '#9400d3', 'darkwood': '#855e42', 'deeppink': '#ff1493', 'deepskyblue': '#00bfff', 'dimgrey': '#545454', 'dodgerblue': '#1e90ff', 'dustyrose': '#856363', 'fadedbrown': '#f5ccb0', 'feldspar': '#d19275', 'firebrick': '#8e2323', 'floralwhite': '#fffaf0', 'forestgreen': '#238e23', 'fuchsia': '#ff00ff', 'gainsboro': '#dcdcdc', 'ghostwhite': '#f8f8ff', 'gold': '#ffd700', 'goldenrod': '#dbdb70', 'green': '#238e23', 'greencopper': '#527f76', 'greenyellow': '#93db70', 'grey': '#d8d8d8', 'gray': '#d8d8d8', 'honeydew': '#f0fff0', 'hotpink': '#ff69b4', 'huntergreen': '#215e21', 'indianred': '#4e2f2f', 'indigo': '#4b0082', 'ivory': '#fffff0', 'khaki': '#9f9f5f', 'lavender': '#e6e6fa', 'lavenderblush': '#fff0f5', 'lawngreen': '#7cfc00', 'lemonchiffon': '#fffacd', 'lightblue': '#c0d9d9', 'lightcoral': '#f08080', 'lightcyan': '#e0ffff', 'lightgoldenrodyellow': '#fafad2', 'lightgreen': '#90ee90', 'lightgrey': '#a8a8a8', 'lightpink': '#ffb6c1', 'lightsalmon': '#ffa07a', 'lightseagreen': '#20b2aa', 'lightskyblue': '#87cefa', 'lightslateblue': '#8470ff', 'lightslategrey': '#778899', 'lightsteelblue': '#8f8fbd', 'lightwood': '#e9c2a6', 'lightyellow': '#ffffe0', 'lime': '#00ff00', 'limegreen': '#32cd32', 'linen': '#faf0e6', 'magenta': '#ff00ff', 'mandarianorange': '#e47833', 'maroon': '#800000', 'mediumaquamarine': '#32cd99', 'mediumblue': '#3232cd', 'mediumforestgreen': '#6b8e23', 'mediumgoldenrod': '#eaeaae', 'mediumorchid': '#9370db', 'mediumpurple': '#9370db', 'mediumseagreen': '#426f42', 'mediumslateblue': '#7f00ff', 'mediumspringgreen': '#7fff00', 'mediumturquoise': '#70dbdb', 'mediumvioletred': '#db7093', 'mediumwood': '#a68064', 'midnightblue': '#2f2f4f', 'mintcream': '#f5fffa', 'mistyrose': '#ffe4e1', 'moccasin': '#ffe4b5', 'navajowhite': '#ffdead', 'navy': '#000080', 'navyblue': '#23238e', 'neonblue': '#4d4dff', 'neonpink': '#ff6ec7', 'newmidnightblue': '#00009c', 'newtan': '#ebc79e', 'oldgold': '#cfb53b', 'oldlace': '#fdf5e6', 'olive': '#808000', 'olivedrab': '#6b8e23', 'orange': '#ff7f00', 'orangered': '#ff2400', 'orchid': '#db70db', 'palegoldenrod': '#eee8aa', 'palegreen': '#8fbc8f', 'paleturquoise': '#afeeee', 'palevioletred': '#d87093', 'papayawhip': '#ffefd5', 'peachpuff': '#ffdab9', 'peru': '#cd853f', 'pink': '#bc8f8f', 'plum': '#eaadea', 'powderblue': '#b0e0e6', 'purple': '#800080', 'quartz': '#d9d9f3', 'red': '#ff0000', 'richblue': '#5959ab', 'rosybrown': '#bc8f8f', 'royalblue': '#4169e1', 'rosegold': '#f3cec8', 'saddlebrown': '#8b4513', 'salmon': '#fa8072', 'sandybrown': '#f4a460', 'scarlet': '#8c1717', 'seagreen': '#238e68', 'seashell': '#fff5ee', 'semi-sweetchocolate': '#6b4226', 'sienna': '#8e6b23', 'silver': '#e6e8fa', 'skyblue': '#87ceeb', 'slateblue': '#007fff', 'slategrey': '#708090', 'snow': '#fffafa', 'spacegray': '#65737e', 'spicypink': '#ff1cae', 'springgreen': '#00ff7f', 'steelblue': '#236b8e', 'summersky': '#38b0de', 'tan': '#db9370', 'teal': '#008080', 'thistle': '#d8bfd8', 'tomato': '#ff6347', 'turquoise': '#adeaea', 'verylightgrey': '#cdcdcd', 'violet': '#4f2f4f', 'violetred': '#cc3299', 'wheat': '#d8d8bf', 'white': '#ffffff', 'whitesmoke': '#f5f5f5', 'yellow': '#ffff00', 'yellowgreen': '#99cc32'};
 
     var sizes = ['XXXS', 'XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '2XL', '3XL', '4XL', '5XL'];
 
@@ -246,7 +66,8 @@
         var decorateClasses = [
             'XLite\\View\\ItemsList\\Product\\Customer\\Search',
             'XLite\\View\\ItemsList\\Product\\Customer\\Category\\Main',
-            'XLite\\Module\\XC\\ProductFilter\\View\\ItemsList\\Product\\Customer\\Category\\CategoryFilter'
+            'XLite\\Module\\XC\\ProductFilter\\View\\ItemsList\\Product\\Customer\\Category\\CategoryFilter',
+            'XLite\\Module\\QSL\\ShopByBrand\\View\\ItemsList\\Product\\Customer\\Brand'
         ];
 
         core.bind(
@@ -305,12 +126,15 @@
 
                                     form.submit(function () {
                                         var query = form.find('input[name="substring"]').val(),
-                                            categoryId = form.find('select[name="categoryId"]').val() || null;
+                                            categoryId = form.find('select[name="categoryId"]').val() || null,
+                                            brandId = form.find('select[name="brandId"]').val() || null,
+                                            brand = form.find('select[name="brandId"] option:selected').text() || null;
 
                                         _.each(searchListeners, function (listener) {
                                             listener({
                                                 query: query,
-                                                categoryId: categoryId
+                                                categoryId: categoryId,
+                                                brand: brandId > 0 ? brand : null
                                             });
                                         });
                                     });
@@ -606,6 +430,7 @@
             searchAction: function (params) {
                 facetApi.data.q = params.query;
                 facetApi.data.categoryId = params.categoryId;
+                facetApi.data.brand = params.brand;
 
                 this.clearFilters();
 
@@ -699,8 +524,8 @@
                 // Remove filters that don't have corresponding facets
                 _.each(this.filters, (function (filterValues, filterId) {
                     if (
-                        filterId != 'min_price'
-                        && filterId != 'max_price'
+                        filterId !== 'min_price'
+                        && filterId !== 'max_price'
                         && !(filterId in this.facets)
                     ) {
                         this.filters[filterId] = [];
@@ -734,7 +559,7 @@
                 }
 
                 return _.all(facet.counts, function (c) {
-                    return sizes.indexOf(c.value) != -1;
+                    return sizes.indexOf(c.value) !== -1;
                 });
             },
 
