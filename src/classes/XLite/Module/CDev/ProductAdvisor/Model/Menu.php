@@ -8,6 +8,9 @@
 
 namespace XLite\Module\CDev\ProductAdvisor\Model;
 
+use XLite\Core\Cache\ExecuteCachedTrait;
+use XLite\Core\Converter;
+
 /**
  * Menu
  *
@@ -15,6 +18,8 @@ namespace XLite\Module\CDev\ProductAdvisor\Model;
  */
 class Menu extends \XLite\Module\CDev\SimpleCMS\Model\Menu implements \XLite\Base\IDecorator
 {
+    use ExecuteCachedTrait;
+
     const DEFAULT_NEW_ARRIVALS = '{new arrivals}';
     const DEFAULT_COMING_SOON  = '{coming soon}';
 
@@ -28,8 +33,12 @@ class Menu extends \XLite\Module\CDev\SimpleCMS\Model\Menu implements \XLite\Bas
     {
         $list = parent::defineLinkURLs();
 
-        $list[static::DEFAULT_NEW_ARRIVALS] = '?target=new_arrivals';
-        $list[static::DEFAULT_COMING_SOON] = '?target=coming_soon';
+        $list += $this->executeCachedRuntime(function () {
+            return [
+                static::DEFAULT_NEW_ARRIVALS => Converter::buildURL('new_arrivals'),
+                static::DEFAULT_COMING_SOON  => Converter::buildURL('coming_soon'),
+            ];
+        }, 'product_advisor');
 
         return $list;
     }

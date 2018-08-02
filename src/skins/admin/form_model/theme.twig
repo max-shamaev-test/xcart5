@@ -224,6 +224,7 @@
     <div class="input-group">
         <span class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
         {{- block('form_widget_simple') -}}
+        <input type="hidden" class="datepicker-value-input" name="{{ full_name }}" value="{{ value }}">
     </div>
 {%- endblock datepicker_widget %}
 
@@ -298,15 +299,21 @@
             {{ widget('XLite\\View\\ToolTip', text=resolveHint, caption=t('Resolve the conflict'), isImageTag='false', className='help-icon') }}
         </div>
     </div>
-    {% endif %}
-    {% if hasUnForcibleConflict %}
+    {% elseif hasUnForcibleConflict %}
     <div class="clean-url-result has-error" v-show="!isCleanUrlAutogenerate()">
         <div class="clean-url-force help-block">
             {{ errorMessage | raw }}
             {{ widget('XLite\\View\\ToolTip', text=resolveHint, caption=t('Resolve the conflict'), isImageTag='false', className='help-icon') }}
         </div>
     </div>
+    {% else %}
+    <div class="clean-url-result has-error" v-show="!isCleanUrlAutogenerate()">
+        <div class="clean-url-force help-block">
+          {{ errorMessage | raw }}
+        </div>
+    </div>
     {% endif %}
+
     <div class="clean-url-result" v-show="!isCleanUrlAutogenerate()">
         <div class="clean-url-result-info">
             <span class="result-label">{{ t('Result') }}: </span>

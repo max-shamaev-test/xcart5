@@ -39,9 +39,7 @@ jQuery().ready(
     };
 
     var preprocessValue = function(url) {
-      var result = removeExtension(url);
-
-      return result.match(/[.\w_\-]*$/)[0];
+      return removeExtension(url);
     };
 
     var removeExtension = function (url) {

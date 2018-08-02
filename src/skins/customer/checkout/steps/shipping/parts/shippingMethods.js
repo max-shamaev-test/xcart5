@@ -61,13 +61,7 @@ ShippingMethodsView.prototype.assignHandlers = function(event, state)
       .change(_.bind(this.handleMethodChange, this));
 
     this.base
-      .find('.shipping-rates.selected .change')
-      .click(_.bind(this.handleTryMethodChange, this));
-
-    this.base
       .find('.shipping-selector-box select')
-      .change(_.bind(this.selectMethodFromSelector, this))
-      .change(_.bind(this.handleMethodSelect, this))
       .change(_.bind(this.handleMethodChange, this));
 
     this.base
@@ -80,7 +74,6 @@ ShippingMethodsView.prototype.assignHandlers = function(event, state)
       .bind('local.submit.success', _.bind(this.unshadeDelayed, this))
       .bind('local.submit.error', _.bind(this.unshade, this));
 
-    this.selectMethodFromSelector();
   }
 };
 
@@ -130,22 +123,6 @@ ShippingMethodsView.prototype.getShadeBase = function() {
   return this.base.closest('.step-shipping-methods');
 };
 
-ShippingMethodsView.prototype.handleMethodSelect = function(event)
-{
-  var box = jQuery(event.target).closest('.shipping-selector-box');
-
-  box.find('.shipping-rates.selected').show();
-  box.find('.table-value').hide();
-};
-
-ShippingMethodsView.prototype.handleTryMethodChange = function(event)
-{
-  var box = jQuery(event.target).closest('.shipping-selector-box');
-
-  box.find('.shipping-rates.selected').hide();
-  box.find('.table-value').show();
-};
-
 ShippingMethodsView.prototype.handleCheckoutReadyCheck = function(event, state)
 {
   if (0 < this.base.find('ul.shipping-rates input').length) {
@@ -192,30 +169,6 @@ ShippingMethodsView.prototype.triggerChange = function()
 ShippingMethodsView.prototype.getEventNamespace = function()
 {
   return 'checkout.shippingMethods';
-};
-
-ShippingMethodsView.prototype.selectMethodFromSelector = function(event)
-{
-  var box = event ? jQuery(event.target).closest('.shipping-selector-box') : this.base.find('.shipping-selector-box');
-
-  box.each(function () {
-    var box = jQuery(this);
-
-    if (jQuery('select', box)) {
-      var dataNode = box.find('#shippingMethod' + jQuery('select', box).val());
-      if (dataNode.length) {
-        box.find('.shipping-rates.selected .rate-title').text(jQuery('.name', dataNode).text());
-        box.find('.shipping-rates.selected .value').html(jQuery('.value', dataNode).html());
-
-        var description = jQuery('.description', dataNode).html();
-        if ('' === description) {
-          box.find('.shipping-rates.selected .rate-description').hide();
-        } else {
-          box.find('.shipping-rates.selected .rate-description').show().html(description);
-        }
-      }
-    }
-  });
 };
 
 // Load after page load

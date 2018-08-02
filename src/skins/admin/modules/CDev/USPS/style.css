@@ -50,7 +50,7 @@
   font-size: 13px;
 }
 
-.target-usps .pitney-bowes-info a.external:after {
+.target-usps .usps-dependent-info a.external:after {
   content: "\f08e";
   font: normal normal normal 14px/1 FontAwesome;
   margin-left: 5px;
@@ -59,12 +59,12 @@
   visibility: hidden;
 }
 
-.target-usps .pitney-bowes-info a.external:hover:after {
+.target-usps .usps-dependent-info a.external:hover:after {
   visibility: visible;
 }
 
 
-.pitney-bowes-info {
+.usps-dependent-info {
   margin-bottom: 40px;
 }
 
@@ -80,7 +80,7 @@
   -ms-flex-align: center;
   align-items: center;
 
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 
   position: relative;
   padding: 0;

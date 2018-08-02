@@ -14,6 +14,19 @@ namespace XLite\View\Button;
 class PopupLoginLink extends \XLite\View\Button\PopupLogin
 {
     /**
+     * Get a list of JavaScript files required to display the widget properly
+     *
+     * @return array
+     */
+    public function getJSFiles()
+    {
+        $list = parent::getJSFiles();
+        $list[] = 'button/js/popup_button.js';
+
+        return $list;
+    }
+
+    /**
      * getDefaultLabel
      *
      * @return string

@@ -1038,7 +1038,7 @@ class Module extends \XLite\Model\AEntity
     public function getMarketplaceID()
     {
         if (!isset($this->marketplaceID)) {
-            $this->marketplaceID = md5(implode(self::IDENTITY_SEPARATOR, $this->getIdentityData()));
+            $this->marketplaceID = md5(implode(static::IDENTITY_SEPARATOR, $this->getIdentityData()));
         }
 
         return $this->marketplaceID;

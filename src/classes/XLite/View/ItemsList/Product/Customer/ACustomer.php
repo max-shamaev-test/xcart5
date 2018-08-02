@@ -277,7 +277,7 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\AProduct
             && !isset($params[static::PARAM_ICON_MAX_HEIGHT])
         ) {
             $sizes = static::getIconSizes();
-            $key = $this->getWidgetType() . '.' . $this->getParam(static::PARAM_DISPLAY_MODE);
+            $key = $this->getWidgetType() . '.' . $this->getDisplayMode();
             $size = isset($sizes[$key]) ? $sizes[$key] : $sizes['other'];
 
             $this->widgetParams[static::PARAM_ICON_MAX_WIDTH]->setValue($size[0]);
@@ -505,6 +505,11 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\AProduct
      */
     protected function getDisplayMode()
     {
+        if ($this->isMobileDevice() && !$this->isTablet()) {
+
+            return self::DISPLAY_MODE_GRID;
+        }
+
         return $this->getParam(static::PARAM_DISPLAY_MODE);
     }
 
@@ -517,7 +522,7 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\AProduct
      */
     protected function isDisplayModeSelected($displayMode)
     {
-        return $this->getParam(static::PARAM_DISPLAY_MODE) === $displayMode;
+        return $this->getDisplayMode() === $displayMode;
     }
 
     /**
@@ -627,7 +632,7 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\AProduct
      */
     protected function isCSSLayout()
     {
-        return $this->getParam(static::PARAM_DISPLAY_MODE) === static::DISPLAY_MODE_GRID;
+        return $this->getDisplayMode() === static::DISPLAY_MODE_GRID;
     }
 
     /**
@@ -638,7 +643,7 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\AProduct
     protected function getPageBodyFile()
     {
         if ($this->getWidgetType() === static::WIDGET_TYPE_CENTER
-            && $this->getParam(static::PARAM_DISPLAY_MODE) === static::DISPLAY_MODE_GRID
+            && $this->getDisplayMode() === static::DISPLAY_MODE_GRID
         ) {
             return $this->isCSSLayout() ? 'body-css-layout.twig' : 'body-table-layout.twig';
         } else {

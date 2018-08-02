@@ -152,6 +152,26 @@ class ImageOperator extends \XLite\Base\SuperClass
     }
 
     /**
+     * @param float $degree
+     *
+     * @return bool
+     */
+    public function rotate($degree)
+    {
+        return static::getEngine()->rotate($degree);
+    }
+
+    /**
+     * @param bool $horizontal
+     *
+     * @return bool
+     */
+    public function mirror($horizontal = true)
+    {
+        return static::getEngine()->mirror($horizontal);
+    }
+
+    /**
      * @return ADTO
      */
     public function getImage()

@@ -89,3 +89,5 @@ XLite\Model\LanguageLabel:
   - { name: 'Full Name', translations: [{ code: en, label: 'Full Name' }]}
   - { name: 'We are always glad to help you.', translations: [{ code: en, label: 'We are always glad to help you.' }]}
   - { name: 'Send a message', translations: [{ code: en, label: 'Send a message' }]}
+
+  - { name: 'Our location', translations: [{ code: en, label: 'Our location' }]}

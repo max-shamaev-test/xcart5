@@ -16,8 +16,6 @@ abstract class AExpressCheckout extends \XLite\View\Button\Link
     const PARAM_IN_CONTEXT = 'inContext';
 
     /**
-     * Returns true if widget is visible
-     *
      * @return boolean
      */
     protected function isVisible()
@@ -28,8 +26,6 @@ abstract class AExpressCheckout extends \XLite\View\Button\Link
     }
 
     /**
-     * defineWidgetParams
-     *
      * @return void
      */
     protected function defineWidgetParams()
@@ -42,11 +38,17 @@ abstract class AExpressCheckout extends \XLite\View\Button\Link
         );
     }
 
+    /**
+     * @return string
+     */
     protected function getDefaultTemplate()
     {
         return 'modules/CDev/Paypal/button/ec_button.twig';
     }
 
+    /**
+     * @return array
+     */
     public function getJSFiles()
     {
         return array_merge(parent::getJSFiles(), [
@@ -63,6 +65,9 @@ abstract class AExpressCheckout extends \XLite\View\Button\Link
         return 'pp-express-checkout-button';
     }
 
+    /**
+     * @return array
+     */
     protected function getAllowedLocales()
     {
         return [
@@ -92,6 +97,9 @@ abstract class AExpressCheckout extends \XLite\View\Button\Link
         ];
     }
 
+    /**
+     * @return null|string
+     */
     protected function getLocale()
     {
         $locale = @mb_substr(\XLite\Core\Converter::getLocaleByCode(), 0, 5);
@@ -101,6 +109,9 @@ abstract class AExpressCheckout extends \XLite\View\Button\Link
             : null;
     }
 
+    /**
+     * @return array
+     */
     protected function getButtonAdditionalParams()
     {
         $result = [];
@@ -109,13 +120,67 @@ abstract class AExpressCheckout extends \XLite\View\Button\Link
             $result['data-locale'] = $this->getLocale();
         }
 
+        $result['data-style-layout'] = $this->getButtonLayout();
+        $result['data-style-size']   = $this->getButtonSize();
+        $result['data-style-color']  = $this->getButtonColor();
+        $result['data-style-shape']  = $this->getButtonShape();
+
         return $result;
     }
 
+    /**
+     * @return string
+     */
     protected function getButtonAdditionalParamsCode()
     {
         return implode(' ', array_map(function ($k, $v) {
-            return "{$k}={$v}";
+            return "{$k}=\"{$v}\"";
         }, array_keys($this->getButtonAdditionalParams()), $this->getButtonAdditionalParams()));
+    }
+
+    /**
+     * @return string
+     */
+    protected function getButtonStyleNamespace()
+    {
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getButtonLayout()
+    {
+        return 'horizontal';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getButtonSize()
+    {
+        $configVariable = $this->getButtonStyleNamespace() . '_style_size';
+
+        return \XLite\Core\Config::getInstance()->CDev->Paypal->{$configVariable} ?: 'responsive';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getButtonColor()
+    {
+        $configVariable = $this->getButtonStyleNamespace() . '_style_color';
+
+        return \XLite\Core\Config::getInstance()->CDev->Paypal->{$configVariable} ?: 'gold';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getButtonShape()
+    {
+        $configVariable = $this->getButtonStyleNamespace() . '_style_shape';
+
+        return \XLite\Core\Config::getInstance()->CDev->Paypal->{$configVariable} ?: 'rect';
     }
 }

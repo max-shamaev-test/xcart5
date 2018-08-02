@@ -57,7 +57,7 @@ var EventTaskProgress = Object.extend({
       if (form) {
         form.commonController.enableBackgroundSubmit();
         form.commonController.submitBackground(function () {
-          self.triggerError({});
+          self.triggerCancel({});
         });
         this.$message.html(core.t('Canceled'));
         this.cancelingRequested = true;
@@ -100,6 +100,10 @@ var EventTaskProgress = Object.extend({
     }
 
     this.$bar.trigger('error', data);
+  },
+
+  triggerCancel: function(data) {
+    this.$bar.trigger('cancel', data);
   },
 
   triggerComplete: function(data) {

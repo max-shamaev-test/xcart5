@@ -54,6 +54,14 @@ abstract class Main extends \XLite\Module\AModule
     }
 
     /**
+     * @inheritdoc
+     */
+    public static function getBuildVersion()
+    {
+        return '1';
+    }
+
+    /**
      * Module description
      *
      * @return string

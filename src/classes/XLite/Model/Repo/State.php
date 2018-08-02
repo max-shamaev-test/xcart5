@@ -380,15 +380,15 @@ class State extends \XLite\Model\Repo\ARepo
         $list = parent::defineCacheCells();
 
         $list['all'] = array(
-            self::RELATION_CACHE_CELL => array('\XLite\Model\Country'),
+            static::RELATION_CACHE_CELL => array('\XLite\Model\Country'),
         );
 
         $list['allGrouped'] = array(
-            self::RELATION_CACHE_CELL => array('\XLite\Model\Country'),
+            static::RELATION_CACHE_CELL => array('\XLite\Model\Country'),
         );
 
         $list['codes'] = array(
-            self::ATTRS_CACHE_CELL => array('state_id'),
+            static::ATTRS_CACHE_CELL => array('state_id'),
         );
 
         return $list;

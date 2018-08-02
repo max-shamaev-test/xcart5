@@ -83,7 +83,7 @@ class ActionStatus extends \XLite\Base
      */
     public function isError()
     {
-        return self::STATUS_ERROR === $this->status;
+        return static::STATUS_ERROR === $this->status;
     }
 
     /**
@@ -93,7 +93,7 @@ class ActionStatus extends \XLite\Base
      */
     public function isSuccess()
     {
-        return self::STATUS_SUCCESS === $this->status;
+        return static::STATUS_SUCCESS === $this->status;
     }
 
     /**

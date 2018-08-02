@@ -799,7 +799,7 @@ class Orders extends \XLite\Logic\Export\Step\AStep
     {
         return empty($dataset['paymentTransaction'])
             ? ''
-            : $this->getColumnValueByName($dataset['paymentTransaction'], 'note');
+            : (string)$this->getColumnValueByName($dataset['paymentTransaction'], 'note');
     }
 
     /**

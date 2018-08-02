@@ -44,18 +44,24 @@ class FrontPage extends \XLite\View\Tabs\ATabs
      */
     protected function defineTabs()
     {
-        return [
+        $tabs = [
             'front_page' => [
                 'weight' => 100,
                 'title' => static::t('Front page'),
                 'template' => 'front_page/body.twig',
             ],
-            'banner_rotation' => [
+        ];
+
+        if (\XLite\Core\Auth::getInstance()->isPermissionAllowed('manage banners')) {
+            $tabs['banner_rotation'] = [
                 'weight'   => 200,
                 'title'    => static::t('Banner rotation'),
                 'template' => 'banner_rotation/body.twig',
-            ]
-        ];
+            ];
+        }
+
+
+        return $tabs;
     }
 
     /**

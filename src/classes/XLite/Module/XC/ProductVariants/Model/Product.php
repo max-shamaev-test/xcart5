@@ -118,9 +118,13 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
             return $value->getAttribute()->getId();
         }, $variant->getValues());
 
-        $ids = array_filter($ids, function ($k) use ($variantAttributes) {
-            return in_array($k, $variantAttributes);
-        }, ARRAY_FILTER_USE_KEY);
+        $filteredIds = [];
+        foreach ($ids as $k => $v) {
+            if (in_array($k, $variantAttributes, true)) {
+                $filteredIds[$k] = $v;
+            }
+        }
+        $ids = $filteredIds;
 
         if (empty($ids)) {
             return $singleVariant
@@ -499,6 +503,23 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
         return $this->getVariant()
             ? $this->getVariant()->isShowStockWarning()
             : parent::isShowStockWarning();
+    }
+
+    /**
+     * Check variants attributes
+     *
+     * @return void
+     */
+    public function checkVariantsAttributes()
+    {
+        if (0 === count($this->getVariants())) {
+            foreach ($this->getVariantsAttributes() as $attribute) {
+                $attribute->getVariantsProducts()->removeElement($this);
+                $this->getVariantsAttributes()->removeElement($attribute);
+            }
+
+            \XLite\Core\Database::getEM()->flush();
+        }
     }
 
     /**

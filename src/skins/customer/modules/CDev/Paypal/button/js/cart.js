@@ -9,15 +9,17 @@
 
 define('paypal_ec_checkout_cart_button_processor', ['paypal_ec_button_processors'], function (Processors) {
   Processors.push(function (element, state) {
-    if (element.is('.pp-funding-credit')) {
-      if (!state.funding) {
-        state.funding = {};
-      }
+    if (!state.funding) {
+      state.funding = {};
+    }
 
+    if (element.is('.pp-funding-credit')) {
       state.funding.allowed = [ paypal.FUNDING.CREDIT ];
+      state.funding.disallowed = [];
       state.tagline = true;
-      state.size = 'responsive';
-      state.tagline = true;
+    } else {
+      state.funding.allowed = [ ];
+      state.funding.disallowed = [ paypal.FUNDING.CREDIT ];
     }
   })
 });

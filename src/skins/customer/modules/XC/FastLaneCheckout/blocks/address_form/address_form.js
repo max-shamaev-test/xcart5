@@ -17,19 +17,38 @@ define('checkout_fastlane/blocks/address_form', ['vue/vue'], function(Vue) {
     },
 
     ready: function() {
+      var self = this;
       // Legacy form validation
       new CommonForm(this.form);
       core.autoload(PopupButtonAddressBook);
       this.assignHandlers();
-      this.triggerUpdate({
-        silent: true
-      });
-
       core.trigger('checkout.address_form.ready');
+
+      this.$nextTick(function () {
+        self.triggerUpdate({
+          silent: true
+        });
+      })
     },
+
+    vuex: {
+      getters: {
+        is_visible: function (state) {
+          return state.sections.current && state.sections.current.name === 'address'
+        },
+        vuex_same_as_shipping: function(state) {
+          return state.order.same_address;
+        },
+        vuex_address: function(state) {
+          return state.order.address;
+        },
+      },
+    },
+
 
     data: function() {
       return {
+        isFormValid: null,
         fields: window.WidgetData[this.$options.name],
         loginExists: null,
         create_profile: null,
@@ -39,6 +58,18 @@ define('checkout_fastlane/blocks/address_form', ['vue/vue'], function(Vue) {
     },
 
     computed: {
+      address: {
+        cache: false,
+        get: function () {
+          if (typeof this.vuex_address[this.fullType] !== 'undefined') {
+            return this.same_address
+              ? this.vuex_address['shipping']
+              : this.vuex_address[this.fullType];
+          }
+
+          return null;
+        }
+      },
       form: function() {
         return this.$el.querySelectorAll('form')[0];
       },
@@ -68,10 +99,7 @@ define('checkout_fastlane/blocks/address_form', ['vue/vue'], function(Vue) {
       isValid: {
         cache: false,
         get: function() {
-          return this.isStateValid && !_.isUndefined(this.form.commonController) && this.form.commonController.validate({
-            silent: !this.form.commonController.isChanged(true) || !this.form.commonController.wasFilledOnce(),
-            focus: false
-          });
+          return this.isFormValid && this.isStateValid;
         }
       }
     },
@@ -118,26 +146,14 @@ define('checkout_fastlane/blocks/address_form', ['vue/vue'], function(Vue) {
 
       global_selectcartaddress: function(data) {
         if (data.type == this.shortType && !_.isEmpty(data.fields)) {
-          this.nonPersistMode = true;
-          this.fields = _.extend(this.fields, data.fields);
-
-          this.$nextTick(function() {
-            jQuery('.field-country_code', this.form).change();
-            jQuery('.field-state_id', this.form).val(this.fields.state_id);
-          });
+          this.syncFields(data.fields);
         }
       },
 
       global_updatecart: function(data) {
         var key = this.fullType + 'AddressFields';
         if (_.has(data, key) && _.isEmpty(this.syncBlockers)) {
-          this.nonPersistMode = true;
-          this.fields = _.extend(this.fields, data[key]);
-
-          this.$nextTick(function() {
-            jQuery('.field-country_code', this.form).change();
-            jQuery('.field-state_id', this.form).val(this.fields.state_id);
-          });
+          this.syncFields(data[key]);
         }
       },
 
@@ -154,6 +170,20 @@ define('checkout_fastlane/blocks/address_form', ['vue/vue'], function(Vue) {
     },
 
     watch: {
+      is_visible: function (val, oldVal) {
+        if (val) {
+          this.validate();
+        }
+      },
+      same_address: function() {
+        this.syncFields(this.address);
+      },
+      address: {
+        deep: true,
+        handler: function() {
+          this.syncFields(this.address);
+        }
+      },
       'fields': {
         deep: true,
         handler: function(value) {
@@ -187,6 +217,7 @@ define('checkout_fastlane/blocks/address_form', ['vue/vue'], function(Vue) {
         $('.item-email .subbox.create-warning').find('a.log-in').click(_.bind(this.onLoginClick, this));
         $('.item-email .subbox.create').find('a.register').click(_.bind(this.onRegisterClick, this));
       },
+
       onLoginClick: function(event) {
         loadDialogByLink(
           event.currentTarget,
@@ -203,6 +234,37 @@ define('checkout_fastlane/blocks/address_form', ['vue/vue'], function(Vue) {
         );
 
         return false;
+      },
+
+      syncFields: function(data) {
+        if (!data || this.fieldsEqual(data)) {
+          return;
+        }
+
+        this.nonPersistMode = true;
+        this.fields = _.extend(this.fields, data);
+
+        this.$nextTick(function() {
+          jQuery('.field-country_code', this.form).change();
+          jQuery('.field-state_id', this.form).val(this.fields.state_id);
+
+          this.validate();
+        }.bind(this));
+      },
+
+      fieldsEqual: function (data) {
+        var source = window.core.utils.hash(this.fields);
+        var dest = window.core.utils.hash(data);
+
+        return source === dest;
+      },
+
+      validate: function () {
+        var controller = this.form.commonController;
+        this.isFormValid = !_.isUndefined(controller) && controller.validate({
+          silent: !controller.isChanged(true) || !controller.wasFilledOnce(),
+          focus: false
+        });
       },
 
       onRegisterClick: function(event) {
@@ -229,6 +291,8 @@ define('checkout_fastlane/blocks/address_form', ['vue/vue'], function(Vue) {
       },
 
       triggerUpdate: function(options) {
+        this.validate();
+
         options = options || {};
         var eventArgs = _.extend({
           sender: this,

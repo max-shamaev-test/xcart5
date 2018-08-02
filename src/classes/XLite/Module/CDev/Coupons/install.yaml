@@ -9,7 +9,7 @@ XLite\Model\Order\Modifier:
   - { class: 'XLite\Module\CDev\Coupons\Logic\Order\Modifier\Discount', weight: 50 }
 
 XLite\Model\Role\Permission:
-  - { code: manage coupons, section: Coupons, translations: [{ code: en, name: Manage coupons }] }
+  - { code: manage coupons, section: Coupons, translations: [{ code: en, name: Manage coupons }, { code: ru, name: Управление купонами }] }
 
 XLite\Model\Role:
   - { translations: [{ code: en, name: Coupons management }, { code: ru, name: Управление купонами }], permissions: [{ code: manage coupons }] }
@@ -63,4 +63,4 @@ XLite\Model\LanguageLabel:
   - { name: "Sorry, the coupon you entered cannot be applied to the items in your cart", translations: [{ code: en, label: "Sorry, the coupon you entered cannot be applied to the items in your cart" }] }
   - { name: "Sorry, the coupon you entered is not valid for your membership level. Contact the administrator", translations: [{ code: en, label: "Sorry, the coupon you entered is not valid for your membership level. Contact the administrator" }] }
   - { name: 'The maximum number of uses per user', translations: [{ code: en, label: 'The maximum number of uses per user' }] }
-  - { name: 'itemslist.admin.coupon.blank', translations: [{ code: en, label: '<p class="items-list-blank-description-heading text-center">There are currently no coupons.</p><p class="text-center">Information on the use of coupons is available <a target="_blank" href="https://kb.x-cart.com/en/seo_and_promotion/setting_up_discount_coupons.html">here</a>.</p>' },{ code: ru, label: '<p class="items-list-blank-description-heading text-center">В настоящее время купонов нет.</p><p class="text-center">Об использовании купонов можно прочесть <a target="_blank" href="https://kb.x-cart.com/en/seo_and_promotion/setting_up_discount_coupons.html">здесь</a>.</p>' }] }
+  - { name: 'itemslist.admin.coupon.blank', translations: [{ code: en, label: '<p class="items-list-blank-description-heading text-center">There are currently no coupons.</p><p class="text-center">Information on the use of coupons is available <a target="_blank" href="https://kb.x-cart.com/en/seo_and_promotion/setting_up_discount_coupons.html">here</a>.</p>' },{ code: ru, label: '<p class="items-list-blank-description-heading text-center">В настоящее время купонов нет.</p><p class="text-center">Об использовании купонов можно прочесть <a target="_blank" href="https://kb.x-cart.ru/seo_and_promotion/setting_up_discount_coupons.html">здесь</a>.</p>' }] }

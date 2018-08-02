@@ -94,10 +94,10 @@ class Language extends \XLite\Model\Repo\Base\I18n
         $list = parent::defineCacheCells();
         $list['all'] = array();
         $list['added'] = array(
-            self::ATTRS_CACHE_CELL => array('added'),
+            static::ATTRS_CACHE_CELL => array('added'),
         );
         $list['enabled'] = array(
-            self::ATTRS_CACHE_CELL => array('enabled'),
+            static::ATTRS_CACHE_CELL => array('enabled'),
         );
 
         return $list;
@@ -217,11 +217,11 @@ class Language extends \XLite\Model\Repo\Base\I18n
      */
     protected static function getImportLanguageFields()
     {
-        return array(
+        return [
             static::LNG_IMPORT_FIELD_CODE,
             static::LNG_IMPORT_FIELD_NAME,
             static::LNG_IMPORT_FIELD_LABEL,
-        );
+        ];
     }
 
     /**

@@ -73,12 +73,14 @@ ProductFilterView.prototype.getFilters = function () {
       return /^filter/.test(item.name) && item.value;
     }
   ).reduce(
-    function (acc, item) {
-      acc[item.name] = item.value;
-      return acc;
-    },
+    this.reduceFiltersHandler.bind(this),
     {}
   );
+};
+
+ProductFilterView.prototype.reduceFiltersHandler = function (acc, item) {
+  acc[item.name] = item.value;
+  return acc;
 };
 
 // Merge filters

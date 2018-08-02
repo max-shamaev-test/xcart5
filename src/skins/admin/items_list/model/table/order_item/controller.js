@@ -549,9 +549,31 @@ OrderItemsList.prototype.updateLinePriceLocal = function(line)
     price = 0;
   }
 
+  line.find('td.name .edit-options-dialog .attribute-values [data-init-selected="1"]').each(
+      function () {
+          var elm = jQuery(this);
+          if (elm.data('modifier-price')) {
+              var modifier = parseFloat(elm.data('modifier-price'));
+              price -= modifier;
+          }
+      }
+  );
+
   line.find('td.name .edit-options-dialog .attribute-values select').each(
     function() {
       var elm = jQuery(this.options[this.selectedIndex]);
+      if (elm.data('modifier-price')) {
+        var modifier = parseFloat(elm.data('modifier-price'));
+        if (!isNaN(modifier) && modifier) {
+          price += modifier;
+        }
+      }
+    }
+  );
+
+  line.find('td.name .edit-options-dialog .attribute-values input[type="checkbox"]:checked').each(
+    function() {
+      var elm = jQuery(this);
       if (elm.data('modifier-price')) {
         var modifier = parseFloat(elm.data('modifier-price'));
         if (!isNaN(modifier) && modifier) {

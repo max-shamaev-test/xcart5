@@ -16,6 +16,7 @@ use Includes\Decorator\Utils\CacheManager;
 
 // Timestamp of the application start
 define('LC_START_TIME', time());
+define('MAX_TIMESTAMP', PHP_INT_SIZE === 4 ? PHP_INT_MAX : PHP_INT_MAX >> 32);
 
 // Namespaces
 define('LC_NAMESPACE',          'XLite');

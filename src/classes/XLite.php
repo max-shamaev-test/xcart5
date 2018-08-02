@@ -19,13 +19,13 @@ use XLite\Core\Database\Migration\UnsupportedDatabaseOperationDuringMaintenanceE
  *     produces={"application/json", "application/xml"},
  *     consumes={"application/json", "application/x-www-form-urlencoded"},
  *     @Swg\Info (
- *         version="5.3.3.3",
+ *         version="5.3.5.5",
  *         title="X-Cart REST API",
  *         description="",
  *     ),
  *     @Swg\ExternalDocumentation (
  *         description="Find out more about X-Cart REST API",
- *         url="https://devs.x-cart.com/en/basics/rest_api_documentation.html"
+ *         url="https://devs.x-cart.com/rest-api/"
  *     )
  * )
  *
@@ -46,7 +46,7 @@ class XLite extends \XLite\Base
     /**
      * Core version
      */
-    const XC_VERSION = '5.3.4.5';
+    const XC_VERSION = '5.3.5.5';
 
     /**
      * Endpoints
@@ -808,7 +808,7 @@ class XLite extends \XLite\Base
                 // Get canonical redirect URL
                 $canonicalURL = \XLite\Core\Database::getRepo('XLite\Model\CleanURL')->getRedirectCanonicalURL($result);
 
-                if ($canonicalURL) {
+                if ($canonicalURL && !\XLite\Core\Request::getInstance()->isAJAX()) {
                     // Redirect
                     \XLite\Core\Operator::redirect($canonicalURL);
                 }
@@ -844,7 +844,7 @@ class XLite extends \XLite\Base
                 }
             }
 
-            if (($web_dir . '/' . $redirectUrl) !== $selfURI) {
+            if (($web_dir . '/' . $redirectUrl) !== $selfURI && !\XLite\Core\Request::getInstance()->isAJAX()) {
                 // If there is not-default language selected
                 // but url doesn't contains it, so we should redirect to url with that language
                 $isRedirectToLanguageNeeded = isset($noLangRedirectUrl)
@@ -853,11 +853,13 @@ class XLite extends \XLite\Base
                     ? 302
                     : 301;
 
-                $ttl = 86400;
-                $expiresTime = gmdate('D, d M Y H:i:s', time() + $ttl) . ' GMT';
+                if (!$isRedirectToLanguageNeeded) {
+                    $ttl = 86400;
+                    $expiresTime = gmdate('D, d M Y H:i:s', time() + $ttl) . ' GMT';
 
-                header("Cache-Control: max-age=$ttl, must-revalidate");
-                header("Expires: $expiresTime");
+                    header("Cache-Control: max-age=$ttl, must-revalidate");
+                    header("Expires: $expiresTime");
+                }
 
                 \XLite\Core\Operator::redirect(
                     \XLite\Core\URLManager::getShopURL($redirectUrl),

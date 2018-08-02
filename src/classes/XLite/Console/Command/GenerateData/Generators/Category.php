@@ -15,14 +15,16 @@ namespace XLite\Console\Command\GenerateData\Generators;
 class Category
 {
     /**
-     * @param      $suffix
-     * @param      $pos
-     * @param      $parent
-     * @param bool $generateImage
+     * @param        $suffix
+     * @param        $pos
+     * @param        $parent
+     * @param bool   $generateImage
+     * @param Image  $imageGenerator
      *
      * @return \XLite\Model\Category
+     * @throws \Exception
      */
-    public function generate($suffix, $pos, $parent, $generateImage = false)
+    public function generate($suffix, $pos, $parent, $generateImage = false, $imageGenerator)
     {
         /** @var \XLite\Model\Category $category */
         $category = $this->createCategory($suffix, $pos, $parent);
@@ -32,7 +34,7 @@ class Category
             $image->setCategory($category);
             $category->setImage($image);
             \XLite\Core\Database::getEM()->persist($image);
-            $image->loadFromLocalFile(LC_DIR_ROOT . 'public/error_image.png');
+            $image->loadFromLocalFile($imageGenerator->generateImage());
         }
 
         return $category;

@@ -168,18 +168,10 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      *
      * @return \XLite\Module\XC\Reviews\Model\Review
      */
-    public function getReviewAddedByUser(\XLite\Model\Profile $profile = null, $findByIp = true)
+    public function getReviewAddedByUser(\XLite\Model\Profile $profile = null)
     {
         if (!isset($this->reviewAddedByUser)) {
             $this->reviewAddedByUser = $this->getReviewAddedByUserFromDb($profile);
-
-            // If any customer has added review during getTtlLimitForReviewFromIp() time then
-            // other customers cannot add reviews
-            if (!$this->reviewAddedByUser) {
-                $this->reviewAddedByUser = $this->findReviewByIp(
-                    utf8_encode(inet_pton($_SERVER['REMOTE_ADDR']))
-                );
-            }
         }
 
         return $this->reviewAddedByUser ?: null;
@@ -211,32 +203,6 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     }
 
     /**
-     * Find reviews added by ip
-     *
-     * @param string $ip Ip to search
-     *
-     * @return \XLite\Module\XC\Reviews\Model\Review | null
-     */
-    protected function findReviewByIp($ip)
-    {
-        $data = [
-            'product'   => $this,
-            'ip'        => $ip,
-        ];
-        $reviews = \XLite\Core\Database::getRepo('XLite\Module\XC\Reviews\Model\Review')->findBy($data);
-
-        $resultReview = null;
-        foreach ($reviews as $tempReview) {
-            if ($tempReview->getAdditionDate() >= (LC_START_TIME - $this->getTtlLimitForReviewFromIp())) {
-                $resultReview = $tempReview;
-                break;
-            }
-        }
-
-        return $resultReview;
-    }
-
-    /**
      * Return TRUE if customer already rated product
      *
      * @param \XLite\Model\Profile $profile Profile
@@ -262,16 +228,6 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
         $review = $this->getReviewAddedByUser($profile);
 
         return (null != $review && $review->getReview());
-    }
-
-    /**
-     * Get time to live for limiting adding reviews from one ip for certain product
-     *
-     * @return integer
-     */
-    protected function getTtlLimitForReviewFromIp()
-    {
-        return \XLite\Module\XC\Reviews\Model\Review::TTL_LIMIT_FOR_REVIEW_FROM_IP;
     }
 
     /**

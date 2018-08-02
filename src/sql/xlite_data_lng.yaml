@@ -13,6 +13,8 @@ XLite\Model\LanguageLabel:
   - { name: "module-sort-Alphabetically", translations: [{ code: en, label: 'Alphabetically' }]}
   - { name: "Tags", translations: [{ code: en, label: 'Tags' }]}
 
+  - { name: "All tags", translations: [{ code: en, label: 'All tags' }]}
+  - { name: "tag-All tags", translations: [{ code: en, label: 'All tags' }]}
   - { name: "tag-All", translations: [{ code: en, label: 'All' }]}
   - { name: "tag-Accounting", translations: [{ code: en, label: 'Accounting' }]}
   - { name: "tag-Administration", translations: [{ code: en, label: 'Administration' }]}
@@ -25,6 +27,15 @@ XLite\Model\LanguageLabel:
   - { name: "tag-Translation", translations: [{ code: en, label: 'Translation' }]}
   - { name: "tag-User experience", translations: [{ code: en, label: 'User experience' }]}
   - { name: "tag-Website design", translations: [{ code: en, label: 'Website design' }]}
+  - { name: "tag-Sales Channels", translations: [{ code: en, label: 'Sales Channels' }]}
+  - { name: "tag-Orders", translations: [{ code: en, label: 'Orders' }]}
+  - { name: "tag-Security", translations: [{ code: en, label: 'Security' }]}
+  - { name: "tag-Migration", translations: [{ code: en, label: 'Migration' }]}
+  - { name: "tag-Price modifiers", translations: [{ code: en, label: 'Price modifiers' }]}
+  - { name: "tag-Checkout", translations: [{ code: en, label: 'Checkout' }]}
+  - { name: "tag-Products", translations: [{ code: en, label: 'Products' }]}
+  - { name: "tag-Fraud prevention", translations: [{ code: en, label: 'Fraud prevention' }]}
+
   - { name: 'Attribute data will be lost. warning text', translations: [{ code: en, label: 'Before editing attributes specific for the chosen type you should save the changes. <br /><br />Changing the type of a product attribute after having defined values for this attribute for some products will result in losing the defined attribute values.' }] }
   - { name: "For details refer to X-Cart license", translations: [{ code: en, label: 'For details refer to <a href="{{licenseAgreementURL}}" target="_blank">X-Cart license agreement</a>.' }]}
   - { name: "License activation is not available", translations: [{ code: en, label: 'We are sorry, the Marketplace server is currently unavailable. Your license could not be registered. Please try again later.' }]}
@@ -180,6 +191,8 @@ XLite\Model\LanguageLabel:
   - { name: "Congratulations! Your order has been placed successfully", translations: [{ code: en, label: "Congratulations! Your order has been placed.<br />You will receive your order confirmation shortly." }] }
   - { name: "X item in bag", translations: [{ code: en, label: "{{count}} item in cart" }] }
   - { name: "X items in bag", translations: [{ code: en, label: "{{count}} items in cart" }] }
+  - { name: "See all items in the cart", translations: [{ code: en, label: "See all {{count}} items" }] }
+  - { name: "Last added items", translations: [{ code: en, label: "Last added items" }] }
   - { name: "Other items", translations: [{ code: en, label: "Other items" }] }
   - { name: "The selected shipping method has been deleted successfully", translations: [{ code: en, label: "The selected shipping method has been deleted successfully" }] }
   - { name: "Shipping methods have been updated", translations: [{ code: en, label: "The shipping methods have been updated" }] }
@@ -253,6 +266,7 @@ XLite\Model\LanguageLabel:
   - { name: "Pending membership", translations: [{ code: en, label: "Pending membership" }] }
   - { name: "X results found", translations: [{ code: en, label: "{{count}} result(s) found" }] }
   - { name: "per page", translations: [{ code: en, label: "per page" }] }
+  - { name: "X order", translations: [{ code: en, label: "<span>{{count}}</span> order" }] }
   - { name: "X orders", translations: [{ code: en, label: "<span>{{count}}</span> orders" }] }
   - { name: "Logged in!", translations: [{ code: en, label: "Logged in!" }] }
   - { name: "Log off", translations: [{ code: en, label: "Log off" }] }
@@ -322,8 +336,8 @@ XLite\Model\LanguageLabel:
   - { name: "Trial period X days", translations: [{ code: en, label: "Trial period &mdash; {{X}} day(s) left" }] }
   - { name: "Editing attribute groups on this page won't affect other product classes which use these groups", translations: [{ code: 'en', label: "Editing attribute groups on this page will not affect other product classes that use these groups. Removing a group does not delete attributes from the group, but makes them show up among other attributes having no associated groups." }] }
   - { name: "What's new", translations: [{ code: en, label: "What's new" }] }
-  - { name: "Your account email is X.", translations: [{ code: en, label: "Your account email is {{email}}." }] }
-  - { name: "Your account password is X.", translations: [{ code: en, label: "Your account password is {{password}}." }] }
+  - { name: "Your account email is X", translations: [{ code: en, label: "Your account email is {{email}}" }] }
+  - { name: "Your account password is X", translations: [{ code: en, label: "Your account password is {{password}}" }] }
   - { name: 'Payment methods appearance description', translations: [{ code: en, label: 'Here you can provide titles and descriptions for your payment methods and set the order in which they should appear on the storefront.<br><strong>Title</strong> &mdash; name of the custom payment method as should be displayed to customers;your custom payment name shown for customer;<br><strong>Description</strong> &mdash; short description of the payment method that should appear right below its title.' }] }
   - { name: "Watch this short video and learn the basics of how online payment processing works", translations: [{ code: en, label: "Watch this short video and learn the basics of how online payment processing works. You will also find out what to look for when choosing the best payment processing solution for your business." }] }
   - { name: "X methods available", translations: [{ code: en, label: "{{count}} methods available" }] }
@@ -494,6 +508,7 @@ XLite\Model\LanguageLabel:
   - { name: "Add-ons", translations: [{ code: en, label: "Add-ons" }] }
   - { name: "Add/update options", translations: [{ code: en, label: "Add/update options" }] }
   - { name: "Added", translations: [{ code: en, label: "Added" }] }
+  - { name: "Joined", translations: [{ code: en, label: "Joined" }] }
   - { name: "Added to cart", translations: [{ code: en, label: "Added to cart" }] }
   - { name: "Address", translations: [{ code: en, label: "Address" }] }
   - { name: "Address book", translations: [{ code: en, label: "Address book" }] }
@@ -701,7 +716,7 @@ XLite\Model\LanguageLabel:
   - { name: "Display 'inc/ex VAT' labels next to prices", translations: [{ code: en, label: "Display 'inc/ex VAT' labels next to prices" }] }
   - { name: "Display type", translations: [{ code: en, label: "Display type" }] }
   - { name: "Do not close this page!", translations: [{ code: en, label: "Do not close this page!" }] }
-  - { name: "Do not show at startup anymore", translations: [{ code: en, label: "Do not show at startup any more" }] }
+  - { name: "Do not show at startup anymore", translations: [{ code: en, label: "Do not show at startup anymore" }] }
   - { name: "Do you really want to delete selected items?", translations: [{ code: en, label: "Do you really want to delete the selected items?" }] }
   - { name: "Dont have account yet?", translations: [{ code: en, label: "Dont have account yet?" }] }
   - { name: "Download SQL file", translations: [{ code: en, label: "Download SQL file" }] }
@@ -988,6 +1003,7 @@ XLite\Model\LanguageLabel:
   - { name: "Order status", translations: [{ code: en, label: "Order status" }] }
   - { name: "Orders", translations: [{ code: en, label: "Orders" }] }
   - { name: "Orders count", translations: [{ code: en, label: "Orders count" }] }
+  - { name: "Orders placed", translations: [{ code: en, label: "Orders placed" }] }
   - { name: "Out of stock", translations: [{ code: en, label: "Out of stock" }] }
   - { name: "Pack it", translations: [{ code: en, label: "Pack it" }] }
   - { name: "Page", translations: [{ code: en, label: "Page" }] }
@@ -1362,6 +1378,9 @@ XLite\Model\LanguageLabel:
   - { name: "Use a merchant account from your financial institution or choose a bundled payment solution to accept credit cards and other methods of payment on your website.", translations: [{ code: en, label: "Use a merchant account from your financial institution or choose a bundled payment solution to accept credit cards and other methods of payment on your website." }] }
   - { name: "Use a merchant account from your financial institution to accept online payments", translations: [{ code: en, label: "Use a merchant account from your financial institution to accept online payments" }] }
   - { name: "Use custom js", translations: [{ code: en, label: "Use custom js" }] }
+  - { name: "Use images lazy load preloaded", translations: [{ code: en, label: "Use blurred image placeholders for smart image loading" }] }
+  - { name: "Use images lazy load placeholder", translations: [{ code: en, label: "Use image background placeholders for smart image loading" }] }
+  - { name: "Use images lazy load help", translations: [{ code: en, label: "When enabled, pre-loaded low resolution images or single color background image placeholders are used to replace the actual full resolution images on the storefront before they are fully loaded." }] }
   - { name: "Use default logo", translations: [{ code: en, label: "Use default logo" }] }
   - { name: "Use dynamic image resizing", translations: [{ code: en, label: 'Use dynamic image resizing' }]}
   - { name: "Use dynamic image help", translations: [{ code: en, label: 'This setting determines what happens if X-Cart cannot find a previously generated resized version of an image it needs to display. If this setting is enabled, an appropriately sized version of the image is generated on the fly. If this setting is disabled, the original (non-resized) image is used.' }]}
@@ -1511,7 +1530,7 @@ XLite\Model\LanguageLabel:
   - { name: "Unknown language: X", translations: [{ code: en, label: "Unknown language: {{code}}" }] }
   - { name: "deleted", translations: [{ code: en, label: "deleted" }] }
   - { name: "It's impossible to detect valid SSL certificate availability on your server because curl extension is not installed.", translations: [{ code: en, label: "It is impossible to detect valid SSL certificate availability on your server because curl extension is not installed." }] }
-  - { name: "Your store is configured to use the secure protocol for the store back-end and checkout, sign-in and profile pages.", translations: [{ code: en, label: "Your store is configured to use the secure protocol for the store's back end, checkout, sign-in and profile pages." }] }
+  - { name: "Your store is configured to use the secure protocol for the store back-end and checkout, sign-in and profile pages.", translations: [{ code: en, label: "Your store is configured to use the secure protocol for both the store’s back end and customer area." }] }
   - { name: "We have found a valid SSL certificate installed on the server. Now you can switch the store to use the secure protocol for the store back-end and checkout, sign-in and profile pages.", translations: [{ code: en, label: "We have found a valid SSL certificate installed on the server. Now you can switch the store to use the secure protocol for the store's back end, checkout, sign-in and profile pages." }] }
   - { name: "Support", translations: [{ code: en, label: "Support" }] }
   - { name: "After the upgrade is completed please check your website. If you find that the site is inoperative, please try to do the following", translations: [{ code: en, label: "After the upgrade is completed, please check your website. If you find that the site is not operating properly, please try the following" }] }
@@ -2246,6 +2265,7 @@ XLite\Model\LanguageLabel:
   - { name: 'A new category will be created', translations: [{ code: en, label: 'New category will be created' }] }
   - { name: 'Wrong price format', translations: [{ code: en, label: 'Wrong price format. Positive floating-point number expected' }] }
   - { name: 'Wrong enabled format', translations: [{ code: en, label: 'Wrong enabled format. This should be "Yes" or "No"' }] }
+  - { name: 'Wrong meta desc type format', translations: [{ code: en, label: 'Wrong metaDescType format. This should be "A" or "C"' }] }
   - { name: 'Wrong weight format', translations: [{ code: en, label: 'Wrong format of weight value. Positive floating-point number expected' }] }
   - { name: 'Wrong shippable format', translations: [{ code: en, label: 'Wrong format of low stock notification value. This should be "Yes" or "No"' }] }
   - { name: 'Wrong use separate box format', translations: [{ code: en, label: 'Wrong format of use separate box value. This should be "Yes" or "No"' }] }
@@ -2263,6 +2283,8 @@ XLite\Model\LanguageLabel:
   - { name: 'Wrong items per box format', translations: [{ code: en, label: 'Wrong format of items per box value. Positive integer expected' }] }
   - { name: 'Wrong format of Clean URL value (allowed alpha-numeric, "_" and "-" chars)', translations: [{ code: en, label: 'Wrong format of Clean URL value (only alphanumeric, dash ("-") and underscore ("_") chars are allowed)' }] }
   - { name: 'Error of image loading. Make sure the "images" directory has write permissions.', translations: [{ code: en, label: 'Error of image loading. Make sure the "images" directory has write permissions.' }] }
+  - { name: 'Failed to load the file {{value}} because it does not exist', translations: [{ code: en, label: 'Couldn''t load the image "{{value}}", the file does not exist.' }] }
+  - { name: 'Failed to load the banner {{value}} because it does not exist', translations: [{ code: en, label: 'Couldn''t load the banner "{{value}}", the file does not exist.' }] }
   - { name: 'Wrong position format', translations: [{ code: en, label: 'Wrong position format' }] }
   - { name: 'The "{{value}}" group is not created', translations: [{ code: en, label: 'The group "{{value}}" does not exist. A new group will be created' }] }
   - { name: 'Wrong type format', translations: [{ code: en, label: 'Wrong format of "type" value ({{value}}). This should be "C" - checkbox, "S" - selector, or "T" - textarea' }] }
@@ -2655,8 +2677,11 @@ XLite\Model\LanguageLabel:
   - { name: 'eBay', translations: [{ code: en, label: 'eBay' }]}
 
   - { name: "Origin address", translations: [{ code: en, label: 'Ship-From address' }]}
+  - { name: "Automate Shipping Refunds", translations: [{ code: en, label: 'Automate Shipping Refunds' }]}
+  - { name: "Shipping solutions", translations: [{ code: en, label: 'Shipping solutions' }]}
+  - { name: "More shipping solutions", translations: [{ code: en, label: 'More shipping solutions' }]}
 
-  - { name: 'Transactions details', translations: [{ code: en, label: 'TRANSACTIONS DETAILS' }]}
+  - { name: 'Transactions details', translations: [{ code: en, label: 'Transaction details' }]}
   - { name: 'You can find the failed transaction here', translations: [{ code: en, label: 'You can find the failed transaction <a href="{{url}}">here</a>' }]}
 
   - { name: 'Save filter', translations: [{ code: en, label: 'Save filter' }]}
@@ -2777,6 +2802,7 @@ XLite\Model\LanguageLabel:
   - { name: '{{file}} file could not be copied to a new location {{newPath}}', translations: [{ code: en, label: '{{file}} file could not be copied to a new location {{newPath}}' }] }
   - { name: 'Unable to write data to file {{file}}', translations: [{ code: en, label: 'Unable to write data to file {{file}}' }] }
   - { name: 'Unable to download the contents of {{url}}', translations: [{ code: en, label: 'Unable to download the content of {{url}}' }] }
+  - { name: '{{file}} does not exist on the filesystem', translations: [{ code: en, label: 'File {{file}} does not exist' }] }
   - { name: 'Unable to get at the contents of {{url}}', translations: [{ code: en, label: 'Unable to get the content from {{url}}' }] }
   - { name: 'The file extension is forbidden ({{file}}', translations: [{ code: en, label: 'The file extension is forbidden ({{file}}' }] }
 
@@ -3294,3 +3320,125 @@ XLite\Model\LanguageLabel:
   - { name: "Transaction is in progress", translations: [{ code: en, label: "Transaction is in progress, please wait..." }] }
   - { name: "to be uninstalled", translations: [{ code: en, label: "to be uninstalled" }] }
   - { name: "Review modules", translations: [{ code: en, label: "Review modules" }] }
+
+  - { name: "Email transfer settings", translations: [{ code: en, label: "E-Mail transfer settings" }] }
+  - { name: "email from Contact information section", translations: [{ code: en, label: "Email from the Contact information section" }] }
+  - { name: "sender identified by server", translations: [{ code: en, label: "Sender email as identified by the server" }] }
+  - { name: "specific email address (set up below)", translations: [{ code: en, label: "Email address specified below" }] }
+  - { name: "Specify email address", translations: [{ code: en, label: "Specify email address" }] }
+  - { name: "mail tester line 1", translations: [{ code: en, label: "Go to <a href='https://www.mail-tester.com/' target='_blank'>https://www.mail-tester.com/</a> and copy the email address provided on that page to clipboard. " }] }
+  - { name: "mail tester line 2", translations: [{ code: en, label: "Paste the email address you have copied into the form below (the \"To email\" field) and try sending a test email." }] }
+  - { name: "mail tester line 3", translations: [{ code: en, label: "Go back to <a href='https://www.mail-tester.com/' target='_blank'>https://www.mail-tester.com/</a> and press the button to check your score. Allow a few seconds for the mail tester system to check the inbox and calculate your score. The highest score would be 10/10." }] }
+  - { name: "mail tester line 4", translations: [{ code: en, label: "Share the results with your hosting provider or administrators and, if necessary, ask them to improve your score. " }] }
+  - { name: "Check the article how to check your emails", translations: [{ code: en, label: "Learn how to test your email transfer settings with mail-tester.com." }] }
+  - { name: "body of the test email", translations: [{ code: en, label: "body of the test email" }] }
+  - { name: "Check your email deliverability", translations: [{ code: en, label: "Test your emails" }] }
+
+  - { name: 'If a category has subcategories, the value in brackets shows the overall number of products in both that category and all its subcategories.', translations: [{ code: en, label: 'If a category has subcategories, the value in brackets shows the overall number of products in both that category and all its subcategories.' }] }
+  - { name: 'Please select', translations: [{ code: en, label: 'Please select' }] }
+  - { name: 'Recently installed addons', translations: [{ code: en, label: 'Recently installed addons' }] }
+  - { name: 'Installed Addons', translations: [{ code: en, label: 'Installed Addons' }] }
+  - { name: 'Free & paid', translations: [{ code: en, label: 'Free & paid' }] }
+  - { name: 'You don’t have any notifications right now.', translations: [{ code: en, label: 'You don’t have any notifications right now.' }] }
+  - { name: 'Status comment (reason)', translations: [{ code: en, label: 'Status comment (reason)' }] }
+  - { name: 'Import and Export', translations: [{ code: en, label: 'Import and Export' }] }
+  - { name: 'Setting up VAT / GST', translations: [{ code: en, label: 'Setting up VAT / GST' }] }
+  - { name: 'Setting up sales tax', translations: [{ code: en, label: 'Setting up sales tax' }] }
+  - { name: 'Setting up Canadian taxes', translations: [{ code: en, label: 'Setting up Canadian taxes' }] }
+  - { name: 'Setting up tax classes', translations: [{ code: en, label: 'Setting up tax classes' }] }
+
+  - { name: 'https://kb.x-cart.com/', translations: [{ code: en, label: 'https://kb.x-cart.com/' }] }
+  - { name: 'https://kb.x-cart.com/general_setup/what_to_do_if_your_store_says_we_are_deploying_new_changes_and_you_cannot_access_it.html', translations: [{ code: en, label: 'https://kb.x-cart.com/general_setup/what_to_do_if_your_store_says_we_are_deploying_new_changes_and_you_cannot_access_it.html' }] }
+  - { name: 'https://kb.x-cart.com/general_setup/moving_x-cart_to_another_location.html#transfering-database', translations: [{ code: en, label: 'https://kb.x-cart.com/general_setup/moving_x-cart_to_another_location.html#transfering-database' }] }
+  - { name: 'https://kb.x-cart.com/seo_and_promotion/setting_up_seo-friendly_urls.html', translations: [{ code: en, label: 'https://kb.x-cart.com/seo_and_promotion/setting_up_seo-friendly_urls.html' }] }
+  - { name: 'https://kb.x-cart.com/general_setup/moving_x-cart_to_another_location.html', translations: [{ code: en, label: 'https://kb.x-cart.com/general_setup/moving_x-cart_to_another_location.html' }] }
+  - { name: 'https://kb.x-cart.com/import-export/', translations: [{ code: en, label: 'https://kb.x-cart.com/import-export/' }] }
+  - { name: 'https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_classes_&_attributes.html', translations: [{ code: en, label: 'https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_classes_&_attributes.html' }] }
+  - { name: 'https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_product_attribute_values.html', translations: [{ code: en, label: 'https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_product_attribute_values.html' }] }
+  - { name: 'https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_categories.html', translations: [{ code: en, label: 'https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_categories.html' }] }
+  - { name: 'https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_customers.html', translations: [{ code: en, label: 'https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_customers.html' }] }
+  - { name: 'https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_products.html', translations: [{ code: en, label: 'https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_products.html' }] }
+  - { name: 'https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_orders.html', translations: [{ code: en, label: 'https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_orders.html' }] }
+  - { name: 'https://kb.x-cart.com/setting_up_x-cart_5_environment/configuring_attachments_sending.html', translations: [{ code: en, label: 'https://kb.x-cart.com/setting_up_x-cart_5_environment/configuring_attachments_sending.html' }] }
+  - { name: 'https://kb.x-cart.com/payments/paypal/setting_up_paypal_express_checkout.html', translations: [{ code: en, label: 'https://kb.x-cart.com/payments/paypal/setting_up_paypal_express_checkout.html' }] }
+  - { name: 'https://kb.x-cart.com/payments/paypal/setting_up_paypal_payflow_link.html', translations: [{ code: en, label: 'https://kb.x-cart.com/payments/paypal/setting_up_paypal_payflow_link.html' }] }
+  - { name: 'https://kb.x-cart.com/payments/paypal/setting_up_paypal_payments_advanced.html', translations: [{ code: en, label: 'https://kb.x-cart.com/payments/paypal/setting_up_paypal_payments_advanced.html' }] }
+  - { name: 'https://kb.x-cart.com/payments/paypal/setting_up_paypal_payments_standard.html', translations: [{ code: en, label: 'https://kb.x-cart.com/payments/paypal/setting_up_paypal_payments_standard.html' }] }
+  - { name: 'https://kb.x-cart.com/integrating_your_store_with_other_web-sites/sell_your_products_with_buy_button.html', translations: [{ code: en, label: 'https://kb.x-cart.com/integrating_your_store_with_other_web-sites/sell_your_products_with_buy_button.html' }] }
+  - { name: 'https://kb.x-cart.com/shipping/custom_table_rates.html', translations: [{ code: en, label: 'https://kb.x-cart.com/shipping/custom_table_rates.html' }] }
+  - { name: 'https://kb.x-cart.com/general_setup/inaccessible_admin_area_after_enabling_https.html', translations: [{ code: en, label: 'https://kb.x-cart.com/general_setup/inaccessible_admin_area_after_enabling_https.html' }] }
+  - { name: 'https://kb.x-cart.com/users/user_roles.html', translations: [{ code: en, label: 'https://kb.x-cart.com/users/user_roles.html' }] }
+  - { name: 'https://kb.x-cart.com/shipping/free_shipping.html', translations: [{ code: en, label: 'https://kb.x-cart.com/shipping/free_shipping.html' }] }
+  - { name: 'https://kb.x-cart.com/taxes/setting_up_vat_gst.html', translations: [{ code: en, label: 'https://kb.x-cart.com/taxes/setting_up_vat_gst.html' }] }
+  - { name: 'https://kb.x-cart.com/taxes/setting_up_sales_tax.html', translations: [{ code: en, label: 'https://kb.x-cart.com/taxes/setting_up_sales_tax.html' }] }
+  - { name: 'https://kb.x-cart.com/taxes/setting_up_canadian_taxes.html', translations: [{ code: en, label: 'https://kb.x-cart.com/taxes/setting_up_canadian_taxes.html' }] }
+  - { name: 'https://kb.x-cart.com/taxes/setting_up_tax_classes.html', translations: [{ code: en, label: 'https://kb.x-cart.com/taxes/setting_up_tax_classes.html' }] }
+  - { name: 'Email from the contact information section according to the type of email message', translations: [{ code: en, label: 'Email from the <a href="{{url}}">contact information</a> section according to the type of email message' }] }
+  - { name: 'Customer email (if exist)', translations: [{ code: en, label: 'Customer email (if exists)' }] }
+
+  - { name: '[field] year must be between 1970 and 2038', translations: [{ code: en, label: '{{ field }} year must be between 1970 and 2038' }] }
+
+  - { name: '{{count}} day', translations: [{ code: en, label: '{{count}} day' }] }
+  - { name: '{{count}} days', translations: [{ code: en, label: '{{count}} days' }] }
+
+  - { name: 'Access denied', translations: [{ code: en, label: 'Access denied' }]}
+  - { name: 'Access link has been successfully sent', translations: [{ code: en, label: 'Access link has been successfully sent' }]}
+  - { name: 'Add addons', translations: [{ code: en, label: 'Add addons' }]}
+  - { name: 'Add address', translations: [{ code: en, label: 'Add address' }]}
+  - { name: 'Address masks', translations: [{ code: en, label: 'Address masks' }]}
+  - { name: 'Address type', translations: [{ code: en, label: 'Address type' }]}
+  - { name: 'Another bulk change in progress, please try again later', translations: [{ code: en, label: 'Another bulk change in progress, please try again later' }]}
+  - { name: 'Apply to billing address', translations: [{ code: en, label: 'Apply to billing address' }]}
+  - { name: 'Business premium features', translations: [{ code: en, label: 'Business premium features' }]}
+  - { name: 'CVV / CVC', translations: [{ code: en, label: 'CVV / CVC' }]}
+  - { name: 'Change template', translations: [{ code: en, label: 'Change template' }]}
+  - { name: 'Clear cache help text', translations: [{ code: en, label: 'Clear cache help text' }]}
+  - { name: 'Critical', translations: [{ code: en, label: 'Critical' }]}
+  - { name: 'Data removal has been completed successfully.', translations: [{ code: en, label: 'Data removal has been completed successfully.' }]}
+  - { name: 'Data removal has been stopped.', translations: [{ code: en, label: 'Data removal has been stopped.' }]}
+  - { name: 'Database', translations: [{ code: en, label: 'Database' }]}
+  - { name: 'Date and time in the shop', translations: [{ code: en, label: 'Date and time in the shop' }]}
+  - { name: 'Developer', translations: [{ code: en, label: 'Developer' }]}
+  - { name: 'Disable HTTPS', translations: [{ code: en, label: 'Disable HTTPS' }]}
+  - { name: 'Download', translations: [{ code: en, label: 'Download' }]}
+  - { name: 'Enable module', translations: [{ code: en, label: 'Enable module' }]}
+  - { name: 'Error sending link', translations: [{ code: en, label: 'Error sending link' }]}
+  - { name: 'File uploading', translations: [{ code: en, label: 'File uploading' }]}
+  - { name: 'Finish', translations: [{ code: en, label: 'Finish' }]}
+  - { name: 'Hot addons', translations: [{ code: en, label: 'Hot addons' }]}
+  - { name: 'Installation requirements', translations: [{ code: en, label: 'Installation requirements' }]}
+  - { name: 'License warnings', translations: [{ code: en, label: 'License warnings' }]}
+  - { name: 'Module name', translations: [{ code: en, label: 'Module name' }]}
+  - { name: 'Monday', translations: [{ code: en, label: 'Monday' }]}
+  - { name: 'Non-critical', translations: [{ code: en, label: 'Non-critical' }]}
+  - { name: 'Not available', translations: [{ code: en, label: 'Not available' }]}
+  - { name: 'Passed', translations: [{ code: en, label: 'Passed' }]}
+  - { name: 'Payment order status', translations: [{ code: en, label: 'Payment order status' }]}
+  - { name: 'Please select the entities first', translations: [{ code: en, label: 'Please select the entities first' }]}
+  - { name: 'Private and custom modules:', translations: [{ code: en, label: 'Private and custom modules:' }]}
+  - { name: 'Private link', translations: [{ code: en, label: 'Private link' }]}
+  - { name: 'Proceed', translations: [{ code: en, label: 'Proceed' }]}
+  - { name: 'Public installed modules:', translations: [{ code: en, label: 'Public installed modules:' }]}
+  - { name: 'Rebuild view lists help text', translations: [{ code: en, label: 'Rebuild view lists help text' }]}
+  - { name: 'Remove expired sessions', translations: [{ code: en, label: 'Remove expired sessions' }]}
+  - { name: 'Remove expired shopping carts', translations: [{ code: en, label: 'Remove expired shopping carts' }]}
+  - { name: 'Remove module', translations: [{ code: en, label: 'Remove module' }]}
+  - { name: 'Removing expired datacache', translations: [{ code: en, label: 'Removing expired datacache' }]}
+  - { name: 'SKU must be unique', translations: [{ code: en, label: 'SKU must be unique' }]}
+  - { name: 'Select type', translations: [{ code: en, label: 'Select type' }]}
+  - { name: 'Shipping method is disabled', translations: [{ code: en, label: 'Shipping method is disabled' }]}
+  - { name: 'Shipping method is enabled', translations: [{ code: en, label: 'Shipping method is enabled' }]}
+  - { name: 'Shipping order status', translations: [{ code: en, label: 'Shipping order status' }]}
+  - { name: 'Skipped', translations: [{ code: en, label: 'Skipped' }]}
+  - { name: 'Soft and hard reset links for your store', translations: [{ code: en, label: 'Soft and hard reset links for your store' }]}
+  - { name: 'Sort', translations: [{ code: en, label: 'Sort' }]}
+  - { name: 'Store ID', translations: [{ code: en, label: 'Store ID' }]}
+  - { name: 'Sunday', translations: [{ code: en, label: 'Sunday' }]}
+  - { name: 'Test e-mail have been successfully sent', translations: [{ code: en, label: 'Test e-mail have been successfully sent' }]}
+  - { name: 'The Clean URL entered has unallowed chars.', translations: [{ code: en, label: 'The Clean URL entered has unallowed chars.' }]}
+  - { name: 'This payment method is', translations: [{ code: en, label: 'This payment method is' }]}
+  - { name: 'Unknown error', translations: [{ code: en, label: 'Unknown error' }]}
+  - { name: 'View in my addons', translations: [{ code: en, label: 'View in my addons' }]}
+  - { name: 'Dashboard', translations: [{ code: en, label: 'Dashboard' }]}
+  - { name: 'Dimensions', translations: [{ code: en, label: 'Dimensions' }]}
+  - { name: 'Oops, no products have been added to this category yet.', translations: [{ code: en, label: '<p>Oops, no products have been added to this category yet.</p><p><a href="{{homePageUrl}}">Go back to the Home page</a></p>' }]}

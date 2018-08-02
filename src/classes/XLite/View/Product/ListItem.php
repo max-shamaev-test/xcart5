@@ -194,7 +194,7 @@ class ListItem extends \XLite\View\AView implements DynamicWidgetInterface
     protected function isDisplayAdd2CartButton()
     {
         return (
-            $this->getDisplayMode() != ACustomer::DISPLAY_MODE_GRID
+            $this->getDisplayMode() !== ACustomer::DISPLAY_MODE_GRID
             || \XLite\Core\Config::getInstance()->General->enable_add2cart_button_grid
         ) && $this->isDisplayGridAdd2CartButton();
     }
@@ -206,7 +206,7 @@ class ListItem extends \XLite\View\AView implements DynamicWidgetInterface
      */
     protected function isDisplayGridAdd2CartButton()
     {
-        return !($this->getDisplayMode() == ACustomer::DISPLAY_MODE_GRID && $this->getProduct()->isOutOfStock());
+        return !($this->getDisplayMode() === ACustomer::DISPLAY_MODE_GRID && $this->getProduct()->isOutOfStock());
     }
 
     /**

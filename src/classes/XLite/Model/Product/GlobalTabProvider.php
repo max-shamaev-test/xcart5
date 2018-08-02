@@ -110,7 +110,7 @@ class GlobalTabProvider extends \XLite\Model\AEntity
      */
     public function checkProvider()
     {
-        return $this->getCode() === self::PROVIDER_CORE
+        return $this->getCode() === static::PROVIDER_CORE
                || \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled($this->getCode());
     }
 }

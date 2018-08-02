@@ -25,11 +25,11 @@ class Customer
     public static function getData($mc_eid, \XLite\Model\Profile $profile)
     {
         $data = [
-            'id'                => strval($profile->getProfileId() ?: $mc_eid),
-            'email_address'     => $profile->getLogin(),
-            'opt_in_status'     => false,
-            'orders_count'      => $profile->getOrdersCount(),
-            'total_spent'       => static::getTotalSpent($profile),
+            'id'            => strval($profile->getProfileId() ?: $mc_eid),
+            'email_address' => $profile->getLogin(),
+            'opt_in_status' => false,
+            'orders_count'  => $profile->getOrdersCount(),
+            'total_spent'   => static::getTotalSpent($profile),
         ];
 
         $profileAddress = $profile->getBillingAddress() ?: $profile->getShippingAddress();
@@ -40,11 +40,25 @@ class Customer
             );
 
             $data['first_name'] = $firstName;
-            $data['last_name']  = $lastName;
-            $data['address']    = $addressData;
+            $data['last_name'] = $lastName;
+            $data['address'] = $addressData;
         }
-        
+
         return $data;
+    }
+
+    /**
+     * @param                      $mc_eid
+     * @param \XLite\Model\Profile $profile
+     *
+     * @return array
+     */
+    public static function getDataForOrder($mc_eid, \XLite\Model\Profile $profile)
+    {
+        return [
+                'email_address' => $profile->getEmail(),
+            ]
+            + static::getData($mc_eid, $profile);
     }
 
     /**
@@ -66,7 +80,7 @@ class Customer
             if ($orders) {
                 static::$orderTotalsByProfile[$profileId] = array_reduce(
                     $orders,
-                    function($carry, $order) {
+                    function ($carry, $order) {
                         /**
                          * @var \XLite\Model\Order $order
                          */
@@ -80,7 +94,7 @@ class Customer
                 static::$orderTotalsByProfile[$profileId] = 0;
             }
         }
-        
+
         return static::$orderTotalsByProfile[$profileId];
     }
 }

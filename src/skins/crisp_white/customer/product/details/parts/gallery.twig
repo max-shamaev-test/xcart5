@@ -3,7 +3,7 @@
  #}
 
 <div class="product-image-gallery"{% if this.isVisibleAsHidden() %} style="display:none;"{% endif %}>
-  <div class="product-image-gallery-navigation" id='product-image-gallery-prev' style="display: none"></div>
+  <div class="product-image-gallery-navigation product-image-gallery-prev" id='product-image-gallery-prev-{{ this.getProductId() }}' style="display: none"></div>
   <ul
           class="cycle-cloak cycle-slideshow"
           data-cycle-fx=carousel
@@ -11,8 +11,8 @@
           data-cycle-manual-speed="300"
           data-cycle-carousel-visible={{ this.getMinCountForSlider() }}
           data-cycle-carousel-vertical=true
-          data-cycle-next="#product-image-gallery-next"
-          data-cycle-prev="#product-image-gallery-prev"
+          data-cycle-next="#product-image-gallery-next-{{ this.getProductId() }}"
+          data-cycle-prev="#product-image-gallery-prev-{{ this.getProductId() }}"
           data-cycle-slides="> li"
           data-cycle-log=false
           data-cycle-allow-wrap=false
@@ -29,7 +29,7 @@
     {% endfor %}
   </ul>
 
-  <div class="product-image-gallery-navigation" id='product-image-gallery-next' style="display: none"></div>
+  <div class="product-image-gallery-navigation product-image-gallery-next" id='product-image-gallery-next-{{ this.getProductId() }}' style="display: none"></div>
 </div>
 
 <script>

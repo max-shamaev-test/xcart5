@@ -130,17 +130,17 @@ CheckoutAddressView.prototype.handleFormPreValidateSubmit = function(event, widg
     widget.form.getElements().filter('#email').get(0)
     && widget.form.getElements().filter('#email').get(0).commonController.isChanged()
   ) {
-    this.getForm().find('.item-password').addClass('hidden');
-
     this.unmarkCreateProfile(widget);
   }
 };
 
 CheckoutAddressView.prototype.unmarkCreateProfile = function(widget)
 {
+  this.getForm().find('.item-password').addClass('hidden');
   var createProfile = jQuery("#password", widget.form).get(0);
 
   jQuery('#create_profile', widget.form).prop('checked', false);
+  jQuery("#password", widget.form).val('');
 
   if (createProfile && jQuery(createProfile).hasClass('validation-error')) {
     createProfile.commonController.unmarkAsInvalid();
@@ -251,7 +251,6 @@ CheckoutAddressView.prototype.handleCreateProfile = function(event)
     password.removeClass('hidden');
 
   } else {
-    password.addClass('hidden');
     this.unmarkCreateProfile(event.target);
   }
 

@@ -34,8 +34,8 @@ define('form_model/type/product/simplified', ['js/vue/vue', 'form_model'], funct
     },
 
     events: {
-      'file-uploader-overlay': function (sender) {
-        sender.getFileUploaderElement().html('<div class="spinner"></div>');
+      'file-uploader-overlay': function (parent, sender, arguments) {
+        parent.apply(sender, arguments);
       },
     },
 

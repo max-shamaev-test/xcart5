@@ -176,7 +176,7 @@ class DbRestore extends \XLite\Controller\Admin\Base\BackupRestore
      */
     public function getKbUrl()
     {
-        return 'https://kb.x-cart.com/en/general_setup/moving_x-cart_to_another_location.html#transfering-database';
+        return static::t('https://kb.x-cart.com/general_setup/moving_x-cart_to_another_location.html#transfering-database');
     }
     
     /**

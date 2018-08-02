@@ -20,7 +20,7 @@ class Map extends \XLite\Controller\Customer\ACustomer
      */
     public function getTitle()
     {
-        return 'Sitemap';
+        return static::t('Sitemap');
     }
 
     /**

@@ -60,7 +60,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '0';
+        return '4';
     }
 
     /**
@@ -131,13 +131,13 @@ abstract class Main extends \XLite\Module\AModule
     /**
      * @return \XLite\Module\XC\MailChimp\Model\Store
      */
-    public static function getStoreForAbandonedCarts()
+    public static function getStoreForDefaultAutomation()
     {
         /** @var \XLite\Module\XC\MailChimp\Model\Repo\Store $repo */
         $repo = \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\Store');
 
         return $repo->findStoreByListId(
-            \XLite\Core\Config::getInstance()->XC->MailChimp->selectedAbandonedCartsListid
+            \XLite\Core\Config::getInstance()->XC->MailChimp->defaultAutomationListId
         );
     }
 
@@ -226,5 +226,13 @@ abstract class Main extends \XLite\Module\AModule
             'message'   => $message,
             'data'      => $data
         ]);
+    }
+
+    /**
+     * @return boolean
+     */
+    public static function hasGdprRelatedActivity()
+    {
+        return true;
     }
 }

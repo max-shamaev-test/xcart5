@@ -61,9 +61,8 @@ jQuery(function () {
             define('paypal_ec_button_processing', ['paypal_ec_button_processors'], function (Processors) {
               var state = {
                 label: 'checkout',
-                fundingicons: false,
                 color: 'gold',
-                additionalUrlParams: {},
+                additionalUrlParams: {method: elem.data('method')},
                 size: 'responsive',
                 funding: {},
                 tagline: true
@@ -74,20 +73,10 @@ jQuery(function () {
               });
 
               var style = {
-                size: state.size,
-                shape: state.shape || 'rect',
                 label: state.label,
                 branding: true,
                 tagline: state.tagline
               };
-
-              if (state.color) {
-                style.color = state.color;
-              }
-
-              if (state.fundingicons) {
-                style.fundingicons = state.fundingicons;
-              }
 
               var buttonObject = {
 
@@ -117,6 +106,20 @@ jQuery(function () {
 
               if (elem.data('locale')) {
                 buttonObject.locale = elem.data('locale');
+              }
+
+              buttonObject.style.layout = elem.data('styleLayout');
+              if (buttonObject.style.layout === 'vertical') {
+                buttonObject.style.label = undefined;
+                buttonObject.style.tagline = undefined;
+              }
+
+              buttonObject.style.size = elem.data('styleSize');
+              buttonObject.style.color = elem.data('styleColor');
+              buttonObject.style.shape = elem.data('styleShape');
+
+              if (state.commit) {
+                buttonObject.commit = true;
               }
 
               paypal.Button.render(buttonObject, elem.get(0));

@@ -56,13 +56,13 @@ class ProductStockAvailabilityPolicy implements Serializable
      */
     public function getAvailableAmount(Cart $cart)
     {
-        if ($this->dto[self::PRODUCT_INVENTORY_ENABLED]) {
-            $cartItems  = $cart->getItemsByProductId($this->dto[self::PRODUCT_ID]);
+        if ($this->dto[static::PRODUCT_INVENTORY_ENABLED]) {
+            $cartItems  = $cart->getItemsByProductId($this->dto[static::PRODUCT_ID]);
             $cartAmount = ArrayManager::sumObjectsArrayFieldValues($cartItems, 'getAmount', true);
 
-            return max(0, $this->dto[self::PRODUCT_AMOUNT] - $cartAmount);
+            return max(0, $this->dto[static::PRODUCT_AMOUNT] - $cartAmount);
         } else {
-            return $this->dto[self::PRODUCT_DEFAULT_AMOUNT];
+            return $this->dto[static::PRODUCT_DEFAULT_AMOUNT];
         }
     }
 
@@ -75,7 +75,7 @@ class ProductStockAvailabilityPolicy implements Serializable
      */
     public function isOutOfStock(Cart $cart)
     {
-        return $this->dto[self::PRODUCT_INVENTORY_ENABLED] && $this->getAvailableAmount($cart) <= 0;
+        return $this->dto[static::PRODUCT_INVENTORY_ENABLED] && $this->getAvailableAmount($cart) <= 0;
     }
 
     /**
@@ -89,10 +89,10 @@ class ProductStockAvailabilityPolicy implements Serializable
     protected function createDTO(Product $product)
     {
         return [
-            self::PRODUCT_ID                => $product->getProductId(),
-            self::PRODUCT_AMOUNT            => $product->getPublicAmount(),
-            self::PRODUCT_INVENTORY_ENABLED => $product->getInventoryEnabled(),
-            self::PRODUCT_DEFAULT_AMOUNT    => $product->getDefaultAmount(),
+            static::PRODUCT_ID                => $product->getProductId(),
+            static::PRODUCT_AMOUNT            => $product->getPublicAmount(),
+            static::PRODUCT_INVENTORY_ENABLED => $product->getInventoryEnabled(),
+            static::PRODUCT_DEFAULT_AMOUNT    => $product->getDefaultAmount(),
         ];
     }
 

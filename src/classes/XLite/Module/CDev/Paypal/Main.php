@@ -23,6 +23,7 @@ abstract class Main extends \XLite\Module\AModule
     const PP_METHOD_PPS  = 'PaypalWPS';
     const PP_METHOD_PC   = 'PaypalCredit';
     const PP_METHOD_PAD  = 'PaypalAdaptive';
+    const PP_METHOD_PFM  = 'PaypalForMarketplaces';
 
     /**
      * RESTAPI instance
@@ -75,7 +76,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '6';
+        return '7';
     }
 
     /**
@@ -85,7 +86,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '5';
+        return '2';
     }
 
     /**
@@ -95,7 +96,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorRequiredCoreVersion()
     {
-        return '4';
+        return '5';
     }
 
     /**
@@ -209,6 +210,31 @@ abstract class Main extends \XLite\Module\AModule
     }
 
     /**
+     * Returns true if ExpressCheckout payment is enabled
+     *
+     * @param \XLite\Model\Cart $order Cart object OPTIONAL
+     *
+     * @return boolean
+     */
+    public static function isPaypalForMarketplacesEnabled($order = null)
+    {
+        static $result;
+
+        $index = (null !== $order) ? 1 : 0;
+
+        if (!isset($result[$index])) {
+            $paymentMethod = static::getPaymentMethod(static::PP_METHOD_PFM, true);
+            $result[$index] = $paymentMethod && $paymentMethod->isEnabled();
+
+            if ($order && $result[$index]) {
+                $result[$index] = $paymentMethod->getProcessor()->isApplicable($order, $paymentMethod);
+            }
+        }
+
+        return $result[$index];
+    }
+
+    /**
      * Returns BuyNow button availability status
      *
      * @return boolean
@@ -244,7 +270,8 @@ abstract class Main extends \XLite\Module\AModule
             $result[$index] = $paymentMethod
                 && $paymentMethod->isEnabled()
                 && $paymentMethod->getSetting('enabled')
-                && static::isExpressCheckoutEnabled($order);
+                && static::isExpressCheckoutEnabled($order)
+                && \XLite\Core\Config::getInstance()->Company->location_country === 'US';
         }
 
         return $result[$index];
@@ -381,6 +408,17 @@ abstract class Main extends \XLite\Module\AModule
             static::PP_METHOD_PPS,
             static::PP_METHOD_PC,
             static::PP_METHOD_PAD,
+            static::PP_METHOD_PFM,
         ];
+    }
+
+    /**
+     * Method to initialize concrete module instance
+     *
+     * @return void
+     */
+    public static function init()
+    {
+        include_once LC_DIR_MODULES . 'CDev' . LC_DS . 'Paypal' . LC_DS . 'lib' . LC_DS . 'autoload.php';
     }
 }

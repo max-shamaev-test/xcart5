@@ -36,6 +36,12 @@ class AddPinCodes extends \XLite\Controller\Admin\AAdmin
         $codes = array_filter(array_map('trim', explode("\n", $codes)));
 
         $this->addPinCodes($codes);
+
+        if ($product = $this->getProduct()) {
+            \XLite\Core\Event::remainingPinCodes([
+                'count' => $product->getRemainingPinCodesCount()
+            ]);
+        }
     }
 
     /**
@@ -45,10 +51,19 @@ class AddPinCodes extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionImport()
     {
-        $stream = fopen(\XLite\Core\Session::getInstance()->pinCodesImportFile, 'rb');
-        $this->addFromStreamAction($stream);
-        if ($stream) {
-            fclose($stream);
+        if ($this->checkFileExtension(\XLite\Core\Session::getInstance()->pinCodesImportFile)) {
+            $stream = fopen(\XLite\Core\Session::getInstance()->pinCodesImportFile, 'rb');
+            $this->addFromStreamAction($stream);
+            if ($stream) {
+                fclose($stream);
+            }
+        } else {
+            \XLite\Logger::getInstance()->log(
+                'Uploaded file (' . \XLite\Core\Session::getInstance()->pinCodesImportFile . ') must be of CSV format'
+                . ' Request data: ' . print_r(\XLite\Core\Request::getInstance()->getData(), true),
+                LOG_ERR
+            );
+            \XLite\Core\TopMessage::addError('Only CSV files can be imported');
         }
 
         $this->setReturnUrl(
@@ -61,22 +76,54 @@ class AddPinCodes extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * @param $path
+     * @return string
+     */
+    protected function checkFileExtension($path)
+    {
+        return $this->fileExtensionIs('.csv', $path);
+    }
+
+    /**
+     * @param $ext
+     * @param $path
+     * @return bool
+     */
+    protected function fileExtensionIs($ext, $path)
+    {
+        $length = strlen($ext);
+
+        return $length === 0 || substr($path, -$length) === $ext;
+    }
+
+    /**
+     * @return \XLite\Model\Product|null
+     */
+    protected function getProduct()
+    {
+        return \XLite\Core\Database::getRepo('XLite\Model\Product')->find(
+            \XLite\Core\Request::getInstance()->product_id
+        );
+    }
+
+    /**
      * Set sale price parameters for products list
      *
      * @param array $pinCodes
      */
     protected function addPinCodes($pinCodes)
     {
-        $product = \XLite\Core\Database::getRepo('XLite\Model\Product')->find(
-            \XLite\Core\Request::getInstance()->product_id
-        );
+        $product = $this->getProduct();
 
         if (!$product) {
             \XLite\Core\TopMessage::addError('Product not found');
 
         } elseif (!empty($pinCodes) && is_array($pinCodes)) {
+            $count = count($pinCodes);
+            $pinCodes = array_unique($pinCodes);
+
             $created = 0;
-            $duplicates = 0;
+            $duplicates = $count - count($pinCodes);
             $exceededLength = 0;
             $maxLength = 64;
 
@@ -145,9 +192,7 @@ class AddPinCodes extends \XLite\Controller\Admin\AAdmin
      */
     protected function addFromStreamAction($stream)
     {
-        $product = \XLite\Core\Database::getRepo('XLite\Model\Product')->find(
-            \XLite\Core\Request::getInstance()->product_id
-        );
+        $product = $this->getProduct();
 
         if (!is_resource($stream)) {
             \XLite\Logger::getInstance()->log(
@@ -156,6 +201,14 @@ class AddPinCodes extends \XLite\Controller\Admin\AAdmin
                 LOG_ERR
             );
             \XLite\Core\TopMessage::addError('Unknown error occurred');
+
+        } elseif (!$product) {
+            \XLite\Logger::getInstance()->log(
+                'No valid product id supplied to add pin codes controller.'
+                . ' Request data: ' . print_r(\XLite\Core\Request::getInstance()->getData(), true),
+                LOG_ERR
+            );
+            \XLite\Core\TopMessage::addError('Product not found');
 
         } elseif (!$product) {
             \XLite\Logger::getInstance()->log(

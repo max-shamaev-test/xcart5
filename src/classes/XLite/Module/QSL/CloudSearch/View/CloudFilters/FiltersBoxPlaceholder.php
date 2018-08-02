@@ -12,8 +12,8 @@ namespace XLite\Module\QSL\CloudSearch\View\CloudFilters;
 /**
  * Cloud filters sidebar box widget
  *
- * @ListChild (list="sidebar.single", zone="customer", weight="110")
- * @ListChild (list="sidebar.first", zone="customer", weight="110")
+ * @ListChild (list="sidebar.single", zone="customer", weight="102")
+ * @ListChild (list="sidebar.first", zone="customer", weight="102")
  */
 class FiltersBoxPlaceholder extends \XLite\View\AView
 {
@@ -31,6 +31,11 @@ class FiltersBoxPlaceholder extends \XLite\View\AView
         $result[] = 'search';
         $result[] = 'category';
         $result[] = 'brand';
+        $result[] = 'sale_products';
+        $result[] = 'bestsellers';
+        $result[] = 'new_arrivals';
+        $result[] = 'coming_soon';
+        $result[] = 'vendor';
 
         return $result;
     }

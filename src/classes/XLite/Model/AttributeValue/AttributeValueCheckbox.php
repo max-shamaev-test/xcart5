@@ -55,7 +55,7 @@ class AttributeValueCheckbox extends \XLite\Model\AttributeValue\Multiple
      */
     public function asString()
     {
-        return static::t($this->getValue() ? 'Yes' : 'No');
+        return (string)static::t($this->getValue() ? 'Yes' : 'No');
     }
 
     /**

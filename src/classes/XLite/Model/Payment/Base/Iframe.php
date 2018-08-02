@@ -87,14 +87,14 @@ abstract class Iframe extends \XLite\Model\Payment\Base\CreditCard
                 'src'    => is_array($data) ? $this->assembleFormIframe($data) : $this->assembleURLIframe($data),
             );
 
-            $status = self::SEPARATE;
+            $status = static::SEPARATE;
 
         } else {
             $this->setDetail(
                 'iframe_data_error',
                 'Payment processor \'' . get_called_class() . '\' did not assemble service data successfull.'
             );
-            $status = self::FAILED;
+            $status = static::FAILED;
             $this->transaction->setNote('Payment is failed');
         }
 

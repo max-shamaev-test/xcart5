@@ -77,31 +77,31 @@ class ZoneElement extends \XLite\Model\AEntity
     static public function getElementTypesData()
     {
         return array(
-            self::ZONE_ELEMENT_COUNTRY => array(
+            static::ZONE_ELEMENT_COUNTRY => array(
                 'field'      => 'country',   // Address field name
                 'weight'     => 0x01,        // Element weight
                 'funcSuffix' => 'Countries', // Suffix for functions name: getZone<Suffix>, checkZone<Suffix>
                 'required'   => true,        // Required property: if true then entire zone declined if this element does bot match
             ),
-            self::ZONE_ELEMENT_STATE   => array(
+            static::ZONE_ELEMENT_STATE   => array(
                 'field'      => 'state',
                 'weight'     => 0x02,
                 'funcSuffix' => 'States',
                 'required'   => true,
             ),
-            self::ZONE_ELEMENT_ZIPCODE => array(
+            static::ZONE_ELEMENT_ZIPCODE => array(
                 'field'      => 'zipcode',
                 'weight'     => 0x08,
                 'funcSuffix' => 'ZipCodes',
                 'required'   => true,
             ),
-            self::ZONE_ELEMENT_TOWN    => array(
+            static::ZONE_ELEMENT_TOWN    => array(
                 'field'      => 'city',
                 'weight'     => 0x10,
                 'funcSuffix' => 'Cities',
                 'required'   => true,
             ),
-            self::ZONE_ELEMENT_ADDRESS => array(
+            static::ZONE_ELEMENT_ADDRESS => array(
                 'field'      => 'address',
                 'weight'     => 0x20,
                 'funcSuffix' =>'Addresses',

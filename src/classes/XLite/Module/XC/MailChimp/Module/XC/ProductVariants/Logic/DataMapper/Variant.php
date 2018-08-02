@@ -31,7 +31,7 @@ class Variant extends \XLite\Module\XC\MailChimp\Logic\DataMapper\Variant implem
             'title'                 => $variant->getProduct()->getName(),
             'url'                   => $variant->getFrontURLForMailChimp(),
             'sku'                   => $variant->getDisplaySku(),
-            'price'                 => $variant->getNetPrice(),
+            'price'                 => $variant->getDisplayPrice(),
             'inventory_quantity'    => $variant->getPublicAmount(),
             'image_url'             => $imageUrl ?: ''
         ];

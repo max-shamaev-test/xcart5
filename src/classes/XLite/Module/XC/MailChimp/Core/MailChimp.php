@@ -578,8 +578,8 @@ class MailChimp extends \XLite\Base\Singleton
     {
         $stores = [];
 
-        if ($ACStore = Main::getStoreForAbandonedCarts()) {
-            $stores[] = $ACStore->getId();
+        if ($defaultStore = Main::getStoreForDefaultAutomation()) {
+            $stores[] = $defaultStore->getId();
         }
 
         $providedStoreId = static::getInstance()->getStoreIdByCampaign(
@@ -607,7 +607,7 @@ class MailChimp extends \XLite\Base\Singleton
                 )
             );
 
-            // Create store if not exists
+            // Create cart if not exists
             if (!$ecCore->getCart($storeId, $cart->getOrderId())) {
                 $result[] = $this->execCartRelatedRequest(
                     "ecommerce/stores/{$storeId}/carts",
@@ -693,15 +693,39 @@ class MailChimp extends \XLite\Base\Singleton
      */
     public function removeCart(\XLite\Model\Cart $cart)
     {
-        $storeId = static::getInstance()->getStoreIdByCampaign(
+        $stores = [];
+
+        if ($defaultStore = Main::getStoreForDefaultAutomation()) {
+            $stores[$defaultStore->getId()] = array(
+                'id'   => $defaultStore->getId(),
+            );
+        }
+
+        $providedStoreId = static::getInstance()->getStoreIdByCampaign(
             \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
         );
 
-        $this->mailChimpAPI->setActionMessageToLog('Removing cart');
-        return MailChimpECommerce::getInstance()->removeCart(
-            $storeId,
-            $cart->getOrderId()
-        );
+        if ($providedStoreId) {
+            $stores[$providedStoreId] = array(
+                'id'   => $providedStoreId,
+            );
+        }
+
+        $result = [];
+
+        foreach ($stores as $storeData) {
+            $this->mailChimpAPI->setActionMessageToLog('Removing cart');
+            $result[] = MailChimpECommerce::getInstance()->removeCart(
+                $storeData['id'],
+                $cart->getOrderId()
+            );
+        }
+
+        $failedRequests = array_filter($result, function($res) {
+            return $res === false;
+        });
+
+        return count($failedRequests) === 0;
     }
 
     /**
@@ -709,42 +733,78 @@ class MailChimp extends \XLite\Base\Singleton
      *
      * @param \XLite\Model\Order $order
      *
-     * @return array
+     * @return bool
      */
     public function createOrder(\XLite\Model\Order $order)
     {
-        $storeName = static::getInstance()->getStoreName(
-            static::getInstance()->getListIdByCampaignId(
-                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
-            )
-        );
-        $storeId = static::getInstance()->getStoreIdByCampaign(
+        $stores = [];
+
+        if ($defaultStore = Main::getStoreForDefaultAutomation()) {
+            $defaultStoreName = static::getInstance()->getStoreName(
+                \XLite\Core\Config::getInstance()->XC->MailChimp->defaultAutomationListId
+            );
+            $stores[$defaultStore->getId()] = array(
+                'id'   => $defaultStore->getId(),
+                'name' => $defaultStoreName,
+                'isDefault' => true,
+            );
+        }
+
+        $providedStoreId = static::getInstance()->getStoreIdByCampaign(
             \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
         );
 
-        $orderData = Order::getDataByOrder(
-            \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID},
-            \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_USER_ID},
-            \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_TRACKING_CODE},
-            $order,
-            MailChimpECommerce::getInstance()->isCustomerExists(
-                $storeId,
-                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_USER_ID}
-            )
-        );
+        if ($providedStoreId) {
+            $providedStoreName = static::getInstance()->getStoreName(
+                static::getInstance()->getListIdByCampaignId(
+                    \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
+                )
+            );
+            $stores[$providedStoreId] = array(
+                'id'   => $providedStoreId,
+                'name' => $providedStoreName,
+            );
+        }
 
-        $this->mailChimpAPI->setActionMessageToLog('Creating order');
-        return $this->execOrderRelatedRequest(
-            "ecommerce/stores/{$storeId}/orders",
-            $orderData,
-            $order->getItems(),
-            [
-                'campaign_id'   => $orderData['campaign_id'],
-                'store_id'      => $storeId,
-                'store_name'    => $storeName,
-                'currency_code' => $orderData['currency_code']
-            ]
-        );
+        $result = [];
+
+        foreach ($stores as $storeData) {
+            $storeId = $storeData['id'];
+            $storeName = $storeData['name'];
+
+            $orderData = Order::getDataByOrder(
+                !empty($storeData['isDefault']) ? null : \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID},
+                !empty($storeData['isDefault']) ? null : \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_USER_ID},
+                !empty($storeData['isDefault']) ? null : \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_TRACKING_CODE},
+                $order,
+                MailChimpECommerce::getInstance()->isCustomerExists(
+                    $storeId,
+                    $order->getOrigProfile() && $order->getOrigProfile()->getProfileId()
+                        ? $order->getOrigProfile()->getProfileId()
+                        : \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_USER_ID}
+                )
+            );
+
+            $this->mailChimpAPI->setActionMessageToLog('Creating order');
+
+            $result[] = $this->execOrderRelatedRequest(
+                "ecommerce/stores/{$storeId}/orders",
+                $orderData,
+                $order->getItems(),
+                [
+                    'campaign_id'   => $orderData['campaign_id'],
+                    'store_id'      => $storeId,
+                    'store_name'    => $storeName,
+                    'currency_code' => $orderData['currency_code']
+                ]
+            );
+        }
+
+        $failedRequests = array_filter($result, function($res) {
+            return $res === false;
+        });
+
+        return count($failedRequests) === 0;
     }
 
     /**
@@ -991,7 +1051,9 @@ class MailChimp extends \XLite\Base\Singleton
                 MailChimpException::MAILCHIMP_NO_API_KEY_ERROR == $e->getMessage()
                 && \XLite::isAdminZone()
             ) {
-                \XLite\Core\TopMessage::addError($e->getMessage());
+                if ('' != \XLite\Core\Config::getInstance()->XC->MailChimp->mailChimpAPIKey) {
+                    \XLite\Core\TopMessage::addError($e->getMessage());
+                }
 
                 \XLite\Core\Operator::redirect(
                     \XLite\Core\Converter::buildURL('mailchimp_options')

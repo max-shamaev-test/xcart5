@@ -9,11 +9,10 @@
 namespace XLite\Module\QSL\CloudSearch\Model\Repo;
 
 use Doctrine\ORM\QueryBuilder;
-use XLite\Core\Auth;
 use XLite\Core\CommonCell;
 use XLite\Module\QSL\CloudSearch\Core\ServiceApiClient;
-use XLite\Module\QSL\CloudSearch\Main;
-use XLite\View\ItemsList\Product\Customer\Search as SearchList;
+use XLite\Module\QSL\CloudSearch\Core\SearchParameters;
+
 
 /**
  * The "product" repo class
@@ -24,107 +23,28 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
 
     const P_LOAD_PRODUCTS_WITH_CLOUD_SEARCH = 'loadProductsWithCloudSearch';
 
-    protected $cloudSearchResults = [];
-
-    protected $skipMembershipCondition = false;
+    const P_SKIP_MEMBERSHIP_CONDITION = 'skipMembershipCondition';
 
     /**
-     * Get CloudSearch search results under current searchState conditions
-     *
-     * @param CommonCell $cnd
+     * Get CloudSearch search results with current searchState conditions
      *
      * @return array|null
      */
-    public function getCloudSearchResults(CommonCell $cnd)
+    protected function getCloudSearchResults()
     {
-        return $this->getCloudSearchResultsCached($this->getCloudSearchRequestParams($cnd));
-    }
+        $client = new ServiceApiClient();
 
-    /**
-     * Convert CommonCell conditions to CloudSearch request parameters
-     *
-     * @param CommonCell $cnd
-     *
-     * @return array
-     */
-    protected function getCloudSearchRequestParams(CommonCell $cnd)
-    {
-        $query           = $cnd->{self::P_SUBSTRING};
-        $categoryId      = $cnd->{self::P_CATEGORY_ID};
-        $searchInSubcats = $cnd->{self::P_SEARCH_IN_SUBCATS};
-        $filters         = $cnd->{self::P_CLOUD_FILTERS};
-        list($sortMode, $sortDir) = $this->getSortOrderValue($cnd->{self::P_ORDER_BY});
-        list($offset, $limit) = $cnd->{self::P_LIMIT};
-
-        // Workaround for a bug in X-Cart when it sets offset to negative values sometimes
-        $offset = max($offset, 0);
-
-        $membership = Auth::getInstance()->getMembershipId();
-
-        $sortFieldMappings = $this->getCloudSearchSortFieldMappings();
-
-        $sort = isset($sortFieldMappings[$sortMode])
-            ? $sortFieldMappings[$sortMode] . ' ' . $sortDir : null;
-
-        // Switch to relevance sorting on default sort mode if P_SUBSTRING is not empty
-        if (
-            $sortMode == SearchList::SORT_BY_MODE_DEFAULT
-            && $query !== null
-            && $query !== ''
-        ) {
-            $sort = null;
-        }
-
-        $searchParams = [
-            'q'               => $query,
-            'categoryId'      => $categoryId,
-            'searchInSubcats' => $searchInSubcats,
-            'filters'         => $filters,
-            'facet'           => true,
-            'membership'      => $membership,
-            'sort'            => $sort,
-            'offset'          => $offset,
-            'limits'          => [
-                'products'      => $limit,
-                'categories'    => 0,
-                'manufacturers' => 0,
-                'pages'         => 0,
-            ],
-        ];
-
-        return $searchParams;
-    }
-
-    /**
-     * Call CloudSearch API or get results from cache if available
-     *
-     * @param array $params
-     *
-     * @return array
-     */
-    protected function getCloudSearchResultsCached(array $params)
-    {
-        $paramsHash = md5(serialize($params));
-
-        if (!array_key_exists($paramsHash, $this->cloudSearchResults)) {
-            $apiClient = new ServiceApiClient();
-
-            $this->cloudSearchResults[$paramsHash] = $apiClient->search($params);
-        }
-
-        return $this->cloudSearchResults[$paramsHash];
+        return $client->search(new SearchParameters($this->getCloudSearchConditions()));
     }
 
     /**
      * Get product ids returned from CloudSearch
      *
-     * @param CommonCell $cnd
-     *
      * @return array|null
      */
-    protected function getCloudSearchProductIds(CommonCell $cnd)
+    protected function getCloudSearchProductIds()
     {
-        $results = $this->getCloudSearchResults($cnd);
+        $results = $this->getCloudSearchResults();
 
         return array_map(function ($p) {
             return intval($p['id']);
@@ -132,43 +52,19 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
     }
 
     /**
-     * Get "X-Cart search mode -> CloudSearch sort field" mappings
+     * Search count only routine.
      *
-     * @return array
+     * @return integer
      */
-    protected function getCloudSearchSortFieldMappings()
+    protected function searchCount()
     {
-        return [
-            'cp.orderby'        => 'sort_int_orderby',
-            'p.arrivalDate'     => 'sort_int_arrival_date',
-            'p.price'           => 'sort_float_price',
-            'translations.name' => 'sort_str_name',
-            'r.rating'          => 'sort_float_rating',
-            'p.sales'           => 'sort_int_sales',
-        ];
-    }
+        if ($this->isLoadProductsWithCloudSearch()) {
+            $results = $this->getCloudSearchResults();
 
-    /**
-     * Prepare conditions for search
-     *
-     * @return void
-     */
-    protected function processConditions()
-    {
-        parent::processConditions();
-
-        if ($this->loadProductsWithCloudSearch()) {
-            $queryBuilder = $this->searchState['queryBuilder'];
-
-            $ids = $this->getCloudSearchProductIds($this->getCloudSearchConditions());
-
-            if (!empty($ids)) {
-                $queryBuilder->andWhere('p.product_id IN (' . implode(', ', $ids) . ')');
-            } else {
-                // Force empty result set:
-                $queryBuilder->andWhere('p.product_id IN (0)');
-            }
+            return $results['numFoundProducts'];
         }
+
+        return parent::searchCount();
     }
 
     /**
@@ -181,7 +77,7 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
      */
     protected function prepareCndSubstring(QueryBuilder $queryBuilder, $value)
     {
-        if (!$this->loadProductsWithCloudSearch()) {
+        if (!$this->isLoadProductsWithCloudSearch()) {
             parent::prepareCndSubstring($queryBuilder, $value);
         }
     }
@@ -196,7 +92,7 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
      */
     protected function prepareCndCategoryId(QueryBuilder $queryBuilder, $value)
     {
-        if (!$this->loadProductsWithCloudSearch()) {
+        if (!$this->isLoadProductsWithCloudSearch()) {
             parent::prepareCndCategoryId($queryBuilder, $value);
         }
     }
@@ -211,7 +107,7 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
      */
     protected function prepareCndLimit(QueryBuilder $queryBuilder, array $value)
     {
-        if (!$this->loadProductsWithCloudSearch()) {
+        if (!$this->isLoadProductsWithCloudSearch()) {
             parent::prepareCndLimit($queryBuilder, $value);
         }
     }
@@ -224,8 +120,8 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
      */
     protected function prepareCndOrderBy(QueryBuilder $queryBuilder, array $value)
     {
-        if ($this->loadProductsWithCloudSearch() && !$this->isCountSearchMode()) {
-            $ids = $this->getCloudSearchProductIds($this->getCloudSearchConditions());
+        if ($this->isLoadProductsWithCloudSearch() && !$this->isCountSearchMode()) {
+            $ids = $this->getCloudSearchProductIds();
 
             if (!empty($ids)) {
                 $queryBuilder->resetDQLPart('orderBy');
@@ -261,23 +157,16 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
      */
     protected function prepareCndLoadProductsWithCloudSearch(QueryBuilder $queryBuilder, $value)
     {
-        // No-op handler for the 'loadProductsWithCloudSearch' search condition
-    }
+        if ($this->isLoadProductsWithCloudSearch()) {
+            $ids = $this->getCloudSearchProductIds();
 
-    /**
-     * @return boolean
-     */
-    public function isSkipMembershipCondition()
-    {
-        return $this->skipMembershipCondition;
-    }
-
-    /**
-     * @param boolean $skipMembershipCondition
-     */
-    public function setSkipMembershipCondition($skipMembershipCondition)
-    {
-        $this->skipMembershipCondition = $skipMembershipCondition;
+            if (!empty($ids)) {
+                $queryBuilder->andWhere('p.product_id IN (' . implode(', ', $ids) . ')');
+            } else {
+                // Force empty result set:
+                $queryBuilder->andWhere('p.product_id IN (0)');
+            }
+        }
     }
 
     /**
@@ -290,7 +179,9 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
      */
     protected function addMembershipCondition(QueryBuilder $queryBuilder, $alias = null)
     {
-        if (!$this->isSkipMembershipCondition()) {
+        $cnd = $this->searchState['currentSearchCnd'];
+
+        if (empty($cnd->{self::P_SKIP_MEMBERSHIP_CONDITION})) {
             parent::addMembershipCondition($queryBuilder, $alias);
         }
     }
@@ -300,7 +191,7 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
      *
      * @return CommonCell
      */
-    protected function getCloudSearchConditions()
+    public function getCloudSearchConditions()
     {
         return $this->searchState['currentSearchCnd'];
     }
@@ -310,13 +201,10 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
      *
      * @return mixed
      */
-    protected function loadProductsWithCloudSearch()
+    protected function isLoadProductsWithCloudSearch()
     {
-        /** @var CommonCell $cnd */
         $cnd = $this->getCloudSearchConditions();
 
-        return Main::isConfigured()
-            && $cnd->{self::P_LOAD_PRODUCTS_WITH_CLOUD_SEARCH}
-            && $this->getCloudSearchResults($this->getCloudSearchConditions()) !== null;
+        return $cnd->{self::P_LOAD_PRODUCTS_WITH_CLOUD_SEARCH} && $this->getCloudSearchResults() !== null;
     }
 }

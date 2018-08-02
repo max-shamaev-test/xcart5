@@ -87,6 +87,15 @@ TableItemsList.prototype.listeners.form = function(handler)
     form.get(0).commonController.submitOnlyChanged = false;
   }
 
+  form.bind('submit', function (event) {
+    if (form.hasClass('confirm-remove') && form.find('.line.remove-mark').length > 0) {
+      if (!confirm(core.t('Do you really want to delete selected items?'))) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    }
+  });
+
   form.bind('submit.prevalidate', function () {
     handler.updateChangedMarks(jQuery(this));
   });

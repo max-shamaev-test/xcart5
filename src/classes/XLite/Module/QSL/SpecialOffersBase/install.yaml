@@ -1,7 +1,7 @@
 # vim: set ts=2 sw=2 sts=2 et:
 
 XLite\Model\Order\Modifier:
-  - { class: '\XLite\Module\QSL\SpecialOffersBase\Logic\Order\Modifier\SpecialOffers', weight: 90 } # it should run before the shipping cost modifier that has the weight 100
+  - { class: '\XLite\Module\QSL\SpecialOffersBase\Logic\Order\Modifier\SpecialOffers', weight: 40 } # it should run before all modifiers that calculate % from the subtotal (the shipping cost modifier has the weight 100, coupons - 50)
 
 XLite\Model\Config:
   - name: soffersb_override_tpl

@@ -1584,27 +1584,6 @@ class Category extends \XLite\Model\Repo\Base\I18n
     }
 
     /**
-     * Prepare certain search condition
-     *
-     * @Api\Condition(description="Filters last used categories", type="boolean")
-     *
-     * @param \XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder Query builder to prepare
-     * @param mixed                                   $value        Condition data
-     *
-     * @return void
-     */
-    protected function prepareCndLastUsage(\XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder, $value)
-    {
-        if (!$queryBuilder) {
-            $queryBuilder = $this->searchState['queryBuilder'];
-        }
-
-        if ($value) {
-            $queryBuilder->andWhere('c.lastUsage > 0');
-        }
-    }
-
-    /**
      * Get translation
      *
      * @param integer $categoryId Category id

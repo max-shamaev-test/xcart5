@@ -76,6 +76,7 @@ XLite\Model\Order:
       - method_name: MoneyOrdering
         method_local_name: 'Money Ordering'
         payment_method: { service_name: MoneyOrdering }
+        currency: { code: 'USD' }
         date: 1394005540
         status: S
         value: 110.65
@@ -161,6 +162,7 @@ XLite\Model\Order:
       - method_name: MoneyOrdering
         method_local_name: 'Money Ordering'
         payment_method: { service_name: MoneyOrdering }
+        currency: { code: 'USD' }
         date: 1396005895
         status: S
         value: 88.67
@@ -251,6 +253,7 @@ XLite\Model\Order:
       - method_name: MoneyOrdering
         method_local_name: 'Money Ordering'
         payment_method: { service_name: MoneyOrdering }
+        currency: { code: 'USD' }
         date: 1407005895
         status: S
         value: 158.94
@@ -341,7 +344,7 @@ XLite\Model\Order:
     payment_transactions:
       - method_name: SimplifyCommerceHP
         method_local_name: 'Simplify Commerce Hosted Payments'
-        currency_id: 840
+        currency: { code: 'USD' }
         date: 1452604411
         status: F
         value: 38.0100
@@ -373,7 +376,7 @@ XLite\Model\Order:
 
       - method_name: SimplifyCommerceHP
         method_local_name: 'Simplify Commerce Hosted Payments'
-        currency_id: 840
+        currency: { code: 'USD' }
         date: 1452604437
         status: F
         value: 38.0100
@@ -498,6 +501,7 @@ XLite\Model\Order:
       - method_name: MoneyOrdering
         method_local_name: 'Money Ordering'
         payment_method: { service_name: MoneyOrdering }
+        currency: { code: 'USD' }
         date: 1452604702
         status: S
         value: 352.81

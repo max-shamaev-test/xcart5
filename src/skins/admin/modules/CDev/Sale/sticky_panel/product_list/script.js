@@ -29,3 +29,26 @@ decorate(
     this.base.find('button.action-disable-sale span:last').text(core.t('Cancel sale for all'));
   }
 );
+
+
+decorate(
+  'StickyPanelModelList',
+  'process',
+  function (selector) {
+    arguments.callee.previousMethod.apply(this, arguments);
+
+    var self = this;
+
+    core.bind('ProductsListMassUncheck', function () {
+      //TODO change to self.getItemsListController() in 5.3.5
+      var itemsListController = self.base.parents('form').eq(0).find('.widget.items-list').length > 0
+        ? self.base.parents('form').eq(0).find('.widget.items-list').get(0).itemsListController
+        : null;
+      if (itemsListController) {
+        jQuery('input.selectAll', itemsListController.container)
+          .attr('checked', true)
+          .click();
+      }
+    })
+  }
+);

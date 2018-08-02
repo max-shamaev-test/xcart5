@@ -191,7 +191,7 @@ class CustomTabs extends \XLite\Logic\Export\Step\Base\I18n
     {
         if ($dataset['model']->getTranslation(substr($name, -2), true)) {
             return parent::getTranslationColumnValue($dataset, $name, $i)
-                ?: \XLite\Logic\Import\Processor\AProcessor::NULL_VALUE;
+                ?: '';
         }
 
         return null;

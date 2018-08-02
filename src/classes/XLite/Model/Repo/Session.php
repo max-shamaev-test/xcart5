@@ -136,7 +136,7 @@ class Session extends \XLite\Model\Repo\ARepo
             $x = explode('.', uniqid('', true));
             mt_srand((int)(microtime(true) + intval(hexdec($x[0])) + $x[1]));
             $sid = '';
-            for ($i = 0; self::PUBLIC_SESSION_ID_LENGTH > $i; $i++) {
+            for ($i = 0; static::PUBLIC_SESSION_ID_LENGTH > $i; $i++) {
                 $sid .= $this->chars[mt_rand(0, $limit)];
             }
             $iterationLimit--;
@@ -163,7 +163,7 @@ class Session extends \XLite\Model\Repo\ARepo
 
         if (!isset($regexp)) {
             $regexp = '/^[' . preg_quote(implode('', $this->chars), '/') . ']'
-                . '{' . self::PUBLIC_SESSION_ID_LENGTH . '}$/Ss';
+                . '{' . static::PUBLIC_SESSION_ID_LENGTH . '}$/Ss';
         }
 
         return is_string($sid) && (bool)preg_match($regexp, $sid);

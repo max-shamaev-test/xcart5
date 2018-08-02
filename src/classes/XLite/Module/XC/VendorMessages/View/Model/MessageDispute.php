@@ -14,20 +14,25 @@ namespace XLite\Module\XC\VendorMessages\View\Model;
 class MessageDispute extends \XLite\View\Model\AModel
 {
     /**
-     * Schema default
+     * Return fields list by the corresponding schema
      *
-     * @var array[]
+     * @return array
      */
-    protected $schemaDefault = [
-        'body' => [
-            self::SCHEMA_CLASS                                          => 'XLite\View\FormField\Textarea\Simple',
-            self::SCHEMA_LABEL                                          => 'Reason',
-            self::SCHEMA_REQUIRED                                       => true,
-            \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY          => true,
-            \XLite\View\FormField\Textarea\ATextarea::PARAM_PLACEHOLDER => 'Reason',
-            \XLite\View\FormField\Textarea\ATextarea::PARAM_ROWS        => 4,
-        ],
-    ];
+    protected function getFormFieldsForSectionDefault()
+    {
+        $schema = [
+            'body' => [
+                self::SCHEMA_CLASS                                          => 'XLite\View\FormField\Textarea\Simple',
+                self::SCHEMA_LABEL                                          => 'Reason',
+                self::SCHEMA_REQUIRED                                       => true,
+                \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY          => true,
+                \XLite\View\FormField\Textarea\ATextarea::PARAM_PLACEHOLDER => static::t('Reason'),
+                \XLite\View\FormField\Textarea\ATextarea::PARAM_ROWS        => 4,
+            ],
+        ];
+
+        return $this->getFieldsBySchema($schema);
+    }
 
     /**
      * @inheritdoc

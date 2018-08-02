@@ -82,3 +82,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Profile does not have any email address. Please sign in the classic way.', translations: [{ code: en, label: 'Profile does not have any email address. Please sign in the classic way.' }] }
   - { name: 'or go to checkout as a New customer', translations: [{ code: en, label: 'or go to checkout as a New customer' }] }
   - { name: 'Login with', translations: [{ code: en, label: 'Login with' }]}
+  - { name: 'https://kb.x-cart.com/en/modules/social_login/setting_up_google_login_for_your_store.html', translations: [{ code: en, label: 'https://kb.x-cart.com/modules/social_login/setting_up_google_login_for_your_store.html' }]}
+  - { name: 'https://kb.x-cart.com/en/modules/social_login/setting_up_facebook_login_for_your_store.html', translations: [{ code: en, label: 'https://kb.x-cart.com/modules/social_login/setting_up_facebook_login_for_your_store.html' }]}
+
+  - { name: 'Profile image', translations: [{ code: en, label: 'Profile image' }]}

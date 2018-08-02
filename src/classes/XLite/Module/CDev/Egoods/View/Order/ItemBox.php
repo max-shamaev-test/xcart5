@@ -53,7 +53,17 @@ class ItemBox extends \XLite\View\AView
      */
     protected function getDefaultTemplate()
     {
-        return 'modules/CDev/Egoods/item.twig';
+        return 'modules/CDev/Egoods/invoice_egoods.twig';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getCommonFiles()
+    {
+        return array_merge_recursive(parent::getCommonFiles(), [
+            static::RESOURCE_CSS => ['css/files.css']
+        ]);
     }
 
     /**

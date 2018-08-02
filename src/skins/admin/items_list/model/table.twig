@@ -8,7 +8,7 @@
 
 {% if this.isWrapWithForm() %}
 
-  {% form this.formOptions.class with {name: this.formOptions.name, formTarget: this.formOptions.target, formAction: this.formOptions.action, formParams: this.formOptions.params} %}
+  {% form this.formOptions.class with {name: this.formOptions.name, formTarget: this.formOptions.target, formAction: this.formOptions.action, formParams: this.formOptions.params, confirmRemove: this.formOptions.confirmRemove} %}
 
     {% include 'items_list/model/table_content.twig' %}
 

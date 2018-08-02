@@ -18,7 +18,7 @@ class FieldFunction extends FunctionNode
 {
     protected $field = null;
     
-    protected $values = array();
+    protected $values = [];
 
     public function parse(\Doctrine\ORM\Query\Parser $parser)
     {

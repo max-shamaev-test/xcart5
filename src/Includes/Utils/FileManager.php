@@ -321,14 +321,21 @@ abstract class FileManager extends \Includes\Utils\AUtils
     /**
      * Return hash of the file
      *
-     * @param string  $path      File path
-     * @param integer $skipCheck Flag OPTIONAL
+     * @param string $path File path
+     * @param bool $skipCheck Flag OPTIONAL
+     * @param bool $addFilenameToHash OPTIONAL
      *
      * @return string
      */
-    public static function getHash($path, $skipCheck = false)
+    public static function getHash($path, $skipCheck = false, $addFilenameToHash = false)
     {
-        return ($skipCheck || static::isFileReadable($path)) ? md5_file($path) : null;
+        $fileHash = ($skipCheck || static::isFileReadable($path))
+            ? md5_file($path)
+            : null;
+
+        return $fileHash && $addFilenameToHash
+            ? md5($fileHash . basename($path))
+            : $fileHash;
     }
 
     /**

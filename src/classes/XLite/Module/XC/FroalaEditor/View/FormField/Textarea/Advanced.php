@@ -201,12 +201,45 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
             'requestHeaders'        => [
                 'X-Requested-With' => 'XMLHttpRequest',
             ],
+            'htmlExecuteScripts'    => false,
             'htmlRemoveTags'        => $this->getHtmlRemoveTags(),
             'toolbarButtons'        => $this->getFroalaToolbarButtons(),
             'toolbarButtonsMD'      => $this->getFroalaToolbarButtons(),
             'toolbarButtonsSM'      => $this->getFroalaToolbarButtons(),
             'toolbarButtonsXS'      => $this->getFroalaToolbarButtons(),
             'appendToDefault'       => $this->getFroalaAppendConfiguration(),
+
+            // https://www.froala.com/wysiwyg-editor/docs/options#pluginsEnabled
+            'pluginsEnabled' => [
+                'align',
+                'charCounter',
+                'codeBeautifier',
+                'codeView',
+                'colors',
+                'draggable',
+                'embedly',
+                'emoticons',
+                'entities',
+                'file',
+                'fontFamily',
+                'fontSize',
+                'fullscreen',
+                'image',
+                'imageManager',
+                'inlineStyle',
+                'lineBreaker',
+                'link',
+                'lists',
+                'paragraphFormat',
+                'paragraphStyle',
+                'quickInsert',
+                'quote',
+                'save',
+                'table',
+                // 'url', // disable by default
+                'video',
+                'wordPaste',
+            ]
         ];
 
         if ($this->useCustomColors() && $this->getCustomColors()) {
@@ -277,7 +310,7 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
     }
 
     /**
-     * @return string
+     * @return array
      */
     protected function getHtmlRemoveTags()
     {

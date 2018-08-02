@@ -31,6 +31,9 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\View\Button\AExpressChec
             && $cart->checkCart();
     }
 
+    /**
+     * @return array
+     */
     public function getJSFiles()
     {
         return array_merge(parent::getJSFiles(), [
@@ -38,6 +41,9 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\View\Button\AExpressChec
         ]);
     }
 
+    /**
+     * @return string
+     */
     protected function getButtonClass()
     {
         return parent::getButtonClass() . ' cart-checkout'
@@ -46,5 +52,13 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\View\Button\AExpressChec
                 ? ' pp-funding-credit'
                 : ''
             );
+    }
+
+    /**
+     * @return string
+     */
+    protected function getButtonStyleNamespace()
+    {
+        return 'mini_cart';
     }
 }

@@ -149,6 +149,14 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: Parcel type
+  - name: domestic_all_services_type
+    category: CDev\USPS
+    type: XLite\Module\CDev\USPS\View\FormField\Select\AllServicesType
+    value: online
+    orderby: 370
+    translations:
+      - code: en
+        option_name: Request rates for
 
   - name: internationalUSPSSeparator
     category: CDev\USPS
@@ -377,7 +385,7 @@ XLite\Model\Payment\Method:
         name: Cash on Delivery (USPS)
 
 XLite\Model\LanguageLabel:
-  - { name: 'U.S.P.S. module allows you to use online shipping rates calculation via USPS Web Tools Ecommerce API.', translations: [{ code: en, label: '<strong>U.S.P.S.</strong> module allows you to use online shipping rates calculation via <a href="http://www.usps.com/webtools">USPS Web Tools Ecommerce API</a>.' }] }
+  - { name: 'U.S.P.S. module allows you to use online shipping rates calculation via USPS Web Tools Ecommerce API.', translations: [{ code: en, label: '<strong>U.S.P.S.</strong> module allows you to use online shipping rates calculation via <a href="http://www.usps.com/webtools" target="_blank">USPS Web Tools Ecommerce API</a>.' }] }
   - { name: '"Cash on delivery" status', translations: [{ code: en, label: '"Cash on delivery" status' }] }
   - { name: 'usps.CODStatusOptionComment', translations: [{ code: en, label: 'Note: To enable/disable the "Cash on delivery" payment option, you should enable/disable the payment method "Cash on delivery (U.S.P.S.)" on the <a href="{{URL}}">Payment methods page</a>.' }] }
   - { name: 'Refresh list of available methods', translations: [{ code: en, label: 'Refresh list of available methods' }] }
@@ -414,5 +422,18 @@ XLite\Model\LanguageLabel:
   - { name: 'Shipping label sender signature', translations: [{ code: en, label: 'Shipping label sender signature' }] }
   - { name: 'Adds the sender’s signature and the date on CN22 and CP72 shipping labels. Enter the signature as a string. The Sender’s signature date is automatically populated.', translations: [{ code: en, label: 'Adds the sender’s signature and the date on CN22 and CP72 shipping labels. Enter the signature as a string. The Sender’s signature date is automatically populated.' }] }
   - { name: 'Create shipment', translations: [{ code: en, label: 'Create shipment' }] }
-  - { name: 'USPS via Pitney Bowes brings you competitive and discounted USPS pricing via the X-Cart 5 interface. Print shipping labels with ease and track USPS shipments from origin to delivery with Pitney Bowes and X-Cart.', translations: [{ code: en, label: 'USPS via Pitney Bowes brings you competitive and discounted USPS pricing via the X-Cart 5 interface. Print shipping labels with ease and track USPS shipments from origin to delivery with Pitney Bowes and X-Cart.' }] }
-  - { name: 'To use the USPS via Pitney Bowes Shipping APIs, you need to register via this link and then enter the email address you have used for registration into the field below.', translations: [{ code: en, label: 'To use the USPS via Pitney Bowes Shipping APIs, you need to register via <a href="{{url}}" class="external" target="_blank">this link</a> and then enter the email address you have used for registration into the field below.' }] }
+
+  - { name: 'Please note: the USPS Web tools APIs print labels without postage.', translations: [{ code: en, label: 'Please note: the USPS Web tools APIs print labels without postage.' }] }
+  - { name: 'Savings - Up to 49% off retail USPS postage rates', translations: [{ code: en, label: '<strong>Savings</strong> - Up to 49% off retail USPS postage rates' }] }
+  - { name: 'Convenience - Verify addresses and buy & print compliant USPS labels directly from the X-Cart application', translations: [{ code: en, label: '<strong>Convenience</strong> - Verify addresses and buy & print compliant USPS labels directly from the X-Cart application' }] }
+  - { name: 'Easy payment options - Ship Now Pay Later with a Pitney Bowes Line of Credit or use a credit card.', translations: [{ code: en, label: '<strong>Easy payment options</strong> - Ship Now Pay Later with a Pitney Bowes Line of Credit or use a credit card.' }] }
+  - { name: 'Get started Now! Click here to create your PITNEY BOWES Postage Account', translations: [{ code: en, label: 'Get started Now! Click here to create your <a href="{{url}}" class="external" target="_blank">PITNEY BOWES Postage Account</a>' }] }
+
+  - { name: 'Delivery date', translations: [{ code: en, label: 'Delivery date' }]}
+  - { name: 'Estimate delivery date', translations: [{ code: en, label: 'Estimate delivery date' }]}
+  - { name: 'Girth', translations: [{ code: en, label: 'Girth' }]}
+  - { name: 'PitneyBowes', translations: [{ code: en, label: 'PitneyBowes' }]}
+  - { name: 'Ship date', translations: [{ code: en, label: 'Ship date' }]}
+  - { name: 'Unable to get merchant info', translations: [{ code: en, label: 'Unable to get merchant info' }]}
+  - { name: 'Update date', translations: [{ code: en, label: 'Update date' }]}
+  - { name: 'Update tracking info', translations: [{ code: en, label: 'Update tracking info' }]}

@@ -129,8 +129,14 @@ class AttributeList extends \XLite\Module\XC\ProductComparison\View\ComparisonTa
                 case $attribute::TYPE_CHECKBOX:
                     $value = $attribute->getAttributeValue($product, true);
                     if (
-                        (is_array($value) && (1 < count($value) || $value[0] == static::t('Yes')))
-                        || (!is_array($value) && $value == static::t('Yes'))
+                        is_array($value)
+                        && (
+                            count($value) > 1
+                            || !empty($value[0])
+                            && $value[0] == static::t('Yes')
+                        )
+                        || !is_array($value)
+                        && $value == static::t('Yes')
                     ) {
                         $result = '<img src="'
                             . \XLite\Core\Layout::getInstance()->getResourceWebPath(

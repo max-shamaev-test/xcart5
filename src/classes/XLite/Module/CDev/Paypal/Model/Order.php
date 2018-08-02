@@ -91,7 +91,9 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
                 ? $this->getPaymentTransactions()->last()->getPaymentMethod()
                 : null;
             if ($lastMethod
-                && ($this->isExpressCheckout($lastMethod) || $this->isPaypalCredit($lastMethod))
+                && ($this->isExpressCheckout($lastMethod)
+                    || $this->isPaypalForMarketplaces($lastMethod)
+                    || $this->isPaypalCredit($lastMethod))
             ) {
                 $method = $lastMethod;
             }
@@ -113,11 +115,13 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
 
         $paymentMethod = $transaction ? $transaction->getPaymentMethod() : null;
 
-        if (isset($paymentMethod) && $this->isExpressCheckout($paymentMethod) ) {
+        if (isset($paymentMethod)
+            && ($this->isExpressCheckout($paymentMethod) || $this->isPaypalForMarketplaces($paymentMethod))
+        ) {
             $self = $this;
             // If customer return from Express checkout to confirm payment
-            $list = array_filter($list, function($method) use ($self) {
-                return $self->isExpressCheckout($method);
+            $list = array_filter($list, function ($method) use ($self) {
+                return $self->isExpressCheckout($method) || $this->isPaypalForMarketplaces($method);
             });
 
         }
@@ -135,6 +139,18 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
     public function isExpressCheckout($method)
     {
         return 'ExpressCheckout' === $method->getServiceName();
+    }
+
+    /**
+     * Returns true if specified payment method is ExpressCheckout
+     *
+     * @param \XLite\Model\Payment\Method $method Payment method object
+     *
+     * @return boolean
+     */
+    public function isPaypalForMarketplaces($method)
+    {
+        return 'PaypalForMarketplaces' === $method->getServiceName();
     }
 
     /**

@@ -5,18 +5,17 @@
 
         <form class="form-inline">
             <input type="text"
-                   v-model="min[0] | priceFilterValue"
+                   v-model="min[0] | priceFilterValue 'min'"
                    debounce="500"
-                   :placeholder="statsMin !== null ? formatPrice(statsMin) : '{{ t('From') }}'"
+                   :placeholder="getMinPrice('{{ t('From') }}')"
                    class="form-control cloud-filters-filter-price__input">
             &mdash;
             <input type="text"
-                   v-model="max[0] | priceFilterValue"
+                   v-model="max[0] | priceFilterValue 'max'"
                    debounce="500"
-                   :placeholder="statsMax !== null ? formatPrice(statsMax) : '{{ t('To') }}'"
+                   :placeholder="getMaxPrice('{{ t('To') }}')"
                    class="form-control cloud-filters-filter-price__input">
         </form>
-
     </div>
 
 </script>

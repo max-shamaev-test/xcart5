@@ -27,8 +27,8 @@ ProductDetailsView.prototype.postprocess = function(isSuccess, initial) {
 
           this.openTab(link);
 
-          if (history.pushState) {
-            history.pushState(null, null, initialURL + '#' + link.data('id'));
+          if (history.replaceState) {
+            history.replaceState(null, null, initialURL + '#' + link.data('id'));
 
           } else {
             self.location.hash = link.data('id');

@@ -27,7 +27,7 @@ class PaypalAdaptive extends \XLite\Module\CDev\Paypal\View\Model\ASettings
         ),
         'paypal_login' => array(
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Text',
-            self::SCHEMA_LABEL    => 'Paypal login (email)',
+            self::SCHEMA_LABEL    => 'PayPal login (email)',
             self::SCHEMA_HELP     => '',
             self::SCHEMA_REQUIRED => true
         ),

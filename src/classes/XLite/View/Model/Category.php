@@ -58,7 +58,7 @@ class Category extends \XLite\View\Model\AModel
             self::SCHEMA_LABEL    => 'Clean URL',
             self::SCHEMA_REQUIRED => false,
             \XLite\View\FormField\AFormField::PARAM_LABEL_HELP => 'Human readable and SEO friendly web address for the page.',
-            \XLite\View\FormField\Input\Text\CleanURL::PARAM_OBJECT_CLASS_NAME => 'XLite\Model\Category'
+            \XLite\View\FormField\Input\Text\CleanURL::PARAM_OBJECT_CLASS_NAME => 'XLite\Model\Category',
         ),
         'meta_title' => array(
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Text',
@@ -84,7 +84,7 @@ class Category extends \XLite\View\Model\AModel
             self::SCHEMA_DEPENDENCY => array(
                 self::DEPENDENCY_SHOW => array (
                     'meta_desc_type' => array('C'),
-                )
+                ),
             ),
         ),
         'memberships' => array(
@@ -288,5 +288,38 @@ class Category extends \XLite\View\Model\AModel
         } else {
             \XLite\Core\TopMessage::addInfo('The category has been added');
         }
+    }
+
+    /**
+     * Save form fields in session
+     *
+     * @param mixed $data Data to save
+     *
+     * @return void
+     */
+    protected function saveFormData($data)
+    {
+        unset($data['image'], $data['banner']);
+
+        parent::saveFormData($data);
+    }
+
+    /**
+     * Rollback model if data validation failed
+     *
+     * @return void
+     */
+    protected function rollbackModel()
+    {
+        $urls = $this->getModelObject()->getCleanURLs();
+        /** @var \XLite\Model\CleanURL $url */
+        foreach ($urls as $url) {
+            if (!$url->isPersistent()) {
+                \XLite\Core\Database::getEM()->remove($url);
+            }
+            \XLite\Core\Database::getEM()->detach($url);
+        }
+
+        parent::rollbackModel();
     }
 }

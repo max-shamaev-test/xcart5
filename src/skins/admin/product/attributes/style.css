@@ -241,6 +241,10 @@ ul.data li .attribute-value label.inline-checkbox {
   white-space: nowrap;
 }
 
+ul.data li .attribute-value.type-t label.inline-checkbox {
+  display: block;
+}
+
 ul.data li .attribute-value label.inline-checkbox * {
   vertical-align: middle;
 }

@@ -378,13 +378,13 @@ class Config extends \XLite\Model\Repo\Base\I18n
      */
     protected function getAllowedFields()
     {
-        return array(
+        return [
             'category' => 1,
             'name'     => 1,
             'value'    => 1,
             'type'     => 0,
             'orderby'  => 0,
-        );
+        ];
     }
 
     /**
@@ -410,7 +410,7 @@ class Config extends \XLite\Model\Repo\Base\I18n
 
         $list['all'] = array();
         $list['category'] = array(
-            self::ATTRS_CACHE_CELL => array('category')
+            static::ATTRS_CACHE_CELL => array('category')
         );
 
         return $list;
@@ -467,7 +467,7 @@ class Config extends \XLite\Model\Repo\Base\I18n
             $conditions[] = 'NOT (' . $condition . ')';
         }
 
-        return array(empty($conditions) ? null : '(' . implode(') AND (', $conditions) . ')', $params);
+        return [empty($conditions) ? null : '(' . implode(') AND (', $conditions) . ')', $params];
     }
 
     /**

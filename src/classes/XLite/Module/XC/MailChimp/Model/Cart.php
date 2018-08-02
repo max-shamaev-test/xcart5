@@ -50,7 +50,11 @@ abstract class Cart extends \XLite\Model\Cart implements \XLite\Base\IDecorator
     {
         parent::processSucceed();
 
-        if ($this->isECommerce360Order()
+        if (
+            (
+                $this->isECommerce360Order()
+                || Main::getStoreForDefaultAutomation()
+            )
             && Core\MailChimp::hasAPIKey()
             && Main::isMailChimpECommerceConfigured()
         ) {

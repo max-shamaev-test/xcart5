@@ -73,6 +73,9 @@ class Settings extends \XLite\View\Model\AModel
     {
         $list = parent::getCSSFiles();
         $list[] = 'settings/summary/summary.css';
+        if ($this->getTarget() === 'email_settings') {
+            $list[] = 'settings/email/style.less';
+        }
 
         return $list;
     }
@@ -140,16 +143,12 @@ class Settings extends \XLite\View\Model\AModel
         $class = $this->detectFormFieldClassByOption($option);
 
         if ($class) {
-            $cell = array(
-                static::SCHEMA_CLASS    => $class,
-                static::SCHEMA_LABEL    => $option->getOptionName(),
+            $cell = [
+                static::SCHEMA_CLASS                         => $class,
+                static::SCHEMA_LABEL                         => $option->getOptionName(),
                 \XLite\View\FormField\AFormField::PARAM_HELP => $option->getOptionComment(),
-                static::SCHEMA_REQUIRED => false,
-            );
-
-            if ($this->isOptionRequired($option)) {
-                $cell[static::SCHEMA_REQUIRED] = true;
-            }
+                static::SCHEMA_REQUIRED                      => $this->isOptionRequired($option),
+            ];
 
             $parameters = $option->getWidgetParameters();
             if ($parameters && is_array($parameters)) {
@@ -233,7 +232,9 @@ class Settings extends \XLite\View\Model\AModel
             return true;
         }
 
-        return false;
+        $widgetParams = $option->getWidgetParameters();
+
+        return !empty($widgetParams['required']);
     }
 
     /**
@@ -750,5 +751,10 @@ class Settings extends \XLite\View\Model\AModel
         }
 
         return parent::defineSectionWidget($section, $params);
+    }
+
+    protected function useButtonPanel()
+    {
+        return 'email_settings' !== $this->getTarget();
     }
 }

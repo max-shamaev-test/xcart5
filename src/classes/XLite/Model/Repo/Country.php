@@ -62,24 +62,24 @@ class Country extends \XLite\Model\Repo\Base\I18n
         );
         foreach ($codes as $code) {
             $list['all_'.$code] = array(
-                self::RELATION_CACHE_CELL => array(
+                static::RELATION_CACHE_CELL => array(
                     '\XLite\Model\State',
                 ),
             );
             $list['enabled_'.$code] = array(
-                self::RELATION_CACHE_CELL => array(
+                static::RELATION_CACHE_CELL => array(
                     '\XLite\Model\State',
                 ),
             );
         }
 
         $list['states'] = array(
-            self::RELATION_CACHE_CELL => array(
+            static::RELATION_CACHE_CELL => array(
                 '\XLite\Model\State',
             ),
         );
         $list['statesGrouped'] = array(
-            self::RELATION_CACHE_CELL => array(
+            static::RELATION_CACHE_CELL => array(
                 '\XLite\Model\State',
             ),
         );

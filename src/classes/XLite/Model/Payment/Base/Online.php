@@ -53,7 +53,7 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
      */
     public function getReturnType()
     {
-        return self::RETURN_TYPE_HTTP_REDIRECT;
+        return static::RETURN_TYPE_HTTP_REDIRECT;
     }
 
     /**
@@ -226,7 +226,7 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
     protected function getReturnURL($fieldName = self::RETURN_TXN_ID, $withId = false, $asCancel = false)
     {
         $query = array(
-            'txn_id_name' => $fieldName ?: self::RETURN_TXN_ID,
+            'txn_id_name' => $fieldName ?: static::RETURN_TXN_ID,
         );
 
         if ($withId) {
@@ -254,7 +254,7 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
     protected function getCallbackURL($fieldName = self::RETURN_TXN_ID, $withId = false)
     {
         $query = array(
-            'txn_id_name' => $fieldName ?: self::RETURN_TXN_ID,
+            'txn_id_name' => $fieldName ?: static::RETURN_TXN_ID,
         );
 
         if ($withId) {
@@ -262,7 +262,7 @@ abstract class Online extends \XLite\Model\Payment\Base\Processor
         }
 
         return \XLite::getInstance()->getShopURL(
-            \XLite\Core\Converter::buildURL('callback', '', $query),
+            \XLite\Core\Converter::buildURL('callback', '', $query, \XLite::getCustomerScript()),
             \XLite\Core\Config::getInstance()->Security->customer_security
         );
     }

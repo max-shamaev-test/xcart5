@@ -27,3 +27,5 @@ XLite\Model\LanguageLabel:
   - { name: 'Low stock notification to admin', translations: [{ code: en, label: 'Low stock notification to admin' }] }
   - { name: 'label.coming_soon', translations: [{ code: en, label: 'Coming Soon' }] }
   - { name: 'This feature is not yet available. You will be redirected to the feature request page where you can vote to have this feature implemented in one of the upcoming versions.', translations: [{ code: en, label: 'This feature is not yet available. You will be redirected to the feature request page where you can vote to have this feature implemented in one of the upcoming versions.' }] }
+
+  - { name: 'Tax Class', translations: [{ code: en, label: 'Tax Class' }]}

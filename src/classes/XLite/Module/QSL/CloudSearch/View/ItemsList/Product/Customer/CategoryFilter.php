@@ -24,6 +24,18 @@ class CategoryFilter extends \XLite\Module\XC\ProductFilter\View\ItemsList\Produ
     const PARAM_LOAD_PRODUCTS_WITH_CLOUD_SEARCH = 'loadProductsWithCloudSearch';
 
     /**
+     * Define and set handler attributes; initialize handler
+     *
+     * @param array $params Handler params OPTIONAL
+     */
+    public function __construct(array $params = [])
+    {
+        $this->initializeCsLimitCondition();
+
+        parent::__construct($params);
+    }
+
+    /**
      * @return string
      */
     protected function getEmptyFilteredListTemplate()

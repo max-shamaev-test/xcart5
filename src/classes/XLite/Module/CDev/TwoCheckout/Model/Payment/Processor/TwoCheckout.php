@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\TwoCheckout\Model\Payment\Processor;
 
+use XLite\Model\Base\Surcharge;
+
 /**
  * 2Checkout.com processor
  *
@@ -284,7 +286,7 @@ class TwoCheckout extends \XLite\Model\Payment\Base\WebBased
             'phone'                 => $this->getProfile()->getBillingAddress()->getPhone(),
             'fixed'                 => 'Y',
             'id_type'               => '1',
-            'sh_cost'               => $this->getFormattedPrice($this->getOrder()->getSurchargeSumByType('SHIPPING')),
+            'sh_cost'               => $this->getFormattedPrice($this->getOrder()->getSurchargeSumByType(Surcharge::TYPE_SHIPPING)),
         );
 
         if ($shippingAddress = $this->getProfile()->getShippingAddress()) {

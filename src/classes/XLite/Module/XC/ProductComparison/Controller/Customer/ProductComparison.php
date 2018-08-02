@@ -43,7 +43,9 @@ class ProductComparison extends \XLite\Controller\Customer\ACustomer
         \XLite\Module\XC\ProductComparison\Core\Data::getInstance()->deleteProductId($id);
         $this->afterAction('delete', $id);
 
-        TopMessage::addInfo('The product has been removed from the comparison table.');
+        TopMessage::addInfo('The product has been removed from comparison table', [
+            'url' => $this->buildURL('compare')
+        ]);
     }
 
     /**
@@ -57,7 +59,9 @@ class ProductComparison extends \XLite\Controller\Customer\ACustomer
         \XLite\Module\XC\ProductComparison\Core\Data::getInstance()->addProductId($id);
         $this->afterAction('add', $id);
 
-        TopMessage::addInfo('The product has been added to the comparison table.');
+        TopMessage::addInfo('The product has been added to the comparison table', [
+            'url' => $this->buildURL('compare')
+        ]);
     }
 
     /**

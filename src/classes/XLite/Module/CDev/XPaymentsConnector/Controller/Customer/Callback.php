@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\XPaymentsConnector\Controller\Customer;
 
+use \XLite\Module\CDev\XPaymentsConnector\Core\XPaymentsClient;
+
 /**
  * Callback 
  *
@@ -52,8 +54,6 @@ class Callback extends \XLite\Controller\Customer\Callback implements \XLite\Bas
                 'ref_id' => $refId,
             );
 
-            $clientXpayments = \XLite\Module\CDev\XPaymentsConnector\Core\XPaymentsClient::getInstance();
-
             if (
                 method_exists($transaction, 'isAntiFraudApplied')
                 && method_exists($transaction, 'checkBlockOrder')
@@ -65,12 +65,17 @@ class Callback extends \XLite\Controller\Customer\Callback implements \XLite\Bas
                 // This makes a error top messsage at checkout
                 $transaction->setDataCell('status', 'AF Error #1: Cannot process this order. Contact administrator', null, 'C');
 
-            } else {
+            } elseif (
+                $cart->hasCartStatus()
+                && $cart->checkCart()
+            ) {
+                // If cart is OK, send the actual cart and proceed with payment
+
+                $transaction->setStatus($transaction::STATUS_INPROGRESS);
+                $transaction->registerTransactionInOrderHistory();
 
                 $forceAuth = $transaction->isPendingZeroAuth();
-
-                // Prepare cart
-                $preparedCart = $clientXpayments->prepareCart($cart, $transaction->getPaymentMethod(), $refId, $forceAuth);
+                $preparedCart = XPaymentsClient::getInstance()->prepareCart($cart, $transaction->getPaymentMethod(), $refId, $forceAuth);
 
                 if ($cart && $preparedCart) {
                     $response['cart'] = $preparedCart;
@@ -81,7 +86,7 @@ class Callback extends \XLite\Controller\Customer\Callback implements \XLite\Bas
             try {
 
                 // Convert array to XML and encrypt it
-                $xml = $clientXpayments->encryptRequest($response);
+                $xml = XPaymentsClient::getInstance()->encryptRequest($response);
 
             } catch (\XLite\Module\CDev\XPaymentsConnector\Core\XpcResponseException $exception) {
 
@@ -89,47 +94,8 @@ class Callback extends \XLite\Controller\Customer\Callback implements \XLite\Bas
                 $xml = $exception->getMessage();
             }
 
-            $clientXpayments->forceCloseConnection($xml);
+            XPaymentsClient::getInstance()->forceCloseConnection($xml);
             die (0);
-        }
-    }
-
-    /**
-     * Process callback
-     *
-     * @return void
-     */
-    protected function doActionCallback()
-    {
-        $transaction = $this->detectTransaction();
-        $xpcOrderCreateProfile = false;
-        if (
-            $transaction
-            && $transaction->isXpc(false)
-            && $transaction->getXpcDataCell('xpc_session_id')
-        ) {
-            $this->setSuppressOutput(true);
-            $this->set('silent', true);
-            \XLite\Module\CDev\XPaymentsConnector\Core\XPaymentsClient::getInstance()->forceCloseConnection();
-
-            \XLite\Core\Session::getInstance()->loadBySid($transaction->getXpcDataCell('xpc_session_id')->getValue());
-
-            if (\XLite\Core\Session::getInstance()->order_create_profile) {
-
-                // Save profile created at checkout flag
-                // It's removed from session in processSucceed()
-                \XLite\Core\Session::getInstance()->xpc_order_create_profile = true;
-                $xpcOrderCreateProfile = true;
-            }
-        }
-
-        parent::doActionCallback();
-
-        if ($xpcOrderCreateProfile) {
-            // That original session was removed from the database when the user was logged in.
-            // But the returning customer will use this session. So reset the ID of the session.
-            \XLite\Core\Session::getInstance()->getModel()->setSid($transaction->getXpcDataCell('xpc_session_id')->getValue());
-            \XLite\Core\Database::getEM()->flush();
         }
     }
 

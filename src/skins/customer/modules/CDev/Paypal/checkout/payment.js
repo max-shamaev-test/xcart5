@@ -18,6 +18,7 @@ core.bind([
     $('.review-step form.place .button-row').hide();
     $('form.place .paypal-ec-checkout').show();
     $('form.place .paypal-ec-checkout-credit').hide();
+    $('form.place .paypal-checkout-for-marketplaces').hide();
 
     //fastlane
     $('.checkout_fastlane_section-buttons form.place .checkout_fastlane_section-place_order').hide();
@@ -25,13 +26,29 @@ core.bind([
     $('.review-step form.place .button-row').hide();
     $('form.place .paypal-ec-checkout').hide();
     $('form.place .paypal-ec-checkout-credit').show();
+    $('form.place .paypal-checkout-for-marketplaces').hide();
 
     //fastlane
     $('.checkout_fastlane_section-buttons form.place .checkout_fastlane_section-place_order').hide();
-  } else {
-    $('.review-step form.place .button-row').show();
+  } else if ($('.paypal-checkout-for-marketplaces-box').length > 0) {
+    $('.review-step form.place .button-row').hide();
     $('form.place .paypal-ec-checkout').hide();
     $('form.place .paypal-ec-checkout-credit').hide();
+
+    if ($('.paypal-checkout-for-marketplaces').hasClass('unavailable')
+      && $('.paypal-checkout-for-marketplaces').is(':hidden')
+    ) {
+      core.trigger('message', {type: 'warning', message: core.t('We are experiencing a problem with the "PayPal For Marketplaces" payment method.')});
+    }
+
+    $('form.place .paypal-checkout-for-marketplaces').show();
+
+    //fastlane
+    $('.checkout_fastlane_section-buttons form.place .checkout_fastlane_section-place_order').hide();
+
+  } else {
+    $('.review-step form.place .button-row').show();
+    $('form.place .pp-express-checkout-button').hide();
 
     //fastlane
     $('.checkout_fastlane_section-buttons form.place .checkout_fastlane_section-place_order').show();
@@ -39,10 +56,10 @@ core.bind([
 });
 
 core.bind('checkout.common.state.nonready', function (state) {
-  $('form.place .paypal-ec-checkout').addClass('nonready');
+  $('form.place .pp-express-checkout-button').addClass('nonready');
 });
 
 core.bind('checkout.common.state.ready', function (state) {
-  $('form.place .paypal-ec-checkout').removeClass('nonready');
+  $('form.place .pp-express-checkout-button').removeClass('nonready');
 });
 

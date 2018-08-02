@@ -8,6 +8,8 @@
 
 namespace XLite\View\Model\Profile;
 
+use XLite\Core\Database;
+
 /**
  * \XLite\View\Model\Profile\Main
  */
@@ -388,6 +390,20 @@ class Main extends \XLite\View\Model\Profile\AProfile
         }
 
         return $result;
+    }
+
+    protected function validateFields(array $data, $section)
+    {
+        parent::validateFields($data, $section);
+
+        $duplicate = Database::getRepo('XLite\Model\Profile')
+            ->checkRegisteredUserWithSameLogin($this->getModelObject());
+
+        if ($duplicate) {
+            $this->addErrorMessage('login', static::t(
+                'This e-mail address is already in use by another user.'
+            ));
+        }
     }
 
     /**

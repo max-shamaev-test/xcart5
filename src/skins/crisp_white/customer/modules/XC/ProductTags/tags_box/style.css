@@ -13,32 +13,38 @@
 }
 
 .tags-list {
-  margin: 0px;
+  margin: 0;
 }
 
 .tags-list li {
   display: inline-block;
-  height: 26px;
-  margin: 0 10px 10px 0;
   line-height: 20px;
-  padding-top: 3px;
-  padding-left: 10px;
-  padding-right: 21px;
+  padding: 5px 25px 5px 10px;
   background: #E4F0F9;
   border-radius: 2px;
   position: relative;
 }
 
+.tags-list li + li {
+  margin-top: 10px;
+}
+
 .tags-list li a {
-  display: inline;
-  padding: 0 5px 0 0;
   text-decoration: none;
   overflow: hidden;
-  width: 89%;
-  height: 23px;
   font-size: 14px;
   color: #386eaf;
-  position: static;
+  white-space: normal;
+
+  /* proper word breaking */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  -ms-word-break: break-all;
+  /* This is the dangerous one in WebKit, as it breaks things wherever */
+  word-break: break-all;
+  /* Instead use this non-standard one: */
+  word-break: break-word;
 }
 
 .tags-list li a:hover {
@@ -52,7 +58,8 @@
   background: #ffffff;
   display: inline-block;
   position: absolute;
-  top: 10px;
+  transform: translateY(-50%);
+  top: 50%;
   right: 10px;
 }
 

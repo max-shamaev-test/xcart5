@@ -789,15 +789,8 @@ abstract class AEntry
                     array('dir' => $topDir)
                 );
                 $this->wrongPermissions[] = $topDir;
-            } else {
-                $source = $this->getFileSource($path);
-
-                if ($this->manageFile($path, 'write', array($source))) {
-                    $this->manageFile($path, 'deleteFile');
-
-                } else {
-                    $this->addFileErrorMessage('Unable to add file', $path, true);
-                }
+            } elseif (!$this->checkPathWriteability($path)) {
+                $this->addFileErrorMessage('Unable to add file', $path, true);
             }
 
         } else {
@@ -814,6 +807,27 @@ abstract class AEntry
                 $this->addFileErrorMessage('Unable to read file while adding', $path, true);
             }
         }
+    }
+
+    /**
+     * @param $path
+     *
+     * @return bool
+     */
+    protected function checkPathWriteability($path)
+    {
+        if ($this->manageFile($path, 'isExists')) {
+            return $this->manageFile($path, 'isWriteable');
+        } else {
+            $source = $this->getFileSource($path);
+
+            if ($this->manageFile($path, 'write', array($source))) {
+                $this->manageFile($path, 'deleteFile');
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

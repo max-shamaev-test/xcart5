@@ -21,7 +21,7 @@ class Begin extends \XLite\View\Import\Begin implements \XLite\Base\IDecorator
     protected function getSamplesURL()
     {
         return $this->isUpdateQty()
-            ? 'https://kb.x-cart.com/en/modules/update_inventory.html'
+            ? static::t('https://kb.x-cart.com/modules/update_inventory.html')
             : parent::getSamplesURL();
     }
 

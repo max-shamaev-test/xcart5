@@ -408,7 +408,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
             }
 
         } else {
-            $this->addItemError = self::NOT_VALID_ERROR;
+            $this->addItemError = static::NOT_VALID_ERROR;
         }
 
         return $result;
@@ -753,7 +753,6 @@ class Order extends \XLite\Model\Base\SurchargeOwner
 
     /**
      * Clone order and all related data
-     * TODO: Decompose this method into several methods
      *
      * @return \XLite\Model\Order
      */
@@ -762,13 +761,42 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         // Clone order
         $newOrder = parent::cloneEntity();
 
+        $this->cloneEntityAssignOrderNumber($newOrder);
+        $this->cloneEntityProfile($newOrder);
+        $this->cloneEntityCurrency($newOrder);
+        $this->cloneEntityOrderStatuses($newOrder);
+        $this->cloneOrderItems($newOrder);
+        $this->cloneEntityOrderDetails($newOrder);
+        $this->cloneEntityTrackingNumbers($newOrder);
+        $this->cloneEntityEvents($newOrder);
+        $this->cloneEntitySurcharges($newOrder);
+        $this->cloneEntityPaymentTransactions($newOrder);
+
+        return $newOrder;
+    }
+
+    /**
+     * Assign order number for cloned entity
+     *
+     * @param \XLite\Model\Order $newOrder
+     * @throws \Doctrine\ORM\ORMException
+     */
+    protected function cloneEntityAssignOrderNumber($newOrder)
+    {
         if ($this->getOrderNumber() && !$this->isTemporary()) {
             $newOrder->setOrderNumber(
                 \XLite\Core\Database::getRepo('XLite\Model\Order')->findNextOrderNumber()
             );
         }
+    }
 
-        // Clone profile
+    /**
+     * Assign profiles for cloned entity
+     *
+     * @param \XLite\Model\Order $newOrder
+     */
+    protected function cloneEntityProfile($newOrder)
+    {
         $newOrder->setOrigProfile($this->getOrigProfile());
 
         if ($this->getProfile()) {
@@ -776,54 +804,98 @@ class Order extends \XLite\Model\Base\SurchargeOwner
             $newOrder->setProfile($clonedProfile);
             $clonedProfile->setOrder($newOrder);
         }
+    }
 
-        // Clone currency
+    /**
+     * Assign currency for cloned entity
+     *
+     * @param \XLite\Model\Order $newOrder
+     */
+    protected function cloneEntityCurrency($newOrder)
+    {
         $newOrder->setCurrency($this->getCurrency());
+    }
 
-        // Clone order statuses
+    /**
+     * Assign order statuses for cloned entity
+     *
+     * @param \XLite\Model\Order $newOrder
+     */
+    protected function cloneEntityOrderStatuses($newOrder)
+    {
         $newOrder->setPaymentStatus($this->getPaymentStatus());
         $newOrder->setShippingStatus($this->getShippingStatus());
+    }
 
-        // Clone order items
-        $this->cloneOrderItems($newOrder);
-
-        // Clone order details
+    /**
+     * Assign order details for cloned entity
+     *
+     * @param \XLite\Model\Order $newOrder
+     */
+    protected function cloneEntityOrderDetails($newOrder)
+    {
         foreach ($this->getDetails() as $detail) {
             $clonedDetails = $detail->cloneEntity();
             $newOrder->addDetails($clonedDetails);
             $clonedDetails->setOrder($newOrder);
         }
+    }
 
-        // Clone tracking numbers
+    /**
+     * Assign tracking numbers for cloned entity
+     *
+     * @param \XLite\Model\Order $newOrder
+     */
+    protected function cloneEntityTrackingNumbers($newOrder)
+    {
         foreach ($this->getTrackingNumbers() as $tn) {
             $clonedTN = $tn->cloneEntity();
             $newOrder->addTrackingNumbers($clonedTN);
             $clonedTN->setOrder($newOrder);
         }
+    }
 
-        // Clone events
+    /**
+     * Assign events for cloned entity
+     *
+     * @param \XLite\Model\Order $newOrder
+     */
+    protected function cloneEntityEvents($newOrder)
+    {
         foreach ($this->getEvents() as $event) {
             $cloned = $event->cloneEntity();
             $newOrder->addEvents($cloned);
             $cloned->setOrder($newOrder);
             $cloned->setAuthor($event->getAuthor());
         }
+    }
 
-        // Clone surcharges
+    /**
+     * Assign surcharges for cloned entity
+     *
+     * @param \XLite\Model\Order $newOrder
+     */
+    protected function cloneEntitySurcharges($newOrder)
+    {
         foreach ($this->getSurcharges() as $surcharge) {
             $cloned = $surcharge->cloneEntity();
             $newOrder->addSurcharges($cloned);
             $cloned->setOwner($newOrder);
         }
+    }
 
-        // Clone payment transactions
+    /**
+     * Assign payment transactions for cloned entity
+     *
+     * @param \XLite\Model\Order $newOrder
+     */
+    protected function cloneEntityPaymentTransactions($newOrder)
+    {
         foreach ($this->getPaymentTransactions() as $pt) {
             $cloned = $pt->cloneEntity();
             $newOrder->addPaymentTransactions($cloned);
             $cloned->setOrder($newOrder);
         }
-
-        return $newOrder;
     }
 
     /**
@@ -1070,7 +1142,9 @@ class Order extends \XLite\Model\Base\SurchargeOwner
 
         foreach ($this->getItems() as $item) {
             $event = $item->getEventCell();
-            $event['quantity'] = $item->getAmount();
+
+            // float is intended here to adopt fractional quantities via modules
+            $event['quantity'] = (float) $item->getAmount();
 
             if ($this->isItemLimitReached($item)) {
                 $event['is_limit'] = 1;
@@ -1105,11 +1179,11 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Get fingerprint by 'itemsCount' key
      *
-     * @return array
+     * @return int
      */
     protected function getFingerprintByItemsCount()
     {
-        return $this->countQuantity();
+        return (int) $this->countQuantity();
     }
 
     /**
@@ -1122,8 +1196,8 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         $shippingModifier = $this->getModifier(\XLite\Model\Base\Surcharge::TYPE_SHIPPING, 'SHIPPING');
 
         return $shippingModifier && $shippingModifier->getSelectedRate()
-            ? $shippingModifier->getSelectedRate()->getTotalRate()
-            : 0;
+            ? (float) $shippingModifier->getSelectedRate()->getTotalRate()
+            : (float) 0;
     }
 
     /**
@@ -1133,7 +1207,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     protected function getFingerprintByTotal()
     {
-        return $this->getTotal();
+        return (float) $this->getTotal();
     }
 
     /**
@@ -1422,6 +1496,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     {
         return [
             \XLite\Model\Order\Status\Payment::STATUS_QUEUED,
+            \XLite\Model\Order\Status\Payment::STATUS_AUTHORIZED,
         ];
     }
 
@@ -1881,7 +1956,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     public function hasUnpaidTotal()
     {
-        return $this->getCurrency()->getMinimumValue() < $this->getCurrency()->roundValue(abs($this->getOpenTotal()));
+        return $this->getCurrency()->getMinimumValue() <= $this->getCurrency()->roundValue(abs($this->getOpenTotal()));
     }
 
     /**
@@ -2412,6 +2487,10 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     {
         $this->normalizeItems();
 
+        $this->reinitializeCurrency();
+
+        $this->calculateInitialValues();
+
         // If shipping method is not selected or shipping conditions is changed (remove order items or changed address)
         $this->renewShippingMethod();
 
@@ -2559,7 +2638,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         $result = array();
 
         foreach ($items as $item) {
-            $result[$item->getItemId()] = $item->resetSurcharges();
+            $result[$item->getItemId() ?: spl_object_hash($item)] = $item->resetSurcharges();
         }
 
         return $result;
@@ -2575,8 +2654,8 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     protected function mergeSurcharges(array $oldSurcharges)
     {
         foreach ($this->getItems() as $item) {
-            if (!empty($oldSurcharges['items'][$item->getItemId()])) {
-                $item->compareSurcharges($oldSurcharges['items'][$item->getItemId()]);
+            if (!empty($oldSurcharges['items'][$item->getItemId() ?: spl_object_hash($item)])) {
+                $item->compareSurcharges($oldSurcharges['items'][$item->getItemId() ?: spl_object_hash($item)]);
             }
         }
 
@@ -2948,12 +3027,12 @@ class Order extends \XLite\Model\Base\SurchargeOwner
                 } else {
                     $this->processDecrease();
                 }
-
-                \XLite\Core\Database::getEM()->flush();
             }
         }
 
         $this->updateSales();
+
+        \XLite\Core\Database::getEM()->flush();
     }
 
     /**
@@ -3052,6 +3131,9 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     protected function processAuthorize()
     {
+        if ($this instanceof Cart) {
+            $this->setIsNotificationsAllowedFlag(false);
+        }
     }
 
     /**
@@ -3441,6 +3523,10 @@ class Order extends \XLite\Model\Base\SurchargeOwner
                 $this->paymentTransactionSums['authorized'] += $authorized;
 
             } // foreach
+
+            $this->paymentTransactionSums = array_map(function ($item) {
+                return $this->getCurrency()->roundValue($item);
+            }, $this->paymentTransactionSums);
         }
 
         return $this->paymentTransactionSums;

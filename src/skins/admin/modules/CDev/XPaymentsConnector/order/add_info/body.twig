@@ -20,7 +20,7 @@
 
     <tr class="top-line">
       <td>{{ this.getTime(tr.date) }}</td>
-      <td><strong>{{ tr.action }}</strong></td>
+      <td><strong>{{ tr.action }}{% if tr.attempts and tr.attempts > 1 %} ({{ tr.attempts }} {{ t('attempts') }}){% endif %}</strong></td>
       <td>{{ tr.payment_status }}</td>
       <td class="status-{{ tr.status|raw }}"><strong>{{ tr.status|raw }}</strong></td>
       <td>{{ tr.total }}</td>

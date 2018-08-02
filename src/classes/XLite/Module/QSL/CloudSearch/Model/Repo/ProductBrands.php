@@ -9,47 +9,14 @@
 namespace XLite\Module\QSL\CloudSearch\Model\Repo;
 
 use Doctrine\ORM\QueryBuilder;
-use XLite\Core\CommonCell;
-use XLite\Core\Database;
 
 /**
  * The "product" repo class
  *
- * @Decorator\Depend({"QSL\ShopByBrand", "QSL\CloudSearch"})
+ * @Decorator\Depend({"QSL\ShopByBrand"})
  */
 abstract class ProductBrands extends \XLite\Model\Repo\Product implements \XLite\Base\IDecorator
 {
-    /**
-     * Convert CommonCell conditions to CloudSearch request parameters
-     *
-     * @param CommonCell $cnd
-     *
-     * @return array
-     */
-    protected function getCloudSearchRequestParams(CommonCell $cnd)
-    {
-        $searchParams = parent::getCloudSearchRequestParams($cnd);
-
-        if ($cnd->{self::P_BRAND_ID}) {
-            $brandAttribute = Database::getRepo('XLite\Model\Attribute')
-                ->findBrandAttribute();
-
-            if ($brandAttribute) {
-                $brand = Database::getRepo('XLite\Module\QSL\ShopByBrand\Model\Brand')
-                    ->find($cnd->{self::P_BRAND_ID});
-
-                if ($brand) {
-                    $searchParams += [
-                        'brand'          => $brand->getName(),
-                        'brandAttribute' => $brandAttribute->getName(),
-                    ];
-                }
-            }
-        }
-
-        return $searchParams;
-    }
-
     /**
      * Prepare certain search condition
      *
@@ -60,7 +27,7 @@ abstract class ProductBrands extends \XLite\Model\Repo\Product implements \XLite
      */
     protected function prepareCndBrandId(QueryBuilder $queryBuilder, $value)
     {
-        if (!$this->loadProductsWithCloudSearch()) {
+        if (!$this->isLoadProductsWithCloudSearch()) {
             parent::prepareCndBrandId($queryBuilder, $value);
         }
     }

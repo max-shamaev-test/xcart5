@@ -60,6 +60,7 @@ class Callback extends \XLite\Controller\Customer\ACheckoutReturn
      * Process callback
      *
      * @return void
+     * @throws \Exception
      */
     protected function doActionCallback()
     {
@@ -70,6 +71,8 @@ class Callback extends \XLite\Controller\Customer\ACheckoutReturn
 
             try {
                 $transaction->getPaymentMethod()->getProcessor()->processCallback($transaction);
+                // because tryClose might refresh $transaction and it will lose its status
+                \XLite\Core\Database::getEM()->flush();
 
                 $cart = $transaction->getOrder();
                 if ($cart instanceof \XLite\Model\Cart) {

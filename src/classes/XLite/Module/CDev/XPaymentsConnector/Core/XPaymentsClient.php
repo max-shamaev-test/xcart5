@@ -117,11 +117,16 @@ class XPaymentsClient extends \XLite\Base\Singleton
      */
     public function requestPaymentAdditionalInfo($txnId)
     {
-        $data = array(
-            'txnId'   => $txnId,
-        );
+        if (version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.9') >= 0) {
+            $result = $this->requestPaymentInfo($txnId); 
+        } else {
+            $data = array(
+                'txnId'   => $txnId,
+            );
+            $result = $this->apiRequest->send('payment', 'get_additional_info', $data);
+        }
 
-        return $this->apiRequest->send('payment', 'get_additional_info', $data);
+        return $result;
     }
 
     /**
@@ -392,7 +397,12 @@ class XPaymentsClient extends \XLite\Base\Singleton
                 $formData = array();
             }
 
-            $formData[$transaction->getPaymentMethod()->getMethodId()] = $data;
+            $dataKey = $transaction->getPaymentMethod()->getMethodId();
+            if ($transaction->isPendingZeroAuth()) {
+                $dataKey = 'ZeroAuth' . $dataKey;
+            }
+
+            $formData[$dataKey] = $data;
 
         } else {
             $formData = null;
@@ -468,6 +478,8 @@ class XPaymentsClient extends \XLite\Base\Singleton
     public function createFakeCart(\XLite\Model\Profile $profile, \XLite\Model\Payment\Method $paymentMethod, $total, $itemName, $itemSku, $addressId = false)
     {
         $cart = new \XLite\Model\Cart;
+
+        $cart->setIsZeroAuth(true);
 
         $cart->setTotal($total);
         $cart->setDate(time());
@@ -875,26 +887,28 @@ class XPaymentsClient extends \XLite\Base\Singleton
      */
     protected function checkInitPaymentStatus(\XLite\Model\Payment\Transaction $transaction)
     {
-        $result = false;
+        $result = (version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.6') >= 0);
 
-        $txnId = $transaction->getDataCell('xpc_txnid')
-            ? $transaction->getDataCell('xpc_txnid')->getValue()
-            : false; 
+        if (!$result) {
 
-        if ($txnId) {
+            $txnId = $transaction->getDataCell('xpc_txnid')
+                ? $transaction->getDataCell('xpc_txnid')->getValue()
+                : false; 
 
-            $info = $this->requestPaymentInfo($txnId);
+            if ($txnId) {
 
-            if ($info->isSuccess()) {
+                $info = $this->requestPaymentInfo($txnId);
 
-                $response = $info->getResponse();
+                if ($info->isSuccess()) {
 
-                // For API 1.5 and before payment status must be New/Pending
-                // API 1.6 and later allows to return to the same payment and pay again if it was declined
-                $result = (
-                    version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.6') >= 0
-                    || \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPayments::STATUS_NEW == $response['status']
-                );
+                    $response = $info->getResponse();
+
+                    // For API 1.5 and before payment status must be New/Pending
+                    // API 1.6 and later allows to return to the same payment and pay again if it was declined
+                    $result = (
+                        \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPayments::STATUS_NEW == $response['status']
+                    );
+                }
             }
         }
 
@@ -908,20 +922,23 @@ class XPaymentsClient extends \XLite\Base\Singleton
      *
      * @return array || bool
      */
-    protected function getInitDataFromSession(\XLite\Model\Payment\Transaction $transaction)
+    public function getInitDataFromSession(\XLite\Model\Payment\Transaction $transaction)
     {
-        $paymentId = $transaction->getPaymentMethod()->getMethodId();
+        $dataKey = $transaction->getPaymentMethod()->getMethodId();
+        if ($transaction->isPendingZeroAuth()) {
+            $dataKey = 'ZeroAuth' . $dataKey;
+        }
 
         $formData = \XLite\Core\Session::getInstance()->xpc_form_data;
 
         if (
             $formData 
-            && isset($formData[$paymentId]) 
-            && $this->isInitDataValid($formData[$paymentId])
+            && isset($formData[$dataKey]) 
+            && $this->isInitDataValid($formData[$dataKey])
             && $this->checkInitPaymentStatus($transaction)
         ) {
 
-            $data = $formData[$paymentId];
+            $data = $formData[$dataKey];
 
             if (isset($data['expiryTime'])) {
                 if (\XLite\Core\Converter::time() >= $data['expiryTime']) {

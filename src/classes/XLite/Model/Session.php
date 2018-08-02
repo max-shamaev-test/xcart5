@@ -103,8 +103,8 @@ class Session extends \XLite\Model\AEntity
     protected static function getMaxTTL()
     {
         return \XLite::isAdminZone()
-            ? self::MAX_ADMIN_TTL
-            : self::MAX_CUSTOMER_TTL;
+            ? static::MAX_ADMIN_TTL
+            : static::MAX_CUSTOMER_TTL;
     }
 
     /**
@@ -150,7 +150,7 @@ class Session extends \XLite\Model\AEntity
     public function updateExpiry()
     {
         $ttl = \XLite\Core\Session::getTTL();
-        $this->setExpiry(0 < $ttl ? $ttl : \XLite\Core\Converter::time() + self::getMaxTTL());
+        $this->setExpiry(0 < $ttl ? $ttl : \XLite\Core\Converter::time() + static::getMaxTTL());
     }
 
     /**

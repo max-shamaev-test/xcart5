@@ -97,15 +97,6 @@ abstract class URLManager extends \Includes\Utils\AUtils
                     $url = $hostDetails['web_dir_wo_slash'] . '/' . $url;
                 }
 
-                $isSession = !isset($isSession)
-                    ? (true === $isSecure && !static::isHTTPS())
-                    : $isSession;
-
-                if ($isSession) {
-                    $session = \XLite\Core\Session::getInstance();
-                    $url .= (false !== strpos($url, '?') ? '&' : '?') . $session->getName() . '=' . $session->getID();
-                }
-
                 foreach ($params as $name => $value) {
                     $url .= (false !== strpos($url, '?') ? '&' : '?') . $name . '=' . $value;
                 }
@@ -185,7 +176,7 @@ abstract class URLManager extends \Includes\Utils\AUtils
      */
     public static function getSelfURI()
     {
-        return isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null;
+        return isset($_SERVER['REQUEST_URI']) ? urldecode($_SERVER['REQUEST_URI']) : null;
     }
 
     /**

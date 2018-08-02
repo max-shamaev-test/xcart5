@@ -8,6 +8,8 @@
 
 namespace XLite\View\ItemsList\Model\Address;
 
+use XLite\Model\AddressField;
+
 /**
  * Address fields items list
  */
@@ -239,8 +241,11 @@ class Fields extends \XLite\View\ItemsList\Model\Table
      */
     protected function isAllowEntitySwitch(\XLite\Model\AEntity $entity)
     {
+        /* @var AddressField $entity */
         // Custom state is not allowed to switch off
-        return parent::isAllowEntitySwitch($entity) && 'custom_state' !== $entity->getServiceName();
+        return parent::isAllowEntitySwitch($entity)
+            && 'custom_state' !== $entity->getServiceName()
+            && class_exists($entity->getSchemaClass());
     }
 
     /**

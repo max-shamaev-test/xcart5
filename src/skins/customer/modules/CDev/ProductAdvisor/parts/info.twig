@@ -5,7 +5,7 @@
 <div class="product-photo">
   <a href="{{ this.getProductURL() }}"
      class="product-thumbnail lazy-load">
-    {{ widget('\\XLite\\View\\Image', image=this.product.getImage(), maxWidth=this.getIconWidth(), maxHeight=this.getIconHeight(), alt=this.getIconAlt(), className='photo') }}
+    {{ widget('\\XLite\\View\\Image', isBlurApplicable=true, image=this.product.getImage(), maxWidth=this.getIconWidth(), maxHeight=this.getIconHeight(), alt=this.getIconAlt(), className='photo') }}
   </a>
 </div>
 

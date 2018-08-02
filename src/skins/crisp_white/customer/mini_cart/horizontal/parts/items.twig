@@ -6,7 +6,7 @@
 <div {{ this.printTagAttributes(this.getItemsContainerAttributes())|raw }}>
 
   <h4 class="title">
-    <a href="{{ url('cart') }}">{{ t('X items in bag', {'count': this.cart.countQuantity()}) }}</a>
+    <a href="{{ url('cart') }}">{{ t('Last added items', {'count': this.cart.countQuantity()}) }}</a>
   </h4>
 
   {% if this.hasItems() %}
@@ -20,7 +20,7 @@
   {% endif %}
 
   {% if this.isTruncated() %}
-    <p class="other-items"><a href="{{ url('cart') }}">{{ t('Other items') }}</a></p>
+    <p class="other-items"><a href="{{ url('cart') }}">{{ t('See all items in the cart', {'count': this.cart.countQuantity()}) }}</a></p>
   {% endif %}
 
   <p class="subtotal">

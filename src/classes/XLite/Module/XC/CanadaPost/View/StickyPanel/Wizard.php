@@ -30,6 +30,14 @@ class Wizard extends \XLite\View\StickyPanel\Model\AModel
             )
         );
 
+        $list['configure_manually'] = new \XLite\View\Button\Link(
+            array(
+                \XLite\View\Button\AButton::PARAM_LABEL    => static::t('Configure manually'),
+                \XLite\View\Button\Link::PARAM_LOCATION    => $this->buildURL('capost', 'configure_manually'),
+                \XLite\View\Button\AButton::PARAM_STYLE    => 'action always-enabled',
+            )
+        );
+
         $list['shipping_methods'] = new \XLite\View\Button\SimpleLink(
             array(
                 \XLite\View\Button\AButton::PARAM_LABEL => static::t('Back to shipping methods'),

@@ -66,6 +66,9 @@ class Attachments extends \XLite\View\ItemsList\Model\Table
             'title'       => [
                 static::COLUMN_NAME    => \XLite\Core\Translation::lbl('File title'),
                 static::COLUMN_CLASS   => 'XLite\Module\CDev\FileAttachments\View\FormField\Inline\Input\Text\File',
+                static::COLUMN_PARAMS => [
+                    \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => \XLite\Core\Database::getRepo('XLite\Module\CDev\FileAttachments\Model\Product\AttachmentTranslation')->getFieldInfo('title', 'length'),
+                ],
                 static::COLUMN_ORDERBY => 100,
             ],
             'description' => [

@@ -25,7 +25,7 @@ XLite\Model\Config:
     category: 'XC\ProductFilter'
     translations:
       - code: ru
-        option_name: 'Отображать только атрибуты и теги, реально используемые для продуктов в категории'
+        option_name: 'Отображать только атрибуты и теги, реально используемые для товаров в категории'
         option_comment: 'Если данная настройка выключена, в фильтре показываются все значения атрибутов и все теги, используемые в магазине. Если настройка включена, X-Cart генерирует кеш данных, позволяющий отображать в фильтре только те значения атрибутов и теги, которые реально используются для товаров в просматриваемой категории. Обратите внимание, что доступность товаров для отдельных групп пользователей при генерации кеша не учитывается.'
   - name: attributes_filter_cache_mode
     category: 'XC\ProductFilter'
@@ -56,11 +56,11 @@ XLite\Model\LanguageLabel:
   - { name: 'In stock only', translations: [{ code: ru, label: 'Только в наличии' }] }
   - { name: 'Generate cache on the fly', translations: [{ code: ru, label: 'Генерировать кеш в процессе работы' }] }
   - { name: 'Remove cache when attribute, tag or product data is changed', translations: [{ code: ru, label: 'Сбрасывать кеш при изменении данных атрибутов, тегов или товаров' }] }
-  - { name: 'Remove product filter cache tooltip', translations: [{ code: ru, label: 'Кнопка служит для удаления кеша данных, используемого фильтром товаров. После удаления кеша откройте любую категорию в клиентской части сайта, чтобы кеш был сгенерирован заново' }] }
+  - { name: 'Remove product filter cache tooltip', translations: [{ code: ru, label: 'Кнопка служит для удаления кеша данных, используемого фильтром товаров. После удаления кеша откройте витрину и выберите любую категорию, чтобы кеш был сгенерирован заново' }] }
   - { name: 'Remove product filter cache', translations: [{ code: ru, label: 'Удалить кеш фильтра товаров' }] }
   - { name: 'Hidden from products filter', translations: [{ code: ru, label: 'Скрыт из фильтра товаров' }] }
   - { name: 'Visible in products filter', translations: [{ code: ru, label: 'Отображается в фильтре товаров' }] }
-  - { name: 'Classes for product filter', translations: [{ code: ru, label: 'Классы для фильтра продуктов' }] }
+  - { name: 'Classes for product filter', translations: [{ code: ru, label: 'Классы для фильтра товаров' }] }
   - { name: 'All classes from this category', translations: [{ code: ru, label: 'Все классы из этой категории' }] }
   - { name: 'Do not show the filter', translations: [{ code: ru, label: 'Не отображать фильтр' }] }
   - { name: 'Choose classes...', translations: [{ code: ru, label: 'Выбрать классы...' }] }
@@ -68,4 +68,4 @@ XLite\Model\LanguageLabel:
   - { name: 'Manual', translations: [{ code: ru, label: 'Вручную' }] }
   - { name: 'Wrong useClasses format', translations: [{ code: ru, label: "Неправильный формат значения useClasses. Возможные значения: 'A', 'N' or 'D'" }] }
   - { name: 'Hash', translations: [{ code: ru, label: 'Хеш' }] }
-  - { name: 'Get params', translations: [{ code: ru, label: 'GET пареметры' }] }
+  - { name: 'Get params', translations: [{ code: ru, label: 'GET параметры' }] }

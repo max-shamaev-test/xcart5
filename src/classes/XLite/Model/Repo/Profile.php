@@ -368,7 +368,7 @@ class Profile extends \XLite\Model\Repo\ARepo
      */
     protected function prepareCndMembership(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
     {
-        if ('A' !== $this->searchState['currentSearchCnd']->{self::SEARCH_USER_TYPE}) {
+        if ('A' !== $this->searchState['currentSearchCnd']->{static::SEARCH_USER_TYPE}) {
             $queryBuilder->bindMembership($value);
         }
     }
@@ -630,7 +630,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     {
         $result = null;
 
-        $paramDatePeriod = self::SEARCH_DATE_PERIOD;
+        $paramDatePeriod = static::SEARCH_DATE_PERIOD;
         if (isset($this->searchState['currentSearchCnd']->$paramDatePeriod)) {
             $datePeriod = $this->searchState['currentSearchCnd']->$paramDatePeriod;
             $startDate = null;

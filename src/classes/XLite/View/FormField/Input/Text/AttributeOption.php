@@ -79,4 +79,20 @@ class AttributeOption extends \XLite\View\FormField\Input\Text\Base\Combobox
     {
         return 'attributeOption';
     }
+
+    /**
+     * Set common attributes
+     *
+     * @param array $attrs Field attributes to prepare
+     *
+     * @return array
+     */
+    protected function setCommonAttributes(array $attrs)
+    {
+        $attrs = parent::setCommonAttributes($attrs);
+
+        $attrs['data-input-group'] = 'attribute' . md5($this->getURL());
+
+        return $attrs;
+    }
 }

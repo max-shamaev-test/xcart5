@@ -34,7 +34,7 @@ class Node extends \XLite\View\AView
     {
         return new static(
             array(
-                self::PARAM_NAME     => $name,
+                self::PARAM_NAME     => static::t($name),
                 self::PARAM_LINK     => $link,
                 self::PARAM_SUBNODES => $subnodes,
             )

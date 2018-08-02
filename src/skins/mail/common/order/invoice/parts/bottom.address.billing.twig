@@ -13,4 +13,6 @@
         </li>
     {% endfor %}
 </ul>
-<p class="email">{{ t('E-mail') }}: <a href="mailto:{{ this.order.profile.email }}">{{ this.order.profile.email }}</a></p>
+{% if this.isDisplayBillingEmail() %}
+    <p class="email">{{ t('E-mail') }}: <a href="mailto:{{ this.order.profile.email }}">{{ this.order.profile.email }}</a></p>
+{% endif %}

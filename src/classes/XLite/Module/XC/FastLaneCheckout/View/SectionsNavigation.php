@@ -54,15 +54,9 @@ class SectionsNavigation extends Sections
      */
     protected function defineWidgetData()
     {
-        $sections = array_keys($this->defineTabs());
-
-        $data = array();
-
-        if (count($sections) > 0) {
-            $data['start_with'] = array_shift($sections);
-        }
-
-        return $data;
+        return [
+            'start_with' => null
+        ];
     }
 
     /**

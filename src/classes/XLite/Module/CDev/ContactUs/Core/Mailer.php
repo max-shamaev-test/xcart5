@@ -19,6 +19,8 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
     const TYPE_CONTACT_US = 'ContactUs';
 
     /**
+     * @deprecated 5.4
+     *
      * `From` storage
      *
      * @var string
@@ -26,6 +28,8 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
     protected static $fromStorage = null;
 
     /**
+     * @deprecated 5.4
+     *
      * Make some specific preparations for "Custom Headers" for SiteAdmin email type
      *
      * @param array  $customHeaders "Custom Headers" field value
@@ -34,8 +38,6 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
      */
     protected static function prepareCustomHeadersContactUs($customHeaders)
     {
-        $customHeaders[] = 'Reply-To: ' . static::$fromStorage;
-
         return $customHeaders;
     }
 
@@ -49,15 +51,19 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
      */
     public static function sendContactUsMessage($contact, $email)
     {
-        static::$fromStorage = $contact->getEmail();
-
         static::register('contact', $contact);
 
         if (is_array($email)) {
             foreach ($email as $mail) {
                 static::compose(
                     static::TYPE_CONTACT_US,
-                    static::getSiteAdministratorMail(),
+                    static::composeAdminReplyTo(
+                        static::getSiteAdministratorMail(),
+                        [[
+                            'address' => $contact->getEmail(),
+                            'name'    => $contact->getName(),
+                        ]]
+                    ),
                     $mail,
                     'modules/CDev/ContactUs/message',
                     [],
@@ -68,7 +74,13 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
         } else {
             static::compose(
                 static::TYPE_CONTACT_US,
-                static::getSiteAdministratorMail(),
+                static::composeAdminReplyTo(
+                    static::getSiteAdministratorMail(),
+                    [[
+                        'address' => $contact->getEmail(),
+                        'name'    => $contact->getName(),
+                    ]]
+                ),
                 $email,
                 'modules/CDev/ContactUs/message',
                 [],

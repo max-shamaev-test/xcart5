@@ -7,6 +7,10 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
+var xpcLoading = false;
+var xpcPopupError = false;
+var xpcPrevPaymentId = 0;
+
 function xpcMessageListener(event)
 {
 
@@ -54,7 +58,7 @@ function xpcMessageListener(event)
         || XPC_IFRAME_CLEAR_INIT_DATA == type
         || XPC_IFRAME_ALERT == type
       ) {
-        jQuery('.xpc-box').hide();
+        xpcPopupError = true;
       }
 
       var url = URLHandler.buildURL({ 'target': 'xpc_popup', 'type': type, 'message': escape(message) }); 
@@ -75,8 +79,6 @@ function xpcMessageListener(event)
   }
 
 };
-
-var xpcLoading = false;
 
 function isXpcIframeMethod()
 {
@@ -124,21 +126,18 @@ function submitXpcIframe(event, state)
 
   state.state = false;
 
-  saveCheckoutFormDataXpc('#order_note', '#save-card');
-
   if (jQuery('.xpc_iframe').length) {
+    saveCheckoutFormDataXpc('#order_note', '#save-card');
+
+    setTimeout(Checkout.instance.startLoadAnimation, 0);
+    core.trigger('checkout.common.block');
+    jQuery('#status-messages').hide();
+
     var message = {
       message: 'submitPaymentForm',
       params:  {}
     };
-
     var xpcShown = jQuery('.xpc_iframe').get(0);
-
-    setTimeout(Checkout.instance.startLoadAnimation, 0);
-    core.trigger('checkout.common.block');
-
-    jQuery('#status-messages').hide();
-
     if (window.postMessage && window.JSON) {
       xpcShown.contentWindow.postMessage(JSON.stringify(message), '*');
     }
@@ -174,6 +173,7 @@ function reloadXpcIframe()
     src = iframe.data('src');
   }
 
+  console.log('Loading X-Payments iframe...');
   iframe.attr('src', src);
 
   xpcLoading = true;
@@ -186,32 +186,27 @@ function reloadXpcIframe()
 jQuery(window).bind('message', _.bind(xpcMessageListener, this));
 
 // Reload iframe if payment method is changed
-core.bind(['checkout.paymentTpl.loaded', 'checkout.xpc.paymentPage.loaded'], reloadXpcIframe);
+core.bind('checkout.paymentTpl.loaded', reloadXpcIframe);
+
+core.bind('checkout.xpc.paymentPage.loaded', function() {
+  var paymentId = Checkout.instance.getState().order.payment_method;
+  if (xpcPrevPaymentId != paymentId) {
+    xpcPrevPaymentId = paymentId;
+    reloadXpcIframe();
+  }
+});
 
 // Redefines submit action
 core.bind('checkout.common.ready', submitXpcIframe);
 
 core.bind(
-  'xpcevent',
+  'updateXpcIframe',
   function(event, data) {
-
-    // Process "Use saved card" box
-    if (data.showSaveCardBox == 'Y') {
-      jQuery('.save-card-box').show();
-      jQuery('.save-card-box-no-iframe').show();
-    } else {
-      jQuery('.save-card-box').hide();
-      jQuery('.save-card-box-no-iframe').hide();
-    }
-
-    // Process payment template box
-    if (data.checkCheckoutAction == 'Y') {
-      jQuery('.xpc-box').show();
+    if (data.reloadIframe) {
       reloadXpcIframe();
-    } else {
-      jQuery('.xpc').hide();
     }
-
+    // Backward compatibility "Save this card" box
+    jQuery('.save-card-box, .save-card-box-no-iframe').toggle(data.showSaveCardBox);
   }
 );
 

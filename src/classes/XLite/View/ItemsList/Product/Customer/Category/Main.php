@@ -28,4 +28,23 @@ class Main extends \XLite\View\ItemsList\Product\Customer\Category\ACategory
     {
         return parent::getSessionCell() . \XLite\Core\Request::getInstance()->category_id;
     }
+
+    /**
+     * Return "empty list" catalog
+     *
+     * @return string
+     */
+    protected function getEmptyListDir()
+    {
+        return 'items_list';
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isDisplayWithEmptyList()
+    {
+        return $this->getCategoryId() !== \XLite::getController()->getRootCategoryId()
+            && !$this->getCategory()->hasSubcategories();
+    }
 }

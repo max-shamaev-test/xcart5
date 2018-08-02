@@ -1,0 +1,5 @@
+Version 5.3.6.5
+
+Changes
+- Fixed: shipping methods with the shipping cost depending on the cart subtotal might hang-up card and checkout pages [#0049611]
+- Fixed the issue with coupons calculating percentage discounts based off of the subtotal before special offers take effect [#0049611]

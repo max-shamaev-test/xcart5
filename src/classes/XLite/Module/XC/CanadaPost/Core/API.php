@@ -998,7 +998,9 @@ XML;
     <shipping-point-id>{$siteNum}</shipping-point-id>
 XML;
         } else {
-            $shippingPoint = preg_replace('/\s+/', '', \XLite\Core\Config::getInstance()->Company->origin_zipcode);
+            $shippingPoint = static::strToUpper(
+                preg_replace('/\s+/', '', \XLite\Core\Config::getInstance()->Company->origin_zipcode)
+            );
 
             $xmlData = <<<XML
     <cpc-pickup-indicator>true</cpc-pickup-indicator>

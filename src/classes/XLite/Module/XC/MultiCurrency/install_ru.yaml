@@ -19,7 +19,7 @@ XLite\Model\Config:
 
 XLite\Model\LanguageLabel:
   - { name: 'Currencies', translations: [{ code: ru, label: 'Валюты' }] }
-  - { name: 'Name', translations: [{ code: ru, label: 'Имя' }] }
+  - { name: 'Name', translations: [{ code: ru, label: 'Название' }] }
   - { name: 'Code', translations: [{ code: ru, label: 'Код' }] }
   - { name: 'Default', translations: [{ code: ru, label: 'По умолчанию' }] }
   - { name: 'Format', translations: [{ code: ru, label: 'Формат' }] }
@@ -31,6 +31,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Add currency', translations: [{ code: ru, label: 'Добавить валюту' }] }
   - { name: 'Google Finance Currency Converter', translations: [{ code: ru, label: 'Конвертер валют "Google Finance"' }] }
   - { name: 'WebserviceX.NET', translations: [{ code: ru, label: 'WebserviceX.NET' }] }
+  - { name: 'The Free Currency Converter API', translations: [{ code: ru, label: 'The Free Currency Converter API' }] }
   - { name: 'Online currency rates service', translations: [{ code: ru, label: 'Онлайн сервис курса валют' }] }
   - { name: 'Update rates', translations: [{ code: ru, label: 'Обновить курс' }] }
   - { name: 'err_change_default_currency', translations: [{ code: ru, label: 'Вы не можете поменять курс, выключить или удалить валюту, которая используется по умолчанию.' }] }

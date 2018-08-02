@@ -33,8 +33,12 @@ class TestRates extends \XLite\View\Model\TestRates
         return array(
             static::SCHEMA_FIELD_WEIGHT,
             static::SCHEMA_FIELD_SUBTOTAL,
+            static::SCHEMA_FIELD_SRC_CITY,
+            static::SCHEMA_FIELD_SRC_STATE,
             static::SCHEMA_FIELD_SRC_COUNTRY,
             static::SCHEMA_FIELD_SRC_ZIPCODE,
+            static::SCHEMA_FIELD_DST_CITY,
+            static::SCHEMA_FIELD_DST_STATE,
             static::SCHEMA_FIELD_DST_COUNTRY,
             static::SCHEMA_FIELD_DST_ZIPCODE,
             static::SCHEMA_FIELD_DST_TYPE,

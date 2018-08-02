@@ -25,7 +25,7 @@ class PaypalAdvanced extends \XLite\Module\CDev\Paypal\Model\Payment\Processor\A
      *
      * @var string
      */
-    protected $knowledgeBasePageURL = 'https://kb.x-cart.com/en/payments/paypal/setting_up_paypal_payments_advanced.html';
+    protected $knowledgeBasePageURL = 'https://kb.x-cart.com/payments/paypal/setting_up_paypal_payments_advanced.html';
 
     /**
      * Constructor

@@ -9,6 +9,9 @@
 namespace XLite\View\FormField\Input\Checkbox;
 
 
+/**
+ * @deprecated 5.4.x
+ */
 class FullCustomerSecurity extends \XLite\View\FormField\Input\Checkbox\OnOff
 {
     /**

@@ -40,7 +40,7 @@ require_once (LC_DIR_ROOT . 'Includes' . LC_DS . 'functions.php');
 
 // Common error reporting settings
 
-$pathPart = date('Y' . LC_DS . 'm');
+$pathPart = date('Y/m');
 
 $path = LC_DIR_LOG . $pathPart . LC_DS . 'php_errors.log.' . date('Y-m-d') . '.php';
 if (!file_exists(dirname($path)) && is_writable(LC_DIR_VAR)) {

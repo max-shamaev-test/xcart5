@@ -29,11 +29,11 @@ class TypeString extends \XLite\Model\WidgetParam\AWidgetParam
      */
     protected function getValidationSchema($value)
     {
-        return array(
-            array(
-                self::ATTR_CONDITION => !is_string($value),
-                self::ATTR_MESSAGE   => ' is not a string',
-            ),
-        );
+        return [
+            [
+                static::ATTR_CONDITION => !is_string($value),
+                static::ATTR_MESSAGE   => ' is not a string',
+            ],
+        ];
     }
 }

@@ -99,69 +99,71 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
     protected function defineColumns()
     {
         return [
-            'sku'                       => [
-                static::COLUMN_IS_KEY          => true,
-                static::COLUMN_LENGTH          => 32,
+            'sku'                      => [
+                static::COLUMN_IS_KEY => true,
+                static::COLUMN_LENGTH => 32,
             ],
-            'price'                     => [],
-            'memberships'               => [
-                static::COLUMN_IS_MULTIPLE     => true
+            'price'                    => [],
+            'memberships'              => [
+                static::COLUMN_IS_MULTIPLE => true,
             ],
-            'productClass'              => [],
-            'taxClass'                  => [],
-            'enabled'                   => [],
-            'weight'                    => [],
-            'shippable'                 => [],
-            'images'                    => [
-                static::COLUMN_IS_MULTIPLE     => true,
+            'productClass'             => [],
+            'taxClass'                 => [],
+            'enabled'                  => [],
+            'weight'                   => [],
+            'shippable'                => [],
+            'images'                   => [
+                static::COLUMN_IS_MULTIPLE => true,
+                static::COLUMN_WEIGHT      => 1000000,
             ],
-            'imagesAlt'                 => [
-                static::COLUMN_IS_MULTIPLE     => true,
-                static::COLUMN_LENGTH          => 255,
+            'imagesAlt'                => [
+                static::COLUMN_IS_MULTIPLE => true,
+                static::COLUMN_LENGTH      => 255,
+                static::COLUMN_WEIGHT      => 1000100,
             ],
-            'arrivalDate'               => [],
-            'date'                      => [],
-            'updateDate'                => [],
-            'inventoryTrackingEnabled'  => [],
-            'stockLevel'                => [],
-            'lowLimitEnabled'           => [],
-            'lowLimitEnabledCustomer'   => [],
-            'lowLimitLevel'             => [],
-            'useSeparateBox'            => [],
-            'boxWidth'                  => [],
-            'boxLength'                 => [],
-            'boxHeight'                 => [],
-            'itemsPerBox'               => [],
-            'name'                      => [
+            'arrivalDate'              => [],
+            'date'                     => [],
+            'updateDate'               => [],
+            'inventoryTrackingEnabled' => [],
+            'stockLevel'               => [],
+            'lowLimitEnabled'          => [],
+            'lowLimitEnabledCustomer'  => [],
+            'lowLimitLevel'            => [],
+            'useSeparateBox'           => [],
+            'boxWidth'                 => [],
+            'boxLength'                => [],
+            'boxHeight'                => [],
+            'itemsPerBox'              => [],
+            'name'                     => [
                 static::COLUMN_IS_MULTILINGUAL => true,
                 static::COLUMN_LENGTH          => 255,
             ],
-            'categories'                => [
-                static::COLUMN_IS_MULTIPLE     => true,
+            'categories'               => [
+                static::COLUMN_IS_MULTIPLE => true,
             ],
-            'inCategoriesPosition'       => [
-                static::COLUMN_IS_MULTIPLE     => true,
+            'inCategoriesPosition'     => [
+                static::COLUMN_IS_MULTIPLE => true,
             ],
-            'description'               => [
+            'description'              => [
                 static::COLUMN_IS_MULTILINGUAL => true,
                 static::COLUMN_IS_TAGS_ALLOWED => true,
             ],
-            'briefDescription'          => [
+            'briefDescription'         => [
                 static::COLUMN_IS_MULTILINGUAL => true,
                 static::COLUMN_IS_TAGS_ALLOWED => true,
             ],
-            'metaTags'                  => [
+            'metaTags'                 => [
                 static::COLUMN_IS_MULTILINGUAL => true,
                 static::COLUMN_LENGTH          => 255,
             ],
-            'metaDesc'                  => [
+            'metaDesc'                 => [
                 static::COLUMN_IS_MULTILINGUAL => true,
             ],
-            'metaTitle'                 => [
+            'metaTitle'                => [
                 static::COLUMN_IS_MULTILINGUAL => true,
                 static::COLUMN_LENGTH          => 255,
             ],
-            'attributes'                => [
+            'attributes'               => [
                 static::COLUMN_IS_MULTICOLUMN  => true,
                 static::COLUMN_IS_MULTIPLE     => true,
                 static::COLUMN_IS_MULTIROW     => true,
@@ -169,10 +171,10 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
                 static::COLUMN_IS_TAGS_ALLOWED => true,
                 static::COLUMN_IS_IMPORT_EMPTY => true,
             ],
-            'cleanURL'                  => [
-                static::COLUMN_LENGTH          => 255,
+            'cleanURL'                 => [
+                static::COLUMN_LENGTH => 255,
             ],
-            'metaDescType'              => [],
+            'metaDescType'             => [],
         ];
     }
 
@@ -232,6 +234,7 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
                 'PRODUCT-CATEGORY-PATH-EMPTY'   => 'Category name should not be empty',
                 'PRODUCT-IN-CAT-POSITION-FMT'   => 'OrderBy position number must be specified as a non-negative integer.',
                 'DUPLICATE-IMAGE'   => 'Image has been identified as a duplicate and has not been imported',
+                'PRODUCT-META-DESC-TYPE-FMT'    => 'Wrong meta desc type format',
         ];
     }
 
@@ -242,7 +245,7 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
      */
     public static function getCSVFormatManualURL()
     {
-        return '//kb.x-cart.com/en/import-export/csv_format_by_x-cart_data_type/csv_import_products.html';
+        return static::t('https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_products.html');
     }
 
     /**
@@ -614,7 +617,7 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
         if (null !== $value) {
             $value = (string) $value;
             if (0 < strlen($value)
-                && !preg_match('/^' . $repo->getPattern('XLite\Model\Product') . '$/S', $value)
+                && !preg_match('/^' . $repo->getPattern('XLite\Model\Product') . '$/Su', $value)
             ) {
                 $this->addError('PRODUCT-CLEAN-URL-FMT', ['column' => $column, 'value' => $value]);
             }
@@ -690,6 +693,21 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function verifyMetaTags($value, array $column)
     {
+    }
+
+    /**
+     * Verify 'meta desc type' value
+     *
+     * @param mixed $value  Value
+     * @param array $column Column info
+     *
+     * @return void
+     */
+    protected function verifyMetaDescType($value, array $column)
+    {
+        if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsMetaTagsType($value)) {
+            $this->addWarning('PRODUCT-META-DESC-TYPE-FMT', ['column' => $column, 'value' => $value]);
+        }
     }
 
     /**
@@ -1119,6 +1137,10 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
                 $i += 10;
             }
 
+            array_map(function ($link) use ($model) {
+                $model->getCategoryProducts()->removeElement($link);
+            }, $linksToRemove);
+
             \XLite\Core\Database::getRepo('\XLite\Model\CategoryProducts')->deleteInBatch(
                 $linksToRemove,
                 false
@@ -1253,11 +1275,12 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
     /**
      * Import 'images' value
      *
-     * @param \XLite\Model\Product $model  Product
-     * @param array                $value  Value
-     * @param array                $column Column info
+     * @param \XLite\Model\Product $model Product
+     * @param array $value Value
+     * @param array $column Column info
      *
      * @return void
+     * @throws \Doctrine\ORM\ORMInvalidArgumentException
      */
     protected function importImagesColumn(\XLite\Model\Product $model, array $value, array $column)
     {
@@ -1271,10 +1294,7 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
 
             foreach ($value as $index => $path) {
                 $file = $this->verifyValueAsLocalURL($path) ? $this->getLocalPathFromURL($path) : $path;
-
-                /* @var \XLite\Model\Image\Product\Image $image */
-                $image = \XLite\Core\Database::getRepo('XLite\Model\Image\Product\Image')->insert(null, false);
-
+                $image = new \XLite\Model\Image\Product\Image;
                 $success = $image->loadFromPath($path);
 
                 if ($success) {
@@ -1300,7 +1320,6 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
                                 $hashes[] = $image->getHash();
                             }
 
-                            \XLite\Core\Database::getEM()->remove($image);
                             $image = null;
                         } else {
                             $hashes[] = $image->getHash();
@@ -1308,14 +1327,13 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
                     }
 
                     if ($image) {
+                        \XLite\Core\Database::getEM()->persist($image);
                         $image->setNeedProcess(1);
                         $image->setProduct($model);
                         $image->setOrderby($pos++);
                         $model->getImages()->add($image);
                     }
                 } else {
-                    \XLite\Core\Database::getEM()->remove($image);
-
                     if ($image->getLoadError() === 'unwriteable') {
                         $this->addError('PRODUCT-IMG-LOAD-FAILED', [
                             'column' => $column,

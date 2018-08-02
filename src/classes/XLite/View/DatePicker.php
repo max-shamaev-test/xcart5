@@ -62,6 +62,21 @@ class DatePicker extends \XLite\View\FormField\Input\Text
     }
 
     /**
+     * Register files from common repository
+     *
+     * @return array
+     */
+    public function getCommonFiles()
+    {
+        $list = parent::getCommonFiles();
+        $list[static::RESOURCE_JS][] = 'js/jquery-ui-i18n.min.js';
+        $list[static::RESOURCE_JS][] = 'form_field/datepicker.js';
+        $list[static::RESOURCE_CSS][] = 'form_field/datepicker.css';
+
+        return $list;
+    }
+
+    /**
      * Register CSS files
      *
      * @return array
@@ -70,20 +85,6 @@ class DatePicker extends \XLite\View\FormField\Input\Text
     {
         $list = parent::getCSSFiles();
         $list[] = 'common/ui.datepicker.css';
-        $list[] = $this->getDir() . '/datepicker.css';
-
-        return $list;
-    }
-
-    /**
-     * Register JS files
-     *
-     * @return array
-     */
-    public function getJSFiles()
-    {
-        $list = parent::getJSFiles();
-        $list[] = $this->getDir() . '/datepicker.js';
 
         return $list;
     }
@@ -184,7 +185,26 @@ class DatePicker extends \XLite\View\FormField\Input\Text
             'firstDay'   => $this->getStartDay(),
             'highYear'   => $this->getParam(static::PARAM_HIGH_YEAR),
             'lowYear'    => $this->getParam(static::PARAM_LOW_YEAR),
+            'locale'     => $this->getLocaleCode(\XLite\Core\Session::getInstance()->getLanguage()->getCode()),
         );
+    }
+
+    /**
+     * @param string $language
+     *
+     * @return string
+     */
+    protected function getLocaleCode($language)
+    {
+        $locales = array(
+            'zh_CN',
+        );
+
+        $locale = array_filter($locales, function ($item) use ($language) {
+            return strpos($item, strtolower($language)) === 0;
+        });
+
+        return 1 === count($locale) ? reset($locale) : $language;
     }
 
     /**

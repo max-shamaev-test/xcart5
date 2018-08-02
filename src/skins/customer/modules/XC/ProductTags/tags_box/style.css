@@ -13,37 +13,42 @@
 }
 
 .tags-list {
-  margin: 0px;
+  margin: 0;
 }
 
 .tags-list li {
-  display: block;
-  height: 26px;
-  margin-bottom: 4px;
-  margin-top: 4px;
+  display: inline-block;
   line-height: 20px;
-  padding-top: 3px;
-  padding-left: 10px;
+  padding: 5px 25px 5px 10px;
+  background: #E4F0F9;
+  border-radius: 2px;
+  position: relative;
 }
 
-.tags-list li:hover {
-  background: #E4F0F9;
-  border-radius: 8px;
+.tags-list li + li {
+  margin-top: 10px;
 }
 
 .tags-list li a {
-  padding: 0;
   text-decoration: none;
-  display: inline-block;
   overflow: hidden;
-  width: 89%;
-  height: 23px;
   font-size: 14px;
+  color: #505050;
+  white-space: normal;
+
+  /* proper word breaking */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  -ms-word-break: break-all;
+  /* This is the dangerous one in WebKit, as it breaks things wherever */
+  word-break: break-all;
+  /* Instead use this non-standard one: */
+  word-break: break-word;
 }
 
 .tags-list li a:hover {
-  text-decoration: none;
-  color: #505050;
+  color: #0f9dcc;
 }
 
 .tags-list li .circle {
@@ -51,11 +56,11 @@
   width: 7px;
   height: 7px;
   background: #ffffff;
-  display: none;
-  position: relative;
-  top: 7px;
+  display: inline-block;
+  position: absolute;
+  transform: translateY(-50%);
+  top: 50%;
   right: 10px;
-  float: right;
 }
 
 .tags-list li:hover .circle {

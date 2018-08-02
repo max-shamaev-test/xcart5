@@ -216,6 +216,17 @@ abstract class ACategory extends \XLite\View\ItemsList\Product\Customer\ACustome
         return \XLite\View\Pager\APager::PARAM_PAGE_ID !== $param ? parent::getSavedRequestParam($param) : null;
     }
 
+    /**
+     * Get session cell name for the certain list items widget
+     *
+     * @return string
+     */
+    public static function getSessionCellName()
+    {
+        return parent::getSessionCellName()
+            . \XLite\Core\Request::getInstance()->{self::PARAM_CATEGORY_ID};
+    }
+
     // {{{ Cache
 
     /**
@@ -232,6 +243,14 @@ abstract class ACategory extends \XLite\View\ItemsList\Product\Customer\ACustome
     }
 
     // }}}
+
+    /**
+     * @return string
+     */
+    protected function getEmptyListDescription()
+    {
+        return static::t('Oops, no products have been added to this category yet.', ['homePageUrl' => \XLite::getInstance()->getShopURL()]);
+    }
 
     /**
      * Defines if the widget is listening to #hash changes

@@ -58,7 +58,7 @@ abstract class Processor extends \XLite\Base
     /**
      * Get allowed transactions list
      *
-     * @return string Status code
+     * @return array Status code
      */
     public function getAllowedTransactions()
     {

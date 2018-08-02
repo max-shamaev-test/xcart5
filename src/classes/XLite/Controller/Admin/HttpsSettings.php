@@ -24,16 +24,6 @@ class HttpsSettings extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
-     * Define the actions with no secure token
-     *
-     * @return array
-     */
-    public static function defineFreeFormIdActions()
-    {
-        return array_merge(parent::defineFreeFormIdActions(), ['switch_customer_security']);
-    }
-
-    /**
      * Return url for read more link on invalid SSL
      *
      * @return string
@@ -72,30 +62,10 @@ class HttpsSettings extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
-     * Actions to enable the clean URL functionality
-     *
-     * @return void
+     * @deprecated
      */
     public function doActionSwitchCustomerSecurity()
     {
-        $oldValue = \XLite\Core\Config::getInstance()->Security->force_customers_to_https;
-
-        $ajaxResponse = [
-            'Success'  => true,
-            'NewState' => !(bool)$oldValue,
-        ];
-
-        \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
-            [
-                'category' => 'Security',
-                'name'     => 'force_customers_to_https',
-                'value'    => !(bool)$oldValue,
-            ]
-        );
-
-        $this->printAJAX($ajaxResponse);
-        $this->silent = true;
-        $this->setSuppressOutput(true);
     }
 
     /**

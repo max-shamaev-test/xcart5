@@ -253,4 +253,31 @@ class OnlineMethods extends \XLite\View\ItemsList\Model\Table
     {
         return parent::getEmptyListDir() . '/' . $this->getPageBodyDir();
     }
+
+
+    /**
+     * Get message on empty search results
+     *
+     * @return string
+     */
+    public function getNoPaymentMethodsFoundMessage()
+    {
+        $searchRequestParams = $this->getSearchRequestParams();
+
+        if (!empty($searchRequestParams['country'])) {
+            $country = \XLite\Core\Database::getRepo('XLite\Model\Country')->findOneBy(
+                array(
+                    'code' => $searchRequestParams['country']
+                )
+            );
+        }
+
+        return static::t(
+            'No payment methods found based on the selected criteria',
+            array(
+                'substring' => $searchRequestParams['name'],
+                'country'   => !empty($country) ? $country->getCountry() : static::t('All countries'),
+            )
+        );
+    }
 }

@@ -88,7 +88,7 @@ XLite\Model\Config:
         option_comment: 'Use Amazon S3 to host your digital files on Amazon and control access to your e-goods by presigned URLs. Learn more at <a href="https://kb.x-cart.com/en/modules/egoods/" target="_blank">E-goods module</a> article at X-Cart Knowledge Base.'
       - code: ru
         option_name: 'Включить ссылки, подписанные ключом, для файлов на хранилище Amazon S3'
-        option_comment: 'С помощью хранилища Amazon S3 можно экономить серверное дисковое пространство и контролировать доступ к скачиваемым товарам. Подробнее о конфигурации можно узнать на странице <a href="https://kb.x-cart.com/en/modules/egoods/" target="_blank">E-goods</a> в базе знаний X-Cart.'
+        option_comment: 'С помощью хранилища Amazon S3 можно экономить серверное дисковое пространство и контролировать доступ к скачиваемым товарам. Подробнее о конфигурации можно узнать на странице <a href="https://kb.x-cart.ru/modules/egoods/" target="_blank">Цифровые товары</a> в базе знаний X-Cart.'
   - name: amazon_access
     category: CDev\Egoods
     type: 'XLite\View\FormField\Input\Text'
@@ -290,6 +290,11 @@ XLite\Model\LanguageLabel:
       - code: ru
         label: 'Настройте поддержку скачивания больших файлов для вашей инсталляции X-Cart.'
 
+  - { name: 'Block', translations: [{ code: en, label: 'Block' }]}
+  - { name: 'Ip', translations: [{ code: en, label: 'Ip' }]}
+  - { name: 'Renew', translations: [{ code: en, label: 'Renew' }]}
+  - { name: 'Unblock and renew', translations: [{ code: en, label: 'Unblock and renew' }]}
+
 XLite\Model\Notification:
   - templatesDirectory: modules/CDev/Egoods/egoods_links
     position: 600
@@ -311,6 +316,6 @@ XLite\Model\Notification:
         customerText: "Your order has been processed. The files for the products you purchased can be downloaded at:"
       - code: ru
         name: Ссылки для скачивания файлов (модуль E-goods)
-        description: 'Данное сообщение отправляется покупателю, когда размещенный им заказ, содержащий электронные продукты, получает статус "Оплачен".'
+        description: 'Данное сообщение отправляется покупателю, когда размещенный им заказ, содержащий электронные товары, получает статус "Оплачен".'
         customerSubject: Ваши ссылки для скачивания файлов
         customerText: "Благодарим Вас за своевременную оплату заказа. Файлы приобретенных Вами товаров могут быть загружены по следующим ссылкам:"

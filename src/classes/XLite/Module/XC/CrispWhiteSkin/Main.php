@@ -53,7 +53,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
      */
     public static function getMinorVersion()
     {
-        return '4';
+        return '5';
     }
 
     /**
@@ -63,7 +63,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
      */
     public static function getBuildVersion()
     {
-        return '4';
+        return '6';
     }
 
     /**
@@ -73,7 +73,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
      */
     public static function getMinorRequiredCoreVersion()
     {
-        return '4';
+        return '5';
     }
 
     /**
@@ -94,6 +94,16 @@ abstract class Main extends \XLite\Module\AModuleSkin
     public static function showSettingsForm()
     {
         return false;
+    }
+
+    /**
+     * Check if skin is based on Crisp White theme
+     *
+     * @return boolean
+     */
+    public static function isCrispWhiteBasedSkin()
+    {
+        return true;
     }
 
     /**
@@ -331,7 +341,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
                     ['product.details.page.info', \XLite\Model\ViewList::INTERFACE_CUSTOMER],
                 ],
                 static::TO_ADD => [
-                    ['product.details.page.info', 18, \XLite\Model\ViewList::INTERFACE_CUSTOMER],
+                    ['product.details.page.info', 19, \XLite\Model\ViewList::INTERFACE_CUSTOMER],
                 ],
             ],
             'product/details/parts/common.stock.twig' => [
@@ -473,8 +483,12 @@ abstract class Main extends \XLite\Module\AModuleSkin
                     ],
                 ],
                 'modules/XC/Reviews/product_details.rating.twig' => [
+                    static::TO_DELETE => [
+                        ['product.details.page.info', \XLite\Model\ViewList::INTERFACE_CUSTOMER],
+                    ],
                     static::TO_ADD => [
                         ['product.details.quicklook.image', 20, \XLite\Model\ViewList::INTERFACE_CUSTOMER],
+                        ['product.details.page.info', 18, \XLite\Model\ViewList::INTERFACE_CUSTOMER]
                     ],
                 ],
                 'modules/XC/Reviews/reviews_page/parts/average_rating.form.twig' => [

@@ -23,7 +23,7 @@
                 <span class="value">{{ widget('XLite\\View\\Surcharge', surcharge=this.getTotalRate(rate), currency=this.cart.getCurrency()) }}</span>
                 <span class="rate-title">{{ this.getMethodName(rate)|raw }}</span>
                 {% if this.getMethodDeliveryTime(rate) %}
-                  <div class="rate-description">{{ this.getMethodDeliveryTime(rate) }}</div>
+                  <span class="rate-description">{{ this.getMethodDeliveryTime(rate) }}</span>
                 {% endif %}
               </label>
             </div>

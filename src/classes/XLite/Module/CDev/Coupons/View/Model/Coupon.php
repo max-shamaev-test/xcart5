@@ -260,6 +260,26 @@ class Coupon extends \XLite\View\Model\AModel
         }
     }
 
+    protected function rollbackModel()
+    {
+        /* @var \XLite\Module\CDev\Coupons\Model\Coupon $coupon */
+        $coupon = $this->getModelObject();
+
+        foreach ($coupon->getCategories() as $category) {
+            $category->getCoupons()->removeElement($coupon);
+        }
+
+        foreach ($coupon->getMemberships() as $membership) {
+            $membership->getCoupons()->removeElement($coupon);
+        }
+
+        foreach ($coupon->getProductClasses() as $productClass) {
+            $productClass->getCoupons()->removeElement($coupon);
+        }
+
+        parent::rollbackModel();
+    }
+
     /**
      * Prepare posted data for mapping to the object
      *

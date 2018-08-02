@@ -14,6 +14,7 @@
 
     /* new stacking context */
     transform: translate3D(0, 0, 0);
+    display: inline-block;
 }
 
 .xlite-translation-label:not(.disabled):before {

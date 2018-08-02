@@ -21,6 +21,7 @@ define(
     loadable: {
       transferState: false,
       loader: function() {
+        this.watcherIsBlocked = true;
         this.$root.$broadcast('reloadingBlock', 2);
         this.$set('payment', {});
         return core.get({
@@ -29,10 +30,15 @@ define(
         }, undefined, undefined, { timeout: 45000 });
       },
       resolve: function() {
+        var self = this;
         this.$root.$broadcast('reloadingUnblock', 2);
+        this.$nextTick(function () {
+          self.watcherIsBlocked = false;
+        })
       },
       reject: function() {
         this.$root.$broadcast('reloadingUnblock', 2);
+        this.watcherIsBlocked = false;
       }
     },
 
@@ -68,6 +74,7 @@ define(
 
     data: function() {
       return {
+        watcherIsBlocked: false,
         required: null,
         methodId: null,
         payment: {}
@@ -91,7 +98,8 @@ define(
 
       classes: function () {
         return {
-          'reloading': this.$reloading
+          'reloading': this.$reloading,
+          'reloading-animated': this.$reloading
         }
       },
 
@@ -122,7 +130,7 @@ define(
         });
       },
       methodId: function(value, oldValue){
-        var silent = (oldValue === null);
+        var silent = (oldValue === null || this.watcherIsBlocked);
         if (!silent) {
           this.$reloading = true;
           this.$root.$broadcast('reloadingBlock', 2);

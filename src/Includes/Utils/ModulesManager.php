@@ -384,7 +384,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
             static::correctDependencies();
 
             if (\Includes\Utils\ConfigParser::getOptions(['performance', 'ignore_system_modules'])) {
-                array_walk_recursive(array_keys(static::getSystemModules(true)), ['static', 'disableModule']);
+                array_map(['static', 'disableModule'], array_keys(static::getSystemModules(true)));
             }
 
             static::$isActiveModulesProcessed = true;
@@ -1173,6 +1173,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
                     // $reflectionClass = new \ReflectionClass($class);
                     if ($class
                         && is_subclass_of($class, '\XLite\Model\AEntity')
+                        && !is_subclass_of($class, '\XLite\Model\Base\Dump')
                     ) {
                         $class = ltrim($class, '\\');
                         $len = strlen(\Includes\Utils\Database::getTablesPrefix());
@@ -1330,7 +1331,7 @@ abstract class ModulesManager extends \Includes\Utils\AUtils
      *
      * @return array
      */
-    protected static function getModulesList($reset = false)
+    public static function getModulesList($reset = false)
     {
         if (null === static::$cachedModulesList || $reset) {
             static::$cachedModulesList = [];

@@ -15,4 +15,23 @@ jQuery(function() {
       accordionClass: 'visible-xs'
     });
   });
+
+  core.registerTriggersBind('update-product-page', function () {
+    var heightFixer = function () {
+      jQuery(this).addClass('notransition');
+
+      if (this.scrollHeight > this.clientHeight) {
+        this.style.height = (this.scrollHeight + 10) + 'px';
+      }
+
+      jQuery(this).removeClass('notransition');
+    };
+    
+    jQuery("ul.attribute-values").closest('form').each(
+      function(id, obj) {
+        jQuery('.form-control', obj).floatingLabel();
+        jQuery('textarea.form-control', obj).keyup(heightFixer).keyup();
+      }
+    );
+  });
 });

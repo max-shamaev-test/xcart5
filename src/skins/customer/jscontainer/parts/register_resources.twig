@@ -1,7 +1,7 @@
 {##
  # Cached JS part
  #
- # @ListChild (list="jscontainer.js", weight="300")
+ # @ListChild (list="jscontainer.js", weight="50")
  #}
 <script>
   (function () {
@@ -10,11 +10,13 @@
     if (window.CoreAMD !== undefined) {
       require('js/core', function (core) {
         core.registerResources(resources);
+        core.htmlResourcesLoadDeferred.resolve();
       });
     } else {
       document.addEventListener('amd-ready', function (event) {
         require('js/core', function (core) {
           core.registerResources(resources);
+          core.htmlResourcesLoadDeferred.resolve();
         });
       });
     }

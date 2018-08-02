@@ -874,6 +874,14 @@ abstract class Storage extends \XLite\Model\AEntity
             $result = $this->loadFromURL($path, $copy2fs);
         }
 
+        if (!$result && !$this->loadError) {
+            $this->loadError = 'nonexistent';
+            $this->loadErrorMessage = [
+                '{{file}} does not exist on the filesystem',
+                ['file' => $path],
+            ];
+        }
+
         return $result;
     }
 

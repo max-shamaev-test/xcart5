@@ -171,11 +171,15 @@ abstract class SurchargeOwner extends \XLite\Model\AEntity
                         ? $modifierClass::getWidgetClass()
                         : \XLite\Logic\Order\Modifier\AModifier::getWidgetClass(),
                     'object'    => $surcharge,
+                    'names'     => array(),
                 );
             }
 
+            if (!in_array($surcharge->getName(), $list[$code]['names'])) {
+                $list[$code]['names'][] = $surcharge->getName();
+                $list[$code]['count']++;
+            }
             $list[$code]['cost'] += $surcharge->getValue();
-            $list[$code]['count']++;
             $list[$code]['lastName'] = $surcharge->getName();
             $list[$code]['weight'] = $surcharge->getSortingWeight();
         }

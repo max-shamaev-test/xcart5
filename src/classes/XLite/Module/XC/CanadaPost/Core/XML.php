@@ -39,9 +39,10 @@ class XML extends \XLite\Core\XML
                 $elements->{$field} = static::convertParsedXmlDocument($value[0]);
 
             } else if (static::isMultipleXmlElemsContainer($value)) {
+                $names = array_keys($value[0]['#']);
 
                 // Multiple elements container (list)
-                $commonElemName = array_shift(array_keys($value[0]['#']));
+                $commonElemName = array_shift($names);
 
                 $subElements = array();
 

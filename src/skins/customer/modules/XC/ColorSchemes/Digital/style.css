@@ -1685,3 +1685,7 @@ color: #999;
 .tabs-container .page-tabs .tabs-selector .tabs:before {
   border-color: transparent #343434 #343434 transparent;
 }
+
+.add2cart-popup .item-box .item-buttons .regular-main-button.checkout {
+  height: 34px;
+}

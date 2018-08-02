@@ -26,3 +26,55 @@
     }
   }
 }
+
+#form_shipping {
+  .form-shipping-requires-shipping {
+    .form-shipping-requires-shipping-fixed-shipping-freight .control-label {
+      width: auto;
+      min-width: 0;
+    }
+
+    .form-shipping-requires-shipping-shipping-box {
+      > .input-widget {
+        width: 100%;
+      }
+
+      .form-shipping-requires-shipping-shipping-box-dimensions {
+        .control-label {
+          width: auto;
+        }
+
+        .input-widget {
+          width: auto;
+        }
+
+        input {
+          width: 50px;
+          display: inline-block;
+        }
+
+        .separator {
+          margin: 0 10px;
+        }
+      }
+
+      .form-shipping-requires-shipping-shipping-box-items-in-box {
+        clear: left;
+        margin-top: 5px;
+
+        @media(min-width: @screen-sm-min) {
+          margin-left: 170px;
+        }
+
+        .control-label {
+          width: auto;
+        }
+
+        .input-widget {
+          width: 0;
+          min-width: 120px;
+        }
+      }
+    }
+  }
+}

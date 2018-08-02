@@ -53,7 +53,7 @@ DCouponOrderView.autoload = function()
   {
     var escapedCode = htmlspecialchars(code);
 
-    var found = this.base.find('.coupon-row ul .code').filter(
+    var found = this.base.find('.coupon-row .code').filter(
       function() {
         return jQuery(this).html() == escapedCode;
       }

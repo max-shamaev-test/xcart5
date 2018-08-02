@@ -93,6 +93,10 @@ class XPayments extends \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Proc
 
             $response = $info->getResponse();
 
+            if (version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.9') >= 0) {
+                $response = $response['payment'];
+            }
+
             $transaction->setDataCell('xpc_message', $response['message'], 'X-Payments status');
 
             if ($response['isFraudStatus']) {
@@ -132,8 +136,10 @@ class XPayments extends \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Proc
 
             } else {
 
-                // Set the transaction status
+                // Set the transaction status and type
                 $transaction->setStatus($this->getTransactionStatus($response, $transaction));
+
+                $this->setTransactionTypeByStatus($transaction, $response['status']);
 
             }
 
@@ -166,7 +172,7 @@ class XPayments extends \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Proc
                 }
             }
 
-            $this->processTransactionUpdate($transaction, $response);
+            $this->processTransactionUpdate($transaction, $response, $txnId);
 
             if (
                 !empty($response['saveCard'])
@@ -260,28 +266,28 @@ class XPayments extends \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Proc
      */
     public function savePaymentSettingsToTransaction(\XLite\Model\Payment\Transaction $transaction, $parentTransaction = null)
     {
-        if ($parentTransaction) {
+        $firstSetting = reset($this->paymentSettingsToSave);
 
-            $paymentMethod = $parentTransaction->getPaymentMethod();
+        if (!$transaction->getXpcDataCell('xpc_can_do_' . $firstSetting)) {
+            // Write XPC data only if it is not present yet
 
-        } else {
+            if ($parentTransaction) {
+                $paymentMethod = $parentTransaction->getPaymentMethod();
+            } else {
+                $paymentMethod = $transaction->getPaymentMethod();
+            }
 
-            $paymentMethod = $transaction->getPaymentMethod();
-        }
-
-        foreach ($this->paymentSettingsToSave as $field) {
-
-            $key = 'xpc_can_do_' . $field;
-            if ($paymentMethod->getSetting($field)) {
-                $transaction->setXpcDataCell($key, $paymentMethod->getSetting($field));
+            foreach ($this->paymentSettingsToSave as $field) {
+                $key = 'xpc_can_do_' . $field;
+                if ($paymentMethod->getSetting($field)) {
+                    $transaction->setXpcDataCell($key, $paymentMethod->getSetting($field));
+                }
             }
         }
-
-        $transaction->setXpcDataCell('xpc_session_id', \XLite\Core\Session::getInstance()->getID());
     }
 
     /**
-     * Pay
+     * Do redirect to X-Payments payment form
      *
      * @param \XLite\Model\Payment\Transaction $transaction Transaction
      * @param array                            $request     Input data request OPTIONAL
@@ -291,6 +297,10 @@ class XPayments extends \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Proc
     public function pay(\XLite\Model\Payment\Transaction $transaction, array $request = array())
     {
         $this->savePaymentSettingsToTransaction($transaction);
+
+        if (version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.6') < 0) {
+            \XLite\Core\Session::getInstance()->cardSavedAtCheckout = \XLite\Core\Request::getInstance()->save_card;
+        }
 
         return parent::pay($transaction, $request);
     }

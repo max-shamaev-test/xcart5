@@ -76,6 +76,15 @@ class DomPdf extends \XLite\Core\Pdf\Handler
     {
         parent::handlePdfPage($input);
 
+        if ('ar' === $input->getLanguageCode()) {
+            $this->getDompdfInstance()
+                ->setOptions(new \Dompdf\Options(
+                    [
+                        'useArabicConverter' => true,
+                    ]
+                ));
+        }
+
         $this->prepareDocument($input->getDocumentSettings());
 
         $html = $input->getHtml();

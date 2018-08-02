@@ -24,7 +24,12 @@ class Settings extends \XLite\View\Tabs\ATabs
     {
         $list = parent::getAllowedTargets();
         $list[] = 'paypal_settings';
-        $list[] = 'paypal_credit';
+
+        if (\XLite\Core\Config::getInstance()->Company->location_country === 'US') {
+            $list[] = 'paypal_credit';
+        }
+
+        $list[] = 'paypal_button';
 
         return $list;
     }
@@ -42,8 +47,13 @@ class Settings extends \XLite\View\Tabs\ATabs
             ],
             'paypal_credit' => [
                 'weight' => 200,
-                'title'  => static::t('Paypal Credit'),
+                'title'  => static::t('PayPal Credit'),
                 'widget' => 'XLite\Module\CDev\Paypal\View\Settings',
+            ],
+            'paypal_button' => [
+                'weight' => 300,
+                'title'  => static::t('Customize the PayPal button'),
+                'widget' => 'XLite\Module\CDev\Paypal\View\PaypalButton',
             ],
         ];
     }
@@ -56,12 +66,16 @@ class Settings extends \XLite\View\Tabs\ATabs
     protected function prepareTabs()
     {
         $controller = \XLite::getController();
-        $rightController = $controller instanceof \XLite\Module\CDev\Paypal\Controller\Admin\PaypalSettings
+        $rightController = ($controller instanceof \XLite\Module\CDev\Paypal\Controller\Admin\PaypalSettings
+            || $controller instanceof \XLite\Module\CDev\Paypal\Controller\Admin\PaypalButton)
             && !($controller instanceof \XLite\Module\CDev\Paypal\Controller\Admin\PaypalCredit);
 
         if ($rightController
             && $this->getPaymentMethod()
-            && $this->getPaymentMethod()->getServiceName() === \XLite\Module\CDev\Paypal\Main::PP_METHOD_PC
+            && (\XLite\Core\Config::getInstance()->Company->location_country !== 'US'
+                || $this->getPaymentMethod()->getServiceName() === \XLite\Module\CDev\Paypal\Main::PP_METHOD_PC
+                || $this->getPaymentMethod()->getServiceName() === \XLite\Module\CDev\Paypal\Main::PP_METHOD_PFM
+            )
         ) {
             unset($this->tabs['paypal_credit']);
         }

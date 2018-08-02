@@ -11,11 +11,11 @@ function validateCouponDate(field, rules, i, options)
 {
   var pattern = field.attr('name').replace(/Begin/, '%').replace(/End/, '%');
   var begin = -1 == field.attr('name').search(/Begin/)
-    ? field.parents('form').find('[name="' + pattern.replace(/%/, 'Begin') + '"]').eq(0)
-    : field;
+    ? field.parents('form').find('[name="' + pattern.replace(/%/, 'Begin') + '"].datepicker-value-input').eq(0)
+    : field.siblings('.datepicker-value-input');
   var end = -1 == field.attr('name').search(/End/)
-    ? field.parents('form').find('[name="' + pattern.replace(/%/, 'End') + '"]').eq(0)
-    : field;
+    ? field.parents('form').find('[name="' + pattern.replace(/%/, 'End') + '"].datepicker-value-input').eq(0)
+    : field.siblings('.datepicker-value-input');
 
   if (begin.length && end.length && begin.val() && end.val()) {
     var bd = Date.parse(begin.val());

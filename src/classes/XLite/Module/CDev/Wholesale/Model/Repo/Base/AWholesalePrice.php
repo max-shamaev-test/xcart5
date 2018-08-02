@@ -156,6 +156,9 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
                 } else {
                     $price = $entity->getPrice();
                 }
+
+                $currencyE = \XLite::getInstance()->getCurrency()->getE();
+                $price = round($price, $currencyE);
             }
         }
 
@@ -218,11 +221,19 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
                 }
 
                 $minimalPrice = null;
+                $minimalPriceValue = null;
                 if (!empty($rangesHaving)) {
                     //get minimal price range for quantity point
                     foreach ($rangesHaving as $rangeKey => $range) {
-                        if (empty($minimalPrice) || $range->getPrice() < $minimalPrice->getPrice()) {
+                        if ($range->getType() === AWholesalePriceModel::WHOLESALE_TYPE_PERCENT) {
+                            $rangePriceValue = $object->getBasePrice() * $range->getPrice() / 100;
+                        } else {
+                            $rangePriceValue = $range->getPrice();
+                        }
+
+                        if (empty($minimalPrice) || $rangePriceValue < $minimalPriceValue) {
                             $minimalPrice = $range;
+                            $minimalPriceValue = $rangePriceValue;
                         }
                     }
                     $result[] = clone $minimalPrice;
@@ -246,7 +257,10 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
                     continue;
                 }
 
-                if ($prices[$currentKey]->getPrice() == $price->getPrice()) {
+                if (
+                    $prices[$currentKey]->getPrice() == $price->getPrice()
+                    && $prices[$currentKey]->getType() === $price->getType()
+                ) {
                     $prices[$currentKey]->setQuantityRangeEnd($price->getQuantityRangeEnd());
                     unset($prices[$key]);
                 } else {

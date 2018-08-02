@@ -138,9 +138,9 @@ class TrialNotice extends ANodeNotification
     {
         if ($this->isTrial()) {
             if ($this->isTrialExpired()) {
-                return self::t('CloudSearch trial period expired');
+                return static::t('CloudSearch trial period expired');
             } else if ($this->doesTrialExpireSoon()) {
-                return self::t('CloudSearch trial period expires soon');
+                return static::t('CloudSearch trial period expires soon');
             }
         }
 

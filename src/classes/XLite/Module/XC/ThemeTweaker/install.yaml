@@ -120,3 +120,8 @@ XLite\Model\LanguageLabel:
   - { name: 'Tag Manager Dashboard', translations: [{ code: en, label: 'Tag Manager Dashboard' }] }
   - { name: 'Configure Tag Manager', translations: [{ code: en, label: 'Configure Tag Manager' }] }
   - { name: 'Install Google Tag Manager', translations: [{ code: en, label: 'Install Google Tag Manager' }] }
+
+  - { name: 'Category description', translations: [{ code: en, label: 'Category description' }]}
+  - { name: 'Display all templates', translations: [{ code: en, label: 'Display all templates' }]}
+  - { name: 'Hide converted templates', translations: [{ code: en, label: 'Hide converted templates' }]}
+  - { name: 'OK', translations: [{ code: en, label: 'OK' }]}

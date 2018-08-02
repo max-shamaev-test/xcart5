@@ -282,7 +282,6 @@ class Review extends \XLite\Controller\Customer\ACustomer
 
         $review->map($data);
         $review->setProfile($profile);
-        $review->setIp(utf8_encode(inet_pton($_SERVER['REMOTE_ADDR'])) ?: 0);
 
         if (!$review->getReviewerName()) {
             $review->setReviewerName($this->getProfileField('reviewerName'));

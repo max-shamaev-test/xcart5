@@ -13,7 +13,10 @@ namespace XLite\Controller\Admin;
  */
 class Profile extends \XLite\Controller\Admin\AAdmin
 {
-    const PASSWORD_RESET_KEY_EXP_TIME = 3600;
+    use \XLite\Controller\Admin\ProfilePageTitleTrait;
+
+    // 12h
+    const PASSWORD_RESET_KEY_EXP_TIME = 43200;
 
     /**
      * Controller parameters (to generate correct URL in getURL() method)
@@ -41,7 +44,7 @@ class Profile extends \XLite\Controller\Admin\AAdmin
     {
         return ($this->isRegisterMode())
             ? static::t('Create profile')
-            : static::t('Edit profile');
+            : $this->getTitleString($this->getProfile()) ?: static::t('Edit profile');
     }
 
     /**
@@ -408,7 +411,7 @@ class Profile extends \XLite\Controller\Admin\AAdmin
                 $profile->update();
             }
 
-            \XLite\Core\Mailer::sendRecoverPasswordRequest($profile->getLogin(), $profile->getPasswordResetKey());
+            \XLite\Core\Mailer::sendRecoverPasswordRequest($profile, $profile->getPasswordResetKey());
 
             $result = true;
         }

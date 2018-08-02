@@ -36,7 +36,8 @@ body.target-paypal-settings .payment-settings .logo-pfl {
 
 body.target-paypal-settings .payment-settings .logo-ppec {
   background: transparent url(../images/ppec.png) no-repeat left top;
-  width: 228px;
+  background-size: 100%;
+  width: 350px;
   height: 44px;
   margin-bottom: 10px;
 }
@@ -102,5 +103,6 @@ body.target-paypal-settings .buynowenabled-value .help-wrapper {
   width: 260px;
   height: 39px;
   text-align: right;
-  background: transparent url(https://www.paypalobjects.com/webstatic/en_US/i/buttons/buy-logo-small.png) no-repeat 10px center;
+  background: transparent url(../images/ppec-buy-now.png) no-repeat 13px 7px;
+  background-size: 215px;
 }

@@ -11,7 +11,7 @@ namespace XLite\View\Button;
 /**
  * Address book popup button
  */
-class AddressBook extends \XLite\View\Button\PopupButton
+class AddressBook extends \XLite\View\Button\APopupButton
 {
     const PARAM_ADDRESS_TYPE = 'addressType';
 

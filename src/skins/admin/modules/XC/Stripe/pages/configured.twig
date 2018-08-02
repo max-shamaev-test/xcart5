@@ -24,28 +24,19 @@
     <ul>
       <li class="step-1">
         <div class="number">1</div>
-        <p>{{ t('Go to your account settings on www.stripe.com')|raw }}</p>
-        <div class="circles">
-          <img src="{{ this.layout.getResourceWebPath('modules/XC/Stripe/images/1_screen.png') }}" alt="" />
-          <div class="circle circle-1"></div>
-        </div>
+        <p>{{ t('Open the page "Webhooks" in the "Developers" section of dashboard.stripe.com: https://dashboard.stripe.com/account/webhooks')|raw }}</p>
       </li>
       <li class="step-2">
         <div class="number">2</div>
-        <p>{{ t('Choose Webhook tab and press + add URL button')|raw }}</p>
-        <div class="circles">
-          <img src="{{ this.layout.getResourceWebPath('modules/XC/Stripe/images/2_screen.png') }}" alt="" />
-          <div class="circle circle-1"></div>
-          <div class="circle circle-2"></div>
-        </div>
+        <p>{{ t('In the section "Endpoints receiving events from your account", click "+ Add endpoint".')|raw }}</p>
       </li>
       <li class="step-3">
         <div class="number">3</div>
-        <p>{{ t('Past Webhook URL to the field and press Create Webhook URL button')|raw }}</p>
-        <div class="circles">
-          <img src="{{ this.layout.getResourceWebPath('modules/XC/Stripe/images/3_screen.png') }}" alt="" />
-          <div class="circle circle-1"></div>
-        </div>
+        <p>{{ t('In the form that opens, paste the "Webhook URL" value into the field "URL to be called" and click "Add endpoint".')|raw }}</p>
+      </li>
+
+      <li class="more">
+        <p>{{ t('More information on the setup of webhooks is available here: https://stripe.com/docs/webhooks#configuring-your-webhook-settings')|raw }}</p>
       </li>
     </ul>
 

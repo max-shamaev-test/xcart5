@@ -96,21 +96,6 @@ class Fedex extends \XLite\Controller\Admin\ShippingSettings
     }
 
     /**
-     * Get schema of an array for test rates routine
-     *
-     * @return array
-     */
-    protected function getTestRatesSchema()
-    {
-        $schema = parent::getTestRatesSchema();
-        foreach (array('srcAddress', 'dstAddress') as $k) {
-            unset($schema[$k]['city'], $schema[$k]['state']);
-        }
-
-        return $schema;
-    }
-
-    /**
      * Get input data to calculate test rates
      *
      * @param array $schema  Input data schema

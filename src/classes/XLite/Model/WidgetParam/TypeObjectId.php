@@ -43,10 +43,10 @@ abstract class TypeObjectId extends \XLite\Model\WidgetParam\TypeInt
      */
     protected function getIdValidCondition($value)
     {
-        return array(
-            self::ATTR_CONDITION => 0 >= $value,
-            self::ATTR_MESSAGE   => ' is a non-positive number',
-        );
+        return [
+            static::ATTR_CONDITION => 0 >= $value,
+            static::ATTR_MESSAGE   => ' is a non-positive number',
+        ];
     }
 
     /**
@@ -58,10 +58,10 @@ abstract class TypeObjectId extends \XLite\Model\WidgetParam\TypeInt
      */
     protected function getObjectExistsCondition($value)
     {
-        return array(
-            self::ATTR_CONDITION => !is_object($this->getObject($value)),
-            self::ATTR_MESSAGE   => ' record with such ID is not found',
-        );
+        return [
+            static::ATTR_CONDITION => !is_object($this->getObject($value)),
+            static::ATTR_MESSAGE   => ' record with such ID is not found',
+        ];
     }
 
     /**

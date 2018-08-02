@@ -93,7 +93,9 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
                     $attachment = $repository->find($id);
 
                     if ($attachment) {
-                        $attachment->map($row);
+                        $attachment->map(
+                            $this->prepareAttachmentDataForMapping($row)
+                        );
                         $changed = true;
                     }
                 }
@@ -109,5 +111,17 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
         }
 
         \XLite\Core\Database::getEM()->flush();
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return array
+     */
+    protected function prepareAttachmentDataForMapping(array $data)
+    {
+        unset($data['_changed']);
+
+        return $data;
     }
 }

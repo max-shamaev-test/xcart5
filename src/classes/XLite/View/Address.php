@@ -8,10 +8,12 @@
 
 namespace XLite\View;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
+
 /**
  * \XLite\View\Address
  */
-class Address extends \XLite\View\Dialog
+class Address extends \XLite\View\Dialog implements ProviderInterface
 {
     /**
      * Widget parameter names
@@ -287,5 +289,19 @@ class Address extends \XLite\View\Dialog
     protected function useBodyTemplate()
     {
         return !$this->getParam(self::PARAM_DISPLAY_WRAPPER);
+    }
+
+    /**
+     * Array of labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'Select one' => static::t('Select one')
+        ];
     }
 }

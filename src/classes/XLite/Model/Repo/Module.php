@@ -147,10 +147,10 @@ class Module extends \XLite\Model\Repo\ARepo
      */
     protected function getSubstringSearchFields()
     {
-        return array(
+        return [
             $this->getRelevanceTitleField(),
             $this->getRelevanceTextField(),
-        );
+        ];
     }
 
     /**
@@ -522,8 +522,10 @@ class Module extends \XLite\Model\Repo\ARepo
                         'm.purchaseStatus = :pending'
                     )
                 )
+                ->andWhere('m.installed = :installed')
                 ->setParameter('purchased', \XLite\Model\Module::PURCHASE_STATUS_PURCHASED)
-                ->setParameter('pending', \XLite\Model\Module::PURCHASE_STATUS_PENDING);
+                ->setParameter('pending', \XLite\Model\Module::PURCHASE_STATUS_PENDING)
+                ->setParameter('installed', 0);
         }
     }
 

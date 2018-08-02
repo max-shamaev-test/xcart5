@@ -8,6 +8,9 @@
 
 namespace XLite\Controller\Admin;
 
+use XLite\Core\Auth;
+use XLite\Core\Request;
+
 /**
  * Export controller
  */
@@ -37,7 +40,11 @@ class Export extends \XLite\Controller\Admin\AAdmin
      */
     public function checkACL()
     {
-        return parent::checkACL() || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage export');
+        if (Request::getInstance()->widget === 'XLite\View\PopupExport' || in_array($this->getAction(), ['itemlist_export', 'download'], true)) {
+            return true;
+        }
+
+        return parent::checkACL() || Auth::getInstance()->isPermissionAllowed('manage export');
     }
 
     /**
@@ -223,7 +230,7 @@ class Export extends \XLite\Controller\Admin\AAdmin
             if ($path) {
                 $name = basename($path);
                 header('Content-Type: ' . $this->detectMimeType($path) . '; charset=UTF-8');
-                header('Content-Disposition: attachment; filename="' . basename($path) . '"; modification-date="' . date('r') . ';');
+                header('Content-Disposition: attachment; filename="' . $name . '"; modification-date="' . date('r') . ';');
                 header('Content-Length: ' . filesize($path));
 
                 readfile($path);
@@ -272,5 +279,42 @@ class Export extends \XLite\Controller\Admin\AAdmin
     protected function getEventName()
     {
         return \XLite\Logic\Export\Generator::getEventName();
+    }
+
+    /**
+     * Get export cancel flag name
+     *
+     * @return string
+     */
+    protected function getExportCancelFlagVarName()
+    {
+        return \XLite\Logic\Export\Generator::getCancelFlagVarName();
+    }
+
+    /**
+     * @return string
+     */
+    public function printAJAXAttributes()
+    {
+        $result = parent::printAJAXAttributes();
+        if ($this->isExportNotFinished()) {
+            $result .= ' data-dialog-no-close="true"';
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check - export process is not-finished or not
+     *
+     * @return boolean
+     */
+    protected function isExportNotFinished()
+    {
+        $state = \XLite\Core\Database::getRepo('XLite\Model\TmpVar')->getEventState($this->getEventName());
+
+        return $state
+            && in_array($state['state'], [\XLite\Core\EventTask::STATE_STANDBY, \XLite\Core\EventTask::STATE_IN_PROGRESS])
+            && !\XLite\Core\Database::getRepo('XLite\Model\TmpVar')->getVar($this->getExportCancelFlagVarName());
     }
 }

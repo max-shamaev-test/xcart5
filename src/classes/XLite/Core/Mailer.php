@@ -8,8 +8,12 @@
 
 namespace XLite\Core;
 
+use ReflectionClass;
 use XLite\Core\Job\SchedulingJobs;
 use XLite\Core\Job\SendMail;
+use XLite\Core\Mailer\Entries;
+use XLite\Model\Order;
+use XLite\Model\Profile;
 
 /**
  * Mailer core class
@@ -114,18 +118,19 @@ class Mailer extends \XLite\Base\Singleton
     {
         static::register('profile', $profile);
 
-        foreach (static::getUsersDepartmentMails() as $mail) {
-            static::compose(
-                static::TYPE_PROFILE_CREATED_ADMIN,
+        static::compose(
+            static::TYPE_PROFILE_CREATED_ADMIN,
+            static::composeProfileAdminReplyTo(
                 static::getSiteAdministratorMail(),
-                $mail,
-                'profile_created',
-                [],
-                true,
-                \XLite::ADMIN_INTERFACE,
-                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-            );
-        }
+                $profile
+            ),
+            implode(\XLite\View\Mailer::MAIL_SEPARATOR, static::getUsersDepartmentMails()),
+            'profile_created',
+            [],
+            true,
+            \XLite::ADMIN_INTERFACE,
+            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+        );
     }
 
     /**
@@ -222,18 +227,19 @@ class Mailer extends \XLite\Base\Singleton
     {
         static::register('profile', $profile);
 
-        foreach (static::getUsersDepartmentMails() as $mail) {
-            static::compose(
-                static::TYPE_PROFILE_UPDATED_ADMIN,
+        static::compose(
+            static::TYPE_PROFILE_UPDATED_ADMIN,
+            static::composeProfileAdminReplyTo(
                 static::getSiteAdministratorMail(),
-                $mail,
-                'profile_modified',
-                array(),
-                true,
-                \XLite::ADMIN_INTERFACE,
-                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-            );
-        }
+                $profile
+            ),
+            implode(\XLite\View\Mailer::MAIL_SEPARATOR, static::getUsersDepartmentMails()),
+            'profile_modified',
+            array(),
+            true,
+            \XLite::ADMIN_INTERFACE,
+            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+        );
     }
 
     /**
@@ -301,18 +307,19 @@ class Mailer extends \XLite\Base\Singleton
     {
         static::register('deletedLogin', $deletedLogin);
 
-        foreach (static::getUsersDepartmentMails() as $mail) {
-            static::compose(
-                static::TYPE_PROFILE_DELETED_ADMIN,
+        static::compose(
+            static::TYPE_PROFILE_DELETED_ADMIN,
+            static::composeAdminReplyTo(
                 static::getSiteAdministratorMail(),
-                $mail,
-                'profile_deleted',
-                array(),
-                true,
-                \XLite::ADMIN_INTERFACE,
-                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-            );
-        }
+                $deletedLogin
+            ),
+            implode(\XLite\View\Mailer::MAIL_SEPARATOR, static::getUsersDepartmentMails()),
+            'profile_deleted',
+            array(),
+            true,
+            \XLite::ADMIN_INTERFACE,
+            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+        );
     }
 
     // }}}
@@ -338,18 +345,16 @@ class Mailer extends \XLite\Base\Singleton
             ]
         );
 
-        foreach (static::getSiteAdministratorMails() as $mail) {
-            static::compose(
-                static::TYPE_FAILED_ADMIN_LOGIN_ADMIN,
-                static::getSiteAdministratorMail(),
-                $mail,
-                'failed_admin_login',
-                array(),
-                true,
-                \XLite::ADMIN_INTERFACE,
-                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-            );
-        }
+        static::compose(
+            static::TYPE_FAILED_ADMIN_LOGIN_ADMIN,
+            static::getSiteAdministratorMail(),
+            implode(\XLite\View\Mailer::MAIL_SEPARATOR, static::getSiteAdministratorMails()),
+            'failed_admin_login',
+            array(),
+            true,
+            \XLite::ADMIN_INTERFACE,
+            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+        );
 
         if ($postedLogin && static::getSiteAdministratorMail() !== $postedLogin) {
             static::compose(
@@ -371,33 +376,38 @@ class Mailer extends \XLite\Base\Singleton
 
     /**
      * Send recover password request to the user
-     * todo: add interface param to compose method
      *
-     * @param string $userLogin            User email (login)
-     * @param string $userPasswordResetKey User password
+     * @param \XLite\Model\Profile $profile              Profile
+     * @param string               $userPasswordResetKey User password
      *
      * @return void
      */
-    public static function sendRecoverPasswordRequest($userLogin, $userPasswordResetKey)
+    public static function sendRecoverPasswordRequest($profile, $userPasswordResetKey)
     {
         $url = \XLite::getInstance()->getShopURL(
             \XLite\Core\Converter::buildURL(
                 'recover_password',
                 'confirm',
                 [
-                    'email'      => $userLogin,
+                    'email'      => $profile->getLogin(),
                     'request_id' => $userPasswordResetKey,
                 ]
             )
         );
+
+        $interface = $profile->isAdmin() ? \XLite::ADMIN_INTERFACE : \XLite::CUSTOMER_INTERFACE;
 
         static::register('url', $url);
 
         static::compose(
             static::TYPE_RECOVER_PASSWORD_REQUEST,
             static::getUsersDepartmentMail(),
-            $userLogin,
-            'recover_password_request'
+            $profile->getLogin(),
+            'recover_password_request',
+            [],
+            true,
+            $interface,
+            static::getMailer()->getLanguageCode($interface, $profile->getLanguage())
         );
     }
 
@@ -485,19 +495,7 @@ class Mailer extends \XLite\Base\Singleton
             static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
         }
 
-        $result = null;
-        foreach (static::getOrdersDepartmentMails() as $mail) {
-            $result = (null === $result || $result) && static::compose(
-                static::TYPE_ORDER_CREATED_ADMIN,
-                static::getOrdersDepartmentMail(),
-                $mail,
-                'order_created',
-                array(),
-                true,
-                \XLite::ADMIN_INTERFACE,
-                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-            );
-        }
+        $result = static::composeOrderDepartmentMail('order_created', $order);
 
         if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerAdminEmailSent(
@@ -590,19 +588,7 @@ class Mailer extends \XLite\Base\Singleton
             static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
         }
 
-        $result = null;
-        foreach (static::getOrdersDepartmentMails() as $mail) {
-            $result = (null === $result || $result) && static::compose(
-                    static::TYPE_ORDER_PROCESSED_ADMIN,
-                    static::getOrdersDepartmentMail(),
-                    $mail,
-                    'order_processed',
-                    [],
-                    true,
-                    \XLite::ADMIN_INTERFACE,
-                    static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-                );
-        }
+        $result = static::composeOrderDepartmentMail('order_processed', $order);
 
         if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerAdminEmailSent(
@@ -637,7 +623,7 @@ class Mailer extends \XLite\Base\Singleton
         $result = static::compose(
             static::TYPE_ORDER_PROCESSED_CUSTOMER,
             static::getOrdersDepartmentMail(),
-            $order->getProfile()->getLogin(),
+            $order->getProfile()->getEmail(),
             'order_processed',
             [],
             true,
@@ -695,19 +681,7 @@ class Mailer extends \XLite\Base\Singleton
             static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
         }
 
-        $result = null;
-        foreach (static::getOrdersDepartmentMails() as $mail) {
-            $result = (null === $result || $result) && static::compose(
-                    static::TYPE_ORDER_CHANGED_ADMIN,
-                    static::getOrdersDepartmentMail(),
-                    $mail,
-                    'order_changed',
-                    array(),
-                    true,
-                    \XLite::ADMIN_INTERFACE,
-                    static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-                );
-        }
+        $result = static::composeOrderDepartmentMail('order_changed', $order);
 
         if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerAdminEmailSent(
@@ -994,19 +968,7 @@ class Mailer extends \XLite\Base\Singleton
             static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
         }
 
-        $result = null;
-        foreach (static::getOrdersDepartmentMails() as $mail) {
-            $result = (null === $result || $result) && static::compose(
-                    static::TYPE_ORDER_FAILED_ADMIN,
-                    static::getOrdersDepartmentMail(),
-                    $mail,
-                    'order_failed',
-                    array(),
-                    true,
-                    \XLite::ADMIN_INTERFACE,
-                    static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-                );
-        }
+        $result = static::composeOrderDepartmentMail('order_failed', $order);
 
         if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerAdminEmailSent(
@@ -1099,19 +1061,7 @@ class Mailer extends \XLite\Base\Singleton
             static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
         }
 
-        $result = null;
-        foreach (static::getOrdersDepartmentMails() as $mail) {
-            $result = (null === $result || $result) && static::compose(
-                    static::TYPE_ORDER_CANCELED_ADMIN,
-                    static::getOrdersDepartmentMail(),
-                    $mail,
-                    'order_canceled',
-                    array(),
-                    true,
-                    \XLite::ADMIN_INTERFACE,
-                    static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-                );
-        }
+        $result = static::composeOrderDepartmentMail('order_canceled', $order);
 
         if ($result && !static::hasScheduledJob()) {
             \XLite\Core\OrderHistory::getInstance()->registerAdminEmailSent(
@@ -1230,19 +1180,16 @@ class Mailer extends \XLite\Base\Singleton
         static::register('soft_reset_url', \Includes\SafeMode::getResetURL(true));
         static::register('article_url', \XLite::getController()->getArticleURL());
 
-
-        foreach (static::getSiteAdministratorMails() as $mail) {
-            static::compose(
-                static::TYPE_SAFE_MODE_ACCESS_KEY, // todo: remove
-                static::getSiteAdministratorMail(),
-                $mail,
-                'safe_mode_key_generated',
-                array(),
-                true,
-                \XLite::ADMIN_INTERFACE,
-                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-            );
-        }
+        static::compose(
+            static::TYPE_SAFE_MODE_ACCESS_KEY, // todo: remove
+            static::getSiteAdministratorMail(),
+            implode(\XLite\View\Mailer::MAIL_SEPARATOR, static::getSiteAdministratorMails()),
+            'safe_mode_key_generated',
+            array(),
+            true,
+            \XLite::ADMIN_INTERFACE,
+            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+        );
     }
 
     /**
@@ -1252,18 +1199,16 @@ class Mailer extends \XLite\Base\Singleton
      */
     public static function sendUpgradeSafeModeAccessKeyNotification()
     {
-        foreach (static::getSiteAdministratorMails() as $mail) {
-            static::compose(
-                static::TYPE_UPGRADE_SAFE_MODE_ACCESS_KEY,
-                static::getSiteAdministratorMail(),
-                $mail,
-                'upgrade_access_keys',
-                array(),
-                true,
-                \XLite::ADMIN_INTERFACE,
-                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-            );
-        }
+        static::compose(
+            static::TYPE_UPGRADE_SAFE_MODE_ACCESS_KEY,
+            static::getSiteAdministratorMail(),
+            implode(\XLite\View\Mailer::MAIL_SEPARATOR, static::getSiteAdministratorMails()),
+            'upgrade_access_keys',
+            array(),
+            true,
+            \XLite::ADMIN_INTERFACE,
+            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+        );
     }
 
     // }}}
@@ -1317,18 +1262,16 @@ class Mailer extends \XLite\Base\Singleton
     {
         static::register('product', $data);
 
-        foreach (static::getSiteAdministratorMails() as $mail) {
-            static::compose(
-                static::TYPE_LOW_LIMIT_WARNING,
-                static::getOrdersDepartmentMail(),
-                $mail,
-                'low_limit_warning',
-                array(),
-                true,
-                \XLite::ADMIN_INTERFACE,
-                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-            );
-        }
+        static::compose(
+            static::TYPE_LOW_LIMIT_WARNING,
+            static::getOrdersDepartmentMail(),
+            implode(\XLite\View\Mailer::MAIL_SEPARATOR, static::getSiteAdministratorMails()),
+            'low_limit_warning',
+            array(),
+            true,
+            \XLite::ADMIN_INTERFACE,
+            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+        );
     }
 
     /**
@@ -1351,18 +1294,7 @@ class Mailer extends \XLite\Base\Singleton
         static::register('transactionSearchURL', $transactionSearchURL);
         static::register('order', $transaction->getOrder());
 
-        foreach (static::getOrdersDepartmentMails() as $mail) {
-            static::compose(
-                static::TYPE_FAILED_TRANSACTION_ADMIN,
-                static::getOrdersDepartmentMail(),
-                $mail,
-                'failed_transaction',
-                array(),
-                true,
-                \XLite::ADMIN_INTERFACE,
-                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-            );
-        }
+        static::composeOrderDepartmentMail('failed_transaction', ($transaction->getOrder() ?: null));
     }
 
     /**
@@ -1599,16 +1531,16 @@ class Mailer extends \XLite\Base\Singleton
     /**
      * Compose and send wrapper for \XLite\View\Mailer::compose()
      *
-     * @param string  $type          Email type. It defines the additional specific changes of the email data
-     *                               (see prepareFrom and other methods)
-     * @param string  $from          Email FROM
-     * @param string  $to            Email TO
-     * @param string  $dir           Directory where mail templates are located
-     * @param array   $customHeaders Array of custom mail headers OPTIONAL
-     * @param boolean $doSend        Flag: if true - send email immediately OPTIONAL
-     * @param string  $interface     Interface to compile mail templates (skin name: customer, admin or mail) OPTIONAL
-     * @param string  $languageCode  Language code OPTIONAL
-     * @param bool    $force         Force email send OPTIONAL
+     * @param string       $type          Email type. It defines the additional specific changes of the email data
+     *                                    (see prepareFrom and other methods)
+     * @param array|string $from          Email REPLY-TO(first email also could be used as FROM)
+     * @param string       $to            Email TO
+     * @param string       $dir           Directory where mail templates are located
+     * @param array        $customHeaders Array of custom mail headers OPTIONAL
+     * @param boolean      $doSend        Flag: if true - send email immediately OPTIONAL
+     * @param string       $interface     Interface to compile mail templates (skin name: customer, admin or mail) OPTIONAL
+     * @param string       $languageCode  Language code OPTIONAL
+     * @param bool         $force         Force email send OPTIONAL
      *
      * @return bool
      */
@@ -1797,8 +1729,26 @@ class Mailer extends \XLite\Base\Singleton
      */
     protected static function getMailRegistryKey($func, $from, $to)
     {
-        return sprintf('%s-%s-%s', $func, $from, $to);
+        return sprintf(
+            '%s-%s-%s',
+            $func,
+            static::prepareFromKey($from),
+            $to
+        );
     }
+
+    /**
+     * @param $from
+     *
+     * @return string
+     */
+    protected static function prepareFromKey($from)
+    {
+        return is_array($from)
+            ? implode(',', array_map(['XLite\Core\Mailer', 'prepareFromKey'], $from))
+            : $from;
+    }
+
 
     /**
      * Make some specific preparations for "From" field according the email type
@@ -2232,4 +2182,128 @@ class Mailer extends \XLite\Base\Singleton
     }
 
     // }}}
+
+    /**
+     * @param string       $fromOrReply This email will be used as REPLY-TO if other $replyTo is
+     *                                  not provided, also could be used as FROM depending on
+     *                                  "Which email to use for the FROM field" setting
+     * @param array|string $replyTo
+     *
+     * @return Entries
+     */
+    protected static function composeReplyTo($fromOrReply, $replyTo)
+    {
+        $data = is_array($replyTo)
+            ? array_merge([$fromOrReply], $replyTo)
+            : [
+                $fromOrReply,
+                $replyTo,
+            ];
+
+        return new Entries($data);
+    }
+
+    /**
+     * @see composeReplyTo
+     *
+     * @param string       $fromOrReply
+     * @param array|string $replyTo
+     *
+     * @return Entries
+     */
+    protected static function composeAdminReplyTo($fromOrReply, $replyTo)
+    {
+        return static::composeReplyTo($fromOrReply, $replyTo);
+    }
+
+    /**
+     * @see composeReplyTo
+     *
+     * @param string       $fromOrReply
+     * @param Order|null   $order
+     *
+     * @return Entries
+     */
+    protected static function composeOrderAdminReplyTo($fromOrReply, $order)
+    {
+        return $order
+            ? static::composeAdminReplyTo(
+                $fromOrReply,
+                [
+                    [
+                        'address' => $order->getProfile()->getEmail(),
+                    ]
+                    + static::retrieveReplyToFromProfile($order->getProfile()),
+                ]
+            )
+            : static::composeAdminReplyTo($fromOrReply, '');
+    }
+
+    /**
+     * @param Profile $profile
+     *
+     * @return array
+     */
+    protected static function retrieveReplyToFromProfile(Profile $profile)
+    {
+        return [
+                'address' => $profile->getLogin(),
+                'name'    => $profile->getName(false),
+            ];
+    }
+
+    /**
+     * @see composeReplyTo
+     *
+     * @param string       $fromOrReply
+     * @param Profile|null $profile
+     *
+     * @return Entries
+     */
+    protected static function composeProfileAdminReplyTo($fromOrReply, $profile)
+    {
+        if ($profile) {
+            return static::composeAdminReplyTo(
+                $fromOrReply,
+                [static::retrieveReplyToFromProfile($profile)]
+            );
+        }
+
+        return static::composeAdminReplyTo($fromOrReply, '');
+    }
+
+    /**
+     * @param string $template
+     * @param Order|null $order
+     * @return bool
+     */
+    public static function composeOrderDepartmentMail($template, $order)
+    {
+        if (!$template) {
+            return false;
+        }
+
+        try {
+            $typeName = 'TYPE_' . strtoupper($template) . '_ADMIN';
+            $class = new ReflectionClass(get_called_class());
+            $type = $class->getConstant($typeName) ?: 'siteAdmin';
+        } catch (\ReflectionException $e) {
+            \XLite\Logger::getInstance()->log('Could not reflect mailer class. ' . $e->getMessage(), LOG_WARNING, $e->getTrace());
+            $type = 'siteAdmin';
+        }
+
+        return static::compose(
+            $type,
+            static::composeOrderAdminReplyTo(
+                static::getOrdersDepartmentMail(),
+                $order
+            ),
+            implode(\XLite\View\Mailer::MAIL_SEPARATOR, static::getOrdersDepartmentMails()),
+            $template,
+            array(),
+            true,
+            \XLite::ADMIN_INTERFACE,
+            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+        );
+    }
 }

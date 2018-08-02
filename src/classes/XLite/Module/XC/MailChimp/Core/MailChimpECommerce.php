@@ -458,7 +458,7 @@ class MailChimpECommerce extends \XLite\Base\Singleton
     }
 
     /**
-     * @param $string   $storeId
+     * @param string    $storeId
      * @param string    $cartId
      *
      * @return array|bool|false

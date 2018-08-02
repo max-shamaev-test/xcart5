@@ -96,8 +96,7 @@ abstract class Catalog extends \XLite\Model\Base\I18n
             /** @var \XLite\Model\Repo\CleanURL $repo */
             $repo = \Xlite\Core\Database::getRepo('\XLite\Model\CleanURL');
 
-            /** @var \XLite\Model\CleanURL $cleanURLObject */
-            $cleanURLObject = $repo->insert(null, false);
+            $cleanURLObject = new \XLite\Model\CleanURL();
 
             $cleanURLObject->setEntity($this);
             $cleanURLObject->setCleanURL($cleanURL);

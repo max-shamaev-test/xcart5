@@ -13,6 +13,8 @@ namespace XLite\Core\Cache;
  */
 class CacheKeyPartsGenerator
 {
+    use ExecuteCachedTrait;
+
     /**
      * Get logged in customer's membership that can be used as a cache key part
      *
@@ -20,15 +22,17 @@ class CacheKeyPartsGenerator
      */
     public function getMembershipPart()
     {
-        $auth = \XLite\Core\Auth::getInstance();
+        return $this->executeCachedRuntime(function () {
+            $auth = \XLite\Core\Auth::getInstance();
 
-        if (!$auth->isLogged()) {
-            return null;
-        }
+            if (!$auth->isLogged()) {
+                return null;
+            }
 
-        $profile = $auth->getProfile();
+            $profile = $auth->getProfile();
 
-        return $profile->getMembership() ? $profile->getMembership()->getMembershipId() : null;
+            return $profile->getMembership() ? $profile->getMembership()->getMembershipId() : null;
+        });
     }
 
     /**
@@ -38,27 +42,29 @@ class CacheKeyPartsGenerator
      */
     public function getShippingZonesPart()
     {
-        $auth = \XLite\Core\Auth::getInstance();
+        return $this->executeCachedRuntime(function () {
+            $auth = \XLite\Core\Auth::getInstance();
 
-        if (!$auth->isLogged()) {
-            return null;
-        }
-
-        $zones = [];
-
-        $profile = $auth->getProfile();
-
-        $repo = \XLite\Core\Database::getRepo('XLite\Model\Zone');
-        $address = $profile->getShippingAddress()
-            ? $profile->getShippingAddress()->toArray()
-            : null;
-
-        if ($address) {
-            foreach ($repo->findApplicableZones($address) as $zone) {
-                $zones[] = $zone->getZoneId();
+            if (!$auth->isLogged()) {
+                return null;
             }
-        }
 
-        return implode(',', $zones);
+            $zones = [];
+
+            $profile = $auth->getProfile();
+
+            $repo = \XLite\Core\Database::getRepo('XLite\Model\Zone');
+            $address = $profile->getShippingAddress()
+                ? $profile->getShippingAddress()->toArray()
+                : null;
+
+            if ($address) {
+                foreach ($repo->findApplicableZones($address) as $zone) {
+                    $zones[] = $zone->getZoneId();
+                }
+            }
+
+            return implode(',', $zones);
+        });
     }
 }

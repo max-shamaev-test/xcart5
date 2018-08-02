@@ -153,7 +153,7 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
      */
     public static function getCSVFormatManualURL()
     {
-        return '//kb.x-cart.com/en/import-export/csv_format_by_x-cart_data_type/csv_import_product_attribute_values.html';
+        return static::t('https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_product_attribute_values.html');
     }
 
     /**
@@ -582,12 +582,12 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
             'c:' . $data['class'],
             'g:' . $data['group'],
             'o:' . $data['owner'],
-            'v:' . $data['value'],
+            'n:' . $data['name'],
         );
 
         $key = implode(';', $keyData);
 
-        if (!isset($this->attrsCache[$key])) {
+        if (empty($this->attrsCache[$key])) {
             $cnd = new \XLite\Core\CommonCell();
 
             if ($data['owner']) {

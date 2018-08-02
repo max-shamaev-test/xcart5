@@ -10,6 +10,7 @@ namespace XLite\Module\QSL\CloudSearch\Core;
 
 use XLite\Core\Converter;
 use XLite\Core\Database;
+use XLite\Model\Product;
 
 /**
  * CloudSearch store-side API methods
@@ -18,6 +19,11 @@ use XLite\Core\Database;
  */
 abstract class StoreApiBrands extends \XLite\Module\QSL\CloudSearch\Core\StoreApi implements \XLite\Base\IDecorator
 {
+    /**
+     * Get total brand count
+     *
+     * @return int
+     */
     protected function getBrandsCount()
     {
         return Database::getRepo('XLite\Module\QSL\ShopByBrand\Model\Brand')->countEnabledBrands();
@@ -32,30 +38,93 @@ abstract class StoreApiBrands extends \XLite\Module\QSL\CloudSearch\Core\StoreAp
     {
         $result = Database::getRepo('XLite\Module\QSL\ShopByBrand\Model\Brand')->getCategoryBrandsWithProductCount();
 
-        return array_map(
-            array($this, 'getBrand'),
-            $result
-        );
+        return array_map([$this, 'getBrand'], $result);
     }
 
-    public function getBrand($record)
+    /**
+     * Get brand details from Brand model
+     *
+     * @param $record
+     * @return array
+     */
+    protected function getBrand($record)
     {
         $brand = $record[0];
 
-        return array(
+        return [
             'name'        => $brand->getName(),
             'description' => $brand->getDescription(),
             'id'          => $brand->getBrandId(),
             'url'         => $this->getBrandUrl($brand),
-        );
+        ];
     }
 
+    /**
+     * Get brand URL
+     *
+     * @param $brand
+     * @return string
+     */
     protected function getBrandUrl($brand)
     {
         $url = Converter::buildFullURL(
-            'brand', '', array('brand_id' => $brand->getBrandId())
+            'brand', '', ['brand_id' => $brand->getBrandId()]
         );
 
-        return $this->isMultiDomain() ? parse_url($url, PHP_URL_PATH) : $url;
+        return $this->getItemUrl($url);
+    }
+
+    /**
+     * Get "conditions" that can be used to restrict the results when searching.
+     *
+     * This is different from "attributes" which are used to construct full-fledged filters (CloudFilters).
+     *
+     * @param Product $product
+     * @return array
+     */
+    protected function getProductConditions(Product $product)
+    {
+        $conditions = parent::getProductConditions($product);
+
+        $brandAttrId = $this->getBrandAttributeId();
+
+        foreach ($this->getProductAttributesOfSelectType($product) as $attr) {
+            if ($attr['id'] === $brandAttrId) {
+                $brandId = $this->getBrandIdByAttributeOptionId($attr['optionId']);
+
+                $conditions['brand'] = [$brandId];
+            }
+        }
+
+        return $conditions;
+    }
+
+    /**
+     * Get Brand attribute id
+     *
+     * @return null
+     */
+    protected function getBrandAttributeId()
+    {
+        $attribute = Database::getRepo('XLite\Model\Attribute')->findBrandAttribute();
+
+        return $attribute ? $attribute->getId() : null;
+    }
+
+    /**
+     * @param $optionId
+     * @return null
+     */
+    protected function getBrandIdByAttributeOptionId($optionId)
+    {
+        static $brands = [];
+
+        if (!isset($brands[$optionId])) {
+            $brand = Database::getRepo('XLite\Module\QSL\ShopByBrand\Model\Brand')->findOneByOption($optionId);
+
+            $brands[$optionId] = $brand !== null ? $brand->getId() : null;
+        }
+
+        return $brands[$optionId];
     }
 }

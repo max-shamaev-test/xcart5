@@ -9,10 +9,10 @@
 namespace XLite\Module\QSL\CloudSearch\View\CloudFilters;
 
 
-use XLite\Core\Auth;
-use XLite\Core\Database;
+use XLite;
 use XLite\Model\WidgetParam\TypeBool;
 use XLite\Model\WidgetParam\TypeCollection;
+use XLite\Module\QSL\CloudSearch\Core\SearchParameters;
 use XLite\Module\QSL\CloudSearch\Main;
 use XLite\Module\QSL\CloudSearch\Model\Repo\Product as ProductRepo;
 use XLite\Module\QSL\CloudSearch\Core\ServiceApiClient;
@@ -25,6 +25,7 @@ class FiltersBox extends \XLite\View\SideBarBox
 {
     const PARAM_FILTER_CONDITIONS = 'filterConditions';
     const PARAM_IS_ASYNC_FILTERS = 'isAsyncFilters';
+    const MAX_FOLDED_FILTER_VALUES = 10;
 
     /**
      * Get a list of JS files required to display the widget
@@ -91,7 +92,7 @@ class FiltersBox extends \XLite\View\SideBarBox
      */
     protected function getHead()
     {
-        return 'Filters';
+        return static::t('Filters');
     }
 
     /**
@@ -105,14 +106,13 @@ class FiltersBox extends \XLite\View\SideBarBox
             return false;
         }
 
-        if ($this->isAsyncFilters()) {
+        if ($this->getParam(self::PARAM_IS_ASYNC_FILTERS)) {
             return true;
         }
 
         $searchResults = $this->getSearchResults();
 
-        return $searchResults !== null
-            && $searchResults['facets'] !== null; // CloudFilters is disabled if service returned null in the 'facets' key
+        return $searchResults !== null && !empty($searchResults['facets']);
     }
 
     /**
@@ -122,50 +122,9 @@ class FiltersBox extends \XLite\View\SideBarBox
      */
     protected function getSearchResults()
     {
-        $searchResults = null;
+        $client = new ServiceApiClient();
 
-        /** @var Product $repo */
-        $repo = Database::getRepo('XLite\Model\Product');
-
-        $searchResults = $repo->getCloudSearchResults($this->getCloudSearchConditions());
-
-        return $searchResults;
-    }
-
-    /**
-     * Get search query condition
-     *
-     * @return array
-     */
-    protected function getSearchQuery()
-    {
-        $conditions = $this->getCloudSearchConditions();
-
-        return $conditions->{ProductRepo::P_SUBSTRING};
-    }
-
-    /**
-     * Get category id search condition
-     *
-     * @return array
-     */
-    protected function getCategoryId()
-    {
-        $conditions = $this->getCloudSearchConditions();
-
-        return $conditions->{ProductRepo::P_CATEGORY_ID};
-    }
-
-    /**
-     * Get category id search condition
-     *
-     * @return array
-     */
-    protected function isSearchInSubcats()
-    {
-        $conditions = $this->getCloudSearchConditions();
-
-        return $conditions->{ProductRepo::P_SEARCH_IN_SUBCATS};
+        return $client->search(new SearchParameters($this->getParam(self::PARAM_FILTER_CONDITIONS)));
     }
 
     /**
@@ -175,7 +134,7 @@ class FiltersBox extends \XLite\View\SideBarBox
      */
     protected function getFilterConditions()
     {
-        $conditions = $this->getCloudSearchConditions();
+        $conditions = $this->getParam(self::PARAM_FILTER_CONDITIONS);
 
         $filters = $conditions->{ProductRepo::P_CLOUD_FILTERS};
 
@@ -208,15 +167,7 @@ class FiltersBox extends \XLite\View\SideBarBox
     {
         $client = new ServiceApiClient();
 
-        $searchApiUrl    = $client->getSearchApiUrl();
-        $apiKey          = $client->getApiKey();
-        $searchQuery     = $this->getSearchQuery();
-        $categoryId      = $this->getCategoryId();
-        $searchInSubcats = $this->isSearchInSubcats();
-
-        $membership = Auth::getInstance()->getMembershipId();
-
-        $currency = \XLite::getInstance()->getCurrency();
+        $currency = $this->getCurrency();
 
         $currencyFormat = [
             'prefix'             => $currency->getPrefix(),
@@ -224,31 +175,28 @@ class FiltersBox extends \XLite\View\SideBarBox
             'decimalDelimiter'   => $currency->getDecimalDelimiter(),
             'thousandsDelimiter' => $currency->getThousandDelimiter(),
             'numDecimals'        => $currency->getE(),
+            'rate'               => 1,
         ];
+
+        $filtersApiData = $this->getFiltersApiData();
+
+        if (empty($filtersApiData['conditions'])) {
+            $filtersApiData['conditions'] = new \stdClass();
+        }
 
         $data = [
-            'filters'        => $this->getFilterConditions(),
-            'facetApi'       => [
-                'url'  => $searchApiUrl,
-                'data' => [
-                    'apiKey'          => $apiKey,
-                    'q'               => $searchQuery,
-                    'categoryId'      => $categoryId,
-                    'searchInSubcats' => $searchInSubcats,
-                    'facet'           => true,
-                    'limits'          => [
-                        'products'      => 0,
-                        'categories'    => 0,
-                        'manufacturers' => 0,
-                        'pages'         => 0,
-                    ],
-                    'membership'      => $membership,
-                ],
+            'filters'               => $this->getFilterConditions(),
+            'filtersApi'            => [
+                'url'  => $client->getSearchApiUrl(),
+                'data' => $filtersApiData,
             ],
-            'currencyFormat' => $currencyFormat,
+            'currencyFormat'        => $currencyFormat,
+            'colorFilterNames'      => $this->getColorFilterNames(),
+            'colorFilterValues'     => $this->getColorFilterValues(),
+            'maxFoldedFilterValues' => self::MAX_FOLDED_FILTER_VALUES,
         ];
 
-        if (!$this->isAsyncFilters()) {
+        if (!$this->getParam(self::PARAM_IS_ASYNC_FILTERS)) {
             $results = $this->getSearchResults();
 
             $data += [
@@ -259,6 +207,37 @@ class FiltersBox extends \XLite\View\SideBarBox
         }
 
         return $data;
+    }
+
+    /**
+     * Get API request params that frontend code will use to request filters and facets
+     *
+     * @return array
+     */
+    protected function getFiltersApiData()
+    {
+        $client = new ServiceApiClient();
+
+        $apiKey = $client->getApiKey();
+
+        $cnd = clone $this->getParam(self::PARAM_FILTER_CONDITIONS);
+
+        $cnd->{ProductRepo::P_LIMIT}         = [0, 0];
+        $cnd->{ProductRepo::P_CLOUD_FILTERS} = [];
+
+        $params = new SearchParameters($cnd);
+
+        return $params->getParameters() + ['apiKey' => $apiKey];
+    }
+
+    /**
+     * Get current currency
+     *
+     * @return \XLite\Model\Currency
+     */
+    protected function getCurrency()
+    {
+        return XLite::getInstance()->getCurrency();
     }
 
     /**
@@ -277,18 +256,27 @@ class FiltersBox extends \XLite\View\SideBarBox
     }
 
     /**
-     * @return \XLite\Core\CommonCell
+     * Get filter names used to detect Color filter type
+     *
+     * @return array
      */
-    protected function getCloudSearchConditions()
+    protected function getColorFilterNames()
     {
-        return $this->getParam(self::PARAM_FILTER_CONDITIONS);
+        return [
+            'color',
+            'colour',
+        ];
     }
 
     /**
-     * @return bool
+     * Get an associative array that maps color filter values to HTML color values
+     *
+     * Use to override predefined color values in filters.js
+     *
+     * @return array
      */
-    protected function isAsyncFilters()
+    protected function getColorFilterValues()
     {
-        return $this->getParam(self::PARAM_IS_ASYNC_FILTERS);
+        return [];
     }
 }

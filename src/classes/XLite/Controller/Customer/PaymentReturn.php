@@ -8,6 +8,7 @@
 
 namespace XLite\Controller\Customer;
 
+
 /**
  * Web-based payment method return
  */
@@ -54,8 +55,13 @@ class PaymentReturn extends \XLite\Controller\Customer\ACheckoutReturn
     {
         $txn = $this->detectTransaction();
 
-        if ($txn) {
-            $txn->getPaymentMethod()->getProcessor()->processReturn($txn);
+        if ($txn
+            && $txn->getPaymentMethod()
+            && $txn->getPaymentMethod()->getProcessor()
+            && $txn->getPaymentMethod()->getProcessor() instanceof \XLite\Model\Payment\Base\Online) {
+            /** @var \XLite\Model\Payment\Base\WebBased $processor */
+            $processor = $txn->getPaymentMethod()->getProcessor();
+            $processor->processReturn($txn);
 
             $this->updateOrderState($txn);
 
@@ -74,7 +80,7 @@ class PaymentReturn extends \XLite\Controller\Customer\ACheckoutReturn
                 \XLite\Core\Request::getInstance()->isHTTPS() || \XLite\Core\Config::getInstance()->Security->customer_security
             );
 
-            switch ($txn->getPaymentMethod()->getProcessor()->getReturnType()) {
+            switch ($processor->getReturnType()) {
                 case \XLite\Model\Payment\Base\WebBased::RETURN_TYPE_HTML_REDIRECT:
                     $this->doHTMLRedirect($url);
                     break;
@@ -84,7 +90,7 @@ class PaymentReturn extends \XLite\Controller\Customer\ACheckoutReturn
                     break;
 
                 case \XLite\Model\Payment\Base\WebBased::RETURN_TYPE_CUSTOM:
-                    $txn->getPaymentMethod()->getProcessor()->doCustomReturnRedirect();
+                    $processor->doCustomReturnRedirect();
                     break;
 
                 default:

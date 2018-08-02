@@ -8,6 +8,16 @@
 
 namespace XLite\View\FormModel\Product;
 
+use XLite\Core\Config;
+use XLite\Core\Converter;
+use XLite\Core\Database;
+use XLite\Core\Translation;
+use XLite\View\Button\AButton;
+use XLite\View\Button\Link;
+use XLite\View\Button\SimpleLink;
+use XLite\View\Button\Submit;
+use XLite\View\FormField\Select\FloatFormat;
+
 /**
  * Product form model
  */
@@ -49,7 +59,7 @@ class Info extends \XLite\View\FormModel\AFormModel
         return array_merge(
             parent::getCSSFiles(),
             [
-                'form_model/product/style.less'
+                'form_model/product/style.less',
             ]
         );
     }
@@ -80,18 +90,18 @@ class Info extends \XLite\View\FormModel\AFormModel
      */
     protected function defineFields()
     {
-        $skuMaxLength = \XLite\Core\Database::getRepo('XLite\Model\Product')->getFieldInfo('sku', 'length');
-        $nameMaxLength = \XLite\Core\Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('name', 'length');
-        $metaTagsMaxLength = \XLite\Core\Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('metaTags', 'length');
-        $metaTitleMaxLength = \XLite\Core\Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('metaTitle', 'length');
+        $skuMaxLength = Database::getRepo('XLite\Model\Product')->getFieldInfo('sku', 'length');
+        $nameMaxLength = Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('name', 'length');
+        $metaTagsMaxLength = Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('metaTags', 'length');
+        $metaTitleMaxLength = Database::getRepo('XLite\Model\ProductTranslation')->getFieldInfo('metaTitle', 'length');
 
         $memberships = [];
-        foreach (\XLite\Core\Database::getRepo('XLite\Model\Membership')->findActiveMemberships() as $membership) {
+        foreach (Database::getRepo('XLite\Model\Membership')->findActiveMemberships() as $membership) {
             $memberships[$membership->getMembershipId()] = $membership->getName();
         }
 
         $taxClasses = [];
-        foreach (\XLite\Core\Database::getRepo('XLite\Model\TaxClass')->findAll() as $taxClass) {
+        foreach (Database::getRepo('XLite\Model\TaxClass')->findAll() as $taxClass) {
             $taxClasses[$taxClass->getId()] = $taxClass->getName();
         }
 
@@ -122,8 +132,8 @@ class Info extends \XLite\View\FormModel\AFormModel
         $currency = \XLite::getInstance()->getCurrency();
         $currencySymbol = $currency->getCurrencySymbol(false);
 
-        $weightFormat = \XLite\Core\Config::getInstance()->Units->weight_format;
-        $weightFormatDelimiters = \XLite\View\FormField\Select\FloatFormat::getDelimiters($weightFormat);
+        $weightFormat = Config::getInstance()->Units->weight_format;
+        $weightFormatDelimiters = FloatFormat::getDelimiters($weightFormat);
 
         $inventoryTrackingDescription = $this->getDataObject()->default->identity && $this->getInventoryTrackingDescriptionTemplate()
             ? $this->getWidget([
@@ -131,7 +141,7 @@ class Info extends \XLite\View\FormModel\AFormModel
             ])->getContent()
             : '';
 
-        $product = \XLite\Core\Database::getRepo('XLite\Model\Product')->find($this->getDataObject()->default->identity);
+        $product = Database::getRepo('XLite\Model\Product')->find($this->getDataObject()->default->identity);
         $images = [];
         if ($product) {
             $images = $product->getImages();
@@ -149,7 +159,8 @@ class Info extends \XLite\View\FormModel\AFormModel
                         'XLite\Core\Validator\Constraints\MaxLength'       => [
                             'length'  => $nameMaxLength,
                             'message' =>
-                                static::t('{{field}} length must be less then {{length}}', ['field' => static::t('Product name'), 'length' => $nameMaxLength + 1]),
+                                static::t('{{field}} length must be less then {{length}}', ['field'  => static::t('Product name'),
+                                                                                            'length' => $nameMaxLength + 1]),
                         ],
                     ],
                     'position'    => 100,
@@ -166,12 +177,12 @@ class Info extends \XLite\View\FormModel\AFormModel
                     'position'    => 200,
                 ],
                 'images'               => [
-                    'label'        => static::t('Images'),
-                    'type'         => 'XLite\View\FormModel\Type\UploaderType',
-                    'imageClass'   => 'XLite\Model\Image\Product\Image',
-                    'files'        => $images,
-                    'multiple'     => true,
-                    'position'     => 300,
+                    'label'      => static::t('Images'),
+                    'type'       => 'XLite\View\FormModel\Type\UploaderType',
+                    'imageClass' => 'XLite\Model\Image\Product\Image',
+                    'files'      => $images,
+                    'multiple'   => true,
+                    'position'   => 300,
                 ],
                 'category'             => [
                     'label'       => static::t('Category'),
@@ -225,6 +236,11 @@ class Info extends \XLite\View\FormModel\AFormModel
                     'label'    => static::t('Arrival date'),
                     'type'     => 'XLite\View\FormModel\Type\DatepickerType',
                     'position' => 350,
+                    'constraints' => [
+                        'XLite\Core\Validator\Constraints\Timestamp' => [
+                            'message' => static::t('[field] year must be between 1970 and 2038', ['field' => static::t('Arrival date')])
+                        ],
+                    ],
                 ],
                 'memberships'        => [
                     'label'             => static::t('Memberships'),
@@ -286,7 +302,7 @@ class Info extends \XLite\View\FormModel\AFormModel
                 'weight'            => [
                     'label'    => static::t('Weight'),
                     'type'     => 'XLite\View\FormModel\Type\SymbolType',
-                    'symbol'   => \XLite\Core\Config::getInstance()->Units->weight_symbol,
+                    'symbol'   => Config::getInstance()->Units->weight_symbol,
                     'pattern'  => [
                         'alias'          => 'xcdecimal',
                         'digitsOptional' => false,
@@ -297,59 +313,51 @@ class Info extends \XLite\View\FormModel\AFormModel
                 ],
                 'requires_shipping' => [
                     'label'    => static::t('Requires shipping'),
-                    'type'     => 'XLite\View\FormModel\Type\SwitcherType',
+                    'type'     => 'XLite\View\FormModel\Type\Base\CompositeType',
                     'position' => 200,
-                ],
-                'shipping_box'      => [
-                    'type'      => 'XLite\View\FormModel\Type\Base\CompositeType',
-                    'fields'    => [
-                        'separate_box' => [
-                            'label'    => static::t('Separate box'),
-                            'type'     => 'Symfony\Component\Form\Extension\Core\Type\CheckboxType',
+                    'fields'   => [
+                        'requires_shipping' => [
+                            'label'    => static::t('Requires shipping'),
+                            'type'     => 'XLite\View\FormModel\Type\SwitcherType',
                             'position' => 100,
                         ],
-                        'dimensions'   => [
-                            'label'     => static::t('Length x Width x Height') . ' (' . \XLite\Core\Translation::translateDimSymbol() . ')',
-                            'type'      => 'XLite\View\FormModel\Type\DimensionsType',
-                            'show_when' => [
-                                'shipping' => [
-                                    'shipping_box' => [
-                                        'separate_box' => 1,
+                        'shipping_box'      => [
+                            'type'             => 'XLite\View\FormModel\Type\Base\CompositeType',
+                            'show_label_block' => false,
+                            'fields'           => [
+                                'separate_box' => [
+                                    'label'    => static::t('Separate box'),
+                                    'type'     => 'Symfony\Component\Form\Extension\Core\Type\CheckboxType',
+                                    'position' => 100,
+                                ],
+                                'dimensions'   => [
+                                    'label'     => static::t('Length x Width x Height') . ' (' . Translation::translateDimSymbol() . ')',
+                                    'type'      => 'XLite\View\FormModel\Type\DimensionsType',
+                                    'show_when' => [
+                                        '..' => [
+                                            'separate_box' => 1,
+                                        ],
                                     ],
+                                    'position'  => 200,
+                                ],
+                                'items_in_box' => [
+                                    'label'            => static::t('Maximum items in box'),
+                                    'show_when' => [
+                                        '..' => [
+                                            'separate_box' => 1,
+                                        ],
+                                    ],
+                                    'position'  => 300,
                                 ],
                             ],
-                            'position'  => 200,
-                        ],
-                    ],
-                    'show_when' => [
-                        'shipping' => [
-                            'requires_shipping' => '1',
-                        ],
-                    ],
-                    'position'  => 300,
-                ],
-                'items_in_box'      => [
-                    'type'      => 'XLite\View\FormModel\Type\Base\CompositeType',
-                    'fields'    => [
-                        'items_in_box' => [
-                            'label'            => static::t('Maximum items in box'),
-                            'show_label_block' => true,
                             'show_when'        => [
-                                'shipping' => [
-                                    'shipping_box' => [
-                                        'separate_box' => 1,
-                                    ],
+                                '..' => [
+                                    'requires_shipping' => '1',
                                 ],
                             ],
-                            'position'         => 100,
+                            'position'         => 500,
                         ],
                     ],
-                    'show_when' => [
-                        'shipping' => [
-                            'requires_shipping' => '1',
-                        ],
-                    ],
-                    'position'  => 400,
                 ],
             ],
             'marketing'            => [
@@ -384,13 +392,14 @@ class Info extends \XLite\View\FormModel\AFormModel
                     'position'           => 200,
                 ],
                 'meta_keywords'         => [
-                    'label'    => static::t('Meta keywords'),
-                    'position' => 300,
+                    'label'       => static::t('Meta keywords'),
+                    'position'    => 300,
                     'constraints' => [
-                        'XLite\Core\Validator\Constraints\MaxLength'       => [
+                        'XLite\Core\Validator\Constraints\MaxLength' => [
                             'length'  => $metaTagsMaxLength,
                             'message' =>
-                                static::t('{{field}} length must be less then {{length}}', ['field' => static::t('Meta keywords'), 'length' => $metaTagsMaxLength + 1]),
+                                static::t('{{field}} length must be less then {{length}}', ['field'  => static::t('Meta keywords'),
+                                                                                            'length' => $metaTagsMaxLength + 1]),
                         ],
                     ],
                 ],
@@ -399,10 +408,11 @@ class Info extends \XLite\View\FormModel\AFormModel
                     'description' => static::t('Leave blank to use product name as Page Title.'),
                     'position'    => 400,
                     'constraints' => [
-                        'XLite\Core\Validator\Constraints\MaxLength'       => [
+                        'XLite\Core\Validator\Constraints\MaxLength' => [
                             'length'  => $metaTitleMaxLength,
                             'message' =>
-                                static::t('{{field}} length must be less then {{length}}', ['field' => static::t('Product page title'), 'length' => $metaTitleMaxLength + 1]),
+                                static::t('{{field}} length must be less then {{length}}', ['field'  => static::t('Product page title'),
+                                                                                            'length' => $metaTitleMaxLength + 1]),
                         ],
                     ],
                 ],
@@ -439,11 +449,11 @@ class Info extends \XLite\View\FormModel\AFormModel
         $identity = $this->getDataObject()->default->identity;
 
         $label = $identity ? 'Update product' : 'Add product';
-        $result['submit'] = new \XLite\View\Button\Submit(
+        $result['submit'] = new Submit(
             [
-                \XLite\View\Button\AButton::PARAM_LABEL    => $label,
-                \XLite\View\Button\AButton::PARAM_BTN_TYPE => 'regular-main-button',
-                \XLite\View\Button\AButton::PARAM_STYLE    => 'action',
+                AButton::PARAM_LABEL    => $label,
+                AButton::PARAM_BTN_TYPE => 'regular-main-button',
+                AButton::PARAM_STYLE    => 'action',
             ]
         );
 
@@ -453,20 +463,20 @@ class Info extends \XLite\View\FormModel\AFormModel
                 'clone',
                 ['product_id' => $identity]
             );
-            $result['clone-product'] = new \XLite\View\Button\Link(
+            $result['clone-product'] = new Link(
                 [
-                    \XLite\View\Button\AButton::PARAM_LABEL => 'Clone this product',
-                    \XLite\View\Button\AButton::PARAM_STYLE => 'model-button always-enabled',
-                    \XLite\View\Button\Link::PARAM_LOCATION => $url,
+                    AButton::PARAM_LABEL => 'Clone this product',
+                    AButton::PARAM_STYLE => 'model-button always-enabled',
+                    Link::PARAM_LOCATION => $url,
                 ]
             );
 
-            $result['preview-product'] = new \XLite\View\Button\SimpleLink(
+            $result['preview-product'] = new SimpleLink(
                 [
-                    \XLite\View\Button\AButton::PARAM_LABEL => 'Preview product page',
-                    \XLite\View\Button\AButton::PARAM_STYLE => 'model-button link action',
-                    \XLite\View\Button\Link::PARAM_BLANK    => true,
-                    \XLite\View\Button\Link::PARAM_LOCATION => $this->getProductPreviewURL(),
+                    AButton::PARAM_LABEL => 'Preview product page',
+                    AButton::PARAM_STYLE => 'model-button link action',
+                    Link::PARAM_BLANK    => true,
+                    Link::PARAM_LOCATION => $this->getProductPreviewURL(),
                 ]
             );
         }
@@ -480,7 +490,7 @@ class Info extends \XLite\View\FormModel\AFormModel
     protected function getProductPreviewURL()
     {
         $identity = $this->getDataObject()->default->identity;
-        return \XLite\Core\Converter::buildURL(
+        return Converter::buildURL(
             'product',
             'preview',
             ['product_id' => $identity],
@@ -490,7 +500,7 @@ class Info extends \XLite\View\FormModel\AFormModel
 
     protected function getProductEntity()
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Product')->find($this->getDataObject()->default->identity);
+        return Database::getRepo('XLite\Model\Product')->find($this->getDataObject()->default->identity);
     }
 
     /**

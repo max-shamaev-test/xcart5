@@ -48,6 +48,7 @@ class Menu extends \XLite\View\Menu\Admin\AAdmin
     protected function getCacheParameters()
     {
         $params = parent::getCacheParameters();
+        $params[] = (boolean)$this->getUnreadCount();
         $key = [];
 
         /** @var \XLite\View\Menu\Admin\ANodeNotification $item */
@@ -157,7 +158,11 @@ class Menu extends \XLite\View\Menu\Admin\AAdmin
      */
     protected function getLastReadTimestamp()
     {
-        return \XLite\Core\TmpVars::getInstance()->infoMenuReadTimestamp;
+        $cookie = \XLite\Core\Request::getInstance()->notification_read_infoMenuReadTimestamp;
+
+        return $cookie
+            ? (integer)$cookie
+            : \XLite\Core\TmpVars::getInstance()->infoMenuReadTimestamp;
     }
 
     /**

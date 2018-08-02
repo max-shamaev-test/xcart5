@@ -17,7 +17,7 @@
                 {% if inconsistency.list %}
                   <ul class="files-list">
                     {% for itemName, item in inconsistency.list %}
-                      <li class="files-list-item">{{ item }}</li>
+                      <li class="files-list-item">{{ item|raw }}</li>
                     {% endfor %}
                   </ul>
                 {% endif %}

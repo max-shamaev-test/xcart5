@@ -53,7 +53,7 @@ class RequestSearchValuesStorage extends \XLite\View\ItemsList\RequestSearchValu
 
                 $filters[$filterName] = [];
 
-                $values = is_array($v) ? $v : array($v);
+                $values = is_array($v) ? $v : [$v];
 
                 foreach ($values as $value) {
                     $filters[$filterName][] = $value;
@@ -73,7 +73,7 @@ class RequestSearchValuesStorage extends \XLite\View\ItemsList\RequestSearchValu
      */
     protected function parseCGIParams($str)
     {
-        $arr = array();
+        $arr = [];
 
         $pairs = explode('&', $str);
 
@@ -96,7 +96,7 @@ class RequestSearchValuesStorage extends \XLite\View\ItemsList\RequestSearchValu
                 if (is_array($arr[$name])) {
                     $arr[$name][] = $value;
                 } else {
-                    $arr[$name] = array($arr[$name], $value);
+                    $arr[$name] = [$arr[$name], $value];
                 }
             } else {
                 $arr[$name] = $value;

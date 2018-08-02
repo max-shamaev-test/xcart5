@@ -404,7 +404,7 @@ class Transaction extends \XLite\Model\AEntity
      */
     public function handleCheckoutAction()
     {
-        $this->setStatus(self::STATUS_INPROGRESS);
+        $this->setStatus(static::STATUS_INPROGRESS);
         \XLite\Core\Database::getEM()->flush();
 
         $data = is_array(\XLite\Core\Request::getInstance()->payment)
@@ -413,31 +413,31 @@ class Transaction extends \XLite\Model\AEntity
 
         $result = $this->getPaymentMethod()->getProcessor()->pay($this, $data);
 
-        $return = self::COMPLETED;
+        $return = static::COMPLETED;
 
         switch ($result) {
             case \XLite\Model\Payment\Base\Processor::PROLONGATION:
-                $return = self::PROLONGATION;
+                $return = static::PROLONGATION;
                 break;
 
             case \XLite\Model\Payment\Base\Processor::SILENT:
-                $return = self::SILENT;
+                $return = static::SILENT;
                 break;
 
             case \XLite\Model\Payment\Base\Processor::SEPARATE:
-                $return = self::SEPARATE;
+                $return = static::SEPARATE;
                 break;
 
             case \XLite\Model\Payment\Base\Processor::COMPLETED:
-                $this->setStatus(self::STATUS_SUCCESS);
+                $this->setStatus(static::STATUS_SUCCESS);
                 break;
 
             case \XLite\Model\Payment\Base\Processor::PENDING:
-                $this->setStatus(self::STATUS_PENDING);
+                $this->setStatus(static::STATUS_PENDING);
                 break;
 
             default:
-                $this->setStatus(self::STATUS_FAILED);
+                $this->setStatus(static::STATUS_FAILED);
         }
 
         $this->registerTransactionInOrderHistory();

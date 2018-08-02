@@ -591,12 +591,38 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
      * Process callback/initial data to update transaction details
      *
      * @param \XLite\Model\Payment\Transaction $transaction Callback-owner transaction
-     * @param array $data Data
+     * @param array $data API response or parsed payment info data
+     * @param string $txnId X-Payments Transaction Id (used only for API < 1.9)
      *
      * @return void
      */
-    protected function processTransactionUpdate(\XLite\Model\Payment\Transaction $transaction, $data)
+    protected function processTransactionUpdate(\XLite\Model\Payment\Transaction $transaction, $data, $txnId)
     {
+        if (
+            array_key_exists('payment', $data)
+            && version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.9') >= 0
+        ) {
+            // This is result of API 1.9 request, get transaction info from it directly
+            $data = $data['payment'];
+        } elseif (
+            !array_key_exists('chargedAmount', $data)
+            && $txnId
+        ) {
+            // This is result of older API request, request transaction info from X-Payments
+            $info = $this->client->requestPaymentInfo($txnId);
+            if ($info->isSuccess()) {
+                $data = $info->getResponse();
+            }
+        }
+
+        if (empty($data) || !array_key_exists('chargedAmount', $data)) {
+            \XLite\Logger::getInstance()->logCustom(
+                \XLite\Module\CDev\XPaymentsConnector\Core\XPaymentsClient::LOG_FILE_ERROR,
+                'Process transaction update failed!'
+            );
+            return;
+        }
+
         $transaction->setDataCell('status', 'Transaction successful', 'X-Payments message', 'C');
 
         if (isset($data['advinfo']) && is_array($data['advinfo'])) {
@@ -615,7 +641,7 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
         $transactionData = array(
             'xpc_authorized'        => $data['authorized'],
             'xpc_captured'          => $data['capturedAmount'],
-            'xpc_charged'           => $data['chargedAmount'] + $data['refundedAmount'],
+            'xpc_charged'           => $data['chargedAmount'],
             'xpc_voided'            => $data['voidedAmount'],
             'xpc_refunded'          => $data['refundedAmount'],
             'xpc_can_capture'       => $data['capturedAmountAvail'],
@@ -623,6 +649,10 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
             'xpc_can_refund'        => $data['refundedAmountAvail'],
             'xpc_is_fraud_status'   => $data['isFraudStatus'],
         );   
+
+        if (version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.9') < 0) {
+            $transactionData['xpc_charged'] += $data['refundedAmount'];
+        }
 
         if (
             isset($data['isFraudStatus'])
@@ -715,6 +745,7 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
         if (
             $transaction->getXpcDataCell('xpc_deny_callbacks')
             && intval($transaction->getXpcDataCell('xpc_deny_callbacks')->getValue())
+            && version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.9') < 0
         ) {
             if (class_exists('\XLite\Core\Exception\PaymentProcessing\CallbackNotReady')) {
                 throw new \XLite\Core\Exception\PaymentProcessing\CallbackNotReady();
@@ -727,21 +758,13 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
         $updateData = \XLite\Module\CDev\XPaymentsConnector\Core\XPaymentsClient::getInstance()->getUpdateData();
 
         if (isset($updateData['status'])) {
-
             $status = $this->getTransactionStatus($updateData, $transaction);
-
-            if ($status && in_array($status, \XLite\Model\Order\Status\Payment::getPaidStatuses())) {
-
-                $transaction->setStatus($status);
-                $this->registerBackendTransaction($transaction, $updateData);
-
-                // Hack against check in Controller\Customer\Callback.
-                // In X-Payments Connector status should be always set by transaction.
-                $transaction->getOrder()->setPaymentStatusByTransaction($transaction);
-            }
+            $transaction->setStatus($status);
+            $this->setTransactionTypeByStatus($transaction, $updateData['status']);
+            $this->registerBackendTransaction($transaction, $updateData);
         }
 
-        $this->processTransactionUpdate($transaction, $updateData);
+        $this->processTransactionUpdate($transaction, $updateData, $request->txnId);
 
         \XLite\Core\Database::getEM()->flush();
     }
@@ -773,7 +796,7 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
 
             // Check IP address
             if (!$this->checkIpAddress()) {
-                $logMessage = self::getIncorrectIpAddrressError();
+                $logMessage = self::getIncorrectIpAddressError();
                 $this->detectedTransaction = null;
                 break;
             }
@@ -916,6 +939,25 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
         parent::__construct();
 
         $this->client = new \XLite\Module\CDev\XPaymentsConnector\Core\XPaymentsClient;
+    }
+
+    /**
+     * Set initial payment transaction status by response status
+     *
+     * @param \XLite\Model\Payment\Transaction $transaction Transaction to update
+     * @param integer $responseStatus Transaction status from X-Payments
+     *
+     * @return void
+     */
+    protected function setTransactionTypeByStatus(\XLite\Model\Payment\Transaction $transaction, $responseStatus)
+    {
+        // Initial transaction type is not known currently before payment, try to guess it from X-P transaction status
+        // TODO: once API can pass initial transaction type, implement it in getInitialTransactionType()
+        if (static::STATUS_AUTH == $responseStatus) {
+            $transaction->setType(\XLite\Model\Payment\BackendTransaction::TRAN_TYPE_AUTH);
+        } elseif (static::STATUS_CHARGED == $responseStatus) {
+            $transaction->setType(\XLite\Model\Payment\BackendTransaction::TRAN_TYPE_SALE);
+        }
     }
 
     /**
@@ -1064,7 +1106,6 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
         }
 
         if ($type) {
-            $transaction->setType($type);
             $backendTransaction = $transaction->createBackendTransaction($type);
             $backendTransaction->setStatus(\XLite\Model\Payment\BackendTransaction::STATUS_SUCCESS);
             if ($value) {
@@ -1286,7 +1327,7 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
      *
      * @return string
      */    
-    protected static function getIncorrectIpAddrressError()
+    protected static function getIncorrectIpAddressError()
     {
         return 'Callback request from unallowed IP address: "' . $_SERVER['REMOTE_ADDR'] . '"' . PHP_EOL
              . 'List of allowed IP addresses: "' . \XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_allowed_ip_addresses . '"';
@@ -1355,12 +1396,7 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
                         : 'Operation successful'
                 );
 
-                // Get updated transaction info from X-Payments
-                $info = $this->client->requestPaymentInfo($txnId);
-                if ($info->isSuccess()) {
-                    $response = $info->getResponse();
-                    $this->processTransactionUpdate($pt, $response);
-                }
+                $this->processTransactionUpdate($pt, $response, $txnId);
                 $transaction->setStatus(\XLite\Model\Payment\BackendTransaction::STATUS_SUCCESS);
                 $isTransactionSuccess = true;
 
@@ -1417,7 +1453,11 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
      */
     protected function doVoid(\XLite\Model\Payment\BackendTransaction $transaction)
     {
-        return $this->doSecondary($transaction, 'void');
+        $result = $this->doSecondary($transaction, 'void');
+        if ($result) {
+            $transaction->getPaymentTransaction()->setStatus(\XLite\Model\Payment\Transaction::STATUS_VOID);
+        }
+        return $result;
     }
 
     /**
@@ -1516,12 +1556,7 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
             if ($response['transaction_id']) {
                 $txnId = $response['transaction_id'];
                 $newTransaction->setDataCell('xpc_txnid', $txnId, 'X-Payments transaction ID', 'C');
-                // Get updated transaction info from X-Payments
-                $info = $this->client->requestPaymentInfo($txnId);
-                if ($info->isSuccess()) {
-                    $infoResponse = $info->getResponse();
-                    $this->processTransactionUpdate($newTransaction, $infoResponse);
-                }
+                $this->processTransactionUpdate($newTransaction, $response, $txnId);
             }
 
             if (
@@ -1535,6 +1570,9 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
                         : 'Operation successful'
                 );
 
+                $newTransaction->setStatus(\XLite\Model\Payment\Transaction::STATUS_SUCCESS);
+                $this->setTransactionTypeByStatus($newTransaction, $response['status']);
+
             } else {
 
                 \XLite\Core\TopMessage::getInstance()->addError(
@@ -1545,6 +1583,8 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
 
                 $newTransaction->setStatus(\XLite\Model\Payment\Transaction::STATUS_FAILED);
             }
+
+            $newTransaction->setXpcDataCell('xpc_deny_callbacks', '0');
 
         } else {
 

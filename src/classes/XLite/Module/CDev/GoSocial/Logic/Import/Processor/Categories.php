@@ -91,6 +91,6 @@ class Categories extends \XLite\Logic\Import\Processor\Categories implements \XL
             $value = implode(PHP_EOL, $value);
         }
 
-        $model->setOgMeta($value);
+        $model->setOgMeta(\XLite\Module\CDev\GoSocial\Logic\OgMeta::prepareOgMeta($value));
     }
 }

@@ -8,8 +8,37 @@
  */
 
 (function () {
+  var process_cached_images = false;
+
+  function is_image_loaded(path) {
+    var img = new Image();
+    img.src = path;
+    return img.complete;
+  }
+
+  function processLazyLoadCachedImages() {
+    $('.lazy-load:not(.lazy-load-bound)').each(function () {
+      var wrapper = $(this);
+      var image = wrapper.find('img:first');
+
+      var src = image.attr('src');
+      var loaded = is_image_loaded(src);
+
+      if (loaded) {
+        wrapper.removeClass('lazy-load lazy-load-bound').addClass('lazy-load-loaded');
+      }
+    });
+  }
+
   function processLazyLoadImages() {
+
     var layoutOptions = window.core.getLayoutOptions();
+
+    if (process_cached_images) {
+      processLazyLoadCachedImages();
+    } else {
+      process_cached_images = true;
+    }
 
     $('.lazy-load:not(.lazy-load-bound)').each(function () {
       var wrapper = $(this);

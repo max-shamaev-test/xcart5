@@ -14,6 +14,18 @@ namespace XLite\Module\XC\FreeShipping\Model;
  */
 class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
 {
+    //TODO freeShipping, freeShip, ShipForFree - Rename to
+    // nonShippable?, ExcludeFromShipping, FreeShipping
+
+    /**
+     * Is product excluded from shipping calculation
+     *
+     * @var boolean
+     *
+     * @Column (type="boolean")
+     */
+    protected $freeShip = false;
+
     /**
      * Is free shipping available for the product
      *
@@ -21,7 +33,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      *
      * @Column (type="boolean")
      */
-    protected $freeShip = false;
+    protected $shipForFree = false;
 
     /**
      * Shipping freight fixed fee
@@ -52,6 +64,29 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     public function getFreeShip()
     {
         return $this->freeShip;
+    }
+
+    /**
+     * Return ShipForFree
+     *
+     * @return bool
+     */
+    public function isShipForFree()
+    {
+        return $this->shipForFree;
+    }
+
+    /**
+     * Set ShipForFree
+     *
+     * @param bool $shipForFree
+     *
+     * @return $this
+     */
+    public function setShipForFree($shipForFree)
+    {
+        $this->shipForFree = $shipForFree;
+        return $this;
     }
 
     /**

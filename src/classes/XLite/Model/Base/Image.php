@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Base;
 
+use XLite\Core\ImageOperator;
+
 /**
  * Image abstract store
  *
@@ -74,6 +76,11 @@ abstract class Image extends \XLite\Model\Base\Storage
     protected $needProcess = true;
 
     /**
+     * @var bool
+     */
+    protected $includeFilenameInHash = true;
+
+    /**
      * Check file is image or not
      *
      * @return boolean
@@ -105,7 +112,7 @@ abstract class Image extends \XLite\Model\Base\Storage
         if ($this->getHash()) {
             list($path, $isTempFile) = $this->getLocalPath();
 
-            $hash = \Includes\Utils\FileManager::getHash($path);
+            $hash = \Includes\Utils\FileManager::getHash($path, false, $this->includeFilenameInHash);
 
             if ($isTempFile) {
                 \Includes\Utils\FileManager::deleteFile($path);
@@ -216,7 +223,7 @@ abstract class Image extends \XLite\Model\Base\Storage
                 $this->setWidth($data[0]);
                 $this->setHeight($data[1]);
                 $this->setMime($data['mime']);
-                $hash = \Includes\Utils\FileManager::getHash($path);
+                $hash = \Includes\Utils\FileManager::getHash($path, false, $this->includeFilenameInHash);
                 if ($hash) {
                     $this->setHash($hash);
                 }
@@ -240,12 +247,15 @@ abstract class Image extends \XLite\Model\Base\Storage
      */
     public function loadFromLocalFile($path, $basename = null, $makeUnique = false)
     {
-        $hash = \Includes\Utils\FileManager::getHash($path);
-        /** @var static $existing */
-        $existing = $this->getRepository()->findOneByHash($hash);
-        if ($existing) {
-            $path = $existing->getStoragePath();
-            $basename = null;
+        $hash = \Includes\Utils\FileManager::getHash($path, false, $this->includeFilenameInHash);
+
+        if ($hash) {
+            /** @var static $existing */
+            $existing = $this->getRepository()->findOneByHash($hash);
+            if ($existing && $existing->isFileExists()) {
+                $path = $existing->getStoragePath();
+                $basename = null;
+            }
         }
 
         return parent::loadFromLocalFile($path, $basename, $makeUnique);
@@ -267,7 +277,7 @@ abstract class Image extends \XLite\Model\Base\Storage
             $result = $this->doResize($width, $height, false);
 
         } else {
-            list($newWidth, $newHeight) = \XLite\Core\ImageOperator::getCroppedDimensions(
+            list($newWidth, $newHeight) = ImageOperator::getCroppedDimensions(
                 $this->getWidth(),
                 $this->getHeight(),
                 $width,
@@ -423,7 +433,7 @@ abstract class Image extends \XLite\Model\Base\Storage
      */
     protected function getCropDimensions($width, $height)
     {
-        return \XLite\Core\ImageOperator::getCroppedDimensions(
+        return ImageOperator::getCroppedDimensions(
             $this->getWidth(),
             $this->getHeight(),
             $width,
@@ -485,7 +495,7 @@ abstract class Image extends \XLite\Model\Base\Storage
      */
     protected function resizeIcon($width, $height, $path)
     {
-        $operator = new \XLite\Core\ImageOperator($this);
+        $operator = new ImageOperator($this);
         list($newWidth, $newHeight, $result) = $operator->resize($width, $height);
 
         return false !== $result && \Includes\Utils\FileManager::write($path, $operator->getImage()->getBody())
@@ -663,11 +673,10 @@ abstract class Image extends \XLite\Model\Base\Storage
      */
     public function getBlurredImageData($width = null, $height = null)
     {
-        $skin = \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
         if (
-            \XLite\Core\ImageOperator::getEngineType() === \XLite\Core\ImageOperator::ENGINE_SIMPLE
-            || !$skin
-            || !$skin->callModuleMethod('isUsePreloadedImages')
+            ImageOperator::getEngineType() === ImageOperator::ENGINE_SIMPLE
+            || !\XLite\Core\Layout::getInstance()->isLazyLoadEnabled()
+            || !\XLite\Core\Layout::getInstance()->isSkinAllowsPreloadedImages()
         ) {
             return null;
         }

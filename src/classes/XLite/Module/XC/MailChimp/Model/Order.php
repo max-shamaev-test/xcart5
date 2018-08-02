@@ -34,8 +34,8 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
     {
         $changed = parent::checkStatuses();
 
-        if ($changed
-            && $this->isECommerce360Cart()
+        if (
+            $changed
             && \XLite\Module\XC\MailChimp\Core\MailChimp::hasAPIKey()
         ) {
             MailChimp::getInstance()->updateOrder($this);

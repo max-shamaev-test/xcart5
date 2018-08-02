@@ -31,8 +31,8 @@ class TypeCheckbox extends \XLite\Model\WidgetParam\AWidgetParam
     {
         return array(
             array(
-                self::ATTR_CONDITION => !in_array($value, array(0, 1)),
-                self::ATTR_MESSAGE   => ' only available values are (checked,unchecked)',
+                static::ATTR_CONDITION => !in_array($value, array(0, 1)),
+                static::ATTR_MESSAGE   => ' only available values are (checked,unchecked)',
             ),
         );
     }

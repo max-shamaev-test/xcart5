@@ -8,6 +8,9 @@
 
 namespace XLite\Module\CDev\ContactUs\Model;
 
+use XLite\Core\Cache\ExecuteCachedTrait;
+use XLite\Core\Converter;
+
 /**
  * Menu
  *
@@ -15,6 +18,8 @@ namespace XLite\Module\CDev\ContactUs\Model;
  */
 class Menu extends \XLite\Module\CDev\SimpleCMS\Model\Menu implements \XLite\Base\IDecorator
 {
+    use ExecuteCachedTrait;
+
     const DEFAULT_CONTACT_US_PAGE = '{contact us}';
 
     /**
@@ -27,7 +32,9 @@ class Menu extends \XLite\Module\CDev\SimpleCMS\Model\Menu implements \XLite\Bas
     {
         $list = parent::defineLinkURLs();
 
-        $list[static::DEFAULT_CONTACT_US_PAGE] = '?target=contact_us';
+        $list[static::DEFAULT_CONTACT_US_PAGE] = $this->executeCachedRuntime(function () {
+            return Converter::buildURL('contact_us');
+        }, ['contact_us']);
 
         return $list;
     }

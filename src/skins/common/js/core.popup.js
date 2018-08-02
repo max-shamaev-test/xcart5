@@ -29,7 +29,7 @@ popup.currentPopup = null;
 popup.loadOptions = null;
 
 // Do not do real close popup in popup.close()
-popup.pseudoClose = false;
+// popup.pseudoClose = false;
 
 /**
  * Methods
@@ -402,9 +402,9 @@ popup.getPopupOptions = function(box)
 {
   return {
     autoOpen:      true,
-    closeOnEscape: true,
+    closeOnEscape: !box.data('dialog-no-close'),
     dialogClass:   (box.data('dialog-class') ? box.data('dialog-class') : 'default-dialog')
-      + ' ' + (box.attr('title') ? 'has-title' : 'no-title'),
+      + ' ' + (box.attr('title') ? 'has-title' : 'no-title') + (box.data('dialog-no-close') ? ' no-close' : ''),
     draggable:     false,
     height:        'auto',
     modal:         (typeof(box.data('dialog-modal')) !== 'undefined' ? box.data('dialog-modal') : true),
@@ -429,8 +429,6 @@ popup.getPopupOptions = function(box)
             jQuery(elem).validationEngine('hide');
           }
         );
-
-        var box = this.currentPopup.box;
 
         this.close();
       },
@@ -496,9 +494,7 @@ popup.close = function()
   var box;
   if (this.currentPopup && this.currentPopup.box) {
     box = this.currentPopup.box;
-    if (!this.pseudoClose) {
-      box.dialog('close');
-    }
+    box.dialog('close');
 
     if (this.currentUnblockCallback && _.isFunction(this.currentUnblockCallback)) {
       this.currentUnblockCallback();

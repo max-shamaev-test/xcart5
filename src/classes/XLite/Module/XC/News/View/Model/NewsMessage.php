@@ -198,11 +198,15 @@ class NewsMessage extends \XLite\View\Model\AModel
      */
     protected function rollbackModel()
     {
-        parent::rollbackModel();
-
         $urls = $this->getModelObject()->getCleanURLs();
+        /** @var \XLite\Model\CleanURL $url */
         foreach ($urls as $url) {
+            if (!$url->isPersistent()) {
+                \XLite\Core\Database::getEM()->remove($url);
+            }
             \XLite\Core\Database::getEM()->detach($url);
         }
+
+        parent::rollbackModel();
     }
 }

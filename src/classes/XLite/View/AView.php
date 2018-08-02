@@ -2381,7 +2381,7 @@ abstract class AView extends \XLite\Core\Handler
     protected function getTagName($tag)
     {
         $label = 'tag-' . $tag;
-        $translation = static::t($label);
+        $translation = (string) static::t($label);
 
         return ($translation === $label) ? $tag : $translation;
     }

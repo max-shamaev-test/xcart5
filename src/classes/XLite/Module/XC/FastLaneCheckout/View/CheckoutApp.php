@@ -9,6 +9,7 @@
 namespace XLite\Module\XC\FastLaneCheckout\View;
 
 use XLite\Core\PreloadedLabels\ProviderInterface;
+use XLite\Core\Session;
 use \XLite\Module\XC\FastLaneCheckout;
 
 /**
@@ -36,10 +37,10 @@ class CheckoutApp extends \XLite\View\AView implements ProviderInterface
                 'merge' => 'bootstrap/css/bootstrap.less',
             ],
             [
-                'file' => FastLaneCheckout\Main::getSkinDir() . 'checkout_fastlane/animations.less',
+                'file'  => 'checkout/css/animations.less',
                 'media' => 'screen',
                 'merge' => 'bootstrap/css/bootstrap.less',
-            ],
+            ]
         ];
     }
 
@@ -61,6 +62,21 @@ class CheckoutApp extends \XLite\View\AView implements ProviderInterface
                 'js/vue/component.js'
             ],
         ];
+    }
+
+    /**
+     * @return string
+     */
+    protected function getCheckoutUID()
+    {
+        /** @var \XLite\Model\Cart $cart */
+        $cart = \XLite::getController()->getCart();
+
+        return md5(serialize([
+            $cart->getItemsFingerprint(),
+            $cart->getUniqueIdentifier(),
+            Session::getInstance()->getID()
+        ]));
     }
 
     /**

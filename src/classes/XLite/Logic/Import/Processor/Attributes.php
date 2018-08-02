@@ -143,7 +143,7 @@ class Attributes extends \XLite\Logic\Import\Processor\AProcessor
      */
     public static function getCSVFormatManualURL()
     {
-        return '//kb.x-cart.com/en/import-export/csv_format_by_x-cart_data_type/csv_import_classes_&_attributes.html';
+        return static::t('https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_classes_&_attributes.html');
     }
 
     /**

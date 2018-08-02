@@ -15,13 +15,13 @@ CommonElement.prototype.handlers.push(
     },
     handler: function () {
 
-      var pitneyBowesInfo = jQuery('.pitney-bowes-info');
+      var uspsDependentInfo = jQuery('.usps-dependent-info');
 
       function toggleDataProviderInfo() {
-        if (this.$element.val() === 'pitneyBowes') {
-          pitneyBowesInfo.removeClass('hidden');
+        if (this.$element.val() === 'USPS') {
+          uspsDependentInfo.removeClass('hidden');
         } else {
-          pitneyBowesInfo.addClass('hidden');
+          uspsDependentInfo.addClass('hidden');
         }
       }
 

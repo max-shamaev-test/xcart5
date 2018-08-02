@@ -6,6 +6,6 @@
 # See https://www.x-cart.com/license-agreement.html for license details.
 
 XLite\Model\LanguageLabel:
-  - { name: "Product", translations: [{ code: en, label: "Product" }, { code: ru, label: "Продукт" }] }
+  - { name: "Product", translations: [{ code: en, label: "Product" }, { code: ru, label: "товар" }] }
   - { name: "Previous product", translations: [{ code: en, label: "Previous" }, { code: ru, label: "Предыдущий" }] }
-  - { name: "Next product", translations: [{ code: en, label: "Next product" }, { code: ru, label: "Следующий продукт" }] }
+  - { name: "Next product", translations: [{ code: en, label: "Next product" }, { code: ru, label: "Следующий товар" }] }

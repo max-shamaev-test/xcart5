@@ -170,7 +170,7 @@ class Simplified extends \XLite\View\FormModel\AFormModel
 
     protected function getImportLinkUrl()
     {
-        return 'https://kb.x-cart.com/en/import-export/csv_format_by_x-cart_data_type/csv_import_products.html';
+        return static::t('https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_products.html');
     }
 
     /**

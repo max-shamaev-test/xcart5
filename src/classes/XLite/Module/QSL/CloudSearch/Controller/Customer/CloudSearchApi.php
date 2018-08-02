@@ -30,6 +30,8 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
         parent::__construct($params);
 
         $this->params[] = 'action';
+        $this->params[] = 'start';
+        $this->params[] = 'limit';
     }
 
     /**

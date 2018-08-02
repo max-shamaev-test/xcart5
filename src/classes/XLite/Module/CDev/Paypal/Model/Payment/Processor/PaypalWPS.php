@@ -8,7 +8,10 @@
 
 namespace XLite\Module\CDev\Paypal\Model\Payment\Processor;
 
+use XLite\Core\Request;
+use XLite\Model\Payment\Transaction;
 use \XLite\Module\CDev\Paypal;
+use XLite\Module\CDev\Paypal\Model\Payment\Processor\PaypalIPN;
 
 /**
  * Paypal Payments Standard payment processor
@@ -29,7 +32,7 @@ class PaypalWPS extends \XLite\Model\Payment\Base\WebBased
      *
      * @var string
      */
-    protected $knowledgeBasePageURL = 'https://kb.x-cart.com/en/payments/paypal/setting_up_paypal_payments_standard.html';
+    protected $knowledgeBasePageURL = 'https://kb.x-cart.com/payments/paypal/setting_up_paypal_payments_standard.html';
 
     /**
      * Constructor
@@ -172,17 +175,20 @@ class PaypalWPS extends \XLite\Model\Payment\Base\WebBased
     /**
      * Process callback
      *
-     * @param \XLite\Model\Payment\Transaction $transaction Callback-owner transaction
+     * @param Transaction $transaction Callback-owner transaction
      *
      * @return void
+     * @throws \XLite\Core\Exception\PaymentProcessing\ACallbackException
      */
-    public function processCallback(\XLite\Model\Payment\Transaction $transaction)
+    public function processCallback(Transaction $transaction)
     {
         parent::processCallback($transaction);
 
-        if (Paypal\Model\Payment\Processor\PaypalIPN::getInstance()->isCallbackIPN()) {
-            Paypal\Model\Payment\Processor\PaypalIPN::getInstance()
-                ->tryProcessCallbackIPN($transaction, $this);
+        if (PaypalIPN::getInstance()->isCallbackIPN()) {
+            PaypalIPN::getInstance()->tryProcessCallbackIPN($transaction, $this);
+        } else if (!empty(Request::getInstance()->tx)) {
+            \XLite\Core\TmpVars::getInstance()->paypalPDTNotificationVisible = true;
+            \XLite\Core\TmpVars::getInstance()->paypalPDTNotificationUpdateTimestamp = LC_START_TIME;
         }
 
         $this->saveDataFromRequest();
@@ -191,7 +197,7 @@ class PaypalWPS extends \XLite\Model\Payment\Base\WebBased
     /**
      * @inheritdoc
      */
-    public function processCallbackNotReady(\XLite\Model\Payment\Transaction $transaction)
+    public function processCallbackNotReady(Transaction $transaction)
     {
         parent::processCallbackNotReady($transaction);
 
@@ -203,15 +209,15 @@ class PaypalWPS extends \XLite\Model\Payment\Base\WebBased
     /**
      * Process return
      *
-     * @param \XLite\Model\Payment\Transaction $transaction Return-owner transaction
+     * @param Transaction $transaction Return-owner transaction
      *
      * @return void
      */
-    public function processReturn(\XLite\Model\Payment\Transaction $transaction)
+    public function processReturn(Transaction $transaction)
     {
         parent::processReturn($transaction);
 
-        if (\XLite\Core\Request::getInstance()->cancel) {
+        if (Request::getInstance()->cancel) {
             if ($this->api->isTransactionCancellable($transaction)) {
                 $this->setDetail(
                     'cancel',

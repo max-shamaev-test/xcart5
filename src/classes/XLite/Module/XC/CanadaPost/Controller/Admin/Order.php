@@ -311,5 +311,72 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
         return $list;
     }
 
+    /**
+     * getViewerTemplate
+     *
+     * @return string
+     */
+    protected function getViewerTemplate()
+    {
+        $result = parent::getViewerTemplate();
+
+        if ($this->isCanadaPostPackingSlip()) {
+            $result = 'modules/XC/CanadaPost/parcel_packing_slip.twig';
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCanadaPostPackingSlip()
+    {
+        return 'parcel_packing_slip' === \XLite\Core\Request::getInstance()->mode
+            && \XLite\Core\Request::getInstance()->parcel_id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getQtyShip(\XLite\Model\OrderItem $item)
+    {
+        if (!$this->isCanadaPostPackingSlip()) {
+            return '';
+        }
+
+        $parcelItem = null;
+
+        foreach ($this->getParcel()->getItems()->toArray() as $pItem) {
+            if ($pItem->getOrderItem() && $pItem->getOrderItem()->getUniqueIdentifier() === $item->getUniqueIdentifier()) {
+                $parcelItem = $pItem;
+                break;
+            }
+        }
+
+        return $parcelItem ? $parcelItem->getAmount() : '';
+    }
+
+    /**
+     * Get total qty
+     *
+     * @return string
+     */
+    public function getTotalShipQty()
+    {
+        return $this->isCanadaPostPackingSlip()
+            ? $this->getParcel()->getAmount()
+            : '';
+    }
+
+    /**
+     *
+     */
+    public function getParcel()
+    {
+        return \XLite\Core\Database::getRepo('XLite\Module\XC\CanadaPost\Model\Order\Parcel')
+            ->find(\XLite\Core\Request::getInstance()->parcel_id);
+    }
+
     // }}}
 }

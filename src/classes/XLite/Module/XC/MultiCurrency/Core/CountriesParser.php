@@ -20,8 +20,6 @@ class CountriesParser
      * CountriesParser constructor.
      *
      * @param $path
-     *
-     * @throws \XLite\Core\Exception\FileNotFound
      */
     public function __construct($path = null)
     {

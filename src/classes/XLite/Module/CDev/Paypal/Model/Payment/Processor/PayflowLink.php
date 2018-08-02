@@ -25,7 +25,7 @@ class PayflowLink extends \XLite\Module\CDev\Paypal\Model\Payment\Processor\APay
      *
      * @var string
      */
-    protected $knowledgeBasePageURL = 'https://kb.x-cart.com/en/payments/paypal/setting_up_paypal_payflow_link.html';
+    protected $knowledgeBasePageURL = 'https://kb.x-cart.com/payments/paypal/setting_up_paypal_payflow_link.html';
 
     /**
      * Constructor

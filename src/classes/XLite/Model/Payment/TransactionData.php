@@ -91,8 +91,8 @@ class TransactionData extends \XLite\Model\AEntity
      */
     public function isAvailable()
     {
-        return (\XLite::isAdminZone() && self::ACCESS_ADMIN == $this->getAccessLevel())
-            || self::ACCESS_CUSTOMER == $this->getAccessLevel();
+        return (\XLite::isAdminZone() && static::ACCESS_ADMIN == $this->getAccessLevel())
+            || static::ACCESS_CUSTOMER == $this->getAccessLevel();
     }
 
     /**

@@ -22,17 +22,6 @@ define('checkout_fastlane/store/sections', ['vue/vue'], function(Vue){
         Vue.set(state.list[name], 'name',       name);
         Vue.set(state.list[name], 'index',      component.index);
         Vue.set(state.list[name], 'nextLabel',  component.nextLabel);
-
-        // if (null === state.current
-        //   && name === 'address' // Hack for registering address sections first
-        // ) {
-        //   state.enabled.push(name);
-        //   state.current = state.list[name];
-
-        //   core.trigger('fastlane_section_switched', {
-        //     newSection: state.current
-        //   });
-        // }
       },
 
       SWITCH_SECTION: function (state, name) {

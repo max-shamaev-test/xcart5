@@ -8,12 +8,14 @@
 
 namespace XLite\View\Checkout;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
+
 /**
  * Checkout steps block
  *
  * @ListChild (list="checkout.main", weight="200")
  */
-class Steps extends \XLite\View\AView
+class Steps extends \XLite\View\AView implements ProviderInterface
 {
     /**
      * Shipping modifier (cache)
@@ -145,5 +147,19 @@ class Steps extends \XLite\View\AView
         }
 
         return $this->shippingModifier;
+    }
+
+    /**
+     * Array of labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'Select one' => static::t('Select one')
+        ];
     }
 }

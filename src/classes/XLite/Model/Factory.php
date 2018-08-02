@@ -27,7 +27,7 @@ class Factory extends \XLite\Base
     {
         $handler = new \ReflectionClass($class);
 
-        return self::isSingleton($handler) ? self::getSingleton($class) : self::createObject($handler, $args);
+        return static::isSingleton($handler) ? static::getSingleton($class) : static::createObject($handler, $args);
     }
 
 
@@ -79,6 +79,6 @@ class Factory extends \XLite\Base
      */
     public function __get($name)
     {
-        return self::create($name);
+        return static::create($name);
     }
 }

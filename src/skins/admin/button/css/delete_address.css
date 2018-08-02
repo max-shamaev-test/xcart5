@@ -7,7 +7,8 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-button.delete-address {
+button.delete-address,
+button.delete-address:active {
   border: 0px;
   vertical-align: middle;
   background-color: transparent;
@@ -20,3 +21,4 @@ button.delete-address {
   padding-right: 5px;
   cursor: pointer;
 }
+

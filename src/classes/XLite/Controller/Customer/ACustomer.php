@@ -753,7 +753,7 @@ abstract class ACustomer extends \XLite\Controller\AController
      */
     protected function isFullCustomerSecurity()
     {
-        return \XLite\Core\Config::getInstance()->Security->customer_security && \XLite\Core\Config::getInstance()->Security->force_customers_to_https;
+        return \XLite\Core\Config::getInstance()->Security->customer_security;
     }
 
     // {{{ Clean URLs related routines

@@ -20,7 +20,6 @@ class Settings extends \XLite\Base\Singleton
     const PAGE_PAYMENT_METHODS = 'payment_methods';
     const PAGE_CONNECTION      = 'connection';
     const PAGE_ZERO_AUTH       = 'zero_auth';
-    const PAGE_MAP_RULES       = 'map_rules';
     const PAGE_WELCOME         = 'welcome';
 
     /**
@@ -56,6 +55,7 @@ class Settings extends \XLite\Base\Singleton
      * List of API versions
      */
     public $apiVersions = array(
+        '1.9',
         '1.8',
         '1.7',
         '1.6',
@@ -147,15 +147,6 @@ class Settings extends \XLite\Base\Singleton
             'xpc_zero_auth_description',
         ),
 
-        self::PAGE_MAP_RULES => array(
-            'xpc_status_new',
-            'xpc_status_auth',
-            'xpc_status_charged',
-            'xpc_status_charged_part',
-            'xpc_status_declined',
-            'xpc_status_refunded',
-            'xpc_status_refunded_part',
-        ),
     );
 
     /**
@@ -227,7 +218,6 @@ class Settings extends \XLite\Base\Singleton
                     static::PAGE_PAYMENT_METHODS => static::t('Payment methods'),
                     static::PAGE_CONNECTION      => static::t('Connection'),
                     static::PAGE_ZERO_AUTH       => static::t('Save credit card setup'),
-                    static::PAGE_MAP_RULES       => static::t('Order status mapping rules'),
                     static::PAGE_WELCOME         => static::t('Welcome'),
                 );
 
@@ -236,7 +226,6 @@ class Settings extends \XLite\Base\Singleton
                 $pages = array(
                     static::PAGE_PAYMENT_METHODS => static::t('Payment methods'),
                     static::PAGE_CONNECTION      => static::t('Connection'),
-                    static::PAGE_MAP_RULES       => static::t('Order status mapping rules'),
                     static::PAGE_WELCOME         => static::t('Welcome'),
                 );
             }

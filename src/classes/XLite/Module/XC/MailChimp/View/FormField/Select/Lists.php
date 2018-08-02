@@ -16,7 +16,9 @@ class Lists extends \XLite\View\FormField\Select\Base\Rich
     protected function getDefaultOptions()
     {
         $lists = $this->getLists();
-        $result = [];
+        $result = [
+            false => ''
+        ];
 
         /** @var \XLite\Module\XC\MailChimp\Model\MailChimpList $list */
         foreach ($lists as $list) {

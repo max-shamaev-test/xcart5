@@ -214,6 +214,36 @@ class Method extends \XLite\Model\Payment\Method implements \XLite\Base\IDecorat
             );
         }
 
+        if ($this->getProcessor()
+            && Paypal\Main::PP_METHOD_PFM === $this->getServiceName()
+        ) {
+            switch ($this->getProcessor()->getNotSwitchableReasonType($this)) {
+                case 'multi-vendor':
+                    $message = static::t(
+                        'To enable this payment method, you need <Multi-vendor> module installed.',
+                        array(
+                            'link'  => \XLite\Core\Converter::buildURL(
+                                'addons_list_marketplace',
+                                '',
+                                array(
+                                    'moduleName'    => 'XC\MultiVendor'
+                                )
+                            )
+                        )
+                    );
+                    break;
+
+                case 'https':
+                    $message = static::t(
+                        'Payments with this payment method are not allowed because HTTPS is not configured',
+                        [
+                            'url' => \XLite\Core\Converter::buildURL('https_settings')
+                        ]
+                    );
+                    break;
+            }
+        }
+
         return $message;
     }
 }

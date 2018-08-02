@@ -10,8 +10,6 @@
 define('paypal_ec_checkout_credit_button_processor', ['paypal_ec_button_processors'], function (Processors) {
   Processors.push(function (element, state) {
     if (element.is('.paypal-ec-checkout-credit')) {
-      state.size = 'medium';
-
       state.additionalUrlParams.ignoreCheckout = true;
 
       state.payment = function () {

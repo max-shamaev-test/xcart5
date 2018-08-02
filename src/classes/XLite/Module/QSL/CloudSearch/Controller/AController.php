@@ -9,6 +9,7 @@
 namespace XLite\Module\QSL\CloudSearch\Controller;
 
 use XLite\Module\QSL\CloudSearch\Core\RegistrationScheduler;
+use XLite\Module\QSL\CloudSearch\Main;
 
 /**
  * Abstract controller
@@ -23,7 +24,9 @@ abstract class AController extends \XLite\Controller\AController implements \XLi
      */
     public function handleRequest()
     {
-        RegistrationScheduler::getInstance()->registerIfScheduled();
+        if (\XLite::isAdminZone() || !Main::isConfigured()) {
+            RegistrationScheduler::getInstance()->registerIfScheduled();
+        }
 
         parent::handleRequest();
     }

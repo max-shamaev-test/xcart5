@@ -34,11 +34,11 @@ class CachingFactory extends \XLite\Model\Factory
      */
     public static function getObjectFromCallback($signature, $handler, $method, array $args = array(), $clearCache = false)
     {
-        if (!isset(self::$cache[$signature]) || $clearCache) {
-            self::$cache[$signature] = call_user_func_array(array(self::prepareHandler($handler), $method), $args);
+        if (!isset(static::$cache[$signature]) || $clearCache) {
+            static::$cache[$signature] = call_user_func_array(array(static::prepareHandler($handler), $method), $args);
         }
 
-        return self::$cache[$signature];
+        return static::$cache[$signature];
     }
 
     /**
@@ -52,7 +52,7 @@ class CachingFactory extends \XLite\Model\Factory
      */
     public static function getObject($signature, $class, array $args = array())
     {
-        return self::getObjectFromCallback($signature, 'self', 'create', array($class, $args));
+        return static::getObjectFromCallback($signature, 'self', 'create', array($class, $args));
     }
 
     /**
@@ -64,7 +64,7 @@ class CachingFactory extends \XLite\Model\Factory
      */
     public static function clearCacheCell($signature)
     {
-        unset(self::$cache[$signature]);
+        unset(static::$cache[$signature]);
     }
 
     /**
@@ -74,7 +74,7 @@ class CachingFactory extends \XLite\Model\Factory
      */
     public static function clearCache()
     {
-        self::$cache = null;
+        static::$cache = null;
     }
 
 
@@ -100,6 +100,6 @@ class CachingFactory extends \XLite\Model\Factory
      */
     public function __destruct()
     {
-        self::clearCache();
+        static::clearCache();
     }
 }

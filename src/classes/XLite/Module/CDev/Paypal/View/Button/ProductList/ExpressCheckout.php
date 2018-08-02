@@ -24,27 +24,47 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\View\Button\AExpressChec
         ];
     }
 
+    /**
+     * @return bool
+     */
     protected function isVisible()
     {
         return parent::isVisible() && \XLite\Module\CDev\Paypal\Main::isBuyNowEnabled();
     }
 
+    /**
+     * @return array
+     */
     public function getJSFiles()
     {
         return array_merge(parent::getJSFiles(), [
-            'modules/CDev/Paypal/button/js/product_list.js'
+            'modules/CDev/Paypal/button/js/product_list.js',
         ]);
     }
 
+    /**
+     * @return string
+     */
     protected function getButtonClass()
     {
         return parent::getButtonClass() . ' pp-style-buynow pp-ec-product';
     }
 
+    /**
+     * @return array
+     */
     protected function getButtonAdditionalParams()
     {
         return parent::getButtonAdditionalParams() + [
                 'data-product-id' => $this->getParam(static::PARAM_PRODUCT_ID),
             ];
+    }
+
+    /**
+     * @return string
+     */
+    protected function getButtonStyleNamespace()
+    {
+        return 'product_list';
     }
 }

@@ -8,6 +8,10 @@
 
 namespace XLite\Module\XC\VendorMessages\Model\Repo;
 
+use Doctrine\ORM\Query\Parameter;
+use XLite\Model\QueryBuilder\AQueryBuilder;
+use XLite\Model\AEntity;
+
 
 /**
  * Conversation Repository
@@ -21,6 +25,38 @@ class Conversation extends \XLite\Model\Repo\ARepo
     const P_ORDERS_ONLY       = 'ordersOnly';
     const P_ORDER_BY          = 'orderBy';
     const P_ORDERS_CONDITIONS = 'ordersConditions';
+
+    protected function searchCount()
+    {
+        /* @var AQueryBuilder $queryBuilder */
+        $queryBuilder = $this->searchState['queryBuilder'];
+
+        if ($queryBuilder->getDQLPart('having')) {
+            $sql = $queryBuilder
+                ->select('1')
+                ->resetDQLPart('orderBy')
+                ->groupBy('c.id')
+                ->getQuery()
+                ->getSQL();
+
+            $params = array_map(function (Parameter $e) {
+                if ($e->getValue() instanceof AEntity) {
+                    return $e->getValue()->getUniqueIdentifier();
+                }
+
+                return $e->getValue();
+            }, $queryBuilder->getParameters()->toArray());
+
+            $stmt = \XLite\Core\Database::getEM()->getConnection()->executeQuery(
+                "SELECT SUM(1) FROM ($sql) AS sq",
+                $params
+            );
+
+            return (integer)reset($stmt->fetch()); //sorry
+        }
+
+        return parent::searchCount();
+    }
 
     /**
      * Prepare certain search condition

@@ -24,10 +24,10 @@ jQuery().ready(
     jQuery('.multiple-checkbox input').change(
       function () {
         if (jQuery(this).prop('checked')) {
-          jQuery(this).parent().parent().addClass('multiple');
+          jQuery(this).parent().parent().addClass('multiple').find('.values .new input').focus();
 
         } else {
-          jQuery(this).parent().parent().removeClass('multiple');
+          jQuery(this).parent().parent().removeClass('multiple').find('.values > li:first-child input').focus();
         }
       }
     );

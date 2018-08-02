@@ -25,7 +25,6 @@ PopupButtonExportCSV.prototype.handleExportFinish = function () {
   var elem = jQuery(this.pattern);
   core.bind('afterPopupPlace', _.once(_.bind(this.postprocessFinish, this)));
   popup.load(URLHandler.buildURL(core.getCommentedData(elem, 'url_params')));
-  popup.pseudoClose = true;
 };
 
 PopupButtonExportCSV.prototype.postprocessFinish = function () {
@@ -87,8 +86,9 @@ decorate(
   function (selector, link) {
     // previous method call
     arguments.callee.previousMethod.apply(this, arguments);
-    core.bind('popup.beforeClose', _.once(_.bind(this.cancelExport, this)));
-    core.autoload(EventTaskProgress);
+    if (typeof(EventTaskProgress) !== 'undefined') {
+        core.autoload(EventTaskProgress);
+    }
     core.autoload(PopupExportController);
   }
 );

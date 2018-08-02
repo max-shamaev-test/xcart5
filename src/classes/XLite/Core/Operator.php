@@ -8,6 +8,8 @@
 
 namespace XLite\Core;
 
+use Includes\Utils\ModulesManager;
+
 /**
  * Common operations repository
  */
@@ -65,7 +67,31 @@ class Operator extends \XLite\Base\Singleton
     public static function isClassExists($name)
     {
         return class_exists($name, false)
-            || file_exists(\Includes\Decorator\ADecorator::getCacheClassesDir() . str_replace('\\', LC_DS, $name) . '.php');
+            || file_exists(\Includes\Decorator\ADecorator::getCacheClassesDir() . str_replace('\\', LC_DS, $name) . '.php')
+            || (
+                LC_DEVELOPER_MODE
+                && static::isDevClassExists($name)
+            );
+    }
+
+    /**
+     * @param $name
+     *
+     * @return bool
+     */
+    protected static function isDevClassExists($name)
+    {
+        if (file_exists(LC_DIR_CLASSES . str_replace('\\', LC_DS, $name) . '.php')) {
+            if (mb_strpos($name, 'XLite\\Module\\') !== false) {
+                if (preg_match('#XLite\\\\Module\\\\([^\\\\]+\\\\[^\\\\]+)\\\\#', $name, $matches)) {
+                    return ModulesManager::isActiveModule($matches[1]);
+                }
+            } else {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -421,7 +447,7 @@ class Operator extends \XLite\Base\Singleton
 
         $limit = count($chars) - 1;
         $x = explode('.', uniqid('', true));
-        mt_srand(microtime(true) + (int) hexdec($x[0]) + $x[1]);
+        mt_srand((int)microtime(true) + (int) hexdec($x[0]) + $x[1]);
 
         $password = '';
         for ($i = 0; $length > $i; $i++) {

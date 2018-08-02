@@ -40,16 +40,14 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Enable Abandoned Carts'
-  - name: 'selectedAbandonedCartsListid'
+  - name: 'defaultAutomationListId'
     category: XC\MailChimp
     type: \XLite\Module\XC\MailChimp\View\FormField\Select\Lists
     orderby: 375
     value: false
-    widgetParameters:
-      dependency: { show: { abandonedCartEnabled: [ true ]} }
     translations:
       - code: en
-        option_name: 'Abandoned Carts default list'
+        option_name: 'Default list for automatic campaigns'
   - name: 'doubleOptinDisabled'
     category: XC\MailChimp
     type: \XLite\View\FormField\Input\Checkbox\OnOff
@@ -162,3 +160,15 @@ XLite\Model\LanguageLabel:
   - { name: 'e-Commerce Analytics disable warning', translations: [{ code: en, label: "The e-Commerce Analytics feature is the core component of the integration functionality." }] }
   - { name: 'send all discount coupons', translations: [{ code: en, label: "All discount coupons" }] }
   - { name: 'send only discount coupons with matched rules', translations: [{ code: en, label: "Only the discount coupons that match the MailChimp promo rules" }] }
+
+  - { name: 'Cannot authenticate', translations: [{ code: en, label: 'Cannot authenticate' }]}
+  - { name: 'ID', translations: [{ code: en, label: 'ID' }]}
+  - { name: 'MailChimp lists', translations: [{ code: en, label: 'MailChimp lists' }]}
+  - { name: 'MailChimp settings', translations: [{ code: en, label: 'MailChimp settings' }]}
+  - { name: 'Manage segments', translations: [{ code: en, label: 'Manage segments' }]}
+  - { name: 'No groups defined', translations: [{ code: en, label: 'No groups defined' }]}
+  - { name: 'No segments', translations: [{ code: en, label: 'No segments' }]}
+  - { name: 'Successfully authenticated', translations: [{ code: en, label: 'Successfully authenticated' }]}
+  - { name: 'Update store data', translations: [{ code: en, label: 'Update store data' }]}
+  - { name: 'Uploading data has been completed successfully.', translations: [{ code: en, label: 'Uploading data has been completed successfully.' }]}
+  - { name: 'Uploading data has been stopped.', translations: [{ code: en, label: 'Uploading data has been stopped.' }]}

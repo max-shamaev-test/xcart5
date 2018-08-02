@@ -667,7 +667,7 @@ class Layout extends \XLite\Base\Singleton
 
         return in_array($layoutType, $groupAvailableTypes, true)
             ? $layoutType
-            : \XLite\Core\Config::getInstance()->Layout->layout_type;
+            : Config::getInstance()->Layout->layout_type;
     }
 
     /**
@@ -679,7 +679,7 @@ class Layout extends \XLite\Base\Singleton
     {
         $group = ($group == static::LAYOUT_GROUP_DEFAULT ? '' : '_' . $group);
 
-        return \XLite\Core\Config::getInstance()->Layout->{'layout_type' . $group};
+        return Config::getInstance()->Layout->{'layout_type' . $group};
     }
 
     /**
@@ -718,7 +718,7 @@ class Layout extends \XLite\Base\Singleton
      */
     public function getLayoutColor()
     {
-        $layoutColor = \XLite\Core\Config::getInstance()->Layout->color;
+        $layoutColor = Config::getInstance()->Layout->color;
         $availableColors = $this->getAvailableLayoutColors();
 
         return isset($availableColors[$layoutColor])
@@ -733,7 +733,7 @@ class Layout extends \XLite\Base\Singleton
      */
     public function getLayoutColorName()
     {
-        $layoutColor = \XLite\Core\Config::getInstance()->Layout->color;
+        $layoutColor = Config::getInstance()->Layout->color;
         $availableColors = $this->getAvailableLayoutColors();
 
         return isset($availableColors[$layoutColor])
@@ -817,7 +817,7 @@ class Layout extends \XLite\Base\Singleton
      */
     public function getCloudZoomEnabled()
     {
-        return (boolean)\XLite\Core\Config::getInstance()->Layout->cloud_zoom;
+        return (boolean)Config::getInstance()->Layout->cloud_zoom;
     }
 
     /**
@@ -827,7 +827,7 @@ class Layout extends \XLite\Base\Singleton
      */
     public function getCloudZoomMode()
     {
-        return \XLite\Core\Config::getInstance()->Layout->cloud_zoom_mode ?: \XLite\View\FormField\Select\CloudZoomMode::MODE_INSIDE;
+        return Config::getInstance()->Layout->cloud_zoom_mode ?: \XLite\View\FormField\Select\CloudZoomMode::MODE_INSIDE;
     }
 
     /**
@@ -882,9 +882,31 @@ class Layout extends \XLite\Base\Singleton
      */
     public function isLazyLoadEnabled()
     {
+        return $this->isSkinAllowsLazyLoad() && Config::getInstance()->Performance->use_lazy_load;
+    }
+
+    /**
+     * Check if image lazy loading is supported by skin
+     *
+     * @return bool|mixed
+     */
+    public function isSkinAllowsLazyLoad()
+    {
         $skin = \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
 
         return $skin ? $skin->callModuleMethod('isUseLazyLoad') : false;
+    }
+
+    /**
+     * Check if image lazy loading is supported by skin
+     *
+     * @return bool|mixed
+     */
+    public function isSkinAllowsPreloadedImages()
+    {
+        $skin = \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
+
+        return $skin ? $skin->callModuleMethod('isUsePreloadedImages') : false;
     }
 
     // }}}

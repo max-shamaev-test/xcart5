@@ -24,11 +24,8 @@ class MultiVendorTransaction extends \XLite\View\ItemsList\Model\Payment\Transac
      */
     protected function getOrders($entity)
     {
-        /** @var \XLite\Model\Order $order */
-        $order = $entity->getOrder();
+        $nfo = $this->getLinkedOrder($entity);
 
-        return $order->isNotFinishedOrder()
-            ? array($order)
-            : parent::getOrders($entity);
+        return $nfo ? array($nfo) : parent::getOrders($entity);
     }
 }

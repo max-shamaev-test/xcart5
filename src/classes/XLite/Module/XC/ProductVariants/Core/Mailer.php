@@ -29,17 +29,15 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
     {
         static::register('data', $data);
 
-        foreach (static::getSiteAdministratorMails() as $mail) {
-            static::compose(
-                static::TYPE_LOW_VARIANT_LIMIT_WARNING,
-                static::getOrdersDepartmentMail(),
-                $mail,
-                'modules/XC/ProductVariants/low_variant_limit_warning',
-                array(),
-                true,
-                \XLite::ADMIN_INTERFACE,
-                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-            );
-        }
+        static::compose(
+            static::TYPE_LOW_VARIANT_LIMIT_WARNING,
+            static::getOrdersDepartmentMail(),
+            implode(\XLite\View\Mailer::MAIL_SEPARATOR, static::getSiteAdministratorMails()),
+            'modules/XC/ProductVariants/low_variant_limit_warning',
+            array(),
+            true,
+            \XLite::ADMIN_INTERFACE,
+            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+        );
     }
 }

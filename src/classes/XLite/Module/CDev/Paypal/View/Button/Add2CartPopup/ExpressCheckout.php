@@ -13,9 +13,16 @@ namespace XLite\Module\CDev\Paypal\View\Button\Add2CartPopup;
  */
 class ExpressCheckout extends \XLite\Module\CDev\Paypal\View\Button\AExpressCheckout
 {
-
     protected function getButtonClass()
     {
         return parent::getButtonClass() . ' pp-button';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getButtonStyleNamespace()
+    {
+        return 'add2cart_popup';
     }
 }

@@ -71,6 +71,27 @@ class Shipments extends \XLite\View\AView
     }
 
     // {{{ Shipment control buttons
+
+    /**
+     * Check - display "Print packing slip" button or not
+     *
+     * @param \XLite\Module\XC\CanadaPost\Model\Order\Parcel $parcel Canada Post parcel object
+     *
+     * @return boolean
+     */
+    public function displayPrintPackingSlipButton(\XLite\Module\XC\CanadaPost\Model\Order\Parcel $parcel)
+    {
+        $result = false;
+
+        if (
+            isset($parcel)
+            && $parcel::STATUS_CREATED == $parcel->getStatus()
+        ) {
+            $result = true;
+        }
+
+        return $result;
+    }
     
     /**
      * Check - display "Create shipment" button or not

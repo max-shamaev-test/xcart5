@@ -71,24 +71,21 @@ class ExpressCheckoutMerchantAPI extends \XLite\Module\CDev\Paypal\Model\Payment
 
     // {{{ Set express checkout
 
+
     /**
      * Perform 'SetExpressCheckout' request and get Token value from Paypal
      *
-     * @param \XLite\Model\Payment\Method $method Payment method
+     * @param \XLite\Model\Payment\Method           $method Payment method
+     * @param \XLite\Model\Payment\Transaction|null $transaction
      *
      * @return string
      * @see    https://developer.paypal.com/docs/classic/api/merchant/SetExpressCheckout_API_Operation_NVP/
      */
-    public function doSetExpressCheckout(\XLite\Model\Payment\Method $method)
+    public function doSetExpressCheckout(\XLite\Model\Payment\Method $method, \XLite\Model\Payment\Transaction $transaction = null)
     {
         $token = null;
 
-        if (!isset($this->transaction)) {
-            $this->transaction = new \XLite\Model\Payment\Transaction();
-            $this->transaction->setPaymentMethod($method);
-            $this->transaction->setOrder(\XLite\Model\Cart::getInstance());
-        }
-
+        $this->transaction = $transaction;
         $responseData = $this->doRequest('SetExpressCheckout');
 
         if (!empty($responseData['TOKEN'])) {
@@ -488,10 +485,6 @@ class ExpressCheckoutMerchantAPI extends \XLite\Module\CDev\Paypal\Model\Payment
                 if ($processor->isSuccessACK($responseData['ACK'])) {
                     $state['result'] = true;
                     $state['status'] = \XLite\Model\Payment\Transaction::STATUS_SUCCESS;
-
-                    $transaction->getPaymentTransaction()->getOrder()->setPaymentStatus(
-                        \XLite\Model\Order\Status\Payment::STATUS_REFUNDED
-                    );
 
                     // save transaction id for IPN
                     $transaction->setDataCell(

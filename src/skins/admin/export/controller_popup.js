@@ -17,6 +17,12 @@ function PopupExportController() {
       }
     )
     .bind(
+      'cancel',
+      function() {
+        core.trigger('export.canceled');
+      }
+    )
+    .bind(
       'complete',
       function() {
         if (!this.errorState) {
@@ -24,5 +30,4 @@ function PopupExportController() {
         }
       }
     );
-
 }

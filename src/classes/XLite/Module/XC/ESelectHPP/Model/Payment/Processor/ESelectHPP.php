@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\ESelectHPP\Model\Payment\Processor;
 
+use XLite\Model\Base\Surcharge;
+
 /**
  * ESelectHPP processor
  *
@@ -318,7 +320,7 @@ class ESelectHPP extends \XLite\Model\Payment\Base\WebBased
 
             'cust_id'                   => $this->getProfile()->getLogin(),
             'email'                     => $this->getProfile()->getLogin(),
-            'shipping_cost'             => $this->getFormattedPrice($this->getOrder()->getSurchargeSumByType('SHIPPING')),
+            'shipping_cost'             => $this->getFormattedPrice($this->getOrder()->getSurchargeSumByType(Surcharge::TYPE_SHIPPING)),
 
             'bill_first_name'           => $this->getProfile()->getBillingAddress()->getFirstName(),
             'bill_last_name'            => $this->getProfile()->getBillingAddress()->getLastName(),

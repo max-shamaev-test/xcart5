@@ -45,9 +45,21 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
     {
         static::register('review', $review);
 
+        $from = $review->getEmail() ?: '';
+
+        if ($from && $review->getReviewerName()) {
+            $from = [[
+                'address' => $from,
+                'name'    => $review->getReviewerName(),
+            ]];
+        }
+
         static::compose(
             'siteAdmin',
-            static::getOrdersDepartmentMail(),
+            static::composeVendorReplyTo(
+                static::getOrdersDepartmentMail(),
+                $from
+            ),
             $vendor->getLogin(),
             static::NEW_REVIEW_NOTIFICATION,
             [],

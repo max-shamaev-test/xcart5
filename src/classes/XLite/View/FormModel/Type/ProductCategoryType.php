@@ -28,8 +28,7 @@ class ProductCategoryType extends AType
     public static function getCommonFiles()
     {
         return [
-            AView::RESOURCE_JS  => ['select2/dist/js/select2.min.js'],
-            AView::RESOURCE_JS  => ['select2_plugins/select2.sortable.js'],
+            AView::RESOURCE_JS  => ['select2/dist/js/select2.min.js', 'select2_plugins/select2.sortable.js'],
             AView::RESOURCE_CSS => ['select2/dist/css/select2.min.css'],
         ];
     }

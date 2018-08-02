@@ -21,7 +21,7 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
     public function getPages()
     {
         $list = parent::getPages();
-        if (!$this->isNew()) {
+        if ($this->isDisplayReviewsTab()) {
             $list['product_reviews'] = static::t('Product reviews');
         }
 
@@ -52,10 +52,16 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
     {
         $list = parent::getPageTemplates();
 
-        if (!$this->isNew()) {
+        if ($this->isDisplayReviewsTab()) {
             $list['product_reviews'] = 'modules/XC/Reviews/product/reviews.twig';
         }
 
         return $list;
+    }
+
+    protected function isDisplayReviewsTab()
+    {
+        return !$this->isNew()
+            && \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage reviews');
     }
 }

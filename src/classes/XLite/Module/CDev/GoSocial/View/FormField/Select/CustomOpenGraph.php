@@ -8,6 +8,9 @@
 
 namespace XLite\Module\CDev\GoSocial\View\FormField\Select;
 
+use XLite\Core\Database;
+use XLite\Core\Request;
+
 /**
  * Use Custom Open Graph selector
  */
@@ -63,7 +66,12 @@ class CustomOpenGraph extends \XLite\View\FormField\Input\Text
                 break;
 
             case 'front_page':
-                $result = \XLite\Core\Database::getRepo('XLite\Model\Category')->getRootCategory();
+                $result = Database::getRepo('XLite\Model\Category')->getRootCategory();
+                break;
+
+            case 'page':
+                $id = Request::getInstance()->id;
+                $result = Database::getRepo('XLite\Module\CDev\SimpleCMS\Model\Page')->find($id);
                 break;
 
             default:

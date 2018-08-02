@@ -19,19 +19,25 @@ class Product
     private $optionsValues;
     private $productImages;
     private $wholesalePrices;
+    /**
+     * @var Image
+     */
+    private $imagesGenerator;
 
     public function __construct(
         $attributes,
         $options,
         $optionsValues,
         $productImages,
-        $wholesalePrices
+        $wholesalePrices,
+        $imagesGenerator
     ) {
         $this->attributes = $attributes;
         $this->options = $options;
         $this->optionsValues = $optionsValues;
         $this->productImages = $productImages;
         $this->wholesalePrices = $wholesalePrices;
+        $this->imagesGenerator = $imagesGenerator;
     }
 
     /**
@@ -91,7 +97,7 @@ class Product
         $image = new \XLite\Model\Image\Product\Image;
         $image->setProduct($product);
 
-        if ($image->loadFromLocalFile(LC_DIR_ROOT . 'public/error_image.png')) {
+        if ($image->loadFromLocalFile($this->imagesGenerator->generateImage())) {
             $product->addImages($image);
         }
     }

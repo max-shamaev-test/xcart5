@@ -311,7 +311,9 @@ class Address extends \XLite\Model\Base\PersonalAddress
     {
         /** @var \XLite\Model\AddressFieldValue $addressFieldValue */
         foreach ($this->getAddressFields() as $addressFieldValue) {
-            $serviceName = $addressFieldValue->getAddressField()->getServiceName();
+            $serviceName = $addressFieldValue->getAddressField()
+                ? $addressFieldValue->getAddressField()->getServiceName()
+                : '';
             $val = $addressFieldValue->getValue();
             if (!$this->checkAddressField($serviceName, $val)) {
                 return false;
@@ -325,7 +327,9 @@ class Address extends \XLite\Model\Base\PersonalAddress
     {
         /** @var \XLite\Model\AddressFieldValue $addressFieldValue */
         foreach ($this->getAddressFields() as $addressFieldValue) {
-            $serviceName = $addressFieldValue->getAddressField()->getServiceName();
+            $serviceName = $addressFieldValue->getAddressField()
+                ? $addressFieldValue->getAddressField()->getServiceName()
+                : '';
             $val = $addressFieldValue->getValue();
             if (!$this->checkAddressField($serviceName, $val)) {
                 $addressFieldValue->setValue(static::getDefaultFieldValue($serviceName));

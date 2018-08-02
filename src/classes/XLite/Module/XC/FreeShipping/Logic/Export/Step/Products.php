@@ -23,10 +23,25 @@ class Products extends \XLite\Logic\Export\Step\Products implements \XLite\Base\
     {
         $columns = parent::defineColumns();
 
-        $columns['freeShipping'] = array();
-        $columns['freightFixedFee'] = array();
+        $columns['shipForFree'] = [];
+        $columns['freeShipping'] = [];
+        $columns['freightFixedFee'] = [];
 
         return $columns;
+    }
+
+    /**
+     * Get column value for 'freeShipping' column
+     *
+     * @param array   $dataset Dataset
+     * @param string  $name    Column name
+     * @param integer $i       Subcolumn index
+     *
+     * @return boolean
+     */
+    protected function getShipForFreeColumnValue(array $dataset, $name, $i)
+    {
+        return $dataset['model']->isShipForFree();
     }
 
     /**

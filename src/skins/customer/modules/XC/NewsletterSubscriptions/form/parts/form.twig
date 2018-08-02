@@ -4,7 +4,7 @@
  # @ListChild (list="NewsletterSubscriptions.footer.form-block", weight="100")
  #}
 
-{% form '\\XLite\\View\\Form' with {formTarget: 'NewsletterSubscriptions', formAction: 'subscribe'} %}
+{% form 'XLite\\Module\\XC\\NewsletterSubscriptions\\View\\Form\\Subscription' with {formTarget: 'newsletter_subscriptions', formAction: 'subscribe'} %}
     <div class="subscription-form-label">
         {{ this.getFormLabel() }}
     </div>

@@ -29,11 +29,11 @@ class TypeInt extends \XLite\Model\WidgetParam\AWidgetParam
      */
     protected function getValidationSchema($value)
     {
-        return array(
-            array(
-                self::ATTR_CONDITION => !preg_match('/^\s*[-+]?\d+\s*$/Ss', $value),
-                self::ATTR_MESSAGE   => ' is not integer',
-            ),
-        );
+        return [
+            [
+                static::ATTR_CONDITION => !preg_match('/^\s*[-+]?\d+\s*$/Ss', $value),
+                static::ATTR_MESSAGE   => ' is not integer',
+            ],
+        ];
     }
 }

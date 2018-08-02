@@ -8,6 +8,9 @@
 
 namespace XLite\View\Menu\Admin\LeftMenu;
 
+use XLite\Core\Auth;
+use XLite\Model\Role\Permission;
+
 /**
  * Sales channels node
  */
@@ -19,5 +22,15 @@ class SalesChannels extends \XLite\View\Menu\Admin\LeftMenu\Node
     protected function getActionWidget()
     {
         return $this->getWidget([], 'XLite\View\Button\Menu\SalesChannels');
+    }
+
+    /**
+     * Check ACL permissions
+     *
+     * @return boolean
+     */
+    protected function checkACL()
+    {
+        return parent::checkACL() && Auth::getInstance()->isPermissionAllowed(Permission::ROOT_ACCESS);
     }
 }

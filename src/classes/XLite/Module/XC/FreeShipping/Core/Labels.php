@@ -43,7 +43,10 @@ class Labels extends \XLite\Base\Singleton
     public static function getLabel(\XLite\Model\Product $product)
     {
         if (!isset(static::$labels[$product->getProductId()])) {
-            static::$labels[$product->getProductId()] = $product->getFreeShip() && $product->getShippable()
+            static::$labels[$product->getProductId()] = (
+                $product->getFreeShip()
+                || $product->isShipForFree()
+            ) && $product->getShippable()
                 ? static::getLabelContent()
                 : '';
         }

@@ -14,7 +14,7 @@ function PopupButtonProductSelector(base)
 
 extend(PopupButtonProductSelector, PopupButton);
 
-PopupButtonProductSelector.prototype.pattern = '.popup-button.popup-product-selection';
+PopupButtonProductSelector.prototype.pattern = '.popup-product-selection';
 
 decorate(
   'PopupButtonProductSelector',

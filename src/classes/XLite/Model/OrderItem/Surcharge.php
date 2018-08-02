@@ -29,7 +29,7 @@ class Surcharge extends \XLite\Model\Base\Surcharge
     /**
      * Get order
      *
-     * @return void
+     * @return \XLite\Model\Order
      */
     public function getOrder()
     {

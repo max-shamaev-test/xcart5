@@ -124,7 +124,7 @@ class FormGenerator
                         $constraints[] = new $constraint($constraintOptions);
                     }
 
-                    if ($constraint = 'XLite\Core\Validator\Constraints\MaxLength'
+                    if (($constraint = 'XLite\Core\Validator\Constraints\MaxLength')
                         && isset($constraintOptions['length'])
                     ) {
                         $options['attr'] = array_replace(

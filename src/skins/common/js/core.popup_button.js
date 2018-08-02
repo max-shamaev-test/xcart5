@@ -25,7 +25,7 @@ function PopupButton(base) {
   }
 }
 
-PopupButton.prototype.pattern = '.popup-button';
+PopupButton.prototype.pattern = '.popup-button.default-popup-button';
 
 PopupButton.prototype.enableBackgroundSubmit = true;
 

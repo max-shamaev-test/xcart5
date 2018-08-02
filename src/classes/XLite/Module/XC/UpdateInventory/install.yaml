@@ -14,3 +14,4 @@ XLite\Model\LanguageLabel:
   - { name: "Products and product variants updated", translations: [{ code: en, label: "Products and product variants updated" },{ code: ru, label: "Обновлено товаров и вариантов товаров" }] }
   - { name: 'Product or product variant with SKU "{{value}}" not found', translations: [{ code: en, label: 'Product or product variant with SKU "{{value}}" not found' },{ code: ru, label: 'Товар или вариант товара с артикулом "{{value}}" не найдены' }] }
   - { name: "Update quantity import guide", translations: [{ code: en, label: "Update quantity import guide" },{ code: ru, label: "Руководство по обновлению количества" }] }
+  - { name: "https://kb.x-cart.com/modules/update_inventory.html", translations: [{ code: en, label: "https://kb.x-cart.com/modules/update_inventory.html" },{ code: ru, label: "https://kb.x-cart.ru/modules/update_inventory.html" }] }

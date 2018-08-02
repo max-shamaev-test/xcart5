@@ -32,5 +32,4 @@ class AItemsList extends \XLite\View\Form\AForm
     {
         return 'update';
     }
-
 }

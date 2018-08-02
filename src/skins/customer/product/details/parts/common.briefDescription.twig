@@ -5,5 +5,5 @@
  #}
 
 {% if this.product.briefDescription or this.isPreview() %}
-  <div class="brief-descr product-description" data-inline-editable {{ this.printTagAttributes(this.product.getFieldMetadata('briefDescription'))|raw }} >{{ this.product.getProcessedBriefDescription()|raw }}</div>
+  <div class="brief-descr product-description" {{ this.printTagAttributes(this.product.getFieldMetadata('briefDescription'))|raw }} >{{ this.product.getProcessedBriefDescription()|raw }}</div>
 {% endif %}

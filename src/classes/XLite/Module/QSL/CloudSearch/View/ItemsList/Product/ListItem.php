@@ -29,9 +29,9 @@ class ListItem extends \XLite\View\Product\ListItem implements \XLite\Base\IDeco
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_CLOUD_FILTERS_FILTER_VARIANTS => new TypeCollection('CloudFilters filter variants'),
-        );
+        ];
     }
 
     /**

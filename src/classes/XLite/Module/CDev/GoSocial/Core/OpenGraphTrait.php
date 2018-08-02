@@ -115,7 +115,15 @@ trait OpenGraphTrait
             $list = array_merge($list, $this->defineTwitterOpenGraphMetaTags());
         }
 
-        return $list;
+        return $list + $this->defineAdditionalMetaTags();
+    }
+
+    /**
+     * @return array
+     */
+    protected function defineAdditionalMetaTags()
+    {
+        return [];
     }
 
     /**

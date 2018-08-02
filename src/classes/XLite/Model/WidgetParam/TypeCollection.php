@@ -32,8 +32,8 @@ class TypeCollection extends \XLite\Model\WidgetParam\AWidgetParam
     {
         return array(
             array(
-                self::ATTR_CONDITION => !is_array($value),
-                self::ATTR_MESSAGE   => ' is not an array',
+                static::ATTR_CONDITION => !is_array($value),
+                static::ATTR_MESSAGE   => ' is not an array',
             ),
         );
     }

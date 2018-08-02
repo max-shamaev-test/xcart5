@@ -136,8 +136,8 @@ class ShippingSettings extends \XLite\Controller\Admin\AAdmin
             $value = !$method->getEnabled();
             $method->setEnabled($value);
             $message = (bool) $value
-                ? 'Shipping method is enabled'
-                : 'Shipping method is disabled';
+                ? static::t('Shipping method is enabled')
+                : static::t('Shipping method is disabled');
 
             \XLite\Core\Database::getEM()->flush($method);
 

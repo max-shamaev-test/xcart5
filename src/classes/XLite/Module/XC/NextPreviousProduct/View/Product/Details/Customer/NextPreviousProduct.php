@@ -179,7 +179,7 @@ class NextPreviousProduct extends \XLite\View\AView
     /**
      * Get cookie key
      *
-     * @return string
+     * @return array
      */
     protected function getCookieData()
     {
@@ -280,7 +280,7 @@ class NextPreviousProduct extends \XLite\View\AView
     /**
      * Get item URL
      *
-     * @return \XLite\Model\Product
+     * @param \XLite\Model\Product $item
      *
      * @return string
      */
@@ -342,9 +342,7 @@ class NextPreviousProduct extends \XLite\View\AView
             'class'        => get_called_class(),
             'realPosition' => $this->getItemPosition() - 1,
             'sessionCell'  => $this->getSessionCellName(),
-            'parameters'   => [
-                'category_id' => (int) $this->getCategoryId(),
-            ],
+            'parameters'   => $this->getCookieParameters(),
         ];
 
         return json_encode($data);
@@ -361,12 +359,17 @@ class NextPreviousProduct extends \XLite\View\AView
             'class'        => get_called_class(),
             'realPosition' => $this->getItemPosition() + 1,
             'sessionCell'  => $this->getSessionCellName(),
-            'parameters'   => [
-                'category_id' => (int) $this->getCategoryId(),
-            ],
+            'parameters'   => $this->getCookieParameters(),
         ];
 
         return json_encode($data);
+    }
+
+    protected function getCookieParameters()
+    {
+        $cookieData = $this->getCookieData();
+
+        return isset($cookieData['parameters']) ? $cookieData['parameters'] : [];
     }
 
     /**
@@ -425,6 +428,7 @@ class NextPreviousProduct extends \XLite\View\AView
                 $listClass::setNPMode(\XLite\View\ItemsList\Product\Customer\ACustomer::NP_MODE_READ);
                 $listClass::setNPConditionCellName($sessionListData['conditionCellName']);
                 $result = new $listClass();
+                $result->setNpConditionParameters($this->getCookieParameters());
             }
 
             return $result;

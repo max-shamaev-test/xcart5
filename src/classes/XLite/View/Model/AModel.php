@@ -678,7 +678,6 @@ abstract class AModel extends \XLite\View\Dialog
             $data[static::SCHEMA_TRUSTED] = $this->isContentTrustedByPermission($name, $data);
         }
 
-
         return $data;
     }
 

@@ -132,7 +132,7 @@ abstract class Link extends \XLite\Model\AEntity
      */
     public function getGetterURL()
     {
-        return \XLite\Core\Converter::buildURL('storage', 'download', $this->getGetterParams(), \XLite::getCustomerScript());
+        return \Includes\Utils\Converter::buildURL('capost_link_storage', 'download', $this->getGetterParams(), \XLite::getCustomerScript());
     }
 
     /**
@@ -143,8 +143,9 @@ abstract class Link extends \XLite\Model\AEntity
     protected function getGetterParams()
     {
         return array(
-            'storage' => get_called_class(),
-            'linkId'  => $this->getId(),
+            'storage'   => get_called_class(),
+            'linkId'    => $this->getId(),
+            'returnUrl' => \XLite::getController()->getURL(),
         );
     }
 
@@ -244,35 +245,55 @@ abstract class Link extends \XLite\Model\AEntity
             $this->isGetArtifactCallAllowed()
             && $this->getStorageClass()
         ) {
-            $data = \XLite\Module\XC\CanadaPost\Core\API::getInstance()->callGetArtifactRequest($this);
-
-            $storageClass = $this->getStorageClass();
-
+            $storageRootDir = \XLite\Core\Database::getRepo($this->getStorageClass())->getFileSystemRoot();
             if (
-                isset($data->filePath)
-                && !empty($data->filePath)
+                (
+                    \Includes\Utils\FileManager::isExists($storageRootDir)
+                    && \Includes\Utils\FileManager::isWriteable($storageRootDir)
+                )
+                || (
+                    !\Includes\Utils\FileManager::isExists($storageRootDir)
+                    && \Includes\Utils\FileManager::isOperateable($storageRootDir)
+                )
             ) {
-                // Save PDF document to storage
-                $storage = $this->getStorage();
+                $data = \XLite\Module\XC\CanadaPost\Core\API::getInstance()->callGetArtifactRequest($this);
 
-                if (!isset($storage)) {
+                $storageClass = $this->getStorageClass();
 
-                    $storage = new $storageClass();
-                    $storage->setLink($this);
+                if (
+                    isset($data->filePath)
+                    && !empty($data->filePath)
+                ) {
+                    // Save PDF document to storage
+                    $storage = $this->getStorage();
 
-                    $this->setStorage($storage);
+                    if (!isset($storage)) {
+
+                        $storage = new $storageClass();
+                        $storage->setLink($this);
+
+                        $this->setStorage($storage);
+                    }
+
+                    $storage->loadFromLocalFile($data->filePath);
+                    $storage->setMime($this->getMediaType());
+
+                    \Includes\Utils\FileManager::deleteFile($data->filePath);
+
+                    $result = true;
+
+                    if ($flushChanges) {
+                        \XLite\Core\Database::getEM()->flush();
+                    }
                 }
 
-                $storage->loadFromLocalFile($data->filePath);
-                $storage->setMime($this->getMediaType());
-
-                \Includes\Utils\FileManager::deleteFile($data->filePath);
-                
-                $result = true;
-
-                if ($flushChanges) {
-                    \XLite\Core\Database::getEM()->flush();
-                }
+            } else {
+                \XLite\Core\TopMessage::addError(
+                    'Directory X is not writable',
+                    array(
+                        'path' => 'files' . LC_DS . \XLite\Core\Database::getRepo($this->getStorageClass())->getStorageName() . LC_DS,
+                    )
+                );
             }
 
             if (isset($data->errors)) {

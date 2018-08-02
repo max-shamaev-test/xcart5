@@ -9,6 +9,7 @@
 
 .xpc-box {
   margin-top: 10px;
+  position: relative;
 }
 
 div#xpc {

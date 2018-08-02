@@ -43,7 +43,7 @@ class ACustomer extends \XLite\Controller\Customer\ACustomer implements \XLite\B
         $cid = null;
 
         if (isset($_COOKIE['_ga'])) {
-            list($version,$domainDepth, $cid1, $cid2) = explode('.', $_COOKIE["_ga"], 4);
+            @list($version,$domainDepth, $cid1, $cid2) = explode('.', $_COOKIE["_ga"], 4);
             $contents = [
                 'version'       => $version,
                 'domainDepth'   => $domainDepth,
@@ -63,9 +63,12 @@ class ACustomer extends \XLite\Controller\Customer\ACustomer implements \XLite\B
     {
         parent::updateCart($silent);
 
-        if ($this->getCartProfile() && $this->parseClientIdCookie()) {
-            $this->getCartProfile()->setGaClientId($this->parseClientIdCookie());
-            $this->getCartProfile()->update();
+        /** @var \XLite\Module\CDev\GoogleAnalytics\Model\Profile $profile */
+        $profile = $this->getCart()->getProfile();
+
+        if ($profile && $this->parseClientIdCookie()) {
+            $profile->setGaClientId($this->parseClientIdCookie());
+            $profile->update();
         }
     }
 }

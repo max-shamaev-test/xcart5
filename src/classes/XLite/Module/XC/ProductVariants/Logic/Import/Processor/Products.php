@@ -94,6 +94,14 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     // }}}
 
     // {{{ Verification
+    protected function verifyData(array $data)
+    {
+        $this->prepareVariants($data);
+
+        unset($data[static::VARIANT_PREFIX . 'ID']);
+
+        return parent::verifyData($data);
+    }
 
     /**
      * Get messages
@@ -110,6 +118,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                 'VARIANT-IMAGE-FMT'       => 'The "{{value}}" image does not exist',
                 'VARIANT-ATTRIBUTE-FMT'   => 'Variant attribute "{{column}}" cannot be empty',
                 'VARIANT-PRODUCT-FMT'     => 'Variant id X is already assigned to another product variant',
+                'VARIANT-SKU-FMT'         => 'Variant sku must be unique',
             ];
     }
 
@@ -217,6 +226,36 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
      */
     protected function verifyVariantSKU($value, array $column)
     {
+        if (is_array($value)) {
+            $processed = [];
+            foreach ($value as $id => $sku) {
+                if (!empty($sku)) {
+                    if (array_search($sku, $processed) !== false) {
+                        $this->addError('VARIANT-SKU-FMT', [
+                            'column' => $column,
+                            'value'  => $sku
+                        ]);
+                    } else if (Database::getRepo('XLite\Model\Product')->findOneBy(['sku' => $sku])) {
+                        $this->addError('VARIANT-SKU-FMT', [
+                            'column' => $column,
+                            'value'  => $sku,
+                        ]);
+                    } elseif (
+                        $variant = Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')
+                            ->findOneBy(['sku' => $sku])
+                    ) {
+                        if (!in_array($variant, $this->variants, true)) {
+                            $this->addError('VARIANT-SKU-FMT', [
+                                'column' => $column,
+                                'value' => $sku
+                            ]);
+                        }
+                    }
+
+                    $processed[] = $sku;
+                }
+            }
+        }
     }
 
     /**
@@ -296,6 +335,18 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
      */
     protected function importData(array $data)
     {
+        $this->prepareVariants($data);
+
+        unset($data[static::VARIANT_PREFIX . 'ID']);
+
+        return parent::importData($data);
+    }
+
+    /**
+     * @param $data
+     */
+    protected function prepareVariants($data)
+    {
         $this->variants = $this->variantsAttributes = [];
 
         $key = static::VARIANT_PREFIX . 'ID';
@@ -308,10 +359,6 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                 }
             }
         }
-
-        unset($data[$key]);
-
-        return parent::importData($data);
     }
 
     /**

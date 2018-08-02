@@ -84,21 +84,6 @@ class Page extends \XLite\View\Model\AModel
     );
 
     /**
-     * Rollback model if data validation failed
-     *
-     * @return void
-     */
-    protected function rollbackModel()
-    {
-        parent::rollbackModel();
-
-        $urls = $this->getModelObject()->getCleanURLs();
-        foreach ($urls as $url) {
-            Database::getEM()->detach($url);
-        }
-    }
-
-    /**
      * Return current model ID
      *
      * @return integer
@@ -231,5 +216,38 @@ class Page extends \XLite\View\Model\AModel
         }
 
         parent::setModelProperties($data);
+    }
+
+    /**
+     * Save form fields in session
+     *
+     * @param mixed $data Data to save
+     *
+     * @return void
+     */
+    protected function saveFormData($data)
+    {
+        unset($data['image']);
+
+        parent::saveFormData($data);
+    }
+
+    /**
+     * Rollback model if data validation failed
+     *
+     * @return void
+     */
+    protected function rollbackModel()
+    {
+        $urls = $this->getModelObject()->getCleanURLs();
+        /** @var \XLite\Model\CleanURL $url */
+        foreach ($urls as $url) {
+            if (!$url->isPersistent()) {
+                Database::getEM()->remove($url);
+            }
+            Database::getEM()->detach($url);
+        }
+
+        parent::rollbackModel();
     }
 }

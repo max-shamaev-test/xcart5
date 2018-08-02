@@ -546,7 +546,7 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
      */
     public function getKey()
     {
-        $result = self::PRODUCT_TYPE . '.' . ($this->getObject() ? $this->getObject()->getId() : null);
+        $result = static::PRODUCT_TYPE . '.' . ($this->getObject() ? $this->getObject()->getId() : null);
         foreach ($this->getAttributeValues() as $attributeValue) {
             $result .= '||'
                 . $attributeValue->getActualName()
@@ -765,7 +765,7 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
                 }
             }
 
-        } elseif ($this->getProduct() && $this->getProduct()->hasEditableAttributes()) {
+        } elseif ($this->getObject() && $this->getObject()->hasEditableAttributes()) {
             $result = false;
         }
 
@@ -916,7 +916,7 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
         return array(
             'item_id'     => $this->getItemId(),
             'key'         => $this->getKey(),
-            'object_type' => self::PRODUCT_TYPE,
+            'object_type' => static::PRODUCT_TYPE,
             'object_id'   => $this->getProduct()->getId(),
         );
     }

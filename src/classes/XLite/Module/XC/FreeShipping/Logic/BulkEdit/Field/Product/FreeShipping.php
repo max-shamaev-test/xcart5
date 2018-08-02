@@ -17,7 +17,7 @@ class FreeShipping extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Field\AFi
     {
         return [
             $name => [
-                'label'    => static::t('Free shipping'),
+                'label'    => static::t('Exclude from shipping cost calculation'),
                 'type'     => 'XLite\View\FormModel\Type\SwitcherType',
                 'position' => isset($options['position']) ? $options['position'] : 0,
             ],
@@ -46,7 +46,7 @@ class FreeShipping extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Field\AFi
     {
         return [
             $name => [
-                'name'    => static::t('Free shipping'),
+                'name'    => static::t('Exclude from shipping cost calculation'),
                 'orderBy' => isset($options['position']) ? $options['position'] : 0,
             ],
         ];

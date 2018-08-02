@@ -33,7 +33,7 @@ class Images extends \XLite\Controller\Admin\AAdmin
     /**
      * Do action 'Update'
      *
-     * @return void
+     * @throws \Exception
      */
     protected function doActionUpdate()
     {
@@ -69,6 +69,14 @@ class Images extends \XLite\Controller\Admin\AAdmin
 
         if (isset($request->cloud_zoom_mode)) {
             \XLite\Core\Layout::getInstance()->setCloudZoomMode($request->cloud_zoom_mode);
+        }
+
+        if (isset($request->use_lazy_load)) {
+            \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption([
+                'category' => 'Performance',
+                'name'     => 'use_lazy_load',
+                'value'    => (boolean)$request->use_lazy_load,
+            ]);
         }
 
         $list = new \XLite\View\ItemsList\Model\ImagesSettings();
@@ -111,6 +119,16 @@ class Images extends \XLite\Controller\Admin\AAdmin
     public function getResizeQuality()
     {
         return (integer)\XLite\Core\Config::getInstance()->Performance->resize_quality ?: 85;
+    }
+
+    /**
+     * Return "Lazy load images" setting value
+     *
+     * @return string
+     */
+    public function getLazyLoadValue()
+    {
+        return \XLite\Core\Config::getInstance()->Performance->use_lazy_load;
     }
 
     // {{{ Image resize methods

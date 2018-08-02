@@ -20,25 +20,25 @@ use XLite\Module\XC\MultiVendor\Model\Product as MultiVendorProduct;
 class StoreApiMultiVendor extends \XLite\Module\QSL\CloudSearch\Core\StoreApi implements \XLite\Base\IDecorator
 {
     /**
-     * Get product attributes data
+     * Get filterable product attributes data
      *
      * @param $product
      *
      * @return array
      */
-    protected function getProductAttributes(Product $product)
+    protected function getFilterableProductAttributes(Product $product)
     {
-        $attributes = parent::getProductAttributes($product);
+        $attributes = parent::getFilterableProductAttributes($product);
 
         /** @var MultiVendorProduct $product */
         $vendor = $product->getVendor();
 
-        $vendorName = $vendor !== null ? $vendor->getVendorCompanyName() : $this->t('Main vendor');
+        $vendorName = $vendor !== null ? $vendor->getVendorCompanyName() : (string) static::t('Main vendor');
 
         if (!empty($vendorName)) {
             $attributes[] = [
                 'id'                => 'XC\MultiVendor',
-                'name'              => $this->t('Vendor'),
+                'name'              => (string) static::t('Vendor'),
                 'preselectAsFilter' => true,
                 'group'             => 'Multi-vendor module',
                 'values'            => [$vendorName],
@@ -46,5 +46,53 @@ class StoreApiMultiVendor extends \XLite\Module\QSL\CloudSearch\Core\StoreApi im
         }
 
         return $attributes;
+    }
+
+    /**
+     * Get searchable product attributes data
+     *
+     * @param $product
+     *
+     * @return array
+     */
+    protected function getSearchableProductAttributes(Product $product)
+    {
+        $attributes = parent::getSearchableProductAttributes($product);
+
+        /** @var MultiVendorProduct $product */
+        $vendor = $product->getVendor();
+
+        $vendorName = $vendor !== null ? $vendor->getVendorCompanyName() : (string) static::t('Main vendor');
+
+        if (!empty($vendorName)) {
+            $attributes[] = [
+                'name'   => (string) static::t('Vendor'),
+                'values' => [$vendorName],
+            ];
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * Get "conditions" that can be used to restrict the results when searching.
+     *
+     * This is different from "attributes" which are used to construct full-fledged filters (CloudFilters).
+     *
+     * @param Product $product
+     * @return array
+     */
+    protected function getProductConditions(Product $product)
+    {
+        $conditions = parent::getProductConditions($product);
+
+        /** @var MultiVendorProduct $product */
+        $vendor = $product->getVendor();
+
+        $vendorId = $vendor !== null ? $vendor->getProfileId() : 0;
+
+        $conditions['vendor'] = [$vendorId];
+
+        return $conditions;
     }
 }

@@ -9,7 +9,6 @@
 namespace XLite\View;
 
 use XLite\Core\Promo;
-use XLite\Module\XC\TaxJar;
 
 /**
  * Tax banner alert widget
@@ -64,7 +63,7 @@ class TaxBannerAlert extends \XLite\View\ModuleBanner
      */
     protected function getModuleName()
     {
-        return 'XC\\TaxJar';
+        return 'XC\\AvaTax';
     }
 
     /**
@@ -75,7 +74,7 @@ class TaxBannerAlert extends \XLite\View\ModuleBanner
     public function getLogoUrl()
     {
         return \XLite\Core\Layout::getInstance()->getResourceWebPath(
-            'tax_banner_alert/taxjar_logo.png'
+            'tax_banner_alert/avalara_logo.svg'
         );
     }
 
@@ -99,28 +98,6 @@ class TaxBannerAlert extends \XLite\View\ModuleBanner
         return \XLite\Core\Database::getRepo('XLite\Model\Module')->findOneByModuleName($this->getModuleName());
     }
 
-    public function isEnableCheckboxVisible()
-    {
-        return $this->isModuleInstalled() && $this->isModuleEnabled()
-            && TaxJar\Main::isConfigured();
-    }
-
-    public function isJoinButtonVisible()
-    {
-        return $this->isModuleInstalled() && $this->isModuleEnabled()
-            && !TaxJar\Main::isConfigured();
-    }
-
-    public function getTaxJarEnabledValue()
-    {
-        return \XLite\Core\Config::getInstance()->XC->TaxJar->taxcalculation;
-    }
-
-    public function getJoinLink()
-    {
-        return 'https://www.taxjar.com/xcart-sales-tax/?utm_source=xcart-module';
-    }
-
     public function getModuleLink()
     {
         return $this->getModule() && $this->getModule()->getEnabled()
@@ -128,29 +105,22 @@ class TaxBannerAlert extends \XLite\View\ModuleBanner
             : $this->getInstallLink();
     }
 
-    public function isInstallButtonVisible()
-    {
-        return !$this->isModuleInstalled();
-    }
-
     public function getInstallLink()
     {
         return Promo::getInstance()->getRecommendedModuleURL($this->getModuleName());
     }
 
-    public function isDashboardButtonVisible()
+    /**
+     * Return Module link
+     *
+     * @return string
+     */
+    protected function getModuleMarketplaceLink()
     {
-        return \XLite\Core\Config::getInstance()->XC->TaxJar->api_key;
-    }
+        list($author, $module) = explode('\\', $this->getModuleName());
 
-    public function getDashboardLink()
-    {
-        return 'https://app.taxjar.com/?utm_source=xcart-module';
-    }
-
-    protected function isModuleEnabled()
-    {
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled($this->getModuleName());
+        return \XLite\Core\Database::getRepo('XLite\Model\Module')
+            ->getMarketplaceUrlByName($author, $module);
     }
 
     /**

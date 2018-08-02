@@ -11,6 +11,13 @@ namespace XLite\Module\XC\ProductVariants\View\ItemsList;
 
 class AttributesBase extends \XLite\View\ItemsList\Model\Table
 {
+    public function getCSSFiles()
+    {
+        return array_merge(parent::getCSSFiles(), [
+            'modules/XC/ProductVariants/items_list/model/product_variant/style.less'
+        ]);
+    }
+
     /**
      * @inheritdoc
      */

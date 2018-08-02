@@ -1092,8 +1092,12 @@ class OrderItem extends \XLite\View\ItemsList\Model\Table
         $result = 0 < $entity->getAmount();
 
         if ($result
-            && ($entity->hasAttributeValues()
-                || $entity->getProduct()->hasEditableAttributes()
+            && (
+                $entity->hasAttributeValues()
+                || (
+                    $entity->getObject()
+                    && $entity->getObject()->hasEditableAttributes()
+                )
             )
         ) {
             $result = array_keys($entity->getAttributeValuesIds()) == $entity->getProduct()->getEditableAttributesIds();

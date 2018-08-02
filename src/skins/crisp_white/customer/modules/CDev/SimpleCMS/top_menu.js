@@ -101,6 +101,10 @@ TopMenuAutoHide.prototype.updateMenu = function () {
     more.remove();
   } else {
     more.appendTo(this.$element);
+
+    if (this.$element.outerWidth() > containerWidth - extraPadding) {
+      this.$element.children(':not(.more)').last().prependTo(more.find('ul:first'));
+    }
   }
 
   this.$element.children().last().addClass('last');
@@ -165,7 +169,7 @@ TopMenuAutoHide.prototype.getExtraPadding = function() {
   var searchPanel = jQuery('.header-right-bar .header_search-panel').get(0);
 
   return searchPanel.getBoundingClientRect().width > 0
-    ? searchPanel.getBoundingClientRect().width + 40
+    ? searchPanel.getBoundingClientRect().width
     : 0
 };
 

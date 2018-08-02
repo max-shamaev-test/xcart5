@@ -24,10 +24,11 @@ class Products extends AStep
         /** @var \XLite\Model\Product $model */
 
         foreach ($this->getStores() as $storeId) {
-            $result = MailChimpECommerce::getInstance()->createProductFast(
-                $storeId,
-                $model
-            );
+            $result = MailChimpECommerce::getInstance()->updateProduct($storeId, $model);
+
+            if ($result === null) {
+                MailChimpECommerce::getInstance()->createProductFast($storeId, $model);
+            }
         }
     }
 

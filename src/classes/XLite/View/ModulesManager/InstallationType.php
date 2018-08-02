@@ -42,16 +42,6 @@ class InstallationType extends \XLite\View\ModulesManager\AModulesManager
     }
 
     /**
-     * Return title
-     *
-     * @return string
-     */
-    protected function getHead()
-    {
-        return 'Updates are available';
-    }
-
-    /**
      * Return templates directory name
      *
      * @return string

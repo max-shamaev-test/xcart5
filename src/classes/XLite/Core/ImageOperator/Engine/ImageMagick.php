@@ -90,6 +90,46 @@ class ImageMagick extends \XLite\Core\ImageOperator\AEngine
         return $result;
     }
 
+    public function rotate($degree)
+    {
+        $result = false;
+
+        $newResource = tempnam(LC_DIR_TMP, 'image.new');
+        if (
+            $this->execFilmStripLook($newResource) === 0
+            && $this->execRotate($newResource, $degree) === 0
+        ) {
+            copy($newResource, $this->resource);
+            $this->updateImageFromResource();
+
+            $result = true;
+        }
+
+        unlink($newResource);
+
+        return $result;
+    }
+
+    public function mirror($horizontal = true)
+    {
+        $result = false;
+
+        $newResource = tempnam(LC_DIR_TMP, 'image.new');
+        if (
+            $this->execFilmStripLook($newResource) === 0
+            && $this->execMirror($newResource, $horizontal) === 0
+        ) {
+            copy($newResource, $this->resource);
+            $this->updateImageFromResource();
+
+            $result = true;
+        }
+
+        unlink($newResource);
+
+        return $result;
+    }
+
     /**
      * Execution of preparing film strip look
      *
@@ -140,6 +180,54 @@ class ImageMagick extends \XLite\Core\ImageOperator\AEngine
                 . " -strip -interlace Plane -quality 100 $newImage $newImage"
             );
         }
+
+        return $result;
+    }
+
+    /**
+     * Execution of rotating
+     *
+     * @param string  $newImage File path to new image
+     * @param float $degree
+     *
+     * @return integer
+     */
+    protected function execRotate($newImage, $degree)
+    {
+        $quality = 100;
+
+        exec(
+            '"' . static::getImageMagickExecutable() . '" '
+            . $newImage
+            . ' -rotate '
+            . "-\"{$degree}\""
+            . " -quality {$quality} "
+            . $newImage,
+            $output,
+            $result
+        );
+
+        return $result;
+    }
+
+    /**
+     * Execution of flipfloping
+     *
+     * @param string  $newImage File path to new image
+     * @param boolean $horizontal
+     *
+     * @return integer
+     */
+    protected function execMirror($newImage, $horizontal)
+    {
+        exec(
+            '"' . static::getImageMagickExecutable() . '" '
+            . $newImage
+            . ($horizontal ? ' -flop ' : ' -flip ')
+            . $newImage,
+            $output,
+            $result
+        );
 
         return $result;
     }

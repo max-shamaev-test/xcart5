@@ -166,9 +166,9 @@ class Usps extends \XLite\Controller\Admin\ShippingSettings
         $package = [
             'weight'   => $data['weight'],
             'subtotal' => $data['subtotal'],
-            'length'   => $config->length,
-            'width'    => $config->width,
-            'height'   => $config->height,
+            'length'   => $config->dimensions[0],
+            'width'    => $config->dimensions[1],
+            'height'   => $config->dimensions[2],
         ];
 
         $data['packages'] = [$package];

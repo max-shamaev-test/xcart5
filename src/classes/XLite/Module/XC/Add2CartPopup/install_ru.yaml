@@ -8,7 +8,7 @@
 XLite\Model\LanguageLabel:
   - { name: "a2cp-source-code-R", translations: [{ code: ru, label: "Случайный набор товаров" }] }
   - { name: "Install additional modules to add more product sources", translations: [{ code: ru, label: "Чтобы получить больше источников товаров, установите дополнительные модули: {{list}}" }] }
-  - { name: "This product has been added to you cart", translations: [{ code: ru, label: "Продукт добавлен в корзину" }] }
+  - { name: "This product has been added to you cart", translations: [{ code: ru, label: "товар добавлен в корзину" }] }
   - { name: "Please choose the sources of products that will be displayed in the 'Customer also bought' section of the 'Add to Cart' popup dialog and set the priority of sources.", translations: [{ code: ru, label: "Выберите источники товаров, отображаемых в блоке рекомендуемых товаров в диалоге 'Товар добавлен в корзину' и укажите порядок применения источников." }] }
   - { name: "Add to Cart Popup module settings", translations: [{ code: ru, label: "Настройки модуля 'Add to Cart Popup'" }] }
   - { name: "Add to Cart popup module settings have been updated.", translations: [{ code: ru, label: "Настройки модуля 'Add to Cart popup' сохранены." }] }

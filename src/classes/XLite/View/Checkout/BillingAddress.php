@@ -144,7 +144,9 @@ class BillingAddress extends \XLite\View\Checkout\AAddressBlock
     {
         $profile = $this->getCart()->getProfile();
 
-        return $profile->getBillingAddress();
+        return $profile
+            ? $profile->getBillingAddress()
+            : null;
     }
 
     /**

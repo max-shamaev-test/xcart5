@@ -61,7 +61,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '0';
+        return '3';
     }
 
     /**
@@ -138,5 +138,15 @@ abstract class Main extends \XLite\Module\AModule
     public static function isStrictMode()
     {
         return false;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getSkins()
+    {
+        return [
+            \XLite::ADMIN_INTERFACE => ['admin/modules/XC/CanadaPost/admin_skin'],
+        ];
     }
 }

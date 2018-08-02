@@ -118,7 +118,7 @@ class PaymentActionsUnit extends \XLite\View\Order\Details\Admin\PaymentActionsU
             && !$this->isDisplayAmountField()
         ) {
 
-            $name .= ' (' . $this->formatPrice($this->getTransaction()->getValue()) . ')';
+            $name .= ' (' . $this->formatPrice($this->getAmountFieldValue()) . ')';
 
         }
 
@@ -197,7 +197,7 @@ class PaymentActionsUnit extends \XLite\View\Order\Details\Admin\PaymentActionsU
      */
     public function getAmountFieldId()
     {
-        return $this->getActionType() . '-amount';
+        return $this->getActionType() . '-amount-' . $this->getTransaction()->getTransactionId();
     }
 
     /**
@@ -258,7 +258,7 @@ class PaymentActionsUnit extends \XLite\View\Order\Details\Admin\PaymentActionsU
             $jsAmountCode = '$("#' . $this->getAmountFieldId() . '").val()';
             $location .= ' + "&amount=" + ' . $jsAmountCode;
         } else {
-            $jsAmountCode = '"' . $this->getTransaction()->getValue() . '"';
+            $jsAmountCode = '"' . $this->getAmountFieldValue() . '"';
         }
 
         $currency = $this->getTransaction()->getOrder()->getCurrency();

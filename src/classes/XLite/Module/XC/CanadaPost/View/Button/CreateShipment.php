@@ -99,6 +99,6 @@ class CreateShipment extends \XLite\View\Button\AButton
      */
     protected function getClass()
     {
-        return 'capost-button-create-shipment ' . ($this->getParam(static::PARAM_STYLE) ?: '');
+        return parent::getClass() . ' capost-button-create-shipment';
     }
 }

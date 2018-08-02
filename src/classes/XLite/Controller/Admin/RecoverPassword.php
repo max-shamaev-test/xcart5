@@ -8,14 +8,17 @@
 
 namespace XLite\Controller\Admin;
 
+use XLite\Core\Auth;
+use XLite\Core\TopMessage;
+
 /**
  * Password recovery controller
  * TODO: full refactoring is needed
  */
 class RecoverPassword extends \XLite\Controller\Admin\AAdmin
 {
-    // Expiration time of the password reset key
-    const PASSWORD_RESET_KEY_EXP_TIME = 3600;
+    // 12h
+    const PASSWORD_RESET_KEY_EXP_TIME = 43200;
 
     /**
      * params
@@ -53,16 +56,26 @@ class RecoverPassword extends \XLite\Controller\Admin\AAdmin
     {
         // show recover message if email is valid
         if ($this->requestRecoverPassword($this->get('email'))) {
-            $this->setReturnURL(
-                $this->buildURL(
-                    'recover_password',
-                    '',
-                    array(
-                        'mode'        => 'recoverMessage',
-                        'email'       => $this->get('email'),
+            if (Auth::getInstance()->isLogged()) {
+                $this->setReturnURL($this->buildURL('profile'));
+                TopMessage::addInfo(
+                    'The confirmation URL link was mailed to email',
+                    [
+                        'email' => $this->get('email'),
+                    ]
+                );
+            } else {
+                $this->setReturnURL(
+                    $this->buildURL(
+                        'recover_password',
+                        '',
+                        [
+                            'mode'  => 'recoverMessage',
+                            'email' => $this->get('email'),
+                        ]
                     )
-                )
-            );
+                );
+            }
         } else {
             $this->setReturnURL($this->buildURL('recover_password', '', array('valid' => 0)));
             \XLite\Core\TopMessage::addError('There is no user with specified email address');
@@ -118,7 +131,7 @@ class RecoverPassword extends \XLite\Controller\Admin\AAdmin
                 $profile->update();
             }
 
-            \XLite\Core\Mailer::sendRecoverPasswordRequest($profile->getLogin(), $profile->getPasswordResetKey());
+            \XLite\Core\Mailer::sendRecoverPasswordRequest($profile, $profile->getPasswordResetKey());
 
             $result = true;
         }

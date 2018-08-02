@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\PINCodes\Model\Repo;
 
+use XLite\Module\CDev\PINCodes\Model\PinCode as PinCodeModel;
+
 /**
  * @Api\Operation\Create(modelClass="XLite\Module\CDev\PINCodes\Model\PinCode", summary="Add pincode")
  * @Api\Operation\Read(modelClass="XLite\Module\CDev\PINCodes\Model\PinCode", summary="Retrieve pincode by id")
@@ -91,12 +93,14 @@ class PinCode extends \XLite\Model\Repo\ARepo
     }
 
     /**
+     * @deprecated 5.4
+     *
      * Returns not sold pin code 
      *
      * @param \XLite\Model\Product $product Product
      * @param integer              $index   Index
      *
-     * @return \XLite\Module\CDev\PINCodes\Model\PinCode
+     * @return PinCodeModel
      */
     public function getAvailablePinCode(\XLite\Model\Product $product, $index)
     {
@@ -111,23 +115,47 @@ class PinCode extends \XLite\Model\Repo\ARepo
             ->getSingleResult();
     }
 
+    protected function getUnavailablePinCodesIds()
+    {
+        $im = \XLite\Core\Database::getEM()->getUnitOfWork()->getIdentityMap();
+
+        if (isset($im[$this->getEntityName()])) {
+            return array_map(function (PinCodeModel $pinCode) {
+                return $pinCode->getId();
+            }, array_filter($im[$this->getEntityName()], function (PinCodeModel $pinCode) {
+                return $pinCode->getIsSold() || $pinCode->getIsBlocked();
+            }));
+        }
+
+        return [];
+    }
+
     /**
      * Returns not sold pin code 
      *
      * @param \XLite\Model\Product $product Product
      * @param integer              $count   Count
      *
-     * @return \XLite\Module\CDev\PINCodes\Model\PinCode
+     * @return PinCodeModel[]
      */
     public function getAvailablePinCodes(\XLite\Model\Product $product, $count)
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.product = :product AND p.isSold = :false1 AND p.isBlocked = :false2')
+        $qb = $this->createQueryBuilder('p');
+
+        $qb->andWhere('p.product = :product AND p.isSold = :false1 AND p.isBlocked = :false2')
             ->addOrderBy('p.id')
             ->setParameter('false1', false)
             ->setParameter('false2', false)
             ->setParameter('product', $product)
-            ->setMaxResults($count)
-            ->getResult();
+            ->setMaxResults($count);
+
+        if ($ids = $this->getUnavailablePinCodesIds()) {
+            $qb->andWhere($qb->expr()->notIn(
+                'p.id',
+                $ids
+            ));
+        }
+
+        return $qb->getResult();
     }
 }

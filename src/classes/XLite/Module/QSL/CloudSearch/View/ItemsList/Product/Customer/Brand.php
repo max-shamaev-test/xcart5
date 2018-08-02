@@ -50,6 +50,18 @@ class Brand extends \XLite\Module\QSL\ShopByBrand\View\ItemsList\Product\Custome
     const PARAM_LOAD_PRODUCTS_WITH_CLOUD_SEARCH = 'loadProductsWithCloudSearch';
 
     /**
+     * Define and set handler attributes; initialize handler
+     *
+     * @param array $params Handler params OPTIONAL
+     */
+    public function __construct(array $params = [])
+    {
+        $this->initializeCsLimitCondition();
+
+        parent::__construct($params);
+    }
+
+    /**
      * Check if product list should be loaded with CloudSearch
      *
      * @param CommonCell $cnd
@@ -85,20 +97,6 @@ class Brand extends \XLite\Module\QSL\ShopByBrand\View\ItemsList\Product\Custome
     protected function isAsynchronouslyFilteringWithCloudSearch(CommonCell $cnd)
     {
         return empty($cnd->{Product::P_CLOUD_FILTERS});
-    }
-
-    /**
-     * Get current search condition to be used in CloudSearch searching and filtering
-     *
-     * @return CommonCell
-     */
-    protected function getCloudSearchConditions()
-    {
-        $cnd = $this->getLimitCondition();
-
-        $cnd->{\XLite\Model\Repo\Product::P_BRAND_ID} = $this->getBrandId();
-
-        return $cnd;
     }
 
     /**

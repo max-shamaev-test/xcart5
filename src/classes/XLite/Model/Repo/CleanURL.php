@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Repo;
 
+use XLite\Core\Cache\ExecuteCachedTrait;
+
 /**
  * Clean URL repository
  *
@@ -19,6 +21,8 @@ namespace XLite\Model\Repo;
  */
 class CleanURL extends \XLite\Model\Repo\ARepo
 {
+    use ExecuteCachedTrait;
+
     const CATEGORY_URL_FORMAT_NON_CANONICAL_NO_EXT = 'domain/parent/goalcategory/';
     const CATEGORY_URL_FORMAT_CANONICAL_NO_EXT = 'domain/goalcategory/';
     const CATEGORY_URL_FORMAT_NON_CANONICAL_EXT = 'domain/parent/goalcategory.html';
@@ -48,10 +52,10 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     public static function getEntityTypes()
     {
-        return array(
+        return [
             'XLite\Model\Product' => 'product',
             'XLite\Model\Category' => 'category',
-        );
+        ];
     }
 
     /**
@@ -211,26 +215,31 @@ class CleanURL extends \XLite\Model\Repo\ARepo
             $base = $this->getURLBase($entity);
         }
 
-        $base = \XLite\Core\Converter::convertToTranslit($base);
+        if (!$this->isUseUnicode()) {
+            $base = \XLite\Core\Converter::convertToTranslit($base);
+        }
         $base = $this->processHTMLEntities($base);
 
         if ($base) {
             $separator = $this->getSeparator($entity);
-            $result .= strtolower(preg_replace('/\W+/S', $separator, $base));
+            $result .= mb_strtolower(preg_replace('/\W+/Su', $separator, $base));
 
             if ($this->isCapitalizeWords($entity)) {
-                $words = explode($separator, $result);
-                $words = array_map('ucfirst', $words);
-                $result = implode($separator, $words);
+                $result = implode($separator, array_map(
+                    function ($word) {
+                        return mb_strtoupper(mb_substr($word, 0, 1)) . mb_substr($word, 1);
+                    },
+                    explode($separator, $result)
+                ));
             }
 
             $suffix = '';
             $increment = 1;
 
-            $result = substr(
+            $result = mb_substr(
                 $result,
                 0,
-                255 - strlen($separator . (string) static::CLEAN_URL_CHECK_LIMIT . $this->postProcessURL('', $entity))
+                255 - mb_strlen($separator . (string) static::CLEAN_URL_CHECK_LIMIT . $this->postProcessURL('', $entity))
             );
 
             while (!$this->isURLUnique($this->postProcessURL($result . $suffix, $entity), $entity)
@@ -262,7 +271,17 @@ class CleanURL extends \XLite\Model\Repo\ARepo
             '&' => ' and ',
         ];
 
-        return str_replace(array_keys($entities), array_values($entities), html_entity_decode($base));
+        return str_replace(array_keys($entities), array_values($entities), $base);
+    }
+
+    /**
+     * Returns common separator
+     *
+     * @return string
+     */
+    public function isUseUnicode()
+    {
+        return \Includes\Utils\ConfigParser::getOptions(array('clean_urls', 'use_unicode'));
     }
 
     // }}}
@@ -421,12 +440,25 @@ class CleanURL extends \XLite\Model\Repo\ARepo
                     $tmpEntity = $this->findCategoryByURL(str_replace('.' . static::CLEAN_URL_DEFAULT_EXTENSION, '', $cleanURL), $entity->getParent());
                 }
             }
+
+            if (!$tmpEntity && static::isCategoryUrlHasExt()) {
+                $tmpEntity = $this->findCategoryConflictWithOtherTypes($cleanURL);
+            }
             
             $result = $tmpEntity ?: null;
 
         }
 
         return $result;
+    }
+
+    /**
+     * @param string $cleanURL
+     * @return \XLite\Model\Base\Catalog
+     */
+    protected function findCategoryConflictWithOtherTypes($cleanURL)
+    {
+        return $this->findEntityByURL('product', $cleanURL);
     }
 
     /**
@@ -647,7 +679,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
             }
         }
 
-        return array($target, $params);
+        return [$target, $params];
     }
 
     /**
@@ -822,11 +854,17 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     protected function findCategoryByURL($url, $parent)
     {
-        $entity = $this->defineFindCategoryByURL($url, $parent)->getSingleResult();
+        return $this->executeCachedRuntime(function () use ($url, $parent) {
+            $entity = $this->defineFindCategoryByURL($url, $parent)->getSingleResult();
 
-        return $entity
-            ? $entity->getCategory()
-            : null;
+            return $entity
+                ? $entity->getCategory()
+                : null;
+        }, [
+            'findCategoryByURL',
+            $url,
+            $parent ? $parent->getCategoryId() : ''
+        ]);
     }
 
     /**
@@ -1046,7 +1084,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
             unset($params['product_id']);
         }
 
-        return array($urlParts, $params);
+        return [$urlParts, $params];
     }
 
     /**
@@ -1069,7 +1107,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
             }
         }
 
-        return array($urlParts, $params);
+        return [$urlParts, $params];
     }
 
     /**
@@ -1095,7 +1133,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
             }
         }
 
-        return array($urlParts, $params);
+        return [$urlParts, $params];
     }
 
     protected function buildURLMain($params)
@@ -1210,7 +1248,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
 //            $params['category_id'] = $entity->getCategoryId();
 //        }
 
-        return array($urlParts, $params);
+        return [$urlParts, $params];
     }
 
     /**
@@ -1230,7 +1268,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
             $urlParts = array_merge($urlParts, $this->getCategoryURLPath($entity->getParentId()));
         }
 
-        return array($urlParts, $params);
+        return [$urlParts, $params];
     }
 
     // }}}
@@ -1281,7 +1319,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     protected function buildEditURLCategory($entity)
     {
-        return array('category', array('id' => $entity->getUniqueIdentifier()));
+        return ['category', ['id' => $entity->getUniqueIdentifier()]];
     }
 
     /**

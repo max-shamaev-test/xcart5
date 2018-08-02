@@ -118,8 +118,8 @@ class NewsMessage extends \XLite\Model\Repo\Base\I18n
         $or->add('n.date < :date');
         $or->add('n.id < :current AND n.date = :date');
         $previous = $this->defineSiblingsByNews($model)
-            ->orderBy('n.id', 'desc')
-            ->addOrderBy('n.date', 'asc')
+            ->orderBy('n.date', 'desc')
+            ->addOrderBy('n.id', 'asc')
             ->andWhere($or)
             ->andWhere('n.enabled = :true AND n.date < :current_time')
             ->setParameter('true', true)
@@ -131,8 +131,8 @@ class NewsMessage extends \XLite\Model\Repo\Base\I18n
         $or->add('n.id > :current AND n.date = :date');
 
         $next = $this->defineSiblingsByNews($model)
-            ->orderBy('n.id', 'asc')
-            ->addOrderBy('n.date', 'desc')
+            ->orderBy('n.date', 'asc')
+            ->addOrderBy('n.id', 'desc')
             ->andWhere($or)
             ->andWhere('n.enabled = :true AND n.date < :current_time')
                 ->setParameter('true', true)

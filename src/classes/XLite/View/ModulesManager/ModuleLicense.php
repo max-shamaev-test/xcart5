@@ -60,16 +60,6 @@ class ModuleLicense extends \XLite\View\ModulesManager\AModulesManager
     }
 
     /**
-     * Return title
-     *
-     * @return string
-     */
-    protected function getHead()
-    {
-        return 'Install addon';
-    }
-
-    /**
      * Return templates directory name
      *
      * @return string

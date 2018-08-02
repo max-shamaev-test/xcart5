@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\UPS\Model\Shipping\Processor;
 
+use XLite\Core\Database;
+use XLite\Model\Shipping\Rate;
 use XLite\Module\XC\UPS\Model\Shipping;
 
 /**
@@ -336,7 +338,21 @@ class UPS extends \XLite\Model\Shipping\Processor\AProcessor
         }
 
         if (null !== $cachedRate) {
-            $rates = $cachedRate;
+            $repo = Database::getRepo('XLite\Model\Shipping\Method');
+
+            $rates = array_filter(
+                array_map(function (Rate $rate) use ($repo) {
+                    $rate->setMethod(
+                        $repo->find($rate->getMethod()->getMethodId())
+                            ?: $rate->getMethod()
+                    );
+
+                    return $rate;
+                }, $cachedRate),
+                function (Rate $rate) {
+                    return $rate->getMethod()->isEnabled();
+                }
+            );
 
         } elseif (!\XLite\Model\Shipping::isIgnoreLongCalculations()) {
             $rates = $data['cod_enabled'] ? $api->getRatesCOD($data) : $api->getRates($data);

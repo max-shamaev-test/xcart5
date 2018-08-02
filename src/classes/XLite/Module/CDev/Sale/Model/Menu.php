@@ -8,6 +8,9 @@
 
 namespace XLite\Module\CDev\Sale\Model;
 
+use XLite\Core\Cache\ExecuteCachedTrait;
+use XLite\Core\Converter;
+
 /**
  * Menu
  *
@@ -15,6 +18,8 @@ namespace XLite\Module\CDev\Sale\Model;
  */
 class Menu extends \XLite\Module\CDev\SimpleCMS\Model\Menu implements \XLite\Base\IDecorator
 {
+    use ExecuteCachedTrait;
+
     const DEFAULT_SALE_PAGE = '{sale}';
 
     /**
@@ -27,7 +32,9 @@ class Menu extends \XLite\Module\CDev\SimpleCMS\Model\Menu implements \XLite\Bas
     {
         $list = parent::defineLinkURLs();
 
-        $list[static::DEFAULT_SALE_PAGE] = '?target=sale_products';
+        $list[static::DEFAULT_SALE_PAGE] = $this->executeCachedRuntime(function () {
+            return Converter::buildURL('sale_products');
+        }, ['sale_products']);
 
         return $list;
     }

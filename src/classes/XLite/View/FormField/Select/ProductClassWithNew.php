@@ -20,6 +20,6 @@ class ProductClassWithNew extends \XLite\View\FormField\Select\ProductClass
      */
     protected function getDefaultOptions()
     {
-        return parent::getDefaultOptions() + array(-1 => 'New product class');
+        return parent::getDefaultOptions() + array(-1 => static::t('New product class'));
     }
 }

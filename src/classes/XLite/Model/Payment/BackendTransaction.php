@@ -293,8 +293,8 @@ class BackendTransaction extends \XLite\Model\AEntity
         return in_array(
             $this->getType(),
             array(
-                self::TRAN_TYPE_AUTH,
-                self::TRAN_TYPE_SALE,
+                static::TRAN_TYPE_AUTH,
+                static::TRAN_TYPE_SALE,
             )
         );
     }

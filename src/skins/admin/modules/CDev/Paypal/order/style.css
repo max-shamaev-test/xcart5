@@ -32,3 +32,32 @@
 .ppa-refund-status .status-name {
   font-weight: bold;
 }
+
+div.actions .payment-actions-row div.payment-actions {
+  width: 100%;
+  padding-left: 0;
+}
+
+.transaction-actions {
+  text-align: right;
+}
+
+.pp4m-payouts .pp4m-unit {
+  width: 100%;
+  clear: both;
+  padding-top: 5px;
+}
+
+.pp4m-payouts .pp4m-unit .vendor-info {
+  float: left;
+  text-align: left;
+  font-size: 12px;
+}
+
+.pp4m-payouts .pp4m-unit .vendor-info .payee {
+ color: #8f8f8f;
+}
+
+.pp4m-payouts .pp4m-unit .payout-button {
+  float: right;
+}

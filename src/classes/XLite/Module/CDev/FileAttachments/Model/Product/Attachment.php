@@ -106,6 +106,16 @@ class Attachment extends \XLite\Model\Base\I18n
         return $this->getTitle() ?: $this->getStorage()->getFileName();
     }
 
+    /**
+     * Get public url
+     *
+     * @return string
+     */
+    public function getURL()
+    {
+        return $this->getStorage()->getURL();
+    }
+
     // }}}
 
     /**

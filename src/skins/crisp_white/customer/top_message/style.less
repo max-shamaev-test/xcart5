@@ -118,32 +118,29 @@
 {
 }
 
-#status-messages,
-#status-messages a
-{
+#status-messages {
   background-color: #eeede8;
-  color: #1b5d8e;
+
+  a {
+    background-color: inherit;
+    color: @color-link;
+
+    &:hover {
+      color: @color-hover;
+    }
+  }
 }
 
-#status-messages .info,
-#status-messages .info a
-{
+#status-messages .info {
   background-color: #c9f8c3;
-  color: #161516;
 }
 
-#status-messages .warning,
-#status-messages .warning a
-{
+#status-messages .warning {
   background-color: #fff7cc;
-  color: #161516;
 }
 
-#status-messages .error,
-#status-messages .error a
-{
+#status-messages .error {
   background-color: #ffcdcd;
-  color: #161516;
 }
 
 #status-messages .top-message.pp-button .pp-ec-button {

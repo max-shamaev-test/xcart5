@@ -23,7 +23,9 @@
 {% if this.getErrorMessage() %}
   <div class="error inline-error">
     {{ this.getErrorMessage()|raw }}
+    {% if this.hasConflict() %}
     {{ widget('XLite\\View\\ToolTip', text=this.getResolveHint(), caption=t('Resolve the conflict'), isImageTag='false', className='help-icon') }}
+    {% endif %}
   </div>
 {% endif %}
 

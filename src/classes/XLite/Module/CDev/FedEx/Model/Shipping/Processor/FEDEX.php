@@ -125,6 +125,7 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
         $result['srcAddress'] = [
             'zipcode' => $sourceAddress->getZipcode(),
             'country' => $sourceAddress->getCountryCode(),
+            'city'    => $sourceAddress->getCity()
         ];
 
         if ($sourceAddress->getState()) {
@@ -618,6 +619,9 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
         $fedexOptions['destination_country_code']
             = (isset($data['dstAddress']['country']) ? $data['dstAddress']['country'] : '');
 
+        $fedexOptions['destination_city']
+            = (isset($data['dstAddress']['city']) ? $data['dstAddress']['city'] : '');
+
         $fedexOptions['destination_postal_code']
             = (isset($data['dstAddress']['zipcode']) ? $data['dstAddress']['zipcode'] : '');
 
@@ -626,6 +630,9 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
 
         $fedexOptions['origin_country_code']
             = (isset($data['srcAddress']['country']) ? $data['srcAddress']['country'] : '');
+
+        $fedexOptions['origin_city']
+            = (isset($data['srcAddress']['city']) ? $data['srcAddress']['city'] : '');
 
         $fedexOptions['origin_postal_code']
             = (isset($data['srcAddress']['zipcode']) ? $data['srcAddress']['zipcode'] : '');
@@ -707,6 +714,7 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
             <v17:Shipper>
                <v17:AccountNumber>{$fedexOptions['account_number']}</v17:AccountNumber>
                <v17:Address>
+                  <v17:City>{$fedexOptions['origin_city']}</v17:City>
                   <v17:StateOrProvinceCode>{$fedexOptions['origin_state_code']}</v17:StateOrProvinceCode>
                   <v17:PostalCode>{$fedexOptions['origin_postal_code']}</v17:PostalCode>
                   <v17:CountryCode>{$fedexOptions['origin_country_code']}</v17:CountryCode>
@@ -715,6 +723,7 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
             </v17:Shipper>
             <v17:Recipient>
                <v17:Address>
+                  <v17:City>{$fedexOptions['destination_city']}</v17:City>
                   <v17:StateOrProvinceCode>{$fedexOptions['destination_state_code']}</v17:StateOrProvinceCode>
                   <v17:PostalCode>{$fedexOptions['destination_postal_code']}</v17:PostalCode>
                   <v17:CountryCode>{$fedexOptions['destination_country_code']}</v17:CountryCode>

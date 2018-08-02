@@ -8,6 +8,9 @@
 
 namespace XLite\Module\CDev\Bestsellers\Model;
 
+use XLite\Core\Cache\ExecuteCachedTrait;
+use XLite\Core\Converter;
+
 /**
  * Menu
  *
@@ -15,6 +18,8 @@ namespace XLite\Module\CDev\Bestsellers\Model;
  */
 class Menu extends \XLite\Module\CDev\SimpleCMS\Model\Menu implements \XLite\Base\IDecorator
 {
+    use ExecuteCachedTrait;
+
     const DEFAULT_BESTSELLERS = '{bestsellers}';
 
     /**
@@ -26,7 +31,9 @@ class Menu extends \XLite\Module\CDev\SimpleCMS\Model\Menu implements \XLite\Bas
     protected function defineLinkURLs()
     {
         $list = parent::defineLinkURLs();
-        $list[static::DEFAULT_BESTSELLERS] = '?target=bestsellers';
+        $list[static::DEFAULT_BESTSELLERS] = $this->executeCachedRuntime(function () {
+            return Converter::buildURL('bestsellers');
+        }, ['bestsellers']);
 
         return $list;
     }

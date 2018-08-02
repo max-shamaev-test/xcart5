@@ -55,14 +55,45 @@ class PaypalIPN extends \XLite\Base\Singleton
      * @return bool
      * @throws \XLite\Core\Exception\PaymentProcessing\ACallbackException
      */
-    public function tryProcessCallbackIPN($transaction, $processor) {
-
+    public function tryProcessCallbackIPN($transaction, $processor)
+    {
         $result = false;
         // Hack to defer IPN processing on after payment return or ttl expire.
         // Because we can't reliably process IPN right now.
         if ($this->canProcessIPN($transaction)) {
             // If callback is IPN request from Paypal
             $result = $this->processCallbackIPN($transaction, $processor);
+        }
+
+        if (!$result) {
+            throw new \XLite\Core\Exception\PaymentProcessing\CallbackNotReady();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Process callback
+     *
+     * @param \XLite\Model\Payment\Transaction    $transaction Callback-owner transaction
+     * @param callable $callable
+     *
+     * @return bool
+     * @throws \XLite\Core\Exception\PaymentProcessing\ACallbackException
+     */
+    public function tryProcessWithLock($transaction, $callable)
+    {
+        $result = false;
+        // Hack to defer IPN processing on after payment return or ttl expire.
+        // Because we can't reliably process IPN right now.
+        if ($this->canProcessIPN($transaction)) {
+            // If callback is IPN request from Paypal
+
+            $result = $callable();
+
+            if ($transaction->isEntityLocked(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN)) {
+                $transaction->unsetEntityLock(\XLite\Model\Payment\Transaction::LOCK_TYPE_IPN);
+            }
         }
 
         if (!$result) {
@@ -458,7 +489,7 @@ class PaypalIPN extends \XLite\Base\Singleton
             if ($vendor && $order && !$this->isAdminPaypalLogin($paypalLogin)) {
                 $order->createProfileTransaction(
                     -1 * $refundAmount,
-                    'Paypal Adaptive: Commission refunded',
+                    'PayPal Adaptive: Commission refunded',
                     ProfileTransaction::PROVIDER_PAYPAL,
                     $order->getChildByVendor($vendor)
                 );

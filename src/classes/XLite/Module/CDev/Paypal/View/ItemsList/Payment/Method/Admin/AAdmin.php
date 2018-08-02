@@ -30,4 +30,12 @@ abstract class AAdmin extends \XLite\View\ItemsList\Payment\Method\Admin\AAdmin 
 
         return $list;
     }
+
+    public function getCSSFiles()
+    {
+        $list = parent::getCSSFiles();
+        $list[] = 'modules/CDev/Paypal/items_list/payment/methods/style.css';
+
+        return $list;
+    }
 }

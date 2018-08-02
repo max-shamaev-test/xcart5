@@ -34,16 +34,6 @@ class ModuleWarnings extends \XLite\View\ModulesManager\AModulesManager
     }
 
     /**
-     * Return title
-     *
-     * @return string
-     */
-    protected function getHead()
-    {
-        return 'Installation warnings';
-    }
-
-    /**
      * Register CSS files
      *
      * @return array

@@ -92,7 +92,7 @@ class FormId extends \XLite\Model\Repo\ARepo
 
         do {
             $id = '';
-            for ($i = 0; self::FORM_ID_LENGTH > $i; $i++) {
+            for ($i = 0; static::FORM_ID_LENGTH > $i; $i++) {
                 $id .= $this->chars[mt_rand(0, $limit)];
             }
             $iterationLimit--;

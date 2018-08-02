@@ -91,6 +91,6 @@ class Products extends \XLite\Logic\Import\Processor\Products implements \XLite\
             $value = implode(PHP_EOL, $value);
         }
 
-        $model->setOgMeta($value);
+        $model->setOgMeta(\XLite\Module\CDev\GoSocial\Logic\OgMeta::prepareOgMeta($value));
     }
 }

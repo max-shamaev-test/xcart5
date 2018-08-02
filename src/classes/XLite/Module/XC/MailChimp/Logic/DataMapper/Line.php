@@ -44,8 +44,8 @@ class Line
                 'category_name'         => $categoryName,
                 'quantity'              => (int)$item->getAmount(),
                 'price'                 => $item->getOrder()->getCurrency()
-                    ? $item->getOrder()->getCurrency()->formatValue($item->getItemNetPrice())
-                    : $item->getItemNetPrice()
+                    ? $item->getOrder()->getCurrency()->formatValue($item->getDisplayPrice())
+                    : $item->getDisplayPrice()
             ];
         } catch (\Exception $e) {
             Main::logError($e->getMessage(), []);

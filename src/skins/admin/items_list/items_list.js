@@ -340,6 +340,10 @@ ItemsList.prototype.placeNewContent = function(content)
 
   this.triggerVent('place', {'widget': this});
 
+  require('js/vue/vue', function (XLiteVue) {
+    XLiteVue.start();
+  });
+
   this.reassign();
 };
 

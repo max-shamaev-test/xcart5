@@ -25,6 +25,7 @@ abstract class Payment extends \XLite\Model\Order\Status\Payment implements \XLi
             static::STATUS_REFUNDED,
             static::STATUS_DECLINED,
             static::STATUS_CANCELED,
+            static::STATUS_AUTHORIZED,
         );
     }
 

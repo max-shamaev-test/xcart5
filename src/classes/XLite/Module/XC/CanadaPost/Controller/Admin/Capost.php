@@ -44,6 +44,26 @@ class Capost extends \XLite\Controller\Admin\ShippingSettings
     }
 
     /**
+     * Do action "Configure manually"
+     *
+     * @return void
+     */
+    protected function doActionConfigureManually()
+    {
+        /** @var \XLite\Model\Repo\Config $repo */
+        $repo = \XLite\Core\Database::getRepo('XLite\Model\Config');
+        $repo->createOption(
+            array(
+                'category' => $this->getOptionsCategory(),
+                'name'     => 'wizard_enabled',
+                'value'    => false,
+            )
+        );
+
+        $this->setReturnURL($this->buildURL('capost'));
+    }
+
+    /**
      * Do action "Enable merchant registration wizard"
      *
      * @return void

@@ -8,6 +8,8 @@
 
 namespace XLite\Controller\Admin;
 
+use XLite\Core\TopMessage;
+
 /**
  * Product
  */
@@ -311,6 +313,10 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
 
         } else {
             $this->saveFormModelTmpData($rawData[$this->formName]);
+
+            foreach ($form->getErrors(true) as $error) {
+                TopMessage::addError($error->getMessage());
+            }
         }
 
         $productId = $product->getProductId() ?: $this->getProductId();

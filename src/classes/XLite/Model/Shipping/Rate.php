@@ -109,7 +109,7 @@ class Rate extends \XLite\Base\SuperClass
      */
     public function getBaseRate()
     {
-        return $this->baseRate;
+        return (float) $this->baseRate;
     }
 
     /**
@@ -121,7 +121,7 @@ class Rate extends \XLite\Base\SuperClass
      */
     public function setBaseRate($baseRate)
     {
-        $this->baseRate = $baseRate;
+        $this->baseRate = (float) $baseRate;
     }
 
     /**
@@ -140,7 +140,7 @@ class Rate extends \XLite\Base\SuperClass
             $handlingFee = 0;
         }
 
-        return $this->markupRate + $handlingFee;
+        return (float) $this->markupRate + $handlingFee;
     }
 
     /**
@@ -152,7 +152,7 @@ class Rate extends \XLite\Base\SuperClass
      */
     public function setMarkupRate($markupRate)
     {
-        $this->markupRate = $markupRate;
+        $this->markupRate = (float) $markupRate;
     }
 
     /**
@@ -192,7 +192,7 @@ class Rate extends \XLite\Base\SuperClass
             $extraData = new \XLite\Core\CommonCell;
         }
 
-        $extraData->{self::DELIVERY_TIME} = $value;
+        $extraData->{static::DELIVERY_TIME} = $value;
 
         $this->setExtraData($extraData);
 
@@ -208,7 +208,7 @@ class Rate extends \XLite\Base\SuperClass
     {
         $extraData = $this->getExtraData();
 
-        return $extraData ? $extraData->{self::DELIVERY_TIME} : null;
+        return $extraData ? $extraData->{static::DELIVERY_TIME} : null;
     }
 
     /**

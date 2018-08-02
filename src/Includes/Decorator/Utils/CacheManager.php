@@ -193,7 +193,7 @@ abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
 
         $message = strip_tags($message);
         $message = preg_replace('/(\s)+/', '\1', trim($message));
-        $pathPart = date('Y' . LC_DS . 'm');
+        $pathPart = date('Y/m');
         $path = LC_DIR_LOG . $pathPart . LC_DS . 'decorator.log.' . date('Y-m-d') . '.php';
         if (!\Includes\Utils\FileManager::isExists($path)) {
             $message = '<' . '?php die(); ?' . '>' . PHP_EOL . $message;
@@ -705,7 +705,7 @@ OUT;
                 }
             }
 
-            \Includes\Utils\Operator::refresh($arguments);
+            \Includes\Utils\Operator::refresh($arguments, true);
         }
     }
 

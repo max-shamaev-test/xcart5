@@ -146,4 +146,16 @@ abstract class AAdmin extends \XLite\View\ItemsList\Model\Order\AOrder
         return parent::checkACL()
             && \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage orders');
     }
+
+    /**
+     * Return wrapper form options
+     *
+     * @return array
+     */
+    protected function getFormOptions()
+    {
+        return array_merge(parent::getFormOptions(), [
+            'confirmRemove' => true
+        ]);
+    }
 }

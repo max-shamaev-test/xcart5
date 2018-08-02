@@ -15,7 +15,7 @@ if (!defined('XLITE_INSTALL_MODE')) {
 }
 
 // Current X-Cart version
-define('LC_VERSION', '5.3.4.5');
+define('LC_VERSION', '5.3.5.5');
 
 // Minimum PHP version supported
 define('LC_PHP_VERSION_MIN', '5.4.0');
@@ -142,7 +142,8 @@ $lcSettings = array(
             'FroalaEditor',
             'MailChimp',
             'Concierge',
-            'Onboarding'
+            'Onboarding',
+            'NotFinishedOrders'
         ),
         'QSL' => array(
             'CloudSearch',
@@ -152,6 +153,7 @@ $lcSettings = array(
 );
 
 if (XLITE_EDITION_LNG === 'ru') {
+    $lcSettings['yaml_files']['base'][] = 'sql' . LC_DS . 'xlite_data_zones_ru.yaml';
     $lcSettings['yaml_files']['base'][] = 'sql' . LC_DS . 'xlite_data_ru.yaml';
     $lcSettings['yaml_files']['base_after'][] = 'sql' . LC_DS . 'xlite_data_after_ru.yaml';
 
@@ -174,6 +176,7 @@ if (XLITE_EDITION_LNG === 'ru') {
         )
     );
 } elseif (XLITE_EDITION_LNG === 'zh') {
+    $lcSettings['yaml_files']['base'][] = 'sql' . LC_DS . 'xlite_data_zones_zh.yaml';
     $lcSettings['yaml_files']['base'][] = 'sql' . LC_DS . 'xlite_data_zh.yaml';
 
     $lcSettings['enable_modules'] = array_merge_recursive(
@@ -185,6 +188,7 @@ if (XLITE_EDITION_LNG === 'ru') {
         )
     );
 } elseif (XLITE_EDITION_LNG === 'en') {
+    $lcSettings['yaml_files']['base'][] = 'sql' . LC_DS . 'xlite_data_zones_en.yaml';
     $lcSettings['enable_modules'] = array_merge_recursive(
         $lcSettings['enable_modules'],
         array(
@@ -210,10 +214,14 @@ if (XLITE_EDITION_LNG === 'ru') {
             ),
             'Amazon' => array(
                 'PayWithAmazon'
+            ),
+            'QSL' => array(
+                'AuthorizenetAcceptjs'
             )
         )
     );
 } elseif (XLITE_EDITION_LNG === 'gb') {
+    $lcSettings['yaml_files']['base'][] = 'sql' . LC_DS . 'xlite_data_zones_gb.yaml';
     $lcSettings['yaml_files']['base'][] = 'sql' . LC_DS . 'xlite_data_gb.yaml';
     $lcSettings['yaml_files']['base_after'][] = 'sql' . LC_DS . 'xlite_data_after_gb.yaml';
     $lcSettings['yaml_files']['demo'][] = 'sql' . LC_DS . 'xlite_demo_gb.yaml';

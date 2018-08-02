@@ -65,7 +65,7 @@ class SelectAddressOrder extends \XLite\View\SelectAddress
                 \XLite\View\Model\Address\Address::SCHEMA_LABEL    => $field->getName(),
                 \XLite\View\Model\Address\Address::SCHEMA_REQUIRED => $field->getRequired(),
                 \XLite\View\Model\Address\Address::SCHEMA_MODEL_ATTRIBUTES => array(
-                    \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 'length',
+                    \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => \XLite\Core\Database::getRepo('XLite\Model\AddressFieldValue')->getFieldInfo('value', 'length'),
                 ),
                 \XLite\View\FormField\AFormField::PARAM_WRAPPER_CLASS => 'address-' . $field->getServiceName(),
             );

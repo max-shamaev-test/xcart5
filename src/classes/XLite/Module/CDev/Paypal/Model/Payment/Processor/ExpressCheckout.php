@@ -41,7 +41,7 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\Model\Payment\Processor\
      *
      * @var string
      */
-    protected $knowledgeBasePageURL = 'https://kb.x-cart.com/en/payments/paypal/setting_up_paypal_express_checkout.html';
+    protected $knowledgeBasePageURL = 'https://kb.x-cart.com/payments/paypal/setting_up_paypal_express_checkout.html';
 
     /**
      * Error message
@@ -166,8 +166,16 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\Model\Payment\Processor\
             $url = $this->getReturnURL(null, true);
 
         } else {
+            $method = \XLite\Core\Request::getInstance()->method;
+
             $url = \XLite::getInstance()->getShopURL(
-                \XLite\Core\Converter::buildURL('checkout', 'express_checkout_return'),
+                \XLite\Core\Converter::buildURL(
+                    'checkout',
+                    'express_checkout_return',
+                    [
+                        'method' => $method ?: \XLite\Module\CDev\Paypal\Main::PP_METHOD_EC
+                    ]
+                ),
                 \XLite\Core\Config::getInstance()->Security->customer_security
             );
         }
@@ -186,8 +194,17 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\Model\Payment\Processor\
             $url = $this->getReturnURL(null, true, true);
 
         } else {
+            $method = \XLite\Core\Request::getInstance()->method;
+
             $url = \XLite::getInstance()->getShopURL(
-                \XLite\Core\Converter::buildURL('checkout', 'express_checkout_return', ['cancel' => 1]),
+                \XLite\Core\Converter::buildURL(
+                    'checkout',
+                    'express_checkout_return',
+                    [
+                        'method' => $method ?: \XLite\Module\CDev\Paypal\Main::PP_METHOD_EC,
+                        'cancel' => 1
+                    ]
+                ),
                 \XLite\Core\Config::getInstance()->Security->customer_security
             );
         }
@@ -253,19 +270,17 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\Model\Payment\Processor\
     /**
      * Perform 'SetExpressCheckout' request and get Token value from Paypal
      *
-     * @param \XLite\Model\Payment\Method $method Payment method
+     * @param \XLite\Model\Payment\Method           $method Payment method
+     * @param \XLite\Model\Payment\Transaction|null $transaction
      *
      * @return string
      */
-    public function doSetExpressCheckout(\XLite\Model\Payment\Method $method)
-    {
+    public function doSetExpressCheckout(
+        \XLite\Model\Payment\Method $method,
+        \XLite\Model\Payment\Transaction $transaction = null
+    ) {
         $token = null;
-
-        if (!isset($this->transaction)) {
-            $this->transaction = new \XLite\Model\Payment\Transaction();
-            $this->transaction->setPaymentMethod($method);
-            $this->transaction->setOrder(\XLite\Model\Cart::getInstance());
-        }
+        $this->transaction = $transaction;
 
         $responseData = $this->doRequest('SetExpressCheckout');
 

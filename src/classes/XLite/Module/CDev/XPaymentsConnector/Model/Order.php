@@ -9,7 +9,13 @@
 namespace XLite\Module\CDev\XPaymentsConnector\Model;
 
 /**
- * XPayments payment processor
+ * XPayments extensions to Order entity
+ *
+ * @MappedSuperclass
+ *
+ * @Table (indexes={
+ *      @Index (name="is_zero_auth", columns={"is_zero_auth"}),
+ *  })
  *
  */
 class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
@@ -49,6 +55,15 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
      * @Column (type="integer")
      */
     protected $fraud_check_transaction_id = 0;
+
+    /**
+     * Flag to mark carts created temporarily for zero-dollar auth feature
+     *
+     * @var boolean
+     *
+     * @Column (type="boolean")
+     */
+    protected $is_zero_auth = false;
 
     /**
      * Fraud check data from transaction
@@ -196,6 +211,8 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
     {
         $config = \XLite\Core\Config::getInstance()->CDev->XPaymentsConnector;
 
+        $total = $this->getCurrency()->roundValue($this->getTotal());
+
         list($authorized, $captured, $voided, $refunded) = $this->getXpcTransactionSums();
 
         if (
@@ -209,41 +226,52 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
             && $transaction->getValue() > self::ORDER_ZERO
         ) {
 
-            $status = $config->xpc_status_declined;
+            $status = \XLite\Model\Order\Status\Payment::STATUS_DECLINED;
 
         } elseif ($refunded > 0) {
 
             if ($refunded >= $captured) {
-                $status = $config->xpc_status_refunded; 
+                $status = \XLite\Model\Order\Status\Payment::STATUS_REFUNDED;
+            } elseif ($captured < $total) {
+                $status = \XLite\Model\Order\Status\Payment::STATUS_PART_PAID;
             } else {
-                $status = $config->xpc_status_refunded_part;
+                $status = \XLite\Model\Order\Status\Payment::STATUS_PAID;
             }
 
         } elseif ($voided > 0) {
 
-            $status = $config->xpc_status_declined;
+            $status = \XLite\Model\Order\Status\Payment::STATUS_DECLINED;
 
         } elseif ($captured > 0) {
 
             if ($captured >= $authorized) {
-                $status = $config->xpc_status_charged;
+                $status = \XLite\Model\Order\Status\Payment::STATUS_PAID;
             } else {
-                $status = $config->xpc_status_charged_part;
+                $status = \XLite\Model\Order\Status\Payment::STATUS_PART_PAID;
             }
 
         } elseif (
             $authorized > 0
             || (
                 $authorized <= self::ORDER_ZERO
-                && $this->getTotal() <= self::ORDER_ZERO
+                && $total <= self::ORDER_ZERO
             )
         ) {
 
-            $status = $config->xpc_status_auth;
+            $status = \XLite\Model\Order\Status\Payment::STATUS_AUTHORIZED;
+
+        } elseif (
+            !is_null($transaction)
+            && (
+                $transaction->getStatus() == \XLite\Model\Payment\Transaction::STATUS_FAILED
+                || $transaction->getStatus() == \XLite\Model\Payment\Transaction::STATUS_CANCELED
+            )
+        ) {
+            // Payment was failed (after allowed amount of attempts) or canceled by customer
+            $status = \XLite\Model\Order\Status\Payment::STATUS_CANCELED;
 
         } else {
-
-            $status = $config->xpc_status_new;
+            $status = \XLite\Model\Order\Status\Payment::STATUS_QUEUED;
         } 
 
         return $status;
@@ -331,7 +359,8 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
         $paymentTransactionSums = parent::getPaymentTransactionSums();
 
         if ($this->isAllowRecharge()) {
-            $paymentTransactionSums[static::t('Difference between total and paid amount')] = $this->getAomTotalDifference();
+            $difference = (string) static::t('Difference between total and paid amount');
+            $paymentTransactionSums[$difference] = $this->getAomTotalDifference();
         }
 
         return $paymentTransactionSums;
@@ -480,4 +509,27 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
     {
         return $this->fraud_check_transaction_id;
     }
+
+    /**
+     * Set isZeroAuth flag
+     *
+     * @param boolean $isZeroAuth
+     * @return Order
+     */
+    public function setIsZeroAuth($isZeroAuth)
+    {
+        $this->is_zero_auth = $isZeroAuth;
+        return $this;
+    }
+
+    /**
+     * Get isZeroAuth flag
+     *
+     * @return boolean
+     */
+    public function isZeroAuth()
+    {
+        return $this->is_zero_auth;
+    }
+
 }

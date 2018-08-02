@@ -284,12 +284,13 @@ class ZeroAuth extends \XLite\Base\Singleton
     /**
      * Get iframe form fields to post
      *
+     * @param \XLite\Model\Payment\Transaction $transaction Transaction for fake cart
      * @param array $preparedCart Prepared cart as array for API request
      * @param string $xpcBackReference X-Cart transaction reference
      *
      * @return \XLite\Module\CDev\XPaymentsConnector\Transport\Response 
      */
-    protected function getInitDataRequest(array $preparedCart, $xpcBackReference)
+    protected function getInitDataRequest(\XLite\Model\Payment\Transaction $transaction, array $preparedCart, $xpcBackReference)
     {
         // Data to send to X-Payments
         $data = array(
@@ -301,7 +302,7 @@ class ZeroAuth extends \XLite\Base\Singleton
             'callbackUrl' => $this->getClient()->getCallbackUrl($xpcBackReference),
         );
 
-        // For API v1.3 and higher we can send the template for iframe
+        // For API v1.3-v1.6 we need to force the template for iframe
         if (
             version_compare($this->getConfig()->xpc_api_version, '1.3') >= 0
             && version_compare($this->getConfig()->xpc_api_version, '1.6') < 0
@@ -324,17 +325,21 @@ class ZeroAuth extends \XLite\Base\Singleton
             $response = $request->getResponse();
 
             // Set fields for the "Redirect to X-Payments" form
-            $request->setResponse(array(
+            $data = [ 
                 'xpcBackReference' => $xpcBackReference,
                 'txnId'            => $response['txnId'],
                 'module_name'      => $this->getPaymentMethod()->getSetting('moduleName'),
                 'url'              => \XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_xpayments_url . '/payment.php',
+                'expiryTime'       => \XLite\Core\Converter::time() + 900,
                 'fields'           => array(
                     'target' => 'main',
                     'action' => 'start',
                     'token'  => $response['token'],
                 ),
-            ));
+            ];
+            $request->setResponse($data);
+
+            $this->getClient()->saveInitDataToSession($transaction, $data);
 
         }
 
@@ -413,7 +418,7 @@ class ZeroAuth extends \XLite\Base\Singleton
             $profile->setPendingZeroAuthInterface($interface);
             \XLite\Core\Database::getEM()->flush();
 
-            $request = $this->getInitDataRequest($preparedCart, $xpcBackReference);
+            $request = $this->getInitDataRequest($transaction, $preparedCart, $xpcBackReference);
 
             if ($request->isSuccess()) {
 
@@ -428,8 +433,6 @@ class ZeroAuth extends \XLite\Base\Singleton
                 if (method_exists($transaction, 'processAntiFraudCheck')) {
                     $transaction->processAntiFraudCheck();
                 }
-
-                $this->getClient()->saveInitDataToSession($transaction, $data);
 
                 \XLite\Core\Database::getEM()->flush();
 
@@ -601,8 +604,15 @@ class ZeroAuth extends \XLite\Base\Singleton
      *
      * @return void
      */
-    public static function cleanupFakeCarts($carts, $flush = false)
+    public static function cleanupFakeCarts($carts = array(), $flush = false)
     {
+        if (empty($carts)) {
+            $carts = \XLite\Core\Database::getRepo('XLite\Model\Cart')->findBy(['is_zero_auth' => true]);
+            if (!$carts) {
+                $carts = array();
+            }
+        }
+
         foreach ($carts as $cart) {
 
             // Do not remove paid cart

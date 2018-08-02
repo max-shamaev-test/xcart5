@@ -125,7 +125,7 @@ abstract class APaypal extends \XLite\Model\Payment\Base\Iframe
      */
     public function getKnowledgeBasePageURL()
     {
-        return $this->knowledgeBasePageURL;
+        return static::t($this->knowledgeBasePageURL);
     }
 
     /**
@@ -589,44 +589,52 @@ abstract class APaypal extends \XLite\Model\Payment\Base\Iframe
             }
 
         } else {
-            $this->setDetail(
-                'status',
-                isset($request->RESPMSG) ? $request->RESPMSG : 'Unknown',
-                'Status'
-            );
 
-            $this->saveDataFromRequest();
+            Paypal\Model\Payment\Processor\PaypalIPN::getInstance()->tryProcessWithLock(
+                $transaction,
+                function () use ($resultCode, $request, $transaction) {
+                    $this->setDetail(
+                        'status',
+                        isset($request->RESPMSG) ? $request->RESPMSG : 'Unknown',
+                        'Status'
+                    );
 
-            if (0 === $resultCode) {
-                // Transaction successful if RESULT == '0'
-                $status = $transaction::STATUS_SUCCESS;
+                    $this->saveDataFromRequest();
 
-            } elseif (126 === $resultCode // This RESULT returned if merchant enabled fraud filters
-                // in their PayPal account
-                || 104 === $resultCode    // Timeout waiting for Processor response
-            ) {
-                $status = $transaction::STATUS_PENDING;
+                    if (0 === $resultCode) {
+                        // Transaction successful if RESULT == '0'
+                        $status = $transaction::STATUS_SUCCESS;
 
-            } else {
-                $status = $transaction::STATUS_FAILED;
-            }
+                    } elseif (126 === $resultCode // This RESULT returned if merchant enabled fraud filters
+                        // in their PayPal account
+                        || 104 === $resultCode    // Timeout waiting for Processor response
+                    ) {
+                        $status = $transaction::STATUS_PENDING;
 
-            // Amount checking
-            if (isset($request->AMT) && !$this->checkTotal($request->AMT)) {
-                $status = $transaction::STATUS_FAILED;
-            }
+                    } else {
+                        $status = $transaction::STATUS_FAILED;
+                    }
 
-            $transaction->setStatus($status);
-            $this->updateInitialBackendTransaction($transaction, $status);
+                    // Amount checking
+                    if (isset($request->AMT) && !$this->checkTotal($request->AMT)) {
+                        $status = $transaction::STATUS_FAILED;
+                    }
 
-            $transaction->registerTransactionInOrderHistory('callback');
+                    $transaction->setStatus($status);
+                    $this->updateInitialBackendTransaction($transaction, $status);
 
-            Paypal\Main::addLog(
-                'processCallback',
-                array(
-                    'request' => $request,
-                    'status' => $status
-                )
+                    $transaction->registerTransactionInOrderHistory('callback');
+
+                    Paypal\Main::addLog(
+                        'processCallback',
+                        array(
+                            'request' => $request,
+                            'status' => $status
+                        )
+                    );
+
+                    return true;
+                }
             );
         }
     }

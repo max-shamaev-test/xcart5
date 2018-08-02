@@ -8,6 +8,10 @@
 
 namespace XLite\Module\XC\CustomProductTabs\View\ItemsList\Model;
 
+use XLite\Core\Database;
+use XLite\Model\Product\GlobalTab;
+use XLite\Model\Product\GlobalTabProvider;
+
 /**
  * GlobalTabs items list
  */
@@ -43,6 +47,13 @@ class GlobalTabs extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_LINK => true,
             ],
         ];
+    }
+
+    protected function getRightActions()
+    {
+        return array_merge(parent::getRightActions(), [
+            'modules/XC/CustomProductTabs/global_tabs/help.twig'
+        ]);
     }
 
     /**
@@ -142,6 +153,61 @@ class GlobalTabs extends \XLite\View\ItemsList\Model\Table
     protected function isAllowEntityRemove(\XLite\Model\AEntity $entity)
     {
         return parent::isAllowEntityRemove($entity) && $entity->getCustomTab();
+    }
+
+    /**
+     * @param array                $column
+     * @param \XLite\Model\AEntity $model
+     *
+     * @return null|string
+     */
+    public function getHelpText(array $column, \XLite\Model\AEntity $model)
+    {
+        if (
+            $column['code'] === 'actions right'
+            && !$model->getCustomTab()
+        ) {
+            return $this->getTabHelpText($model);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param \XLite\Module\XC\CustomProductTabs\Model\Product\GlobalTab $model
+     *
+     * @return string
+     */
+    protected function getTabHelpText(GlobalTab $model)
+    {
+        if ($model->getServiceName() === 'Description') {
+            return static::t('Tab displaying the product\'s detailed description. Added by the X-Cart core');
+        }
+
+        if ($model->getServiceName() === 'Specification') {
+            return static::t('Tab displaying the product\'s attributes and other details. Added by the X-Cart core');
+        }
+
+        if ($model->getServiceName() === 'Comments') {
+            return static::t('Tab displaying comments about the product. Added by the addons VK/GoSocial/Disqus', [
+                'modules' => implode(', ', array_filter(array_map(function(GlobalTabProvider $provider) {
+                    $code = $provider->getCode();
+                    $repo = Database::getRepo('XLite\Model\Module');
+
+                    if ($module = $repo->findOneByModuleName($code)) {
+                        return sprintf(
+                            '<a href="%s">%s</a>',
+                            $module->isInstalled() ? $module->getInstalledURL(): $module->getMarketplaceURL(),
+                            $module->getName()
+                        );
+                    }
+
+                    return null;
+                }, $model->getProviders()->toArray())))
+            ]);
+        }
+
+        return '';
     }
 
     /**

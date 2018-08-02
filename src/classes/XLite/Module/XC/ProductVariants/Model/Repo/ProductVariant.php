@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\ProductVariants\Model\Repo;
 
+use XLite\Core\Cache\ExecuteCachedTrait;
+
 /**
  * @Api\Operation\Create(modelClass="XLite\Module\XC\ProductVariants\Model\ProductVariant", summary="Add product variant")
  * @Api\Operation\Read(modelClass="XLite\Module\XC\ProductVariants\Model\ProductVariant", summary="Retrieve product variant by id")
@@ -23,6 +25,8 @@ namespace XLite\Module\XC\ProductVariants\Model\Repo;
  */
 class ProductVariant extends \XLite\Model\Repo\ARepo
 {
+    use ExecuteCachedTrait;
+
     /**
      * Allowable search params
      */
@@ -41,6 +45,46 @@ class ProductVariant extends \XLite\Model\Repo\ARepo
     public function getDefaultAlias()
     {
         return 'v';
+    }
+
+    /**
+     * Get variants as dtos with runtime cache
+     *
+     * @param \XLite\Model\Product $product
+     * @return array
+     */
+    public function getProductVariantsAsDTO($product)
+    {
+        if (!$product || !$product->getId()) {
+            return [];
+        }
+
+        return $this->executeCachedRuntime(function () use ($product) {
+            return $this->getVariantsAsDTOQueryBuilder($product)->getResult();
+        }, ['variantsDto', $product->getId()]);
+    }
+
+    /**
+     * Get variants as dtos queryBuilder
+     *
+     * @param \XLite\Model\Product $product
+     * @return \XLite\Model\QueryBuilder\AQueryBuilder
+     */
+    public function getVariantsAsDTOQueryBuilder($product)
+    {
+        $queryBuilder = $this->createQueryBuilder();
+
+        $queryBuilder->select('v.id as id');
+        $queryBuilder->addSelect('IDENTITY(v.product) as product_id');
+        $queryBuilder->addSelect('v.defaultAmount as use_product_amount');
+        $queryBuilder->addSelect('v.amount as amount');
+
+        if ($product && $product->getId()) {
+            $queryBuilder->andWhere('v.product = :product')
+                ->setParameter('product', $product);
+        }
+
+        return $queryBuilder;
     }
 
     /**
@@ -155,7 +199,7 @@ class ProductVariant extends \XLite\Model\Repo\ARepo
 
         $i = 0;
         $qb = $this->defineGenerateVariantIdQuery();
-        $variantId = $base;
+        $variantId = mb_substr($base, 0, 32);
 
         while (
             $i < static::VARIANT_ID_GENERATION_LIMIT

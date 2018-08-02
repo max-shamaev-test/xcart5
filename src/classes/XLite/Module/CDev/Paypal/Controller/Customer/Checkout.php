@@ -24,10 +24,10 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
     {
         return array_merge(
             parent::defineFreeFormIdActions(),
-            array(
+            [
                 'start_express_checkout',
-                'express_checkout_return'
-            )
+                'express_checkout_return',
+            ]
         );
     }
 
@@ -54,11 +54,17 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
     }
 
     /**
+     * @return string
+     */
+    public function getPaymentMethodServiceName()
+    {
+        return $this->getCart()->getPaymentMethod()->getServiceName();
+    }
+
+    /**
      * Order placement is success
      *
      * @param boolean $fullProcess Full process or not OPTIONAL
-     *
-     * @return void
      */
     public function processSucceed($fullProcess = true)
     {
@@ -66,15 +72,13 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
 
         if (\XLite\Core\Request::getInstance()->inContext) {
             \XLite\Core\Session::getInstance()->inContextRedirect = true;
-            \XLite\Core\Session::getInstance()->cancelUrl = \XLite\Core\Request::getInstance()->cancelUrl;
+            \XLite\Core\Session::getInstance()->cancelUrl         = \XLite\Core\Request::getInstance()->cancelUrl;
         }
     }
 
     /**
      * Set order note
      * @unused
-     *
-     * @return void
      */
     public function doActionSetOrderNote()
     {
@@ -108,16 +112,21 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
 
     /**
      * doActionStartExpressCheckout
-     *
-     * @return void
      */
     protected function doActionStartExpressCheckout()
     {
-        if (Paypal\Main::isExpressCheckoutEnabled()) {
+        if (Paypal\Main::isExpressCheckoutEnabled() || Paypal\Main::isPaypalForMarketplacesEnabled()) {
             $this->silent = true;
             $this->setSuppressOutput(true);
 
-            $paymentMethod = $this->getExpressCheckoutPaymentMethod();
+            if (\XLite\Core\Request::getInstance()->method === Paypal\Main::PP_METHOD_PFM
+                && Paypal\Main::isPaypalForMarketplacesEnabled()
+            ) {
+                $paymentMethod = $this->getPaypalForMarketplacesPaymentMethod();
+
+            } else {
+                $paymentMethod = $this->getExpressCheckoutPaymentMethod();
+            }
 
             $this->getCart()->setPaymentMethod($paymentMethod);
 
@@ -131,20 +140,22 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
             \XLite\Core\Session::getInstance()->ec_type
                 = Paypal\Model\Payment\Processor\ExpressCheckout::EC_TYPE_SHORTCUT;
 
+            $transaction = $this->getCart()->getFirstOpenPaymentTransaction();
+
             $processor = $paymentMethod->getProcessor();
-            $token = $processor->doSetExpressCheckout($paymentMethod);
+            $token     = $processor->doSetExpressCheckout($paymentMethod, $transaction);
 
             if (null !== $token) {
-                \XLite\Core\Session::getInstance()->ec_token = $token;
-                \XLite\Core\Session::getInstance()->ec_date = \XLite\Core\Converter::time();
-                \XLite\Core\Session::getInstance()->ec_payer_id = null;
-                \XLite\Core\Session::getInstance()->ec_ignore_checkout = (bool)\XLite\Core\Request::getInstance()->ignoreCheckout;
+                \XLite\Core\Session::getInstance()->ec_token           = $token;
+                \XLite\Core\Session::getInstance()->ec_date            = \XLite\Core\Converter::time();
+                \XLite\Core\Session::getInstance()->ec_payer_id        = null;
+                \XLite\Core\Session::getInstance()->ec_ignore_checkout = (bool) \XLite\Core\Request::getInstance()->ignoreCheckout;
 
 
                 echo json_encode(['token' => $token]);
             } else {
                 if (\XLite\Core\Request::getInstance()->inContext) {
-                    \XLite\Core\Session::getInstance()->cancelUrl = \XLite\Core\Request::getInstance()->cancelUrl;
+                    \XLite\Core\Session::getInstance()->cancelUrl         = \XLite\Core\Request::getInstance()->cancelUrl;
                     \XLite\Core\Session::getInstance()->inContextRedirect = true;
                     $this->setReturnURL($this->buildURL('checkout'));
                 }
@@ -162,17 +173,17 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
     protected function doActionExpressCheckoutReturn()
     {
         $request = \XLite\Core\Request::getInstance();
-        $cart = $this->getCart();
+        $cart    = $this->getCart();
 
         Paypal\Main::addLog('doExpressCheckoutReturn()', $request->getData());
 
         $checkoutAction = false;
 
         if (isset($request->cancel)) {
-            \XLite\Core\Session::getInstance()->ec_token = null;
-            \XLite\Core\Session::getInstance()->ec_date = null;
+            \XLite\Core\Session::getInstance()->ec_token    = null;
+            \XLite\Core\Session::getInstance()->ec_date     = null;
             \XLite\Core\Session::getInstance()->ec_payer_id = null;
-            \XLite\Core\Session::getInstance()->ec_type = null;
+            \XLite\Core\Session::getInstance()->ec_type     = null;
 
             $cart->unsetPaymentMethod();
 
@@ -191,7 +202,16 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
                 = Paypal\Model\Payment\Processor\ExpressCheckout::EC_TYPE_SHORTCUT;
 
             \XLite\Core\Session::getInstance()->ec_payer_id = $request->PayerID;
-            $paymentMethod = $this->getExpressCheckoutPaymentMethod();
+
+            if (\XLite\Core\Request::getInstance()->method === Paypal\Main::PP_METHOD_PFM
+                && Paypal\Main::isPaypalForMarketplacesEnabled()
+            ) {
+                $paymentMethod = $this->getPaypalForMarketplacesPaymentMethod();
+
+            } else {
+                $paymentMethod = $this->getExpressCheckoutPaymentMethod();
+            }
+
             $processor = $paymentMethod->getProcessor();
 
             /** @var \XLite\Module\CDev\Paypal\Model\Payment\Processor\ExpressCheckout|\XLite\Module\CDev\Paypal\Model\Payment\Processor\ExpressCheckoutMerchantAPI $processor */
@@ -211,7 +231,7 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
                 $modifier = $cart->getModifier(\XLite\Model\Base\Surcharge::TYPE_SHIPPING, 'SHIPPING');
                 if ($modifier && $modifier->canApply()) {
                     $this->requestData['billingAddress'] = $this->requestData['shippingAddress'];
-                    $this->requestData['same_address'] = true;
+                    $this->requestData['same_address']   = true;
 
                     $this->updateShippingAddress();
 
@@ -225,9 +245,9 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
                 if (\XLite\Core\Session::getInstance()->ec_ignore_checkout) {
                     $this->doActionCheckout();
                 } else {
-                    $params = array(
-                        'ec_returned'   => true
-                    );
+                    $params = [
+                        'ec_returned' => true,
+                    ];
                     $this->setReturnURL($this->buildURL('checkout', '', $params));
                 }
                 \XLite\Core\Session::getInstance()->ec_ignore_checkout = null;
@@ -268,8 +288,8 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
                         'checkout' . $m[1],
                         '',
                         $cart->getOrderNumber()
-                            ? array('order_number' => $cart->getOrderNumber())
-                            : array('order_id' => $cart->getOrderId())
+                            ? ['order_number' => $cart->getOrderNumber()]
+                            : ['order_id' => $cart->getOrderId()]
                     )
                 );
             }
@@ -309,7 +329,7 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
 
         if (
             !\XLite\Core\Auth::getInstance()->isLogged()
-            && empty($profile->getLogin())
+            && !$profile->getLogin()
         ) {
             $data += [
                 'email'          => str_replace(' ', '+', $paypalData['EMAIL']),
@@ -317,7 +337,7 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
             ];
         }
 
-        if(isset($data['shippingAddress'])
+        if (isset($data['shippingAddress'])
             && $profile
             && $profile->getShippingAddress()
         ) {
@@ -349,6 +369,18 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
     }
 
     /**
+     * Get Express Checkout payment method
+     *
+     * @return \XLite\Model\Payment\Method
+     */
+    protected function getPaypalForMarketplacesPaymentMethod()
+    {
+        $serviceName = Paypal\Main::PP_METHOD_PFM;
+
+        return Paypal\Main::getPaymentMethod($serviceName);
+    }
+
+    /**
      * Checkout
      * TODO: to revise
      *
@@ -358,7 +390,7 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
     {
         parent::doActionCheckout();
 
-        $cart = $this->getCart();
+        $cart           = $this->getCart();
         $paymentMethods = $cart->getPaymentMethod();
 
         if ($paymentMethods) {
@@ -381,6 +413,6 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
     {
         parent::doActionUpdateProfile();
 
-        \XLite\Core\Event::updatePaypalTransparentRedirect(array());
+        \XLite\Core\Event::updatePaypalTransparentRedirect([]);
     }
 }

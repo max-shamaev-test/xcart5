@@ -145,6 +145,7 @@ class Select extends \XLite\View\Product\AttributeValue\Customer\ACustomer
 
         if ($this->isSelectedValue($value)) {
             $result['selected'] = 'selected';
+            $result['data-init-selected'] = 1;
         }
 
         foreach ($value::getModifiers() as $field => $options) {

@@ -234,7 +234,6 @@
   padding-top: 2px;
   padding-bottom: 2px;
   padding-right: 10px;
-  line-height: 14px;
   position: relative;
 }
 
@@ -253,6 +252,10 @@
 .order-info .order-part .box .address .view .same-note
 {
   color: #8f8f8f;
+}
+
+.order-info .order-part .box .address .address-section span.value {
+  width: 100%;
 }
 
 /* Payment */

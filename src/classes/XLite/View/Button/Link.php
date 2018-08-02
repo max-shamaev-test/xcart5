@@ -32,7 +32,7 @@ class Link extends \XLite\View\Button\AButton
         $this->widgetParams += array(
             self::PARAM_LOCATION => new \XLite\Model\WidgetParam\TypeString('Redirect to', $this->getDefaultLocation(), true),
             self::PARAM_JS_CODE  => new \XLite\Model\WidgetParam\TypeString('JS code', null, true),
-            self::PARAM_BLANK    => new \XLite\Model\WidgetParam\TypeBool('Open in new window', false),
+            self::PARAM_BLANK    => new \XLite\Model\WidgetParam\TypeBool('Open in new window', $this->getDefaultBlank()),
         );
     }
 
@@ -56,6 +56,14 @@ class Link extends \XLite\View\Button\AButton
     protected function getDefaultLocation()
     {
         return null;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function getDefaultBlank()
+    {
+        return false;
     }
 
     /**

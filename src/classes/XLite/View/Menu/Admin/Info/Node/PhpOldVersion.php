@@ -8,6 +8,9 @@
 
 namespace XLite\View\Menu\Admin\Info\Node;
 
+use XLite\Core\Auth;
+use XLite\Model\Role\Permission;
+
 /**
  * PHP old version node
  */
@@ -107,6 +110,15 @@ class PhpOldVersion extends \XLite\View\Menu\Admin\ANodeNotification
         return $this->buildURL('settings', '', [
             'page' => 'Environment'
         ]);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function checkACL()
+    {
+        return parent::checkACL()
+            && Auth::getInstance()->hasRootAccess();
     }
 
     /**

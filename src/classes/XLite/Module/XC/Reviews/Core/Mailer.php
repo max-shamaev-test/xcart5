@@ -29,18 +29,29 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
     {
         static::register('review', $review);
 
-        foreach (static::getSiteAdministratorMails() as $mail) {
-            static::compose(
-                'siteAdmin',
-                static::getOrdersDepartmentMail(),
-                $mail,
-                static::NEW_REVIEW_NOTIFICATION,
-                [],
-                true,
-                \XLite::ADMIN_INTERFACE,
-                static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-            );
+        $from = $review->getEmail() ?: '';
+
+        if ($from && $review->getReviewerName()) {
+            $from = [[
+                'address' => $from,
+                'name'    => $review->getReviewerName(),
+            ]];
         }
+
+        static::compose(
+            'siteAdmin',
+            static::composeAdminReplyTo(
+                static::getOrdersDepartmentMail(),
+                $from
+            ),
+            implode(\XLite\View\Mailer::MAIL_SEPARATOR, static::getSiteAdministratorMails()),
+            static::NEW_REVIEW_NOTIFICATION,
+            [],
+            true,
+            \XLite::ADMIN_INTERFACE,
+            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
+        );
+
 
         return static::getMailer()->getLastError();
     }

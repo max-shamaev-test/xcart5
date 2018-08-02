@@ -90,7 +90,68 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     protected function getOpenGraphType()
     {
-        return 'article';
+        return 'product';
+    }
+
+    /**
+     * @return array
+     */
+    protected function defineAdditionalMetaTags()
+    {
+        return [
+                'product:availability' => $this->availableInDate()
+                    ? (
+                    $this->isOutOfStock()
+                        ? 'oos'
+                        : 'instock'
+                    )
+                    : 'pending',
+                'product:category'     => $this->getCategory()->getName(),
+                'product:condition'    => 'new',
+            ]
+            + $this->getOgPrice()
+            + $this->getOgWeight();
+    }
+
+    /**
+     * @return array
+     */
+    protected function getOgWeight()
+    {
+        return $this->getWeight()
+            ? [
+                'product:weight:value' => $this->getWeight(),
+                'product:weight:units' => $this->getWeightUnit(),
+            ]
+            : [];
+    }
+
+    /**
+     * @return string
+     */
+    protected function getWeightUnit()
+    {
+        return \XLite\Core\Config::getInstance()->Units->weight_unit === 'lbs'
+            ? 'lb'
+            : \XLite\Core\Config::getInstance()->Units->weight_unit;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getOgPrice()
+    {
+        $result = [
+            'product:price:amount' => $this->getClearPrice(),
+            'product:price:currency' => \XLite::getInstance()->getCurrency()->getCode(),
+        ];
+
+        if ($this->getClearPrice() !== $this->getDisplayPrice()) {
+            $result['product:sale_price:amount'] = $this->getDisplayPrice();
+            $result['product:sale_price:currency'] = \XLite::getInstance()->getCurrency()->getCode();
+        }
+
+        return $result;
     }
 
     /**

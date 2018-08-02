@@ -20,6 +20,19 @@ class Date extends \XLite\View\FormField\Input\Text
     const PARAM_MAX = 'max';
 
     /**
+     * Register files from common repository
+     *
+     * @return array
+     */
+    public function getCommonFiles()
+    {
+        $list = parent::getCommonFiles();
+        $list[static::RESOURCE_JS][] = 'js/jquery-ui-i18n.min.js';
+
+        return $list;
+    }
+
+    /**
      * Register JS files
      *
      * @return array
@@ -140,6 +153,25 @@ class Date extends \XLite\View\FormField\Input\Text
         parent::setValue($value);
     }
 
+    public function getValueAsString()
+    {
+        $value = parent::getValue();
+
+        $result = '';
+
+        if (0 < (int) $value) {
+
+            $formats = \XLite\Core\Converter::getDateFormatsByStrftimeFormat(
+                \XLite\Core\Config::getInstance()->Units->date_format
+            );
+            $format = $formats['phpFormat'];
+
+            $result = date($format, $value);
+        }
+
+        return $result;
+    }
+
     /**
      * getCommonAttributes
      *
@@ -150,9 +182,7 @@ class Date extends \XLite\View\FormField\Input\Text
         $list = parent::getCommonAttributes();
 
         if (is_numeric($list['value']) || is_int($list['value'])) {
-            $list['value'] = $list['value']
-                ? \XLite\Core\Converter::formatDate($list['value'])
-                : '';
+            $list['value'] = $this->getValueAsString();
         }
 
         return $list;
@@ -192,8 +222,27 @@ class Date extends \XLite\View\FormField\Input\Text
         $currentFormats = \XLite\Core\Converter::getDateFormatsByStrftimeFormat();
         $data['dateFormat'] = $currentFormats['jsFormat'];
         $data['firstDay'] = $this->getStartDay();
+        $data['locale']   = $this->getLocaleCode(\XLite\Core\Session::getInstance()->getLanguage()->getCode());
 
         return $data;
+    }
+
+    /**
+     * @param string $language
+     *
+     * @return string
+     */
+    protected function getLocaleCode($language)
+    {
+        $locales = array(
+            'zh_CN',
+        );
+
+        $locale = array_filter($locales, function ($item) use ($language) {
+            return strpos($item, strtolower($language)) === 0;
+        });
+
+        return 1 === count($locale) ? reset($locale) : $language;
     }
 
     /**
@@ -220,5 +269,15 @@ class Date extends \XLite\View\FormField\Input\Text
     protected function getDefaultMaxSize()
     {
         return 50;
+    }
+
+    /**
+     * Return field template
+     *
+     * @return string
+     */
+    protected function getFieldTemplate()
+    {
+        return 'date.twig';
     }
 }

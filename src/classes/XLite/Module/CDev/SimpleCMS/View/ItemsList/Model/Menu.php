@@ -26,7 +26,7 @@ class Menu extends \XLite\View\ItemsList\Model\Table
     /**
      * Get wrapper form target
      *
-     * @return array
+     * @return string
      */
     protected function getFormTarget()
     {
@@ -42,10 +42,10 @@ class Menu extends \XLite\View\ItemsList\Model\Table
     {
         return array_merge(
             parent::getFormParams(),
-            array(
-                'page'  => $this->getPage(),
-                'id'    => \XLite\Core\Request::getInstance()->id
-            )
+            [
+                'page' => $this->getPage(),
+                'id'   => \XLite\Core\Request::getInstance()->id,
+            ]
         );
     }
 
@@ -56,8 +56,7 @@ class Menu extends \XLite\View\ItemsList\Model\Table
      */
     public function getCSSFiles()
     {
-        $list = parent::getCSSFiles();
-
+        $list   = parent::getCSSFiles();
         $list[] = 'modules/CDev/SimpleCMS/menus/style.css';
 
         return $list;
@@ -70,34 +69,34 @@ class Menu extends \XLite\View\ItemsList\Model\Table
      */
     protected function defineColumns()
     {
-        return array(
-            'name' => array(
-                static::COLUMN_NAME         => static::t('Item name'),
-                static::COLUMN_CLASS        => 'XLite\View\FormField\Inline\Input\Text',
-                static::COLUMN_PARAMS       => array('required' => true),
-                static::COLUMN_ORDERBY  => 100,
-            ),
-            'link' => array(
-                static::COLUMN_NAME         => static::t('Link'),
-                static::COLUMN_CLASS        => 'XLite\View\FormField\Inline\Input\Text',
-                static::COLUMN_PARAMS       => array('required' => false),
-                static::COLUMN_HEAD_HELP    => $this->getColumnLinkHelp(),
-                static::COLUMN_ORDERBY  => 200,
-            ),
-            'visibleFor' => array(
-                static::COLUMN_NAME         => static::t('Visible for'),
-                static::COLUMN_CLASS        => 'XLite\Module\CDev\SimpleCMS\View\FormField\VisibleFor',
-                static::COLUMN_PARAMS       => array('fieldOnly' => true),
-                static::COLUMN_ORDERBY  => 300,
-            ),
-            'submenus' => array(
-                static::COLUMN_NAME     => static::t('Submenu'),
-                static::COLUMN_TEMPLATE => 'modules/CDev/SimpleCMS/items_list/model/table/menu/parts/info.submenus.twig',
-                static::COLUMN_ORDERBY  => 400,
+        return [
+            'name'       => [
+                static::COLUMN_NAME    => static::t('Item name'),
+                static::COLUMN_CLASS   => 'XLite\View\FormField\Inline\Input\Text',
+                static::COLUMN_PARAMS  => ['required' => true],
+                static::COLUMN_ORDERBY => 100,
+            ],
+            'link'       => [
+                static::COLUMN_NAME      => static::t('Link'),
+                static::COLUMN_CLASS     => 'XLite\View\FormField\Inline\Input\Text',
+                static::COLUMN_PARAMS    => ['required' => false],
+                static::COLUMN_HEAD_HELP => $this->getColumnLinkHelp(),
+                static::COLUMN_ORDERBY   => 200,
+            ],
+            'visibleFor' => [
+                static::COLUMN_NAME    => static::t('Visible for'),
+                static::COLUMN_CLASS   => 'XLite\Module\CDev\SimpleCMS\View\FormField\VisibleFor',
+                static::COLUMN_PARAMS  => ['fieldOnly' => true],
+                static::COLUMN_ORDERBY => 300,
+            ],
+            'submenus'   => [
+                static::COLUMN_NAME      => static::t('Submenu'),
+                static::COLUMN_TEMPLATE  => 'modules/CDev/SimpleCMS/items_list/model/table/menu/parts/info.submenus.twig',
+                static::COLUMN_ORDERBY   => 400,
                 static::COLUMN_EDIT_LINK => true,
                 static::COLUMN_LINK      => 'menus',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -120,7 +119,7 @@ class Menu extends \XLite\View\ItemsList\Model\Table
      */
     protected function getColumnLinkHelp()
     {
-        return static::t('Menu links help text', array('URL' => $this->getShopURL()));
+        return static::t('Menu links help text', ['URL' => $this->getShopURL()]);
     }
 
     /**
@@ -153,9 +152,9 @@ class Menu extends \XLite\View\ItemsList\Model\Table
         return \XLite\Core\Converter::buildURL(
             'menu',
             null,
-            array(
+            [
                 'parent' => $this->getMenu()->getMenuId(),
-            )
+            ]
         );
     }
 
@@ -172,10 +171,10 @@ class Menu extends \XLite\View\ItemsList\Model\Table
         $link = \XLite\Core\Converter::buildURL(
             $column[static::COLUMN_LINK],
             '',
-            array(
-                'id' => $entity->getMenuId(),
+            [
+                'id'   => $entity->getMenuId(),
                 'page' => $entity->getType(),
-            )
+            ]
         );
 
         return 'submenus' === $column[static::COLUMN_CODE]
@@ -239,6 +238,7 @@ class Menu extends \XLite\View\ItemsList\Model\Table
     }
 
     // }}}
+
     /**
      * Get create button label
      *
@@ -304,7 +304,7 @@ class Menu extends \XLite\View\ItemsList\Model\Table
     {
         return 'submenus' === $column[static::COLUMN_CODE]
             ? parent::isEditLinkEnabled($column, $entity)
-                && !$entity->getSubmenusCount()
+            && !$entity->getSubmenusCount()
             : parent::isEditLinkEnabled($column, $entity);
     }
 
@@ -351,7 +351,7 @@ class Menu extends \XLite\View\ItemsList\Model\Table
      */
     public static function getSearchParams()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -361,8 +361,9 @@ class Menu extends \XLite\View\ItemsList\Model\Table
      */
     protected function getCommonParams()
     {
-        $this->commonParams = parent::getCommonParams();
+        $this->commonParams         = parent::getCommonParams();
         $this->commonParams['page'] = $this->getPage();
+        $this->commonParams['id']   = \XLite\Core\Request::getInstance()->id;
 
         return $this->commonParams;
     }

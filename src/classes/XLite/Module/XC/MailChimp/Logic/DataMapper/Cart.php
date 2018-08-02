@@ -8,7 +8,6 @@
 
 namespace XLite\Module\XC\MailChimp\Logic\DataMapper;
 
-use XLite\Module\XC\MailChimp\Core\MailChimpECommerce;
 
 class Cart
 {
@@ -17,7 +16,9 @@ class Cart
      *
      * @param                    $mc_cid
      * @param                    $mc_eid
-     * @param \XLite\Model\Cart  $order
+     * @param                    $mc_tc
+     * @param \XLite\Model\Cart  $object
+     * @param                    $customerExists
      *
      * @return array
      */
@@ -29,7 +30,7 @@ class Cart
 
         if ($object->getProfile()) {
             $customerData = !$customerExists
-                ? Customer::getData($mc_eid, $object->getProfile())
+                ? Customer::getDataForOrder($mc_eid, $object->getProfile())
                 : [ 'id' => (string)$object->getProfile()->getProfileId()];
         } else {
             $customerData = [ 'id' => (string)$mc_eid];

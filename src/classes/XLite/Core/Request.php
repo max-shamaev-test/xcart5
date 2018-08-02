@@ -541,30 +541,45 @@ class Request extends \XLite\Base\Singleton
     {
         $result = true;
 
+        $secure = $this->getCookieSecure();
         $ttl = $ttl != 0 ? \XLite\Core\Converter::time() + $ttl : 0;
 
-        $httpDomain = $this->getCookieDomain(false);
-        $result = @setcookie(
-            $name,
-            $value,
-            $ttl,
-            $this->getCookiePath(false),
-            $httpDomain,
-            false,
-            true
-        ) && $result;
-
-        $httpsDomain = $this->getCookieDomain(true);
-        if ($httpDomain != $httpsDomain) {
+        if ($secure) {
+            $domain = $this->getCookieDomain(true);
             $result = @setcookie(
                 $name,
                 $value,
                 $ttl,
-                $this->getCookiePath(true),
-                $httpsDomain,
+                $this->getCookiePath(false),
+                $domain,
                 true,
                 true
+            );
+        } else {
+            $httpDomain = $this->getCookieDomain(false);
+            $result = @setcookie(
+                $name,
+                $value,
+                $ttl,
+                $this->getCookiePath(false),
+                $httpDomain,
+                false,
+                true
             ) && $result;
+
+            $httpsDomain = $this->getCookieDomain(true);
+
+            if ($httpDomain != $httpsDomain) {
+                $result = @setcookie(
+                    $name,
+                    $value,
+                    $ttl,
+                    $this->getCookiePath(true),
+                    $httpsDomain,
+                    true,
+                    true
+                ) && $result;
+            }
         }
 
         return $result;
@@ -576,28 +591,43 @@ class Request extends \XLite\Base\Singleton
             unset($_COOKIE[$name]);
         }
 
-        $httpDomain = $this->getCookieDomain(false);
-        @setcookie(
-            $name,
-            null,
-            -1,
-            $this->getCookiePath(false),
-            $httpDomain,
-            false,
-            true
-        );
+        $secure = $this->getCookieSecure();
 
-        $httpsDomain = $this->getCookieDomain(true);
-        if ($httpDomain != $httpsDomain) {
+        if ($secure) {
+            $domain = $this->getCookieDomain(true);
             @setcookie(
                 $name,
                 null,
                 -1,
-                $this->getCookiePath(true),
-                $httpsDomain,
+                $this->getCookiePath(false),
+                $domain,
                 true,
                 true
             );
+        } else {
+            $httpDomain = $this->getCookieDomain(false);
+            @setcookie(
+                $name,
+                null,
+                -1,
+                $this->getCookiePath(false),
+                $httpDomain,
+                false,
+                true
+            );
+
+            $httpsDomain = $this->getCookieDomain(true);
+            if ($httpDomain != $httpsDomain) {
+                @setcookie(
+                    $name,
+                    null,
+                    -1,
+                    $this->getCookiePath(true),
+                    $httpsDomain,
+                    true,
+                    true
+                );
+            }
         }
     }
 
@@ -645,6 +675,16 @@ class Request extends \XLite\Base\Singleton
         $url .= \XLite::getInstance()->getOptions(array('host_details', 'web_dir'));
 
         return parse_url($url);
+    }
+
+    protected function getCookieSecure()
+    {
+        if (\XLite::isAdminZone()) {
+            return \XLite\Core\Config::getInstance()->Security->admin_security;
+
+        } else {
+            return \XLite\Core\Config::getInstance()->Security->customer_security;
+        }
     }
 
     // }}}

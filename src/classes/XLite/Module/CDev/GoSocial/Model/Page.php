@@ -18,6 +18,15 @@ class Page extends \XLite\Module\CDev\SimpleCMS\Model\Page implements \XLite\Bas
     use \XLite\Module\CDev\GoSocial\Core\OpenGraphTrait;
 
     /**
+     * User Open graph meta tags generator flag
+     *
+     * @var boolean
+     *
+     * @Column (type="boolean")
+     */
+    protected $useCustomOG = false;
+
+    /**
      * Custom Open graph meta tags
      *
      * @var string
@@ -90,7 +99,19 @@ class Page extends \XLite\Module\CDev\SimpleCMS\Model\Page implements \XLite\Bas
      */
     protected function getOpenGraphType()
     {
-        return 'article';
+        return 'website';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getOpenGraphMetaTags($preprocessed = true)
+    {
+        $tags = $this->getUseCustomOG()
+            ? $this->getOgMeta()
+            : $this->generateOpenGraphMetaTags();
+
+        return $preprocessed ? $this->preprocessOpenGraphMetaTags($tags) : $tags;
     }
 
     /**
@@ -99,6 +120,28 @@ class Page extends \XLite\Module\CDev\SimpleCMS\Model\Page implements \XLite\Bas
     protected function getOpenGraphDescription()
     {
         return strip_tags($this->getTeaser());
+    }
+
+    /**
+     * Set useCustomOG
+     *
+     * @param boolean $useCustomOG
+     * @return static
+     */
+    public function setUseCustomOG($useCustomOG)
+    {
+        $this->useCustomOG = $useCustomOG;
+        return $this;
+    }
+
+    /**
+     * Get useCustomOG
+     *
+     * @return boolean
+     */
+    public function getUseCustomOG()
+    {
+        return $this->useCustomOG;
     }
 
     /**

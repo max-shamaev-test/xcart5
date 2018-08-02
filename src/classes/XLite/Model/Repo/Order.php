@@ -45,7 +45,7 @@ class Order extends \XLite\Model\Repo\ARepo
     const P_SHIPPING_STATUS   = 'shippingStatus';
     const P_DATE              = 'date';
     const P_CURRENCY          = 'currency';
-    
+
     const P_ORDER_NUMBER      = 'orderNumber';
     const P_SHIPPING_METHOD_NAME = 'shippingMethodName';
     const P_PAYMENT_METHOD_NAME  = 'paymentMethodName';
@@ -57,6 +57,9 @@ class Order extends \XLite\Model\Repo\ARepo
     const SEARCH_CUSTOMER_NAME = 'customerName';
     const SEARCH_TRANS_ID     = 'transactionID';
     const SEARCH_SKU          = 'sku';
+
+    const NEXT_PREVIOUS_CRITERIA_ORDER_NUMBER = 'orderNumber';
+    const NEXT_PREVIOUS_CRITERIA_DATE         = 'date';
 
     /**
      * Alternative record identifiers
@@ -346,7 +349,7 @@ class Order extends \XLite\Model\Repo\ARepo
             ->addGroupBy('o.order_id');
 
         foreach ($cnd as $key => $value) {
-            if (self::P_LIMIT !== $key && self::P_ORDER_BY !== $key) {
+            if (static::P_LIMIT !== $key && static::P_ORDER_BY !== $key) {
                 $this->callSearchConditionHandler($value, $key);
             }
         }
@@ -452,6 +455,18 @@ class Order extends \XLite\Model\Repo\ARepo
         return $qb;
     }
 
+    protected function getNextPreviousOrderCriteria()
+    {
+        $criteria = \XLite\Core\ConfigParser::getOptions(['other', 'next_previous_order_criteria']);
+
+        return in_array($criteria, [
+            static::NEXT_PREVIOUS_CRITERIA_ORDER_NUMBER,
+            static::NEXT_PREVIOUS_CRITERIA_DATE,
+        ])
+            ? $criteria
+            : static::NEXT_PREVIOUS_CRITERIA_ORDER_NUMBER;
+    }
+
     /**
      * @param \XLite\Model\Order $order
      *
@@ -470,15 +485,31 @@ class Order extends \XLite\Model\Repo\ARepo
     protected function defineFindNextOrder($order)
     {
         $qb = $this->createQueryBuilder();
-        $cnd = $qb->expr()->orX();
-        $cnd->add('o.date > :date AND o.orderNumber IS NOT NULL');
-        $cnd->add('o.orderNumber > :orderNumber');
 
-        return $qb->andWhere($cnd)
-            ->setParameter('date', (int) $order->getDate())
-            ->setParameter('orderNumber', $order->getOrderNumber())
-            ->orderBy('o.date', 'ASC')
-            ->addOrderBy('o.orderNumber', 'ASC');
+        if ($this->getNextPreviousOrderCriteria() === static::NEXT_PREVIOUS_CRITERIA_DATE) {
+            $qb->andWhere($qb->expr()->andX(
+                $qb->expr()->gte('o.date', ':date'),
+                $qb->expr()->isNotNull('o.orderNumber'),
+                $qb->expr()->neq('o.orderNumber', $qb->expr()->literal($order->getOrderNumber())),
+                $qb->expr()->not(
+                    $qb->expr()->andX(
+                        $qb->expr()->eq('o.date', ':date'),
+                        $qb->expr()->lt('INTVAL(o.orderNumber)', $qb->expr()->literal(
+                            (integer)$order->getOrderNumber()
+                        ))
+                    )
+                )
+            ))
+                ->setParameter('date', (integer)$order->getDate())
+                ->orderBy('o.date', 'ASC')
+                ->addOrderBy('INTVAL(o.orderNumber)', 'ASC');
+        } else {
+            $qb->andWhere('INTVAL(o.orderNumber) > :orderNumber')
+                ->setParameter('orderNumber', (integer)$order->getOrderNumber())
+                ->orderBy('INTVAL(o.orderNumber)', 'ASC');
+        }
+
+        return $qb;
     }
 
     /**
@@ -499,15 +530,31 @@ class Order extends \XLite\Model\Repo\ARepo
     protected function defineFindPreviousOrder($order)
     {
         $qb = $this->createQueryBuilder();
-        $cnd = $qb->expr()->orX();
-        $cnd->add('o.date < :date AND o.orderNumber IS NOT NULL');
-        $cnd->add('o.orderNumber < :orderNumber');
 
-        return $qb->andWhere($cnd)
-            ->setParameter('date', (int) $order->getDate())
-            ->setParameter('orderNumber', $order->getOrderNumber())
-            ->orderBy('o.date', 'DESC')
-            ->addOrderBy('o.orderNumber', 'DESC');
+        if ($this->getNextPreviousOrderCriteria() === static::NEXT_PREVIOUS_CRITERIA_DATE) {
+            $qb->andWhere($qb->expr()->andX(
+                $qb->expr()->lte('o.date', ':date'),
+                $qb->expr()->isNotNull('o.orderNumber'),
+                $qb->expr()->neq('o.orderNumber', $qb->expr()->literal($order->getOrderNumber())),
+                $qb->expr()->not(
+                    $qb->expr()->andX(
+                        $qb->expr()->eq('o.date', ':date'),
+                        $qb->expr()->gt('INTVAL(o.orderNumber)', $qb->expr()->literal(
+                            (integer)$order->getOrderNumber()
+                        ))
+                    )
+                )
+            ))
+                ->setParameter('date', (integer)$order->getDate())
+                ->orderBy('o.date', 'DESC')
+                ->addOrderBy('INTVAL(o.orderNumber)', 'DESC');
+        } else {
+            $qb->andWhere('INTVAL(o.orderNumber) < :orderNumber')
+                ->setParameter('orderNumber', (integer)$order->getOrderNumber())
+                ->orderBy('INTVAL(o.orderNumber)', 'DESC');
+        }
+
+        return $qb;
     }
 
     /**

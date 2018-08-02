@@ -29,20 +29,6 @@ class ComingSoonPage extends \XLite\Module\CDev\ProductAdvisor\View\AComingSoon
     }
 
     /**
-     * Initialize widget (set attributes)
-     *
-     * @param array $params Widget params
-     *
-     * @return void
-     */
-    public function setWidgetParams(array $params)
-    {
-        parent::setWidgetParams($params);
-
-        $this->widgetParams[static::PARAM_SHOW_SORT_BY_SELECTOR]->setValue(false);
-    }
-
-    /**
      * Return class name for the list pager
      *
      * @return string

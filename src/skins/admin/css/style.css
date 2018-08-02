@@ -2360,7 +2360,11 @@ ol.ordered-list {
 }
 
 .change-password-form-container {
-  width: 900px;
+  width: 100%;
+}
+
+.change-password-form-container .sticky-panel .box.sticky{
+  width: 100%;
 }
 
 /**

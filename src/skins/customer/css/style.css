@@ -202,8 +202,9 @@ form.invalid-form .form-error {
 .list-pager .pager-items-total
 {
   height: 24px;
+  padding-top: 7px;
+  margin-right: 10px;
 }
-
 
 .list-pager input
 {
@@ -227,6 +228,7 @@ form.invalid-form .form-error {
 .items-list .list-pager {
   margin: 42px 0 16px;
   height: auto;
+  min-height: 34px;
 }
 
 @media (max-width: 480px) {
@@ -2893,7 +2895,6 @@ ul.shipping-rates li span.value {
 }
 
 .checkout-block .shipping-methods .shipping-selector-box .table-value {
-  display: none;
   float: none;
   padding-left: 60px;
   padding-right: 30px;
@@ -3686,22 +3687,22 @@ form div.table-value.xcart-form-id-value {
   display: none;
 }
 
-#main.force-change-password-section .head-h2 {
+.force-change-password-section .head-h2 {
   font-size: 30px;
   line-height: 36px;
   margin: 20px 0px 16px;
 }
 
-#main.force-change-password-section ul.main-table {
+.force-change-password-section ul.main-table {
   margin: 0px;
 }
 
-#main.force-change-password-section .header-text {
+.force-change-password-section .header-text {
   font-size: 14px;
   padding: 0px 0px 20px 0px;
 }
 
-#main.force-change-password-section .model-form-buttons {
+.force-change-password-section .model-form-buttons {
   padding-bottom: 20px;
 }
 

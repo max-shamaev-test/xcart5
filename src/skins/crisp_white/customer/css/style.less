@@ -988,8 +988,16 @@ html.mm-opening .mm-slideout {
 }
 
 /**
- * Common <p> style for static pages
+ * Common <p> style for pages
  */
 .target-page #content .page-body-content p {
-  margin: 0 0 1em;
+  margin: 0 0 @rhythmic-unit;
+}
+
+#content .list-container .content p + p {
+  margin-top: @rhythmic-unit;
+}
+
+.widget-accountdialog .additional-buttons {
+  margin-top: @rhythmic-unit;
 }

@@ -234,7 +234,7 @@ class Category extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Products'),
                 static::COLUMN_TEMPLATE => false,
                 static::COLUMN_ORDERBY  => 400,
-                static::COLUMN_HEAD_HELP => 'If there are subcategories, the value in brackets stands for the sum of all products in this category and its subcategories.',
+                static::COLUMN_HEAD_HELP => static::t('If a category has subcategories, the value in brackets shows the overall number of products in both that category and all its subcategories.'),
             ),
         );
     }

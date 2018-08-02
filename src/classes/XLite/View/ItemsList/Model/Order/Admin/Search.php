@@ -400,7 +400,7 @@ class Search extends \XLite\View\ItemsList\Model\Order\Admin\AAdmin
         $filter = $this->getCurrentSearchFilter();
 
         if ($filter) {
-            return 'Orders' . ($filter ? ' - ' . $filter->getName() : '');
+            return static::t('Orders') . ($filter ? ' - ' . $filter->getName() : '');
         }
 
         return '';

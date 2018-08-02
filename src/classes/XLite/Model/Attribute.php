@@ -195,17 +195,17 @@ class Attribute extends \XLite\Model\Base\I18n
      */
     public static function getTypes($type = null, $returnServiceType = false)
     {
-        $list = array(
-            self::TYPE_SELECT   => static::t('Plain field'),
-            self::TYPE_TEXT     => static::t('Textarea'),
-            self::TYPE_CHECKBOX => static::t('Yes/No'),
-        );
+        $list = [
+            static::TYPE_SELECT   => static::t('Plain field'),
+            static::TYPE_TEXT     => static::t('Textarea'),
+            static::TYPE_CHECKBOX => static::t('Yes/No'),
+        ];
 
-        $listServiceTypes = array(
-            self::TYPE_SELECT   => 'Select',
-            self::TYPE_TEXT     => 'Text',
-            self::TYPE_CHECKBOX => 'Checkbox',
-        );
+        $listServiceTypes = [
+            static::TYPE_SELECT   => 'Select',
+            static::TYPE_TEXT     => 'Text',
+            static::TYPE_CHECKBOX => 'Checkbox',
+        ];
 
         $list = $returnServiceType ? $listServiceTypes : $list;
 
@@ -221,11 +221,11 @@ class Attribute extends \XLite\Model\Base\I18n
      */
     public static function getAddToNewTypes()
     {
-        return array(
-            self::ADD_TO_NEW_YES,
-            self::ADD_TO_NEW_NO,
-            self::ADD_TO_NEW_YES_NO,
-        );
+        return [
+            static::ADD_TO_NEW_YES,
+            static::ADD_TO_NEW_NO,
+            static::ADD_TO_NEW_YES_NO,
+        ];
     }
 
     /**
@@ -287,17 +287,17 @@ class Attribute extends \XLite\Model\Base\I18n
     public function getAddToNew()
     {
         $value = null;
-        if (self::TYPE_CHECKBOX === $this->getType()) {
+        if (static::TYPE_CHECKBOX === $this->getType()) {
             switch ($this->addToNew) {
-                case self::ADD_TO_NEW_YES:
+                case static::ADD_TO_NEW_YES:
                     $value = array(1);
                     break;
 
-                case self::ADD_TO_NEW_NO:
+                case static::ADD_TO_NEW_NO:
                     $value = array(0);
                     break;
 
-                case self::ADD_TO_NEW_YES_NO:
+                case static::ADD_TO_NEW_YES_NO:
                     $value = array(0, 1);
                     break;
 
@@ -417,7 +417,7 @@ class Attribute extends \XLite\Model\Base\I18n
                 }
             }
 
-        } elseif (self::TYPE_SELECT === $this->getType()) {
+        } elseif (static::TYPE_SELECT === $this->getType()) {
             $attributeOptions = \XLite\Core\Database::getRepo('XLite\Model\AttributeOption')->findBy(
                 array(
                     'attribute' => $this,
@@ -433,10 +433,10 @@ class Attribute extends \XLite\Model\Base\I18n
                     $av->setPosition($attributeOption->getPosition());
                 }
             }
-        } elseif (self::TYPE_TEXT === $this->getType()) {
+        } elseif (static::TYPE_TEXT === $this->getType()) {
             $av = $this->createAttributeValue($product);
             if ($av) {
-                $av->setEditable(true);
+                $av->setEditable(false);
                 $av->setValue('');
             }
         }
@@ -469,14 +469,14 @@ class Attribute extends \XLite\Model\Base\I18n
             $repo = \XLite\Core\Database::getRepo($class);
 
             switch ($this->getType()) {
-                case self::TYPE_TEXT:
+                case static::TYPE_TEXT:
                     $this->setAttributeValue($product, $changes);
                     break;
 
-                case self::TYPE_CHECKBOX:
-                case self::TYPE_SELECT:
+                case static::TYPE_CHECKBOX:
+                case static::TYPE_SELECT:
                     foreach ($repo->findBy(array('product' => $product, 'attribute' => $this)) as $av) {
-                        $uniq = self::TYPE_CHECKBOX === $this->getType()
+                        $uniq = static::TYPE_CHECKBOX === $this->getType()
                             ? $av->getValue()
                             : $av->getAttributeOption()->getId();
 
@@ -533,7 +533,7 @@ class Attribute extends \XLite\Model\Base\I18n
                             $av = $this->createAttributeValue($product);
 
                             if ($av) {
-                                if (self::TYPE_CHECKBOX === $this->getType()) {
+                                if (static::TYPE_CHECKBOX === $this->getType()) {
                                     $av->setValue($uniq);
 
                                 } else {
@@ -583,10 +583,10 @@ class Attribute extends \XLite\Model\Base\I18n
     {
         $repo = \XLite\Core\Database::getRepo(static::getAttributeValueClass($this->getType()));
 
-        if (self::TYPE_SELECT === $this->getType() || self::TYPE_CHECKBOX === $this->getType()) {
+        if (static::TYPE_SELECT === $this->getType() || static::TYPE_CHECKBOX === $this->getType()) {
             $attributeValue = $repo->findBy(
                 array('product' => $product, 'attribute' => $this),
-                self::TYPE_SELECT === $this->getType() ? ['position' => 'ASC'] : null
+                static::TYPE_SELECT === $this->getType() ? ['position' => 'ASC'] : null
             );
 
             if ($attributeValue
@@ -600,7 +600,7 @@ class Attribute extends \XLite\Model\Base\I18n
                 } elseif (is_object($attributeValue)) {
                     $attributeValue = $attributeValue->asString();
 
-                } elseif (self::TYPE_CHECKBOX === $this->getType()) {
+                } elseif (static::TYPE_CHECKBOX === $this->getType()) {
                     $attributeValue = static::t('Yes');
                 }
             }
@@ -913,7 +913,7 @@ class Attribute extends \XLite\Model\Base\I18n
      */
     protected function setAttributeValueDefault(\XLite\Model\Repo\ARepo $repo, \XLite\Model\Product $product, $data)
     {
-        $editable = is_array($data) && self::TYPE_TEXT === $this->getType() && isset($data['editable'])
+        $editable = is_array($data) && static::TYPE_TEXT === $this->getType() && isset($data['editable'])
             ? (bool) preg_match('/^1|yes|y|on$/iS', $data['editable'])
             : null;
         $value = is_array($data) ? $data['value'] : $data;
@@ -923,7 +923,7 @@ class Attribute extends \XLite\Model\Base\I18n
         $delete = true;
         $attributeValue = null;
 
-        if ('' !== $value || null !== $editable || self::TYPE_TEXT === $this->getType()) {
+        if ('' !== $value || null !== $editable || static::TYPE_TEXT === $this->getType()) {
             $attributeValue = $repo->findOneBy(array('product' => $product, 'attribute' => $this));
 
             if (!$attributeValue) {

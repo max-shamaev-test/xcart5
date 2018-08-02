@@ -14,7 +14,7 @@ define('wizard/steps/company-logo', ['js/vue/vue'], function (XLiteVue) {
     },
 
     events: {
-      'file-uploader-overlay': function(sender) {
+      'file-uploader-overlay': function() {
         this.$dispatch('blockBody');
       },
       'file-uploader-success': function(data, sender) {

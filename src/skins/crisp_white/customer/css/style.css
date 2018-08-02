@@ -1133,22 +1133,22 @@ form div.table-value.xcart-form-id-value {
   display: none;
 }
 
-#main.force-change-password-section .head-h2 {
+.force-change-password-section .head-h2 {
   font-size: 30px;
   line-height: 36px;
   margin: 20px 0 16px;
 }
 
-#main.force-change-password-section ul.main-table {
+.force-change-password-section ul.main-table {
   margin: 0;
 }
 
-#main.force-change-password-section .header-text {
+.force-change-password-section .header-text {
   font-size: 14px;
   padding: 0 0 20px 0;
 }
 
-#main.force-change-password-section .model-form-buttons {
+.force-change-password-section .model-form-buttons {
   padding-bottom: 20px;
 }
 

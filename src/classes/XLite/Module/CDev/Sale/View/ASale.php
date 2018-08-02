@@ -15,11 +15,47 @@ namespace XLite\Module\CDev\Sale\View;
 abstract class ASale extends \XLite\View\ItemsList\Product\Customer\ACustomer
 {
     const PARAM_CATEGORY_ID = 'category_id';
+    const SORT_BY_MODE_SALE = \XLite\Model\Repo\Product::PERCENT_CALCULATED_FIELD;
 
     /**
      * Widget target
      */
     const WIDGET_TARGET_SALE_PRODUCTS = 'sale_products';
+
+    /**
+     * Define and set widget attributes; initialize widget
+     *
+     * @param array $params Widget params OPTIONAL
+     *
+     * @return void
+     */
+    public function __construct(array $params = [])
+    {
+        parent::__construct($params);
+
+        $this->sortByModes = [
+                static::SORT_BY_MODE_SALE => 'Recommended',
+            ] + $this->sortByModes;
+    }
+
+    protected function getSingleOrderSortByFields()
+    {
+        return array_merge(parent::getSingleOrderSortByFields(), [
+            static::SORT_BY_MODE_SALE => static::SORT_ORDER_DESC,
+        ]);
+    }
+
+    protected function getSortByModeDefault()
+    {
+        return static::SORT_BY_MODE_SALE;
+    }
+
+    protected function getSortByFields()
+    {
+        return [
+                'sale' => static::SORT_BY_MODE_SALE,
+            ] + parent::getSortByFields();
+    }
 
     /**
      * Return target to retrive this widget from AJAX
@@ -39,20 +75,6 @@ abstract class ASale extends \XLite\View\ItemsList\Product\Customer\ACustomer
     public function getListCSSClasses()
     {
         return parent::getListCSSClasses() . ' sale-products';
-    }
-
-    /**
-     * Initialize widget (set attributes)
-     *
-     * @param array $params Widget params
-     *
-     * @return void
-     */
-    public function setWidgetParams(array $params)
-    {
-        parent::setWidgetParams($params);
-
-        unset($this->widgetParams[self::PARAM_SHOW_SORT_BY_SELECTOR]);
     }
 
     /**
@@ -91,17 +113,6 @@ abstract class ASale extends \XLite\View\ItemsList\Product\Customer\ACustomer
     }
 
     /**
-     * Return 'Order by' array.
-     * array(<Field to order>, <Sort direction>)
-     *
-     * @return array|null
-     */
-    protected function getOrderBy()
-    {
-        return [\XLite\Model\Repo\Product::PERCENT_CALCULATED_FIELD, static::SORT_ORDER_DESC];
-    }
-
-    /**
      * Check if widget is visible
      *
      * @return boolean
@@ -111,6 +122,7 @@ abstract class ASale extends \XLite\View\ItemsList\Product\Customer\ACustomer
         return parent::isVisible()
             && $this->hasResults();
     }
+
     /**
      * Get max number of products displayed in block
      *
@@ -118,7 +130,7 @@ abstract class ASale extends \XLite\View\ItemsList\Product\Customer\ACustomer
      */
     protected function getMaxCountInBlock()
     {
-        return (int) \XLite\Core\Config::getInstance()->CDev->Sale->sale_max_count_in_block ?: 3;
+        return (int)\XLite\Core\Config::getInstance()->CDev->Sale->sale_max_count_in_block ?: 3;
     }
 
     /**

@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Base;
 
+use XLite\Core\Database;
+
 /**
  * Abstract address model
  *
@@ -68,6 +70,32 @@ abstract class Address extends \XLite\Model\AEntity
      * @JoinColumn (name="country_code", referencedColumnName="code", onDelete="SET NULL")
      */
     protected $country;
+
+    public function map(array $data)
+    {
+        return parent::map($this->prepareDataForMap($data));
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return array
+     */
+    protected function prepareDataForMap(array $data)
+    {
+        $priorFields = [
+            'country',
+            'country_code',
+        ];
+
+        foreach ($priorFields as $priorField) {
+            if (isset($data[$priorField])) {
+                $data = [$priorField => $data[$priorField]] + $data;
+            }
+        }
+
+        return $data;
+    }
 
     /**
      * Get address fields list
@@ -186,13 +214,27 @@ abstract class Address extends \XLite\Model\AEntity
                     $this->state = null;
                     $this->setCustomState($state->getState());
                 }
+
+            } else {
+                $this->state = null;
             }
 
         } elseif (is_string($state)) {
+            $statesRepo = Database::getRepo('XLite\Model\State');
 
-            // Set custom state
-            $this->state = null;
-            $this->setCustomState($state);
+            if (
+                $this->getCountry()
+                && $this->getCountry()->hasStates()
+                && ($state = $statesRepo->findOneBy([
+                    'code' => $state,
+                    'country' => $this->getCountry()
+                ]))
+            ) {
+                $this->state = $state;
+            } else {
+                $this->state = null;
+                $this->setCustomState($state);
+            }
         }
     }
 

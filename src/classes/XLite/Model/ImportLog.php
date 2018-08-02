@@ -86,7 +86,7 @@ class ImportLog extends \XLite\Model\AEntity
      *
      * @var   integer
      *
-     * @Column (type="integer", options={ "unsigned": true })
+     * @Column (name="`row`", type="integer", options={ "unsigned": true })
      */
     protected $row;
 

@@ -44,7 +44,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '4';
+        return '5';
     }
 
     /**
@@ -64,7 +64,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorRequiredCoreVersion()
     {
-        return '4';
+        return '5';
     }
 
     /**

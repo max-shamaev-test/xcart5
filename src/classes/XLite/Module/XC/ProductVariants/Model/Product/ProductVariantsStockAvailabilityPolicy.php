@@ -10,6 +10,7 @@
 namespace XLite\Module\XC\ProductVariants\Model\Product;
 
 use Includes\Utils\ArrayManager;
+use XLite\Core\Database;
 use XLite\Model\Cart;
 use XLite\Model\Product;
 use XLite\Module\XC\ProductVariants\Model\ProductVariant;
@@ -115,22 +116,24 @@ class ProductVariantsStockAvailabilityPolicy extends \XLite\Model\Product\Produc
      */
     protected function createDTO(Product $product)
     {
+        $variantsDto = Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')
+            ->getProductVariantsAsDTO($product);
+
         $variants = array_map(function ($v) {
-            /** @var ProductVariant $v */
             return [
-                self::VARIANT_ID                  => $v->getId(),
-                self::VARIANT_USE_PRODUCTS_AMOUNT => $v->getDefaultAmount(),
-                self::VARIANT_AMOUNT              => $v->getAmount(),
+                self::VARIANT_ID                  => $v['id'],
+                self::VARIANT_USE_PRODUCTS_AMOUNT => $v['use_product_amount'],
+                self::VARIANT_AMOUNT              => $v['amount'],
             ];
-        }, $product->getVariants()->toArray());
+        }, $variantsDto);
 
         $variantIds = array_map(function ($v) {
             /** @var ProductVariant $v */
-            return $v->getId();
-        }, $product->getVariants()->toArray());
+            return $v['id'];
+        }, $variantsDto);
 
         return parent::createDTO($product) + [
-            self::PRODUCT_HAS_VARIANTS => $product->hasVariants(),
+            self::PRODUCT_HAS_VARIANTS => count($variantsDto) > 0,
             self::PRODUCT_VARIANTS     => array_combine($variantIds, $variants),
         ];
     }

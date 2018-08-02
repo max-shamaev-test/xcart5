@@ -2974,7 +2974,7 @@ setTimeout('isProcessComplete()', 1000);
 
 ?>
 
-<div id="cache-rebuild-failed" class="cache-error" style="display: none;"><span><?php echo xtr('Oops! Cache rebuild failed.'); ?></span> <?php echo xtr('Check for possible reasons <a href="https://kb.x-cart.com/en/setting_up_x-cart_5_environment/setting_time_limit_of_your_server.html">here</a>.'); ?></div>
+<div id="cache-rebuild-failed" class="cache-error" style="display: none;"><span><?php echo xtr('Oops!'); ?></span> <?php echo xtr('The current step of the cache rebuilding process is taking longer than expected. Check for possible problems <a href="https://kb.x-cart.com/pages/viewpage.action?pageId=7504578" target="_blank">here</a>.'); ?></div>
 
 <iframe id="process_iframe" style="padding-top: 15px;" src="admin.php?doNotRedirectAfterCacheIsBuilt&<?php echo time(); ?>" width="100%" height="300" frameborder="0" marginheight="10" marginwidth="10"></iframe>
 
@@ -2987,6 +2987,7 @@ setTimeout('isProcessComplete()', 1000);
 <script type="text/javascript">
 
     var errCount = 0;
+    var currentStep = '0';
     var isStopped = false;
 
     function isProcessComplete() {
@@ -2998,21 +2999,21 @@ setTimeout('isProcessComplete()', 1000);
 
         } else {
 
-            if (iframe.readyState == 'complete') {
+            var pattern = /^.*Deploying store \[step (\d+) of (\d+)\].*$/m;
+            var matches = iframe.body.innerHTML.match(pattern);
 
-                if (errCount > 60) {
-                    var pattern = /^.*Deploying store \[step (\d+) of (\d+)\].*$/m;
-                    var matches = iframe.body.innerHTML.match(pattern);
+            if (currentStep !== matches[1]) {
+               errCount = 0;
+               currentStep = matches[1];
+               resetCacheRebuildFailure();
+            }
 
-                    processCacheRebuildFailure(matches);
-                    isStopped = true;
-
-                } else {
-                    errCount = errCount + 1;
-                }
+            if (errCount > 60) {
+                processCacheRebuildFailure(matches);
+                isStopped = true;
 
             } else {
-                errCount = 0;
+                errCount = errCount + 1;
             }
 
             setTimeout('isProcessComplete()', 1000);

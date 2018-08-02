@@ -81,8 +81,29 @@ class ListItem extends \XLite\View\Product\ListItem implements \XLite\Base\IDeco
             'class'      => $this->getParam(self::PARAM_ITEM_LIST_CLASS),
             'pageId'     => $this->getParam(self::PARAM_PAGE_ID),
             'position'   => $this->getParam(self::PARAM_POSITION_ON_PAGE),
-            'parameters' => [],
+            'parameters' => $this->defineConditionParametersForDataString(),
         ];
+    }
+
+    protected function defineConditionParametersForDataString()
+    {
+        $class = $this->getParam(self::PARAM_ITEM_LIST_CLASS);
+
+        $params = array();
+
+        if (is_subclass_of($class, '\XLite\View\ItemsList\Product\Customer\Category\ACategory')
+            || $class === 'XLite\Module\CDev\Sale\View\SaleBlock'
+            || $class === 'XLite\Module\CDev\Bestsellers\View\Bestsellers'
+        ) {
+            $params[\XLite\Model\Repo\Product::P_CATEGORY_ID] = $this->getCategoryId();
+        }
+
+        if ($class === 'XLite\Module\CDev\FeaturedProducts\View\Customer\FeaturedProducts') {
+            $params[\XLite\Model\Repo\Product::SEARCH_FEATURED_CATEGORY_ID] = $this->getCategoryId();
+            unset($params[\XLite\Model\Repo\Product::P_CATEGORY_ID]);
+        }
+
+        return $params;
     }
 
     /**

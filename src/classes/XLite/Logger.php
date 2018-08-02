@@ -16,7 +16,7 @@ class Logger extends \XLite\Base\Singleton
     /**
      * Log file name regexp pattern
      */
-    const LOG_FILE_NAME_PATTERN = '#^([0-9]{4}/[0-9]{2}/)?[a-zA-Z_]+\.log\.\d{4}-\d{2}-\d{2}\.php$#Ss';
+    const LOG_FILE_NAME_PATTERN = '#^([0-9]{4}/[0-9]{2}/)?[\w\-]+\.log\.\d{4}-\d{2}-\d{2}\.php$#Ss';
 
     /**
      * Security file header
@@ -483,7 +483,7 @@ class Logger extends \XLite\Base\Singleton
      */
     public static function getCustomLogPath($type)
     {
-        $path = date('Y' . LC_DS . 'm');
+        $path = date('Y/m');
 
         return LC_DIR_LOG . $path . LC_DS . static::getCustomLogFileName($type);
     }
@@ -545,7 +545,7 @@ class Logger extends \XLite\Base\Singleton
 
         if ('file' == $this->getType()) {
             $dir = dirname(LC_DIR . LC_DS . ltrim($result, LC_DS));
-            $dir = $dir . LC_DS . date('Y' . LC_DS . 'm');
+            $dir = $dir . LC_DS . date('Y/m');
             $file = basename($result);
             $parts = explode('.', $file);
             array_splice($parts, count($parts) - 1, 0, date('Y-m-d'));
@@ -684,7 +684,7 @@ class Logger extends \XLite\Base\Singleton
      */
     protected function getErrorLogPath()
     {
-        $path = date('Y' . LC_DS .'m');
+        $path = date('Y/m');
 
         return LC_DIR_LOG . $path . LC_DS . 'php_errors.log.' . date('Y-m-d') . '.php';
     }

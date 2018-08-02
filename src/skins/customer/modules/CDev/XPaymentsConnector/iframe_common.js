@@ -22,6 +22,7 @@ var XPC_IFRAME_TOP_MESSAGE      = 4;
 var XPC_INTERNAL_ERROR = 'The payment processing system is temporary unavailable due to an internal error.';
 var XPC_INTERNAL_ERROR_REPLACE = 'Oops, something wrong has happened. Try to reload the page.';
 
+var xpcIframeShaded = false;
 
 /**
  * Convert event message to object

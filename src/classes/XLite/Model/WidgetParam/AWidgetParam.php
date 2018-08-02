@@ -149,10 +149,10 @@ abstract class AWidgetParam extends \XLite\Base\SuperClass
         $messages = array();
 
         foreach ($conditions as $condition) {
-            if (true === $condition[self::ATTR_CONDITION]) {
-                $messages[] = $condition[self::ATTR_MESSAGE];
+            if (true === $condition[static::ATTR_CONDITION]) {
+                $messages[] = $condition[static::ATTR_MESSAGE];
 
-                if (!isset($condition[self::ATTR_CONTINUE])) {
+                if (!isset($condition[static::ATTR_CONTINUE])) {
                      break;
                 }
             }

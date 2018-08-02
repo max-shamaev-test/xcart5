@@ -22,14 +22,15 @@ abstract class AForm extends \XLite\View\AView
     const PARAM_START = 'start';
     const PARAM_END   = 'end';
 
-    const PARAM_FORM_TARGET = 'formTarget';
-    const PARAM_FORM_ACTION = 'formAction';
-    const PARAM_FORM_NAME   = 'formName';
-    const PARAM_FORM_PARAMS = 'formParams';
-    const PARAM_FORM_METHOD = 'formMethod';
-    const PARAM_CLASS_NAME  = 'className';
-    const PARAM_VALIDATION  = 'validationEngine';
-    const PARAM_FORM_IDENTIFIER   = 'formIdentifier';
+    const PARAM_FORM_TARGET     = 'formTarget';
+    const PARAM_FORM_ACTION     = 'formAction';
+    const PARAM_FORM_NAME       = 'formName';
+    const PARAM_FORM_PARAMS     = 'formParams';
+    const PARAM_FORM_METHOD     = 'formMethod';
+    const PARAM_CLASS_NAME      = 'className';
+    const PARAM_VALIDATION      = 'validationEngine';
+    const PARAM_CONFIRM_REMOVE  = 'confirmRemove';
+    const PARAM_FORM_IDENTIFIER = 'formIdentifier';
 
     /**
      * Form arguments plain list
@@ -285,17 +286,20 @@ abstract class AForm extends \XLite\View\AView
             self::PARAM_FORM_NAME => new \XLite\Model\WidgetParam\TypeString(
                 'Name', ''
             ),
-            self::PARAM_FORM_PARAMS => new \XLite\Model\WidgetParam\TypeCollection(
+            self::PARAM_FORM_PARAMS     => new \XLite\Model\WidgetParam\TypeCollection(
                 'Params', $this->getDefaultParams()
             ),
-            self::PARAM_FORM_METHOD => new \XLite\Model\WidgetParam\TypeSet(
+            self::PARAM_FORM_METHOD     => new \XLite\Model\WidgetParam\TypeSet(
                 'Request method', $this->getDefaultFormMethod(), array('post', 'get')
             ),
-            self::PARAM_CLASS_NAME => new \XLite\Model\WidgetParam\TypeString(
+            self::PARAM_CLASS_NAME      => new \XLite\Model\WidgetParam\TypeString(
                 'Class name', $this->getDefaultClassName()
             ),
-            self::PARAM_VALIDATION => new \XLite\Model\WidgetParam\TypeBool(
+            self::PARAM_VALIDATION      => new \XLite\Model\WidgetParam\TypeBool(
                 'Apply validation engine', false
+            ),
+            self::PARAM_CONFIRM_REMOVE  => new \XLite\Model\WidgetParam\TypeBool(
+                'Confirm on item remove', $this->hasConfirmOnRemoveDefault()
             ),
             self::PARAM_FORM_IDENTIFIER => new \XLite\Model\WidgetParam\TypeString(
                 'Form identifier for frontend', $this->getDefaultFormIdentifier()
@@ -338,6 +342,10 @@ abstract class AForm extends \XLite\View\AView
                 : $className . ' ' . self::PARAM_VALIDATION;
         }
 
+        if ($this->hasConfirmOnRemove()) {
+            $className .= ' confirm-remove';
+        }
+
         $className .= ' ' . $this->getFormIdentifier();
 
         return trim($className);
@@ -371,6 +379,22 @@ abstract class AForm extends \XLite\View\AView
     protected function isValidationEngineApplied()
     {
         return $this->getParam(self::PARAM_VALIDATION);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function hasConfirmOnRemove()
+    {
+        return $this->getParam(self::PARAM_CONFIRM_REMOVE);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function hasConfirmOnRemoveDefault()
+    {
+        return false;
     }
 
     /**

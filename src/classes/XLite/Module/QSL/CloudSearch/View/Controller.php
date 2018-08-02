@@ -73,11 +73,12 @@ class Controller extends \XLite\View\Controller implements \XLite\Base\IDecorato
             'lbl_did_you_mean'         => static::t('cs_did_you_mean'),
         ];
 
-        $apiClient = new ServiceApiClient();
+        $client = new ServiceApiClient();
 
         $data = [
             'cloudSearch' => [
-                'apiKey'               => $apiClient->getApiKey(),
+                'apiUrl'                  => $client->getSearchApiUrl(),
+                'apiKey'               => $client->getApiKey(),
                 'priceTemplate'        => static::formatPrice(0),
                 'selector'             => 'input[name="substring"]',
                 'lng'                  => $lng,

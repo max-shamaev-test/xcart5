@@ -9,6 +9,9 @@
 namespace XLite\Module\CDev\Egoods\View\ItemsList;
 
 
+use XLite\Core\Auth;
+use XLite\Model\Order;
+use XLite\Model\Profile;
 use XLite\Module\CDev\Egoods\Model\Product\Attachment\AttachmentHistoryPoint;
 
 class AttachmentsHistory extends \XLite\View\ItemsList\Model\Table
@@ -224,14 +227,39 @@ class AttachmentsHistory extends \XLite\View\ItemsList\Model\Table
      */
     protected function isLink(array $column, \XLite\Model\AEntity $entity)
     {
-        $result = parent::isLink($column, $entity);
-        if ('order' === $column[static::COLUMN_CODE]) {
-            $result = $result && $entity->getOrder();
-        } elseif ('login' === $column[static::COLUMN_CODE]) {
-            $result = $result && $entity->getProfile();
-        }
+        $result = parent::isLink($column, $entity)
+            && (
+                'order' === $column[static::COLUMN_CODE]
+                && $entity->getOrder()
+                && $this->isOrderLinkAvailable($entity->getOrder())
+                || 'login' === $column[static::COLUMN_CODE]
+                && $entity->getProfile()
+                && $this->isLoginLinkAvailable($entity->getProfile())
+            );
 
         return $result;
+    }
+
+    /**
+     * @param Order $order
+     *
+     * @return bool
+     */
+    protected function isOrderLinkAvailable(Order $order)
+    {
+        return $order
+            && Auth::getInstance()->isPermissionAllowed('manage orders');
+    }
+
+    /**
+     * @param Profile $profile
+     *
+     * @return bool
+     */
+    protected function isLoginLinkAvailable(Profile $profile)
+    {
+        return $profile
+        && Auth::getInstance()->isPermissionAllowed('manage users');
     }
 
     /**

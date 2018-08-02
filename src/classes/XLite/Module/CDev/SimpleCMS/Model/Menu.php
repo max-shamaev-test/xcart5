@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\SimpleCMS\Model;
 
+use XLite\Core\Cache\ExecuteCachedTrait;
+
 /**
  * Menu
  *
@@ -21,6 +23,8 @@ namespace XLite\Module\CDev\SimpleCMS\Model;
  */
 class Menu extends \XLite\Model\Base\I18n
 {
+    use ExecuteCachedTrait;
+
     /**
      * Menu types
      */
@@ -151,8 +155,8 @@ class Menu extends \XLite\Model\Base\I18n
     public static function getTypes()
     {
         return array(
-            static::MENU_TYPE_PRIMARY => 'Primary menu',
-            static::MENU_TYPE_FOOTER  => 'Footer menu',
+            static::MENU_TYPE_PRIMARY => static::t('Primary menu'),
+            static::MENU_TYPE_FOOTER  => static::t('Footer menu'),
         );
     }
 
@@ -180,10 +184,12 @@ class Menu extends \XLite\Model\Base\I18n
      */
     protected function defineLinkURLs()
     {
-        return array(
-            static::DEFAULT_HOME_PAGE   => ' ',
-            static::DEFAULT_MY_ACCOUNT  => '?target=order_list',
-        );
+        return $this->executeCachedRuntime(function () {
+            return [
+                static::DEFAULT_HOME_PAGE  => ' ',
+                static::DEFAULT_MY_ACCOUNT => \XLite\Core\Converter::buildURL('order_list'),
+            ];
+        });
     }
 
     /**

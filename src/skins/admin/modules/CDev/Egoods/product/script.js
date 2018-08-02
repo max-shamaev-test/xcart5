@@ -20,7 +20,7 @@ function ProductAttachmentsPrivateControl() {
         } else {
           memberships_registered_customers.show();
         }
-      }).change();
+      });
     })
   });
 }

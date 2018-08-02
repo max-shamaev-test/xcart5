@@ -44,7 +44,7 @@ class FeaturedProducts extends \XLite\View\ItemsList\Product\Customer\Category\A
      */
     protected function getDefaultSortOrderValue()
     {
-        return \XLite\Core\Config::getInstance()->General->default_search_sort_order;
+        return 'default';
     }
 
     /**

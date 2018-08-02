@@ -4,7 +4,7 @@
  # @ListChild (list="checkout.review.selected.items", weight="20")
  # @ListChild (list="checkout.review.inactive.items", weight="20")
  #}
-<div class="list" style="display: none;" v-bind:style="itemsList">
+<div class="list" style="display: none;" :style="itemsList">
 
   <ul>
     {% for item in this.getItems() %}

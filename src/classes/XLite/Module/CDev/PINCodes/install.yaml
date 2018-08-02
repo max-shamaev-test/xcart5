@@ -37,6 +37,10 @@ XLite\Model\LanguageLabel:
   - { name: 'Manually', translations: [{ code: en, label: 'Manually' },{ code: ru, label: 'Вручную' }] }
   - { name: "Product not found", translations: [{ code: ru, label: "Product not found" }] }
 
+  - { name: 'Add pin codes', translations: [{ code: en, label: 'Add pin codes' }]}
+  - { name: 'Import from CSV file', translations: [{ code: en, label: 'Import from CSV file' }]}
+  - { name: 'Unknown error occurred', translations: [{ code: en, label: 'Unknown error occurred' }]}
+  
 XLite\Model\Notification:
   - templatesDirectory: modules/CDev/PINCodes/acquire_pin_codes_failed
     position: 700

@@ -477,7 +477,7 @@ class Install extends \XLite\View\ItemsList\Module\AModule
             );
 
             $result[] = [
-                'label'    => $name,
+                'label'    => $this->getTagName($name),
                 'url'      => $url,
                 'selected' => $value === $this->getTagValue(),
             ];

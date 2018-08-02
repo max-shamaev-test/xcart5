@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\FreeShipping;
 
+use XLite\Module\XC\FreeShipping\Core\MethodsLoader;
+
 /**
  * Main module
  */
@@ -60,7 +62,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '4';
+        return '5';
     }
 
     /**
@@ -70,7 +72,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '0';
+        return '2';
     }
 
     /**
@@ -80,7 +82,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorRequiredCoreVersion()
     {
-        return '4';
+        return '5';
     }
 
     /**
@@ -91,5 +93,12 @@ abstract class Main extends \XLite\Module\AModule
     public static function showSettingsForm()
     {
         return true;
+    }
+
+    public static function runBuildCacheHandler()
+    {
+        parent::runBuildCacheHandler();
+
+        MethodsLoader::process();
     }
 }

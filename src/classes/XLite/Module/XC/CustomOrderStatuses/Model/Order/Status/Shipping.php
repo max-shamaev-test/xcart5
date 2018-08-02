@@ -14,6 +14,8 @@ namespace XLite\Module\XC\CustomOrderStatuses\Model\Order\Status;
  */
  class Shipping extends \XLite\Model\Order\Status\Shipping implements \XLite\Base\IDecorator
 {
+     const STATUS_CUSTOM = 'CUSTOM';
+
     /**
      * Set name
      *
@@ -27,4 +29,20 @@ namespace XLite\Module\XC\CustomOrderStatuses\Model\Order\Status;
 
         return parent::setName($name);
     }
+
+     /**
+      * List of change status handlers;
+      * top index - old status, second index - new one
+      * (<old_status> ----> <new_status>: $statusHandlers[$old][$new])
+      *
+      * @return array
+      */
+     public static function getStatusHandlers()
+     {
+         return array_merge_recursive(parent::getStatusHandlers(), [
+             self::STATUS_CUSTOM => [
+                 self::STATUS_SHIPPED => ['ship'],
+             ],
+         ]);
+     }
 }

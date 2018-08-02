@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\MultiCurrency\View\FormField\Select;
 
+use XLite\Module\XC\MultiCurrency\Core\CurrencyRate;
+
 /**
  * Rate provider select class
  */
@@ -30,16 +32,16 @@ class RateProvider extends \XLite\View\FormField\Select\Regular
      */
     protected function getDefaultOptions()
     {
-        return array(
-            \XLite\Module\XC\MultiCurrency\Core\CurrencyRate::PROVIDER_NONE             => static::t(
+        return [
+            CurrencyRate::PROVIDER_NONE                        => static::t(
                 'None'
             ),
-            \XLite\Module\XC\MultiCurrency\Core\CurrencyRate::PROVIDER_GOOGLE_FINANCE   => static::t(
-                'Google Finance Currency Converter'
+            CurrencyRate::PROVIDER_FREE_CURRENCY_CONVERTER_API => static::t(
+                'The Free Currency Converter API'
             ),
-            \XLite\Module\XC\MultiCurrency\Core\CurrencyRate::PROVIDER_WEBSERVICE_X     => static::t(
-                'WebserviceX.NET'
-            )
-        );
+            CurrencyRate::PROVIDER_CURRENCY_CONVERTER_API      => static::t(
+                'The Currency Converter API'
+            ),
+        ];
     }
 }

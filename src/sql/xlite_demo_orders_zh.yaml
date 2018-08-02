@@ -70,6 +70,7 @@ XLite\Model\Order:
       - method_name: MoneyOrdering
         method_local_name: 'Money Ordering'
         payment_method: { service_name: MoneyOrdering }
+        currency: { code: 'CNY' }
         date: 1394005540
         status: S
         value: 110.65
@@ -153,6 +154,7 @@ XLite\Model\Order:
       - method_name: MoneyOrdering
         method_local_name: 'Money Ordering'
         payment_method: { service_name: MoneyOrdering }
+        currency: { code: 'CNY' }
         date: 1396005895
         status: S
         value: 42.13
@@ -231,6 +233,7 @@ XLite\Model\Order:
       - method_name: MoneyOrdering
         method_local_name: 'Money Ordering'
         payment_method: { service_name: MoneyOrdering }
+        currency: { code: 'CNY' }
         date: 1407005895
         status: S
         value: 105.00

@@ -21,6 +21,11 @@ class CountryState extends \XLite\Core\Validator\Pair\APair
     const FIELD_CUSTOM_STATE   = 'custom_state';
 
     /**
+     * @var array
+     */
+    protected $addressFields = [];
+
+    /**
      * Validate
      *
      * @param mixed $data Data
@@ -34,7 +39,8 @@ class CountryState extends \XLite\Core\Validator\Pair\APair
         if (!isset($data[static::FIELD_COUNTRY])) {
 
             if (!$this->isFieldAvailable(static::FIELD_COUNTRY)) {
-                $data[static::FIELD_COUNTRY] = \XLite\Model\Address::getDefaultFieldValue('country')->getCode();
+                $defaultCountry = \XLite\Model\Address::getDefaultFieldValue('country');
+                $data[static::FIELD_COUNTRY] = $defaultCountry ? $defaultCountry->getCode() : null;
             }
 
             if (empty($data[static::FIELD_COUNTRY])) {
@@ -42,15 +48,17 @@ class CountryState extends \XLite\Core\Validator\Pair\APair
             }
         }
 
-        $countryCodeValidator = new \XLite\Core\Validator\Pair\Simple;
-        $countryCodeValidator->setName(static::FIELD_COUNTRY);
-        $countryCodeValidator->setValidator(
-            new \XLite\Core\Validator\String\ObjectId\Country(true)
-        );
-        $countryCodeValidator->validate($data);
+        if (!empty($data[static::FIELD_COUNTRY]) || $this->isFieldRequired(static::FIELD_COUNTRY)) {
+            $countryCodeValidator = new \XLite\Core\Validator\Pair\Simple;
+            $countryCodeValidator->setName(static::FIELD_COUNTRY);
+            $countryCodeValidator->setValidator(
+                new \XLite\Core\Validator\String\ObjectId\Country(true)
+            );
+            $countryCodeValidator->validate($data);
+        }
 
         // Check state
-        if (!empty($data[static::FIELD_STATE])) {
+        if (!empty($data[static::FIELD_STATE]) && !empty($data[static::FIELD_COUNTRY])) {
             $stateValidator = new \XLite\Core\Validator\Pair\Simple;
             $stateValidator->setName(static::FIELD_STATE);
             $stateValidator->setValidator(
@@ -61,17 +69,21 @@ class CountryState extends \XLite\Core\Validator\Pair\APair
 
         $data = $this->sanitize($data);
 
-        if (empty($data['state'])
-            && $this->isFieldAvailable(static::FIELD_STATE)
-            && $data['country']->hasStates()
-            && !$data['country']->isForcedCustomState()
-        ) {
-            throw $this->throwError('State is not defined');
+        if ($data['country']) {
+            if (empty($data['state'])
+                && $this->isFieldAvailable(static::FIELD_STATE)
+                && $data['country']
+                && $data['country']->hasStates()
+                && !$data['country']->isForcedCustomState()
+            ) {
+                throw $this->throwError('State is not defined');
 
-        } elseif ($data['state']
-            && $data['state']->getCountry()->getCode() != $data['country']->getCode()
-        ) {
-            throw $this->throwError('Country has not specified state');
+            } elseif ($data['state']
+                && $data['state']->getCountry()
+                && $data['state']->getCountry()->getCode() != $data['country']->getCode()
+            ) {
+                throw $this->throwError('Country has not specified state');
+            }
         }
     }
 
@@ -85,22 +97,28 @@ class CountryState extends \XLite\Core\Validator\Pair\APair
     public function sanitize($data)
     {
         // Check country
-        if (!isset($data[static::FIELD_COUNTRY]) && !$this->isFieldAvailable(static::FIELD_COUNTRY)) {
-            $data[static::FIELD_COUNTRY] = \XLite\Model\Address::getDefaultFieldValue('country')->getCode();
+        if (!isset($data[static::FIELD_COUNTRY]) && !$this->isFieldAvailable(static::FIELD_COUNTRY)
+        ) {
+            $defaultCountry = \XLite\Model\Address::getDefaultFieldValue('country');
+            $data[static::FIELD_COUNTRY] = $defaultCountry ? $defaultCountry->getCode() : null;
         }
 
         // Get country
-        $countryCodeValidator = new \XLite\Core\Validator\Pair\Simple;
-        $countryCodeValidator->setName(static::FIELD_COUNTRY);
-        $countryCodeValidator->setValidator(
-            new \XLite\Core\Validator\String\ObjectId\Country(true)
-        );
+        $country = null;
+        if (!empty($data[static::FIELD_COUNTRY]) || $this->isFieldRequired(static::FIELD_COUNTRY)) {
+            $countryCodeValidator = new \XLite\Core\Validator\Pair\Simple;
+            $countryCodeValidator->setName(static::FIELD_COUNTRY);
+            $countryCodeValidator->setValidator(
+                new \XLite\Core\Validator\String\ObjectId\Country(true)
+            );
 
-        $country = $countryCodeValidator->getValidator()->sanitize($data[static::FIELD_COUNTRY]);
+            $country = $countryCodeValidator->getValidator()->sanitize($data[static::FIELD_COUNTRY]);
+        }
 
         // Get state
         if (
-            $country->hasStates()
+            $country
+            && $country->hasStates()
             && !$country->isForcedCustomState()
             && isset($data[static::FIELD_STATE])
         ) {
@@ -121,7 +139,7 @@ class CountryState extends \XLite\Core\Validator\Pair\APair
             'country'             => $country,
             'state'               => $state,
             static::FIELD_COUNTRY => $data[static::FIELD_COUNTRY],
-            static::FIELD_STATE   => ($state && $country->hasStates()) ? $data[static::FIELD_STATE] : null,
+            static::FIELD_STATE   => ($state && $country && $country->hasStates()) ? $data[static::FIELD_STATE] : null,
         );
     }
 
@@ -134,12 +152,42 @@ class CountryState extends \XLite\Core\Validator\Pair\APair
      */
     protected function isFieldAvailable($fieldName)
     {
-        return (bool) \XLite\Core\Database::getRepo('XLite\Model\AddressField')->findOneBy(
-            array(
-                'serviceName' => $fieldName,
-                'enabled'     => true,
-            )
-        );
+        $addressField = $this->getAddressField($fieldName);
+
+        return $addressField ? $addressField->getEnabled() : false;
     }
 
+    /**
+     * Check if the enabled address field with the given name exists and required
+     *
+     * @param string $fieldName Field name
+     *
+     * @return boolean
+     */
+    protected function isFieldRequired($fieldName)
+    {
+        $addressField = $this->getAddressField($fieldName);
+
+        return $addressField ? ($addressField->getEnabled() && $addressField->getRequired()) : false;
+    }
+
+    /**
+     * Get address field by name
+     *
+     * @param string $fieldName Field name
+     *
+     * @return \XLite\Model\AddressField
+     */
+    protected function getAddressField($fieldName)
+    {
+        if (!isset($this->addressFields[$fieldName])) {
+            $this->addressFields[$fieldName] = \XLite\Core\Database::getRepo('XLite\Model\AddressField')->findOneBy(
+                array(
+                    'serviceName' => $fieldName,
+                )
+            );
+        }
+
+        return $this->addressFields[$fieldName];
+    }
 }

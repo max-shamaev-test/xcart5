@@ -10,7 +10,7 @@ namespace XLite\Module\QSL\CloudSearch\View\ItemsList\Product\Customer;
 
 use XLite\Core\CommonCell;
 use XLite\Module\QSL\CloudSearch\Main;
-use XLite\Module\QSL\CloudSearch\Model\Repo\Product;
+use XLite\Module\QSL\CloudSearch\Model\Repo\Product as ProductRepo;
 
 /**
  * Search products item list
@@ -22,6 +22,18 @@ class Category extends \XLite\View\ItemsList\Product\Customer\Category\Main impl
     const PARAM_CLOUD_FILTERS = 'cloudFilters';
 
     const PARAM_LOAD_PRODUCTS_WITH_CLOUD_SEARCH = 'loadProductsWithCloudSearch';
+
+    /**
+     * Define and set handler attributes; initialize handler
+     *
+     * @param array $params Handler params OPTIONAL
+     */
+    public function __construct(array $params = [])
+    {
+        $this->initializeCsLimitCondition();
+
+        parent::__construct($params);
+    }
 
     /**
      * @return string
@@ -42,7 +54,7 @@ class Category extends \XLite\View\ItemsList\Product\Customer\Category\Main impl
         return Main::isConfigured()
                && Main::isCloudFiltersEnabled()
                && $this->getTarget() == 'category'
-               && !empty($cnd->{Product::P_CLOUD_FILTERS});
+               && !empty($cnd->{ProductRepo::P_CLOUD_FILTERS});
     }
 
     /**
@@ -67,20 +79,6 @@ class Category extends \XLite\View\ItemsList\Product\Customer\Category\Main impl
      */
     protected function isAsynchronouslyFilteringWithCloudSearch(CommonCell $cnd)
     {
-        return empty($cnd->{Product::P_CLOUD_FILTERS});
-    }
-
-    /**
-     * Get current search condition to be used in CloudSearch searching and filtering
-     *
-     * @return CommonCell
-     */
-    protected function getCloudSearchConditions()
-    {
-        $cnd = $this->getLimitCondition();
-
-        $cnd->{\XLite\Model\Repo\Product::P_CATEGORY_ID} = $this->getCategoryId();
-
-        return $cnd;
+        return empty($cnd->{ProductRepo::P_CLOUD_FILTERS});
     }
 }

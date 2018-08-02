@@ -30,8 +30,8 @@ class Logger extends \XLite\Base\Singleton
      */
     public function getLogFile()
     {
-        $pathPart = date('Y' . LC_DS . 'm');
-        return LC_DIR_LOG . $pathPart . LC_DS. 'upgrade.log.' . date('Y-m-d') . '.php';
+        $pathPart = date('Y/m');
+        return LC_DIR_LOG . $pathPart . '/upgrade.log.' . date('Y-m-d') . '.php';
     }
 
     /**
@@ -45,7 +45,7 @@ class Logger extends \XLite\Base\Singleton
 
         $filter = new \Includes\Utils\FileFilter(
             LC_DIR_LOG,
-            '/\/upgrade\.log\.\d{4}-\d{2}-\d{2}\.php$/',
+            '#/upgrade\.log\.\d{4}-\d{2}-\d{2}\.php$#',
             \RecursiveIteratorIterator::CHILD_FIRST
         );
 
@@ -56,7 +56,19 @@ class Logger extends \XLite\Base\Singleton
         }
 
         if ($paths) {
-            arsort($paths);
+            $dates = array_map(function ($path) {
+                if (preg_match('#/upgrade\.log\.(\d{4})-(\d{2})-(\d{2})\.php$#', $path, $matches)) {
+                    return "{$matches[1]}.{$matches[2]}.{$matches[3]}";
+                }
+
+                return 0;
+            }, $paths);
+
+            array_multisort(
+                $dates, SORT_STRING, SORT_DESC,
+                $paths, SORT_STRING, SORT_DESC
+            );
+
             $result = reset($paths);
         }
 

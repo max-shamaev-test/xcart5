@@ -532,12 +532,6 @@ abstract class AEntity extends \XLite\Base\SuperClass implements SerializableEnt
             }
 
             if ($file instanceof \XLite\Model\Base\Image) {
-                if (!$this->isPersistent()) {
-                    $this->update();
-                } else {
-                    \XLite\Core\Database::getEM()->flush();
-                }
-
                 if (!(isset($data['delete']) && $data['delete'])) {
                     $file->prepareSizes();
                 }

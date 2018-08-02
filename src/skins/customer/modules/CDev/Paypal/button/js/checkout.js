@@ -9,9 +9,7 @@
 
 define('paypal_ec_checkout_button_processor', ['paypal_ec_button_processors'], function (Processors) {
   Processors.push(function (element, state) {
-    if (element.is('.paypal-ec-checkout')) {
-      state.size = 'medium';
-
+    if (element.is('.paypal-ec-checkout') || element.is('.paypal-checkout-for-marketplaces')) {
       state.additionalUrlParams.ignoreCheckout = true;
 
       state.payment = function () {
@@ -41,6 +39,39 @@ define('paypal_ec_checkout_button_processor', ['paypal_ec_button_processors'], f
           return data.token;
         });
       };
+
+      if (!state.funding) {
+        state.funding = {};
+      }
+
+      state.funding.allowed = [];
+      state.funding.disallowed = [];
+
+      if (element.is('.pp-funding-credit')) {
+        state.funding.allowed.push(paypal.FUNDING.CREDIR);
+        state.tagline = true;
+      } else {
+        state.funding.disallowed.push(paypal.FUNDING.CREDIT);
+      }
+
+      if (element.data('fundingCard')) {
+        state.funding.allowed.push(paypal.FUNDING.CARD);
+      } else {
+        state.funding.disallowed.push(paypal.FUNDING.CARD);
+      }
+
+      if (element.data('fundingElv')) {
+        state.funding.allowed.push(paypal.FUNDING.ELV);
+      } else {
+        state.funding.disallowed.push(paypal.FUNDING.ELV);
+      }
+
+      if (element.data('fundingVenmo')) {
+        state.funding.allowed.push(paypal.FUNDING.VENMO);
+      } else {
+      }
+
+      state.commit = true;
     }
   })
 });

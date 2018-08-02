@@ -39,7 +39,7 @@ XLite\Model\Config:
     orderby: 40
     translations:
       - code: en
-        option_name: Log all comunications between shopping cart and UPS server
+        option_name: Log all communications between shopping cart and CanadaPost server
 
   - name: additionalSettingsSeparator
     category: XC\CanadaPost
@@ -564,3 +564,34 @@ XLite\Model\LanguageLabel:
   - { name: Return, translations: [{ code: en, label: Return }] }
   - { name: 'The products return has been registered.', translations: [{ code: en, label: 'The products return has been registered.' }] }
   - { name: 'No items have been selected for return.', translations: [{ code: en, label: 'No items have been selected for return.' }] }
+  - { name: 'Directory X is not writable', translations: [{ code: en, label: 'Directory "{{path}}" is not writable or cannot be created' }] }
+  - { name: 'Configure manually', translations: [{ code: en, label: 'Configure manually' }] }
+
+  - { name: 'Authentication options', translations: [{ code: en, label: 'Authentication options' }]}
+  - { name: 'Common options', translations: [{ code: en, label: 'Common options' }]}
+  - { name: 'Contact name for the manifest address', translations: [{ code: en, label: 'Contact name for the manifest address' }]}
+  - { name: 'Contract ID', translations: [{ code: en, label: 'Contract ID' }]}
+  - { name: 'Contract shipping options', translations: [{ code: en, label: 'Contract shipping options' }]}
+  - { name: 'Coverage', translations: [{ code: en, label: 'Coverage' }]}
+  - { name: 'Currency rate', translations: [{ code: en, label: 'Currency rate' }]}
+  - { name: 'Customer number', translations: [{ code: en, label: 'Customer number' }]}
+  - { name: 'Deliver to Post Office options', translations: [{ code: en, label: 'Deliver to Post Office options' }]}
+  - { name: 'Developer mode', translations: [{ code: en, label: 'Developer mode' }]}
+  - { name: 'Enable "Deliver to Post Office" feature', translations: [{ code: en, label: 'Enable "Deliver to Post Office" feature' }]}
+  - { name: 'Failure to finish registration process.', translations: [{ code: en, label: 'Failure to finish registration process.' }]}
+  - { name: 'Failure to get token ID.', translations: [{ code: en, label: 'Failure to get token ID.' }]}
+  - { name: 'Log all communications between shopping cart and Canada Post server', translations: [{ code: en, label: 'Log all communications between shopping cart and Canada Post server' }]}
+  - { name: 'Maximum Post Offices that will be displayed', translations: [{ code: en, label: 'Maximum Post Offices that will be displayed' }]}
+  - { name: 'Non-delivery instructions', translations: [{ code: en, label: 'Non-delivery instructions' }]}
+  - { name: 'Package height (cm)', translations: [{ code: en, label: 'Package height (cm)' }]}
+  - { name: 'Package length (cm)', translations: [{ code: en, label: 'Package length (cm)' }]}
+  - { name: 'Package maximum weight (kg)', translations: [{ code: en, label: 'Package maximum weight (kg)' }]}
+  - { name: 'Package width (cm)', translations: [{ code: en, label: 'Package width (cm)' }]}
+  - { name: 'Proof of age', translations: [{ code: en, label: 'Proof of age' }]}
+  - { name: 'Quote type', translations: [{ code: en, label: 'Quote type' }]}
+  - { name: 'Registration process has been canceled.', translations: [{ code: en, label: 'Registration process has been canceled.' }]}
+  - { name: 'Registration process has been completed successfully.', translations: [{ code: en, label: 'Registration process has been completed successfully.' }]}
+  - { name: 'Render detailed manifest', translations: [{ code: en, label: 'Render detailed manifest' }]}
+  - { name: 'Shipments pick up type', translations: [{ code: en, label: 'Shipments pick up type' }]}
+  - { name: 'Site number of the deposit location', translations: [{ code: en, label: 'Site number of the deposit location' }]}
+  - { name: 'Way to deliver', translations: [{ code: en, label: 'Way to deliver' }]}

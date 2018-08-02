@@ -49,7 +49,10 @@ class AttributeSurcharge extends \XLite\Logic\ALogic
                 $attributeValue = $attributeValue->getAttributeValue();
             }
 
-            if (is_object($attributeValue)) {
+            if (
+                is_object($attributeValue)
+                && $attributeValue instanceof \XLite\Model\AttributeValue\Multiple
+            ) {
                 $value += $attributeValue->getAbsoluteValue('price');
             }
         }

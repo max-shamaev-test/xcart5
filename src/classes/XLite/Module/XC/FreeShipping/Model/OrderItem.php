@@ -23,4 +23,9 @@ class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\IDecorator
     {
         return $this->getProduct()->getFreeShip();
     }
+
+    public function isShipForFree()
+    {
+        return $this->getProduct()->isShipForFree();
+    }
 }

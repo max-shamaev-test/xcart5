@@ -653,7 +653,14 @@ class Session extends \XLite\Base\Singleton
      */
     protected function setCookie()
     {
-        if ('cli' !== PHP_SAPI && !headers_sent()) {
+        if (
+            'cli' !== PHP_SAPI
+            && !headers_sent()
+            && (
+                \XLite\Core\Request::getInstance()->isHTTPS()
+                || !\XLite\Core\Config::getInstance()->Security->customer_security
+            )
+        ) {
             if ($this->isDump()) {
                 \XLite\Core\Request::getInstance()->unsetCookie($this->getName());
                 \XLite\Core\Request::getInstance()->unsetCookie(static::LC_REFERER_COOKIE_NAME);

@@ -9,6 +9,7 @@
 namespace XLite\Module\CDev\Paypal\Controller\Admin;
 
 use \XLite\Module\CDev\Paypal;
+use XLite\Module\CDev\Paypal\Model\Payment\Processor\PaypalWPS;
 
 /**
  * Paypal settings controller
@@ -91,6 +92,61 @@ class PaypalSettings extends \XLite\Controller\Admin\AAdmin
     public function getSignUpUrl()
     {
         return $this->getPaymentMethod()->getReferralPageURL($this->getPaymentMethod());
+    }
+
+    protected function doNoAction()
+    {
+        parent::doNoAction();
+
+        if ($this->getPaymentMethod()
+            && $this->getPaymentMethod()->getProcessor() instanceof PaypalWPS
+        ) {
+            \XLite\Core\TmpVars::getInstance()->paypalPDTNotificationVisible = false;
+        }
+
+        $request = \XLite\Core\Request::getInstance();
+        if ($request->merchantIdInPayPal
+            && $request->permissionsGranted === 'true'
+            && (int) $request->merchantId === 0
+        ) {
+            $method = \XLite\Module\CDev\Paypal\Main::getPaymentMethod(
+                \XLite\Module\CDev\Paypal\Main::PP_METHOD_PFM
+            );
+
+            $paypalForMarketplacesAPI = new \XLite\Module\CDev\Paypal\Core\PaypalForMarketplacesAPI([
+                'client_id'  => $method->getSetting('client_id'),
+                'secret'     => $method->getSetting('secret'),
+                'partner_id' => $method->getSetting('partner_id'),
+                'bn_code'    => $method->getSetting('bn_code'),
+                'mode'       => $method->getProcessor()->isTestMode($method) ? 'sandbox' : 'live',
+            ]);
+
+            $merchantInfo = $paypalForMarketplacesAPI->getMerchantIntegration($request->merchantIdInPayPal);
+
+            if ($merchantInfo->isPaymentsReceivable() && $merchantInfo->isPrimaryEmailConfirmed()) {
+                $method->setSetting('additional_merchant_id', $request->merchantIdInPayPal);
+
+                \XLite\Core\TopMessage::addInfo($request->returnMessage);
+
+                $this->setReturnURL(
+                    $this->buildURL('paypal_settings', '', ['method_id' => $method->getMethodId()])
+                );
+            }
+        }
+    }
+
+    protected function doActionMerchantDisconnect()
+    {
+        $method = \XLite\Module\CDev\Paypal\Main::getPaymentMethod(
+            \XLite\Module\CDev\Paypal\Main::PP_METHOD_PFM
+        );
+
+        $method->setSetting('additional_merchant_id', '');
+        \XLite\Core\Database::getEM()->flush();
+
+        $this->setReturnURL(
+            $this->buildURL('paypal_settings', '', ['method_id' => $method->getMethodId()])
+        );
     }
 
     /**

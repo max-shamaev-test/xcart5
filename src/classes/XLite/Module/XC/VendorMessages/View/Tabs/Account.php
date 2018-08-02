@@ -45,7 +45,7 @@ class Account extends \XLite\View\Tabs\Account implements \XLite\Base\IDecorator
         return parent::defineTabs()
                + [
                 'messages' => [
-                    'title'    => 'Messages',
+                    'title'    => static::t('Messages'),
                     'template' => 'modules/XC/VendorMessages/page/conversations.twig',
                     'weight'   => 400,
                 ]

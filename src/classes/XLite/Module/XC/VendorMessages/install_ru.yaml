@@ -42,8 +42,8 @@ XLite\Model\LanguageLabel:
   - { name: "Dispute", translations: [{ code: ru, label: "Диспут" }] }
   - { name: "Reason", translations: [{ code: ru, label: "Причина" }] }
   - { name: "New messages", translations: [{ code: ru, label: "Новые сообщения" }] }
-  - { name: "Show vendor’s products in the order", translations: [{ code: ru, label: "Показать продукты вендора" }] }
-  - { name: "Hide vendor’s products in the order", translations: [{ code: ru, label: "Скрыть продукты вендора" }] }
+  - { name: "Show vendor’s products in the order", translations: [{ code: ru, label: "Показать товары продавца" }] }
+  - { name: "Hide vendor’s products in the order", translations: [{ code: ru, label: "Скрыть товары продавца" }] }
   - { name: 'Conversation', translations: [{ code: ru, label: 'Разговор' }]}
   - { name: 'Conversations', translations: [{ code: ru, label: 'Разговоры' }]}
   - { name: 'Conversation: X', translations: [{ code: ru, label: 'Разговор: {{members}}' }]}
@@ -58,7 +58,7 @@ XLite\Model\Config:
     category: 'XC\VendorMessages'
     translations:
       - code: ru
-        option_name: 'Разрешить обмен сообщениями между вендором и покупателем в режиме "Склад"'
+        option_name: 'Разрешить обмен сообщениями между продавцом и покупателем в режиме "Общий склад"'
 
 XLite\Model\Notification:
   - { directives: { allowedModel: 'XLite\Model\NotificationTranslations' } }

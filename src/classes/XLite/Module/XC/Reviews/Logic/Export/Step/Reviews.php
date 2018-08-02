@@ -58,7 +58,6 @@ class Reviews extends \XLite\Logic\Export\Step\AStep
             'reviewerName' => [],
             'email'        => [],
             'status'       => [],
-            'ip'           => [],
             'useForMeta'   => [],
         ];
 
@@ -153,7 +152,7 @@ class Reviews extends \XLite\Logic\Export\Step\AStep
      */
     protected function getResponseDateColumnValue(array $dataset, $name, $i)
     {
-        return $this->getColumnValueByName($dataset['model'], 'responseDate');
+        return $this->formatTimestamp($this->getColumnValueByName($dataset['model'], 'responseDate'));
     }
 
     /**
@@ -232,30 +231,6 @@ class Reviews extends \XLite\Logic\Export\Step\AStep
         $status = $dataset['model']->isApproved();
 
         return $status ? 'Approved' : 'Pending';
-    }
-
-    /**
-     * Get column value for 'ip' column
-     *
-     * @param array   $dataset Dataset
-     * @param string  $name    Column name
-     * @param integer $i       Subcolumn index
-     *
-     * @return string
-     */
-    protected function getIpColumnValue(array $dataset, $name, $i)
-    {
-        $result = $dataset['model']->getIp();
-
-        if ((string)((int)$result) === $result) {
-            // To support old style IP values (integer)
-            $result = $result ? long2ip($result) : null;
-
-        } else {
-            $result = $result ? inet_ntop(utf8_decode($result)) : null;
-        }
-
-        return $result;
     }
 
     /**

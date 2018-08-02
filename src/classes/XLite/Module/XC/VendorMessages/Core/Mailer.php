@@ -33,7 +33,7 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
      *
      * @return string | null
      */
-    public function sendMessageNotifications(\XLite\Module\XC\VendorMessages\Model\Message $message)
+    public static function sendMessageNotifications(\XLite\Module\XC\VendorMessages\Model\Message $message)
     {
         /** @var \XLite\Model\Profile $member */
         foreach ($message->getConversation()->getMembers() as $member) {
@@ -86,7 +86,7 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
      *
      * @return string | null
      */
-    public function sendOrderMessageNotifications(\XLite\Module\XC\VendorMessages\Model\Message $message)
+    public static function sendOrderMessageNotifications(\XLite\Module\XC\VendorMessages\Model\Message $message)
     {
         /** @var \XLite\Model\Profile $member */
         foreach ($message->getConversation()->getMembers() as $member) {

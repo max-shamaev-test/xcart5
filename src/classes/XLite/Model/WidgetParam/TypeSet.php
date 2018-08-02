@@ -78,11 +78,11 @@ class TypeSet extends \XLite\Model\WidgetParam\AWidgetParam
      */
     protected function getValidationSchema($value)
     {
-        return array(
-            array(
-                self::ATTR_CONDITION => !isset($this->options[$value]),
-                self::ATTR_MESSAGE   => ' unallowed param value - "' . $value . '"',
-            ),
-        );
+        return [
+            [
+                static::ATTR_CONDITION => !isset($this->options[$value]),
+                static::ATTR_MESSAGE   => ' unallowed param value - "' . $value . '"',
+            ],
+        ];
     }
 }

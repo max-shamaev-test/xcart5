@@ -42,18 +42,6 @@ abstract class ANewArrivals extends \XLite\View\ItemsList\Product\Customer\ACust
 
 
     /**
-     * We remove the sort by modes selector from the new arrivals widgets
-     *
-     * @param array $params Widget params OPTIONAL
-     */
-    public function __construct(array $params = array())
-    {
-        parent::__construct($params);
-
-        $this->sortByModes = array();
-    }
-
-    /**
      * getSortOrderDefault
      *
      * @return string
@@ -115,17 +103,6 @@ abstract class ANewArrivals extends \XLite\View\ItemsList\Product\Customer\ACust
         );
 
         return $searchCase;
-    }
-
-    /**
-     * Return 'Order by' array.
-     * array(<Field to order>, <Sort direction>)
-     *
-     * @return array|null
-     */
-    protected function getOrderBy()
-    {
-        return [static::SORT_BY_MODE_DATE, static::SORT_ORDER_DESC];
     }
 
     /**

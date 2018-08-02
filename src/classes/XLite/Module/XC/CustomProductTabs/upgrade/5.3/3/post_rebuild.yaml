@@ -29,11 +29,11 @@ XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab:
       - code: en
         name: "Payment methods"
         content: "<p>We accept the following payment methods:</p><p><img class=\"fr-draggable fr-dii\" src=\"skins/customer/images/demo/tabs/logos-payments-tab.png\" style=\"width:400px;\" /></p><p>To replace this text with your store's actual info on payment methods, go to \"Catalog -&gt; Product tabs\" and edit the Payment methods page.</p>"
-        brief_info: '<p><img class="fr-draggable fr-dii fr-fil" src="skins/customer/images/demo/tabs/logos-payments-tab.png" style="width:300px;" /></p>'
+        brief_info: '<p><img class="fr-draggable fr-dii fr-fil" src="skins/customer/images/demo/tabs/logos-payments-tab.png" alt="Accepted payment methods" style="width:300px;" /></p>'
       - code: ru
         name: "Способы оплаты"
         content: "<p>Мы принимаем следующие способы оплаты:</p><p><img class=\"fr-draggable fr-dii\" src=\"skins/customer/images/demo/tabs/logos-payments-tab.png\" style=\"width:400px;\" /></p><p>Для замены данного текста на настоящий текст информации о способах оплаты для вашего магазина, перейдите в секцию \"Каталог -> Вкладки страницы товара\" и редактируйте страницу \"Способы оплаты\".</p>"
-        brief_info: '<p><img class="fr-draggable fr-dii fr-fil" src="skins/customer/images/demo/tabs/logos-payments-tab.png" style="width:300px;" /></p>'
+        brief_info: '<p><img class="fr-draggable fr-dii fr-fil" src="skins/customer/images/demo/tabs/logos-payments-tab.png" alt="Методы оплаты" style="width:300px;" /></p>'
 
   - global_tab:
         enabled: false

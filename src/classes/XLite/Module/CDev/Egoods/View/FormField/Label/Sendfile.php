@@ -35,6 +35,6 @@ class Sendfile extends \XLite\View\FormField\Label
 
     protected function getArticleUrl()
     {
-        return 'https://kb.x-cart.com/en/setting_up_x-cart_5_environment/configuring_attachments_sending.html';
+        return static::t('https://kb.x-cart.com/setting_up_x-cart_5_environment/configuring_attachments_sending.html');
     }
 }

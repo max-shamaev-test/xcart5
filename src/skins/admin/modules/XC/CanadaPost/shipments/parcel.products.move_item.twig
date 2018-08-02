@@ -3,11 +3,6 @@
  #}
 
 <div class="move-parcel-item">
-  <input type="text" name="moveItems[{{ this.entity.getId() }}][amount]" size="3" maxlength="12" value="" />
-  <select name="moveItems[{{ this.entity.getId() }}][parcelId]">
-    <option value=""></option>
-    {% for k, v in this.getAllowedToMoveParcels(this.entity.parcel) %}
-      <option value="{{ k }}">{{ v }}</option>
-    {% endfor %}
-  </select>
+  {{ widget('XLite\\View\\FormField\\Inline\\Input\\Text\\Integer', entity=this.entity, fieldName='amount', fieldNamespace='amount', itemsList=this, editOnly=true) }}
+  {{ widget('XLite\\Module\\XC\\CanadaPost\\View\\FormField\\Inline\\Select\\MoveItem', parcelId=this.entity.parcel.getId(), entity=this.entity, fieldName='parcel', fieldNamespace='parcelId', itemsList=this) }}
 </div>

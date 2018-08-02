@@ -128,27 +128,24 @@ class SavedCard extends \XLite\Module\CDev\XPaymentsConnector\Model\Payment\Proc
 
                 if (isset($response['transaction_id'])) {
                     $this->transaction->setDataCell('xpc_txnid', $response['transaction_id'], 'X-Payments transaction id');
-                    // Get updated transaction info from X-Payments
-                    $info = $this->client->requestPaymentInfo($response['transaction_id']);
-                    if ($info->isSuccess()) {
-                        $response = $info->getResponse();
-                        $this->processTransactionUpdate($this->transaction, $response);
-                    }
+                    $this->processTransactionUpdate($this->transaction, $response, $response['transaction_id']);
                 }
 
                 if (isset($response['status'])) {
 
-                    if (static::STATUS_AUTH == $response['status']) {
-                        $this->transaction->setType(\XLite\Model\Payment\BackendTransaction::TRAN_TYPE_AUTH);
+                    if (
+                        static::STATUS_AUTH == $response['status']
+                        || static::STATUS_CHARGED == $response['status']
+                    ) {
+                        $this->setTransactionTypeByStatus($this->transaction, $response['status']);
                         $status = static::COMPLETED;
-
-                    } elseif (static::STATUS_CHARGED == $response['status']) {
-                        $this->transaction->setType(\XLite\Model\Payment\BackendTransaction::TRAN_TYPE_SALE);
-                        $status = static::COMPLETED;
-
                     }
+
                 }
             }       
+
+            $this->transaction->setXpcDataCell('xpc_deny_callbacks', '0');
+
         }
 
         return $status;

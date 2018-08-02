@@ -253,14 +253,14 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
     {
         foreach ($this->getCacheCells() as $name => $cell) {
             // Get cell arguments
-            if ($cell[self::CONVERTER_CACHE_CELL]) {
-                   $params = $this->{$cell[self::CONVERTER_CACHE_CELL]}($entity);
+            if ($cell[static::CONVERTER_CACHE_CELL]) {
+                   $params = $this->{$cell[static::CONVERTER_CACHE_CELL]}($entity);
 
-            } elseif (is_array($cell[self::ATTRS_CACHE_CELL])
-                && $cell[self::ATTRS_CACHE_CELL]
+            } elseif (is_array($cell[static::ATTRS_CACHE_CELL])
+                && $cell[static::ATTRS_CACHE_CELL]
             ) {
                 $params = array();
-                foreach ($cell[self::ATTRS_CACHE_CELL] as $key) {
+                foreach ($cell[static::ATTRS_CACHE_CELL] as $key) {
                     $params[$key] = $entity->{'get' . \XLite\Core\Converter::convertToCamelCase($key)}();
                 }
 
@@ -1206,7 +1206,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
      */
     protected function defineCacheCells()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -1268,22 +1268,22 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
         // Normalize cache cells
         foreach ($cacheCells as $name => $cell) {
             // Set default cell type
-            if (!isset($cell[self::KEY_TYPE_CACHE_CELL])) {
-                $cell[self::KEY_TYPE_CACHE_CELL] = self::DEFAULT_KEY_TYPE;
+            if (!isset($cell[static::KEY_TYPE_CACHE_CELL])) {
+                $cell[static::KEY_TYPE_CACHE_CELL] = static::DEFAULT_KEY_TYPE;
             }
 
             // Set default cell attributes list
-            if (!isset($cell[self::ATTRS_CACHE_CELL])) {
-                $cell[self::ATTRS_CACHE_CELL] = null;
+            if (!isset($cell[static::ATTRS_CACHE_CELL])) {
+                $cell[static::ATTRS_CACHE_CELL] = null;
             }
 
             // Set default cell relations list
-            if (!isset($cell[self::RELATION_CACHE_CELL])) {
-                $cell[self::RELATION_CACHE_CELL] = array();
+            if (!isset($cell[static::RELATION_CACHE_CELL])) {
+                $cell[static::RELATION_CACHE_CELL] = array();
             }
 
             // Collect related models
-            foreach ($cell[self::RELATION_CACHE_CELL] as $model) {
+            foreach ($cell[static::RELATION_CACHE_CELL] as $model) {
                 if (!isset($relations[$model])) {
                     $relations[$model] = array($this->_entityName => array($name));
 
@@ -1297,19 +1297,19 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
 
             // Set cell attributes converter method name
             $method = $this->getCacheParamsConverterName($name);
-            $cell[self::CONVERTER_CACHE_CELL] = method_exists($this, $method)
+            $cell[static::CONVERTER_CACHE_CELL] = method_exists($this, $method)
                 ? $method
                 : false;
 
             // Set cell hash generator method name
-            if (self::CACHE_CUSTOM_KEY === $this->cacheCells[$name][self::KEY_TYPE_CACHE_CELL]) {
-                $cell[self::GENERATOR_CACHE_CELL] = $this->getCacheHashGeneratorName($name);
+            if (static::CACHE_CUSTOM_KEY === $this->cacheCells[$name][static::KEY_TYPE_CACHE_CELL]) {
+                $cell[static::GENERATOR_CACHE_CELL] = $this->getCacheHashGeneratorName($name);
             }
 
             $cacheCells[$name] = $cell;
         }
 
-        return array($cacheCells, $relations);
+        return [$cacheCells, $relations];
     }
 
     /**
@@ -1382,18 +1382,18 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
     {
         $hash = null;
 
-        if (self::CACHE_ATTR_KEY === $cell[self::KEY_TYPE_CACHE_CELL]) {
+        if (static::CACHE_ATTR_KEY === $cell[static::KEY_TYPE_CACHE_CELL]) {
             $hash = implode('.', $params);
 
-        } elseif (self::CACHE_HASH_KEY === $cell[self::KEY_TYPE_CACHE_CELL]) {
+        } elseif (static::CACHE_HASH_KEY === $cell[static::KEY_TYPE_CACHE_CELL]) {
             $hash = md5(implode('.', $params));
 
-        } elseif (self::CACHE_CUSTOM_KEY === $cell[self::KEY_TYPE_CACHE_CELL]) {
-            $hash = $this->{$cell[self::GENERATOR_CACHE_CELL]}($params);
+        } elseif (static::CACHE_CUSTOM_KEY === $cell[static::KEY_TYPE_CACHE_CELL]) {
+            $hash = $this->{$cell[static::GENERATOR_CACHE_CELL]}($params);
         }
 
         if (null !== $hash && empty($hash)) {
-            $hash = self::EMPTY_CACHE_CELL;
+            $hash = static::EMPTY_CACHE_CELL;
         }
 
         return $this->getHashPrefix() . '.' . $name . '.' . $hash;
@@ -1577,7 +1577,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
      */
     protected function getAllowedModifiers()
     {
-        return array('insert', 'update', 'delete');
+        return ['insert', 'update', 'delete'];
     }
 
     /**
@@ -1802,7 +1802,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
             $sort = $this->getDefaultAlias() . '.' . $this->defaultOrderBy;
         }
 
-        return array($sort, $order);
+        return [$sort, $order];
     }
 
     // {{{ Export routines
@@ -1877,11 +1877,11 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
      */
     public function getExportRestrictedCondition()
     {
-        return array(
+        return [
             'limit',
             'sortBy',
             'orderBy',
-        );
+        ];
     }
 
     /**
@@ -2096,11 +2096,11 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
      */
     protected function getExcludedConditions()
     {
-        return array(
-            static::P_LIMIT => array(
+        return [
+            static::P_LIMIT => [
                 static::SEARCH_MODE_COUNT
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -2303,12 +2303,12 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
      */
     protected function getSearchModes()
     {
-        return array(
+        return [
             static::SEARCH_MODE_COUNT     => 'searchCount',
             static::SEARCH_MODE_ENTITIES  => 'searchResult',
             static::SEARCH_MODE_INDEXED     => 'searchIndexed',
             static::SEARCH_MODE_IDS       => 'searchIds',
-        );
+        ];
     }
 
     /**
@@ -2322,7 +2322,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
     {
         $modes = $this->getSearchModes();
 
-        return array($this, $modes[$mode]);
+        return [$this, $modes[$mode]];
     }
 
     /**

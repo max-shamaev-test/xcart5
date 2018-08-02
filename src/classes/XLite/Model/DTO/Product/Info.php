@@ -29,12 +29,23 @@ class Info extends \XLite\Model\DTO\Base\ADTO
             static::addViolation($context, 'marketing.meta_description', Translation::lbl('This field is required'));
         }
 
-        if (!$dto->marketing->clean_url->autogenerate && !$dto->marketing->clean_url->force) {
+        if (!$dto->marketing->clean_url->autogenerate) {
             $repo  = \XLite\Core\Database::getRepo('XLite\Model\CleanURL');
-            $value = $dto->marketing->clean_url->clean_url . '.html';
+            if (!preg_match('/^' . $repo->getPattern('XLite\Model\Product') . '$/Sui', $dto->marketing->clean_url->clean_url)) {
+                static::addViolation($context, 'marketing.clean_url.clean_url', Translation::lbl('The Clean URL entered has unallowed chars.'));
+            }
 
-            if (!$repo->isURLUnique($value, 'XLite\Model\Product', $dto->default->identity)) {
-                static::addViolation($context, 'marketing.clean_url.clean_url', Translation::lbl('The Clean URL entered is already in use.'));
+            if (!$dto->marketing->clean_url->force) {
+                $value = $dto->marketing->clean_url->clean_url . '.html';
+
+                if (!$repo->isURLUnique($value, 'XLite\Model\Product', $dto->default->identity)) {
+                    $conflict = $repo->getConflict($value, 'XLite\Model\Product', $dto->default->identity);
+                    if ($conflict instanceof \XLite\Model\TargetCleanUrl) {
+                        static::addViolation($context, 'marketing.clean_url.clean_url', Translation::lbl('The Clean URL entered is already in use by target alias.'));
+                    } else {
+                        static::addViolation($context, 'marketing.clean_url.clean_url', Translation::lbl('The Clean URL entered is already in use.', ['entityURL' => $repo->buildEditURL($conflict)]));
+                    }
+                }
             }
         }
     }
@@ -105,11 +116,18 @@ class Info extends \XLite\Model\DTO\Base\ADTO
             'inventory_tracking' => $object->getInventoryEnabled(),
             'quantity'           => $object->getAmount(),
         ]);
+
+        $date = new \DateTime('now', \XLite\Core\Converter::getTimeZone());
+        if ($object->getArrivalDate()) {
+            $date->setTimestamp($object->getArrivalDate());
+        }
+        $date->modify('midnight');
+
         $pricesAndInventory         = [
             'memberships'        => $memberships,
             'tax_class'          => $taxClass ? $taxClass->getId() : null,
             'price'              => $object->getPrice(),
-            'arrival_date'       => $object->getArrivalDate() ?: time(),
+            'arrival_date'       => $date->getTimestamp(),
             'inventory_tracking' => $inventoryTracking,
         ];
         $this->prices_and_inventory = new CommonCell($pricesAndInventory);
@@ -121,17 +139,24 @@ class Info extends \XLite\Model\DTO\Base\ADTO
                 'width'  => $object->getBoxWidth(),
                 'height' => $object->getBoxHeight(),
             ],
-        ]);
-        $itemsInBox     = new CommonCell([
             'items_in_box' => $object->getItemsPerBox(),
         ]);
         $shipping       = [
             'weight'            => $object->getWeight(),
             'requires_shipping' => $object->getShippable(),
-            'shipping_box'      => $shippingBox,
-            'items_in_box'      => $itemsInBox,
         ];
         $this->shipping = new CommonCell($shipping);
+
+        static::compose(
+            $this,
+            [
+                'shipping' => [
+                    'requires_shipping' => [
+                        'shipping_box' => $shippingBox,
+                    ],
+                ],
+            ]
+        );
 
         $cleanURL = new CommonCell([
             'autogenerate' => !(boolean) $object->getCleanURL(),
@@ -210,7 +235,11 @@ class Info extends \XLite\Model\DTO\Base\ADTO
         $object->setPrice((float) $priceAndInventory->price);
 
         if ((int) $priceAndInventory->arrival_date) {
-            $object->setArrivalDate(\XLite\Core\Converter::getDayStart((int) $priceAndInventory->arrival_date));
+            $date = new \DateTime('now', \XLite\Core\Converter::getTimeZone());
+            $date->setTimestamp($priceAndInventory->arrival_date);
+            $date->modify('midnight');
+
+            $object->setArrivalDate($date->getTimestamp());
         }
 
         $object->setInventoryEnabled((boolean) $priceAndInventory->inventory_tracking->inventory_tracking);
@@ -218,16 +247,16 @@ class Info extends \XLite\Model\DTO\Base\ADTO
 
         $shipping = $this->shipping;
         $object->setWeight((float) $shipping->weight);
-        $object->setShippable((boolean) $shipping->requires_shipping);
+        $object->setShippable((boolean) $shipping->requires_shipping->requires_shipping);
 
-        $shippingBox = $shipping->shipping_box;
+        $shippingBox = $shipping->requires_shipping->shipping_box;
         $object->setUseSeparateBox((boolean) $shippingBox->separate_box);
 
         $object->setBoxLength($shippingBox->dimensions['length']);
         $object->setBoxWidth($shippingBox->dimensions['width']);
         $object->setBoxHeight($shippingBox->dimensions['height']);
 
-        $object->setItemsPerBox($shipping->items_in_box->items_in_box);
+        $object->setItemsPerBox($shipping->requires_shipping->shipping_box->items_in_box);
 
         $marketing = $this->marketing;
         $object->setMetaDescType($marketing->meta_description_type);

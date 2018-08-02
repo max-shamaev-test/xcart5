@@ -35,10 +35,10 @@ abstract class Product extends \XLite\Model\Product implements \XLite\Base\IDeco
 
                 $repo = Database::getRepo('\XLite\Module\XC\ProductVariants\Model\ProductVariant');
                 $defVariant = $repo->findOneBy(
-                    array(
+                    [
                         'product'      => $this,
                         'defaultValue' => true,
-                    )
+                    ]
                 );
 
                 if (

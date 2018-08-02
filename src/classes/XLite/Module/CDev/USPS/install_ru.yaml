@@ -184,7 +184,6 @@ XLite\Model\Config:
         option_name: Добавлять новые методы USPS включенными
 
 XLite\Model\LanguageLabel:
-  - { name: 'U.S.P.S. module allows you to use online shipping rates calculation via USPS Web Tools Ecommerce API.', translations: [{ code: ru, label: '<strong>U.S.P.S.</strong> module allows you to use online shipping rates calculation via <a href="http://www.usps.com/webtools">USPS Web Tools Ecommerce API</a>.' }] }
   - { name: '"Cash on delivery" status', translations: [{ code: ru, label: 'Состояние варианта оплаты "Наложенный платеж"' }] }
   - { name: 'usps.CODStatusOptionComment', translations: [{ code: ru, label: 'Важно: Чтобы включить/отключить вариант оплаты "Наложенный платеж", необходимо включить/отключить способ оплаты "Наложеный платеж (U.S.P.S.)" на <a href="{{URL}}">странице Способов оплаты</a>.' }] }
   - { name: 'Refresh list of available methods', translations: [{ code: ru, label: 'Обновить список доступных методов' }] }
@@ -221,4 +220,3 @@ XLite\Model\LanguageLabel:
   - { name: 'Shipping label sender signature', translations: [{ code: ru, label: 'Shipping label sender signature' }] }
   - { name: 'Adds the sender’s signature and the date on CN22 and CP72 shipping labels. Enter the signature as a string. The Sender’s signature date is automatically populated.', translations: [{ code: ru, label: 'Adds the sender’s signature and the date on CN22 and CP72 shipping labels. Enter the signature as a string. The Sender’s signature date is automatically populated.' }] }
   - { name: 'Create shipment', translations: [{ code: ru, label: 'Create shipment' }] }
-  - { name: 'USPS via Pitney Bowes brings you competitive and discounted USPS pricing via the X-Cart 5 interface. Print shipping labels with ease and track USPS shipments from origin to delivery with Pitney Bowes and X-Cart.', translations: [{ code: ru, label: 'USPS via Pitney Bowes brings you competitive and discounted USPS pricing via the X-Cart 5 interface. Print shipping labels with ease and track USPS shipments from origin to delivery with Pitney Bowes and X-Cart.' }] }

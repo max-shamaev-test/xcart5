@@ -63,7 +63,7 @@ class TestRates extends \XLite\View\Model\TestRates
     protected function getDefaultModelObjectValues()
     {
         $result = parent::getDefaultModelObjectValues();
-        $result[static::SCHEMA_FIELD_SRC_COUNTRY] = 'United States';
+        $result[static::SCHEMA_FIELD_SRC_COUNTRY] = 'United States / Puerto Rico';
 
         return $result;
     }

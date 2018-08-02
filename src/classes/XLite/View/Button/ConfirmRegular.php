@@ -16,7 +16,7 @@ class ConfirmRegular extends \XLite\View\Button\Regular
     /**
      * Widget parameter names
      */
-    const PARAM_CONFIRM_TEXT      = 'confirmText';
+    const PARAM_CONFIRM_TEXT = 'confirmText';
 
     /**
      * Define widget parameters
@@ -27,9 +27,14 @@ class ConfirmRegular extends \XLite\View\Button\Regular
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
-            self::PARAM_CONFIRM_TEXT    => new \XLite\Model\WidgetParam\TypeString('Confirm text', static::t('Are you sure?')),
-        );
+        $this->widgetParams += [
+            self::PARAM_CONFIRM_TEXT => new \XLite\Model\WidgetParam\TypeString('Confirm text', $this->getDefaultConfirmText()),
+        ];
+    }
+
+    protected function getDefaultConfirmText()
+    {
+        return static::t('Are you sure?');
     }
 
     /**

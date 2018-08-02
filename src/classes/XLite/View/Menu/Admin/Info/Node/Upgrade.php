@@ -8,6 +8,7 @@
 
 namespace XLite\View\Menu\Admin\Info\Node;
 
+use XLite\Core\Auth;
 use XLite\Core\Cache\ExecuteCached;
 
 /**
@@ -80,6 +81,15 @@ class Upgrade extends \XLite\View\Menu\Admin\ANodeNotification
         $status = $this->getStatus();
 
         return parent::isVisible() && $status && $status['status'] !== static::STATUS_NO_UPDATES;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function checkACL()
+    {
+        return parent::checkACL()
+            && Auth::getInstance()->hasRootAccess();
     }
 
     /**

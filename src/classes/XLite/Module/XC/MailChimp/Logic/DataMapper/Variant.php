@@ -23,7 +23,7 @@ class Variant
             'title'                 => $item->getName() ?: '',
             'url'                   => '',
             'sku'                   => $item->getSku(),
-            'price'                 => $item->getNetPrice(),
+            'price'                 => $item->getDisplayPrice(),
             'inventory_quantity'    => 1,
             'image_url'             => $item->getImageURL() ?: '',
         ];
@@ -50,7 +50,7 @@ class Variant
             'title'                 => $product->getName() ?: '',
             'url'                   => $product->getFrontURLForMailChimp(),
             'sku'                   => $product->getSku(),
-            'price'                 => $product->getNetPrice(),
+            'price'                 => $product->getDisplayPrice(),
             'inventory_quantity'    => $product->getQty(),
             'image_url'             => $product->getImageURL() ?: '',
         ];

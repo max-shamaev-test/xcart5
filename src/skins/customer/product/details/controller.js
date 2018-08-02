@@ -97,7 +97,6 @@ ProductDetailsController.prototype.initialize = function()
     _.bind(
       function(event, box) {
         this.bind(box);
-        core.trigger('update-product-page', this.productId);
       },
       this
     )
@@ -112,6 +111,10 @@ function ProductDetailsView (base, productId) {
   this.callSupermethod('constructor', arguments);
 
   this.productId = productId;
+
+  this.bind('local.loaded', function () {
+    core.trigger('update-product-page', productId);
+  });
 
   core.bind('mm-menu.created', function(event, api){
     if (_.has(jQuery, 'colorbox')) {
@@ -198,7 +201,6 @@ ProductDetailsView.prototype.postprocess = function(isSuccess, initial)
   this.callSupermethod('postprocess', arguments);
 
   if (isSuccess) {
-
     // Hide popup title
     jQuery(this.base).parents('.ui-dialog').eq(0).addClass('no-title');
 
@@ -365,8 +367,8 @@ ProductDetailsView.prototype.postprocess = function(isSuccess, initial)
           var link = jQuery(event.currentTarget);
           this.openTab(link);
 
-          if (history.pushState) {
-            history.pushState(null, null, initialURL + '#' + link.data('id'));
+          if (history.replaceState) {
+            history.replaceState(null, null, initialURL + '#' + link.data('id'));
 
           } else {
             self.location.hash = link.data('id');
@@ -413,6 +415,16 @@ ProductDetailsView.prototype.openTab = function(link)
   tabsBase.find('.tabs-container #' + link.data('id')).show();
 
   this.triggerVent('tab.open', { widget: this, tab: link });
+
+  if (link.closest('.panel').find('.panel-collapse').length) {
+    var pane = link.closest('.panel').find('.panel-collapse').first();
+    pane.on('transitionend webkitTransitionEnd oTransitionEnd', function () {
+      pane.unbind('transitionend webkitTransitionEnd oTransitionEnd');
+      $('html, body').animate({
+        scrollTop: (link.offset().top - $('#header-area').height())
+      },300);
+    });
+  }
 };
 
 ProductDetailsView.prototype.checkLocation = function()
@@ -451,6 +463,8 @@ ProductDetailsView.prototype.checkLocation = function()
 
       if (state.tab) {
         this.openTab(state.tab);
+      } else {
+        tabsBase.find('a[data-id="' + hash + '"]:first').click();
       }
     } else {
       var tabsBase = jQuery('.product-details-tabs', this.base);

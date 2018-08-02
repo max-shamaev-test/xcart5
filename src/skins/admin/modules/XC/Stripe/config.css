@@ -86,10 +86,7 @@
 }
 
 .stripe .instruction li {
-  display: inline-block;
-  width: 210px;
-  vertical-align: top;
-  margin-right: 20px;
+  margin-top:10px;
 }
 
 .stripe .instruction li .number {
@@ -105,65 +102,17 @@
   text-align: center;
   vertical-align: middle;
   font-size: 18px;
-  margin-top: 3px;
+  display: inline-block;
 }
 
 .stripe .instruction li p {
-  font-size: 12px;
-  line-height: 16px;
-  margin-left: 33px;
-  min-height: 50px;
+  margin-left: 15px;
+  display: inline-block;
+  margin-top: 3px;
 }
 
-.stripe .instruction li img {
-  width: 207px;
-  height: 150px;
-}
-
-.stripe .instruction .step-1 .circles {
-  margin-top: 17px;
-}
-
-.stripe .instruction .step-2 .circles {
-  margin-top: 16px;
-}
-
-.stripe .instruction .step-3 .circles {
-  margin-top: 16px;
-}
-
-.stripe .circles {
-  position: relative;
-}
-
-.stripe .circle {
-  position: absolute;
-  width: 53px;
-  height: 53px;
-  border: 2px solid #ffa66b;
-  -moz-border-radius: 30px;
-  -webkit-border-radius: 30px;
-  border-radius: 30px;
-}
-
-.stripe .instruction .step-1 .circle-1 {
-  top: 4px;
-  left: 82px;
-}
-
-.stripe .instruction .step-2 .circle-1 {
-  top: -11px;
-  left: 72px;
-}
-
-.stripe .instruction .step-2 .circle-2 {
-  top: 106px;
-  left: 155px;
-}
-
-.stripe .instruction .step-3 .circle-1 {
-  top: 43px;
-  left: 37px;
+.stripe .instruction li.more p {
+  margin-left: 0;
 }
 
 .stripe .buttons button {

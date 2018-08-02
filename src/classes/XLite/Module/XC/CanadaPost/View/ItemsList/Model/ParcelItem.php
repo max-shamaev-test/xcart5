@@ -60,13 +60,12 @@ class ParcelItem extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_ORDERBY       => 100,
                 static::COLUMN_NAME          => static::t('SKU'),
                 static::COLUMN_NO_WRAP       => true,
+                static::COLUMN_MAIN          => true,
                 static::COLUMN_METHOD_SUFFIX => 'Sku',
             ),
             'name'                           => array(
                 static::COLUMN_ORDERBY       => 200,
                 static::COLUMN_NAME          => static::t('Product name'),
-                static::COLUMN_NO_WRAP       => true,
-                static::COLUMN_MAIN          => true,
             ),
             'amount'                         => array(
                 static::COLUMN_ORDERBY       => 300,
@@ -107,18 +106,6 @@ class ParcelItem extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Define so called "request" parameters
-     *
-     * @return void
-     */
-    protected function defineRequestParams()
-    {
-        parent::defineRequestParams();
-
-        $this->requestParams = array_merge($this->requestParams, static::getSearchParams());
-    }
-
-    /**
      * Return true if widget can be displayed
      *
      * @return boolean
@@ -126,7 +113,7 @@ class ParcelItem extends \XLite\View\ItemsList\Model\Table
     protected function isVisible()
     {
         return parent::isVisible()
-        && $this->getParcel();
+            && $this->getParcel();
     }
 
     /**
@@ -151,6 +138,16 @@ class ParcelItem extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
+     * Get data prefix
+     *
+     * @return string
+     */
+    public function getDataPrefix()
+    {
+        return 'moveItems';
+    }
+
+    /**
      * Get container class
      *
      * @return string
@@ -171,6 +168,17 @@ class ParcelItem extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
+     * @return \XLite\Core\CommonCell
+     */
+    protected function getSearchCondition()
+    {
+        $result = parent::getSearchCondition();
+        $result->{static::PARAM_PARCEL_ID} = $this->getParcelId();
+
+        return $result;
+    }
+
+    /**
      * Return name of the session cell identifier
      *
      * @return string
@@ -181,34 +189,6 @@ class ParcelItem extends \XLite\View\ItemsList\Model\Table
     }
     
     // {{{ Search
-
-    /**
-     * Return search parameters
-     *
-     * @return array
-     */
-    static public function getSearchParams()
-    {
-        return array(
-            \XLite\Module\XC\CanadaPost\Model\Repo\Order\Parcel\Item::P_PARCEL_ID => static::PARAM_PARCEL_ID
-        );
-    }
-
-    /**
-     * Return params list to use for search
-     *
-     * @return \XLite\Core\CommonCell
-     */
-    protected function getSearchCondition()
-    {
-        $result = parent::getSearchCondition();
-
-        foreach (static::getSearchParams() as $modelParam => $requestParam) {
-            $result->{$modelParam} = $this->getParam($requestParam);
-        }
-
-        return $result;
-    }
 
     // }}}
 
@@ -322,36 +302,6 @@ class ParcelItem extends \XLite\View\ItemsList\Model\Table
     protected function preprocessTotalWeight($weight, array $column, \XLite\Module\XC\CanadaPost\Model\Order\Parcel\Item $item)
     {
         return $weight . ' ' . static::t('kg');
-    }
-
-    // }}}
-
-    // {{{ Helpers
-
-    /**
-     * Get allowed parcels to move
-     *
-     * @param \XLite\Module\XC\CanadaPost\Model\Order\Parcel $parcel Canada Post parcel object
-     *
-     * @return array
-     */
-    public function getAllowedToMoveParcels(\XLite\Module\XC\CanadaPost\Model\Order\Parcel $parcel)
-    {
-        $allowedParcels = array();
-
-        foreach ($parcel->getOrder()->getCapostParcels() as $p) {
-
-            if (
-                $p->getId() !== $parcel->getId()
-                && $p->isEditable()
-            ) {
-                $allowedParcels[$p->getId()] = static::t('Parcel') . ' #' . $p->getNumber();
-            }
-        }
-
-        $allowedParcels['NEW'] = static::t('New parcel');
-
-        return $allowedParcels;
     }
 
     // }}}

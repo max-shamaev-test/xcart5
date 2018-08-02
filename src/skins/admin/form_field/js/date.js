@@ -10,14 +10,50 @@
 CommonElement.prototype.handlers.push(
   {
     canApply: function () {
-      return this.$element.is('input.datepicker');
+      return this.$element.is('input[type="text"].datepicker');
     },
     handler: function () {
-      var options = core.getCommentedData(this.$element.parents('.input-field-wrapper'));
-      this.$element.datepicker({
-        dateFormat: options.dateFormat,
-        firstDay:   options.firstDay,
-      });
+        var options = core.getCommentedData(this.$element.parents('.input-field-wrapper'));
+        var locale = options.locale;
+        var defaultDate = this.$element.val();
+
+        var formatDefaultLocaleDate = function (format, date) {
+            return $.datepicker.formatDate( format, new Date(date), {
+                dayNamesShort: $.datepicker.regional[''].dayNamesShort,
+                dayNames: $.datepicker.regional[''].dayNames,
+                monthNamesShort: $.datepicker.regional[''].monthNamesShort,
+                monthNames: $.datepicker.regional[''].monthNames
+            });
+        };
+
+        var changeHiddenValue = function ($el) {
+            $($el).siblings('.datepicker-value-input')
+                .val(formatDefaultLocaleDate($($el).datepicker('option', 'dateFormat'), $($el).datepicker('getDate')));
+        };
+
+        $.datepicker.setDefaults($.datepicker.regional['']);
+        if ($.datepicker.regional[locale] !== undefined) {
+            $.datepicker.setDefaults($.datepicker.regional[locale]);
+
+            if (defaultDate !== undefined && defaultDate !== '') {
+                defaultDate = $.datepicker.formatDate(options.dateFormat, new Date(defaultDate));
+                this.$element.val(defaultDate);
+            }
+        }
+
+        this.$element
+            .change(function (event) {
+                changeHiddenValue(this);
+            })
+            .datepicker({
+                dateFormat:        options.dateFormat,
+                firstDay:          options.firstDay,
+                onSelect: function (date) {
+                    changeHiddenValue(this);
+                    jQuery(this).change();
+                }
+            });
     }
   }
 );
+

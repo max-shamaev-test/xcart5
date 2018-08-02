@@ -26,6 +26,7 @@ class Image extends \XLite\View\AView
     const PARAM_USE_CACHE         = 'useCache';
     const PARAM_USE_DEFAULT_IMAGE = 'useDefaultImage';
     const PARAM_IMAGE_SIZE_TYPE   = 'imageSizeType';
+    const PARAM_IS_BLUR_APPLICABLE = 'isBlurApplicable';
 
 
     /**
@@ -190,7 +191,7 @@ class Image extends \XLite\View\AView
                 . ' ' . \XLite\Model\Base\Image::RETINA_RATIO . 'x';
         }
 
-        if ($this->getBlurredImageData()) {
+        if ($this->getParam(static::PARAM_IS_BLUR_APPLICABLE) && $this->getBlurredImageData()) {
             $backgroundStyle = " background: url({$this->getBlurredImageData()}); background-size: cover;";
 
             $this->properties['style'] = isset($this->properties['style'])
@@ -262,6 +263,7 @@ class Image extends \XLite\View\AView
             self::PARAM_USE_CACHE         => new \XLite\Model\WidgetParam\TypeBool('Use cache', 1),
             self::PARAM_USE_DEFAULT_IMAGE => new \XLite\Model\WidgetParam\TypeBool('Use default image', 1),
             self::PARAM_IMAGE_SIZE_TYPE   => new \XLite\Model\WidgetParam\TypeString('Imeage size type', ''),
+            self::PARAM_IS_BLUR_APPLICABLE => new \XLite\Model\WidgetParam\TypeBool('Is blur applicable', 0),
         ];
     }
 

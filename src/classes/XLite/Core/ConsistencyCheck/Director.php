@@ -10,12 +10,14 @@ namespace XLite\Core\ConsistencyCheck;
 
 use XLite\Core\ConsistencyCheck\Rules\AttributeValue\AttributeValueSelect\AttributeOptionExistsRule;
 use XLite\Core\ConsistencyCheck\Rules\Category\RootRule;
+use XLite\Core\ConsistencyCheck\Rules\CleanURL\DuplicateRule;
 use XLite\Core\ConsistencyCheck\Rules\Order\PaymentStatusExistsRule;
 use XLite\Core\ConsistencyCheck\Rules\Order\ProfileExistsRule;
 use XLite\Core\ConsistencyCheck\Rules\Order\ShippingStatusExistsRule;
 use XLite\Core\ConsistencyCheck\Rules\OrderItem\OwnerRule;
 use XLite\Core\ConsistencyCheck\Rules\Surcharges\OrderItemSurchargesRule;
 use XLite\Core\ConsistencyCheck\Rules\Surcharges\OrderSurchargesRule;
+use XLite\Core\Database;
 
 class Director
 {
@@ -28,6 +30,10 @@ class Director
             'categories' => [
                 'name'      => 'Categories',
                 'retriever' => new Retriever($this->getCategoriesRules()),
+            ],
+            'clean_urls' => [
+                'name'      => 'Clean URL',
+                'retriever' => new Retriever($this->getCleanURLRules()),
             ],
             'surcharges' => [
                 'name'      => 'Surcharges',
@@ -55,7 +61,19 @@ class Director
     {
         return [
             'root_category_check' => new RootRule(
-                \XLite\Core\Database::getRepo('XLite\Model\Category')
+                Database::getRepo('XLite\Model\Category')
+            ),
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getCleanURLRules()
+    {
+        return [
+            'duplicates' => new DuplicateRule(
+                Database::getRepo('XLite\Model\CleanURL')
             ),
         ];
     }
@@ -67,10 +85,10 @@ class Director
     {
         return [
             'order_surcharges' => new OrderSurchargesRule(
-                \XLite\Core\Database::getRepo('XLite\Model\Order\Surcharge')
+                Database::getRepo('XLite\Model\Order\Surcharge')
             ),
             'order_item_surcharges' => new OrderItemSurchargesRule(
-                \XLite\Core\Database::getRepo('XLite\Model\OrderItem\Surcharge')
+                Database::getRepo('XLite\Model\OrderItem\Surcharge')
             ),
         ];
     }
@@ -82,7 +100,7 @@ class Director
     {
         return [
             'order_items' => new OwnerRule(
-                \XLite\Core\Database::getRepo('XLite\Model\OrderItem')
+                Database::getRepo('XLite\Model\OrderItem')
             ),
         ];
     }
@@ -94,13 +112,13 @@ class Director
     {
         return [
             'profile_exists' => new ProfileExistsRule(
-                \XLite\Core\Database::getRepo('XLite\Model\Order')
+                Database::getRepo('XLite\Model\Order')
             ),
             'shipping_status_exists' => new ShippingStatusExistsRule(
-                \XLite\Core\Database::getRepo('XLite\Model\Order')
+                Database::getRepo('XLite\Model\Order')
             ),
             'payment_status_exists' => new PaymentStatusExistsRule(
-                \XLite\Core\Database::getRepo('XLite\Model\Order')
+                Database::getRepo('XLite\Model\Order')
             ),
         ];
     }
@@ -112,7 +130,7 @@ class Director
     {
         return [
             'option_exists' => new AttributeOptionExistsRule(
-                \XLite\Core\Database::getRepo('XLite\Model\AttributeValue\AttributeValueSelect')
+                Database::getRepo('XLite\Model\AttributeValue\AttributeValueSelect')
             ),
         ];
     }

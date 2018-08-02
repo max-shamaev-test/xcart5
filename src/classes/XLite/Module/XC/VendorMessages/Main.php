@@ -44,7 +44,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '1';
+        return '4';
     }
 
     /**
@@ -62,7 +62,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getModuleName()
     {
-        return 'Order messages';
+        return 'Messages';
     }
 
     /**
@@ -70,9 +70,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getDescription()
     {
-        return 'The module enhances communication system in your store providing an opportunity for customers, '
-            . 'administrator and vendors to start conversation or dispute about an order right on the Order details '
-            . 'page.';
+        return 'The module adds an opportunity for customers, administrator and sellers to start messaging about an order right from the order details page. In multi-vendor edition, this addon also allows customers to reach a seller from the seller\'s page before purchasing.';
     }
 
     /**

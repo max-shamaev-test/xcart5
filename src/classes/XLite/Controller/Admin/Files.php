@@ -8,6 +8,11 @@
 
 namespace XLite\Controller\Admin;
 
+use lsolesen\pel\PelDataWindow;
+use lsolesen\pel\PelJpeg;
+use lsolesen\pel\PelTag;
+use XLite\Model\Base\Image;
+
 /**
  * File upload controller
  */
@@ -79,6 +84,7 @@ class Files extends \XLite\Controller\Admin\AAdmin
         $message = '';
         if ($file->loadFromRequest('file')) {
             $this->checkFile($file);
+            $this->postProcessImageUpload($file);
             \XLite\Core\Database::getEM()->persist($file);
             \XLite\Core\Database::getEM()->flush();
 
@@ -106,6 +112,7 @@ class Files extends \XLite\Controller\Admin\AAdmin
         $message = '';
         if ($file->loadFromURL(\XLite\Core\Request::getInstance()->uploadedUrl, \XLite\Core\Request::getInstance()->copy)) {
             $this->checkFile($file);
+            $this->postProcessImageUpload($file);
             \XLite\Core\Database::getEM()->persist($file);
             \XLite\Core\Database::getEM()->flush();
 
@@ -114,6 +121,110 @@ class Files extends \XLite\Controller\Admin\AAdmin
         }
 
         $this->sendResponse($file, $message);
+    }
+
+    /**
+     * @param Image $file
+     */
+    protected function postProcessImageUpload(Image $file)
+    {
+        if (
+            $file->isImage()
+            && in_array($file->getStorageType(), $this->getStorageTypesToImagePostProcess())
+            && $file->isFileExists(null, true)
+        ) {
+            try {
+                $content = file_get_contents($file->getStoragePath());
+                $dataWindow = new PelDataWindow($content);
+
+                if (PelJpeg::isValid($dataWindow)) {
+                    $jpeg = new PelJpeg($dataWindow);
+
+                    if ($jpeg->getExif()) {
+                        $entry = $jpeg->getExif()->getTiff()->getIfd()->getEntry(
+                            PelTag::ORIENTATION
+                        );
+
+                        if (
+                            $entry
+                            && (integer)$entry->getValue() !== 1
+                        ) {
+                            $this->processImageOrientation(
+                                $file->getStoragePath(),
+                                $this->getOperationsByExifOrientation($entry->getValue())
+                            );
+                            $entry->setValue(1);
+                            $file->renewStorage();
+                        }
+                    }
+                }
+            } catch (\lsolesen\pel\PelException $e) {}
+        }
+    }
+
+    /**
+     * @param       $file
+     * @param array $operations
+     */
+    protected function processImageOrientation($file, array $operations)
+    {
+        $operator = new \XLite\Core\ImageOperator($file);
+
+        if (!empty($operations['rotate'])) {
+            $operator->rotate($operations['rotate']);
+        }
+
+        if (!empty($operations['mirror'])) {
+            $operator->mirror();
+        }
+
+        file_put_contents($file, $operator->getImage()->getBody());
+    }
+
+    /**
+     * @param $orientation
+     *
+     * @return array
+     */
+    protected function getOperationsByExifOrientation($orientation)
+    {
+        return [
+            'mirror' => in_array((integer)$orientation, [2, 4, 5, 7]),
+            'rotate' => $this->getDegreeByOrientation((integer)$orientation)
+        ];
+    }
+
+    /**
+     * @param int $orientation
+     *
+     * @return int
+     */
+    protected function getDegreeByOrientation($orientation)
+    {
+        switch ($orientation) {
+            case 3:
+            case 4:
+                return 180;
+            case 5:
+            case 6:
+                return 270;
+            case 7:
+            case 8:
+                return 90;
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * @return array
+     */
+    protected function getStorageTypesToImagePostProcess()
+    {
+        return [
+            \XLite\Model\Base\Storage::STORAGE_ABSOLUTE,
+            \XLite\Model\Base\Storage::STORAGE_RELATIVE,
+        ];
     }
 
     /**

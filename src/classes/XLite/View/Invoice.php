@@ -374,6 +374,16 @@ class Invoice extends \XLite\View\AView
     }
 
     /**
+     * Return true if email field should be displayed in the billing address section
+     *
+     * @return boolean
+     */
+    protected function isDisplayBillingEmail()
+    {
+        return true;
+    }
+
+    /**
      * Return true if hidden email field should be displayed in the shipping address section
      * TODO: this is a hack to avoid misalign in address section. Need to be revised later
      *

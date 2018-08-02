@@ -127,14 +127,15 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
     {
         if ($this->getModelForm()->performAction('modify')) {
             $this->setReturnUrl(
-                \XLite\Core\Converter::buildURL(
+                $this->getReturnURL()
+                    ?: \XLite\Core\Converter::buildURL(
                     'product',
                     null,
-                    array(
+                    [
                         'product_id'    => \XLite\Core\Request::getInstance()->product_id,
                         'page'          => 'tabs',
-                        'global_tab_id' => $this->getModelForm()->getModelObject()->getId()
-                    )
+                        'global_tab_id' => $this->getModelForm()->getModelObject()->getId(),
+                    ]
                 )
             );
         }

@@ -4,7 +4,6 @@
 <shipping-methods inline-template :deferred="{{ this.shouldReload() ? 'true' : 'false' }}">
 
   {% if this.isShippingAvailable() %}
-
     {{ widget('\\XLite\\Module\\XC\\FastLaneCheckout\\View\\Blocks\\ShippingMethods\\Selector') }}
 
   {% else %}

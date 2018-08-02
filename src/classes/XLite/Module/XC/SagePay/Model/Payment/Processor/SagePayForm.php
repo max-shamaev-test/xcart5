@@ -80,6 +80,7 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
             }
 
             $this->setDetail('StatusDetail', $requestBody['StatusDetail'], 'Status details');
+            $this->transaction->setNote($requestBody['StatusDetail']);
         } else {
             // Invalid response
             $this->setDetail('StatusDetail', 'Invalid response was received', 'Status details');

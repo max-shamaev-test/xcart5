@@ -253,6 +253,8 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
         $list = new \XLite\Module\XC\ProductVariants\View\ItemsList\Model\ProductVariant;
         $list->processQuick();
         $this->getProduct()->checkVariants();
+
+        $this->getProduct()->checkVariantsAttributes();
     }
 
     /**
@@ -289,6 +291,8 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
             }
 
             \XLite\Core\Database::getEM()->flush();
+
+            $this->getProduct()->checkVariantsAttributes();
 
             $this->getProduct()->assignDefaultVariant();
 

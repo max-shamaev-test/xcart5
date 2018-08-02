@@ -125,6 +125,8 @@ window.core = {
 
   resources: [],
 
+  htmlResourcesLoadDeferred: new $.Deferred(),
+
   // Collections of the getters which return the parameters of the widgets to get via widgets collection process
   widgetsParamsGetters: {},
 
@@ -292,7 +294,9 @@ window.core = {
   {
     if (_.isArray(name)) {
       for(var key in name) {
-        this.messages.bind(name[key].toLowerCase(), callback);
+        if (name.hasOwnProperty(key)) {
+          this.messages.bind(name[key].toLowerCase(), callback);
+        }
       }
     } else {
       this.messages.bind(name.toLowerCase(), callback);
@@ -527,6 +531,10 @@ window.core = {
     return this.translator;
   },
 
+  getHtmlResourcesLoadPromise: function () {
+    return this.htmlResourcesLoadDeferred.promise();
+  },
+
   loadResource: function(resource, type)
   {
     var deferred = new $.Deferred();
@@ -597,17 +605,19 @@ window.core = {
     var deferred = new $.Deferred();
     var promises = [];
 
-    for (var key in list) {
-      var resource = list[key];
+    $.when(this.getHtmlResourcesLoadPromise()).then(function(){
+      for (var key in list) {
+        var resource = list[key];
 
-      promises.push(core.loadResource(resource, type));
-    }
-
-    $.when.apply($, promises).then(
-      function(){
-        deferred.resolve();
+        promises.push(core.loadResource(resource, type));
       }
-    );
+
+      $.when.apply($, promises).then(
+        function(){
+          deferred.resolve();
+        }
+      );
+    });
 
     return deferred.promise();
   },
@@ -1006,7 +1016,7 @@ window.core = {
     var params = url.match(/[^&=]=[^&=]+/g);
 
     names.forEach(function (i, k) {
-      result[i] = params[k].substr(2);
+      result[i] = decodeURI(params[k].substr(2));
     });
 
     return result;

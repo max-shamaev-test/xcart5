@@ -45,16 +45,6 @@ abstract class URLManager extends \Includes\Utils\URLManager
 
             $info = curl_getinfo($ch);
 
-            /* FIXME: left for debug purposes. Remove this code later
-            \XLite\Logger::logCustom(
-                'DEBUG',
-                array(
-                    'checkSSL' => $checkSSL,
-                    'HTTP response code' => var_export($info, true),
-                )
-            );
-             */
-
             curl_close($ch);
 
             self::$requestCache[$key] = in_array($info['http_code'], array(200, 301, 302));

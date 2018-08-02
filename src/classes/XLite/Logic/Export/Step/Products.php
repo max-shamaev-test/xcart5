@@ -46,45 +46,47 @@ class Products extends \XLite\Logic\Export\Step\Base\I18n
      */
     protected function defineColumns()
     {
-        $columns = array(
-            'sku'                       => array(),
-            'price'                     => array(),
-            'memberships'               => array(),
-            'productClass'              => array(),
-            'taxClass'                  => array(),
-            'enabled'                   => array(),
-            'weight'                    => array(),
-            'shippable'                 => array(),
-            'images'                    => array(),
-            'imagesAlt'                 => array(),
-            'arrivalDate'               => array(),
-            'date'                      => array(),
-            'updateDate'                => array(),
-            'categories'                => array(),
-            'inCategoriesPosition'      => array(),
-            'inventoryTrackingEnabled'  => array(),
-            'stockLevel'                => array(),
-            'lowLimitEnabled'           => array(),
-            'lowLimitEnabledCustomer'   => array(),
-            'lowLimitLevel'             => array(),
-            'cleanURL'                  => array(),
-            'useSeparateBox'            => array(),
-            'boxWidth'                  => array(),
-            'boxLength'                 => array(),
-            'boxHeight'                 => array(),
-            'itemsPerBox'               => array(),
-            'metaDescType'              => array(),
-        );
+        $columns = [
+            'sku'                      => [
+                static::COLUMN_ID
+            ],
+            'price'                    => [],
+            'memberships'              => [],
+            'productClass'             => [],
+            'taxClass'                 => [],
+            'enabled'                  => [],
+            'weight'                   => [],
+            'shippable'                => [],
+            'images'                   => [],
+            'imagesAlt'                => [],
+            'arrivalDate'              => [],
+            'date'                     => [],
+            'updateDate'               => [],
+            'categories'               => [],
+            'inCategoriesPosition'     => [],
+            'inventoryTrackingEnabled' => [],
+            'stockLevel'               => [],
+            'lowLimitEnabled'          => [],
+            'lowLimitEnabledCustomer'  => [],
+            'lowLimitLevel'            => [],
+            'cleanURL'                 => [],
+            'useSeparateBox'           => [],
+            'boxWidth'                 => [],
+            'boxLength'                => [],
+            'boxHeight'                => [],
+            'itemsPerBox'              => [],
+            'metaDescType'             => [],
+        ];
 
         $columns += $this->assignI18nColumns(
-            array(
-                'name'             => array(),
-                'description'      => array(),
-                'briefDescription' => array(),
-                'metaTags'         => array(),
-                'metaDesc'         => array(),
-                'metaTitle'        => array(),
-            )
+            [
+                'name'             => [],
+                'description'      => [],
+                'briefDescription' => [],
+                'metaTags'         => [],
+                'metaDesc'         => [],
+                'metaTitle'        => [],
+            ]
         );
 
         $columns += $this->getAttributesColumns();

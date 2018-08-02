@@ -47,15 +47,15 @@ class TypeObject extends \XLite\Model\WidgetParam\AWidgetParam
      */
     protected function getValidationSchema($value)
     {
-        return array(
-            array(
-                self::ATTR_CONDITION => is_object($value),
-                self::ATTR_MESSAGE   => ' passed value is not an object',
-            ),
-            array(
-                self::ATTR_CONDITION => null === $this->class || $value instanceof $this->class,
-                self::ATTR_MESSAGE   => ' parameter class is undefined or passed object is not an instance of the param class',
-            ),
-        );
+        return [
+            [
+                static::ATTR_CONDITION => is_object($value),
+                static::ATTR_MESSAGE   => ' passed value is not an object',
+            ],
+            [
+                static::ATTR_CONDITION => null === $this->class || $value instanceof $this->class,
+                static::ATTR_MESSAGE   => ' parameter class is undefined or passed object is not an instance of the param class',
+            ],
+        ];
     }
 }

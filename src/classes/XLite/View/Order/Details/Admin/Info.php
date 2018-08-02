@@ -8,10 +8,12 @@
 
 namespace XLite\View\Order\Details\Admin;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
+
 /**
  * Order info
  */
-class Info extends \XLite\View\AView
+class Info extends \XLite\View\AView implements ProviderInterface
 {
     /**
      * Shipping modifier (cache)
@@ -49,6 +51,13 @@ class Info extends \XLite\View\AView
         $list[] = 'select_address/style.css';
 
         return $list;
+    }
+
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'Current price for the selected configuration and quantity: X' => static::t('Current price for the selected configuration and quantity: X')
+        ];
     }
 
     /**

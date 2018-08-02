@@ -29,14 +29,18 @@ StickyPanelModelList.prototype.reposition = function(isResize)
 {
   StickyPanel.prototype.reposition.apply(this, arguments);
 
-  var widget = this.base.parents('form').eq(0).find('.widget.items-list').length > 0
-    ? this.base.parents('form').eq(0).find('.widget.items-list').get(0).itemsListController
-    : null;
+  var widget = this.getItemsListController();
 
   if (widget) {
     widget.bind('local.selector.checked', _.bind(this.markAllListActions, this))
       .bind('local.selector.unchecked', _.bind(this.unmarkAllListActions, this));
   }
+};
+
+StickyPanelModelList.prototype.getItemsListController = function () {
+  return this.base.parents('form').eq(0).find('.widget.items-list').length > 0
+    ? this.base.parents('form').eq(0).find('.widget.items-list').get(0).itemsListController
+    : null;
 };
 
 StickyPanelModelList.prototype.markAllListActions = function()

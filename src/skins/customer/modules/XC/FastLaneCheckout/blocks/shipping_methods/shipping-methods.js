@@ -24,6 +24,7 @@ define(
     loadable: {
       transferState: false,
       loader: function() {
+        this.watcherIsBlocked = true;
         this.$root.$broadcast('reloadingBlock', 1);
         return core.get({
           target: 'checkout',
@@ -31,12 +32,17 @@ define(
         }, undefined, undefined, { timeout: 45000 });
       },
       resolve: function() {
+        var self = this;
         // updates window.shippingMethodsList
         $.globalEval($('#ShippingMethodsWidgetData').text());
         this.$root.$broadcast('reloadingUnblock', 1);
+        this.$nextTick(function () {
+          self.watcherIsBlocked = false;
+        })
       },
       reject: function() {
         this.$root.$broadcast('reloadingUnblock', 1);
+        this.watcherIsBlocked = false;
       }
     },
 
@@ -51,6 +57,7 @@ define(
 
     data: function() {
       return {
+        watcherIsBlocked: false,
         selector: null,
         methodId: null,
       };
@@ -59,7 +66,8 @@ define(
     computed: {
       classes: function () {
         return {
-          'reloading': this.$reloading
+          'reloading': this.$reloading,
+          'reloading-animated': this.$reloading
         }
       },
 
@@ -73,7 +81,7 @@ define(
 
     watch: {
       methodId: function(value, oldValue){
-        var silent = (oldValue === null);
+        var silent = (oldValue === null || this.watcherIsBlocked);
 
         if (!silent) {
           this.$reloading = true;

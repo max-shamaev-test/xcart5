@@ -52,6 +52,6 @@ abstract class ACustomer extends \XLite\Controller\Customer\ACustomer implements
      */
     public function isInCustomCssMode()
     {
-        return Core\ThemeTweaker::getInstance()->isInLabelsMode();
+        return Core\ThemeTweaker::getInstance()->isInCustomCssMode();
     }
 }

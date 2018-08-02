@@ -321,7 +321,16 @@ class Converter extends \XLite\Base\Singleton
             $result = \Includes\Utils\Converter::buildURL($target, $action, $params, $interface);
         }
 
-        if (LC_USE_CLEAN_URLS && \XLite\Core\Router::getInstance()->isUseLanguageUrls() && ($interface == \XLite::CART_SELF || !\XLite::isAdminZone())) {
+        if (
+            LC_USE_CLEAN_URLS
+            && \XLite\Core\Router::getInstance()->isUseLanguageUrls()
+            && (
+                $interface == \XLite::CART_SELF
+                || (
+                    !\XLite::isAdminZone()
+                    && $interface !== \XLite::getAdminScript()
+                )
+            )) {
             $language = \XLite\Core\Session::getInstance()->getLanguage();
             if (!$language->getDefaultAuth() && !preg_match('/^https?:\/\//Ss', $result)) {
                 $result = $language->getCode() . '/' . $result;
@@ -686,9 +695,11 @@ class Converter extends \XLite\Base\Singleton
             $format = \XLite\Core\Config::getInstance()->Units->date_format;
         }
 
-        if ($convertToUserTimeZone) {
-            $base = \XLite\Core\Converter::convertTimeToUser($base);
-        }
+        //if ($convertToUserTimeZone) {
+        //    $base = \XLite\Core\Converter::convertTimeToUser($base);
+        //}
+
+        date_default_timezone_set(\XLite\Core\Converter::getTimeZone()->getName());
 
         return static::getStrftime($format, $base);
     }
@@ -700,6 +711,7 @@ class Converter extends \XLite\Base\Singleton
      * @param string $format Date format in strftime format OPTIONAL
      *
      * @return integer
+     * @throws \Exception
      */
     public static function parseFromJsFormat($value, $format = null)
     {
@@ -707,15 +719,9 @@ class Converter extends \XLite\Base\Singleton
             $formats = static::getDateFormatsByStrftimeFormat();
             $format = $formats['phpFormat'];
         }
-        $date = \DateTime::createFromFormat($format, $value);
+        $date = \DateTime::createFromFormat($format, $value, \XLite\Core\Converter::getTimeZone());
 
-        $timestamp = null;
-        if($date) {
-            $timestamp = \XLite\Core\Converter::convertTimeToUser(
-                $date->getTimestamp()
-            );
-        }
-        return $timestamp;
+        return $date ? $date->getTimestamp() : null;
     }
 
     /**
@@ -1049,9 +1055,14 @@ class Converter extends \XLite\Base\Singleton
      * @param integer $time Server time
      *
      * @return integer
+     * @throws \Exception
      */
     public static function convertTimeToUser($time = null)
     {
+        if (!is_int($time)) {
+            $time = static::parseFromJsFormat($time);
+        }
+
         if (null === $time) {
             $time = \XLite\Core\Converter::time();
         }

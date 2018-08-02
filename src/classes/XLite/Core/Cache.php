@@ -8,11 +8,20 @@
 
 namespace XLite\Core;
 
+use Doctrine\Common\Cache\CacheProvider;
+use Doctrine\Common\Cache\PredisCache;
+use Doctrine\Common\Cache\RedisCache;
+use XLite\Core\Cache\FilesystemCache;
+
 /**
  * Cache decorator
  */
 class Cache extends \XLite\Base
 {
+    const REDIS_DEFAULT_PORT = 6379;
+    // in seconds
+    const DRIVER_CONNECTION_TIMEOUT = 1;
+
     /**
      * Cache driver
      *
@@ -21,41 +30,160 @@ class Cache extends \XLite\Base
     protected $driver;
 
     /**
-     * Options 
-     * 
+     * Options
+     *
      * @var array
      */
     protected $options;
 
     /**
-     * Cache drivers query
+     * Cache providers query
      *
      * @var array
      */
-    protected static $cacheDriversQuery = array(
-        'apc',
-        'xcache',
-        'memcached',
-        'memcache',
-    );
+    protected static $cacheProvidersQueue;
+
+    /**
+     * Returns providers [provider_code => detector_closure] list
+     *
+     * @return array
+     */
+    protected function defineCacheProvidersQueue()
+    {
+        return [
+            'redis' => function() {
+                return !empty($this->options['servers']);
+            },
+
+            'apc' => function () {
+                return function_exists('apc_cache_info');
+            },
+
+            'xcache' => function () {
+                return function_exists('xcache_get');
+            },
+
+            'memcached' => function () {
+                return !empty($this->options['servers'])
+                    && class_exists('\Memcached')
+                    && extension_loaded('memcached');
+            },
+
+            'memcache' => function () {
+                return !empty($this->options['servers'])
+                    && class_exists('\Memcache');
+            },
+
+            'file' => null,
+        ];
+    }
+
+    /**
+     * Returns providers => detector closure list
+     *
+     * @return array
+     */
+    protected function defineCacheBuilders()
+    {
+        return [
+            'redis'     => 'buildRedisDriver',
+            'apc'       => 'buildAPCDriver',
+            'xcache'    => 'buildXcacheDriver',
+            'memcached' => 'buildMemcachedDriver',
+            'memcache'  => 'buildMemcacheDriver',
+            'file'      => 'buildFileDriver',
+        ];
+    }
+
+    /**
+     * @param array $builders
+     *
+     * @return array
+     */
+    protected function prepareBuilders(array $builders)
+    {
+        foreach ($builders as $k => $builder) {
+            if (is_string($builder)) {
+                $builders[$k] = [$this, $builder];
+            }
+        }
+
+        return $builders;
+    }
+
+    /**
+     * @param      $code
+     *
+     * @param bool $silentTest
+     *
+     * @return null|\Doctrine\Common\Cache\CacheProvider
+     */
+    protected function buildCacheDriver($code, $silentTest = true)
+    {
+        $builders = $this->prepareBuilders($this->defineCacheBuilders());
+
+        if (!empty($builders[$code])) {
+            $cache = $builders[$code]();
+
+            if ($cache && $this->testDriver($cache, $silentTest)) {
+                return $cache;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array $queue
+     *
+     * @return array
+     */
+    protected function prepareCacheProvidersQueue(array $queue)
+    {
+        foreach ($queue as $k => $detector) {
+            if (empty($detector)) {
+                $queue[$k] = function () {
+                    return true;
+                };
+            } elseif (is_string($detector)) {
+                $queue[$k] = [$this, $detector];
+            }
+        }
+
+        return $queue;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getCacheProvidersQueue()
+    {
+        if (is_null(static::$cacheProvidersQueue)) {
+            static::$cacheProvidersQueue = $this->prepareCacheProvidersQueue(
+                $this->defineCacheProvidersQueue()
+            );
+        }
+
+        return static::$cacheProvidersQueue;
+    }
 
     /**
      * Constructor
      *
      * @param \Doctrine\Common\Cache\CacheProvider $driver  Driver OPTIONAL
-     * @param array                        $options Driver options OPTIONAL
+     * @param array                                $options Driver options OPTIONAL
      *
      * @return void
      */
-    public function __construct(\Doctrine\Common\Cache\CacheProvider $driver = null, array $options = array())
+    public function __construct(\Doctrine\Common\Cache\CacheProvider $driver = null, array $options = [])
     {
         $this->options = $options;
         $this->driver = $driver ?: $this->detectDriver();
     }
 
     /**
-     * Get driver 
-     * 
+     * Get driver
+     *
      * @return \Doctrine\Common\Cache\CacheProvider
      */
     public function getDriver()
@@ -82,29 +210,9 @@ class Cache extends \XLite\Base
      *
      * @return mixed
      */
-    public function __call($name, array $arguments = array())
+    public function __call($name, array $arguments = [])
     {
-        return call_user_func_array(array($this->driver, $name), $arguments);
-    }
-
-    /**
-     * Detect APC cache driver
-     *
-     * @return boolean
-     */
-    protected static function detectCacheDriverApc()
-    {
-        return function_exists('apc_cache_info');
-    }
-
-    /**
-     * Detect XCache cache driver
-     *
-     * @return boolean
-     */
-    protected static function detectCacheDriverXcache()
-    {
-        return function_exists('xcache_get');
+        return call_user_func_array([$this->driver, $name], $arguments);
     }
 
     /**
@@ -112,19 +220,59 @@ class Cache extends \XLite\Base
      *
      * @return boolean
      */
-    protected static function detectCacheDriverMemcache()
+    protected static function detectCacheDriverRedis()
     {
-        return function_exists('memcache_connect');
+        return class_exists('\Redis');
     }
 
     /**
-     * Detect Memcache cache driver
+     * Check driver functionality
      *
-     * @return boolean
+     * @param CacheProvider $driver
+     * @param bool          $silent
+     *
+     * @return bool
      */
-    protected static function detectCacheDriverMemcached()
+    protected function testDriver(CacheProvider $driver, $silent = true)
     {
-        return extension_loaded('memcached');
+        $key = '__test__';
+        $value = rand(~PHP_INT_MAX, PHP_INT_MAX);
+
+        if (!$driver) {
+            return false;
+        }
+
+        try {
+            if (
+                !$driver->save($key, $value)
+                || !$driver->contains($key)
+                || (int)$driver->fetch($key) !== $value
+            ) {
+                return false;
+            }
+
+            if (
+                !$driver->delete($key)
+                || $driver->contains($key)
+            ) {
+                return false;
+            }
+        } catch (\Throwable $e) {
+            if (!$silent) {
+                \XLite\Logger::getInstance()->logPostponed(
+                    sprintf(
+                        'Cache driver "%s" error: %s',
+                        get_class($driver),
+                        $e->getMessage()
+                    ),
+                    LOG_WARNING
+                );
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -137,52 +285,34 @@ class Cache extends \XLite\Base
         $options = \XLite::getInstance()->getOptions('cache');
 
         if (empty($options) || !is_array($options) || !isset($options['type'])) {
-            $options = array('type' => null);
+            $options = ['type' => null];
         }
 
         $this->options += $options;
+        $type = $this->options['type'];
 
-        // Auto-detection
-        if ('auto' == $this->options['type']) {
-            $this->detectAutoDriver();
+        $queue = $this->getCacheProvidersQueue();
+
+        if ('auto' == $type) {
+            foreach ($queue as $code => $detector) {
+                if (
+                    $detector()
+                    && $cache = $this->buildCacheDriver($code)
+                ) {
+                    break;
+                }
+            }
+        } elseif (!empty($queue[$type]) && $detector = $queue[$type]) {
+            if ($detector()) {
+                $cache = $this->buildCacheDriver($type, false);
+            }
+
+            if (empty($cache)) {
+                $cache = $this->buildCacheDriver('file', false);
+            }
         }
 
-        if ('apc' == $this->options['type']) {
-
-            // APC
-            $cache = $this->buildAPCDriver();
-
-        } elseif ('memcached' == $this->options['type']
-            && isset($this->options['servers'])
-            && static::detectCacheDriverMemcached()
-            && class_exists('Memcached', false)
-        ) {
-
-            // Memcached
-            $cache = $this->buildMemcachedDriver();
-
-        } elseif ('memcache' == $this->options['type']
-            && isset($this->options['servers'])
-            && static::detectCacheDriverMemcache()
-            && class_exists('Memcache', false)
-        ) {
-
-            // Memcache
-            $cache = $this->buildMemcacheDriver();
-
-        } elseif ('xcache' == $this->options['type']) {
-
-            // XCache
-            $cache = $this->buildXcacheDriver();
-
-        } else {
-
-            // Default cache - file system cache
-            $cache = $this->buildFileDriver();
-
-        }
-
-        if (!$cache) {
+        if (empty($cache)) {
             $cache = new \Doctrine\Common\Cache\ArrayCache();
         }
 
@@ -195,26 +325,8 @@ class Cache extends \XLite\Base
     }
 
     /**
-     * Autodetect driver 
-     * 
-     * @return void
-     */
-    protected function detectAutoDriver()
-    {
-        foreach (static::$cacheDriversQuery as $type) {
-            $method = 'detectCacheDriver' . ucfirst($type);
-
-            // $method assembled from 'detectCacheDriver' + $type
-            if (static::$method()) {
-                $this->options['type'] = $type;
-                break;
-            }
-        }
-    }
-
-    /**
-     * Get namespace 
-     * 
+     * Get namespace
+     *
      * @return string
      */
     protected function getNamespace()
@@ -236,8 +348,8 @@ class Cache extends \XLite\Base
     // {{{ Builders
 
     /**
-     * Build APC driver 
-     * 
+     * Build APC driver
+     *
      * @return  \Doctrine\Common\Cache\CacheProvider
      */
     protected function buildAPCDriver()
@@ -252,7 +364,7 @@ class Cache extends \XLite\Base
      */
     protected function buildMemcacheDriver()
     {
-        $servers = explode(';', $this->options['servers']) ?: array('localhost');
+        $servers = explode(';', $this->options['servers']) ?: ['localhost'];
         $memcache = new \Memcache();
         foreach ($servers as $row) {
             $row = trim($row);
@@ -281,7 +393,7 @@ class Cache extends \XLite\Base
      */
     protected function buildMemcachedDriver()
     {
-        $servers = explode(';', $this->options['servers']) ?: array('localhost');
+        $servers = explode(';', $this->options['servers']) ?: ['localhost'];
         $memcached = new \Memcached();
         foreach ($servers as $row) {
             $row = trim($row);
@@ -289,11 +401,8 @@ class Cache extends \XLite\Base
             if ('unix' == $tmp[0]) {
                 $memcached->addServer($row, 0);
 
-            } elseif (isset($tmp[1])) {
-                $memcached->addServer($tmp[0], $tmp[1]);
-
             } else {
-                $memcached->addServer($tmp[0]);
+                $memcached->addServer($tmp[0], isset($tmp[1]) ? $tmp[1] : 11211);
             }
         }
 
@@ -314,6 +423,52 @@ class Cache extends \XLite\Base
     }
 
     /**
+     * Build Redis driver
+     *
+     * @return  \Doctrine\Common\Cache\CacheProvider
+     */
+    protected function buildRedisDriver()
+    {
+        $servers = explode(';', $this->options['servers']) ?: ['localhost'];
+        $row = $servers[0];
+
+        if (class_exists('\Redis')) {
+            try {
+                $redis = new \Redis();
+
+                $row = trim($row);
+                $tmp = explode(':', $row, 2);
+                if ('unix' == $tmp[0]) {
+                    $result = $redis->connect($tmp[1], self::REDIS_DEFAULT_PORT, self::DRIVER_CONNECTION_TIMEOUT);
+                } elseif (isset($tmp[1])) {
+                    $result = $redis->connect($tmp[0], $tmp[1], self::DRIVER_CONNECTION_TIMEOUT);
+                } else {
+                    $result = $redis->connect($tmp[0], self::REDIS_DEFAULT_PORT, self::DRIVER_CONNECTION_TIMEOUT);
+                }
+
+                if (!$result) {
+                    throw new \RedisException('Unknown error');
+                }
+
+                $driver = new RedisCache();
+                $driver->setRedis($redis);
+                return $driver;
+            } catch (\RedisException $e) {
+                \XLite\Logger::getInstance()->logPostponed(
+                    sprintf(
+                        'Failure connecting with Redis: %s',
+                        $e->getMessage()
+                    ),
+                    LOG_WARNING
+                );
+                return null;
+            }
+        }
+
+        return new PredisCache(new \Predis\Client($row));
+    }
+
+    /**
      * Build filesystem cache driver
      *
      * @return  \Doctrine\Common\Cache\CacheProvider
@@ -321,7 +476,7 @@ class Cache extends \XLite\Base
     protected function buildFileDriver()
     {
         try {
-            return new \Doctrine\Common\Cache\FilesystemCache(LC_DIR_DATACACHE);
+            return new FilesystemCache(LC_DIR_DATACACHE);
         } catch (\Exception $e) {
             \XLite\Logger::getInstance()->log($e->getMessage(), LOG_ERR, $e->getTrace());
         }

@@ -99,7 +99,7 @@ abstract class Image extends \XLite\Model\Repo\Base\Storage
      */
     public static function setResizeOnlyMarkedFlag($flag)
     {
-       self::$resizeOnlyMarked = $flag;
+       static::$resizeOnlyMarked = $flag;
     }
 
     /**

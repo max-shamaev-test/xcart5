@@ -228,8 +228,12 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
 
         $coupons = array();
 
+        $orderCurrencyE = $order->getCurrency()
+            ? $order->getCurrency()->getE()
+            : \XLite::getInstance()->getCurrency()->getE();
+
         foreach ($order->getUsedCoupons() as $coupon) {
-            $coupons[$coupon->getCode()] = abs($coupon->getValue());
+            $coupons[$coupon->getCode()] = abs(round($coupon->getValue(), $orderCurrencyE));
         }
 
         if ($coupons) {

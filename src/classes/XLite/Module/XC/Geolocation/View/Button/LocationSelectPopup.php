@@ -8,6 +8,7 @@
 
 namespace XLite\Module\XC\Geolocation\View\Button;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
 use XLite\Module\XC\Geolocation\Logic\GeoInput\IpAddress;
 use XLite\Module\XC\Geolocation\Logic\Geolocation;
 use XLite\View\CacheableTrait;
@@ -17,7 +18,7 @@ use XLite\View\CacheableTrait;
  *
  * @ListChild (list="layout.header.bar", weight="110", zone="customer")
  */
-class LocationSelectPopup extends \XLite\View\Button\APopupButton
+class LocationSelectPopup extends \XLite\View\Button\APopupButton implements ProviderInterface
 {
     use CacheableTrait;
 
@@ -144,5 +145,19 @@ class LocationSelectPopup extends \XLite\View\Button\APopupButton
         }
 
         return $params;
+    }
+
+    /**
+     * Array of labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'Select one' => static::t('Select one')
+        ];
     }
 }

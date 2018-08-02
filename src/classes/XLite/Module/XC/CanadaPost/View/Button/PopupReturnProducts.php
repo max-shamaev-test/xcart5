@@ -104,4 +104,13 @@ class PopupReturnProducts extends \XLite\View\Button\APopupButton
     {
         return trim(parent::getClass() . ' capost-return-products-button ' . ($this->getParam(self::PARAM_STYLE) ?: ''));
     }
+
+    /**
+     * TODO: fix return products feature
+     * @return bool
+     */
+    protected function isVisible()
+    {
+        return false;
+    }
 }

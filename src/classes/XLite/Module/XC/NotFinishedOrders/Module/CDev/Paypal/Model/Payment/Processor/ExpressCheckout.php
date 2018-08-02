@@ -15,9 +15,17 @@ use XLite\Module\XC\NotFinishedOrders\Main;
  */
 class ExpressCheckout extends \XLite\Module\CDev\Paypal\Model\Payment\Processor\ExpressCheckout implements \XLite\Base\IDecorator
 {
-    public function doSetExpressCheckout(\XLite\Model\Payment\Method $method)
+    /**
+     * Perform 'SetExpressCheckout' request and get Token value from Paypal
+     *
+     * @param \XLite\Model\Payment\Method           $method Payment method
+     * @param \XLite\Model\Payment\Transaction|null $transaction
+     *
+     * @return string
+     */
+    public function doSetExpressCheckout(\XLite\Model\Payment\Method $method, \XLite\Model\Payment\Transaction $transaction = null)
     {
-        $result = parent::doSetExpressCheckout($method);
+        $result = parent::doSetExpressCheckout($method, $transaction);
 
         if (Main::isCreateOnPlaceOrder()) {
             $cart = \XLite\Model\Cart::getInstance();

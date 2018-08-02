@@ -118,7 +118,7 @@ class Welcome extends \XLite\Module\CDev\XPaymentsConnector\View\Settings\ASetti
 
         if ($paymentMethod) {
 
-            $url = '../../../' . $paymentMethod->getAdminIconURL();
+            $url = '../../' . $paymentMethod->getAdminIconURL();
 
         }
 

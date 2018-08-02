@@ -15,6 +15,7 @@ div.export-box {
   border-radius: 5px;
   max-width: 900px;
   margin-bottom: 20px;
+  font-size: 14px;
 }
 
 .ui-dialog div.export-box {
@@ -50,7 +51,7 @@ div.export-box {
 
 .export-box .buttons {
   margin: 0;
-  padding: 10px 10px;
+  padding: 10px 0;
 }
 
 .export-box .buttons .main-button {
@@ -139,7 +140,7 @@ div.export-box.export-progress .subcontent {
 
 
 .ui-dialog div.export-box.export-progress .subcontent {
-  padding: 20px 20px;
+  padding: 20px 0;
   padding-bottom: 12px;
 }
 
@@ -153,6 +154,7 @@ div.export-box.export-progress div.content {
 
 div.export-box.export-completed-popup {
   width: 470px;
+  font-size: 14px;
 }
 
 .export-completed-popup .download-box .subcontent .files {
@@ -162,23 +164,16 @@ div.export-box.export-completed-popup {
 .download-box .subcontent .files {
   width: 900px;
   margin-bottom: 30px;
-  padding: 0px 40px 10px 10px;
-}
-
-.download-box .subcontent .help {
-  padding: 0px 40px;
 }
 
 .download-box .subcontent .files h3 {
   display: inline-block;
-  color: #44769d;
   font-size: 18px;
   margin-bottom: 9px;
 }
 
 .download-box .subcontent .files ul {
   position: relative;
-  padding-right: 60px;
   padding-left: 1px;
 }
 
@@ -192,6 +187,10 @@ div.export-box.export-completed-popup {
   padding: 10px 0px 9px;
   font-size: 14px;
   width: 380px;
+}
+
+.download-box.popup-download .subcontent .files li.file {
+  width: auto;
 }
 
 .download-box .subcontent .files li.file i {
@@ -294,10 +293,6 @@ div.export-box.export-completed-popup {
   padding: 0px;
 }
 
-.download-box.begin-download .subcontent .files h3 {
-  color: #999;
-}
-
 .begin-download .delete-all {
   display: inline-block;
   margin-left: 80px;
@@ -321,18 +316,6 @@ div.export-box.export-completed-popup {
 .pop.begin-download.download-box .subcontent .files {
   padding-top: 20px;
   padding-bottom: 40px;
-}
-
-.popup-download.download-box .subcontent .files {
-  padding: 0px 20px 20px 20px;
-}
-
-.popup-download.download-box .subcontent .files .file {
-  width: 430px;
-}
-
-.popup-download.download-box .subcontent .help {
-  padding: 0px 20px;
 }
 
 /**
@@ -400,6 +383,7 @@ div.export-failed .header h2,
   font-size: 15px;
   display: inline-block;
   vertical-align: middle;
+  max-width: 500px;
 }
 
 .export-not-started .content .icon {

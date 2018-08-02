@@ -8,10 +8,12 @@
 
 namespace XLite\View\FormField\Inline\Popup;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
+
 /**
  * Address
  */
-abstract class Address extends \XLite\View\FormField\Inline\Popup\APopup
+abstract class Address extends \XLite\View\FormField\Inline\Popup\APopup implements ProviderInterface
 {
 
     /**
@@ -362,5 +364,19 @@ abstract class Address extends \XLite\View\FormField\Inline\Popup\APopup
     protected function getAddressFieldMethodName(array $field)
     {
         return 'set' . \XLite\Core\Converter::convertToCamelCase($field['field'][static::FIELD_NAME]);
+    }
+
+    /**
+     * Array of labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'Select one' => static::t('Select one')
+        ];
     }
 }

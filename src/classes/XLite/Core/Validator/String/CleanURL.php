@@ -41,7 +41,7 @@ class CleanURL extends \XLite\Core\Validator\String\RegExp
 
         if (empty($class)) {
             \Includes\ErrorHandler::fireError(
-                static::t('Empty "class" parameter is passed to the {{method}}', array('method' => __METHOD__))
+                static::t('Empty "class" parameter is passed to the {{method}}', ['method' => __METHOD__])
             );
 
         } else {
@@ -108,7 +108,7 @@ class CleanURL extends \XLite\Core\Validator\String\RegExp
         /** @var \XLite\Model\Repo\CleanURL $repo */
         $repo = \XLite\Core\Database::getRepo('XLite\Model\CleanURL');
 
-        return '/^' . $repo->getPattern($class) . '$/S';
+        return '/^' . $repo->getPattern($class) . '$/Su';
     }
 
     /**
@@ -122,10 +122,10 @@ class CleanURL extends \XLite\Core\Validator\String\RegExp
     protected function throwCleanURLError($data)
     {
         /** @var \XLite\Model\Repo\CleanURL $repo */
-        $repo = \XLite\Core\Database::getRepo('XLite\Model\CleanURL');
+        $repo     = \XLite\Core\Database::getRepo('XLite\Model\CleanURL');
         $conflict = $repo->getConflict($data, $this->class, $this->id);
 
-        if ($conflict && $conflict->getCleanURL() == $data) {
+        if ($conflict && $conflict->getCleanURL() === $data) {
             if ($conflict instanceof \XLite\Model\TargetCleanUrl) {
                 $message = 'The Clean URL entered is already in use by target alias.';
             } else {
@@ -137,7 +137,7 @@ class CleanURL extends \XLite\Core\Validator\String\RegExp
 
         $exception = $this->throwError(
             $message,
-            array('entityURL' => $repo->buildEditURL($conflict))
+            ['entityURL' => $repo->buildEditURL($conflict)]
         );
 
         $exception->getData()->conflict = $conflict;

@@ -15,16 +15,6 @@ namespace XLite\Controller\Admin;
 class Settings extends \XLite\Controller\Admin\AAdmin
 {
     /**
-     * Clean URL article url
-     */
-    const CLEAN_URL_ARTICLE_URL = 'https://kb.x-cart.com/en/general_setup/setting_up_seo-friendly_urls.html';
-
-    /**
-     * Installation directory article url
-     */
-    const INSTALLATION_DIRECTORY_ARTICLE_URL = 'https://kb.x-cart.com/en/general_setup/moving_x-cart_to_another_location.html';
-
-    /**
      * Values to use for $page identification
      */
     const GENERAL_PAGE      = 'General';
@@ -253,7 +243,7 @@ class Settings extends \XLite\Controller\Admin\AAdmin
      */
     public function getCleanURLArticleURL()
     {
-        return static::CLEAN_URL_ARTICLE_URL;
+        return static::t('https://kb.x-cart.com/seo_and_promotion/setting_up_seo-friendly_urls.html');
     }
 
     /**
@@ -263,7 +253,7 @@ class Settings extends \XLite\Controller\Admin\AAdmin
      */
     public function getInstallationDirectoryHelpLink()
     {
-        return static::INSTALLATION_DIRECTORY_ARTICLE_URL;
+        return static::t('https://kb.x-cart.com/general_setup/moving_x-cart_to_another_location.html');
     }
     /**
      * Check for the GDLib extension

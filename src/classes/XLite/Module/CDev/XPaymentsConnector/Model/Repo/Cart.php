@@ -32,4 +32,17 @@ class Cart extends \XLite\Model\Repo\Cart implements \XLite\Base\IDecorator
 
         return $qb->getResult();
     }
+
+    /**
+     * Alter default findOneByProfile() method to select real cart only
+     *
+     * @param \XLite\Model\Profile $profile Profile object
+     *
+     * @return \XLite\Model\Cart
+     */
+    public function findOneByProfile($profile)
+    {
+        return parent::findOneBy(array('profile' => $profile, 'is_zero_auth' => false));
+    }
+
 }

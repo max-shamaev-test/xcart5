@@ -55,7 +55,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '7';
+        return '13';
     }
 
     /**
@@ -65,7 +65,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '1';
+        return '2';
     }
 
     /**
@@ -155,7 +155,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function isCloudFiltersEnabled()
     {
-        return Config::getInstance()->QSL->CloudSearch->isCloudFiltersEnabled;
+        return (bool)Config::getInstance()->QSL->CloudSearch->isCloudFiltersEnabled;
     }
 
     /**

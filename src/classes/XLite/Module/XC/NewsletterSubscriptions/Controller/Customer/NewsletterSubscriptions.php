@@ -14,6 +14,17 @@ namespace XLite\Module\XC\NewsletterSubscriptions\Controller\Customer;
 class NewsletterSubscriptions extends \XLite\Controller\Customer\ACustomer
 {
     /**
+     * Set if the form id is needed to make an actions
+     * Form class uses this method to check if the form id should be added
+     *
+     * @return boolean
+     */
+    public static function needFormId()
+    {
+        return true;
+    }
+    
+    /**
      * Subscribe action handler
      */
     protected function doActionSubscribe()

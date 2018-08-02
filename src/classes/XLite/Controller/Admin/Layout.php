@@ -71,6 +71,8 @@ class Layout extends \XLite\Controller\Admin\AAdmin
 
         $controller->doActionSwitch();
 
+        unset(\XLite\Core\Session::getInstance()->returnURL);
+
         $this->setReturnURL(
             $this->buildURL('layout', '', ['moduleId' => \Xlite\Core\Request::getInstance()->template])
         );

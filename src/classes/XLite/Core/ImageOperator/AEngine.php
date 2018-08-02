@@ -34,6 +34,24 @@ abstract class AEngine extends \XLite\Base\Singleton
     abstract public function resize($width, $height);
 
     /**
+     * Rotate
+     *
+     * @param float $degree
+     *
+     * @return boolean
+     */
+    abstract public function rotate($degree);
+
+    /**
+     * Mirror
+     *
+     * @param boolean $horizontal
+     *
+     * @return boolean
+     */
+    abstract public function mirror($horizontal = true);
+
+    /**
      * Check - enabled engine or not
      *
      * @return boolean

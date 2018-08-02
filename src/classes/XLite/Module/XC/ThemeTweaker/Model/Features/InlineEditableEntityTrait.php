@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\ThemeTweaker\Model\Features;
 
+use XLite\Module\XC\ThemeTweaker\Core\ThemeTweaker;
+
 trait InlineEditableEntityTrait
 {
     /**
@@ -40,10 +42,12 @@ trait InlineEditableEntityTrait
      */
     public function getInlineEditableMetadata()
     {
-        return [
-            'data-inline-editable' => 'data-inline-editable',
-            'data-inline-editor-config' => json_encode($this->getInlineEditorConfig()),
-        ];
+        return ThemeTweaker::getInstance()->isInInlineEditorMode()
+            ? [
+                'data-inline-editable' => 'data-inline-editable',
+                'data-inline-editor-config' => json_encode($this->getInlineEditorConfig()),
+            ]
+            : [];
     }
 
     /**

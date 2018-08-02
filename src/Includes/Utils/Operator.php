@@ -57,17 +57,18 @@ abstract class Operator extends \Includes\Utils\AUtils
     /**
      * Redirect
      *
-     * @param string $location URL
-     * @param int    $code     operation code
+     * @param string $location        URL
+     * @param int    $code            operation code
+     * @param bool   $forceJsRedirect Force JS redirect
      *
      * @return void
      */
-    public static function redirect($location, $code = 302)
+    public static function redirect($location, $code = 302, $forceJsRedirect = false)
     {
         $location = \Includes\Utils\Converter::removeCRLF($location);
 
         if ('cli' !== PHP_SAPI) {
-            if (headers_sent()) {
+            if ($forceJsRedirect || headers_sent()) {
                 $message  = '<a href="' . $location . '">Click here to redirect</a>';
                 $jsOutput = 'self.location = \'' . $location . '\';';
 
@@ -84,11 +85,12 @@ abstract class Operator extends \Includes\Utils\AUtils
     /**
      * Refresh current page
      *
-     * @param array $params Additional parameters OPTIONAL
+     * @param array $params           Additional parameters OPTIONAL
+     * @param bool  $forceJsRedirect Forece JS redirect
      *
      * @return void
      */
-    public static function refresh($params = array())
+    public static function refresh($params = array(), $forceJsRedirect = false)
     {
         // Get current URL
         $url = \Includes\Utils\URLManager::getSelfURI();
@@ -120,7 +122,7 @@ abstract class Operator extends \Includes\Utils\AUtils
         }
 
         // Do redirection
-        static::redirect($url);
+        static::redirect($url, 302, $forceJsRedirect);
     }
 
     /**

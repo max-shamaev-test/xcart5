@@ -338,6 +338,10 @@ TemplateNavigator.prototype.getListLast = function (element, name) {
 TemplateNavigator.prototype.markTemplate = function (element, event) {
     element = jQuery(element).get(0);
 
+    if (element && !element.branch) {
+      element.branch = this.getTemplatesBranch(element);
+    }
+
     if (
         typeof element == 'undefined'
         || typeof element.branch == 'undefined'

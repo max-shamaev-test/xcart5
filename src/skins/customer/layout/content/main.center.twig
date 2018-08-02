@@ -7,9 +7,7 @@
 <div id="main-wrapper">
   {% if this.isForceChangePassword() %}
   <div id="main" class="force-change-password-section clearfix">
-    <div class="flex-container">
-      {{ widget('\\XLite\\View\\Model\\Profile\\ForceChangePassword') }}
-    </div>
+      {{ widget('\\XLite\\View\\Popup\\ForceChangePassword') }}
   </div>
   {% else %}
   <div id="main" class="clearfix">

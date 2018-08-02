@@ -41,20 +41,6 @@ abstract class AComingSoon extends \XLite\View\ItemsList\Product\Customer\ACusto
         return self::WIDGET_TARGET_COMING_SOON;
     }
 
-
-    /**
-     * We remove the sort by modes selector from the coming soon widgets
-     *
-     * @param array $params Widget params OPTIONAL
-     */
-    public function __construct(array $params = array())
-    {
-        parent::__construct($params);
-
-        $this->sortByModes = array();
-    }
-
-
     /**
      * Returns CSS classes for the container element
      *
@@ -104,17 +90,6 @@ abstract class AComingSoon extends \XLite\View\ItemsList\Product\Customer\ACusto
         );
 
         return $searchCase;
-    }
-
-    /**
-     * Return 'Order by' array.
-     * array(<Field to order>, <Sort direction>)
-     *
-     * @return array|null
-     */
-    protected function getOrderBy()
-    {
-        return [$this->getSortByModeDefault(), static::SORT_ORDER_ASC];
     }
 
     /**

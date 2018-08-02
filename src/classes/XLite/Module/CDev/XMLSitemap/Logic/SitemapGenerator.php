@@ -74,7 +74,7 @@ class SitemapGenerator extends \XLite\Base\Singleton
                 );
                 $time = filemtime($path);
                 $string .= '<sitemap>'
-                    . '<loc>' . htmlentities($loc, ENT_COMPAT, 'UTF-8') . '</loc>'
+                    . '<loc>' . htmlspecialchars($loc, ENT_COMPAT, 'UTF-8') . '</loc>'
                     . '<lastmod>' . date('Y-m-d', $time) . 'T' . date('H:i:s', $time) . 'Z</lastmod>'
                     . '</sitemap>';
             }
@@ -344,7 +344,7 @@ class SitemapGenerator extends \XLite\Base\Singleton
         $string = '<url>';
         foreach ($record as $tag => $value) {
             if (!empty($value)) {
-                $string .= '<' . $tag . '>' . htmlentities($value) . '</' . $tag . '>';
+                $string .= '<' . $tag . '>' . htmlspecialchars($value) . '</' . $tag . '>';
             } else {
                 $string .= '<' . $tag . ' />';
             }

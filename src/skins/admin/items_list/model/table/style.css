@@ -40,7 +40,6 @@
 
 .items-list-table table.list thead {
   background: #f8f8f8;
-  border-right: 1px solid #f8f8f8;
 }
 
 .items-list-table table.list thead th {
@@ -581,4 +580,8 @@
 .items-list-table td.price .view {
   width: 90px;
   margin: 0;
+}
+
+.items-list-table table.list tbody.lines tr.line td.cell.order {
+  white-space: normal;
 }

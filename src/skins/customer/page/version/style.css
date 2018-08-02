@@ -57,3 +57,28 @@
 .public-modules td {
   padding: 0 20px 0 5px;
 }
+
+.private-modules .dataTables_filter.dataTables_filter,
+.public-modules .dataTables_filter.dataTables_filter {
+  width: 100%;
+  text-align: left;
+}
+
+.private-modules .dataTables_filter.dataTables_filter label,
+.public-modules .dataTables_filter.dataTables_filter label {
+  text-indent: -100%;
+  overflow: hidden;
+  display: inline-block;
+  width: 30%;
+  margin: 5px;
+  padding-right: 10px;
+}
+
+.private-modules .dataTables_filter.dataTables_filter input,
+.public-modules .dataTables_filter.dataTables_filter input {
+  display: block;
+  float: left;
+  width: 100%;
+  margin-left: 0;
+  font-size: inherit;
+}

@@ -158,6 +158,21 @@ class AddressBook extends \XLite\Controller\Customer\ACustomer
         $address = $this->getAddress();
 
         if (isset($address)) {
+            if ($address->getIsBilling() || $address->getIsShipping()) {
+                $profile = $address->getProfile();
+
+                if ($profile) {
+                    foreach ($profile->getAddresses() as $profileAddress) {
+                        if ($address->getAddressId() != $profileAddress->getAddressId()) {
+                            $profileAddress->setIsBilling($profileAddress->getIsBilling() || $address->getIsBilling());
+                            $profileAddress->setIsShipping($profileAddress->getIsShipping() || $address->getIsShipping());
+
+                            break;
+                        }
+                    }
+                }
+            }
+            
             \XLite\Core\Database::getEM()->remove($address);
             \XLite\Core\Database::getEM()->flush();
 

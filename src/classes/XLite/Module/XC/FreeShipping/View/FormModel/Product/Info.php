@@ -19,11 +19,7 @@ class Info extends \XLite\View\FormModel\Product\Info implements \XLite\Base\IDe
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = [
-            'file'  => 'modules/CDev/Sale/form_model/style.less',
-            'media' => 'screen',
-            'merge' => 'bootstrap/css/bootstrap.less',
-        ];
+        $list[] = 'modules/XC/FreeShipping/form_model/product_info.less';
 
         return $list;
     }
@@ -50,17 +46,6 @@ class Info extends \XLite\View\FormModel\Product\Info implements \XLite\Base\IDe
             [
                 'shipping' => [
                     'requires_shipping' => [
-                        'free_shipping'          => [
-                            'label'            => static::t('Free shipping'),
-                            'show_label_block' => false,
-                            'type'             => 'Symfony\Component\Form\Extension\Core\Type\CheckboxType',
-                            'show_when'        => [
-                                '..' => [
-                                    'requires_shipping' => true,
-                                ],
-                            ],
-                            'position'         => 200,
-                        ],
                         'fixed_shipping_freight' => [
                             'label'       => static::t('Freight'),
                             'help'        => static::t('This field can be used to set a fixed shipping fee for the product. Make sure the field value is a positive number (greater than zero).'),
@@ -82,9 +67,32 @@ class Info extends \XLite\View\FormModel\Product\Info implements \XLite\Base\IDe
                                 '..' => [
                                     'requires_shipping' => true,
                                     'free_shipping'     => false,
+                                    'ship_for_free'     => false,
                                 ],
                             ],
-                            'position'    => 300,
+                            'position'    => 200,
+                        ],
+                        'ship_for_free'          => [
+                            'label'            => static::t('Free shipping'),
+                            'show_label_block' => false,
+                            'type'             => 'Symfony\Component\Form\Extension\Core\Type\CheckboxType',
+                            'show_when'        => [
+                                '..' => [
+                                    'requires_shipping' => true,
+                                ],
+                            ],
+                            'position'         => 300,
+                        ],
+                        'free_shipping'          => [
+                            'label'            => static::t('Exclude from shipping cost calculation'),
+                            'show_label_block' => false,
+                            'type'             => 'Symfony\Component\Form\Extension\Core\Type\CheckboxType',
+                            'show_when'        => [
+                                '..' => [
+                                    'requires_shipping' => true,
+                                ],
+                            ],
+                            'position'         => 400,
                         ],
                     ],
                 ],

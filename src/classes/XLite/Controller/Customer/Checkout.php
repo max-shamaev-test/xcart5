@@ -748,6 +748,7 @@ class Checkout extends \XLite\Controller\Customer\Cart
             $cart->getProfile()->setLogin($origProfile->getLastCheckoutEmail());
         }
         $cart->getProfile()->setLastCheckoutEmail('');
+        $cart->getOrigProfile()->setLastCheckoutEmail('');
 
         \XLite\Core\Database::getEM()->flush();
     }
@@ -1142,6 +1143,14 @@ class Checkout extends \XLite\Controller\Customer\Cart
 
         if ($noAddress) {
             \XLite\Core\Event::createBillingAddress(array('id' => $address->getAddressId()));
+        }
+
+        if (
+            \XLite\Core\Session::getInstance()->same_address
+            && !$profile->getBillingAddress()
+            && $profile->getShippingAddress()
+        ) {
+            $profile->getShippingAddress()->setIsBilling(true);
         }
     }
 

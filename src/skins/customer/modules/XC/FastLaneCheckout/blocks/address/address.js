@@ -32,6 +32,7 @@ define(
         }, undefined, undefined, { timeout: 45000 });
       },
       resolve: function() {
+        this.updateAddress(this.fieldsDefault);
         this.$root.$broadcast('reloadingUnblock', 3);
       },
       reject: function() {
@@ -47,6 +48,11 @@ define(
         vuex_same_as_shipping: function(state) {
           return state.order.same_address;
         }
+      },
+      actions: {
+        updateAddress: function(state, data) {
+          state.dispatch('UPDATE_' + this.type.toUpperCase() + '_ADDRESS', data);
+        },
       }
     },
 
@@ -72,7 +78,7 @@ define(
         var fields = this.fieldsDefault;
 
         if (this.address) {
-          fields = _.extend(fields, this.address); 
+          fields = _.extend({}, fields, this.address);
         }
 
         return this.preprocess(fields);
@@ -104,7 +110,7 @@ define(
         if (_.has(data, reloadKey)) {
           this.$reload();
         } else if (_.has(data, updateKey)) {
-          this.fieldsDefault = _.extend(this.fieldsDefault, data[updateKey]);
+          this.fieldsDefault = _.extend({}, this.fieldsDefault, data[updateKey]);
         }
       },
     },

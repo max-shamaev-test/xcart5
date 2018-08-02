@@ -25,15 +25,15 @@ class TypeFloat extends \XLite\Model\WidgetParam\AWidgetParam
      *
      * @param mixed $value Value to validate
      *
-     * @return void
+     * @return array
      */
     protected function getValidationSchema($value)
     {
-        return array(
-            array(
-                self::ATTR_CONDITION => !preg_match('/^\s*[-+]?[0-9]*\.?[0-9]+$/Ss', $value),
-                self::ATTR_MESSAGE   => ' is not float',
-            ),
-        );
+        return [
+            [
+                static::ATTR_CONDITION => !preg_match('/^\s*[-+]?[0-9]*\.?[0-9]+$/Ss', $value),
+                static::ATTR_MESSAGE   => ' is not float',
+            ],
+        ];
     }
 }

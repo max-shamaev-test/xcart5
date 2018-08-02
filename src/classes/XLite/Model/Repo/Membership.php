@@ -55,7 +55,7 @@ class Membership extends \XLite\Model\Repo\Base\I18n
         $list['all'] = array();
 
         $list['enabled'] = array(
-            self::ATTRS_CACHE_CELL => array('enabled'),
+            static::ATTRS_CACHE_CELL => array('enabled'),
         );
 
         return $list;

@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\CanadaPost\Model\Order\Parcel;
 
+use Includes\Utils\Converter;
+
 /**
  * Class represents a Canada Post parcel items
  *
@@ -59,6 +61,29 @@ class Item extends \XLite\Model\AEntity
 	// {{{ Service methods
 
     /**
+     * Universal getter
+     *
+     * @param string $property
+     *
+     * @return mixed|null Returns NULL if it is impossible to get the property
+     */
+    public function getterProperty($property)
+    {
+        $result = null;
+
+        if (property_exists($this, $property)) {
+            // Get property value
+            $result = $this->$property;
+        } elseif ($this->getOrderItem()) {
+            $result = $this->getOrderItem()->$property;
+        } else {
+            $result = parent::getterProperty($property);
+        }
+
+        return $result;
+    }
+
+    /**
      * Assign the parcel
      *
      * @param \XLite\Module\XC\CanadaPost\Model\Order\Parcel $parcel Order's parcel (OPTIONAL)
@@ -83,6 +108,17 @@ class Item extends \XLite\Model\AEntity
     }
 
 	// }}}
+
+    /**
+     * Get single item weight (in store weight units)
+     *
+     * @return float
+     */
+    public function getSubtotal()
+    {
+        $object = $this->getOrderItem();
+        return $object ? $object->getPrice() * $this->getAmount() : 0;
+    }
 
     /**
      * Get single item weight (in store weight units)

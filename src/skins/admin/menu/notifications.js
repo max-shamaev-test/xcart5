@@ -39,10 +39,12 @@ jQuery(function () {
 
     var menuType = jQuery('.notification-menu', element).data('menu-type');
     this.readTimer = setTimeout(function () {
+      jQuery.cookie('notification_read_' + menuType, Date.now());
       element.removeClass('has-unread');
       jQuery.ajax({
         url: xliteConfig.script + "?target=main&action=set_notifications_as_read&menuType=" + menuType
       }).done(function() {
+        jQuery.removeCookie('notification_read_' + menuType);
       });
     }, 2000)
   });

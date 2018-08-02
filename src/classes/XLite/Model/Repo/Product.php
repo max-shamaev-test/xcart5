@@ -22,7 +22,7 @@ namespace XLite\Model\Repo;
  *   description="Product is the building block of your store. It contains data about certain good you trade and is identified by SKU. Product is tightly coupled with its Category and Attributes.",
  *   @SWG\ExternalDocumentation(
  *     description="Find out more about product fields and options",
- *     url="https://kb.x-cart.com/en/products/adding_products.html"
+ *     url="https://kb.x-cart.com/products/adding_products.html"
  *   )
  * )
  */
@@ -449,9 +449,9 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     protected function getConditionBy()
     {
         return [
-            self::P_BY_TITLE,
-            self::P_BY_DESCR,
-            self::P_BY_SKU,
+            static::P_BY_TITLE,
+            static::P_BY_DESCR,
+            static::P_BY_SKU,
         ];
     }
 
@@ -463,7 +463,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     protected function getSubstringSearchFieldsByTitle()
     {
         return [
-            self::TITLE_FIELD,
+            static::TITLE_FIELD,
         ];
     }
 
@@ -475,8 +475,8 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     protected function getSubstringSearchFieldsByDescr()
     {
         return [
-            self::BRIEF_DESCR_FIELD,
-            self::DESCR_FIELD,
+            static::BRIEF_DESCR_FIELD,
+            static::DESCR_FIELD,
         ];
     }
 
@@ -488,7 +488,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     protected function getSubstringSearchFieldsBySKU()
     {
         return [
-            self::SKU_FIELD,
+            static::SKU_FIELD,
         ];
     }
 
@@ -549,7 +549,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
         if ($value === 'no_category') {
             $queryBuilder->andWhere('p.categoryProducts is empty');
 
-        } elseif (empty($this->searchState['currentSearchCnd']->{self::P_SEARCH_IN_SUBCATS})) {
+        } elseif (empty($this->searchState['currentSearchCnd']->{static::P_SEARCH_IN_SUBCATS})) {
             $queryBuilder->andWhere('c.category_id = :categoryId')
                 ->setParameter('categoryId', $value);
 
@@ -571,10 +571,10 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     protected function prepareCndSubstring(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
     {
         if (!empty($value)) {
-            $including = $this->searchState['currentSearchCnd']->{self::P_INCLUDING};
+            $including = $this->searchState['currentSearchCnd']->{static::P_INCLUDING};
             $including = in_array($including, $this->getAllowedIncludingValues(), true)
                 ? $including
-                : self::INCLUDING_PHRASE;
+                : static::INCLUDING_PHRASE;
 
             $this->{'processCndSubstring' . ucfirst($including)} ($queryBuilder, $value);
         }
@@ -669,7 +669,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      */
     protected function getAllowedIncludingValues()
     {
-        return [self::INCLUDING_ALL, self::INCLUDING_ANY, self::INCLUDING_PHRASE];
+        return [static::INCLUDING_ALL, static::INCLUDING_ANY, static::INCLUDING_PHRASE];
     }
 
     /**
@@ -776,18 +776,18 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      */
     protected function prepareCndInventory(\Doctrine\ORM\QueryBuilder $queryBuilder, $value = self::INV_ALL)
     {
-        if (in_array($value, [self::INV_LOW, self::INV_OUT], true)) {
+        if (in_array($value, [static::INV_LOW, static::INV_OUT], true)) {
             $queryBuilder->andWhere('p.inventoryEnabled = :enabled')
                 ->setParameter('enabled', true);
         }
 
-        if ($value === self::INV_LOW) {
+        if ($value === static::INV_LOW) {
             $this->prepareCndInventoryLow($queryBuilder);
 
-        } elseif ($value === self::INV_OUT) {
+        } elseif ($value === static::INV_OUT) {
             $this->prepareCndInventoryOut($queryBuilder);
 
-        } elseif ($value === self::INV_IN) {
+        } elseif ($value === static::INV_IN) {
             $this->prepareCndInventoryIn($queryBuilder);
         }
     }

@@ -287,6 +287,11 @@ class Options
     private $adminPassword = "password";
 
     /**
+     * @var bool
+     */
+    private $useArabicConverter = false;
+
+    /**
      * @param array $attributes
      */
     public function __construct(array $attributes = null)
@@ -370,6 +375,9 @@ class Options
                 $this->setAdminUsername($value);
             } elseif ($key === 'adminPassword' || $key === 'admin_password') {
                 $this->setAdminPassword($value);
+
+            } elseif ($key === 'useArabicConverter' || $key === 'use_arabic_converter') {
+                $this->setUseArabicConverter($value);
             }
         }
         return $this;
@@ -437,6 +445,9 @@ class Options
             return $this->getAdminUsername();
         } elseif ($key === 'adminPassword' || $key === 'admin_password') {
             return $this->getAdminPassword();
+
+        } elseif ($key === 'useArabicConverter' || $key === 'use_arabic_converter') {
+            return $this->isUseArabicConverter();
         }
         return null;
     }
@@ -1001,5 +1012,23 @@ class Options
     public function getRootDir()
     {
         return $this->rootDir;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUseArabicConverter()
+    {
+        return $this->useArabicConverter;
+    }
+
+    /**
+     * @param bool $useArabicConverter
+     * @return $this
+     */
+    public function setUseArabicConverter($useArabicConverter)
+    {
+        $this->useArabicConverter = $useArabicConverter;
+        return $this;
     }
 }

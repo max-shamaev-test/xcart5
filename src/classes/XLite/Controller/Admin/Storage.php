@@ -79,7 +79,8 @@ class Storage extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionDownload()
     {
-        $this->silent = true;
+        $this->set('silent', true);
+        $this->setSuppressOutput(true);
         $this->readStorage($this->getStorage());
     }
 

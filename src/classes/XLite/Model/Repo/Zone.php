@@ -44,6 +44,7 @@ class Zone extends \XLite\Model\Repo\ARepo
      */
     protected $alternativeIdentifier = [
         ['zone_name'],
+        ['is_default'],
     ];
 
     // {{{ defineCacheCells
@@ -58,20 +59,20 @@ class Zone extends \XLite\Model\Repo\ARepo
         $list = parent::defineCacheCells();
 
         $list['all'] = [
-            self::RELATION_CACHE_CELL => ['\XLite\Model\Zone'],
+            static::RELATION_CACHE_CELL => ['\XLite\Model\Zone'],
         ];
 
         $list['with_special'] = [
-            self::RELATION_CACHE_CELL => ['\XLite\Model\Zone'],
+            static::RELATION_CACHE_CELL => ['\XLite\Model\Zone'],
         ];
 
         $list['default'] = [
-            self::RELATION_CACHE_CELL => ['\XLite\Model\Zone'],
+            static::RELATION_CACHE_CELL => ['\XLite\Model\Zone'],
         ];
 
         $list['zone'] = [
-            self::ATTRS_CACHE_CELL    => ['zone_id'],
-            self::RELATION_CACHE_CELL => ['\XLite\Model\Zone'],
+            static::ATTRS_CACHE_CELL    => ['zone_id'],
+            static::RELATION_CACHE_CELL => ['\XLite\Model\Zone'],
         ];
 
         return $list;

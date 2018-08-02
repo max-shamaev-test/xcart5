@@ -14,6 +14,7 @@ use XLite\Core\Config;
 use XLite\Core\Converter;
 use XLite\Core\Database;
 use XLite\Core\HTTP\Request;
+use XLite\Core\Router;
 use XLite\Module\QSL\CloudSearch\Main;
 
 
@@ -35,6 +36,8 @@ class ServiceApiClient
     const SEARCH_REQUEST_TIMEOUT = 5;
     const PLAN_INFO_REQUEST_TIMEOUT = 3;
 
+    protected static $resultsCache = [];
+
     /**
      * Register CloudSearch installation
      *
@@ -42,7 +45,7 @@ class ServiceApiClient
      */
     public function register()
     {
-        $requestUrl = static::CLOUD_SEARCH_URL . static::CLOUD_SEARCH_REGISTER_URL;
+        $requestUrl = $this->getCloudSearchUrl() . static::CLOUD_SEARCH_REGISTER_URL;
 
         $shopUrl = $this->getShopUrl();
 
@@ -72,17 +75,36 @@ class ServiceApiClient
     /**
      * Search functionality on the product list
      *
-     * @param array $params
+     * @param SearchParametersInterface $params
      *
      * @return array
      */
-    public function search(array $params)
+    public function search(SearchParametersInterface $params)
     {
-        $response = $this->performSearchRequest($params);
+        $params = $params->getParameters();
 
-        return $response && $response->code == 200
-            ? $this->extractSearchResultsFromResponse($response)
-            : null;
+        $paramsHash = md5(serialize($params));
+
+        if (!array_key_exists($paramsHash, self::$resultsCache)) {
+            $response = $this->performSearchRequest($params);
+
+            self::$resultsCache[$paramsHash] = $response && $response->code == 200
+                ? $this->extractSearchResultsFromResponse($response)
+                : null;
+        }
+
+        return self::$resultsCache[$paramsHash];
+    }
+
+    /**
+     * Get CloudSearch service URL that defaults to https://cloudsearch.x-cart.com but can be overridden
+     * with CLOUD_SEARCH_URL env var
+     *
+     * @return string
+     */
+    protected function getCloudSearchUrl()
+    {
+        return !empty($_SERVER['CLOUD_SEARCH_URL']) ? $_SERVER['CLOUD_SEARCH_URL'] : static::CLOUD_SEARCH_URL;
     }
 
     /**
@@ -92,7 +114,7 @@ class ServiceApiClient
      */
     public function getSearchApiUrl()
     {
-        return static::CLOUD_SEARCH_URL . static::CLOUD_SEARCH_SEARCH_URL;
+        return $this->getCloudSearchUrl() . static::CLOUD_SEARCH_SEARCH_URL;
     }
 
     /**
@@ -130,14 +152,11 @@ class ServiceApiClient
         && $input['products']
         && count($input['products']) > 0 ? $input['products'] : [];
 
-        $facets = $input && isset($input['facets']) ? $input['facets'] : null;
-        $stats  = $input && isset($input['stats']) ? $input['stats'] : null;
-
         return [
             'products'         => $products,
             'numFoundProducts' => $input['numFoundProducts'],
-            'facets'           => $facets,
-            'stats'            => $stats,
+            'facets'           => $input['facets'],
+            'stats'            => $input['stats'],
         ];
     }
 
@@ -175,7 +194,7 @@ class ServiceApiClient
     {
         $apiKey = $this->getApiKey();
 
-        $requestUrl = static::CLOUD_SEARCH_URL . static::CLOUD_SEARCH_REQUEST_SECRET_KEY_URL;
+        $requestUrl = $this->getCloudSearchUrl() . static::CLOUD_SEARCH_REQUEST_SECRET_KEY_URL;
 
         $request       = new Request($requestUrl);
         $request->body = [
@@ -195,7 +214,7 @@ class ServiceApiClient
         $apiKey    = $this->getApiKey();
         $secretKey = $this->getSecretKey();
 
-        $requestUrl = static::CLOUD_SEARCH_URL . static::CLOUD_SEARCH_PLAN_INFO_URL;
+        $requestUrl = $this->getCloudSearchUrl() . static::CLOUD_SEARCH_PLAN_INFO_URL;
 
         $request = new Request($requestUrl);
 
@@ -223,7 +242,7 @@ class ServiceApiClient
     {
         $features = ['cloud_filters'];
 
-        return static::CLOUD_SEARCH_URL
+        return $this->getCloudSearchUrl()
             . static::CLOUD_SEARCH_REMOTE_IFRAME_URL
             . $secretKey
             . '&' . http_build_query($params + ['client_features' => $features]);
@@ -234,13 +253,23 @@ class ServiceApiClient
      *
      * @return string
      */
-    private function getShopUrl()
+    protected function getShopUrl()
     {
+        $router = Router::getInstance();
+
+        if (method_exists($router, 'disableLanguageUrlsTmp')) {
+            $router->disableLanguageUrlsTmp();
+        }
+
         $url = preg_replace(
             '/[^\/]*.php$/',
             '',
             URLManager::getShopURL(Converter::buildURL())
         );
+
+        if (method_exists($router, 'releaseLanguageUrlsTmp')) {
+            $router->releaseLanguageUrlsTmp();
+        }
 
         $protocol = URLManager::isHTTPS() ? 'https' : 'http';
 

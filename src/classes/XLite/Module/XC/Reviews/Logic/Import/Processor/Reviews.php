@@ -62,7 +62,6 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
                 static::COLUMN_IS_KEY => true,
             ],
             'status'       => [],
-            'ip'           => [],
             'useForMeta'   => [],
         ];
     }
@@ -87,7 +86,6 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
                    'REVIEW-EMAIL-FMT'         => 'Email is in wrong format',
                    'REVIEW-STATUS-FMT'        => 'Unknown or missing status',
                    'REVIEW-USEFORMETA-FMT'    => 'Unknown or missing useForMeta flag',
-                   'REVIEW-IP-FMT'            => 'Wrong format of IP column',
                ];
     }
 
@@ -170,7 +168,12 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function verifyResponseDate($value, array $column)
     {
-        if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsDate($value)) {
+        if (
+            !$this->verifyValueAsEmpty($value) && (
+                !$this->verifyValueAsDate($value)
+                && !(int)$value
+            )
+        ) {
             $this->addWarning('REVIEW-RESPONSE-DATE-FMT', ['column' => $column, 'value' => $value]);
         }
     }
@@ -219,21 +222,6 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
     }
 
     /**
-     * Verify 'ip' value
-     *
-     * @param mixed $value  Value
-     * @param array $column Column info
-     *
-     * @return void
-     */
-    protected function verifyIp($value, array $column)
-    {
-        if (!$this->verifyValueAsEmpty($value) && !filter_var($value, FILTER_VALIDATE_IP)) {
-            $this->addError('REVIEW-IP-FMT', ['column' => $column, 'value' => $value]);
-        }
-    }
-
-    /**
      * Verify 'useForMeta' value
      *
      * @param mixed $value  Value
@@ -277,21 +265,19 @@ class Reviews extends \XLite\Logic\Import\Processor\AProcessor
     }
 
     /**
-     * Normalize 'ip' value
+     * Normalize 'responseDate' value
      *
      * @param mixed @value Value
      *
      * @return integer
      */
-    protected function normalizeIpValue($value)
+    protected function normalizeResponseDateValue($value)
     {
-        $result = null;
-
-        if (!$this->verifyValueAsEmpty($value)) {
-            $result = utf8_encode(inet_pton($value));
+        if ($this->normalizeValueAsDate($value)) {
+            return $this->normalizeValueAsDate($value);
+        } else {
+            return (int)$value ?: null;
         }
-
-        return $result;
     }
 
     /**

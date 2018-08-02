@@ -8,12 +8,16 @@
  */
 
 var fixInputPadding = function(elem) {
+  if (elem.length === 0) {
+    return;
+  }
+
   var input = elem.siblings('.table-value').find('input');
   var width = input.offset().left + input.outerWidth() - elem.offset().left;
 
   if (width < input.outerWidth()) {
     input.css('padding-right', width + 'px');
-  };
+  }
 }
 
 var assignHandlers = function(line) {

@@ -282,6 +282,11 @@ define('file_uploader', [
         var base = this.getFileUploaderElement();
 
         if (!event.keyCode || 13 === event.keyCode) {
+          if (event.keyCode === 13) {
+            $('.alt > .dropdown-toggle', base).trigger('click.bs.dropdown');
+          }
+
+          //TODO remove
           base.find('li.alt-text .input-group').hide();
           base.find('li.alt-text .value span').text($(event.target).val());
           base.find('li.alt-text .value').show();

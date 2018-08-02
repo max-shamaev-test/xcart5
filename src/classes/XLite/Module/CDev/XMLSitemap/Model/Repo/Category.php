@@ -42,8 +42,9 @@ abstract class Category extends \XLite\Model\Repo\Category implements \XLite\Bas
     protected function addCleanURLCondition(\XLite\Model\QueryBuilder\AQueryBuilder $qb)
     {
         if (\XLite\Module\CDev\XMLSitemap\Logic\Sitemap\Step\Categories::isSitemapCleanUrlConditionApplicable()) {
+            $joinCnd = 'cu.id = (SELECT MAX(cu2.id) FROM XLite\Model\CleanURL cu2 WHERE cu2.category = ' . $qb->getMainAlias() . ')';
             $qb->addSelect('cu.cleanURL')
-                ->leftJoin('XLite\Model\CleanURL', 'cu', \Doctrine\ORM\Query\Expr\Join::WITH, 'cu.category = '.$qb->getMainAlias());
+                ->leftJoin('XLite\Model\CleanURL', 'cu', \Doctrine\ORM\Query\Expr\Join::WITH, $joinCnd);
         }
 
         return $qb;

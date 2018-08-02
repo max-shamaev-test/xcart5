@@ -7,3 +7,4 @@
 
 XLite\Model\LanguageLabel:
   - { name: "Information", translations: [{ code: ru, label: "Информация" }] }
+  - { name: "Sitemap", translations: [{ code: ru, label: "Карта сайта" }] }

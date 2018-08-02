@@ -47,6 +47,10 @@ define('themetweaker/panel', ['js/vue/vue', 'themetweaker/store'], function (XLi
                 self.enablePanelInteractionWhileInPopup();
                 self.enableResizing();
             });
+
+            if (this.mode) {
+                this.isExpanded = true;
+            }
         },
 
         data: function () {

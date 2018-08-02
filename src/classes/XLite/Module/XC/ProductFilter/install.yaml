@@ -90,3 +90,5 @@ XLite\Model\LanguageLabel:
   - { name: 'Wrong useClasses format', translations: [{ code: en, label: "Wrong useClasses format. This should be 'A', 'N' or 'D'" }] }
   - { name: 'Hash', translations: [{ code: en, label: 'Hash' }] }
   - { name: 'Get params', translations: [{ code: en, label: 'GET params' }] }
+
+  - { name: 'The product filter cache has been removed successfully.', translations: [{ code: en, label: 'The product filter cache has been removed successfully.' }]}

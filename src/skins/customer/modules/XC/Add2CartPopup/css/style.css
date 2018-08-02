@@ -109,6 +109,14 @@ button.add2cart-popup {
   font-size: 16px;
 }
 
+.add2cart-popup .item-box .item-buttons .regular-main-button.checkout {
+  height: 36px;
+}
+
+.add2cart-popup .item-box .item-buttons .regular-main-button.checkout span {
+  vertical-align: middle;
+}
+
 .add2cart-popup .products-list-box .items-list .items-list-title {
   margin-bottom: 0px;
   font-size: 20px;

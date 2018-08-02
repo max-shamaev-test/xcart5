@@ -53,7 +53,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '1';
+        return '4';
     }
 
     /**
@@ -148,5 +148,13 @@ abstract class Main extends \XLite\Module\AModule
     public static function isDebugMode()
     {
         return \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics->debug_mode;
+    }
+
+    /**
+     * @return boolean
+     */
+    public static function hasGdprRelatedActivity()
+    {
+        return true;
     }
 }

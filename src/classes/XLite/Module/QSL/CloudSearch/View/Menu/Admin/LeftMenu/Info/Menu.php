@@ -22,10 +22,10 @@ class Menu extends \XLite\View\Menu\Admin\LeftMenu\Info\Menu implements \XLite\B
     {
         $items = parent::defineItems();
 
-        $items['CloudSearchTrialNotice'] = array(
+        $items['CloudSearchTrialNotice'] = [
             static::ITEM_WEIGHT => 1000,
             static::ITEM_WIDGET => 'XLite\Module\QSL\CloudSearch\View\Menu\Admin\LeftMenu\Info\TrialNotice',
-        );
+        ];
 
         return $items;
     }

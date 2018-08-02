@@ -9,13 +9,17 @@
 namespace XLite\Controller\Customer;
 
 use XLite\Controller\Features\ItemsListControllerTrait;
+use XLite\Core\Session;
+use XLite\View\ItemsList\Product\Customer\Search as ProducsSearch;
 
 /**
  * Products search
  */
 class Search extends \XLite\Controller\Customer\ACustomer
 {
-    use ItemsListControllerTrait;
+    use ItemsListControllerTrait {
+        getCondition as protected getConditionTrait;
+    }
 
     /**
      * Return items list class
@@ -62,6 +66,11 @@ class Search extends \XLite\Controller\Customer\ACustomer
         return $value === $this->getCondition($paramName) ? 'checked' : '';
     }
 
+    public function getCondition($paramName)
+    {
+        return $this->getSearchValuesStorage()->getValue($paramName);
+    }
+
     /**
      * Get page title
      *
@@ -84,7 +93,10 @@ class Search extends \XLite\Controller\Customer\ACustomer
 
     protected function doNoAction()
     {
-        $this->prepareSearchData();
+        Session::getInstance()->{$this->getSessionCellName()} = array_merge(
+            $this->getSessionSearchConditions(),
+            $this->prepareSearchData()
+        );
 
         parent::doNoAction();
     }
@@ -96,9 +108,7 @@ class Search extends \XLite\Controller\Customer\ACustomer
      */
     protected function doActionSearch()
     {
-        $sessionCell = \XLite\View\ItemsList\Product\Customer\Search::getSearchSessionCellName();
-
-        \XLite\Core\Session::getInstance()->{$sessionCell} = $this->prepareSearchData();
+        Session::getInstance()->{$this->getSessionCellName()} = $this->prepareSearchData();
         $this->doActionSearchItemsList();
 
         $urlParams = ['mode' => 'search'];
@@ -115,13 +125,13 @@ class Search extends \XLite\Controller\Customer\ACustomer
      */
     protected function prepareSearchData()
     {
-        $searchParams   = \XLite\View\ItemsList\Product\Customer\Search::getSearchParams();
-        $advancedParams = array_diff(\XLite\View\ItemsList\Product\Customer\Search::getSearchParams(), \XLite\View\ItemsList\Product\Customer\Search::getBasicSearchParams());
+        $searchParams = ProducsSearch::getSearchParams();
+        $advancedParams = array_diff(ProducsSearch::getSearchParams(), ProducsSearch::getBasicSearchParams());
 
         $productsSearch = [];
 
-        $cBoxFields     = [
-            \XLite\View\ItemsList\Product\Customer\Search::PARAM_SEARCH_IN_SUBCATS
+        $cBoxFields = [
+            ProducsSearch::PARAM_SEARCH_IN_SUBCATS,
         ];
 
         foreach ($searchParams as $modelParam => $requestParam) {
@@ -137,8 +147,8 @@ class Search extends \XLite\Controller\Customer\ACustomer
         }
 
         $defaults = [
-            \XLite\View\ItemsList\Product\Customer\Search::PARAM_INCLUDING          => 'all',
-            \XLite\View\ItemsList\Product\Customer\Search::PARAM_SEARCH_IN_SUBCATS  => 'Y'
+            ProducsSearch::PARAM_INCLUDING         => 'all',
+            ProducsSearch::PARAM_SEARCH_IN_SUBCATS => 'Y',
         ];
 
         $productsSearch = array_merge(
@@ -146,7 +156,7 @@ class Search extends \XLite\Controller\Customer\ACustomer
             $productsSearch
         );
 
-        \XLite\Core\Session::getInstance()->{$this->getAdvancedPanelCellName()} = array_intersect(array_keys($productsSearch), array_values($advancedParams));
+        Session::getInstance()->{$this->getAdvancedPanelCellName()} = array_intersect(array_keys($productsSearch), array_values($advancedParams));
 
         return $productsSearch;
     }
@@ -158,7 +168,7 @@ class Search extends \XLite\Controller\Customer\ACustomer
      */
     public function showAdvancedPanel()
     {
-        return \XLite\Core\Session::getInstance()->{$this->getAdvancedPanelCellName()};
+        return Session::getInstance()->{$this->getAdvancedPanelCellName()};
     }
 
     /**

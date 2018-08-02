@@ -14,7 +14,7 @@ use XLite\Model\Product;
 /**
  * CloudSearch store-side API methods
  *
- * @Decorator\Depend ("XC\Reviews")
+ * @Decorator\Depend ({"XC\Reviews"})
  */
 class StoreApiReviews extends \XLite\Module\QSL\CloudSearch\Core\StoreApi implements \XLite\Base\IDecorator
 {

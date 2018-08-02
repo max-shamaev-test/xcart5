@@ -75,7 +75,7 @@ class AmazonLogin extends \XLite\Controller\Customer\ACustomer
                 }
             } else {
                 if (!Auth::getInstance()->getProfile()) {
-                    $this->getCart()->getProfile()->setLogin($profileInfo['email']);
+                    $this->getCartProfile()->setLogin($profileInfo['email']);
                     Database::getEM()->flush();
                 }
             }

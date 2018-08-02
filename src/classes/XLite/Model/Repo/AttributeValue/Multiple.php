@@ -55,11 +55,11 @@ abstract class Multiple extends \XLite\Model\Repo\AttributeValue\AAttributeValue
                 ->getResult();
         }
 
-        return array(
+        return [
             'price'  => !empty($price),
             'weight' => !empty($weight),
             'attrModifierPercent' => !empty($attrModifierPercent),
-        );
+        ];
     }
 
 }

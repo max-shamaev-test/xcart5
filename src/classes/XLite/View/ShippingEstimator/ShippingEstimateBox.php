@@ -8,12 +8,14 @@
 
 namespace XLite\View\ShippingEstimator;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
+
 /**
  * Shipping estimate box
  *
  * @ListChild (list="cart.panel.box", weight="10")
  */
-class ShippingEstimateBox extends \XLite\View\AView
+class ShippingEstimateBox extends \XLite\View\AView implements ProviderInterface
 {
     /**
      * Modifier (cache)
@@ -191,5 +193,33 @@ class ShippingEstimateBox extends \XLite\View\AView
         $string = rtrim(rtrim($string), ',');
 
         return $string;
+    }
+
+    /**
+     * Get shipping cost
+     *
+     * @return float
+     */
+    protected function getShippingCost()
+    {
+        $cart = $this->getCart();
+        $cost = $cart->getSurchargesSubtotal(\XLite\Model\Base\Surcharge::TYPE_SHIPPING, false);
+
+        return $cost;
+    }
+
+
+    /**
+     * Array of labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'Select one' => static::t('Select one')
+        ];
     }
 }

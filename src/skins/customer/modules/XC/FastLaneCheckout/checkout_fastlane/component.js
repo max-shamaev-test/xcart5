@@ -24,6 +24,12 @@ define('checkout_fastlane/loader', ['vue/vue', 'ready'], function(Vue){
       name: 'checkout',
       replace: false,
 
+      data: function () {
+        return {
+          uid: null
+        }
+      },
+
       created: function() {
         core.trigger('checkout.main.initialize');
         core.bind('fastlane_section_switched', _.bind(this.updateSectionHandler, this));
@@ -32,9 +38,13 @@ define('checkout_fastlane/loader', ['vue/vue', 'ready'], function(Vue){
       ready: function() {
         core.trigger('checkout.main.postprocess');
         this.$broadcast('checkStartSection');
-        $(this.$el).removeClass('reloading reloading-animated');
         this.assignGlobalListeners();
         core.trigger('checkout.main.ready');
+        $(this.$el).removeClass('immediate');
+
+        this.$nextTick(function() {
+          $(this.$el).removeClass('reloading reloading-animated');
+        });
       },
 
       components: {
@@ -51,11 +61,11 @@ define('checkout_fastlane/loader', ['vue/vue', 'ready'], function(Vue){
           var msgBox = document.createElement('div');
           $(msgBox).text(message).addClass('reloading-message');
           $('body').children().remove('.reloading-message').remove('.reloading-element');
-          $('body').addClass('reloading reloading-circles').append('<div class="reloading-element"></div>').append(msgBox);
+          $('body').addClass('reloading reloading-animated').append('<div class="reloading-element"></div>').append(msgBox);
         },
         finishLoadAnimation: function() {
           $('body').children().remove('.reloading-message').remove('.reloading-element');
-          $('body').removeClass('reloading reloading-circles');
+          $('body').removeClass('reloading reloading-animated');
         },
         reloadBlock: function(blockName) {
           if (jQuery(blockName).length) {

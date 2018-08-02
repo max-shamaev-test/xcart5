@@ -391,6 +391,12 @@ function processCacheRebuildFailure(stepData)
     }
 }
 
+function resetCacheRebuildFailure(stepData)
+{
+  document.getElementById('cache-rebuild-failed').style.display = 'none';
+  document.getElementById('process_iframe').style.borderColor = 'black';
+}
+
 </script>
 
 <!-- GA -->

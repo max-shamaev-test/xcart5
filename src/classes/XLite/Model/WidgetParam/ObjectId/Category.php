@@ -62,8 +62,8 @@ class Category extends \XLite\Model\WidgetParam\TypeObjectId
 
         if ($this->rootIsAllowed) {
             $result = array(
-                self::ATTR_CONDITION => 0 > $value,
-                self::ATTR_MESSAGE   => ' is a negative number',
+                static::ATTR_CONDITION => 0 > $value,
+                static::ATTR_MESSAGE   => ' is a negative number',
             );
         }
 
@@ -81,7 +81,7 @@ class Category extends \XLite\Model\WidgetParam\TypeObjectId
     {
         $result = parent::getIdValidCondition($value);
 
-        $result[self::ATTR_CONDITION] = 0 < $value && $result[self::ATTR_CONDITION];
+        $result[static::ATTR_CONDITION] = 0 < $value && $result[static::ATTR_CONDITION];
 
         return $result;
     }

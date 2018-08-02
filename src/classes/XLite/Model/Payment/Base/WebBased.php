@@ -119,7 +119,7 @@ HTML;
      */
     protected function getFormMethod()
     {
-        return self::FORM_METHOD_POST;
+        return static::FORM_METHOD_POST;
     }
 
     /**

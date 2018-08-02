@@ -52,6 +52,8 @@ class SaleSelected extends \XLite\Controller\Admin\AAdmin
         } else {
             \XLite\Core\Database::getRepo('\XLite\Model\Product')->updateInBatchById($this->getUpdateInfo());
             \XLite\Core\TopMessage::addInfo('Products information has been successfully updated');
+
+            \XLite\Core\Event::ProductsListMassUncheck();
         }
 
         $this->setReturnURL($this->buildURL('product_list', '', ['mode' => 'search']));

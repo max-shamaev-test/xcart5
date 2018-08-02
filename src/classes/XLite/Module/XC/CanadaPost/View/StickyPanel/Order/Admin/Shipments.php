@@ -11,26 +11,6 @@ namespace XLite\Module\XC\CanadaPost\View\StickyPanel\Order\Admin;
 /**
  * Panel for shipments form
  */
-class Shipments extends \XLite\View\Base\FormStickyPanel
+class Shipments extends \XLite\View\StickyPanel\ItemForm
 {
-    /**
-     * Get buttons widgets
-     *
-     * @return array
-     */
-    protected function getButtons()
-    {
-        $buttons = array();
-
-        $buttons['save'] = $this->getWidget(
-            array(
-                'style'    => 'action submit',
-                'label'    => static::t('Save changes'),
-                'disabled' => true,
-            ),
-            'XLite\View\Button\Submit'
-        );
-
-        return $buttons;
-    }
 }

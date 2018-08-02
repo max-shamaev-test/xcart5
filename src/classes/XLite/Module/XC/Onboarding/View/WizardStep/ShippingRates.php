@@ -29,7 +29,7 @@ class ShippingRates extends \XLite\Module\XC\Onboarding\View\AWizardStep
      */
     protected function getArticleLink()
     {
-        return 'https://kb.x-cart.com/en/shipping/custom_table_rates.html';
+        return static::t('https://kb.x-cart.com/shipping/custom_table_rates.html');
     }
 
     /**

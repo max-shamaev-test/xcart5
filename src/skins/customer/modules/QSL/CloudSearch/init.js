@@ -9,6 +9,7 @@
         cloudSearchData = core.getCommentedData(body, 'cloudSearch');
 
     window.Cloud_Search = {
+        apiUrl: cloudSearchData.apiUrl,
         apiKey: cloudSearchData.apiKey,
         price_template: cloudSearchData.priceTemplate,
         selector: cloudSearchData.selector,

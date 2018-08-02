@@ -12,10 +12,10 @@ return function () {
     $repo = Database::getRepo('XLite\Model\Config');
 
     $optionsToRemove = $repo->findBy(
-        array(
+        [
             'category' => 'QSL\CloudSearch',
-            'name'     => array('doSearch', 'doIndexModifiers'),
-        )
+            'name'     => ['doSearch', 'doIndexModifiers'],
+        ]
     );
 
     $repo->deleteInBatch($optionsToRemove, false);

@@ -8,6 +8,9 @@
 
 namespace XLite\View\Menu\Admin\Info\Node;
 
+use XLite\Core\Auth;
+use XLite\Model\Role\Permission;
+
 /**
  * Low stock node
  */
@@ -43,6 +46,16 @@ class LowStock extends \XLite\View\Menu\Admin\ANodeNotification
     protected function isVisible()
     {
         return parent::isVisible() && $this->getCounter();
+    }
+
+    /**
+     * @return bool
+     */
+    protected function checkACL()
+    {
+        return parent::checkACL()
+            && (Auth::getInstance()->hasRootAccess()
+             || Auth::getInstance()->isPermissionAllowed('manage catalog'));
     }
 
     /**

@@ -16,6 +16,14 @@ use \XLite\Module\CDev\Paypal;
 class PaypalCredit extends \XLite\Module\CDev\Paypal\Controller\Admin\PaypalSettings
 {
     /**
+     * @return boolean
+     */
+    public function checkAccess()
+    {
+        return parent::checkAccess() && \XLite\Core\Config::getInstance()->Company->location_country === 'US';
+    }
+
+    /**
      * Get payment method
      *
      * @return \XLite\Model\Payment\Method

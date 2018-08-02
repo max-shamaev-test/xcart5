@@ -136,7 +136,7 @@ class Probe extends \XLite\Base\Singleton
 
         for ($i = 0; 20 > $i; $i++) {
             $data = array();
-            mt_srand(microtime(true) * 1000);
+            mt_srand((int)(microtime(true) * 1000));
             for ($n = 0; 10000 > $n; $n++) {
                 $data[] = mt_rand(0, 1000);
             }

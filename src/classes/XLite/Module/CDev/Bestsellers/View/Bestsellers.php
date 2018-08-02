@@ -76,6 +76,7 @@ class Bestsellers extends \XLite\Module\CDev\Bestsellers\View\ABestsellers
         parent::defineWidgetParams();
 
         unset($this->widgetParams[static::PARAM_SHOW_DISPLAY_MODE_SELECTOR]);
+        unset($this->widgetParams[static::PARAM_SHOW_SORT_BY_SELECTOR]);
     }
 
     /**

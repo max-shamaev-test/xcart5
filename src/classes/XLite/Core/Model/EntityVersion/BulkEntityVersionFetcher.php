@@ -49,8 +49,10 @@ class BulkEntityVersionFetcher implements \Serializable
 
     public function fetch($id)
     {
-        if (isset(self::$fetchedVersions[$this->entityType . $id])) {
-            return self::$fetchedVersions[$this->entityType . $id];
+        $entityKey = $this->entityType . $id;
+
+        if (isset(self::$fetchedVersions[$entityKey])) {
+            return self::$fetchedVersions[$entityKey];
         }
 
         $em = Database::getEM();
@@ -69,8 +71,8 @@ class BulkEntityVersionFetcher implements \Serializable
             }
         }
 
-        if (isset(self::$fetchedVersions[$this->entityType . $id])) {
-            return self::$fetchedVersions[$this->entityType . $id];
+        if (isset(self::$fetchedVersions[$entityKey])) {
+            return self::$fetchedVersions[$entityKey];
         }
 
         $stmt = $em->getConnection()->prepare("SELECT {$this->identifierFieldName} AS id, entityVersion FROM {$this->entityTableName} WHERE {$this->identifierFieldName} IN (" . implode(',', array_fill(0, count($prefetchIds), '?')) . ")");
@@ -85,7 +87,7 @@ class BulkEntityVersionFetcher implements \Serializable
             self::$fetchedVersions[$this->entityType . $result['id']] = $result['entityVersion'];
         }
 
-        return self::$fetchedVersions[$this->entityType . $id];
+        return isset(self::$fetchedVersions[$entityKey]) ? self::$fetchedVersions[$entityKey] : null;
     }
 
     /**

@@ -29,7 +29,6 @@ ul.products-sidebar ul.labels li, ul.products-sidebar ul.labels li.coming-soon {
 ul.products-sidebar ul.labels li, ul.products-sidebar ul.labels li.coming-soon div {
   margin: 0;
   padding: 0;
-  white-space: nowrap;
 }
 
 .product-details-info .coming-soon-label .labels {

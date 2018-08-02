@@ -9,7 +9,7 @@ XLite\Model\Order\Modifier:
   - { class: 'XLite\Module\CDev\VolumeDiscounts\Logic\Order\Modifier\Discount', weight: 50 }
 
 XLite\Model\Role\Permission:
-  - { code: manage volume discounts, section: Volume discounts, translations: [{ code: en, name: Manage volume discounts }] }
+  - { code: manage volume discounts, section: Volume discounts, translations: [{ code: en, name: Manage volume discounts }, { code: ru, name: Управление скидками }] }
 
 XLite\Model\Role:
   - { translations: [{ code: en, name: Volume discounts management }, { code: ru, name: Управление скидками }], permissions: [{ code: manage volume discounts }] }

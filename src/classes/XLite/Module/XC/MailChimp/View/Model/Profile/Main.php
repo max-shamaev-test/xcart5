@@ -8,6 +8,7 @@
 
 namespace XLite\Module\XC\MailChimp\View\Model\Profile;
 
+use XLite\Core\Config;
 use XLite\Module\XC\MailChimp\Core;
 
 /**
@@ -43,11 +44,11 @@ abstract class Main extends \XLite\View\Model\Profile\Main implements \XLite\Bas
         ) {
             $additionalSchema = [
                 Core\MailChimp::SUBSCRIPTION_TO_ALL_FIELD_NAME => [
-                    self::SCHEMA_CLASS      => '\XLite\Module\XC\MailChimp\View\FormField\CheckboxWithCaption',
-                    self::SCHEMA_LABEL      => '',
+                    self::SCHEMA_CLASS      => 'XLite\View\FormField\Input\Checkbox',
+                    self::SCHEMA_LABEL      => static::t('Sign up for <Company name> news, sales and deals', ['company_name'=> Config::getInstance()->Company->company_name]),
                     self::SCHEMA_REQUIRED   => false,
                     self::SCHEMA_IS_CHECKED => true,
-                    \XLite\View\FormField\AFormField::PARAM_WRAPPER_CLASS => 'input input-checkbox mailchimp-subscribe-all',
+                    \XLite\View\FormField\AFormField::PARAM_WRAPPER_CLASS => 'input input-checkbox mailchimp-subscribe-all not-floating',
                 ]
             ];
             $schema = array_merge($this->mainSchema, $additionalSchema);

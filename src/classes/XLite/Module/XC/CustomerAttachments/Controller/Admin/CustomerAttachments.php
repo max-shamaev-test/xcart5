@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\CustomerAttachments\Controller\Admin;
 
+use XLite\Core\Auth;
+
 /**
  * Customer attachments admin controller
  */
@@ -21,6 +23,11 @@ class CustomerAttachments extends \XLite\Controller\Admin\AAdmin
     public static function defineFreeFormIdActions()
     {
         return array_merge(parent::defineFreeFormIdActions(), array('download'));
+    }
+
+    public function checkACL()
+    {
+        return parent::checkACL() || Auth::getInstance()->isPermissionAllowed('manage orders');
     }
 
     /**

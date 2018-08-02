@@ -36,6 +36,7 @@ class Importer extends \XLite\Logic\Import\Importer implements \XLite\Base\IDeco
     public static function getExcludedImportSteps()
     {
         return array(
+            'XLite\Logic\Import\Step\CategoriesStructure',
             'XLite\Logic\Import\Step\ImageResize',
         );
     }

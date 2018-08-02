@@ -461,13 +461,13 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
     /**
      * Get content of the dynamic widget that renders 'product-added' css class if product was added to cart.
      *
-     * @return string
+     * @return integer
      */
     public function getRecentOrdersCount()
     {
         $widget = $this->getChildWidget('XLite\View\Menu\Admin\RecentOrdersCount');
 
-        return $widget->getContent();
+        return (int)$widget->getContent();
     }
 
     /**
@@ -545,6 +545,7 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
                     ? \XLite\Core\Auth::getInstance()->getProfile()->getProfileId()
                     : 'no_profile',
                 \XLite::isFreeLicense(),
+                $this->getRecentOrdersCount()
             ]
         );
     }

@@ -61,6 +61,16 @@ class CreateAccount extends \XLite\View\Button\PopupButton
      */
     protected function getClass()
     {
-        return 'popup-button create-account-link';
+        return 'popup-button default-popup-button create-account-link';
+    }
+
+    /**
+     * Default withoutClose value
+     *
+     * @return boolean
+     */
+    protected function getDefaultWithoutCloseState()
+    {
+        return true;
     }
 }

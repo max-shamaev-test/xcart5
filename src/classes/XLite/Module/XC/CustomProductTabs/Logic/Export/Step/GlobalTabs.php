@@ -172,7 +172,7 @@ class GlobalTabs extends \XLite\Logic\Export\Step\Base\I18n
     {
         if ($dataset['model']->getCustomTab() && $dataset['model']->getCustomTab()->getTranslation(substr($name, -2), true)) {
             return $dataset['model']->getCustomTab()->getTranslation(substr($name, -2))->getterProperty(substr($name, 0, -3))
-                ?: \XLite\Logic\Import\Processor\AProcessor::NULL_VALUE;
+                ?: '';
         }
 
         return null;

@@ -33,6 +33,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
     const COLUMN_IS_TRUSTED      = 'isTrusted';
     const COLUMN_PROPERTY        = 'property';
     const COLUMN_LENGTH          = 'fieldLength';
+    const COLUMN_WEIGHT          = 'weight';
 
     const MESSAGE_NOTE     = 'note';
     const MESSAGE_DECISION = 'decision';
@@ -869,6 +870,12 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
                 $file->next();
                 $this->position++;
                 $this->importer->getOptions()->position = $this->importer->getOptions()->position + 1;
+
+            } else {
+                $bomBytes = pack('CCC', 0xEF, 0xBB, 0xBF);
+                if (substr($row[0], 0, 3) === $bomBytes) {
+                    $row[0] = substr($row[0], 3);
+                }
             }
 
         } while (!$file->eof() && !$row);
@@ -1565,7 +1572,11 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
                 && $this->isModelPlainProperty($data[$name], $column)
                 && !empty($column[static::COLUMN_IMPORTER])
             ) {
-                call_user_func(array($this, $column[static::COLUMN_IMPORTER]), $model, $data[$name], $column);
+                $closure = is_callable($column[static::COLUMN_IMPORTER])
+                    ? $column[static::COLUMN_IMPORTER]
+                    : [$this, $column[static::COLUMN_IMPORTER]];
+
+                call_user_func($closure, $model, $data[$name], $column);
             }
         }
 
@@ -1653,8 +1664,12 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
         foreach ($this->getColumns() as $name => $column) {
             if (isset($data[$name]) && !$this->isModelPlainProperty($data[$name], $column)) {
                 if (!empty($column[static::COLUMN_IMPORTER])) {
+                    $closure = is_callable($column[static::COLUMN_IMPORTER])
+                        ? $column[static::COLUMN_IMPORTER]
+                        : [$this, $column[static::COLUMN_IMPORTER]];
+
                     $subresult = call_user_func(
-                        array($this, $column[static::COLUMN_IMPORTER]),
+                        $closure,
                         $model,
                         $data[$name],
                         $column
@@ -2129,6 +2144,18 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
     }
 
     /**
+     * Verify value as meta tags generation type
+     *
+     * @param mixed @value Value
+     *
+     * @return boolean
+     */
+    protected function verifyValueAsMetaTagsType($value)
+    {
+        return in_array($value, ['A', 'C']);
+    }
+
+    /**
      * Verify value as profile
      *
      * @param string @value email
@@ -2225,7 +2252,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
     protected function verifyValueAsFile($value)
     {
         // Do not verify files in verification mode and if 'ignoreFileChecking' option is true
-        if (!$this->isVerification() && !$this->importer->getOptions()->ignoreFileChecking) {
+        if (!$this->isVerification() || !$this->importer->getOptions()->ignoreFileChecking) {
             if (\Includes\Utils\FileManager::isReadable(LC_DIR_ROOT . $value)) {
                 $result = 0 === strpos(realpath(LC_DIR_ROOT . $value), LC_DIR_ROOT);
             } elseif ($this->verifyValueAsURL($value)) {
@@ -2669,6 +2696,23 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
             $result[$column[static::COLUMN_NAME]] = $column;
         }
         reset($result);
+
+        $count = count($result);
+        $i = 1;
+
+        foreach ($result as $name => $column) {
+            if (!isset($column[static::COLUMN_WEIGHT])) {
+                $result[$name][static::COLUMN_WEIGHT] = $i++;
+            } elseif ($column > 0) {
+                $result[$name][static::COLUMN_WEIGHT] += $count;
+            }
+        }
+
+        $weights = array_map(function ($c) {
+            return $c[static::COLUMN_WEIGHT];
+        }, $result);
+
+        array_multisort($weights, $result);
 
         if (!$keyFound) {
             $result[key($result)][static::COLUMN_IS_KEY] = true;

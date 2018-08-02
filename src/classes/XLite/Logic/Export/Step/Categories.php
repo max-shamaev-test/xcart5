@@ -46,6 +46,7 @@ class Categories extends \XLite\Logic\Export\Step\Base\I18n
             'image'       => [],
             'banner'       => [],
             'cleanURL'    => [],
+            'metaDescType' => [],
         ];
 
         $columns += $this->assignI18nColumns(
@@ -200,6 +201,20 @@ class Categories extends \XLite\Logic\Export\Step\Base\I18n
     protected function getCleanUrlColumnValue(array $dataset, $name, $i)
     {
         return $this->getColumnValueByName($dataset['model'], 'cleanUrl');
+    }
+
+    /**
+     * Get column value for 'metaDescType' column
+     *
+     * @param array   $dataset Dataset
+     * @param string  $name    Column name
+     * @param integer $i       Subcolumn index
+     *
+     * @return string
+     */
+    protected function getMetaDescTypeColumnValue(array $dataset, $name, $i)
+    {
+        return $this->getColumnValueByName($dataset['model'], 'metaDescType') ?: 'A';
     }
 
     /**

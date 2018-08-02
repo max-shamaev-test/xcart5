@@ -181,13 +181,6 @@ XLite\Model\Config:
   - { name: enabled, category: BannerRotation, value: true }
   - { name: isCloudFiltersEnabled, category: QSL\CloudSearch, value: false }
 
-XLite\Model\Shipping\Method:
-  - { processor: offline, code: courier, added: true, enabled: true, tableType: S, position: 10, translations: [{ code: en, name: Courier, deliveryTime: 2 - 4 days }, { code: ru, name: Доставка курьером, deliveryTime: 2 - 4 дня }], shipping_markups: [{ zone: { zone_name: United States }, min_weight: 0, max_weight: 999999999, min_total: 0, max_total: 999999999, min_items: 0, max_items: 999999999, markup_flat: 2.45, markup_percent: 1.5, markup_per_item: 0, markup_per_weight: 0 }, { zone: { zone_name: 'North of United States & Canada' }, min_weight: 0, max_weight: 999999999, min_total: 0, max_total: 999999999, min_items: 0, max_items: 999999999, markup_flat: 2.5, markup_percent: 1.5, markup_per_item: 0, markup_per_weight: 0 }, { zone: { zone_name: All Addresses (default zone) }, min_weight: 0, max_weight: 999999999, min_total: 0, max_total: 999999999, min_items: 0, max_items: 999999999, markup_flat: 5.5, markup_percent: 1.75, markup_per_item: 0, markup_per_weight: 0 }] }
-  - { processor: offline, added: true, enabled: true, tableType: S, position: 20, translations: [{ code: en, name: Local shipping, deliveryTime: up to one week }, { code: ru, name: Местная доставка, deliveryTime: до одной недели }], shipping_markups: [{ zone: { zone_name: United States }, min_weight: 0, max_weight: 999999999, min_total: 0, max_total: 999999999, min_items: 0, max_items: 999999999, markup_flat: 3.45, markup_percent: 1.75, markup_per_item: 0, markup_per_weight: 0 }, { zone: { zone_name: 'North of United States & Canada' }, min_weight: 0, max_weight: 999999999, min_total: 0, max_total: 999999999, min_items: 0, max_items: 999999999, markup_flat: 3.5, markup_percent: 1.75, markup_per_item: 0, markup_per_weight: 0 }, { zone: { zone_name: All Addresses (default zone) }, min_weight: 0, max_weight: 999999999, min_total: 0, max_total: 999999999, min_items: 0, max_items: 999999999, markup_flat: 6.5, markup_percent: 1.85, markup_per_item: 0, markup_per_weight: 0 }] }
-  - { processor: offline, added: true, enabled: true, tableType: S, position: 30, translations: [{ code: en, name: One day shipping, deliveryTime: 1 day }, { code: ru, name: Экспресс доставка, deliveryTime: 1 день }], shipping_markups: [{ zone: { zone_name: United States }, min_weight: 0, max_weight: 999999999, min_total: 0, max_total: 999999999, min_items: 0, max_items: 999999999, markup_flat: 100, markup_percent: 10, markup_per_item: 0, markup_per_weight: 0 }] }
-  - { processor: offline, added: true, enabled: true, tableType: S, position: 40, translations: [{ code: en, name: Local pickup }, { code: ru, name: Самовывоз }], shipping_markups: [{ zone: { zone_name: All Addresses (default zone) }, min_weight: 0, max_weight: 999999999, min_total: 0, max_total: 999999999, min_items: 0, max_items: 999999999, markup_flat: 0, markup_percent: 0, markup_per_item: 0, markup_per_weight: 0 }] }
-  - { processor: offline, added: true, enabled: true, tableType: S, position: 50, translations: [{ code: en, name: Free shipping on orders over $50 }, { code: ru, name: Бесплатная доставка при заказе от $50 }], shipping_markups: [{ zone: { zone_name: All Addresses (default zone) }, min_weight: 0, max_weight: 999999999, min_total: 50, max_total: 999999999, min_items: 0, max_items: 999999999, markup_flat: 0, markup_percent: 0, markup_per_item: 0, markup_per_weight: 0 }] }
-
 XLite\Model\BannerRotationSlide:
   - enabled: true
     link: 'cart.php?target=category&category_id=4'
@@ -219,11 +212,11 @@ XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab:
       - code: en
         name: "Payment methods"
         content: "<p>We accept the following payment methods:</p><p><img class=\"fr-draggable fr-dii\" src=\"skins/customer/images/demo/tabs/logos-payments-tab.png\" style=\"width:400px;\" /></p><p>To replace this text with your store's actual info on payment methods, go to \"Catalog -&gt; Product tabs\" and edit the Payment methods page.</p>"
-        brief_info: '<p><img class="fr-draggable fr-dii fr-fil" src="skins/customer/images/demo/tabs/logos-payments-tab.png" style="width:300px;" /></p>'
+        brief_info: '<p><img class="fr-draggable fr-dii fr-fil" src="skins/customer/images/demo/tabs/logos-payments-tab.png" alt="Accepted payment methods" style="width:300px;" /></p>'
       - code: ru
         name: "Способы оплаты"
         content: "<p>Мы принимаем следующие способы оплаты:</p><p><img class=\"fr-draggable fr-dii\" src=\"skins/customer/images/demo/tabs/logos-payments-tab.png\" style=\"width:400px;\" /></p><p>Для замены данного текста на настоящий текст информации о способах оплаты для вашего магазина, перейдите в секцию \"Каталог -> Вкладки страницы товара\" и редактируйте страницу \"Способы оплаты\".</p>"
-        brief_info: '<p><img class="fr-draggable fr-dii fr-fil" src="skins/customer/images/demo/tabs/logos-payments-tab.png" style="width:300px;" /></p>'
+        brief_info: '<p><img class="fr-draggable fr-dii fr-fil" src="skins/customer/images/demo/tabs/logos-payments-tab.png" alt="Методы оплаты" style="width:300px;" /></p>'
 
   - global_tab:
         enabled: true

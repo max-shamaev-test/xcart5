@@ -60,7 +60,7 @@ class Address extends \XLite\View\Model\AModel
                 static::SCHEMA_LABEL    => $field->getName(),
                 static::SCHEMA_REQUIRED => $field->getRequired(),
                 static::SCHEMA_MODEL_ATTRIBUTES => array(
-                    \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 'length',
+                    \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => \XLite\Core\Database::getRepo('XLite\Model\AddressFieldValue')->getFieldInfo('value', 'length'),
                 ),
                 \XLite\View\FormField\AFormField::PARAM_WRAPPER_CLASS => 'address-' . $field->getServiceName(),
             );

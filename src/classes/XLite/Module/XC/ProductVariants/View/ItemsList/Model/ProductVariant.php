@@ -79,7 +79,7 @@ class ProductVariant extends \XLite\View\ItemsList\Model\Table
 
         $columns['attributeValue'] = [
             static::COLUMN_MAIN         => true,
-            static::COLUMN_NAME         => 'Attribute',
+            static::COLUMN_NAME         => static::t('Attribute'),
             static::COLUMN_SUBHEADER    => $this->getVariantAttributesSubheader($this->getVariantsAttributes()),
             static::COLUMN_CREATE_CLASS => '\XLite\Module\XC\ProductVariants\View\FormField\Inline\Input\Attributes',
             static::COLUMN_TEMPLATE     => 'modules/XC/ProductVariants/field/view.twig',

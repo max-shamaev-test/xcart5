@@ -10,6 +10,8 @@ namespace XLite\View\Form\Order;
 
 /**
  * Search orders form
+ *
+ * TODO: Check if its deprecated
  */
 class Search extends \XLite\View\Form\AForm
 {
@@ -31,6 +33,14 @@ class Search extends \XLite\View\Form\AForm
     protected function getDefaultAction()
     {
         return 'search';
+    }
+
+    /**
+     * @return bool
+     */
+    protected function hasConfirmOnRemoveDefault()
+    {
+        return true;
     }
 
     /**

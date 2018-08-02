@@ -23,10 +23,13 @@ use \XLite\Module\XC\MultiCurrency\Core\MultiCurrency;
  *   description="This repo contains currency record which are available for the users when MultiCurrency is enabled."
  * )
  */
-class ActiveCurrency extends \XLite\Model\Repo\Base\I18n
+class ActiveCurrency extends \XLite\Model\Repo\ARepo
 {
     const AC_ENABLED = 'enabled';
     const AC_ORDER_BY_POSITION  = 'orderByPosition';
+
+    const ERRORS_RATE_REQUEST = 'rate_request';
+    const ERRORS_CURRENCY_NOT_FOUND = 'currency_not_found';
 
     /**
      * Get default alias
@@ -77,7 +80,7 @@ class ActiveCurrency extends \XLite\Model\Repo\Base\I18n
      *
      * @param integer $currencyId Currency ID
      *
-     * @return boolean
+     * @return array
      */
     public function addCurrency($currencyId)
     {
@@ -91,6 +94,12 @@ class ActiveCurrency extends \XLite\Model\Repo\Base\I18n
 
             $activeCurrency->setCurrency($currency);
 
+            $qb = \XLite\Core\Database::getRepo('\XLite\Module\XC\MultiCurrency\Model\ActiveCurrency')
+                    ->createQueryBuilder();
+            $qb->select('MIN(ac.position)');
+
+            $activeCurrency->setPosition($qb->getSingleScalarResult() - 10);
+
             if ($activeCurrency->isDefaultCurrency()) {
                 $activeCurrency->setRate(1);
             } else {
@@ -98,14 +107,11 @@ class ActiveCurrency extends \XLite\Model\Repo\Base\I18n
                     $activeCurrency->getCode()
                 );
 
-                if (
-                    !isset($rate)
-                    || empty($rate)
-                ) {
-                    $rate = 1;
+                if ($rate <= 0) {
+                    $errors[] = static::ERRORS_RATE_REQUEST;
                 }
 
-                $activeCurrency->setRate($rate);
+                $activeCurrency->setRate($rate > 0 ? $rate : 1);
             }
 
             $activeCurrency->setEnabled(true);
@@ -119,10 +125,15 @@ class ActiveCurrency extends \XLite\Model\Repo\Base\I18n
                 $countriesParser->getCurrencyCountryCodes($activeCurrency->getCode())
             );
 
-            return true;
+            return [true, isset($errors) ? $errors : null];
         }
 
-        return false;
+        return [
+            false,
+            isset($currency) ? [] : [
+                static::ERRORS_CURRENCY_NOT_FOUND
+            ]
+        ];
     }
 
     /**

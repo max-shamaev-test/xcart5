@@ -9,11 +9,12 @@
 namespace XLite\View\ItemsList\Model;
 
 use XLite\Core\MagicMethodsIntrospectionInterface;
+use XLite\Core\PreloadedLabels\ProviderInterface;
 
 /**
  * Abstract admin model-based items list (table)
  */
-abstract class Table extends \XLite\View\ItemsList\Model\AModel
+abstract class Table extends \XLite\View\ItemsList\Model\AModel implements ProviderInterface
 {
     const COLUMN_NAME          = 'name';
     const COLUMN_TEMPLATE      = 'template';
@@ -114,7 +115,7 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel
     /**
      * Return wrapper form options
      *
-     * @return string
+     * @return array
      */
     protected function getFormOptions()
     {
@@ -123,7 +124,7 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel
             'name'      => str_replace('\\', '', get_class($this)),
             'target'    => $this->getFormTarget(),
             'action'    => $this->getFormAction(),
-            'params'    => $this->getFormParams(),
+            'params'    => $this->getFormParams()
         );
     }
 
@@ -1285,12 +1286,9 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel
     protected function getSortLinkClass(array $column)
     {
         $classes = 'sort';
+
         if ($this->isColumnSorted($column)) {
             $classes .= ' current-sort ' . $this->getSortOrder() . '-direction';
-        }
-
-        if (!empty($column[static::COLUMN_SORT]) && $this->getSortByModeDefault() == $column[static::COLUMN_SORT]) {
-            $classes .= ' single-order-sort';
         }
 
         return $classes;
@@ -1471,5 +1469,15 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel
     protected function preprocessFieldParams(array $column, \XLite\Model\AEntity $entity)
     {
         return $column[static::COLUMN_PARAMS];
+    }
+
+    /**
+     * @return array
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'Do you really want to delete selected items?' => static::t('Do you really want to delete selected items?')
+        ];
     }
 }

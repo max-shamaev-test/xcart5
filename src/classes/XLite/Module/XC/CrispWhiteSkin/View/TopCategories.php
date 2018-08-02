@@ -23,6 +23,7 @@ abstract class TopCategories extends \XLite\View\TopCategories implements \XLite
         return [
             'order_list',
             'address_book',
+            'ordered_files',
             'mailchimp_subscriptions',
             'profile',
             'messages',

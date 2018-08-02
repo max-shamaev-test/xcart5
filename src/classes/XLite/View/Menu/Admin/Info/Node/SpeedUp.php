@@ -8,6 +8,9 @@
 
 namespace XLite\View\Menu\Admin\Info\Node;
 
+use XLite\Core\Auth;
+use XLite\Model\Role\Permission;
+
 /**
  * Speed-up node
  */
@@ -31,6 +34,15 @@ class SpeedUp extends \XLite\View\Menu\Admin\ANodeNotification
     protected function isVisible()
     {
         return parent::isVisible() && !$this->isAllPerformanceOptionsEnabled();
+    }
+
+    /**
+     * @return bool
+     */
+    protected function checkACL()
+    {
+        return parent::checkACL()
+            && Auth::getInstance()->hasRootAccess();
     }
 
     /**

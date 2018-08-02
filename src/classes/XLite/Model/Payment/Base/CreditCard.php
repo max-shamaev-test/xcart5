@@ -60,7 +60,7 @@ abstract class CreditCard extends \XLite\Model\Payment\Base\Online
     public function getOperationTypes()
     {
         return array(
-            self::OPERATION_SALE,
+            static::OPERATION_SALE,
         );
     }
 
@@ -73,12 +73,12 @@ abstract class CreditCard extends \XLite\Model\Payment\Base\Online
 
         $openTotal = $order->getOpenTotal();
         if (0 < $openTotal) {
-            if (in_array(self::OPERATION_SALE, $this->getOperationTypes())) {
-                $transactions[self::TRANSACTION_SALE] = $openTotal;
+            if (in_array(static::OPERATION_SALE, $this->getOperationTypes())) {
+                $transactions[static::TRANSACTION_SALE] = $openTotal;
             }
 
-            if (in_array(self::OPERATION_AUTH, $this->getOperationTypes())) {
-                $transactions[self::TRANSACTION_AUTH] = $openTotal;
+            if (in_array(static::OPERATION_AUTH, $this->getOperationTypes())) {
+                $transactions[static::TRANSACTION_AUTH] = $openTotal;
             }
         }
 
@@ -91,24 +91,24 @@ abstract class CreditCard extends \XLite\Model\Payment\Base\Online
         foreach ($this->getTransactions() as $t) {
             if ($t::STATUS_SUCCESS == $t->getStatus()) {
                 switch ($t->getType()) {
-                    case self::TRANSACTION_CAPTURE:
+                    case static::TRANSACTION_CAPTURE:
                         $captured += $t->getValue();
                         $authorized -= $t->getValue();
 
-                    case self::TRANSACTION_SALE:
+                    case static::TRANSACTION_SALE:
                         $charged += $t->getValue();
                         break;
 
-                    case self::TRANSACTION_AUTH:
+                    case static::TRANSACTION_AUTH:
                         $authorized += $t->getValue();
                         break;
 
-                    case self::TRANSACTION_VOID:
+                    case static::TRANSACTION_VOID:
                         $authorized -= $t->getValue();
                         $voided += $t->getValue();
                         break;
 
-                    case self::TRANSACTION_REFUND;
+                    case static::TRANSACTION_REFUND;
                         $charged -= $t->getValue();
                         $refunded += $t->getValue();
                         break;
@@ -117,29 +117,29 @@ abstract class CreditCard extends \XLite\Model\Payment\Base\Online
         }
 
         // Detect capture value
-        if (0 < $authorized && in_array(self::OPERATION_CAPTURE, $this->getOperationTypes())) {
+        if (0 < $authorized && in_array(static::OPERATION_CAPTURE, $this->getOperationTypes())) {
             if (0 == $captured && 0 == $voided) {
-                $transactions[self::TRANSACTION_CAPTURE] = $authorized;
+                $transactions[static::TRANSACTION_CAPTURE] = $authorized;
 
-            } elseif (in_array(self::OPERATION_CAPTURE_MULTI, $this->getOperationTypes())) {
-                $transactions[self::TRANSACTION_CAPTURE] = $authorized;
+            } elseif (in_array(static::OPERATION_CAPTURE_MULTI, $this->getOperationTypes())) {
+                $transactions[static::TRANSACTION_CAPTURE] = $authorized;
             }
         }
 
         // Detect void value
         if (
-            (0 < $authorized && in_array(self::OPERATION_VOID, $this->getOperationTypes()))
-            && ((0 == $captured && 0 == $voided) || in_array(self::OPERATION_VOID_MULTI, $this->getOperationTypes()))
+            (0 < $authorized && in_array(static::OPERATION_VOID, $this->getOperationTypes()))
+            && ((0 == $captured && 0 == $voided) || in_array(static::OPERATION_VOID_MULTI, $this->getOperationTypes()))
         ) {
-            $transactions[self::TRANSACTION_VOID] = $authorized;
+            $transactions[static::TRANSACTION_VOID] = $authorized;
         }
 
         // Detect refund valud
         if (
-            (0 < $charged && in_array(self::OPERATION_REFUND, $this->getOperationTypes()))
-            && (0 == $refunded || in_array(self::OPERATION_REFUND_MULTI, $this->getOperationTypes()))
+            (0 < $charged && in_array(static::OPERATION_REFUND, $this->getOperationTypes()))
+            && (0 == $refunded || in_array(static::OPERATION_REFUND_MULTI, $this->getOperationTypes()))
         ) {
-            $transactions[self::TRANSACTION_REFUND] = $charged;
+            $transactions[static::TRANSACTION_REFUND] = $charged;
         }
 
         return $transactions;

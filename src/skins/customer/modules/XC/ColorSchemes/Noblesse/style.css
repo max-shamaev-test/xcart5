@@ -836,3 +836,11 @@ ul.account-links .language-selector li.current a {
 .tabs-container .page-tabs .tabs-selector .dropdown-toggle svg {
   fill: #d0061e;
 }
+
+.add2cart-popup .item-box .item-buttons .regular-button.cart span {
+  color: #ffffff;
+}
+
+.add2cart-popup .item-box .item-buttons .regular-main-button.checkout {
+  height: 34px;
+}

@@ -12,12 +12,9 @@
 {
   font-size: 32px;
   color: #689cd0;
-  margin: 0px;
   font-weight: 300;
-  margin-bottom: 20px;
-  margin-top: 28px;
+  margin: 28px 0px 20px;
   text-align: center;
-  white-space: nowrap;
 }
 
 .signin-wrapper .form-control {
@@ -113,13 +110,15 @@
   display: none;
 }
 
-.signin-anonymous-wrapper {
-/*   padding-right: 31px;
-  width: 447px; */
+.signin-wrapper .signin-anonymous-wrapper {
+  min-height: 300px;
 }
 
 .signin-anonymous-box {
-    margin: 0 auto 20px;
+  padding: 0 20px;
+  position: absolute;
+  top: 70px;
+  width: 100%;
 }
 
 .signin-wrapper table.login-form {
@@ -135,6 +134,7 @@
   margin-top: 78px;
   margin-bottom: 20px;
   text-align: center;
+  padding: 0 20px;
 }
 
 .form-control::-webkit-input-placeholder {
@@ -166,7 +166,7 @@
 .signin-anonymous-box button {
   margin-right: auto;
   margin-left: auto;
-  width: 33%;
+  min-width: 33%;
   display: block;
 }
 

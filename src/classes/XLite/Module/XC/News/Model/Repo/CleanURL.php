@@ -39,7 +39,7 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
     /**
      * Post process clean URL
      *
-     * @param string                    $url    URL
+     * @param string $url URL
      * @param \XLite\Model\Base\Catalog $entity Entity
      *
      * @return string
@@ -53,10 +53,10 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
      * Parse clean URL
      * Return array((string) $target, (array) $params)
      *
-     * @param string $url  Main part of a clean URL
+     * @param string $url Main part of a clean URL
      * @param string $last First part before the "url" OPTIONAL
      * @param string $rest Part before the "url" and "last" OPTIONAL
-     * @param string $ext  Extension OPTIONAL
+     * @param string $ext Extension OPTIONAL
      *
      * @return array
      */
@@ -74,12 +74,12 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
     /**
      * Hook for modules
      *
-     * @param string $url    Main part of a clean URL
-     * @param string $last   First part before the "url"
-     * @param string $rest   Part before the "url" and "last"
-     * @param string $ext    Extension
+     * @param string $url Main part of a clean URL
+     * @param string $last First part before the "url"
+     * @param string $rest Part before the "url" and "last"
+     * @param string $ext Extension
      * @param string $target Target
-     * @param array  $params Additional params
+     * @param array $params Additional params
      *
      * @return array
      */
@@ -91,19 +91,19 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
             unset($params['id']);
         }
 
-        return array($target, $params);
+        return [$target, $params];
     }
 
     /**
      * Build product URL
      *
-     * @param array  $params Params
+     * @param array $params Params
      *
      * @return array
      */
     protected function buildURLNewsMessage($params)
     {
-        $urlParts = array();
+        $urlParts = [];
 
         if (!empty($params['id'])) {
             /** @var \XLite\Module\XC\News\Model\NewsMessage $newsMessage */
@@ -115,21 +115,30 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
             }
         }
 
-        return array($urlParts, $params);
+        return [$urlParts, $params];
     }
 
     /**
      * Build fake url with placeholder
      *
      * @param \XLite\Model\AEntity|string $entity Entity
-     * @param array                       $params Params
+     * @param array $params Params
      *
-     * @return string
+     * @return array
      */
     protected function buildFakeURLNewsMessage($entity, $params)
     {
-        $urlParts = array($this->postProcessURL(static::PLACEHOLDER, $entity));
+        $urlParts = [$this->postProcessURL(static::PLACEHOLDER, $entity)];
 
-        return array($urlParts, $params);
+        return [$urlParts, $params];
+    }
+
+    /**
+     * @param string $cleanURL
+     * @return \XLite\Model\Base\Catalog
+     */
+    protected function findCategoryConflictWithOtherTypes($cleanURL)
+    {
+        return parent::findCategoryConflictWithOtherTypes($cleanURL) ?: $this->findEntityByURL('newsMessage', $cleanURL);
     }
 }

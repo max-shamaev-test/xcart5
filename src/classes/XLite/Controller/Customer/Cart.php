@@ -75,7 +75,7 @@ class Cart extends \XLite\Controller\Customer\ACustomer
      */
     protected function markCartCalculate()
     {
-        return (!$this->getAction() || in_array($this->getAction(), ['add', 'add_order'], true))
+        return (!$this->getAction() || in_array($this->getAction(), ['add', 'add_order', 'update'], true))
             && (
                 !in_array(\XLite\Core\Request::getInstance()->widget, $this->getExcludedWidgets(), true)
                 || $this->getTarget() === 'cart'

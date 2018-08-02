@@ -308,7 +308,7 @@ class LanguageLabel extends \XLite\Model\Repo\Base\I18n
      */
     protected function convertRecordToParamsAllByCode(\XLite\Model\AEntity $entity)
     {
-        return array('*');
+        return ['*'];
     }
 
     // {{{

@@ -101,7 +101,7 @@ class HttpsSettings extends \XLite\View\Dialog
      */
     protected function getArticleUrl()
     {
-        return 'https://kb.x-cart.com/en/general_setup/inaccessible_admin_area_after_enabling_https.html';
+        return static::t('https://kb.x-cart.com/general_setup/inaccessible_admin_area_after_enabling_https.html');
     }
 
     /**

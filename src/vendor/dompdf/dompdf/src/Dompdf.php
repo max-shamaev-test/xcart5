@@ -1508,4 +1508,39 @@ class Dompdf
                 throw new Exception( 'Invalid property: ' . $prop );
         }
     }
+
+    // {{{ Custom changes
+
+    /**
+     * @var null|I18N_Arabic_Glyphs
+     */
+    protected $_arabicGlyphsConverter = null;
+
+    protected function getArabicGlyphsConverter()
+    {
+        if (!$this->_arabicGlyphsConverter) {
+            if (!class_exists('I18N_Arabic_Glyphs')) {
+                require_once __DIR__ . '/../lib/Arabic-4.0/I18N/Arabic/Glyphs.php';
+            }
+
+            if (class_exists('I18N_Arabic_Glyphs')) {
+                $this->_arabicGlyphsConverter = new \I18N_Arabic_Glyphs();
+            }
+        }
+
+        return $this->_arabicGlyphsConverter;
+    }
+
+    public function convertArabicText($text)
+    {
+        $converter = $this->getArabicGlyphsConverter();
+
+        if ($converter) {
+            $text = $converter->utf8Glyphs($text, 500, false);
+        }
+
+        return $text;
+    }
+
+    // }}}
 }

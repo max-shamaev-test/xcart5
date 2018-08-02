@@ -38,3 +38,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Delivery method', translations: [{ code: en, label: 'Delivery method' }, { code: ru, label: 'Способ доставки' }]}
   - { name: 'Addresses', translations: [{ code: en, label: 'Addresses' }, { code: ru, label: 'Адреса' }]}
   - { name: 'Your order details will be sent to your email address', translations: [{ code: en, label: 'Your order details will be sent to your email address' }, { code: ru, label: 'Детали ордера будут отправлены на данный адрес' }]}
+
+  - { name: 'Edit billing address', translations: [{ code: en, label: 'Edit billing address' }]}
+  - { name: 'Edit shipping address', translations: [{ code: en, label: 'Edit shipping address' }]}
+  - { name: 'Next step', translations: [{ code: en, label: 'Next step' }]}

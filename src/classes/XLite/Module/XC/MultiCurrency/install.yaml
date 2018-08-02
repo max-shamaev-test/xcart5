@@ -13,7 +13,7 @@ XLite\Model\Config:
     category: XC\MultiCurrency
     type: text
     orderby: 100
-    value: 'google'
+    value: 'free_currency_converter_api'
     translations:
       - code: en
         option_name: 'Online currency rate service'
@@ -40,6 +40,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Add currency', translations: [{ code: en, label: 'Add currency' }] }
   - { name: 'Google Finance Currency Converter', translations: [{ code: en, label: 'Google Finance Currency Converter' }] }
   - { name: 'WebserviceX.NET', translations: [{ code: en, label: 'WebserviceX.NET' }] }
+  - { name: 'The Free Currency Converter API', translations: [{ code: en, label: 'The Free Currency Converter API' }] }
   - { name: 'Online currency rates service', translations: [{ code: en, label: 'Online currency rates service' }] }
   - { name: 'Update rates', translations: [{ code: en, label: 'Update rates' }] }
   - { name: 'err_change_default_currency', translations: [{ code: en, label: 'You may not change the rate, disable or delete the default currency.' }] }
@@ -72,3 +73,10 @@ XLite\Model\LanguageLabel:
   - { name: 'Geolocation promo block', translations: [{ code: en, label: '<span><a href="{{url}}" target="_blank">Install the addon GEO IP</a> so the store language and currency can be changed automatically based on the user location.</span>' }]}
   - { name: 'Note: [Invoice] in {{currency}}. Order billed in {{real_currency}}. Exchange rate is {{exchange_rate}}.', translations: [{ code: en, label: 'Note: <a href="{{link}}" target="_blank">Invoice</a> in {{currency}}. Order billed in {{real_currency}}. Exchange rate is {{exchange_rate}}.' }, { code: ru, label: 'Заметка: <a href="{{link}}" target="_blank">Счет</a> в {{currency}}. Заказ был оплачен в {{real_currency}}. Обменный курс равен {{exchange_rate}}.' }] }
   - { name: 'Note: Invoice in {{currency}}. Order billed in {{real_currency}}. Exchange rate is {{exchange_rate}}.', translations: [{ code: en, label: 'Note: Invoice in {{currency}}. Order billed in {{real_currency}}. Exchange rate is {{exchange_rate}}.' }, { code: ru, label: 'Заметка: Счет в {{currency}}. Заказ был оплачен в {{real_currency}}. Обменный курс равен {{exchange_rate}}.' }] }
+  - { name: 'Currency with id X not found', translations: [{ code: en, label: 'Currency with id {{id}} not found' }, { code: ru, label: 'Валюта с идентификатором {{id}} не найдена' }] }
+  - { name: 'Currency rate request was failed, please, set it manually', translations: [{ code: en, label: 'Currency rate request was failed, please, set it manually.' }, { code: ru, label: 'Не удалось получить курс для валюты, пожалуйста, установите его вручную.' }] }
+  - { name: 'The Currency Converter API', translations: [{ code: en, label: 'The Currency Converter API' }, { code: ru, label: 'The Currency Converter API' }] }
+  - { name: 'The Currency Converter API key', translations: [{ code: en, label: 'Currency converter API key' }, { code: ru, label: 'Currency converter API ключ' }] }
+
+  - { name: 'Currency with id X {{id}} not found', translations: [{ code: en, label: 'Currency with id X {{id}} not found' }]}
+

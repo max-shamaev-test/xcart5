@@ -39,8 +39,8 @@ class Payment extends \XLite\Model\Order\Status\AStatus
     public static function getDisallowedToSetManuallyStatuses()
     {
         return [
-            self::STATUS_AUTHORIZED,
-            self::STATUS_DECLINED
+            static::STATUS_AUTHORIZED,
+            static::STATUS_DECLINED
         ];
     }
 
@@ -52,8 +52,8 @@ class Payment extends \XLite\Model\Order\Status\AStatus
     public static function getNotCompatibleWithShippingStatuses()
     {
         return [
-            self::STATUS_DECLINED,
-            self::STATUS_CANCELED,
+            static::STATUS_DECLINED,
+            static::STATUS_CANCELED,
         ];
     }
 
@@ -177,42 +177,50 @@ class Payment extends \XLite\Model\Order\Status\AStatus
     public static function getStatusHandlers()
     {
         return [
-            self::STATUS_QUEUED => [
-                self::STATUS_AUTHORIZED => ['authorize'],
-                self::STATUS_PAID       => ['process'],
-                self::STATUS_DECLINED   => ['decline', 'uncheckout', 'fail'],
-                self::STATUS_CANCELED   => ['decline', 'uncheckout', 'cancel'],
+            static::STATUS_QUEUED => [
+                static::STATUS_AUTHORIZED => ['authorize'],
+                static::STATUS_PAID       => ['process'],
+                static::STATUS_DECLINED   => ['decline', 'uncheckout', 'fail'],
+                static::STATUS_CANCELED   => ['decline', 'uncheckout', 'cancel'],
             ],
 
-            self::STATUS_AUTHORIZED => [
-                self::STATUS_PAID       => ['process'],
-                self::STATUS_DECLINED   => ['decline', 'uncheckout', 'fail'],
-                self::STATUS_CANCELED   => ['decline', 'uncheckout', 'cancel'],
+            static::STATUS_AUTHORIZED => [
+                static::STATUS_PAID       => ['process'],
+                static::STATUS_DECLINED   => ['decline', 'uncheckout', 'fail'],
+                static::STATUS_CANCELED   => ['decline', 'uncheckout', 'cancel'],
             ],
 
-            self::STATUS_PART_PAID => [
-                self::STATUS_PAID       => ['process'],
-                self::STATUS_DECLINED   => ['decline', 'uncheckout', 'fail'],
-                self::STATUS_CANCELED   => ['decline', 'uncheckout', 'fail'],
+            static::STATUS_PART_PAID => [
+                static::STATUS_PAID       => ['process'],
+                static::STATUS_DECLINED   => ['decline', 'uncheckout', 'fail'],
+                static::STATUS_CANCELED   => ['decline', 'uncheckout', 'fail'],
             ],
 
-            self::STATUS_PAID => [
-                self::STATUS_DECLINED   => ['decline', 'uncheckout', 'fail'],
-                self::STATUS_CANCELED   => ['decline', 'uncheckout', 'cancel'],
+            static::STATUS_PAID => [
+                static::STATUS_DECLINED   => ['decline', 'uncheckout', 'fail'],
+                static::STATUS_CANCELED   => ['decline', 'uncheckout', 'cancel'],
             ],
 
-            self::STATUS_DECLINED => [
-                self::STATUS_AUTHORIZED => ['checkout', 'queue', 'authorize'],
-                self::STATUS_PART_PAID  => ['checkout', 'queue'],
-                self::STATUS_PAID       => ['checkout', 'queue', 'process'],
-                self::STATUS_QUEUED     => ['checkout', 'queue'],
+            static::STATUS_DECLINED => [
+                static::STATUS_AUTHORIZED => ['checkout', 'queue', 'authorize'],
+                static::STATUS_PART_PAID  => ['checkout', 'queue'],
+                static::STATUS_PAID       => ['checkout', 'queue', 'process'],
+                static::STATUS_QUEUED     => ['checkout', 'queue'],
+                static::STATUS_CANCELED   => ['cancel'],
             ],
 
-            self::STATUS_CANCELED => [
-                self::STATUS_AUTHORIZED => ['checkout', 'queue', 'authorize'],
-                self::STATUS_PART_PAID  => ['checkout', 'queue'],
-                self::STATUS_PAID       => ['checkout', 'queue', 'process'],
-                self::STATUS_QUEUED     => ['checkout', 'queue'],
+            static::STATUS_CANCELED => [
+                static::STATUS_AUTHORIZED => ['checkout', 'queue', 'authorize'],
+                static::STATUS_PART_PAID  => ['checkout', 'queue'],
+                static::STATUS_PAID       => ['checkout', 'queue', 'process'],
+                static::STATUS_QUEUED     => ['checkout', 'queue'],
+                static::STATUS_DECLINED   => ['fail'],
+            ],
+
+            static::STATUS_REFUNDED => [
+                static::STATUS_PAID       => ['process'],
+                static::STATUS_DECLINED   => ['fail'],
+                static::STATUS_CANCELED   => ['cancel'],
             ],
         ];
     }

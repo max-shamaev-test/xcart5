@@ -14,6 +14,7 @@ define(
 
   var NextButton = Vue.extend({
     name: 'next-button',
+    replace: false,
     props: ['enabled', 'index'],
 
     vuex: {
@@ -56,9 +57,7 @@ define(
       },
       classes: function() {
         return {
-          'disabled': !this.ready,
-          'reloading': !_.isEmpty(this.blockers),
-          'reloading-animated': !_.isEmpty(this.blockers),
+          'disabled': !this.ready || !_.isEmpty(this.blockers),
         }
       },
       btnTitle: function() {

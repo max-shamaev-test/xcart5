@@ -18,7 +18,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Webmaster mode', translations: [{ code: ru, label: 'Режим веб-мастера' }] }
   - { name: 'Template', translations: [{ code: ru, label: 'Шаблон' }] }
   - { name: 'Back to templates list', translations: [{ code: ru, label: 'Вернуться к списку шаблонов' }] }
-  - { name: 'Webmaster Mode allows you to change the storefront design in click-and-edit mode', translations: [{ code: ru, label: 'Режим веб-мастера позволяет редактировать внешний вид сайта по месту.<br /><br />Если после внесения изменений клиентская зона выглядит неправильно, попробуйте откатить изменения в секции "Измененные шаблоны". Больше информации об изменении дизайна сайта на X-Cart - в <a href="https://devs.x-cart.com/en/design_changes/basic_guide_to_theme_creation.html">Базе знаний X-Cart</a>.' }] }
+  - { name: 'Webmaster Mode allows you to change the storefront design in click-and-edit mode', translations: [{ code: ru, label: 'Режим веб-мастера позволяет редактировать внешний вид сайта по месту.<br /><br />Если после внесения изменений витрина выглядит неправильно, попробуйте откатить изменения в секции "Измененные шаблоны". Больше информации об изменении дизайна сайта на X-Cart - в <a href="https://devs.x-cart.com/en/design_changes/basic_guide_to_theme_creation.html">Базе знаний X-Cart</a>.' }] }
   - { name: 'Webmaster mode is enabled', translations: [{ code: ru, label: 'Режим веб-мастера включен' }] }
   - { name: 'Webmaster mode is disabled', translations: [{ code: ru, label: 'Режим веб-мастера отключен' }] }
   - { name: 'The template has been updated', translations: [{ code: ru, label: 'Шаблон обновлён' }] }
@@ -27,10 +27,10 @@ XLite\Model\LanguageLabel:
   - { name: 'webmasterMode.Disabled', translations: [{ code: ru, label: 'Выкл' }] }
   - { name: 'New images', translations: [{ code: ru, label: 'Новые картинки' }] }
   - { name: 'You are now in layout editing mode', translations: [{ code: ru, label: 'Здесь можно <b>перетаскивать блоки</b>, меняя их порядок.' }] }
-  - { name: 'You are now in preview mode', translations: [{ code: ru, label: 'Режим предпросмотра продукта. Здесь можно <b>редактировать описание</b> продукта.' }] }
+  - { name: 'You are now in preview mode', translations: [{ code: ru, label: 'Режим предпросмотра товара. Здесь можно <b>редактировать описание</b> товара.' }] }
   - { name: 'Exit product preview', translations: [{ code: ru, label: 'Вернуться' }] }
   - { name: 'You have unsaved changes. Are you really sure to exit the preview?', translations: [{ code: ru, label: 'У вас есть несохраненные изменения. Вы точно хотите выйти из режима предпросмотра?' }] }
-  - { name: 'Inline editor is unavailable due to TinyMCE', translations: [{ code: ru, label: '<i class="fa fa-exclamation-triangle inline-editor-message_icon"></i>Здесь можно <b>редактировать описание</b> продукта. Изменения могут быть <span style="font-weight: bold; color: orange;">несовместимы</span> с редактором TinyMCE.' }] }
+  - { name: 'Inline editor is unavailable due to TinyMCE', translations: [{ code: ru, label: '<i class="fa fa-exclamation-triangle inline-editor-message_icon"></i>Здесь можно <b>редактировать описание</b> товара. Изменения могут быть <span style="font-weight: bold; color: orange;">несовместимы</span> с редактором TinyMCE.' }] }
   - { name: 'Changes may be incompatible with TinyMCE. Are you sure to proceed?', translations: [{ code: ru, label: 'Изменения могут быть несовместимы с редактором TinyMCE. Вы точно хотите их сохранить?' }] }
   - { name: 'Layout editor', translations: [{ code: ru, label: 'Режим разметки' }] }
   - { name: 'Template editor', translations: [{ code: ru, label: 'Редактор шаблонов' }] }
@@ -75,18 +75,18 @@ XLite\Model\LanguageLabel:
   - { name: 'Enter Order number', translations: [{ code: ru, label: 'Введите номер заказа' }] }
 
   - { name: 'xlite-translation-popover.help', translations: [{ code: ru, label: 'Текст в фигурных скобках означает переменную. Не удаляйте такой текст.' }] }
-  - { name: 'itemslist.admin.template.blank', translations: [{ code: ru, label: "<p class='items-list-blank-description-heading text-center'>Нет отредактированных шаблонов.</p><p class='text-center'>На данной странице вы можете узнать об отредактированных шаблонах в режиме Редактор шаблонов. Также здесь вы сможете вернуть шаблоны к первоначальному состоянию. Чтобы изменить какой-либо шаблон, перейдите в клиентскую зону и выберите «Редактор шаблонов» в панели управления сайтом внизу.</p>" }] }
+  - { name: 'itemslist.admin.template.blank', translations: [{ code: ru, label: "<p class='items-list-blank-description-heading text-center'>Нет измененных файлов.</p><p class='text-center'>Здесь вы можете узнать об отредактированных файлах шаблонов, которые были изменены в режиме «Редактора шаблонов» и вернуть шаблоны к первоначальному состоянию если допустили ошибку.</p><p class='text-center'>Чтобы приступить к изменениям, перейдите в ваш магазин и в панели управления витриной (значок шестеренки внизу слева на странице витрины) выберите «Редактор шаблонов».</p>" }]}
   - { name: 'Pick templates from page', translations: [{ code: ru, label: 'Выбирать шаблоны на странице' }] }
   - { name: 'Drag-n-drop blocks', translations: [{ code: ru, label: 'Перетаскивание блоков' }] }
   - { name: 'Highlight labels', translations: [{ code: ru, label: 'Выделение меток' }] }
   - { name: 'Layout block', translations: [{ code: ru, label: 'Блок разметки' }] }
   - { name: 'Inline editor', translations: [{ code: ru, label: 'Контент' }] }
-  - { name: 'Go to different page to edit the content', translations: [{ code: ru, label: 'Нет редактируемого контента. Данный режим работает на странице любого продукта' }] }
+  - { name: 'Go to different page to edit the content', translations: [{ code: ru, label: 'Нет редактируемого контента. Данный режим работает на странице любого товара' }] }
   - { name: 'Open home or category pages for more opportunities to adjust the website structure', translations: [{ code: ru, label: 'На главной и странице категории есть много различных блоков разметки.' }] }
   - { name: 'themetweaker.shortcut.switcher', translations: [{ code: ru, label: 'Горячая клавиша: Ctrl+/, ⌘+/' }] }
   - { name: 'themetweaker.shortcut.save', translations: [{ code: ru, label: 'Горячая клавиша: Ctrl+S, ⌘+S' }] }
   - { name: 'You have unsaved changes. Are you really sure to exit?', translations: [{ code: ru, label: 'Обнаружены несохраненные изменения. Вы точно хотите отказаться от них и уйти?' }] }
-  - { name: 'Open the storefront while logged in as administrator to change the look & feel of the store.', translations: [{ code: ru, label: '<a href="{{url}}" target="_blank">Откройте клиентскую часть магазина</a> из-под администраторского аккаунта и используйте Панель вебмастера <span class="cog-icon">{{cog}}</span> для изменения внешнего вида магазина.' }] }
+  - { name: 'Open the storefront while logged in as administrator to change the look & feel of the store.', translations: [{ code: ru, label: '<a href="{{url}}" target="_blank">Откройте витрину магазина</a> из-под администраторского аккаунта и используйте Панель вебмастера <span class="cog-icon">{{cog}}</span> для изменения внешнего вида магазина.' }] }
 
   - { name: 'Use the Google Tag Manager addon for more flexibility when adding JS code to your web pages.', translations: [{ code: ru, label: 'Используйте модуль Google Tag Manager для получения большей гибкости при добавлении JS кода на веб-страницы.' }] }
   - { name: 'Learn more about Google Tag Manager', translations: [{ code: ru, label: 'Узнать больше о Диспетчере тегов Google' }] }

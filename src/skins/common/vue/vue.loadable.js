@@ -85,18 +85,20 @@
         this.$mount(this.$el);
       },
       _parseTemplate: function(html) {
+        var element = null;
+
         if (this.$options.loadable.parser) {
-          var element = this.$options.loadable.parser.apply(this, [html]);
+          element = this.$options.loadable.parser.apply(this, [html]);
         } else {
           var temp = document.createElement('div');
           temp.innerHTML = html;
 
           var elements = temp.querySelectorAll('[is=' + this.$options.name + ']');
-          if (elements.length == 0) {
-            var elements = temp.querySelectorAll(this.$options.name);
+          if (elements.length === 0) {
+            elements = temp.querySelectorAll(this.$options.name);
           }
 
-          var element = elements[0];
+          element = elements[0];
         }
 
         return element;

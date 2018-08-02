@@ -36,6 +36,6 @@ class ProductClass extends \XLite\View\FormField\Select\Regular
      */
     protected function getDefaultOptions()
     {
-        return array(0 => 'No class') + $this->getProductClassesList();
+        return array(0 => static::t('No class')) + $this->getProductClassesList();
     }
 }

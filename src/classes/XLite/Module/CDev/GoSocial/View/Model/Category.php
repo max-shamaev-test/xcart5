@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\GoSocial\View\Model;
 
+use XLite\Module\CDev\GoSocial\Logic\OgMeta;
+
 /**
  * Category model widget extention
  */
@@ -66,7 +68,9 @@ class Category extends \XLite\View\Model\Category implements \XLite\Base\IDecora
     {
         $data['useCustomOG'] = $this->getPostedData('useCustomOG');
         $nonFilteredData = \XLite\Core\Request::getInstance()->getNonFilteredData();
-        $data['ogMeta'] = isset($nonFilteredData['postedData']['ogMeta']) ? $nonFilteredData['postedData']['ogMeta'] : '';
+        $data['ogMeta'] = isset($nonFilteredData['postedData']['ogMeta'])
+            ? OgMeta::prepareOgMeta($nonFilteredData['postedData']['ogMeta'])
+            : '';
 
         parent::setModelProperties($data);
     }

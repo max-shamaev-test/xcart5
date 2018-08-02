@@ -11,7 +11,6 @@ define('paypal_ec_credit_button_processor', ['paypal_ec_button_processors'], fun
   Processors.push(function (element, state) {
     if (element.is('.pp-style-credit')) {
       state.label = 'credit';
-      state.color = null;
       state.additionalUrlParams.paypalCredit = true;
     }
   })

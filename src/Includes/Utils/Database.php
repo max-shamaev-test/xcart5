@@ -351,7 +351,7 @@ abstract class Database extends \Includes\Utils\AUtils
                         }
 
                         if ($verbose) {
-                            \Includes\Utils\Operator::flush('.');
+                            \Includes\Utils\Operator::flush('. ');
                         }
 
                     } catch (\PDOException $e) {

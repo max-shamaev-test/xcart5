@@ -168,6 +168,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
 
     /**
      * Custom javascript code
+     * @deprecated 5.3.5.4
      *
      * @var string
      *
@@ -1045,7 +1046,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     public function getDefaultAmount()
     {
-        return self::AMOUNT_DEFAULT_INV_TRACK;
+        return static::AMOUNT_DEFAULT_INV_TRACK;
     }
 
     /**
@@ -2046,6 +2047,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
 
     /**
      * Set javascript
+     * @deprecated 5.3.5.4
      *
      * @param text $javascript
      * @return Product
@@ -2058,8 +2060,9 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
 
     /**
      * Get javascript
+     * @deprecated 5.3.5.4
      *
-     * @return text
+     * @return string
      */
     public function getJavascript()
     {
@@ -2074,7 +2077,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     public function setArrivalDate($arrivalDate)
     {
-        $this->arrivalDate = $arrivalDate;
+        $this->arrivalDate = min(MAX_TIMESTAMP, max(0, $arrivalDate));
         return $this;
     }
 
@@ -2238,8 +2241,6 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     public function addCategoryProductsLinksByCategories($categories)
     {
         foreach ($categories as $category) {
-            $category->updateLastUsage();
-
             if (!$this->hasCategoryProductsLinkByCategory($category)) {
                 $categoryProduct = new \XLite\Model\CategoryProducts();
                 $categoryProduct->setProduct($this);
@@ -2290,8 +2291,6 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     {
         $categoriesToAdd = [];
         foreach ($categories as $category) {
-            $category->updateLastUsage();
-
             if (!$this->hasCategoryProductsLinkByCategory($category)) {
                 $categoriesToAdd[] = $category;
             }

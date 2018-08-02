@@ -9,6 +9,7 @@
 namespace XLite\View\Model\Profile;
 
 use XLite\Core\Auth;
+use XLite\Core\Database;
 
 /**
  * Administrator profile model widget. This widget is used in the admin interface
@@ -28,14 +29,15 @@ class AdminMain extends \XLite\View\Model\AModel
      * @var array
      */
     protected $summarySchema = [
-        'referer'      => [
-            self::SCHEMA_CLASS    => '\XLite\View\FormField\Label',
-            self::SCHEMA_LABEL    => 'Referer',
-            self::SCHEMA_REQUIRED => false,
+        'orders_count' => [
+            self::SCHEMA_CLASS                                 => '\XLite\View\FormField\Label',
+            self::SCHEMA_LABEL                                 => 'Orders placed',
+            self::SCHEMA_REQUIRED                              => false,
+            \XLite\View\FormField\Label\ALabel::PARAM_UNESCAPE => true,
         ],
         'added'        => [
             self::SCHEMA_CLASS    => '\XLite\View\FormField\Label',
-            self::SCHEMA_LABEL    => 'Added',
+            self::SCHEMA_LABEL    => 'Joined',
             self::SCHEMA_REQUIRED => false,
         ],
         'last_login'   => [
@@ -48,11 +50,10 @@ class AdminMain extends \XLite\View\Model\AModel
             self::SCHEMA_LABEL    => 'Language',
             self::SCHEMA_REQUIRED => false,
         ],
-        'orders_count' => [
-            self::SCHEMA_CLASS                                 => '\XLite\View\FormField\Label',
-            self::SCHEMA_LABEL                                 => 'Orders count',
-            self::SCHEMA_REQUIRED                              => false,
-            \XLite\View\FormField\Label\ALabel::PARAM_UNESCAPE => true,
+        'referer'      => [
+            self::SCHEMA_CLASS    => '\XLite\View\FormField\Label',
+            self::SCHEMA_LABEL    => 'Referer',
+            self::SCHEMA_REQUIRED => false,
         ],
     ];
 
@@ -252,7 +253,7 @@ class AdminMain extends \XLite\View\Model\AModel
             case 'added':
             case 'last_login':
                 if (0 < $value) {
-                    $value = date('r', $value);
+                    $value = \XLite\Core\Converter::formatTime($value);
 
                 } else {
                     $value = 'never';
@@ -266,19 +267,23 @@ class AdminMain extends \XLite\View\Model\AModel
 
             case 'orders_count':
                 if ($value) {
-                    $url = $this->buildURL(
-                        'order_list',
-                        'searchByCustomer',
-                        [
-                            'profileId'     => $this->getModelObject()->getProfileId(),
-                            \XLite::FORM_ID => \XLite::getFormId(),
-                        ]
-                    );
+                    if ($this->isOrdersLinkAvailable()) {
+                        $url = $this->buildURL(
+                            'order_list',
+                            'searchByCustomer',
+                            [
+                                'profileId'     => $this->getModelObject()->getProfileId(),
+                                \XLite::FORM_ID => \XLite::getFormId(),
+                            ]
+                        );
 
-                    $value = '<a href="' . $url . '">' . $value . '</a>';
+                        $value = '<a href="' . $url . '">' . $value . '</a>';
+                    } else {
+                        $value = '<span>' . $value . '</span>';
+                    }
 
                 } else {
-                    $value = 'n/a';
+                    $value = '0&nbsp;';
                 }
 
                 break;
@@ -294,8 +299,8 @@ class AdminMain extends \XLite\View\Model\AModel
 
             case 'roles':
                 if ($this->getModelObject()
-                    && \XLite\Core\Auth::getInstance()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS)
-                    && \XLite\Core\Auth::getInstance()->getProfile()->getProfileId() == $this->getModelObject()->getProfileId()
+                    && Auth::getInstance()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS)
+                    && Auth::getInstance()->getProfile()->getProfileId() == $this->getModelObject()->getProfileId()
                 ) {
                     if ($value) {
                         $roles = [];
@@ -326,6 +331,27 @@ class AdminMain extends \XLite\View\Model\AModel
         }
 
         return $value;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isOrdersLinkAvailable()
+    {
+        return Auth::getInstance()->hasRootAccess()
+            || Auth::getInstance()->isPermissionAllowed('manage orders');
+    }
+
+    /**
+     * Display section header or not
+     *
+     * @param string $section Name of section to check
+     *
+     * @return boolean
+     */
+    protected function isShowSectionHeader($section)
+    {
+        return parent::isShowSectionHeader($section) && !in_array($section, array(self::SECTION_SUMMARY));
     }
 
     /**
@@ -403,7 +429,7 @@ class AdminMain extends \XLite\View\Model\AModel
             }
 
             if ($profile->getProfileId()
-                && $profile->getProfileId() === \XLite\Core\Auth::getInstance()->getProfile()->getProfileId()
+                && $profile->getProfileId() === Auth::getInstance()->getProfile()->getProfileId()
             ) {
                 $this->mainSchema['login'][\XLite\View\FormField\AFormField::PARAM_EDIT_ON_CLICK] = true;
 
@@ -475,7 +501,7 @@ class AdminMain extends \XLite\View\Model\AModel
             }
         }
 
-        if (!\XLite\Core\Auth::getInstance()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS)
+        if (!Auth::getInstance()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS)
             || (
                 $this->getModelObject()
                 && $this->getModelObject()->getProfileId()
@@ -487,8 +513,8 @@ class AdminMain extends \XLite\View\Model\AModel
         }
 
         if ($this->getModelObject()
-            && \XLite\Core\Auth::getInstance()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS)
-            && \XLite\Core\Auth::getInstance()->getProfile()->getProfileId() == $this->getModelObject()->getProfileId()
+            && Auth::getInstance()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS)
+            && Auth::getInstance()->getProfile()->getProfileId() == $this->getModelObject()->getProfileId()
         ) {
             unset($this->accessSchema['forceChangePassword']);
             $this->accessSchema['roles'][static::SCHEMA_CLASS] = '\XLite\View\FormField\Label';
@@ -501,7 +527,7 @@ class AdminMain extends \XLite\View\Model\AModel
                 'Attention! You are creating an account with full access. Roles warning',
                 [
                     'roles_link' => $this->buildURL('roles'),
-                    'kb_link'    => 'https://kb.x-cart.com/en/users/user_roles.html',
+                    'kb_link'    => static::t('https://kb.x-cart.com/users/user_roles.html'),
                 ]
             );
         }
@@ -519,11 +545,17 @@ class AdminMain extends \XLite\View\Model\AModel
         $result = [];
 
         if (!$this->isRegisterMode()) {
-            if (empty($this->summarySchema['referer'][static::SCHEMA_ATTRIBUTES])) {
-                $this->summarySchema['referer'][static::SCHEMA_ATTRIBUTES] = [];
-            }
+            $referer = $this->getModelObjectValue('referer');
+            if (empty($referer)) {
+                unset($this->summarySchema['referer']);
 
-            $this->summarySchema['referer'][static::SCHEMA_ATTRIBUTES]['title'] = $this->getDefaultFieldValue('referer');
+            } else {
+                if (empty($this->summarySchema['referer'][static::SCHEMA_ATTRIBUTES])) {
+                    $this->summarySchema['referer'][static::SCHEMA_ATTRIBUTES] = [];
+                }
+
+                $this->summarySchema['referer'][static::SCHEMA_ATTRIBUTES]['title'] = $this->getDefaultFieldValue('referer');
+            }
 
             $result = $this->getFieldsBySchema($this->summarySchema);
         }
@@ -557,7 +589,7 @@ class AdminMain extends \XLite\View\Model\AModel
      */
     protected function getAccessLevelAsText()
     {
-        if (\XLite\Core\Auth::getInstance()->getAdminAccessLevel() <= $this->getModelObject()->getAccessLevel()) {
+        if (Auth::getInstance()->getAdminAccessLevel() <= $this->getModelObject()->getAccessLevel()) {
             $label = static::t('Administrator');
 
         } elseif ($this->getModelObject()->getAnonymous()) {
@@ -607,7 +639,7 @@ class AdminMain extends \XLite\View\Model\AModel
         $request = \XLite\Core\Request::getInstance();
 
         return !$request->profile_id
-               || \XLite\Core\Auth::getInstance()->getProfile()->getProfileId() == $request->profile_id;
+               || Auth::getInstance()->getProfile()->getProfileId() == $request->profile_id;
     }
 
     /**
@@ -619,11 +651,11 @@ class AdminMain extends \XLite\View\Model\AModel
      */
     protected function setModelProperties(array $data)
     {
-        $adminAccessLevel = \XLite\Core\Auth::getInstance()->getAdminAccessLevel();
+        $adminAccessLevel = Auth::getInstance()->getAdminAccessLevel();
 
         if (!empty($data['password'])) {
             // Encrypt password if if is not empty
-            $data['password'] = \XLite\Core\Auth::encryptPassword($data['password']);
+            $data['password'] = Auth::encryptPassword($data['password']);
         } elseif (isset($data['password'])) {
             // Otherwise unset password to avoid passing empty password to the database
             unset($data['password']);
@@ -643,7 +675,7 @@ class AdminMain extends \XLite\View\Model\AModel
             $data['forceChangePassword'] = (bool)$data['forceChangePassword'];
         }
 
-        $isRoot = \XLite\Core\Auth::getInstance()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS);
+        $isRoot = Auth::getInstance()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS);
 
         if (
             isset($data['roles'])
@@ -793,7 +825,7 @@ class AdminMain extends \XLite\View\Model\AModel
         $model = $this->getModelObject();
 
         if ($model
-            && $model->getProfileId() === \XLite\Core\Auth::getInstance()->getProfile()->getProfileId()
+            && $model->getProfileId() === Auth::getInstance()->getProfile()->getProfileId()
         ) {
             $result = true;
         } elseif (isset($this->sections[self::SECTION_MAIN])
@@ -834,7 +866,7 @@ class AdminMain extends \XLite\View\Model\AModel
 
         if ($data
             && $model
-            && $model->getProfileId() === \XLite\Core\Auth::getInstance()->getProfile()->getProfileId()
+            && $model->getProfileId() === Auth::getInstance()->getProfile()->getProfileId()
         ) {
             $savedData = \XLite\Core\Database::getRepo('XLite\Model\Profile')->getArrayData($model->getProfileId());
 
@@ -1041,6 +1073,20 @@ class AdminMain extends \XLite\View\Model\AModel
         }
 
         return $result;
+    }
+
+    protected function validateFields(array $data, $section)
+    {
+        parent::validateFields($data, $section);
+
+        $duplicate = Database::getRepo('XLite\Model\Profile')
+            ->checkRegisteredUserWithSameLogin($this->getModelObject());
+
+        if ($duplicate) {
+            $this->addErrorMessage('login', static::t(
+                'This e-mail address is already in use by another user.'
+            ));
+        }
     }
 
     /**

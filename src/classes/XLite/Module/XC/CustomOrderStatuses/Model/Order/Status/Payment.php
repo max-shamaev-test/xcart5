@@ -14,6 +14,8 @@ namespace XLite\Module\XC\CustomOrderStatuses\Model\Order\Status;
  */
  class Payment extends \XLite\Model\Order\Status\Payment implements \XLite\Base\IDecorator
 {
+     const STATUS_CUSTOM = 'CUSTOM';
+
     /**
      * Set name
      *
@@ -27,4 +29,22 @@ namespace XLite\Module\XC\CustomOrderStatuses\Model\Order\Status;
 
         return parent::setName($name);
     }
+
+     /**
+      * List of change status handlers;
+      * top index - old status, second index - new one
+      * (<old_status> ----> <new_status>: $statusHandlers[$old][$new])
+      *
+      * @return array
+      */
+     public static function getStatusHandlers()
+     {
+         return array_merge_recursive(parent::getStatusHandlers(), [
+             self::STATUS_CUSTOM => [
+                 self::STATUS_PAID       => ['process'],
+                 self::STATUS_DECLINED   => ['fail'],
+                 self::STATUS_CANCELED   => ['cancel'],
+             ],
+         ]);
+     }
 }

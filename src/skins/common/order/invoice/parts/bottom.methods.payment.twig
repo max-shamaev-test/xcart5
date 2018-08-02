@@ -8,13 +8,14 @@
   <strong class="method-title">{{ t('Payment method') }}</strong>
   {% if this.order.getVisiblePaymentMethods() %}
     {% for m in this.order.getVisiblePaymentMethods() %}
-      {{ m.getTitle()|raw }}<br />
+      {{ m.getTitle()|raw }}
     {% endfor %}
   {% elseif this.order.getPaymentMethodName() %}
-    {{ t(this.order.getPaymentMethodName())|raw }}<br />
+    {{ t(this.order.getPaymentMethodName())|raw }}
   {% else %}
-    {{ t('n/a') }}<br />
+    {{ t('n/a') }}
   {% endif %}
+  <p><br /></p>
   {% if (not this.order.isOfflineProcessorUsed()) and this.order.getPaymentTransactionId() %}
     {{ t('Transaction ID') }}: {{ this.order.getPaymentTransactionId() }}
   {% endif %}
@@ -24,4 +25,5 @@
       <span class="value">{{ item.value }}</span>
     </div>
   {% endfor %}
+  <div class="sub-data"></div>
 </div>

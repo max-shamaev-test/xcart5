@@ -109,6 +109,26 @@ class OrderModify extends \XLite\View\AView
     }
 
     /**
+     * Is show profile name as link
+     *
+     * @return boolean
+     */
+    protected function isShowProfileLink()
+    {
+        return true;
+    }
+
+    /**
+     * Is show email address
+     *
+     * @return boolean
+     */
+    protected function isShowEmail()
+    {
+        return true;
+    }
+
+    /**
      * Get container attributes 
      * 
      * @return array

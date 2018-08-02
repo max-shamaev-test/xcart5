@@ -13,8 +13,8 @@ namespace XLite\Controller\Customer;
  */
 class RecoverPassword extends \XLite\Controller\Customer\ACustomer
 {
-    // Expiration time of the password reset key
-    const PASSWORD_RESET_KEY_EXP_TIME = 3600;
+    // 12h
+    const PASSWORD_RESET_KEY_EXP_TIME = 43200;
 
     /**
      * params
@@ -109,6 +109,18 @@ class RecoverPassword extends \XLite\Controller\Customer\ACustomer
     }
 
     /**
+     * Is profile can be recovered
+     *
+     * @param \XLite\Model\Profile $profile
+     *
+     * @return bool
+     */
+    protected function isRecoverAllowed(\XLite\Model\Profile $profile)
+    {
+        return !$profile->isAdmin();
+    }
+
+    /**
      * Sent Recover password mail
      *
      * @param string $email Email
@@ -121,10 +133,7 @@ class RecoverPassword extends \XLite\Controller\Customer\ACustomer
 
         $profile = \XLite\Core\Database::getRepo('XLite\Model\Profile')->findByLogin($email);
 
-        if (
-            isset($profile)
-            && !$profile->isAdmin()
-        ) {
+        if ($profile && $this->isRecoverAllowed($profile)) {
             if (
                 '' == $profile->getPasswordResetKey()
                 || 0 == $profile->getPasswordResetKeyDate()
@@ -137,7 +146,7 @@ class RecoverPassword extends \XLite\Controller\Customer\ACustomer
                 $profile->update();
             }
 
-            \XLite\Core\Mailer::sendRecoverPasswordRequest($profile->getLogin(), $profile->getPasswordResetKey());
+            \XLite\Core\Mailer::sendRecoverPasswordRequest($profile, $profile->getPasswordResetKey());
 
             $result = true;
         }
@@ -159,10 +168,7 @@ class RecoverPassword extends \XLite\Controller\Customer\ACustomer
 
         $profile = \XLite\Core\Database::getRepo('XLite\Model\Profile')->findByLogin($email);
 
-        if (
-            !isset($profile)
-            || $profile->isAdmin()
-        ) {
+        if (!$profile && !$this->isRecoverAllowed($profile)) {
             \XLite\Core\TopMessage::addError('There is no user with specified email address');
 
         } elseif (
@@ -175,6 +181,8 @@ class RecoverPassword extends \XLite\Controller\Customer\ACustomer
             $profile->setPasswordResetKeyDate(0);
 
             $profile->update();
+
+            \XLite\Core\Auth::getInstance()->logoff();
 
         } else {
             $pass = \XLite\Core\Database::getRepo('XLite\Model\Profile')->generatePassword();

@@ -84,8 +84,8 @@ class Shipping extends \XLite\Base\Singleton
      */
     public static function unregisterProcessor($processorClass)
     {
-        if (isset(self::$registeredProcessors[$processorClass])) {
-            unset(self::$registeredProcessors[$processorClass]);
+        if (isset(static::$registeredProcessors[$processorClass])) {
+            unset(static::$registeredProcessors[$processorClass]);
         }
     }
 
@@ -96,7 +96,7 @@ class Shipping extends \XLite\Base\Singleton
      */
     public static function getProcessors()
     {
-        return self::$registeredProcessors;
+        return static::$registeredProcessors;
     }
 
     /**
@@ -125,7 +125,7 @@ class Shipping extends \XLite\Base\Singleton
      */
     public function __construct()
     {
-        self::registerProcessor('\XLite\Model\Shipping\Processor\Offline');
+        static::registerProcessor('\XLite\Model\Shipping\Processor\Offline');
     }
 
     /**
@@ -139,7 +139,7 @@ class Shipping extends \XLite\Base\Singleton
     {
         $rates = array();
 
-        foreach (self::$registeredProcessors as $processor) {
+        foreach (static::$registeredProcessors as $processor) {
             if (!$this->isProcessorEnabled($processor, $modifier)) {
                 continue;
             }
@@ -180,7 +180,7 @@ class Shipping extends \XLite\Base\Singleton
     {
         $result = false;
 
-        foreach (self::$registeredProcessors as $processor) {
+        foreach (static::$registeredProcessors as $processor) {
             if ($processor->getProcessorId() !== 'offline') {
                 $result = true;
                 break;

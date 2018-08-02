@@ -3,7 +3,6 @@
  #}
 
 <div class="shipment-info">
-  
   <div class="shipment-info-part">
 
     <h3>{{ t('Shipment info') }}</h3>
@@ -14,13 +13,6 @@
         <td>{{ t('Shipment ID') }}:</td>
         <td>{{ parcel.shipment.getShipmentId() }}</td>
       </tr>
-      
-      {#
-      <tr IF="parcel.shipment.getShipmentStatus()">
-        <td>{t(#Shipment status#)}:</td>
-        <td>{parcel.shipment.getShipmentStatus()}</td>
-      </tr>
-      #}
 
       {% if parcel.shipment.getTrackingPin() %}
         <tr>
@@ -104,7 +96,4 @@
   
     </div>
   {% endif %}
-
-  <div style="clear: both;"></div>
-
 </div>

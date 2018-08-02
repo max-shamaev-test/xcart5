@@ -151,14 +151,14 @@ class Method extends \XLite\Model\Repo\Base\I18n
      */
     protected function getAllowedFields()
     {
-        return array(
+        return [
             'processor' => 1,
             'carrier'   => 1,
             'code'      => 1,
             'enabled'   => 0,
             'position'  => 0,
             'name'      => 1,
-        );
+        ];
     }
 
     /**

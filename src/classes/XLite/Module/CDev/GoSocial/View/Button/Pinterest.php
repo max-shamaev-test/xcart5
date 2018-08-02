@@ -27,7 +27,6 @@ class Pinterest extends \XLite\Module\CDev\GoSocial\View\Button\ASocialButton
         $product = $this->getModelObject();
         $image = $product->getImage();
 
-        $list['href'] = 'https://www.pinterest.com/pin/create/button/';
         $list['data-pin-do'] = 'buttonPin';
         $list['data-pin-custom'] = 'true';
         $list['data-pin-url'] = $product->getFrontURL();

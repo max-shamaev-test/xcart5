@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\SalesTax\Model;
 
+use XLite\Module\CDev\SalesTax\Model\Tax\Rate;
+
 /**
  * Tax
  *
@@ -179,6 +181,22 @@ class Tax extends \XLite\Model\Base\I18n
      */
     protected function sortRates($a, $b)
     {
+        /* @var Rate $aRate */
+        $aRate = $a['rate'];
+        /* @var Rate $bRate */
+        $bRate = $b['rate'];
+
+        $classesSortResult = $this->compareByTaxClasses(
+            $aRate->getTaxClass(),
+            $bRate->getTaxClass(),
+            $aRate->getNoTaxClass(),
+            $bRate->getNoTaxClass()
+        );
+
+        if (0 !== $classesSortResult) {
+            return $classesSortResult;
+        }
+
         if ($a['zoneWeight'] > $b['zoneWeight']) {
             $result = 1;
 
@@ -190,6 +208,33 @@ class Tax extends \XLite\Model\Base\I18n
         }
 
         return $result;
+    }
+
+    /**
+     * Comparator for rates by tax classes
+     *
+     * @param $aClass
+     * @param $bClass
+     * @param $aDefaultClass
+     * @param $bDefaultClass
+     *
+     * @return int
+     */
+    protected function compareByTaxClasses($aClass, $bClass, $aDefaultClass, $bDefaultClass)
+    {
+        if (
+            $aClass && $bClass
+            || $aDefaultClass && $bDefaultClass
+            || !$aClass && !$bClass && !$aDefaultClass && !$bDefaultClass
+        ) {
+            return 0;
+        }
+
+        if ($aClass || $bClass) {
+            return $aClass ? -1 : 1;
+        }
+
+        return $aDefaultClass ? -1 : 1;
     }
 
     /**

@@ -100,6 +100,6 @@ class VoidShipment extends \XLite\View\Button\AButton
      */
     protected function getClass()
     {
-        return 'capost-button-void-shipment ' . ($this->getParam(static::PARAM_STYLE) ?: '');
+        return parent::getClass() . ' capost-button-void-shipment';
     }
 }

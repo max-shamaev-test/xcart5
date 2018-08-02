@@ -2,9 +2,6 @@
  # USPS module settings main page template
  #}
 <div class="usps-info">
-  <div class="shipping-description">
-    {{ t('U.S.P.S. module allows you to use online shipping rates calculation via USPS Web Tools Ecommerce API.')|raw }}
-  </div>
 
   {% set promoName = 'usps-via-pb-1' %}
   {% if this.isPromoBlockVisible(promoName) %}
@@ -13,7 +10,14 @@
         <img src="{{ this.layout.getResourceWebPath('modules/CDev/USPS/images/pitney_bowes.jpg') }}" alt="{{ t('PitneyBowes') }}" class="logo" />
       </div>
       <div class="usps-pitney-bowes-promo-header">
-        {{ t('USPS via Pitney Bowes brings you competitive and discounted USPS pricing via the X-Cart 5 interface. Print shipping labels with ease and track USPS shipments from origin to delivery with Pitney Bowes and X-Cart.') }}
+          {{ t('Savings - Up to 49% off retail USPS postage rates')|raw }}
+          <br/>
+          {{ t('Convenience - Verify addresses and buy & print compliant USPS labels directly from the X-Cart application')|raw }}
+          <br/>
+          {{ t('Easy payment options - Ship Now Pay Later with a Pitney Bowes Line of Credit or use a credit card.')|raw }}
+          <br/>
+          <br/>
+          {{ t('Get started Now! Click here to create your PITNEY BOWES Postage Account', {url: this.getRegistrationURL()})|raw }}
       </div>
       <div class="close promo-block-close" data-promo-selector=".usps-pitney-bowes-promo">
         {{ this.displaySVGImage('images/icon-close-round.svg') }}
@@ -23,9 +27,10 @@
 
 </div>
 
-<div class="pitney-bowes-info{% if this.getDataProvider() != 'pitneyBowes' %} hidden{% endif %}">
+<div class="usps-dependent-info{% if this.getDataProvider() != 'USPS' %} hidden{% endif %}">
   <div class="shipping-description">
-    {{ t('To use the USPS via Pitney Bowes Shipping APIs, you need to register via this link and then enter the email address you have used for registration into the field below.', {url: this.getRegistrationURL()})|raw }}
+    <p>{{ t('U.S.P.S. module allows you to use online shipping rates calculation via USPS Web Tools Ecommerce API.')|raw }}</p>
+    <p><strong>{{ t('Please note: the USPS Web tools APIs print labels without postage.') }}</strong></p>
   </div>
 </div>
 

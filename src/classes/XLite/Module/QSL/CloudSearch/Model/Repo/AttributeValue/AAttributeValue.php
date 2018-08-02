@@ -33,7 +33,7 @@ abstract class AAttributeValue extends \XLite\Model\Repo\AttributeValue\AAttribu
             ->addOrderBy('a.position', 'ASC')
             ->getResult();
 
-        $ids = array();
+        $ids = [];
         if ($data) {
             foreach ($data as $v) {
                 $ids[] = $v['id'];
@@ -42,6 +42,6 @@ abstract class AAttributeValue extends \XLite\Model\Repo\AttributeValue\AAttribu
 
         return $ids
             ? \XLite\Core\Database::getRepo('XLite\Model\Attribute')->findByIds($ids)
-            : array();
+            : [];
     }
 }

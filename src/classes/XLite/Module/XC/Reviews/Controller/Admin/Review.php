@@ -13,6 +13,11 @@ namespace XLite\Module\XC\Reviews\Controller\Admin;
  */
 class Review extends \XLite\Controller\Admin\AAdmin
 {
+    public function checkACL()
+    {
+        return parent::checkACL() || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage reviews');
+    }
+
     /**
      * Return review id from request
      *

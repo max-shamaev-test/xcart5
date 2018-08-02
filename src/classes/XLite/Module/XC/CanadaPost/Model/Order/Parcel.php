@@ -823,6 +823,42 @@ class Parcel extends \XLite\Model\AEntity
     }
 
     /**
+     * Get subtotal of the parcel's items (in store currency)
+     *
+     * @return float
+     */
+    public function getAmount()
+    {
+        $amount = 0.00;
+
+        if ($this->hasItems()) {
+            foreach ($this->getItems() as $item) {
+                $amount += $item->getAmount();
+            }
+        }
+
+        return $amount;
+    }
+
+    /**
+     * Get subtotal of the parcel's items (in store currency)
+     *
+     * @return float
+     */
+    public function getSubtotal()
+    {
+        $subtotal = 0.00;
+
+        if ($this->hasItems()) {
+            foreach ($this->getItems() as $item) {
+                $subtotal += $item->getSubtotal();
+            }
+        }
+
+        return $subtotal;
+    }
+
+    /**
      * Get total weight of the parcel's items (in store weight units)
      *
      * @return float
@@ -1476,7 +1512,7 @@ class Parcel extends \XLite\Model\AEntity
     /**
      * Get optCoverage
      *
-     * @return decimal 
+     * @return float
      */
     public function getOptCoverage()
     {
@@ -1557,6 +1593,16 @@ class Parcel extends \XLite\Model\AEntity
     public function getOrder()
     {
         return $this->order;
+    }
+
+    /**
+     * Get order
+     *
+     * @return \XLite\Model\Currency
+     */
+    public function getCurrency()
+    {
+        return $this->order ? $this->order->getCurrency() : null;
     }
 
     /**

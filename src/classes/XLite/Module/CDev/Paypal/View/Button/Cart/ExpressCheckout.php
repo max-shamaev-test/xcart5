@@ -9,7 +9,7 @@
 namespace XLite\Module\CDev\Paypal\View\Button\Cart;
 
 /**
- * Express Checkout base button
+ * Express Checkout button
  *
  * @ListChild (list="cart.panel.totals", weight="100")
  */
@@ -31,11 +31,17 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\View\Button\AExpressChec
             && $cart->checkCart();
     }
 
+    /**
+     * @return string
+     */
     protected function getDefaultTemplate()
     {
         return 'modules/CDev/Paypal/button/cart/ec_button.twig';
     }
 
+    /**
+     * @return array
+     */
     public function getJSFiles()
     {
         return array_merge(parent::getJSFiles(), [
@@ -43,6 +49,9 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\View\Button\AExpressChec
         ]);
     }
 
+    /**
+     * @return string
+     */
     protected function getButtonClass()
     {
         return parent::getButtonClass() . ' paypal-ec'
@@ -51,5 +60,13 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\View\Button\AExpressChec
                 ? ' pp-funding-credit'
                 : ''
             );
+    }
+
+    /**
+     * @return string
+     */
+    protected function getButtonStyleNamespace()
+    {
+        return 'cart';
     }
 }

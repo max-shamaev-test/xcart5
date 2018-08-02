@@ -80,6 +80,11 @@ class Text extends AbstractRenderer
           $text
         );*/
 
+        // Custom changes
+        if ($this->_dompdf->getOptions()->get('useArabicConverter')) {
+            $text = $this->_dompdf->convertArabicText($text);
+        }
+
         $this->_canvas->text($x, $y, $text,
             $font, $size,
             $style->color, $word_spacing, $char_spacing);

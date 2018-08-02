@@ -20,34 +20,60 @@ use XLite\Module\XC\ProductTags\Model\Tag;
 class StoreApiProductTags extends \XLite\Module\QSL\CloudSearch\Core\StoreApi implements \XLite\Base\IDecorator
 {
     /**
-     * Get product attributes data
+     * Get single product data
+     *
+     * @param Product $product
+     *
+     * @return array
+     */
+    public function getProduct(Product $product)
+    {
+        return parent::getProduct($product) + ['tags' => $this->getTagValues($product)];
+    }
+
+    /**
+     * Get filterable product attributes data
      *
      * @param $product
      *
      * @return array
      */
-    protected function getProductAttributes(Product $product)
+    protected function getFilterableProductAttributes(Product $product)
     {
-        $attributes = parent::getProductAttributes($product);
+        $attributes = parent::getFilterableProductAttributes($product);
 
-        $tags = $product->getTags();
+        $tagValues = $this->getTagValues($product);
 
-        $values = [];
-        /** @var Tag $tag */
-        foreach ($tags as $tag) {
-            $values[] = $tag->getName();
-        }
-
-        if ($values) {
+        if ($tagValues) {
             $attributes[] = [
                 'id'                => 'XC\ProductTags',
-                'name'              => $this->t('Tags'),
+                'name'              => (string) static::t('Tags'),
                 'preselectAsFilter' => true,
                 'group'             => 'Product Tags module',
-                'values'            => $values,
+                'values'            => $tagValues,
             ];
         }
 
         return $attributes;
+    }
+
+    /**
+     * Get product's tag values
+     *
+     * @param Product $product
+     *
+     * @return array
+     */
+    protected function getTagValues(Product $product)
+    {
+        $tags = $product->getTags();
+
+        $tagValues = [];
+        /** @var Tag $tag */
+        foreach ($tags as $tag) {
+            $tagValues[] = $tag->getName();
+        }
+
+        return $tagValues;
     }
 }

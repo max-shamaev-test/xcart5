@@ -132,21 +132,21 @@ XLite\Model\LanguageLabel:
       - code: en
         label: Add your first product
       - code: ru
-        label: "Добавим первый продукт?"
+        label: "Добавим первый товар?"
 
   - name: onboarding.add_product.text
     translations:
       - code: en
         label: Here it is, the best place to show your items to the world. Get started by adding a product name, picture and price.
       - code: ru
-        label: "Укажите название продукта, загрузите его изображение и задайте цену"
+        label: "Укажите название товара, загрузите его изображение и задайте цену"
 
   - name: onboarding.add_product.import
     translations:
       - code: en
         label: Learn how to import products from .CSV file
       - code: ru
-        label: "Как импортировать продукты с помощью .CSV файла"
+        label: "Как импортировать товары с помощью .CSV файла"
 
   - name: "Add other options"
     translations:
@@ -167,7 +167,7 @@ XLite\Model\LanguageLabel:
       - code: en
         label: "Click here to upload product image"
       - code: ru
-        label: "Загрузить картинку продукта"
+        label: "Загрузить картинку товара"
 
   - name: "(like categories, weight, description, color)"
     translations:
@@ -182,14 +182,14 @@ XLite\Model\LanguageLabel:
       - code: en
         label: "Good going! You've added 1 product"
       - code: ru
-        label: "Прекрасно! Ваш продукт добавлен."
+        label: "Прекрасно! Ваш товар добавлен."
 
   - name: "The newly created product is already in your [storefront]. Have a look! Ready to delete demo products?"
     translations:
       - code: en
         label: "The newly created product is already in your storefront. <a href='{{storefront}}' target='_blank' :href='productUrl'>Have a look!</a><br>Ready to delete demo products?"
       - code: ru
-        label: "Посмотрите, как он будет выглядеть <a href='{{storefront}}' target='_blank' :href='productUrl'>на витрине магазина</a><br>. А теперь давайте удалим демо-продукты."
+        label: "Посмотрите, как он будет выглядеть <a href='{{storefront}}' target='_blank' :href='productUrl'>на витрине магазина</a><br>. А теперь давайте удалим демо-товары."
 
   - name: "I'll do it later"
     translations:
@@ -203,35 +203,35 @@ XLite\Model\LanguageLabel:
       - code: en
         label: "Delete demo products"
       - code: ru
-        label: "Удалить демо-продукты"
+        label: "Удалить демо-товары"
 
   - name: "Ready to delete demo products?"
     translations:
       - code: en
         label: "Ready to delete demo products?"
       - code: ru
-        label: "Удалим демо-продукты?"
+        label: "Удалим демо-товары?"
 
   - name: "Done! We ve just deleted all your demo products"
     translations:
       - code: en
         label: "Done! We've just deleted all your demo products"
       - code: ru
-        label: "Готово! Демо-продукты удалены."
+        label: "Готово! Демо-товары удалены."
 
   - name: "Add a few [more products] to your catalog or proceed to the next step - whatever makes you happy."
     translations:
       - code: en
         label: "Add a few <a href='{{more}}' target='_blank'>more products</a> to your catalog or proceed to the next step — whatever makes you happy."
       - code: ru
-        label: "Теперь можно <a href='{{more}}' target='_blank'>добавить еще один продукт</a> в каталог.  А можно перейти к следующим настройкам."
+        label: "Теперь можно <a href='{{more}}' target='_blank'>добавить еще один товар</a> в каталог.  А можно перейти к следующим настройкам."
 
   - name: "You can view the newly created product in your [storefront] or add a few [more products] to your catalog."
     translations:
       - code: en
         label: "You can view the newly created product in your <a href='{{storefront}}' target='_blank' :href='productUrl'>storefront</a> or add a few <a href='{{more}}' target='_blank'>more products</a> to your catalog."
       - code: ru
-        label: "Посмотрите, как выглядит новый продукт <a href='{{storefront}}' target='_blank' :href='productUrl'>на витрине</a> или <a href='{{more}}' target='_blank'>добавьте еще один продукт</a> в каталог."
+        label: "Посмотрите, как выглядит новый товар <a href='{{storefront}}' target='_blank' :href='productUrl'>на витрине</a> или <a href='{{more}}' target='_blank'>добавьте еще один товар</a> в каталог."
 
 # /Product added step
 
@@ -360,7 +360,7 @@ XLite\Model\LanguageLabel:
       - code: en
         label: "Do you need to ship your products?"
       - code: ru
-        label: "Ваши продукты требуют доставки?"
+        label: "Ваши товары требуют доставки?"
 
 
   - name: "Yes, I sell tangible goods that needed to be shipped"
@@ -382,14 +382,14 @@ XLite\Model\LanguageLabel:
       - code: en
         label: "I sell digital goods or services and do not need to set up shipping"
       - code: ru
-        label: "Я продаю цифровые продукты или сервисы, поэтому доставка не требуется"
+        label: "Я продаю цифровые товары или сервисы, поэтому доставка не требуется"
 
   - name: "Skip Shipping Step"
     translations:
       - code: en
         label: "Mark all products as non-shippable"
       - code: ru
-        label: "Отключить доставку продуктов"
+        label: "Отключить доставку товаров"
 
 # /Shipping step
 
@@ -587,7 +587,7 @@ XLite\Model\LanguageLabel:
       - code: en
         label: "Knowledge base"
       - code: ru
-        label: "База знаний"
+        label: "Инструкции пользователя"
 
   - name: "Developer docs"
     translations:
@@ -624,3 +624,8 @@ XLite\Model\LanguageLabel:
       - code: ru
         label: "Позвоните нам: {{phone}}"
 # /Done step
+
+  - { name: 'Could not save logo image', translations: [{ code: en, label: 'Could not save logo image' }]}
+  - { name: 'My Shipping', translations: [{ code: en, label: 'My Shipping' }]}
+  - { name: 'Onboarding Wizard', translations: [{ code: en, label: 'Onboarding Wizard' }]}
+  - { name: 'Name length must be less then {{length}}', translations: [{ code: en, label: 'Name length must be less then {{length}}' }]}

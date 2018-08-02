@@ -27,7 +27,6 @@ class Review extends \XLite\Model\AEntity
     const MAX_RATING                    = 5;
     const REGISTERED_CUSTOMERS          = 'R';
     const PURCHASED_CUSTOMERS           = 'P';
-    const TTL_LIMIT_FOR_REVIEW_FROM_IP  = 1800;
 
     /**
      * Review Unique ID
@@ -132,15 +131,6 @@ class Review extends \XLite\Model\AEntity
      * @JoinColumn (name="product_id", referencedColumnName="product_id", onDelete="CASCADE")
      */
     protected $product;
-
-    /**
-     * Remote inet_pton
-     *
-     * @var integer
-     *
-     * @Column (type="string", nullable=true)
-     */
-    protected $ip = null;
 
     /**
      * Use for meta flag
@@ -473,28 +463,6 @@ class Review extends \XLite\Model\AEntity
     public function getStatus()
     {
         return $this->status;
-    }
-
-    /**
-     * Set ip
-     *
-     * @param string $ip
-     * @return Review
-     */
-    public function setIp($ip)
-    {
-        $this->ip = $ip;
-        return $this;
-    }
-
-    /**
-     * Get ip
-     *
-     * @return string
-     */
-    public function getIp()
-    {
-        return $this->ip;
     }
 
     /**

@@ -7,89 +7,103 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-var box = {};
+var box = {}
 
 // Shade block with content
-function shadeBlock()
-{
-  if (0 != jQuery(box).length) {
+function shadeBlock () {
+  if (0 !== jQuery(box).length) {
     var overlay = jQuery(document.createElement('div'))
-      .addClass('single-progress-mark');
+      .addClass('single-progress-mark')
     jQuery(document.createElement('div'))
-      .appendTo(overlay);
+      .appendTo(overlay)
 
     overlay.width(box.outerWidth())
-      .height(box.outerHeight());
+      .height(box.outerHeight())
 
-    overlay.appendTo(box);
+    overlay.appendTo(box)
   }
 }
 
-function unshadeBlock()
-{
-  if (0 != jQuery(box).length) {
-    jQuery(box).find('.single-progress-mark').remove();
+function unshadeBlock () {
+  if (0 !== jQuery(box).length) {
+    jQuery(box).find('.single-progress-mark').remove()
 
-    box = {};
+    box = {}
   }
 }
 
-var suggestionsCash = new CacheEngine();
+function filterByGroup (element, data) {
+  if ($(element).length > 0 && $(element).data('input-group')) {
+    var group = $(element).data('input-group');
+    var current = String($(element).val());
+    var selected = [];
+    var inputs = $('[data-input-group="' + group + '"]');
+    inputs.each(function () {
+      selected.push(String($(this).val()));
+    });
+
+    return _.filter(data, function (item) {
+      return !_.contains(selected, String(item.value)) || String(item.value) === current;
+    })
+  }
+
+  return data;
+}
+
+var suggestions = new window.CacheEngine()
 
 CommonForm.elementControllers.push(
   {
     pattern: '.input-field-wrapper input.auto-complete',
     handler: function () {
+      var input = jQuery(this);
 
-      if ('undefined' == typeof(this.autocompleteSource)) {
-        this.autocompleteSource = function(request, response)
-        {
-          unshadeBlock();
+      if ('undefined' === typeof this.autocompleteSource) {
+        this.autocompleteSource = function (request, response) {
+          unshadeBlock()
 
-          box = jQuery(this).parent('span');
+          box = input.parent('span')
 
-          var url = unescape(jQuery(this).data('source-url')).replace('%term%', request.term);
-          if (!suggestionsCash.has(url)) {
-            shadeBlock();
+          var url = decodeURIComponent(input.data('source-url')).replace('%term%', request.term)
+          if (!suggestions.has(url)) {
+            shadeBlock()
 
-            core.get(
+            window.core.get(
               url,
               null,
               {},
               {
-                dataType: 'json',
-                success: function (data) {
-                  suggestionsCash.add(url, data);
-                  response(data);
-
-                  unshadeBlock();
-                }
+                dataType: 'json'
               }
-            );
+            ).then(function (data) {
+              suggestions.add(url, data)
+              response(filterByGroup(input, data))
+
+              unshadeBlock()
+            })
           } else {
-            response(suggestionsCash.get(url));
+            response(filterByGroup(input, suggestions.get(url)))
           }
         }
       }
 
-      if ('undefined' == typeof(this.autocompleteAssembleOptions)) {
-        this.autocompleteAssembleOptions = function()
-        {
-          var input = this;
-
+      if ('undefined' === typeof this.autocompleteAssembleOptions) {
+        this.autocompleteAssembleOptions = function () {
           return {
-            source: function(request, response) {
-              input.autocompleteSource(request, response);
+            source: this.autocompleteSource.bind(this),
+            minLength: input.data('min-length') || 2,
+            close: function () {
+              input.keyup()
             },
-            minLength: jQuery(this).data('min-length') || 2,
-            close: function() {jQuery(this).keyup()},
-            select: function() {jQuery(this).dblclick()}
-          };
+            select: function () {
+              input.dblclick()
+            }
+          }
         }
       }
 
-      jQuery(this).autocomplete(this.autocompleteAssembleOptions());
+      input.autocomplete(this.autocompleteAssembleOptions())
     }
   }
-);
+)
 

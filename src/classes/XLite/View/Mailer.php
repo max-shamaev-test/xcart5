@@ -8,6 +8,10 @@
 
 namespace XLite\View;
 
+use XLite\Core\Mailer\Entries;
+use XLite\Core\Mailer\Entry;
+use XLite\View\FormField\Select\EmailFrom;
+
 /**
  * Mailer
  */
@@ -164,23 +168,37 @@ class Mailer extends \XLite\View\AView
     public function set($name, $value)
     {
         if (in_array($name, array('to', 'from'), true)) {
-            /**
-             * Prevent the attack works by placing a newline character
-             * (represented by \n in the following example) in the field
-             * that asks for the user's e-mail address.
-             * For instance, they might put:
-             * joe@example.com\nCC: victim1@example.com,victim2@example.com
-             */
-            $value = str_replace('\t', "\t", $value);
-            $value = str_replace("\t", '', $value);
-            $value = str_replace('\r', "\r", $value);
-            $value = str_replace("\r", '', $value);
-            $value = str_replace('\n', "\n", $value);
-            $value = explode("\n", $value);
-            $value = $value[0];
+            $value = $this->prepareAddress($value);
         }
 
         parent::set($name, $value);
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
+    protected function prepareAddress($value)
+    {
+        if ($value instanceof Entries) {
+            return $value;
+        }
+
+        /**
+         * Prevent the attack works by placing a newline character
+         * (represented by \n in the following example) in the field
+         * that asks for the user's e-mail address.
+         * For instance, they might put:
+         * joe@example.com\nCC: victim1@example.com,victim2@example.com
+         */
+        $value = str_replace('\t', "\t", $value);
+        $value = str_replace("\t", '', $value);
+        $value = str_replace('\r', "\r", $value);
+        $value = str_replace("\r", '', $value);
+        $value = str_replace('\n', "\n", $value);
+        $value = explode("\n", $value);
+        return $value[0];
     }
 
     /**
@@ -289,12 +307,12 @@ class Mailer extends \XLite\View\AView
     /**
      * Composes mail message.
      *
-     * @param string $from          The sender email address
-     * @param string $to            The email address to send mail to
-     * @param string $dir           The directiry there mail parts template located
-     * @param array  $customHeaders The headers you want to add/replace to. OPTIONAL
-     * @param string $interface     Interface to use for mail OPTIONAL
-     * @param string $languageCode  Language code OPTIONAL
+     * @param array|string $from          "Reply to" mails, first also could be used as "from"
+     * @param string       $to            The email address to send mail to
+     * @param string       $dir           The directiry there mail parts template located
+     * @param array        $customHeaders The headers you want to add/replace to. OPTIONAL
+     * @param string       $interface     Interface to use for mail OPTIONAL
+     * @param string       $languageCode  Language code OPTIONAL
      *
      * @return void
      */
@@ -468,6 +486,52 @@ class Mailer extends \XLite\View\AView
         return $code;
     }
 
+    /**
+     * Get body class
+     *
+     * @return string
+     */
+    protected function getMailBodyClass()
+    {
+        return implode(' ', $this->defineBodyClasses());
+    }
+
+    /**
+     * The layout defines the specific CSS classes for the 'body' tag
+     * The body CSS classes can define:
+     *
+     * AREA: area-a / area-c
+     * SKINS that are added to this interface: skin-<skin1>, skin-<skin2>, ...
+     *
+     * @return array Array of CSS classes to apply to the 'body' tag
+     */
+    protected function defineBodyClasses()
+    {
+        $classes = [
+            'area-' . (\XLite\Core\Layout::getInstance()->getInnerInterface() === \XLite::ADMIN_INTERFACE ? 'a' : 'c'),
+        ];
+
+        foreach (array_reverse(\XLite\Core\Layout::getInstance()->getSkins()) as $skin) {
+            $classes[] = 'skin-' . $this->prepareCSSClass($skin);
+        }
+
+        return $classes;
+    }
+
+    /**
+     * Before using the CSS class in the 'class' attribute it must be prepared to be valid
+     * The restricted symbols are changed to '-'
+     *
+     * @param string $class CSS class name to be prepared
+     *
+     * @return string
+     *
+     * @see \XLite\View\AView::defineBodyClasses()
+     */
+    protected function prepareCSSClass($class)
+    {
+        return preg_replace('/[^a-z0-9_-]+/Si', '-', $class);
+    }
 
     /**
      * Get default template
@@ -508,6 +572,32 @@ class Mailer extends \XLite\View\AView
         return preg_replace('/^\s*$/m', '', $txt);
     }
 
+    protected function getFromMail()
+    {
+        switch (\XLite\Core\Config::getInstance()->Email->mail_from_type) {
+            case EmailFrom::OPTION_FROM_SERVER:
+                return null;
+            case EmailFrom::OPTION_MANUAL:
+                return \XLite\Core\Config::getInstance()->Email->mail_from_manual;
+            default:
+                $from = $this->get('from');
+                return $from instanceof Entries
+                    ? $from->getFrom()
+                    : $from;
+        }
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getReplyTos()
+    {
+        $from = $this->get('from');
+        return $from instanceof Entries
+            ? $from->getReplyTos()
+            : [$from];
+    }
+
     /**
      * Inner mailer initialization from set variables
      *
@@ -520,9 +610,26 @@ class Mailer extends \XLite\View\AView
         );
 
         $this->mail->CharSet = $this->get('charset');
-        $this->mail->From     = $this->get('from');
-        $this->mail->FromName = $this->get('fromName') ?: $this->get('from');
-        $this->mail->Sender   = $this->get('from');
+        $fromMail = $this->getFromMail();
+        if (!empty($fromMail)) {
+            $this->mail->From = $fromMail;
+            $this->mail->Sender = $fromMail;
+        }
+
+        $this->mail->clearReplyTos();
+        foreach ($this->getReplyTos() as $replyTo) {
+            if ($replyTo instanceof Entry) {
+                if ($replyTo->getName()) {
+                    $this->mail->addReplyTo($replyTo->getAddress(), $replyTo->getName());
+                } else {
+                    $this->mail->addReplyTo($replyTo->getAddress());
+                }
+            } else {
+                $this->mail->addReplyTo($replyTo);
+            }
+        }
+
+        $this->mail->FromName = $this->get('fromName') ?: $fromMail;
 
         $this->mail->clearAllRecipients();
         $this->mail->clearAttachments();

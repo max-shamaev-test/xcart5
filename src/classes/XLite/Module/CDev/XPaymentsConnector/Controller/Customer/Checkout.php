@@ -34,54 +34,34 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
             );
     }
 
-    /**
-     * Checkout. Recognize iframe and save that 
-     *
-     * @return void
-     */
-    protected function doActionCheckout()
+    protected function doActionXpcIframe()
     {
-        if (\XLite\Core\Request::getInstance()->xpc_iframe) {
+        // Enable iframe
+        $this->getIframe()->enable();
 
-            // Enable iframe
-            $this->getIframe()->enable();
+        $transaction = $this->getCart()->getFirstOpenPaymentTransaction();
 
-            $transaction = $this->getCart()->getFirstOpenPaymentTransaction();
-
-            $class = 'Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPayments';
-            if (
-                !$transaction
-                || !$transaction->getPaymentMethod()
-                || $class != $transaction->getPaymentMethod()->getClass()
-            ) {
-                // Action Checkout with "xpc_iframe" parameter was called.
-                // But open transaction was not found, or a different processor is used
-                // So exit.
-                $this->getIframe()->setError('X-Payments transaction not found!');
-                $this->getIframe()->setType(\XLite\Module\CDev\XPaymentsConnector\Core\Iframe::IFRAME_DO_NOTHING);
-                $this->getIframe()->finalize();
-            }
-
-        } elseif (
-            version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.6') < 0
+        if (
+            !$transaction
+            || !$transaction->isXpc()
         ) {
-            \XLite\Core\Session::getInstance()->cardSavedAtCheckout = \XLite\Core\Request::getInstance()->save_card;
+            // Open transaction was not found or a different processor is used
+            $this->getIframe()->setError('');
+            $this->getIframe()->setType(\XLite\Module\CDev\XPaymentsConnector\Core\Iframe::IFRAME_DO_NOTHING);
+            $this->getIframe()->finalize();
         }
 
-        parent::doActionCheckout();
+        // Actually does redirect to X-Payments payment page
+        $this->doActionCheckout();
     }
 
     /**
      * Show save card checkbox on checkout 
      *
-     * @return void
+     * @return boolean
      */
     public function showSaveCardBox() 
     {
-        if (version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.6') >= 0) {
-            return false;
-        }
-
         $showToUser = !$this->isAnonymous() && $this->isLogged()
             || \XLite\Core\Session::getInstance()->order_create_profile;
 
@@ -91,6 +71,16 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
 
         return $showToUser && $showForPayment;
     }
+
+    /**
+     * Check if save card checkbox should be added to checkout (API 1.6 and earlier)
+     *
+     * @return boolean
+     */
+    public function isOldSaveCardBoxAvailable()
+    {
+        return (0 > version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.6'));
+    } 
 
     /**
      * Get payment method id
@@ -190,14 +180,13 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
             $this->getCart()->setNotes(\XLite\Core\Request::getInstance()->notes);
         }
 
-        if ('Y' == \XLite\Core\Request::getInstance()->save_card) {
-            \XLite\Core\Session::getInstance()->cardSavedAtCheckout = 'Y';
-        } else {
-            \XLite\Core\Session::getInstance()->cardSavedAtCheckout = 'N';
+        if ($this->isOldSaveCardBoxAvailable()) {
+            if ('Y' == \XLite\Core\Request::getInstance()->save_card) {
+                \XLite\Core\Session::getInstance()->cardSavedAtCheckout = 'Y';
+            } else {
+                \XLite\Core\Session::getInstance()->cardSavedAtCheckout = 'N';
+            }
         }
-
-        \XLite\Core\Database::getEM()->flush();
-
     }
 
     /**
@@ -221,77 +210,37 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
      */
     protected function doActionReturn()
     {
+        parent::doActionReturn();
+
         $orderId = \XLite\Core\Request::getInstance()->order_id;
         $order = \XLite\Core\Database::getRepo('XLite\Model\Order')->find($orderId);
 
-        if ($order) {
+        if ($order && $order->isXpc()) {
 
-            // Set customer notes 
-            if (!empty(\XLite\Core\Request::getInstance()->notes)) {
-                $order->setNotes(\XLite\Core\Request::getInstance()->notes);
-            }
+            $order->setPaymentStatusByTransaction($order->getPaymentTransactions()->first());
+
+            \XLite\Core\Session::getInstance()->selectedCardId = null;
 
             // Mark card as allowed for further recharges
             // For API 1.6 this flag is set in Model\Payment\Processor\XPayments
-            if (version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.6') < 0) {
+            if ($this->isOldSaveCardBoxAvailable()) {
+                $useForRecharges = 
+                    (
+                        'Y' == \XLite\Core\Request::getInstance()->save_card
+                        || 'Y' == \XLite\Core\Session::getInstance()->cardSavedAtCheckout
+                    )
+                    ? 'Y' : 'N';
 
-                if (
-                    'Y' == \XLite\Core\Request::getInstance()->save_card
-                    || 'Y' == \XLite\Core\Session::getInstance()->cardSavedAtCheckout
-                ) {
-
-                    $useForRecharges = 'Y';
-                    \XLite\Core\Session::getInstance()->cardSavedAtCheckout = 'N';
-
-                } else {
-
-                    $useForRecharges = 'N';
-                }
+                \XLite\Core\Session::getInstance()->cardSavedAtCheckout = null;
 
                 foreach ($order->getPaymentTransactions() as $transaction) {
-
                     if ($transaction->getXpcData()) {
                         $transaction->getXpcData()->setUseForRecharges($useForRecharges);
                     }
                 }
-
             }
 
-            if (
-                \XLite\Core\Session::getInstance()->xpc_order_create_profile
-                && !($order instanceof \XLite\Model\Cart)
-            ) {
-
-                // For successfully placed orders only
-
-                if ($order->getOrigProfile()) {
-
-                    \XLite\Core\Auth::getInstance()->loginProfile($order->getOrigProfile());
-
-                } elseif ($order->getProfile()) {
-
-                    \XLite\Core\Auth::getInstance()->loginProfile($order->getProfile());
-                }
-            }
-        }
-
-        \XLite\Core\Database::getEM()->flush();
-
-        parent::doActionReturn();
-
-        if ($order) {
-
-            $transactions = $order->getPaymentTransactions();
-
-            $lastTransaction = $transactions->first();
-
-            if ($lastTransaction && $lastTransaction->isXpc()) {
-                $order->setPaymentStatusByTransaction($lastTransaction);
-
-                $lastTransaction->setXpcDataCell('xpc_session_id', '');
-
-                \XLite\Core\Database::getEM()->flush();
-            }
+            \XLite\Core\Database::getEM()->flush();
         }
     }
 
@@ -315,21 +264,24 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
      */
     protected function doActionUpdateProfile()
     {
+        $beforeUpdateSaveCard = $this->showSaveCardBox();
+        $beforeUpdateCheck = $this->checkCheckoutAction();
+
         parent::doActionUpdateProfile();
 
-        $showSaveCardBox = $this->showSaveCardBox()
-            ? 'Y'
-            : 'N';
+        $showSaveCardBox = $this->showSaveCardBox();
 
-        $checkCheckoutAction = $this->checkCheckoutAction()
-            ? 'Y'
-            : 'N';
+        // Reload if anonymous enters his very first address or registers
+        $reloadIframe = (
+                !$beforeUpdateCheck && $this->checkCheckoutAction()
+                || $beforeUpdateSaveCard != $showSaveCardBox
+            );
 
-        \XLite\Core\Event::xpcEvent(
-            array(
+        \XLite\Core\Event::updateXpcIframe(
+            [
                 'showSaveCardBox' => $showSaveCardBox,
-                'checkCheckoutAction' => $checkCheckoutAction
-            )
+                'reloadIframe' => $reloadIframe,
+            ]
         );
     }
 

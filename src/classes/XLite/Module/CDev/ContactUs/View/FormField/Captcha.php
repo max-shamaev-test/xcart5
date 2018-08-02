@@ -8,11 +8,8 @@
 
 namespace XLite\Module\CDev\ContactUs\View\FormField;
 
-
 /**
  * Captcha
- *
- * @Entity
  */
 class Captcha extends \XLite\View\FormField\AFormField
 {

@@ -260,8 +260,10 @@ abstract class AWholesalePrice extends \XLite\Model\AEntity
         }
 
         if (\XLite::getController() instanceof \XLite\Controller\Customer\ACustomer) {
-            $membership = \XLite::getController()->getCart()->getProfile()
-                ? \XLite::getController()->getCart()->getProfile()->getMembership()
+            $profile = \XLite::getController()->getCart()->getProfile()
+                ?: \XLite\Core\Auth::getInstance()->getProfile();
+            $membership = $profile
+                ? $profile->getMembership()
                 : null;
 
         } else {

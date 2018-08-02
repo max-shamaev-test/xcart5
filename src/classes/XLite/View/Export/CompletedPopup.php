@@ -23,5 +23,14 @@ class CompletedPopup extends \XLite\View\AView
         return 'export/completed_popup.twig';
     }
 
+    /**
+     * Get message which is shown after export
+     *
+     * @return string
+     */
+    protected function getCompleteMessage()
+    {
+        return '';
+    }
 }
 

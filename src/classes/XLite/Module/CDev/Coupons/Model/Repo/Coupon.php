@@ -21,7 +21,7 @@ namespace XLite\Module\CDev\Coupons\Model\Repo;
  *   description="Coupon represents the code which can be given to customers to activate a discount. Coupon repo stores only unused codes. See UsedCoupon to check for coupons with the order relation.",
  *   @SWG\ExternalDocumentation(
  *     description="Find out more about discount coupons",
- *     url="https://kb.x-cart.com/en/seo_and_promotion/setting_up_discount_coupons.html"
+ *     url="https://kb.x-cart.com/seo_and_promotion/setting_up_discount_coupons.html"
  *   )
  * )
  */
@@ -53,7 +53,7 @@ class Coupon extends \XLite\Model\Repo\ARepo
      */
     protected function defineFindDuplicatesQuery($code, \XLite\Module\CDev\Coupons\Model\Coupon $currentCoupon = null)
     {
-        $queryBuilder = $this->createQueryBuilder('c')
+        $queryBuilder = $this->createPureQueryBuilder('c')
             ->andWhere('COLLATE(c.code, utf8_bin) = :code')
             ->setParameter('code', $code);
 

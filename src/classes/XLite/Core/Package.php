@@ -14,11 +14,6 @@ namespace XLite\Core;
 class Package extends \XLite\Base\Singleton
 {
     /**
-     * This constant enables/disables logging the packing routine details
-     */
-    const PACKAGE_DEBUG_ENABLED = 0;
-
-    /**
      * Minimum item weight
      *
      * @var float
@@ -130,7 +125,7 @@ class Package extends \XLite\Base\Singleton
             \XLite\Logger::getInstance()->log($this->getLogMessage($backupPendingItems, $errorMsg), $this->getLogLevel());
         }
 
-        if (self::PACKAGE_DEBUG_ENABLED) {
+        if (\Includes\Utils\ConfigParser::getOptions(['log_details', 'level']) >= LOG_DEBUG) {
             // Log package details into var/log/PACKING-...
             $data = array(
                 'pendingItems' => $pendingItems,

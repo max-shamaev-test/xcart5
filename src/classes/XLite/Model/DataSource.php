@@ -134,7 +134,7 @@ class DataSource extends \XLite\Model\AEntity
     {
         $result = null;
 
-        if (self::TYPE_ECWID == $this->getType()) {
+        if (static::TYPE_ECWID == $this->getType()) {
             $result = new \XLite\Core\DataSource\Ecwid($this);
         }
 
@@ -150,7 +150,7 @@ class DataSource extends \XLite\Model\AEntity
     {
         $result = null;
 
-        if (self::TYPE_ECWID == $this->getType()) {
+        if (static::TYPE_ECWID == $this->getType()) {
             $result = '\XLite\View\Model\DataSource\Ecwid';
         }
 

@@ -21,7 +21,7 @@ class APIType extends \XLite\View\FormField\Select\Regular
     protected function getDefaultOptions()
     {
         return array(
-            'paypal'  => static::t('Paypal API'),
+            'paypal'  => static::t('PayPal API'),
             'payflow' => static::t('Payflow API'),
         );
     }

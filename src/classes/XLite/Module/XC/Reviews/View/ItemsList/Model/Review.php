@@ -550,27 +550,25 @@ class Review extends \XLite\View\ItemsList\Model\Table
         return \XLite\Core\Converter::buildURL('review');
     }
 
-    /**
-     * Build entity page URL
-     *
-     * @param \XLite\Model\AEntity $entity Entity
-     * @param array                $column Column data
-     *
-     * @return string
-     */
+    protected function isLink(array $column, \XLite\Model\AEntity $entity)
+    {
+        return parent::isLink($column, $entity) && (
+                'product' !== $column[static::COLUMN_CODE]
+                || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage catalog')
+            );
+    }
+    
     protected function buildEntityURL(\XLite\Model\AEntity $entity, array $column)
     {
         if ('product' == $column[static::COLUMN_CODE]) {
-            $result = \XLite\Core\Converter::buildURL(
+            return \XLite\Core\Converter::buildURL(
                 'product',
                 '',
                 ['product_id' => $entity->getProduct()->getProductId()]
             );
-        } else {
-            $result = parent::buildEntityURL($entity, $column);
         }
 
-        return $result;
+        return parent::buildEntityURL($entity, $column);
     }
     
     /**

@@ -141,6 +141,28 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
     }
 
     /**
+     * Send order created notification if needed
+     */
+    public function sendOrderCreatedIfNeeded()
+    {
+        if (!$this->isNotFinishedOrder()) {
+            parent::sendOrderCreatedIfNeeded();
+        }
+    }
+
+    /**
+     * A "change status" handler
+     *
+     * @return void
+     */
+    protected function processNFOCreated()
+    {
+        \XLite\Core\Mailer::sendOrderCreated($this);
+
+        $this->setIsNotificationSent(true);
+    }
+
+    /**
      * Set not_finished_order
      *
      * @param \XLite\Model\Order $notFinishedOrder

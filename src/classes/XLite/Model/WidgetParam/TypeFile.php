@@ -26,15 +26,15 @@ class TypeFile extends \XLite\Model\WidgetParam\AWidgetParam
      *
      * @param mixed $value Value to validate
      *
-     * @return void
+     * @return array
      */
     protected function getValidationSchema($value)
     {
-        return array(
-            array(
-                self::ATTR_CONDITION => false,
-                self::ATTR_MESSAGE   => ' file not exists',
-            ),
-        );
+        return [
+            [
+                static::ATTR_CONDITION => false,
+                static::ATTR_MESSAGE   => ' file not exists',
+            ],
+        ];
     }
 }

@@ -86,21 +86,11 @@ class GD extends \XLite\Core\ImageOperator\AEngine
 
             $newResource = imagecreatetruecolor($width, $height);
 
-            $transparentIndex = imagecolortransparent($resource);
+            imagealphablending($newResource, false);
+            imagesavealpha($newResource, true);
 
-            if ($transparentIndex >= 0) {
-                imagepalettecopy($resource, $newResource);
-                imagefill($newResource, 0, 0, $transparentIndex);
-                imagecolortransparent($newResource, $transparentIndex);
-                imagetruecolortopalette($newResource, true, 256);
-
-            } else {
-                imagealphablending($newResource, false);
-                imagesavealpha($newResource, true);
-
-                $transparent = imagecolorallocatealpha($newResource, 255, 255, 255, 127);
-                imagefilledrectangle($newResource, 0, 0, $width, $height, $transparent);
-            }
+            $transparent = imagecolorallocatealpha($newResource, 255, 255, 255, 127);
+            imagefilledrectangle($newResource, 0, 0, $width, $height, $transparent);
 
             $result = imagecopyresampled(
                 $newResource,
@@ -125,6 +115,73 @@ class GD extends \XLite\Core\ImageOperator\AEngine
         return $result;
     }
 
+    public function rotate($degree)
+    {
+        $result = false;
+
+        if ($this->resource) {
+            $resource = imagerotate($this->resource, $degree, 0);
+            imagedestroy($this->resource);
+            $this->resource = $resource;
+            $this->updateImageFromResource(100);
+            return true;
+        }
+
+        return $result;
+    }
+
+    public function mirror($horizontal = true)
+    {
+        $result = false;
+
+        if ($this->resource) {
+            $image = $this->getImage();
+            $resource = $this->resource;
+            $width = $image->getWidth();
+            $height = $image->getHeight();
+
+            $newResource = imagecreatetruecolor($width, $height);
+
+            $transparentIndex = imagecolortransparent($resource);
+
+            if ($transparentIndex >= 0) {
+                imagepalettecopy($resource, $newResource);
+                imagefill($newResource, 0, 0, $transparentIndex);
+                imagecolortransparent($newResource, $transparentIndex);
+                imagetruecolortopalette($newResource, true, 256);
+
+            } else {
+                imagealphablending($newResource, false);
+                imagesavealpha($newResource, true);
+
+                $transparent = imagecolorallocatealpha($newResource, 255, 255, 255, 127);
+                imagefilledrectangle($newResource, 0, 0, $width, $height, $transparent);
+            }
+
+            $result = imagecopyresampled(
+                $newResource,
+                $resource,
+                0,
+                0,
+                $horizontal ? ($width - 1) : 0,
+                !$horizontal ? ($height - 1) : 0,
+                $width,
+                $height,
+                $horizontal ? -$width : $width,
+                !$horizontal ? -$height : $height
+            );
+
+            if ($result) {
+                imagedestroy($resource);
+                $this->resource = $newResource;
+                $this->updateImageFromResource(100);
+            }
+        }
+
+        return $result;
+    }
+
+
     protected function postProcessResource($resource)
     {
         if ($this->options['progressive']) {
@@ -143,14 +200,16 @@ class GD extends \XLite\Core\ImageOperator\AEngine
         return $resource;
     }
 
-    protected function updateImageFromResource()
+    protected function updateImageFromResource($quality = null)
     {
+        $quality = !is_null($quality) ? $quality : $this->getQuality();
+
         $image = $this->getImage();
         $resource = $this->resource;
         $func = 'image' . static::getGDImageType($image->getType());
 
         if ($resource && function_exists($func)) {
-            $quality = $this->getResultQuality();
+            $quality = $this->processResultQuality($quality);
 
             ob_start();
             if ($quality !== null) {
@@ -171,19 +230,21 @@ class GD extends \XLite\Core\ImageOperator\AEngine
     /**
      * Returns image quality
      *
+     * @param integer $quality
+     *
      * @return integer
      */
-    protected function getResultQuality()
+    protected function processResultQuality($quality)
     {
         $image = $this->getImage();
 
         switch (static::getGDImageType($image->getType())) {
             case 'jpeg':
-                $result = $this->options['resize_quality'];
+                $result = $quality;
                 break;
 
             case 'png':
-                $result = ((100 - $this->options['resize_quality']) / 100) * 9;
+                $result = ((100 - $quality) / 100) * 9;
                 break;
 
             default:
@@ -191,6 +252,16 @@ class GD extends \XLite\Core\ImageOperator\AEngine
         }
 
         return $result;
+    }
+
+    /**
+     * Get quality from options
+     *
+     * @return mixed
+     */
+    protected function getQuality()
+    {
+        return $this->options['resize_quality'] ?: 100;
     }
 
     /**

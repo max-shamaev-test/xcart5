@@ -31,7 +31,7 @@ class Order
 
         if ($order->getProfile()) {
             $customerData = !$customerExists
-                ? Customer::getData($mc_eid, $order->getProfile())
+                ? Customer::getDataForOrder($mc_eid, $order->getProfile())
                 : [ 'id' => (string)$order->getProfile()->getProfileId()];
         }
 

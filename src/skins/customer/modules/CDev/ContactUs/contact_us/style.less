@@ -7,9 +7,12 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-@rhythmic-unit: 20px;
-@color-text-dark: #4a4a4a;
-@color-text-light: #808080;
+.define-rhythmic-unit-if-not-defined() {@rhythmic-unit: 20px}
+.define-rhythmic-unit-if-not-defined();
+.define-color-text-dark-if-not-defined() {@color-text-dark: #4a4a4a}
+.define-color-text-dark-if-not-defined();
+.define-color-text-light-if-not-defined() {@color-text-light: #808080}
+.define-color-text-light-if-not-defined();
 
 .contact-us-block {
   margin-top: @rhythmic-unit * 1.5;

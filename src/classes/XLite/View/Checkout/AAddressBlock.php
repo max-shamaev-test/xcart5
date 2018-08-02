@@ -134,7 +134,7 @@ abstract class AAddressBlock extends \XLite\View\AView
                 \XLite\View\Model\Address\Address::SCHEMA_LABEL            => 'Email',
                 \XLite\View\Model\Address\Address::SCHEMA_REQUIRED         => true,
                 \XLite\View\Model\Address\Address::SCHEMA_MODEL_ATTRIBUTES => [
-                    \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 'length',
+                    \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => \XLite\Core\Database::getRepo('XLite\Model\Profile')->getFieldInfo('login', 'length'),
                 ],
                 \XLite\View\FormField\AFormField::PARAM_WRAPPER_CLASS      => 'address-email',
                 \XLite\View\FormField\AFormField::PARAM_COMMENT            => static::t('Your order details will be sent to your e-mail address'),
@@ -150,9 +150,6 @@ abstract class AAddressBlock extends \XLite\View\AView
                 \XLite\View\Model\Address\Address::SCHEMA_CLASS            => 'XLite\View\FormField\Input\PasswordVisible',
                 \XLite\View\Model\Address\Address::SCHEMA_LABEL            => 'Password',
                 \XLite\View\Model\Address\Address::SCHEMA_REQUIRED         => true,
-                \XLite\View\Model\Address\Address::SCHEMA_MODEL_ATTRIBUTES => [
-                    \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 'length',
-                ],
                 \XLite\View\FormField\AFormField::PARAM_WRAPPER_CLASS      => 'password',
                 'additionalClass'                                          => $this->getPasswordClassName(),
             ];

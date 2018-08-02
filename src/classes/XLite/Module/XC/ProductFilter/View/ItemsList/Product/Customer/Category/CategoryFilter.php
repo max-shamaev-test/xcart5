@@ -42,17 +42,6 @@ class CategoryFilter extends \XLite\View\ItemsList\Product\Customer\Category\ACa
     }
 
     /**
-     * Get session cell name for the certain list items widget
-     *
-     * @return string
-     */
-    public static function getSessionCellName()
-    {
-        return parent::getSessionCellName()
-            . \XLite\Core\Request::getInstance()->{self::PARAM_CATEGORY_ID};
-    }
-
-    /**
      * Return target to retrieve this widget from AJAX
      *
      * @return string
@@ -201,13 +190,22 @@ class CategoryFilter extends \XLite\View\ItemsList\Product\Customer\Category\ACa
     }
 
     /**
-     * Mark list as switchable (enable / disable)
+     * Return "empty list" catalog
      *
-     * @return boolean
+     * @return string
+     */
+    protected function getEmptyListDir()
+    {
+        return 'items_list';
+    }
+
+    /**
+     * @return bool
      */
     protected function isDisplayWithEmptyList()
     {
-        return true;
+        return $this->getCategoryId() !== \XLite::getController()->getRootCategoryId()
+            && !$this->getCategory()->hasSubcategories();
     }
 
     /**

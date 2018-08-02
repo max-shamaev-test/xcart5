@@ -35,6 +35,20 @@ class OrderMultivendor extends \XLite\Module\XC\VendorMessages\View\ItemsList\Me
     }
 
     /**
+     * @param \XLite\Module\XC\VendorMessages\Model\Message $message
+     *
+     * @return mixed
+     */
+    protected function getEmail(\XLite\Module\XC\VendorMessages\Model\Message $message)
+    {
+        $email = parent::getEmail($message);
+
+        return $message->getAuthor()->isVendor()
+            ? $message->getAuthor()->getLogin()
+            : $email;
+    }
+
+    /**
      * @inheritdoc
      */
     protected function getWidgetParameters()

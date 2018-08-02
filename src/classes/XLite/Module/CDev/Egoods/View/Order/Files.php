@@ -27,8 +27,7 @@ class Files extends \XLite\View\AView
         $list = parent::getCSSFiles();
 
         if ($this->getOrdersWithFiles()) {
-            $list[] = 'modules/CDev/Egoods/files_page.css';
-            $list[] = 'browse_server/icons.css';
+            $list[] = 'modules/CDev/Egoods/files_page.less';
         }
 
         return $list;
@@ -51,7 +50,7 @@ class Files extends \XLite\View\AView
      */
     protected function getDefaultTemplate()
     {
-        return 'modules/CDev/Egoods/files_page.twig';
+        return 'modules/CDev/Egoods/files_page_template.twig';
     }
 
     /**

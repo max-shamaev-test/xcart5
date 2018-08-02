@@ -1,13 +1,13 @@
 <script type="x-template" id="cloud-filters-template-default">
 
-    <div class="cloud-filters-filter" v-if="values.length > 0">
+    <div class="cloud-filters-filter cloud-filters-filter-{{ '{{' }} className {{ '}}' }}" v-if="values.length > 0">
         <h4 class="cloud-filters-filter__title">{{ '{{' }} title {{ '}}' }}</h4>
 
         <ul>
             <li v-for="(index, valueCount) in foldedValues">
 
                 <div class="checkbox cloud-filters-filter-checkbox-container">
-                    <label class="cloud-filters-filter-label" v-bind:class="{'cloud-filters-filter-label--zero-count': valueCount.count == 0, 'cloud-filters-filter-label--toggled': isToggled(valueCount.value)}">
+                    <label class="cloud-filters-filter-label" v-bind:class="{'cloud-filters-filter-label--zero-count': valueCount.count == 0, 'cloud-filters-filter-label--toggled': isToggled(getFilterValue(valueCount.value))}">
 
                         <input type="checkbox"
                                v-bind:checked="isToggled(getFilterValue(valueCount.value))"

@@ -23,6 +23,9 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\View\Button\AExpressChec
         return parent::isVisible() && \XLite\Module\CDev\Paypal\Main::isBuyNowEnabled();
     }
 
+    /**
+     * @return array
+     */
     public function getJSFiles()
     {
         return array_merge(parent::getJSFiles(), [
@@ -30,8 +33,19 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\View\Button\AExpressChec
         ]);
     }
 
+    /**
+     * @return string
+     */
     protected function getButtonClass()
     {
         return parent::getButtonClass() . '  button pp-button pp-style-buynow pp-ec-form';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getButtonStyleNamespace()
+    {
+        return 'product_page';
     }
 }

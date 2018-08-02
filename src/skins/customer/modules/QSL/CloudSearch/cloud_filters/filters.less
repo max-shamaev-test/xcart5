@@ -19,6 +19,7 @@
   &--toggled {
     .cloud-filters-filter-label__color {
       opacity: 1;
+      transform: scale(1.1);
     }
     .cloud-filters-filter-label__value {
       color: @cs-active-filter-value-color;
@@ -41,7 +42,7 @@
     vertical-align: text-top;
     opacity: .3;
     margin-right: 4px;
-    transition: opacity 300ms;
+    transition: all 300ms;
 
     &--bordered {
       border: 1px solid #888;
@@ -55,6 +56,7 @@
 
 .cloud-filters-filter-label:hover .cloud-filters-filter-label__color {
   opacity: 1;
+  transform: scale(1.1);
 }
 
 .cloud-filters-filter-label:hover .cloud-filters-filter-label__value {

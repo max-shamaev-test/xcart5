@@ -83,6 +83,6 @@ class Instructions extends \XLite\View\FormField\Label\ALabel
      */
     public function getKBLink()
     {
-        return $this->getParam('kbLink');
+        return static::t($this->getParam('kbLink'));
     }
 }

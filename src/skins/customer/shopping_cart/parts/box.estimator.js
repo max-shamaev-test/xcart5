@@ -20,6 +20,9 @@ function ShippingEstimateBox(base)
 
   this.bind('local.loaded', _.bind(this.triggerNeedCart, this));
 
+  this.bind('local.preload', _.bind(this.collectShippingCost, this));
+  this.bind('local.loaded', _.bind(this.checkShippingCost, this));
+
   this.callSupermethod('constructor', args);
 
   if (this.base.data('deferred')) {
@@ -51,6 +54,26 @@ ShippingEstimateBox.prototype.triggerNeedCart = function()
 ShippingEstimateBox.prototype.getEventNamespace = function()
 {
   return 'cart.shippingestimate';
+};
+
+ShippingEstimateBox.prototype.preloadShippingCost = 0;
+
+ShippingEstimateBox.prototype.collectShippingCost = function()
+{
+  if (this.base) {
+      this.preloadShippingCost = this.base.data('shipping-cost');
+  }
+};
+
+ShippingEstimateBox.prototype.checkShippingCost = function()
+{
+  if (this.base) {
+      if (this.preloadShippingCost !== this.base.data('shipping-cost')) {
+          core.trigger('updateCart', this);
+      }
+
+      this.collectShippingCost();
+  }
 };
 
 // Load after page load

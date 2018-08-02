@@ -4,7 +4,7 @@
  # @ListChild (list="invoice.item.name", weight="100")
  #}
 
-{% if not this.item.customerAttachments.isEmpty() %}
+{% if this.item.customerAttachments and not this.item.customerAttachments.isEmpty() %}
   <li class="file-attachments">
       <ul>
           <li>{{ t('Attached files:') }}</li>

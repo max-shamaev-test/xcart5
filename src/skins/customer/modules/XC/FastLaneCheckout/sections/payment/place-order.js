@@ -14,6 +14,7 @@ define(
 
   var PlaceOrder = Vue.extend({
     name: 'place-order',
+    replace: false,
 
     vuex: {
       getters: {
@@ -21,6 +22,9 @@ define(
           return _.values(state.sections.list).every(function(section) {
             return section.complete;
           });
+        },
+        is_visible: function(state) {
+          return state.sections.current && state.sections.current.name === 'payment';
         },
         total_text: function(state) {
           return state.order.total_text;
@@ -38,6 +42,7 @@ define(
       return {
         blocked: false,
         blockers: [],
+        isFormValid: null,
         endpoint: {
           target: 'checkout',
           action: 'checkout'
@@ -49,9 +54,10 @@ define(
     },
 
     ready: function() {
-      this.form = $('form.place');
+      this.form = $('form.place')
       new CommonForm(this.form);
       this.assignHandlers();
+      this.validateForm();
     },
 
     methods: {
@@ -75,6 +81,7 @@ define(
         this.form.get(0).commonController
           .enableBackgroundSubmit();
 
+        this.form.change(this.validateForm.bind(this));
         this.form.bind('beforeSubmit', _.bind(this.fillForm, this));
         this.form.bind('afterSubmit', _.bind(this.afterSubmitPlaceForm, this));
 
@@ -112,7 +119,7 @@ define(
         this.$root.finishLoadAnimation();
         if (args.textStatus === 'success' && args.isValid) {
           this.onSuccess(args.data, args.XMLHttpRequest.status, args.XMLHttpRequest);
-        };
+        }
       },
 
       placeOrder: function() {
@@ -142,6 +149,14 @@ define(
 
       onNotReadyPlaceOrder: function() {
         core.trigger('checkout.common.nonready', this);
+      },
+
+      validateForm: function () {
+        this.isFormValid = this.formController
+          && this.formController.validate({
+            silent: !this.formController.isChanged(true) || !this.formController.wasFilledOnce(),
+            focus: false
+          });
       },
 
       sendForm: function() {
@@ -192,6 +207,23 @@ define(
       }
     },
 
+    watch: {
+      ready: function (newValue) {
+        if (!newValue) {
+          core.trigger('checkout.common.state.nonready', {});
+        } else if (this.blocked || !_.isEmpty(this.blockers)) {
+          core.trigger('checkout.common.state.blocked', {});
+        } else {
+          core.trigger('checkout.common.state.ready', {});
+        }
+      },
+      is_visible: function (newValue) {
+        if (newValue) {
+          this.validateForm();
+        }
+      }
+    },
+
     events: {
       reloadingBlock: function(sender) {
         this.blockers.push(sender);
@@ -202,10 +234,15 @@ define(
     },
 
     computed: {
+      formController: function() {
+        return document.querySelector('form.place') ? document.querySelector('form.place').commonController : null;
+      },
       ready: {
         cache: false,
         get: function() {
-          return this.sections_ready && _.isEmpty(this.blockers);
+          return this.sections_ready
+            && _.isEmpty(this.blockers)
+            && this.isFormValid
         }
       },
       label: function() {
@@ -213,9 +250,7 @@ define(
       },
       classes: function() {
         return {
-          'disabled': !this.ready || this.blocked,
-          'reloading': !_.isEmpty(this.blockers),
-          'reloading-animated': !_.isEmpty(this.blockers),
+          'disabled': !this.ready || this.blocked || !_.isEmpty(this.blockers),
         }
       },
       btnTitle: function() {

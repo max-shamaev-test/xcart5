@@ -81,6 +81,7 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
             ],
             'brief_info'   => [
                 static::COLUMN_IS_MULTILINGUAL => true,
+                static::COLUMN_IS_TAGS_ALLOWED => true,
             ],
             'enabled'      => [],
             'position'     => [],

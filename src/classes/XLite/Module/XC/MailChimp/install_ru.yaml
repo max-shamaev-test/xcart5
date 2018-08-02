@@ -11,7 +11,7 @@ XLite\Model\Config:
   - { name: 'mailChimpAPIKey', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'API ключ MailChimp' }] }
   - { name: 'analytics360enabled', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Включить аналитику Ecommerce' }] }
   - { name: 'abandonedCartEnabled', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Включить Abandoned Carts' }] }
-  - { name: 'selectedAbandonedCartsListid', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Список рассылок для Abandoned Carts' }] }
+  - { name: 'defaultAutomationListId', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Список рассылок для автоматических кампаний' }] }
   - { name: 'doubleOptinDisabled', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Включить режим подписки "single opt-in"', option_comment: 'Когда этоа опция включена клиенты не будут получать запрос на подтверждение подписки (в отличие от метода "double opt-in"). Злоупотребление данной опцией может привести к блокировке вашей учетной записи MailChimp!'}] }
   - { name: 'subscriptionElementType', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Тип элемента выбора подписки', option_comment: 'Эта опция управляет тем, как ваши клиенты выбирают подписку на рассылку. Список позволяет подписаться только на одну рассылку из списка за раз, когда как галочка позволяет подписаться на несколько рассылок сразу. Для страницы оплаты всегда остаётся галочка.'}] }
   - { name: 'updateInterval', category: 'XC\MailChimp', translations: [{ code: ru, option_name: 'Обновлять список рассылок MailChimp каждые', option_comment: 'Выберите временной интервал для обновления информации о списках рассылок.'}] }
@@ -37,8 +37,8 @@ XLite\Model\LanguageLabel:
   - { name: 'Total amount of orders', translations: [{ code: ru, label: 'Общая сумма заказов' }] }
   - { name: 'Filter by profile membership', translations: [{ code: ru, label: 'Фильтровать по пользовательским группам' }] }
   - { name: 'Memberships', translations: [{ code: ru, label: 'Пользовательские группы' }] }
-  - { name: 'Filter by specific products', translations: [{ code: ru, label: 'Фильтровать по определенным продуктам' }] }
-  - { name: 'Products', translations: [{ code: ru, label: 'Продукты' }] }
+  - { name: 'Filter by specific products', translations: [{ code: ru, label: 'Фильтровать по определенным товарам' }] }
+  - { name: 'Products', translations: [{ code: ru, label: 'товары' }] }
   - { name: 'Segment condition', translations: [{ code: ru, label: 'Условия попадания подписчика в сегмент' }] }
   - { name: 'here', translations: [{ code: ru, label: 'здесь' }] }
   - { name: 'Month', translations: [{ code: ru, label: 'Месяц' }] }
@@ -51,7 +51,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Open rate', translations: [{ code: ru, label: 'Процент открытия' }] }
   - { name: 'Click rate', translations: [{ code: ru, label: 'Процент переходов' }] }
   - { name: 'Selected by default', translations: [{ code: ru, label: 'Выбран по умолчанию' }] }
-  - { name: 'Allow this product to be used as a MailChimp segment condition', translations: [{ code: ru, label: 'Позволяэт данному продукту быть использованним как условие для сегмента MailChimp' }] }
+  - { name: 'Allow this product to be used as a MailChimp segment condition', translations: [{ code: ru, label: 'Позволяэт данному товару быть использованним как условие для сегмента MailChimp' }] }
   - { name: 'Never', translations: [{ code: ru, label: 'Никогда' }] }
   - { name: '1 minute', translations: [{ code: ru, label: '1 минута' }] }
   - { name: '10 minutes', translations: [{ code: ru, label: '10 минут' }] }

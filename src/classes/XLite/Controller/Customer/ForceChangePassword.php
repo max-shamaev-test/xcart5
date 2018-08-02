@@ -22,4 +22,13 @@ class ForceChangePassword extends \XLite\Controller\Customer\Profile
     {
         return '\XLite\View\Model\Profile\ForceChangePassword';
     }
+
+    protected function doActionModify()
+    {
+        parent::doActionModify();
+
+        if ($this->getModelForm()->isValid()) {
+            $this->setHardRedirect(true);
+        }
+    }
 }

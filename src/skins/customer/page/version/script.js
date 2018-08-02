@@ -21,4 +21,6 @@ jQuery(document).ready(function() {
 
   jQuery('#private-modules').DataTable(options);
   jQuery('#public-modules').DataTable(options);
+
+  jQuery('input[type="search"]').attr('placeholder', 'Search by keyword');
 });

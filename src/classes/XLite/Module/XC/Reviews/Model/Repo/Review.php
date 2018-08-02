@@ -41,7 +41,6 @@ class Review extends \XLite\Model\Repo\ARepo
     const SEARCH_KEYWORDS = 'keywords';
     const SEARCH_RATING = 'rating';
     const SEARCH_ZONE = 'zone';
-    const SEARCH_IP = 'ip';
     const SEARCH_DATE_RANGE = 'dateRange';
     const SEARCH_TYPE = 'type';
     const SEARCH_NEW = 'isNew';
@@ -260,24 +259,6 @@ class Review extends \XLite\Model\Repo\ARepo
             $queryBuilder->linkLeft("{$alias}.profile", 'profile')
                 ->andWhere("{$alias}.reviewerName LIKE :reviewerName OR profile.login LIKE :reviewerName")
                 ->setParameter('reviewerName', '%' . $value . '%');
-        }
-    }
-
-    /**
-     * Prepare certain search condition
-     *
-     * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
-     * @param array|string               $value        Condition data
-     * @param boolean                    $countOnly    "Count only" flag. Do not need to add "order by" clauses
-     *                                                 if only count is needed.
-     *
-     * @return void
-     */
-    protected function prepareCndIp(\Doctrine\ORM\QueryBuilder $queryBuilder, $value, $countOnly)
-    {
-        if ($value) {
-            $queryBuilder->andWhere('r.ip = :ip')
-                ->setParameter('ip', utf8_encode(inet_pton($value)));
         }
     }
 

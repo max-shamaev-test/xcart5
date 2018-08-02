@@ -86,7 +86,7 @@ class Category extends \XLite\Model\Category implements \XLite\Base\IDecorator
      */
     protected function getOpenGraphType()
     {
-        return $this->getParent() ? 'article' : 'website';
+        return 'website';
     }
 
     /**

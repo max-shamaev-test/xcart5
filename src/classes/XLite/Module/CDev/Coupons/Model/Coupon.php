@@ -553,20 +553,40 @@ class Coupon extends \XLite\Model\AEntity
     protected function checkConflictsWithCoupons(\XLite\Model\Order $order)
     {
         if (!$order->containsCoupon($this)) {
-            if ($this->getSingleUse() && $order->getUsedCoupons()->count()) {
+            if ($this->getSingleUse() && count($this->getOrderUsedCoupons($order))) {
                 $this->throwCompatibilityException(
                     static::ERROR_SINGLE_USE,
                     'This coupon cannot be combined with other coupons'
                 );
             }
 
-            if (!$this->getSingleUse() && $order->hasSingleUseCoupon()) {
+            if (!$this->getSingleUse() && $this->hasOrderSingleCoupon($order)) {
                 $this->throwCompatibilityException(
                     static::ERROR_SINGLE_USE2,
                     'Sorry, this coupon cannot be combined with the coupon already applied. Revome the previously applied coupon and try again.'
                 );
             }
         }
+    }
+
+    /**
+     * @param \XLite\Model\Order $order
+     *
+     * @return array
+     */
+    protected function getOrderUsedCoupons($order)
+    {
+        return $order->getUsedCoupons();
+    }
+
+    /**
+     * @param \XLite\Model\Order $order
+     *
+     * @return bool
+     */
+    protected function hasOrderSingleCoupon($order)
+    {
+        return $order->hasSingleUseCoupon();
     }
 
     // }}}

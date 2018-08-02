@@ -100,6 +100,6 @@ class TransmitShipment extends \XLite\View\Button\AButton
      */
     protected function getClass()
     {
-        return 'capost-button-transmit-shipment ' . ($this->getParam(static::PARAM_STYLE) ?: '');
+        return parent::getClass() . ' capost-button-transmit-shipment';
     }
 }

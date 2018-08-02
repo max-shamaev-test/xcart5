@@ -53,7 +53,7 @@ class ForgotPassword extends \XLite\View\Button\PopupButton
      */
     protected function getClass()
     {
-        return 'popup-button forgot';
+        return 'popup-button default-popup-button forgot';
     }
 
     /**

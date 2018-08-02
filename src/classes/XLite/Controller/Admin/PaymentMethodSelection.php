@@ -194,35 +194,4 @@ class PaymentMethodSelection extends \XLite\Controller\Admin\AAdmin
 
         return $result;
     }
-
-    /**
-     * Get message on empty search results
-     *
-     * @return string
-     */
-    public function getNoPaymentMethodsFoundMessage()
-    {
-        $params = $this->getSearchParams();
-
-        $request = \XLite\Core\Request::getInstance();
-
-        $paramCountry = \XLite\View\ItemsList\Model\Payment\OnlineMethods::PARAM_COUNTRY;
-        $paramSubstring = \XLite\View\ItemsList\Model\Payment\OnlineMethods::PARAM_SUBSTRING;
-
-        if (!empty($request->{$paramCountry})) {
-            $country = \XLite\Core\Database::getRepo('XLite\Model\Country')->findOneBy(
-                array(
-                    'code' => $request->{$paramCountry}
-                )
-            );
-        }
-
-        return static::t(
-            'No payment methods found based on the selected criteria',
-            array(
-                'substring' => $request->{$paramSubstring},
-                'country'   => !empty($country) ? $country->getCountry() : static::t('All countries'),
-            )
-        );
-    }
 }

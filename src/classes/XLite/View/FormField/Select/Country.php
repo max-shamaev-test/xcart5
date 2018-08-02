@@ -8,10 +8,12 @@
 
 namespace XLite\View\FormField\Select;
 
+use XLite\Core\PreloadedLabels\ProviderInterface;
+
 /**
  * \XLite\View\FormField\Select\Country
  */
-class Country extends \XLite\View\FormField\Select\Regular
+class Country extends \XLite\View\FormField\Select\Regular implements ProviderInterface
 {
     use SingleOptionAsLabelTrait;
 
@@ -207,5 +209,19 @@ class Country extends \XLite\View\FormField\Select\Regular
     protected function getValueContainerClass()
     {
         return parent::getValueContainerClass() . ' country-selector';
+    }
+
+    /**
+     * Array of labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'Select one' => static::t('Select one')
+        ];
     }
 }

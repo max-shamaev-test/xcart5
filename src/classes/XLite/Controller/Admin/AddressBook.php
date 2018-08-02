@@ -13,6 +13,8 @@ namespace XLite\Controller\Admin;
  */
 class AddressBook extends \XLite\Controller\Admin\AAdmin
 {
+    use \XLite\Controller\Admin\ProfilePageTitleTrait;
+
     /**
      * address
      *
@@ -48,7 +50,7 @@ class AddressBook extends \XLite\Controller\Admin\AAdmin
     {
         return \XLite\Core\Request::getInstance()->widget
             ? static::t('Address details')
-            : static::t('Edit profile');
+            : $this->getTitleString($this->getProfile()) ?: static::t('Edit profile');
     }
 
     /**
@@ -178,6 +180,21 @@ class AddressBook extends \XLite\Controller\Admin\AAdmin
         $address = $this->getAddress();
 
         if (isset($address)) {
+            if ($address->getIsBilling() || $address->getIsShipping()) {
+                $profile = $address->getProfile();
+
+                if ($profile) {
+                    foreach ($profile->getAddresses() as $profileAddress) {
+                        if ($address->getAddressId() != $profileAddress->getAddressId()) {
+                            $profileAddress->setIsBilling($profileAddress->getIsBilling() || $address->getIsBilling());
+                            $profileAddress->setIsShipping($profileAddress->getIsShipping() || $address->getIsShipping());
+
+                            break;
+                        }
+                    }
+                }
+            }
+
             $address->delete();
 
             \XLite\Core\TopMessage::addInfo(

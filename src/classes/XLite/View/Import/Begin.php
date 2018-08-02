@@ -67,7 +67,7 @@ class Begin extends \XLite\View\AView implements \XLite\Core\PreloadedLabels\Pro
      */
     protected function getSamplesURL()
     {
-        return 'https://kb.x-cart.com/en/import-export/index.html';
+        return static::t('https://kb.x-cart.com/import-export/');
     }
 
     /**

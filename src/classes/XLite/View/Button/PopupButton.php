@@ -25,4 +25,14 @@ abstract class PopupButton extends \XLite\View\Button\APopupButton
 
         return $list;
     }
+
+    /**
+     * Defines CSS class for widget to use in templates
+     *
+     * @return string
+     */
+    protected function getClass()
+    {
+        return parent::getClass() . ' default-popup-button';
+    }
 }

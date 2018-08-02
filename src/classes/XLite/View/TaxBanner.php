@@ -63,20 +63,20 @@ class TaxBanner extends \XLite\View\AView
     {
         $links = array();
         $links[] = array(
-            'title' => 'Setting up VAT / GST',
-            'url'   => '//kb.x-cart.com/en/taxes/setting_up_vat_gst.html',
+            'title' => static::t('Setting up VAT / GST'),
+            'url'   => static::t('https://kb.x-cart.com/taxes/setting_up_vat_gst.html'),
         );
         $links[] = array(
-            'title' => 'Setting up sales tax',
-            'url'   => '//kb.x-cart.com/en/taxes/setting_up_sales_tax.html',
+            'title' => static::t('Setting up sales tax'),
+            'url'   => static::t('https://kb.x-cart.com/taxes/setting_up_sales_tax.html'),
         );
         $links[] = array(
-            'title' => 'Setting up Canadian taxes',
-            'url'   => '//kb.x-cart.com/en/taxes/setting_up_canadian_taxes.html',
+            'title' => static::t('Setting up Canadian taxes'),
+            'url'   => static::t('https://kb.x-cart.com/taxes/setting_up_canadian_taxes.html'),
         );
         $links[] = array(
-            'title' => 'Setting up tax classes',
-            'url'   => '//kb.x-cart.com/en/taxes/setting_up_tax_classes.html',
+            'title' => static::t('Setting up tax classes'),
+            'url'   => static::t('https://kb.x-cart.com/taxes/setting_up_tax_classes.html'),
         );
 
         return $links;

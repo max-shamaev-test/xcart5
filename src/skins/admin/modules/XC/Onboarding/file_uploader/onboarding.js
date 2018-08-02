@@ -19,7 +19,8 @@ define('form_model/file_uploader/onboarding', ['js/vue/vue', 'file_uploader'], f
         this.$reload();
       },
       assignWait: function () {
-        this.$dispatch('file-uploader-overlay', this);
+        var parent = this.$options.methods.assignWait.parent;
+        this.$dispatch('file-uploader-overlay', parent, this, arguments);
       },
       doRequest: function () {
         var promise = this.$options.methods.doRequest.parent.apply(this, arguments);
@@ -35,9 +36,6 @@ define('form_model/file_uploader/onboarding', ['js/vue/vue', 'file_uploader'], f
         this.$dispatch('file-uploader-success', data, this);
       },
       onUploadError: function (jqXHR, textStatus, textResponse) {
-        if (jqXHR.status === 413) {
-          this.realErrorMessage = core.t('File uploading error 1');
-        }
         this.$dispatch('file-uploader-error', '', this);
       },
     }

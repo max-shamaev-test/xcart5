@@ -28,7 +28,7 @@ class Images extends \XLite\View\AView
     /**
      * Returns CSS style files
      *
-     * @return string
+     * @return array
      */
     public function getCSSFiles()
     {
@@ -36,6 +36,18 @@ class Images extends \XLite\View\AView
         $list[] = 'images_settings/style.css';
 
         return $list;
+    }
+
+    protected function isDisplayLazyLoad()
+    {
+        return \XLite\Core\Layout::getInstance()->isSkinAllowsLazyLoad();
+    }
+
+    protected function getLazyLoadOptionName()
+    {
+        return \XLite\Core\Layout::getInstance()->isSkinAllowsPreloadedImages()
+            ? static::t('Use images lazy load preloaded')
+            : static::t('Use images lazy load placeholder');
     }
 
     /**

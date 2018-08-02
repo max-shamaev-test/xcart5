@@ -333,11 +333,7 @@ class CanadaPost extends \XLite\Model\Shipping\Processor\AProcessor
                 }
 
                 if ($config->debug_enabled) {
-                    $this->log(array(
-                        'Request URL' => $postURL,
-                        'Request XML (Get Rates)' => $XMLData,
-                        'Response XML' => \XLite\Core\XML::getInstance()->getFormattedXML($result),
-                    ));
+                    \XLite\Module\XC\CanadaPost\Core\API::logApiCall($postURL, 'Get Rates', $XMLData, $result);
                 }
             }
 

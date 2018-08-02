@@ -61,6 +61,20 @@ class Shipping extends \XLite\Logic\Order\Modifier\Shipping implements \XLite\Ba
     {
         $rates = parent::getRates();
 
+        $rates = $this->prepareFreeShippingModuleRates($rates);
+
+        return $rates;
+    }
+
+    /**
+     * Prepare rates
+     *
+     * @param \XLite\Model\Shipping\Rate[] $rates
+     *
+     * @return \XLite\Model\Shipping\Rate[]
+     */
+    protected function prepareFreeShippingModuleRates($rates)
+    {
         $unsetFree = true;
 
         // Get total fixed fees value
@@ -68,6 +82,19 @@ class Shipping extends \XLite\Logic\Order\Modifier\Shipping implements \XLite\Ba
 
         // Get count of items
         $itemsCount = count($this->getItems());
+
+        $isShipForFree = null;
+
+        foreach ($this->getItems() as $item) {
+            if (!$item->isShipForFree() && !$item->isFreeShipping()) {
+                $isShipForFree = false;
+                break;
+            } elseif (is_null($isShipForFree) && $item->isShipForFree()) {
+                $isShipForFree = true;
+            }
+        }
+
+        $unsetFree = !$isShipForFree;
 
         if (0 == $itemsCount) {
 
@@ -90,12 +117,15 @@ class Shipping extends \XLite\Logic\Order\Modifier\Shipping implements \XLite\Ba
                 }
                 // Are all items marked as Free shipping?
                 $unsetFree = false;
-                foreach ($rates as $rate) {
-                    $rate->setBaseRate(0);
-                    $rate->setMarkupRate(0);
-                    if (!$rate->getMethod()->getFree()) {
-                        // Non free shipping method found
-                        $unsetFree = true;
+
+                if (!$isShipForFree) {
+                    foreach ($rates as $rate) {
+                        $rate->setBaseRate(0);
+                        $rate->setMarkupRate(0);
+                        if (!$rate->getMethod()->getFree()) {
+                            // Non free shipping method found
+                            $unsetFree = true;
+                        }
                     }
                 }
             }
@@ -146,7 +176,8 @@ class Shipping extends \XLite\Logic\Order\Modifier\Shipping implements \XLite\Ba
                 $item->getObject()->getFreeShip()
                 || $item->isFreeShipping()
                 || (
-                    $this->isIgnoreProductsWithFixedFee()
+                    !$item->isShipForFree()
+                    && $this->isIgnoreProductsWithFixedFee()
                     && 0 < $item->getObject()->getFreightFixedFee()
                 )
             );
@@ -166,6 +197,7 @@ class Shipping extends \XLite\Logic\Order\Modifier\Shipping implements \XLite\Ba
             if (
                 $item->getObject()
                 && !$item->getObject()->getFreeShip()
+                && !$item->getObject()->isShipForFree()
                 && 0 < $item->getObject()->getFreightFixedFee()
             ) {
                 $result += $item->getObject()->getFreightFixedFee() * $item->getAmount();

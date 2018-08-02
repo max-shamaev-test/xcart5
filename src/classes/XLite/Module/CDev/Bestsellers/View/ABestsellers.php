@@ -36,6 +36,11 @@ abstract class ABestsellers extends \XLite\View\ItemsList\Product\Customer\ACust
         unset($this->sortByModes[static::SORT_BY_MODE_AMOUNT]);
     }
 
+    protected function getSortByModeDefault()
+    {
+        return static::SORT_BY_MODE_BOUGHT;
+    }
+
     /**
      * Get title
      *
@@ -66,8 +71,6 @@ abstract class ABestsellers extends \XLite\View\ItemsList\Product\Customer\ACust
                 'Category ID', 0, false
             ),
         );
-
-        unset($this->widgetParams[static::PARAM_SHOW_SORT_BY_SELECTOR]);
     }
 
     /**
@@ -84,17 +87,6 @@ abstract class ABestsellers extends \XLite\View\ItemsList\Product\Customer\ACust
         $searchCase->{\XLite\Model\Repo\Product::P_SEARCH_IN_SUBCATS} = true;
 
         return $searchCase;
-    }
-
-    /**
-     * Return 'Order by' array.
-     * array(<Field to order>, <Sort direction>)
-     *
-     * @return array|null
-     */
-    protected function getOrderBy()
-    {
-        return [static::SORT_BY_MODE_BOUGHT, static::SORT_ORDER_DESC];
     }
 
     /**

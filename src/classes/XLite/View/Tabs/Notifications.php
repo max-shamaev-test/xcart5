@@ -54,7 +54,7 @@ class Notifications extends \XLite\View\Tabs\ATabs
             ],
             'email_settings'           => [
                 'weight' => 400,
-                'title'  => static::t('SMTP'),
+                'title'  => static::t('Email transfer settings'),
                 'widget' => 'XLite\View\Model\Settings',
             ],
         ];

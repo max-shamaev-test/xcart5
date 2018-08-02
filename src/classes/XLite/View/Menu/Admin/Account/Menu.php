@@ -56,7 +56,7 @@ class Menu extends \XLite\View\Menu\Admin\AAdmin
 
             'knoweledge_base' => [
                 static::ITEM_TITLE      => static::t('Knowledge Base'),
-                static::ITEM_LINK       => 'https://kb.x-cart.com/',
+                static::ITEM_LINK       => static::t('https://kb.x-cart.com/'),
                 static::ITEM_CLASS      => 'knoweledge-base external',
                 static::ITEM_WEIGHT     => 300,
                 static::ITEM_BLANK_PAGE => true,

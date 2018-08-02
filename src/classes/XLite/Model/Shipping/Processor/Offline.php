@@ -81,7 +81,7 @@ class Offline extends \XLite\Model\Shipping\Processor\AProcessor
                 foreach ($markups as $markup) {
                     $rate = new \XLite\Model\Shipping\Rate();
                     $rate->setMethod($markup->getShippingMethod());
-                    $rate->setBaseRate(self::PROCESSOR_DEFAULT_BASE_RATE);
+                    $rate->setBaseRate(static::PROCESSOR_DEFAULT_BASE_RATE);
                     $rate->setMarkup($markup);
                     $rate->setMarkupRate($markup->getMarkupValue());
                     $rates[] = $rate;

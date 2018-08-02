@@ -18,6 +18,18 @@ use XLite\View\FormModel\Type\Base\AType;
 class DatepickerType extends AType
 {
     /**
+     * Register files from common repository
+     *
+     * @return array
+     */
+    public static function getCommonFiles()
+    {
+        return [
+            \XLite\View\AView::RESOURCE_JS => ['js/jquery-ui-i18n.min.js'],
+        ];
+    }
+
+    /**
      * @return array
      */
     public static function getJSFiles()
@@ -46,9 +58,8 @@ class DatepickerType extends AType
         $builder->addModelTransformer(
             new CallbackTransformer(
                 function ($originalValue) {
-                    $timestamp = \XLite\Core\Converter::convertTimeToUser($originalValue);
-                    $dateTime = new \DateTime();
-                    $dateTime->setTimestamp($timestamp);
+                    $dateTime = new \DateTime('now', \XLite\Core\Converter::getTimeZone());
+                    $dateTime->setTimestamp($originalValue);
 
                     $formats = \XLite\Core\Converter::getDateFormatsByStrftimeFormat();
                     $format = $formats['phpFormat'];
@@ -95,6 +106,7 @@ class DatepickerType extends AType
             [
                 'date_format'   => $currentFormats['jsFormat'],
                 'first_day'     => $this->getStartDay(),
+                'locale'        => $this->getLocaleCode(\XLite\Core\Session::getInstance()->getLanguage()->getCode()),
             ]
         );
     }
@@ -116,8 +128,27 @@ class DatepickerType extends AType
                     'detect-blur'   => 'off',
                     'format'        => $options['date_format'],
                     'firstday'      => $options['first_day'],
+                    'locale'        => $options['locale'],
                 ]
             )
         ]);
+    }
+
+    /**
+     * @param string $language
+     *
+     * @return string
+     */
+    protected function getLocaleCode($language)
+    {
+        $locales = array(
+            'zh_CN',
+        );
+
+        $locale = array_filter($locales, function ($item) use ($language) {
+            return strpos($item, strtolower($language)) === 0;
+        });
+
+        return 1 === count($locale) ? reset($locale) : $language;
     }
 }

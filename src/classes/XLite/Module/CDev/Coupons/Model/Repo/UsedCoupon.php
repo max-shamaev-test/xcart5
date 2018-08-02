@@ -21,7 +21,7 @@ namespace XLite\Module\CDev\Coupons\Model\Repo;
  *   description="UsedCoupon represents the coupon which has already been applied to the specific order.",
  *   @SWG\ExternalDocumentation(
  *     description="Find out more about discount coupons",
- *     url="https://kb.x-cart.com/en/seo_and_promotion/setting_up_discount_coupons.html"
+ *     url="https://kb.x-cart.com/seo_and_promotion/setting_up_discount_coupons.html"
  *   )
  * )
  */

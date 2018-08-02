@@ -19,16 +19,22 @@ class Scenario extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Scenario impl
     protected static function defineScenario()
     {
         $result = parent::defineScenario();
+        $result['product_shipping_info']['fields']['default']['ship_for_free'] = [
+            'class'    => 'XLite\Module\XC\FreeShipping\Logic\BulkEdit\Field\Product\ShipForFree',
+            'options' => [
+                'position' => 210,
+            ],
+        ];
         $result['product_shipping_info']['fields']['default']['free_shipping'] = [
             'class'    => 'XLite\Module\XC\FreeShipping\Logic\BulkEdit\Field\Product\FreeShipping',
             'options' => [
-                'position' => 210,
+                'position' => 220,
             ],
         ];
         $result['product_shipping_info']['fields']['default']['freight_fixed_fee'] = [
             'class'    => 'XLite\Module\XC\FreeShipping\Logic\BulkEdit\Field\Product\FreightFixedFee',
             'options' => [
-                'position' => 220,
+                'position' => 230,
             ],
         ];
 

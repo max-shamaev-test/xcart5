@@ -67,11 +67,6 @@ class CleanURLType extends AType
             'show_label_block' => false,
             'help'             => static::t('Human readable and SEO friendly web address for the page.'),
             'right_symbol'     => $options['extension'],
-            'pattern'          => [
-                'alias'     => 'CleanUrl',
-                'regex'     => '^[.\w\-]*$',
-                'extension' => $options['extension'],
-            ],
             'enable_when'        => [
                 '..' => [
                     'autogenerate' => false,
@@ -110,24 +105,26 @@ class CleanURLType extends AType
 
         $value = $view->vars['value']->clean_url . $options['extension'];
 
-        if (!$view->vars['valid']
-            && !$repo->isURLUnique($value, $options['objectClassName'], $options['objectIdName'])
-        ) {
-            $conflict = $repo->getConflict($value, $options['objectClassName'], $options['objectIdName']);
+        if (!$view->vars['valid']) {
+            if (!$repo->isURLUnique($value, $options['objectClassName'], $options['objectIdName'])) {
+                $conflict = $repo->getConflict($value, $options['objectClassName'], $options['objectIdName']);
 
-            $resolveHints[] = static::t('Enter a different Clean URL value for this page');
+                $resolveHints[] = static::t('Enter a different Clean URL value for this page');
 
-            if ($conflict->getCleanURL() === $value) {
-                $hasUnForcibleError = true;
-                if ($conflict instanceof \XLite\Model\TargetCleanUrl) {
-                    $errorMessage = static::t('The Clean URL entered is already in use by target alias.');
+                if ($conflict->getCleanURL() === $value) {
+                    $hasUnForcibleError = true;
+                    if ($conflict instanceof \XLite\Model\TargetCleanUrl) {
+                        $errorMessage = static::t('The Clean URL entered is already in use by target alias.');
+                    } else {
+                        $errorMessage = static::t('The Clean URL entered is already in use.', ['entityURL' => $repo->buildEditURL($conflict)]);
+                    }
                 } else {
-                    $errorMessage = static::t('The Clean URL entered is already in use.', ['entityURL' => $repo->buildEditURL($conflict)]);
+                    $hasForcibleError = true;
+                    $errorMessage     = static::t('The Clean URL entered is a redirect to object.', ['entityURL' => $repo->buildEditURL($conflict)]);
+                    $resolveHints[]   = static::t('Enable the option "Assign entered Clean URL to this page anyway" to dissociate the entered Clean URL from the page it is currently used for and assign it to the page of the object being edited.');
                 }
             } else {
-                $hasForcibleError = true;
-                $errorMessage = static::t('The Clean URL entered is a redirect to object.', ['entityURL' => $repo->buildEditURL($conflict)]);
-                $resolveHints[] = static::t('Enable the option "Assign entered Clean URL to this page anyway" to dissociate the entered Clean URL from the page it is currently used for and assign it to the page of the object being edited.');
+                $errorMessage = static::t('Wrong format: Field contains unallowed characters');
             }
         }
 

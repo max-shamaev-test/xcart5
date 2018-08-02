@@ -47,6 +47,6 @@ class Text extends \XLite\View\Product\AttributeValue\Admin\AAdmin
             $value = $attribute->getAttributeValue($this->getProduct());
         }
 
-        return $value ? $value->getEditable() : true;
+        return $value ? $value->getEditable() : false;
     }
 }

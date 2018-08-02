@@ -82,6 +82,18 @@ class ShippingEstimate extends \XLite\Controller\Customer\ACustomer
     }
 
     /**
+     * Controller marks the cart calculation.
+     * In some cases we do not need to recalculate the cart.
+     * We need it mainly on the checkout page.
+     *
+     * @return boolean
+     */
+    protected function markCartCalculate()
+    {
+        return \XLite\Core\Request::getInstance()->isPost() && $this->getAction();
+    }
+
+    /**
      * Set estimate destination
      *
      * @return void

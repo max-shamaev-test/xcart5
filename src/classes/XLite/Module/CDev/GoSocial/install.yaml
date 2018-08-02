@@ -239,3 +239,7 @@ XLite\Model\LanguageLabel:
   - { name: "We recommend to use share button instead of like", translations: [{ code: en, label: "We recommend using the Share button instead of Like." }] }
   - { name: "These Open Graph meta tags were generated automatically based on general product information.", translations: [{ code: en, label: "These Open Graph meta tags were generated automatically based on general product information." }] }
   - { name: "Pin It", translations: [{ code: en, label: "Pin It" }] }
+
+  - { name: 'Pin', translations: [{ code: en, label: 'Pin' }]}
+  - { name: 'Plus', translations: [{ code: en, label: 'Plus' }]}
+  - { name: 'Share', translations: [{ code: en, label: 'Share' }]}

@@ -170,8 +170,9 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
                         && $classData[$parcel::OPT_SCHEMA_MANDATORY]
                         && !isset($classData[$parcel::OPT_SCHEMA_ALLOWED_OPTIONS][$value])
                     ) {
+                        $opts = array_keys($classData[$parcel::OPT_SCHEMA_ALLOWED_OPTIONS]);
                         // Set allowed option value
-                        $value = array_shift(array_keys($classData[$parcel::OPT_SCHEMA_ALLOWED_OPTIONS]));
+                        $value = array_shift($opts);
                     }
 
                     $parcel->{'setOpt' . \XLite\Core\Converter::convertToCamelCase($optClass)}($value);

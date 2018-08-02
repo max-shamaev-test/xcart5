@@ -122,7 +122,7 @@ class PopupProductSelector extends \XLite\View\Button\APopupButton
      */
     protected function getClass()
     {
-        return trim(parent::getClass() . ' popup-product-selection');
+        return 'btn regular-button popup-product-selection';
     }
 
     /**

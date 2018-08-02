@@ -47,6 +47,7 @@ class TemporaryFile extends \XLite\Model\Base\Image
      */
     protected function renewByPath($path)
     {
+        $this->includeFilenameInHash = false;
         $result = parent::renewByPath($path);
 
         return true;

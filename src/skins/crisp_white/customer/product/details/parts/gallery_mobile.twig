@@ -3,7 +3,7 @@
  #}
 
 <div class="product-image-gallery{{ this.getCSSClasses() }}"{% if this.isVisibleAsHidden() %} style="display:none;"{% endif %}>
-  <div class="product-image-gallery-navigation" id='product-image-gallery-prev-mobile' style="display: none"></div>
+  <div class="product-image-gallery-navigation product-image-gallery-prev-mobile" id='product-image-gallery-prev-mobile-{{ this.getProductId() }}' style="display: none"></div>
   <div class="slides">
 
     <ul
@@ -13,8 +13,8 @@
             data-cycle-manual-speed="300"
             data-cycle-carousel-vertical=false
             data-cycle-carousel-visible={{ this.getMinCountForSlider() }}
-            data-cycle-next="#product-image-gallery-next-mobile"
-            data-cycle-prev="#product-image-gallery-prev-mobile"
+            data-cycle-next="#product-image-gallery-next-mobile-{{ this.getProductId() }}"
+            data-cycle-prev="#product-image-gallery-prev-mobile-{{ this.getProductId() }}"
             data-cycle-slides="> li"
             data-cycle-log=false
             data-cycle-allow-wrap=false
@@ -32,7 +32,7 @@
     </ul>
   </div>
 
-  <div class="product-image-gallery-navigation" id='product-image-gallery-next-mobile' style="display: none"></div>
+  <div class="product-image-gallery-navigation product-image-gallery-next-mobile" id='product-image-gallery-next-mobile-{{ this.getProductId() }}' style="display: none"></div>
 </div>
 
 <script>

@@ -379,9 +379,9 @@ class Message extends \XLite\Model\AEntity
     public function send()
     {
         if ($this->getConversation()->getOrder()) {
-            \XLite\Core\Mailer::getInstance()->sendOrderMessageNotifications($this);
+            \XLite\Core\Mailer::sendOrderMessageNotifications($this);
         } else {
-            \XLite\Core\Mailer::getInstance()->sendMessageNotifications($this);
+            \XLite\Core\Mailer::sendMessageNotifications($this);
         }
 
         return $this;

@@ -753,7 +753,7 @@ class Generator extends \XLite\Base implements \SeekableIterator, \Countable
         $string = '<url>';
         foreach ($item as $tag => $value) {
             if (!empty($value)) {
-                $string .= '<' . $tag . '>' . htmlentities($value) . '</' . $tag . '>';
+                $string .= '<' . $tag . '>' . htmlspecialchars($value) . '</' . $tag . '>';
             } else {
                 $string .= '<' . $tag . ' />';
             }

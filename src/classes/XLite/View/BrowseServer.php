@@ -145,6 +145,9 @@ class BrowseServer extends \XLite\View\SimpleDialog
             }
         }
 
+        ksort($this->fsEntries['catalog']);
+        ksort($this->fsEntries['file']);
+
         return $this->fsEntries['catalog'] + $this->fsEntries['file'];
     }
 

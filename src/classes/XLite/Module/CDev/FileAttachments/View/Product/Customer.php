@@ -29,10 +29,23 @@ class Customer extends \XLite\View\AView
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'modules/CDev/FileAttachments/style.css';
-        $list[] = 'browse_server/icons.css';
+        $list[] = [
+            'file'  => 'modules/CDev/FileAttachments/style.less',
+            'media' => 'screen',
+            'merge' => 'bootstrap/css/bootstrap.less',
+        ];
 
         return $list;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getCommonFiles()
+    {
+        return array_merge_recursive(parent::getCommonFiles(), [
+            static::RESOURCE_CSS => ['css/files.css'],
+        ]);
     }
 
     /**

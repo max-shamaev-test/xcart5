@@ -203,15 +203,6 @@ class Category extends \XLite\Model\Base\Catalog
     protected $xcPendingExport = false;
 
     /**
-     * Last usage timestamp (assign products event)
-     *
-     * @var integer
-     *
-     * @Column (type="integer")
-     */
-    protected $lastUsage = 0;
-
-    /**
      * Get object unique id
      *
      * @return integer
@@ -949,13 +940,5 @@ class Category extends \XLite\Model\Base\Catalog
     public function getCleanURLs()
     {
         return $this->cleanURLs;
-    }
-
-    /**
-     * Update last usage timestamp
-     */
-    public function updateLastUsage()
-    {
-        $this->lastUsage = LC_START_TIME;
     }
 }

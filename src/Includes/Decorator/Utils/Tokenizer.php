@@ -143,7 +143,7 @@ abstract class Tokenizer extends \Includes\Decorator\Utils\AUtils
      */
     public static function getClassName($path)
     {
-        return preg_match('/[\r\n]\s*(?:(?:abstract|final)\s+)?class\s+(\S+)\s+/Ss', static::getHead($path), $match)
+        return preg_match('/[\r\n]\s*(?:(?:abstract|final)\s+)?class\s+([^{\s\/]+)/Ss', static::getHead($path), $match)
             ? $match[1]
             : null;
     }

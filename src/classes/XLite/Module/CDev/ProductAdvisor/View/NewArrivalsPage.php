@@ -40,7 +40,6 @@ class NewArrivalsPage extends \XLite\Module\CDev\ProductAdvisor\View\ANewArrival
         parent::setWidgetParams($params);
 
         $this->widgetParams[\XLite\View\Pager\APager::PARAM_MAX_ITEMS_COUNT]->setValue($this->getMaxCountInFullList());
-        $this->widgetParams[static::PARAM_SHOW_SORT_BY_SELECTOR]->setValue(false);
     }
 
     /**

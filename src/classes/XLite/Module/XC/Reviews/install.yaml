@@ -141,7 +141,7 @@ XLite\Model\LanguageLabel:
   - { name: 'There are no comments yet. Be the first to leave a comment', translations: [{ code: 'en', label: 'There are no comments yet. Be the first to leave a comment' }] }
   - { name: 'A new review has been submitted for the product "{{name}}".', translations: [{ code: 'en', label: 'A new review has been submitted for the product "{{name}}".' }] }
   - { name: 'Go to see the review [in the Admin area]', translations: [{ code: 'en', label: 'Go to see the review <a href="{{link}}">in the Admin area</a>' }] }
-  - { name: 'itemslist.admin.review.blank', translations: [{ code: en, label: '<p class="items-list-blank-description-heading text-center">No one has rated your products yet.</p><p class="text-center">Once someone reviews your product (or you add a review manually), this is the place to track, moderate and remove reviews.</p>' },{ code: ru, label: '<p class="items-list-blank-description-heading text-center">Никто пока не оценил ваши продукты.</p><p class="text-center">Как только появятся отзывы о ваших продуктах, вы сможете управлять ими на этой странице.</p>' }] }
+  - { name: 'itemslist.admin.review.blank', translations: [{ code: en, label: '<p class="items-list-blank-description-heading text-center">No one has rated your products yet.</p><p class="text-center">Once someone reviews your product (or you add a review manually), this is the place to track, moderate and remove reviews.</p>' },{ code: ru, label: '<p class="items-list-blank-description-heading text-center">Никто пока не оценил ваши товары.</p><p class="text-center">Как только появятся отзывы о ваших товарах, вы сможете управлять ими на этой странице.</p>' }] }
   - { name: 'Please review purchased product {{product}}', translations: [{ code: en, label: 'Please review the product {{product}}' },{ code: ru, label: 'Пожалуйств, оставьте отзыв на товар {{product}}' }] }
   - { name: 'Recently, you have made a purchase from our company:', translations: [{ code: en, label: "<p>Thank you for your recent purchase from {{company}} – Order #{{orderNumber}} ({{orderDate}}):</p>" },{ code: ru, label: "<p>Благодарим Вас за недавнюю покупку у {{company}} – Заказ #{{orderNumber}} ({{orderDate}}):</p>" }] }
   - { name: 'Please review purchased products', translations: [{ code: en, label: "<p>Would you be willing to rate these products and write a review? Your opinion is important us.</p><p>To write a review:</p><p>1) Click on the product name to open the Customer reviews section for the product<br />2) Click Add review<br />3) Rate the product and write your feedback.</p><p>Thank you so much for taking the time to let us know what you think. It is truly appreciated.</p>" },{ code: ru, label: "<p>Готовы ли вы оценить эти товары и написать отзыв? Ваше мнение очень важно для нас!</p><p>Чтобы написать отзыв:</p><p>1) Нажмите на название товара, чтобы открыть раздел Отзывы для этого товара<br />2) Нажмите кнопку Добавить отзыв<br />3) Оцените товар и напишите свой отзыв.</p><p>Спасибо, что нашли время сообщить нам свое мнение. Мы очень ценим это.</p>" }] }
@@ -156,6 +156,11 @@ XLite\Model\LanguageLabel:
   - { name: 'SKU or Product name', translations: [{ code: 'en', label: 'SKU or Product name' }, { code: 'ru', label: 'Артикул или название товара' }] }
   - { name: 'First name, Last name or E-mail', translations: [{ code: 'en', label: 'First name, Last name or E-mail' }, { code: 'ru', label: 'Имя, фамилия или e-mail' }] }
   - { name: 'Enter a name to be published with the review', translations: [{ code: 'en', label: 'Enter a name to be published with the review' }, { code: 'ru', label: 'Введите имя для отображения в отзыве' }] }
+  - { name: 'Tab displaying product reviews. Added by the addon Product Reviews', translations: [{ code: 'en', label: 'Tab displaying product reviews. Added by the addon <a href="{{url}}">Product Reviews</a>' }, { code: 'ru', label: 'Вкладка для отображения отзывов о товаре. Добавляется модулем <a href="{{url}}">Product Reviews</a>' }] }
+
+  - { name: 'No email', translations: [{ code: en, label: 'No email' }]}
+  - { name: 'Reviewer name', translations: [{ code: en, label: 'Reviewer name' }]}
+  - { name: 'Shopper approved promo', translations: [{ code: en, label: 'Shopper approved promo' }]}
 
 XLite\Model\Task:
   - owner: XLite\Module\XC\Reviews\Core\Task\SendReviewKeys
@@ -206,3 +211,6 @@ XLite\Model\Notification:
         description: "Данное сообщение используется для отправки покупателю приглашения оставить отзыв о купленных им товарах."
         customerSubject: "Пожалуйста, оставьте отзыв о купленных товарах"
         customerText: ""
+
+XLite\Model\Role\Permission:
+  - { code: manage reviews, section: Catalog, translations: [{ code: en, name: Manage reviews }, { code: ru, name: 'Управление отзывами' }] }

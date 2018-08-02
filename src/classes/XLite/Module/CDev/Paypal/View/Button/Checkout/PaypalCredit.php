@@ -38,4 +38,22 @@ class PaypalCredit extends \XLite\Module\CDev\Paypal\View\Button\AExpressCheckou
     {
         return parent::getButtonClass() . ' pp-style-credit paypal-ec-checkout-credit';
     }
+
+    /**
+     * @return string
+     */
+    protected function getButtonStyleNamespace()
+    {
+        return 'credit';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getButtonColor()
+    {
+        $configVariable = $this->getButtonStyleNamespace() . '_style_color';
+
+        return \XLite\Core\Config::getInstance()->CDev->Paypal->{$configVariable} ?: 'darkblue';
+    }
 }

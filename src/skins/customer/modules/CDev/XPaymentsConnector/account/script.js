@@ -9,7 +9,11 @@
 
 jQuery(function () {
 
-  initXpcIframe();
+  if (typeof(window['slidebar']) == 'function' && jQuery.mmenu) {
+    core.bind('mm-menu.created', initXpcIframe);
+  } else {
+    initXpcIframe();
+  }
 
   jQuery('#submit-button').click(function () {
 
@@ -70,38 +74,19 @@ jQuery(function () {
   });
 });
 
-// Shade iframe while it's loading 
 function shadeIframe()
 {
-  var box = jQuery('#main');
-
-  if (0 == jQuery(box).length) {
-    return;
-  }
-
-  var overlay = jQuery('<div></div>')
-    .addClass('wait-overlay')
-    .appendTo(box);
-  var progress = jQuery('<div></div>')
-    .addClass('wait-overlay-progress')
-    .appendTo(box);
-  jQuery('<div></div>')
-    .appendTo(progress);
-
-  overlay.width(box.outerWidth())
-    .height(box.outerHeight());
-
-  overlay.show();
+  assignWaitOverlay($('#content'));
 }
 
 function unshadeIframe()
 {
-  jQuery('#main .wait-overlay').remove();
-  jQuery('#main .wait-overlay-progress').remove();
+  unassignWaitOverlay($('#content'));
 }
 
 function initXpcIframe()
 {
+  console.log('Loading X-Payments iframe...');
   var iframe = jQuery('iframe#add_new_card_iframe');
   if (iframe.length) {
     shadeIframe();

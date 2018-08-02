@@ -45,7 +45,7 @@ class Settings extends \XLite\View\Model\Settings implements \XLite\Base\IDecora
 
             $cell[static::SCHEMA_COMMENT] = static::t(
                 'CloudSearch sets default sort order to relevance',
-                array('url' => $url)
+                ['url' => $url]
             );
         }
 

@@ -67,4 +67,31 @@ class Order extends \XLite\Model\Repo\Order implements \XLite\Base\IDecorator
 
         return $result;
     }
+
+    /**
+     * Count items for export routine
+     *
+     * @return integer
+     */
+    public function countNFOForExport()
+    {
+        $countWithNfo = (int) $this->defineCountForExportWithNFOQuery()
+                          ->getSingleScalarResult();
+
+        return $countWithNfo - $this->countForExport();
+    }
+
+    /**
+     * Define query builder for COUNT query
+     *
+     * @return \XLite\Model\QueryBuilder\AQueryBuilder
+     */
+    protected function defineCountForExportWithNFOQuery()
+    {
+        $qb = $this->defineCountForExportQuery();
+
+        $qb = $this->addNotFinishedCnd($qb);
+
+        return $qb;
+    }
 }

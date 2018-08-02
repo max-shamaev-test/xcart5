@@ -30,6 +30,7 @@ class Info extends \XLite\Model\DTO\Product\Info implements \XLite\Base\IDecorat
             [
                 'shipping' => [
                     'requires_shipping' => [
+                        'ship_for_free'          => $object->isShipForFree(),
                         'free_shipping'          => $object->getFreeShip(),
                         'fixed_shipping_freight' => $object->getFreightFixedFee(),
                     ],
@@ -53,6 +54,9 @@ class Info extends \XLite\Model\DTO\Product\Info implements \XLite\Base\IDecorat
     
     protected function populateToFreeShipping($object)
     {
+        $shipForFree = static::deCompose($this, 'shipping', 'requires_shipping', 'ship_for_free');
+        $object->setShipForFree((boolean)$shipForFree);
+
         $freeShipping = static::deCompose($this, 'shipping', 'requires_shipping', 'free_shipping');
         $object->setFreeShip((boolean) $freeShipping);
 

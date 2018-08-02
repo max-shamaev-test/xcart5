@@ -98,11 +98,10 @@ class AutomateShippingRoutine extends \XLite\View\AView
                     'name' => 'Api',
                     'humanName' => 'ShipStation'
                 ],
-            $repo->findOneByModuleName('Webgility\\Shiplark', true)
-                ?: [
-                    'name' => 'Shiplark',
-                    'humanName' => 'Shiplark'
-                ],
+            [
+                'name' => 'ShipWorks',
+                'link' => 'http://www.shipworks.com/integrations/xcart/?source=si10049347',
+            ]
         );
 
         return array_filter($modules);
@@ -209,7 +208,7 @@ class AutomateShippingRoutine extends \XLite\View\AView
                     'type' => static::PROPERTY_VALUE_APP_TYPE_CLOUD,
                 ),
             ),
-            'Shiplark'  => array(
+            'ShipWorks'  => array(
                 'common' => array(
                     'labels'    => static::PROPERTY_VALUE_YES,
                     'trial'     => static::PROPERTY_VALUE_YES,
@@ -223,7 +222,7 @@ class AutomateShippingRoutine extends \XLite\View\AView
                     'fedex'     => static::PROPERTY_VALUE_YES,
                     'ups'       => static::PROPERTY_VALUE_YES,
                     'usps'      => static::PROPERTY_VALUE_YES,
-                    'dhl'       => static::PROPERTY_VALUE_NO,
+                    'dhl'       => static::PROPERTY_VALUE_YES,
                 ),
                 'app' => array(
                     'type' => static::PROPERTY_VALUE_APP_TYPE_WINDOWS,

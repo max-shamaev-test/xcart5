@@ -39,7 +39,7 @@ class Shipping extends \XLite\Model\Order\Status\AStatus
     public static function getDisallowedToSetManuallyStatuses()
     {
         return [
-            self::STATUS_WAITING_FOR_APPROVE,
+            static::STATUS_WAITING_FOR_APPROVE,
         ];
     }
 
@@ -122,30 +122,30 @@ class Shipping extends \XLite\Model\Order\Status\AStatus
     public static function getStatusHandlers()
     {
         return [
-            self::STATUS_NEW => [
-                self::STATUS_SHIPPED => ['ship'],
-                self::STATUS_WAITING_FOR_APPROVE => ['waitingForApprove']
+            static::STATUS_NEW => [
+                static::STATUS_SHIPPED => ['ship'],
+                static::STATUS_WAITING_FOR_APPROVE => ['waitingForApprove']
             ],
 
-            self::STATUS_PROCESSING => [
-                self::STATUS_SHIPPED => ['ship'],
-                self::STATUS_WAITING_FOR_APPROVE => ['waitingForApprove']
+            static::STATUS_PROCESSING => [
+                static::STATUS_SHIPPED => ['ship'],
+                static::STATUS_WAITING_FOR_APPROVE => ['waitingForApprove']
             ],
 
-            self::STATUS_DELIVERED => [
-                self::STATUS_SHIPPED => ['ship'],
+            static::STATUS_DELIVERED => [
+                static::STATUS_SHIPPED => ['ship'],
             ],
 
-            self::STATUS_WILL_NOT_DELIVER => [
-                self::STATUS_SHIPPED => ['ship'],
+            static::STATUS_WILL_NOT_DELIVER => [
+                static::STATUS_SHIPPED => ['ship'],
             ],
 
-            self::STATUS_RETURNED => [
-                self::STATUS_SHIPPED => ['ship'],
+            static::STATUS_RETURNED => [
+                static::STATUS_SHIPPED => ['ship'],
             ],
 
-            self::STATUS_WAITING_FOR_APPROVE => [
-                self::STATUS_SHIPPED => ['ship'],
+            static::STATUS_WAITING_FOR_APPROVE => [
+                static::STATUS_SHIPPED => ['ship'],
             ],
         ];
     }

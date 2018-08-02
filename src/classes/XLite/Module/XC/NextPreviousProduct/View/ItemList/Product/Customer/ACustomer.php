@@ -34,6 +34,11 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\Customer\ACustome
     protected static $npConditionCellName = [];
 
     /**
+     * @var array
+     */
+    protected $npConditionParameters = [];
+
+    /**
      * Item position on page
      *
      * @var integer
@@ -83,6 +88,22 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\Customer\ACustome
     }
 
     /**
+     * @return array
+     */
+    public function getNpConditionParameters()
+    {
+        return $this->npConditionParameters;
+    }
+
+    /**
+     * @param array
+     */
+    public function setNpConditionParameters($parameters)
+    {
+        $this->npConditionParameters = $parameters;
+    }
+
+    /**
      * Get three items around $itemPosition
      *
      * @param integer $itemPosition Item position in condition
@@ -122,21 +143,13 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\Customer\ACustome
         }
 
         $result = $this->getSearchCondition();
+        foreach ($this->getNpConditionParameters() as $paramName => $paramValue) {
+            $result->{$paramName} = $paramValue;
+        }
 
         \XLite\Core\Session::getInstance()->{$cellName} = $result;
 
         return $result;
-    }
-
-    /**
-     * Get session cell name for the certain list items widget
-     *
-     * @return string
-     */
-    public static function getSessionCellName()
-    {
-        return parent::getSessionCellName()
-            . \XLite\Core\Request::getInstance()->{self::PARAM_CATEGORY_ID};
     }
 
     /**

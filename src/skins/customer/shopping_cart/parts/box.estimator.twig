@@ -1,7 +1,7 @@
 {##
  # Shipping estimator box
  #}
-<div class="estimator" data-deferred="{{ this.shouldDeferLoad() }}">
+<div class="estimator" data-deferred="{{ this.shouldDeferLoad() }}" data-shipping-cost="{{ this.getShippingCost() }}">
 
   {% if this.isShippingEstimate() %}
 

@@ -13,62 +13,74 @@
 .define-color-reloading-base-if-not-defined() {@color-reloading-base: #676767};
 .define-color-reloading-base-if-not-defined();
 
+
 /* reloading */
 .reloading {
   position: relative;
+
+  &.immediate:before {
+    animation-duration: 0s;
+    transition-duration: 0s;
+  }
+
+  &.reloading-animated:after {
+    content: "";
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    z-index: 1003;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+    transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+    opacity: 0.5;
+
+    -webkit-animation-name: opc-circles;
+    animation-name: opc-circles;
+    -webkit-animation-duration: 2.5s;
+    animation-duration: 2.5s;
+    -webkit-animation-timing-function: linear;
+    animation-timing-function: linear;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+
+    border-radius: 50%;
+    border-style: solid;
+    border-width: 3px 3px 0 0;
+    border-color: @color-reloading-highlight transparent transparent;
+  }
+
+  &:before {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    content: "";
+    display:block;
+    z-index: 1000;
+    opacity: 1;
+    background: fade(@body-bg, 90%);
+
+    -webkit-animation: opc-appear .3s ease-in-out;
+    animation: opc-appear .3s ease-in-out;
+  }
+
+  .reloading-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1003;
+    color: @color-reloading-base;
+    margin-top: 60px;
+  }
 }
 
-.reloading .reloading-message {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1003;
-  color: @color-reloading-base;
-  margin-top: 60px;
-}
-
-.reloading:before {
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  content: "";
-  display:block;
-  z-index: 1000;
-
-  background: fade(@body-bg, 90%);
-
-  -webkit-animation: opc-appear 0.3s ease-in-out;
-  animation: opc-appear 0.3s ease-in-out;
-}
-
-.reloading.reloading-animated:after {
-  content: "";
-  position: fixed;
-  width: 60px;
-  height: 60px;
-  z-index: 1003;
-  left: 50%;
-  top: 50%;
-  -webkit-transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
-  transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
-  opacity: 0.5;
-
-  -webkit-animation-name: opc-circles;
-  animation-name: opc-circles;
-  -webkit-animation-duration: 2.5s;
-  animation-duration: 2.5s;
-  -webkit-animation-timing-function: linear;
-  animation-timing-function: linear;
-  -webkit-animation-iteration-count: infinite;
-  animation-iteration-count: infinite;
-
-  border-radius: 50%;
-  border-style: solid;
-  border-width: 3px 3px 0 0;
-  border-color: @color-reloading-highlight transparent transparent;
+button.reloading {
+  &:before, &.reloading-animated:after, .reloading-message {
+    position: absolute;
+  }
 }
 
 @keyframes opc-appear {
