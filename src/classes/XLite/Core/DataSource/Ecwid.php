@@ -126,7 +126,7 @@ class Ecwid extends ADataSource
         $url = 'http://app.ecwid.com/api/v1/'
             . $this->getStoreId() . '/'
             . $apiMethod
-            . ($params ? ('?' . http_build_query($params)) : '');
+            . ($params ? ('?' . http_build_query($params, null, '&')) : '');
 
         $bouncer = new \XLite\Core\HTTP\Request($url);
 

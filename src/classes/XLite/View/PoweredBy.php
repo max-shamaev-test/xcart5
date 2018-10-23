@@ -81,7 +81,7 @@ class PoweredBy extends \XLite\View\AView
             : '';
 
         $replace = $this->isLink()
-                 ? array('[' => '<a href="' . \XLite::getXCartURL($siteURL, empty($siteURL)) . '" rel=“nofollow” target="_blank">', ']' => '</a>',)
+                 ? array('[' => '<a href="' . \XLite::getXCartURL($siteURL, empty($siteURL)) . '" rel="nofollow" target="_blank">', ']' => '</a>',)
                  : array('[' => '', ']' => '');
 
         return strtr($this->getPhrase(), $replace);

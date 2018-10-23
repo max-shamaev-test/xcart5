@@ -85,8 +85,13 @@ jQuery(document).ready(
     var $table = jQuery('table.comparison-table');
 
     var width = 960 / Math.min(5, jQuery('tbody.header-hidden', $table).find('td').length) - 24;
+    var firstColWidth = Math.min(width, $(document).width() / 2);
+    width = (960 - firstColWidth) / Math.min(5, jQuery('tbody.header-hidden', $table).find('td').length - 1) - 24;
     jQuery('td', $table).width(width);
-    jQuery('tr.names td div', $table).width(width - 1);
+    jQuery('td:first-child', $table).width(firstColWidth);
+    jQuery('tr.names td div', $table).each(function () {
+      $(this).width($(this).parent().width() - 1);
+    });
 
 
     var headerFixed = jQuery('tbody.header-fixed', $table);

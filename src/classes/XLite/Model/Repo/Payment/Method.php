@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Repo\Payment;
 
+use XLite\Model\QueryBuilder\AQueryBuilder;
+
 /**
  * Payment method repository
  *
@@ -66,17 +68,17 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
     /**
      * Add the specific joints with the translation table
      *
-     * @param \Doctrine\ORM\QueryBuilder $queryBuilder
+     * @param AQueryBuilder $queryBuilder
      * @param string                     $alias
      * @param string                     $translationsAlias
      * @param string                     $code
      *
-     * @return \Doctrine\ORM\QueryBuilder
+     * @return AQueryBuilder
      */
     protected function addTranslationJoins($queryBuilder, $alias, $translationsAlias, $code)
     {
         $queryBuilder
-            ->leftJoin(
+            ->linkLeft(
                 $alias . '.translations',
                 $translationsAlias,
                 \Doctrine\ORM\Query\Expr\Join::WITH,

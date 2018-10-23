@@ -49,7 +49,7 @@ class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\IDecorator
     {
         $result = parent::getEventCell();
 
-        if (\XLite\Module\CDev\GoogleAnalytics\Main::isECommerceEnabled()) {
+        if (\XLite\Module\CDev\GoogleAnalytics\Main::isECommerceEnabled() && $this->getObject()) {
             \XLite\Core\Translation::setTmpTranslationCode(\XLite\Core\Config::getInstance()->General->default_language);
 
             $result['ga-data'] = OrderItemDataMapper::getData(

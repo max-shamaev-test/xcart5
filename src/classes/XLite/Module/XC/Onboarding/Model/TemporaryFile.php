@@ -8,7 +8,6 @@
 
 namespace XLite\Module\XC\Onboarding\Model;
 
-use Includes\Utils\URLManager;
 
 /**
  * Temporary file store

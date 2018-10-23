@@ -151,7 +151,9 @@ class Conversation extends \XLite\Model\AEntity
      */
     public function addMember($member)
     {
-        $this->members->add($member);
+        if (!$this->members->contains($member)) {
+            $this->members->add($member);
+        }
         return $this;
     }
 

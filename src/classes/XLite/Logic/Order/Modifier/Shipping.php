@@ -8,7 +8,6 @@
 
 namespace XLite\Logic\Order\Modifier;
 
-use XLite\Core\Cache\ExecuteCachedTrait;
 use XLite\Model\Shipping\Rate;
 
 /**
@@ -16,8 +15,6 @@ use XLite\Model\Shipping\Rate;
  */
 class Shipping extends \XLite\Logic\Order\Modifier\AShipping
 {
-    use ExecuteCachedTrait;
-
     /**
      * Modifier code
      */
@@ -267,56 +264,34 @@ class Shipping extends \XLite\Logic\Order\Modifier\AShipping
      */
     public function getSelectedRate()
     {
-        return $this->executeCachedRuntime(function () {
-            // Get shipping rates
-            $rates = $this->getRates();
+        if ($this->order instanceof \XLite\Model\Cart
+            && !$this->order->getShippingId()
+            && $this->order->getProfile()
+            && $this->order->getLastShippingId()
+        ) {
+            // Remember last shipping id
+            $this->order->setShippingId($this->order->getLastShippingId());
+        }
 
-            $selectedRate = null;
+        // Get shipping rates
+        $rates = $this->getRates();
 
-            if (!empty($rates)) {
-                if ($this->order instanceof \XLite\Model\Cart
-                    && !$this->order->getShippingId()
-                    && $this->order->getProfile()
-                    && $this->order->getLastShippingId()
-                ) {
-                    // Remember last shipping id
-                    $this->order->setShippingId($this->order->getLastShippingId());
-                }
+        $selectedRate = null;
 
-                if (0 < (int) $this->order->getShippingId()) {
-                    // Set selected rate from the rates list if shipping_id is already assigned
+        if (!empty($rates) && 0 < (int) $this->order->getShippingId()) {
+            // Set selected rate from the rates list if shipping_id is already assigned
 
-                    foreach ($rates as $rate) {
-                        if ($this->order->getShippingId() == $rate->getMethodId()) {
-                            $selectedRate = $rate;
-                            break;
-                        }
-                    }
+            foreach ($rates as $rate) {
+                if ($this->order->getShippingId() == $rate->getMethodId()) {
+                    $selectedRate = $rate;
+                    break;
                 }
             }
+        }
 
-            $this->setSelectedRate($selectedRate);
+        $this->setSelectedRate($selectedRate);
 
-            return $selectedRate;
-
-        }, $this->getCacheKeyParts());
-    }
-
-    /**
-     * @return array
-     */
-    protected function getCacheKeyParts()
-    {
-        $result = $this->order->getEventFingerprint([
-            'shippingTotal',
-            'shippingMethodId',
-            'shippingMethodName',
-            'shippingMethodsHash'
-        ]);
-
-        $result['shippingMethodId'] = $this->order->getShippingId();
-
-        return $result;
+        return $selectedRate;
     }
 
     /**

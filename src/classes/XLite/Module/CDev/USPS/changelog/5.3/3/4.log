@@ -1,0 +1,5 @@
+Version 5.3.3.4
+
+Fixes (1)
+2018-08-03 - [Bug] Use of '&' as a delimeter in the http_build_query function is now enforced. #BUG-6576 (Sergey Elmanov) #Core #GoogleAnalytics #GoSocial #Paypal #USPS #ProductFilter #AvaTax #MultiCurrency #MailChimp #YandexMoney #G2APay #Beanstream #TaxJar
+

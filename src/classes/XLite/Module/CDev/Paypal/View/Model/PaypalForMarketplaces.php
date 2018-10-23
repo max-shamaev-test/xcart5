@@ -83,6 +83,7 @@ class PaypalForMarketplaces extends \XLite\Module\CDev\Paypal\View\Model\ASettin
         'disburse_funds' => [
             self::SCHEMA_CLASS    => 'XLite\Module\CDev\Paypal\View\FormField\Select\DisburseFunds',
             self::SCHEMA_LABEL    => 'Disburse funds',
+            self::SCHEMA_HELP     => 'Please note that this setting cannot be changed once your first vendor has been successfully onboarded',
             self::SCHEMA_REQUIRED => false,
         ],
     ];
@@ -112,5 +113,30 @@ class PaypalForMarketplaces extends \XLite\Module\CDev\Paypal\View\Model\ASettin
         }
 
         parent::setModelProperties($data);
+    }
+
+    /**
+     * Return list of form fields objects by schema
+     *
+     * @param array $schema Field descriptions
+     *
+     * @return array
+     */
+    protected function getFieldsBySchema(array $schema)
+    {
+        if (isset($schema['disburse_funds'])) {
+            $method  = \XLite\Module\CDev\Paypal\Main::getPaymentMethod(
+                \XLite\Module\CDev\Paypal\Main::PP_METHOD_PFM
+            );
+
+            if ($method->getSetting('disburse_funds_option_locked')) {
+                $schema['disburse_funds'][\XLite\View\FormField\AFormField::PARAM_ATTRIBUTES] = [
+                    'readonly' => true,
+                    'disabled' => true,
+                ];
+            }
+        }
+
+        return parent::getFieldsBySchema($schema);
     }
 }

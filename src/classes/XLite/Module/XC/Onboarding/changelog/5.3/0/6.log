@@ -1,0 +1,4 @@
+Version 5.3.0.6
+
+Fixes (1)
+2018-10-23 - [Bug] Fatal error while adding a product through Onboarding wizard. Fixed #BUG-6777 https://bt.x-cart.com/view.php?id=50068 (Kirill Stadler) #Onboarding

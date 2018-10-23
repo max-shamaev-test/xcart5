@@ -1,0 +1,6 @@
+Version 5.3.3.3
+
+Fixes (2)
+2018-07-18 - [Bug] Shipping address is now sent when using Stripe payment method. #BUG-6520 https://bt.x-cart.com/view.php?id=49671 (Sergey Elmanov) #Stripe
+2018-07-13 - [Bug] Price did not update after changing the order details if using Stripe. Fixed. #BUG-6523 https://bt.x-cart.com/view.php?id=49677 (Shevelov Alexander) #Stripe
+

@@ -791,6 +791,10 @@ OUT;
                     list($length, $width, $height) = $fedexOptions['dimensions'];
                 }
 
+                $length = ceil($length);
+                $width = ceil($width);
+                $height = ceil($height);
+
                 $dimensionsXML = <<<OUT
                <v17:Dimensions>
                   <v17:Length>{$length}</v17:Length>

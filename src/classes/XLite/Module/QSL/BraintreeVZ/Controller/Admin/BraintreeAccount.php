@@ -8,6 +8,8 @@
 
 namespace XLite\Module\QSL\BraintreeVZ\Controller\Admin;
 
+use \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient;
+
 /**
  * Payment method 
  */
@@ -52,7 +54,7 @@ class BraintreeAccount extends \XLite\Controller\Admin\AAdmin
      */
     public function getPaymentMethod()
     {
-        return \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance()->getPaymentMethod();
+        return BraintreeClient::getInstance()->getPaymentMethod();
     }
 
     /**
@@ -62,7 +64,7 @@ class BraintreeAccount extends \XLite\Controller\Admin\AAdmin
      */
     public function isConfigured()
     {
-        return \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance()->isConfigured();
+        return BraintreeClient::getInstance()->isConfigured();
     }
 
     /**
@@ -75,9 +77,7 @@ class BraintreeAccount extends \XLite\Controller\Admin\AAdmin
      */
     protected function sendRequest($action, $options)
     {
-        $client = \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance();
-
-        $ch = curl_init($client->getIntermediateServerUrl($action));
+        $ch = curl_init(BraintreeClient::getInstance()->getIntermediateServerUrl($action));
 
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $options);
@@ -102,7 +102,7 @@ class BraintreeAccount extends \XLite\Controller\Admin\AAdmin
     protected function doActionOauthReturn()
     {
         $request = \XLite\Core\Request::getInstance();
-        $client = \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance();
+        $client = BraintreeClient::getInstance();
 
         if (!empty($request->access_token)) {
 
@@ -145,9 +145,7 @@ class BraintreeAccount extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionSynchronize()
     {
-        $client = \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance();
-
-        $result = $client->synchronizeAccount();
+        $result = BraintreeClient::getInstance()->synchronizeAccount();
 
         if ($result) {
             \XLite\Core\TopMessage::getInstance()->addInfo('Settings synchronized');            
@@ -158,7 +156,7 @@ class BraintreeAccount extends \XLite\Controller\Admin\AAdmin
             $this->buildURL(
                 'payment_method',
                 '',
-                array('method_id' => $client->getPaymentMethod()->getMethodId())
+                array('method_id' => BraintreeClient::getInstance()->getPaymentMethod()->getMethodId())
             )
         );
     }
@@ -170,7 +168,7 @@ class BraintreeAccount extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionUnlink()
     {
-        $client = \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance();
+        $client = BraintreeClient::getInstance();
 
         $options = array(
             'accessToken' => $client->getPaymentMethod()->getSetting('accessToken')
@@ -196,7 +194,7 @@ class BraintreeAccount extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionRefreshAccessToken()
     {
-        $client = \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance();
+        $client = BraintreeClient::getInstance();
 
         $options = array(
             'refreshToken' => $client->getPaymentMethod()->getSetting('refreshToken')
@@ -248,6 +246,35 @@ class BraintreeAccount extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * Get user address
+     *
+     * @return array
+     */
+    protected function getUserAddress()
+    {
+        $address = array();
+
+        if ($this->getProfile()->getBillingAddress()) {
+
+            $address = array(
+                'user[firstName]'     => $this->getProfile()->getBillingAddress()->getFirstname(),
+                'user[lastName]'      => $this->getProfile()->getBillingAddress()->getLastname(),
+                'user[phone]'         => $this->getProfile()->getBillingAddress()->getPhone(),
+                'user[streetAddress]' => $this->getProfile()->getBillingAddress()->getStreet(),
+                'user[locality]'      => $this->getProfile()->getBillingAddress()->getCity(),
+                'user[region]'        => BraintreeClient::getInstance()->getStateField($this->getProfile()->getBillingAddress()),
+                'user[postalCode]'    => $this->getProfile()->getBillingAddress()->getZipcode(),
+            );
+
+            if ($this->getProfile()->getBillingAddress()->getCountry()) {
+                $address['user[country]'] = $this->getProfile()->getBillingAddress()->getCountry()->getCode();
+            }
+        }
+
+        return $address;
+    }
+
+    /**
      * Get URL for the connect button
      * (communicate with the intermediate server)
      *
@@ -255,22 +282,12 @@ class BraintreeAccount extends \XLite\Controller\Admin\AAdmin
      */ 
     protected function getConnectUrlFromIntermediateServer()
     {
-        $client = \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance();
-
         $options = array(
             'scope'                   => 'read_write',
-            'state'                   => $client->getOAuthState(),
+            'state'                   => BraintreeClient::getInstance()->getOAuthState(),
             'landingPage'             => 'signup,login',
 
-            'user[country]'           => $this->getProfile()->getBillingAddress()->getCountry()->getCode(),
             'user[email]'             => $this->getProfile()->getEmail(),
-            'user[firstName]'         => $this->getProfile()->getBillingAddress()->getFirstname(),
-            'user[lastName]'          => $this->getProfile()->getBillingAddress()->getLastname(),
-            'user[phone]'             => $this->getProfile()->getBillingAddress()->getPhone(),
-            'user[streetAddress]'     => $this->getProfile()->getBillingAddress()->getStreet(),
-            'user[locality]'          => $this->getProfile()->getBillingAddress()->getCity(),
-            'user[region]'            => $client->getStateField($this->getProfile()->getBillingAddress()),
-            'user[postalCode]'        => $this->getProfile()->getBillingAddress()->getZipcode(),
 
             'business[name]'          => \XLite\Core\Config::getInstance()->Company->company_name,
             'business[registeredAs]'  => \XLite\Core\Config::getInstance()->Company->company_name,
@@ -285,6 +302,8 @@ class BraintreeAccount extends \XLite\Controller\Admin\AAdmin
             'paymentMethods[0]'       => 'credit_card',
             'paymentMethods[1]'       => 'paypal',
         );
+
+        $options += $this->getUserAddress();
 
         $response = $this->sendRequest('connect', $options);
 

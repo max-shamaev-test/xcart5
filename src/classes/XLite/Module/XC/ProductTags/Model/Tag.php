@@ -79,6 +79,9 @@ class Tag extends \XLite\Model\Base\I18n
     }
 
     /**
+     * @deprecated 5.4
+     * @see addProduct
+     *
      * Add products
      *
      * @param \XLite\Model\Product $products
@@ -86,7 +89,22 @@ class Tag extends \XLite\Model\Base\I18n
      */
     public function addProducts(\XLite\Model\Product $products)
     {
-        $this->products[] = $products;
+        return $this->addProduct($products);
+    }
+
+    /**
+     * Add product
+     *
+     * @param \XLite\Model\Product $product
+     *
+     * @return Tag
+     */
+    public function addProduct(\XLite\Model\Product $product)
+    {
+        if (!$this->products->contains($product)) {
+            $this->products[] = $product;
+        }
+
         return $this;
     }
 

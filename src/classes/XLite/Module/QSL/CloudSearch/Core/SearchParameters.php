@@ -59,7 +59,7 @@ class SearchParameters implements SearchParametersInterface
 
         $membership = Auth::getInstance()->getMembershipId();
 
-        $sortFieldMappings = $this->getSortFieldMappings();
+        $sortFieldMappings = $this->getSortFieldMappings($categoryId);
 
         // X-Cart sends asc direction for the below sort modes. Force to use desc.
         if (isset($sortFieldMappings[$sortMode])
@@ -103,17 +103,24 @@ class SearchParameters implements SearchParametersInterface
     /**
      * Get "X-Cart search mode -> CloudSearch sort field" mapping
      *
+     * @param $categoryId
+     *
      * @return array
      */
-    protected function getSortFieldMappings()
+    protected function getSortFieldMappings($categoryId)
     {
-        return [
-            'cp.orderby'        => 'sort_int_orderby',
+        $mapping = [
             'p.arrivalDate'     => 'sort_int_arrival_date',
             'p.price'           => 'sort_float_price',
             'translations.name' => 'sort_str_name',
             'r.rating'          => 'sort_float_rating',
             'p.sales'           => 'sort_int_sales',
         ];
+
+        if ($categoryId) {
+            $mapping['cp.orderby'] = 'sort_int_orderby_category_' . $categoryId;
+        }
+
+        return $mapping;
     }
 }

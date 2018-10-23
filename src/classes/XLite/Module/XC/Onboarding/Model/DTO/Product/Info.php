@@ -51,7 +51,7 @@ class Info extends \XLite\Model\DTO\Product\Info implements \XLite\Base\IDecorat
         parent::afterCreate($object, $rawData);
 
         if (isset(\XLite\Core\Request::getInstance()->onboarding)) {
-            $data = json_decode(\XLite\Core\Request::getInstance()->onboarding);
+            $data = json_decode(\XLite\Core\Request::getInstance()->onboarding, true);
 
             if (!empty($data['prefilled_form'])) {
                 WizardState::getInstance()->setLastAddedProductId($object->getProductId());

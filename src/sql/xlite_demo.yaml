@@ -176,7 +176,7 @@ XLite\Model\Config:
   - { name: anonymous_city, category: Shipping, value: 'Los Angeles' }
   - { name: time_zone, category: General, value: Europe/Moscow }
   - { name: order_number_counter, category: General, value: 6 }
-  - { name: checkout_type, category: General, value: 'one-page' }
+  - { name: checkout_type, category: General, value: 'fast-lane' }
   - { name: layout_type_home, category: Layout, value: 'one' }
   - { name: enabled, category: BannerRotation, value: true }
   - { name: isCloudFiltersEnabled, category: QSL\CloudSearch, value: false }

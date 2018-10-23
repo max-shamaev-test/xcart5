@@ -467,7 +467,7 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
     {
         $widget = $this->getChildWidget('XLite\View\Menu\Admin\RecentOrdersCount');
 
-        return (int)$widget->getContent();
+        return (int)$widget->getOrdersCount();
     }
 
     /**

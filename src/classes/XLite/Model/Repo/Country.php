@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Repo;
 
+use XLite\Model\QueryBuilder\AQueryBuilder;
+
 /**
  * Country repository
  *
@@ -320,16 +322,16 @@ class Country extends \XLite\Model\Repo\Base\I18n
     /**
      * Add join to all country translations
      *
-     * @param \Doctrine\ORM\QueryBuilder $queryBuilder
-     * @param string                     $alias
-     * @param string                     $translationsAlias
-     * @param string                     $code
+     * @param AQueryBuilder $queryBuilder
+     * @param string        $alias
+     * @param string        $translationsAlias
+     * @param string        $code
      *
      * @return \Doctrine\ORM\QueryBuilder
      */
     protected function addTranslationJoins($queryBuilder, $alias, $translationsAlias, $code)
     {
-        $queryBuilder->leftJoin(
+        $queryBuilder->linkLeft(
             $alias . '.translations',
             $translationsAlias
         );

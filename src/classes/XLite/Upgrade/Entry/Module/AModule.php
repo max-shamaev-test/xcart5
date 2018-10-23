@@ -21,14 +21,22 @@ abstract class AModule extends \XLite\Upgrade\Entry\AEntry
     protected $isFreshInstall = false;
 
     /**
-     * Method to access module main clas methods
+     * @return null|\XLite\Model\Module
+     */
+    abstract protected function getModuleInstalled();
+
+    /**
+     * Method to access module main class methods
      *
      * @param string $method Method to call
      * @param array  $args   Call arguments OPTIONAL
      *
      * @return mixed
      */
-    abstract protected function callModuleMethod($method, array $args = array());
+    protected function callModuleMethod($method, array $args = array())
+    {
+        return \Includes\Utils\ModulesManager::callModuleMethod($this->getActualName(), $method, $args);
+    }
 
     /**
      * Update database records
@@ -93,8 +101,16 @@ abstract class AModule extends \XLite\Upgrade\Entry\AEntry
     {
         if ($this->isFreshInstall) {
             if ($this->isInstalled()) {
+                $this->updateInstallationDate();
                 $this->callModuleMethod('callInstallEvent');
             }
+        }
+    }
+
+    protected function updateInstallationDate()
+    {
+        if ($module = $this->getModuleInstalled()) {
+            $module->setDate(\XLite\Core\Converter::time());
         }
     }
 
@@ -116,7 +132,7 @@ abstract class AModule extends \XLite\Upgrade\Entry\AEntry
     /**
      * Get yaml files name to run common helper 'add_labels'
      *
-     * @return string
+     * @return array
      */
     protected function getCommonHelperAddLabelsFiles()
     {

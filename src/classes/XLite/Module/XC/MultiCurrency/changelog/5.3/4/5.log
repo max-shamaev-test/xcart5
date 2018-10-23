@@ -1,0 +1,7 @@
+Version 5.3.4.5
+
+Fixes (3)
+2018-09-05 - [Bug] Redundant updating of all the found entities on entity lists (like products, categories, etc.) when just a single entity needs to be updated. Fixed. #BUG-6591 https://bt.x-cart.com/view.php?id=49755 (Sergey Elmanov) #Core #Coupons #SimpleCMS #UserPermissions #ThemeTweaker #Add2CartPopup #MultiVendor #MultiCurrency #MailChimp #News #VendorPartners
+2018-08-03 - [Bug] Use of '&' as a delimeter in the http_build_query function is now enforced. #BUG-6576 (Sergey Elmanov) #Core #GoogleAnalytics #GoSocial #Paypal #USPS #ProductFilter #AvaTax #MultiCurrency #MailChimp #YandexMoney #G2APay #Beanstream #TaxJar
+2018-07-16 - [Bug] MultiVendor did not save country_code when Vendor was registering from the storefront. Fixed. #BUG-6529 https://bt.x-cart.com/view.php?id=49675 (Shevelov Alexander) #MultiCurrency
+

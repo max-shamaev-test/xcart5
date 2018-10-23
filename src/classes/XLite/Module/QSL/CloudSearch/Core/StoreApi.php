@@ -14,6 +14,7 @@ use XLite\Core\Converter;
 use XLite\Core\Database;
 use XLite\Core\Translation;
 use XLite\Model\Category;
+use XLite\Model\CategoryProducts;
 use XLite\Model\Product;
 use XLite\Module\QSL\CloudSearch\Main;
 use XLite\Module\QSL\CloudSearch\Model\Repo\Product as ProductRepo;
@@ -224,13 +225,19 @@ class StoreApi extends \XLite\Base\Singleton
      */
     protected function getSortFields(Product $product)
     {
-        return [
-            'sort_int_orderby'      => $product->getOrderBy(),
+        $fields = [
             'sort_int_arrival_date' => $product->getArrivalDate(),
             'sort_float_price'      => $this->getProductPrice($product),
             'sort_str_name'         => $product->getName(),
             'sort_int_sales'        => $product->getSales(),
         ];
+
+        /** @var CategoryProducts $cp */
+        foreach ($product->getCategoryProducts() as $cp) {
+            $fields['sort_int_orderby_category_' . $cp->getCategory()->getId()] = $cp->getOrderby();
+        }
+
+        return $fields;
     }
 
     /**

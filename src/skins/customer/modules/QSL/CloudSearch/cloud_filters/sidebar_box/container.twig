@@ -3,7 +3,7 @@
 <div id="cloud-filters" class="cloud-filters" v-cloak>
     {{ this.displayCommentedData(this.getPhpToJsData()) }}
 
-    <div v-if="isVisible()">
+    <div v-if="isVisible">
         {{ include('common/sidebar_box.twig') }}
     </div>
 </div>

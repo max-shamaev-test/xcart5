@@ -553,7 +553,7 @@ class XPaymentsClient extends \XLite\Base\Singleton
 
         $addressFields = array(
             'firstname' => 'N/A',
-            'lastname'  => '',
+            'lastname'  => 'N/A',
             'address'   => 'N/A',
             'city'      => 'N/A',
             'state'     => 'N/A',

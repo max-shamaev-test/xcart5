@@ -55,7 +55,7 @@ class FreeCurrencyConverterAPI extends \XLite\Module\XC\MultiCurrency\Core\RateP
      */
     protected function sendRequest(array $data)
     {
-        $request = new \XLite\Core\HTTP\Request($this->url . 'convert?' . http_build_query($data));
+        $request = new \XLite\Core\HTTP\Request($this->url . 'convert?' . http_build_query($data, null, '&'));
 
         $request->verb = 'GET';
 

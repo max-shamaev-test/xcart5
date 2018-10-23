@@ -228,7 +228,7 @@ class Logger extends \XLite\Base\Singleton
                 $params['action'] = \XLite\Core\Request::getInstance()->action;
             }
 
-            $result = $path . '?' . http_build_query($params);
+            $result = $path . '?' . http_build_query($params, null, '&');
         }
 
         return $result;

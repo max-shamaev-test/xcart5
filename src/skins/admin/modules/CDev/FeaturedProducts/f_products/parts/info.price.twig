@@ -3,5 +3,5 @@
  #}
 
 <span class="price-field-value">
-  <span class="currency-symbol">{{ this.xlite.currency.getCurrencySymbol() }}</span><span class="price-value">{{ this.entity.getPrice() }}</span>
+  {% if this.xlite.currency.getPrefix() %}<span class="currency-symbol">{{ this.xlite.currency.getPrefix()|raw }}</span>{% endif %}<span class="price-value">{{ this.xlite.currency.formatValue(this.entity.getPrice())|raw }}</span>{% if this.xlite.currency.getSuffix() %}<span class="currency-symbol">{{ this.xlite.currency.getSuffix()|raw }}</span{% endif %}
 </span>

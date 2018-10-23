@@ -124,9 +124,9 @@ class Files extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
-     * @param Image $file
+     * @param \XLite\Model\Base\Storage $file
      */
-    protected function postProcessImageUpload(Image $file)
+    protected function postProcessImageUpload(\XLite\Model\Base\Storage $file)
     {
         if (
             $file->isImage()

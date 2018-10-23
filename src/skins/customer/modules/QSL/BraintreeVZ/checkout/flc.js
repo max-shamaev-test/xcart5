@@ -7,40 +7,46 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-core.bind(
-    'load',
-    function() {
+function initFlcBraintree() {
 
-        core.bind(
+    core.bind(
+        [
             'checkout.paymentTpl.postprocess',
-            braintreePayment.init()
-        );
+            'checkout.common.state.ready'
+        ],
+        braintreePayment.init.bind(braintreePayment)
+    );
 
-        core.bind(
-            'resources.ready',
-            braintreePayment.init()
-        );
+    core.bind(
+        'fastlane_section_switched',
+        function (event, data) {
 
-        core.bind(
-            'checkout.common.ready',
-            function(event, state) {
-
-                state.state = braintreePayment.submitForm(event);
+            if (
+                'undefined' != typeof data.newSection
+                && 'payment' == data.newSection.name
+            ) {
+                braintreePayment.init();
             }
-        );
 
-        core.bind(
-            'fastlane_section_switched',
-            function (event, data) {
+            core.bind(
+                [
+                    'checkout.paymentTpl.postprocess',
+                    'checkout.common.state.ready'
+                ],
+                braintreePayment.init.bind(braintreePayment)
+            );
+        }
+    );
+}
 
-                if (
-                    'undefined' != typeof data.newSection
-                    && 'payment' == data.newSection.name
-                ) {
-                    braintreePayment.init();
-                }
-            }
-        );
-    }
-);
-
+if (typeof(window['slidebar']) == 'function' && jQuery.mmenu) {
+    core.bind('mm-menu.created', initFlcBraintree);
+    core.bind('mm-menu.before_create', initFlcBraintree);
+} else {
+    document.addEventListener(
+        'DOMContentLoaded',
+        function(event) {
+            initFlcBraintree();
+        }
+    );
+}

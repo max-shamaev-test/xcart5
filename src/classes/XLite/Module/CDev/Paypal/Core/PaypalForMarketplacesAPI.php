@@ -414,5 +414,4 @@ class PaypalForMarketplacesAPI
 
         return $currency->roundValue(max(0, $amount));
     }
-
 }

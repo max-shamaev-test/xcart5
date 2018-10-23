@@ -8,6 +8,9 @@
 
 namespace XLite\Module\QSL\CloudSearch\View;
 
+use XLite\Module\QSL\CloudSearch\Main;
+
+
 /**
  * Abstract widget
  */
@@ -46,5 +49,20 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
         }
 
         return $list;
+    }
+
+    protected function isCloudFiltersMobileLinkVisible()
+    {
+        return Main::isCloudFiltersEnabled()
+            && in_array($this->getTarget(), [
+                'category',
+                'search',
+                'sale_products',
+                'bestsellers',
+                'new_arrivals',
+                'coming_soon',
+                'vendor',
+                'brand',
+            ], true);
     }
 }

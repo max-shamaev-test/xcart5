@@ -469,6 +469,11 @@ class ProductVariant extends \XLite\Model\AEntity
             );
         }
 
+        $newEntity->setVariantId(
+            \XLite\Core\Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')
+                    ->assembleUniqueVariantId($this->getVariantId())
+        );
+
         $this->cloneEntityImage($newEntity);
 
         return $newEntity;

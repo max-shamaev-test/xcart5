@@ -202,11 +202,7 @@ class Product extends \XLite\Controller\Customer\Base\Catalog
     protected function checkAccess()
     {
         return parent::checkAccess()
-            && $this->getProduct()
-            && (
-                $this->getProduct()->isVisible()
-                || $this->isPreview()
-            );
+            && $this->getProduct();
     }
 
     /**

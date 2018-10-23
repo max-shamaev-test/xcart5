@@ -1,0 +1,5 @@
+Version 5.3.4.3
+
+Fixes (1)
+2018-07-24 - [Bug] Reduced the width of the first column on the product comparison page. #BUG-6547 (Sergey Elmanov) #ProductComparison
+

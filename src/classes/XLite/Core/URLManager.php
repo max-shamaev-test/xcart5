@@ -126,7 +126,7 @@ abstract class URLManager extends \Includes\Utils\URLManager
             $tail = '#' . $fragment;
         }
 
-        return $base . $delimiter . http_build_query($paramsToAppend) . $tail;
+        return $base . $delimiter . http_build_query($paramsToAppend, null, '&') . $tail;
     }
 
     /**

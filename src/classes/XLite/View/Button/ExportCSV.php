@@ -97,7 +97,7 @@ class ExportCSV extends \XLite\View\Button\APopupButton
             ),
             'options' => array(
                 'charset' => \XLite\Core\Config::getInstance()->Units->export_import_charset,
-                'attrs' => 'global',
+                'attrs' => \XLite\Core\Config::getInstance()->Units->export_product_attrs,
                 'files' => 'local',
                 'filter' => $this->getExportSessionCell()
             )

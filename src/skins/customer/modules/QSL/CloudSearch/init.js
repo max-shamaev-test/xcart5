@@ -54,7 +54,7 @@
 
             var pricesToRequest = populatePricesFromCache();
 
-            if (pricesToRequest) {
+            if (pricesToRequest.length > 0) {
                 prices.each(function () {
                     var id = $(this).closest('dd').attr('data-id');
 

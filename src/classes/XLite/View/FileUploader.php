@@ -16,19 +16,20 @@ class FileUploader extends \XLite\View\AView
     /**
      * Widget param names
      */
-    const PARAM_OBJECT = 'object';
-    const PARAM_OBJECT_ID = 'objectId';
-    const PARAM_MESSAGE = 'message';
-    const PARAM_HELP_MESSAGE = 'helpMessage';
-    const PARAM_MAX_WIDTH = 'maxWidth';
-    const PARAM_MAX_HEIGHT = 'maxHeight';
-    const PARAM_IS_IMAGE = 'isImage';
-    const PARAM_IS_TEMPORARY = 'isTemporary';
-    const PARAM_NAME = 'fieldName';
-    const PARAM_MULTIPLE = 'multiple';
-    const PARAM_POSITION = 'position';
+    const PARAM_OBJECT             = 'object';
+    const PARAM_OBJECT_ID          = 'objectId';
+    const PARAM_MESSAGE            = 'message';
+    const PARAM_HELP_MESSAGE       = 'helpMessage';
+    const PARAM_MAX_WIDTH          = 'maxWidth';
+    const PARAM_MAX_HEIGHT         = 'maxHeight';
+    const PARAM_IS_IMAGE           = 'isImage';
+    const PARAM_IS_TEMPORARY       = 'isTemporary';
+    const PARAM_NAME               = 'fieldName';
+    const PARAM_MULTIPLE           = 'multiple';
+    const PARAM_POSITION           = 'position';
     const PARAM_IS_VIA_URL_ALLOWED = 'isViaUrlAllowed';
-    const PARAM_IS_REMOVABLE = 'removable';
+    const PARAM_IS_REMOVABLE       = 'removable';
+    const PARAM_HAS_ALT            = 'hasAlt';
 
     /**
      * @return array
@@ -38,8 +39,8 @@ class FileUploader extends \XLite\View\AView
         $list = parent::getCommonFiles();
 
         $list[static::RESOURCE_JS][] = [
-            'file' => $this->isDeveloperMode() ? 'vue/vue.js' : 'vue/vue.min.js',
-            'no_minify' => true
+            'file'      => $this->isDeveloperMode() ? 'vue/vue.js' : 'vue/vue.min.js',
+            'no_minify' => true,
         ];
 
         $list[static::RESOURCE_JS][] = 'vue/vue.loadable.js';
@@ -245,11 +246,11 @@ class FileUploader extends \XLite\View\AView
     {
         if ($this->isImage() && $this->hasFile()) {
             $viewer = new \XLite\View\Image([
-                'image' => $this->getObject(),
-                'maxWidth' => $this->getParam(static::PARAM_MAX_WIDTH),
-                'maxHeight' => $this->getParam(static::PARAM_MAX_HEIGHT),
-                'alt' => '',
-                'centerImage' => true
+                'image'       => $this->getObject(),
+                'maxWidth'    => $this->getParam(static::PARAM_MAX_WIDTH),
+                'maxHeight'   => $this->getParam(static::PARAM_MAX_HEIGHT),
+                'alt'         => '',
+                'centerImage' => true,
             ]);
 
             return $viewer->getContent();
@@ -268,19 +269,20 @@ class FileUploader extends \XLite\View\AView
         parent::defineWidgetParams();
 
         $this->widgetParams += [
-            static::PARAM_NAME => new \XLite\Model\WidgetParam\TypeString('Name', 'file'),
-            static::PARAM_OBJECT => new \XLite\Model\WidgetParam\TypeObject('Object', null),
-            static::PARAM_OBJECT_ID => new \XLite\Model\WidgetParam\TypeInt('Object Id', 0),
-            static::PARAM_MESSAGE => new \XLite\Model\WidgetParam\TypeString('Message', ''),
-            static::PARAM_HELP_MESSAGE => new \XLite\Model\WidgetParam\TypeString('Help message', ''),
-            static::PARAM_MAX_WIDTH => new \XLite\Model\WidgetParam\TypeInt('Max. width', 120),
-            static::PARAM_MAX_HEIGHT => new \XLite\Model\WidgetParam\TypeInt('Max. height', 120),
-            static::PARAM_IS_IMAGE => new \XLite\Model\WidgetParam\TypeBool('Is image', false),
-            static::PARAM_IS_TEMPORARY => new \XLite\Model\WidgetParam\TypeBool('Is temporary', false),
-            static::PARAM_MULTIPLE => new \XLite\Model\WidgetParam\TypeBool('Multiple', false),
-            static::PARAM_POSITION => new \XLite\Model\WidgetParam\TypeInt('Position', 0),
+            static::PARAM_NAME               => new \XLite\Model\WidgetParam\TypeString('Name', 'file'),
+            static::PARAM_OBJECT             => new \XLite\Model\WidgetParam\TypeObject('Object', null),
+            static::PARAM_OBJECT_ID          => new \XLite\Model\WidgetParam\TypeInt('Object Id', 0),
+            static::PARAM_MESSAGE            => new \XLite\Model\WidgetParam\TypeString('Message', ''),
+            static::PARAM_HELP_MESSAGE       => new \XLite\Model\WidgetParam\TypeString('Help message', ''),
+            static::PARAM_MAX_WIDTH          => new \XLite\Model\WidgetParam\TypeInt('Max. width', 120),
+            static::PARAM_MAX_HEIGHT         => new \XLite\Model\WidgetParam\TypeInt('Max. height', 120),
+            static::PARAM_IS_IMAGE           => new \XLite\Model\WidgetParam\TypeBool('Is image', false),
+            static::PARAM_IS_TEMPORARY       => new \XLite\Model\WidgetParam\TypeBool('Is temporary', false),
+            static::PARAM_MULTIPLE           => new \XLite\Model\WidgetParam\TypeBool('Multiple', false),
+            static::PARAM_POSITION           => new \XLite\Model\WidgetParam\TypeInt('Position', 0),
             static::PARAM_IS_VIA_URL_ALLOWED => new \XLite\Model\WidgetParam\TypeInt('Is ViaUrl allowed', true),
-            static::PARAM_IS_REMOVABLE => new \XLite\Model\WidgetParam\TypeBool('Is removable', true),
+            static::PARAM_IS_REMOVABLE       => new \XLite\Model\WidgetParam\TypeBool('Is removable', true),
+            static::PARAM_HAS_ALT            => new \XLite\Model\WidgetParam\TypeBool('Has alt', null),
         ];
     }
 
@@ -295,6 +297,7 @@ class FileUploader extends \XLite\View\AView
 
         return $object && $object->getId();
     }
+
     /**
      * Set widget params
      *
@@ -317,7 +320,7 @@ class FileUploader extends \XLite\View\AView
         $object = $this->getObject();
 
         return $this->getParam(static::PARAM_IS_IMAGE)
-               || ($object && $object->isImage());
+            || ($object && $object->isImage());
     }
 
     /**
@@ -328,10 +331,10 @@ class FileUploader extends \XLite\View\AView
     protected function isTemporary()
     {
         return $this->hasFile()
-               && (
-                   $this->getParam(static::PARAM_IS_TEMPORARY)
-                   || $this->getObject() instanceof \XLite\Model\TemporaryFile
-               );
+            && (
+                $this->getParam(static::PARAM_IS_TEMPORARY)
+                || $this->getObject() instanceof \XLite\Model\TemporaryFile
+            );
     }
 
     /**
@@ -382,8 +385,8 @@ class FileUploader extends \XLite\View\AView
     protected function hasView()
     {
         return !$this->getMessage()
-               && $this->hasFile()
-               && $this->isImage();
+            && $this->hasFile()
+            && $this->isImage();
     }
 
     /**
@@ -392,6 +395,20 @@ class FileUploader extends \XLite\View\AView
      * @return boolean
      */
     protected function hasAlt()
+    {
+        $param = $this->getParam(static::PARAM_HAS_ALT);
+
+        return is_null($param)
+            ? $this->isModelHasAlt()
+            : $param;
+    }
+
+    /**
+     * Check widget has alt or not
+     *
+     * @return boolean
+     */
+    protected function isModelHasAlt()
     {
         $result = $this->getParam(static::PARAM_IS_IMAGE) && method_exists($this->getObject(), 'getAlt');
 

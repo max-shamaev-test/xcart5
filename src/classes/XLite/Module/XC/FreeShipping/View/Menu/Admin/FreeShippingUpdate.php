@@ -40,7 +40,6 @@ class FreeShippingUpdate extends \XLite\View\Menu\Admin\ANodeNotification
      */
     protected function isShouldDisplayUpdateInfo()
     {
-        \XLite\Core\Config::updateInstance();
         $config = \XLite\Core\Config::getInstance()->XC->FreeShipping;
 
         return (boolean)$config->display_update_info;

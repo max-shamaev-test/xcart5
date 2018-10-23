@@ -331,7 +331,7 @@ class Language extends \XLite\Model\Base\I18n
      */
     public function setEnabled($enabled)
     {
-        $this->enabled = $enabled;
+        $this->enabled = (boolean)$enabled;
         return $this;
     }
 

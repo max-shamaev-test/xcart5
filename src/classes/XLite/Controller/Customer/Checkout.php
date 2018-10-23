@@ -133,7 +133,17 @@ class Checkout extends \XLite\Controller\Customer\Cart
      */
     public function getTitle()
     {
-        return static::t('Checkout');
+        return static::t('Secure Checkout');
+    }
+
+    /**
+     * Check whether the title is to be displayed in the content area
+     *
+     * @return boolean
+     */
+    public function isTitleVisible()
+    {
+        return false;
     }
 
     /**

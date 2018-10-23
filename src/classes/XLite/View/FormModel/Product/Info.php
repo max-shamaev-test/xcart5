@@ -223,6 +223,7 @@ class Info extends \XLite\View\FormModel\AFormModel
                 ],
                 'available_for_sale'   => [
                     'label'    => static::t('Available for sale'),
+                    'help'     => static::t('If the product is not available for sale, the system returns 404 response.'),
                     'type'     => 'XLite\View\FormModel\Type\SwitcherType',
                     'position' => 700,
                 ],
@@ -493,7 +494,10 @@ class Info extends \XLite\View\FormModel\AFormModel
         return Converter::buildURL(
             'product',
             'preview',
-            ['product_id' => $identity],
+            [
+                'product_id' => $identity,
+                'shopKey'    => \XLite\Core\Auth::getInstance()->getShopKey(),
+            ],
             \XLite::getCustomerScript()
         );
     }

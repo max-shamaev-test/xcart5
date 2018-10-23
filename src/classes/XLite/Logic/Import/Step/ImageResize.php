@@ -113,7 +113,18 @@ class ImageResize extends \XLite\Logic\Import\Step\AStep
     public function isAllowed()
     {
         return parent::isAllowed()
+            && $this->isImageResizeAllowed()
             && $this->count() > 0;
+    }
+
+    /**
+     * Check if this step was enabled by this import
+     *
+     * @return bool
+     */
+    public function isImageResizeAllowed()
+    {
+        return !empty($this->getOptions()->commonData['imageResizeAllowed']);
     }
 
     /**

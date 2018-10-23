@@ -60,8 +60,10 @@ class CategoryFilter extends \XLite\Controller\Customer\Category
 
         if ($filters) {
             $returnUrl .= '#' . urldecode(http_build_query(
-                array('filter' => $filters)
-            ));
+                    ['filter' => $filters],
+                    null,
+                    '&'
+                ));
         }
 
         $this->setReturnURL($returnUrl);

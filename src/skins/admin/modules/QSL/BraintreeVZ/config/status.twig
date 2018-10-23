@@ -4,5 +4,5 @@
  #}
 
 {% if (this.paymentMethod.getSetting('merchantId')) %}
-  <strong>{{ t('Merchant ID') }}:</strong> {{ this.paymentMethod.getSetting('merchantId') }}
+  <strong>{{ t('Merchant ID') }}:</strong> <span id="braintree-merchant-id">{{ this.paymentMethod.getSetting('merchantId') }}</span>
 {% endif %}

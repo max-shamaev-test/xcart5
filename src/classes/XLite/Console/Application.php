@@ -45,6 +45,7 @@ class Application extends Console\Application
         $defaultCommands[] = new Command\Scaffolding\ItemsList();
         $defaultCommands[] = new Command\Scaffolding\FormModel();
         $defaultCommands[] = new Command\Scaffolding\Page();
+        $defaultCommands[] = new Command\Scaffolding\Module();
 
         return $defaultCommands;
     }

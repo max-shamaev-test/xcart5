@@ -459,16 +459,16 @@ class Search extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
     /**
      * Preprocess category
      *
-     * @param integer              $date   Date
+     * @param mixed                $value  Value
      * @param array                $column Column data
      * @param \XLite\Model\Product $entity Product
      *
      * @return string
      */
-    protected function preprocessCategory($date, array $column, \XLite\Model\Product $entity)
+    protected function preprocessCategory($value, array $column, \XLite\Model\Product $entity)
     {
-        return $date
-            ? func_htmlspecialchars($date->getName())
+        return $value
+            ? func_htmlspecialchars($value->getName())
             : '';
     }
 }

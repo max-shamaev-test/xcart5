@@ -444,10 +444,8 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     {
         $result = 1;
 
-        foreach ($this->getMultipleAttributes() as $a) {
-            if (in_array($a->getId(), $this->getVariantsAttributeIds())) {
-                $result *= count($a->getAttributeValue($this));
-            }
+        foreach ($this->getVariantsAttributes() as $a) {
+            $result *= count($a->getAttributeValue($this));
         }
 
         return $result;

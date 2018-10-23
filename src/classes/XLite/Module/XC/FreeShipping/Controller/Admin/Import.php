@@ -15,6 +15,7 @@ class Import extends \XLite\Controller\Admin\Import implements \XLite\Base\IDeco
     {
         if (
             $this->getImporter()
+            && $this->getImporter()->getOptions()->offsetExists('displayFreeShippingUpdateNotification')
             && $this->getImporter()->getOptions()->offsetGet('displayFreeShippingUpdateNotification')
         ) {
             $this->getImporter()->getOptions()->displayFreeShippingUpdateNotification = false;

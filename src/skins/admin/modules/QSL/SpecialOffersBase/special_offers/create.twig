@@ -1,9 +1,0 @@
-{% if this.hasActiveOfferTypes() %}
-{% form '\\XLite\\Module\\QSL\\SpecialOffersBase\\View\\Form\\ItemsList\\SpecialOffer\\Create' %}
-  <ul class="special-offer-create-params">
-    {{ this.displayViewListContent('qsl.specialoffersbase.special_offers.list.create') }}
-  </ul>
-{% endform %}
-{% else %}
-    {{ widget('\\XLite\\Module\\QSL\\SpecialOffersBase\\View\\ItemsList\\Model\\PromotedModules') }}
-{% endif %}

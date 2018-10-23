@@ -13,6 +13,7 @@ use XLite\Core\Database;
 use XLite\Model\Product;
 use XLite\Module\QSL\CloudSearch\Core\ServiceApiClient;
 use XLite\Module\QSL\CloudSearch\Core\SearchParameters;
+use XLite\Module\QSL\CloudSearch\Main;
 use XLite\Module\QSL\CloudSearch\Model\Repo\Product as ProductRepo;
 use XLite\Model\WidgetParam\TypeCollection;
 use XLite\View\Controller;
@@ -133,7 +134,7 @@ trait FilterWithCloudSearchTrait
      */
     protected function isHeaderVisible()
     {
-        return $this->hasResults();
+        return $this->hasResults() || $this->isCloudFiltersMobileLinkVisible();
     }
 
     /**
@@ -262,5 +263,29 @@ trait FilterWithCloudSearchTrait
         }
 
         return $params;
+    }
+
+    /**
+     * Returns a list of CSS classes (separated with a space character) to be attached to the items list
+     *
+     * @return string
+     */
+    public function getListCSSClasses()
+    {
+        return parent::getListCSSClasses() . (!$this->hasResults() ? ' empty-result' : '');
+    }
+
+    protected function getCloudFiltersCount()
+    {
+        $cnd = $this->csRepoCondition;
+
+        if ($cnd !== null
+            && $this->isLoadingWithCloudSearch($cnd)
+            && !empty($cnd->{ProductRepo::P_CLOUD_FILTERS})
+        ) {
+            return count($cnd->{ProductRepo::P_CLOUD_FILTERS});
+        }
+
+        return 0;
     }
 }

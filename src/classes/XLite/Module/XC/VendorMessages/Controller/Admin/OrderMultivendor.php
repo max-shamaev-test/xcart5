@@ -51,7 +51,15 @@ class OrderMultivendor extends \XLite\Controller\Admin\Order implements \XLite\B
     {
         $result = parent::getCurrentThreadOrder();
 
-        if (\XLite\Module\XC\VendorMessages\Main::isWarehouse() && \XLite\Module\XC\VendorMessages\Main::isVendorAllowedToCommunicate()) {
+        if (
+            (\XLite\Module\XC\VendorMessages\Main::isWarehouse()
+                && \XLite\Module\XC\VendorMessages\Main::isVendorAllowedToCommunicate()
+            )
+            || (!\XLite\Module\XC\VendorMessages\Main::isWarehouse()
+                && $result->isParent()
+                && $result->getOrderNumber()
+            )
+        ) {
             if (\XLite\Core\Auth::getInstance()->isVendor()) {
                 if (\XLite\Module\XC\VendorMessages\Main::isVendorAllowedToCommunicate()) {
                     foreach ($result->getChildren() as $order) {

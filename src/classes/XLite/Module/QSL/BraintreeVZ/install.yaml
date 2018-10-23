@@ -11,11 +11,11 @@ XLite\Model\Payment\Method:
     type: A 
     orderby: -101950
     adminOrderby: -101950
-    countries: [US, UK, FR]
+    countries: [US, UK, FR, IT, ES]
     translations:
       - code: en
         name: PayPal powered by Braintree 
-        adminDescription: "Supported countries: US, UK & France."
+        adminDescription: "Supported countries: US, UK, France, Italy & Spain."
     settings:
       - name: prefix
       - name: merchantId 

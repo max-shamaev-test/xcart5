@@ -148,7 +148,7 @@ CommonElement.prototype.handlers.push(
             jQuery('.spinner', $wrapper).removeClass('hidden');
             var url = jQuery('<div/>').html($wrapper.get(0).model_selector_options.getter).text();
             core.get(
-              url + '&search=' + jQuery(this).val(),
+              url,
               function (XMLHttpRequest, textStatus, data) {
                 var dataToShow = JSON.parse(data);
 
@@ -197,7 +197,8 @@ CommonElement.prototype.handlers.push(
                       }
                     );
                 }
-              }
+              },
+              {'search': jQuery(this).val()}
             );
           }
 

@@ -54,6 +54,7 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
         parent::initialize();
 
         $this->importer->enableCategoriesStructureCorrection();
+        $this->importer->enableImageResize();
     }
 
     // {{{ Columns
@@ -435,7 +436,7 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function normalizePositionValue($value)
     {
-        return abs(intval($value));
+        return abs((int)($value));
     }
 
     // }}}
@@ -495,7 +496,7 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
             return null;
         }
 
-        return $this->addCategoryByPath(isset($data['path']) ? $data['path'] : '');
+        return parent::createModel($data);
     }
 
     /**
@@ -522,6 +523,18 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function importPathColumn(\XLite\Model\Category $model, $value, array $column)
     {
+        if ($model->isRootCategory()) {
+            return;
+        }
+
+        if (!is_array($value)) {
+            $path = array_map('trim', explode('>>>', $value));
+        }
+
+        $cacheKey = implode('/', $path);
+        $model->setName(array_pop($path));
+        $model->setParent($this->addCategoryByPath($path));
+        $this->setCategoryByPathCache($cacheKey, $model);
     }
 
     /**

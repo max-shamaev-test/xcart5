@@ -102,4 +102,24 @@ class Message extends \XLite\Model\Repo\ARepo
         return $entity;
     }
 
+    /**
+     * Reset notifications cache
+     *
+     * @param $profileIds
+     */
+    public function resetMessagesUpdateTimestamp($profileIds)
+    {
+        if ($profileIds) {
+            $result = \XLite\Core\TmpVars::getInstance()->vendorMessagesUpdateTimestamp;
+            if (!is_array($result)) {
+                $result = [];
+            }
+
+            foreach ($profileIds as $pid) {
+                $result[$pid] = LC_START_TIME;
+            }
+
+            \XLite\Core\TmpVars::getInstance()->vendorMessagesUpdateTimestamp = $result;
+        }
+    }
 }

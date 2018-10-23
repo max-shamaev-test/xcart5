@@ -9,7 +9,7 @@ RewriteRule ^(.*)$ cart.php?url=$1 [NC,L,QSA]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^((?!images/|files/|var/theme/images/).*)$ cart.php?url=$0 [NC,L,QSA]
+RewriteRule ^((?!images/|files/|var/theme/images/).*)$ cart.php?url=$1 [NC,L,QSA]
 
 If you are using nginx, please make changes to nginx.conf according to the recommendations in the article
 https://kb.x-cart.com/en/general_setup/setting_up_seo-friendly_urls.html#setting-up-nginx

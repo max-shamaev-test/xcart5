@@ -456,19 +456,6 @@ class Marketplace extends \XLite\Upgrade\Entry\Module\AModule
     }
 
     /**
-     * Method to access module main class methods
-     *
-     * @param string $method Method to call
-     * @param array  $args   Call arguments OPTIONAL
-     *
-     * @return mixed
-     */
-    protected function callModuleMethod($method, array $args = array())
-    {
-        return \Includes\Utils\ModulesManager::callModuleMethod($this->getActualName(), $method, $args);
-    }
-
-    /**
      * Alias
      *
      * :WARNING: do not cache this object: identity info may be changed

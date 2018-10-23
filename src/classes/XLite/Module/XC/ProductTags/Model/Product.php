@@ -49,7 +49,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
         /** @var static $product */
         $product = parent::cloneEntity();
 
-        /** @var \XLite\Module\XC\ProductTags\Model\Tag $tag */
+        /** @var Tag $tag */
         foreach ($this->getTags() as $tag) {
             $tag->addProducts($product);
             $product->addTags($tag);
@@ -59,7 +59,8 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     }
 
     /**
-     * Add tags
+     * @deprecated 5.4
+     * @see addTag
      *
      * @param \XLite\Module\XC\ProductTags\Model\Tag $tags
      *
@@ -67,7 +68,21 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     public function addTags(\XLite\Module\XC\ProductTags\Model\Tag $tags)
     {
-        $this->tags[] = $tags;
+        return $this->addTag($tags);
+    }
+
+    /**
+     * Add tag
+     *
+     * @param Tag $tag
+     *
+     * @return Product
+     */
+    public function addTag(Tag $tag)
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags[] = $tag;
+        }
 
         return $this;
     }
@@ -83,7 +98,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     }
 
     /**
-     * @param \XLite\Module\XC\ProductTags\Model\Tag[] $tags
+     * @param Tag[] $tags
      */
     public function addTagsByTags($tags)
     {
@@ -95,7 +110,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     }
 
     /**
-     * @param \XLite\Module\XC\ProductTags\Model\Tag[] $tags
+     * @param Tag[] $tags
      */
     public function removeTagsByTags($tags)
     {
@@ -109,7 +124,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     public function replaceTagsByTags($tags)
     {
         $ids = array_map(function ($item) {
-            /** @var \XLite\Module\XC\ProductTags\Model\Tag $item */
+            /** @var Tag $item */
             return (int) $item->getId();
         }, $tags);
 
@@ -125,7 +140,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     }
 
     /**
-     * @param \XLite\Module\XC\ProductTags\Model\Tag $tag
+     * @param Tag $tag
      *
      * @return boolean
      */
@@ -135,7 +150,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     }
 
     /**
-     * @param \XLite\Module\XC\ProductTags\Model\Tag $tag
+     * @param Tag $tag
      *
      * @return mixed|null
      */

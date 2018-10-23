@@ -48,7 +48,7 @@ class Facebook extends \XLite\View\ExternalSDK\AExternalSDK
     {
         return '//connect.facebook.net/' . $this->getLocale()
             . '/all.js?t=' . microtime(true)
-            . '#' . http_build_query($this->getQuery());
+            . '#' . http_build_query($this->getQuery(), null, '&');
     }
 
     /**

@@ -245,6 +245,7 @@ XLite\Model\LanguageLabel:
   - { name: "Items", translations: [{ code: en, label: "Items" }] }
   - { name: "items", translations: [{ code: en, label: "items" }] }
   - { name: "Checkout", translations: [{ code: en, label: "Checkout" }] }
+  - { name: "Secure Checkout", translations: [{ code: en, label: "Secure Checkout" }] }
   - { name: "View cart", translations: [{ code: en, label: "View cart" }] }
   - { name: "Email address", translations: [{ code: en, label: "Email address" }] }
   - { name: "Password", translations: [{ code: en, label: "Password" }] }
@@ -456,9 +457,9 @@ XLite\Model\LanguageLabel:
   - { name: "1000 Example street", translations: [{ code: en, label: "1000 Example street" }] }
   - { name: "Example city", translations: [{ code: en, label: "Example city" }] }
   - { name: "California", translations: [{ code: en, label: "California" }] }
-  - { name: "90001", translations: [{ code: en, label: "90001" }] }
+  - { name: "90001", translations: [{ code: en, label: "" }] }
   - { name: "+12130000000", translations: [{ code: en, label: "+12130000000" }] }
-  - { name: "email@example.com", translations: [{ code: en, label: "email@example.com" }] }
+  - { name: "email@example.com", translations: [{ code: en, label: "" }] }
   - { name: "Specification", translations: [{ code: en, label: "Specification" }] }
   - { name: "not all upgrade packs were downloaded", translations: [{ code: en, label: "Not all the upgrade packs have been downloaded. This may have been caused by one of the following:<ul class='marked-list'><li>slow Internet connection;</li><li>an internal problem on the Marketplace server;</li><li>a problem with your X-Cart license (expired license key, license key not matching the module license, etc.)</li></ul>" }] }
   - { name: "A new customer? Enter your e-mail", translations: [{ code: en, label: "A new customer? Enter your email" }] }
@@ -2287,6 +2288,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Failed to load the banner {{value}} because it does not exist', translations: [{ code: en, label: 'Couldn''t load the banner "{{value}}", the file does not exist.' }] }
   - { name: 'Wrong position format', translations: [{ code: en, label: 'Wrong position format' }] }
   - { name: 'The "{{value}}" group is not created', translations: [{ code: en, label: 'The group "{{value}}" does not exist. A new group will be created' }] }
+  - { name: 'New attribute group will be created', translations: [{ code: en, label: 'New attribute group will be created' }] }
   - { name: 'Wrong type format', translations: [{ code: en, label: 'Wrong format of "type" value ({{value}}). This should be "C" - checkbox, "S" - selector, or "T" - textarea' }] }
   - { name: 'ProductSKU is empty', translations: [{ code: en, label: 'Product SKU is empty' }] }
   - { name: 'Product with SKU "{{value}}" does not exists', translations: [{ code: en, label: 'There is no product with SKU "{{value}}" to assign the attribute option value to' }] }
@@ -2398,7 +2400,7 @@ XLite\Model\LanguageLabel:
   - { name: 'The generation of resized images has been completed successfully.', translations: [{ code: en, label: 'The generation of resized images has been completed successfully.' }] }
   - { name: 'The generation of resized images has been stopped.', translations: [{ code: en, label: 'The generation of resized images has been stopped.' }] }
   - { name: 'The image resizing process may take a while to complete. Please do not close this page until the process is fully completed.', translations: [{ code: en, label: 'The image resizing process may take a while to complete. Please do not close this page until the process is fully completed. If the page has been closed, please re-open it to complete the process (The image resizing routine is executed only while the page stays open).' }] }
-  - { name: 'Notification headers and signatures can be set using variables. A list of supported variables and their respective values is provided in the table below', translations: [{ code: en, label: 'Notification headers and signatures can be set using variables. A list of supported variables and their respective values is provided in the table below' }] }
+  - { name: 'Notification header, greeting, text and signature can be set using variables. A list of supported variables and their respective values is provided in the table below', translations: [{ code: en, label: 'Notification header, greeting, text and signature can be set using variables. A list of supported variables and their respective values is provided in the table below' }] }
   - { name: 'Developers docs', translations: [{ code: en, label: 'Developers docs' }] }
   - { name: 'The following selected modules cannot be disabled or uninstalled as they have dependent modules', translations: [{ code: en, label: 'The following selected modules cannot be disabled or uninstalled as they have dependent modules: {{list}}' }] }
   - { name: 'The following selected modules cannot be enabled as they depend on disabled modules which cannot be enabled', translations: [{ code: en, label: 'The following selected modules cannot be enabled as they depend on disabled modules which cannot be enabled: {{list}}' }] }
@@ -3377,6 +3379,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Customer email (if exist)', translations: [{ code: en, label: 'Customer email (if exists)' }] }
 
   - { name: '[field] year must be between 1970 and 2038', translations: [{ code: en, label: '{{ field }} year must be between 1970 and 2038' }] }
+  - { name: 'If the product is not available for sale, the system returns 404 response.', translations: [{ code: en, label: 'If the product is not available for sale, the system returns 404 response (page not found). <a href="">Learn more</a> how you can handle with not available for sale products.' }] }
 
   - { name: '{{count}} day', translations: [{ code: en, label: '{{count}} day' }] }
   - { name: '{{count}} days', translations: [{ code: en, label: '{{count}} days' }] }

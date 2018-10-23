@@ -224,9 +224,9 @@ define('file_uploader', [
         this.getFileUploaderElement().find('input[type=file]').val('').click();
       },
       doUploadFromFile: function (event) {
-        var formData = new FormData();
         this.commonData.action = 'uploadFromFile';
         for (var i = 0; i < event.target.files.length; i++) {
+          var formData = new FormData();
           formData.append('file', event.target.files[i]);
           this.doRequest(formData, this.viaUrlPopup.data('multiple'));
         }

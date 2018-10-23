@@ -19,7 +19,7 @@ require_once LC_DIR_MODULES . 'XC' . LC_DS . 'MailChimp' . LC_DS . 'lib' . LC_DS
  */
 class MailChimp extends \XLite\Base\Singleton
 {
-    const SUBSCRIPTION_FIELD_NAME = 'subscribe';
+    const SUBSCRIPTION_FIELD_NAME        = 'subscribe';
     const SUBSCRIPTION_TO_ALL_FIELD_NAME = 'subscribeToAll';
 
     const MC_FIRST_NAME = 'FNAME';
@@ -40,7 +40,7 @@ class MailChimp extends \XLite\Base\Singleton
     public static function isSelectBoxElement()
     {
         return \XLite\Module\XC\MailChimp\View\FormField\Select\ElementType::SELECT
-        == \XLite\Core\Config::getInstance()->XC->MailChimp->subscriptionElementType;
+               == \XLite\Core\Config::getInstance()->XC->MailChimp->subscriptionElementType;
     }
 
     /**
@@ -51,8 +51,8 @@ class MailChimp extends \XLite\Base\Singleton
     public static function hasAPIKey()
     {
         return \XLite\Core\Config::getInstance()->XC
-            && \XLite\Core\Config::getInstance()->XC->MailChimp
-            && \XLite\Core\Config::getInstance()->XC->MailChimp->mailChimpAPIKey;
+               && \XLite\Core\Config::getInstance()->XC->MailChimp
+               && \XLite\Core\Config::getInstance()->XC->MailChimp->mailChimpAPIKey;
     }
 
     /**
@@ -88,7 +88,7 @@ class MailChimp extends \XLite\Base\Singleton
             }
         }
 
-        $rawId  = \Includes\Utils\URLManager::getShopURL();
+        $rawId = \Includes\Utils\URLManager::getShopURL();
         $rawId .= $listId ?: 'no_list_id';
         $rawId .= 'xc_5_weak_salt';
 
@@ -116,7 +116,7 @@ class MailChimp extends \XLite\Base\Singleton
     {
         $campaignInfo = MailChimpECommerce::getInstance()->getCampaign($campId);
 
-        if(!$campaignInfo
+        if (!$campaignInfo
             || !isset($campaignInfo['recipients'])
             || !$campaignInfo['recipients']
         ) {
@@ -131,7 +131,7 @@ class MailChimp extends \XLite\Base\Singleton
             ? $list['list_id']
             : null;
     }
-    
+
     /**
      * Subscribe profile to all lists
      *
@@ -170,11 +170,11 @@ class MailChimp extends \XLite\Base\Singleton
             return;
         }
 
-        if (!is_null($profile)) {
+        if ($profile !== null) {
             $currentlySubscribed = $profile->getMailChimpListsIds();
 
             if (self::isSelectBoxElement()) {
-                $tmpData = array();
+                $tmpData = [];
 
                 foreach ($currentlySubscribed as $listId) {
                     $tmpData[$listId] = '';
@@ -182,7 +182,7 @@ class MailChimp extends \XLite\Base\Singleton
 
                 if (!empty($data)) {
                     if (!is_array($data)) {
-                        $data = array($data => 1);
+                        $data = [$data => 1];
                     }
 
                     foreach ($data as $key => $value) {
@@ -193,9 +193,9 @@ class MailChimp extends \XLite\Base\Singleton
                 $data = $tmpData;
             }
 
-            $toSubscribe = array();
-            $toUnsubscribe = array();
-            $listGroupToSet = array();
+            $toSubscribe = [];
+            $toUnsubscribe = [];
+            $listGroupToSet = [];
 
             if (!$interests || !is_array($interests)) {
                 $interests = \XLite\Core\Request::getInstance()->interest;
@@ -214,7 +214,7 @@ class MailChimp extends \XLite\Base\Singleton
                 ) {
                     $toUnsubscribe[] = $listId;
                 }
-                
+
                 if (isset($interests[$listId]) && is_array($interests[$listId])) {
                     $listGroupToSet[$listId] = $interests[$listId];
                 }
@@ -303,7 +303,7 @@ class MailChimp extends \XLite\Base\Singleton
      */
     public function getMailChimpLists()
     {
-        try{
+        try {
             return $this->mailChimpAPI->get('lists');
         } catch (\Exception $e) {
             throw new MailChimpException($e->getMessage(), $e->getCode(), $e);
@@ -319,7 +319,7 @@ class MailChimp extends \XLite\Base\Singleton
      */
     public function getAutomations()
     {
-        try{
+        try {
             return $this->mailChimpAPI->get('automations');
         } catch (\Exception $e) {
             throw new MailChimpException($e->getMessage(), $e->getCode(), $e);
@@ -335,7 +335,7 @@ class MailChimp extends \XLite\Base\Singleton
      */
     public function getAutomationEmails($automationId)
     {
-        try{
+        try {
             return $this->mailChimpAPI->get("automations/{$automationId}/emails");
         } catch (\Exception $e) {
             throw new MailChimpException($e->getMessage(), $e->getCode(), $e);
@@ -349,7 +349,7 @@ class MailChimp extends \XLite\Base\Singleton
      */
     public function triggerAutomationEmail($automationId, $automationEmailId, $email)
     {
-        try{
+        try {
             $url = "automations/{$automationId}/emails/{$automationEmailId}/queue";
             $data = [
                 'email_address' => $email
@@ -369,7 +369,7 @@ class MailChimp extends \XLite\Base\Singleton
      */
     public static function getAllListsDataToSubscribe()
     {
-        $result = array();
+        $result = [];
 
         $cnd = new \XLite\Core\CommonCell();
 
@@ -396,7 +396,7 @@ class MailChimp extends \XLite\Base\Singleton
      */
     public static function getAllGroupNamesToSubscribe()
     {
-        $result = array();
+        $result = [];
 
         $cnd = new \XLite\Core\CommonCell();
 
@@ -429,10 +429,10 @@ class MailChimp extends \XLite\Base\Singleton
             if (!isset($result[$listId])) {
                 $result[$listId] = [];
             }
-            
+
             $result[$listId][$item->getId()] = 1;
         }
-        
+
         return $result;
     }
 
@@ -449,12 +449,12 @@ class MailChimp extends \XLite\Base\Singleton
         $hash = md5(mb_strtolower($email));
 
         $data = [
-            'email_type'        => 'html',
-            'email_address'     => $email,
-            'status'            => \XLite\Core\Config::getInstance()->XC->MailChimp->doubleOptinDisabled
+            'email_type'    => 'html',
+            'email_address' => $email,
+            'status'        => \XLite\Core\Config::getInstance()->XC->MailChimp->doubleOptinDisabled
                 ? 'subscribed'
                 : 'pending',
-            'merge_fields' => [
+            'merge_fields'  => [
                 self::MC_FIRST_NAME => $firstName,
                 self::MC_LAST_NAME  => $lastName,
             ],
@@ -483,19 +483,19 @@ class MailChimp extends \XLite\Base\Singleton
     /**
      * Create batch
      *
-     * @param array  $operations Operations
+     * @param array $operations Operations
      *
      * @return array
      */
     public function batch($operations)
     {
-        return $this->mailChimpAPI->post('batches', [ 'operations' => $operations ]);
+        return $this->mailChimpAPI->post('batches', ['operations' => $operations]);
     }
 
     /**
      * Create batch
      *
-     * @param string  $id Batch id
+     * @param string $id Batch id
      *
      * @return array
      */
@@ -511,28 +511,28 @@ class MailChimp extends \XLite\Base\Singleton
     /**
      * Subscribe batch
      *
-     * @param string $id     MailChimp list ID
-     * @param array  $emails E-mails
+     * @param string $id MailChimp list ID
+     * @param array $emails E-mails
      *
      * @return array
      */
     public function doSubscribeBatch($id, array $emails)
     {
-        $data = array();
+        $data = [];
 
         foreach ($emails as $subscribeData) {
             $hash = md5(mb_strtolower($subscribeData['email']));
 
             $data[] = [
-                'method'    => "PUT",
-                'path'      => "lists/{$id}/members/{$hash}",
-                'body'      => json_encode([
-                    'email_type'        => 'html',
-                    'email_address'     => $subscribeData['email'],
-                    'status'            => \XLite\Core\Config::getInstance()->XC->MailChimp->doubleOptinDisabled
+                'method' => "PUT",
+                'path'   => "lists/{$id}/members/{$hash}",
+                'body'   => json_encode([
+                    'email_type'    => 'html',
+                    'email_address' => $subscribeData['email'],
+                    'status'        => \XLite\Core\Config::getInstance()->XC->MailChimp->doubleOptinDisabled
                         ? 'subscribed'
                         : 'pending',
-                    'merge_fields' => [
+                    'merge_fields'  => [
                         self::MC_FIRST_NAME => $subscribeData['firstName'],
                         self::MC_LAST_NAME  => $subscribeData['lastName'],
                     ],
@@ -540,31 +540,31 @@ class MailChimp extends \XLite\Base\Singleton
             ];
         }
 
-        return $this->mailChimpAPI->post('batches', [ 'operations' => $data ]);
+        return $this->mailChimpAPI->post('batches', ['operations' => $data]);
     }
 
     /**
      * Unsubscribe batch
      *
-     * @param string $id     MailChimp list ID
-     * @param array  $emails E-mails
+     * @param string $id MailChimp list ID
+     * @param array $emails E-mails
      *
      * @return array
      */
     public function doUnsubscribeBatch($id, array $emails)
     {
-        $data = array();
+        $data = [];
 
         foreach ($emails as $subscribeData) {
             $hash = md5(mb_strtolower($subscribeData['email']));
 
             $data[] = [
-                'method'    => "DELETE",
-                'path'      => "lists/{$id}/members/{$hash}",
+                'method' => "DELETE",
+                'path'   => "lists/{$id}/members/{$hash}",
             ];
         }
 
-        return $this->mailChimpAPI->post('batches', [ 'operations'=> $data ]);
+        return $this->mailChimpAPI->post('batches', ['operations' => $data]);
     }
 
     /**
@@ -630,7 +630,7 @@ class MailChimp extends \XLite\Base\Singleton
             }
         }
 
-        $failedRequests = array_filter($result, function($res) {
+        $failedRequests = array_filter($result, function ($res) {
             return $res === false;
         });
 
@@ -689,16 +689,16 @@ class MailChimp extends \XLite\Base\Singleton
      *
      * @param \XLite\Model\Cart $cart
      *
-     * @return array
+     * @return bool
      */
     public function removeCart(\XLite\Model\Cart $cart)
     {
         $stores = [];
 
         if ($defaultStore = Main::getStoreForDefaultAutomation()) {
-            $stores[$defaultStore->getId()] = array(
-                'id'   => $defaultStore->getId(),
-            );
+            $stores[$defaultStore->getId()] = [
+                'id' => $defaultStore->getId(),
+            ];
         }
 
         $providedStoreId = static::getInstance()->getStoreIdByCampaign(
@@ -706,9 +706,9 @@ class MailChimp extends \XLite\Base\Singleton
         );
 
         if ($providedStoreId) {
-            $stores[$providedStoreId] = array(
-                'id'   => $providedStoreId,
-            );
+            $stores[$providedStoreId] = [
+                'id' => $providedStoreId,
+            ];
         }
 
         $result = [];
@@ -721,7 +721,7 @@ class MailChimp extends \XLite\Base\Singleton
             );
         }
 
-        $failedRequests = array_filter($result, function($res) {
+        $failedRequests = array_filter($result, function ($res) {
             return $res === false;
         });
 
@@ -743,11 +743,11 @@ class MailChimp extends \XLite\Base\Singleton
             $defaultStoreName = static::getInstance()->getStoreName(
                 \XLite\Core\Config::getInstance()->XC->MailChimp->defaultAutomationListId
             );
-            $stores[$defaultStore->getId()] = array(
-                'id'   => $defaultStore->getId(),
-                'name' => $defaultStoreName,
+            $stores[$defaultStore->getId()] = [
+                'id'        => $defaultStore->getId(),
+                'name'      => $defaultStoreName,
                 'isDefault' => true,
-            );
+            ];
         }
 
         $providedStoreId = static::getInstance()->getStoreIdByCampaign(
@@ -760,10 +760,10 @@ class MailChimp extends \XLite\Base\Singleton
                     \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
                 )
             );
-            $stores[$providedStoreId] = array(
+            $stores[$providedStoreId] = [
                 'id'   => $providedStoreId,
                 'name' => $providedStoreName,
-            );
+            ];
         }
 
         $result = [];
@@ -800,7 +800,7 @@ class MailChimp extends \XLite\Base\Singleton
             );
         }
 
-        $failedRequests = array_filter($result, function($res) {
+        $failedRequests = array_filter($result, function ($res) {
             return $res === false;
         });
 
@@ -812,25 +812,40 @@ class MailChimp extends \XLite\Base\Singleton
      *
      * @param \XLite\Model\Order $order
      *
-     * @return array
+     * @return bool
      */
     public function updateOrder(\XLite\Model\Order $order)
     {
         /** @var \XLite\Module\XC\MailChimp\Model\Order $order */
-        $storeId = $order->getMailchimpStoreId();
+        $stores = [$order->getMailchimpStoreId()];
+
+        if ($defaultStore = Main::getStoreForDefaultAutomation()) {
+            $stores[] = $defaultStore->getId();
+        }
 
         $orderData = Order::mapDataForChange($order);
         $orderId = $orderData['id'];
 
-        $this->mailChimpAPI->setActionMessageToLog('Update order');
-        $result = $this->mailChimpAPI->patch(
-            "ecommerce/stores/{$storeId}/orders/{$orderId}",
-            $orderData
-        );
+        $result = [];
 
-        return $this->mailChimpAPI->success()
-            ? $result
-            : null;
+        $this->mailChimpAPI->setActionMessageToLog('Update order');
+
+        foreach (array_unique($stores) as $storeId) {
+            $res = $this->mailChimpAPI->patch(
+                "ecommerce/stores/{$storeId}/orders/{$orderId}",
+                $orderData
+            );
+
+            $result[] = $this->mailChimpAPI->success()
+                ? $res
+                : null;
+        }
+
+        $failedRequests = array_filter($result, function ($res) {
+            return $res === false;
+        });
+
+        return count($failedRequests) === 0;
     }
 
     /**
@@ -875,7 +890,7 @@ class MailChimp extends \XLite\Base\Singleton
     {
         $ecCore = MailChimpECommerce::getInstance();
 
-        $storeId  = $storeData['store_id'];
+        $storeId = $storeData['store_id'];
 
         // Create store if not exists
         if (!$ecCore->isStoreExists($storeId)) {
@@ -883,8 +898,7 @@ class MailChimp extends \XLite\Base\Singleton
         }
 
         // Create products if not exists
-        foreach ($lines as $item)
-        {
+        foreach ($lines as $item) {
             $productId = $item->getObject() ? $item->getObject()->getProductId() : $item->getItemId;
             $product = $ecCore->isProductExists($storeId, $productId);
 
@@ -912,7 +926,7 @@ class MailChimp extends \XLite\Base\Singleton
             : $this->mailChimpAPI->post($url, $data);
 
         return $this->mailChimpAPI->success()
-            ? $result 
+            ? $result
             : null;
     }
 
@@ -927,7 +941,7 @@ class MailChimp extends \XLite\Base\Singleton
     {
         $this->mailChimpAPI->setActionMessageToLog('Get segments');
         $segments = $this->mailChimpAPI->get("lists/{$listId}/segments");
-        
+
         if (!$segments) {
             return [];
         }
@@ -935,13 +949,13 @@ class MailChimp extends \XLite\Base\Singleton
         $segments = $segments['segments'];
 
         return [
-            'static'    => array_filter($segments, function($segment) {
+            'static' => array_filter($segments, function ($segment) {
                 return $segment['type'] === 'static';
             }),
-            'saved'    => array_filter($segments, function($segment) {
+            'saved'  => array_filter($segments, function ($segment) {
                 return $segment['type'] === 'saved';
             }),
-            'fuzzy'    => array_filter($segments, function($segment) {
+            'fuzzy'  => array_filter($segments, function ($segment) {
                 return $segment['type'] === 'fuzzy';
             }),
         ];
@@ -958,15 +972,15 @@ class MailChimp extends \XLite\Base\Singleton
      */
     public function addToSegment($listId, $segmentId, array $emails)
     {
-        $batch = array();
+        $batch = [];
 
         foreach ($emails as $email) {
-            $batch[] = [ 'email' => $email ];
+            $batch[] = ['email' => $email];
         }
 
         $this->mailChimpAPI->setActionMessageToLog('Adding to segments');
         return $this->mailChimpAPI->post("lists/{$listId}/segments/{$segmentId}", [
-            'members_to_add'    => $batch
+            'members_to_add' => $batch
         ]);
     }
 
@@ -985,7 +999,7 @@ class MailChimp extends \XLite\Base\Singleton
 
         $this->mailChimpAPI->setActionMessageToLog('Profile subscribing to group');
         return $this->mailChimpAPI->patch("lists/{$listId}/members/{$subscriberHash}", [
-            'interests'    => $interests
+            'interests' => $interests
         ]);
     }
 

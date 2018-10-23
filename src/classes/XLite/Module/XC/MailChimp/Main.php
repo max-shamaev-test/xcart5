@@ -30,7 +30,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getModuleName()
     {
-        return 'MailChimp Integration with E-commerce support';
+        return 'Mailchimp Integration with E-commerce support';
     }
 
     /**
@@ -60,7 +60,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '4';
+        return '5';
     }
 
     /**
@@ -80,7 +80,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getDescription()
     {
-        return 'MailChimp is an email marketing service with powerful tools to manage your email campaigns and'
+        return 'Mailchimp is an email marketing service with powerful tools to manage your email campaigns and'
             . ' subscribers while gathering advanced analytics information on your campaign performance.';
     }
 

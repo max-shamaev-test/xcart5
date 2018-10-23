@@ -22,7 +22,9 @@ class Generator extends \XLite\Logic\AGenerator
     {
         $ids = $this->getOptions()->memberships;
 
-        return \XLite\Core\Database::getRepo('XLite\Model\Membership')->findByIds($ids);
+        return $ids
+            ? \XLite\Core\Database::getRepo('XLite\Model\Membership')->findByIds($ids)
+            : [];
     }
 
     // {{{ Steps

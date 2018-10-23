@@ -114,7 +114,7 @@ abstract class Operator extends \Includes\Utils\AUtils
         }
 
         if ($parsedQuery) {
-            $url .= '?' . http_build_query($parsedQuery);
+            $url .= '?' . http_build_query($parsedQuery, null, '&');
         }
 
         if ($fragment) {

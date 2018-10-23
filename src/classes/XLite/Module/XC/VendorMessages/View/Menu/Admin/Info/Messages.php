@@ -44,6 +44,7 @@ class Messages extends \XLite\View\Menu\Admin\ANodeNotification
     {
         return [
             'vendorMessagesUpdateTimestamp' => $this->getLastUpdateTimestamp(),
+            'profile_id'                    => \XLite\Core\Auth::getInstance()->getProfile()->getProfileId(),
         ];
     }
 

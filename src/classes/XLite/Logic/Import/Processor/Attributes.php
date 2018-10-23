@@ -132,7 +132,7 @@ class Attributes extends \XLite\Logic\Import\Processor\AProcessor
     {
         return parent::getErrorTexts()
             + array(
-                'ATTR-GROUP-FMT'    => 'New group will be created',
+                'ATTR-GROUP-FMT'    => 'New attribute group will be created',
             );
     }
 

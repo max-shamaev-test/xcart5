@@ -116,7 +116,7 @@ class MailChimpLoggableAPI extends \DrewM\MailChimp\MailChimp
                 'result'        => $result,
             ]);
 
-        } elseif ($result && isset($result['status']) && $result['status'] !== 404) {
+        } elseif ($result) {
             $message = ($this->getActionMessageToLog() ?: $endpoint) . ': Error';
 
             Main::logError($message, [

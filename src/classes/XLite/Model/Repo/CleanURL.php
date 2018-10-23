@@ -933,7 +933,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
                 }
 
                 if (!empty($params)) {
-                    $result .= '?' . http_build_query($params);
+                    $result .= '?' . http_build_query($params, null, '&');
                 }
             }
         } else {
@@ -1223,7 +1223,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
                 }
 
                 if (!empty($params)) {
-                    $result .= '?' . http_build_query($params);
+                    $result .= '?' . http_build_query($params, null, '&');
                 }
             }
         }

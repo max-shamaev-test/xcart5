@@ -8,12 +8,19 @@
 
 namespace XLite\Module\XC\ProductTags\View\ItemsList\Model;
 
+use XLite\Core\Database;
+use XLite\Core\TopMessage;
+use XLite\Model\AEntity;
+use XLite\Module\XC\ProductTags\Model\TagTranslation;
+
 /**
  * Tag items list
  */
 class Tag extends \XLite\View\ItemsList\Model\Table
 {
-    const PARAM_SEARCH_NAME     = 'translations.name';
+    protected $duplicatesCount = 0;
+
+    const PARAM_SEARCH_NAME = 'translations.name';
 
     /**
      * Define columns structure
@@ -22,23 +29,23 @@ class Tag extends \XLite\View\ItemsList\Model\Table
      */
     protected function defineColumns()
     {
-        return array(
-            'name' => array(
-                static::COLUMN_NAME      => \XLite\Core\Translation::lbl('Name'),
-                static::COLUMN_CLASS     => 'XLite\View\FormField\Inline\Input\Text',
-                static::COLUMN_PARAMS    => array('required' => true),
-                static::COLUMN_MAIN      => true,
-                static::COLUMN_PARAMS => array(
+        return [
+            'name'     => [
+                static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Name'),
+                static::COLUMN_CLASS   => 'XLite\View\FormField\Inline\Input\Text',
+                static::COLUMN_PARAMS  => ['required' => true],
+                static::COLUMN_MAIN    => true,
+                static::COLUMN_PARAMS  => [
                     \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 128,
-                ),
-                static::COLUMN_ORDERBY   => 100,
-            ),
-            'products' => array(
-                static::COLUMN_NAME     => static::t('Products'),
-                static::COLUMN_ORDERBY  => 200,
-                static::COLUMN_LINK     => 'product_list',
-            ),
-        );
+                ],
+                static::COLUMN_ORDERBY => 100,
+            ],
+            'products' => [
+                static::COLUMN_NAME    => static::t('Products'),
+                static::COLUMN_ORDERBY => 200,
+                static::COLUMN_LINK    => 'product_list',
+            ],
+        ];
     }
 
     /**
@@ -48,9 +55,9 @@ class Tag extends \XLite\View\ItemsList\Model\Table
      */
     static public function getSearchParams()
     {
-        return array(
-            \XLite\Module\XC\ProductTags\Model\Repo\Tag::SEARCH_NAME  => static::PARAM_SEARCH_NAME,
-        );
+        return [
+            \XLite\Module\XC\ProductTags\Model\Repo\Tag::SEARCH_NAME => static::PARAM_SEARCH_NAME,
+        ];
     }
 
     /**
@@ -115,7 +122,7 @@ class Tag extends \XLite\View\ItemsList\Model\Table
             $result = \XLite\Core\Converter::buildURL(
                 'product_list',
                 '',
-                array('action' => 'search', 'substring' => $entity->getName(), 'by_tag' => 'Y')
+                ['action' => 'search', 'substring' => $entity->getName(), 'by_tag' => 'Y']
             );
         } else {
             $result = parent::buildEntityURL($entity, $column);
@@ -142,6 +149,38 @@ class Tag extends \XLite\View\ItemsList\Model\Table
     protected function getCreateButtonLabel()
     {
         return 'New tag';
+    }
+
+    /**
+     * @param \XLite\Module\XC\ProductTags\Model\Tag|AEntity $entity
+     *
+     * @return bool
+     */
+    protected function prevalidateNewEntity(AEntity $entity)
+    {
+        /* @var TagTranslation $translation */
+        $translation = $entity->getTranslation();
+        $repo = Database::getRepo('XLite\Module\XC\ProductTags\Model\TagTranslation');
+
+        if ($repo->findOneBy([
+            'name' => $translation->getName(),
+            'code' => $translation->getCode(),
+        ])) {
+            $this->duplicatesCount++;
+            return false;
+        }
+
+        return parent::prevalidateNewEntity($entity);
+    }
+
+    protected function processCreateErrors()
+    {
+        if ($this->duplicatesCount) {
+            TopMessage::addWarning('{{count}} Tag duplicates ignored', [
+                'count' => $this->duplicatesCount
+            ]);
+        }
+        parent::processCreateErrors();
     }
 
     // {{{ Column processing

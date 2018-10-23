@@ -187,7 +187,7 @@ class SavedCards extends \XLite\View\ItemsList\Model\Table
 
         $cnd->{$class::SEARCH_RECHARGES_ONLY} = true;
         $cnd->{$class::SEARCH_PAYMENT_ACTIVE} = true;
-        $cnd->{$class::SEARCH_LOGIN} = $this->getCustomerProfile()->getLogin();
+        $cnd->{$class::SEARCH_PROFILE_ID} = $this->getCustomerProfile()->getProfileId();
 
         return $cnd;
     }

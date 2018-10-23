@@ -117,8 +117,8 @@ ListContainer.prototype.onUpdate = function (event) {
 };
 
 ListContainer.prototype.calculateWeight = function (element) {
-    var next = parseInt($(element).next().data('weight')) || 0;
     var prev = parseInt($(element).prev().data('weight')) || 0;
+    var next = parseInt($(element).next().data('weight')) || (prev + 2);
 
     var weight = Math.ceil(
         (next + prev) / 2

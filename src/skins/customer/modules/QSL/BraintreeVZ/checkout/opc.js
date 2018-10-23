@@ -7,21 +7,27 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-core.bind(
-    'load',
-    function() {
+/**
+ * Initialize Braintree at OPC
+ */
+function initOpcBraintree() {
 
-        core.bind(
-            'checkout.paymentTpl.postprocess',
-            braintreePayment.init.bind(braintreePayment) 
-        );
+    core.bind(
+        'checkout.paymentTpl.postprocess',
+        braintreePayment.init.bind(braintreePayment)
+    );
 
-        core.bind(
-            'resources.ready',
-            braintreePayment.init()
-        );
+    braintreePayment.init();
+}
 
-        braintreePayment.init();
-    }
-);
-
+if (typeof(window['slidebar']) == 'function' && jQuery.mmenu) {
+    core.bind('mm-menu.created', initOpcBraintree);
+    core.bind('mm-menu.before_create', initOpcBraintree);
+} else {
+    document.addEventListener(
+        'DOMContentLoaded',
+        function(event) {
+            initOpcBraintree();
+        }
+    );
+}

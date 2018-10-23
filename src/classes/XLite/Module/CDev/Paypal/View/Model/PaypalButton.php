@@ -71,6 +71,22 @@ class PaypalButton extends \XLite\View\Model\AModel
     }
 
     /**
+     * Return list of form fields objects by schema
+     *
+     * @param array $schema Field descriptions
+     *
+     * @return array
+     */
+    protected function getFieldsBySchema(array $schema)
+    {
+        if ($this->isPaypalForMarketplaces()) {
+            unset($schema['funding_venmo']);
+        }
+
+        return parent::getFieldsBySchema($schema);
+    }
+
+    /**
      * Return class of button panel widget
      *
      * @return string
@@ -106,5 +122,14 @@ class PaypalButton extends \XLite\View\Model\AModel
     protected function performActionUpdate()
     {
         return true;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isPaypalForMarketplaces()
+    {
+        return $this->getPaymentMethod()
+               && $this->getPaymentMethod()->getServiceName() === \XLite\Module\CDev\Paypal\Main::PP_METHOD_PFM;
     }
 }

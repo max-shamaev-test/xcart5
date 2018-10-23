@@ -52,7 +52,7 @@ abstract class Role extends \XLite\Model\Role implements \XLite\Base\IDecorator
      */
     public function setEnabled($enabled)
     {
-        $this->enabled = $enabled;
+        $this->enabled = (boolean)$enabled;
         return $this;
     }
 

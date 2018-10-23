@@ -72,12 +72,12 @@ XLite\Model\Notification:
       - code: en
         name: Contact us form submitted (Contact us module)
         description: 'This notification is sent to the administrator when someone submits a request via the "Contact us" form.'
-        adminSubject: Someone has used the Contact us form
+        adminSubject: %contact_us_subject% - %company_name%. Contact us form
         adminText: ""
       - code: ru
         name: Заполнена форма для связи с администрацией магазина (модуль Contact us)
         description: "Данное сообщение используется для оповещения администратора в случае поступления в адрес магазина обращения через форму для связи с администрацией."
-        adminSubject: Поступило обращение через форму для связи с администрацией магазина
+        adminSubject: %contact_us_subject% - %company_name%. Форма для связи с администрацией магазина
         adminText: ""
 
 XLite\Model\LanguageLabel:

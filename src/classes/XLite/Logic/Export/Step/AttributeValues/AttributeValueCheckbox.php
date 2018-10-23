@@ -22,4 +22,18 @@ class AttributeValueCheckbox extends \XLite\Logic\Export\Step\AttributeValues\AA
     {
         return \XLite\Core\Database::getRepo('XLite\Model\AttributeValue\AttributeValueCheckbox');
     }
+
+    /**
+     * Get column value for 'value' column
+     *
+     * @param array   $dataset Dataset
+     * @param string  $name    Column name
+     * @param integer $i       Subcolumn index
+     *
+     * @return string
+     */
+    protected function getValueColumnValue(array $dataset, $name, $i)
+    {
+        return $dataset['model']->getValue() ? 'Yes' : 'No';
+    }
 }

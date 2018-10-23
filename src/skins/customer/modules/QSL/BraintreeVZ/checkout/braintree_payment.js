@@ -7,7 +7,6 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-
 var braintreePayment = {
 
     /**
@@ -56,6 +55,16 @@ var braintreePayment = {
     isButton: false,
 
     /**
+     * PayPal button rendering attempts
+     */
+    paypalButtonRenderingAttempts: 0,
+
+    /**
+     * Maximum PayPal button rendering attempts
+     */
+    maxPaypalButtonRenderingAttempts: 100,
+
+    /**
      * Kount merchant ID
      */
     kountMerchantId: '',
@@ -69,7 +78,11 @@ var braintreePayment = {
     },
     set nonce(value) {
         this._nonce = value;
-        this.nonceElement.value = value;
+        this.log('Set nonce: ' + value);
+        if (this.nonceElement) {
+            this.nonceElement.value = value;
+            this.log(this.nonceElement);
+        }
     },
 
     /**
@@ -115,7 +128,7 @@ var braintreePayment = {
     /**
      * Credit card number placeholder
      */
-    numberPlaceholder: '4111 1111 1111 1111',
+    numberPlaceholder: '',
 
     /**
      * CVV selector
@@ -125,7 +138,7 @@ var braintreePayment = {
     /**
      * CVV placeholder
      */
-    cvvPlaceholder: '123',
+    cvvPlaceholder: '',
 
     /**
      * Expiration date selector
@@ -135,12 +148,7 @@ var braintreePayment = {
     /**
      * Expiration date placeholder
      */
-    datePlaceholder: '10/2025',
-
-    /**
-     * PayPal buttons DOM id's
-     */
-    paypalButtons: {},
+    datePlaceholder: '',
 
     /**
      * PayPal button style
@@ -161,7 +169,19 @@ var braintreePayment = {
     },
     set isInProgress(value) {
         this._isInProgress = value;
-        this.checkout.processInProgress();
+        this.checkout.processShadows();
+    },
+
+    /**
+     * Flag indicating something is loading
+     */
+    _isLoading: false,
+    get isLoading() {
+        return this._isLoading;
+    },
+    set isLoading(value) {
+        this._isLoading = value;
+        this.checkout.processShadows();
     },
 
     /**
@@ -172,19 +192,18 @@ var braintreePayment = {
     /**
      * Credit card form CSS styles
      */
-    styles: {},    
+    styles: {},
 
     /**
      * Trigger error
      */
-    triggerError: function(e)
-    {
+    triggerError: function triggerError(e) {
         console.error(e);
 
         if (typeof e === 'string' || e instanceof String) {
             var message = e;
         } else if ('undefined' != typeof e.message) {
-            var message = e.message
+            var message = e.message;
         } else {
             var message = 'Unknown Braintree error';
         }
@@ -194,21 +213,39 @@ var braintreePayment = {
         this.checkout.triggerError(message);
 
         this.isInProgress = false;
+        this.isLoading = false;
+        if (this.isFlc()) {
+            Checkout.instance.$root.finishLoadAnimation();
+        }
+    },
+
+    /**
+     * Log something to console
+     */
+    log: function log(data) {
+        if (core.isDeveloperMode) {
+            console.log(data);
+        }
     },
 
     /**
      * Check if Braintree is the current method
      */
-    isCurrent: function (includeSavedCards)
-    {
+    isCurrent: function isCurrent(includeSavedCards) {
         return this.checkout.isCurrent(includeSavedCards);
+    },
+
+    /**
+     * Check if it is Fastlane checkout
+     */
+    isFlc: function isFlc() {
+        return jQuery('.checkout_fastlane_container').length > 0;
     },
 
     /**
      * Create Braintree 3-D Secure instance callback
      */
-    create3DSecureCallback: function(error, instance)
-    {
+    create3DSecureCallback: function create3DSecureCallback(error, instance) {
         if (error) {
             return this.triggerError(error);
         }
@@ -219,13 +256,14 @@ var braintreePayment = {
 
         this.isInProgress = false;
         this.isInitialized = true;
+
+        this.log('Braintree payment initialized');
     },
 
     /**
      * Add 3-D secure iframe callback
      */
-    addFrameCallback: function(error, iframe)
-    {
+    addFrameCallback: function addFrameCallback(error, iframe) {
         if (error) {
             return this.triggerError(error);
         }
@@ -238,8 +276,7 @@ var braintreePayment = {
     /**
      * Remove 3-D secure iframe callback
      */
-    removeFrameCallback: function()
-    {
+    removeFrameCallback: function removeFrameCallback() {
         if ('function' == typeof this.checkout.removeFrameCallback) {
             this.checkout.removeFrameCallback();
         }
@@ -248,17 +285,16 @@ var braintreePayment = {
     /**
      * Verify card via 3-D Secure
      */
-    verifyCard: function(options)
-    {
+    verifyCard: function verifyCard(options) {
         if ('undefined' != options.nonce && options.nonce) {
             this.nonce = options.nonce;
         }
 
         var options = {
-            amount:      options.total,
-            nonce:       this.nonce,
-            addFrame:    this.addFrameCallback.bind(this),
-            removeFrame: this.removeFrameCallback.bind(this),
+            amount: options.total,
+            nonce: this.nonce,
+            addFrame: this.addFrameCallback.bind(this),
+            removeFrame: this.removeFrameCallback.bind(this)
         };
 
         this.secure3d.verifyCard(options, this.verifyCardCallback.bind(this));
@@ -267,24 +303,18 @@ var braintreePayment = {
     /**
      * 3-D Secure verify card callback
      */
-    verifyCardCallback: function(error, response)
-    {
+    verifyCardCallback: function verifyCardCallback(error, response) {
         if (error) {
             return this.triggerError(error);
         }
 
-        if (
-            'undefined' != typeof response.verificationDetails
-            && response.verificationDetails.liabilityShiftPossible == false
-            && response.verificationDetails.liabilityShifted == false
-            && this.isAcceptNo3dSecure == false
-        ) {
+        if ('undefined' != typeof response.verificationDetails && response.verificationDetails.liabilityShiftPossible == false && response.verificationDetails.liabilityShifted == false && this.isAcceptNo3dSecure == false) {
             return this.triggerError(this.acceptNo3dSecureError);
         }
 
         this.checkout.verifyCardCallback(response);
 
-        this.nonce = response.nonce; 
+        this.nonce = response.nonce;
 
         this.isInProgress = false;
         jQuery(this.formElement).submit();
@@ -293,8 +323,7 @@ var braintreePayment = {
     /**
      * Create Braintree hosted fields instance callback
      */
-    createHostedFieldsCallback: function(error, instance)
-    {
+    createHostedFieldsCallback: function createHostedFieldsCallback(error, instance) {
         if (error) {
             return this.triggerError(error);
         }
@@ -303,69 +332,69 @@ var braintreePayment = {
         this.nonce = '';
 
         // Form submitter
-        this.formElement.addEventListener('submit', this.submitForm.bind(this));
-        jQuery(this.formElement).bind('submit', this.submitForm.bind(this));
+        var submitEvent = 'submit';
+        if (this.isFlc()) {
+            submitEvent = 'beforeSubmit';
+        }
+
+        jQuery(this.formElement).bind(submitEvent, this.submitForm.bind(this));
 
         this.hostedFields = instance;
 
         this.checkout.createHostedFieldsCallback(instance);
 
         if (this.is3dSecure) {
-            braintree.threeDSecure.create({client: this.client}, this.create3DSecureCallback.bind(this));
+            braintree.threeDSecure.create({ client: this.client }, this.create3DSecureCallback.bind(this));
         } else {
             this.isInProgress = false;
             this.isInitialized = true;
+
+            this.log('Braintree payment initialized');
         }
     },
 
     /**
      * Get options for the Hosted Fields initialization 
      */
-    getHostedFieldsOptions: function()
-    {
+    getHostedFieldsOptions: function getHostedFieldsOptions() {
         return {
             client: this.client,
             styles: this.styles,
-            fields: this.fields,
+            fields: this.fields
         };
     },
 
     /**
      * PayPal button payment
      */
-    paypalButtonPayment: function()
-    {
-        return new Promise(
-            (resolve, reject) => {
-                this.checkout.getPayPalData(
-                    (options) => { resolve(this.paypalCheckout.createPayment(options)); }
-                );
-            }
-        );
+    paypalButtonPayment: function paypalButtonPayment() {
+        var _this = this;
+
+        return new Promise(function (resolve, reject) {
+            _this.checkout.getPayPalData(function (options) {
+                resolve(_this.paypalCheckout.createPayment(options));
+            });
+        });
     },
 
     /**
      * Callback for get PayPal data
      */
-    getPayPalDataCallback: function(options)
-    {
+    getPayPalDataCallback: function getPayPalDataCallback(options) {
         return this.paypalCheckout.createPayment(options);
     },
 
     /**
      * PayPal button Authorize action
      */
-    paypalButtonOnAuthorize: function(data, actions)
-    {
-        return this.paypalCheckout.tokenizePayment(data)
-            .then(this.paypalButtonOnAuthorizeThen.bind(this));
+    paypalButtonOnAuthorize: function paypalButtonOnAuthorize(data, actions) {
+        return this.paypalCheckout.tokenizePayment(data).then(this.paypalButtonOnAuthorizeThen.bind(this));
     },
 
     /**
      * Then for PayPal button Authorize action
      */
-    paypalButtonOnAuthorizeThen: function(payload)
-    {
+    paypalButtonOnAuthorizeThen: function paypalButtonOnAuthorizeThen(payload) {
         this.nonce = payload.nonce;
 
         this.isInProgress = false;
@@ -374,7 +403,6 @@ var braintreePayment = {
 
             // Submit order
             jQuery(this.formElement).submit();
-
         } else {
 
             // Proceed to checkout
@@ -385,20 +413,16 @@ var braintreePayment = {
     /**
      * PayPal button Cancel action
      */
-    paypalButtonOnCancel: function(data)
-    {
-        if (core.isDeveloperMode) {
-            console.log(data);
-        }
+    paypalButtonOnCancel: function paypalButtonOnCancel(data) {
+        this.log(data);
     },
 
     /**
      * Create PayPal Checkout calback
      */
-    createPayPalCheckoutCallback: function (error, instance)
-    {
+    createPayPalCheckoutCallback: function createPayPalCheckoutCallback(error, instance) {
         if (!this.isButton) {
-            // Regardles of the error create hosted fields
+            // Regardless of the error create hosted fields
             braintree.hostedFields.create(this.getHostedFieldsOptions(), this.createHostedFieldsCallback.bind(this));
         }
 
@@ -408,39 +432,61 @@ var braintreePayment = {
 
         this.paypalCheckout = instance;
 
+        setTimeout(this.renderPayPalButtons.bind(this), 1000);
+    },
+
+    /**
+     * Render PayPal buttons
+     */
+    renderPayPalButtons: function renderPayPalButtons() {
+
+        if ('undefined' == typeof paypal || 'undefined' == typeof paypal.Button) {
+
+            if (this.maxPaypalButtonRenderingAttempts > this.paypalButtonRenderingAttempts) {
+                this.paypalButtonRenderingAttempts++;
+                setTimeout(this.renderPayPalButtons.bind(this), 1000);
+            }
+
+            return;
+        }
+
         var options = {
-            env:         this.isTestMode ? 'sandbox' : 'production',
-            commit:      (!this.isButton),
-            payment:     this.paypalButtonPayment.bind(this),
+            env: this.isTestMode ? 'sandbox' : 'production',
+            commit: !this.isButton,
+            payment: this.paypalButtonPayment.bind(this),
             onAuthorize: this.paypalButtonOnAuthorize.bind(this),
-            onCancel:    this.paypalButtonOnCancel.bind(this),
-            onError:     this.triggerError.bind(this),
-            style:       this.paypalButtonStyle,
+            onCancel: this.paypalButtonOnCancel.bind(this),
+            onError: this.triggerError.bind(this),
+            style: this.paypalButtonStyle
         };
 
-        for (var i in this.paypalButtons) {
+        var _braintree = this;
 
-            paypal.Button.render(options, this.paypalButtons[i]).then(function () {
-               // The PayPal button will be rendered in an html element with the id
-               // `paypal-button`. This function will be called when the PayPal button
-               // is set up and ready to be used.
+        jQuery('.braintree-paypal-button').each(function(i) {
+            this.id = 'braintree-paypal-button-' + (i + 1);
+
+            paypal.Button.render(options, '#' + this.id).then(function () {
+                // The PayPal button will be rendered in an html element with the id
+                // `paypal-button`. This function will be called when the PayPal button
+                // is set up and ready to be used.
             });
 
-            if (this.isButton) {
-                this.isInProgress = false;
+            if (_braintree.isButton) {
+                _braintree.isInProgress = false;
             }
-        }
+
+        });
+
     },
 
     /**
      * Create PayPal calback
      */
-    createPayPalCallback: function (error, instance)
-    {
+    createPayPalCallback: function createPayPalCallback(error, instance) {
         if (error) {
 
             if (!this.isButton) {
-                // Regardles of the error create hosted fields
+                // Regardless of the error create hosted fields
                 braintree.hostedFields.create(this.getHostedFieldsOptions(), this.createHostedFieldsCallback.bind(this));
             }
 
@@ -450,7 +496,7 @@ var braintreePayment = {
         this.paypal = instance;
 
         var options = {
-            client: this.client,
+            client: this.client
         };
 
         // Create a PayPal Checkout component
@@ -460,8 +506,7 @@ var braintreePayment = {
     /**
      * Create Braintree client instance callback
      */
-    createClientCallback: function (error, instance)
-    {
+    createClientCallback: function createClientCallback(error, instance) {
         if (error) {
             return this.triggerError(error);
         }
@@ -473,12 +518,11 @@ var braintreePayment = {
         if (this.isPayPal || this.isButton) {
 
             var options = {
-                client: this.client,
-            }; 
+                client: this.client
+            };
 
             // Create PayPal. Hosted fields are created in callback if necessary 
             braintree.paypal.create(options, this.createPayPalCallback.bind(this));
-
         } else {
 
             braintree.hostedFields.create(this.getHostedFieldsOptions(), this.createHostedFieldsCallback.bind(this));
@@ -488,8 +532,7 @@ var braintreePayment = {
     /**
      * Tokenize card callback
      */
-    tokenizeCallback: function(error, payload)
-    {
+    tokenizeCallback: function tokenizeCallback(error, payload) {
         if (error) {
             return this.triggerError(error);
         }
@@ -501,7 +544,6 @@ var braintreePayment = {
         if (this.is3dSecure && this.secure3d) {
 
             this.checkout.getCartTotal(this.verifyCard.bind(this));
-
         } else {
 
             this.isInProgress = false;
@@ -512,20 +554,18 @@ var braintreePayment = {
     /**
      * Form submitter
      */
-    submitForm: function(event)
-    {
+    submitForm: function submitForm(event) {
         var allow = true;
 
         if (this.isInitialized && this.isCurrent(true) && 'undefined' != typeof braintree) {
 
             // This is one of the Braintree payment methods
-        
+
             if (this.isInProgress) {
 
                 // Form is being submitted, do nothing
                 allow = false;
                 event.preventDefault();
-
             } else if (this.nonce == '') {
 
                 if (this.isCurrent(false)) {
@@ -535,7 +575,6 @@ var braintreePayment = {
                     allow = false;
                     event.preventDefault();
                     this.hostedFields.tokenize(this.tokenizeCallback.bind(this));
-
                 } else {
 
                     // This is saved card payment
@@ -548,7 +587,13 @@ var braintreePayment = {
                         this.checkout.getSavedCardNonce(this.verifyCard.bind(this));
                     }
                 }
+
+            } else {
+
+                // For FLC, where values are copied before form submit
+                $('input[name="payment_method_nonce"]', 'form.place').val(this.nonce);
             }
+
         }
 
         return allow;
@@ -562,8 +607,7 @@ var braintreePayment = {
     /**
      * Init callback
      */
-    initCallback: function(options)
-    {
+    initCallback: function initCallback(options) {
         // Copy options
         for (var i in options) {
             this[i] = options[i];
@@ -577,15 +621,15 @@ var braintreePayment = {
         }
 
         this.nonceElement = document.querySelector(this.nonceSelector);
-        this.formElement = document.querySelector(this.formSelector)
+        this.formElement = document.querySelector(this.formSelector);
 
         if (!this.isButton) {
 
             // Details for the hosted fields
             this.fields = {
-              'number':         {selector: this.numberSelector, placeholder: this.numberPlaceholder},
-              'cvv':            {selector: this.cvvSelector, placeholder: this.cvvPlaceholder},
-              'expirationDate': {selector: this.dateSelector, placeholder: this.datePlaceholder},
+                'number': { selector: this.numberSelector, placeholder: this.numberPlaceholder },
+                'cvv': { selector: this.cvvSelector, placeholder: this.cvvPlaceholder },
+                'expirationDate': { selector: this.dateSelector, placeholder: this.datePlaceholder }
             };
         }
 
@@ -599,14 +643,49 @@ var braintreePayment = {
     /**
      * Constructor/initializator
      */
-    init: function(forceCurrent) 
-    {
-        isCurrent = this.isCurrent()
-            || (forceCurrent == true);
+    init: function init(counter) {
 
-        if (this.isInitialized || this.isInProgress || !isCurrent || 'undefined' == typeof braintree) {
+        if ('number' != typeof counter) {
+            counter = 1;
+        }
+
+        this.log('Braintree payment initialization started. Attempt: ' + counter);
+
+        if (!this.isCurrent()) {
+            this.log('Braintree is not current payment method');
+            this.teardown();
             return;
         }
+
+        this.isLoading = true;
+
+        if (
+            'undefined' == typeof braintree
+            || this.isPayPal && 'undefined' == typeof braintree.paypal
+            || this.is3dSecure && 'undefined' == typeof braintree.threeDSecure
+        ) {
+
+            if (20 > counter) {
+                this.log('Waiting for Braintree lib');
+                setTimeout(this.init.bind(this, ++counter), 500);
+            } else {
+                this.triggerError('Unable to load Braintree lib');
+            }
+
+            return;
+        }
+
+        this.isLoading = false;
+
+        if (this.isInitialized) {
+            this.log('Braintree is already initialized');
+            return
+        };
+
+        if (this.isInProgress) {
+            this.log('Braintree initialization in progress');
+            return
+        };
 
         this.isInProgress = true;
 
@@ -614,22 +693,54 @@ var braintreePayment = {
     },
 
     /**
+     * Destructor
+     */
+    teardown: function() {
+
+        this.log('Braintree payment teardown');
+
+        try {
+            this.client.teardown();
+            this.hostedFields.teardown();
+            this.paypal.teardown();
+            this.paypalCheckout.teardown();
+            this.secure3d.teardown();
+        } catch (err) {
+            // Do nothing. Apparenty somethng was not defined
+        }
+
+        this.isInitialized = false;
+        this.isInProgress = false;
+        this.isLoading = false;
+    },
+
+    /**
      * Some external methods which shoudld be processed by the store checkout page
      */
     checkout: {
-        init:                       function (callback) { callback(); }, // @param callback Callback function 
-        triggerError:               function (message) {}, // @param message Error message
-        create3DSecureCallback:     function () {}, // @param instance 3-D Secure object instance
-        addFrameCallback:           function (iframe) {}, // @param iframe Iframe element
-        verifyCardCallback:         function (response) {}, // @param response Braintree response of card verification
-        createHostedFieldsCallback: function () {}, 
-        createClientCallback:       function () {},
-        tokenizeCallback:           function (payload) {}, // @param payload Braintree payload with card tokenization nonce
-        getCartTotal:               function (callback) { callback(); }, // @param callback Callback function
-        getSavedCardNonce:          function (callback) { callback(); }, // @param callback Callback function
-        getPayPalData:              function (callback) { callback(); }, // @param callback Callback function
-        continuePayPal:             function (details) {}, // @param details Some details from PayPal
-        processInProgress:          function () {},
-        isCurrent:                  function () { return false; },
-    },
+        init: function init(callback) {
+            callback();
+        }, // @param callback Callback function 
+        triggerError: function triggerError(message) {}, // @param message Error message
+        create3DSecureCallback: function create3DSecureCallback() {}, // @param instance 3-D Secure object instance
+        addFrameCallback: function addFrameCallback(iframe) {}, // @param iframe Iframe element
+        verifyCardCallback: function verifyCardCallback(response) {}, // @param response Braintree response of card verification
+        createHostedFieldsCallback: function createHostedFieldsCallback() {},
+        createClientCallback: function createClientCallback() {},
+        tokenizeCallback: function tokenizeCallback(payload) {}, // @param payload Braintree payload with card tokenization nonce
+        getCartTotal: function getCartTotal(callback) {
+            callback();
+        }, // @param callback Callback function
+        getSavedCardNonce: function getSavedCardNonce(callback) {
+            callback();
+        }, // @param callback Callback function
+        getPayPalData: function getPayPalData(callback) {
+            callback();
+        }, // @param callback Callback function
+        continuePayPal: function continuePayPal(details) {}, // @param details Some details from PayPal
+        processShadows: function processShadows() {},
+        isCurrent: function isCurrent() {
+            return false;
+        }
+    }
 };

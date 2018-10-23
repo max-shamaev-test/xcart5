@@ -54,13 +54,12 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
                 $address = new \XLite\Model\Address;
                 $address->setIsShipping(true);
                 $address->persist();
-                $address->setIsShipping();
                 $profile->setShippingAddress($address);
 
             }
 
             if (!$profile->getBillingAddress()) {
-                $address->setIsBilling();
+                $address->setIsBilling(true);
                 $profile->setBillingAddress($address);
             }
 

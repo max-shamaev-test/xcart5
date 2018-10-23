@@ -33,9 +33,13 @@
             escapeMarkup: function (markup) { return markup; },
             templateResult: function (repo) {
               var term = $('.select2-search__field', $el.parent()).val();
-              if (repo.loading) return repo.text;
 
-              return repo.text.replace(new RegExp('('+term+')([^/]*)$', 'i'), '<em>$1</em>$2');
+              return repo.loading
+                ? htmlspecialchars(repo.text)
+                : htmlspecialchars(repo.text).replace(new RegExp('('+term+')([^/]*)$', 'i'), '<em>$1</em>$2');
+            },
+            templateSelection: function (selection) {
+              return '<span class="select2-selection-text">' + htmlspecialchars(selection.text) + '</span>';
             },
             matcher: function (params, match) {
               if (params.term == null || $.trim(params.term) === '') {

@@ -35,9 +35,24 @@ class BraintreeClient extends \XLite\Base\Singleton
     const ERROR_LOG_FILE = 'braintree-error';
 
     /**
+     * Debug log file name
+     */
+    const DEBUG_LOG_FILE = 'braintree-debug';
+
+    /**
+     * Default error message
+     */
+    const DEFAULT_ERROR_MESSAGE = 'There was a problem with your request';
+
+    /**
      * Use test intermediate server or not
      */
     const TEST_SERVER = false;
+
+    /**
+     * Enable debug
+     */
+    const IS_DEBUG = true;
 
     /**
      * Fields of Braintree transaction theat should be saved
@@ -192,9 +207,11 @@ class BraintreeClient extends \XLite\Base\Singleton
     {
         if (!$this->gateway) {
 
-            $this->gateway = new \Braintree\Gateway(array(
-                'accessToken' => $this->getSetting('accessToken'),
-            ));
+            if ($this->getSetting('accessToken')) {
+                $this->gateway = new \Braintree\Gateway(array(
+                    'accessToken' => $this->getSetting('accessToken'),
+                ));
+            }
         }
     }
 
@@ -257,10 +274,10 @@ class BraintreeClient extends \XLite\Base\Singleton
                 $token = $this->gateway->clientToken()->generate();
             }
 
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
 
             $token = '';
-            static::processError($e->getMessage());
+            static::processError($exception);
         }
 
         return $token;
@@ -281,7 +298,7 @@ class BraintreeClient extends \XLite\Base\Singleton
     /**
      * Returns state code for US and state name for other countries
      *
-     * @param $address \XLite\Model\Address Address
+     * @param \XLite\Model\Address Address $address
      *
      * @return string
      */
@@ -296,6 +313,112 @@ class BraintreeClient extends \XLite\Base\Singleton
         }
 
         return $state;
+    }
+
+    /**
+     * Prepare customer information
+     *
+     * @param \XLite\Model\Address $address Address
+     * @param array $list List of address fields
+     *
+     * @return array
+     */
+    protected function prepareAddressData(\XLite\Model\Address $address, $list = array())
+    {
+        $data = array();
+
+        foreach ($list as $field) {
+
+            $method = null;
+            $value = '';
+
+            switch ($field) {
+
+                case 'firstName':
+                case 'lastName':
+                    $method = 'get' . ucfirst(strtolower($field));
+                    break;
+
+                case 'email':
+                    $value = $address->getProfile()->getLogin();
+                    break;
+
+                case 'streetAddress':
+                    $method = 'getStreet';
+                    break;
+
+                case 'locality':
+                    $method = 'getCity';
+                    break;
+
+                case 'region':
+                    $value = $this->getStateField($address);
+                    break;
+
+                case 'postalCode':
+                    $method = 'getZipcode';
+                    break;
+
+                case 'countryCodeAlpha2':
+                    $value = $address->getCountry() ? $address->getCountry()->getCode() : 'US';
+                    break;
+
+                default:
+                    $method = 'get' . $field;
+            }
+
+            if ($method && is_callable(array($address, $method))) {
+                $value = $address->$method();
+            }
+
+            $data[$field] = $value;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Prepare customer information
+     *
+     * @param \XLite\Model\Address $address Address
+     *
+     * @return array
+     */
+    protected function prepareCustomer(\XLite\Model\Address $address)
+    {
+        $list = array(
+            'firstName',
+            'lastName',
+            'company',
+            'phone',
+            'fax',
+            'email',
+        );
+
+        return $this->prepareAddressData($address, $list);
+    }
+
+    /**
+     * Prepare address information
+     *
+     * @param \XLite\Model\Address $address Address
+     *
+     * @return array
+     */
+    protected function prepareAddress(\XLite\Model\Address $address)
+    {
+        $list = array(
+            'firstName',
+            'lastName',
+            'company',
+            'streetAddress',
+            'locality',
+            'region',
+            'postalCode',
+            'countryCodeAlpha2',
+        );
+
+        return $this->prepareAddressData($address, $list);
     }
 
     /**
@@ -348,27 +471,11 @@ class BraintreeClient extends \XLite\Base\Singleton
         } elseif ($profile->getBillingAddress()) {
 
             // Create new customer
-            $request['customer'] = array(
-                'firstName' => $profile->getBillingAddress()->getFirstname(),
-                'lastName'  => $profile->getBillingAddress()->getLastname(),
-                'company'   => $profile->getBillingAddress()->getCompany(),
-                'phone'     => $profile->getBillingAddress()->getPhone(),
-                'fax'       => $profile->getBillingAddress()->getFax(),
-                'email'     => $profile->getLogin(),
-            );
+            $request['customer'] = $this->prepareCustomer($profile->getBillingAddress());
         }
 
         if ($profile->getBillingAddress()) {
-            $request['billing'] = array(
-                'firstName'         => $profile->getBillingAddress()->getFirstname(),
-                'lastName'          => $profile->getBillingAddress()->getLastname(),
-                'company'           => $profile->getBillingAddress()->getCompany(),
-                'streetAddress'     => $profile->getBillingAddress()->getStreet(),
-                'locality'          => $profile->getBillingAddress()->getCity(),
-                'region'            => $this->getStateField($profile->getBillingAddress()),
-                'postalCode'        => $profile->getBillingAddress()->getZipcode(),
-                'countryCodeAlpha2' => strtoupper($profile->getBillingAddress()->getCountry()->getCode()),
-            );
+            $request['billing'] = $this->prepareAddress($profile->getBillingAddress());
         }
 
         // This checks if the shipping for the order is required
@@ -379,16 +486,15 @@ class BraintreeClient extends \XLite\Base\Singleton
             && $modifier 
             && $modifier->canApply()
         ) {
-            $request['shipping'] = array(
-                'firstName'         => $profile->getShippingAddress()->getFirstname(),
-                'lastName'          => $profile->getShippingAddress()->getLastname(),
-                'company'           => $profile->getShippingAddress()->getCompany(),
-                'streetAddress'     => $profile->getShippingAddress()->getStreet(),
-                'locality'          => $profile->getShippingAddress()->getCity(),
-                'region'            => $this->getStateField($profile->getShippingAddress()),
-                'postalCode'        => $profile->getShippingAddress()->getZipcode(),
-                'countryCodeAlpha2' => strtoupper($profile->getShippingAddress()->getCountry()->getCode()),
-            );
+            $request['shipping'] = $this->prepareAddress($profile->getShippingAddress());
+        }
+
+        if (static::IS_DEBUG) {
+
+            $logMessage = 'Initial transaction request' . PHP_EOL
+                . var_export($request, true);
+
+            \XLite\Logger::getInstance()->logCustom(static::DEBUG_LOG_FILE, $logMessage);
         }
 
         return $request;
@@ -535,13 +641,21 @@ class BraintreeClient extends \XLite\Base\Singleton
                     $this->getInitRequest($transaction)
                 );
 
+                if (static::IS_DEBUG) {
+
+                    $logMessage = 'Initial transaction response' . PHP_EOL
+                        . var_export($result, true);
+
+                    \XLite\Logger::getInstance()->logCustom(static::DEBUG_LOG_FILE, $logMessage);
+                }
+
                 $this->processResult($transaction, $result);
 
                 \XLite\Core\Session::getInstance()->braintree_paypal_nonce = '';
 
-            } catch (\Exception $e) {
+            } catch (\Exception $exception) {
 
-                static::processError($e->getMessage());
+                static::processError($exception);
             }
         }
     }
@@ -574,9 +688,9 @@ class BraintreeClient extends \XLite\Base\Singleton
 
                 $result = $this->processResult($transaction, $result, true);
 
-            } catch (\Braintree\Exception $e) {
+            } catch (\Braintree\Exception $exception) {
 
-                static::processError($e->getMessage());
+                static::processError($exception);
 
                 $result = false;
             }
@@ -613,9 +727,9 @@ class BraintreeClient extends \XLite\Base\Singleton
 
                 $result = $this->processResult($transaction, $result, true);
 
-            } catch (\Braintree\Exception $e) {
+            } catch (\Braintree\Exception $exception) {
 
-                static::processError($e->getMessage());
+                static::processError($exception);
 
                 $result = false;
             }
@@ -648,9 +762,9 @@ class BraintreeClient extends \XLite\Base\Singleton
 
                 $result = $this->processResult($transaction, $result, true);
 
-            } catch (\Braintree\Exception $e) {
+            } catch (\Braintree\Exception $exception) {
 
-                static::processError($e->getMessage());
+                static::processError($exception);
 
                 $result = false;
             }
@@ -680,9 +794,9 @@ class BraintreeClient extends \XLite\Base\Singleton
                 $nonce = $response->paymentMethodNonce->nonce;
             }
 
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
 
-            static::processError($e->getMessage());
+            static::processError($exception);
         }
 
         return $nonce;
@@ -750,9 +864,9 @@ class BraintreeClient extends \XLite\Base\Singleton
                 $result = $this->gateway->paymentMethod()->delete($token);
             }
 
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
 
-            static::processError($e->getMessage());
+            static::processError($exception);
         }
 
         return $result;
@@ -791,9 +905,9 @@ class BraintreeClient extends \XLite\Base\Singleton
                 );
             }
 
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
 
-            static::processError($e->getMessage());
+            static::processError($exception);
 
         }
 
@@ -914,11 +1028,11 @@ class BraintreeClient extends \XLite\Base\Singleton
 
             $data = json_decode(base64_decode($data), true);            
 
-        } catch (Exception $e) {
+        } catch (\Exception $exception) {
 
             $data = array();
 
-            $this->processError($e->getMessage());
+            $this->processError($exception);
         }
 
         return $data;
@@ -937,6 +1051,7 @@ class BraintreeClient extends \XLite\Base\Singleton
 
         $isPayPal = !empty($data['paypalEnabled']) ? '1' : '0';
         $is3dSecure = !empty($data['threeDSecureEnabled']) ? '1' : '0';
+        $isTestMode = (isset($data['environment']) && 'sandbox' == $data['environment']);
 
         if ($isPayPal != $this->getSetting('isPayPal')) {
             $this->getPaymentMethod()->setSetting('isPayPal', $isPayPal);
@@ -945,6 +1060,11 @@ class BraintreeClient extends \XLite\Base\Singleton
 
         if ($is3dSecure != $this->getSetting('is3dSecure')) {
             $this->getPaymentMethod()->setSetting('is3dSecure', $is3dSecure);
+            $changed = true;
+        }
+
+        if ($isTestMode != $this->getSetting('testMode')) {
+            $this->getPaymentMethod()->setSetting('testMode', $isTestMode);
             $changed = true;
         }
 
@@ -958,14 +1078,33 @@ class BraintreeClient extends \XLite\Base\Singleton
     /**
      * Write error to log and display top message
      *
-     * @param $message Error message
+     * @param mixed $error Exception or error message
      *
      * @return void
      */
-    public static function processError($message)
+    public static function processError($error = null)
     {
-        \XLite\Logger::getInstance()->logCustom(static::ERROR_LOG_FILE, $message);
-        \XLite\Core\TopMessage::getInstance()->addError($message);
+        if ($error instanceof \Exception) {
+
+            $topMessage = $error->getMessage();
+
+            if (empty($topMessage)) {
+                $topMessage = static::DEFAULT_ERROR_MESSAGE;
+            }
+
+            $logMessage = $topMessage . PHP_EOL . 'Exception class: ' . get_class($error);
+
+        } elseif (is_string($error) && !empty($error)) {
+
+            $logMessage = $topMessage = $error;
+
+        } else {
+
+            $logMessage = $topMessage = static::DEFAULT_ERROR_MESSAGE;
+        }
+
+        \XLite\Logger::getInstance()->logCustom(static::ERROR_LOG_FILE, $logMessage);
+        \XLite\Core\TopMessage::getInstance()->addError($topMessage);
     }
 
 }

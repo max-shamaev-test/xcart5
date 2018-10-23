@@ -11,6 +11,7 @@ core.bind(
   'checkout.main.initialize',
   function() {
     var handler = null;
+    var updateCartBinded = false;
 
     core.bind(
       'checkout.paymentTpl.postprocess',
@@ -37,8 +38,9 @@ core.bind(
             options.image = box.data('image');
           }
           handler = StripeCheckout.configure(options);
+        }
 
-          if (!_.isUndefined(data) && !_.isUndefined(data.widget)) {
+        if (!updateCartBinded && !_.isUndefined(data) && !_.isUndefined(data.widget)) {
             // Update payment template by change of cart total
             PaymentTplView.prototype.handleUpdateCartStripe = function (event, data)
             {
@@ -51,8 +53,9 @@ core.bind(
               'updateCart',
               _.bind(data.widget.handleUpdateCartStripe, data.widget)
             );
-          };
-        }
+
+            updateCartBinded = true;
+        };
       }
     );
 

@@ -9,6 +9,7 @@
 
 var xpcLoading = false;
 var xpcPopupError = false;
+var xpcTimeoutTimer = false;
 
 decorate(
   'CheckoutView',
@@ -54,6 +55,8 @@ CheckoutView.prototype.messageListener = function (event)
     return;
   }
 
+  clearTimeout(xpcTimeoutTimer);
+  xpcLoading = false;
   unassignWaitOverlay(jQuery('#xpc'));
 
   if ('paymentFormSubmit' == msg.message) {
@@ -113,10 +116,10 @@ CheckoutView.prototype.messageListener = function (event)
 
   } else {
 
-    xpcLoading = false;
     jQuery('.save-card-box').show();
     jQuery('.steps').get(0).loadable.unshade();
     jQuery('.cart-items').get(0).loadable.unshade();
+    jQuery('.step-payment-methods').get(0).loadable.unshade();
     core.trigger('checkout.common.anyChange');
 
     this.triggerVent('xpc.unshade', {widget: this});
@@ -132,10 +135,35 @@ core.bind(
     decorate(
       'CartItemsView',
       'unshade',
-      function(isSuccess, initial) {
-        if (!xpcLoading || !xpcUseIframe) {
-          arguments.callee.previousMethod.apply(this, arguments);
-        }
+      xpcUnshadeEventHandler
+    );
+
+    decorate(
+      'PaymentMethodsView',
+      'unshade',
+      xpcUnshadeEventHandler
+    );
+
+    decorate(
+      'PaymentMethodsView',
+      'handleMethodChange',
+      function(event) {
+        clearTimeout(xpcTimeoutTimer);
+        return arguments.callee.previousMethod.apply(this, arguments);
+      }
+    );
+
+    decorate(
+      'PlaceOrderButtonView',
+      'checkState',
+      function(supressErrors) {
+        var preserveBlocked = this.blocked;
+        this.blocked = !xpcIsUnshadeAllowed();
+
+        var result = arguments.callee.previousMethod.apply(this, arguments);
+        this.blocked = preserveBlocked;
+
+        return result;
       }
     );
 
@@ -161,10 +189,6 @@ core.bind(
       'checkout.cartItems.postprocess',
       function(event, data) {
         if (typeof(xpcPaymentIds) !== "undefined" && xpcPaymentIds[currentPaymentId]) {
-
-          if (jQuery('.xpc_iframe').length) {
-            xpcLoading = true;
-          }
 
           if (jQuery('.save-card-box').length) {
             jQuery('.save-card-box').hide();
@@ -219,6 +243,7 @@ core.bind(
         }
 
         if (data.paymentMethodId) {
+          clearTimeout(xpcTimeoutTimer);
           currentPaymentId = data.paymentMethodId;
         }
 
@@ -237,8 +262,44 @@ core.bind(
       }
     );
 
+    core.bind([
+        'checkout.shippingAddress.submitted',
+        'checkout.billingAddress.submitted'
+      ],
+      toggleCardAddressWarnings
+    );
+
   }
 );
+
+function xpcIsUnshadeAllowed()
+{
+  return typeof(xpcPaymentIds) == 'undefined'
+    || !currentPaymentId
+    || !xpcPaymentIds[currentPaymentId]
+    || !xpcUseIframe
+    || !xpcLoading;
+}
+
+function xpcUnshadeEventHandler(isSuccess, initial)
+{
+  if (xpcIsUnshadeAllowed()) {
+    arguments.callee.previousMethod.apply(this, arguments);
+  }
+}
+
+function xpcLoadingTimeout()
+{
+  if (!xpcIsUnshadeAllowed()) {
+    xpcPopupError = true;
+    var url = URLHandler.buildURL({
+      'target': 'xpc_popup',
+      'type': XPC_IFRAME_CHANGE_METHOD,
+      'message': 'Failed to load payment form.'
+    });
+    popup.load(url);
+  }
+}
 
 function reloadXpcIframe()
 {
@@ -253,7 +314,13 @@ function reloadXpcIframe()
   }
 
   console.log('Loading X-Payments iframe...');
+
+  xpcLoading = true;
   assignWaitOverlay(jQuery('#xpc'));
+
+  clearTimeout(xpcTimeoutTimer);
+  xpcTimeoutTimer = setTimeout(xpcLoadingTimeout, 15000);
+
   jQuery('#xpc').css('height', 'initial');
   iframe.attr('src', src);
 }

@@ -1,0 +1,9 @@
+Version 5.3.7.4
+
+Fixes (5)
+2018-10-15 - [Bug] Added style.label='checkout' for the PayPal button on the checkout page. #BUG-6770 (Kirill Stadler) #Paypal
+2018-08-27 - [Bug] Locale was not sent for PayPal EC. Fixed. #BUG-5812 https://bt.x-cart.com/view.php?id=48730 (Kirill Stadler) #Paypal
+2018-08-03 - [Bug] Use of '&' as a delimeter in the http_build_query function is now enforced. #BUG-6576 (Sergey Elmanov) #Core #GoogleAnalytics #GoSocial #Paypal #USPS #ProductFilter #AvaTax #MultiCurrency #MailChimp #YandexMoney #G2APay #Beanstream #TaxJar
+2018-07-25 - [Bug] The PayPal banner is no longer displayed if the country is other than US. #BUG-6567 https://bt.x-cart.com/view.php?id=49714 (Sergey Elmanov) #Paypal
+2018-07-18 - [Bug] When using PayPal Express Checkout, the order was created with incorrect data. Fixed. #BUG-6530 https://bt.x-cart.com/view.php?id=49548 (Shevelov Alexander) #Paypal
+

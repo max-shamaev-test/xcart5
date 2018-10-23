@@ -41,6 +41,7 @@ class PaypalButton extends \XLite\View\Dialog
      */
     protected function isPaypalForMarketplaces()
     {
-        return $this->getPaymentMethod()->getServiceName() === \XLite\Module\CDev\Paypal\Main::PP_METHOD_PFM;
+        return $this->getPaymentMethod()
+               && $this->getPaymentMethod()->getServiceName() === \XLite\Module\CDev\Paypal\Main::PP_METHOD_PFM;
     }
 }

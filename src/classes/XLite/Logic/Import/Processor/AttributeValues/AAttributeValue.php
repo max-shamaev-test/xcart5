@@ -544,16 +544,19 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
      * Get cached attribute group by its name
      *
      * @param string $name Attribute group name
+     * @param \XLite\Model\ProductClass $productClass Product class object
      *
      * @return \XLite\Model\AttributeGroup Attribute group object
      */
     protected function getAttributeGroup($name, $productClass = null, $create = false)
     {
-        if (!isset($this->groupsCache[$name])) {
-            $this->groupsCache[$name] = \XLite\Core\Database::getRepo('XLite\Model\AttributeGroup')->findOneByName($name);
+        $cacheKey = $name . ($productClass ? $productClass->getId() : '');
+
+        if (!isset($this->groupsCache[$cacheKey])) {
+            $this->groupsCache[$cacheKey] = \XLite\Core\Database::getRepo('XLite\Model\AttributeGroup')->findOneByNameAndProductClass($name, $productClass);
         }
 
-        if ($create && !empty($name) && $productClass && !$this->groupsCache[$name]) {
+        if ($create && !empty($name) && $productClass && !$this->groupsCache[$cacheKey]) {
             $entity = new \XLite\Model\AttributeGroup;
             $entity->setName($name);
             $entity->setProductClass($productClass);
@@ -561,10 +564,10 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
 
             \XLite\Core\Database::getEM()->persist($group);
 
-            $this->groupsCache[$name] = $group;
+            $this->groupsCache[$cacheKey] = $group;
         }
 
-        return $this->groupsCache[$name];
+        return $this->groupsCache[$cacheKey];
     }
 
     /**
@@ -598,7 +601,7 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
             } else {
                 $cnd->product        = null;
                 $cnd->productClass   = $this->getProductClass($data['class']);
-                $cnd->attributeGroup = $this->getAttributeGroup($data['group']);
+                $cnd->attributeGroup = $this->getAttributeGroup($data['group'], $this->getProductClass($data['class']));
             }
 
             $cnd->name = $data['name'];

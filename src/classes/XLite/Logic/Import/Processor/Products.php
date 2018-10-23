@@ -60,6 +60,7 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
         parent::initialize();
 
         $this->importer->enableCategoriesStructureCorrection();
+        $this->importer->enableImageResize();
     }
 
     /**

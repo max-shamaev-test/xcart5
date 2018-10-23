@@ -30,7 +30,7 @@ class Template extends \XLite\Model\AEntity
     /**
      * Is enabled
      *
-     * @var string
+     * @var boolean
      *
      * @Column (type="boolean", options={"default": 1})
      */
@@ -89,13 +89,13 @@ class Template extends \XLite\Model\AEntity
     /**
      * Set Enabled
      *
-     * @param string $enabled
+     * @param boolean $enabled
      *
      * @return $this
      */
     public function setEnabled($enabled)
     {
-        $this->enabled = $enabled;
+        $this->enabled = (boolean)$enabled;
         return $this;
     }
 

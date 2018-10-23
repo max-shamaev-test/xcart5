@@ -99,6 +99,7 @@ ul.data li .actions {
   background: transparent url(../../items_list/model/table/images/line-separator.png) repeat-y left top;
   padding: 2px 10px 2px 13px;
   margin-top: 10px;
+  pointer-events: all;
 }
 
 div.dialog-block ul.data li.attribute {
@@ -194,6 +195,7 @@ li.line.attribute.remove-mark * {
 li.line.value.remove-mark,
 li.line.attribute.remove-mark {
   opacity: .6;
+  pointer-events: none;
 }
 
 li.line.edit-mark .inline-field.editable .view {

@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\ProductVariants\View;
 
+use XLite\Module\XC\ProductVariants\Model\ProductVariant;
+
 /**
  * Product page widgets collection
  */
@@ -50,26 +52,24 @@ class ProductPageCollection extends \XLite\View\ProductPageCollection implements
         $result = parent::isAllowedWidget($name);
 
         if ($result && $this->getProduct()->hasVariants()) {
+            $types = $this->getProductModifierTypes();
             switch ($name) {
                 case '\XLite\View\Product\Details\Customer\Quantity':
                 case '\XLite\View\Product\Details\Customer\Stock':
                 case '\XLite\View\Product\Details\Customer\AddButton':
-                    $types = $this->getProductModifierTypes();
                     if (empty($types['quantity'])) {
                         $result = false;
                     }
                     break;
 
                 case '\XLite\View\Product\Details\Customer\CommonAttributes':
-                    $types = $this->getProductModifierTypes();
                     if (empty($types['weight']) && empty($types['sku'])) {
                         $result = false;
                     }
                     break;
 
                 case '\XLite\View\Product\Details\Customer\EditableAttributes':
-                    $types = $this->getProductModifierTypes();
-                    if (empty($types['weight']) && empty($types['price'])) {
+                    if (empty($types['weight']) && empty($types['price']) && !$this->isReloadVariantAttributes()) {
                         $result = false;
                     }
                     break;
@@ -80,6 +80,14 @@ class ProductPageCollection extends \XLite\View\ProductPageCollection implements
         }
 
         return $result;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isReloadVariantAttributes()
+    {
+        return $this->getProduct()->getAllPossibleVariantsCount() > $this->getProduct()->getVariants()->count();
     }
 
     /**

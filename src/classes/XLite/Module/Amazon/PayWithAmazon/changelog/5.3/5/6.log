@@ -1,0 +1,9 @@
+Version 5.3.5.6
+
+Fixes (5)
+2018-08-31 - [Bug] Code optimization for the PayWithAmazon module. #BUG-6574 (Kirill Stadler) #AmazonPay
+2018-08-23 - [Bug] The Amazon login button was missing on the customer login form. #BUG-6609 (Shevelov Alexander) #AmazonPay
+2018-08-23 - [Bug] Amazon login did not work if the email address being used was the same as the email address of an existing administrator user. Fixed. #BUG-6607 https://bt.x-cart.com/view.php?id=49772 (Shevelov Alexander) #AmazonPay
+2018-07-31 - [Bug] Added a help tip about the requirement to use https if using Amazon Pay. #BUG-6364 (Shevelov Alexander) #AmazonPay
+2018-07-19 - [Bug] Incorrect redirect to a blank page after logging in from the login page (not from the popup) if Clean URLs are enabled and the store is installed in the web root. Fixed. #BUG-6569 https://bt.x-cart.com/view.php?id=49715 (Sergey Elmanov) #Core #SocialLogin #AmazonPay
+

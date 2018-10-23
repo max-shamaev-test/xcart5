@@ -489,12 +489,6 @@ class Mailer extends \XLite\Base\Singleton
      */
     public static function sendOrderCreatedAdmin(\XLite\Model\Order $order)
     {
-        static::register('order', $order);
-
-        if (\XLite\Core\Config::getInstance()->NotificationAttachments->attach_pdf_invoices) {
-            static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
-        }
-
         $result = static::composeOrderDepartmentMail('order_created', $order);
 
         if ($result && !static::hasScheduledJob()) {
@@ -582,12 +576,6 @@ class Mailer extends \XLite\Base\Singleton
      */
     public static function sendOrderProcessedAdmin(\XLite\Model\Order $order)
     {
-        static::register('order', $order);
-
-        if (\XLite\Core\Config::getInstance()->NotificationAttachments->attach_pdf_invoices) {
-            static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
-        }
-
         $result = static::composeOrderDepartmentMail('order_processed', $order);
 
         if ($result && !static::hasScheduledJob()) {
@@ -675,12 +663,6 @@ class Mailer extends \XLite\Base\Singleton
      */
     public static function sendOrderChangedAdmin(\XLite\Model\Order $order)
     {
-        static::register('order', $order);
-
-        if (\XLite\Core\Config::getInstance()->NotificationAttachments->attach_pdf_invoices) {
-            static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
-        }
-
         $result = static::composeOrderDepartmentMail('order_changed', $order);
 
         if ($result && !static::hasScheduledJob()) {
@@ -962,12 +944,6 @@ class Mailer extends \XLite\Base\Singleton
      */
     public static function sendOrderFailedAdmin(\XLite\Model\Order $order)
     {
-        static::register('order', $order);
-
-        if (\XLite\Core\Config::getInstance()->NotificationAttachments->attach_pdf_invoices) {
-            static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
-        }
-
         $result = static::composeOrderDepartmentMail('order_failed', $order);
 
         if ($result && !static::hasScheduledJob()) {
@@ -1055,12 +1031,6 @@ class Mailer extends \XLite\Base\Singleton
      */
     public static function sendOrderCanceledAdmin(\XLite\Model\Order $order)
     {
-        static::register('order', $order);
-
-        if (\XLite\Core\Config::getInstance()->NotificationAttachments->attach_pdf_invoices) {
-            static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
-        }
-
         $result = static::composeOrderDepartmentMail('order_canceled', $order);
 
         if ($result && !static::hasScheduledJob()) {
@@ -1292,9 +1262,8 @@ class Mailer extends \XLite\Base\Singleton
             \XLite::getAdminScript()
         );
         static::register('transactionSearchURL', $transactionSearchURL);
-        static::register('order', $transaction->getOrder());
 
-        static::composeOrderDepartmentMail('failed_transaction', ($transaction->getOrder() ?: null));
+        static::composeOrderDepartmentMail('failed_transaction', ($transaction->getOrder() ?: null), false);
     }
 
     /**
@@ -2273,14 +2242,22 @@ class Mailer extends \XLite\Base\Singleton
     }
 
     /**
-     * @param string $template
+     * @param string     $template
      * @param Order|null $order
+     * @param boolean    $attachInvoice
+     *
      * @return bool
      */
-    public static function composeOrderDepartmentMail($template, $order)
+    public static function composeOrderDepartmentMail($template, $order, $attachInvoice = true)
     {
         if (!$template) {
             return false;
+        }
+
+        static::register('order', $order);
+
+        if ($attachInvoice && \XLite\Core\Config::getInstance()->NotificationAttachments->attach_pdf_invoices) {
+            static::attachInvoice($order, \XLite::ADMIN_INTERFACE);
         }
 
         try {

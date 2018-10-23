@@ -18,7 +18,7 @@ class Tracking extends Request
         ];
 
         parent::__construct(
-            $endpoint . '/shippingservices/v1/tracking/' . $trackingNumber . '?' . http_build_query($urlParams),
+            $endpoint . '/shippingservices/v1/tracking/' . $trackingNumber . '?' . http_build_query($urlParams, null, '&'),
             'GET',
             null,
             [

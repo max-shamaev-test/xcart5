@@ -29,7 +29,7 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
      */
     public function isTitleVisible()
     {
-        return !FastLaneCheckout\Main::isFastlaneEnabled();
+        return parent::isTitleVisible() && !FastLaneCheckout\Main::isFastlaneEnabled();
     }
 
     /**

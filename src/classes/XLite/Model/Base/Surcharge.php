@@ -260,6 +260,10 @@ abstract class Surcharge extends \XLite\Model\AEntity
         $owner = $surcharge->getOwner();
 
         $owner->removeSurcharge($surcharge);
+        if ($surcharge->isPersistent()) {
+            \XLite\Core\Database::getEM()->remove($surcharge);
+        }
+
         $owner->addSurcharges($this);
         $this->setOwner($owner);
     }

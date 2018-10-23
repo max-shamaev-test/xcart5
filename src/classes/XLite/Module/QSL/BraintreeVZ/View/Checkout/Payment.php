@@ -15,6 +15,33 @@ namespace XLite\Module\QSL\BraintreeVZ\View\Checkout;
 abstract class Payment extends \XLite\View\Checkout\Payment implements \XLite\Base\IDecorator
 {
     /**
+     * Include Braintree JS/CSS files or not 
+     */
+    protected $includeBraintreeFiles = null;
+
+    /**
+     * Check if it's necessary to include Braintree JS/CSS files or not 
+     *
+     * @return bool
+     */
+    protected function isIncludeBraintreeFiles()
+    {
+        if (null === $this->includeBraintreeFiles) {
+
+            $client = \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance();
+
+            $this->includeBraintreeFiles = (
+                $client->isConfigured()
+                && $client->getPaymentMethod()
+                && $client->getPaymentMethod()->isEnabled()
+                && ('amazon_checkout' != \XLite::getController()->getTarget()) // Should not be Amazon Checkout target
+            );
+        }
+
+        return $this->includeBraintreeFiles;
+    }
+
+    /**
      * Checks if fastlane checkout mode is enabled
      *
      * @return boolean
@@ -33,6 +60,10 @@ abstract class Payment extends \XLite\View\Checkout\Payment implements \XLite\Ba
     {
         $list = parent::getCSSFiles();
 
+        if (!$this->isIncludeBraintreeFiles()) {
+            return $list;
+        }
+
         $list[] = $this->getBraintreeSkinDir() . 'style.css';
 
         return $list;
@@ -45,17 +76,21 @@ abstract class Payment extends \XLite\View\Checkout\Payment implements \XLite\Ba
      */
     public function getJSFiles()
     {
-        $client = \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance();
-
         $list = parent::getJSFiles();
 
+        if (!$this->isIncludeBraintreeFiles()) {
+            return $list;
+        }
+
+        $client = \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance();
+
         $list[] = array(
-            'file'      => $this->getBraintreeSkinDir() . 'braintree_payment.min.js',
+            'file'      => $this->getBraintreeSkinDir() . 'braintree_payment.js',
             'no_minify' => true,
         );
 
         $list[] = array(
-            'file'      => $this->getBraintreeSkinDir() . 'checkout.min.js',
+            'file'      => $this->getBraintreeSkinDir() . 'checkout.js',
             'no_minify' => true,
         );
 
@@ -66,38 +101,32 @@ abstract class Payment extends \XLite\View\Checkout\Payment implements \XLite\Ba
         }
 
         $list[] = array(
-            'url'   => 'https://js.braintreegateway.com/web/3.19.0/js/client.min.js',
-            'async' => true,
+            'url'   => 'https://js.braintreegateway.com/web/3.34.0/js/client.min.js',
         );
 
         $list[] = array(
-            'url'   => 'https://js.braintreegateway.com/web/3.19.0/js/hosted-fields.min.js',
-            'async' => true,
+            'url'   => 'https://js.braintreegateway.com/web/3.34.0/js/hosted-fields.min.js',
         );
 
         if ('1' == $client->getSetting('isPayPal')) {
 
             $list[] = array(
-                'url'   => 'https://js.braintreegateway.com/web/3.19.0/js/paypal.min.js',
-                'async' => true,
+                'url'   => 'https://js.braintreegateway.com/web/3.34.0/js/paypal.min.js',
             );
 
             $list[] = array(
-                'url'   => 'https://js.braintreegateway.com/web/3.19.0/js/paypal-checkout.min.js',
-                'async' => true,
+                'url'   => 'https://js.braintreegateway.com/web/3.34.0/js/paypal-checkout.min.js',
             );
 
             $list[] = array(
                 'url'   => 'https://www.paypalobjects.com/api/checkout.js',
-                'async' => true,
             );
         }
 
         if ('1' == $client->getSetting('is3dSecure')) {
 
             $list[] = array(
-                'url'   => 'https://js.braintreegateway.com/web/3.19.0/js/three-d-secure.min.js',
-                'async' => true,
+                'url'   => 'https://js.braintreegateway.com/web/3.34.0/js/three-d-secure.min.js',
             );
         }
 
@@ -141,9 +170,21 @@ abstract class Payment extends \XLite\View\Checkout\Payment implements \XLite\Ba
      */
     protected function hasCreditCards()
     {
-        $creditCards = $this->getCart()->getProfile()->getBraintreeCreditCardsHash();
+        if (
+            $this->getCart()
+            && $this->getCart()->getProfile()
+        ) {
 
-        return !empty($creditCards);
+            $creditCards = $this->getCart()->getProfile()->getBraintreeCreditCardsHash();
+
+            $result = !empty($creditCards);
+
+        } else {
+
+            $result = false;
+        }
+
+        return $result;
     }
 
     /**

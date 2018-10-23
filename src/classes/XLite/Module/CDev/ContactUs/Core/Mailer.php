@@ -52,6 +52,7 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
     public static function sendContactUsMessage($contact, $email)
     {
         static::register('contact', $contact);
+        static::register('hideCompanyInSubject', true);
 
         if (is_array($email)) {
             foreach ($email as $mail) {
@@ -90,5 +91,53 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
         }
 
         return static::getMailer()->getLastError();
+    }
+
+    /**
+     * Returns variables names
+     *
+     * @return array
+     */
+    protected function getVariables()
+    {
+        return array_merge(
+            parent::getVariables(),
+            [
+                'contact_us_subject',
+            ]
+        );
+    }
+
+    /**
+     * Return contact us subject
+     *
+     * @param string $name Variable name
+     *
+     * @return string
+     */
+    protected function getVariableValueContactUsSubject($name)
+    {
+        $contact = $this->getContact();
+
+        $subject = '';
+        if ($contact) {
+            $subject = $contact->getSubject();
+        }
+
+        return $subject;
+    }
+
+    /**
+     * Returns contact object
+     *
+     * @return null|\XLite\Module\CDev\ContactUs\Model\Contact
+     */
+    protected function getContact()
+    {
+        $contact = static::getMailer()->get('contact');
+
+        return (is_object($contact) && $contact instanceof \XLite\Module\CDev\ContactUs\Model\Contact)
+            ? $contact
+            : null;
     }
 }

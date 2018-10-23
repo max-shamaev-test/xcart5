@@ -69,7 +69,6 @@ class Payment extends \XLite\Model\Order\Status\AStatus
             static::STATUS_PART_PAID,
             static::STATUS_PAID,
             static::STATUS_QUEUED,
-            static::STATUS_REFUNDED,
         ];
     }
 

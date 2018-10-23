@@ -20,7 +20,7 @@ class Category extends \XLite\Model\Category implements \XLite\Base\IDecorator
      *
      * @var string
      *
-     * @Column (type="text")
+     * @Column (type="text", nullable=true)
      */
     protected $ogMeta = '';
 

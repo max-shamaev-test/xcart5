@@ -55,7 +55,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '13';
+        return '14';
     }
 
     /**
@@ -65,7 +65,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '2';
+        return '3';
     }
 
     /**

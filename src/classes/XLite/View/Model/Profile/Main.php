@@ -216,11 +216,13 @@ class Main extends \XLite\View\Model\Profile\AProfile
         }
 
         if ($this->getModelObject()->getMembership()) {
-            $this->mainSchema['pending_membership_id'][self::SCHEMA_CLASS] = 'XLite\View\FormField\Label';
+            unset($this->mainSchema['pending_membership_id']);
         }
 
         if (!\XLite\Core\Config::getInstance()->General->allow_membership_request) {
-            unset($this->mainSchema['membership_id']);
+            if (!$this->getModelObject()->getMembership()) {
+                unset($this->mainSchema['membership_id']);
+            }
             unset($this->mainSchema['pending_membership_id']);
         }
 
@@ -415,7 +417,7 @@ class Main extends \XLite\View\Model\Profile\AProfile
     {
         $data = parent::prepareDataForMapping();
 
-        if (isset($data['pending_membership_id']) && 0 < intval($data['pending_membership_id'])) {
+        if (isset($data['pending_membership_id']) && 0 < (int)($data['pending_membership_id'])) {
             $membership = \XLite\Core\Database::getRepo('XLite\Model\Membership')->find($data['pending_membership_id']);
 
             if (isset($membership)) {

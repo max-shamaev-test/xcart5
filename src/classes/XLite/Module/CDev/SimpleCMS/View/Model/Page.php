@@ -7,7 +7,12 @@
  */
 
 namespace XLite\Module\CDev\SimpleCMS\View\Model;
+
 use XLite\Core\Database;
+use XLite\View\FileUploader;
+use XLite\View\FormField\AFormField;
+use XLite\View\FormField\Input\Text\CleanURL;
+use XLite\View\FormField\Textarea\Advanced;
 
 /**
  * Page view model
@@ -19,69 +24,69 @@ class Page extends \XLite\View\Model\AModel
      *
      * @var array
      */
-    protected $schemaDefault = array(
-        'name' => array(
+    protected $schemaDefault = [
+        'name'           => [
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Text',
             self::SCHEMA_LABEL    => 'Name',
             self::SCHEMA_REQUIRED => true,
-        ),
-        'enabled' => array(
+        ],
+        'enabled'        => [
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Checkbox\Enabled',
             self::SCHEMA_LABEL    => 'Enabled',
             self::SCHEMA_REQUIRED => false,
-        ),
-        'cleanURL' => array(
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Text\CleanURL',
-            self::SCHEMA_LABEL    => 'CleanURL',
-            self::SCHEMA_REQUIRED => false,
-            \XLite\View\FormField\AFormField::PARAM_LABEL_HELP => 'Human readable and SEO friendly web address for the page.',
-            \XLite\View\FormField\Input\Text\CleanURL::PARAM_OBJECT_CLASS_NAME => 'XLite\Module\CDev\SimpleCMS\Model\Page',
-            \XLite\View\FormField\Input\Text\CleanURL::PARAM_OBJECT_ID_NAME     => 'id',
-            \XLite\View\FormField\Input\Text\CleanURL::PARAM_ID                 => 'cleanurl',
-            \XLite\View\FormField\Input\Text\CleanURL::PARAM_EXTENSION          => \XLite\Model\Repo\CleanURL::CLEAN_URL_DEFAULT_EXTENSION,
-        ),
-        'body' => array(
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Textarea\Advanced',
-            self::SCHEMA_LABEL    => 'Content',
-            self::SCHEMA_REQUIRED => true,
+        ],
+        'cleanURL'       => [
+            self::SCHEMA_CLASS                => 'XLite\View\FormField\Input\Text\CleanURL',
+            self::SCHEMA_LABEL                => 'CleanURL',
+            self::SCHEMA_REQUIRED             => false,
+            AFormField::PARAM_LABEL_HELP      => 'Human readable and SEO friendly web address for the page.',
+            CleanURL::PARAM_OBJECT_CLASS_NAME => 'XLite\Module\CDev\SimpleCMS\Model\Page',
+            CleanURL::PARAM_OBJECT_ID_NAME    => 'id',
+            CleanURL::PARAM_ID                => 'cleanurl',
+            CleanURL::PARAM_EXTENSION         => \XLite\Model\Repo\CleanURL::CLEAN_URL_DEFAULT_EXTENSION,
+        ],
+        'body'           => [
+            self::SCHEMA_CLASS              => 'XLite\View\FormField\Textarea\Advanced',
+            self::SCHEMA_LABEL              => 'Content',
+            self::SCHEMA_REQUIRED           => true,
             self::SCHEMA_TRUSTED_PERMISSION => true,
-            \XLite\View\FormField\Textarea\Advanced::PARAM_STYLE => 'page-body-content',
-        ),
-        'meta_title' => array(
+            Advanced::PARAM_STYLE           => 'page-body-content',
+        ],
+        'meta_title'     => [
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Text',
             self::SCHEMA_LABEL    => 'Content page title',
             self::SCHEMA_REQUIRED => false,
             self::SCHEMA_COMMENT  => 'Leave blank to use page name as Page Title.',
-        ),
+        ],
         // todo: rename to meta_tags
-        'metaKeywords' => array(
+        'metaKeywords'   => [
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Text',
             self::SCHEMA_LABEL    => 'Meta keywords',
             self::SCHEMA_REQUIRED => false,
-        ),
-        'meta_desc_type' => array(
+        ],
+        'meta_desc_type' => [
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\MetaDescriptionType',
             self::SCHEMA_LABEL    => 'Meta description',
             self::SCHEMA_REQUIRED => false,
-        ),
+        ],
         // todo: rename to meta_desc
-        'teaser' => array(
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Textarea\Simple',
-            self::SCHEMA_LABEL    => '',
-            \XLite\View\FormField\AFormField::PARAM_USE_COLON => false,
-            self::SCHEMA_REQUIRED => true,
-            self::SCHEMA_DEPENDENCY => array(
-                self::DEPENDENCY_SHOW => array (
-                    'meta_desc_type' => array('C'),
-                )
-            ),
-        ),
-        'image' => array(
+        'teaser'         => [
+            self::SCHEMA_CLASS      => 'XLite\View\FormField\Textarea\Simple',
+            self::SCHEMA_LABEL      => '',
+            self::SCHEMA_REQUIRED   => true,
+            self::SCHEMA_DEPENDENCY => [
+                self::DEPENDENCY_SHOW => [
+                    'meta_desc_type' => ['C'],
+                ],
+            ],
+        ],
+        'image'          => [
             self::SCHEMA_CLASS    => 'XLite\View\FormField\FileUploader\Image',
             self::SCHEMA_LABEL    => 'Open graph image',
-            self::SCHEMA_REQUIRED => false
-        ),
-    );
+            self::SCHEMA_REQUIRED => false,
+            FileUploader::PARAM_HAS_ALT => false,
+        ],
+    ];
 
     /**
      * Return current model ID
@@ -99,7 +104,7 @@ class Page extends \XLite\View\Model\AModel
      * @param string $name Field name
      * @param array  $data Field description
      *
-     * @return \XLite\View\FormField\AFormField
+     * @return AFormField
      */
     protected function getFieldBySchema($name, array $data)
     {
@@ -169,19 +174,19 @@ class Page extends \XLite\View\Model\AModel
         $result = parent::getFormButtons();
 
         $result['save'] = new \XLite\View\Button\Submit(
-            array(
+            [
                 \XLite\View\Button\AButton::PARAM_LABEL    => 'Save',
                 \XLite\View\Button\AButton::PARAM_BTN_TYPE => 'regular-main-button',
                 \XLite\View\Button\AButton::PARAM_STYLE    => 'action',
-            )
+            ]
         );
 
         $result['save_and_close'] = new \XLite\View\Button\Regular(
-            array(
+            [
                 \XLite\View\Button\AButton::PARAM_LABEL  => 'Save & Close',
                 \XLite\View\Button\AButton::PARAM_STYLE  => 'action',
                 \XLite\View\Button\Regular::PARAM_ACTION => 'updateAndClose',
-            )
+            ]
         );
 
         return $result;

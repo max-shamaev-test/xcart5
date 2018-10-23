@@ -5,7 +5,7 @@
  * Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
- 
+
  namespace XLite\Module\CDev\XPaymentsConnector\View\Tabs;
 
 /**
@@ -40,7 +40,12 @@ class AdminProfile extends \XLite\View\Tabs\AdminProfile implements \XLite\Base\
 
         $saveCardsMethods = \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')->search($cnd);
 
-        if ($saveCardsMethods) {
+        $profile = (null !== $this->getProfile())
+            ? $this->getProfile()
+            : \XLite\Core\Auth::getInstance()->getProfile();
+        $isAnonymous = $profile->getAnonymous();
+
+        if ($saveCardsMethods && !$isAnonymous) {
             $found = false;
             foreach ($saveCardsMethods as $pm) {
                 if ($pm->isEnabled()) {

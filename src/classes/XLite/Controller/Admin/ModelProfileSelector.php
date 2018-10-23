@@ -39,8 +39,8 @@ class ModelProfileSelector extends \XLite\Controller\Admin\ModelSelector\AModelS
     protected function getData()
     {
         $cnd = new \XLite\Core\CommonCell();
-        $cnd->{\XLite\Model\Repo\Profile::SEARCH_PATTERN} = $this->getKey();
-        $cnd->{\XLite\Model\Repo\Profile::SEARCH_LOGIN}   = $this->getKey();
+        $cnd->{\XLite\Model\Repo\Profile::SEARCH_PATTERN} = strip_tags($this->getKey());
+        $cnd->{\XLite\Model\Repo\Profile::SEARCH_LOGIN}   = strip_tags($this->getKey());
         $cnd->{\XLite\Model\Repo\Profile::P_LIMIT}   = array(0, static::MAX_PROFILE_COUNT);
 
         return \XLite\Core\Database::getRepo('XLite\Model\Profile')->search($cnd);

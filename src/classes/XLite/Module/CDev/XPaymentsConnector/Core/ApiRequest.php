@@ -331,13 +331,6 @@ class ApiRequest extends \XLite\Base
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($ch, CURLOPT_HEADERFUNCTION, array($this, 'getCurlHeadersCollector'));
 
-        if (!empty(\XLite\Core\Config::getInstance()->Security->https_proxy)) {
-            // uncomment this line if you need proxy tunnel
-            // curl_setopt ($ch, CURLOPT_HTTPPROXYTUNNEL, true);
-            curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-            curl_setopt($ch, CURLOPT_PROXY, \XLite\Core\Config::getInstance()->Security->https_proxy);
-        }
-
         // insecure key is supported by curl since version 7.10
         $version = curl_version();
 

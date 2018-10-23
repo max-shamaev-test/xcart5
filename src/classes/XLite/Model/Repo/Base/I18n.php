@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Repo\Base;
 
+use XLite\Model\QueryBuilder\AQueryBuilder;
+
 /**
  * Translations-owner abstract reporitory
  */
@@ -67,18 +69,18 @@ abstract class I18n extends \XLite\Model\Repo\ARepo
     /**
      * Add the specific joints with the translation table
      *
-     * @param \Doctrine\ORM\QueryBuilder $queryBuilder
-     * @param string                     $alias
-     * @param string                     $translationsAlias
-     * @param string                     $code
+     * @param AQueryBuilder $queryBuilder
+     * @param string        $alias
+     * @param string        $translationsAlias
+     * @param string        $code
      *
-     * @return \Doctrine\ORM\QueryBuilder
+     * @return AQueryBuilder
      */
     protected function addTranslationJoins($queryBuilder, $alias, $translationsAlias, $code)
     {
         if ($code) {
             $queryBuilder
-                ->leftJoin(
+                ->linkLeft(
                     $alias . '.translations',
                     $translationsAlias,
                     \Doctrine\ORM\Query\Expr\Join::WITH,

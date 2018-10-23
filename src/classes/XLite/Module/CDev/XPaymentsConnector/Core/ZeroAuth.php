@@ -149,20 +149,29 @@ class ZeroAuth extends \XLite\Base\Singleton
      */
     public function getAddressItem(\XLite\Model\Address $address)
     {
-        static $addressFields = array(
-            'firstname', 'lastname', self::COMMA,
-            'zipcode', 'street', 'city', self::COMMA,
-            'state', self::COMMA,
-            'country',
-        );
+
+        $addressFields = $address->getAvailableAddressFields();
+
+        $hasStates = $address->hasStates();
 
         $result = '';
 
         foreach ($addressFields as $field) {
 
-            if (self::COMMA == $field) {
-                $result = $result . ',';
-                continue;
+            if ('country_code' === $field) {
+                $field = 'country';
+            }
+
+            if ($hasStates) {
+                if ('state_id' === $field) {
+                    $field = 'state';
+                } elseif ('custom_state' === $field) {
+                    continue;
+                }
+            } else {
+                if ('state_id' === $field) {
+                    continue;
+                }
             }
 
             $method = 'get' . ucfirst($field);

@@ -5,6 +5,8 @@
 
 <div id="braintree-settings-config">
 
+  {{ widget('\\XLite\\Module\\QSL\\BraintreeVZ\\View\\Config\\HTTPSWarning', useBodyTemplate='1') }}
+
   {{ widget('\\XLite\\View\\Payment\\MethodStatus', method=this.paymentMethod) }}
 
   <table cellspacing="1" cellpadding="5" class="settings-table">

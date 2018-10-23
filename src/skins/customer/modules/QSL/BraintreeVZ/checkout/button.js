@@ -7,98 +7,110 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-core.bind(
-    'load',
-    function() {
+core.bind('minicart.postprocess', function () {
 
-        /**
-         * Trigger error
-         */
-        braintreePayment.checkout.triggerError = function(message)
-        {
-            core.trigger('message', { 'message': message, 'type': MESSAGE_ERROR });
+    // Workaround for proper displaying of PayPal button. Step 1 - reset values. See further actions in Step 2
+    var isPayPalTemp = braintreePayment.isPayPal;
+    braintreePayment.isPayPal = false;
+    var is3dSecureTemp = braintreePayment.is3dSecure;
+    braintreePayment.is3dSecure = false;
+
+    /**
+     * Trigger error
+     */
+    braintreePayment.checkout.triggerError = function (message) {
+        core.trigger('message', { 'message': message, 'type': MESSAGE_ERROR });
+    };
+
+    /**
+     * Get URL params for AJAX request
+     */
+    braintreePayment.checkout.getUrlParams = function (params) {
+        params[xliteConfig.form_id_name] = xliteConfig.form_id;
+
+        return params;
+    };
+
+    /**
+     * Check if Braintree is the current payment method
+     */
+    braintreePayment.checkout.isCurrent = function (includeSavedCards) {
+        return true;
+    };
+
+    /**
+     * Constructor/initializator
+     */
+    braintreePayment.checkout.init = function (callback) {
+        var params = {
+            target:   'braintree',
+            action:   'get_braintree_data',
+            is_button: true
         };
 
-        /**
-         * Check if Braintree is the current payment method
-         */
-        braintreePayment.checkout.isCurrent = function(includeSavedCards)
-        {
-            return true;
+        var url = URLHandler.buildURL(this.getUrlParams(params));
+
+        core.get(url, function (response) {
+            callback.bind(braintreePayment, response.responseJSON)();
+        });
+    };
+
+    /**
+     * Process shadows
+     */
+    braintreePayment.checkout.processShadows = function () {
+        var elm = $('#cart-right');
+
+        if (!elm.length) {
+            return;
         }
 
-        /**
-         * List of PayPal buttons
-         */
-        $('[id^=braintree-paypal-button-').each( function(i) {
-            braintreePayment.paypalButtons[i] = '#' + this.id;
+        if (braintreePayment.isInProgress || braintreePayment.isLoading) {
+            assignWaitOverlay(elm);
+        } else {
+            unassignWaitOverlay(elm);
+            $('.wait-block-overlay', '#cart-right').remove(); // Otherwise doesn't work
+        }
+    };
+
+    /**
+     * Get data for the PayPal payment
+     */
+    braintreePayment.checkout.getPayPalData = function (callback) {
+        var params = this.getUrlParams({
+            target: 'braintree',
+            action: 'get_paypal_data'
+        });        
+
+        var url = URLHandler.buildURL(this.getUrlParams(params));
+
+        core.get(url, function (response) {
+            callback.bind(braintreePayment, response.responseJSON)();
+        });
+    };
+
+    /**
+     * Proceed to the checkout
+     */
+    braintreePayment.checkout.continuePayPal = function (details) {
+        var params = this.getUrlParams({
+            target: 'checkout',
+            action: 'continue_paypal'
         });
 
-        /**
-         * Constructor/initializator
-         */
-        braintreePayment.checkout.init = function(callback)
-        {
-            let url = URLHandler.buildURL({
-                target: 'braintree',
-                action: 'get_braintree_data',
-                is_button: true,
-            });
+        var url = URLHandler.buildURL(params);
 
-            core.get(url, (response) => { callback.bind(braintreePayment, response.responseJSON)(); });
-        }
+        var form = $('<form method="post" action="' + url + '"></form>');
 
-        /**
-         * Process shadows
-         */
-        braintreePayment.checkout.processInProgress = function ()
-        {
-            let elm = $('#cart-right');
+        $('<input>').attr('type', 'hidden').attr('name', 'nonce').val(braintreePayment.nonce).appendTo(form);
+        $('<input>').attr('type', 'hidden').attr('name', 'details').val(JSON.stringify(details)).appendTo(form);
 
-            if (!elm.length) {
-                return;
-            }
+        form.appendTo('body').submit();
+    };
 
-            if (braintreePayment.isInProgress) {
-                assignWaitOverlay(elm);
-            } else {
-                unassignWaitOverlay(elm);
-                $('.wait-block-overlay', '#cart-right').remove(); // Otherwise doesn't work
-            }
-        }
+    braintreePayment.init();
 
-        /**
-         * Get data for the PayPal payment
-         */
-        braintreePayment.checkout.getPayPalData = function(callback)
-        {
-            let url = URLHandler.buildURL({
-                target: 'braintree',
-                action: 'get_paypal_data'
-            });
-
-            core.get(url, (response) => { callback.bind(braintreePayment, response.responseJSON)(); });
-        };
-   
-        /**
-         * Proceed to the checkout
-         */
-        braintreePayment.checkout.continuePayPal = function(details)
-        {
-            let url = URLHandler.buildURL({
-                target: 'checkout',
-                action: 'continue_paypal'
-            });        
-
-            var form = $('<form method="post" action="' + url + '"></form>');
-
-            $('<input>').attr('type', 'hidden').attr('name', 'nonce').val(braintreePayment.nonce).appendTo(form);
-            $('<input>').attr('type', 'hidden').attr('name', 'details').val(JSON.stringify(details)).appendTo(form);
-
-            form.appendTo('body').submit();
-        }
- 
-        braintreePayment.init();
-    }
-);
-
+    // Workaround for proper displaying of PayPal button. Step2 - return initial values
+    braintreePayment.isPayPal = isPayPalTemp;
+    braintreePayment.is3dSecure = is3dSecureTemp;
+});

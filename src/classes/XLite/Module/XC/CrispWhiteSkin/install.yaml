@@ -33,9 +33,9 @@ XLite\Model\LanguageLabel:
   - { name: 'Z - A', translations: [{ code: en, label: 'Z - A' }, { code: ru, label: 'Я - А' }] }
   - { name: 'Added to comparison table', translations: [{ code: en, label: 'Added to comparison table' }, { code: ru, label: 'Добавлено в таблицу сравнения' }] }
 
-  - { name: '+15550000000', translations: [{ code: en, label: '+15550000000' }]}
-  - { name: '1000 Main Street', translations: [{ code: en, label: '1000 Main Street' }]}
-  - { name: 'Anyland', translations: [{ code: en, label: 'Anyland' }]}
-  - { name: 'Anytown', translations: [{ code: en, label: 'Anytown' }]}
-  - { name: 'Joe', translations: [{ code: en, label: 'Joe' }]}
-  - { name: 'Public', translations: [{ code: en, label: 'Public' }]}
+  - { name: '+15550000000', translations: [{ code: en, label: '' }]}
+  - { name: '1000 Main Street', translations: [{ code: en, label: 'Street number and street, unit number, etc' }, { code: ru, label: 'Улица, номер дома, номер квартиры, и т.д.' }]}
+  - { name: 'Anyland', translations: [{ code: en, label: '' }]}
+  - { name: 'Anytown', translations: [{ code: en, label: '' }]}
+  - { name: 'Joe', translations: [{ code: en, label: '' }]}
+  - { name: 'Public', translations: [{ code: en, label: '' }]}

@@ -665,7 +665,7 @@ class Category extends \XLite\Model\Base\Catalog
     public function setEnabled($enabled)
     {
         $this->_getPreviousState()->enabled = $this->enabled;
-        $this->enabled = $enabled;
+        $this->enabled = (boolean)$enabled;
 
         return $this;
     }

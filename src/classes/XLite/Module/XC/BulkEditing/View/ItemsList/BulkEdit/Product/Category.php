@@ -19,4 +19,18 @@ class Category extends \XLite\Module\XC\BulkEditing\View\ItemsList\BulkEdit\APro
 
         parent::__construct($params);
     }
+
+    /**
+     * Preprocess categories
+     *
+     * @param string               $value  Value
+     * @param array                $column Column data
+     * @param \XLite\Model\Product $entity Product
+     *
+     * @return string
+     */
+    protected function preprocessCategories($value, array $column, \XLite\Model\Product $entity)
+    {
+        return func_htmlspecialchars($value);
+    }
 }

@@ -7,7 +7,13 @@
     <ul>
         {% for dataCell in this.entity.getTransactionData() %}
           <li class="data-cell">
-              <span class="data-cell-title">{{ t(dataCell.getLabel()) }}</span>
+              <span class="data-cell-title">
+                {% if dataCell.getLabel() %}
+                  {{ t(dataCell.getLabel()) }}
+                {% else %}
+                  {{ dataCell.getName() }}
+                {% endif %}
+              </span>
               <span class="data-cell-value">{{ this.getCellValue(dataCell)|raw }}</span>
           </li>
         {% endfor %}

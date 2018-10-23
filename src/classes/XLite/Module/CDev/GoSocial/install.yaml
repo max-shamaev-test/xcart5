@@ -204,7 +204,7 @@ XLite\Model\Config:
     category: 'CDev\GoSocial'
     type: checkbox
     orderby: 3050
-    value: true
+    value: false
     translations:
       - code: en
         option_name: 'Display the Google+ button on product pages'

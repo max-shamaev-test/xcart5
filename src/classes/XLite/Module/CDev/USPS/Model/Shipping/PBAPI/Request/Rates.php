@@ -17,7 +17,7 @@ class Rates extends Request
         ];
 
         parent::__construct(
-            $endpoint . '/shippingservices/v1/rates?' . http_build_query($urlParams),
+            $endpoint . '/shippingservices/v1/rates?' . http_build_query($urlParams, null, '&'),
             'POST',
             $inputData,
             [

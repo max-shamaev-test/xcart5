@@ -60,8 +60,8 @@ class Importer extends \XLite\Base
     public function __construct(array $options = array())
     {
         $this->options = array(
-            'step'             => isset($options['step']) ? intval($options['step']) : 0,
-            'position'         => isset($options['position']) ? intval($options['position']) : 0,
+            'step'             => isset($options['step']) ? (int)($options['step']) : 0,
+            'position'         => isset($options['position']) ? (int)($options['position']) : 0,
             'charset'          => !empty($options['charset']) ? $options['charset'] : static::DEFAULT_CHARSET,
             'delimiter'        => isset($options['delimiter']) ? $options['delimiter'] : ',',
             'enclosure'        => isset($options['enclosure']) ? $options['enclosure'] : '"',
@@ -71,7 +71,7 @@ class Importer extends \XLite\Base
             'clearImportDir'     => isset($options['clearImportDir']) ? $options['clearImportDir'] : false,
             'ignoreFileChecking' => isset($options['ignoreFileChecking']) ? $options['ignoreFileChecking'] : false,
             'dir'              => isset($options['dir']) ? $options['dir'] : static::getImportDir(),
-            'time'             => isset($options['time']) ? intval($options['time']) : 0,
+            'time'             => isset($options['time']) ? (int)($options['time']) : 0,
             'columnsMetaData'  => isset($options['columnsMetaData']) ? $options['columnsMetaData'] : array(),
             'errorsCount'      => isset($options['errorsCount']) ? $options['errorsCount'] : 0,
             'warningsCount'    => isset($options['warningsCount']) ? $options['warningsCount'] : 0,
@@ -171,6 +171,18 @@ class Importer extends \XLite\Base
         }
 
         $this->getOptions()->commonData['correctCategoriesAllowed'] = true;
+    }
+
+    /**
+     * Enable image resize for this import
+     */
+    public function enableImageResize()
+    {
+        if (!isset($this->getOptions()->commonData)) {
+            $this->getOptions()->commonData = [];
+        }
+
+        $this->getOptions()->commonData['imageResizeAllowed'] = true;
     }
 
     /**

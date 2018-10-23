@@ -15,7 +15,7 @@ if (!defined('XLITE_INSTALL_MODE')) {
 }
 
 // Current X-Cart version
-define('LC_VERSION', '5.3.5.5');
+define('LC_VERSION', '5.3.5.6');
 
 // Minimum PHP version supported
 define('LC_PHP_VERSION_MIN', '5.4.0');

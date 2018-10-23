@@ -106,6 +106,8 @@ abstract class AModelSelector extends \XLite\Controller\Admin\AAdmin
      */
     protected function getKey()
     {
-        return \XLite\Core\Request::getInstance()->search;
+        $nonFilteredData = \XLite\Core\Request::getInstance()->getNonFilteredData();
+
+        return isset($nonFilteredData['search']) ? $nonFilteredData['search'] : null;
     }
 }

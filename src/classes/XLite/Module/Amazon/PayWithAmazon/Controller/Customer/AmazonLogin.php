@@ -26,7 +26,7 @@ class AmazonLogin extends \XLite\Controller\Customer\ACustomer
             $this->doActionLogin();
 
         } else {
-            $this->setReturnURL($this->buildURL('main'));
+            $this->setReturnURL($this->buildFullURL('main'));
         }
     }
 
@@ -53,25 +53,31 @@ class AmazonLogin extends \XLite\Controller\Customer\ACustomer
                     $profileInfo['user_id']
                 );
 
-                if (!Auth::getInstance()->isLogged()
-                    || Auth::getInstance()->getProfile()->getProfileId() !== $profile->getProfileId()
-                ) {
-                    if ($profile->isEnabled()) {
-                        Auth::getInstance()->loginProfile($profile);
+                if ($profile) {
+                    if (!Auth::getInstance()->isLogged()
+                        || Auth::getInstance()->getProfile()->getProfileId() !== $profile->getProfileId()
+                    ) {
+                        if ($profile->isEnabled()) {
+                            Auth::getInstance()->loginProfile($profile);
 
-                        // We merge the logged in cart into the session cart
-                        $profileCart = $this->getCart();
-                        $profileCart->login($profile);
-                        Database::getEM()->flush();
+                            // We merge the logged in cart into the session cart
+                            $profileCart = $this->getCart();
+                            $profileCart->login($profile);
+                            Database::getEM()->flush();
 
-                        if ($profileCart->isPersistent()) {
-                            $this->updateCart();
+                            if ($profileCart->isPersistent()) {
+                                $this->updateCart();
+                            }
+
+                        } else {
+                            TopMessage::addError('Profile is disabled');
+                            $returnURL = $this->getAuthReturnURL(true);
                         }
-
-                    } else {
-                        TopMessage::addError('Profile is disabled');
-                        $returnURL = $this->getAuthReturnURL(true);
                     }
+
+                } else {
+                    \XLite\Core\TopMessage::addError('Profile with the same e-mail address already registered. Please sign in the classic way.');
+                    $returnURL = $this->getAuthReturnURL(true);
                 }
             } else {
                 if (!Auth::getInstance()->getProfile()) {

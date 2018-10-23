@@ -282,7 +282,7 @@ class Login extends \XLite\Controller\Customer\ACustomer
                 );
             } elseif (strpos($this->getReturnURL(), \XLite\Core\Converter::buildURL('login')) !== false) {
                 $this->setReturnURL(
-                    \XLite\Core\Converter::buildURL('main')
+                    \XLite\Core\Converter::buildFullURL('main')
                 );
             }
 

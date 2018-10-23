@@ -769,6 +769,8 @@ function doFinishInstallation(&$params, $silentMode = false)
     // Update config settings
     update_config_settings($params);
 
+    update_modules_install_date();
+
     generate_safe_mode_key();
 
     // Save authcode for the further install runs
@@ -2041,6 +2043,17 @@ function update_config_settings($params)
     }
 
     \XLite\Core\Database::getEM()->flush();
+}
+
+function update_modules_install_date() {
+    $qb = \XLite\Core\Database::getRepo('XLite\Model\Module')
+        ->createQueryBuilder();
+
+    $qb->update()
+        ->set("{$qb->getMainAlias()}.date", ':time')
+        ->setParameter('time', \XLite\Core\Converter::time())
+        ->getQuery()
+        ->execute();
 }
 
 /**

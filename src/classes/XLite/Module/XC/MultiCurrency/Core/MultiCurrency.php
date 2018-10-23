@@ -323,16 +323,25 @@ class MultiCurrency extends \XLite\Base
         /* @var \XLite\Model\Profile $profile */
         $profile = \XLite\Core\Auth::getInstance()->getProfile();
 
+        $selectedCountry = null;
         if ($profile && ($address = $profile->getShippingAddress())) {
             $selectedCountry = $address->getCountry();
-        } elseif (\XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\Geolocation')) {
+        }
+
+        if (!$selectedCountry && \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\Geolocation')) {
             $selectedCountry = \XLite\Model\Address::getDefaultFieldValue('country');
-        } elseif (
-            !isset($selectedCurrency)
-            || !$selectedCurrency->getActiveCurrency()->hasAssignedCountries()
+        }
+
+        if (!$selectedCountry
+            && (
+                !isset($selectedCurrency)
+                || !$selectedCurrency->getActiveCurrency()->hasAssignedCountries()
+            )
         ) {
             $selectedCountry = $this->getDefaultCountry();
-        } else {
+        }
+
+        if (!$selectedCountry) {
             $selectedCountry = $selectedCurrency->getActiveCurrency()->getFirstCountry();
         }
 

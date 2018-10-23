@@ -142,7 +142,7 @@ ItemsList.prototype.initialize = function(elem, urlparams, urlajaxparams)
 
   } else {
     // Initialize widget by the sessionCell class identification
-    this.container = jQuery('.sessioncell-' + elem);
+    this.container = jQuery('.sessioncell-' + elem).last();
 
     this.params = {
       'cell'          : elem,

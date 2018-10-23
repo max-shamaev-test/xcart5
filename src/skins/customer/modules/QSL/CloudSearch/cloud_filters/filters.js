@@ -1,5 +1,13 @@
 (function (_, $) {
-    var selector = '#cloud-filters';
+    function deepClone(object) {
+        // Preserve keys with undefined values by changing the values to null
+        return JSON.parse(JSON.stringify(object, function(k, v) {
+            return v === undefined ? null : v;
+        }));
+    }
+
+    var selector = '#cloud-filters',
+        mobileLinkSelector = '#cloud-filters-mobile-link';
 
     var initialData = core.getCommentedData($(selector));
 
@@ -127,7 +135,7 @@
     }
 
     var productList = (function () {
-        var load, cloudFilters, searchListeners = [];
+        var load, cloudFilters, searchListeners = [], afterLoadListeners = [];
 
         function decorateConcreteWidgetClasses(widgetClasses, c, methodName, method) {
             var f = function () {
@@ -164,6 +172,19 @@
                         arguments.callee.previousMethod.apply(this, arguments);
 
                         load = this.load.bind(this);
+                    }
+                );
+
+                decorateConcreteWidgetClasses(
+                    decorateClasses,
+                    'ProductsListView',
+                    'postprocess',
+                    function (isSuccess, initial) {
+                        arguments.callee.previousMethod.apply(this, arguments);
+
+                        _.each(afterLoadListeners, function (listener) {
+                            listener();
+                        });
                     }
                 );
 
@@ -247,14 +268,17 @@
         );
 
         return {
-            reload: function (params) {
-                load(params);
+            reload: function () {
+                load();
             },
             setFilters: function (filters) {
                 cloudFilters = filters;
             },
             subscribeToNewSearches: function (f) {
                 searchListeners.push(f);
+            },
+            subscribeToAfterLoad: function (f) {
+                afterLoadListeners.push(f);
             }
         };
     })();
@@ -495,17 +519,7 @@
         template: '#cloud-filters-template-price'
     });
 
-    var CloudFilters = new Vue({
-        el: selector,
-
-        data: {
-            facets: facets,
-            filters: filters,
-            stats: stats,
-            numFound: numFound,
-            loaded: false
-        },
-
+    var CloudFiltersComponent = Vue.extend({
         computed: {
             isAnyFilterSet: function () {
                 return _.any(this.filters, function (fs) {
@@ -519,19 +533,45 @@
                     priceFilterSet = this.filters.min_price[0] !== null || this.filters.max_price[0] !== null;
 
                 return priceFilterSet || (!zeroPrice && !nullPrice);
+            },
+            isVisible: function () {
+                if (!this.loaded) {
+                    return false;
+                }
+
+                var isAnyFilterVisible = _.any(this.facets, (function (facet) {
+                    if (this.isPriceFilter(facet)) {
+                        return this.isPriceFilterVisible;
+                    } else {
+                        return facet.counts.length > 0;
+                    }
+                }).bind(this));
+
+                return this.isAnyFilterSet || isAnyFilterVisible;
             }
         },
 
         watch: {
             'filters.min_price[0]': function (val, oldVal) {
-                if (val !== oldVal) {
-                    this.priceFilterChanged();
+                if (val !== oldVal && !(typeof val === 'undefined' && oldVal === null)) {
+                    if (this.master) {
+                        this.priceFilterChanged();
+                    } else {
+                        this.syncOtherInstanceMinPrice(val);
+                    }
                 }
             },
             'filters.max_price[0]': function (val, oldVal) {
-                if (val !== oldVal) {
-                    this.priceFilterChanged();
+                if (val !== oldVal && !(typeof val === 'undefined' && oldVal === null)) {
+                    if (this.master) {
+                        this.priceFilterChanged();
+                    } else {
+                        this.syncOtherInstanceMaxPrice(val);
+                    }
                 }
+            },
+            'isVisible': function () {
+                this.setMobileFiltersLinkVisibility(this.isVisible);
             }
         },
 
@@ -600,6 +640,14 @@
                 this.fetchFacetsAndReload();
             },
 
+            afterReload: function () {
+                this.setMobileFiltersLinkVisibility(this.isVisible);
+            },
+
+            setMobileFiltersLinkVisibility: function (visible) {
+                $(mobileLinkSelector).toggleClass('hidden', !visible);
+            },
+
             clearFilters: function () {
                 _.each(this.filters, (function (val, key) {
                     if (
@@ -636,20 +684,48 @@
                     }
                 )
                     .then((function (json) {
-                        this.stats = json.stats;
+                        this.setFacets(json.facets, json.stats, json.numFoundProducts);
+                    }).bind(this))
+                    .then(this.syncOtherInstance.bind(this));
+            },
 
-                        this.facets = json.facets;
-                        this.numFound = json.numFoundProducts;
+            setFacets: function (facets, stats, numFound) {
+                this.facets   = facets;
+                this.stats    = stats;
+                this.numFound = numFound;
 
-                        this.syncFiltersAndFacets();
-                    }).bind(this));
+                this.loaded = !!this.facets;
+
+                this.syncFiltersAndFacets();
             },
 
             fetchFacetsAndReload: function () {
                 return this.fetchFacets()
-                    .then((function () {
-                        productList.reload();
-                    }).bind(this));
+                    .then(productList.reload);
+            },
+
+            syncOtherInstance: function () {
+                var instance = this === CloudFiltersMobile ? CloudFiltersDesktop : CloudFiltersMobile;
+
+                instance.filters = deepClone(this.filters);
+
+                instance.setFacets(
+                    deepClone(this.facets),
+                    deepClone(this.stats),
+                    this.numFound
+                );
+            },
+
+            syncOtherInstanceMinPrice: function (price) {
+                var instance = this === CloudFiltersMobile ? CloudFiltersDesktop : CloudFiltersMobile;
+
+                Vue.set(instance.filters, 'min_price', [price]);
+            },
+
+            syncOtherInstanceMaxPrice: function (price) {
+                var instance = this === CloudFiltersMobile ? CloudFiltersDesktop : CloudFiltersMobile;
+
+                Vue.set(instance.filters, 'max_price', [price]);
             },
 
             replaceHistoryState: function () {
@@ -694,22 +770,6 @@
                         this.filters[filterId] = [];
                     }
                 }).bind(this));
-            },
-
-            isVisible: function () {
-                if (!this.loaded) {
-                    return false;
-                }
-
-                var isAnyFilterVisible = _.any(this.facets, (function (facet) {
-                    if (this.isPriceFilter(facet)) {
-                        return this.isPriceFilterVisible;
-                    } else {
-                        return facet.counts.length > 0;
-                    }
-                }).bind(this));
-
-                return this.isAnyFilterSet || isAnyFilterVisible;
             },
 
             getFilterType: function (facet) {
@@ -777,31 +837,94 @@
 
         created: function () {
             if (this.facets == null) {
-                this.loaded = false;
-
-                this.fetchFacets()
-                    .then((function () {
-                        this.loaded = !!this.facets;
-                    }).bind(this));
+                if (this.master) {
+                    this.fetchFacets();
+                }
             } else {
                 this.loaded = true;
 
                 this.syncFiltersAndFacets();
             }
 
-            $(window).on('popstate', (function (event) {
-                var state = event.originalEvent.state;
+            if (this.master) {
+                $(window).on('popstate', (function (event) {
+                    var state = event.originalEvent.state;
 
-                if (state && typeof state.cloudFilters !== 'undefined') {
-                    this.replaceStateFromHistory(state);
-                }
-            }).bind(this));
+                    if (state && typeof state.cloudFilters !== 'undefined') {
+                        this.replaceStateFromHistory(state);
+                    }
+                }).bind(this));
 
-            this.replaceHistoryState();
+                productList.subscribeToNewSearches(this.searchAction.bind(this));
 
-            productList.setFilters(this.filters);
+                productList.subscribeToAfterLoad(this.afterReload.bind(this));
 
-            productList.subscribeToNewSearches(this.searchAction.bind(this));
+                this.replaceHistoryState();
+
+                productList.setFilters(this.filters);
+            }
         }
     });
+
+    var CloudFiltersData = {
+        facets: facets,
+        filters: filters,
+        stats: stats,
+        numFound: numFound,
+        loaded: false
+    };
+
+    var CloudFiltersDesktop = new CloudFiltersComponent({
+        el: selector,
+        data: _.extend({master: true}, CloudFiltersData)
+    });
+
+    var CloudFiltersMobile = null;
+
+    core.bind('cf-mobile.created', function () {
+        CloudFiltersMobile = new CloudFiltersComponent({
+            el: '#cloud-filters-mobile',
+            data: deepClone(CloudFiltersData)
+        });
+    });
+
+    function cfMobileMenu () {
+        $(function () {
+            var cfMobileMenu = $('#cf-slide-menu');
+
+            cfMobileMenu.removeClass('hidden');
+
+            cfMobileMenu.mmenu({
+                extensions: ['pagedim-black'],
+                navbar: {
+                    add: true,
+                    title: 'Filters'
+                },
+                navbars: [
+                    {
+                        position: "top",
+                        content: ["prev", "title", "close"],
+                        height: 1
+                    }
+                ],
+                offCanvas: {
+                    pageSelector: "#page-wrapper",
+                    position: "right",
+                    zposition: "front"
+                }
+            });
+
+            var api = cfMobileMenu.data('mmenu');
+
+            if (!_.isUndefined(api)) {
+                core.trigger('cf-mobile.created', api);
+
+                api.bind('closed', function () {
+                    api.closeAllPanels();
+                });
+            }
+        });
+    }
+
+    core.autoload(cfMobileMenu);
 })(_, jQuery);

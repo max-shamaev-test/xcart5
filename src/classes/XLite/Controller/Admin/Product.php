@@ -55,7 +55,10 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
         return \XLite\Core\Converter::buildURL(
             'product',
             'preview',
-            array('product_id' => $productId),
+            [
+                'product_id' => $productId,
+                'shopKey'    => \XLite\Core\Auth::getInstance()->getShopKey(),
+            ],
             \XLite::getCustomerScript()
         );
     }

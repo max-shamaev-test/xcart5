@@ -50,7 +50,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '4';
+        return '5';
     }
 
     /**
@@ -115,14 +115,17 @@ abstract class Main extends \XLite\Module\AModule
     {
         parent::runBuildCacheHandler();
 
-        $overrides = \XLite\Core\Database::getRepo('XLite\Model\ViewList')->findOverridden();
+        $overriddenData = \XLite\Core\Database::getRepo('XLite\Model\ViewList')->findOverriddenData();
+        \XLite\Core\Database::getRepo('XLite\Module\XC\ThemeTweaker\Model\OverriddenViewList')->replaceOverriddenData($overriddenData);
 
-        if ($overrides) {
-            foreach ($overrides as $override) {
-                $entity = \XLite\Core\Database::getRepo('XLite\Model\ViewList')->findEqual($override, true);
+        $overriddenLists = \XLite\Core\Database::getRepo('XLite\Module\XC\ThemeTweaker\Model\OverriddenViewList')->findAll();
+        if ($overriddenLists) {
+            foreach ($overriddenLists as $overriddenList) {
+                $tempList = $overriddenList->getTemporaryViewList();
+                $entity = \XLite\Core\Database::getRepo('XLite\Model\ViewList')->findEqual($tempList, true);
 
                 if ($entity) {
-                    $entity->mapOverrides($override);
+                    $entity->mapOverrides($tempList);
                 }
             }
         }

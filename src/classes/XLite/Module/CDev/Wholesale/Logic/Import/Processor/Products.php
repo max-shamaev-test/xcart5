@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\Wholesale\Logic\Import\Processor;
 
+use XLite\Core\Database;
+use XLite\Module\CDev\Wholesale\Logic\Export\Step\Products as ProductsExport;
 use XLite\Module\CDev\Wholesale\Model\Base\AWholesalePrice;
 
 /**
@@ -30,6 +32,10 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
             static::COLUMN_IS_MULTIPLE => true,
         ];
 
+        $columns['minimumPurchaseQuantity'] = [
+            static::COLUMN_IS_MULTIPLE => true,
+        ];
+
         return $columns;
     }
 
@@ -41,9 +47,34 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     public static function getMessages()
     {
         return parent::getMessages()
-               + [
-                   'WHOLESALE-DUPLICATE-ERR' => 'Tier with same quantity range and membership already defined.',
-               ];
+            + [
+                'WHOLESALE-DUPLICATE-ERR' => 'Tier with same quantity range and membership already defined.',
+                'MIN-PURCHASE-QTY-FMT'    => 'Wrong minimum purchase quantity format',
+            ];
+    }
+
+    protected function prepareMinPurchaseQuantity($value)
+    {
+        $result = array_map('strrev', explode('=', strrev($value), 2));
+
+        if (count($result) === 2) {
+            if ($result[1] === ProductsExport::ALL_CUSTOMERS_TIER) {
+                return [
+                    'membership' => null,
+                    'quantity'   => (integer)$result[0],
+                ];
+            } else {
+                $membership = Database::getRepo('XLite\Model\Membership')->findOneByName($result[1], false);
+                return $membership
+                    ? [
+                        'membership' => $membership,
+                        'quantity'   => (integer)$result[0],
+                    ]
+                    : null;
+            }
+        }
+
+        return null;
     }
 
     // {{{ Verification
@@ -80,11 +111,31 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                     };
 
                     if (array_filter($values, $callback)) {
-                        $this->addError('WHOLESALE-DUPLICATE-ERR', ['column' => $column, 'value' => $data]);
+                        $this->addError('WHOLESALE-DUPLICATE-ERR', ['column' => $column,
+                                                                    'value'  => $data]);
                     } else {
                         $values[] = $data;
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Verify 'wholesalePrices' value
+     *
+     * @param mixed $value  Value
+     * @param array $column Column info
+     *
+     * @return void
+     */
+    protected function verifyMinimumPurchaseQuantity($value, array $column)
+    {
+        foreach ($value as $tier) {
+            $data = $this->prepareMinPurchaseQuantity($tier);
+
+            if ($data && $data['quantity'] <= 0) {
+                $this->addError('MIN-PURCHASE-QTY-FMT', ['column' => $column, 'value' => $tier]);
             }
         }
     }
@@ -128,6 +179,45 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
 
                     $repo->insert($data, false);
                 }
+            }
+        }
+    }
+
+    /**
+     * Import 'wholesalePrices' value
+     *
+     * @param \XLite\Model\Product $model  Product
+     * @param array                $value  Value
+     * @param array                $column Column info
+     *
+     * @return void
+     */
+    protected function importMinimumPurchaseQuantityColumn(\XLite\Model\Product $model, array $value, array $column)
+    {
+        $tiers = [];
+        /* @var \XLite\Module\CDev\Wholesale\Model\Product $model */
+        foreach ($value as $tier) {
+            $data = $this->prepareMinPurchaseQuantity($tier);
+
+            if ($data) {
+                $tier = !empty($tiers[$data['membership']? $data['membership']->getMembershipId() : null])
+                    ? $tiers[$data['membership'] ? $data['membership']->getMembershipId() : null]
+                    : Database::getRepo('XLite\Module\CDev\Wholesale\Model\MinQuantity')->findOneBy([
+                        'product'    => $model,
+                        'membership' => $data['membership'],
+                    ]);
+
+                if (!$tier) {
+                    $tier = new \XLite\Module\CDev\Wholesale\Model\MinQuantity;
+                    $tier->setProduct($model);
+                    $tier->setMembership($data['membership']);
+
+                    Database::getEM()->persist($tier);
+                }
+
+                $tier->setQuantity($data['quantity']);
+
+                $tiers[$data['membership'] ? $data['membership']->getMembershipId() : null] = $tier;
             }
         }
     }

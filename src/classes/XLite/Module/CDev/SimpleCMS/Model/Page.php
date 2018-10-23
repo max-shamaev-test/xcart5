@@ -148,7 +148,7 @@ class Page extends \XLite\Model\Base\Catalog
      */
     public function setEnabled($enabled)
     {
-        $this->enabled = $enabled;
+        $this->enabled = (boolean)$enabled;
         return $this;
     }
 

@@ -193,7 +193,7 @@ class FiltersBox extends \XLite\View\SideBarBox
             'currencyFormat'        => $currencyFormat,
             'colorFilterNames'      => $this->getColorFilterNames(),
             'colorFilterValues'     => $this->getColorFilterValues(),
-            'maxFoldedFilterValues' => self::MAX_FOLDED_FILTER_VALUES,
+            'maxFoldedFilterValues' => static::MAX_FOLDED_FILTER_VALUES,
         ];
 
         if (!$this->getParam(self::PARAM_IS_ASYNC_FILTERS)) {

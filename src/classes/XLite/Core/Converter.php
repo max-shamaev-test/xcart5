@@ -314,7 +314,7 @@ class Converter extends \XLite\Base\Singleton
                 $interface = \XLite::getInstance()->getScript();
             }
 
-            if ((LC_USE_CLEAN_URLS || $cuFlag) && \XLite::getInstance()->getCustomerScript() === $interface) {
+            if ((LC_USE_CLEAN_URLS || $cuFlag) && \XLite::getCustomerScript() === $interface) {
                 $interface = null;
             }
 

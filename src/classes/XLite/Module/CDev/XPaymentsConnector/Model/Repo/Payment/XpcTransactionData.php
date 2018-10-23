@@ -48,7 +48,7 @@ class XpcTransactionData extends \XLite\Model\Repo\ARepo
         $qb = parent::createQueryBuilder($alias, $indexBy)
             ->linkInner($alias . '.transaction', 'pt')
             ->linkInner('pt.order', 'o')
-            ->linkInner('o.profile', 'p')
+            ->linkInner('o.orig_profile', 'p')
             ->linkInner('pt.payment_method', 'pm');
 
         $qb->andWhere('pt.status != :badstatus')

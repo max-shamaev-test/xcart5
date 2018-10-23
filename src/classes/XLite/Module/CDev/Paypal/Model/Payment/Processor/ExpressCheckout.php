@@ -558,15 +558,18 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\Model\Payment\Processor\
         $stateCode = \Includes\Utils\ArrayManager::getIndex($paypalData, 'SHIPTOSTATE', true);
         $state = ($country && $stateCode)
             ? \XLite\Core\Database::getRepo('XLite\Model\State')
-                ->findOneByCountryAndState($country->getCode(), $stateCode)
+                ->findOneByCountryAndState($country->getCode(), mb_strtoupper($stateCode, 'UTF-8'))
             : null;
 
         $data = [
             'shippingAddress' => [
                 'name' => $paypalData['SHIPTONAME'],
                 'street' => $paypalData['SHIPTOSTREET'] . (!empty($paypalData['SHIPTOSTREET2']) ? ' ' . $paypalData['SHIPTOSTREET2'] : ''),
+                'country_code' => $countryCode,
                 'country' => $country ?: '',
-                'state' => $state ? $state : $paypalData['SHIPTOSTATE'],
+                'state_id' => $state ? $state->getStateId() : null,
+                'state' => $state ?: (string) $stateCode,
+                'custom_state' => $state ? $state->getState() : (string) $stateCode,
                 'city' => $paypalData['SHIPTOCITY'],
                 'zipcode' => $paypalData['SHIPTOZIP'],
                 'phone' => isset($paypalData['PHONENUM']) ? $paypalData['PHONENUM'] : '',

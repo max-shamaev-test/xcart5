@@ -82,7 +82,7 @@ class PaypalAdaptiveAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
         }
 
         $receivers[0] = array(
-            'amount'    => round($amount, 2),
+            'amount'    => sprintf('%.2F', round($amount, 2)),
             'email'     => $this->getSetting('paypal_login'),
         );
 
@@ -379,7 +379,7 @@ class PaypalAdaptiveAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
     /**
      * Get headers for paypal api request
      * 
-     * @return Array of headers for paypal api request
+     * @return array of headers for paypal api request
      */
     protected function headers()
     {

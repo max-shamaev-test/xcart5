@@ -182,7 +182,9 @@ class SavedCards extends \XLite\Controller\Customer\ACustomer
     {
         $profile = $this->getProfile();
 
-        $cardId = \XLite\Core\Request::getInstance()->card_id;
+        $cardId = (int)\XLite\Core\Request::getInstance()->card_id;
+
+        $defaultCardId = (int)\XLite\Core\Request::getInstance()->default_card_id;
 
         if (
             $profile
@@ -190,6 +192,14 @@ class SavedCards extends \XLite\Controller\Customer\ACustomer
             && \XLite\Core\Auth::getInstance()->isLogged()
         ) {
             $this->getProfile()->denyRecharge($cardId);
+            if ($cardId === $defaultCardId) {
+                $profileSavedCards = $profile->getSavedCards();
+                if (!empty($profileSavedCards)) {
+                    $profile->setDefaultCardId($profileSavedCards[0]['card_id']);
+                } else {
+                    $profile->setDefaultCardId(0);
+                }
+            }
             \XLite\Core\Database::getEM()->flush();
         }
 

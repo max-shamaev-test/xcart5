@@ -515,9 +515,15 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
                 $data['expire_year']
             );
 
+            \XLite\Core\Database::getEM()->flush();
+
             if (!$transaction->getXpcData()->getBillingAddress()) {
                 $profile = $transaction->getOrder()->getOrigProfile();
                 if ($profile) {
+                    if (0 === $profile->getDefaultCardId()) {
+                        $card = $transaction->getCard();
+                        $profile->setDefaultCardId($card['card_id']);
+                    }
                     $address = null;
                     if ($profile->getBillingAddress()) {
                         $address = $profile->getBillingAddress();

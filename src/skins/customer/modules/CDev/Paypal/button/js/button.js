@@ -110,7 +110,6 @@ jQuery(function () {
 
               buttonObject.style.layout = elem.data('styleLayout');
               if (buttonObject.style.layout === 'vertical') {
-                buttonObject.style.label = undefined;
                 buttonObject.style.tagline = undefined;
               }
 

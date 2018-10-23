@@ -67,7 +67,7 @@ class Menu extends \XLite\View\Menu\Admin\AAdmin
         ];
 
         if (\XLite::isFreeLicense()) {
-            $result['add_new'][static::ITEM_CHILDREN]['add_coupon'] = [
+            $result['add_coupon'] = [
                 static::ITEM_TITLE      => static::t('Coupon'),
                 static::ITEM_ICON_SVG   => 'images/add_product.svg',
                 static::ITEM_TARGET     => 'main',

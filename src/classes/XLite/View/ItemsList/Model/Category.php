@@ -427,6 +427,20 @@ class Category extends \XLite\View\ItemsList\Model\Table
         );
     }
 
+    /**
+     * Preprocess name
+     *
+     * @param string               $value  Value
+     * @param array                $column Column data
+     * @param \XLite\Model\Product $entity Product
+     *
+     * @return string
+     */
+    protected function preprocessName($value, array $column, \XLite\Model\Category $entity)
+    {
+        return func_htmlspecialchars($value);
+    }
+
     // {{{ Search
 
     /**

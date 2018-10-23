@@ -9,6 +9,7 @@
 // No PHP warnings are allowed in LC
 error_reporting(E_ALL | E_STRICT);
 ini_set('display_errors', true);
+ini_set('arg_separator.output', '&');
 
 // Short name
 define('LC_DS', DIRECTORY_SEPARATOR);

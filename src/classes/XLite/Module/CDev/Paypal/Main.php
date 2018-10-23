@@ -86,7 +86,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '2';
+        return '4';
     }
 
     /**
@@ -266,12 +266,15 @@ abstract class Main extends \XLite\Module\AModule
         $index = (null !== $order ? 1 : 0);
 
         if (!isset($result[$index])) {
-            $paymentMethod = static::getPaymentMethod(static::PP_METHOD_PC, true);
-            $result[$index] = $paymentMethod
-                && $paymentMethod->isEnabled()
-                && $paymentMethod->getSetting('enabled')
-                && static::isExpressCheckoutEnabled($order)
-                && \XLite\Core\Config::getInstance()->Company->location_country === 'US';
+            if (\XLite\Core\Config::getInstance()->Company->location_country === 'US') {
+                $paymentMethod = static::getPaymentMethod(static::PP_METHOD_PC, true);
+                $result[$index] = $paymentMethod
+                    && $paymentMethod->isEnabled()
+                    && $paymentMethod->getSetting('enabled')
+                    && static::isExpressCheckoutEnabled($order);
+            } else {
+                $result[$index] = false;
+            }
         }
 
         return $result[$index];

@@ -63,7 +63,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
      */
     public static function getBuildVersion()
     {
-        return '6';
+        return '7';
     }
 
     /**
@@ -458,11 +458,6 @@ abstract class Main extends \XLite\Module\AModuleSkin
         if (static::isModuleEnabled('XC\FastLaneCheckout')) {
             $templates += [
                 'modules/XC/FastLaneCheckout/checkout_fastlane/header/back_button.twig' => [
-                    static::TO_DELETE => [
-                        ['checkout_fastlane.header.left', \XLite\Model\ViewList::INTERFACE_CUSTOMER],
-                    ],
-                ],
-                'modules/XC/FastLaneCheckout/checkout_fastlane/header/title.twig' => [
                     static::TO_DELETE => [
                         ['checkout_fastlane.header.left', \XLite\Model\ViewList::INTERFACE_CUSTOMER],
                     ],

@@ -249,6 +249,16 @@ class OrderTrackingNumber extends \XLite\View\ItemsList\Model\Table
         );
     }
 
+    /**
+     * Get pager class name
+     *
+     * @return string
+     */
+    protected function getPagerClass()
+    {
+        return 'XLite\View\Pager\Admin\Model\Infinity';
+    }
+
     // {{{ Search
 
     /**

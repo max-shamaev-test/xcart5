@@ -123,4 +123,44 @@ class AttributeGroup extends \XLite\Model\Repo\Base\I18n
     }
 
     // }}}
+
+    /**
+     * Find entity by name (any language) and product class
+     *
+     * @param string  $name      Name
+     * @param \XLite\Model\ProductClass $productClass
+     * @param boolean $countOnly Count only OPTIONAL
+     *
+     * @return \XLite\Model\AttributeGroup|integer
+     */
+    public function findOneByNameAndProductClass($name, $productClass, $countOnly = false)
+    {
+        return $countOnly
+            ? count($this->defineOneByNameAndProductClassQuery($name, $productClass)->getResult())
+            : $this->defineOneByNameAndProductClassQuery($name, $productClass)->getSingleResult();
+    }
+
+    /**
+     * Define query builder for findOneByNameAndProductClass() method
+     *
+     * @param string $name Name
+     * @param \XLite\Model\ProductClass $productClass
+     *
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    protected function defineOneByNameAndProductClassQuery($name, $productClass)
+    {
+        $qb = $this->createQueryBuilder()
+            ->andWhere('translations.name = :name')
+            ->setParameter('name', $name);
+
+        if ($productClass) {
+            $qb->andWhere('a.productClass = :productClass')
+                ->setParameter('productClass', $productClass);
+        } else {
+            $qb->andWhere('a.productClass is null');
+        }
+
+        return $qb;
+    }
 }

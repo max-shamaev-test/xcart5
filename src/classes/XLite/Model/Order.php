@@ -1146,7 +1146,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
             // float is intended here to adopt fractional quantities via modules
             $event['quantity'] = (float) $item->getAmount();
 
-            if ($this->isItemLimitReached($item)) {
+            if ($this instanceof \XLite\Model\Cart && $this->isItemLimitReached($item)) {
                 $event['is_limit'] = 1;
             }
 

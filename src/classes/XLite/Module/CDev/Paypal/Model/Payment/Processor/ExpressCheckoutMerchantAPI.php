@@ -540,7 +540,7 @@ class ExpressCheckoutMerchantAPI extends \XLite\Module\CDev\Paypal\Model\Payment
         $stateCode = \Includes\Utils\ArrayManager::getIndex($paypalData, 'SHIPTOSTATE');
         $state = ($country && $stateCode)
             ? \XLite\Core\Database::getRepo('XLite\Model\State')
-                ->findOneByCountryAndState($country->getCode(), $stateCode)
+                ->findOneByCountryAndState($country->getCode(), mb_strtoupper($stateCode))
             : null;
 
         $street = trim(
@@ -553,8 +553,11 @@ class ExpressCheckoutMerchantAPI extends \XLite\Module\CDev\Paypal\Model\Payment
             'shippingAddress' => [
                 'name' => (string) \Includes\Utils\ArrayManager::getIndex($paypalData, 'SHIPTONAME'),
                 'street' => $street,
+                'country_code' => $countryCode,
                 'country' => $country ?: '',
+                'state_id' => $state ? $state->getStateId() : null,
                 'state' => $state ?: (string) $stateCode,
+                'custom_state' => $state ? $state->getState() : (string) $stateCode,
                 'city' => (string) \Includes\Utils\ArrayManager::getIndex($paypalData, 'SHIPTOCITY'),
                 'zipcode' => (string) \Includes\Utils\ArrayManager::getIndex($paypalData, 'SHIPTOZIP'),
                 'phone' => (string) \Includes\Utils\ArrayManager::getIndex($paypalData, 'PHONENUM'),

@@ -40,7 +40,7 @@ abstract class LeftMenu extends \XLite\View\Menu\Admin\LeftMenu implements \XLit
         $return = parent::defineItems();
 
         $return['sales_channels'][self::ITEM_CHILDREN]['mailchimp_lists'] = [
-            self::ITEM_TITLE      => 'MailChimp Lists',
+            self::ITEM_TITLE      => static::t('MailChimp Lists'),
             self::ITEM_TARGET     => 'mailchimp_lists',
             self::ITEM_CLASS      => 'mailchimp-lists',
             self::ITEM_PERMISSION => 'manage users',

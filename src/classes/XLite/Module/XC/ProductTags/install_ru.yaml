@@ -26,4 +26,5 @@ XLite\Model\LanguageLabel:
   - { name: 'Selected tags have been deleted', translations: [{ code: ru, label: 'Выбранные теги были удалены' }] }
   - { name: 'Categories and tags', translations: [{ code: ru, label: 'Категории и теги' }] }
   - { name: 'itemslist.admin.tag.blank', translations: [{ code: ru, label: '<p class="items-list-blank-description-heading text-center">Список тегов пуст.</p><p class="text-center">Теги помогут вашим покупателям быстрее найти нужный товар. Вы можете добавить тег с помощью кнопки <b>"Новый тег"</b>. После этого его можно будет назначить товару на странице редактирования товара.</p>' }] }
+  - { name: '{{count}} Tag duplicates ignored', translations: [{ code: ru, label: 'Неучтенные дубликаты тегов {{count}}' }] }
 

@@ -798,7 +798,7 @@ class Coupon extends \XLite\Model\AEntity
      */
     public function setEnabled($enabled)
     {
-        $this->enabled = $enabled;
+        $this->enabled = (boolean)$enabled;
         return $this;
     }
 

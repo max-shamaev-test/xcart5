@@ -19,18 +19,21 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
      */
     protected function getThemeFiles($adminZone = null)
     {
-        $list      = parent::getThemeFiles($adminZone);
-        $method    = Main::getMethod();
-        $processor = Main::getProcessor();
+        $list = parent::getThemeFiles($adminZone);
 
-        if ($processor->isConfigured($method) && $method->isEnabled() && !$adminZone) {
-            $list[static::RESOURCE_JS][] = [
-                'url'   => $processor->getJsSdkUrl($method),
-                'async' => true,
-            ];
-            $list[static::RESOURCE_JS][] = 'modules/Amazon/PayWithAmazon/func.js';
+        if (!(null === $adminZone ? \XLite::isAdminZone() : $adminZone)) {
+            $method    = Main::getMethod();
+            $processor = Main::getProcessor();
 
-            $list[static::RESOURCE_CSS][] = 'modules/Amazon/PayWithAmazon/checkout_button/style.css';
+            if ($processor->isConfigured($method) && $method->isEnabled()) {
+                $list[static::RESOURCE_JS][] = [
+                    'url'   => $processor->getJsSdkUrl($method),
+                    'async' => true,
+                ];
+                $list[static::RESOURCE_JS][] = 'modules/Amazon/PayWithAmazon/func.js';
+
+                $list[static::RESOURCE_CSS][] = 'modules/Amazon/PayWithAmazon/checkout_button/style.css';
+            }
         }
 
         return $list;

@@ -118,7 +118,7 @@ class PaypalButton extends \XLite\View\ItemsList\Model\Table
      */
     protected function getPlainData()
     {
-        return [
+        $result = [
             static::TYPE_PRODUCT_PAGE => [
                 'location'     => static::t('pp-button-location:Product page'),
                 'size'         => $this->getStyleValue(static::TYPE_PRODUCT_PAGE, 'size'),
@@ -156,6 +156,14 @@ class PaypalButton extends \XLite\View\ItemsList\Model\Table
                 'shape'        => $this->getStyleValue(static::TYPE_CREDIT, 'shape'),
             ],
         ];
+
+        if ($this->isPaypalForMarketplaces()) {
+            $result = [
+                static::TYPE_CHECKOUT => $result[static::TYPE_CHECKOUT]
+            ];
+        }
+
+        return $result;
     }
 
     /**
@@ -188,5 +196,14 @@ class PaypalButton extends \XLite\View\ItemsList\Model\Table
     protected function getPanelClass()
     {
         return null;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isPaypalForMarketplaces()
+    {
+        return $this->getPaymentMethod()
+               && $this->getPaymentMethod()->getServiceName() === \XLite\Module\CDev\Paypal\Main::PP_METHOD_PFM;
     }
 }

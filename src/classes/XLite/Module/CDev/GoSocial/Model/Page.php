@@ -31,7 +31,7 @@ class Page extends \XLite\Module\CDev\SimpleCMS\Model\Page implements \XLite\Bas
      *
      * @var string
      *
-     * @Column (type="text")
+     * @Column (type="text", nullable=true)
      */
     protected $ogMeta = '';
 

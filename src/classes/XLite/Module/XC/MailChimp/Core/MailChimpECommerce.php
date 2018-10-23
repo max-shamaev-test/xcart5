@@ -522,7 +522,9 @@ class MailChimpECommerce extends \XLite\Base\Singleton
         $this->mailChimpAPI->setActionMessageToLog('Creating products');
         return $this->mailChimpAPI->post(
             "ecommerce/stores/{$storeId}/products?" . http_build_query(
-                [ 'fields' => 'id' ]
+                [ 'fields' => 'id' ],
+                null,
+                '&'
             ),
             Product::getDataByProduct($product)
         );

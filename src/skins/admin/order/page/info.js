@@ -92,6 +92,8 @@ OrderInfoForm.prototype.initialize = function()
   );
 
   core.bind('list.model.table.order.items.newLineCreated', _.bind(this.handleCreateNewLine, this));
+  this.base.find('.items-list.order-items .inline-field.editable.has-view input').not('.no-validate')
+      .data('jqv', {validateNonVisibleFields: true});
 
   this.setRecalculatedValues();
 }

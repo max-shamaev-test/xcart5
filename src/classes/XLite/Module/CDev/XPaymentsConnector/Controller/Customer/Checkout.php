@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\XPaymentsConnector\Controller\Customer;
 
+use Doctrine\DBAL\LockMode;
+
 /**
  * Checkout 
  *
@@ -178,6 +180,7 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
     {
         if (\XLite\Core\Request::getInstance()->notes) {
             $this->getCart()->setNotes(\XLite\Core\Request::getInstance()->notes);
+            \XLite\Core\Database::getEM()->flush();
         }
 
         if ($this->isOldSaveCardBoxAvailable()) {
@@ -388,5 +391,60 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
 
             $this->silenceClose = true; 
         }
-    }    
+    }
+
+    /**
+     * Call controller action
+     *
+     * @return void
+     */
+    protected function callAction()
+    {
+        $action = $this->getAction();
+        if ($action === 'return') {
+            $orderId = \XLite\Core\Request::getInstance()->order_id;
+
+            \XLite\Core\Database::getEM()->beginTransaction();
+
+            $cart = \XLite\Core\Database::getRepo('XLite\Model\Cart')->find($orderId, LockMode::PESSIMISTIC_WRITE)
+                ?: \XLite\Core\Database::getRepo('XLite\Model\Order')->find($orderId, LockMode::PESSIMISTIC_WRITE);
+
+            $processAction = true;
+
+            $isXpc = $cart->getPaymentTransactions()->last()->isXpc(true);
+
+            if (
+                $isXpc
+                && $cart instanceof \XLite\Model\Cart
+            ) {
+                $repo = \XLite\Core\Database::getRepo('XLite\Model\Order');
+                $cartData = \XLite\Core\Database::getEM()->getConnection()->executeQuery(
+                    'SELECT * FROM ' . $repo->getTableName() . ' WHERE order_id = ' . $cart->getOrderId()
+                )->fetch();
+
+                if ($cartData && $cartData['orderNumber']) {
+                    $processAction = false;
+                }
+            }
+
+            if ($processAction) {
+                parent::callAction();
+
+            } else {
+                $this->setReturnURL(
+                    $this->buildURL(
+                        $this->getTarget(),
+                        $this->getAction(),
+                        ['order_id' => $orderId]
+                    )
+                );
+            }
+
+            \XLite\Core\Database::getEM()->flush();
+            \XLite\Core\Database::getEM()->commit();
+
+        } else {
+            parent::callAction();
+        }
+    }
 }

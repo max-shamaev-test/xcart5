@@ -63,13 +63,11 @@ class Profile extends \XLite\Model\Profile implements \XLite\Base\IDecorator
     /**
      * Get default card id 
      * 
-     * @param boolean $strict Strict mode flag OPTIONAL
-     *  
      * @return integer
      */
-    public function getDefaultCardId($strict = false)
+    public function getDefaultCardId()
     {
-        if (!$this->isCardIdValid($this->default_card_id, $strict)) {
+        if (!$this->isCardIdValid($this->default_card_id)) {
 
             $cnd = new \XLite\Core\CommonCell();
 
@@ -77,13 +75,7 @@ class Profile extends \XLite\Model\Profile implements \XLite\Base\IDecorator
 
             $cnd->{$class::SEARCH_RECHARGES_ONLY} = true;
             $cnd->{$class::SEARCH_PAYMENT_ACTIVE} = true;
-
-            if ($strict) {
-                $cnd->{$class::SEARCH_PROFILE_ID} = $this->getProfileId();
-
-            } else {
-                $cnd->{$class::SEARCH_LOGIN} = $this->getLogin();
-            }
+            $cnd->{$class::SEARCH_PROFILE_ID} = $this->getProfileId();
 
             $cards = \XLite\Core\Database::getRepo('XLite\Module\CDev\XPaymentsConnector\Model\Payment\XpcTransactionData')
                 ->search($cnd);
@@ -92,19 +84,17 @@ class Profile extends \XLite\Model\Profile implements \XLite\Base\IDecorator
                 $this->default_card_id = $cards[0]->getId();
             }
 
-        } 
+        }
 
         return $this->default_card_id;
     }
 
     /**
-     * Get list of saved credit cards 
-     *
-     * @param boolean $strict Strict mode flag OPTIONAL
+     * Get list of saved credit cards
      *
      * @return array
      */
-    public function getSavedCards($strict = false)
+    public function getSavedCards()
     {
         $result = array();
 
@@ -116,12 +106,7 @@ class Profile extends \XLite\Model\Profile implements \XLite\Base\IDecorator
 
             $cnd->{$class::SEARCH_RECHARGES_ONLY} = true;
             $cnd->{$class::SEARCH_PAYMENT_ACTIVE} = true;
-
-            if ($strict) {
-                $cnd->{$class::SEARCH_PROFILE_ID} = $this->getProfileId();
-            } else {
-                $cnd->{$class::SEARCH_LOGIN} = $this->getLogin();
-            }
+            $cnd->{$class::SEARCH_PROFILE_ID} = $this->getProfileId();
 
             $cards = \XLite\Core\Database::getRepo('XLite\Module\CDev\XPaymentsConnector\Model\Payment\XpcTransactionData')
                 ->search($cnd);
@@ -152,18 +137,22 @@ class Profile extends \XLite\Model\Profile implements \XLite\Base\IDecorator
             }
         }
 
+        if (empty($result)) {
+            $this->setDefaultCardId(0);
+            \XLite\Core\Database::getEM()->flush();
+        }
+
         return $result;
     }
 
     /**
-     * Checks if this card belongs to the current profile 
+     * Checks if this card belongs to the current profile
      *
      * @param integer $cardId Card id
-     * @param boolean $strict Strict mode flag OPTIONAL
      *
      * @return boolean
      */
-    public function isCardIdValid($cardId, $strict = false)
+    public function isCardIdValid($cardId)
     {
         if (empty($this->default_card_id)) {
             return false;
@@ -176,13 +165,7 @@ class Profile extends \XLite\Model\Profile implements \XLite\Base\IDecorator
         $cnd->{$class::SEARCH_RECHARGES_ONLY} = true;
         $cnd->{$class::SEARCH_PAYMENT_ACTIVE} = true;
         $cnd->{$class::SEARCH_CARD_ID} = $cardId;
-
-        if ($strict) {
-            $cnd->{$class::SEARCH_PROFILE_ID} = $this->getProfileId();
-
-        } else {
-            $cnd->{$class::SEARCH_LOGIN} = $this->getLogin();
-        }
+        $cnd->{$class::SEARCH_PROFILE_ID} = $this->getProfileId();
 
         $valid = \XLite\Core\Database::getRepo('XLite\Module\CDev\XPaymentsConnector\Model\Payment\XpcTransactionData')
             ->search($cnd, true);

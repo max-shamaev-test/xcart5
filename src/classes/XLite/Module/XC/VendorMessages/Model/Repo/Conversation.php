@@ -108,7 +108,7 @@ class Conversation extends \XLite\Model\Repo\ARepo
                     $queryBuilder->linkInner("{$alias}.messages")
                         ->linkLeft('messages.readers', 'r0', \Doctrine\ORM\Query\Expr\Join::WITH, 'r0.reader = :reader')
                         ->linkLeft('messages.readers', 'r1')
-                        ->andHaving('COUNT(r1.id) != SUM(IF(r0.id IS NULL, 0, 1)) OR COUNT(r1.id) = 0')
+                        ->andHaving('COUNT(DISTINCT(r1.id)) != COUNT(DISTINCT(r0.id)) OR COUNT(r1.id) = 0')
                         ->setParameter('reader', \XLite\Core\Auth::getInstance()->getProfile());
                     break;
 
@@ -239,6 +239,8 @@ class Conversation extends \XLite\Model\Repo\ARepo
             'identifiers' => \Doctrine\DBAL\Connection::PARAM_INT_ARRAY,
             'date'        => \PDO::PARAM_INT,
         ]);
+
+        \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\Message')->resetMessagesUpdateTimestamp([0, $profile->getProfileId()]);
     }
 
     /**
@@ -271,6 +273,8 @@ class Conversation extends \XLite\Model\Repo\ARepo
             'profileId' => \PDO::PARAM_INT,
             'date'      => \PDO::PARAM_INT,
         ]);
+
+        \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\Message')->resetMessagesUpdateTimestamp([0, $profile->getProfileId()]);
     }
 
     /**
@@ -293,6 +297,8 @@ class Conversation extends \XLite\Model\Repo\ARepo
             'profileId'   => \PDO::PARAM_INT,
             'identifiers' => \Doctrine\DBAL\Connection::PARAM_INT_ARRAY,
         ]);
+
+        \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\Message')->resetMessagesUpdateTimestamp([0, $profile->getProfileId()]);
     }
 
     /**
@@ -309,5 +315,7 @@ class Conversation extends \XLite\Model\Repo\ARepo
         ], [
             'profileId' => \PDO::PARAM_INT,
         ]);
+
+        \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\Message')->resetMessagesUpdateTimestamp([0, $profile->getProfileId()]);
     }
 }

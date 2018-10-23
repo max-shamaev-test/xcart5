@@ -307,19 +307,6 @@ class Uploaded extends \XLite\Upgrade\Entry\Module\AModule
     }
 
     /**
-     * Method to access module main clas methods
-     *
-     * @param string $method Method to call
-     * @param array  $args   Call arguments OPTIONAL
-     *
-     * @return mixed
-     */
-    protected function callModuleMethod($method, array $args = array())
-    {
-        return \Includes\Utils\ModulesManager::callModuleMethod($this->getActualName(), $method, $args);
-    }
-
-    /**
      * Find installed module
      *
      * @return \XLite\Model\Module

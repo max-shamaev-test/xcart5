@@ -583,9 +583,6 @@ abstract class AResourcesContainer extends \XLite\View\Container
 
                 return file_exists($resource['file']);
             }
-
-        } else {
-            return true;
         }
 
         return false;

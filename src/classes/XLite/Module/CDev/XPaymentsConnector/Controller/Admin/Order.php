@@ -90,4 +90,23 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
 
         exit;
     }
+
+    /**
+     * Return true if order can be edited
+     *
+     * @return boolean
+     */
+    public function isOrderEditable()
+    {
+        $isEditable = parent::isOrderEditable();
+        $order = $this->getOrder();
+        foreach ($order->getItems() as $item) {
+            if ($item->isXpcFakeItem()) {
+                $isEditable = false;
+                break;
+            }
+        }
+
+        return $isEditable;
+    }
 }

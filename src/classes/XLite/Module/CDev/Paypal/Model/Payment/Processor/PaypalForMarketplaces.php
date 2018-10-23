@@ -44,6 +44,18 @@ class PaypalForMarketplaces extends \XLite\Module\CDev\Paypal\Model\Payment\Proc
     }
 
     /**
+     * Returns the list of settings available for this payment processor
+     *
+     * @return array
+     */
+    public function getAvailableSettings()
+    {
+        return array(
+            'disburse_funds_option_locked',
+        );
+    }
+
+    /**
      * Get transactionId-based callback URL
      *
      * @param string  $fieldName TransactionId field name OPTIONAL

@@ -129,7 +129,17 @@ class UPS extends \XLite\Model\Shipping\Processor\AProcessor
      */
     public function getTrackingInformationURL($trackingNumber)
     {
-        return 'http://wwwapps.ups.com/tracking/tracking.cgi';
+        $params = $this->getTrackingInformationParams($trackingNumber);
+        return sprintf(
+            'http://wwwapps.ups.com/tracking/tracking.cgi?%s',
+            implode('&', array_map(function ($n, $v) {
+                return sprintf(
+                    '%s=%s',
+                    urlencode($n),
+                    urlencode($v)
+                );
+            }, array_keys($params), array_values($params)))
+        );
     }
 
     /**

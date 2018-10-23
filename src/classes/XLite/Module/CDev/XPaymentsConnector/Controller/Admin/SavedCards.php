@@ -29,8 +29,16 @@ class SavedCards extends \XLite\Controller\Admin\AAdmin
      */
     public function checkACL()
     {
-        return parent::checkACL()
-            || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage users');
+        $profile = (null !== $this->getCustomerProfile())
+            ? $this->getCustomerProfile()
+            : \XLite\Core\Auth::getInstance()->getProfile();
+        $isAnonymous = $profile->getAnonymous();
+
+        return (
+            parent::checkACL()
+            || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage users')
+            )
+            && !$isAnonymous;
     }
 
     /**
@@ -90,24 +98,35 @@ class SavedCards extends \XLite\Controller\Admin\AAdmin
     {
         $profile = $this->getCustomerProfile();
 
-        $cardId = \XLite\Core\Request::getInstance()->default_card_id;
+        $defaultCardId = (int)\XLite\Core\Request::getInstance()->default_card_id;
         $delete = \XLite\Core\Request::getInstance()->delete;
 
         $addresses = \XLite\Core\Request::getInstance()->address_id;
 
         if ($profile) {
             // Mark card as default
-            if ($profile->isCardIdValid($cardId)) {
-                $profile->setDefaultCardId($cardId);
+            if ($profile->isCardIdValid($defaultCardId)) {
+                $profile->setDefaultCardId($defaultCardId);
             }
 
             // Remove credit card
             // I.e deny recharges for it
             if ($delete && is_array($delete)) {
                 foreach ($delete as $cardId => $v) {
+
                     if ($profile->isCardIdValid($cardId)) {
                         $profile->denyRecharge($cardId);
                     }
+
+                    if ($cardId === $defaultCardId) {
+                        $profileSavedCards = $profile->getSavedCards();
+                        if (!empty($profileSavedCards)) {
+                            $profile->setDefaultCardId($profileSavedCards[0]['card_id']);
+                        } else {
+                            $profile->setDefaultCardId(0);
+                        }
+                    }
+
                 }
             }
 
@@ -130,7 +149,7 @@ class SavedCards extends \XLite\Controller\Admin\AAdmin
 
                         $card->setBillingAddress($address);
                     }
-                }                
+                }
             }
 
             \XLite\Core\Database::getEM()->flush();

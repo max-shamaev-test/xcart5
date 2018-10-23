@@ -380,7 +380,7 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel implements Provi
 
         if ($this->sortByModes) {
             $default = $this->getSortableDefaultSortBy();
-            if (array_key_exists($result, $this->sortByModes)) {
+            if (array_key_exists($default, $this->sortByModes)) {
                 $result = $default;
             }
         }

@@ -118,6 +118,7 @@ div.group table.list th.actions.left {
   max-width: 250px;
 }
 
+.ajax-container-loadable .items-list-table table.list tbody.create td.main,
 .ajax-container-loadable .items-list-table table.list tbody.lines td.main {
   width: 300px;
 }

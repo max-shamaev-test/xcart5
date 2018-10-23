@@ -550,7 +550,7 @@ abstract class AProcessor extends \XLite\Base\SuperClass
      */
     public function isTrackingInformationForm($trackingNumber)
     {
-        return true;
+        return false;
     }
 
     /**

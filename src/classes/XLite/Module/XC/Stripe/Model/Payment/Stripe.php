@@ -192,15 +192,47 @@ class Stripe extends \XLite\Model\Payment\Base\Online
         $note = '';
 
         try {
-            $payment = \Stripe_Charge::create(
-                array(
-                    'amount'      => $this->formatCurrency($this->transaction->getValue()),
-                    'currency'    => $this->transaction->getCurrency()->getCode(),
-                    'card'        => $this->request['token'],
-                    'capture'     => $this->isCapture(),
-                    'description' => $this->getInvoiceDescription(),
-                )
-            );
+            $customer = \Stripe_Customer::create([
+                'description' => "Customer for {$this->transaction->getOrder()->getProfile()->getEmail()}",
+                'source'      => $this->request['token'],
+            ]);
+
+            $card = $customer->sources->data[0];
+
+            $order = $this->transaction->getOrder();
+
+            if (
+                $order
+                && $order->getProfile()
+                && $order->getProfile()->getBillingAddress()
+            ) {
+                $address = $order->getProfile()->getBillingAddress();
+
+                $data = array_filter(array_map('trim', [
+                    'address_city' => $address->getCity(),
+                    'address_country' => $address->getCountryCode(),
+                    'address_line1' => $address->getStreet(),
+                    'address_state' => $address->getStateName(),
+                    'address_zip' => $address->getZipcode(),
+                ]), 'strlen');
+
+                foreach ($data as $n => $v) {
+                    $card->{$n} = $v;
+                }
+
+                $card->save();
+            }
+
+            $payment = \Stripe_Charge::create([
+                'amount'      => $this->formatCurrency($this->transaction->getValue()),
+                'currency'    => $this->transaction->getCurrency()->getCode(),
+                'customer'    => $customer,
+                'capture'     => $this->isCapture(),
+                'description' => $this->getInvoiceDescription(),
+            ]);
+
+            $customer->delete();
+
             $result = static::COMPLETED;
             $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_SUCCESS;
 

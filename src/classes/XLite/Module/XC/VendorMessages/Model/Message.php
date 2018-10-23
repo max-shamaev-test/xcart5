@@ -389,26 +389,12 @@ class Message extends \XLite\Model\AEntity
 
     /**
      * Reset notifications cache
-     *
-     * @return integer[]
      */
     public function resetNotifications()
     {
         $ids = $this->getNotificationProfileIds();
-        if ($ids) {
-            $result = \XLite\Core\TmpVars::getInstance()->vendorMessagesUpdateTimestamp;
-            if (!is_array($result)) {
-                $result = [];
-            }
 
-            foreach ($ids as $pid) {
-                $result[$pid] = LC_START_TIME;
-            }
-
-            \XLite\Core\TmpVars::getInstance()->vendorMessagesUpdateTimestamp = $result;
-        }
-
-        return $ids;
+        \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\Message')->resetMessagesUpdateTimestamp($ids);
     }
 
     /**

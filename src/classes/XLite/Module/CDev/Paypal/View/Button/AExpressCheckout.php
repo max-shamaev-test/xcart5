@@ -71,29 +71,34 @@ abstract class AExpressCheckout extends \XLite\View\Button\Link
     protected function getAllowedLocales()
     {
         return [
-            'en_US',
-            'en_AU',
-            'en_GB',
-            'fr_CA',
-            'es_ES',
-            'it_IT',
-            'fr_FR',
-            'de_DE',
-            'pt_BR',
-            'zh_CN',
-            'da_DK',
-            'zh_HK',
-            'id_ID',
-            'he_IL',
-            'ja_JP',
-            'nl_NL',
-            'no_NO',
-            'pl_PL',
-            'pt_PT',
-            'ru_RU',
-            'sv_SE',
-            'th_TH',
-            'zh_TW',
+            'en'    => 'en_US',
+            'au'    => 'en_AU',
+            'gb'    => 'en_GB',
+            'fr_CA' => 'fr_CA',
+            'es'    => 'es_ES',
+            'it'    => 'it_IT',
+            'fr'    => 'fr_FR',
+            'de'    => 'de_DE',
+            'br'    => 'pt_BR',
+            'zh'    => 'zh_CN',
+            'da'    => 'da_DK',
+            'zh_HK' => 'zh_HK',
+            'id'    => 'id_ID',
+            'he'    => 'he_IL',
+            'ja'    => 'ja_JP',
+            'nl'    => 'nl_NL',
+            'no'    => 'no_NO',
+            'pl'    => 'pl_PL',
+            'pt'    => 'pt_PT',
+            'ru'    => 'ru_RU',
+            'se'    => 'sv_SE',
+            'th'    => 'th_TH',
+            'zh_TW' => 'zh_TW',
+            'ar'    => 'ar_EG',
+            'fr_XC' => 'fr_XC',
+            'es_XC' => 'es_XC',
+            'zh_XC' => 'zh_XC',
+            'ko'    => 'ko_KR',
         ];
     }
 
@@ -104,9 +109,13 @@ abstract class AExpressCheckout extends \XLite\View\Button\Link
     {
         $locale = @mb_substr(\XLite\Core\Converter::getLocaleByCode(), 0, 5);
 
-        return in_array($locale, $this->getAllowedLocales())
-            ? $locale
-            : null;
+        if (in_array($locale, $this->getAllowedLocales())) {
+            return $locale;
+        }
+
+        $code = \XLite\Core\Session::getInstance()->getLanguage()->getCode();
+
+        return isset($this->getAllowedLocales()[$code]) ? $this->getAllowedLocales()[$code] : null;
     }
 
     /**

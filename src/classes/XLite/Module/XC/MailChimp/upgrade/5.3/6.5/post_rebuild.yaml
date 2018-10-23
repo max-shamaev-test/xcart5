@@ -1,0 +1,34 @@
+# vim: set ts=2 sw=2 sts=2 et:
+#
+# Upgrade data
+#
+# Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+# See https://www.x-cart.com/license-agreement.html for license details.
+
+XLite\Model\LanguageLabel:
+  - { name: 'MailChimp', translations: [{ code: en, label: 'Mailchimp' }, { code: ru, label: 'Mailchimp' }] }
+  - { name: 'MailChimp Integration with E-commerce support', translations: [{ code: en, label: 'Mailchimp Integration with E-commerce support' }, { code: ru, label: 'Интеграция сервиса Mailchimp с поддержкой Ecommerce' }] }
+  - { name: 'MailChimp is an email marketing service with powerful tools to manage your email campaigns and subscribers while gathering advanced analytics information on your campaign performance.', translations: [{ code: en, label: 'Mailchimp is an email marketing service with powerful tools to manage your email campaigns and subscribers while gathering advanced analytics information on your campaign performance.' }, { code: ru, label: 'Mailchimp это маркетиногвай сервис по отправке почтовых сообщений с мощными средствами управления рассылками и подписчиками, позволяющими собирать и обрабатывать информацию эффективности маркетинговых кампаний.' }] }
+  - { name: 'Update MailChimp Lists', translations: [{ code: en, label: 'Update Mailchimp Lists' }, { code: ru, label: 'Обновить список рассылок Mailchimp' }] }
+  - { name: 'MailChimp Lists', translations: [{ code: en, label: 'Mailchimp Lists' }, { code: ru, label: 'Список рассылок Mailchimp' }] }
+  - { name: 'MailChimp list segments', translations: [{ code: en, label: 'Mailchimp "{{list_name}}" list segments' }, { code: ru, label: 'Сегменты списка рассылок "{{list_name}}" Mailchimp' }] }
+  - { name: 'MailChimp segment settings', translations: [{ code: en, label: 'Mailchimp segment settings' }, { code: ru, label: 'Настройки сегмента Mailchimp' }] }
+  - { name: 'MailChimp lists update', translations: [{ code: en, label: 'Mailchimp lists update' }, { code: ru, label: 'Обновление списков Mailchimp' }] }
+  - { name: 'MailChimp list groups', translations: [{ code: en, label: 'Groups of Mailchimp news list "{{list_name}}"' }] }
+  - { name: 'MailChimp list group names', translations: [{ code: en, label: 'Group names of Mailchimp group "{{group_name}}"' }] }
+  - { name: 'Here you can view and manage the MailChimp news lists and groups of the user.', translations: [{ code: en, label: 'Here you can view and manage the Mailchimp news lists and groups of the user.' }, { code: ru, label: 'Данная секция позволяет просматривать и управлять новостными подписками и группами пользователя (Mailchimp).' }] }
+  - { name: 'Upload store data to MailChimp', translations: [{ code: en, label: 'Upload store data to Mailchimp' }, { code: ru, label: 'Выгрузить данные в Mailchimp' }] }
+  - { name: '_MailChimp ecommerce info text_', translations: [{ code: en, label: 'Upload store data to Mailchimp to promote more efficient Mailchimp Product Recommendations and Abandoned Carts. Before clicking the button, select the lists for which you want Mailchimp "stores" to be created. A "store" is a collection of products, orders, carts and customers. Mailchimp will create the "stores" and will connect them with the lists you have specified. Store data from X-Cart will be uploaded for these specific stores.<br><a href="{{url}}" target="_blank">Learn more about Mailchimp e-Commerce features</a>' }, { code: ru, label: 'Загрузите данные магазина в Mailchimp для более эффективной работы рекомендаций товаров и поддержки оставленных корзин от Mailchimp. Перед тем как нажать на кнопку, выберите списки, для которых требуется создать "магазины" в Mailchimp. "Магазин" - это набор товаров, заказов, корзин и покупателей. Mailchimp создаст "магазины" и привяжет их к спискам, которые вы указали. Данные из X-Cart будут выгружаться именно в эти магазины.<br><a href="{{url}}" target="_blank">Подробнее об опциях e-Commerce в Mailchimp</a>' }] }
+  - { name: 'Connect with your MailChimp account', translations: [{ code: en, label: 'Connect with your Mailchimp account' }, { code: ru, label: 'Подключить аккаунт Mailchimp' }] }
+  - { name: 'Reconnect with your MailChimp account', translations: [{ code: en, label: 'Reset Mailchimp connection' }, { code: ru, label: 'Переподключить аккаунт Mailchimp' }] }
+  - { name: 'Enter your MailChimp API key manually', translations: [{ code: en, label: 'Enter your Mailchimp API key manually' }, { code: ru, label: 'Введите API ключ Mailchimp вручную' }] }
+  - { name: 'send only discount coupons with matched rules', translations: [{ code: en, label: "Only the discount coupons that match the Mailchimp promo rules" }, { code: ru, label: "Только купоны, которые соответствуют промо-правилам Mailchimp" }] }
+  - { name: 'MailChimp lists', translations: [{ code: en, label: 'Mailchimp lists' }, { code: ru, label: 'Список рассылок Mailchimp' }]}
+  - { name: 'MailChimp settings', translations: [{ code: en, label: 'Mailchimp settings' }, { code: ru, label: 'Настройки Mailchimp' }]}
+
+XLite\Model\Config:
+  - { directives: { allowedModel: 'XLite\Model\ConfigTranslation' } }
+  - { name: 'mailChimpSeparator', category: 'XC\MailChimp', translations: [{ code: en, option_name: 'MailchimpНастройки Mailchimp settings' }, { code: ru, option_name: 'Настройки Mailchimp' }] }
+  - { name: 'mailChimpAPIKey', category: 'XC\MailChimp', translations: [{ code: en, option_name: 'Mailchimp API key' }, { code: ru, option_name: 'API ключ Mailchimp' }] }
+  - { name: 'doubleOptinDisabled', category: 'XC\MailChimp', translations: [{ code: en, option_name: 'Enable single opt-in for customers', option_comment: 'When this option is enabled customers are not prompted to confirm the subscription by email (contrary to double opt-in). Abusing this option might get your account banned by Mailchimp.' }, { code: ru, option_name: 'Включить режим подписки "single opt-in"', option_comment: 'Когда этоа опция включена клиенты не будут получать запрос на подтверждение подписки (в отличие от метода "double opt-in"). Злоупотребление данной опцией может привести к блокировке вашей учетной записи Mailchimp!'}] }
+  - { name: 'updateInterval', category: 'XC\MailChimp', translations: [{ code: en, option_name: 'Update Mailchimp lists every' }, { code: ru, option_name: 'Обновлять список рассылок Mailchimp каждые', option_comment: 'Выберите временной интервал для обновления информации о списках рассылок.'}] }

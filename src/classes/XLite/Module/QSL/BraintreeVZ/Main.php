@@ -40,7 +40,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '3';
+        return '4';
     }
 
     /**
@@ -141,5 +141,18 @@ abstract class Main extends \XLite\Module\AModule
         parent::init();
 
         require_once self::getLibClassesFile();
+    }
+
+    /**
+     * Return list of mutually exclusive modules
+     *
+     * @return array
+     */
+    public static function getMutualModulesList()
+    {
+        $list   = parent::getMutualModulesList();
+        $list[] = 'QSL\Braintree';
+
+        return $list;
     }
 }

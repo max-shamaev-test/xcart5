@@ -1040,6 +1040,8 @@ CommonElement.prototype.markAsInvalid = function(message, key, serverSideError)
 {
   key = key || this.element.name;
 
+  var oldErrorMessage = this.$element.data('lastValidationError');
+
   this.$element
     .addClass('validation-error')
     .data('lastValidationError', message)
@@ -1081,6 +1083,9 @@ CommonElement.prototype.markAsInvalid = function(message, key, serverSideError)
       });
       this.element.errorTooltipAssigned = true;
       this.$element.tooltip('show');
+
+    } else if (message !== oldErrorMessage) {
+      this.$element.tooltip('hide').attr('data-original-title', message).tooltip('show');
     }
   }
 

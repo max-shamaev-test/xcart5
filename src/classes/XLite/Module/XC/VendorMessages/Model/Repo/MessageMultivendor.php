@@ -89,17 +89,16 @@ class MessageMultivendor extends \XLite\Module\XC\VendorMessages\Model\Repo\Mess
      */
     protected function defineCountUnreadForAdminQuery(\XLite\Model\Profile $profile)
     {
-        return $this->createQueryBuilder('m')
+        $qb = $this->createQueryBuilder('m')
             ->select('m.id')
             ->linkLeft('m.readers', 'r0', \Doctrine\ORM\Query\Expr\Join::WITH, 'r0.reader = :reader')
             ->linkLeft('m.readers', 'r1')
             ->linkInner('m.conversation', 'conv')
-            ->linkInner('conv.order', 'o')
-            ->andWhere('o.is_opened_dispute = :enabled_dispute OR o.vendor IS NULL')
             ->groupBy('m.id')
             ->andHaving('COUNT(r1.id) != SUM(IF(r0.id IS NULL, 0, 1)) OR COUNT(r1.id) = 0')
-            ->setParameter('reader', $profile)
-            ->setParameter('enabled_dispute', true);
+            ->setParameter('reader', $profile);
+
+        return $qb;
     }
 
     /**

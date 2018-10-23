@@ -14,18 +14,16 @@
 }
 
 .delete-user-buttons-list {
-  position: relative;
-  left: 134px;
-  width: 244px;
+  display: flex;
+  justify-content: center;
 }
 
 .delete-user-buttons-list .button-proceed {
-  width: 108px;
+  min-width: 108px;
+  margin-right: 7px;
 }
 
 .delete-user-buttons-list .button-cancel {
-  position: relative;
-  left: 7px;
-  width: 108px;
+  min-width: 108px;
 }
 

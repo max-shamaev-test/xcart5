@@ -143,7 +143,7 @@ class RESTAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
 
         return 'https://www.paypal.com/webapps/merchantboarding/webflow/externalpartnerflow'
         . '?&'
-        . http_build_query($urlParams);
+        . http_build_query($urlParams, null, '&');
     }
 
     // }}}

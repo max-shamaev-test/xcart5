@@ -15,6 +15,8 @@ use XLite\Core\View\DynamicWidgetInterface;
  */
 class RecentOrdersCount extends \XLite\View\AView implements DynamicWidgetInterface
 {
+    protected $ordersCount;
+
     /**
      * Display widget with the default or overriden template.
      *
@@ -22,11 +24,20 @@ class RecentOrdersCount extends \XLite\View\AView implements DynamicWidgetInterf
      */
     protected function doDisplay($template = null)
     {
-        $count = \XLite\Core\Database::getRepo('XLite\Model\Order')->searchRecentOrders(null, true);
+        $count = $this->getOrdersCount();
 
         if ($count) {
             echo $count;
         }
+    }
+
+    public function getOrdersCount()
+    {
+        if (!isset($this->ordersCount)) {
+            $this->ordersCount = \XLite\Core\Database::getRepo('XLite\Model\Order')->searchRecentOrders(null, true);
+        }
+
+        return $this->ordersCount;
     }
 
     protected function isCacheAvailable()

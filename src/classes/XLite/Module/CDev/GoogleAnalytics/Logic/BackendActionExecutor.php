@@ -39,7 +39,7 @@ class BackendActionExecutor
 
             $request = new \XLite\Core\HTTP\Request(static::GA_API_ENDPOINT);
             $request->verb = 'POST';
-            $request->body = http_build_query($data);
+            $request->body = http_build_query($data, null, '&');
             $response = $request->sendRequest();
 
             if (GoogleAnalytics\Main::isDebugMode()) {

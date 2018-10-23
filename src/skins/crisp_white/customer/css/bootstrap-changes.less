@@ -532,7 +532,6 @@ div.tabs ul.tabs {
     .justify-content(center);
     height: @layout-category-image-height;
     max-width: @layout-category-image-width;
-    width: @layout-category-image-width;
     margin-bottom: @rhythmic-unit;
   }
 
@@ -1353,12 +1352,6 @@ div.tabs ul.tabs {
     }
 
     .product-photo-box {
-      .image-flex-item {
-        flex-shrink: 0;
-        max-width: 100%;
-        max-height: 100%;
-      }
-
       margin-top: 0px;
     }
   }
@@ -1440,6 +1433,12 @@ div.tabs ul.tabs {
   }
 
   .product-photo-box {
+    .image-flex-item {
+      display: flex;
+      width: 100%;
+      max-height: 100%;
+    }
+
     margin-top: (2 * @rhythmic-unit);
     margin-bottom: 0;
 
@@ -1536,8 +1535,8 @@ div.tabs ul.tabs {
     position: absolute;
     width: 43px;
     height: 43px;
-    right: 0;
-    bottom: 0;
+    right: 1px;
+    bottom: 1px;
     z-index: 9991;
 
     &:before {

@@ -1,7 +1,7 @@
 @cs-active-filter-value-color: #000;
 
 [v-cloak] {
-  display:none;
+  display: none;
 }
 
 .cloud-filters-filter-checkbox-container.checkbox {
@@ -95,6 +95,71 @@
   }
 }
 
+#cloud-filters {
+  @media (max-width: 767px) {
+    display: none !important;
+  }
+}
+
+#cloud-filters-mobile {
+  padding-top: 26px;
+  background: #fafafa;
+  .mm-navbar {
+    display: block;
+  }
+  h4.title {
+    display: none;
+  }
+}
+
+#cf-slide-menu {
+  color: unset;
+
+  h4 {
+    margin-bottom: 20px;
+  }
+}
+
+.items-list-products.items-list {
+  .list-header {
+    position: relative;
+  }
+
+  .head-h2,
+  .list-pager {
+    text-align: left;
+  }
+
+  &.empty-result .list-header {
+    padding: 0;
+    border: 0;
+
+    & > div:not(#cloud-filters-mobile-link) {
+      display: none;
+    }
+  }
+}
+
+#cloud-filters-mobile-link {
+  position: absolute;
+  right: 0;
+  font-size: 16px;
+  top: -80px;
+
+  .empty-result & {
+    top: -38px;
+  }
+
+  @media (min-width: 768px) {
+    display: none !important;
+  }
+
+  a {
+    text-decoration: none;
+    padding: 5px;
+  }
+}
+
 .skin-crisp_white-customer {
   .cloud-filters-filter__title {
     font-size: 16px;
@@ -108,4 +173,51 @@
     margin-left: 40px;
     margin-top: 12px;
   }
+
+  #cf-slide-menu {
+    .mm-navbar {
+      height: 0;
+
+      .mm-title {
+        position: absolute;
+        top: 10px;
+        font-size: 18px;
+        color: #4a4a4a;
+      }
+    }
+
+    .mm-panel {
+      padding-top: 40px;
+      padding-left: 40px;
+
+      &:before {
+        display: none;
+      }
+    }
+  }
+
+  #cloud-filters-mobile {
+    padding-top: 80px;
+    background: white;
+  }
+
+  #cloud-filters-mobile-link {
+    right: 35px;
+    top: 46px;
+  }
+
+  .brand-products #cloud-filters-mobile-link,
+  .new-arrivals-products #cloud-filters-mobile-link,
+  .sale-products #cloud-filters-mobile-link,
+  .category-products #cloud-filters-mobile-link {
+    top: -36px;
+  }
+
+  .items-list-products .list-header {
+    position: unset;
+  }
+}
+
+body {
+  height: unset !important;
 }

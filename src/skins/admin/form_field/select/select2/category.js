@@ -23,6 +23,12 @@ CommonForm.elementControllers.push(
         escapeMarkup: function (markup) {
           return markup;
         },
+        templateResult: function (selection) {
+          return htmlspecialchars(selection.text);
+        },
+        templateSelection: function (selection) {
+          return '<span class="select2-selection-text">' + htmlspecialchars(selection.text) + '</span>';
+        },
         dropdownParent: $(this).parents('.search-conditions-box:first')
       });
     }

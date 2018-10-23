@@ -43,7 +43,7 @@ class Coupon extends \XLite\View\Model\AModel
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Text\FloatInput',
             self::SCHEMA_LABEL    => 'Discount amount',
             self::SCHEMA_REQUIRED => true,
-            \XLite\View\FormField\Input\Text\FloatInput::PARAM_MIN => 0.001,
+            \XLite\View\FormField\Input\Text\FloatInput::PARAM_MIN => 0.01,
         ),
         'dateRangeBegin' => array(
             self::SCHEMA_CLASS    => 'XLite\Module\CDev\Coupons\View\FormField\Date',

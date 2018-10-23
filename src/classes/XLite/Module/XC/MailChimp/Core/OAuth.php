@@ -83,7 +83,7 @@ class OAuth
         $proxyParams = [ 'redirecturl' => $redirectUrl ];
         $separator = false === strpos($this->oauthProxyUrl, '?') ? '?' : '&';
 
-        return $this->oauthProxyUrl . $separator . http_build_query($proxyParams);
+        return $this->oauthProxyUrl . $separator . http_build_query($proxyParams, null, '&');
     }
 
     /**

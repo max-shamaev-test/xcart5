@@ -6,7 +6,7 @@
 {{ this.displayCommentedData(this.getCommentedData()) }}
   <input type="hidden" class="model-value" name="{{ this.getName() }}" value="{{ this.getIdentifierValue() }}" />
 
-  <input type="text" placeholder="{{ this.getParam('placeholder') }}" class="{{ this.getCSSClasses() }}"{% if this.getTextName() %} name="{{ this.getTextName() }}"{% endif %} value="{{ this.getTextValue() }}" autocomplete="off" />
+  <input type="text" placeholder="{{ this.getParam('placeholder') }}" class="{{ this.getCSSClasses() }}"{% if this.getTextName() %} name="{{ this.getTextName() }}"{% endif %} value="{{ this.getTextValue() }}" data-current_search="{{ this.getTextValue() }}" autocomplete="off" />
 
   <div class="spinner hidden"><div class="box"><div class="subbox"></div></div></div>
 

@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Repo;
 
+use XLite\Model\QueryBuilder\AQueryBuilder;
+
 /**
  * The "product" model repository
  *
@@ -1152,16 +1154,16 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     /**
      * Add the specific joints with the translation table
      *
-     * @param \Doctrine\ORM\QueryBuilder $queryBuilder
-     * @param string                     $alias
-     * @param string                     $translationsAlias
-     * @param string                     $code
+     * @param AQueryBuilder $queryBuilder
+     * @param string        $alias
+     * @param string        $translationsAlias
+     * @param string        $code
      *
      * @return \Doctrine\ORM\QueryBuilder
      */
     protected function addTranslationJoins($queryBuilder, $alias, $translationsAlias, $code)
     {
-        $queryBuilder->leftJoin(
+        $queryBuilder->linkLeft(
             $alias . '.translations',
             $translationsAlias
         );

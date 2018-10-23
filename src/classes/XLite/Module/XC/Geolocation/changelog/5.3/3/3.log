@@ -1,0 +1,5 @@
+Version 5.3.3.3
+
+Fixes (1)
+2018-09-13 - [Bug] The user was redirected to a blank page after selecting a country from the Geolocation widget. Fixed. #BUG-6682 https://bt.x-cart.com/view.php?id=49925 (Shevelov Alexander) #Geolocation
+

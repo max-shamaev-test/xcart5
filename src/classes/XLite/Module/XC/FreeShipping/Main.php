@@ -72,7 +72,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '2';
+        return '3';
     }
 
     /**
@@ -100,5 +100,68 @@ abstract class Main extends \XLite\Module\AModule
         parent::runBuildCacheHandler();
 
         MethodsLoader::process();
+        static::switchFreeShippingMethods(true);
+    }
+
+    /**
+     * Method to call just before the module is uninstalled via core
+     *
+     * @return void
+     */
+    public static function callUninstallEvent()
+    {
+        parent::callUninstallEvent();
+
+        static::removeFreeShippingMethods();
+    }
+
+    /**
+     * Method to call just before the module is disabled via core
+     *
+     * @return void
+     */
+    public static function callDisableEvent()
+    {
+        parent::callDisableEvent();
+
+        static::switchFreeShippingMethods(false);
+    }
+
+    /**
+     * Remove service free shipping modules
+     */
+    protected static function removeFreeShippingMethods()
+    {
+        $shippingMethods = \XLite\Core\Database::getRepo('XLite\Model\Shipping\Method')->findBy(['code' => 'FREESHIP']);
+        foreach ($shippingMethods as $method) {
+            \XLite\Core\Database::getEM()->remove($method);
+        }
+
+        $shippingMethods = \XLite\Core\Database::getRepo('XLite\Model\Shipping\Method')->findBy(['code' => 'FIXEDFEE']);
+        foreach ($shippingMethods as $method) {
+            \XLite\Core\Database::getEM()->remove($method);
+        }
+
+        \XLite\Core\Database::getEM()->flush();
+    }
+
+    /**
+     * Switch service free shipping modules
+     *
+     * @param bool $enabled enabled
+     */
+    protected static function switchFreeShippingMethods($enabled)
+    {
+        $shippingMethods = \XLite\Core\Database::getRepo('XLite\Model\Shipping\Method')->findBy(['code' => 'FREESHIP']);
+        foreach ($shippingMethods as $method) {
+            $method->setEnabled($enabled);
+        }
+
+        $shippingMethods = \XLite\Core\Database::getRepo('XLite\Model\Shipping\Method')->findBy(['code' => 'FIXEDFEE']);
+        foreach ($shippingMethods as $method) {
+            $method->setEnabled($enabled);
+        }
+
+        \XLite\Core\Database::getEM()->flush();
     }
 }
