@@ -99,6 +99,7 @@ class Export extends \XLite\Controller\Admin\AAdmin
             $addSections = array(
                 'XLite\Logic\Export\Step\AttributeValues\AttributeValueSelect',
                 'XLite\Logic\Export\Step\AttributeValues\AttributeValueText',
+                'XLite\Logic\Export\Step\AttributeValues\AttributeValueHidden',
             );
 
             \XLite\Core\Request::getInstance()->section = array_merge(

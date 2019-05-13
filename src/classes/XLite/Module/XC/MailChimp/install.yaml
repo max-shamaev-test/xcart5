@@ -87,6 +87,19 @@ XLite\Model\Config:
       - code: ru
         option_name: 'Тип купонов на скидку, который следует загружать в Mailchimp'
         option_comment: 'Промо-правила Mailchimp: <br> - Код<br> - Сумма скидки<br> - Активен с<br> - Активен по <br>Купоны, настроенные с использованием каких-либо правил сверх этого набора, будут считаться не соответствующим промо-правилам Mailchimp.'
+  - name: 'mcjs'
+    category: XC\MailChimp
+    type: textarea
+    orderby: 800
+    value: ''
+    translations:
+      - code: en
+        option_name: 'Site connection code'
+        option_comment: 'The connection code will appear here automatically once you upload store data to MailChimp. Alternatively, you can connect MailChimp subscription popup via Custom Website integration code. Add your site to the MailChimp account and paste here the connection code.'
+      - code: ru
+        option_name: 'Код подключения сайта'
+        option_comment: 'Код появится автоматически после загрузки данных магазина в MailChimp. Также вы можете самостоятельно присоединить магазин, скопировав код подключения в это поле.'
+
 
 XLite\Model\LanguageLabel:
   - { name: 'MailChimp', translations: [{ code: en, label: 'Mailchimp' }] }

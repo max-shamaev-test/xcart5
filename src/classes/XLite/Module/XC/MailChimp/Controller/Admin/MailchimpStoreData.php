@@ -29,11 +29,11 @@ class MailchimpStoreData extends \XLite\Controller\Admin\AAdmin
         $state = \XLite\Core\Database::getRepo('XLite\Model\TmpVar')->getEventState($eventName);
 
         return $state
-            && in_array(
-                $state['state'],
-                array(\XLite\Core\EventTask::STATE_STANDBY, \XLite\Core\EventTask::STATE_IN_PROGRESS)
-            )
-            && !\XLite\Core\Database::getRepo('XLite\Model\TmpVar')->getVar(
+               && in_array(
+                   $state['state'],
+                   [\XLite\Core\EventTask::STATE_STANDBY, \XLite\Core\EventTask::STATE_IN_PROGRESS]
+               )
+               && !\XLite\Core\Database::getRepo('XLite\Model\TmpVar')->getVar(
                 UploadingData\Generator::getCancelFlagVarName()
             );
     }
@@ -62,6 +62,8 @@ class MailchimpStoreData extends \XLite\Controller\Admin\AAdmin
             MailChimpECommerce::getInstance()->updateStoreAndReference($listId, $value);
         }
 
+        MailChimpECommerce::getInstance()->updateConnectedSites();
+
         \XLite\Core\Database::getEM()->flush();
     }
 
@@ -71,7 +73,7 @@ class MailchimpStoreData extends \XLite\Controller\Admin\AAdmin
 
         Main::setAllStoreSyncFlag(false);
     }
-    
+
     /**
      * Export action
      *
@@ -81,9 +83,11 @@ class MailchimpStoreData extends \XLite\Controller\Admin\AAdmin
     {
         $lists = \XLite\Core\Request::getInstance()->lists;
 
-        UploadingData\Generator::run([
-            'lists' => $lists
-        ]);
+        UploadingData\Generator::run(
+            [
+                'lists' => $lists
+            ]
+        );
     }
 
     /**
@@ -95,12 +99,14 @@ class MailchimpStoreData extends \XLite\Controller\Admin\AAdmin
     {
         $lists = \XLite\Core\Request::getInstance()->lists;
 
-        UploadingData\Generator::run([
-            'steps' => [
-                'products',
-            ],
-            'lists' => $lists
-        ]);
+        UploadingData\Generator::run(
+            [
+                'steps' => [
+                    'products',
+                ],
+                'lists' => $lists
+            ]
+        );
     }
 
     /**
@@ -112,12 +118,14 @@ class MailchimpStoreData extends \XLite\Controller\Admin\AAdmin
     {
         $lists = \XLite\Core\Request::getInstance()->lists;
 
-        UploadingData\Generator::run([
-            'steps' => [
-                'orders',
-            ],
-            'lists' => $lists
-        ]);
+        UploadingData\Generator::run(
+            [
+                'steps' => [
+                    'orders',
+                ],
+                'lists' => $lists
+            ]
+        );
     }
 
     /**

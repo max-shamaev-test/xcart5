@@ -282,7 +282,7 @@ class FileUploader extends \XLite\View\AView
             static::PARAM_POSITION           => new \XLite\Model\WidgetParam\TypeInt('Position', 0),
             static::PARAM_IS_VIA_URL_ALLOWED => new \XLite\Model\WidgetParam\TypeInt('Is ViaUrl allowed', true),
             static::PARAM_IS_REMOVABLE       => new \XLite\Model\WidgetParam\TypeBool('Is removable', true),
-            static::PARAM_HAS_ALT            => new \XLite\Model\WidgetParam\TypeBool('Has alt', null),
+            static::PARAM_HAS_ALT            => new \XLite\Model\WidgetParam\TypeBool('Has alt', true),
         ];
     }
 
@@ -396,11 +396,8 @@ class FileUploader extends \XLite\View\AView
      */
     protected function hasAlt()
     {
-        $param = $this->getParam(static::PARAM_HAS_ALT);
-
-        return is_null($param)
-            ? $this->isModelHasAlt()
-            : $param;
+        return $this->getParam(static::PARAM_HAS_ALT)
+               && $this->isModelHasAlt();
     }
 
     /**

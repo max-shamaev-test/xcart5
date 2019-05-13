@@ -1,0 +1,41 @@
+# vim: set ts=2 sw=2 sts=2 et:
+#
+# Data dump
+#
+# Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+# See https://www.x-cart.com/license-agreement.html for license details.
+
+XLite\Model\LanguageLabel:
+  - { name: "Facebook Ads & Instagram Ads", translations: [{ code: en, label: "Facebook Ads & Instagram Ads" }] }
+  - { name: "Product feed generation has been completed successfully", translations: [{ code: en, label: "Product feed generation has been completed successfully." }] }
+  - { name: "Product feed generation has been stopped", translations: [{ code: en, label: "Product feed generation has been stopped." }] }
+  - { name: "Generate Product Feed", translations: [{ code: en, label: "Generate Product Feed" }] }
+  - { name: "Product feed", translations: [{ code: en, label: "Product feed" }] }
+  - { name: "Facebook Pixel Id", translations: [{ code: en, label: "Facebook Pixel ID" }] }
+  - { name: "Product Feed URL", translations: [{ code: en, label: "Product Feed URL" }] }
+  - { name: "Frequency of Product Feed renewal", translations: [{ code: en, label: "Frequency of Product Feed renewal" }] }
+  - { name: "There is no products for facebook product feed generation", translations: [{ code: en, label: "No products have been selected for feed generation" }] }
+  - { name: "Enable facebook product feed", translations: [{ code: en, label: "Add to product feed" }] }
+  - { name: "Disable facebook product feed", translations: [{ code: en, label: "Remove from product feed" }] }
+  - { name: "Facebook product feed enabled", translations: [{ code: en, label: "Add to Facebook product feed" }] }
+  - { name: 'Wrong "facebook marketing enabled" format', translations: [{ code: en, label: 'Wrong "Facebook marketing enabled" format' }] }
+  - { name: 'Use the module Google Product Feed for advanced flexibility generating a data feed for Facebook based on the product attributes and variants from your store catalog', translations: [{ code: en, label: 'Use the module Google Product Feed for advanced flexibility generating a data feed for Facebook based on the product attributes and variants from your store catalog' }]}
+  - { name: 'Generate product feed', translations: [{ code: en, label: 'Generate product feed' }]}
+  - { name: 'Include out of stock products into feed', translations: [{ code: en, label: 'Include out of stock products into feed' }]}
+
+XLite\Model\Config:
+  - name: pixel_id
+    category: XC\FacebookMarketing
+    type: hidden
+    value: ''
+  - name: include_out_of_stock
+    category: XC\FacebookMarketing
+    type: hidden
+    value: Y
+  - name: renewal_frequency
+    category: XC\FacebookMarketing
+    type: hidden
+    value: 86400
+
+XLite\Model\Task:
+  - owner: XLite\Module\XC\FacebookMarketing\Core\Task\GenerateProductFeed

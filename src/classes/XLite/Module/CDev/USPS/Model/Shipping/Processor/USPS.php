@@ -1184,7 +1184,7 @@ OUT;
             'FO' => 'Faroe Islands',
             'FR' => 'France',
             'GA' => 'Gabon',
-            'GB' => 'Great Britain and Northern Ireland',
+            'GB' => 'United Kingdom', // ex - Great Britain and Northern Ireland
             'GD' => 'Grenada',
             'GE' => 'Georgia, Republic of',
             'GF' => 'French Guiana',
@@ -1309,7 +1309,7 @@ OUT;
             'ST' => 'Sao Tome and Principe',
             'SV' => 'El Salvador',
             'SY' => 'Syrian Arab Republic',
-            'SZ' => 'Swaziland',
+            'SZ' => 'Eswatini', // ex-Swaziland
             'TC' => 'Turks and Caicos Islands',
             'TD' => 'Chad',
             'TG' => 'Togo',

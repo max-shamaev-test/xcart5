@@ -1,0 +1,4 @@
+Version 5.3.3.0
+
+Improvements
+2017-05-15 - [Change] json can now be used for requests to REST API. #XCN-6882 (Michael Lipinski) #RESTAPI

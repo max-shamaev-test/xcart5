@@ -23,12 +23,13 @@ define('paypal_ec_checkout_credit_button_processor', ['paypal_ec_button_processo
         var notes = $('textarea[name="notes"]').clone();
         notes.appendTo(form);
 
-        form.submitBackground();
-        actionElement.val(oldAction);
-        notes.remove();
-        paypal.request.post(getInitiateTokenUrl(state.additionalUrlParams)).then(function (data) {
-          dfr.resolve(data);
-        });
+        form.submitBackground(_.bind(function () {
+          actionElement.val(oldAction);
+          notes.remove();
+          paypal.request.post(getInitiateTokenUrl(state.additionalUrlParams)).then(function (data) {
+            dfr.resolve(data);
+          });
+        }, this));
 
         return dfr.then(function (data) {
           return data.token;

@@ -94,8 +94,8 @@ core.bind('paypaltransparentredirect', function (e, params) {
 
   var paramList = 'TENDER=C'
     + '&ACCT=' + parseInt(box.find('#cc_number').val().replace(/\D/g, ''))
-    + '&EXPDATE=' + (expMonth.length != 2 ? ('0' + expMonth) : expMonth) + expYear
-    + '&CVV2=' + parseInt(box.find('#cc_cvv2').val().replace(/\D/g, ''));
+    + '&EXPDATE=' + (expMonth < 10 ? ('0' + expMonth) : expMonth) + expYear
+    + '&CVV2=' + box.find('#cc_cvv2').val().replace(/\D/g, '');
 
   var form = document.createElement('form');
   form.action = params.action;

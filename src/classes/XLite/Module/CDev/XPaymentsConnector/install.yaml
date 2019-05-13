@@ -53,15 +53,6 @@ XLite\Model\Config:
       - code: en
         option_name: 'Private key password'
         option_comment: 'Private key password is used to decrypt the Private key. This value should be obtained from this online store details page in X-Payments back-end.'
-  - name: xpc_allowed_ip_addresses
-    category: 'CDev\XPaymentsConnector'
-    type: text
-    orderby: 1060
-    value: ''
-    translations:
-      - code: en
-        option_name: 'IP addresses for X-Payments callbacks (optional)'
-        option_comment: 'X-Payments sends callback requests to the store from specific IP addresses. To secure the data transfer and avoid fraudulent requests, specify these IP addresses here as a comma-separated list.'
   - name: xpc_currency
     category: 'CDev\XPaymentsConnector'
     type: 'XLite\View\FormField\Select\Currency'

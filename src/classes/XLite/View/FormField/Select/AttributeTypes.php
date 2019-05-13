@@ -13,6 +13,18 @@ namespace XLite\View\FormField\Select;
  */
 class AttributeTypes extends \XLite\View\FormField\Select\Regular
 {
+    const PARAM_EXCLUDE_HIDDEN = 'excludeHidden';
+
+    /**
+     * Save current form reference and sections list, and initialize the cache
+     *
+     * @param array $params Widget params OPTIONAL
+     */
+    public function __construct(array $params = array())
+    {
+        parent::__construct($params);
+    }
+
     /**
      * Get default options
      *
@@ -21,6 +33,36 @@ class AttributeTypes extends \XLite\View\FormField\Select\Regular
     protected function getDefaultOptions()
     {
         return \XLite\Model\Attribute::getTypes();
+    }
+
+    /**
+     * getOptions
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        $options = parent::getOptions();
+
+        if ($this->getParam(static::PARAM_EXCLUDE_HIDDEN)) {
+            unset($options[\XLite\Model\Attribute::TYPE_HIDDEN]);
+        }
+
+        return $options;
+    }
+
+    /**
+     * Define widget params
+     *
+     * @return void
+     */
+    protected function defineWidgetParams()
+    {
+        parent::defineWidgetParams();
+
+        $this->widgetParams += array(
+            static::PARAM_EXCLUDE_HIDDEN => new \XLite\Model\WidgetParam\TypeBool('Exclude field hidden', true),
+        );
     }
 
     /**

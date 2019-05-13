@@ -11,15 +11,6 @@
  * Controller
  */
 
-core.bind(
-  'update-product-page',
-  function (event, productId) {
-    if (jQuery('div.product-details').length > 0 && 'undefined' !== typeof(jQuery('div.product-details').get(0).controller)) {
-      jQuery('div.product-details').get(0).controller.block.loadVariantsImages(productId);
-    }
-  }
-);
-
 jQuery(document).ready(
   function () {
     core.bind(
@@ -222,6 +213,7 @@ ProductDetailsView.prototype.applyDefaultImage = function () {
     var img = this.base.find('.product-image-gallery li img.middle');
     var elm = this.base.find('img.product-thumbnail');
     elm.attr('src', img.attr('src'))
+      .attr('srcset', img.attr('srcset') || null)
       .attr('width', img.attr('width'))
       .attr('height', img.attr('height'))
       .css({
@@ -240,6 +232,7 @@ ProductDetailsView.prototype.applyDefaultImage = function () {
     var elm = this.base.find('img.product-thumbnail');
 
     elm.attr('src', img.attr('src'))
+      .attr('srcset', img.attr('srcset') || null)
       .attr('width', img.attr('width'))
       .attr('height', img.attr('height'))
       .css({

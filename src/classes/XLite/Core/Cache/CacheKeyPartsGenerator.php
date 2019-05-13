@@ -43,28 +43,35 @@ class CacheKeyPartsGenerator
     public function getShippingZonesPart()
     {
         return $this->executeCachedRuntime(function () {
-            $auth = \XLite\Core\Auth::getInstance();
-
-            if (!$auth->isLogged()) {
-                return null;
-            }
 
             $zones = [];
 
-            $profile = $auth->getProfile();
+            $addresses = [];
+
+            $profile = \XLite\Core\Auth::getInstance()->getProfile();
+
+            if ($profile) {
+                foreach (['Shipping', 'Billing'] as $aType) {
+                    $method = 'get' . $aType . 'Address';
+                    if (($address = $profile->$method()) && !isset($addresses[$address->getAddressId()])) {
+                        $addresses[$address->getAddressId()] = $address->toArray();
+                    }
+                }
+            }
+
+            if (!$addresses) {
+                $addresses[] = \XLite\Model\Shipping::getDefaultAddress();
+            }
 
             $repo = \XLite\Core\Database::getRepo('XLite\Model\Zone');
-            $address = $profile->getShippingAddress()
-                ? $profile->getShippingAddress()->toArray()
-                : null;
 
-            if ($address) {
+            foreach ($addresses as $address) {
                 foreach ($repo->findApplicableZones($address) as $zone) {
                     $zones[] = $zone->getZoneId();
                 }
             }
 
-            return implode(',', $zones);
+            return implode(',', array_unique($zones));
         });
     }
 }

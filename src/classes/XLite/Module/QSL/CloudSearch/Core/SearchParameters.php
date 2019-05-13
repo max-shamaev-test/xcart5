@@ -8,8 +8,12 @@
 
 namespace XLite\Module\QSL\CloudSearch\Core;
 
+use XLite;
 use XLite\Core\Auth;
 use XLite\Core\CommonCell;
+use XLite\Core\Database;
+use XLite\Model\Category;
+use XLite\Core\Session;
 use XLite\Module\QSL\CloudSearch\Model\Repo\Product;
 use XLite\View\ItemsList\Product\Customer\Search as SearchList;
 
@@ -42,7 +46,7 @@ class SearchParameters implements SearchParametersInterface
     public function getParameters()
     {
         $query           = $this->cnd->{Product::P_SUBSTRING};
-        $categoryId      = $this->cnd->{Product::P_CATEGORY_ID};
+        $categoryId      = !XLite::isAdminZone() ? $this->cnd->{Product::P_CATEGORY_ID} : null;
         $searchInSubcats = $this->cnd->{Product::P_SEARCH_IN_SUBCATS};
         $filters         = $this->cnd->{Product::P_CLOUD_FILTERS};
         list($offset, $limit) = $this->cnd->{Product::P_LIMIT};
@@ -85,7 +89,11 @@ class SearchParameters implements SearchParametersInterface
             'searchIn'        => $searchBy,
             'categoryId'      => $categoryId,
             'searchInSubcats' => $searchInSubcats,
-            'conditions'      => [],
+            'conditions'      => [
+                'stock_status' => $this->getStockStatusCondition(),
+                'availability' => $this->getAvailabilityCondition(),
+                'categories'   => $this->getCategoriesCondition(),
+            ],
             'filters'         => $filters,
             'facet'           => true,
             'membership'      => $membership,
@@ -97,7 +105,74 @@ class SearchParameters implements SearchParametersInterface
                 'manufacturers' => 0,
                 'pages'         => 0,
             ],
+            'lang'            => Session::getInstance()->getLanguage()->getCode(),
+            'isAdmin'         => XLite::isAdminZone()
         ];
+    }
+
+    protected function getStockStatusCondition()
+    {
+        $anyStockStatus = [Product::INV_IN, Product::INV_LOW, Product::INV_OUT];
+        $inStock        = [Product::INV_IN, Product::INV_LOW];
+
+        if (!XLite::isAdminZone()) {
+            if (!$this->cnd->{Product::P_INVENTORY}) {
+                return $anyStockStatus;
+
+            } elseif ($this->cnd->{Product::P_INVENTORY} === Product::INV_IN) {
+                return $inStock;
+
+            } else {
+                return [$this->cnd->{Product::P_INVENTORY}];
+            }
+        } else {
+            if (!$this->cnd->{Product::P_INVENTORY}
+                || $this->cnd->{Product::P_INVENTORY} === Product::INV_ALL
+            ) {
+                return $anyStockStatus;
+
+            } elseif ($this->cnd->{Product::P_INVENTORY} === Product::INV_IN) {
+                return $inStock;
+
+            } else {
+                return [$this->cnd->{Product::P_INVENTORY}];
+            }
+        }
+    }
+
+    protected function getAvailabilityCondition()
+    {
+        if (!XLite::isAdminZone()) {
+            return ['Y'];
+        } else {
+            $availability = $this->cnd->{Product::P_ENABLED};
+
+            if ($availability) {
+                return [$availability->getValue() ? 'Y' : 'N'];
+            } else {
+                return ['Y', 'N'];
+            }
+        }
+    }
+
+    protected function getCategoriesCondition()
+    {
+        $ids = [];
+
+        if (XLite::isAdminZone() && $this->cnd->{Product::P_CATEGORY_ID}) {
+            $ids[] = $this->cnd->{Product::P_CATEGORY_ID};
+
+            if ($this->cnd->{Product::P_SEARCH_IN_SUBCATS}) {
+                $subcategories = Database::getRepo('XLite\Model\Category')
+                    ->getSubtree($this->cnd->{Product::P_CATEGORY_ID});
+
+                $ids = array_merge($ids, array_map(function (Category $c) {
+                    return $c->getCategoryId();
+                }, $subcategories));
+            }
+        }
+
+        return $ids;
     }
 
     /**
@@ -115,6 +190,9 @@ class SearchParameters implements SearchParametersInterface
             'translations.name' => 'sort_str_name',
             'r.rating'          => 'sort_float_rating',
             'p.sales'           => 'sort_int_sales',
+            'p.sku'             => 'sort_str_sku',
+            'p.amount'          => 'sort_int_amount',
+            'vendor.login'      => 'sort_str_vendor',
         ];
 
         if ($categoryId) {

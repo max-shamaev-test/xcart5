@@ -232,6 +232,7 @@ class OgoneEcommerce extends \XLite\Model\Payment\Base\WebBased
             'DECLINEURL'    => $this->getPaymentReturnURL('decline'),
             'EXCEPTIONURL'  => $this->getPaymentReturnURL('exception'),
             'CANCELURL'     => $this->getPaymentReturnURL('cancel'),
+            'ORIG'          => 'XCARTIeP',
         );
         $hash = $this->generateSign($fields, $this->getSetting('shaIn'));
         $fields['SHASIGN'] = $hash;

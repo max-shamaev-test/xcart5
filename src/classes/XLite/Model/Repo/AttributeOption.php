@@ -83,6 +83,17 @@ class AttributeOption extends \XLite\Model\Repo\Base\I18n
         }
     }
 
-    // }}}
+    /**
+     * @param \XLite\Model\Attribute $attribute
+     */
+    public function resetAddToNew($attribute)
+    {
+        $qb = $this->createPureQueryBuilder('ao')->update($this->_entityName, 'ao');
+
+        $qb->set('ao.addToNew', ':addToNew')->setParameter('addToNew', false);
+        $qb->where('ao.attribute = :attribute')->setParameter('attribute', $attribute);
+
+        $qb->execute();
+    }
 
 }

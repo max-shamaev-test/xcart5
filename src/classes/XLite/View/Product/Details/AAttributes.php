@@ -21,6 +21,7 @@ abstract class AAttributes extends \XLite\View\AView
     const PARAM_GROUP         = 'group';
     const PARAM_PRODUCT_CLASS = 'productClass';
     const PARAM_PERSONAL_ONLY = 'personalOnly';
+    const PARAM_HIDDEN_ONLY   = 'hiddenOnly';
 
     /**
      * Get step title
@@ -37,6 +38,9 @@ abstract class AAttributes extends \XLite\View\AView
 
         } elseif ($this->getPersonalOnly()) {
             $result = static::t('Product-Specific attributes');
+
+        } elseif ($this->getHiddenOnly()) {
+            $result = static::t('Hidden attributes');
 
         } else {
             $result = static::t('Global attributes');
@@ -131,6 +135,7 @@ abstract class AAttributes extends \XLite\View\AView
                 'Product class', null, false, '\XLite\Model\ProductClass'
             ),
             static::PARAM_PERSONAL_ONLY  => new \XLite\Model\WidgetParam\TypeBool('Personal only', false),
+            static::PARAM_HIDDEN_ONLY  => new \XLite\Model\WidgetParam\TypeBool('Hidden only', false),
         );
     }
 
@@ -165,6 +170,16 @@ abstract class AAttributes extends \XLite\View\AView
     }
 
     /**
+     * Get hidden inly flag
+     *
+     * @return boolean
+     */
+    protected function getHiddenOnly()
+    {
+        return $this->getParam(static::PARAM_HIDDEN_ONLY);
+    }
+
+    /**
      * Get attributes list
      *
      * @param boolean $countOnly Return items list or only its size OPTIONAL
@@ -178,7 +193,7 @@ abstract class AAttributes extends \XLite\View\AView
     
             if ($this->getPersonalOnly()) {
                 $cnd->product = $this->getProduct();
-    
+
             } elseif ($this->getAttributeGroup()) {
                 $cnd->product = null;
                 $cnd->attributeGroup = $this->getAttributeGroup();
@@ -187,6 +202,12 @@ abstract class AAttributes extends \XLite\View\AView
                 $cnd->product = null;
                 $cnd->attributeGroup = null;
                 $cnd->productClass = $this->getProductClass();
+            }
+
+            if ($this->getHiddenOnly()) {
+                $cnd->type = \XLite\Model\Attribute::TYPE_HIDDEN;
+            } else {
+                $cnd->notType = \XLite\Model\Attribute::TYPE_HIDDEN;
             }
     
             $this->attributesList = $this->postprocessAttributes(

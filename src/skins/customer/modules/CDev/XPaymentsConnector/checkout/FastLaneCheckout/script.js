@@ -73,7 +73,7 @@ function xpcMessageListener(event)
   } else {
     xpcLoading = false;
     jQuery('.save-card-box').show();
-    Checkout.instance.finishLoadAnimation();
+    setTimeout(Checkout.instance.finishLoadAnimation, 0);
     core.trigger('checkout.common.unblock');
     core.trigger('checkout.common.anyChange');
   }

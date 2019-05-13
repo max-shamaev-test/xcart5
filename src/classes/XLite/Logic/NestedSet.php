@@ -81,10 +81,23 @@ class NestedSet extends \XLite\Logic\ALogic
     {
         $sortedByParent = array();
 
-        foreach ($this->inputData as $node) {
-            $isRootNode = $node['parent_id'] === null
+        $rootNodeIndex = null;
+        foreach ($this->inputData as $index => $node) {
+            if (
+                $node['parent_id'] === null
                 || intval($node['parent_id']) === intval($node['id'])
-                || intval($node['depth']) === -1;
+            ) {
+                $rootNodeIndex = $index;
+                break;
+            }
+
+            if (intval($node['depth']) === -1) {
+                $rootNodeIndex = $index;
+            }
+        }
+
+        foreach ($this->inputData as $index => $node) {
+            $isRootNode = $rootNodeIndex === $index;
 
             if ($isRootNode) {
                 $index = 0;

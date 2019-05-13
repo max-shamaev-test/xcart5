@@ -243,3 +243,12 @@ td.fraud_warning .alert {
 .confirm-operation .modal-body {
   font-size: 16px;
 }
+
+/**
+ * Related orders block
+ */
+
+div.related-container {
+  padding-bottom: 10px;
+  padding-top: 10px;
+}

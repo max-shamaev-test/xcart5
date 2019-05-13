@@ -1,0 +1,5 @@
+Version 5.3.4.0
+
+Improvements (1)
+2018-11-06 - [Change] Facebook Login can now be used only if the store is accessible via https. #BUG-6467 (Kirill Stadler) #SocialLogin
+

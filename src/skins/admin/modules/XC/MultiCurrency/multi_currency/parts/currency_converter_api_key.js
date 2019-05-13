@@ -25,7 +25,7 @@ core.microhandlers.add(
     };
 
     $(this).change(function () {
-      toggle_currency_converter_api_key($(this).val() === 'currency_converter_api');
+      toggle_currency_converter_api_key($(this).val() === 'currency_converter_api' || $(this).val() === 'free_currency_converter_api');
     }).change();
   }
 );

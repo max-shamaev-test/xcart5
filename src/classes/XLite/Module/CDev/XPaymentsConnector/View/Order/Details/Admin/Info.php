@@ -171,7 +171,13 @@ class Info extends \XLite\View\Order\Details\Admin\Info implements \XLite\Base\I
 
         if ($result) {
 
-            if (\XLite\Module\CDev\XPaymentsConnector\Core\Kount::getInstance()->getKountData($this->getOrder())) {
+            if (
+                \XLite\Module\CDev\XPaymentsConnector\Core\Kount::getInstance()->getKountData($this->getOrder())
+                || (
+                    \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+                    && \XLite\Core\Auth::getInstance()->isVendor()
+                )
+            ) {
 
                 $result = false;
 

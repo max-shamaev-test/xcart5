@@ -76,11 +76,38 @@
     };
 
     if (ALoadable.prototype.doReplaceState) {
-        var doReplaceState = ALoadable.prototype.doReplaceState;
-
         ALoadable.prototype.doReplaceState = function (params) {
-            return doReplaceState.call(this, _.omit(params, 'cloudFilters'));
-        }
+            var o = this, origParams = {};
+            var filtersStr = paramsToQueryString(filtersToParamArray(params.cloudFilters || {}));
+
+            window.location.search.substring(1).split('&').forEach(function (v) {
+                var pair = v.split('=');
+
+                if (
+                    !_.isUndefined(pair[0])
+                    && !_.isUndefined(pair[1])
+                    && pair[0] !== o.replaceStatePrefix
+                    && pair[0].indexOf(o.replaceStatePrefix + '[') !== 0
+                    && pair[0].indexOf('filter_') !== 0
+                ) {
+                    origParams[pair[0]] = pair[1];
+                }
+            });
+
+            var url = window.location.pathname + '?';
+            var queryString = '';
+            params = array_merge(origParams, _.omit(params, 'cloudFilters') || {});
+
+            $.each(params, function (key, value) {
+                queryString += '&' + key + '=' + value;
+            });
+
+            queryString += filtersStr ? '&' + filtersStr : '';
+
+            url += queryString.substring(1);
+
+            window.history.replaceState(params, 'Filter', url);
+        };
     }
 
     // Modify core.getUrlByState to support multiple parameters with same name
@@ -671,7 +698,12 @@
                     }
                 });
 
-                var data = _.extend({}, filtersApi.data, {filters: filters});
+                var data = _.extend(
+                    {},
+                    filtersApi.data,
+                    {filters: filters},
+                    document.documentElement.lang ? {lang: document.documentElement.lang} : {}
+                );
 
                 return $.ajax(
                     filtersApi.url,

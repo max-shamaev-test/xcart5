@@ -37,11 +37,6 @@ class Settings extends \XLite\Base\Singleton
                                 defined shopping cart properties.';
 
     /**
-     * URL to grab the list of X-Payments allowed payment methods
-     */
-    const LIST_URL = 'http://www.x-cart.com/xml/xp.modules.xml';
-
-    /**
      * How often load list of allowed modules from site
      */
     const ALLOWED_MODULES_CACHE_TTL = 86400;
@@ -50,6 +45,11 @@ class Settings extends \XLite\Base\Singleton
      * Validation regex for serialized bundle
      */
     const BUNDLE_VALIDATION_REGEX = '/a:[56]:{s:8:"store_id";s:\d+:"[0-9a-z]+";s:3:"url";s:\d+:"[^"]+";s:10:"public_key";s:\d+:"-----BEGIN CERTIFICATE-----[^"]+-----END CERTIFICATE-----";s:11:"private_key";s:\d+:"-----BEGIN [A-Z ]*PRIVATE KEY-----[^"]+-----END [A-Z ]*PRIVATE KEY-----";s:20:"private_key_password";s:32:".{32}";(s:9:"server_ip";s:\d+:"[0-9a-fA-F\.:]*";)?}/s';
+
+    /**
+     * Default admin order of payment method
+     */
+    const DEFAULT_ADMIN_ORDER_ID = 0;
 
     /**
      * List of API versions
@@ -135,7 +135,6 @@ class Settings extends \XLite\Base\Singleton
             'xpc_public_key',
             'xpc_private_key',
             'xpc_private_key_password',
-            'xpc_allowed_ip_addresses',
             'xpc_currency',
             'xpc_api_version',
             'xpc_use_iframe',
@@ -160,7 +159,6 @@ class Settings extends \XLite\Base\Singleton
         'public_key'           => 'xpc_public_key',
         'private_key'          => 'xpc_private_key',
         'private_key_password' => 'xpc_private_key_password',
-        'server_ip'            => 'xpc_allowed_ip_addresses',
     );
 
     /**
@@ -174,31 +172,6 @@ class Settings extends \XLite\Base\Singleton
         'public_key',
         'private_key',
         'private_key_password',
-    );
-
-    /**
-     * Payment methods positions list
-     *
-     * @var array
-     */
-    protected static $paymentMethodOrderby = array(
-        // Authorize.Net SIM
-        'XPayments.Allowed.XPay_Module_AuthorizeNet'                => -100990,
-        'XPayments.Allowed.XPay_Module_AuthorizeNetCim'             => -100980,
-        'XPayments.Allowed.XPay_Module_AuthorizeNetXML'             => -100970,
-        // PayPal Express Checkout
-
-        // PayPal Payflow Link
-        'XPayments.Allowed.XPay_Module_PaypalWPPDirectPayment'      => -10590,
-        'XPayments.Allowed.XPay_Module_PaypalWPPPEDirectPayment'    => -10580,
-        // 2Checkout.com
-
-        // SagePay form protocol
-        'XPayments.Allowed.XPay_Module_SagePayDirect'               => -10390,
-        'XPayments.Allowed.XPay_Module_Chase'                       => -10380,
-        'XPayments.Allowed.XPay_Module_Elavon'                      => -10370,
-        'XPayments.Allowed.XPay_Module_Intuit'                      => -10360,
-        // Stripe
     );
 
     /**
@@ -282,6 +255,7 @@ class Settings extends \XLite\Base\Singleton
     {
         $cnd = new \XLite\Core\CommonCell();
         $cnd->class = 'Module\CDev\XPaymentsConnector\Model\Payment\Processor\\' . $processor;
+        $cnd->fromMarketplace = 0;
 
         return \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')->search($cnd);
     }
@@ -552,156 +526,7 @@ class Settings extends \XLite\Base\Singleton
         return $secure3dType;
     }
 
-    /**
-     * Load XML list of X-Payments allowed payment methods
-     *
-     * @return string
-     */
-    protected static function getModulesXml()
-    {
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, self::LIST_URL);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-
-        $xml = curl_exec($ch);
-
-        curl_close($ch);
-
-        if (false === $xml) {
-
-            // Use previously loaded XML in case of any error
-            $xml = \XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_allowed_modules;
-
-        }
-
-        return $xml;
-    }
-
-    /**
-     * Get list of supported countries 
-     *
-     * @return array
-     */
-    protected static function getCountries($module)
-    {
-        $countries = array();
-
-        if (isset($module['countries'])) {
-
-            $countries = explode(', ', $module['countries']);
-            if (!is_array($countries)) {
-                $countries = array($countries);
-            }
-        }
-
-        return $countries;
-    }
-
-    /**
-     * Parse XML of X-Payments allowed payment methods into array
-     *
-     * @return array
-     */
-    protected function getAllowedModulesList()
-    {
-        $xml = static::getModulesXml();
-        $json = json_encode(simplexml_load_string($xml));
-        $modules = json_decode($json, true);
-
-        $list = array();
-
-        if (
-            isset($modules['module'])
-            && !empty($modules['module'])
-            && is_array($modules['module'])
-        ) {
-
-            $modules = $modules['module'];
-
-            foreach ($modules as $id => $module) {
-
-                if (
-                    isset($module['name'])
-                    && isset($module['canSaveCards'])
-                    && isset($module['secure3d'])
-                    && isset($module['transactions'])
-                ) {
-
-                    $list[$module['name']] = array(
-                        'id'            => $id,
-                        'name'          => $module['name'],
-                        'secure3d'      => $module['secure3d'],
-                        'secure3dType'  => self::get3DSecureType($module['secure3d']),
-                        'canSaveCards'  => $module['canSaveCards'],
-                        'transactions'  => is_array($module['transactions'])
-                            ? $module['transactions']
-                            : array($module['transactions']),
-                        'countries'     => self::getCountries($module),
-                    );
-
-                    if (isset($module['class'])) {
-                        $list[$module['name']]['class'] = $module['class'];
-                    }
-
-                }
-
-            }
-
-            if (!empty($list)) {
-
-                $allowedModulesSetting = \XLite\Core\Database::getRepo('XLite\Model\Config')
-                    ->findOneBy(array('name' => 'xpc_allowed_modules', 'category' => 'CDev\XPaymentsConnector'));
-                \XLite\Core\Database::getRepo('XLite\Model\Config')->update(
-                    $allowedModulesSetting,
-                    array('value' => $xml)
-                );
-
-                $allowedModulesLoadDateSetting = \XLite\Core\Database::getRepo('XLite\Model\Config')
-                    ->findOneBy(array('name' => 'xpc_allowed_modules_load_date', 'category' => 'CDev\XPaymentsConnector'));
-                \XLite\Core\Database::getRepo('XLite\Model\Config')->update(
-                    $allowedModulesLoadDateSetting,
-                    array('value' => \XLite\Core\Converter::time())
-                );
-
-                \XLite\Core\Config::updateInstance();
-
-            }
-
-        }
-
-        return $list;
-    }
-
     // {{{ Import payment methods
-
-    /**
-     * Check if it's necessary to update list of allowed payment methods by date
-     *
-     * @return bool
-     */
-    protected static function checkUpdateAllowedModulesLoadDate()
-    {
-        $currentDate = \XLite\Core\Converter::time();
-        $loadDate = \XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_allowed_modules_load_date;
-
-        return $currentDate - $loadDate > self::ALLOWED_MODULES_CACHE_TTL;
-    }
-
-    /**
-     * Check if it's necessary to update list of allowed payment methods
-     *
-     * @return bool
-     */
-    public static function checkUpdateAllowedModules()
-    {
-        return (
-                !self::hasPaymentMethods('XPaymentsAllowed')
-                || self::checkUpdateAllowedModulesLoadDate()
-            );
-    }
 
     /**
      * Detect X-Payments' module class
@@ -734,45 +559,6 @@ class Settings extends \XLite\Base\Singleton
         }
 
         return $result;
-
-    }
-
-    /**
-     * Import Payment methods allowed for X-Payments
-     *
-     * @return array
-     */
-    public function importAllowedModules()
-    {
-        $list = $this->getAllowedModulesList();
-
-        if (is_array($list) && !empty($list)) {
-
-            foreach ($this->getPaymentMethods('XPaymentsAllowed') as $pm) {
-                \XLite\Core\Database::getEM()->remove($pm);
-            }
-
-            foreach ($list as $module) {
-
-                $xpModuleClass = $this->detectModuleClass($module);
-
-                $pm = new \XLite\Model\Payment\Method;
-                \XLite\Core\Database::getEM()->persist($pm);
-
-                $pm->setClass('Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPaymentsAllowed');
-                $pm->setServiceName('XPayments.Allowed.' . $xpModuleClass);
-                $pm->setName($module['name']);
-
-                $pm->setType(\XLite\Model\Payment\Method::TYPE_CC_GATEWAY);
-
-                $pm->setCountries($module['countries']);
-
-                $pm->setAdminOrderby(static::getPaymentMethodOrderby('XPayments.Allowed.' . $xpModuleClass));
-            }
-
-            \XLite\Core\Database::getEM()->flush();
-
-        }
 
     }
 
@@ -835,7 +621,10 @@ class Settings extends \XLite\Base\Singleton
 
                     $pmNames[] = $pm->getName();
 
-                    \XLite\Core\Database::getEM()->remove($pm);
+                    $pm->setFromMarketplace(true);
+                    $pm->setAdded(false);
+                    $pm->setEnabled(false);
+                    $pm->setName($this->getOriginalPaymentMethodName($pm->getName()));
                 }
             }
 
@@ -857,28 +646,41 @@ class Settings extends \XLite\Base\Singleton
 
                 if (!isset($settings['paymentMethodId'])) {
 
-                    // Create new payment method
-                    $pm = new \XLite\Model\Payment\Method;
-                    \XLite\Core\Database::getEM()->persist($pm);
-
                     $xpModuleClass = $this->detectModuleClass($settings);
 
-                    $pm->setClass('Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPayments');
-                    $pm->setServiceName('XPayments.' . $xpModuleClass);
-                    $pm->setName($settings['name']);
-                    $pm->setType(\XLite\Model\Payment\Method::TYPE_CC_GATEWAY);
-                    $pm->setAdminOrderby(static::getPaymentMethodOrderby('XPayments.' . $xpModuleClass));
-                    $pm->setAdded(true);
-                    $pm->setEnabled(true);
+                    $pm = \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')
+                        ->findOneBy(['service_name' => 'XPayments.Allowed.' . $xpModuleClass]);
 
-                    // Tokenization is disabled by default
-                    $pm->setSetting('saveCards', 'N');
+                    if ($pm) {
+                        // Make fake PM the real one instead of adding new PM
+                        $pm->setFromMarketplace(false);
+                        $pm->setName($this->getPaymentMethodName($settings['name']));
+                        $pm->setAdded(true);
+                        $pm->setEnabled(true);
+                        $pm->setModuleEnabled(true);
+
+                    } else {
+                        // Create new payment method
+                        $pm = new \XLite\Model\Payment\Method;
+                        \XLite\Core\Database::getEM()->persist($pm);
+
+                        $pm->setClass('Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPayments');
+                        $pm->setServiceName('XPayments.Allowed.' . $xpModuleClass);
+                        $pm->setName($this->getPaymentMethodName($settings['name']));
+                        $pm->setType(\XLite\Model\Payment\Method::TYPE_CC_GATEWAY);
+                        $pm->setAdminOrderby(static::DEFAULT_ADMIN_ORDER_ID);
+                        $pm->setAdded(true);
+                        $pm->setEnabled(true);
+
+                        // Tokenization is disabled by default
+                        $pm->setSetting('saveCards', 'N');
+                    }
 
                 } else {
 
                     // Use existing payment method
                     $pm = \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')->find($settings['paymentMethodId']); 
-                    $pm->setName($settings['name']);
+                    $pm->setName($this->getPaymentMethodName($settings['name']));
                 }
 
                 $this->setPaymentMethodSettings($pm, $settings);
@@ -891,7 +693,11 @@ class Settings extends \XLite\Base\Singleton
         } elseif (is_array($list)) {
 
             foreach ($this->getPaymentMethods() as $pm) {
-                \XLite\Core\Database::getEM()->remove($pm);
+                // Make real payment methods fake ones instead of its removing
+                $pm->setFromMarketplace(true);
+                $pm->setAdded(false);
+                $pm->setEnabled(false);
+                $pm->setName($this->getOriginalPaymentMethodName($pm->getName()));
             }
 
             if (self::RESULT_API_VERSION_CHANGED === $connectResult) {
@@ -906,18 +712,6 @@ class Settings extends \XLite\Base\Singleton
             \XLite\Core\TopMessage::addError('Error had occured during the requesting of payment methods from X-Payments. See log files for details.');
 
         }
-    }
-
-    /**
-     * Defines the position of the payment method in the list
-     *
-     * @param string $name Payment method service name
-     *
-     * @return integer
-     */
-    protected static function getPaymentMethodOrderby($name)
-    {
-        return isset(static::$paymentMethodOrderby[$name]) ? static::$paymentMethodOrderby[$name] : 0;
     }
 
     /**
@@ -956,6 +750,42 @@ class Settings extends \XLite\Base\Singleton
         if (version_compare(\XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_api_version, '1.3') < 0) {
             $pm->setSetting('canSaveCards', 'Y');
         }
+    }
+
+    /**
+     * Get the name of an imported payment method
+     *
+     * @param string $origName Original payment method name
+     *
+     * @return string
+     */
+    protected function getPaymentMethodName($origName)
+    {
+        if (preg_match('/\b(credit|debit|card)\b/i', $origName)) {
+            $newName = $origName;
+        } else {
+            $newName = 'Credit or debit card via ' . $origName;
+        }
+
+        return $newName;
+    }
+
+    /**
+     * Return the original name for a payment method
+     *
+     * @param string $modifiedName Modified payment method name
+     *
+     * @return string
+     */
+    protected function getOriginalPaymentMethodName($modifiedName)
+    {
+        if (preg_match('/^Credit or debit card via /', $modifiedName)) {
+            $origName = str_replace('Credit or debit card via ', '', $modifiedName);
+        } else {
+            $origName = $modifiedName;
+        }
+
+        return $origName;
     }
 
     // }}}

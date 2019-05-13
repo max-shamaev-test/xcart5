@@ -78,6 +78,13 @@
   .checkout_fastlane_address {
     margin-bottom: @rhythmic-unit;
   }
+
+  .checkout_fastlane_details_right {
+    .included-modifiers {
+      text-align: right;
+    }
+  }
+
 }
 
 .checkout_fastlane_section-content > .checkout_fastlane_section-column {
@@ -178,7 +185,15 @@
   position: relative;
 }
 
+.checkout_fastlane_mobile_padding {
+  display: none;
+}
+
 @media(max-width: @screen-xs-max) {
+  .checkout_fastlane_mobile_padding {
+    display: block;
+  }
+
   .checkout_fastlane_details_box .checkout_fastlane_section-buttons {
     .mobile_panel-details {
       display: block;
@@ -190,8 +205,7 @@
     left: 0;
     right: 0;
     z-index: 1000;
-    height: 80px;
-    padding: 20px;
+    padding: 10px;
     margin: 0px;
     background: @body-bg;
     .flex-display();
@@ -232,6 +246,14 @@
     }
 
     @media(max-width: 500px) {
+      .place-button form.place {
+        .flex-direction(column);
+      }
+
+      place-order {
+        width: 100%;
+      }
+
       .checkout_fastlane_section-place_order {
         width: 100% !important;
       }

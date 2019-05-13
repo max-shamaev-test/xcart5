@@ -77,13 +77,21 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
     }
 
     /**
+     * @param $note
+     */
+    protected function setOrderNote($note)
+    {
+        $this->getCart()->setNotes($note);
+    }
+
+    /**
      * Set order note
      * @unused
      */
     public function doActionSetOrderNote()
     {
         if (isset(\XLite\Core\Request::getInstance()->notes)) {
-            $this->getCart()->setNotes(\XLite\Core\Request::getInstance()->notes);
+            $this->setOrderNote(\XLite\Core\Request::getInstance()->notes);
         }
         \XLite\Core\Database::getEM()->flush();
         exit();

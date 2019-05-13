@@ -8,10 +8,13 @@
 
 namespace XLite\Module\QSL\CloudSearch\Controller\Customer;
 
+use Doctrine\DBAL\Logging\DebugStack;
+use XLite\Core\Config;
 use XLite\Core\Database;
 use XLite\Core\Request;
 use XLite\Module\QSL\CloudSearch\Core\ServiceApiClient;
 use XLite\Module\QSL\CloudSearch\Core\StoreApi;
+use XLite\View\AView;
 
 /**
  * CloudSearch API controller
@@ -32,6 +35,7 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
         $this->params[] = 'action';
         $this->params[] = 'start';
         $this->params[] = 'limit';
+        $this->params[] = 'ids';
     }
 
     /**
@@ -45,7 +49,48 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
 
         $data = $api->getApiSummary();
 
-        $this->printOutputAndExit($data);
+        $this->printJSONAndExit($data);
+    }
+
+    /**
+     * 'profile' api verb
+     *
+     * @return void
+     */
+    protected function doActionProfile()
+    {
+        $client = new ServiceApiClient();
+
+        if (Request::getInstance()->key !== $client->getSecretKey()) {
+            header('HTTP/1.0 403 Forbidden', true, 403);
+            die;
+        }
+
+        $config = Config::getInstance();
+
+        $accountNames = [];
+        $emails = @unserialize($config->Company->site_administrator);
+
+        if (!$emails) {
+            $emails = $config->Company->site_administrator ? [$config->Company->site_administrator] : [];
+        }
+
+        $profileRepo = Database::getRepo('XLite\Model\Profile');
+
+        foreach ($emails as $email) {
+            $profile = $profileRepo->findByLogin($email);
+
+            $accountNames[] = $profile ? $profile->getName() : null;
+        }
+
+        $data = [
+            'company_name'  => $config->Company->company_name,
+            'emails'        => $emails,
+            'account_names' => $accountNames,
+            'timezone'      => $config->Units->time_zone,
+        ];
+
+        $this->printJSONAndExit($data);
     }
 
     /**
@@ -63,15 +108,13 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
 
         $api = StoreApi::getInstance();
 
-        list($start, $limit) = $this->getLimits();
-
-        $data = $api->getProducts($start, $limit);
+        $data = $api->getProducts($this->getConditionParams());
 
         if ($measureSqlQueries) {
             $this->stopMeasuring();
         }
 
-        $this->printOutputAndExit($data);
+        $this->printJSONAndExit($data);
     }
 
     /**
@@ -83,11 +126,9 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
     {
         $api = StoreApi::getInstance();
 
-        list($start, $limit) = $this->getLimits();
+        $data = $api->getCategories($this->getConditionParams());
 
-        $data = $api->getCategories($start, $limit);
-
-        $this->printOutputAndExit($data);
+        $this->printJSONAndExit($data);
     }
 
     /**
@@ -103,7 +144,7 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
 
         $data = $api->getPages($start, $limit);
 
-        $this->printOutputAndExit($data);
+        $this->printJSONAndExit($data);
     }
 
     protected function doActionManufacturers()
@@ -112,7 +153,7 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
 
         $data = $api->getBrands();
 
-        $this->printOutputAndExit($data);
+        $this->printJSONAndExit($data);
     }
 
     protected function doActionGetPrices()
@@ -123,7 +164,7 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
         $currency = $this->getCart()->getCurrency();
 
         foreach ($this->getProducts() as $product) {
-            $products[$product->getProductId()] = \XLite\View\AView::formatPrice($product->getDisplayPrice(), $currency);
+            $products[$product->getProductId()] = AView::formatPrice($product->getDisplayPrice(), $currency);
         }
 
         foreach ($this->getProductIds() as $productId) {
@@ -140,7 +181,7 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
 
     protected function getProductIds()
     {
-        return explode(',', \XLite\Core\Request::getInstance()->ids);
+        return explode(',', Request::getInstance()->ids);
     }
 
     /**
@@ -148,16 +189,60 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
      *
      * @return void
      */
-    protected function doActionSetSecretKey()
+    protected function doActionFinalizeRegistration()
     {
-        $api = StoreApi::getInstance();
+        $request = Request::getInstance();
 
-        $data = $api->setSecretKey(
-            Request::getInstance()->key,
-            Request::getInstance()->signature
-        );
+        $shopKey = Database::getRepo('XLite\Model\TmpVar')->getVar('cloud_search_shop_key');
 
-        $this->printOutputAndExit($data);
+        if (empty($request->shopKey) || empty($request->key) || $shopKey !== $request->shopKey) {
+            header('HTTP/1.0 403 Forbidden', true, 403);
+            die;
+        }
+
+        $repo = Database::getRepo('XLite\Model\Config');
+
+        $secretKeySetting = $repo->findOneBy([
+            'name'     => 'secret_key',
+            'category' => 'QSL\CloudSearch',
+        ]);
+
+        $secretKeySetting->setValue($request->key);
+
+        Database::getEM()->flush();
+
+        $this->printJSONAndExit([]);
+    }
+
+    /**
+     * Set plan features via API
+     *
+     * @return void
+     */
+    protected function doActionSetPlanFeatures()
+    {
+        $request = Request::getInstance();
+
+        $apiClient = new ServiceApiClient();
+
+        $secretKey = $apiClient->getSecretKey();
+
+        if ($secretKey && $secretKey === $request->secret_key) {
+            $repo = Database::getRepo('XLite\Model\Config');
+
+            $planFeatures = $repo->findOneBy([
+                'name'     => 'planFeatures',
+                'category' => 'QSL\CloudSearch',
+            ]);
+
+            if ($planFeatures) {
+                $planFeatures->setValue(json_encode($request->features));
+
+                Database::getEM()->flush();
+            }
+        }
+
+        $this->printNoneAndExit();
     }
 
     /**
@@ -179,6 +264,10 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
             if (isset($settings['isCloudFiltersEnabled'])) {
                 $this->setSetting('isCloudFiltersEnabled', (bool)$settings['isCloudFiltersEnabled']);
             }
+
+            if (isset($settings['isAdminSearchEnabled'])) {
+                $this->setSetting('isAdminSearchEnabled', (bool)$settings['isAdminSearchEnabled']);
+            }
         }
 
         $this->printNoneAndExit();
@@ -198,22 +287,6 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
         Database::getEM()->flush($setting);
     }
 
-    /**
-     * Render output and finish
-     *
-     * @param $output
-     *
-     * @return void
-     */
-    protected function printOutputAndExit($output)
-    {
-        header('Content-type: application/php');
-
-        echo serialize($output);
-
-        exit;
-    }
-
     protected function printJSONAndExit($data)
     {
         header('Content-type: application/json');
@@ -227,6 +300,27 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
     {
         $this->silent = true;
         $this->setSuppressOutput(true);
+    }
+
+    /**
+     * @return array
+     */
+    protected function getConditionParams()
+    {
+        $params = [];
+
+        $request = Request::getInstance();
+
+        if (isset($request->start, $request->limit)) {
+            $params['start'] = max(0, $request->start);
+            $params['limit'] = max(1, $request->limit ?: StoreApi::MAX_ENTITIES_AT_ONCE);
+        }
+
+        if (isset($request->ids)) {
+            $params['ids'] = $request->ids;
+        }
+
+        return $params;
     }
 
     /**
@@ -251,7 +345,7 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
     {
         $em = Database::getEM();
 
-        $this->debugStack = new \Doctrine\DBAL\Logging\DebugStack();
+        $this->debugStack = new DebugStack();
 
         $em->getConfiguration()->setSQLLogger($this->debugStack);
     }

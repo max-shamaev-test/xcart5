@@ -909,4 +909,22 @@ class Request extends \XLite\Base\Singleton
 
         return $ipAddress;
     }
+
+    /**
+     * Return true if current userAgent is IE
+     *
+     * @return boolean
+     */
+    public function isIE()
+    {
+        $result = false;
+
+        // Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; NP06; rv:11.0) like Gecko
+        $ua = htmlentities($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES, 'UTF-8');
+        if (preg_match('~MSIE|Internet Explorer~i', $ua) || preg_match('~Trident/7\.0;(?:.*) rv:11\.0~i', $ua)) {
+            $result = true;
+        }
+
+        return $result;
+    }
 }

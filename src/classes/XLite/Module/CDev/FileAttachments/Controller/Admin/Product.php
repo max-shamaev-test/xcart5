@@ -25,7 +25,13 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
     {
         $list = parent::getPages();
         if (!$this->isNew()) {
-            $list['attachments'] = static::t('Attachments');
+            $list['attachments'] = [
+                'title' => static::t('Attachments'),
+                'subTabsWidget' => '\XLite\Module\CDev\FileAttachments\View\Product\Admin',
+                'subTabsWidgetParams' => [
+                    'product' => $this->getProduct()
+                ]
+            ];
         }
 
         return $list;

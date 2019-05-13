@@ -565,7 +565,7 @@ class Category extends \XLite\Model\Base\Catalog
     public function getMetaDesc()
     {
         return 'A' === $this->getMetaDescType()
-            ? strip_tags($this->getDescription())
+            ? static::postprocessMetaDescription($this->getDescription())
             : $this->getSoftTranslation()->getMetaDesc();
     }
 

@@ -185,6 +185,9 @@ class Products extends \XLite\Logic\Export\Step\Base\I18n
         } elseif ($attribute->getProductClass()) {
             $result .= 'class';
 
+        } elseif ($attribute->isHidden()) {
+            $result .= 'hidden';
+
         } else {
             $result .= 'global';
         }

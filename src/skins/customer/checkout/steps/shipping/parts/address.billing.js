@@ -114,6 +114,11 @@ BillingAddressView.prototype.handleSameAddressValidate = function(event, state)
   }
 };
 
+BillingAddressView.prototype.postloadHandler = function (base, xhr) {
+  core.trigger('checkout.common.anyChange', this);
+};
+
+
 BillingAddressView.prototype.isSameAddress = function()
 {
   return 0 < jQuery('#same_address:checked').length;

@@ -1,0 +1,5 @@
+Version 5.3.4.10
+
+Fixes (1)
+2019-03-27 - [Bug] Fixed "Error (code: 0): Class 'XLite\Module\XC\ProductVariants\View\Product\Cart' not found". #BUG-7126 (Ruslan Iskhakov) #ProductVariants
+

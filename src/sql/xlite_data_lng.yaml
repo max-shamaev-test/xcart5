@@ -849,6 +849,7 @@ XLite\Model\LanguageLabel:
   - { name: "Installed modules", translations: [{ code: en, label: "Installed modules" }] }
   - { name: "Installing updates, please wait...", translations: [{ code: en, label: "Installing updates, please wait..." }] }
   - { name: "Invalid login or password", translations: [{ code: en, label: "Invalid login or password" }] }
+  - { name: "Invalid login or password. You can use forgot password form to create a new password.", translations: [{ code: en, label: "Invalid login or password. <br/><span class=\"common-text\">You can use the 'Forgot password?' link to reset your password.</span>" }] }
   - { name: "Inventory status", translations: [{ code: en, label: "Inventory status" }] }
   - { name: "Inventory tracking", translations: [{ code: en, label: "Inventory tracking" }] }
   - { name: "Inventory tracking for this product is", translations: [{ code: en, label: "Inventory tracking" }] }
@@ -1949,6 +1950,9 @@ XLite\Model\LanguageLabel:
   - { name: "Displays the number of labels translated to the language", translations: [{ code: en, label: "Displays the number of labels translated into the language" }] }
   - { name: "Label", translations: [{ code: en, label: "Label" }] }
   - { name: "Plain field", translations: [{ code: en, label: "Plain field" }] }
+  - { name: "Hidden attributes", translations: [{ code: en, label: "Hidden attributes" }] }
+  - { name: "Hidden field", translations: [{ code: en, label: "Hidden field" }] }
+  - { name: "-- empty --", translations: [{ code: en, label: "-- empty --" }] }
   - { name: "Textarea", translations: [{ code: en, label: "Textarea" }] }
   - { name: "Order history", translations: [{ code: en, label: "Order history" }] }
   - { name: "Compact view", translations: [{ code: en, label: "Compact view" }] }
@@ -2185,6 +2189,7 @@ XLite\Model\LanguageLabel:
   - { name: "Product attributes values (Yes/No) has been imported", translations: [{ code: en, label: "Product attribute values (Yes/No) have been imported" }] }
   - { name: "Product attributes values (Plain text) has been imported", translations: [{ code: en, label: "Product attribute values (Plain text) have been imported" }] }
   - { name: "Product attributes values (Textarea) has been imported", translations: [{ code: en, label: "Product attribute values (Textarea) have been imported" }] }
+  - { name: "Product attributes values (Hidden field) has been imported", translations: [{ code: en, label: "Product attribute values (Hidden field) have been imported" }] }
   - { name: "CSV file has the wrong filename format.", translations: [{ code: en, label: "CSV file has a wrong filename format." }] }
   - { name: "Possible import file names are:", translations: [{ code: en, label: "Possible file names are: {{files}}" }] }
   - { name: "X-Cart could not find data in your file.", translations: [{ code: en, label: "X-Cart could not find data in your file." }] }
@@ -2292,7 +2297,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Wrong type format', translations: [{ code: en, label: 'Wrong format of "type" value ({{value}}). This should be "C" - checkbox, "S" - selector, or "T" - textarea' }] }
   - { name: 'ProductSKU is empty', translations: [{ code: en, label: 'Product SKU is empty' }] }
   - { name: 'Product with SKU "{{value}}" does not exists', translations: [{ code: en, label: 'There is no product with SKU "{{value}}" to assign the attribute option value to' }] }
-  - { name: 'Wrong "type" value ({{value}}). This should be "C", "S" or "T"', translations: [{ code: en, label: 'Wrong format of "type" value ({{value}}). This should be "C" - checkbox, "S" - selector, or "T" - textarea' }] }
+  - { name: 'Wrong "type" value ({{value}}). This should be "C", "S", "H" or "T"', translations: [{ code: en, label: 'Wrong format of "type" value ({{value}}). This should be "C" - checkbox, "S" - selector, "H" - hidden field or "T" - textarea' }] }
   - { name: 'Wrong "owner" format ({{value}}). Value should be one of "Yes" or "No"', translations: [{ code: en, label: 'Wrong format of "owner" value ({{value}}). This should be "Yes" for product-specific attributes or "No" for global attributes' }] }
   - { name: 'Wrong "default" format ({{value}}). Value should be one of "Yes" or "No"', translations: [{ code: en, label: 'Wrong format of "default" value ({{value}}). This should be "Yes" for product-specific attributes or "No" for global attributes' }] }
   - { name: 'Wrong "priceModifier" format ({{value}}). Correct examples: +1, +1%, -1, -1%', translations: [{ code: en, label: 'Wrong "priceModifier" format ({{value}}). Correct examples: +1, +1%, -1, -1%' }] }

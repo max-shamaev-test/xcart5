@@ -83,9 +83,9 @@ class PopupSavedCards extends \XLite\View\AView
 
         if (
             $order
-            && $order->getProfile()
+            && $order->getOrigProfile()
         ) {
-            $cards = $order->getProfile()->getSavedCards();
+            $cards = $order->getOrigProfile()->getSavedCards();
         }
 
         return $cards;

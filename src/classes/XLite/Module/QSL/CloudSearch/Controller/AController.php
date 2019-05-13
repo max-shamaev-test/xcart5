@@ -8,6 +8,7 @@
 
 namespace XLite\Module\QSL\CloudSearch\Controller;
 
+use XLite\Module\QSL\CloudSearch\Core\IndexingEvent\IndexingEventProfiler;
 use XLite\Module\QSL\CloudSearch\Core\RegistrationScheduler;
 use XLite\Module\QSL\CloudSearch\Main;
 
@@ -29,5 +30,10 @@ abstract class AController extends \XLite\Controller\AController implements \XLi
         }
 
         parent::handleRequest();
+    }
+
+    public function __destruct()
+    {
+        IndexingEventProfiler::getInstance()->log();
     }
 }

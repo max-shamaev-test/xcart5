@@ -29,12 +29,30 @@ define(
 
     ready: function() {
       $('.checkout_fastlane_section-buttons', this.$el).removeClass('loading');
+
+      setTimeout(_.bind(this.calculateMobilePadding, this), 1000);
+      $(window).resize(_.debounce(_.bind(this.calculateMobilePadding, this), 200));
+      core.bind('fastlane_section_switched', _.debounce(_.bind(this.calculateMobilePadding, this), 100));
     },
 
     methods: {
       scrollToDetails: function () {
         var top = $('.checkout_fastlane_details_box:visible').offset().top - 80;
         $(window).scrollTop( top );
+      },
+
+      calculateMobilePadding: function () {
+        const fixedWidth = 768;
+        var windowWidth = $(window).width();
+
+        if (windowWidth < fixedWidth) {
+          var $buttonsElem = $('.checkout_fastlane_section-buttons');
+          var $mobilePadding = $('.checkout_fastlane_mobile_padding');
+
+          var mobilePaddingValue = $buttonsElem.outerHeight() - 80;
+          mobilePaddingValue = mobilePaddingValue > 0 ? mobilePaddingValue : 0;
+          $mobilePadding.css({'height': mobilePaddingValue + 'px'});
+        }
       },
     },
 

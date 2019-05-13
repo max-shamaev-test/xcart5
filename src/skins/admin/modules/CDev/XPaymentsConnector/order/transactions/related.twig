@@ -1,0 +1,14 @@
+{##
+ # List of related orders (when using Multi-Vendor)
+ #
+ #}
+<div class="related-container">
+  {{ t('Related to orders:') }}
+  {% for relatedOrder in this.entity.transaction.order.getRelations() %}
+    {% if this.order.isCurrentOrder(relatedOrder) %}
+      {{ relatedOrder.getPrintableOrderNumber() }}
+    {% else %}
+      <a href="{{ relatedOrder.getURL() }}">{{ relatedOrder.getPrintableOrderNumber() }}</a>
+    {% endif %}
+  {% endfor %}
+</div>

@@ -7,7 +7,8 @@
   <br/>
 
   <div class="alert alert-danger connection-status">
-    <strong>{{ t('Secure protocol is disabled!') }}</strong>
-    {{ t('Check') }} <a href="{{ this.buildUrl('https_settings') }}" title="{{ t('HTTPS settings') }}">{{ t('HTTPS settings') }}</a>
+    <strong>{{ t('Secure protocol is disabled! ') }}</strong> {{ t('This may cause issues during checkout in some browsers. ') }}
+    {{ t('In order to enable it, go to the ') }} <a href="{{ this.buildUrl('https_settings') }}" title="{{ t('HTTPS settings') }}">{{ t('HTTPS settings') }}</a>
+    {{ t('page and click the ') }} <strong>{{ t('Enable HTTPS') }}</strong> {{ t('button') }}.
   </div>
 {% endif %}

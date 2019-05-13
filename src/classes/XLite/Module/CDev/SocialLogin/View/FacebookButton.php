@@ -34,4 +34,14 @@ class FacebookButton extends \XLite\Module\CDev\SocialLogin\View\AButton
     {
         return \XLite\Module\CDev\SocialLogin\Core\FacebookAuthProvider::getInstance();
     }
+
+    /**
+     * Get widget display name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return static::t('Login with') . ' ' . static::DISPLAY_NAME;
+    }
 }

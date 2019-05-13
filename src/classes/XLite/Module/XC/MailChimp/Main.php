@@ -50,7 +50,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getMinorVersion()
     {
-        return '6';
+        return '7';
     }
 
     /**
@@ -60,7 +60,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '5';
+        return '1';
     }
 
     /**
@@ -81,7 +81,7 @@ abstract class Main extends \XLite\Module\AModule
     public static function getDescription()
     {
         return 'Mailchimp is an email marketing service with powerful tools to manage your email campaigns and'
-            . ' subscribers while gathering advanced analytics information on your campaign performance.';
+               . ' subscribers while gathering advanced analytics information on your campaign performance.';
     }
 
     /**
@@ -113,6 +113,8 @@ abstract class Main extends \XLite\Module\AModule
         foreach ($stores as $store) {
             $ecCore->updateStoreAndReference($store->getList()->getId(), true);
         }
+
+        $ecCore->updateConnectedSites();
 
         \XLite\Core\Database::getEM()->flush();
     }
@@ -150,8 +152,8 @@ abstract class Main extends \XLite\Module\AModule
         $repo = \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\Store');
 
         return $repo->findBy([
-            'main' => true
-        ]);
+                                 'main' => true
+                             ]);
     }
 
     /**
@@ -164,7 +166,7 @@ abstract class Main extends \XLite\Module\AModule
         $listsRepo = \XLite\Core\Database::getRepo('\XLite\Module\XC\MailChimp\Model\MailChimpList');
 
         return \XLite\Module\XC\MailChimp\Core\MailChimp::hasAPIKey()
-            && 0 < $listsRepo->countActiveMailChimpLists();
+               && 0 < $listsRepo->countActiveMailChimpLists();
     }
 
     /**
@@ -175,7 +177,7 @@ abstract class Main extends \XLite\Module\AModule
     public static function isMailChimpECommerceConfigured()
     {
         return static::isMailChimpConfigured()
-            && \XLite\Core\Config::getInstance()->XC->MailChimp->analytics360enabled;
+               && \XLite\Core\Config::getInstance()->XC->MailChimp->analytics360enabled;
     }
 
     /**
@@ -187,7 +189,7 @@ abstract class Main extends \XLite\Module\AModule
     public static function isMailChimpAbandonedCartEnabled()
     {
         return static::isMailChimpECommerceConfigured()
-            && \XLite\Core\Config::getInstance()->XC->MailChimp->abandonedCartEnabled;
+               && \XLite\Core\Config::getInstance()->XC->MailChimp->abandonedCartEnabled;
     }
 
     /**
@@ -195,11 +197,11 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function isDebugMode()
     {
-        return \Includes\Utils\ConfigParser::getOptions(array('log_details', 'level')) === strval(LOG_DEBUG);
+        return \Includes\Utils\ConfigParser::getOptions(['log_details', 'level']) === strval(LOG_DEBUG);
     }
 
     /**
-     * Log only in debug mode 
+     * Log only in debug mode
      *
      * @param $message
      * @param $data
@@ -208,8 +210,8 @@ abstract class Main extends \XLite\Module\AModule
     {
         if (static::isDebugMode()) {
             \XLite\Logger::logCustom('mailchimp_info', [
-                'message'   => $message,
-                'data'      => $data
+                'message' => $message,
+                'data'    => $data
             ]);
         }
     }
@@ -223,8 +225,8 @@ abstract class Main extends \XLite\Module\AModule
     public static function logError($message, $data)
     {
         \XLite\Logger::logCustom('mailchimp_error', [
-            'message'   => $message,
-            'data'      => $data
+            'message' => $message,
+            'data'    => $data
         ]);
     }
 

@@ -106,7 +106,13 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
         $list['info'] = static::t('Info');
 
         if (!$this->isNew()) {
-            $list['attributes'] = static::t('Attributes');
+            $list['attributes'] = [
+                'title' => static::t('Attributes'),
+                'subTabsWidget' => '\XLite\View\Tabs\Attributes',
+                'subTabsWidgetParams' => [
+                    'product' => $this->getProduct()
+                ],
+            ];
             $list['inventory']  = static::t('Inventory tracking');
         }
 

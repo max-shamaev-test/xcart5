@@ -972,35 +972,38 @@ class Order extends \XLite\Controller\Admin\AAdmin
     protected function updateCustomerNotes()
     {
         $notes = \XLite\Core\Request::getInstance()->notes;
-        if (is_array($notes)) {
-            $notes = reset($notes);
-        }
 
-        if (!$notes) {
-            $notes = '';
-        }
+        if (!is_null($notes)) {
+            if (is_array($notes)) {
+                $notes = reset($notes);
+            }
 
-        $oldNotes = $this->getOrder()->getNotes();
+            if (!$notes) {
+                $notes = '';
+            }
 
-        if ($oldNotes != $notes) {
+            $oldNotes = $this->getOrder()->getNotes();
 
-            $changes = array(
-                'old' => $this->getOrder()->getNotes(),
-                'new' => $notes,
-            );
+            if ($oldNotes != $notes) {
 
-            \XLite\Core\OrderHistory::getInstance()
-                ->registerOrderChangeCustomerNotes($this->getOrder()->getOrderId(), $changes);
+                $changes = array(
+                    'old' => $this->getOrder()->getNotes(),
+                    'new' => $notes,
+                );
 
-            static::setOrderChanges(
-                static::t('Customer note'),
-                $changes['old'],
-                $changes['new']
-            );
+                \XLite\Core\OrderHistory::getInstance()
+                    ->registerOrderChangeCustomerNotes($this->getOrder()->getOrderId(), $changes);
 
-            $this->getOrder()->setNotes($notes);
+                static::setOrderChanges(
+                    static::t('Customer note'),
+                    $changes['old'],
+                    $changes['new']
+                );
 
-            \XLite\Core\Database::getEM()->flush();
+                $this->getOrder()->setNotes($notes);
+
+                \XLite\Core\Database::getEM()->flush();
+            }
         }
     }
 

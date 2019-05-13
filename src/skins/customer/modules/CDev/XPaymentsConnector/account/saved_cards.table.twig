@@ -75,7 +75,7 @@
   {{ widget('\\XLite\\View\\Button\\Submit', label=t('Update saved credit cards'), style='main') }}
 
   {% if this.allowZeroAuth() %}
-    &nbsp;&nbsp;<a href="{{ url('add_new_card') }}">{{ t('Add new credit card') }}</a>
+    &nbsp;&nbsp;<a class="add-new-card" href="{{ url('add_new_card') }}">{{ t('Add new credit card') }}</a>
   {% endif %}
 
   {% endform %}
@@ -85,7 +85,7 @@
 
   {% if this.allowZeroAuth() %}
     <br/>
-    &nbsp;&nbsp;<a href="{{ url('add_new_card') }}">{{ t('Add new credit card') }}</a>
+    &nbsp;&nbsp;<a class="add-new-card" href="{{ url('add_new_card') }}">{{ t('Add new credit card') }}</a>
   {% endif %}
 
 {% endif %}

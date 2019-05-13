@@ -23,17 +23,18 @@ define('paypal_ec_checkout_button_processor', ['paypal_ec_button_processors'], f
         var notes = $('textarea[name="notes"]').clone();
         notes.appendTo(form);
 
-        form.submitBackground();
-        actionElement.val(oldAction);
-        notes.remove();
-        paypal.request.post(getInitiateTokenUrl(state.additionalUrlParams)).then(function (data) {
-          if (data.token) {
-            dfr.resolve(data);
-          } else {
-            core.trigger('message', {'type': 'error', 'message': data.error});
-            dfr.reject(data.error);
-          }
-        });
+        form.submitBackground(_.bind(function () {
+          actionElement.val(oldAction);
+          notes.remove();
+          paypal.request.post(getInitiateTokenUrl(state.additionalUrlParams)).then(function (data) {
+            if (data.token) {
+              dfr.resolve(data);
+            } else {
+              core.trigger('message', {'type': 'error', 'message': data.error});
+              dfr.reject(data.error);
+            }
+          });
+        }, this));
 
         return dfr.then(function (data) {
           return data.token;

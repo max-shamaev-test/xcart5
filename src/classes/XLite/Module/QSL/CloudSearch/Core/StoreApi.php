@@ -17,6 +17,7 @@ use XLite\Model\Category;
 use XLite\Model\CategoryProducts;
 use XLite\Model\Product;
 use XLite\Module\QSL\CloudSearch\Main;
+use XLite\Module\QSL\CloudSearch\Model\Repo\Category as CategoryRepo;
 use XLite\Module\QSL\CloudSearch\Model\Repo\Product as ProductRepo;
 use XLite\Module\QSL\CloudSearch\Model\Repo\Page as PageRepo;
 
@@ -42,6 +43,8 @@ class StoreApi extends \XLite\Base\Singleton
 
     protected $priceCache = [];
 
+    protected $activeLanguages = null;
+
     /**
      * Get API summary - entity counts and supported features
      *
@@ -60,29 +63,76 @@ class StoreApi extends \XLite\Base\Singleton
         $numPages = $pageRepo ? $pageRepo->search($this->getPageSearchConditions(), $pageRepo::SEARCH_MODE_COUNT) : 0;
 
         return [
-            'numProducts'      => $numProducts,
-            'numCategories'    => $numCategories,
-            'numManufacturers' => $this->getBrandsCount(),
-            'numPages'         => $numPages,
-            'productsAtOnce'   => $this->getMaxEntitiesAtOnce(),
-            'features'         => ['cloud_filters', 'customizable_category_price'],
+            'numProducts'        => $numProducts,
+            'numCategories'      => $numCategories,
+            'numManufacturers'   => $this->getBrandsCount(),
+            'numPages'           => $numPages,
+            'productsAtOnce'     => $this->getMaxEntitiesAtOnce(),
+            'features'           => [
+                'cloud_filters', 'real_time_indexing', 'multi_lingual', 'admin_search', 'customizable_category_price'
+            ],
+            'availableLanguages' => $this->getActiveLanguages(),
+            'defaultLanguage'    => $this->getDefaultCustomerLanguage(),
         ];
+    }
+
+    protected function getActiveLanguages()
+    {
+        if (null === $this->activeLanguages) {
+            $result = [];
+
+            foreach (Database::getRepo('XLite\Model\Language')->findActiveLanguages() as $language) {
+                $result[] = $language->getCode();
+            }
+
+            $this->activeLanguages = $result;
+        }
+
+        return $this->activeLanguages;
+    }
+
+    protected function getDefaultCustomerLanguage()
+    {
+        return Config::getInstance()->General->default_language;
+    }
+
+    protected function getFallbackLanguages()
+    {
+        return [$this->getDefaultCustomerLanguage(), Translation::DEFAULT_LANGUAGE];
+    }
+
+    protected function getInactiveFallbackLanguages()
+    {
+        return array_diff($this->getFallbackLanguages(), $this->getActiveLanguages());
     }
 
     /**
      * Get product search conditions when indexing the catalog
      *
+     * @param $params
+     *
      * @return CommonCell
      */
-    protected function getProductSearchConditions()
+    protected function getProductSearchConditions($params = [])
     {
         $cnd = new CommonCell();
 
-        if ('directLink' != Config::getInstance()->General->show_out_of_stock_products) {
+        if (
+            Config::getInstance()->General->show_out_of_stock_products !== 'directLink'
+            || Main::isAdminSearchEnabled()
+        ) {
             $cnd->{ProductRepo::P_INVENTORY} = false;
         }
 
         $cnd->{ProductRepo::P_SKIP_MEMBERSHIP_CONDITION} = true;
+
+        if (isset($params['start']) && isset($params['limit'])) {
+            $cnd->{ProductRepo::P_LIMIT} = [$params['start'], $params['limit']];
+        }
+
+        if (isset($params['ids'])) {
+            $cnd->{ProductRepo::P_CLOUD_SEARCH_PRODUCT_IDS} = $params['ids'];
+        }
 
         return $cnd;
     }
@@ -90,11 +140,23 @@ class StoreApi extends \XLite\Base\Singleton
     /**
      * Get category search conditions when indexing the catalog
      *
+     * @param $params
+     *
      * @return CommonCell
      */
-    protected function getCategorySearchConditions()
+    protected function getCategorySearchConditions($params = [])
     {
-        return new CommonCell();
+        $cnd = new CommonCell();
+
+        if (isset($params['start']) && isset($params['limit'])) {
+            $cnd->{CategoryRepo::P_LIMIT} = [$params['start'], $params['limit']];
+        }
+
+        if (isset($params['ids'])) {
+            $cnd->{CategoryRepo::P_CLOUD_SEARCH_CATEGORY_IDS} = $params['ids'];
+        }
+
+        return $cnd;
     }
 
     /**
@@ -139,16 +201,13 @@ class StoreApi extends \XLite\Base\Singleton
     /**
      * Get products data
      *
-     * @param $start
-     * @param $limit
+     * @param $params
      *
      * @return array
      */
-    public function getProducts($start, $limit)
+    public function getProducts($params)
     {
-        $cnd = $this->getProductSearchConditions();
-
-        $cnd->{ProductRepo::P_LIMIT} = [$start, $limit];
+        $cnd = $this->getProductSearchConditions($params);
 
         /** @var ProductRepo $repo */
         $repo = Database::getRepo('XLite\Model\Product');
@@ -188,8 +247,6 @@ class StoreApi extends \XLite\Base\Singleton
         );
 
         $data = [
-                'name'        => $product->getName(),
-                'description' => $product->getDescription() ?: $product->getBriefDescription(),
                 'id'          => $product->getProductId(),
                 'sku'         => $skus,
                 'price'       => $this->getProductPrice($product),
@@ -197,7 +254,8 @@ class StoreApi extends \XLite\Base\Singleton
                 'membership'  => $product->getMembershipIds(),
             ]
             + $this->getProductImage($product)
-            + $this->getProductCategoryData($product);
+            + $this->getProductCategoryData($product)
+            + $this->getProductTranslations($product);
 
         $data['modifiers'] = [];
 
@@ -212,7 +270,61 @@ class StoreApi extends \XLite\Base\Singleton
 
         $data += $this->getSortFields($product);
 
+        $this->formatProductMultiLingualFields($data);
+
         return $data;
+    }
+
+    protected function getProductTranslations(Product $product)
+    {
+        $data = [];
+
+        $productTranslations = [];
+        foreach ($product->getTranslations() as $t) {
+            if (isset($productTranslations[$t->getCode()])) {
+                continue;
+            }
+
+            $productTranslations[$t->getCode()] = [
+                'name'        => $t->getName(),
+                'description' => $t->getDescription() ?: $t->getBriefDescription(),
+            ];
+        }
+
+        foreach ($this->getActiveLanguages() as $lang) {
+            $data["name_$lang"]        = $this->getFieldTranslation($productTranslations, $lang, 'name');
+            $data["description_$lang"] = $this->getFieldTranslation($productTranslations, $lang, 'description');
+        }
+
+        return $data;
+    }
+
+    protected function getFieldTranslation($translations, $lang, $field = null)
+    {
+        $langs = array_merge([$lang], $this->getFallbackLanguages());
+
+        $translation = null;
+
+        foreach ($langs as $l) {
+            if (isset($translations[$l])) {
+                $translation = $translations[$l];
+                break;
+            }
+        }
+
+        $result = $field ? (isset($translation[$field]) ? $translation[$field] : null) : $translation;
+
+        if (!$result) {
+            if (!empty($translations)) {
+                $t = array_shift($translations);
+
+                return $field ? (isset($t[$field]) ? $t[$field] : '') : $t;
+            }
+        } else {
+            return $result;
+        }
+
+        return '';
     }
 
     /**
@@ -228,8 +340,11 @@ class StoreApi extends \XLite\Base\Singleton
         $fields = [
             'sort_int_arrival_date' => $product->getArrivalDate(),
             'sort_float_price'      => $this->getProductPrice($product),
-            'sort_str_name'         => $product->getName(),
             'sort_int_sales'        => $product->getSales(),
+            'sort_str_sku'          => $product->getSku(),
+            'sort_int_amount'       => $product->getInventoryEnabled()
+                ? $product->getPublicAmount()
+                : $product->getMaxPurchaseLimit(),
         ];
 
         /** @var CategoryProducts $cp */
@@ -254,7 +369,7 @@ class StoreApi extends \XLite\Base\Singleton
         if (!isset($this->priceCache[$id])) {
             $quickData = $product->getQuickData();
 
-            if (empty($quickData)) {
+            if ($quickData->isEmpty()) {
                 $this->priceCache[$id] = $product->getDisplayPrice();
             } else {
                 foreach ($quickData as $qd) {
@@ -292,7 +407,9 @@ class StoreApi extends \XLite\Base\Singleton
     protected function getProductConditions(Product $product)
     {
         return [
-            'type' => []
+            'availability' => [$product->getEnabled() ? 'Y' : 'N'],
+            'categories'   => $this->getAllCategoryIds($product),
+            'type'         => []
         ];
     }
 
@@ -313,14 +430,23 @@ class StoreApi extends \XLite\Base\Singleton
             $this->getProductAttributesOfTextareaType($product)
         );
 
+        $activeLanguages = $this->getActiveLanguages();
+
         foreach ($productAttributes as $attr) {
             if (!isset($attributes[$attr['id']])) {
-                $attributes[$attr['id']] = [
-                    'name'   => htmlspecialchars_decode($attr['name']),
-                    'values' => [htmlspecialchars_decode($attr['value'])],
-                ];
-            } else {
-                $attributes[$attr['id']]['values'][] = htmlspecialchars_decode($attr['value']);
+                $attributes[$attr['id']] = [];
+
+                foreach ($activeLanguages as $lang) {
+                    $attributes[$attr['id']]["name_$lang"] = htmlspecialchars_decode($attr["name_$lang"]);
+                }
+            }
+
+            foreach ($activeLanguages as $lang) {
+                if (!isset($attributes[$attr['id']]["values_$lang"])) {
+                    $attributes[$attr['id']]["values_$lang"] = [];
+                }
+
+                $attributes[$attr['id']]["values_$lang"][] = htmlspecialchars_decode($attr["value_$lang"]);
             }
         }
 
@@ -345,6 +471,8 @@ class StoreApi extends \XLite\Base\Singleton
             $this->getProductAttributesOfCheckboxType($product)
         );
 
+        $activeLanguages = $this->getActiveLanguages();
+
         foreach ($productAttributes as $attr) {
             if (!isset($attributes[$attr['id']])) {
                 $group = $attr['productClassId'] !== null
@@ -352,13 +480,21 @@ class StoreApi extends \XLite\Base\Singleton
 
                 $attributes[$attr['id']] = [
                     'id'                => $attr['id'],
-                    'name'              => htmlspecialchars_decode($attr['name']),
                     'preselectAsFilter' => $this->isPreselectAttributeAsFilter($attr),
                     'group'             => $group,
-                    'values'            => [htmlspecialchars_decode($attr['value'])],
                 ];
-            } else {
-                $attributes[$attr['id']]['values'][] = htmlspecialchars_decode($attr['value']);
+
+                foreach ($activeLanguages as $lang) {
+                    $attributes[$attr['id']]["name_$lang"] = htmlspecialchars_decode($attr["name_$lang"]);
+                }
+            }
+
+            foreach ($activeLanguages as $lang) {
+                if (!isset($attributes[$attr['id']]["values_$lang"])) {
+                    $attributes[$attr['id']]["values_$lang"] = [];
+                }
+
+                $attributes[$attr['id']]["values_$lang"][] = htmlspecialchars_decode($attr["value_$lang"]);
             }
         }
 
@@ -387,30 +523,23 @@ class StoreApi extends \XLite\Base\Singleton
                 ->where('av.product = :productId')
                 ->setParameter('productId', $product->getProductId());
 
-            $codes = Translation::getLanguageQuery();
-
-            foreach ($codes as $code) {
+            foreach ($this->getInactiveFallbackLanguages() as $lang) {
                 $qb
-                    ->leftJoin('a.translations', "at_$code", 'WITH', "at_$code.code = :lng_$code")
-                    ->leftJoin('ao.translations', "aot_$code", 'WITH', "aot_$code.code = :lng_$code")
-                    ->setParameter("lng_$code", $code);
+                    ->leftJoin('a.translations', "at_$lang", 'WITH', "at_$lang.code = :lng_$lang")
+                    ->leftJoin('ao.translations', "aot_$lang", 'WITH', "aot_$lang.code = :lng_$lang")
+                    ->setParameter("lng_$lang", $lang);
             }
 
-            $qb->addSelect(
-                $this->getIfNullChainSqlExp(
-                    array_map(function ($code) {
-                        return "at_{$code}.name";
-                    }, $codes)
-                ) . ' AS name'
-            );
+            foreach ($this->getActiveLanguages() as $lang) {
+                $qb
+                    ->leftJoin('a.translations', "at_$lang", 'WITH', "at_$lang.code = :lng_$lang")
+                    ->leftJoin('ao.translations', "aot_$lang", 'WITH', "aot_$lang.code = :lng_$lang")
+                    ->setParameter("lng_$lang", $lang);
 
-            $qb->addSelect(
-                $this->getIfNullChainSqlExp(
-                    array_map(function ($code) {
-                        return "aot_{$code}.name";
-                    }, $codes)
-                ) . ' AS value'
-            );
+                $qb->addSelect("{$this->getFieldTranslationSqlExp('at', 'name', $lang)} AS name_$lang");
+
+                $qb->addSelect("{$this->getFieldTranslationSqlExp('aot', 'name', $lang)} AS value_$lang");
+            }
 
             $this->addProductAttributesQuerySelects($qb);
 
@@ -443,21 +572,21 @@ class StoreApi extends \XLite\Base\Singleton
                 ->where('av.product = :productId')
                 ->setParameter('productId', $product->getProductId());
 
-            $codes = Translation::getLanguageQuery();
+            $activeLanguages = $this->getActiveLanguages();
 
-            foreach ($codes as $code) {
+            foreach ($this->getInactiveFallbackLanguages() as $lang) {
                 $qb
-                    ->leftJoin('a.translations', "at_$code", 'WITH', "at_$code.code = :lng_$code")
-                    ->setParameter("lng_$code", $code);
+                    ->leftJoin('a.translations', "at_$lang", 'WITH', "at_$lang.code = :lng_$lang")
+                    ->setParameter("lng_$lang", $lang);
             }
 
-            $qb->addSelect(
-                $this->getIfNullChainSqlExp(
-                    array_map(function ($code) {
-                        return "at_{$code}.name";
-                    }, $codes)
-                ) . ' AS name'
-            );
+            foreach ($activeLanguages as $lang) {
+                $qb
+                    ->leftJoin('a.translations', "at_$lang", 'WITH', "at_$lang.code = :lng_$lang")
+                    ->setParameter("lng_$lang", $lang);
+
+                $qb->addSelect("{$this->getFieldTranslationSqlExp('at', 'name', $lang)} AS name_$lang");
+            }
 
             $this->addProductAttributesQuerySelects($qb);
 
@@ -466,7 +595,9 @@ class StoreApi extends \XLite\Base\Singleton
                 ->getArrayResult();
 
             foreach ($result as $k => $v) {
-                $result[$k]['value'] = (string)static::t($v['value'] ? 'Yes' : 'No');
+                foreach ($activeLanguages as $lang) {
+                    $result[$k]["value_$lang"] = (string)static::t($v['value'] ? 'Yes' : 'No', [], $lang);
+                }
             }
 
             $attributes[$product->getProductId()] = $result;
@@ -493,30 +624,23 @@ class StoreApi extends \XLite\Base\Singleton
             ->setParameter('productId', $product->getProductId())
             ->setParameter('editable', false);
 
-        $codes = Translation::getLanguageQuery();
-
-        foreach ($codes as $code) {
+        foreach ($this->getInactiveFallbackLanguages() as $lang) {
             $qb
-                ->leftJoin('a.translations', "at_$code", 'WITH', "at_$code.code = :lng_$code")
-                ->leftJoin('av.translations', "avt_$code", 'WITH', "avt_$code.code = :lng_$code")
-                ->setParameter("lng_$code", $code);
+                ->leftJoin('a.translations', "at_$lang", 'WITH', "at_$lang.code = :lng_$lang")
+                ->leftJoin('av.translations', "avt_$lang", 'WITH', "avt_$lang.code = :lng_$lang")
+                ->setParameter("lng_$lang", $lang);
         }
 
-        $qb->addSelect(
-            $this->getIfNullChainSqlExp(
-                array_map(function ($code) {
-                    return "at_{$code}.name";
-                }, $codes)
-            ) . ' AS name'
-        );
+        foreach ($this->getActiveLanguages() as $lang) {
+            $qb
+                ->leftJoin('a.translations', "at_$lang", 'WITH', "at_$lang.code = :lng_$lang")
+                ->leftJoin('av.translations', "avt_$lang", 'WITH', "avt_$lang.code = :lng_$lang")
+                ->setParameter("lng_$lang", $lang);
 
-        $qb->addSelect(
-            $this->getIfNullChainSqlExp(
-                array_map(function ($code) {
-                    return "avt_{$code}.value";
-                }, $codes)
-            ) . ' AS value'
-        );
+            $qb->addSelect("{$this->getFieldTranslationSqlExp('at', 'name', $lang)} AS name_$lang");
+
+            $qb->addSelect("{$this->getFieldTranslationSqlExp('avt', 'value', $lang)} AS value_$lang");
+        }
 
         $this->addProductAttributesQuerySelects($qb);
 
@@ -541,6 +665,25 @@ class StoreApi extends \XLite\Base\Singleton
         return empty($fieldNames)
             ? $fieldName
             : "IFNULL($fieldName, " . $this->getIfNullChainSqlExp($fieldNames) . ')';
+    }
+
+    protected function getFieldTranslationSqlExp($tblPrefix, $fieldName, $lang)
+    {
+        $languages = array_unique(
+            array_merge(
+                [$lang],
+                $this->getFallbackLanguages(),
+                $this->getActiveLanguages()
+            )
+        );
+
+        $fieldNames = [];
+
+        foreach ($languages as $language) {
+            $fieldNames[] = "{$tblPrefix}_$language.$fieldName";
+        }
+
+        return $this->getIfNullChainSqlExp($fieldNames);
     }
 
     /**
@@ -576,12 +719,33 @@ class StoreApi extends \XLite\Base\Singleton
     protected function getProductVariants(Product $product, $attributes)
     {
         $variant = [
-            'id'         => $product->getId(),
-            'price'      => $this->getProductPrice($product),
-            'attributes' => $attributes,
+            'id'           => $product->getId(),
+            'price'        => $this->getProductPrice($product),
+            'attributes'   => $attributes,
+            'stock_status' => $this->getProductStockStatus($product),
         ];
 
         return [$variant];
+    }
+
+    /**
+     * Get product stock status
+     *
+     * @param Product $product
+     *
+     * @return string
+     */
+    protected function getProductStockStatus(Product $product)
+    {
+        if (!$product->getInventoryEnabled()) {
+            return 'in';
+        }
+
+        if ($product->getPublicAmount() === 0) {
+            return 'out';
+        }
+
+        return $product->getPublicAmount() < $product->getLowLimitAmount() ? 'low' : 'in';
     }
 
     /**
@@ -593,17 +757,39 @@ class StoreApi extends \XLite\Base\Singleton
      */
     protected function getProductMetaInfo(Product $product)
     {
-        $info = [
-            'name'   => '_meta_additional_',
-            'values' => [
-                $product->getMetaTags(),
-                $product->getMetaDesc(),
-            ],
-        ];
+        $activeLanguages = $this->getActiveLanguages();
 
-        // Include brief description if full description is not empty (so that both will be indexed)
-        if ($product->getDescription()) {
-            $info['values'][] = $product->getBriefDescription();
+        $translations = [];
+        foreach ($product->getTranslations() as $t) {
+            if (isset($translations[$t->getCode()])) {
+                continue;
+            }
+
+            $translations[$t->getCode()] = [
+                'description'      => $t->getDescription(),
+                'briefDescription' => $t->getBriefDescription(),
+                'metaTags'         => $t->getMetaTags(),
+                'metaDesc'         => $t->getMetaDesc(),
+            ];
+        }
+
+        foreach ($activeLanguages as $lang) {
+            $translations[$lang] = $this->getFieldTranslation($translations, $lang);
+        }
+
+        $info = [];
+
+        foreach ($activeLanguages as $lang) {
+            $info["name_$lang"] = '_meta_additional_';
+            $info["values_$lang"] = [
+                $translations[$lang]['metaTags'],
+                $product->getTranslatedMetaDesc($translations[$lang]),
+            ];
+
+            // Include brief description if full description is not empty (so that both will be indexed)
+            if ($translations[$lang]['description']) {
+                $info["values_$lang"][] = $translations[$lang]['briefDescription'];
+            }
         }
 
         return $info;
@@ -622,6 +808,9 @@ class StoreApi extends \XLite\Base\Singleton
 
         $catRepo = Database::getRepo('XLite\Model\Category');
 
+        $activeLanguages = $this->getActiveLanguages();
+        $defaultLanguage = $this->getDefaultCustomerLanguage();
+
         /** @var Category $category */
         foreach ($product->getCategories() as $category) {
             $id = $category->getCategoryId();
@@ -629,28 +818,78 @@ class StoreApi extends \XLite\Base\Singleton
             if (!isset($this->categoryCache[$id])) {
                 $categoryPath = $catRepo->getCategoryPath($id);
 
-                $path = [];
+                $enabledPath = true;
+                $path        = [];
 
                 /** @var Category $parent */
                 foreach ($categoryPath as $parent) {
-                    $path[] = [
-                        'id'   => $parent->getCategoryId(),
-                        'name' => htmlspecialchars_decode($parent->getName()),
-                    ];
+                    $nameTranslations = [];
+                    foreach ($parent->getTranslations() as $t) {
+                        if (isset($nameTranslations[$t->getCode()])) {
+                            continue;
+                        }
+
+                        $nameTranslations[$t->getCode()] = htmlspecialchars_decode($t->getName());
+                    }
+
+                    foreach ($activeLanguages as $lang) {
+                        if (!isset($path["path_$lang"])) {
+                            $path["path_$lang"] = [];
+                        }
+
+                        $path["path_$lang"][] = [
+                            'id'   => $parent->getCategoryId(),
+                            'name' => $this->getFieldTranslation($nameTranslations, $lang),
+                            'url'  => $this->getItemUrl(
+                                Converter::buildFullURL('category', '', ['category_id' => $parent->getCategoryId()])
+                            ),
+                        ];
+                    }
+
+                    if (!$parent->getEnabled()) {
+                        $enabledPath = false;
+                    }
                 }
 
                 $this->categoryCache[$id] = [
-                    'id'   => $id,
-                    'path' => $path,
-                ];
+                        'id'      => $id,
+                        'enabled' => $enabledPath,
+                    ] + $path;
             }
 
-            if (!empty($this->categoryCache[$id]['path'])) {
+            if (!empty($this->categoryCache[$id]["path_$defaultLanguage"]) && $this->categoryCache[$id]['enabled']) {
                 $categories[] = $this->categoryCache[$id];
             }
         }
 
         return ['category' => $categories];
+    }
+
+    /**
+     * Get product category ids
+     *
+     * @param $product
+     *
+     * @return array
+     */
+    protected function getAllCategoryIds(Product $product)
+    {
+        $ids = [];
+
+        $defaultLanguage = $this->getDefaultCustomerLanguage();
+
+        /** @var Category $category */
+        foreach ($product->getCategories() as $category) {
+            $id = $category->getCategoryId();
+
+            if (!empty($this->categoryCache[$id])) {
+                $ids = array_merge($ids, !empty($this->categoryCache[$id]["path_$defaultLanguage"])
+                    ? array_map(function ($c) {return $c['id'];}, $this->categoryCache[$id]["path_$defaultLanguage"])
+                    : [$id]);
+            }
+        }
+
+        return $ids;
     }
 
     /**
@@ -675,21 +914,36 @@ class StoreApi extends \XLite\Base\Singleton
         return $result;
     }
 
+    protected function formatProductMultiLingualFields(&$data)
+    {
+        foreach ($this->getActiveLanguages() as $lang) {
+            $data["modifiers_$lang"] = [];
+
+            foreach ($data['modifiers'] as $modifier) {
+                $data["modifiers_$lang"][] = [
+                    'name'   => $modifier["name_$lang"],
+                    'values' => $modifier["values_$lang"],
+                ];
+            }
+
+            $data["sort_str_name_$lang"] = $data["name_$lang"];
+        }
+
+        unset($data['modifiers']);
+    }
+
     /**
      * Get categories data
      *
-     * @param $start
-     * @param $limit
+     * @param $params
      *
      * @return array
      */
-    public function getCategories($start, $limit)
+    public function getCategories($params)
     {
         $repo = Database::getRepo('XLite\Model\Category');
 
-        $cnd = $this->getCategorySearchConditions();
-
-        $cnd->{\XLite\Model\Repo\Category::P_LIMIT} = [$start, $limit];
+        $cnd = $this->getCategorySearchConditions($params);
 
         $categories = $repo->search($cnd, false);
 
@@ -697,15 +951,16 @@ class StoreApi extends \XLite\Base\Singleton
 
         $rootCatId = Database::getRepo('XLite\Model\Category')->getRootCategoryId();
 
+        $activeLanguages = $this->getActiveLanguages();
+
         foreach ($categories as $category) {
             $parentId = $category->getParentId() == $rootCatId ? 0 : $category->getParentId();
 
             $categoryHash = [
-                'id'          => $category->getCategoryId(),
-                'name'        => htmlspecialchars_decode($category->getName()),
-                'description' => $category->getViewDescription(),
-                'parent'      => $parentId,
-            ];
+                'id'               => $category->getCategoryId(),
+                'parent'           => $parentId,
+                'category_id_path' => [],
+            ] + $this->getCategoryTranslations($category);
 
             if ($category->getImage()) {
                 list($categoryHash['image_width'], $categoryHash['image_height'], $categoryHash['image_src']) =
@@ -716,10 +971,90 @@ class StoreApi extends \XLite\Base\Singleton
                 Converter::buildFullURL('category', '', ['category_id' => $category->getCategoryId()])
             );
 
+            $path = $repo->getCategoryPath($category->getCategoryId());
+
+            $categoryHash['path'] = [];
+
+            /** @var Category $c */
+            foreach ($path as $c) {
+                if ($c->getCategoryId() === $category->getCategoryId()) {
+                    break;
+                }
+
+                $categoryPathNode = [
+                    'id'   => $c->getCategoryId(),
+                    'url'  => $this->getItemUrl(
+                        Converter::buildFullURL('category', '', [
+                            'category_id' => $c->getCategoryId()
+                        ])
+                    )
+                ];
+
+                $cTranslations = [];
+                foreach ($c->getTranslations() as $t) {
+                    if (isset($cTranslations[$t->getCode()])) {
+                        continue;
+                    }
+
+                    $cTranslations[$t->getCode()] = $t->getName();
+                }
+
+                foreach ($activeLanguages as $lang) {
+                    $categoryPathNode["name_$lang"] = $this->getFieldTranslation($cTranslations, $lang);
+                }
+
+                $categoryHash['path'][] = $categoryPathNode;
+
+                $categoryHash['category_id_path'][] = $c->getCategoryId();
+            }
+
+            $this->formatCategoryMultiLingualFields($categoryHash);
+
             $categoriesArray[] = $categoryHash;
         }
 
         return $categoriesArray;
+    }
+
+    protected function getCategoryTranslations(Category $category)
+    {
+        $data = [];
+
+        $categoryTranslations = [];
+        foreach ($category->getTranslations() as $t) {
+            if (isset($categoryTranslations[$t->getCode()])) {
+                continue;
+            }
+
+            $categoryTranslations[$t->getCode()] = [
+                'name'        => htmlspecialchars_decode($t->getName()),
+                'description' => $category::getPreprocessedValue($t->getDescription()) ?: $t->getDescription(),
+            ];
+        }
+
+        foreach ($this->getActiveLanguages() as $lang) {
+            $data["name_$lang"]        = $this->getFieldTranslation($categoryTranslations, $lang, 'name');
+            $data["description_$lang"] = $this->getFieldTranslation($categoryTranslations, $lang, 'description');
+        }
+
+        return $data;
+    }
+
+    protected function formatCategoryMultiLingualFields(&$data)
+    {
+        foreach ($this->getActiveLanguages() as $lang) {
+            $data["path_$lang"] = [];
+
+            foreach ($data['path'] as $path) {
+                $data["path_$lang"][] = [
+                    'id'   => $path['id'],
+                    'url'  => $path['url'],
+                    'name' => $path["name_$lang"],
+                ];
+            }
+        }
+
+        unset($data['path']);
     }
 
     /**
@@ -750,10 +1085,8 @@ class StoreApi extends \XLite\Base\Singleton
 
                 $pageHash = [
                     'id'      => $page->getId(),
-                    'title'   => $page->getName(),
-                    'content' => $page->getBody(),
                     'url'     => $url,
-                ];
+                ] + $this->getPageTranslations($page);
 
                 $pagesArray[] = $pageHash;
             }
@@ -762,70 +1095,28 @@ class StoreApi extends \XLite\Base\Singleton
         return $pagesArray;
     }
 
-    /**
-     * Stores new secret key sent from CloudSearch server
-     *
-     * @param $key
-     * @param $signature
-     *
-     * @return array
-     */
-    public function setSecretKey($key, $signature)
+    protected function getPageTranslations(\XLite\Module\CDev\SimpleCMS\Model\Page $page)
     {
-        if ($key && $signature) {
-            $signature = base64_decode($signature);
+        $data = [];
 
-            if ($this->isSignatureCorrect($key, $signature)) {
-                $repo = Database::getRepo('XLite\Model\Config');
-
-                $secretKeySetting = $repo->findOneBy([
-                    'name'     => 'secret_key',
-                    'category' => 'QSL\CloudSearch',
-                ]);
-
-                $secretKeySetting->setValue($key);
-
-                Database::getEM()->flush();
+        $pageTranslations = [];
+        foreach ($page->getTranslations() as $t) {
+            if (isset($pageTranslations[$t->getCode()])) {
+                continue;
             }
+
+            $pageTranslations[$t->getCode()] = [
+                'name' => $t->getName(),
+                'body' => $t->getBody(),
+            ];
         }
 
-        return [];
-    }
-
-    /**
-     * Check the signature against our public key
-     *
-     * @param $data
-     * @param $signature
-     *
-     * @return bool
-     */
-    protected function isSignatureCorrect($data, $signature)
-    {
-        $result = false;
-
-        if (function_exists('openssl_get_publickey')) {
-            $pubKeyId = openssl_get_publickey($this->getPublicKey());
-
-            $result = openssl_verify($data, $signature, $pubKeyId) == 1;
+        foreach ($this->getActiveLanguages() as $lang) {
+            $data["title_$lang"]   = $this->getFieldTranslation($pageTranslations, $lang, 'name');
+            $data["content_$lang"] = $this->getFieldTranslation($pageTranslations, $lang, 'body');
         }
 
-        return $result;
-    }
-
-    /**
-     * Get public encryption key
-     *
-     * @return string
-     */
-    protected function getPublicKey()
-    {
-        return '-----BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC+sJv3R+kKUl0okgi7HoN6sGcM
-4Lyp4LMkMYqwD0hK618lJwydI5PRMj3+vmCxVZcnoiAM/8XwGmH24y2s7D2/8/co
-K55PFPn6T0V5++5oyyObofPe08kDoW6Ft2+yNcshmg1Vd711Vd37LLXWsaWpfcjr
-82cfYTelfejE4IO5NQIDAQAB
------END PUBLIC KEY-----';
+        return $data;
     }
 
     /**

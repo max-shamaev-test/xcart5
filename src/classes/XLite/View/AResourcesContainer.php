@@ -369,7 +369,8 @@ abstract class AResourcesContainer extends \XLite\View\Container
     protected function doCSSOptimization()
     {
         return $this->doCSSAggregation()
-            && \Includes\Utils\ConfigParser::getOptions(['storefront_options', 'optimize_css']);
+            && \Includes\Utils\ConfigParser::getOptions(['storefront_options', 'optimize_css'])
+            && !\XLite\Core\Request::getInstance()->isIE(); // Disable CSS optimization for IE, BUG-6818
     }
 
     /**

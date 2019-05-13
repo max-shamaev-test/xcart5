@@ -39,7 +39,7 @@ class Main extends \XLite\View\Model\Profile\Main implements \XLite\Base\IDecora
 
         $params = array(
             'text_before' => static::t('Or register with'),
-            'buttonStyle' => 'icon',
+            'buttonStyle' => 'button',
         );
 
         $result['social-login'] = $this->getWidget($params, '\XLite\Module\CDev\SocialLogin\View\SocialLoginWidget');

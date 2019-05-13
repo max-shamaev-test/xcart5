@@ -800,13 +800,6 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
 
         do {
 
-            // Check IP address
-            if (!$this->checkIpAddress()) {
-                $logMessage = self::getIncorrectIpAddressError();
-                $this->detectedTransaction = null;
-                break;
-            }
-
             // Search transaction by back reference from request
             $transaction = $this->searchTransactionByBackReference($request->xpcBackReference);
 
@@ -1314,29 +1307,6 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
         }
 
         return $openTransaction;
-    }
-
-    /**
-     * Check IP addres of callback request
-     *
-     * @return bool
-     */
-    protected function checkIpAddress()
-    {
-        $allowedIpAddresses = \XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_allowed_ip_addresses;
-        return !$allowedIpAddresses 
-            || false !== strpos($allowedIpAddresses, $_SERVER['REMOTE_ADDR']);
-    }
-
-    /**
-     * Error message for the incorrect IP address of X-Payments callback
-     *
-     * @return string
-     */    
-    protected static function getIncorrectIpAddressError()
-    {
-        return 'Callback request from unallowed IP address: "' . $_SERVER['REMOTE_ADDR'] . '"' . PHP_EOL
-             . 'List of allowed IP addresses: "' . \XLite\Core\Config::getInstance()->CDev->XPaymentsConnector->xpc_allowed_ip_addresses . '"';
     }
 
     /**

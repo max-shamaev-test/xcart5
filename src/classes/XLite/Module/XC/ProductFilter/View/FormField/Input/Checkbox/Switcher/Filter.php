@@ -14,6 +14,8 @@ namespace XLite\Module\XC\ProductFilter\View\FormField\Input\Checkbox\Switcher;
  */
 class Filter extends \XLite\View\FormField\Input\Checkbox\Switcher
 {
+    const PARAM_EDITABLE = 'editable';
+
     /**
      * Get a list of CSS files required to display the widget properly
      *
@@ -45,5 +47,39 @@ class Filter extends \XLite\View\FormField\Input\Checkbox\Switcher
     protected function getTypeSwitcherClass()
     {
         return 'switcher-filter';
+    }
+
+    /**
+     * Determines if checkbox is checked
+     *
+     * @return boolean
+     */
+    protected function isChecked()
+    {
+        return parent::isChecked() && $this->isEditable();
+    }
+
+    /**
+     * Define widget params
+     *
+     * @return void
+     */
+    protected function defineWidgetParams()
+    {
+        parent::defineWidgetParams();
+
+        $this->widgetParams += array(
+            self::PARAM_EDITABLE => new \XLite\Model\WidgetParam\TypeBool('Editable flag', true),
+        );
+    }
+
+    /**
+     * Check if field is editable
+     *
+     * @return bool
+     */
+    protected function isEditable()
+    {
+        return $this->getParam(static::PARAM_EDITABLE);
     }
 }

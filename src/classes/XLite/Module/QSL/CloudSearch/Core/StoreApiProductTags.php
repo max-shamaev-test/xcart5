@@ -28,7 +28,14 @@ class StoreApiProductTags extends \XLite\Module\QSL\CloudSearch\Core\StoreApi im
      */
     public function getProduct(Product $product)
     {
-        return parent::getProduct($product) + ['tags' => $this->getTagValues($product)];
+        $tagValues = $this->getTagValues($product);
+
+        $tags = [];
+        foreach ($this->getActiveLanguages() as $lang) {
+            $tags["tags_$lang"] = isset($tagValues[$lang]) ? $tagValues[$lang] : [];
+        }
+
+        return parent::getProduct($product) + $tags;
     }
 
     /**
@@ -45,13 +52,18 @@ class StoreApiProductTags extends \XLite\Module\QSL\CloudSearch\Core\StoreApi im
         $tagValues = $this->getTagValues($product);
 
         if ($tagValues) {
-            $attributes[] = [
+            $attribute = [
                 'id'                => 'XC\ProductTags',
-                'name'              => (string) static::t('Tags'),
                 'preselectAsFilter' => true,
                 'group'             => 'Product Tags module',
-                'values'            => $tagValues,
             ];
+
+            foreach ($this->getActiveLanguages() as $lang) {
+                $attribute["name_$lang"] = (string) static::t('Tags', [], $lang);
+                $attribute["values_$lang"] = isset($tagValues[$lang]) ? $tagValues[$lang] : [];
+            }
+
+            $attributes[] = $attribute;
         }
 
         return $attributes;
@@ -71,7 +83,22 @@ class StoreApiProductTags extends \XLite\Module\QSL\CloudSearch\Core\StoreApi im
         $tagValues = [];
         /** @var Tag $tag */
         foreach ($tags as $tag) {
-            $tagValues[] = $tag->getName();
+            $tagTranslations = [];
+            foreach ($tag->getTranslations() as $t) {
+                if (isset($tagTranslations[$t->getCode()])) {
+                    continue;
+                }
+
+                $tagTranslations[$t->getCode()] = $t->getName();
+            }
+
+            foreach ($this->getActiveLanguages() as $lang) {
+                if (!isset($tagValues[$lang])) {
+                    $tagValues[$lang] = [];
+                }
+
+                $tagValues[$lang][] = $this->getFieldTranslation($tagTranslations, $lang);
+            }
         }
 
         return $tagValues;

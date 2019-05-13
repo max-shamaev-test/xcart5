@@ -1,0 +1,5 @@
+Version 5.3.7.1
+
+Improvements (1)
+2019-04-03 - [Change] Minor speedup of the "add to cart" function for when the addon Mailchimp is enabled. #XCN-9738 (Shevelov Alexander) #MailChimp
+

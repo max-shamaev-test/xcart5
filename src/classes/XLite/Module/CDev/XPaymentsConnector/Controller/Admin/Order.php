@@ -22,7 +22,16 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
         $cnd = new \XLite\Core\CommonCell;
         $class = '\XLite\Module\CDev\XPaymentsConnector\Model\Repo\Payment\BackendTransaction';
 
-        $cnd->{$class::SEARCH_ORDER_ID} = $this->getOrder()->getOrderId();
+        if (
+            \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+            && $this->getOrder()->getParent()
+        ) {
+            $order = $this->getOrder()->getParent();
+        } else {
+            $order = $this->getOrder();
+        }
+
+        $cnd->{$class::SEARCH_ORDER_ID} = $order->getOrderId();
 
         $count = \XLite\Core\Database::getRepo('XLite\Module\CDev\XPaymentsConnector\Model\Payment\XpcTransactionData')
             ->search($cnd, true);

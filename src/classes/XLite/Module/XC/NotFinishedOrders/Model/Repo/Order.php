@@ -94,4 +94,26 @@ class Order extends \XLite\Model\Repo\Order implements \XLite\Base\IDecorator
 
         return $qb;
     }
+
+    /**
+     * Update recent orders condition: exclude not finisged orders
+     *
+     * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
+     * @param integer                    $value        Condition data
+     *
+     * @return void
+     */
+    protected function prepareCndRecent(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
+    {
+        parent:: prepareCndRecent($queryBuilder, $value);
+
+        if ($value) {
+            $queryBuilder->linkInner('o.shippingStatus', 'shipping');
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->not(
+                    $this->defineNotFinishedCndSubquery($queryBuilder)
+                )
+            );
+        }
+    }
 }

@@ -123,10 +123,11 @@ ul.data li .attribute-name .inline-field.editable .view span {
 
 ul.data li .attribute-name .inline-field .view.not-editable {
   margin-top: 5px;
+  padding: 7px 8px;
 }
 
 ul.data li .attribute-name .inline-field .view.not-editable span {
-  font-size: 18px;
+  font-size: 14px;
 }
 
 ul.data li .attribute-name input[type=text] {

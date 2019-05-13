@@ -8,6 +8,7 @@
 
 namespace XLite\Module\QSL\CloudSearch\View;
 
+use XLite;
 use XLite\Module\QSL\CloudSearch\Main;
 
 
@@ -17,22 +18,6 @@ use XLite\Module\QSL\CloudSearch\Main;
 abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
 {
     /**
-     * Get a list of CSS files required to display the widget properly
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-
-        if (!\XLite::isAdminZone()) {
-            $list[] = 'modules/QSL/CloudSearch/style.less';
-        }
-
-        return $list;
-    }
-
-    /**
      * Get a list of JS files required to display the widget properly
      *
      * @return array
@@ -41,11 +26,26 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
     {
         $list = parent::getJSFiles();
 
-        if (!\XLite::isAdminZone()) {
-            $list[] = 'modules/QSL/CloudSearch/loader.js';
+        if (!XLite::isAdminZone()) {
             $list[] = 'modules/QSL/CloudSearch/init.js';
-            $list[] = 'modules/QSL/CloudSearch/lib/handlebars.min.js';
-            $list[] = 'modules/QSL/CloudSearch/lib/jquery.hoverIntent.min.js';
+        }
+
+        return $list;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getCommonFiles()
+    {
+        $list = parent::getCommonFiles();
+
+        if (!XLite::isAdminZone()) {
+            $list[static::RESOURCE_JS][] = 'modules/QSL/CloudSearch/loader.js';
+            $list[static::RESOURCE_JS][] = 'modules/QSL/CloudSearch/lib/handlebars.min.js';
+            $list[static::RESOURCE_JS][] = 'modules/QSL/CloudSearch/lib/jquery.hoverIntent.min.js';
+
+            $list[static::RESOURCE_CSS][] = 'modules/QSL/CloudSearch/style.less';
         }
 
         return $list;

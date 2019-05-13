@@ -18,7 +18,7 @@ class FreeCurrencyConverterAPI extends \XLite\Module\XC\MultiCurrency\Core\RateP
      *
      * @var string
      */
-    protected $url = 'https://free.currencyconverterapi.com/api/v5/';
+    protected $url = 'https://free.currencyconverterapi.com/api/v6/';
 
     /**
      * Get currency conversion rate
@@ -33,11 +33,12 @@ class FreeCurrencyConverterAPI extends \XLite\Module\XC\MultiCurrency\Core\RateP
         $result = null;
 
         $response = $this->sendRequest([
-            'q' => $from . '_' . $to,
+            'q'       => $from . '_' . $to,
             'compact' => 'ultra',
+            'apiKey'  => $this->getApiKey(),
         ]);
 
-        if (!is_null($response)) {
+        if ($response !== null) {
             $rate = $this->parseResponse($from, $to, $response);
 
             if ($rate) {
@@ -46,6 +47,14 @@ class FreeCurrencyConverterAPI extends \XLite\Module\XC\MultiCurrency\Core\RateP
         }
 
         return $result;
+    }
+
+    protected function getApiKey()
+    {
+        return \XLite\Core\Config::getInstance()
+            ->XC
+            ->MultiCurrency
+            ->currency_converter_api_key;
     }
 
     /**
@@ -68,7 +77,6 @@ class FreeCurrencyConverterAPI extends \XLite\Module\XC\MultiCurrency\Core\RateP
             : null;
     }
 
-
     /**
      * Parse server response
      *
@@ -80,11 +88,9 @@ class FreeCurrencyConverterAPI extends \XLite\Module\XC\MultiCurrency\Core\RateP
      */
     protected function parseResponse($from, $to, $response)
     {
-        $q = $from . '_' . $to;
+        $q        = $from . '_' . $to;
         $response = @json_decode($response, true);
 
-        $result = isset($response[$q]) ? $response[$q] : null;
-
-        return $result;
+        return isset($response[$q]) ? $response[$q] : null;
     }
 }

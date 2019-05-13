@@ -24,6 +24,11 @@ class Scenario
      */
     public static function getScenarioData($scenario)
     {
+        $scenarioSpecificMethod = 'defineScenarioFor' . ucfirst(\Includes\Utils\Converter::convertToCamelCase($scenario));
+        if (method_exists(get_called_class(), $scenarioSpecificMethod)) {
+            return static::{$scenarioSpecificMethod}();
+        }
+
         if (null === self::$scenarioData) {
             self::$scenarioData = static::defineScenario();
         }
@@ -262,10 +267,86 @@ class Scenario
                     ],
                 ],
             ],
+            'product_hidden_attributes'    => [
+                'title'     => \XLite\Core\Translation::getInstance()->translate('Hidden attributes'),
+                'formModel' => 'XLite\Module\XC\BulkEditing\View\FormModel\Product\Attribute\HiddenAttribute',
+                'view'      => 'XLite\Module\XC\BulkEditing\View\ItemsList\BulkEdit\Product\Attribute\HiddenAttribute',
+                'DTO'       => 'XLite\Module\XC\BulkEditing\Model\DTO\Product\Attribute\HiddenAttribute',
+                'step'      => 'XLite\Module\XC\BulkEditing\Logic\BulkEdit\Step\Product',
+                'fields'    => [],
+            ],
             'product_global_attributes'    => [
                 'title'   => \XLite\Core\Translation::getInstance()->translate('Global attributes'),
                 'url'     => 'https://ideas.x-cart.com/forums/229428-x-cart-5-x/suggestions/15147627-bulk-products-editing-global-attributes',
             ],
         ];
+    }
+
+    protected static function defineScenarioForProductHiddenAttributes()
+    {
+        $fields = [];
+        $sections = [];
+
+        $attributes = static::getHiddenAttributesList();
+
+        foreach ($attributes as $attribute) {
+            $group = $attribute->getAttributeGroup();
+
+            if (!$group) {
+                $groupName = 'default';
+            } else {
+                $groupName = 'group_' . $group->getId();
+                $sections[$groupName] = [
+                    'label' => $group->getName(),
+                ];
+            }
+
+            if (!isset($fields[$groupName])) {
+                $fields[$groupName] = [];
+            }
+
+            $name = 'attribute_' . $attribute->getId();
+            $options = [
+                'position' => $attribute->getPosition(),
+                'attribute' => $attribute,
+            ];
+
+            $fields[$groupName][$name] = [
+                'class' => 'XLite\Module\XC\BulkEditing\Logic\BulkEdit\Field\Product\Attribute\AttributeTypeHidden',
+                'options' => $options,
+            ];
+        }
+
+        $scenarioData = [
+            'title'     => \XLite\Core\Translation::getInstance()->translate('Hidden attributes'),
+            'formModel' => 'XLite\Module\XC\BulkEditing\View\FormModel\Product\Attribute\HiddenAttribute',
+            'view'      => 'XLite\Module\XC\BulkEditing\View\ItemsList\BulkEdit\Product\Attribute\HiddenAttribute',
+            'DTO'       => 'XLite\Module\XC\BulkEditing\Model\DTO\Product\Attribute\HiddenAttribute',
+            'step'      => 'XLite\Module\XC\BulkEditing\Logic\BulkEdit\Step\Product',
+            'fields'    => $fields,
+            'sections'  => $sections,
+        ];
+
+        return $scenarioData;
+    }
+
+    protected static $hiddenAttributes;
+
+    /**
+     * @return \XLite\Model\Attribute[]
+     */
+    protected static function getHiddenAttributesList()
+    {
+        if (!isset(static::$hiddenAttributes)) {
+            $cnd = new \XLite\Core\CommonCell();
+
+            $cnd->{\XLite\Model\Repo\Attribute::SEARCH_PRODUCT} = null;
+            $cnd->{\XLite\Model\Repo\Attribute::SEARCH_PRODUCT_CLASS} = null;
+            $cnd->{\XLite\Model\Repo\Attribute::SEARCH_TYPE} = \XLite\Model\Attribute::TYPE_HIDDEN;
+
+            static::$hiddenAttributes = \XLite\Core\Database::getRepo('XLite\Model\Attribute')->search($cnd);
+        }
+
+        return static::$hiddenAttributes;
     }
 }

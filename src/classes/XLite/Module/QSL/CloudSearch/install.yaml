@@ -25,6 +25,19 @@ XLite\Model\Config:
         option_name: Enable CloudFilters
       - code: ru
         option_name: Включить CloudFilters
+  - name: isAdminSearchEnabled
+    category: QSL\CloudSearch
+    type: hidden
+    orderby: 30
+    value: false
+    translations:
+      - code: en
+        option_name: Enable products search in X-Cart Admin using CloudSearch
+      - code: ru
+        option_name: Включить поиск продуктов в админке X-Cart используя CloudSearch
+  - name: planFeatures
+    category: QSL\CloudSearch
+    type: hidden
 
 XLite\Model\LanguageLabel:
   - { name: "cs_showing_results_for", translations: [{ code: en, label: "Showing results for" }, { code: ru, label: "Показаны результаты для" }] }

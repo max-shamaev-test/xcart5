@@ -336,6 +336,16 @@ abstract class ATabs extends \XLite\View\AView
     }
 
     /**
+     * Get tabs data for
+     *
+     * @return array
+     */
+    public function getTabsForSubmenu()
+    {
+        return $this->getTabs();
+    }
+
+    /**
      * getTitle
      *
      * @return string

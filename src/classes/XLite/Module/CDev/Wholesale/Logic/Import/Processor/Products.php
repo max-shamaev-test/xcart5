@@ -131,11 +131,13 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
      */
     protected function verifyMinimumPurchaseQuantity($value, array $column)
     {
-        foreach ($value as $tier) {
-            $data = $this->prepareMinPurchaseQuantity($tier);
+        if ($value) {
+            foreach ($value as $tier) {
+                $data = $this->prepareMinPurchaseQuantity($tier);
 
-            if ($data && $data['quantity'] <= 0) {
-                $this->addError('MIN-PURCHASE-QTY-FMT', ['column' => $column, 'value' => $tier]);
+                if ($data && $data['quantity'] <= 0) {
+                    $this->addError('MIN-PURCHASE-QTY-FMT', ['column' => $column, 'value' => $tier]);
+                }
             }
         }
     }

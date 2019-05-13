@@ -1,0 +1,14 @@
+# vim: set ts=2 sw=2 sts=2 et:
+#
+# Data
+#
+# Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+# See https://www.x-cart.com/license-agreement.html for license details.
+
+XLite\Model\Config:
+  - name: fb_title
+    category: CDev\SocialLogin
+    translations:
+      - code: en
+        option_name: 'Facebook'
+        option_comment: 'To enable Facebook login on your store website, you first need to create a Facebook App for your website. To learn more about Facebook Apps, follow the link: <a href="https://developers.facebook.com/apps">https://developers.facebook.com/apps</a>.<br /> After the app has been created, complete the fields below.<br /><br /><b>The "Facebook login" feature requires HTTPS to be properly set up for your store.</b>'

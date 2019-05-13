@@ -148,7 +148,7 @@ class Attribute extends \XLite\Model\Repo\Base\I18n
 
     /**
      * Prepare certain search condition
-     * @Api\Condition(description="Filters attributes by type", type="string", enum={"S", "T", "C"})
+     * @Api\Condition(description="Filters attributes by type", type="string", enum={"S", "T", "C", "H"})
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
      * @param mixed                      $value        Condition OPTIONAL
@@ -163,6 +163,28 @@ class Attribute extends \XLite\Model\Repo\Base\I18n
 
             } else {
                 $queryBuilder->andWhere('a.type = :type')
+                    ->setParameter('type', $value);
+            }
+        }
+    }
+
+    /**
+     * Prepare certain search condition
+     * @Api\Condition(description="Filters attributes by exluding type", type="string", enum={"S", "T", "C", "H"})
+     *
+     * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
+     * @param mixed                      $value        Condition OPTIONAL
+     *
+     * @return void
+     */
+    protected function prepareCndNotType(\Doctrine\ORM\QueryBuilder $queryBuilder, $value = null)
+    {
+        if ($value) {
+            if (is_array($value)) {
+                $queryBuilder->andWhere('a.type NOT IN (\'' . implode("','", $value) . '\')');
+
+            } else {
+                $queryBuilder->andWhere('a.type != :type')
                     ->setParameter('type', $value);
             }
         }
@@ -259,6 +281,7 @@ class Attribute extends \XLite\Model\Repo\Base\I18n
             \XLite\Model\Attribute::TYPE_CHECKBOX,
             \XLite\Model\Attribute::TYPE_SELECT,
             \XLite\Model\Attribute::TYPE_TEXT,
+            \XLite\Model\Attribute::TYPE_HIDDEN,
         );
         foreach ($this->search($cnd) as $a) {
             $a->addToNewProduct($product);
@@ -286,5 +309,21 @@ class Attribute extends \XLite\Model\Repo\Base\I18n
         } else {
             parent::addImportCondition($qb, $name, $value);
         }
+    }
+
+    /**
+     * @param \XLite\Model\Attribute $attribute
+     * @return int
+     */
+    public function countProductsWithValues(\XLite\Model\Attribute $attribute)
+    {
+        $valuesRepo = \XLite\Core\Database::getRepo(\XLite\Model\Attribute::getAttributeValueClass($attribute->getType()));
+        $qb = $valuesRepo->createPureQueryBuilder();
+        $alias = $qb->getMainAlias();
+        $qb->select('COUNT (DISTINCT ' . $alias . '.product)')
+            ->where($alias . '.attribute = :attribute')
+            ->setParameter('attribute', $attribute);
+
+        return intval($qb->getSingleScalarResult());
     }
 }

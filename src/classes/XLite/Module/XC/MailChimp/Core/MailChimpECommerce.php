@@ -19,11 +19,13 @@ require_once LC_DIR_MODULES . 'XC' . LC_DS . 'MailChimp' . LC_DS . 'lib' . LC_DS
  */
 class MailChimpECommerce extends \XLite\Base\Singleton
 {
+    use \XLite\Core\Cache\ExecuteCachedTrait;
+
     const MC_FIRST_NAME = 'FNAME';
     const MC_LAST_NAME  = 'LNAME';
 
     protected $isStoreExists = [];
-    
+
     /**
      * MailChimp API class
      *
@@ -43,14 +45,16 @@ class MailChimpECommerce extends \XLite\Base\Singleton
 
     /**
      * Get campaign info
-     * 
+     *
      * @param string $id Campaign id
      * @return array|false
      */
     public function getCampaign($id)
     {
-        $this->mailChimpAPI->setActionMessageToLog('Getting campaigns');
-        return $this->mailChimpAPI->get("campaigns/{$id}");
+        return $this->executeCachedRuntime(function () use ($id) {
+            $this->mailChimpAPI->setActionMessageToLog('Getting campaigns');
+            return $this->mailChimpAPI->get("campaigns/{$id}");
+        }, ['getCampaign', $id]);
     }
 
     /**
@@ -111,14 +115,14 @@ class MailChimpECommerce extends \XLite\Base\Singleton
         $result = $this->mailChimpAPI->success()
             ? $result
             : null;
-        
+
         $this->isStoreExists[$id] = !!$result;
-        
+
         return $result;
     }
 
     /**
-     * @param $string   $storeId
+     * @param $string $storeId
      *
      * @return array|bool|false
      */
@@ -129,7 +133,7 @@ class MailChimpECommerce extends \XLite\Base\Singleton
             "ecommerce/stores/{$storeId}/orders",
             [
                 'fields' => 'orders.id',
-                'count'     => PHP_INT_MAX  // Mailchimp, why?
+                'count'  => PHP_INT_MAX  // Mailchimp, why?
             ]
         );
 
@@ -146,23 +150,23 @@ class MailChimpECommerce extends \XLite\Base\Singleton
     public function mapForOrderNotifications()
     {
         return [
-            'financial' => [
-                \XLite\Model\Order\Status\Payment::STATUS_PAID          => 'paid',
-                \XLite\Model\Order\Status\Payment::STATUS_PART_PAID     => 'paid',
-                \XLite\Model\Order\Status\Payment::STATUS_AUTHORIZED    => 'pending',
-                \XLite\Model\Order\Status\Payment::STATUS_QUEUED        => 'pending',
-                \XLite\Model\Order\Status\Payment::STATUS_REFUNDED      => 'refunded',
-                \XLite\Model\Order\Status\Payment::STATUS_CANCELED      => 'cancelled',
-                \XLite\Model\Order\Status\Payment::STATUS_DECLINED      => 'cancelled',
+            'financial'   => [
+                \XLite\Model\Order\Status\Payment::STATUS_PAID       => 'paid',
+                \XLite\Model\Order\Status\Payment::STATUS_PART_PAID  => 'paid',
+                \XLite\Model\Order\Status\Payment::STATUS_AUTHORIZED => 'pending',
+                \XLite\Model\Order\Status\Payment::STATUS_QUEUED     => 'pending',
+                \XLite\Model\Order\Status\Payment::STATUS_REFUNDED   => 'refunded',
+                \XLite\Model\Order\Status\Payment::STATUS_CANCELED   => 'cancelled',
+                \XLite\Model\Order\Status\Payment::STATUS_DECLINED   => 'cancelled',
             ],
-            'fulfillment'   => [
-                \XLite\Model\Order\Status\Shipping::STATUS_SHIPPED      => 'shipped',
+            'fulfillment' => [
+                \XLite\Model\Order\Status\Shipping::STATUS_SHIPPED => 'shipped',
             ],
         ];
     }
 
     /**
-     * @param $string   $storeId
+     * @param $string $storeId
      *
      * @return array|bool|false
      */
@@ -172,8 +176,8 @@ class MailChimpECommerce extends \XLite\Base\Singleton
         $result = $this->mailChimpAPI->get(
             "ecommerce/stores/{$storeId}/products",
             [
-                'fields'    => 'products.id',
-                'count'     => PHP_INT_MAX  // Mailchimp, why?
+                'fields' => 'products.id',
+                'count'  => PHP_INT_MAX  // Mailchimp, why?
             ]
         );
 
@@ -195,7 +199,7 @@ class MailChimpECommerce extends \XLite\Base\Singleton
         if (!$listId) {
             $campaignInfo = $this->getCampaign($dataRaw['campaign_id']);
 
-            if(!$campaignInfo
+            if (!$campaignInfo
                 || !isset($campaignInfo['recipients'])
                 || !$campaignInfo['recipients']
             ) {
@@ -223,7 +227,7 @@ class MailChimpECommerce extends \XLite\Base\Singleton
         $result = $this->mailChimpAPI->post("ecommerce/stores", $data);
 
         if ($this->mailChimpAPI->success()
-            && !\XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\Store')->find($dataRaw['store_id']) 
+            && !\XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\Store')->find($dataRaw['store_id'])
         ) {
             $this->createStoreReference(
                 $listId,
@@ -234,7 +238,7 @@ class MailChimpECommerce extends \XLite\Base\Singleton
         }
 
         $this->isStoreExists[$dataRaw['store_id']] = $this->mailChimpAPI->success();
-        
+
         return $this->mailChimpAPI->success()
             ? $result
             : null;
@@ -258,7 +262,7 @@ class MailChimpECommerce extends \XLite\Base\Singleton
      */
     public function changeStoreSyncingStatus($storeId, $statusFlag)
     {
-        $data = [ 'is_syncing' => $statusFlag ];
+        $data = ['is_syncing' => $statusFlag];
 
         return $this->updateStoreData($storeId, $data);
     }
@@ -313,6 +317,30 @@ class MailChimpECommerce extends \XLite\Base\Singleton
     }
 
     /**
+     *
+     */
+    public function updateConnectedSites()
+    {
+        $storesRepo = \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\Store');
+        $result = $this->mailChimpAPI->get('connected-sites');
+
+        foreach ($result['sites'] as $site) {
+            $store = $storesRepo->find($site['store_id']);
+
+            if ($store) {
+                \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
+                    [
+                        'category' => 'XC\MailChimp',
+                        'name'     => 'mcjs',
+                        'value'    => $site['site_script']['fragment'],
+                    ]
+                );
+                break;
+            }
+        }
+    }
+
+    /**
      * @param      $storeId
      * @param null $data
      *
@@ -344,39 +372,40 @@ class MailChimpECommerce extends \XLite\Base\Singleton
             if ($timezoneObj) {
                 $timezone = $timezoneObj->getName();
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         return [
-            'name'          => \XLite\Core\Config::getInstance()->Company->company_name,
-            'platform'      => 'X-Cart',
-            'domain'        => \XLite\Core\URLManager::getShopURL(),
-            'email_address' => \XLite\Core\Mailer::getUsersDepartmentMail(),
-            'primary_locale'    => \XLite\Core\Config::getInstance()->General->default_language,
-            'timezone'      => $timezone,
-            'phone'         => \XLite\Core\Config::getInstance()->Company->company_phone,
-            'address'       => $this->mapStoreAddress(),
+            'name'           => \XLite\Core\Config::getInstance()->Company->company_name,
+            'platform'       => 'X-Cart',
+            'domain'         => \XLite\Core\URLManager::getShopURL(),
+            'email_address'  => \XLite\Core\Mailer::getUsersDepartmentMail(),
+            'primary_locale' => \XLite\Core\Config::getInstance()->General->default_language,
+            'timezone'       => $timezone,
+            'phone'          => \XLite\Core\Config::getInstance()->Company->company_phone,
+            'address'        => $this->mapStoreAddress(),
         ];
     }
 
     public function mapStoreAddress()
     {
         $data = [
-            "address1"      => \XLite\Core\Config::getInstance()->Company->location_address,
-            "address2"      => '',
-            "city"          => \XLite\Core\Config::getInstance()->Company->location_city,
-            "postal_code"   => \XLite\Core\Config::getInstance()->Company->location_zipcode,
+            "address1"    => \XLite\Core\Config::getInstance()->Company->location_address,
+            "address2"    => '',
+            "city"        => \XLite\Core\Config::getInstance()->Company->location_city,
+            "postal_code" => \XLite\Core\Config::getInstance()->Company->location_zipcode,
         ];
 
         $country = \XLite\Core\Config::getInstance()->Company->locationCountry;
         if ($country && $country instanceof \XLite\Model\Country) {
-            $data["country"]        = $country->getCountry();
-            $data["country_code"]   = $country->getCode3();
+            $data["country"] = $country->getCountry();
+            $data["country_code"] = $country->getCode3();
         }
 
         $state = \XLite\Core\Config::getInstance()->Company->locationState;
         if ($state && $state instanceof \XLite\Model\State) {
-            $data["province"]       = $state->getState();
-            $data["province_code"]  = $state->getCode();
+            $data["province"] = $state->getState();
+            $data["province_code"] = $state->getCode();
         }
 
         return array_filter($data);
@@ -402,7 +431,7 @@ class MailChimpECommerce extends \XLite\Base\Singleton
 
         $store->create();
     }
-    
+
     /**
      * @param                      $storeId
      * @param \XLite\Model\Product $product
@@ -415,7 +444,7 @@ class MailChimpECommerce extends \XLite\Base\Singleton
         $result = $this->mailChimpAPI->get(
             "ecommerce/stores/{$storeId}/products/{$productId}"
         );
-        
+
         return $this->mailChimpAPI->success()
             ? $result
             : null;
@@ -440,8 +469,8 @@ class MailChimpECommerce extends \XLite\Base\Singleton
     }
 
     /**
-     * @param $string   $storeId
-     * @param string    $cartId
+     * @param $string $storeId
+     * @param string $cartId
      *
      * @return array|bool|false
      */
@@ -458,8 +487,8 @@ class MailChimpECommerce extends \XLite\Base\Singleton
     }
 
     /**
-     * @param string    $storeId
-     * @param string    $cartId
+     * @param string $storeId
+     * @param string $cartId
      *
      * @return array|bool|false
      */
@@ -477,7 +506,7 @@ class MailChimpECommerce extends \XLite\Base\Singleton
 
     /**
      * @param           $storeId
-     * @param integer   $productId
+     * @param integer $productId
      *
      * @return array|bool|false
      */
@@ -522,7 +551,7 @@ class MailChimpECommerce extends \XLite\Base\Singleton
         $this->mailChimpAPI->setActionMessageToLog('Creating products');
         return $this->mailChimpAPI->post(
             "ecommerce/stores/{$storeId}/products?" . http_build_query(
-                [ 'fields' => 'id' ],
+                ['fields' => 'id'],
                 null,
                 '&'
             ),
@@ -585,7 +614,7 @@ class MailChimpECommerce extends \XLite\Base\Singleton
 
     /**
      * @param           $storeId
-     * @param array     $ordersData
+     * @param array $ordersData
      *
      * @return array|bool
      */
@@ -595,9 +624,9 @@ class MailChimpECommerce extends \XLite\Base\Singleton
 
         foreach ($ordersData as $orderId => $orderData) {
             $operations[] = [
-                "method"    => "post",
-                "path"      => "ecommerce/stores/{$storeId}/orders",
-                "body"      => json_encode($orderData)
+                "method" => "post",
+                "path"   => "ecommerce/stores/{$storeId}/orders",
+                "body"   => json_encode($orderData)
             ];
         }
 
@@ -610,7 +639,7 @@ class MailChimpECommerce extends \XLite\Base\Singleton
             "batches",
             [
                 'operations' => $operations,
-                'fields' => 'id'
+                'fields'     => 'id'
             ]
         );
     }
@@ -624,16 +653,16 @@ class MailChimpECommerce extends \XLite\Base\Singleton
     public function createProductsBatch($storeId, array $products)
     {
         $operations = [];
-        
+
         foreach ($products as $product) {
             $product = \XLite\Core\Database::getEM()->merge($product);
             $operations[] = [
-                "method"    => "post",
-                "path"      => "ecommerce/stores/{$storeId}/products",
-                "body"      => json_encode(Product::getDataByProduct($product)) 
+                "method" => "post",
+                "path"   => "ecommerce/stores/{$storeId}/products",
+                "body"   => json_encode(Product::getDataByProduct($product))
             ];
         }
-        
+
         if (!$operations) {
             return false;
         }
@@ -641,7 +670,7 @@ class MailChimpECommerce extends \XLite\Base\Singleton
         $this->mailChimpAPI->setActionMessageToLog('Creating products batch');
         return $this->mailChimpAPI->post(
             "batches",
-            [ 'operations' => $operations ]
+            ['operations' => $operations]
         );
     }
 

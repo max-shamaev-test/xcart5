@@ -134,7 +134,16 @@ class Transactions extends \XLite\View\ItemsList\Model\Table
 
         $class = '\XLite\Module\CDev\XPaymentsConnector\Model\Repo\Payment\BackendTransaction';
 
-        $cnd->{$class::SEARCH_ORDER_ID} = $this->getOrder()->getOrderId();
+        if (
+            \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+            && $this->getOrder()->getParent()
+        ) {
+            $order = $this->getOrder()->getParent();
+        } else {
+            $order = $this->getOrder();
+        }
+
+        $cnd->{$class::SEARCH_ORDER_ID} = $order->getOrderId();
 
         return $cnd;
     }
@@ -296,5 +305,24 @@ class Transactions extends \XLite\View\ItemsList\Model\Table
         }
 
         return $text;
+    }
+
+    /**
+     * Check if widget is visible
+     *
+     * @return boolean
+     */
+    protected function isVisible()
+    {
+        if (
+            \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+            && \XLite\Core\Auth::getInstance()->isVendor()
+        ) {
+            $result = false;
+        } else {
+            $result = parent::isVisible();
+        }
+
+        return $result;
     }
 }

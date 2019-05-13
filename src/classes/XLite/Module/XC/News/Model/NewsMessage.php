@@ -130,7 +130,7 @@ class NewsMessage extends \XLite\Model\Base\Catalog
     public function getMetaDesc()
     {
         return 'A' === $this->getMetaDescType() || !$this->getSoftTranslation()->getMetaDesc()
-            ? strip_tags($this->getBody())
+            ? static::postprocessMetaDescription($this->getBody())
             : $this->getSoftTranslation()->getMetaDesc();
     }
 

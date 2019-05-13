@@ -25,6 +25,13 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     protected $variants = [];
 
     /**
+     * List of provided variantIds
+     *
+     * @var array
+     */
+    protected $variantIds = [];
+
+    /**
      * Product variants attributes
      *
      * @var array
@@ -96,7 +103,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     // {{{ Verification
     protected function verifyData(array $data)
     {
-        $this->prepareVariants($data);
+        $this->prepareVariants($data, true);
 
         unset($data[static::VARIANT_PREFIX . 'ID']);
 
@@ -119,6 +126,8 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                 'VARIANT-ATTRIBUTE-FMT'   => 'Variant attribute "{{column}}" cannot be empty',
                 'VARIANT-PRODUCT-FMT'     => 'Variant id X is already assigned to another product variant',
                 'VARIANT-SKU-FMT'         => 'Variant sku must be unique',
+                'VARIANT-ID-MISMATCH'     => 'Couldn\'t identify a variant based on ID X being imported',
+                'VARIANT-ID-CHANGED'      => 'variant ID X was replaced by ID Y generated automatically',
             ];
     }
 
@@ -345,20 +354,177 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     /**
      * @param $data
      */
-    protected function prepareVariants($data)
+    protected function prepareVariants($data, $isVerification = false)
     {
         $this->variants = $this->variantsAttributes = [];
 
-        $key = static::VARIANT_PREFIX . 'ID';
-        if (isset($data[$key]) && is_array($data[$key])) {
-            foreach ($data[$key] as $index => $vId) {
-                $entity = Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')
-                    ->findOneBy(['variant_id' => $vId]);
-                if ($entity) {
-                    $this->variants[$index] = $entity;
+        $variantIdKey = static::VARIANT_PREFIX . 'ID';
+        $this->variantIds = !empty($data[$variantIdKey]) ? $data[$variantIdKey] : [];
+        if ($product = $this->detectModel($data)) {
+            if (isset($data[$variantIdKey]) && is_array($data[$variantIdKey])) {
+                foreach ($data[$variantIdKey] as $index => $vId) {
+                    $entity = Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')
+                        ->findOneBy(['variant_id' => $vId, 'product' => $product]);
+                    if ($entity) {
+                        $this->variants[$index] = $entity;
+                    }
+                }
+            }
+
+            if (isset($data['attributes'])) {
+                $variantsAttributes = $this->getVariantsAttributes($product, $data['attributes']);
+
+                if ($variantsAttributes) {
+                    foreach ($variantsAttributes as $rowIndex => $values) {
+                        if (!isset($this->variants[$rowIndex])) {
+                            $values = $this->getAttributeValuesByData($product, $values);
+                            $variant = $product->getVariantByAttributeValues($values, true);
+
+                            if ($variant && !in_array($variant, $this->variants, true)) {
+                                $this->variants[$rowIndex] = $variant;
+
+                                if ($isVerification && !empty($data[$variantIdKey][$rowIndex])) {
+                                    $this->addWarning('VARIANT-ID-MISMATCH', ['variantId' => $data[$variantIdKey][$rowIndex]], $rowIndex);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Get variants attributes by attributes column data
+     *
+     * @param $model
+     * @param $attributeValues
+     * @return array
+     */
+    protected function getVariantsAttributes($model, $attributeValues)
+    {
+        $variantsAttributes = [];
+        foreach ($attributeValues as $attr => $attributeValue) {
+            if (!$this->isVariantValues($attributeValue)) {
+                continue;
+            }
+
+            if ($attributeStringData = $this->parseAttributeString($attr)) {
+                $type = $attributeStringData['type'];
+                $name = $attributeStringData['name'];
+                $productClass = 'class' === $type
+                    ? $model->getProductClass()
+                    : null;
+                $product = 'product' === $type
+                    ? $model
+                    : null;
+                $groupName = $attributeStringData['attributeGroup'] && 'product' !== $type
+                    ? $this->getDefLangValue($attributeStringData['attributeGroup'])
+                    : null;
+
+                $values = [];
+                foreach ($attributeValue as $value) {
+                    $values = array_merge($values, $value);
+                }
+                $values = array_values(array_unique($values));
+                $notEmptyValues = array_filter($values, function ($element) {
+                    return $element !== "";
+                });
+
+                if (empty($notEmptyValues) || ('class' === $type && !$productClass)) {
+                    continue;
+                }
+
+                $attributeGroup = null;
+
+                if ($groupName) {
+                    $attributeGroupCnd = new \XLite\Core\CommonCell();
+                    $attributeGroupCnd->{\XLite\Model\Repo\AttributeGroup::SEARCH_PRODUCT_CLASS} = $productClass;
+                    $attributeGroupCnd->{\XLite\Model\Repo\AttributeGroup::SEARCH_NAME} = $groupName;
+                    $result = \XLite\Core\Database::getRepo('XLite\Model\AttributeGroup')->search($attributeGroupCnd);
+                    if ($result) {
+                        $attributeGroup = reset($result);
+                    }
+                }
+
+                $attributeCnd = new \XLite\Core\CommonCell();
+
+                if ($product && $product->getId()) {
+                    $attributeCnd->{\XLite\Model\Repo\Attribute::SEARCH_PRODUCT} = $product;
+
+                } else {
+                    $attributeCnd->{\XLite\Model\Repo\Attribute::SEARCH_PRODUCT} = null;
+                }
+
+                $attributeCnd->{\XLite\Model\Repo\Attribute::SEARCH_PRODUCT_CLASS}   = $productClass;
+                $attributeCnd->{\XLite\Model\Repo\Attribute::SEARCH_ATTRIBUTE_GROUP} = $attributeGroup;
+                $attributeCnd->{\XLite\Model\Repo\Attribute::SEARCH_NAME}            = $name;
+
+                $attribute = \XLite\Core\Database::getRepo('XLite\Model\Attribute')->search($attributeCnd);
+
+                if ($attribute) {
+                    $attribute = $attribute[0];
+
+                } else {
+                    $variantsAttributes = [];
+                    break;
+                }
+
+                foreach ($attributeValue as $k => $value) {
+                    if ($valueStringData = $this->parseAttributeValueString($value)) {
+                        $variantsAttributes[$k][$attribute->getId()][] = $valueStringData['value'];
+
+                    } else {
+                        $variantsAttributes[$k][$attribute->getId()][] = $value;
+                    }
+                }
+            }
+        }
+
+        return $variantsAttributes;
+    }
+
+    /**
+     * Get attribute values list by attribute values data [attributeId => attributeValueString]
+     *
+     * @param $model
+     * @param $values
+     * @return mixed
+     */
+    protected function getAttributeValuesByData($model, $values)
+    {
+        foreach ($values as $id => $value) {
+            if (!isset($this->variantsAttributes[$id])) {
+                $this->variantsAttributes[$id] = Database::getRepo('XLite\Model\Attribute')
+                    ->find($id);
+            }
+            $attribute = $this->variantsAttributes[$id];
+
+            $repo = Database::getRepo($attribute->getAttributeValueClass($attribute->getType()));
+            if ($attribute::TYPE_CHECKBOX == $attribute->getType()) {
+                $values[$id] = $repo->findOneBy(
+                    [
+                        'attribute' => $attribute,
+                        'product'   => $model,
+                        'value'     => $this->normalizeValueAsBoolean($value),
+                    ]
+                );
+
+            } else {
+                $attributeOption = Database::getRepo('XLite\Model\AttributeOption')
+                    ->findOneByNameAndAttribute($value, $attribute);
+                $values[$id] = $repo->findOneBy(
+                    [
+                        'attribute'        => $attribute,
+                        'product'          => $model,
+                        'attribute_option' => $attributeOption,
+                    ]
+                );
+            }
+
+        }
+
+        return $values;
     }
 
     /**
@@ -370,6 +536,8 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
      */
     protected function importAttributesColumn(\XLite\Model\Product $model, array $value, array $column)
     {
+        $this->variantsAttributes = [];
+
         foreach ($value as $k => $v) {
             if (!$this->isVariantValues($v)) {
                 $value[$k] = array_splice($v, 0, 1);
@@ -402,42 +570,13 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                 }
                 if (count($tmp) === count($variantsAttributes)) {
                     foreach ($variantsAttributes as $rowIndex => $values) {
-                        foreach ($values as $id => $value) {
-                            if (!isset($this->variantsAttributes[$id])) {
-                                $this->variantsAttributes[$id] = Database::getRepo('XLite\Model\Attribute')
-                                    ->find($id);
-                            }
-                            $attribute = $this->variantsAttributes[$id];
-
-                            $repo = Database::getRepo($attribute->getAttributeValueClass($attribute->getType()));
-                            if ($attribute::TYPE_CHECKBOX == $attribute->getType()) {
-                                $values[$id] = $repo->findOneBy(
-                                    [
-                                        'attribute' => $attribute,
-                                        'product'   => $model,
-                                        'value'     => $this->normalizeValueAsBoolean($value),
-                                    ]
-                                );
-
-                            } else {
-                                $attributeOption = Database::getRepo('XLite\Model\AttributeOption')
-                                    ->findOneByNameAndAttribute($value, $attribute);
-                                $values[$id] = $repo->findOneBy(
-                                    [
-                                        'attribute'        => $attribute,
-                                        'product'          => $model,
-                                        'attribute_option' => $attributeOption,
-                                    ]
-                                );
-                            }
-
-                        }
+                        $values = $this->getAttributeValuesByData($model, $values);
+                        $variant = $model->getVariantByAttributeValues($values, true);
 
                         if (isset($this->variants[$rowIndex])) {
                             $idVariant = $this->variants[$rowIndex];
                         }
 
-                        $variant = $model->getVariantByAttributeValues($values, true);
                         $oldVariantId = $variant
                             ? $variant->getVariantId()
                             : null;
@@ -465,6 +604,10 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
 
                             if (!$oldVariantId) {
                                 $variant->setVariantId($variantsRepo->assembleUniqueVariantId($variant));
+
+                                if (isset($this->variantIds[$rowIndex]) && $this->variantIds[$rowIndex] !== $variant->getVariantId()) {
+                                    $this->addWarning('VARIANT-ID-CHANGED', ['oldVariantId' => $this->variantIds[$rowIndex], 'newVariantId' => $variant->getVariantId()], $rowIndex);
+                                }
                             }
                         }
 

@@ -34,13 +34,18 @@ class Attributes extends \XLite\View\Tabs\ATabs
                 'title'    => static::t('Global'),
                 'template' => 'product/attributes/global.twig',
             ],
+            'hidden' => [
+                'weight'   => 300,
+                'title'    => static::t('Hidden attributes'),
+                'template' => 'product/attributes/hidden.twig',
+            ],
         ];
 
         if ($this->getProduct()->hasMultipleAttributes()
             || 1 < count($this->getProduct()->getEditableAttributes())
         ) {
             $list['properties'] = [
-                'weight'   => 300,
+                'weight'   => 400,
                 'title'    => static::t('Sort settings'),
                 'template' => 'product/attributes/properties.twig',
             ];

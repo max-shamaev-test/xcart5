@@ -130,7 +130,14 @@ DiscountCouponsView.prototype.handleUpdateCart = function(event, data)
     }
   }
 
-  this.reload();
+  var triggerKeys = ['shippingTotal', 'total'];
+  var needsUpdate = _.some(triggerKeys, function(key) {
+    return _.has(data, key);
+  });
+
+  if (needsUpdate) {
+    this.reload();
+  }
 }
 
 // Get event namespace (prefix)

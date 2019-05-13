@@ -167,6 +167,8 @@ class PaymentMethods extends \XLite\View\ItemsList\Model\Table
         $cnd->{\XLite\Model\Repo\Payment\Method::P_CLASS}
             = 'Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPayments';
 
+        $cnd->{\XLite\Model\Repo\Payment\Method::P_FROM_MARKETPLACE} = false;
+
         $cnd->{\XLite\Model\Repo\Payment\Method::P_ORDER_BY} = array('translations.name', 'asc');
 
         return $cnd;

@@ -1,0 +1,10 @@
+Version 5.3.4.3
+
+Fixes
+- Multi-vendor - extra order information that was not intended to be shown for vendors was displayed for them. Fixed.
+- Multi-vendor - when products of different vendors in the same order, the section with capture/void/refund buttons in admin panel was unavailable. Fixed.
+- Multi-vendor - orders for cards saved from profile page were duplicated. Fixed.
+- Multi-vendor - information about an antifraud check on was not displayed on order page. Fixed.
+- X-Payments antifraud check status was included in emails for customers. Removed.
+- One page checkout - checkout page may become blocked in some cases when there are issues with connection to X-Payments. Fixed.
+- Other minor fixes.

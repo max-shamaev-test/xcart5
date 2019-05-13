@@ -32,19 +32,21 @@ class AttributeOption extends \XLite\View\ItemsList\Model\Table
      */
     protected function defineColumns()
     {
-        return array(
-            'name' => array(
+        $columns = [
+            'name' => [
                 static::COLUMN_CLASS    => 'XLite\View\FormField\Inline\Input\Text',
                 static::COLUMN_MAIN     => true,
                 static::COLUMN_NO_WRAP  => true,
                 static::COLUMN_PARAMS   => array('required' => true),
                 static::COLUMN_ORDERBY  => 100,
-            ),
-            'addToNew' => array(
+            ],
+            'addToNew' => [
                 static::COLUMN_CLASS    => 'XLite\View\FormField\Inline\Input\Checkbox\Switcher\AddToNew',
                 static::COLUMN_ORDERBY  => 200,
-            ),
-        );
+            ],
+        ];
+
+        return $columns;
     }
 
     /**

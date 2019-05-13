@@ -34,5 +34,5 @@
   </ul>
 </div>
 {% for group in this.getAttributeGroups() %}
-  {{ widget('XLite\\View\\Product\\Details\\Admin\\Attributes', group=group) }}
+  {{ widget('XLite\\View\\Product\\Details\\Admin\\Attributes', group=group, hiddenOnly=this.getHiddenOnly()) }}
 {% endfor %}

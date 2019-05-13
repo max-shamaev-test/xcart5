@@ -15,6 +15,7 @@ use XLite\Core\Converter;
 use XLite\Core\Database;
 use XLite\Core\HTTP\Request;
 use XLite\Core\Router;
+use XLite\Logger;
 use XLite\Module\QSL\CloudSearch\Main;
 
 
@@ -32,14 +33,18 @@ class ServiceApiClient
     const CLOUD_SEARCH_REGISTER_URL = '/api/v1/register';
     const CLOUD_SEARCH_SEARCH_URL = '/api/v1/search';
     const CLOUD_SEARCH_PLAN_INFO_URL = '/api/v1/plan-info';
+    const CLOUD_SEARCH_WEBHOOK_URL = '/api/v1/webhook';
 
     const SEARCH_REQUEST_TIMEOUT = 5;
     const PLAN_INFO_REQUEST_TIMEOUT = 3;
 
+    const WEBHOOK_TIMEOUT = 3;
+    const WRITE_TRIES = 3;
+
     protected static $resultsCache = [];
 
     /**
-     * Register CloudSearch installation
+     * Request CloudSearch registration
      *
      * @return void
      */
@@ -49,9 +54,14 @@ class ServiceApiClient
 
         $shopUrl = $this->getShopUrl();
 
+        $shopKey = md5(uniqid(rand(), true));
+
+        Database::getRepo('XLite\Model\TmpVar')->setVar('cloud_search_shop_key', $shopKey);
+
         $request       = new Request($requestUrl);
         $request->body = [
             'shopUrl'  => $shopUrl,
+            'shopKey'  => $shopKey,
             'shopType' => 'xc5',
         ];
 
@@ -64,11 +74,9 @@ class ServiceApiClient
                 $this->storeApiKey($data['apiKey']);
 
                 Config::updateInstance();
-
-                $this->requestSecretKey();
-
-                Config::updateInstance();
             }
+
+            Database::getRepo('XLite\Model\TmpVar')->removeVar('cloud_search_shop_key');
         }
     }
 
@@ -186,25 +194,6 @@ class ServiceApiClient
     }
 
     /**
-     * Ask CloudSearch server to send us a new secret key
-     *
-     * @return void
-     */
-    public function requestSecretKey()
-    {
-        $apiKey = $this->getApiKey();
-
-        $requestUrl = $this->getCloudSearchUrl() . static::CLOUD_SEARCH_REQUEST_SECRET_KEY_URL;
-
-        $request       = new Request($requestUrl);
-        $request->body = [
-            'apiKey' => $apiKey,
-        ];
-
-        $request->sendRequest();
-    }
-
-    /**
      * Request CS plan info
      *
      * @return mixed|null
@@ -240,7 +229,7 @@ class ServiceApiClient
      */
     public function getDashboardIframeUrl($secretKey, $params)
     {
-        $features = ['cloud_filters'];
+        $features = ['cloud_filters', 'admin_search'];
 
         return $this->getCloudSearchUrl()
             . static::CLOUD_SEARCH_REMOTE_IFRAME_URL
@@ -307,5 +296,68 @@ class ServiceApiClient
         $apiKeySetting->setValue($key);
 
         Database::getEM()->flush();
+    }
+
+    public function sendWebhookEvent($eventData)
+    {
+        $url = $this->getCloudSearchUrl();
+
+        $parts = parse_url($url);
+
+        $parts['port'] = (isset($parts['schema']) && $parts['schema'] === 'https') ? 443 : 80;
+
+        $remote = 'tcp://' . $parts['host'] . ':' . $parts['port'];
+
+        $socket = @stream_socket_client(
+            $remote,
+            $errno,
+            $errstr,
+            static::WEBHOOK_TIMEOUT
+        );
+
+        if (false === $socket) {
+            Logger::logCustom('CloudSearchLogs', "Error: $errno - $errstr");
+
+            return;
+        }
+
+        stream_set_timeout($socket, static::WEBHOOK_TIMEOUT);
+
+        $request = $this->buildHttpRequest($eventData);
+
+        $toBeSentData = strlen($request);
+
+        $triesLeft = static::WRITE_TRIES;
+
+        for ($sentData = 0; $sentData < $toBeSentData; $sentData += $sent) {
+            $sent = fwrite($socket, substr($request, $sentData));
+
+            if ($sent === false || $sent === 0) {
+                $triesLeft--;
+
+                if (!$triesLeft) {
+                    break;
+                } else {
+                    sleep(1);
+                }
+            }
+        }
+
+        fclose($socket);
+    }
+
+    protected function buildHttpRequest($data) {
+        $data = json_encode($data);
+
+        $request = 'POST ' . $this->getCloudSearchUrl() . static::CLOUD_SEARCH_WEBHOOK_URL . ' HTTP/1.1' . "\r\n";
+        $request .= 'Host: ' . parse_url(static::getCloudSearchUrl())['host'] . "\r\n";
+        $request .= 'Content-Type: application/json; charset=UTF-8' . "\r\n";
+        $request .= 'Content-Length: ' . strlen($data) . "\r\n";
+        $request .= 'Cache-Control: no-cache' . "\r\n";
+        $request .= 'X-Api-Key: ' . $this->getSecretKey() . "\r\n";
+        $request .= "\r\n";
+        $request .= $data;
+
+        return $request;
     }
 }

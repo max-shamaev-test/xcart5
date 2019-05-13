@@ -131,7 +131,7 @@ abstract class AButton extends \XLite\View\AView
     {
         $class = 'social-net-element';
         $class .= ' social-net-' . $this->getParam(static::PARAM_WIDGET_STYLE);
-        $class .= ' social-net-' . $this->getName();
+        $class .= ' social-net-' . static::DISPLAY_NAME;
 
         return $class;
     }

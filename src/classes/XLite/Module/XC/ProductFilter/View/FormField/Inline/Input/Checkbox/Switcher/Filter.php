@@ -23,4 +23,25 @@ class Filter extends \XLite\View\FormField\Inline\Input\Checkbox\Switcher\Enable
     {
         return 'XLite\Module\XC\ProductFilter\View\FormField\Input\Checkbox\Switcher\Filter';
     }
+
+    /**
+     * Get initial field parameters
+     *
+     * @param array $field Field data
+     *
+     * @return array
+     */
+    protected function getFieldParams(array $field)
+    {
+        $params = parent::getFieldParams($field);
+
+        if (
+            $this->getEntity() instanceof \XLite\Model\Attribute
+            && \XLite\Model\Attribute::TYPE_HIDDEN === $this->getEntity()->getType()
+        ) {
+            $params[\XLite\Module\XC\ProductFilter\View\FormField\Input\Checkbox\Switcher\Filter::PARAM_EDITABLE] = false;
+        }
+
+        return $params;
+    }
 }

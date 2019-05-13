@@ -8,6 +8,9 @@
 
 namespace XLite\Module\QSL\CloudSearch\Core;
 
+use XLite\Module\QSL\CloudSearch\Core\IndexingEvent\IndexingEventListener;
+use XLite\Module\QSL\CloudSearch\Main;
+
 /**
  * Database
  */
@@ -23,5 +26,9 @@ abstract class DatabaseDecorator extends \XLite\Core\Database implements \XLite\
         $this->configuration->addCustomStringFunction('field', '\\XLite\\Module\\QSL\\CloudSearch\\Core\\Doctrine\\FieldFunction');
 
         parent::startEntityManager();
+
+        if (!defined('LC_CACHE_BUILDING') && Main::isRealtimeIndexingEnabled()) {
+            static::getEM()->getEventManager()->addEventSubscriber(new IndexingEventListener());
+        }
     }
 }

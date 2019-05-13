@@ -34,6 +34,21 @@ abstract class Checkout extends \XLite\Controller\Customer\Checkout implements \
     }
 
     /**
+     * Assign additional data to cart during doPayment process
+     *
+     * @param $cart
+     */
+    protected function assignAdditionalDataToCart(\XLite\Model\Order $cart)
+    {
+        parent::assignAdditionalDataToCart($cart);
+
+        if ($nfo = $cart->getNotFinishedOrder()) {
+            $nfo->setNotes($cart->getNotes());
+            $nfo->setDate($cart->getDate());
+        }
+    }
+
+    /**
      * Does the payment and order status handling
      */
     protected function doPayment()

@@ -25,6 +25,7 @@ function attribute_makeLineBlank(value) {
   if ((!$line.length && $value.is(':first-child')) || ($line.length && $line.is(':first-child'))) {
     input.data('makeblank-dump-val', input.val());
     input.val('');
+    $value.closest('form').change();
   }
 }
 

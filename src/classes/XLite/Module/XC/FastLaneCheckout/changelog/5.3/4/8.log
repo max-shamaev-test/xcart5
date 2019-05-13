@@ -1,0 +1,5 @@
+Version 5.3.4.8
+
+Improvements (1)
+2019-01-25 - [Change] The button Place order was not activated after all the required fields have been completed in Fast Lane Checkout. Fixed. #BUG-6740 https://bt.x-cart.com/view.php?id=50007 (Kirill Stadler) #Coupons #FastLaneCheckout
+

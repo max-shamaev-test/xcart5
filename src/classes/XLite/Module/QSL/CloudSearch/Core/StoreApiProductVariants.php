@@ -9,8 +9,10 @@
 namespace XLite\Module\QSL\CloudSearch\Core;
 
 use XLite\Model\Attribute;
-use XLite\Module\XC\ProductVariants\Model\AttributeValue\AttributeValueSelect;
+use XLite\Model\AttributeValue\AttributeValueCheckbox;
 use XLite\Model\Product;
+use XLite\Module\QSL\CloudSearch\Main;
+use XLite\Module\XC\ProductVariants\Model\AttributeValue\AttributeValueSelect;
 use XLite\Module\XC\ProductVariants\Model\ProductVariant;
 
 /**
@@ -20,6 +22,8 @@ use XLite\Module\XC\ProductVariants\Model\ProductVariant;
  */
 abstract class StoreApiProductVariants extends \XLite\Module\QSL\CloudSearch\Core\StoreApi implements \XLite\Base\IDecorator
 {
+    protected $attributeCache = [];
+
     /**
      * Get product variants data.
      *
@@ -32,6 +36,8 @@ abstract class StoreApiProductVariants extends \XLite\Module\QSL\CloudSearch\Cor
     {
         $variants = [];
 
+        $activeLanguages = $this->getActiveLanguages();
+
         if ($product->getVariants()->count() > 0) {
             $variantAttrIds = array_map(function ($v) {
                 return $v->getAttribute()->getId();
@@ -43,26 +49,48 @@ abstract class StoreApiProductVariants extends \XLite\Module\QSL\CloudSearch\Cor
 
             /** @var ProductVariant $variant */
             foreach ($product->getVariants() as $variant) {
-                if ($variant->isOutOfStock()) {
+                if ($variant->isOutOfStock() && !Main::isAdminSearchEnabled()) {
                     continue;
                 }
 
                 $variantData = [
-                    'id'         => $variant->getId(),
-                    'price'      => $variant->getDisplayPrice(),
-                    'attributes' => [],
+                    'id'           => $variant->getId(),
+                    'price'        => $variant->getDisplayPrice(),
+                    'attributes'   => [],
+                    'stock_status' => $this->getVariantStockStatus($product, $variant),
                 ];
 
-                /** @var AttributeValueSelect $value */
                 foreach ($variant->getValues() as $value) {
-                    /** @var Attribute $attribute */
-                    $attribute = $value->getAttribute();
+                    $attrValues = [];
 
-                    $variantData['attributes'][] = [
-                        'id'     => $attribute->getId(),
-                        'name'   => htmlspecialchars_decode($attribute->getName()),
-                        'values' => [(string) $value->asString()],
-                    ];
+                    if ($value instanceof AttributeValueSelect) {
+                        $valueTranslations = [];
+                        foreach ($value->getAttributeOption()->getTranslations() as $t) {
+                            if (isset($valueTranslations[$t->getCode()])) {
+                                continue;
+                            }
+
+                            $valueTranslations[$t->getCode()] = $t->getName();
+                        }
+
+                        foreach ($activeLanguages as $lang) {
+                            $attrValues["values_$lang"] = [$this->getFieldTranslation($valueTranslations, $lang)];
+                        }
+
+                    } else if ($value instanceof AttributeValueCheckbox) {
+                        foreach ($activeLanguages as $lang) {
+                            $attrValues["values_$lang"] = [
+                                (string)static::t($value->getValue() ? 'Yes' : 'No', [], $lang),
+                            ];
+                        }
+
+                    } else {
+                        continue;
+                    }
+
+                    $attrData = $this->getAttributeData($value->getAttribute()->getId(), $attributes);
+
+                    $variantData['attributes'][] = array_merge($attrData, $attrValues);
                 }
 
                 $variantData['attributes'] = array_merge($variantData['attributes'], $commonAttrs);
@@ -81,6 +109,27 @@ abstract class StoreApiProductVariants extends \XLite\Module\QSL\CloudSearch\Cor
         }
 
         return $variants;
+    }
+
+    /**
+     * Get product variant stock status
+     *
+     * @param Product        $product
+     * @param ProductVariant $variant
+     *
+     * @return string
+     */
+    protected function getVariantStockStatus(Product $product, ProductVariant $variant)
+    {
+        if (!$product->getInventoryEnabled()) {
+            return 'in';
+        }
+
+        if ($variant->getPublicAmount() === 0) {
+            return 'out';
+        }
+
+        return $variant->getPublicAmount() < $product->getLowLimitAmount() ? 'low' : 'in';
     }
 
     /**
@@ -115,5 +164,27 @@ abstract class StoreApiProductVariants extends \XLite\Module\QSL\CloudSearch\Cor
         }
 
         return $skus;
+    }
+
+    /**
+     * Find attribute by id in the $attributes array
+     *
+     * @param $id
+     * @param $attributes
+     *
+     * @return array
+     */
+    protected function getAttributeData($id, $attributes)
+    {
+        if (!isset($this->attributeCache[$id])) {
+            foreach ($attributes as $attribute) {
+                if ($id === $attribute['id']) {
+                    $this->attributeCache[$id] = $attribute;
+                    break;
+                }
+            }
+        }
+
+        return $this->attributeCache[$id];
     }
 }

@@ -160,6 +160,7 @@ class Generator extends \XLite\Logic\AGenerator
             'XLite\Logic\Export\Step\AttributeValues\AttributeValueCheckbox',
             'XLite\Logic\Export\Step\AttributeValues\AttributeValueSelect',
             'XLite\Logic\Export\Step\AttributeValues\AttributeValueText',
+            'XLite\Logic\Export\Step\AttributeValues\AttributeValueHidden',
             'XLite\Logic\Export\Step\Users',
             'XLite\Logic\Export\Step\Orders',
         );

@@ -31,6 +31,9 @@ class Product extends ABulkEdit
             'product_shipping_info'        => [
                 'position' => 400,
             ],
+            'product_hidden_attributes'    => [
+                'position' => 500,
+            ],
             // 'product_global_attributes'    => [
             //     'position' => 500,
             // ],

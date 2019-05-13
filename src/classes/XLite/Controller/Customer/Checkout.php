@@ -349,6 +349,22 @@ class Checkout extends \XLite\Controller\Customer\Cart
     }
 
     /**
+     * Assign additional data to cart during doPayment process
+     *
+     * @param $cart
+     */
+    protected function assignAdditionalDataToCart(\XLite\Model\Order $cart)
+    {
+        if (isset(\XLite\Core\Request::getInstance()->notes)) {
+            $cart->setNotes(\XLite\Core\Request::getInstance()->notes);
+        }
+
+        if ($cart->hasCartStatus()) {
+            $cart->setDate(\XLite\Core\Converter::time());
+        }
+    }
+
+    /**
      * Do payment
      * :TODO: to revise
      * :FIXME: decompose
@@ -360,13 +376,7 @@ class Checkout extends \XLite\Controller\Customer\Cart
         $this->setHardRedirect();
         $cart = $this->getCart();
 
-        if (isset(\XLite\Core\Request::getInstance()->notes)) {
-            $cart->setNotes(\XLite\Core\Request::getInstance()->notes);
-        }
-
-        if ($cart->hasCartStatus()) {
-            $cart->setDate(\XLite\Core\Converter::time());
-        }
+        $this->assignAdditionalDataToCart($cart);
 
         // Get first (and only) payment transaction
         $transaction = $cart->getFirstOpenPaymentTransaction();

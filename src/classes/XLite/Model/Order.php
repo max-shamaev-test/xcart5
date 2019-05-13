@@ -978,6 +978,30 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     }
 
     /**
+     * Get items list fingerprint by amount and key
+     *
+     * @return string
+     */
+    public function getItemsAmountKeyFingerprint()
+    {
+        $result = false;
+
+        if (!$this->isEmpty()) {
+            $items = array();
+            foreach ($this->getItems() as $item) {
+                $items[] = array(
+                    $item->getKey(),
+                    $item->getAmount()
+                );
+            }
+
+            $result = md5(serialize($items));
+        }
+
+        return $result;
+    }
+
+    /**
      * Get items list fingerprint
      *
      * @return string

@@ -52,3 +52,7 @@
 {% else %}
   {% include 'modules/CDev/XPaymentsConnector/order/transactions/links.twig' %}
 {% endif %}
+
+{% if this.entity.transaction.order.hasRelations() %}
+  {% include 'modules/CDev/XPaymentsConnector/order/transactions/related.twig' %}
+{% endif %}

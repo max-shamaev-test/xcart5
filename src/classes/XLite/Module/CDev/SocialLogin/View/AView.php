@@ -39,6 +39,7 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
         $list = parent::getCSSFiles();
 
         if (!\XLite::isAdminZone()) {
+            $list[] = 'modules/CDev/SocialLogin/common.css';
             $list[] = 'modules/CDev/SocialLogin/style.css';
         }
 

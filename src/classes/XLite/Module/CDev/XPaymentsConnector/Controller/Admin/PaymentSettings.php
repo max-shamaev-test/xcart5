@@ -27,50 +27,40 @@ class PaymentSettings extends \XLite\Controller\Admin\PaymentSettings implements
 
         if (
             $method
-            && 'Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPaymentsAllowed' == $method->getClass()
+            && 'Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPayments' == $method->getClass()
+            && true == $method->getFromMarketplace()
         ) {
 
             $this->setReturnURL($this->buildURL(
                 'xpc', 
                 '', 
-                array(
+                [
                     'page' => \XLite\Module\CDev\XPaymentsConnector\Core\Settings::PAGE_WELCOME,
                     'method_id' => $id
-                )
+                ]
             ));
 
         } else {
 
             parent::doActionAdd();
 
-            $classes = array(
+            $classes = [
                 'Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPayments',
                 'Module\CDev\XPaymentsConnector\Model\Payment\Processor\SavedCard',
-            );
+            ];
 
             if (
                 $method 
-                && in_array($method->getClass(), $classes)) 
+                && in_array($method->getClass(), $classes)
+                && false == $method->getFromMarketplace()
+            )
             {
-                $this->setReturnURL($this->buildURL('payment_settings'));
+                $this->setReturnURL($this->buildURL(
+                    'xpc',
+                    '',
+                    ['section' => 'payment_methods']
+                ));
             }
         }
-    }
-
-    /**
-     * Handle request 
-     *
-     * @return void
-     */
-    public function handleRequest()
-    {
-        if (
-            \XLite\Core\Request::getInstance()->action != 'add'
-            && \XLite\Module\CDev\XPaymentsConnector\Core\Settings::getInstance()->checkUpdateAllowedModules()
-        ) {
-            \XLite\Module\CDev\XPaymentsConnector\Core\Settings::getInstance()->importAllowedModules();
-        }
-
-        parent::handleRequest();
     }
 }

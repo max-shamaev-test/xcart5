@@ -224,28 +224,39 @@ class Xpc extends \XLite\Controller\Admin\Module
 
         $saveCardsMethodInStore = $this->getPaymentMethods('SavedCard');
 
-        if (
-            !$saveCardsMethodInStore
-            && $saveCardsMethodSubmitted
-        ) {
+        if ($saveCardsMethodSubmitted) {
 
-            // Add Saved credit card payment method if at least one of X-Payments payment methods saves cards   
-            $pm = new \XLite\Model\Payment\Method;
-            \XLite\Core\Database::getEM()->persist($pm);
-            $pm->setClass('Module\CDev\XPaymentsConnector\Model\Payment\Processor\SavedCard');
-            $pm->setServiceName('SavedCard');
-            $pm->setName('Use a saved credit card');
-            $pm->setType(\XLite\Model\Payment\Method::TYPE_CC_GATEWAY);
-            $pm->setAdded(true);
-            $pm->setEnabled(true);
+            $savedCardPM = \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')
+                ->findOneBy(['service_name' => 'SavedCard']);
+
+            if ($savedCardPM) {
+                // Make Saved credit card payment method the real one if at least one of X-Payments payment methods saves cards 
+                $savedCardPM->setFromMarketplace(false);
+                $savedCardPM->setAdded(true);
+                $savedCardPM->setEnabled(true);
+                $savedCardPM->setModuleEnabled(true);
+
+            } else {
+                // Add Saved credit card payment method if no one Saved Card PM is stored in the DB
+                $pm = new \XLite\Model\Payment\Method;
+                \XLite\Core\Database::getEM()->persist($pm);
+                $pm->setClass('Module\CDev\XPaymentsConnector\Model\Payment\Processor\SavedCard');
+                $pm->setServiceName('SavedCard');
+                $pm->setName('Use a saved credit card');
+                $pm->setType(\XLite\Model\Payment\Method::TYPE_CC_GATEWAY);
+                $pm->setAdded(true);
+                $pm->setEnabled(true);
+            }
 
         } elseif (
             $saveCardsMethodInStore
             && !$saveCardsMethodSubmitted
         ) {
-            // Remove Seved credit card payment method if all X-Payments payment methods do not save cards
+            // Make Saved credit card payment method the fake one if all X-Payments payment methods do not save cards
             foreach ($saveCardsMethodInStore as $pm) {
-                \XLite\Core\Database::getEM()->remove($pm);
+                $pm->setAdded(false);
+                $pm->setEnabled(false);
+                $pm->setFromMarketplace(true);
             }
         }
 

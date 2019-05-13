@@ -13,20 +13,5 @@ namespace XLite\Module\XC\MultiCurrency\Core\RateProvider;
  */
 class CurrencyConverterAPI extends FreeCurrencyConverterAPI
 {
-    protected $url = 'https://www.currencyconverterapi.com/api/v5/';
-
-    protected function getApiKey()
-    {
-        return \XLite\Core\Config::getInstance()
-            ->XC
-            ->MultiCurrency
-            ->currency_converter_api_key;
-    }
-
-    protected function sendRequest(array $data)
-    {
-        return parent::sendRequest($data + [
-                'apiKey' => $this->getApiKey(),
-            ]);
-    }
+    protected $url = 'https://api.currencyconverterapi.com/api/v6/';
 }

@@ -84,7 +84,12 @@ CheckoutView.prototype.messageListener = function (event)
 
     if (XPC_IFRAME_TOP_MESSAGE == type) {
 
-      core.trigger('message', { 'message': message, 'type': MESSAGE_ERROR });
+      setTimeout(
+        function () {
+          core.showError(message);
+        },
+        500
+      );
 
     } else {
 
@@ -319,7 +324,7 @@ function reloadXpcIframe()
   assignWaitOverlay(jQuery('#xpc'));
 
   clearTimeout(xpcTimeoutTimer);
-  xpcTimeoutTimer = setTimeout(xpcLoadingTimeout, 15000);
+  xpcTimeoutTimer = setTimeout(xpcLoadingTimeout, 65000);
 
   jQuery('#xpc').css('height', 'initial');
   iframe.attr('src', src);

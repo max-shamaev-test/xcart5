@@ -348,6 +348,15 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     protected $attributeValueS;
 
     /**
+     * Attribute value (hidden)
+     *
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @OneToMany (targetEntity="XLite\Model\AttributeValue\AttributeValueHidden", mappedBy="product", cascade={"all"})
+     */
+    protected $attributeValueH;
+
+    /**
      * Show product attributes in a separate tab
      *
      * @var boolean
@@ -1786,7 +1795,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     public static function generateMetaDescription($description)
     {
-        return strip_tags($description);
+        return static::postprocessMetaDescription($description);
     }
 
     /**
@@ -2510,6 +2519,28 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     public function getAttributeValueS()
     {
         return $this->attributeValueS;
+    }
+
+    /**
+     * Add attributeValueH
+     *
+     * @param \XLite\Model\AttributeValue\AttributeValueHidden $attributeValueH
+     * @return Product
+     */
+    public function addAttributeValueH(\XLite\Model\AttributeValue\AttributeValueHidden $attributeValueH)
+    {
+        $this->attributeValueH[] = $attributeValueH;
+        return $this;
+    }
+
+    /**
+     * Get attributeValueH
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getAttributeValueH()
+    {
+        return $this->attributeValueH;
     }
 
     /**

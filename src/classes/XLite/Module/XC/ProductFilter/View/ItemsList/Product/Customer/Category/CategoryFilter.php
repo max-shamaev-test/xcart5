@@ -218,6 +218,7 @@ class CategoryFilter extends \XLite\View\ItemsList\Product\Customer\Category\ACa
         $list = parent::getCacheParameters();
 
         $list[] = md5(serialize($this->getParam(self::PARAM_FILTER)));
+        $list[] = $this->isAJAX();
 
         return $list;
     }

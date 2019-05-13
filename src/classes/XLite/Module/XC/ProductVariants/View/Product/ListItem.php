@@ -10,7 +10,6 @@
 namespace XLite\Module\XC\ProductVariants\View\Product;
 
 use XLite\Model\Cart;
-use XLite\Module\XC\ProductVariants\Model\Product\ProductVariantsStockAvailabilityPolicy;
 
 /**
  * Product list item widget
@@ -33,5 +32,15 @@ class ListItem extends \XLite\View\Product\ListItem implements \XLite\Base\IDeco
         $list[] = $policy->getFirstAvailableVariantId($cart);
 
         return $list;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getProductSku()
+    {
+        $product = $this->getProduct();
+
+        return $product->hasVariants() ? $product->getDefaultVariant()->getDisplaySku() : parent::getProductSku();
     }
 }

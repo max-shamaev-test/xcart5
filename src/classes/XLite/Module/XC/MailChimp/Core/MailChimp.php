@@ -64,10 +64,10 @@ class MailChimp extends \XLite\Base\Singleton
         $list = \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\MailChimpList')->find($listId);
 
         return sprintf('%s (%s)',
-            \XLite\Core\Config::getInstance()->Company->company_name,
-            $list
-                ? $list->getName()
-                : 'unknown'
+                       \XLite\Core\Config::getInstance()->Company->company_name,
+                       $list
+                           ? $list->getName()
+                           : 'unknown'
         );
     }
 
@@ -158,7 +158,7 @@ class MailChimp extends \XLite\Base\Singleton
      * Subscribe/unsubscribe profile based on the form input data
      *
      * @param \XLite\Module\XC\MailChimp\Model\Profile $profile Profile
-     * @param array|string         $data    Subscriptions data
+     * @param array|string $data Subscriptions data
      *
      * @return void
      *
@@ -439,7 +439,7 @@ class MailChimp extends \XLite\Base\Singleton
     /**
      * Subscribe email to MailChimp list
      *
-     * @param string $id    MailChimp list ID
+     * @param string $id MailChimp list ID
      * @param string $email E-mail
      *
      * @return array
@@ -467,7 +467,7 @@ class MailChimp extends \XLite\Base\Singleton
     /**
      * Unsubscribe email to MailChimp list
      *
-     * @param string $id    MailChimp list ID
+     * @param string $id MailChimp list ID
      * @param string $email E-mail
      *
      * @return array
@@ -527,16 +527,16 @@ class MailChimp extends \XLite\Base\Singleton
                 'method' => "PUT",
                 'path'   => "lists/{$id}/members/{$hash}",
                 'body'   => json_encode([
-                    'email_type'    => 'html',
-                    'email_address' => $subscribeData['email'],
-                    'status'        => \XLite\Core\Config::getInstance()->XC->MailChimp->doubleOptinDisabled
-                        ? 'subscribed'
-                        : 'pending',
-                    'merge_fields'  => [
-                        self::MC_FIRST_NAME => $subscribeData['firstName'],
-                        self::MC_LAST_NAME  => $subscribeData['lastName'],
-                    ],
-                ]),
+                                            'email_type'    => 'html',
+                                            'email_address' => $subscribeData['email'],
+                                            'status'        => \XLite\Core\Config::getInstance()->XC->MailChimp->doubleOptinDisabled
+                                                ? 'subscribed'
+                                                : 'pending',
+                                            'merge_fields'  => [
+                                                self::MC_FIRST_NAME => $subscribeData['firstName'],
+                                                self::MC_LAST_NAME  => $subscribeData['lastName'],
+                                            ],
+                                        ]),
             ];
         }
 
@@ -579,15 +579,17 @@ class MailChimp extends \XLite\Base\Singleton
         $stores = [];
 
         if ($defaultStore = Main::getStoreForDefaultAutomation()) {
-            $stores[] = $defaultStore->getId();
+            $stores[$defaultStore->getId()] = $defaultStore->getId();
         }
 
-        $providedStoreId = static::getInstance()->getStoreIdByCampaign(
-            \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
-        );
+        if (isset(\XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID})) {
+            $providedStoreId = static::getInstance()->getStoreIdByCampaign(
+                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
+            );
 
-        if ($providedStoreId) {
-            $stores[] = $providedStoreId;
+            if ($providedStoreId) {
+                $stores[$providedStoreId] = $providedStoreId;
+            }
         }
 
         $ecCore = MailChimpECommerce::getInstance();
@@ -608,7 +610,7 @@ class MailChimp extends \XLite\Base\Singleton
             );
 
             // Create cart if not exists
-            if (!$ecCore->getCart($storeId, $cart->getOrderId())) {
+            if (\XLite\Model\Cart::isMcNewCart() || !$ecCore->getCart($storeId, $cart->getOrderId())) {
                 $result[] = $this->execCartRelatedRequest(
                     "ecommerce/stores/{$storeId}/carts",
                     $data,
@@ -701,14 +703,16 @@ class MailChimp extends \XLite\Base\Singleton
             ];
         }
 
-        $providedStoreId = static::getInstance()->getStoreIdByCampaign(
-            \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
-        );
+        if (isset(\XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID})) {
+            $providedStoreId = static::getInstance()->getStoreIdByCampaign(
+                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
+            );
 
-        if ($providedStoreId) {
-            $stores[$providedStoreId] = [
-                'id' => $providedStoreId,
-            ];
+            if ($providedStoreId) {
+                $stores[$providedStoreId] = [
+                    'id' => $providedStoreId,
+                ];
+            }
         }
 
         $result = [];
@@ -750,20 +754,22 @@ class MailChimp extends \XLite\Base\Singleton
             ];
         }
 
-        $providedStoreId = static::getInstance()->getStoreIdByCampaign(
-            \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
-        );
-
-        if ($providedStoreId) {
-            $providedStoreName = static::getInstance()->getStoreName(
-                static::getInstance()->getListIdByCampaignId(
-                    \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
-                )
+        if (isset(\XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID})) {
+            $providedStoreId = static::getInstance()->getStoreIdByCampaign(
+                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
             );
-            $stores[$providedStoreId] = [
-                'id'   => $providedStoreId,
-                'name' => $providedStoreName,
-            ];
+
+            if ($providedStoreId) {
+                $providedStoreName = static::getInstance()->getStoreName(
+                    static::getInstance()->getListIdByCampaignId(
+                        \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
+                    )
+                );
+                $stores[$providedStoreId] = [
+                    'id' => $providedStoreId,
+                    'name' => $providedStoreName,
+                ];
+            }
         }
 
         $result = [];
@@ -849,11 +855,11 @@ class MailChimp extends \XLite\Base\Singleton
     }
 
     /**
-     * @param string                   $url
-     * @param array                    $data
+     * @param string $url
+     * @param array $data
      * @param \XLite\Model\OrderItem[] $lines
-     * @param string                   $storeId
-     * @param bool                     $update
+     * @param string $storeId
+     * @param bool $update
      *
      * @return array|bool|false
      */
@@ -862,9 +868,11 @@ class MailChimp extends \XLite\Base\Singleton
         $ecCore = MailChimpECommerce::getInstance();
 
         // Create products
+        $products = [];
         foreach ($lines as $item) {
-            $ecCore->createProductFast($storeId, $item->getObject());
+            $products[] = $item->getObject();
         }
+        $ecCore->createProductsBatch($storeId, $products);
 
 
         $this->mailChimpAPI->setActionMessageToLog($update ? 'Cart updated' : 'Cart created');
@@ -878,11 +886,11 @@ class MailChimp extends \XLite\Base\Singleton
     }
 
     /**
-     * @param string                   $url
-     * @param array                    $data
+     * @param string $url
+     * @param array $data
      * @param \XLite\Model\OrderItem[] $lines
-     * @param array                    $storeData
-     * @param bool                     $update
+     * @param array $storeData
+     * @param bool $update
      *
      * @return array|bool|false
      */
@@ -964,9 +972,9 @@ class MailChimp extends \XLite\Base\Singleton
     /**
      * Add email to list segment
      *
-     * @param string $listId    MailChimp list ID
+     * @param string $listId MailChimp list ID
      * @param string $segmentId Segment ID
-     * @param array  $emails    Emails
+     * @param array $emails Emails
      *
      * @return array
      */
@@ -1025,8 +1033,8 @@ class MailChimp extends \XLite\Base\Singleton
     /**
      * Get group names
      *
-     * @param string $listId    MailChimp list ID
-     * @param string $groupId   MailChimp group ID
+     * @param string $listId MailChimp list ID
+     * @param string $groupId MailChimp group ID
      *
      * @return array
      */

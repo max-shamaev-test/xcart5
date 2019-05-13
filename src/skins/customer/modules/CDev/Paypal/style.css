@@ -121,10 +121,6 @@ button.pp-ec-button
   width: 160px;
 }
 
-ul.account-links li.social-login {
-  margin-left: 0;
-}
-
 .pp-express-checkout-button > div {
   margin: auto;
 }

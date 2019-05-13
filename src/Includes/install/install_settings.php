@@ -15,7 +15,7 @@ if (!defined('XLITE_INSTALL_MODE')) {
 }
 
 // Current X-Cart version
-define('LC_VERSION', '5.3.5.6');
+define('LC_VERSION', '5.3.6');
 
 // Minimum PHP version supported
 define('LC_PHP_VERSION_MIN', '5.4.0');
@@ -143,7 +143,8 @@ $lcSettings = array(
             'MailChimp',
             'Concierge',
             'Onboarding',
-            'NotFinishedOrders'
+            'NotFinishedOrders',
+            'ProductFilter',
         ),
         'QSL' => array(
             'CloudSearch',
@@ -171,8 +172,12 @@ if (XLITE_EDITION_LNG === 'ru') {
                 'Robokassa',
                 'Qiwi',
                 'Webmoney',
-                'YandexMoney'
-            )
+                'YandexMoney',
+                'OneCIntegration'
+            ),
+            'QSL' => [
+                'Sbrf'
+            ]
         )
     );
 } elseif (XLITE_EDITION_LNG === 'zh') {

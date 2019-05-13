@@ -65,6 +65,7 @@ CommonForm.elementControllers.push(
   {
     pattern: '.line .input-field-wrapper.switcher.switcher-read-write.input-checkbox-addtonew',
     handler: function () {
+      var $this = this;
       var input  = jQuery(':checkbox', this);
       var widget = jQuery('.widget', this);
       var fa     = jQuery(jQuery('.fa', this), '.create-line');
@@ -74,16 +75,36 @@ CommonForm.elementControllers.push(
       fa.removeClass('fa-power-off')
         .addClass(input.prop('checked') ? widgetOn : widgetOff);
 
+      var changeIcon = function(widgetWrapper) {
+          var _input  = jQuery(':checkbox', widgetWrapper);
+          var _fa     = jQuery(jQuery('.fa', widgetWrapper), '.create-line');
+
+          _fa.removeClass(widgetOn + ' ' + widgetOff);
+
+          if (!_input.prop('checked')) {
+              _fa.addClass(widgetOff);
+          } else {
+              _fa.addClass(widgetOn);
+          }
+      };
+
       widget.click(
         function () {
           if (!input.prop('disabled')) {
-            fa.removeClass(widgetOn + ' ' + widgetOff);
+              var switchers = jQuery(this).closest('.type-H').find('.line .input-field-wrapper.switcher.switcher-read-write.input-checkbox-addtonew.enabled');
 
-            if (!input.prop('checked')) {
-              fa.addClass(widgetOff);
-            } else {
-              fa.addClass(widgetOn);
-            }
+              if (!input.prop('disabled')) {
+                  jQuery.each(switchers, function (index, elem) {
+                      var switcherInput = jQuery(elem).find(':checkbox');
+                      if (input.attr('name') !== switcherInput.attr('name')) {
+                          switcherInput.click();
+                          switcherInput.change();
+                          changeIcon(elem);
+                      }
+                  });
+              }
+
+              changeIcon($this);
           }
         }
       );

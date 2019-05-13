@@ -121,11 +121,11 @@ abstract class Image extends \XLite\Model\Repo\Base\Storage
      *
      * @return \Doctrine\ORM\Internal\Hydration\IterableResult
      */
-    public function getResizeIterator($position = 0)
+    public function getResizeIterator($position = 0, $allItems = false)
     {
         return \XLite\Model\Repo\Base\Image::$resizeOnlyMarked
             ? $this->getResizeMarkedIterator($position)
-            : $this->getExportIterator($position);
+            : $this->getExportIterator($position, $allItems ? $this->countForExport() : null);
     }
 
     /**

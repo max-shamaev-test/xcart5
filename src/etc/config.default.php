@@ -392,6 +392,15 @@ encodings_list[] = 'BIG5'
 encodings_list[] = 'WINDOWS-1254'
 encodings_list[] = 'WINDOWS-874'
 
+[google_product_feed]
+; This values will be added into google shopping group selector 
+;additional_options[] = 'condition'
+;additional_options[] = 'adult'
+;additional_options[] = 'tax_category'
+;additional_options[] = 'shipping_label'
+;additional_options[] = 'multipack'
+;additional_options[] = 'is_bundle'
+
 [queue]
 ; Enable to consume jobs via Cron or Demon(target=consumer, action=consumeAll)
 backgroundJobsSchedulingEnabled = false

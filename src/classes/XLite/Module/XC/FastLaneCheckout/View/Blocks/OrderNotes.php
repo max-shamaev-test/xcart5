@@ -64,4 +64,16 @@ class OrderNotes extends \XLite\View\AView
 
         return $list;
     }
+
+    /**
+     * Get order notes
+     *
+     * @return string
+     */
+    protected function getNotes()
+    {
+        $order = $this->getCart();
+
+        return $order ? $order->getNotes() : '';
+    }
 }

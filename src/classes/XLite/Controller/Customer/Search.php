@@ -94,8 +94,8 @@ class Search extends \XLite\Controller\Customer\ACustomer
     protected function doNoAction()
     {
         Session::getInstance()->{$this->getSessionCellName()} = array_merge(
-            $this->getSessionSearchConditions(),
-            $this->prepareSearchData()
+            $this->prepareSearchData(),
+            $this->getSessionSearchConditions()
         );
 
         parent::doNoAction();

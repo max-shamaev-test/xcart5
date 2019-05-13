@@ -32,6 +32,7 @@ class Widget extends \XLite\View\AView
     public function getCSSFiles()
     {
         $list   = parent::getCSSFiles();
+        $list[] = 'modules/Amazon/PayWithAmazon/login/common.css';
         $list[] = 'modules/Amazon/PayWithAmazon/login/style.css';
 
         return $list;

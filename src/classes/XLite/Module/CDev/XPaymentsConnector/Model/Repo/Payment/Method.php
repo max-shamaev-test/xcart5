@@ -17,6 +17,7 @@ class Method extends \XLite\Model\Repo\Payment\Method implements \XLite\Base\IDe
      * Names of fields that are used in search
      */
     const P_CLASS = 'class';
+    const P_FROM_MARKETPLACE = 'fromMarketplace';
 
     /**
      * Prepare certain search condition for enabled flag
@@ -31,5 +32,20 @@ class Method extends \XLite\Model\Repo\Payment\Method implements \XLite\Base\IDe
     {
         $queryBuilder->andWhere($this->getMainAlias($queryBuilder) . '.class = :class_value')
             ->setParameter('class_value', $value);
+    }
+
+    /**
+     * Prepare certain search condition for enabled flag
+     *
+     * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
+     * @param boolean                    $value        Condition data
+     * @param boolean                    $countOnly    "Count only" flag
+     *
+     * @return void
+     */
+    protected function prepareCndFromMarketplace(\Doctrine\ORM\QueryBuilder $queryBuilder, $value, $countOnly)
+    {
+        $queryBuilder->andWhere($this->getMainAlias($queryBuilder) . '.fromMarketplace = :fromMarketplaceValue')
+            ->setParameter('fromMarketplaceValue', $value);
     }
 }

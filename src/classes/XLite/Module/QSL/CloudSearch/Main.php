@@ -8,13 +8,14 @@
 
 namespace XLite\Module\QSL\CloudSearch;
 
+use Exception;
 use Includes\Utils\URLManager;
 use XLite\Core\Config;
 use XLite\Module\QSL\CloudSearch\Core\RegistrationScheduler;
 use XLite\Module\QSL\CloudSearch\Core\ServiceApiClient;
 
 /**
- * Featured Products module manager
+ * CloudSearch & CloudFilters module
  */
 abstract class Main extends \XLite\Module\AModule
 {
@@ -65,7 +66,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '3';
+        return '18';
     }
 
     /**
@@ -85,7 +86,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getDescription()
     {
-        return 'The module provides integration with both CloudSearch and CloudFilters services. CloudSearch integrates with X-Cart 5 to enable dynamic, real-time product search with highly relevant search results. CloudFilters works on top of CloudSearch to enable layered navigation and faceted search for X-Cart stores. Power up your store with enterprise-class search and navigation technologies for better conversion!';
+        return 'CloudSearch is a powerful search & navigation engine for X-Cart 5. It enables smart & fast product search and efficient filtering experience. Power up your store with top-notch search & filtering for better conversion rates!';
     }
 
     /**
@@ -155,7 +156,47 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function isCloudFiltersEnabled()
     {
-        return (bool)Config::getInstance()->QSL->CloudSearch->isCloudFiltersEnabled;
+        return in_array('cloudFilters', self::getPlanFeatures())
+            && (bool)Config::getInstance()->QSL->CloudSearch->isCloudFiltersEnabled;
+    }
+
+    /**
+     * Check if realtime indexing is enabled
+     *
+     * @return boolean
+     */
+    public static function isRealtimeIndexingEnabled()
+    {
+        try {
+            return in_array('realtimeIndexing', self::getPlanFeatures());
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Check if admin search is enabled
+     *
+     * @return boolean
+     */
+    public static function isAdminSearchEnabled()
+    {
+        return in_array('adminSearch', self::getPlanFeatures())
+            && Config::getInstance()->QSL->CloudSearch->isAdminSearchEnabled;
+    }
+
+    /**
+     * Get plan features
+     *
+     * @return array
+     */
+    public static function getPlanFeatures()
+    {
+        $planFeatures = Config::getInstance()->QSL->CloudSearch->planFeatures;
+
+        $planFeatures = !empty($planFeatures) ? json_decode($planFeatures, true) : [];
+
+        return $planFeatures ?: [];
     }
 
     /**

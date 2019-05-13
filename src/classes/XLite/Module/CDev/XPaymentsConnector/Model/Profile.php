@@ -137,11 +137,6 @@ class Profile extends \XLite\Model\Profile implements \XLite\Base\IDecorator
             }
         }
 
-        if (empty($result)) {
-            $this->setDefaultCardId(0);
-            \XLite\Core\Database::getEM()->flush();
-        }
-
         return $result;
     }
 

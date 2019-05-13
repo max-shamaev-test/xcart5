@@ -2,10 +2,12 @@
  # Switcher checkbox
  #}
 
-<span class="input-field-wrapper {{ this.getWrapperClass() }}">
+<span class="input-field-wrapper {{ this.getWrapperClass() }}{% if not this.isEditable() %} not-editable{% endif %}">
   {{ this.displayCommentedData(this.getCommentedData()) }}
   <input type="hidden" name="{{ this.getName() }}" value="" />
-  <input{{ this.getAttributesCode()|raw }} />
+  {% if this.isEditable() %}
+    <input{{ this.getAttributesCode()|raw }} />
+  {% endif %}
   <div class="widget" title="{{ t(this.getWidgetTitle()) }}" data-enabled-label="{{ t(this.getEnabledLabel()) }}" data-disabled-label="{{ t(this.getDisabledLabel()) }}">
     <i class="fa on">
       {{ this.getSVGImage('modules/XC/ProductFilter/form_field/checkbox/switcher/product_filter_on.svg')|raw }}

@@ -73,8 +73,7 @@ class CheckoutApp extends \XLite\View\AView implements ProviderInterface
         $cart = \XLite::getController()->getCart();
 
         return md5(serialize([
-            $cart->getItemsFingerprint(),
-            $cart->getUniqueIdentifier(),
+            $cart->getItemsAmountKeyFingerprint(),
             Session::getInstance()->getID()
         ]));
     }

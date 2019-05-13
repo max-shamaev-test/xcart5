@@ -208,4 +208,20 @@ class SavedCards extends \XLite\Controller\Customer\ACustomer
         $this->doRedirect();
     }
 
+    /**
+     * View customer's saved cards and set default card id as 0 if customer has no cards
+     *
+     * @return void
+     */
+    protected function doNoAction()
+    {
+        $profile = $this->getProfile();
+        $cards = $profile->getSavedCards();
+
+        if (empty($cards)) {
+            $profile->setDefaultCardId(0);
+            \XLite\Core\Database::getEM()->flush();
+        }
+    }
+
 }

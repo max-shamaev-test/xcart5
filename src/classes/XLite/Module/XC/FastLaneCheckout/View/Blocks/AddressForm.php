@@ -104,8 +104,7 @@ abstract class AddressForm extends \XLite\View\Checkout\AAddressBlock
 
         // Vue.js attributes
         $attrs['v-model'] = 'fields.' . $fieldName;
-        $attrs['debounce'] = '200';
-        $attrs['lazy'] = 'lazy';
+        $attrs['debounce'] = '1000';
         $attrs['data-shortname'] = $fieldName;
         $attrs['class'] = $attrs['class'] . ' show-valid-state';
 

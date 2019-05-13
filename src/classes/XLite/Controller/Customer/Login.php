@@ -380,8 +380,7 @@ class Login extends \XLite\Controller\Customer\ACustomer
     protected function addLoginFailedMessage($result)
     {
         if (in_array($result, array(\XLite\Core\Auth::RESULT_ACCESS_DENIED, \XLite\Core\Auth::RESULT_PASSWORD_NOT_EQUAL))) {
-            \XLite\Core\TopMessage::addError('Invalid login or password');
-            \XLite\Core\Event::invalidForm('login-form', static::t('Invalid login or password'));
+            \XLite\Core\Event::invalidForm('login-form', static::t('Invalid login or password. You can use forgot password form to create a new password.'));
         } elseif ($result == \XLite\Core\Auth::RESULT_LOGIN_IS_LOCKED) {
             \XLite\Core\TopMessage::addError('Login is locked out');
             \XLite\Core\Event::invalidForm('login-form', static::t('Login is locked out'));

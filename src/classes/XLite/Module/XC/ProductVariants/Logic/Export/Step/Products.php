@@ -199,7 +199,7 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
             $attribute = \XLite\Core\Database::getRepo('XLite\Model\Attribute')->find($column['attributeId']);
         }
 
-        return !empty($dataset['variant']) && $attribute->isVariable($dataset['model'])
+        return !empty($dataset['variant']) && null !== $dataset['variant']->getAttributeValue($attribute) && $attribute->isVariable($dataset['model'])
             ? $dataset['variant']->getAttributeValue($attribute)->asString()
             : ($i ? '' : parent::getAttributeColumnValue($dataset, $name, $i));
     }

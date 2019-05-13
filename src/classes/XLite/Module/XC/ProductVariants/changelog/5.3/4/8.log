@@ -1,0 +1,6 @@
+Version 5.3.4.8
+
+Fixes (2)
+2018-11-23 - [Bug] When switching from one variant to another, the image of the variant being viewed was not displayed if the product and its default variant did not have an image. Fixed. #BUG-6827 https://bt.x-cart.com/view.php?id=50168 (Vladimir Semyonov) #Core #ProductVariants #CrispWhiteSkin
+2018-11-13 - [Bug] A wrong error message ("Variant sku must be unique") was shown during product variant import. Fixed. #BUG-6618 https://bt.x-cart.com/view.php?id=49800 (Shevelov Alexander) #Core #ProductVariants
+

@@ -8,6 +8,7 @@
 
 namespace XLite\Module\QSL\CloudSearch\Core;
 
+use XLite\Core\Database;
 use XLite\Module\QSL\CloudSearch\Model\Repo\Product;
 
 
@@ -29,6 +30,15 @@ class SearchParametersMultiVendor extends \XLite\Module\QSL\CloudSearch\Core\Sea
 
         if ($this->cnd->{Product::P_VENDOR_ID}) {
             $data['conditions']['vendor'] = [$this->cnd->{Product::P_VENDOR_ID}];
+        }
+
+        if ($this->cnd->{Product::P_VENDOR}) {
+            $vendor = Database::getRepo('XLite\Model\Profile')
+                ->findVendorsByTerm($this->cnd->{Product::P_VENDOR}, 1);
+
+            if ($vendor) {
+                $data['conditions']['vendor'] = [$vendor[0]->getProfileId()];
+            }
         }
 
         return $data;

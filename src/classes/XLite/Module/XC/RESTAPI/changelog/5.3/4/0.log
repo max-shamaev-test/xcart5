@@ -1,0 +1,6 @@
+Version 5.3.4.0
+
+Fixes
+2017-09-04 - [Bug] Fixed PHP 5.4 compatibility errors/warnings. #BUG-5439 (Eugene Dementjev) #Core #AmazonS3Images #Egoods #Paypal #RESTAPI #PINCodes #PitneyBowes #CustomerAttachments #VendorMessages
+2017-08-24 - [Bug] The incorrect order of model parameters in the REST API query resulted in a fatal error. Fixed. #BUG-5425 (Michael Lipinski) #RESTAPI
+

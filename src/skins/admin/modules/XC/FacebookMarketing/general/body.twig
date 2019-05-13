@@ -1,0 +1,26 @@
+{##
+ # Facebook Marketing general page
+ #}
+
+{% if this.isProductFeedGenerationNotFinished() %}
+  {{ widget('XLite\\Module\\XC\\FacebookMarketing\\View\\ProductFeedGeneration\\Progress') }}
+{% else %}
+  <div class="facebook-marketing general">
+    {{ widget('\\XLite\\Module\\XC\\FacebookMarketing\\View\\GoogleFeedBanner') }}
+
+    {% if this.isProductFeedGenerated() %}
+      {{ widget('\\XLite\\Module\\XC\\FacebookMarketing\\View\\FormField\\Label\\Copy', label='Product Feed URL', value=this.getProductFeedUrl()) }}
+    {% endif %}
+    {% form '\\XLite\\Module\\XC\\FacebookMarketing\\View\\Form\\Settings' %}
+
+    {{ widget('\\XLite\\Module\\XC\\FacebookMarketing\\View\\FormField\\Select\\RenewalFrequency', fieldName='renewal_frequency', label='Frequency of Product Feed renewal', value=this.getRenewalFrequency()) }}
+
+    {{ widget('\\XLite\\View\\FormField\\Input\\Checkbox\\YesNo', fieldName='include_out_of_stock', label=t('Include out of stock products into feed'), value=this.isIncludeOutOfStock()) }}
+
+    {{ widget('\\XLite\\View\\FormField\\Input\\Text', fieldName='pixel_id', label='Facebook Pixel Id', value=this.getPixelId()) }}
+
+    {{ widget('\\XLite\\Module\\XC\\FacebookMarketing\\View\\StickyPanel\\Settings') }}
+
+    {% endform %}
+  </div>
+{% endif %}

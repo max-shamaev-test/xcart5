@@ -48,6 +48,9 @@ XLite\Model\LanguageLabel:
   - { name: 'Clear and disable inventory tracking for variants as well', translations: [{ code: en, label: 'Clear QTY and disable inventory tracking for variants as well' }] }
   - { name: 'Product variants inventory clear help', translations: [{ code: en, label: 'Inventory tracking can be enabled or disabled for each specific variant. To disable inventory tracking for a variant, ensure that the inventory tracking option for your store is turned off and clear any non-default value, if any, from the QTY field of the variant. The variant inventory will not be tracked as long as the variant OTY field remains blank. To start tracking the inventory of a variant even when the general inventory tracking option is disabled, simply specify the number of items of the variant you currently have on hand in the variant QTY field. <br><br> To disable inventory tracking for all the variants, simply enable this option; note that it will clear any existing QTY values for all the variants in your store.' }] }
   - { name: 'Variant sku must be unique', translations: [{ code: en, label: 'Variant sku must be unique' }] }
+  - { name: "Couldn't identify a variant based on ID X being imported", translations: [{ code: en, label: "Couldn't identify a variant based on ID {{variantId}} being imported; however, the variant was successfully identified based on the combination of attributes." }] }
+  - { name: 'variant ID X was replaced by ID Y generated automatically', translations: [{ code: en, label: 'To ensure the integrity of variant data, during the import process, variant ID {{oldVariantId}} was replaced by ID {{newVariantId}} generated automatically. If you expect to use the current import file in future, it is recommended that the variant ID specified in it be replaced with the new ID ({{newVariantId}}).' }] }
+
 
   - { name: 'id', translations: [{ code: en, label: 'id' }]}
 

@@ -63,7 +63,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
      */
     public static function getBuildVersion()
     {
-        return '7';
+        return '9';
     }
 
     /**

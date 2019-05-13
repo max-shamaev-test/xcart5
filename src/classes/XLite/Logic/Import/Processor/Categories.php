@@ -191,9 +191,11 @@ class Categories extends \XLite\Logic\Import\Processor\AProcessor
             if (!$model) {
                 $path = explode('>>>', $value['path']);
                 $lastElement = count($path) ? trim(array_pop($path)) : '';
+
+                $nameKey = isset($value['name']) ? 'name' : 'name_' . $this->importer->getLanguageCode();
                 if (
-                    !isset($value['name_' . $this->importer->getLanguageCode()])
-                    || trim($value['name_' . $this->importer->getLanguageCode()]) !== $lastElement
+                    !isset($value[$nameKey])
+                    || trim($value[$nameKey]) !== $lastElement
                 ) {
                     $this->addWarning('CATEGORY-PATH-NAME-FMT', ['column' => $column]);
                 }

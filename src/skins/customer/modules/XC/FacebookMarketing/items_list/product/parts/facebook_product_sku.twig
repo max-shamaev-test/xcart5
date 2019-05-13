@@ -1,0 +1,7 @@
+{##
+ # Product sku
+ #
+ # @ListChild (list="itemsList.product.list.customer.info", weight="1100")
+ # @ListChild (list="itemsList.product.table.customer.add2cart", weight="1000")
+ #}
+<input type="hidden" name="facebook_pixel_sku" class="facebook-pixel-sku-{{ this.getProduct().getId() }}" value="{{ this.getFacebookPixelProductSku() }}" />

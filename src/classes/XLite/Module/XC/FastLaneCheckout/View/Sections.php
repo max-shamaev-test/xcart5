@@ -22,6 +22,7 @@ class Sections extends \XLite\View\Tabs\AJsTabs
             array(
                 FastLaneCheckout\Main::getSkinDir() . 'sections/section_change_button.js',
                 FastLaneCheckout\Main::getSkinDir() . 'sections/details/order_total.js',
+                FastLaneCheckout\Main::getSkinDir() . 'sections/details/included_modifiers.js',
                 FastLaneCheckout\Main::getSkinDir() . 'sections/next_button.js',
                 FastLaneCheckout\Main::getSkinDir() . 'sections/section.js',
                 FastLaneCheckout\Main::getSkinDir() . 'sections/sections.js',

@@ -31,4 +31,15 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
             && !$cart->isExpressCheckout($method);
     }
 
+    /**
+     * @param $note
+     */
+    protected function setOrderNote($note)
+    {
+        parent::setOrderNote($note);
+
+        if ($nfo = $this->getCart()->getNotFinishedOrder()) {
+            $nfo->setNotes($this->getCart()->getNotes());
+        }
+    }
 }

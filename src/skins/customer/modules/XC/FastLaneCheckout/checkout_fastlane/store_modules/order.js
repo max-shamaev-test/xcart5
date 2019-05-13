@@ -13,19 +13,24 @@ define('checkout_fastlane/store/order', [], function(){
       total_text: "",
       shipping_method: null,
       payment_method: null,
-      notes: null,
+      notes: $('order-notes').data('default-value'),
       address: {
         shipping: null,
         billing: null,
       },
       same_address: null,
-      paymentData: null
+      paymentData: null,
+      includedModifiersData: {}
     },
 
     mutations: {
       UPDATE_TOTAL: function (state, number, text) {
         state.total = number;
         state.total_text = text;
+      },
+
+      UPDATE_INCLUDED_MODIFIERS: function (state, modifiersData) {
+        state.includedModifiersData = modifiersData;
       },
 
       UPDATE_SHIPPING_METHOD: function (state, value) {

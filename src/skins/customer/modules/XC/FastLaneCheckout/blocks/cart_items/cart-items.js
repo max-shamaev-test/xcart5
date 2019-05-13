@@ -23,6 +23,9 @@ define(
         updateTotal: function(state, number, text) {
           state.dispatch('UPDATE_TOTAL', number, text);
         },
+        updateIncludedModifiers: function (state, modifiersData) {
+          state.dispatch('UPDATE_INCLUDED_MODIFIERS', modifiersData);
+        }
       }
     },
 
@@ -38,6 +41,7 @@ define(
       },
       resolve: function() {
         this.parseTotal();
+        this.parseIncludedModifiers();
         this.$root.$broadcast('reloadingUnblock', 3);
       },
       reject: function() {
@@ -47,6 +51,7 @@ define(
 
     ready: function() {
       this.parseTotal();
+      this.parseIncludedModifiers();
       core.trigger('checkout.cart_items.ready');
     },
 
@@ -76,6 +81,12 @@ define(
         var text = totalsElement.text();
 
         this.updateTotal(number, text);
+      },
+      parseIncludedModifiers: function() {
+        var modifiersElement = $('.modifiers.included-modifiers', this.$el);
+        var modifiersData = modifiersElement.html();
+
+        this.updateIncludedModifiers(modifiersData);
       }
     },
 

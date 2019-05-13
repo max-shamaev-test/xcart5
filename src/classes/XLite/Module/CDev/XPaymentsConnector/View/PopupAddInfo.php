@@ -9,7 +9,7 @@
 namespace XLite\Module\CDev\XPaymentsConnector\View;
 
 /**
- * Popup payment additional info 
+ * Popup payment additional info
  *
  * @ListChild (list="admin.center", zone="admin")
  */
@@ -58,11 +58,17 @@ class PopupAddInfo extends \XLite\View\AView
         return $this->getDir() . '/body.twig';
     }
 
-    public function getTime($time) 
+    /**
+     * Return formatted time
+     *
+     * @param string $time
+     *
+     * @return string
+     */
+    public function getTime($time)
     {
-        return \XLite\Core\Converter::getInstance()->formatTime($time);
+        return \XLite\Core\Converter::getInstance()->formatTime(intval($time));
     }
-
 
     /**
      * Get X-Payments connector transactions

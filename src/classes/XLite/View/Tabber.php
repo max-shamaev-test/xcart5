@@ -84,10 +84,22 @@ class Tabber extends \XLite\View\AView
             if (is_array($dialogPages)) {
                 foreach ($dialogPages as $page => $title) {
                     $linkTemplate = null;
+                    $subTabs = [];
                     if (is_array($title)) {
-                        $linkTemplate = $title['linkTemplate'];
+                        $linkTemplate = isset($title['linkTemplate']) ? $title['linkTemplate'] : null;
+
+                        if (isset($title['subTabsWidget']) && class_exists($title['subTabsWidget'])) {
+                            $subTabsWidgetParams = !empty($title['subTabsWidgetParams']) ? $title['subTabsWidgetParams'] : [];
+                            $subTabsWidget = new $title['subTabsWidget']($subTabsWidgetParams);
+                            $subTabs = $subTabsWidget->getTabsForSubmenu();
+                            if (!is_array($subTabs) && count($subTabs) < 2) {
+                                $subTabs = [];
+                            }
+                        }
+
                         $title = $title['title'];
                     }
+
                     $p = new \XLite\Base();
                     $pageURL = preg_replace('/' . $switch . '=(\w+)/', $switch . '=' . $page, $url);
                     $p->set('url', $pageURL);
@@ -96,6 +108,7 @@ class Tabber extends \XLite\View\AView
                     $p->set('key', $page);
                     $pageSwitch = sprintf($switch . '=' . $page);
                     $p->set('selected', (preg_match('/' . preg_quote($pageSwitch) . '(\Z|&)/Ss', $url)));
+                    $p->set('subTabs', $subTabs);
                     $this->pages[] = $p;
                 }
             }

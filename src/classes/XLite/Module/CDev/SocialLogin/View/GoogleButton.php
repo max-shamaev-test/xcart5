@@ -23,7 +23,7 @@ class GoogleButton extends \XLite\Module\CDev\SocialLogin\View\AButton
     /**
      * Font awesome class
      */
-    const FONT_AWESOME_CLASS = 'fa-google-plus';
+    const FONT_AWESOME_CLASS = 'fa-google-custom';
 
     /**
      * Returns an instance of auth provider
@@ -33,5 +33,15 @@ class GoogleButton extends \XLite\Module\CDev\SocialLogin\View\AButton
     protected function getAuthProvider()
     {
         return \XLite\Module\CDev\SocialLogin\Core\GoogleAuthProvider::getInstance();
+    }
+
+    /**
+     * Get widget display name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return static::t('Sign in with') . ' ' . static::DISPLAY_NAME;
     }
 }

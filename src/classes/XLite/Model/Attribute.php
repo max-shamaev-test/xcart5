@@ -22,6 +22,7 @@ class Attribute extends \XLite\Model\Base\I18n
     const TYPE_TEXT     = 'T';
     const TYPE_CHECKBOX = 'C';
     const TYPE_SELECT   = 'S';
+    const TYPE_HIDDEN   = 'H';
 
     /*
      * Add to new products or class’s assigns automatically with select value
@@ -199,12 +200,14 @@ class Attribute extends \XLite\Model\Base\I18n
             static::TYPE_SELECT   => static::t('Plain field'),
             static::TYPE_TEXT     => static::t('Textarea'),
             static::TYPE_CHECKBOX => static::t('Yes/No'),
+            static::TYPE_HIDDEN   => static::t('Hidden field'),
         ];
 
         $listServiceTypes = [
             static::TYPE_SELECT   => 'Select',
             static::TYPE_TEXT     => 'Text',
             static::TYPE_CHECKBOX => 'Checkbox',
+            static::TYPE_HIDDEN   => 'Hidden',
         ];
 
         $list = $returnServiceType ? $listServiceTypes : $list;
@@ -439,6 +442,20 @@ class Attribute extends \XLite\Model\Base\I18n
                 $av->setEditable(false);
                 $av->setValue('');
             }
+        } elseif (static::TYPE_HIDDEN === $this->getType()) {
+            $attributeOption = \XLite\Core\Database::getRepo('XLite\Model\AttributeOption')->findOneBy(
+                array(
+                    'attribute' => $this,
+                    'addToNew'  => true,
+                )
+            );
+
+            if ($attributeOption) {
+                $av = $this->createAttributeValue($product);
+                if ($av) {
+                    $av->setAttributeOption($attributeOption);
+                }
+            }
         }
     }
 
@@ -583,7 +600,7 @@ class Attribute extends \XLite\Model\Base\I18n
     {
         $repo = \XLite\Core\Database::getRepo(static::getAttributeValueClass($this->getType()));
 
-        if (static::TYPE_SELECT === $this->getType() || static::TYPE_CHECKBOX === $this->getType()) {
+        if (in_array($this->getType(), [static::TYPE_SELECT, static::TYPE_CHECKBOX, static::TYPE_HIDDEN])) {
             $attributeValue = $repo->findBy(
                 array('product' => $product, 'attribute' => $this),
                 static::TYPE_SELECT === $this->getType() ? ['position' => 'ASC'] : null
@@ -657,6 +674,16 @@ class Attribute extends \XLite\Model\Base\I18n
     }
 
     /**
+     * This attribute is hidden or not flag
+     *
+     * @return bool
+     */
+    public function isHidden()
+    {
+        return static::TYPE_HIDDEN === $this->getType();
+    }
+
+    /**
      * Create attribute value
      *
      * @param \XLite\Model\Product $product Product
@@ -709,6 +736,9 @@ class Attribute extends \XLite\Model\Base\I18n
 
         } elseif (static::TYPE_CHECKBOX === $this->getType() && isset($data['multiple']) && $data['multiple']) {
             $result = 'setAttributeValueCheckbox';
+
+        } elseif (static::TYPE_HIDDEN === $this->getType()) {
+            $result = 'setAttributeValueHidden';
 
         } else {
             $result = 'setAttributeValueDefault';
@@ -897,6 +927,88 @@ class Attribute extends \XLite\Model\Base\I18n
             if (isset($data[$modifier]) && isset($data[$modifier][$value])) {
                 $attributeValue->setModifier($data[$modifier][$value], $modifier);
             }
+        }
+
+        return $attributeValue;
+    }
+
+    /**
+     * Set attribute value (hidden)
+     *
+     * @param \XLite\Model\Repo\ARepo $repo    Repository
+     * @param \XLite\Model\Product    $product Product
+     * @param array                   $data    Data
+     *
+     * @return void
+     */
+    protected function setAttributeValueHidden(
+        \XLite\Model\Repo\ARepo $repo,
+        \XLite\Model\Product $product,
+        array $data
+    ) {
+        $value = $data['value'];
+
+        if (is_array($value)) {
+            $value = end($value);
+        }
+        $value = trim($value);
+
+        if (strlen($value) != 0) {
+            $this->setAttributeValueHiddenItem($repo, $product, $data, $value);
+
+        } else {
+            $attributeValue = $repo->findOneBy(
+                array(
+                    'attribute' => $this,
+                    'product' => $product,
+                )
+            );
+
+            if ($attributeValue) {
+                $repo->delete($attributeValue);
+            }
+        }
+    }
+
+    /**
+     * Set hidden attribute item
+     *
+     * @param \XLite\Model\Repo\ARepo $repo    Repository
+     * @param \XLite\Model\Product    $product Product
+     * @param array                   $data    Data
+     * @param mixed                   $value   Attribute value
+     *
+     * @return \XLite\Model\AttributeValue\AttributeValueHidden
+     */
+    protected function setAttributeValueHiddenItem(
+        \XLite\Model\Repo\ARepo $repo,
+        \XLite\Model\Product $product,
+        array $data,
+        $value
+    ) {
+        $attributeValue = $repo->findOneBy(
+            array(
+                'attribute' => $this,
+                'product' => $product,
+            )
+        );
+
+        $attributeOption = \XLite\Core\Database::getRepo('XLite\Model\AttributeOption')
+            ->findOneByNameAndAttribute($value, $this);
+
+        if (!$attributeOption) {
+            $attributeOption = $this->createAttributeOption($value);
+        }
+
+        if (!$attributeValue) {
+            $attributeValue = $this->createAttributeValue($product);
+            $product->addAttributeValueH($attributeValue);
+        }
+
+        if ($attributeValue) {
+            $attributeValue->setAttributeOption($attributeOption);
+
+            \XLite\Core\Database::getEM()->flush();
         }
 
         return $attributeValue;

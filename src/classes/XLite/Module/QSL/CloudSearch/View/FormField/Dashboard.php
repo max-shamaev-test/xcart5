@@ -132,6 +132,7 @@ class Dashboard extends \XLite\View\FormField\AFormField
     {
         return [
             'cloudFiltersEnabled' => (int)Main::isCloudFiltersEnabled(),
+            'adminSearchEnabled'  => (int)Main::isAdminSearchEnabled(),
         ];
     }
 }

@@ -37,6 +37,7 @@ class PaypalButton extends \XLite\Module\CDev\SocialLogin\View\AButton
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
+        $list[] = 'modules/CDev/Paypal/login/common.css';
         $list[] = 'modules/CDev/Paypal/login/style.css';
 
         return $list;

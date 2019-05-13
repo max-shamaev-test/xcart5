@@ -78,6 +78,12 @@ class Attribute extends \XLite\View\Model\AModel
 
     }
 
+    protected function isGlobalAttribute()
+    {
+        return !isset(\XLite\Core\Request::getInstance()->product_class_id)
+            || intval(\XLite\Core\Request::getInstance()->product_class_id) == 0;
+    }
+
     /**
      * Return fields list by the corresponding schema
      *
@@ -97,6 +103,10 @@ class Attribute extends \XLite\View\Model\AModel
      */
     protected function preprocessFormFieldsForSectionDefault()
     {
+        if ($this->isGlobalAttribute()) {
+            $this->schemaDefault['type'][\XLite\View\FormField\Select\AttributeTypes::PARAM_EXCLUDE_HIDDEN] = false;
+        }
+
         if ($this->getModelObject()->getId()) {
             $this->schemaDefault['type'][self::SCHEMA_COMMENT]
                 = 'Before editing attributes specific for the chosen type you should save the changes';
@@ -111,7 +121,15 @@ class Attribute extends \XLite\View\Model\AModel
                 $this->schemaDefault['type'][self::SCHEMA_COMMENT] = 'Attribute data will be lost. warning text';
             }
 
-            if (\XLite\Model\Attribute::TYPE_SELECT == $this->getModelObject()->getType()) {
+            if (
+                in_array(
+                    $this->getModelObject()->getType(),
+                    [
+                        \XLite\Model\Attribute::TYPE_SELECT,
+                        \XLite\Model\Attribute::TYPE_HIDDEN,
+                    ]
+                )
+            ) {
                 $this->schemaDefault['values'] = [
                     self::SCHEMA_CLASS                                    => 'XLite\View\FormField\ItemsList',
                     self::SCHEMA_LABEL                                    => 'Attribute values',
@@ -119,7 +137,10 @@ class Attribute extends \XLite\View\Model\AModel
                     \XLite\View\FormField\AFormField::PARAM_WRAPPER_CLASS => 'custom-field type-' . $this->getModelObject()->getType(),
                 ];
 
-                if ($this->getModelObject()->getAttributeOptions()->count()) {
+                if (
+                    $this->getModelObject()->getAttributeOptions()->count()
+                    && $this->getModelObject()->getType() !== \XLite\Model\Attribute::TYPE_HIDDEN
+                ) {
                     $this->schemaDefault['applySortingGlobally'] = [
                         self::SCHEMA_CLASS                                    => 'XLite\View\FormField\Input\Checkbox',
                         self::SCHEMA_FIELD_ONLY => true,

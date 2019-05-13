@@ -54,9 +54,15 @@ class SectionsNavigation extends Sections
      */
     protected function defineWidgetData()
     {
-        return [
+        $widgetData = [
             'start_with' => null
         ];
+
+        if ($this->hasUnfinishedAddress()) {
+            $widgetData['start_with'] = 'address';
+        }
+
+        return $widgetData;
     }
 
     /**

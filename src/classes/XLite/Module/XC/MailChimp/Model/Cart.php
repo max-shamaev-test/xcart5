@@ -18,6 +18,26 @@ use XLite\Module\XC\MailChimp\Main;
  */
 abstract class Cart extends \XLite\Model\Cart implements \XLite\Base\IDecorator
 {
+    protected static $mcNewCartFlag;
+
+    protected function needUpdateMailchimpCart()
+    {
+        $request = \XLite\Core\Request::getInstance();
+        $result = true;
+
+        if (
+            $request->widget == '\XLite\View\Minicart'
+            || (
+                $request->target == 'checkout'
+                && $request->action !== 'shipping'
+            )
+        ) {
+            $result = false;
+        }
+
+        return $result;
+    }
+
     /**
      * Prepare order before save data operation
      *
@@ -28,7 +48,8 @@ abstract class Cart extends \XLite\Model\Cart implements \XLite\Base\IDecorator
     {
         parent::prepareBeforeSave();
 
-        if (Core\MailChimp::hasAPIKey()
+        if ($this->needUpdateMailchimpCart()
+            && Core\MailChimp::hasAPIKey()
             && Main::isMailChimpAbandonedCartEnabled()
             && !$this->getOrderNumber()
             && $this->getProfile()
@@ -39,6 +60,34 @@ abstract class Cart extends \XLite\Model\Cart implements \XLite\Base\IDecorator
                 new Core\Action\CartUpdate($this)
             );
         }
+    }
+
+    /**
+     * Method to access a singleton
+     *
+     * @param boolean $doCalculate Flag for cart recalculation OPTIONAL
+     *
+     * @return \XLite\Model\Cart
+     */
+    public static function getInstance($doCalculate = true)
+    {
+        $cart = parent::getInstance($doCalculate);
+
+        if (!isset(static::$mcNewCartFlag)) {
+            static::$mcNewCartFlag = !$cart->isPersistent();
+        }
+
+        return $cart;
+    }
+
+    /**
+     * Check if mc should create new cart without checking
+     *
+     * @return boolean
+     */
+    public static function isMcNewCart()
+    {
+        return static::$mcNewCartFlag;
     }
 
     /**

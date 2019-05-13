@@ -8,10 +8,13 @@
 
 namespace XLite\Module\QSL\CloudSearch\View;
 
+use XLite;
 use XLite\Core\Auth;
 use XLite\Core\CommonCell;
+use XLite\Core\Config;
 use XLite\Core\Database;
 use XLite\Core\Layout;
+use XLite\Model\Repo\Product;
 use XLite\Module\QSL\CloudSearch\Core\ServiceApiClient;
 use XLite\Module\QSL\CloudSearch\View\CloudFilters\FiltersBox;
 use XLite\Module\QSL\CloudSearch\View\CloudFilters\FiltersBoxPlaceholder;
@@ -47,7 +50,7 @@ class Controller extends \XLite\View\Controller implements \XLite\Base\IDecorato
     {
         $data = parent::getCommonJSData();
 
-        if (!\XLite::isAdminZone()) {
+        if (!XLite::isAdminZone()) {
             $data += $this->getCloudSearchInitData();
         }
 
@@ -75,9 +78,17 @@ class Controller extends \XLite\View\Controller implements \XLite\Base\IDecorato
 
         $client = new ServiceApiClient();
 
+        $conditions = [
+            'availability' => ['Y']
+        ];
+
+        if (Config::getInstance()->General->show_out_of_stock_products === 'directLink') {
+            $conditions += ['stock_status' => [Product::INV_IN, Product::INV_LOW]];
+        }
+
         $data = [
             'cloudSearch' => [
-                'apiUrl'                  => $client->getSearchApiUrl(),
+                'apiUrl'               => $client->getSearchApiUrl(),
                 'apiKey'               => $client->getApiKey(),
                 'priceTemplate'        => static::formatPrice(0),
                 'selector'             => 'input[name="substring"]',
@@ -88,6 +99,7 @@ class Controller extends \XLite\View\Controller implements \XLite\Base\IDecorato
                         'products' => $this->getCloudSearchMaxProductCountInPopup(),
                     ],
                     'membership' => Auth::getInstance()->getMembershipId(),
+                    'conditions' => $conditions,
                 ],
             ],
         ];

@@ -235,5 +235,17 @@ abstract class Catalog extends \XLite\Model\Base\I18n
         );
     }
 
+    /**
+     * Get processed value for meta description tag
+     *
+     * @param string $description Description to process
+     *
+     * @return string
+     */
+    public static function postprocessMetaDescription($description)
+    {
+        return mb_substr(preg_replace('/\s+/', ' ', strip_tags(preg_replace('/(<(.+?)[\s]*\/?[\s]*>)/', '$1 ', $description))), 0, 512);
+    }
+
     // }}}
 }

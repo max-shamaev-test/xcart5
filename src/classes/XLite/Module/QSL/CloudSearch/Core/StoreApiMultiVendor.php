@@ -10,6 +10,7 @@ namespace XLite\Module\QSL\CloudSearch\Core;
 
 use XLite\Model\Product;
 use XLite\Module\XC\MultiVendor\Model\Product as MultiVendorProduct;
+use XLite\Module\XC\MultiVendor\Model\Profile as MultiVendorProfile;
 
 
 /**
@@ -28,22 +29,27 @@ class StoreApiMultiVendor extends \XLite\Module\QSL\CloudSearch\Core\StoreApi im
      */
     protected function getFilterableProductAttributes(Product $product)
     {
+        $codes = $this->getActiveLanguages();
+
         $attributes = parent::getFilterableProductAttributes($product);
 
-        /** @var MultiVendorProduct $product */
-        $vendor = $product->getVendor();
+        $vendorTranslations = $this->getVendorTranslations($product);
 
-        $vendorName = $vendor !== null ? $vendor->getVendorCompanyName() : (string) static::t('Main vendor');
+        if (!$vendorTranslations) {
+            return $attributes;
+        }
 
-        if (!empty($vendorName)) {
-            $attributes[] = [
+        $vendorAttrValues = [];
+        foreach ($codes as $code) {
+            $vendorAttrValues["values_{$code}"] = [$vendorTranslations[$code]];
+            $vendorAttrValues["name_{$code}"] = (string) static::t('Vendor', [], $code);
+        }
+
+        $attributes[] = [
                 'id'                => 'XC\MultiVendor',
-                'name'              => (string) static::t('Vendor'),
                 'preselectAsFilter' => true,
                 'group'             => 'Multi-vendor module',
-                'values'            => [$vendorName],
-            ];
-        }
+            ] + $vendorAttrValues;
 
         return $attributes;
     }
@@ -57,19 +63,23 @@ class StoreApiMultiVendor extends \XLite\Module\QSL\CloudSearch\Core\StoreApi im
      */
     protected function getSearchableProductAttributes(Product $product)
     {
+        $codes = $this->getActiveLanguages();
+
         $attributes = parent::getSearchableProductAttributes($product);
 
-        /** @var MultiVendorProduct $product */
-        $vendor = $product->getVendor();
+        $vendorTranslations = $this->getVendorTranslations($product);
 
-        $vendorName = $vendor !== null ? $vendor->getVendorCompanyName() : (string) static::t('Main vendor');
-
-        if (!empty($vendorName)) {
-            $attributes[] = [
-                'name'   => (string) static::t('Vendor'),
-                'values' => [$vendorName],
-            ];
+        if (!$vendorTranslations) {
+            return $attributes;
         }
+
+        $vendorAttr = [];
+        foreach ($codes as $code) {
+            $vendorAttr["name_{$code}"] = (string) static::t('Vendor', [], $code);
+            $vendorAttr["values_{$code}"] = [$vendorTranslations[$code]];
+        }
+
+        $attributes[] = $vendorAttr;
 
         return $attributes;
     }
@@ -94,5 +104,48 @@ class StoreApiMultiVendor extends \XLite\Module\QSL\CloudSearch\Core\StoreApi im
         $conditions['vendor'] = [$vendorId];
 
         return $conditions;
+    }
+
+    protected function getVendorTranslations(Product $product)
+    {
+        $activeLanguages = $this->getActiveLanguages();
+
+        /** @var MultiVendorProduct $product */
+        /** @var MultiVendorProfile $vendor */
+        $vendor = $product->getVendor();
+
+        $vendorTranslations = [];
+        if ($vendor !== null) {
+            foreach ($vendor->getVendor()->getTranslations() as $t) {
+                if (isset($vendorTranslations[$t->getCode()])) {
+                    continue;
+                }
+
+                $vendorTranslations[$t->getCode()] = $t->getCompanyName();
+            }
+
+            foreach ($activeLanguages as $lang) {
+                $vendorTranslations[$lang] = $this->getFieldTranslation($vendorTranslations, $lang);
+            }
+        } else {
+            foreach ($activeLanguages as $lang) {
+                $vendorTranslations[$lang] = (string) static::t('Main vendor', [], $lang);
+            }
+        }
+
+        return array_filter($vendorTranslations);
+    }
+
+    /**
+     * Get sort fields that can be used to sort CloudSearch search results.
+     * Sort fields are dynamic in the way that custom sort_int_*, sort_float_*, sort_str_* are allowed.
+     *
+     * @param Product $product
+     *
+     * @return array
+     */
+    protected function getSortFields(Product $product)
+    {
+        return parent::getSortFields($product) + ['sort_str_vendor' => $product->getVendorLogin() ?: ''];
     }
 }

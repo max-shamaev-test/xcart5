@@ -796,3 +796,4 @@ XLite\Model\LanguageLabel:
   - { name: 'Paypal login (email)', translations: [{ code: en, label: 'Paypal login (email)' }]}
   - { name: 'Unable to retrieve Publisher ID for specified PayPal account. Banners are now disabled.', translations: [{ code: en, label: 'Unable to retrieve Publisher ID for specified PayPal account. Banners are now disabled.' }]}
   - { name: 'Payment have been voided successfully', translations: [{ code: en, label: 'Payment have been voided successfully' }]}
+  - { name: 'Try to reconnect', translations: [{ code: en, label: 'Try to reconnect' }]}

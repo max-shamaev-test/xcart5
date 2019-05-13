@@ -1,0 +1,8 @@
+Version 5.3.4.7
+
+Fixes (4)
+2018-12-03 - [Bug] Order note in Not Finished Orders (NFO) was lost if the module MultiVendor was enabled. Fixed. #BUG-6794 (Shevelov Alexander) #Core #Paypal #FastLaneCheckout #MultiVendor #NotFinishedOrders
+2018-11-21 - [Bug] Layout issues on the checkout page in Mobile view with Fast Lane Checkout and GDPR enabed. Fixed. #BUG-6769 (Shevelov Alexander) #Core #FastLaneCheckout #CrispWhiteSkin #GDPR
+2018-11-20 - [Bug] With FLC enabled, after an unsuccessful payment the customer was sent to the first step of checkout insted of the last one. #BUG-6788 (Shevelov Alexander) #FastLaneCheckout #CrispWhiteSkin
+2018-11-16 - [Bug] VAT was shown in a wrong place during FLC checkout. Fixed. #BUG-6782 (Shevelov Alexander) #Core #FastLaneCheckout #CrispWhiteSkin
+

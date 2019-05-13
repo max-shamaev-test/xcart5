@@ -10,7 +10,16 @@
     
           <ul>
             {% for tabPage in this.getTabberPages() %}
-              <li class="tab{% if tabPage.selected %}-current{% endif %} tabkey-{{  tabPage.key }}">{% if tabPage.linkTemplate %}{% include tabPage.linkTemplate %}{%  else %}<a href="{{ tabPage.url }}">{{ tabPage.title|raw }}</a>{% endif %}</li>
+              <li class="tab{% if tabPage.selected %}-current{% endif %}{% if tabPage.subTabs %} has-subtabs{% endif %} tabkey-{{  tabPage.key }}">{% if tabPage.linkTemplate %}{% include tabPage.linkTemplate %}{%  else %}<a href="{{ tabPage.url }}">{{ tabPage.title|raw }}</a>{% endif %}
+                {% if tabPage.subTabs %}
+                    <span class="fa fa-angle-down"></span>
+                    <ul class="subtabs">
+                        {% for subTabKey, subTab in tabPage.subTabs %}
+                            <li class="subtab tabkey-{{  subTabKey }}"><a href="{{ subTab.url }}">{{ subTab.title|raw }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+              </li>
             {% endfor %}
           </ul>
           {% if this.isViewListVisible('page.tabs.after') %}

@@ -95,11 +95,17 @@ class Attributes extends \XLite\View\Product\Details\AAttributes
      */
     protected function getAttributeNameWidgetParams($attribute)
     {
-        return array(
+        $params = [
             'fieldName'   => 'name',
             'entity'      => $attribute,
             'fieldParams' => array('required' => true),
-        );
+        ];
+
+        if ($attribute->getType() === \XLite\Model\Attribute::TYPE_HIDDEN) {
+            $params['viewOnly'] = true;
+        }
+
+        return $params;
     }
 
     /**
@@ -133,7 +139,7 @@ class Attributes extends \XLite\View\Product\Details\AAttributes
      */
     protected function canAddAttributes()
     {
-        return true;
+        return !$this->getHiddenOnly();
     }
 
     /**

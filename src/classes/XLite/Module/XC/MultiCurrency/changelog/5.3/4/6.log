@@ -1,0 +1,5 @@
+Version 5.3.4.6
+
+Fixes (1)
+2019-03-20 - [Bug] Error "API Key is required." when adding a new currency. Added a new setting "Currency converter API key" for "The Free Currency Converter". #BUG-7102 (Maxim Kuznetsov) #MultiCurrency
+

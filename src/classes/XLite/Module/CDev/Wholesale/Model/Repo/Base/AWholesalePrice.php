@@ -134,7 +134,7 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
             1 == $amount
             && !$membership
         ) {
-            $price = $object->getBasePrice();
+            $minPrice = $object->getBasePrice();
 
         } else {
             $cnd = new \XLite\Core\CommonCell();
@@ -146,11 +146,8 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
 
             $prices = $this->search($this->processContition($cnd, $object));
 
-            $price = null;
-            if (isset($prices[0])) {
-                /** @var AWholesalePriceModel $entity */
-                $entity = $prices[0];
-
+            $minPrice = null;
+            foreach ($prices as $entity) {
                 if ($entity->getType() === AWholesalePriceModel::WHOLESALE_TYPE_PERCENT) {
                     $price = $object->getBasePrice() * $entity->getPrice() / 100;
                 } else {
@@ -158,11 +155,16 @@ class AWholesalePrice extends \XLite\Model\Repo\ARepo
                 }
 
                 $currencyE = \XLite::getInstance()->getCurrency()->getE();
+
                 $price = round($price, $currencyE);
+
+                if (is_null($minPrice) || $price < $minPrice) {
+                    $minPrice = $price;
+                }
             }
         }
 
-        return $price;
+        return $minPrice;
     }
 
     /**

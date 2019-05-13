@@ -53,6 +53,10 @@ class AddAttribute extends \XLite\View\Button\Dropdown\ADropdown
         $position = 0;
 
         foreach (\XLite\Model\Attribute::getTypes() as $type => $name) {
+            if (\XLite\Model\Attribute::TYPE_HIDDEN === $type) {
+                continue;
+            }
+
             $list[$type] = [
                 'params'   => [
                     'label'  => $name,

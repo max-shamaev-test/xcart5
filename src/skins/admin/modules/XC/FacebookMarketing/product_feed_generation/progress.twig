@@ -1,0 +1,15 @@
+{##
+ # Sitemap generation progress section
+ #}
+
+<div class="product-feed-generation-box product-feed-generation-progress">
+
+  <div class="content">
+    {% form 'XLite\\Module\\XC\\FacebookMarketing\\View\\Form\\ProductFeedGeneration' with {formAction: 'productFeedGenerationCancel'} %}
+    <div class="subcontent">
+      {{ widget('XLite\\View\\EventTaskProgress', event=this.getEventName(), message=this.getProgressMessage() ) }}
+    </div>
+    {% endform %}
+  </div>
+
+</div>

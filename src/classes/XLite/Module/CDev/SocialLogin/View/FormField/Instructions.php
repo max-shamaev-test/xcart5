@@ -23,6 +23,7 @@ class Instructions extends \XLite\View\FormField\Label\ALabel
     {
         $list = parent::getCSSFiles();
 
+        $list[] = 'modules/CDev/SocialLogin/common.css';
         $list[] = 'modules/CDev/SocialLogin/style.css';
 
         return $list;

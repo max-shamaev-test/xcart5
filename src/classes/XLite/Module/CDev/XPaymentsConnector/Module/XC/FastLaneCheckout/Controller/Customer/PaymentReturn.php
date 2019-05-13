@@ -23,13 +23,15 @@ class PaymentReturn extends \XLite\Controller\Customer\PaymentReturn implements 
      */
     protected function doActionReturn()
     {
+        parent::doActionReturn();
+
         if (\XLite\Module\XC\FastLaneCheckout\Main::isFastlaneEnabled()) {
 
             $transaction = $this->detectTransaction();
             if (
                 $transaction
                 && $transaction->isXpc()
-                && $transaction->getOrder()->hasCartStatus()
+                && $transaction->getOrder()->hasUnpaidTotal()
             ) {
                 // Set flag only if payment has been canceled and cart is not converted to order
                 \XLite\Core\Session::getInstance()->returnedAfterXpc = true;
@@ -37,7 +39,6 @@ class PaymentReturn extends \XLite\Controller\Customer\PaymentReturn implements 
 
         }
 
-        parent::doActionReturn();
     }
 
 }

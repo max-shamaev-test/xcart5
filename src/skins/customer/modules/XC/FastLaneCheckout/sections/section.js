@@ -56,28 +56,28 @@ define('checkout_fastlane/sections/section_mixin', [], function(){
           var data = JSON.parse(JSON.stringify(fields));
           data[xliteConfig.form_id_name] = xliteConfig.form_id;
 
-          $.when(this.xhr).then(_.bind(function(){
-
-            this.xhr = core.post(
+          $.when(this.xhr || true).then(_.bind(function() {
+            this.xhr =  core.post(
               this.endpoint,
               null,
               data,
               this.request_options
-            )
-            .done(
-              _.bind(function(data){
-                core.trigger('checkout.sections.' + this.name + '.persist', {status: true, data: data, sender: sender});
-                this.$broadcast('sectionPersist', {status: true, data: data, sender: sender});
-              }, this)
-            )
-            .fail(
-              _.bind(function(data){
-                core.showError('Server connection error. Please check your Internet connection.');
-                core.trigger('checkout.sections.' + this.name + '.persist', {status: false, data: null, sender: sender});
-                this.$broadcast('sectionPersist', {status: false, data: data, sender: sender});
-              }, this)
-            );
-
+              )
+              .done(
+                _.bind(function(data){
+                  core.trigger('checkout.sections.' + this.name + '.persist', {status: true, data: data, sender: sender});
+                  this.$broadcast('sectionPersist', {status: true, data: data, sender: sender});
+                }, this)
+              )
+              .fail(
+                _.bind(function(xhr, status){
+                  if (status !== 'abort') {
+                    core.showError('Server connection error. Please check your Internet connection.');
+                    core.trigger('checkout.sections.' + this.name + '.persist', {status: false, data: null, sender: sender});
+                    this.$broadcast('sectionPersist', {status: false, data: data, sender: sender});
+                  }
+                }, this)
+              );
           }, this));
         }
       },

@@ -31,6 +31,7 @@ class Widget extends \XLite\View\AView
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
+        $list[] = 'modules/CDev/Paypal/login/common.css';
         $list[] = 'modules/CDev/Paypal/login/style.css';
         $list[] = 'modules/CDev/Paypal/login/social_button_style.css';
 

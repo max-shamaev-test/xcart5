@@ -72,8 +72,8 @@ abstract class Search extends \XLite\View\ItemsList\Product\Customer\Search impl
     protected function isLoadingWithCloudSearch(CommonCell $cnd)
     {
         return Main::isConfigured()
-               && ($cnd->{Product::P_SUBSTRING} !== '' && $cnd->{Product::P_SUBSTRING} !== null)
-               || (Main::isCloudFiltersEnabled() && !empty($cnd->{Product::P_CLOUD_FILTERS}));
+               && (($cnd->{Product::P_SUBSTRING} !== '' && $cnd->{Product::P_SUBSTRING} !== null)
+               || (Main::isCloudFiltersEnabled() && !empty($cnd->{Product::P_CLOUD_FILTERS})));
     }
 
     /**

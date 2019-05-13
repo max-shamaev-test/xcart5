@@ -36,6 +36,7 @@ class AmazonButton extends \XLite\Module\CDev\SocialLogin\View\AButton
     public function getCSSFiles()
     {
         $list   = parent::getCSSFiles();
+        $list[] = 'modules/Amazon/PayWithAmazon/login/common.css';
         $list[] = 'modules/Amazon/PayWithAmazon/login/style.css';
 
         return $list;

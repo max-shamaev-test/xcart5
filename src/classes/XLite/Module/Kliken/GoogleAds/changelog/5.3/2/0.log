@@ -1,0 +1,5 @@
+Version 5.3.2.0
+
+Fixes
+2019-01-10 - [Bug] Product filter might fail if _cnd[productIds] is provided as an array
+2019-01-10 - [Improvement] Exception catching for some products with legacy/inconsistent/invalid data

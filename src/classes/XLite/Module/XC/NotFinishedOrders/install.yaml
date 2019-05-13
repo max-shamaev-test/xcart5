@@ -61,6 +61,11 @@ XLite\Model\Order\Status\Property:
   - { paymentStatus: { code: Q }, shippingStatus: { code: NF }, incStock: true}
   - { paymentStatus: { code: R }, shippingStatus: { code: NF }, incStock: true}
 
+XLite\Model\SearchFilter:
+  - filterKey: search-filter-order_list
+    translations: [{ code: en, name: Not finished }, { code: ru, name: Незавершенные }]
+    parameters: { paymentStatus: [], shippingStatus: [8] }
+
 XLite\Model\LanguageLabel:
   - { name: "Not finished order", translations: [{ code: en, label: "Not finished order" }, { code: ru, label: "Незавершенный заказ" }] }
   - { name: "not finished", translations: [{ code: en, label: "not finished" }, { code: ru, label: "не завершен" }] }

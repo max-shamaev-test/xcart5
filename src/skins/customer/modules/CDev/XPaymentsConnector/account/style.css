@@ -12,7 +12,7 @@ table.saved-cards {
   padding-right: 12px;
   padding-top: 0px;
   padding-bottom: 0px;
-  margin-bottom: 20px;
+  margin-bottom: 19px;
   font-size: 14px;
 }
 
@@ -46,7 +46,7 @@ table.saved-cards td.address select {
 
 .saved-card div.card-icon-container {
   float: left;
-  height: 35px;
+  height: 40px;
   width: 70px;
   overflow: hidden;
 }
@@ -75,6 +75,11 @@ iframe#add_new_card_iframe {
   width: 300px;
 }
 
+div.add-new-card-header {
+  padding: 19px 20px 19px 20px;
+  margin-bottom: 20px;
+}
+
 div.add-new-card-header strong.important-label {
   color: #f0ad4e; 
   text-transform:uppercase;
@@ -85,6 +90,7 @@ div.add-new-card-header strong.highlight-label {
 }
 
 input.add-new-card-button {
+  margin-top: 5px;
   margin-left: 20px;
   margin-right: 30px;
 }
@@ -97,7 +103,7 @@ div.zero-auth-address select,
 div.zero-auth-address span.single-address {
   width: auto;
   max-width: 500px;
-  margin: 15px;
+  margin: 19px 15px 18px;
 }
 
 div.zero-auth-address a.add-address {
@@ -125,4 +131,18 @@ div.zero-auth-address a.add-address {
 
 .saved-cards-description {
   margin-bottom: 20px;
+}
+
+#add_new_card_iframe_container {
+  padding-top: 10px;
+}
+
+a.back-to-cards {
+  position: relative;
+  top: 4px;
+}
+
+a.add-new-card {
+  position: relative;
+  top: 1px;
 }

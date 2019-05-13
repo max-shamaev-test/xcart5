@@ -3015,7 +3015,7 @@ setTimeout('isProcessComplete()', 1000);
             var pattern = /^.*Deploying store \[step (\d+) of (\d+)\].*$/m;
             var matches = iframe.body.innerHTML.match(pattern);
 
-            if (currentStep !== matches[1]) {
+            if (matches && currentStep !== matches[1]) {
                errCount = 0;
                currentStep = matches[1];
                resetCacheRebuildFailure();

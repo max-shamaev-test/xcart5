@@ -28,7 +28,7 @@ core.bind('init-cycle-gallery', function () {
       elemCount = Math.min(elemCount, $(this).find('li').length);
       var changed = false;
 
-      if ($(this).data('cycle-carousel-visible') != elemCount) {
+      if ($(this).data('cycle-carousel-visible') != elemCount && !isNaN(elemCount)) {
           $(this).attr('data-cycle-carousel-visible', elemCount);
           $(this).data('cycle-carousel-visible', elemCount);
           if ($(this).data('cycle.opts') !== undefined) {

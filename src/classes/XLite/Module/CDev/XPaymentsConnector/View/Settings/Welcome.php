@@ -56,7 +56,7 @@ class Welcome extends \XLite\Module\CDev\XPaymentsConnector\View\Settings\ASetti
 
         if (
             $method
-            && 'Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPaymentsAllowed' != $method->getClass()
+            && 'Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPayments' != $method->getClass()
         ) {
 
             $method = null;
@@ -211,7 +211,8 @@ class Welcome extends \XLite\Module\CDev\XPaymentsConnector\View\Settings\ASetti
 
         if (
             $method
-            && 'Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPaymentsAllowed' == $method->getClass()
+            && 'Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPayments' == $method->getClass()
+            && true == $method->getFromMarketplace()
         ) {
 
             $xpModuleClass = $method->getServiceName();

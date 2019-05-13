@@ -1,7 +1,7 @@
 <script type="x-template" id="cloud-filters-template-default">
 
     <div class="cloud-filters-filter cloud-filters-filter-{{ '{{' }} className {{ '}}' }}" v-if="values.length > 0">
-        <h4 class="cloud-filters-filter__title">{{ '{{' }} title {{ '}}' }}</h4>
+        <h4 class="cloud-filters-filter__title">{{ '{{' }} id === 'category' ? '{{ t('Category') }}' : title {{ '}}' }}</h4>
 
         <ul>
             <li v-for="(index, valueCount) in foldedValues">

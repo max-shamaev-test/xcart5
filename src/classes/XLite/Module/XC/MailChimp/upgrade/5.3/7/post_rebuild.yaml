@@ -1,0 +1,20 @@
+# vim: set ts=2 sw=2 sts=2 et:
+#
+# Upgrade data
+#
+# Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+# See https://www.x-cart.com/license-agreement.html for license details.
+
+XLite\Model\Config:
+  - name: 'mcjs'
+    category: XC\MailChimp
+    type: textarea
+    orderby: 800
+    value: ''
+    translations:
+      - code: en
+        option_name: 'Site connection code'
+        option_comment: 'The connection code will appear here automatically once you upload store data to MailChimp. Alternatively, you can connect MailChimp subscription popup via Custom Website integration code. Add your site to the MailChimp account and paste here the connection code.'
+      - code: ru
+        option_name: 'Код подключения сайта'
+        option_comment: 'Код появится автоматически после загрузки данных магазина в MailChimp. Также вы можете самостоятельно присоединить магазин, скопировав код подключения в это поле.'

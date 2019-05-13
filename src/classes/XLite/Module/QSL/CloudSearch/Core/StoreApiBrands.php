@@ -52,11 +52,46 @@ abstract class StoreApiBrands extends \XLite\Module\QSL\CloudSearch\Core\StoreAp
         $brand = $record[0];
 
         return [
-            'name'        => $brand->getName(),
-            'description' => $brand->getDescription(),
-            'id'          => $brand->getBrandId(),
-            'url'         => $this->getBrandUrl($brand),
-        ];
+            'id'  => $brand->getBrandId(),
+            'url' => $this->getBrandUrl($brand),
+        ] + $this->getBrandTranslations($brand);
+    }
+
+    protected function getBrandTranslations(\XLite\Module\QSL\ShopByBrand\Model\Brand $brand)
+    {
+        $data = [];
+
+        $brandTranslations = [];
+        foreach ($brand->getTranslations() as $t) {
+            if (isset($brandTranslations[$t->getCode()])) {
+                continue;
+            }
+
+            $brandTranslations[$t->getCode()] = [
+                'description' => $t->getDescription(),
+            ];
+        }
+
+        if ($brand->getOption()) {
+            foreach ($brand->getOption()->getTranslations() as $t) {
+                if (!isset($brandTranslations[$t->getCode()])) {
+                    $brandTranslations[$t->getCode()] = [];
+                }
+
+                if (isset($brandTranslations[$t->getCode()]['name'])) {
+                    continue;
+                }
+
+                $brandTranslations[$t->getCode()]['name'] = $t->getName();
+            }
+        }
+
+        foreach ($this->getActiveLanguages() as $lang) {
+            $data["name_$lang"]        = $this->getFieldTranslation($brandTranslations, $lang, 'name');
+            $data["description_$lang"] = $this->getFieldTranslation($brandTranslations, $lang, 'description');
+        }
+
+        return $data;
     }
 
     /**

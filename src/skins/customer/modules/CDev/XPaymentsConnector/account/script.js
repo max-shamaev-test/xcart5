@@ -54,7 +54,9 @@ jQuery(function () {
     var height = msg.params.height;
 
     if (parseInt(height)) {
-        jQuery('#add_new_card_iframe').css('height', parseInt(height) + 10 + 'px');
+        height = parseInt(height);
+        var newHeight = height + (20 - height % 20);
+        jQuery('#add_new_card_iframe').css('height', newHeight + 'px');
     }
 
     if (message

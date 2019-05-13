@@ -63,6 +63,7 @@ function showAddressPopover(elm)
     cache: false,
     trigger: 'manual',
     width: '300px',
+    style: 'xpc',
   };
 
   elm

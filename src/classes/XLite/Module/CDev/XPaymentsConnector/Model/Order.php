@@ -374,7 +374,7 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
     public function getAomTotalDifference()
     {
         // Apparently we'll need to change this
-        return $this->getOpenTotal();
+        return $this->getParentOrChildOrder()->getOpenTotal();
     }
 
     /**
@@ -394,8 +394,8 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
      */
     protected function hasSavedCardsInProfile()
     {
-        return $this->getProfile()
-            && $this->getProfile()->getSavedCards();
+        return $this->getOrigProfile()
+            && $this->getOrigProfile()->getSavedCards();
     }
 
     /**
@@ -405,9 +405,13 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
      */
     public function isAllowRecharge()
     {
-        return $this->isXpc()
+        return !(
+                \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+                && \XLite\Core\Auth::getInstance()->isVendor()
+            )
+            && $this->isXpc()
             && $this->isAomTotalDifferencePositive()
-            && $this->hasSavedCardsInProfile(); 
+            && $this->hasSavedCardsInProfile();
     }
 
     /**
@@ -427,21 +431,23 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
      */
     public function getFraudCheckData()
     {
-        if (empty($this->fraudCheckData)) {
+        $order = $this->getParentOrChildOrder();
 
-            if ($this->getFraudCheckTransactionId()) {
+        if (empty($order->fraudCheckData)) {
+
+            if ($order->getFraudCheckTransactionId()) {
 
                 $transaction = \XLite\Core\Database::getRepo('XLite\Model\Payment\Transaction')->find(
-                    $this->getFraudCheckTransactionId()
+                    $order->getFraudCheckTransactionId()
                 );
 
                 if ($transaction) {
-                    $this->fraudCheckData = $transaction->getFraudCheckData();
+                    $order->fraudCheckData = $transaction->getFraudCheckData();
                 }
             }
         }
 
-        return $this->fraudCheckData;
+        return $order->fraudCheckData;
     }
 
     /**
@@ -530,6 +536,104 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
     public function isZeroAuth()
     {
         return $this->is_zero_auth;
+    }
+
+    /**
+     * Order subtotal limit should not affect zero auth orders
+     *
+     * @return boolean
+     */
+    public function isMinOrderAmountError()
+    {
+        if ($this->isZeroAuth()) {
+            $result = false;
+        } else {
+            $result = parent::isMinOrderAmountError();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Order subtotal limit should not affect zero auth orders
+     *
+     * @return boolean
+     */
+    public function isMaxOrderAmountError()
+    {
+        if ($this->isZeroAuth()) {
+            $result = false;
+        } else {
+            $result = parent::isMaxOrderAmountError();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Return true if order has more then one relation
+     *
+     * @return bool
+     */
+    public function hasRelations()
+    {
+        return \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+            && !(bool)$this->getOrderNumber()
+            && $this->getChildren()
+            && 1 < $this->getChildren()->count();
+    }
+
+    /**
+     * Return order's children
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getRelations()
+    {
+        return \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+            ? $this->getChildren()
+            : null;
+    }
+
+    /**
+     * Returns true if given order is current order
+     *
+     * @param \XLite\Model\Order $order
+     *
+     * @return bool
+     */
+    public function isCurrentOrder(\XLite\Model\Order $order)
+    {
+        return $this->getOrderId() === $order->getOrderId();
+    }
+
+    /**
+     * Returns order url
+     *
+     * @return mixed
+     */
+    public function getURL()
+    {
+        return \XLite\Core\Converter::buildURL('order', '', array('order_number' => $this->getOrderNumber()));
+    }
+
+    /**
+     * Returns current order object or its parent (for compatibility with Multi-Vendor module)
+     *
+     * @return \XLite\Model\Order $order
+     */
+    protected function getParentOrChildOrder()
+    {
+        if (
+            \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+            && $this->getParent()
+        ) {
+            $order = $this->getParent();
+        } else {
+            $order = $this;
+        }
+
+        return $order;
     }
 
 }

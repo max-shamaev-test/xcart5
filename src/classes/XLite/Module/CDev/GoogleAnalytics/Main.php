@@ -53,7 +53,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getBuildVersion()
     {
-        return '5';
+        return '6';
     }
 
     /**

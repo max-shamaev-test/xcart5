@@ -81,6 +81,10 @@ form.invalid-form .form-error {
   color: #ec554e;
 }
 
+form.invalid-form .form-error .common-text {
+  color: #4a4a4a;
+}
+
 /* validationEngine styles */
 .formError {
 }

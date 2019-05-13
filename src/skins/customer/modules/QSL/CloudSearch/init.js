@@ -15,7 +15,7 @@
         selector: cloudSearchData.selector,
         lang: cloudSearchData.lng,
         EventHandlers: {OnPopupRender: []},
-        requestData: cloudSearchData.requestData,
+        requestData: _.extend(cloudSearchData.requestData, document.documentElement.lang ? {lang: document.documentElement.lang} : {}),
         positionPopupAt: function (searchInput) {
             var elem = searchInput.closest('.simple-search-box');
 
@@ -89,4 +89,14 @@
             }
         });
     }
+
+    core.bind('labels-editor.ready', function(event, labelsEditor) {
+        window.Cloud_Search.EventHandlers.OnPopupRender.push(function (searchTerm, menu) {
+            var labelsEditorState = labelsEditor.getState();
+
+            $('.xlite-translation-label', $(menu)).each(function (index, el) {
+                $(el).data('controller', new EditableLabel($(el))[labelsEditorState ? 'enable' : 'disable']());
+            });
+        });
+    });
 })(jQuery);

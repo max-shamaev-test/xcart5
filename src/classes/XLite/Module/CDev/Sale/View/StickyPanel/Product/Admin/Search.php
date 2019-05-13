@@ -11,7 +11,7 @@ namespace XLite\Module\CDev\Sale\View\StickyPanel\Product\Admin;
 /**
  * Items list form button
  */
-abstract class Search extends \XLite\View\StickyPanel\Product\Admin\Search implements \XLite\Base\IDecorator
+abstract class Search extends \XLite\View\StickyPanel\Product\Admin\AAdmin implements \XLite\Base\IDecorator
 {
     /**
      * Define additional buttons

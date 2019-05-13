@@ -125,7 +125,10 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
     {
         // If isPurchaseImmediatelyOnSuccess enabled 'purchase' was already registered, so skip STATUS_QUEUED
         if (GoogleAnalytics\Main::isPurchaseImmediatelyOnSuccess()
-            && $this->getOldPaymentStatusCode() === \XLite\Model\Order\Status\Payment::STATUS_QUEUED
+            && in_array($this->getOldPaymentStatusCode(), [
+                \XLite\Model\Order\Status\Payment::STATUS_QUEUED,
+                \XLite\Model\Order\Status\Payment::STATUS_AUTHORIZED
+            ], true)
         ) {
             return;
         }

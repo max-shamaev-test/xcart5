@@ -23,13 +23,17 @@ div.xpc-card-box {
 }
 
 div.xpc-card {
-  line-height: 26px;
+  line-height: 20px;
 }
 
 div.xpc-card .card-icon-container {
   display: inline-block;
   width: 42px;
-  height: 21px;
+  height: 20px;
   vertical-align: top;
-  line-height: 24px;
+  line-height: 20px;
+}
+
+div.xpc-card-box > strong {
+  padding-bottom: 20px !important;
 }

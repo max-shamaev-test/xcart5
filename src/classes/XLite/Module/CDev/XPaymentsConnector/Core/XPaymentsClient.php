@@ -524,6 +524,8 @@ class XPaymentsClient extends \XLite\Base\Singleton
             // We cannot use first open transaction later, so we need to create it
             $transaction = new \XLite\Model\Payment\Transaction;
 
+            $transaction->setOrder($cart);
+
             $transaction->setPaymentMethod($paymentMethod);
 
             $transaction->setValue($total);
@@ -531,7 +533,6 @@ class XPaymentsClient extends \XLite\Base\Singleton
             \XLite\Core\Database::getEM()->persist($transaction);
 
             $cart->addPaymentTransactions($transaction);
-            $transaction->setOrder($cart);
 
             \XLite\Core\Database::getEM()->flush();
         }

@@ -80,4 +80,36 @@ class ModuleSettings extends \XLite\View\Model\ModuleSettings
     {
         return \XLite\Core\Converter::getInstance()->buildURL('mailchimp_lists');
     }
+
+    /**
+     * Allow any content in config options
+     *
+     * @param string $name Option name
+     *
+     * @return boolean
+     */
+    protected function isParamTrusted($name)
+    {
+        $result = parent::isParamTrusted($name);
+
+        if (
+            !$result
+            && 'mailchimp_options' === $this->getTarget()
+        ) {
+            $options = $this->getEditableOptions();
+
+            foreach ($options as $option) {
+                if (
+                    $option->getName() === $name
+                    && $option->getCategory() === 'XC\MailChimp'
+                    && $option->getName() === 'mcjs'
+                ) {
+                    $result = true;
+                    break;
+                }
+            }
+        }
+
+        return $result;
+    }
 }

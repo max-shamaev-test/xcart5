@@ -157,6 +157,16 @@ class FacebookAuthProvider extends AAuthProvider
     }
 
     /**
+     * Check if auth provider has all options configured
+     *
+     * @return boolean
+     */
+    public function isConfigured()
+    {
+        return parent::isConfigured() && \XLite\Core\Request::getInstance()->isHTTPS();
+    }
+
+    /**
      * Process address
      *
      * @param string $id            Address node id

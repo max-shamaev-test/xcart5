@@ -134,7 +134,7 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
             + array(
                 'ATTRS-PRODUCT-SKU-FMT'     => 'ProductSKU is empty',
                 'ATTRS-PRODUCT-NOT-EXISTS'  => 'Product with SKU "{{value}}" does not exists',
-                'ATTRS-TYPE-FMT'            => 'Wrong "type" value ({{value}}). This should be "C", "S" or "T"',
+                'ATTRS-TYPE-FMT'            => 'Wrong "type" value ({{value}}). This should be "C", "S", "H" or "T"',
                 'ATTRS-NAME-FMT'            => 'Name is empty',
                 'ATTRS-OWNER-FMT'           => 'Wrong "owner" format ({{value}}). Value should be one of "Yes" or "No"',
                 'ATTRS-DEFAULT-FMT'         => 'Wrong "default" format ({{value}}). Value should be one of "Yes" or "No"',
@@ -229,7 +229,7 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function verifyType($value, array $column)
     {
-        if (!$this->verifyValueAsSet($value, array('C', 'S', 'T'))) {
+        if (!$this->verifyValueAsSet($value, array('C', 'S', 'T', 'H'))) {
             $this->addError('ATTRS-TYPE-FMT', array('column' => $column, 'value' => $value));
         }
     }

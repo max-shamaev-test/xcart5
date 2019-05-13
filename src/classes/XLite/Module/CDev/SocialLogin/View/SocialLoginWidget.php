@@ -41,6 +41,7 @@ class SocialLoginWidget extends \XLite\View\AView
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
+        $list[] = 'modules/CDev/SocialLogin/common.css';
         $list[] = 'modules/CDev/SocialLogin/style.css';
 
         return $list;

@@ -118,6 +118,30 @@ class Attribute extends \XLite\Controller\Admin\ACL\Catalog
         }
 
         $list = new \XLite\View\ItemsList\Model\AttributeOption;
+
+        if (
+            $this->getAttribute()
+            && \XLite\Model\Attribute::TYPE_HIDDEN === $this->getAttribute()->getType()
+        ) {
+            $requestData = \XLite\Core\Request::getInstance()->getData();
+            $createDataPrefix = $list->getCreateDataPrefix();
+            $updateDataPrefix = $list->getDataPrefix();
+
+            $itemsData = [];
+            if (isset($requestData[$createDataPrefix])) {
+                $itemsData = array_merge($itemsData, $requestData[$createDataPrefix]);
+            }
+            if (isset($requestData[$updateDataPrefix])) {
+                $itemsData = array_merge($itemsData, $requestData[$updateDataPrefix]);
+            }
+
+            foreach ($itemsData as $itemData) {
+                if (!empty($itemData['addToNew'])) {
+                    \XLite\Core\Database::getRepo('XLite\Model\AttributeOption')->resetAddToNew($this->getAttribute());
+                }
+            }
+        }
+
         $list->processQuick();
 
         if ($this->getModelForm()->performAction('modify')) {

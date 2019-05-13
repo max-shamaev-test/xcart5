@@ -193,7 +193,7 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function detectAttributesHeader(array $column, array $row)
     {
-        return $this->detectHeaderByPattern('(.+\(field:(global|product|class)([ ]*>>>.+)?\))(_([a-z]{2}))?', $row);
+        return $this->detectHeaderByPattern('(.+\(field:(global|hidden|product|class)([ ]*>>>.+)?\))(_([a-z]{2}))?', $row);
     }
 
     // }}}
@@ -1395,6 +1395,54 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
     }
 
     /**
+     * Parse string with attribute column name
+     *
+     * @param $attributeString
+     * @return array|bool
+     */
+    protected function parseAttributeString($attributeString)
+    {
+        $result = false;
+
+        if (preg_match('/(.+)\(field:(global|hidden|product|class)([ ]*>>>[ ]*(.+))?\)(_([a-z]{2}))?/iSs', $attributeString, $m)) {
+            $result = [
+                'type' => $m[2],
+                'name' => trim($m[1]),
+                'lngCode' => isset($m[6]) ? $m[6] : null,
+                'attributeGroup' => isset($m[4]) ? $m[4] : null,
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Parse string with attribute value
+     *
+     * @param $valueString
+     * @return array|bool
+     */
+    protected function parseAttributeValueString($valueString)
+    {
+        $result = false;
+
+        if (preg_match('/(.+)=(default)?(\/)?((w|\$)(([+-]?\d+\.?\d*)(%)?))?(\/)?((w|\$)(([+-]?\d+\.?\d*)(%)?))?/iSs', $valueString, $m)) {
+            $result = [];
+            $result['value'] = $m[1];
+            if (isset($m[2]) && 'default' === $m[2]) {
+                $result['default'] = true;
+            }
+            foreach ([5, 11] as $id) {
+                if (isset($m[$id])) {
+                    $result['$' === $m[$id] ? 'price' : 'weight'] = $m[$id + 1];
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Import 'attributes' value
      *
      * @param \XLite\Model\Product $model  Product
@@ -1407,10 +1455,10 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
     {
         $this->multAttributes = [];
         foreach ($value as $attr => $v) {
-            if (preg_match('/(.+)\(field:(global|product|class)([ ]*>>>[ ]*(.+))?\)(_([a-z]{2}))?/iSs', $attr, $m)) {
-                $type = $m[2];
-                $name = trim($m[1]);
-                $lngCode = isset($m[6]) ? $m[6] : null;
+            if ($attributeStringData = $this->parseAttributeString($attr)) {
+                $type = $attributeStringData['type'];
+                $name = $attributeStringData['name'];
+                $lngCode = $attributeStringData['lngCode'];
                 $productClass = 'class' === $type
                     ? $model->getProductClass()
                     : null;
@@ -1432,8 +1480,8 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
                     continue;
                 }
 
-                $attributeGroup = isset($m[4]) && 'product' !== $type
-                    ? $this->normalizeValueAsAttributeGroup($m[4], $productClass)
+                $attributeGroup = $attributeStringData['attributeGroup'] && 'product' !== $type
+                    ? $this->normalizeValueAsAttributeGroup($attributeStringData['attributeGroup'], $productClass)
                     : null;
 
                 $data = [
@@ -1444,17 +1492,11 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
                 ];
                 $hasOptions = false;
                 foreach ($values as $k => $value) {
-                    if (preg_match('/(.+)=(default)?(\/)?((w|\$)(([+-]?\d+\.?\d*)(%)?))?(\/)?((w|\$)(([+-]?\d+\.?\d*)(%)?))?/iSs', $value, $m)) {
-                        $data['value'][$k] = $m[1];
-                        if (isset($m[2]) && 'default' === $m[2]) {
-                            $data['default'][$k] = true;
-                        }
+                    if ($valueStringData = $this->parseAttributeValueString($value)) {
                         $hasOptions = true;
-                        foreach ([5, 11] as $id) {
-                            if (isset($m[$id])) {
-                                $data['$' === $m[$id] ? 'price' : 'weight'][$k] = $m[$id + 1];
-                            }
-                        }
+                        array_walk($valueStringData, function ($valueData, $valueKey) use (&$data, $k) {
+                            $data[$valueKey][$k] = $valueData;
+                        });
 
                     } else {
                         $data['value'][$k] = $value;
@@ -1481,16 +1523,21 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
                     $attribute = $attribute[0];
 
                 } else {
-                    $type = !$data['multiple'] && !$hasOptions
-                        ? \XLite\Model\Attribute::TYPE_TEXT
-                        : \XLite\Model\Attribute::TYPE_SELECT;
-                    if (1 === count($data['value']) || 2 === count($data['value'])) {
-                        $isCheckbox = true;
-                        foreach ($data['value'] as $val) {
-                            $isCheckbox = $isCheckbox && $this->verifyValueAsBoolean($val);
-                        }
-                        if ($isCheckbox) {
-                            $type = \XLite\Model\Attribute::TYPE_CHECKBOX;
+                    if ('hidden' == $type) {
+                        $type = \XLite\Model\Attribute::TYPE_HIDDEN;
+
+                    } else {
+                        $type = !$data['multiple'] && !$hasOptions
+                            ? \XLite\Model\Attribute::TYPE_TEXT
+                            : \XLite\Model\Attribute::TYPE_SELECT;
+                        if (1 === count($data['value']) || 2 === count($data['value'])) {
+                            $isCheckbox = true;
+                            foreach ($data['value'] as $val) {
+                                $isCheckbox = $isCheckbox && $this->verifyValueAsBoolean($val);
+                            }
+                            if ($isCheckbox) {
+                                $type = \XLite\Model\Attribute::TYPE_CHECKBOX;
+                            }
                         }
                     }
                     $attribute = \XLite\Core\Database::getRepo('\XLite\Model\Attribute')->insert(

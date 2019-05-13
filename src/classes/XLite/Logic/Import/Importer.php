@@ -652,6 +652,7 @@ class Importer extends \XLite\Base
             'XLite\Logic\Import\Processor\AttributeValues\AttributeValueCheckbox',
             'XLite\Logic\Import\Processor\AttributeValues\AttributeValueSelect',
             'XLite\Logic\Import\Processor\AttributeValues\AttributeValueText',
+            'XLite\Logic\Import\Processor\AttributeValues\AttributeValueHidden',
             'XLite\Logic\Import\Processor\Customers',
         );
     }

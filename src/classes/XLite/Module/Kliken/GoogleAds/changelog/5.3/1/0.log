@@ -1,0 +1,4 @@
+Version 5.3.1.0
+
+Fixes
+2018-11-26 - [Bug] random_int backward compatibility with PHP < 7.0
