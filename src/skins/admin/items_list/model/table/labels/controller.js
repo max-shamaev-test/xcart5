@@ -9,22 +9,25 @@
 
 ItemsList.prototype.listeners.labels = function(handler)
 {
-    // Rollover
-    jQuery('.label-name').click(
-      function () {
-        var main = jQuery(this).parents('.language-labels').eq(0);
-        var info = main.find('.label-edit');
-        var icon = jQuery(this).find('.open-edit-box').eq(0);
-        if (0 < info.filter(':visible').length) {
-          info.hide();
-          jQuery(icon).removeClass('expanded');
+  // Rollover
+  jQuery('.label-name').click(
+    function () {
+      var main = jQuery(this).parents('.language-labels').eq(0);
+      var info = main.find('.label-edit');
+      if (0 < info.filter(':visible').length) {
+        info.hide();
 
-        } else {
-          info.show();
-          jQuery(icon).addClass('expanded');
-        }
-
-        return false;
+      } else {
+        info.show();
       }
-    );
+
+      return false;
+    }
+  );
+
+  jQuery(function() {
+    var width = Math.max(jQuery('.translations-header').outerWidth(), jQuery('.lng-marks').outerWidth());
+    jQuery('.translations-header').width(width);
+    jQuery('.lng-marks').width(width);
+  });
 }

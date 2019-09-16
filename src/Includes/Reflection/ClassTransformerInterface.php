@@ -12,24 +12,28 @@ interface ClassTransformerInterface
 {
     /**
      * @param $class
+     *
      * @return ClassTransformerInterface
      */
     public function setClassName($class);
 
     /**
      * @param $isAbstract
+     *
      * @return ClassTransformerInterface
      */
     public function setAbstract($isAbstract);
 
     /**
      * @param $class
+     *
      * @return ClassTransformerInterface
      */
     public function setParent($class);
 
     /**
      * @param $text
+     *
      * @return ClassTransformerInterface
      */
     public function setDocComment($text);

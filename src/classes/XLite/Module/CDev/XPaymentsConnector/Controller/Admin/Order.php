@@ -23,7 +23,7 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
         $class = '\XLite\Module\CDev\XPaymentsConnector\Model\Repo\Payment\BackendTransaction';
 
         if (
-            \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+            \Includes\Utils\Module\Manager::getRegistry()->isModuleEnabled('XC\MultiVendor')
             && $this->getOrder()->getParent()
         ) {
             $order = $this->getOrder()->getParent();

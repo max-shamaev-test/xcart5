@@ -14,25 +14,6 @@ namespace XLite\Module\XC\ThemeTweaker\Core;
 class Request extends \XLite\Core\Request implements \XLite\Base\IDecorator
 {
     /**
-     * @var string
-     */
-    protected $identifier;
-
-    /**
-     * Current request identifier
-     *
-     * @return string
-     */
-    public function getUniqueIdentifier()
-    {
-        if (null === $this->identifier) {
-            $this->identifier = hash('md4', uniqid('', true));
-        }
-
-        return $this->identifier;
-    }
-
-    /**
      * Drag-n-drop-cart feature is turned off in layout edit mode
      *
      * @return boolean

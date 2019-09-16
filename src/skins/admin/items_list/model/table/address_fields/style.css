@@ -16,11 +16,8 @@
   margin: auto;
 }
 
-.items-list-table.address-fields table.list thead th.name {
-  padding-left: 28px;
-}
-
-.items-list-table.address-fields table.list tbody td.required .cell {
-  text-align: center;
+.items-list-table.address-fields table.list thead th.required,
+.items-list-table.address-fields table.list tbody td.required {
+  text-align: right;
 }
 

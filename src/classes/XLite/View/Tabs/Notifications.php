@@ -22,11 +22,12 @@ class Notifications extends \XLite\View\Tabs\ATabs
      */
     public static function getAllowedTargets()
     {
-        $list   = parent::getAllowedTargets();
+        $list = parent::getAllowedTargets();
         $list[] = 'notifications';
         $list[] = 'notification_common';
         $list[] = 'notification_attachments';
         $list[] = 'email_settings';
+        $list[] = 'test_email';
 
         return $list;
     }
@@ -56,6 +57,11 @@ class Notifications extends \XLite\View\Tabs\ATabs
                 'weight' => 400,
                 'title'  => static::t('Email transfer settings'),
                 'widget' => 'XLite\View\Model\Settings',
+            ],
+            'test_email'               => [
+                'weight' => 500,
+                'title'  => static::t('Test email configuration'),
+                'widget' => 'XLite\View\TestEmail',
             ],
         ];
     }

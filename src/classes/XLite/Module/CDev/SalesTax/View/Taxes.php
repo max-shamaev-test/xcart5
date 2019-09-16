@@ -11,20 +11,22 @@ namespace XLite\Module\CDev\SalesTax\View;
 /**
  * Taxes widget (admin)
  */
-class Taxes extends \XLite\View\AView
+class Taxes extends \XLite\View\Taxes\Settings
 {
     /**
-     * Register CSS files
-     *
-     * @return array
+     * @return string
      */
-    public function getCSSFiles()
+    protected function getItemsTemplate()
     {
-        $list = parent::getCSSFiles();
+        return 'modules/CDev/SalesTax/rates.twig';
+    }
 
-        $list[] = 'modules/CDev/SalesTax/admin.css';
-
-        return $list;
+    /**
+     * @return string
+     */
+    protected function getOptionFieldsTemplate()
+    {
+        return 'modules/CDev/SalesTax/options.twig';
     }
 
     /**
@@ -42,13 +44,21 @@ class Taxes extends \XLite\View\AView
     }
 
     /**
-     * Return widget default template
-     *
      * @return string
      */
-    protected function getDefaultTemplate()
+    protected function getFormTarget()
     {
-        return 'modules/CDev/SalesTax/edit.twig';
+        return 'sales_tax';
+    }
+
+    /**
+     * Get tax
+     *
+     * @return object
+     */
+    public function getTax()
+    {
+        return \XLite::getController()->getTax();
     }
 
     /**
@@ -58,7 +68,7 @@ class Taxes extends \XLite\View\AView
      */
     protected function getDialogCSSClasses()
     {
-        $result = 'edit-sales-tax';
+        $result = parent::getDialogCSSClasses() . ' edit-sales-tax';
 
         if (\XLite\Core\Config::getInstance()->CDev->SalesTax->ignore_memberships) {
             $result .= ' no-memberships';
@@ -69,22 +79,6 @@ class Taxes extends \XLite\View\AView
         }
 
         return $result;
-    }
-
-    /**
-     * Return true if list of tax rates on shipping cost is displayed
-     *
-     * @return boolean
-     */
-    protected function isShippingRatesDisplayed()
-    {
-        $cnd = new \XLite\Core\CommonCell;
-        $cnd->{\XLite\Module\CDev\SalesTax\Model\Repo\Tax\Rate::PARAM_TAXABLE_BASE}
-            = \XLite\Module\CDev\SalesTax\Model\Tax\Rate::TAXBASE_SHIPPING;
-
-        $ratesCount = \XLite\Core\Database::getRepo('XLite\Module\CDev\SalesTax\Model\Tax\Rate')->search($cnd, true);
-
-        return 0 < $ratesCount;
     }
 
     /**

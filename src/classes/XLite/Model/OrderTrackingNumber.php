@@ -37,6 +37,15 @@ class OrderTrackingNumber extends \XLite\Model\AEntity
     protected $value;
 
     /**
+     * Order tracking creation date
+     *
+     * @var integer
+     *
+     * @Column (type="integer")
+     */
+    protected $creationDate;
+
+    /**
      * Relation to a order entity
      *
      * @var \XLite\Model\Order
@@ -60,11 +69,15 @@ class OrderTrackingNumber extends \XLite\Model\AEntity
     /**
      * Set value
      *
-     * @param text $value
+     * @param string $value
      * @return OrderTrackingNumber
      */
     public function setValue($value)
     {
+        if ($this->isChanged($value)) {
+            $this->setCreationDate();
+        };
+        
         $this->value = $value;
         return $this;
     }
@@ -72,7 +85,7 @@ class OrderTrackingNumber extends \XLite\Model\AEntity
     /**
      * Get value
      *
-     * @return text 
+     * @return string
      */
     public function getValue()
     {
@@ -99,5 +112,27 @@ class OrderTrackingNumber extends \XLite\Model\AEntity
     public function getOrder()
     {
         return $this->order;
+    }
+
+    /**
+     * Set creation date
+     *
+     * @return OrderTrackingNumber
+     */
+    public function setCreationDate()
+    {
+        $this->creationDate = time();
+        return $this;
+    }
+
+    /**
+     * Checks if the tracking number is changed
+     *
+     * @param string $value
+     * @return boolean
+     */
+    private function isChanged($value)
+    {
+        return $this->value !== $value;
     }
 }

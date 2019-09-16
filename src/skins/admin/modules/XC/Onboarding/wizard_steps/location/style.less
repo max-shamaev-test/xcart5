@@ -15,7 +15,7 @@
   #location_map {
     width: 250px;
     height: 140px;
-    margin: 20px auto;
+    margin: 0 auto @rhythmic-unit auto;
     position: relative;
     pointer-events: none;
 
@@ -95,12 +95,14 @@
       .table-label, .table-value, .example {
         display: table-cell;
         text-align: left;
+        padding: 4px 0;
       }
 
       .table-label {
         label {
           font-size: 16px;
           color: #000;
+          padding-bottom: @rhythmic-unit;
         }
 
         width: 100px;

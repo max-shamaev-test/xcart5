@@ -52,8 +52,8 @@ class PinCode extends \XLite\Model\Repo\ARepo
     public function countSold(\XLite\Model\Product $product)
     {
         return $this->createQueryBuilder('p')
-            ->andWhere('p.product = :product AND p.isSold = :true')
-            ->setParameter('true', true)
+            ->andWhere('p.product = :product AND p.isSold = :isSold')
+            ->setParameter('isSold', true)
             ->setParameter('product', $product)
             ->count();
     }
@@ -68,9 +68,9 @@ class PinCode extends \XLite\Model\Repo\ARepo
     public function countBlocked(\XLite\Model\Product $product)
     {
         return $this->createQueryBuilder('p')
-            ->andWhere('p.product = :product AND (p.isSold = :true1 OR p.isBlocked = :true2)')
-            ->setParameter('true1', true)
-            ->setParameter('true2', true)
+            ->andWhere('p.product = :product AND (p.isSold = :isSold OR p.isBlocked = :isBlocked)')
+            ->setParameter('isSold', true)
+            ->setParameter('isBlocked', true)
             ->setParameter('product', $product)
             ->count();
     }
@@ -85,34 +85,11 @@ class PinCode extends \XLite\Model\Repo\ARepo
     public function countRemaining(\XLite\Model\Product $product)
     {
         return $this->createQueryBuilder('p')
-            ->andWhere('p.product = :product AND p.isSold = :false1 AND p.isBlocked = :false2')
-            ->setParameter('false1', false)
-            ->setParameter('false2', false)
+            ->andWhere('p.product = :product AND p.isSold = :isSold AND p.isBlocked = :isBlocked')
+            ->setParameter('isSold', false)
+            ->setParameter('isBlocked', false)
             ->setParameter('product', $product)
             ->count();
-    }
-
-    /**
-     * @deprecated 5.4
-     *
-     * Returns not sold pin code 
-     *
-     * @param \XLite\Model\Product $product Product
-     * @param integer              $index   Index
-     *
-     * @return PinCodeModel
-     */
-    public function getAvailablePinCode(\XLite\Model\Product $product, $index)
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.product = :product AND p.isSold = :false1 AND p.isBlocked = :false2')
-            ->addOrderBy('p.id')
-            ->setParameter('false1', false)
-            ->setParameter('false2', false)
-            ->setParameter('product', $product)
-            ->setFirstResult($index)
-            ->setMaxResults(1)
-            ->getSingleResult();
     }
 
     protected function getUnavailablePinCodesIds()
@@ -142,10 +119,10 @@ class PinCode extends \XLite\Model\Repo\ARepo
     {
         $qb = $this->createQueryBuilder('p');
 
-        $qb->andWhere('p.product = :product AND p.isSold = :false1 AND p.isBlocked = :false2')
+        $qb->andWhere('p.product = :product AND p.isSold = :isSold AND p.isBlocked = :isBlocked')
             ->addOrderBy('p.id')
-            ->setParameter('false1', false)
-            ->setParameter('false2', false)
+            ->setParameter('isSold', false)
+            ->setParameter('isBlocked', false)
             ->setParameter('product', $product)
             ->setMaxResults($count);
 

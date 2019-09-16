@@ -8,80 +8,33 @@
 
 namespace XLite\Module\XC\CanadaPost\Core;
 
+use XLite\Module\XC\CanadaPost\Core\Mail\ProductsReturnApproved;
+use XLite\Module\XC\CanadaPost\Core\Mail\ProductsReturnRejected;
+
 /**
  * Mailer
  */
 abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorator
 {
     /**
-     * FROM type
-     */
-    const TYPE_PRODUCTS_RETURN_APPROVED = 'ordersDep';
-    const TYPE_PRODUCTS_RETURN_REJECTED = 'ordersDep';
-
-    /**
      * Send mail notification to customer that his products return has been approved
      *
-     * @param \XLite\Module\XC\CanadaPost\Model\ProductsReturn $return Canada Post products return model
-     *
-     * @return void
+     * @param \XLite\Module\XC\CanadaPost\Model\ProductsReturn $return Canada Post products return
+     *                                                                 model
      */
     public static function sendProductsReturnApproved(\XLite\Module\XC\CanadaPost\Model\ProductsReturn $return)
     {
-        if (
-            $return->getOrder() 
-            && $return->getOrder()->getProfile()
-        ) {
-            static::register(
-                array(
-                    'productsReturn' => $return,
-                    'notes' => nl2br($return->getAdminNotes(), false)
-                )
-            );
-
-            static::compose(
-                static::TYPE_PRODUCTS_RETURN_APPROVED,
-                static::getOrdersDepartmentMail(),
-                $return->getOrder()->getProfile()->getLogin(),
-                'modules/XC/CanadaPost/return_approved',
-                array(),
-                true,
-                \XLite::CUSTOMER_INTERFACE,
-                static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $return->getOrder()->getProfile()->getLanguage())
-            );
-        }
+        (new ProductsReturnApproved($return))->schedule();
     }
 
     /**
      * Send mail notification to customer that his products return has been rejected
      *
-     * @param \XLite\Module\XC\CanadaPost\Model\ProductsReturn $return Canada Post products return model
-     *
-     * @return void
+     * @param \XLite\Module\XC\CanadaPost\Model\ProductsReturn $return Canada Post products return
+     *                                                                 model
      */
     public static function sendProductsReturnRejected(\XLite\Module\XC\CanadaPost\Model\ProductsReturn $return)
     {
-        if (
-            $return->getOrder() 
-            && $return->getOrder()->getProfile()
-        ) {
-            static::register(
-                array(
-                    'productsReturn' => $return,
-                    'notes' => nl2br($return->getAdminNotes(), false)
-                )
-            );
-
-            static::compose(
-                static::TYPE_PRODUCTS_RETURN_REJECTED,
-                static::getOrdersDepartmentMail(),
-                $return->getOrder()->getProfile()->getLogin(),
-                'modules/XC/CanadaPost/return_rejected',
-                array(),
-                true,
-                \XLite::CUSTOMER_INTERFACE,
-                static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $return->getOrder()->getProfile()->getLanguage())
-            );
-        }
+        (new ProductsReturnRejected($return))->schedule();
     }
 }

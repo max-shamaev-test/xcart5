@@ -1003,7 +1003,7 @@ class Profile extends \XLite\Model\AEntity
     {
         $result = null;
 
-        foreach ($this->getAddresses() as $address) {
+        foreach ($this->getAddresses() ?: [] as $address) {
             if ((\XLite\Model\Address::BILLING === $atype && $address->getIsBilling())
                 || (\XLite\Model\Address::SHIPPING === $atype && $address->getIsShipping())
             ) {

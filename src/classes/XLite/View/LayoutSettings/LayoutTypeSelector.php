@@ -9,22 +9,13 @@
 namespace XLite\View\LayoutSettings;
 
 use \XLite\Core\Layout;
+use XLite\Core\Skin;
 
 /**
  * Layout settings
  */
 class LayoutTypeSelector extends \XLite\View\AView
 {
-    /**
-     * Returns current skin
-     *
-     * @return \XLite\Model\Module
-     */
-    public function getCurrentSkin()
-    {
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
-    }
-
     /**
      * Returns styles
      * 

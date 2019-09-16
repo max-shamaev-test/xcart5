@@ -2,6 +2,10 @@
  * CloudSearch admin dashboard interface styles
  */
 
+.sticky-panel {
+  display: none !important;;
+}
+
 .cloud-search-iframe-wrapper {
   margin: 20px 0;
   width: 940px;

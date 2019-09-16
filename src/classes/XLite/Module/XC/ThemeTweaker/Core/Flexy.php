@@ -125,7 +125,7 @@ class Flexy extends \XLite\Base\Singleton
      */
     public static function getSearchDirs()
     {
-        return array('custom_skin', 'theme_tweaker');
+        return ['theme_tweaker'];
     }
 
     /**

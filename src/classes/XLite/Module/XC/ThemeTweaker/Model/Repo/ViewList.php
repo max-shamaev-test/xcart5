@@ -8,6 +8,9 @@
 
 namespace XLite\Module\XC\ThemeTweaker\Model\Repo;
 
+use Doctrine\ORM\QueryBuilder;
+use XLite\Core\Layout;
+use XLite\Model\QueryBuilder\AQueryBuilder;
 use XLite\Module\XC\ThemeTweaker\Core\ThemeTweaker;
 
 /**
@@ -18,189 +21,136 @@ use XLite\Module\XC\ThemeTweaker\Core\ThemeTweaker;
 class ViewList extends \XLite\Model\Repo\ViewList implements \XLite\Base\IDecorator
 {
     /**
-     * Define query builder for findClassList()
+     * Applies the override changeset for a certain layout preset
      *
+     * @param string $preset Layout preset key
      * @param array $changeset Array of change records
      *
      * @return void
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function updateOverrides($changeset)
+    public function updateOverrides($preset, array $changeset)
     {
-        if ($changeset) {
+        if ($preset && $changeset) {
             foreach ($changeset as $change) {
+                /** @var \XLite\Model\ViewList $entity */
                 $entity = $this->find($change['id']);
+
                 if ($entity) {
-                    $entity->setOverrideMode($change['mode']);
+                    if ($entity->getPreset() !== $preset) {
+                        /** @var \XLite\Model\ViewList $presetRecord */
+                        $presetRecord = $entity->cloneEntity();
+                        $presetRecord->setParent($entity);
+                        $presetRecord->setPreset($preset);
 
-                    if (isset($change['list'])) {
-                        list($list) = explode(',', $change['list']);
-                        $entity->setListOverride($list);
+                        \XLite\Core\Database::getEM()->persist($presetRecord);
+
+                        $entity = $presetRecord;
                     }
 
-                    if (isset($change['weight'])) {
-                        $entity->setWeightOverride($change['weight']);
-                    }
+                    list($list) = explode(',', $change['list']);
+
+                    $entity->applyOverrides(
+                        $change['mode'],
+                        $list,
+                        $change['weight']
+                    );
                 }
             }
 
             $this->cleanCache();
-
             \XLite\Core\Database::getEM()->flush();
         }
     }
 
     /**
-     * Define query builder for findClassList()
+     * Resets all overridden records for a certain layout preset
      *
-     * @param string $list Class list name
-     * @param string $zone Current interface name
+     * @param string $preset Layout preset key
      *
-     * @return \Doctrine\ORM\QueryBuilder
+     * @return boolean
      */
-    protected function defineClassListQuery($list, $zone)
+    public function hasOverriddenRecords($preset)
     {
-        $qb = $this->createQueryBuilder()
-            ->where('IF (v.list_override != :empty, v.list_override, v.list) IN (:list) AND v.zone IN (:zone, :empty) AND v.version IS NULL')
-            ->addSelect('CASE WHEN v.override_mode > 0 THEN v.weight_override ELSE v.weight END AS HIDDEN ORD')
-            ->orderBy('ORD', 'asc')
-            ->setParameter('empty', '')
-            ->setParameter('list', explode(',', $list))
-            ->setParameter('zone', $zone);
+        return $this->defineCountOverriddenRecords($preset)->getSingleScalarResult() > 0;
+    }
 
-        if (!\XLite\Module\XC\ThemeTweaker\Core\ThemeTweaker::getInstance()->isInLayoutMode()) {
-            $qb->andWhere("v.override_mode != :hidden")
-                ->setParameter('hidden', \XLite\Module\XC\ThemeTweaker\Model\ViewList::OVERRIDE_HIDE);
+    /**
+     * @param string $preset
+     * @param string $zone
+     *
+     * @return QueryBuilder|AQueryBuilder
+     */
+    protected function defineCountOverriddenRecords($preset, $zone = null)
+    {
+        if ($zone === null) {
+            $zone = \XLite::CUSTOMER_INTERFACE;
         }
 
-        return $qb;
-    }
-
-    /**
-     * Define query builder for findClassList()
-     *
-     * @param string $list Class list name
-     * @param string $zone Current interface name
-     *
-     * @return \Doctrine\ORM\QueryBuilder
-     */
-    protected function defineClassListWithFallbackQuery($list, $zone)
-    {
-        $qb = $this->createQueryBuilder()
-            ->where('IF (v.list_override != :empty, v.list_override, v.list) IN (:list) AND v.zone IN (:zone, :fallback, :empty) AND v.version IS NULL')
-            ->addSelect('CASE WHEN v.override_mode > 0 THEN v.weight_override ELSE v.weight END AS HIDDEN ORD')
-            ->orderBy('ORD', 'asc')
-            ->setParameter('empty', '')
-            ->setParameter('list', explode(',', $list))
-            ->setParameter('fallback', \XLite::COMMON_INTERFACE)
-            ->setParameter('zone', $zone);
-
-        if (!\XLite\Module\XC\ThemeTweaker\Core\ThemeTweaker::getInstance()->isInLayoutMode()) {
-            $qb->andWhere("v.override_mode != :hidden")
-                ->setParameter('hidden', \XLite\Module\XC\ThemeTweaker\Model\ViewList::OVERRIDE_HIDE);
-        }
-
-        return $qb;
-    }
-
-    /**
-     * Find overridden view list items
-     *
-     * @return array
-     */
-    public function findOverridden()
-    {
-        return $this->defineOverriddenQueryBuilder()->getResult();
-    }
-
-    /**
-     * Find overridden view list items
-     *
-     * @return array
-     */
-    public function findOverriddenData()
-    {
-        $qb = $this->defineOverriddenQueryBuilder();
-        $alias = $qb->getMainAlias();
-
-        $properties = [
-            'list_override',
-            'weight_override',
-            'override_mode',
-            'list',
-            'child',
-            'tpl',
-            'zone',
-            'weight',
+        $modes = [
+            \XLite\Model\ViewList::OVERRIDE_MOVE,
+            \XLite\Model\ViewList::OVERRIDE_HIDE,
+            \XLite\Model\ViewList::OVERRIDE_DISABLE_PRESET
         ];
 
-        $qb->select("v.list_id");
-
-        foreach ($properties as $property) {
-            $qb->addSelect("{$alias}.{$property}");
-        }
-
-        return $qb->getArrayResult();
-    }
-
-    /**
-     * Define overridden query builder
-     *
-     * @return \XLite\Model\QueryBuilder\AQueryBuilder
-     */
-    public function defineOverriddenQueryBuilder()
-    {
-        return $this->createQueryBuilder()
-            ->where('v.override_mode > :off_mode')
+        return $this->createPureQueryBuilder('v')
+            ->select('COUNT(v)')
             ->andWhere('v.version IS NULL')
-            ->setParameter('off_mode', \XLite\Model\ViewList::OVERRIDE_OFF);
+            ->andWhere('v.preset LIKE :preset')
+            ->andWhere('v.zone LIKE :zone')
+            ->andWhere('v.override_mode IN (:modes)')
+            ->setParameter('modes', $modes)
+            ->setParameter('zone', $zone)
+            ->setParameter('preset', $preset);
     }
 
     /**
-     * Find first entity equal to $other
+     * Resets all overridden records for a certain layout preset
      *
-     * @param \XLite\Model\ViewList $other     Other entity
-     * @param boolean               $versioned Add `version is not null` condition
+     * @param string $preset Layout preset key
      *
-     * @return \XLite\Model\ViewList|null
+     * @return void
      */
-    public function findEqual(\XLite\Model\ViewList $other, $versioned = false)
+    public function resetOverrides($preset)
     {
-        if (!$other) {
-            return null;
-        }
-
-        $conditions = [
-            'list'   => $other->getList(),
-            'child'  => $other->getChild(),
-            'tpl'    => $other->getTpl(),
-            'zone'   => $other->getZone(),
-            'weight' => $other->getWeight(),
-        ];
-
-        return $this->findEqualByData($conditions, $versioned);
+        $this->defineOverrideResetQuery($preset)->execute();
+        $this->cleanCache();
     }
 
     /**
-     * Find first entity equal to data
+     * @param string $preset
+     * @param string $zone
      *
-     * @param array   $conditions
-     * @param boolean $versioned Add `version is not null` condition
-     *
-     * @return \XLite\Model\ViewList|null
+     * @return QueryBuilder|AQueryBuilder
      */
-    public function findEqualByData($conditions, $versioned = false)
+    protected function defineOverrideResetQuery($preset, $zone = null)
     {
-        $qb = $this->createQueryBuilder()->setParameters($conditions);
-
-        foreach ($conditions as $key => $condition) {
-            $qb->andWhere("v.{$key} = :{$key}");
+        if ($zone === null) {
+            $zone = \XLite::CUSTOMER_INTERFACE;
         }
 
-        if ($versioned) {
-            $qb->andWhere('v.version IS NOT NULL');
+        return $this->createPureQueryBuilder()
+            ->update($this->_entityName, 'v')
+            ->set('v.override_mode', \XLite\Model\ViewList::OVERRIDE_OFF)
+            ->andWhere('v.version IS NULL')
+            ->andWhere('v.preset LIKE :preset')
+            ->andWhere('v.zone LIKE :zone')
+            ->setParameter('zone', $zone)
+            ->setParameter('preset', $preset);
+    }
+
+    /**
+     * @return array
+     */
+    protected function getDisplayableModes()
+    {
+        $modes = parent::getDisplayableModes();
+
+        if (ThemeTweaker::getInstance()->isInLayoutMode()) {
+            $modes[] = \XLite\Model\ViewList::OVERRIDE_HIDE;
         }
 
-        return $qb->getSingleResult();
+        return $modes;
     }
 
     /**

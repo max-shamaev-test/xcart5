@@ -8,6 +8,8 @@
 
 namespace XLite\View\Payment;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Payment configuration page
  */
@@ -27,14 +29,14 @@ class Configuration extends \XLite\View\AView
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'payment/configuration/style.css';
+        $list[] = 'payment/configuration/style.less';
 
         return array_merge(
             $list,
-            $this->getWidget(array(), '\XLite\View\SearchPanel\Payment\Admin\Main')->getCSSFiles(),
-            $this->getWidget(array(), '\XLite\View\ItemsList\Model\Payment\OnlineMethods')->getCSSFiles(),
-            $this->getWidget(array(), '\XLite\View\Pager\Admin\Model\Table')->getCSSFiles(),
-            $this->getWidget(array(), '\XLite\View\FormField\Select\Model\CountrySelector')->getCSSFiles()
+            $this->getWidget([], '\XLite\View\SearchPanel\Payment\Admin\Main')->getCSSFiles(),
+            $this->getWidget([], '\XLite\View\ItemsList\Model\Payment\OnlineMethods')->getCSSFiles(),
+            $this->getWidget([], '\XLite\View\Pager\Admin\Model\Table')->getCSSFiles(),
+            $this->getWidget([], '\XLite\View\FormField\Select\Model\CountrySelector')->getCSSFiles()
         );
     }
 
@@ -49,11 +51,10 @@ class Configuration extends \XLite\View\AView
 
         return array_merge(
             $list,
-            $this->getWidget(array(), '\XLite\View\SearchPanel\Payment\Admin\Main')->getJSFiles(),
-            $this->getWidget(array(), '\XLite\View\ItemsList\Model\Payment\OnlineMethods')->getJSFiles(),
-            $this->getWidget(array(), '\XLite\View\Pager\Admin\Model\Table')->getJSFiles(),
-            $this->getWidget(array(), '\XLite\View\Button\Addon\Install')->getJSFiles(),
-            $this->getWidget(array(), '\XLite\View\FormField\Select\Model\CountrySelector')->getJSFiles()
+            $this->getWidget([], '\XLite\View\SearchPanel\Payment\Admin\Main')->getJSFiles(),
+            $this->getWidget([], '\XLite\View\ItemsList\Model\Payment\OnlineMethods')->getJSFiles(),
+            $this->getWidget([], '\XLite\View\Pager\Admin\Model\Table')->getJSFiles(),
+            $this->getWidget([], '\XLite\View\FormField\Select\Model\CountrySelector')->getJSFiles()
         );
     }
 
@@ -87,12 +88,13 @@ class Configuration extends \XLite\View\AView
     protected function hasGateways()
     {
         $cnd = new \XLite\Core\CommonCell;
+
         $cnd->{\XLite\Model\Repo\Payment\Method::P_MODULE_ENABLED} = true;
-        $cnd->{\XLite\Model\Repo\Payment\Method::P_TYPE} = array(
+        $cnd->{\XLite\Model\Repo\Payment\Method::P_TYPE}           = [
             \XLite\Model\Payment\Method::TYPE_ALLINONE,
             \XLite\Model\Payment\Method::TYPE_CC_GATEWAY,
             \XLite\Model\Payment\Method::TYPE_ALTERNATIVE,
-        );
+        ];
 
         return 0 < \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')->search($cnd, true);
     }
@@ -105,44 +107,49 @@ class Configuration extends \XLite\View\AView
     protected function hasAddedGateways()
     {
         $cnd = new \XLite\Core\CommonCell;
+
         $cnd->{\XLite\Model\Repo\Payment\Method::P_MODULE_ENABLED} = true;
-        $cnd->{\XLite\Model\Repo\Payment\Method::P_ADDED} = true;
-        $cnd->{\XLite\Model\Repo\Payment\Method::P_TYPE} = array(
+        $cnd->{\XLite\Model\Repo\Payment\Method::P_ADDED}          = true;
+        $cnd->{\XLite\Model\Repo\Payment\Method::P_TYPE}           = [
             \XLite\Model\Payment\Method::TYPE_ALLINONE,
-            \XLite\Model\Payment\Method::TYPE_CC_GATEWAY
-        );
+            \XLite\Model\Payment\Method::TYPE_CC_GATEWAY,
+        ];
 
         return 0 < \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')->search($cnd, true);
     }
 
     /**
      * Get not added all-in-one and cc gateways payment modules count
+     * @todo: remove, unused
      *
      * @return integer
      */
     protected function countNonAddedGateways()
     {
         $cnd = new \XLite\Core\CommonCell;
+
         $cnd->{\XLite\Model\Repo\Payment\Method::P_MODULE_ENABLED} = true;
-        $cnd->{\XLite\Model\Repo\Payment\Method::P_ADDED} = false;
-        $cnd->{\XLite\Model\Repo\Payment\Method::P_TYPE} = array(
+        $cnd->{\XLite\Model\Repo\Payment\Method::P_ADDED}          = false;
+        $cnd->{\XLite\Model\Repo\Payment\Method::P_TYPE}           = [
             \XLite\Model\Payment\Method::TYPE_ALLINONE,
-            \XLite\Model\Payment\Method::TYPE_CC_GATEWAY
-        );
+            \XLite\Model\Payment\Method::TYPE_CC_GATEWAY,
+        ];
 
         return \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')->search($cnd, true);
     }
 
     /**
      * Check - has installed alternative payment modules or not
+     * @todo: remove, unused
      *
      * @return boolean
      */
     protected function hasAlternative()
     {
         $cnd = new \XLite\Core\CommonCell;
+
         $cnd->{\XLite\Model\Repo\Payment\Method::P_MODULE_ENABLED} = true;
-        $cnd->{\XLite\Model\Repo\Payment\Method::P_TYPE} = \XLite\Model\Payment\Method::TYPE_ALTERNATIVE;
+        $cnd->{\XLite\Model\Repo\Payment\Method::P_TYPE}           = \XLite\Model\Payment\Method::TYPE_ALTERNATIVE;
 
         return 0 < \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')->search($cnd, true);
     }
@@ -155,24 +162,27 @@ class Configuration extends \XLite\View\AView
     protected function hasAddedAlternative()
     {
         $cnd = new \XLite\Core\CommonCell;
+
         $cnd->{\XLite\Model\Repo\Payment\Method::P_MODULE_ENABLED} = true;
-        $cnd->{\XLite\Model\Repo\Payment\Method::P_ADDED} = true;
-        $cnd->{\XLite\Model\Repo\Payment\Method::P_TYPE} = \XLite\Model\Payment\Method::TYPE_ALTERNATIVE;
+        $cnd->{\XLite\Model\Repo\Payment\Method::P_ADDED}          = true;
+        $cnd->{\XLite\Model\Repo\Payment\Method::P_TYPE}           = \XLite\Model\Payment\Method::TYPE_ALTERNATIVE;
 
         return 0 < \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')->search($cnd, true);
     }
 
     /**
      * Get not added all-in-one and cc gateways payment modules count
+     * @todo: remove, unused
      *
      * @return integer
      */
     protected function countNonAddedAlternative()
     {
         $cnd = new \XLite\Core\CommonCell;
+
         $cnd->{\XLite\Model\Repo\Payment\Method::P_MODULE_ENABLED} = true;
-        $cnd->{\XLite\Model\Repo\Payment\Method::P_ADDED} = false;
-        $cnd->{\XLite\Model\Repo\Payment\Method::P_TYPE} = \XLite\Model\Payment\Method::TYPE_ALTERNATIVE;
+        $cnd->{\XLite\Model\Repo\Payment\Method::P_ADDED}          = false;
+        $cnd->{\XLite\Model\Repo\Payment\Method::P_TYPE}           = \XLite\Model\Payment\Method::TYPE_ALTERNATIVE;
 
         return \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')->search($cnd, true);
     }
@@ -184,11 +194,13 @@ class Configuration extends \XLite\View\AView
     {
         if (null === $this->banner) {
             $banners = \XLite\Core\Marketplace::getInstance()->getAllBanners();
-            foreach ($banners as $banner) {
-                if ($banner['banner_section'] === 'payment') {
-                    $this->banner = $banner;
+            if (is_array($banners)) {
+                foreach ($banners as $banner) {
+                    if ($banner['banner_section'] === 'payment') {
+                        $this->banner = $banner;
 
-                    break;
+                        break;
+                    }
                 }
             }
         }
@@ -219,10 +231,9 @@ class Configuration extends \XLite\View\AView
      */
     protected function getBannerModuleURL($banner)
     {
-        list($author, $module) = explode('-', $banner['banner_module']);
+        list($author, $name) = explode('-', $banner['banner_module']);
 
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')
-            ->getMarketplaceUrlByName($author, $module);
+        return Manager::getRegistry()->getModuleServiceURL($author, $name);
     }
 
     /**

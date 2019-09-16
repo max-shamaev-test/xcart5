@@ -8,6 +8,7 @@
 
 namespace XLite\Module\CDev\Paypal\Model\Payment\Processor;
 
+use Includes\Utils\Module\Manager;
 use XLite\Model\Payment\BackendTransaction;
 use XLite\Module\CDev\Paypal;
 
@@ -465,7 +466,7 @@ class PaypalAdaptive extends \XLite\Model\Payment\Base\WebBased
         return parent::isConfigured($method)
             && $this->api->isConfigured()
             && Paypal\Main::PP_METHOD_PAD == $method->getServiceName()
-            && \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor');
+            && Manager::getRegistry()->isModuleEnabled('XC', 'MultiVendor');
     }
 
     /**
@@ -479,7 +480,7 @@ class PaypalAdaptive extends \XLite\Model\Payment\Base\WebBased
     {
         return parent::canEnable($method)
             && Paypal\Main::PP_METHOD_PAD == $method->getServiceName()
-            && \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor');
+            && Manager::getRegistry()->isModuleEnabled('XC', 'MultiVendor');
     }
 
     /**
@@ -494,7 +495,7 @@ class PaypalAdaptive extends \XLite\Model\Payment\Base\WebBased
         $result = parent::getWarningNote($method);
 
         if (Paypal\Main::PP_METHOD_PAD === $method->getServiceName()
-            && !\XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+            && !Manager::getRegistry()->isModuleEnabled('XC', 'MultiVendor')
         ) {
             $result = static::t('To enable this payment method, you need Multi-vendor module installed.');
         }

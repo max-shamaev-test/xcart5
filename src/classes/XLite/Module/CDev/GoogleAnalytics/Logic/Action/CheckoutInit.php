@@ -60,6 +60,7 @@ class CheckoutInit implements IAction
         return [
             'products'      => $productsData,
             'actionData'    => (object) $actionData,
+            'shipping_method' => $cart->getShippingMethodName(),
         ];
     }
 

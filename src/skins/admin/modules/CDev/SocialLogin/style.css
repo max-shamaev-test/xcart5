@@ -14,3 +14,7 @@
 .settings ul.table li.instructions.even {
   background: none;
 }
+
+.settings form .table:not(.vertical)>li.instructions {
+  display: block;
+}

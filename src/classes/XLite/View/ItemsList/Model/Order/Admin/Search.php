@@ -68,7 +68,7 @@ class Search extends \XLite\View\ItemsList\Model\Order\Admin\AAdmin
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/' . $this->getPageBodyDir() . '/order/style.css';
+        $list[] = $this->getDir() . '/' . $this->getPageBodyDir() . '/order/style.less';
 
         return $list;
     }
@@ -305,6 +305,14 @@ class Search extends \XLite\View\ItemsList\Model\Order\Admin\AAdmin
             static::getSearchParams(),
             array(\XLite\Controller\Admin\AAdmin::PARAM_SEARCH_FILTER_ID)
         );
+    }
+
+    /**
+     * @return \XLite\Core\CommonCell
+     */
+    public function getConditionForNexPrevious()
+    {
+        return $this->getSearchCondition();
     }
 
     /**

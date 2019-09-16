@@ -28,7 +28,7 @@ class OrderTrackingNumber extends \XLite\View\ItemsList\Model\Table
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'order/page/tracking.css';
+        $list[] = 'order/page/tracking.less';
 
         return $list;
     }
@@ -66,55 +66,11 @@ class OrderTrackingNumber extends \XLite\View\ItemsList\Model\Table
         return 'new-tracking';
     }
 
-    /**
-     * Quick process
-     *
-     * @param array $parameters Parameters OPTIONAL
-     *
-     * @return void
-     */
-    public function processQuick(array $parameters = array())
+    protected function postprocessInsertedEntity(\XLite\Model\AEntity $entity, array $line)
     {
-        $data = \XLite\Core\Request::getInstance()->getData();
+        $this->getOrder()->addTrackingNumbers($entity);
 
-        $new = $data[$this->getCreateDataPrefix()];
-        unset($new[0]);
-        $update = isset($data[$this->getDataPrefix()]) ? $data[$this->getDataPrefix()] : array();
-        $delete = isset($data[$this->getRemoveDataPrefix()]) ? $data[$this->getRemoveDataPrefix()] : array();
-
-        // Prepare information about the added numbers
-        $added = array();
-        foreach ($new as $id => $value) {
-            if (!empty($value['value'])) {
-                $added[$id] = $value['value'];
-            }
-        }
-
-        // Prepare information about removed numbers (we remove them from the changed ones)
-        $removed = array();
-        foreach ($delete as $id => $value) {
-            $removed[$id] = $update[$id]['value'];
-            unset($update[$id]);
-        }
-
-        // Prepare information about changed numbers
-        $changed = array();
-        $repo = \XLite\Core\Database::getRepo('XLite\Model\OrderTrackingNumber');
-        foreach ($update as $id => $value) {
-            $oldValue = $repo->find($id)->getValue();
-            if ($oldValue !== $value['value']) {
-                $changed[$id] = array(
-                    'old' => $oldValue,
-                    'new' => $value['value'],
-                );
-            }
-        }
-
-        if ($added || $removed || $changed) {
-            \XLite\Core\OrderHistory::getInstance()->registerTrackingInfoUpdate($this->getOrder()->getOrderId(), $added, $removed, $changed);
-        }
-
-        parent::processQuick($parameters);
+        return parent::postprocessInsertedEntity($entity, $line);
     }
 
     /**
@@ -130,8 +86,13 @@ class OrderTrackingNumber extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_PARAMS   => array('required' => true),
                 static::COLUMN_MAIN     => true,
                 static::COLUMN_NAME     => static::t('Tracking number'),
-                static::COLUMN_ORDERBY  => 100,
+                static::COLUMN_ORDERBY  => 200,
             ),
+            'creationDate' => array(
+                static::COLUMN_NAME     => static::t('Creation date'),
+                static::COLUMN_TEMPLATE => $this->getDir() . '/' . $this->getPageBodyDir() . '/order_tracking_number/cell.creation_date.twig',
+                static::COLUMN_ORDERBY  => 100,
+            )
         );
 
         if ($this->getOrder()->getTrackingInformationURL('')) {
@@ -139,7 +100,7 @@ class OrderTrackingNumber extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_NAME     => static::t('Payment status'),
                 static::COLUMN_LINK     => 'track',
                 static::COLUMN_TEMPLATE => $this->getDir() . '/' . $this->getPageBodyDir() . '/order_tracking_number/cell.track.twig',
-                static::COLUMN_ORDERBY  => 200,
+                static::COLUMN_ORDERBY  => 300,
             );
         }
 

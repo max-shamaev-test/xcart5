@@ -8,11 +8,48 @@
 
 namespace XLite\View\FormField\Select\CheckboxList\OrderStatus;
 
+use XLite\Core\Cache\ExecuteCachedTrait;
+
 /**
  * Shipping order status selector
  */
 class Shipping extends \XLite\View\FormField\Select\CheckboxList\ACheckboxList
 {
+    use ExecuteCachedTrait;
+
+    protected function getShippingStatuses()
+    {
+        return $this->executeCachedRuntime(function() {
+            $statuses = [];
+            foreach (\XLite\Core\Database::getRepo('XLite\Model\Order\Status\Shipping')->findBy(array(), array('position' => 'asc')) as $status) {
+                $statuses[$status->getCode()] = $status;
+            };
+
+            return $statuses;
+        });
+    }
+
+    /**
+     * Set value
+     *
+     * @param mixed $value Value to set
+     *
+     * @return void
+     */
+    public function setValue($value)
+    {
+        $shippingStatuses = $this->getShippingStatuses();
+        if (is_array($value)) {
+            foreach ($value as $k => $v) {
+                if (!is_object($v) && isset($shippingStatuses[$v])) {
+                    $value[$k] = $shippingStatuses[$v];
+                }
+            }
+        }
+
+        parent::setValue($value);
+    }
+
     /**
      * Return default options list
      *
@@ -22,7 +59,7 @@ class Shipping extends \XLite\View\FormField\Select\CheckboxList\ACheckboxList
     {
         $list = array();
 
-        foreach (\XLite\Core\Database::getRepo('XLite\Model\Order\Status\Shipping')->findBy(array(), array('position' => 'asc')) as $status) {
+        foreach ($this->getShippingStatuses() as $status) {
             $list[$status->getId()] = $status->getName();
         }
 

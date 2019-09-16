@@ -18,8 +18,8 @@ class ThemeTweaker extends \XLite\Controller\Admin\AAdmin
         $mode = \XLite\Core\Request::getInstance()->mode ?: null;
 
         \XLite\Module\XC\ThemeTweaker\Core\ThemeTweaker::getInstance()->setCurrentMode($mode);
-
-        $this->setReturnURL($this->getReferrerURL());
+        $returnUrl = \Includes\Utils\URLManager::getUrlWithoutParam($this->getReferrerURL(), 'activate_mode');
+        $this->setReturnURL($returnUrl);
         $this->setHardRedirect(true);
     }
 

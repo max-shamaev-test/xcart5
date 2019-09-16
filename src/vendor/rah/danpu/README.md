@@ -1,7 +1,7 @@
 Danpu - MySQL dump tool for PHP
 =========
 
-[Packagist](https://packagist.org/packages/rah/danpu) | [Downloads](https://github.com/gocom/danpu/releases) | [Issues](https://github.com/gocom/danpu/issues) | [Donate](http://rahforum.biz/donate/danpu)
+[Packagist](https://packagist.org/packages/rah/danpu) | [Downloads](https://github.com/gocom/danpu/releases) | [Issues](https://github.com/gocom/danpu/issues) | [Donate](https://rahforum.biz/donate/danpu)
 
 [![Build Status](https://travis-ci.org/gocom/danpu.png?branch=master)](https://travis-ci.org/gocom/danpu) [![Coverage Status](https://coveralls.io/repos/gocom/danpu/badge.png)](https://coveralls.io/r/gocom/danpu)
 
@@ -16,22 +16,22 @@ Minimum:
 
 * PHP 5.3.0 or newer
 * MySQL 4.1.0 or newer
-* [PDO](http://php.net/pdo)
+* [PDO](https://php.net/pdo)
 
 Recommended, but optional:
 
 * PHP 5.4.0 or newer
 * MySQL 5.0.11 or newer
-* [zlib](http://www.php.net/manual/en/book.zlib.php)
+* [zlib](https://www.php.net/manual/en/book.zlib.php)
 
 Backing up views and triggers requires MySQL 5.0.11 or newer.
 
 Install
 ---------
 
-Using [Composer](http://getcomposer.org):
+Using [Composer](https://getcomposer.org):
 
-    $ composer require rah/danpu:2.6.*
+    $ composer require rah/danpu
 
 Usage
 ---------
@@ -42,7 +42,7 @@ To create a new backup or import one, configure a new ```Dump``` instance and pa
 require './vendor/autoload.php';
 ```
 
-If you are already using other Composer packages, or a modern Composer-managed framework, this should be taken care of already. If not, merely add the autoloader to your base bootstrap includes. See [Composer's documentation](http://getcomposer.org) for more information.
+If you are already using other Composer packages, or a modern Composer-managed framework, this should be taken care of already. If not, merely add the autoloader to your base bootstrap includes. See [Composer's documentation](https://getcomposer.org) for more information.
 
 ### Take a backup
 
@@ -52,15 +52,19 @@ Backups can be created with the ```Export``` class. The class exports the databa
 use Rah\Danpu\Dump;
 use Rah\Danpu\Export;
 
-$dump = new Dump;
-$dump
-    ->file('/path/to/target/dump/file.sql')
-    ->dsn('mysql:dbname=database;host=localhost')
-    ->user('username')
-    ->pass('password')
-    ->tmp('/tmp');
+try {
+    $dump = new Dump;
+    $dump
+        ->file('/path/to/target/dump/file.sql')
+        ->dsn('mysql:dbname=database;host=localhost')
+        ->user('username')
+        ->pass('password')
+        ->tmp('/tmp');
 
-new Export($dump);
+    new Export($dump);
+} catch (\Exception $e) {
+    echo 'Export failed with message: ' . $e->getMessage();
+}
 ```
 
 The database is dumped in chunks, one row at the time without buffering huge amount of data to the memory. This makes the script very memory efficient, and can allow Danpu to handle databases of any size, given the system limitations of course. You physically won't be able backup rows that take more memory than can be allocated to PHP, nor write backups if there isn't enough space for the files.
@@ -75,15 +79,19 @@ To import a backup, create a new instance of the Import class. It uncompresses a
 use Rah\Danpu\Dump;
 use Rah\Danpu\Import;
 
-$dump = new Dump;
-$dump
-    ->file('/path/to/imported/file.sql')
-    ->dsn('mysql:dbname=database;host=localhost')
-    ->user('username')
-    ->pass('password')
-    ->tmp('/tmp');
+try {
+    $dump = new Dump;
+    $dump
+        ->file('/path/to/imported/file.sql')
+        ->dsn('mysql:dbname=database;host=localhost')
+        ->user('username')
+        ->pass('password')
+        ->tmp('/tmp');
 
-new Import($dump);
+    new Import($dump);
+} catch (\Exception $e) {
+    echo 'Import failed with message: ' . $e->getMessage();
+}
 ```
 
 ### Options
@@ -97,7 +105,7 @@ Troubleshooting
 
 As with any PHP script, Danpu is restricted by the safe limits you have set for PHP. When dealing with larger databases, taking a backup will take longer and require more memory. If you find yourself hitting the maximum execution time or running out of memory, its time to increase the limits enough to let the script to work.
 
-PHP lets you to change these limits with its [configuration options](http://php.net/manual/en/ini.core.php), which can be modified [temporarily during script execution](http://php.net/manual/en/function.ini-set.php), or in global configuration files. The configuration options you will be the most interested in, are [memory_limit](http://www.php.net/manual/en/ini.core.php#ini.memory-limit) and [max_execution_time](http://www.php.net/manual/en/info.configuration.php#ini.max-execution-time), and possibly [ignore_user_abort](http://php.net/manual/en/function.ignore-user-abort.php). You can change these values in your script before running a backup with Danpu:
+PHP lets you to change these limits with its [configuration options](https://php.net/manual/en/ini.core.php), which can be modified [temporarily during script execution](https://php.net/manual/en/function.ini-set.php), or in global configuration files. The configuration options you will be the most interested in, are [memory_limit](https://www.php.net/manual/en/ini.core.php#ini.memory-limit) and [max_execution_time](https://www.php.net/manual/en/info.configuration.php#ini.max-execution-time), and possibly [ignore_user_abort](https://php.net/manual/en/function.ignore-user-abort.php). You can change these values in your script before running a backup with Danpu:
 
 ```php
 ini_set('memory_limit', '256M');

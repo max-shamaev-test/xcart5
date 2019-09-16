@@ -13,4 +13,17 @@ namespace XLite\Module\CDev\SalesTax\View\Order\Details\Admin\Modifier;
  */
 class Tax extends \XLite\View\Order\Details\Admin\Modifier
 {
+    /**
+     * Register CSS files
+     *
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        $list = parent::getCSSFiles();
+
+        $list[] = 'modules/CDev/SalesTax/order/details/style.less';
+
+        return $list;
+    }
 }

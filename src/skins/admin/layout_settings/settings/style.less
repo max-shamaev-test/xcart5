@@ -27,11 +27,22 @@
     margin-left:37px;
   }
 
-  span {
-    font-size: 16px;
 
-    &.template-name {
-      color: #f69c3b;
+  .current-template {
+    display: flex;
+    align-items: baseline;
+
+    & > span {
+      font-size: 16px;
+
+      &.template-name {
+        margin-left: 3px;
+        color: @color-success;
+      }
+    }
+
+    .settings-form {
+      margin-left: 20px;
     }
   }
 

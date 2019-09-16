@@ -8,6 +8,8 @@
 
 namespace XLite;
 
+use XLite\Core\Exception\MethodNotFound;
+
 /**
  * Base class
  * FIXME - must be abstract
@@ -52,13 +54,16 @@ class Base extends \XLite\Base\Singleton
      * @param string $method Method to call
      * @param array  $args   Call arrguments OPTIONAL
      *
-     * @return void
+     * @throws MethodNotFound
      */
-    public function __call($method, array $args = array())
+    public function __call($method, array $args = [])
     {
-        $this->doDie(
+        throw new MethodNotFound(
             'Trying to call undefined class method;'
-            . ' class - "' . get_class($this) . '", function - "' . $method . '"'
+            . ' class - "' . get_class($this) . '", function - "' . $method . '"',
+            get_class($this),
+            $method,
+            $args
         );
     }
 
@@ -71,11 +76,6 @@ class Base extends \XLite\Base\Singleton
      */
     public function get($name)
     {
-        // FIXME - devcode; must be removed
-        if (strpos($name, '.')) {
-            $this->doDie(get_class($this) . ': method get() - invalid name passed ("' . $name . '")');
-        }
-
         $result = null;
 
         if (method_exists($this, 'get' . $name)) {
@@ -150,101 +150,6 @@ class Base extends \XLite\Base\Singleton
     public function is($name)
     {
         return (bool) $this->get($name);
-    }
-
-    /**
-     * Backward compatibility - the ability to use "<arg_1> . <arg_2> . ... . <arg_N>" chains in getters
-     * FIXME - must be removed
-     *
-     * @param string $name List of params delimeted by the "." (dot)
-     *
-     * @return mixed
-     */
-    public function getComplex($name)
-    {
-        $obj = $this;
-
-        foreach (explode('.', $name) as $part) {
-
-            if (is_object($obj)) {
-
-                if ($obj instanceof \stdClass) {
-                    $obj = isset($obj->$part) ? $obj->$part : null;
-
-                } elseif ($obj instanceof \XLite\Model\AEntity) {
-                    $obj = $obj->{'get' . \XLite\Core\Converter::convertToCamelCase($part)}();
-
-                } elseif ($obj instanceof \XLite\Core\CommonCell) {
-                    $obj = $obj->$part;
-
-                } else {
-                    $obj = $obj->get($part);
-                }
-
-            } elseif (is_array($obj)) {
-                $obj = isset($obj[$part]) ? $obj[$part] : null;
-            }
-
-            if (is_null($obj)) {
-                break;
-            }
-        }
-
-        return $obj;
-    }
-
-    /**
-     * Backward compatibility - the ability to use "<arg_1> . <arg_2> . ... . <arg_N>" chains in setters
-     * FIXME - must be removed
-     *
-     * @param string $name  List of params delimeted by the "." (dot)
-     * @param mixed  $value Value to set
-     *
-     * @return void
-     */
-    public function setComplex($name, $value)
-    {
-        $obj   = $this;
-        $names = explode('.', $name);
-        $last  = array_pop($names);
-
-        foreach ($names as $part) {
-
-            if (is_array($obj)) {
-                $obj = $obj[$part];
-
-            } else {
-                $prevObj = $obj;
-                $prevProp = $part;
-                $obj = $obj->get($prevProp);
-                $prevVal = $obj;
-            }
-
-            if (is_null($obj)) {
-                break;
-            }
-        }
-
-        if (is_array($obj)) {
-            $obj[$last] = $value;
-            $prevObj->set($prevProp, $prevVal);
-
-        } elseif (!is_null($obj)) {
-            $obj->set($last, $value);
-        }
-    }
-
-    /**
-     * Backward compatibility - the ability to use "<arg_1> . <arg_2> . ... . <arg_N>" chains in getters
-     * FIXME - must be removed
-     *
-     * @param string $name List of params delimeted by the "." (dot)
-     *
-     * @return boolean
-     */
-    public function isComplex($name)
-    {
-        return (bool) $this->getComplex($name);
     }
 
     /**

@@ -8,8 +8,6 @@
 
 namespace XLite\Module\QSL\CloudSearch\View\Model;
 
-use XLite\Core\Database;
-
 /**
  * General settings widget extension
  */
@@ -40,12 +38,9 @@ class Settings extends \XLite\View\Model\Settings implements \XLite\Base\IDecora
         $cell = parent::getFormFieldByOption($option);
 
         if ('default_search_sort_order' == $option->getName() && $cell) {
-            $module = Database::getRepo('XLite\Model\Module')->findModuleByName('QSL\\CloudSearch');
-            $url = $module->getInstalledURL();
-
             $cell[static::SCHEMA_COMMENT] = static::t(
                 'CloudSearch sets default sort order to relevance',
-                ['url' => $url]
+                ['url' => \XLite::getInstance()->getShopURL('service.php#/installed-addons?moduleId=QSL-CloudSearch')]
             );
         }
 

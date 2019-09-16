@@ -9,6 +9,8 @@
 namespace XLite\Module\XC\Reviews\View\Promo;
 
 
+use Includes\Utils\Module\Manager;
+
 class ShopperApproved extends \XLite\View\AView
 {
     protected function getDefaultTemplate()
@@ -42,23 +44,8 @@ class ShopperApproved extends \XLite\View\AView
      */
     protected function getPromoLink()
     {
-        return $this->getModule() && $this->getModule()->getEnabled()
-            ? $this->getModule()->getSettingsForm()
-            : \XLite\Core\Promo::getInstance()->getRecommendedModuleURL($this->getModuleName());
-    }
-
-    protected function getModule()
-    {
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')->findOneByModuleName($this->getModuleName());
-    }
-
-    /**
-     * Get module name
-     *
-     * @return string
-     */
-    protected function getModuleName()
-    {
-        return 'XC\ShopperApproved';
+        return Manager::getRegistry()->isModuleEnabled('XC\Reviews')
+            ? Manager::getRegistry()->getModuleSettingsUrl('XC\ShopperApproved')
+            : Manager::getRegistry()->getModuleServiceURL('XC\ShopperApproved');
     }
 }

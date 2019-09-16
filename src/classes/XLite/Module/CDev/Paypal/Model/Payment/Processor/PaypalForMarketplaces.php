@@ -277,14 +277,35 @@ class PaypalForMarketplaces extends \XLite\Module\CDev\Paypal\Model\Payment\Proc
         $token             = null;
         $this->transaction = $transaction;
 
-        $order = $this->api->createOrder(
-            $this->transaction,
-            $this->getPaymentCancelUrl(),
-            $this->getPaymentReturnUrl(),
-            $this->getCallbackURL(null, true) // IPN Notification URL
-        );
+        try {
+            $order = $this->api->createOrder(
+                $this->transaction,
+                $this->getPaymentCancelUrl(),
+                $this->getPaymentReturnUrl(),
+                $this->getCallbackURL(null, true) // IPN Notification URL
+            );
 
-        return $order->getId();
+            $token = $order->getId();
+
+        } catch (\PayPal\Exception\PayPalConnectionException $ppException) {
+            $token = null;
+
+            $errorMessages = [];
+            $exData = json_decode($ppException->getData(), true);
+            if (isset($exData['details'])) {
+                foreach ($exData['details'] as $exDetail) {
+                    if (isset($exDetail['issue'])) {
+                        $errorMessages[] = $exDetail['issue'];
+                    }
+                }
+            }
+
+            $this->errorMessage = $errorMessages
+                ? implode(', ', $errorMessages)
+                : static::t('An error occurred, please try again. If the problem persists, contact the administrator.');
+        }
+
+        return $token;
     }
 
     /**
@@ -767,7 +788,7 @@ class PaypalForMarketplaces extends \XLite\Module\CDev\Paypal\Model\Payment\Proc
     {
         if (\XLite\Module\CDev\Paypal\Main::PP_METHOD_PFM === $method->getServiceName()
             && $this->api->isSelfConfigured()
-            && !\XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+            && !\Includes\Utils\Module\Manager::getRegistry()->isModuleEnabled('XC\MultiVendor')
         ) {
             return 'multi-vendor';
         }

@@ -46,6 +46,11 @@ class Categories extends \XLite\Module\CDev\XMLSitemap\Logic\Sitemap\Step\ASitem
         $categoryId = isset($item['category_id']) ? $item['category_id'] : null;
 
         if ($categoryId) {
+            $category = $this->getRepository()->find($categoryId);
+            if (!$category->isVisible()) {
+                return;
+            }
+
             if (isset($item['cleanURL']) && static::isSitemapCleanUrlConditionApplicable()) {
                 $_url = $item['cleanURL'];
             } else {

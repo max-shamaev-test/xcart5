@@ -66,7 +66,7 @@ ShippingMethodsView.prototype.assignHandlers = function(event, state)
 
     this.base
       .find('.shipping-selector-box select')
-      .live('blur', _.bind(this.handleMethodChange, this));
+      .on('blur', _.bind(this.handleMethodChange, this));
 
     this.base.get(0).commonController
       .bind('local.submit.preprocess', _.bind(this.triggerChange, this))

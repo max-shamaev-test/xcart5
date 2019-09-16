@@ -8,69 +8,8 @@
 
 namespace XLite\Module\XC\EPDQ;
 
-/**
- * Barclays ePDQ CPI module
- */
 abstract class Main extends \XLite\Module\AModule
 {
-    /**
-     * Author name
-     *
-     * @return string
-     */
-    public static function getAuthorName()
-    {
-        return 'X-Cart team';
-    }
-
-    /**
-     * Module name
-     *
-     * @return string
-     */
-    public static function getModuleName()
-    {
-        return 'Barclaycard ePDQ e-Commerce';
-    }
-
-    /**
-     * Get module major version
-     *
-     * @return string
-     */
-    public static function getMajorVersion()
-    {
-        return '5.3';
-    }
-
-    /**
-     * Module version
-     *
-     * @return string
-     */
-    public static function getMinorVersion()
-    {
-        return '1';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getBuildVersion()
-    {
-        return '1';
-    }
-
-    /**
-     * Module description
-     *
-     * @return string
-     */
-    public static function getDescription()
-    {
-        return 'Enables taking payments for your online store via Barclaycard ePDQ e-Commerce payment system (Basic e-Commerce integration).';
-    }
-
     /**
      * Add record to the module log file
      *
@@ -92,18 +31,8 @@ abstract class Main extends \XLite\Module\AModule
         }
 
         \XLite\Logger::logCustom(
-            self::getModuleName(),
+            'EPDQ',
             $msg
         );
-    }
-
-    /**
-     * The module is defined as the payment module
-     *
-     * @return integer|null
-     */
-    public static function getModuleType()
-    {
-        return static::MODULE_TYPE_PAYMENT;
     }
 }

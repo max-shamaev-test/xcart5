@@ -8,6 +8,7 @@
 
 namespace XLite\View\FormField;
 
+use Includes\Utils\Module\Manager;
 
 class ContactUsComment extends \XLite\View\FormField\AFormField
 {
@@ -36,24 +37,18 @@ class ContactUsComment extends \XLite\View\FormField\AFormField
      */
     public function getLink()
     {
-        $result = null;
-
-        $module = $this->getModule();
-
-
-        if ($module) {
-            $moduleInstalled = $module->getModuleInstalled();
-
-            if ($moduleInstalled) {
-                $result = $moduleInstalled->getEnabled()
-                    ? $moduleInstalled->getSettingsForm()
-                    : $moduleInstalled->getInstalledURL();
-            }
+        if (Manager::getRegistry()->getModule('CDev\ContactUs')) {
+            return Manager::getRegistry()->isModuleEnabled('CDev\ContactUs')
+                ? Manager::getRegistry()->getModuleSettingsUrl('CDev\ContactUs')
+                : Manager::getRegistry()->getModuleServiceURL('CDev\ContactUs');
         }
 
-        return $result;
+        return null;
     }
 
+    /**
+     * @return bool
+     */
     protected function isVisible()
     {
         return parent::isVisible()
@@ -68,11 +63,5 @@ class ContactUsComment extends \XLite\View\FormField\AFormField
     protected function getDefaultTemplate()
     {
         return 'form_field/contactUsComment.twig';
-    }
-
-    protected function getModule()
-    {
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')
-            ->findOneByModuleName('CDev\\ContactUs', true);
     }
 }

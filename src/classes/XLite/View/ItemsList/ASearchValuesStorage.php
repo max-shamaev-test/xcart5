@@ -11,7 +11,7 @@ namespace XLite\View\ItemsList;
 /**
  * ASearchValuesStorage
  */
-abstract class ASearchValuesStorage implements \XLite\View\ItemsList\ISearchValuesStorage
+abstract class ASearchValuesStorage implements ISearchValuesStorage
 {
     /**
      * @var \XLite\View\ItemsList\ISearchValuesStorage    $fallbackStorage
@@ -50,14 +50,27 @@ abstract class ASearchValuesStorage implements \XLite\View\ItemsList\ISearchValu
         return $value;
     }
 
-    /**
-     * Get param value
-     *
-     * @param \XLite\View\ItemsList\ISearchValuesStorage    $storage   Fallback storage to use
-     */
     public function setFallbackStorage(\XLite\View\ItemsList\ISearchValuesStorage $storage)
     {
         $this->fallbackStorage = $storage;
+    }
+
+    public function getFallbackStorage()
+    {
+        return $this->fallbackStorage;
+    }
+
+    /**
+     * @param ISearchValuesStorage $storage
+     */
+    public function passFallbackStorage(\XLite\View\ItemsList\ISearchValuesStorage $storage)
+    {
+        $currentStorage = $this;
+        while ($fallback = $currentStorage->getFallbackStorage()) {
+            $currentStorage = $fallback;
+        }
+
+        $currentStorage->setFallbackStorage($storage);
     }
 
     /**

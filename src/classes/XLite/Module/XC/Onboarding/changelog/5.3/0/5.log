@@ -1,8 +1,0 @@
-Version 5.3.0.5
-
-Improvements (1)
-2018-08-29 - [Change] Code optimization. Removed unnecessary titles. #BUG-6611 (Kirill Stadler) #Core #Egoods #Wholesale #ThemeTweaker #ProductReviews #PitneyBowes #Onboarding
-
-Fixes (1)
-2018-07-24 - [Bug] When creating a page, it was possible to set alt for the Open graph image. Fixed. #BUG-6340 (Sergey Elmanov) #Core #SimpleCMS #Onboarding
-

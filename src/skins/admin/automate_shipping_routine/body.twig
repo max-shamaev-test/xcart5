@@ -79,7 +79,5 @@
     <p>{{ t('Haven\'t found what you\'re looking for? View more shipping modules', {'href': this.getShippingModulesLink()})|raw }}</p>
   </div>
 {% endif %}
-<hr>
-<div class="bottom-actions">
-  <a href="{{ url('shipping_methods') }}">{{ t('Back to shipping methods') }}</a>
-</div>
+
+{{ widget('XLite\\View\\StickyPanel\\AutomateShippingRoutine') }}

@@ -3,13 +3,15 @@
  #}
 {{ widget('XLite\\View\\SimplePromoBlock', promoId='product-variants-1') }}
 
-{% form 'XLite\\View\\Form\\Product\\Modify\\Attributes' with {className: 'attrs'} %}
+{% spaceless %}
+  {% form 'XLite\\View\\Form\\Product\\Modify\\Attributes' with {className: 'attrs'} %}
 
-  <div class="dialog-block">
-    {{ widget('XLite\\View\\Product\\Details\\Admin\\Attributes', personalOnly='true') }}
-  </div>
-  {{ widget('\\XLite\\View\\StickyPanel\\Product\\Attributes') }}
+    <div class="dialog-block">
+      {{ widget('XLite\\View\\Product\\Details\\Admin\\Attributes', personalOnly='true') }}
+    </div>
+    {{ widget('\\XLite\\View\\StickyPanel\\Product\\Attributes') }}
 
-{% endform %}
+  {% endform %}
+{% endspaceless %}
 
 {{ widget('XLite\\View\\Product\\Details\\Admin\\CreateBox') }}

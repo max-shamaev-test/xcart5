@@ -65,7 +65,7 @@ class Admin extends \XLite\View\Tabs\ATabs
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'modules/CDev/FileAttachments/admin.css';
+        $list[] = 'modules/CDev/FileAttachments/admin.less';
 
         return $list;
     }

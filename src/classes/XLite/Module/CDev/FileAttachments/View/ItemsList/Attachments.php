@@ -82,11 +82,6 @@ class Attachments extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_CLASS   => 'XLite\Module\CDev\FileAttachments\View\FormField\Inline\Select\AttributeMembership',
                 static::COLUMN_ORDERBY => 300,
             ],
-            'file'        => [
-                static::COLUMN_NAME     => '',
-                static::COLUMN_ORDERBY  => 400,
-                static::COLUMN_TEMPLATE => 'modules/CDev/FileAttachments/parts/file_column.twig',
-            ],
         ];
     }
 
@@ -251,5 +246,20 @@ class Attachments extends \XLite\View\ItemsList\Model\Table
         }
 
         return $classes;
+    }
+
+    /**
+     * Get right actions templates name
+     *
+     * @return array
+     */
+    protected function getRightActions()
+    {
+        $actions = [
+            'modules/CDev/FileAttachments/parts/action.download.twig',
+            'modules/CDev/FileAttachments/parts/action.reupload.twig'
+        ];
+
+        return array_merge($actions, parent::getRightActions());
     }
 }

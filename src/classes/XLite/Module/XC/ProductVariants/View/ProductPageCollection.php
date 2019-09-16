@@ -87,7 +87,7 @@ class ProductPageCollection extends \XLite\View\ProductPageCollection implements
      */
     protected function isReloadVariantAttributes()
     {
-        return $this->getProduct()->getAllPossibleVariantsCount() > $this->getProduct()->getVariants()->count();
+        return $this->getProduct()->getAllPossibleVariantsCount() > $this->getProduct()->getVariantsCount();
     }
 
     /**

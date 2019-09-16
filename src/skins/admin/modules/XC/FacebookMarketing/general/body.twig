@@ -13,13 +13,21 @@
     {% endif %}
     {% form '\\XLite\\Module\\XC\\FacebookMarketing\\View\\Form\\Settings' %}
 
-    {{ widget('\\XLite\\Module\\XC\\FacebookMarketing\\View\\FormField\\Select\\RenewalFrequency', fieldName='renewal_frequency', label='Frequency of Product Feed renewal', value=this.getRenewalFrequency()) }}
+      <ul class="table facebook-marketing-table">
+        <li>
+          {{ widget('\\XLite\\Module\\XC\\FacebookMarketing\\View\\FormField\\Select\\RenewalFrequency',
+            fieldName='renewal_frequency', label='Frequency of Product Feed renewal', value=this.getRenewalFrequency()) }}
+        </li>
+        <li>
+          {{ widget('\\XLite\\View\\FormField\\Input\\Checkbox\\YesNo', fieldName='include_out_of_stock',
+            label=t('Include out of stock products into feed'), value=this.isIncludeOutOfStock()) }}
+        </li>
+        <li>
+          {{ widget('\\XLite\\View\\FormField\\Input\\Text', fieldName='pixel_id', label='Facebook Pixel Id', value=this.getPixelId()) }}
+        </li>
+      </ul>
 
-    {{ widget('\\XLite\\View\\FormField\\Input\\Checkbox\\YesNo', fieldName='include_out_of_stock', label=t('Include out of stock products into feed'), value=this.isIncludeOutOfStock()) }}
-
-    {{ widget('\\XLite\\View\\FormField\\Input\\Text', fieldName='pixel_id', label='Facebook Pixel Id', value=this.getPixelId()) }}
-
-    {{ widget('\\XLite\\Module\\XC\\FacebookMarketing\\View\\StickyPanel\\Settings') }}
+      {{ widget('\\XLite\\Module\\XC\\FacebookMarketing\\View\\StickyPanel\\Settings') }}
 
     {% endform %}
   </div>

@@ -75,7 +75,7 @@ ProductQuantityBoxView.prototype.handleQuantityChange = function(event)
 ProductQuantityBoxView.prototype.handleFormReady = function(event)
 {
   this.actionButton
-    .removeProp('disabled')
+    .removeAttr('disabled')
     .removeClass('disabled add2cart-disabled');
 }
 

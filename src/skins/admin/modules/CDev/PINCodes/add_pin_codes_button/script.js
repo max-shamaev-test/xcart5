@@ -40,5 +40,5 @@ decorate(
 core.autoload(PopupButtonAddPinCodesButton);
 
 core.bind('remainingPinCodes', function (event, data) {
-  $('.pin-codes-status .remaining .table-value span').text(data.count);
+  $('.pin-codes-status.remaining .table-value span').text(data.count);
 });

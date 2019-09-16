@@ -97,7 +97,7 @@ abstract class Database extends \Includes\Utils\AUtils
      */
     public static function getConnectionString()
     {
-        return 'mysql:' . \Includes\Utils\Converter::buildQuery(static::getConnectionParams(), '=', ';');
+        return 'mysql:' . Converter::buildQuery(static::getConnectionParams(), '=', ';');
     }
 
     /**
@@ -107,8 +107,8 @@ abstract class Database extends \Includes\Utils\AUtils
      */
     protected static function getDbOptions($name = null)
     {
-        return \Includes\Utils\ArrayManager::getIndex(
-            static::$dbOptions ?: \Includes\Utils\ConfigParser::getOptions(array('database_details')),
+        return ArrayManager::getIndex(
+            static::$dbOptions ?: ConfigParser::getOptions(array('database_details')),
             $name
         );
     }
@@ -285,16 +285,17 @@ abstract class Database extends \Includes\Utils\AUtils
      *
      * :FIXME: must be completely revised
      *
-     * @param string  $fileName Name of SQL-file
-     * @param boolean $verbose  Display uploading progress flag OPTIONAL
+     * @param string $fileName Name of SQL-file
+     * @param boolean $verbose Display uploading progress flag OPTIONAL
      *
      * @return boolean
+     * @throws \InvalidArgumentException
      */
     public static function uploadSQLFromFile($fileName, $verbose = false)
     {
         $result = false;
 
-        if (false == \Includes\Utils\FileManager::isFileReadable($fileName)) {
+        if (false === FileManager::isFileReadable($fileName)) {
 
             throw new \InvalidArgumentException(
                 sprintf('SQL file \'%s\' not found or is not readable', $fileName)
@@ -351,7 +352,7 @@ abstract class Database extends \Includes\Utils\AUtils
                         }
 
                         if ($verbose) {
-                            \Includes\Utils\Operator::flush('. ');
+                            Operator::flush('. ');
                         }
 
                     } catch (\PDOException $e) {
@@ -360,7 +361,7 @@ abstract class Database extends \Includes\Utils\AUtils
 
                         $result = false;
 
-                        \Includes\Utils\Operator::flush(LC_EOL . $e->getMessage());
+                        Operator::flush(LC_EOL . $e->getMessage());
                     }
                     $sql = '';
                 }
@@ -379,6 +380,6 @@ abstract class Database extends \Includes\Utils\AUtils
      */
     public static function getTablesPrefix()
     {
-        return \Includes\Utils\ConfigParser::getOptions(array('database_details', 'table_prefix'));
+        return ConfigParser::getOptions(array('database_details', 'table_prefix'));
     }
 }

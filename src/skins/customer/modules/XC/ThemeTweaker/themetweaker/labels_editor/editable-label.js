@@ -44,6 +44,7 @@ var EditableLabel = Object.extend({
 
   getPopoverOptions: function () {
     return {
+      template: this.getPopoverTemplate(),
       content: _.partial(this.getPopoverContent, this),
       html: true,
       placement: 'auto left',
@@ -51,6 +52,10 @@ var EditableLabel = Object.extend({
       trigger: 'manual',
       container: 'body'
     }
+  },
+
+  getPopoverTemplate: function () {
+    return '<div class="popover" role="tooltip"><div class="arrow"></div><div class="popover-title"></div><div class="popover-content"></div></div>';
   },
 
   initializePopover: function () {

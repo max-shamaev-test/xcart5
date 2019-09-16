@@ -8,6 +8,8 @@
 
 namespace XLite\View;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * No modules installed
  */
@@ -64,13 +66,13 @@ class NoModulesInstalled extends \XLite\View\Dialog
      */
     public function getDescriptionData()
     {
-        return array(
-            'discountCoupons'   => $this->getModuleURL('Coupons', 'CDev'),
-            'sale'              => $this->getModuleURL('Sale', 'CDev'),
-            'productAdvisor'    => $this->getModuleURL('ProductAdvisor', 'CDev'),
-            'volumeDiscounts'   => $this->getModuleURL('VolumeDiscounts', 'CDev'),
-            'marketingTag'      => $this->getTagURL('Marketing'),
-        );
+        return [
+            'discountCoupons' => $this->getModuleURL('Coupons', 'CDev'),
+            'sale'            => $this->getModuleURL('Sale', 'CDev'),
+            'productAdvisor'  => $this->getModuleURL('ProductAdvisor', 'CDev'),
+            'volumeDiscounts' => $this->getModuleURL('VolumeDiscounts', 'CDev'),
+            'marketingTag'    => $this->getTagURL('Marketing'),
+        ];
     }
 
     /**
@@ -83,8 +85,7 @@ class NoModulesInstalled extends \XLite\View\Dialog
      */
     protected function getModuleURL($name, $author)
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')
-            ->getMarketplaceUrlByName($author, $name);
+        return Manager::getRegistry()->getModuleServiceURL($author, $name);
     }
 
     /**
@@ -96,7 +97,7 @@ class NoModulesInstalled extends \XLite\View\Dialog
      */
     protected function getTagURL($tagName)
     {
-        return $this->buildURL('addons_list_marketplace', '', array('tag' => $tagName));
+        return Manager::getRegistry()->getServiceURL('available-addons', ['tag' => $tagName]);
     }
 
     /**

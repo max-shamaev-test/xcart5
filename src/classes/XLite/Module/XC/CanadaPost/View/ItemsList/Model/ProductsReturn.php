@@ -108,7 +108,6 @@ class ProductsReturn extends \XLite\View\ItemsList\Model\Table
             'profile'                   => array(
                 static::COLUMN_ORDERBY  => 500,
                 static::COLUMN_NAME     => static::t('Customer'),
-                static::COLUMN_NO_WRAP  => true,
                 static::COLUMN_MAIN     => true,
                 static::COLUMN_TEMPLATE => 'modules/XC/CanadaPost/returns_search/list/cells/profile.twig',
                 //static::COLUMN_SORT     => static::SORT_BY_MODE_PROFILE,

@@ -9,7 +9,7 @@
  */
 
 /*
- * Copyright (C) 2013 Jukka Svahn
+ * Copyright (C) 2018 Jukka Svahn
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -108,9 +108,18 @@ class Export extends Base
             $this->write('SET UNIQUE_CHECKS = 0');
         }
 
+        if ($this->config->createDatabase === true) {
+            $this->write(
+                'CREATE DATABASE IF NOT EXISTS `'.$this->database.'` '.
+                'DEFAULT CHARACTER SET = '.$this->escape($this->config->encoding)
+            );
+            $this->write('USE `'.$this->database.'`');
+        }
+
         $this->dumpTables();
         $this->dumpViews();
         $this->dumpTriggers();
+        $this->dumpEvents();
 
         if ($this->config->disableForeignKeyChecks === true) {
             $this->write('SET FOREIGN_KEY_CHECKS = 1');
@@ -131,7 +140,6 @@ class Export extends Base
     /**
      * Dumps tables.
      *
-     * @throws Exception
      * @since  2.5.0
      */
 
@@ -154,22 +162,19 @@ class Export extends Base
                 continue;
             }
 
-            if (($structure = $this->pdo->query('SHOW CREATE TABLE `'.$table.'`')) === false) {
-                throw new Exception('Unable to get the structure for "'.$table.'"');
+            if ($this->config->structure === true) {
+                $structure = $this->pdo->query('SHOW CREATE TABLE `'.$table.'`')->fetch(\PDO::FETCH_ASSOC);
+
+                $this->write("\n-- Table structure for table `{$table}`\n", false);
+                $this->write('DROP TABLE IF EXISTS `'.$table.'`');
+                $this->write(end($structure));
             }
 
-            $this->write("\n-- Table structure for table `{$table}`\n", false);
-            $this->write('DROP TABLE IF EXISTS `'.$table.'`');
-
-            foreach ($structure as $row) {
-                $this->write(end($row));
-            }
-
-            if ($this->config->data) {
+            if ($this->config->data === true) {
                 $this->write("\n-- Dumping data for table `{$table}`\n", false);
                 $this->write("LOCK TABLES `{$table}` WRITE");
 
-                $rows = $this->pdo->prepare('select * from `'.$table.'`');
+                $rows = $this->pdo->prepare('SELECT * FROM `'.$table.'`');
                 $rows->execute();
 
                 while ($a = $rows->fetch(\PDO::FETCH_ASSOC)) {
@@ -188,7 +193,6 @@ class Export extends Base
     /**
      * Dumps views.
      *
-     * @throws Exception
      * @since  2.5.0
      */
 
@@ -211,9 +215,7 @@ class Export extends Base
                 continue;
             }
 
-            if (($structure = $this->pdo->query('SHOW CREATE VIEW `'.$view.'`')) === false) {
-                throw new Exception('Unable to get the structure for view "'.$view.'"');
-            }
+            $structure = $this->pdo->query('SHOW CREATE VIEW `'.$view.'`');
 
             if ($structure = $structure->fetch(\PDO::FETCH_ASSOC)) {
                 if (isset($structure['Create View'])) {
@@ -233,7 +235,7 @@ class Export extends Base
 
     protected function dumpTriggers()
     {
-        if ($this->config->triggers) {
+        if ($this->config->triggers === true && version_compare($this->version, '5.0.10') >= 0) {
             $triggers = $this->pdo->prepare('SHOW TRIGGERS');
             $triggers->execute();
 
@@ -248,12 +250,51 @@ class Export extends Base
 
                 $this->write("\n-- Trigger structure `{$a['Trigger']}`\n", false);
                 $this->write('DROP TRIGGER IF EXISTS `'.$a['Trigger'].'`');
-                $this->write(
-                    "DELIMITER //\nCREATE TRIGGER `{$a['Trigger']}`".
+
+                $query = "CREATE TRIGGER `{$a['Trigger']}`".
                     " {$a['Timing']} {$a['Event']} ON `{$a['Table']}`".
-                    " FOR EACH ROW\n{$a['Statement']}\n//\nDELIMITER ;",
-                    false
-                );
+                    " FOR EACH ROW\n{$a['Statement']}";
+
+                $delimiter = $this->getDelimiter('//', $query);
+                $this->write("DELIMITER {$delimiter}\n{$query}\n{$delimiter}\nDELIMITER ;", false);
+            }
+        }
+    }
+
+    /**
+     * Dumps events.
+     *
+     * @since 2.7.0
+     */
+
+    protected function dumpEvents()
+    {
+        if ($this->config->events === true && version_compare($this->version, '5.1.12') >= 0) {
+            $events = $this->pdo->prepare('SHOW EVENTS');
+            $events->execute();
+
+            foreach ($events->fetchAll(\PDO::FETCH_ASSOC) as $a) {
+                $event = $a['Name'];
+
+                if (in_array($event, (array) $this->config->ignore, true)) {
+                    continue;
+                }
+
+                if ((string) $this->config->prefix !== '' && strpos($event, $this->config->prefix) !== 0) {
+                    continue;
+                }
+
+                $structure = $this->pdo->query('SHOW CREATE EVENT `'.$event.'`');
+
+                if ($structure = $structure->fetch(\PDO::FETCH_ASSOC)) {
+                    if (isset($structure['Create Event'])) {
+                        $query = $structure['Create Event'];
+                        $delimiter = $this->getDelimiter('//', $query);
+                        $this->write("\n-- Structure for event `{$event}`\n", false);
+                        $this->write('DROP EVENT IF EXISTS `'.$event.'`');
+                        $this->write("DELIMITER {$delimiter}\n{$query}\n{$delimiter}\nDELIMITER ;", false);
+                    }
+                }
             }
         }
     }

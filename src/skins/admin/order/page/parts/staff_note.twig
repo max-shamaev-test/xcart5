@@ -4,9 +4,11 @@
  # @ListChild (list="order.operations", weight="50")
  #}
 
-<div class="order-note staff-note">
-  <div class="order-note-box">
-    <h2>{{ t('Staff note') }}</h2>
-    {{ this.orderForm.displayComplexField('staffNote') }}
-  </div>
-</div>
+{% spaceless %}
+    <div class="order-note staff-note">
+      <div class="order-note-box">
+        <h4>{{ t('Staff note') }}</h4>
+        {{ this.orderForm.displayComplexField('staffNote') }}
+      </div>
+    </div>
+{% endspaceless %}

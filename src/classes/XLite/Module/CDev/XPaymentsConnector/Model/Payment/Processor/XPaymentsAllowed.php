@@ -37,15 +37,14 @@ class XPaymentsAllowed extends \XLite\Module\CDev\XPaymentsConnector\Model\Payme
      */
     public function getConfigurationURL(\XLite\Model\Payment\Method $method, $justAdded = false)
     {
-        return ($this->getModule() && $this->getModule()->getModuleId())
+        return ($this->getModuleId())
             ? \XLite\Core\Converter::buildURL(
                 'xpc',
                 '',
-                array('section' => 'welcome')
+                ['section' => 'welcome']
             )
             : parent::getConfigurationURL($method, $justAdded);
     }
-
 
     /**
      * This is not Saved Card payment method

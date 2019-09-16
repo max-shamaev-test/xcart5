@@ -1,8 +1,5 @@
-/.dev
-/build
-/coverage
-/var
 /src/etc/config.php
+/src/etc/config.test.php
 /src/etc/config.demo.php
 /src/etc/config.local*.php
 /src/etc/config.personal.php
@@ -25,12 +22,16 @@
 /src/var/.decorator.modules.ini.php
 /src/var/.decorator.unsafe_modules.ini.php
 /src/var/.decorator.dbSchema.php
+/src/var/.modules.php
 /src/var/.rebuildStarted
 /src/var/.quickData.php
 /src/var/.lessFiles.php
 /src/var/.moduleMigrations.php
-/nbproject
+/src/var/packs/*
 *.swp
 /src/files/service
 .idea
 /src/files/attachments/**/
+/src/vendor/**
+!/src/vendor/.htaccess
+**/.DS_Store

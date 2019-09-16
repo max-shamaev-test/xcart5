@@ -41,7 +41,6 @@ decorate(
 
     core.autoload(TableItemsListQueue);
     SearchConditionBox();
-    core.autoload(PopupButtonInstallAddon);
   }
 );
 

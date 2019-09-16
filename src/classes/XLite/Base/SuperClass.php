@@ -8,6 +8,8 @@
 
 namespace XLite\Base;
 
+use Includes\ErrorHandler;
+
 /**
  * SuperClass
  */
@@ -117,7 +119,11 @@ abstract class SuperClass
             $this instanceof \XLite
             || \XLite::getInstance()->getOptions(array('log_details', 'suppress_errors'))
         ) {
-            $message = 'Internal error. Contact the site administrator.';
+            ErrorHandler::handleError([
+                'type' => E_ERROR,
+                'message' => 'Internal error. Contact the site administrator.'
+            ]);
+            $message = '';
         }
 
         die ($message);

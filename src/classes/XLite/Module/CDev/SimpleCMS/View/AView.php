@@ -29,23 +29,6 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
     }
 
     /**
-     * Return favicon resource path
-     *
-     * @return string
-     */
-    protected function getFavicon()
-    {
-        $url = str_replace(LC_DS, '/', \XLite\Core\Config::getInstance()->CDev->SimpleCMS->favicon);
-
-
-        if (!$url) {
-            $url = parent::getFavicon();
-        }
-
-        return \XLite::getInstance()->getShopURL($url);
-    }
-
-    /**
      * Flag if the favicon is displayed in the customer area
      *
      * If the custom favicon is defined then the favicon will be displayed

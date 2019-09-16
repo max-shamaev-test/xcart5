@@ -23,4 +23,20 @@ class Secure extends \XLite\View\FormField\Input\Base\StringInput
     {
         return self::FIELD_TYPE_PASSWORD;
     }
+
+    /**
+     * Return array of password difficulty labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    protected function getPasswordDifficultyLabels()
+    {
+        return [
+            'Weak password' => static::t('Weak'),
+            'Good password' => static::t('Good'),
+            'Strong password' => static::t('Strong'),
+        ];
+    }
 }

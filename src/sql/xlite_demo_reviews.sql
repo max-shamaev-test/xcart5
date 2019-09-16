@@ -1,12 +1,6 @@
 --
--- Dumping data for table `xc_reviews`
+-- Dumping data for table `%%XC%%_reviews`
 --
-
-INSERT INTO `%%XC%%_reviews` (`product_id`, `review`, `rating`, `additionDate`, `reviewerName`, `status`, `useForMeta`, `isNew`, `xcPendingExport`) VALUES (15,'Очень мягкая и милая игрушка, хорошо упакованная. Подарила племянице, ей понравилось :) ',5,1458658002,'Лена М.',1,0,0,0);
-INSERT INTO `%%XC%%_reviews` (`product_id`, `review`, `rating`, `additionDate`, `reviewerName`, `status`, `useForMeta`, `isNew`, `xcPendingExport`) VALUES (1,'',5,1458658288,'',1,0,0,0);
-INSERT INTO `%%XC%%_reviews` (`product_id`, `review`, `rating`, `additionDate`, `reviewerName`, `status`, `useForMeta`, `isNew`, `xcPendingExport`) VALUES (15,'Wow\r\nSo warm!\r\nMuch kitty\r\nVery soft\r\nSuch happy!\r\nMany purr',5,1458658995,'Doge',1,0,0,0);
-INSERT INTO `%%XC%%_reviews` (`product_id`, `review`, `rating`, `additionDate`, `reviewerName`, `status`, `useForMeta`, `isNew`, `xcPendingExport`) VALUES (15,'Котика, можно использовать и как подушку, и как игрушку. В восторге от нее!',5,1458659200,'Матвей',1,0,0,0);
-INSERT INTO `%%XC%%_reviews` (`product_id`, `review`, `rating`, `additionDate`, `reviewerName`, `status`, `useForMeta`, `isNew`, `xcPendingExport`) VALUES (15,'Awesome gift idea! Bought it for my husband,Big Bang Theory fan. You should have seen his eyes:) and quality is great. Thank you:) ',5,1458660023,'Anna S.',1,0,0,0);
 
 INSERT INTO `%%XC%%_reviews` (`product_id`, `review`, `rating`, `additionDate`, `reviewerName`, `status`, `useForMeta`, `isNew`, `xcPendingExport`) VALUES (1, '', 1, 1458207917, 'test test', 1, 0, 0, 0);
 INSERT INTO `%%XC%%_reviews` (`product_id`, `review`, `rating`, `additionDate`, `reviewerName`, `status`, `useForMeta`, `isNew`, `xcPendingExport`) VALUES (1, '', 1, 1458121517, 'test test', 1, 0, 0, 0);

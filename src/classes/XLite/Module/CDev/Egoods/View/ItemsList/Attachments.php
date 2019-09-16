@@ -53,7 +53,7 @@ class Attachments extends \XLite\Module\CDev\FileAttachments\View\ItemsList\Atta
         return parent::defineColumns() + [
                 'private' => [
                     static::COLUMN_CLASS   => 'XLite\Module\CDev\Egoods\View\FormField\Inline\Input\Checkbox\Switcher\FreePaid',
-                    static::COLUMN_ORDERBY => 50,
+                    static::COLUMN_ORDERBY => 250,
                 ],
             ];
     }

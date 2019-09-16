@@ -13,7 +13,7 @@
           {% include 'address/text/body.twig' %}
         </td>
   
-        <td valign="top" align="center">
+        <td valign="top" align="right">
           {{ widget('\\XLite\\View\\Button\\DeleteAddress', addressId=this.address.getAddressId()) }}
         </td>
   
@@ -29,7 +29,7 @@
           {{ widget('\\XLite\\View\\Button\\ModifyAddress', label=t('Change'), addressId=this.address.getAddressId()) }}
         </td>
   
-        <td align="center">
+        <td align="center" class="address-type">
           {% if this.address.getIsBilling() %}
             <img src="{{ asset('images/icon_billing.png') }}" title="{{ t('This address was used as a billing address during the recent purchase') }}" class="address-type-icon" alt="" />
           {% endif %}

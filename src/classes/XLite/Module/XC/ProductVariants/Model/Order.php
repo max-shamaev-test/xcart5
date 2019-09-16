@@ -122,7 +122,7 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
 
         if ($product && $product->mustHaveVariants()) {
             $variant = $item->getVariant();
-            $result = $variant && $variant->isOutOfStock();
+            $result = $variant && $variant->isAllStockInCart();
 
         } else {
             $result = parent::isItemLimitReached($item);

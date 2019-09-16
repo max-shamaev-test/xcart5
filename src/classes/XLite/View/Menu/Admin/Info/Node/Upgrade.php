@@ -188,7 +188,8 @@ class Upgrade extends \XLite\View\Menu\Admin\ANodeNotification
      */
     protected function isCoreUpgradeAvailable()
     {
-        return \XLite\Upgrade\Cell::getInstance()->hasCoreUpdate();
+        return false;
+        // return \XLite\Upgrade\Cell::getInstance()->hasCoreUpdate();
     }
 
     /**
@@ -198,9 +199,10 @@ class Upgrade extends \XLite\View\Menu\Admin\ANodeNotification
      */
     protected function areUpdatesAvailable()
     {
-        $infoHash = \XLite\Core\Database::getRepo('XLite\Model\Module')->getUpgradeModulesInfoHash();
-
-        return $infoHash['total'] > 0;
+        return false;
+        //$infoHash = \XLite\Core\Database::getRepo('XLite\Model\Module')->getUpgradeModulesInfoHash();
+        //
+        //return $infoHash['total'] > 0;
     }
 
     // {{{ View helpers
@@ -260,19 +262,10 @@ class Upgrade extends \XLite\View\Menu\Admin\ANodeNotification
      */
     protected function getCounter()
     {
-        $cacheParams = [
-            'upgrade_counter',
-            \XLite\Core\Database::getRepo('XLite\Model\Module')->getVersion(),
-            \XLite\Core\Marketplace::getInstance()->getCores(
-                \XLite\Core\Marketplace::TTL_SHORT
-            ),
-        ];
+        // $entries = \XLite\Upgrade\Cell::getInstance()->getEntries();
+        $entries = [];
 
-        return ExecuteCached::executeCached(function() {
-            $entries = \XLite\Upgrade\Cell::getInstance()->getEntries();
-
-            return count($entries);
-        }, $cacheParams);
+        return count($entries);
     }
 
     // }}}

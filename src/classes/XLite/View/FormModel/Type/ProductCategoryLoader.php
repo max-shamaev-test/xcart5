@@ -27,7 +27,7 @@ class ProductCategoryLoader implements ChoiceLoaderInterface
      */
     public function loadChoiceList($value = null)
     {
-        return new ArrayChoiceList(array_keys($this->getCategories()));
+        return new ArrayChoiceList([]);
     }
 
     /**
@@ -59,26 +59,7 @@ class ProductCategoryLoader implements ChoiceLoaderInterface
      */
     public function getValueLabel($value)
     {
-        $categories = $this->getCategories();
 
-        return (string) (isset($categories[$value]) ? $categories[$value] : $value);
-    }
-
-    /**
-     * @return array
-     */
-    protected function getCategories()
-    {
-        return $this->executeCachedRuntime(function() {
-            $repo = \XLite\Core\Database::getRepo('XLite\Model\Category');
-
-            $categories = $repo->getAllCategoriesAsDTO();
-            $result     = [];
-            foreach ($categories as $category) {
-                $result[$category['id']] = $category['fullName'];
-            }
-
-            return $result;
-        });
+        return $value;
     }
 }

@@ -44,8 +44,8 @@ abstract class EntityManager extends \Includes\Decorator\Plugin\Doctrine\ADoctri
      */
     public static function getAllMetadata($class = null)
     {
-        if (!isset(static::$metadata)) {
-            static::$metadata = array();
+        if (static::$metadata === null) {
+            static::$metadata = [];
 
             // Create hash array to quick access its elements
             foreach (static::getHandler()->getMetadataFactory()->getAllMetadata() as $data) {
@@ -119,7 +119,7 @@ abstract class EntityManager extends \Includes\Decorator\Plugin\Doctrine\ADoctri
      */
     protected static function getDSN()
     {
-        return \Includes\Utils\Database::getConnectionParams(true) + array('driver' => 'pdo_mysql');
+        return \Includes\Utils\Database::getConnectionParams(true) + ['driver' => 'pdo_mysql'];
     }
 
     /**

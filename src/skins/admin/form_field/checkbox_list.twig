@@ -5,6 +5,6 @@
 <ul {{ this.getAttributesCode()|raw }}>
 {{ this.displayCommentedData(this.getCommentedData()) }}
 {% for optionValue, optionLabel in this.getOptions() %}
-<li><label><input {{ this.getOptionAttributesCode(optionValue, optionLabel)|raw }} /> {{ optionLabel }}</label></li>
+<li><label><input {{ this.getOptionAttributesCode(optionValue, optionLabel)|raw }} /><span>{{ optionLabel }}</span></label></li>
 {% endfor %}
 </ul>

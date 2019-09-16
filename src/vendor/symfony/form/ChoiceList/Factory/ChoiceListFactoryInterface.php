@@ -31,35 +31,13 @@ interface ChoiceListFactoryInterface
      * The callable receives the choice as first and the array key as the second
      * argument.
      *
-     * @param array|\Traversable $choices The choices
-     * @param null|callable      $value   The callable generating the choice
-     *                                    values
+     * @param iterable      $choices The choices
+     * @param callable|null $value   The callable generating the choice
+     *                               values
      *
      * @return ChoiceListInterface The choice list
      */
     public function createListFromChoices($choices, $value = null);
-
-    /**
-     * Creates a choice list for the given choices.
-     *
-     * The choices should be passed in the keys of the choices array. Since the
-     * choices array will be flipped, the entries of the array must be strings
-     * or integers.
-     *
-     * Optionally, a callable can be passed for generating the choice values.
-     * The callable receives the choice as first and the array key as the second
-     * argument.
-     *
-     * @param array|\Traversable $choices The choices
-     * @param null|callable      $value   The callable generating the choice
-     *                                    values
-     *
-     * @return ChoiceListInterface The choice list
-     *
-     * @deprecated Added for backwards compatibility in Symfony 2.7, to be
-     *             removed in Symfony 3.0.
-     */
-    public function createListFromFlippedChoices($choices, $value = null);
 
     /**
      * Creates a choice list that is loaded with the given loader.
@@ -69,7 +47,7 @@ interface ChoiceListFactoryInterface
      * argument.
      *
      * @param ChoiceLoaderInterface $loader The choice loader
-     * @param null|callable         $value  The callable generating the choice
+     * @param callable|null         $value  The callable generating the choice
      *                                      values
      *
      * @return ChoiceListInterface The choice list
@@ -103,14 +81,14 @@ interface ChoiceListFactoryInterface
      * attributes that should be added to the respective choice.
      *
      * @param ChoiceListInterface $list             The choice list
-     * @param null|array|callable $preferredChoices The preferred choices
-     * @param null|callable       $label            The callable generating the
+     * @param array|callable|null $preferredChoices The preferred choices
+     * @param callable|null       $label            The callable generating the
      *                                              choice labels
-     * @param null|callable       $index            The callable generating the
+     * @param callable|null       $index            The callable generating the
      *                                              view indices
-     * @param null|callable       $groupBy          The callable generating the
+     * @param callable|null       $groupBy          The callable generating the
      *                                              group names
-     * @param null|array|callable $attr             The callable generating the
+     * @param array|callable|null $attr             The callable generating the
      *                                              HTML attributes
      *
      * @return ChoiceListView The choice list view

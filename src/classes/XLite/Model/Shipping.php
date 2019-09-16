@@ -329,6 +329,7 @@ class Shipping extends \XLite\Base\Singleton
             // Calculate markups
             foreach ($rates as $id => $rate) {
                 // If markup has already been calculated for rate then continue iteration
+
                 if (null !== $rate->getMarkup()) {
                     continue;
                 }

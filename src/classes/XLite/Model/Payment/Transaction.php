@@ -738,7 +738,7 @@ class Transaction extends \XLite\Model\AEntity
      *
      * @param boolean $strict Strict flag
      *
-     * @return array
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getTransactionData($strict = false)
     {
@@ -1089,30 +1089,32 @@ class Transaction extends \XLite\Model\AEntity
      *
      * @return array
      */
-    protected function getCartItems()
+    public function getCartItems()
     {
-        $result = array();
+        $result = [];
 
-        foreach ($this->getOrder()->getItems() as $item) {
-            $row = array();
-            $row['name'] = $item->getName();
-            $row['sku'] = $item->getSku();
-            $row['price'] = $item->getPrice();
-            $row['amount'] = $item->getAmount();
+        if ($this->getOrder()) {
+            foreach ($this->getOrder()->getItems() as $item) {
+                $row = array();
+                $row['name'] = $item->getName();
+                $row['sku'] = $item->getSku();
+                $row['price'] = $item->getPrice();
+                $row['amount'] = $item->getAmount();
 
-            if ($item->hasAttributeValues()) {
-                foreach ($item->getSortedAttributeValues() as $attr) {
-                    $row['attrs'][] = array(
-                        'name'  => $attr->getActualName(),
-                        'value' => $attr->getActualValue(),
-                    );
+                if ($item->hasAttributeValues()) {
+                    foreach ($item->getSortedAttributeValues() as $attr) {
+                        $row['attrs'][] = array(
+                            'name'  => $attr->getActualName(),
+                            'value' => $attr->getActualValue(),
+                        );
+                    }
+
+                } else {
+                    $row['attrs'] = array();
                 }
 
-            } else {
-                $row['attrs'] = array();
+                $result[] = $this->getCartItemData($item);
             }
-
-            $result[] = $this->getCartItemData($item);
         }
 
         return $result;

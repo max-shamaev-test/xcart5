@@ -8,6 +8,7 @@
 
 namespace XLite\View\Button\Dropdown;
 
+use XLite\Model\Order\Status\Shipping;
 use XLite\View\Button\Features\TooltippedTrait;
 
 /**
@@ -72,10 +73,7 @@ class FulfillmentStatuses extends \XLite\View\Button\Dropdown\ADropdown
      */
     protected function getExcludedStatuses()
     {
-        return [
-            'WFA',
-            'NF'
-        ];
+        return Shipping::getDisallowedToSetManuallyStatuses();
     }
 
     /**

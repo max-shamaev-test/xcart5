@@ -23,7 +23,7 @@ class LabelDetails extends \XLite\View\Base\FormStickyPanel
         $buttons = array();
         $buttons['save'] = $this->getWidget(
             array(
-                'style'    => 'action submit',
+                'style'    => 'action regular-main-button',
                 'label'    => static::t('Save changes'),
                 'disabled' => false,
             ),

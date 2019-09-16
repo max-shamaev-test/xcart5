@@ -74,3 +74,5 @@ XLite\Model\LanguageLabel:
   - { name: 'This operation will capture funds from customer. Please confirm to proceed.', translations: [{ code: en, label: 'This operation will capture funds from customer. Please confirm to proceed.' }]}
   - { name: 'This operation will refund funds to customer. Please confirm to proceed.', translations: [{ code: en, label: 'This operation will refund funds to customer. Please confirm to proceed.' }]}
   - { name: 'Use existing Amazon account', translations: [{ code: en, label: 'Use existing Amazon account' }]}
+  - { name: 'Multi-Factor Authentication failed', translations: [{ code: en, label: 'Multi-Factor Authentication failed' }]}
+  - { name: 'Multi-Factor Authentication not completed', translations: [{ code: en, label: 'Multi-Factor Authentication not completed' }]}

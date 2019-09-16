@@ -32,7 +32,7 @@ class Image extends \XLite\View\FormField\FileUploader\AFileUploader
     {
         $list = parent::getCommonAttributes();
 
-        $list['is_image'] = true;
+        $list['data-is_image'] = true;
 
         return $list;
     }

@@ -7,7 +7,6 @@
 
 XLite\Model\Config:
   - { directives: { forceInsertCommand: true } }
-  - { name: admin_presentation, category: General, type: separator, orderby: 40000, translations: [{ code: en, option_name: 'Administrator Zone settings' }] }
   - { name: admin_security, category: Security, type: checkbox, orderby: 1000, value: N, translations: [{ code: en, option_name: 'Use HTTPS in the Administrator Zone' }] }
   - { name: anonymous, category: Shipping, type: separator, orderby: 3000, translations: [{ code: en, option_name: 'Default customer address' }] }
   - { name: anonymous_address, category: Shipping, type: text, orderby: 4000, translations: [{ code: en, option_name: 'Address line' }] }
@@ -72,10 +71,8 @@ XLite\Model\Config:
   - { name: cart_ttl, category: General, type: 'XLite\View\FormField\Input\Text\Integer', orderby: 39500, value: 7, translations: [{ code: en, option_name: 'Cart TTL (days)', option_comment: 'Specify the number of days after which a stored shopping cart should be considered old and should be removed. Leave empty if old carts should never be removed (not recommended)' }] }
   - { name: internal_cron_enabled, category: General, type: checkbox, orderby: 39800, value: Y, translations: [{ code: en, option_name: 'Enable internal cron service', option_comment: "This setting allows you to enable/disable the use of your store's internal cron service. This service schedules the run of certain maintenance tasks for your store - like removing customers' expired shopping carts - at the periodicity of once per 100 user sessions." }] }
   - { name: orders_department, category: Company, type: 'XLite\View\FormField\Select\MultipleEmails', orderby: 48000, value: 'a:1:{i:0;s:17:"admin@example.com";}', translations: [{ code: en, option_name: 'Sales department e-mails', option_comment: 'The first email in this field (the one marked dark blue) will be used as the "Reply-To:" address for low limit warning messages.<br/><br/>All addresses in this field will be used as the "TO:" address for notifications about orders (creation of new orders, changes of order status, etc).' }] }
-  - { name: orders_per_page, category: General, type: 'XLite\View\FormField\Input\Text\Integer', orderby: 43000, value: 30, widgetParameters: { min: 1 }, translations: [{ code: en, option_name: 'Orders per page' }] }
   - { name: products_per_page, category: General, type: 'XLite\View\FormField\Input\Text\Integer', orderby: 25000, value: 12, widgetParameters: { min: 1 }, translations: [{ code: en, option_name: 'Products per category listing page' }] }
   - { name: products_per_page_max, category: General, type: 'XLite\View\FormField\Input\Text\Integer', orderby: 25000, value: 100, widgetParameters: { min: 1 }, translations: [{ code: en, option_name: 'Maximum products per category listing page' }] }
-  - { name: products_per_page_admin, category: General, type: 'XLite\View\FormField\Input\Text\Integer', orderby: 41000, value: '10', widgetParameters: { min: 1 }, translations: [{ code: en, option_name: 'Products per page' }] }
   - { name: force_choose_product_options, category: General, type: 'XLite\View\FormField\Select\ForceProductOptions', orderby: 29900, value: '', translations: [{ code: en, option_name: 'Force customer to choose product options before the product can be added to cart' }] }
   - { name: redirect_to_cart, category: General, type: checkbox, orderby: 30000, value: N, translations: [{ code: en, option_name: 'Redirect customer to the cart page after a product is added to cart' }] }
   - { name: shop_closed, category: Internal, type: checkbox, orderby: 11000, value: N, translations: [{ code: en, option_name: 'Close the shop temporarily' }] }
@@ -100,13 +97,14 @@ XLite\Model\Config:
   - { name: mail_from_manual, category: Email, type: \XLite\View\FormField\Input\Text\EmailFromManual, orderby: 10600, value: '', widgetParameters: { required: true }, }
   - { name: use_smtp, category: Email, type: \XLite\View\FormField\Input\Checkbox\UseSmtp, orderby: 11000, value: '', translations: [{ code: en, option_name: 'Use SMTP server' }] }
   - { name: use_smtp_auth, category: Email, type: XLite\View\FormField\Input\Checkbox\OnOff, orderby: 14000, value: '', translations: [{ code: en, option_name: 'Use authentication' }] }
-  - { name: version, category: Version, value: '5.3.6' }
+  - { name: version, category: Version, value: '5.4.0.4' }
   - { name: weight_symbol, category: Units, type: text, orderby: 62000, value: lbs, translations: [{ code: en, option_name: 'Weight symbol' }] }
   - { name: weight_unit, category: Units, type: 'XLite\View\FormField\Select\WeightUnit', orderby: 61000, value: lbs, translations: [{ code: en, option_name: 'Weight unit' }] }
   - { name: weight_trailing_zeroes, category: Units, type: checkbox, orderby: 62100, value: Y, translations: [{ code: en, option_name: 'Hide trailing zeros in fractional part' }] }
   - { name: weight_format, category: Units, type: 'XLite\View\FormField\Select\FloatFormat', orderby: 62200, value: '|.', translations: [{ code: en, option_name: 'Weight format' }] }
   - { name: dim_symbol, category: Units, type: text, orderby: 62500, value: in, translations: [{ code: en, option_name: 'Dimensional symbol' }] }
   - { name: dim_unit, category: Units, type: 'XLite\View\FormField\Select\DimUnit', orderby: 62300, value: in, translations: [{ code: en, option_name: 'Dimensional unit' }] }
+  - { name: curl_sep, category: Environment, type: separator, orderby: 10000, translations: [{ code: en, option_name: 'Curl options' }] }
   - { name: curl_cainfo, category: Environment, type: text, orderby: 11000, value: '', translations: [{ code: en, option_name: "Path to Certificate Authority (CA) bundle" }] }
   - { name: curl_capath, category: Environment, type: text, orderby: 12000, value: '', translations: [{ code: en, option_name: "Directory holding CA certificates" }] }
   - { name: force_login_before_checkout, category: General, type: checkbox, orderby: 30500, value: Y, translations: [{ code: en, option_name: 'Ask anonymous users to create an account or sign in before checkout' }] }
@@ -149,6 +147,9 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Home page title and meta'
+  - { name: page_404, category: CleanURL, type: XLite\View\FormField\CleanUrls\Page404, orderby: 14500, translations: [{ code: en, option_name: '404 page' }] }
+  - { name: regular_text_404, category: CleanURL, type: XLite\View\FormField\Label\TranslationLabelWithHtmlCode, orderby: 14501, value: 'default-404-text', translations: [{ code: en, option_name: 'Regular text for 404 page' }] }
+  - { name: show_email_404, category: CleanURL, type: XLite\View\FormField\Input\Checkbox\OnOff, orderby: 14502, value: 1, translations: [{ code: en, option_name: 'Show сustomer relations e-mails on 404 page' }] }
   - name: page_title_format
     category: CleanURL
     type: XLite\View\FormField\CleanUrls\PageTitleFormat
@@ -989,7 +990,7 @@ XLite\Model\Country:
   - { translations: [{ code: en, country: Lithuania }], id: 440, code3: LTU, code: LT, currency: { currency_id: 440 }, eu_member: true }
   - { translations: [{ code: en, country: Luxembourg }], id: 442, code3: LUX, code: LU, currency: { currency_id: 978 }, eu_member: true }
   - { translations: [{ code: en, country: Macao }], id: 446, code3: MAC, code: MO, currency: { currency_id: 446 } }
-  - { translations: [{ code: en, country: Macedonia }], id: 807, code3: MKD, code: MK, currency: { currency_id: 807 } }
+  - { translations: [{ code: en, country: North Macedonia }], id: 807, code3: MKD, code: MK, currency: { currency_id: 807 } }
   - { translations: [{ code: en, country: Madagascar }], id: 450, code3: MDG, code: MG, currency: { currency_id: 969 } }
   - { translations: [{ code: en, country: Malawi }], id: 454, code3: MWI, code: MW, currency: { currency_id: 454 } }
   - { translations: [{ code: en, country: Malaysia }], id: 458, code3: MYS, code: MY, currency: { currency_id: 458 } }
@@ -1585,6 +1586,7 @@ XLite\Model\Order\Status\Shipping:
   - { code: WND, translations: [{ code: en, name: Will Not Deliver, customerName: Will Not Deliver }], position: 50 }
   - { code: R, translations: [{ code: en, name: Returned, customerName: Returned }], position: 60 }
   - { code: WFA, translations: [{ code: en, name: Waiting for approve, customerName: Waiting for approve }], position: 70 }
+  - { code: NBA, translations: [{ code: en, name: New/Backorder, customerName: New }], position: 80 }
 
 XLite\Model\Order\Status\Property:
   - { paymentStatus: { code: A }, shippingStatus: { code: N }, incStock: false}
@@ -1594,6 +1596,7 @@ XLite\Model\Order\Status\Property:
   - { paymentStatus: { code: A }, shippingStatus: { code: WND }, incStock: false}
   - { paymentStatus: { code: A }, shippingStatus: { code: R }, incStock: false}
   - { paymentStatus: { code: A }, shippingStatus: { code: WFA }, incStock: false}
+  - { paymentStatus: { code: A }, shippingStatus: { code: NBA }, incStock: false}
   - { paymentStatus: { code: PP }, shippingStatus: { code: N }, incStock: false}
   - { paymentStatus: { code: PP }, shippingStatus: { code: P }, incStock: false}
   - { paymentStatus: { code: PP }, shippingStatus: { code: S }, incStock: false}
@@ -1601,6 +1604,7 @@ XLite\Model\Order\Status\Property:
   - { paymentStatus: { code: PP }, shippingStatus: { code: WND }, incStock: false}
   - { paymentStatus: { code: PP }, shippingStatus: { code: R }, incStock: false}
   - { paymentStatus: { code: PP }, shippingStatus: { code: WFA }, incStock: false}
+  - { paymentStatus: { code: PP }, shippingStatus: { code: NBA }, incStock: false}
   - { paymentStatus: { code: P }, shippingStatus: { code: N }, incStock: false}
   - { paymentStatus: { code: P }, shippingStatus: { code: P }, incStock: false}
   - { paymentStatus: { code: P }, shippingStatus: { code: S }, incStock: false}
@@ -1608,6 +1612,7 @@ XLite\Model\Order\Status\Property:
   - { paymentStatus: { code: P }, shippingStatus: { code: WND }, incStock: false}
   - { paymentStatus: { code: P }, shippingStatus: { code: R }, incStock: false}
   - { paymentStatus: { code: P }, shippingStatus: { code: WFA }, incStock: false}
+  - { paymentStatus: { code: P }, shippingStatus: { code: NBA }, incStock: false}
   - { paymentStatus: { code: D }, shippingStatus: { code: N }, incStock: true}
   - { paymentStatus: { code: D }, shippingStatus: { code: P }, incStock: true}
   - { paymentStatus: { code: D }, shippingStatus: { code: S }, incStock: true}
@@ -1615,6 +1620,7 @@ XLite\Model\Order\Status\Property:
   - { paymentStatus: { code: D }, shippingStatus: { code: WND }, incStock: true}
   - { paymentStatus: { code: D }, shippingStatus: { code: R }, incStock: true}
   - { paymentStatus: { code: D }, shippingStatus: { code: WFA }, incStock: true}
+  - { paymentStatus: { code: D }, shippingStatus: { code: NBA }, incStock: true}
   - { paymentStatus: { code: C }, shippingStatus: { code: N }, incStock: true}
   - { paymentStatus: { code: C }, shippingStatus: { code: P }, incStock: true}
   - { paymentStatus: { code: C }, shippingStatus: { code: S }, incStock: true}
@@ -1622,6 +1628,7 @@ XLite\Model\Order\Status\Property:
   - { paymentStatus: { code: C }, shippingStatus: { code: WND }, incStock: true}
   - { paymentStatus: { code: C }, shippingStatus: { code: R }, incStock: true}
   - { paymentStatus: { code: C }, shippingStatus: { code: WFA }, incStock: true}
+  - { paymentStatus: { code: C }, shippingStatus: { code: NBA }, incStock: true}
   - { paymentStatus: { code: Q }, shippingStatus: { code: N }, incStock: false}
   - { paymentStatus: { code: Q }, shippingStatus: { code: P }, incStock: false}
   - { paymentStatus: { code: Q }, shippingStatus: { code: S }, incStock: false}
@@ -1629,6 +1636,7 @@ XLite\Model\Order\Status\Property:
   - { paymentStatus: { code: Q }, shippingStatus: { code: WND }, incStock: false}
   - { paymentStatus: { code: Q }, shippingStatus: { code: R }, incStock: false}
   - { paymentStatus: { code: Q }, shippingStatus: { code: WFA }, incStock: false}
+  - { paymentStatus: { code: Q }, shippingStatus: { code: NBA }, incStock: false}
   - { paymentStatus: { code: R }, shippingStatus: { code: N }, incStock: true}
   - { paymentStatus: { code: R }, shippingStatus: { code: P }, incStock: true}
   - { paymentStatus: { code: R }, shippingStatus: { code: S }, incStock: false}
@@ -1636,25 +1644,342 @@ XLite\Model\Order\Status\Property:
   - { paymentStatus: { code: R }, shippingStatus: { code: WND }, incStock: true}
   - { paymentStatus: { code: R }, shippingStatus: { code: R }, incStock: true}
   - { paymentStatus: { code: R }, shippingStatus: { code: WFA }, incStock: true}
+  - { paymentStatus: { code: R }, shippingStatus: { code: NBA }, incStock: true}
 
 XLite\Model\Notification:
-  - { templatesDirectory: failed_admin_login, position: 100, availableForAdmin: true, availableForCustomer: false, enabledForAdmin: true, enabledForCustomer: false, adminHeaderEnabled: true, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: true, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Failed admin login, description: "The notification is sent to the email address of the admin user for whose account failed login attempts have been detected several times in a row. A copy of the message is also sent to the store’s super admin user.", adminSubject: WARNING! Administrator login failure, adminText: Failed administrator login detected. }]}
-  - { templatesDirectory: failed_transaction, position: 200, availableForAdmin: true, availableForCustomer: false, enabledForAdmin: true, enabledForCustomer: false, adminHeaderEnabled: true, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: true, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Failed transaction, description: "This notification is sent to the administrator if payment transaction was failed", adminSubject: Failed transaction, adminText: "" }]}
-  - { templatesDirectory: low_limit_warning, position: 300, availableForAdmin: true, availableForCustomer: false, enabledForAdmin: true, enabledForCustomer: false, adminHeaderEnabled: true, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: true, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Low limit warning, description: "This message is used to notify the administrator when the stock level of a product reaches the low stock limit as specified in the product details.", adminSubject: Low stock warning, adminText: "The inventory level of a product in your store has reached the low limit." }]}
-  - { templatesDirectory: order_advanced_changed, position: 1300, availableForAdmin: false, availableForCustomer: true, enabledForAdmin: false, enabledForCustomer: true, adminHeaderEnabled: false, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: false, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Order changed with advanced order management, description: "This message is sent to notify the customer of any changes made to their order by an administrator using the advanced order management feature.", customerSubject: Your order has been changed, customerText: "Your order has been changed by customer service. Here are the details of your order:" }]}
-  - { templatesDirectory: order_changed, position: 1400, availableForAdmin: true, availableForCustomer: true, enabledForAdmin: true, enabledForCustomer: true, adminHeaderEnabled: false, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: false, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Order changed, description: "This notification is sent to both the administrator and customer when the status of an order is updated - in the event that no other type of notification is sent.", customerSubject: Your order has been changed, customerText: "Your order has been changed. Here are the details of your order:", adminSubject: Order has been changed, adminText: Order has been changed. }]}
-  - { templatesDirectory: order_canceled, position: 1500, availableForAdmin: true, availableForCustomer: true, enabledForAdmin: true, enabledForCustomer: true, adminHeaderEnabled: false, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: false, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Order canceled, description: "This notification is sent to both the administrator and customer when an order gets the status Canceled.", customerSubject: Your order has been canceled, customerText: Your order has been canceled., adminSubject: Order has been canceled, adminText: Order has been canceled. }]}
-  - { templatesDirectory: order_created, position: 1600, availableForAdmin: true, availableForCustomer: true, enabledForAdmin: true, enabledForCustomer: true, adminHeaderEnabled: false, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: false, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Order created, description: "This notification is sent to both the administrator and customer when a new order is created.", customerSubject: Order has been created, customerText: "Thank you for shopping with us! We received your order.<br />You will receive an order confirmation once your order is processed.", adminSubject: Order has been created, adminText: Order has been created. }]}
-  - { templatesDirectory: order_failed, position: 1700, availableForAdmin: true, availableForCustomer: true, enabledForAdmin: true, enabledForCustomer: true, adminHeaderEnabled: false, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: false, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Order declined, description: "This notification is sent to both the administrator and customer when an order gets the status Declined.", customerSubject: Your order has been declined, customerText: "The status of your order has been changed to \"Declined\". This could be for one of the following reasons:<br />1) The order was declined by the store administrator.<br />2) The payment could not be processed at the time of order placement.<br />For more information, please contact the store administrator.", adminSubject: Order has been declined, adminText: Order has been declined. }]}
-  - { templatesDirectory: order_processed, position: 1800, availableForAdmin: true, availableForCustomer: true, enabledForAdmin: true, enabledForCustomer: true, adminHeaderEnabled: false, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: false, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Order processed, description: "This notification is sent to both the administrator and customer when an order gets the status Paid.", customerSubject: Order confirmation, customerText: "Your order has been processed. Thank you for your business.<br />We will notify you by email of any further order status updates.", adminSubject: Order has been processed, adminText: Order has been processed. }]}
-  - { templatesDirectory: order_shipped, position: 1900, availableForAdmin: false, availableForCustomer: true, enabledForAdmin: false, enabledForCustomer: true, adminHeaderEnabled: false, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: false, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Order shipped, description: "This notification is sent to the customer when an order gets the status Shipped.", customerSubject: Your order has been shipped, customerText: "Your order has been shipped. Thank you for your business.<br />Please come back soon!" }]}
-  - { templatesDirectory: order_tracking_information, position: 2000, availableForAdmin: false, availableForCustomer: false, enabledForAdmin: false, enabledForCustomer: true, adminHeaderEnabled: false, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: false, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Order tracking information, description: 'This notification is sent to the customer when an administrator clicks the "Send tracking information to customer" button.', customerSubject: Your order tracking information, customerText: "Here are the tracking details for your order" }]}
-  - { templatesDirectory: order_waiting_for_approve, position: 2100, availableForAdmin: false, availableForCustomer: true, enabledForAdmin: false, enabledForCustomer: true, adminHeaderEnabled: false, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: false, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: 'Order awaiting for approval', description: "This notification is sent to the customer when an order gets the status Waiting for approve.", customerSubject: 'Order awaiting for approval', customerText: "Thank you for your purchase. Our team will provide you with the download links in a couple of hours. Sorry for the inconveniences." }]}
-  - { templatesDirectory: profile_created, position: 2200, availableForAdmin: true, availableForCustomer: true, enabledForAdmin: false, enabledForCustomer: true, adminHeaderEnabled: true, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: true, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: User profile created, description: "This notification is sent to both the administrator and customer when a new customer profile is created.", customerSubject: Welcome!, customerText: Thank you for registering with us., adminSubject: New user registration, adminText: "A new user profile has been registered:" }]}
-  - { templatesDirectory: profile_deleted, position: 2300, availableForAdmin: true, availableForCustomer: false, enabledForAdmin: false, enabledForCustomer: false, adminHeaderEnabled: true, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: true, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: User profile deleted, description: "This notification is sent to the administrator when a customer profile is deleted.", adminSubject: User profile has been deleted, adminText: "The following user profile has been deleted:" }]}
-  - { templatesDirectory: profile_modified, position: 2400, availableForAdmin: true, availableForCustomer: true, enabledForAdmin: false, enabledForCustomer: true, adminHeaderEnabled: true, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: true, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: User profile modified, description: "This notification is sent to both the administrator and customer when a user profile is updated.", customerSubject: Your profile has been modified, customerText: "Your profile has been modified. To view your profile information, log in at our site.", adminSubject: User profile has been modified, adminText: The user profile has been modified. }]}
-  - { templatesDirectory: recover_password_request, position: 2500, availableForAdmin: false, availableForCustomer: false, enabledForAdmin: true, enabledForCustomer: true, adminHeaderEnabled: true, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: true, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: Password reset request, description: "This notification is sent to the user when a password reset is requested for their account.", customerSubject: Confirm password reset request, customerText: "<p>You have received this message because you requested to reset your forgotten password.<br />If you did not submit such a request, it might mean that somebody was trying to gain access to your account.</p><p>To confirm that this request was submitted by you, click on the link below<br/>(If the link does not work, please copy and paste the entire URL into your browser's address bar and press Enter).</p>", adminSubject: Confirm password reset request, adminText: "<p>You have received this message because you requested to reset your forgotten password.<br />If you did not submit such a request, it might mean that somebody was trying to gain access to your account.</p><p>To confirm that this request was submitted by you, click on the link below<br/>(If the link does not work, please copy and paste the entire URL into your browser's address bar and press Enter).</p>" }]}
-  - { templatesDirectory: register_anonymous, position: 2600, availableForAdmin: false, availableForCustomer: true, enabledForAdmin: false, enabledForCustomer: true, adminHeaderEnabled: true, adminGreetingEnabled: false, adminSignatureEnabled: true, customerHeaderEnabled: true, customerGreetingEnabled: true, customerSignatureEnabled: true, translations: [{ code: en, name: User account created for guest buyer based on order info, description: "This notification is sent to the customer when a customer profile is created for them by the store administrator based on a previously created order.", customerSubject: User account created, customerText: "<p>Thank you for shopping with us! We noticed that one or more orders you made at our store were placed using guest checkout. We appreciate your business and look forward to continue serving you in the future. For your convenience, we created an account for you at our store. The account stores all the information about your previous orders with us.</p><p>To log in to your account, please use the following credentials:<br />(The password can be changed in your account profile)</p>" }]}
+  - templatesDirectory: failed_admin_login
+    position: 100
+    availableForAdmin: true
+    availableForCustomer: false
+    enabledForAdmin: true
+    enabledForCustomer: false
+    adminHeaderEnabled: true
+    adminGreetingEnabled: false
+    adminSignatureEnabled: true
+    customerHeaderEnabled: true
+    customerGreetingEnabled: true
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'Failed admin login'
+        description: 'The notification is sent to the email address of the admin user for whose account failed login attempts have been detected several times in a row. A copy of the message is also sent to the store’s super admin user.'
+        adminSubject: 'Knock-knock. Forgot your password?'
+        adminText: '<h3 dir="ltr">Hey there,</h3><p dir="ltr">Someone is trying to break into your admin account.&nbsp;</p><p dir="ltr">Is that you? Ok, then. You can reset the forgotten password <a href="%reset_link%">here</a>.</p><p dir="ltr">If you didn&rsquo;t mean to reset your password, then you can safely ignore this message. Your password will not change. Just make sure it&rsquo;s secure enough. &nbsp;</p>'
+
+  - templatesDirectory: failed_transaction
+    position: 200
+    availableForAdmin: true
+    availableForCustomer: false
+    enabledForAdmin: true
+    enabledForCustomer: false
+    adminHeaderEnabled: true
+    adminGreetingEnabled: true
+    adminSignatureEnabled: true
+    customerHeaderEnabled: true
+    customerGreetingEnabled: true
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'Payment declined'
+        description: 'This notification is sent to the administrator if payment transaction was failed'
+        adminSubject: 'Payment was declined'
+        adminText: '<p dir="ltr">One of your customers was about to make a purchase, but your payment processor failed to charge his card for some reason.&nbsp;</p><p dir="ltr">%dynamic_message%</p><p dir="ltr">Wonder why it may have happened? It&rsquo;s likely that your customer entered a wrong card number, password or CVC, had no money on his card, closed his browser by mistake or just fleeted away.</p><p dir="ltr">It may be a good idea to contact him and offer your help.</p>'
+
+  - templatesDirectory: low_limit_warning
+    position: 300
+    availableForAdmin: true
+    availableForCustomer: false
+    enabledForAdmin: true
+    enabledForCustomer: false
+    adminHeaderEnabled: true
+    adminGreetingEnabled: false
+    adminSignatureEnabled: true
+    customerHeaderEnabled: true
+    customerGreetingEnabled: true
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'Low limit warning'
+        description: 'This message is used to notify the administrator when the stock level of a product reaches the low stock limit as specified in the product details.'
+        adminSubject: 'You are running out of %product_name%'
+        adminText: '<h3 dir="ltr">Heads-up boss, </h3><p dir="ltr">I see that some of your products are about to run out of stock.&nbsp;</p><p dir="ltr">%dynamic_message%</p><p dir="ltr">According to our stats you&rsquo;ll sell the last item by %latest_sale_date%. So it&rsquo;s high time to replenish them. You are not going to sell fresh air, are you?</p>'
+
+  - templatesDirectory: order_changed
+    position: 1400
+    availableForAdmin: true
+    availableForCustomer: true
+    enabledForAdmin: true
+    enabledForCustomer: true
+    adminHeaderEnabled: true
+    adminGreetingEnabled: true
+    adminSignatureEnabled: true
+    customerHeaderEnabled: false
+    customerGreetingEnabled: true
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'Order changed'
+        description: 'This notification is sent when the status of an order is updated - in the event that no other type of notification is sent.'
+        adminSubject: 'Order #%order_number% is changed'
+        adminText: '<p dir="ltr">I&rsquo;ve saved all your order changes just in case you might need them in future. Please, take a look and make sure that everything is ok.</p>'
+        customerSubject: 'Order #%order_number% is changed'
+        customerText: '<p dir="ltr">As previously agreed, we&rsquo;ve changed your order. Here is a new invoice for you, fresh and updated. Check it out to make sure that nothing is missing.</p>'
+
+  - templatesDirectory: order_canceled
+    position: 1500
+    availableForAdmin: true
+    availableForCustomer: true
+    enabledForAdmin: true
+    enabledForCustomer: true
+    adminHeaderEnabled: false
+    adminGreetingEnabled: true
+    adminSignatureEnabled: true
+    customerHeaderEnabled: false
+    customerGreetingEnabled: false
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'Order canceled'
+        description: 'This notification is sent when an order gets the status Canceled.'
+        adminSubject: 'Order #%order_number% is canceled'
+        adminText: '<p dir="ltr">I&rsquo;m sorry to see that you had to cancel the order. Hope your customer will change his mind and end up buying from you soon. I&rsquo;ll keep my fingers crossed.</p>'
+        customerSubject: 'Order #%order_number% is canceled'
+        customerText: '<h3 dir="ltr">Hi %recipient_name%,</h3><p dir="ltr">We had to cancel your order. If that was you who initiated the cancellation, please tell us where we failed and let us at least try to make up for our faults. For any questions and feedback, just hit &#39;Reply&#39;.</p>'
+
+  - templatesDirectory: order_created
+    position: 1600
+    availableForAdmin: true
+    availableForCustomer: true
+    enabledForAdmin: true
+    enabledForCustomer: true
+    adminHeaderEnabled: false
+    adminGreetingEnabled: true
+    adminSignatureEnabled: true
+    customerHeaderEnabled: false
+    customerGreetingEnabled: true
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'Order created'
+        description: 'This notification is sent when a new order is created.'
+        adminSubject: 'You’ve got a new order #%order_number% for %order_total%'
+        adminText: '<p dir="ltr">Your wallet is going to get heavier very soon. Go ahead, show your customer you care and process the order ASAP.</p>'
+        customerSubject: 'Order #%order_number% is received'
+        customerText: '<p dir="ltr">Thank you for shopping with us!&nbsp;</p><p dir="ltr">This is just a quick note to let you know that we&rsquo;ve received your order and we will process it as soon as we can. We will keep you updated on the status of your order.&nbsp;</p>'
+
+  - templatesDirectory: order_failed
+    position: 1700
+    availableForAdmin: true
+    availableForCustomer: true
+    enabledForAdmin: true
+    enabledForCustomer: true
+    adminHeaderEnabled: true
+    adminGreetingEnabled: true
+    adminSignatureEnabled: true
+    customerHeaderEnabled: true
+    customerGreetingEnabled: false
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'Order declined'
+        description: 'This notification is sent when an order gets the status Declined.'
+        adminSubject: 'Order #%order_number% is declined'
+        adminText: '<p dir="ltr">I see that your order was declined by %payment_method_name%. It may be a good idea to contact your customer and offer your help.</p>'
+        customerSubject: 'Order #%order_number% is declined'
+        customerText: '<h3 dir="ltr">Hi %recipient_name%,</h3><p dir="ltr">Something went wrong and %payment_method_name% failed to charge your credit card.&nbsp;</p><p dir="ltr">If everything seems alright on your side and you are eager to proceed with the purchase, please reply back. We&rsquo;ll try to find out what&rsquo;s up.</p>'
+
+  - templatesDirectory: order_processed
+    position: 1800
+    availableForAdmin: true
+    availableForCustomer: true
+    enabledForAdmin: true
+    enabledForCustomer: true
+    adminHeaderEnabled: false
+    adminGreetingEnabled: true
+    adminSignatureEnabled: true
+    customerHeaderEnabled: false
+    customerGreetingEnabled: false
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'Order processed'
+        description: 'This notification is sent when an order gets the status Paid.'
+        adminSubject: 'Order #%order_number% is paid'
+        adminText: '<p dir="ltr">Your wallet has got a little heavier. Way to go!</p>'
+        customerSubject: 'Order #%order_number% is paid (yay!)'
+        customerText: '<h2 dir="ltr">Your order was paid successfully, %recipient_name%!</h2><h3 dir="ltr">And we are just as excited as you are</h3><p dir="ltr"><br>Take a look below for all the confirmation details you&rsquo;ll need. We will be back in a moment to let you know that your item is on its way, unless you decide to pick it up yourself.&nbsp;</p>'
+
+  - templatesDirectory: order_shipped
+    position: 1900
+    availableForAdmin: false
+    availableForCustomer: true
+    enabledForAdmin: false
+    enabledForCustomer: true
+    adminHeaderEnabled: false
+    adminGreetingEnabled: false
+    adminSignatureEnabled: true
+    customerHeaderEnabled: false
+    customerGreetingEnabled: false
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'Order shipped'
+        description: 'This notification is sent to the customer when an order gets the status Shipped.'
+        customerSubject: 'Order #%order_number% is shipped'
+        customerText: '<h2 dir="ltr">Bingo %recipient_name%!</h2><h3 dir="ltr">Your item is on its way to your doorstep</h3><p dir="ltr"><br>We&rsquo;ve packed your order and sent it off on a journey to your place. The delivery shouldn&rsquo;t take much time as we turbo-charged our van, so it gets to you extra fast.</p><p dir="ltr">%dynamic_message%</p><p dir="ltr">If you have any questions feel free to get in touch. We are always here and super happy to help you.</p>'
+
+  - templatesDirectory: order_tracking_information
+    position: 2000
+    availableForAdmin: false
+    availableForCustomer: false
+    enabledForAdmin: false
+    enabledForCustomer: true
+    adminHeaderEnabled: false
+    adminGreetingEnabled: false
+    adminSignatureEnabled: true
+    customerHeaderEnabled: true
+    customerGreetingEnabled: true
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'Order tracking information'
+        description: 'This notification is sent to the customer when an administrator clicks the "Send tracking information to customer" button.'
+        customerSubject: 'Order #%order_number% tracking information'
+        customerText: '<p dir="ltr">We&rsquo;ve sent your parcel off on a journey to your porch via %shipping_method_name%.&nbsp;</p><p dir="ltr">Below you&rsquo;ll find shipping details and a handy tracking link you can use to follow your order&rsquo;s trip to your door.</p><p dir="ltr">%dynamic_message%</p><p dir="ltr">Don&#39;t worry if the order tracking doesn&#39;t work right away. It may take some time to have this information available.</p>'
+
+  - templatesDirectory: order_waiting_for_approve
+    position: 2100
+    availableForAdmin: false
+    availableForCustomer: true
+    enabledForAdmin: false
+    enabledForCustomer: true
+    adminHeaderEnabled: false
+    adminGreetingEnabled: false
+    adminSignatureEnabled: true
+    customerHeaderEnabled: true
+    customerGreetingEnabled: false
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'Order awaiting for approval'
+        description: 'This notification is sent to the customer when an order gets the status Waiting for approve.'
+        customerSubject: 'Order #%order_number% is waiting for approval'
+        customerText: '<h3 dir="ltr">Hi %recipient_name%,</h3><p dir="ltr">Thank you for shopping on %company_name%!&nbsp;</p><p dir="ltr">Our financial team needs some time to manually review your order.</p><p dir="ltr">Please wait for a couple of hours and take another look at your inbox. There should be one more email ready and waiting.</p>'
+
+  - templatesDirectory: profile_created
+    position: 2200
+    availableForAdmin: true
+    availableForCustomer: true
+    enabledForAdmin: false
+    enabledForCustomer: true
+    adminHeaderEnabled: true
+    adminGreetingEnabled: true
+    adminSignatureEnabled: true
+    customerHeaderEnabled: true
+    customerGreetingEnabled: false
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'User profile created'
+        description: 'This notification is sent when a new customer profile is created.'
+        adminSubject: 'Great! You''ve got a new customer'
+        adminText: '<p>One more customer has just signed up: %customer_email%. Looks like your business is growing :)</p>'
+        customerSubject: 'Welcome to %company_name%!'
+        customerText: '<h3 dir="ltr">Welcome to %company_name%!</h3><p dir="ltr">The world of online shopping is now at your fingertips</p><p dir="ltr">We&rsquo;ve created an account for you. There you will find:</p><ul><li dir="ltr">all your previous (yes, we&rsquo;ve saved them all!) and future orders;</li><li dir="ltr">addresses in case you need to get things delivered to different places;</li><li dir="ltr">profile details, where you can edit your login and password.</li><li dir="ltr">messages you&rsquo;ve ever sent or received from us;</li></ul><p>Sign in to <a href="%sign_in_url%">your account</a> to start using all these features. And if you have any questions, just reply back.&nbsp;</p>'
+
+  - templatesDirectory: profile_deleted
+    position: 2300
+    availableForAdmin: true
+    availableForCustomer: false
+    enabledForAdmin: false
+    enabledForCustomer: false
+    adminHeaderEnabled: true
+    adminGreetingEnabled: true
+    adminSignatureEnabled: true
+    customerHeaderEnabled: true
+    customerGreetingEnabled: true
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'User profile deleted'
+        description: 'This notification is sent to the administrator when a customer profile is deleted.'
+        adminSubject: 'Oops.. one customer less'
+        adminText: '<p dir="ltr">One of your customers has just silently deleted his profile: %deleted_profile%</p><p dir="ltr">Make sure you no longer keep his personal data anywhere in your database</p>'
+
+  - templatesDirectory: recover_password_request
+    position: 2500
+    availableForAdmin: false
+    availableForCustomer: false
+    enabledForAdmin: true
+    enabledForCustomer: true
+    adminHeaderEnabled: true
+    adminGreetingEnabled: true
+    adminSignatureEnabled: true
+    customerHeaderEnabled: true
+    customerGreetingEnabled: true
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'Password reset request'
+        description: 'This notification is sent to the user when a password reset is requested for their account.'
+        adminSubject: 'Password reset request'
+        adminText: '<p dir="ltr">I&rsquo;ve received a request to reset your forgotten password.</p><p dir="ltr">If you didn&rsquo;t make this request, good, there&rsquo;s nothing else you need to do. Just safely ignore this message.&nbsp;</p><p>Otherwise, please <a href="%recover_url%">click here to change your password</a> right away.</p>'
+        customerSubject: 'Password reset request'
+        customerText: '<p dir="ltr">We&rsquo;ve received a request to reset your forgotten password.</p><p dir="ltr">If you didn&rsquo;t ask for it, good, there&rsquo;s nothing else you need to do. Just safely ignore this message.&nbsp;</p><p>Otherwise, please <a href="%recover_url%">click here to change your password</a> right away.</p>'
+
+  - templatesDirectory: register_anonymous
+    position: 2600
+    availableForAdmin: false
+    availableForCustomer: true
+    enabledForAdmin: false
+    enabledForCustomer: true
+    adminHeaderEnabled: true
+    adminGreetingEnabled: false
+    adminSignatureEnabled: true
+    customerHeaderEnabled: true
+    customerGreetingEnabled: false
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'User account created for guest buyer based on order info'
+        description: 'This notification is sent to the customer when a customer profile is created for them by the store administrator based on a previously created order.'
+        customerSubject: 'Welcome to %company_name%!'
+        customerText: '<h2 dir="ltr">Thank you for shopping with us, %recipient_name%!&nbsp;</h2><p dir="ltr"><br>We noticed that you&rsquo;ve made a purchase using our guest checkout. It looks like you are too pressed for time to create an account in our store. No problem. We did it for you:</p><p dir="ltr">Email: <strong>%customer_email%</strong><br>Password: <strong>%customer_password%</strong></p><p dir="ltr">There you will find all your previous (yes, we&rsquo;ve saved them all!) and future orders, addresses, messages, and profile details, where you can change your password at any time.</p><p dir="ltr">If you need any help, just reply back.&nbsp;</p>'
+
+  - templatesDirectory: access_link
+    position: 2700
+    availableForAdmin: false
+    availableForCustomer: false
+    enabledForAdmin: false
+    enabledForCustomer: true
+    adminHeaderEnabled: false
+    adminGreetingEnabled: false
+    adminSignatureEnabled: true
+    customerHeaderEnabled: true
+    customerGreetingEnabled: false
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'Access link re-sent'
+        description: 'This notification is sent to the guest buyer when they request a new link for access to information about their order after an access link issued to them previously has expired.'
+        customerSubject: 'New access link'
+        customerText: ''
 
 XLite\Model\ImageSettings:
   - model: XLite\Model\Image\Product\Image
@@ -1673,13 +1998,17 @@ XLite\Model\ImageSettings:
     code: Default
     width: 160
     height: 160
+  - model: XLite\Model\Image\Common\Logo
+    code: Default
+    width: 180
+    height: 66
 
 XLite\Model\SearchFilter:
   - filterKey: search-filter-order_list
     translations: [{ code: en, name: Unpaid }, { code: ru, name: Не оплаченные }]
     parameters: { paymentStatus: [1,2,3], shippingStatus: [] }
   - filterKey: search-filter-order_list
-    translations: [{ code: en, name: Paid but not shipped }, { code: ru, name: Оплаченные, но не отправленные }]
+    translations: [{ code: en, name: Paid but not shipped }, { code: ru, name: 'Оплаченные, но не отправленные' }]
     parameters: { paymentStatus: [4], shippingStatus: [1,2] }
 
 XLite\Model\AccessControlEntityType:

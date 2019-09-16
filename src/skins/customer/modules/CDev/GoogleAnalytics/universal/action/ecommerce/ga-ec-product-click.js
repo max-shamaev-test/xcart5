@@ -22,84 +22,20 @@ define('googleAnalytics/eCommerceProductClickEvent', ['googleAnalytics/eCommerce
 
         if (dataOwner.length) {
           self.onProductDetailsClick(
-              dataOwner.data('ga-ec-action').data,
-              function() {
-                var href = jQuery(event.currentTarget).attr('href');
-                if (!href.match(/^http|^\/\//)) {
-                  var bases = document.getElementsByTagName('base');
-
-                  href = (bases.length > 0 ? bases[0].href : '') + href;
-                }
-
-                document.location = href;
-              }
+              dataOwner.data('ga-ec-action').data
           );
-
-          return !ga.loaded;
         }
 
         return true;
       });
-
-      jQuery('.products .add-to-cart').not('.link').each(
-          function (index, elem) {
-            jQuery(elem).click(function(event) {
-              var dataOwner = jQuery('*[data-ga-ec-action]', jQuery(event.currentTarget).parents('.product-cell'));
-
-              self.onProductAddClick(dataOwner.data('ga-ec-action').data)
-            });
-          }
-      );
-
-      jQuery('.products .quicklook-link').each(
-          function (index, elem) {
-            jQuery(elem).click(function(event) {
-              var dataOwner = jQuery('*[data-ga-ec-action]', jQuery(event.currentTarget).parents('.product-cell'));
-
-              self.onProductQuickViewClick(dataOwner.data('ga-ec-action').data)
-              core.trigger('ga-ec-details-shown', {
-                data: dataOwner.data('ga-ec-action').data,
-                message: 'Details shown [Quick view]'
-              });
-            });
-          }
-      );
     },
 
-    onProductDetailsClick: function (data, callback) {
+    onProductDetailsClick: function (data) {
       ga('ec:addProduct', data);
 
       ga('ec:setAction', 'click', {
         list: data.list
       });
-
-      if (!_.isUndefined(ga.loaded) && ga.loaded) {
-        ga('send', 'event', 'UX', 'click details', data.list, {
-          hitCallback: callback
-        });
-      } else {
-        callback();
-      }
-    },
-
-    onProductAddClick: function (data) {
-      ga('ec:addProduct', data);
-
-      ga('ec:setAction', 'click', {
-        list: data.list
-      });
-
-      ga('send', 'event', 'UX', 'click add on list', data.list);
-    },
-
-    onProductQuickViewClick: function (data) {
-      ga('ec:addProduct', data);
-
-      ga('ec:setAction', 'click', {
-        list: data.list
-      });
-
-      ga('send', 'event', 'UX', 'click on quickview', data.list);
     },
 
   });

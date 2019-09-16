@@ -575,10 +575,7 @@ ul.subcategory-list.subcategory-view-list li a {
 }
 
 .products-grid .product-cell,
-  .products-grid .product-cell .ui-draggable-dragging,
-  .product-cell.ui-draggable-dragging,
-  .products-sidebar .product-cell .product,
-  .products-sidebar .product-cell .product.ui-draggable-dragging
+  .products-sidebar .product-cell .product
 {
   border-color: #eee;
   border-style: solid;
@@ -604,14 +601,9 @@ ul.subcategory-list.subcategory-view-list li a {
 }
 
 .products-grid .product-cell:hover,
-.products-grid .product-cell .ui-draggable-dragging,
 .products-list .product-cell:hover td.product-photo,
 .products-list .product-cell:hover td.product-info,
-.products-sidebar .product-cell:hover .product,
-.products-sidebar .product-cell .product.ui-draggable-dragging,
-.products-list .ui-draggable-dragging td.product-photo,
-.products-list .ui-draggable-dragging td.product-info
-{
+.products-sidebar .product-cell:hover .product {
   border-color: #bbc7d2;
 }
 
@@ -651,16 +643,8 @@ ul.subcategory-list.subcategory-view-list li a {
 
 /* Drag'n'drop */
 
-.products-grid li,
-.products-sidebar .product-cell .ui-draggable-dragging,
-.products-grid .product-cell .ui-draggable-dragging,
-.products-list .ui-draggable-dragging
-{
+.products-grid li {
   background-color: white;
-}
-
-.products-list .ui-draggable-dragging{
-  padding: 12px !important;
 }
 
 .products .products-table
@@ -755,68 +739,6 @@ ul.subcategory-list.subcategory-view-list li a {
   padding: 0px 3px 1px;
 }
 
-.cart-tray
-{
-  position: fixed;
-  top: 5em;
-  right: 5em;
-  z-index: 200;
-  width: 154px;
-  height: 217px;
-  border-style: solid;
-  border-color: #bbc7d2;
-  border-width: 1px;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
-  box-shadow: 2px 2px 3px #bbc7d2;
-  -moz-box-shadow: 2px 2px 3px #bbc7d2;
-  -webkit-box-shadow: 2px 2px 3px #bbc7d2;
-}
-
-.cart-tray .tray-area
-{
-  background-color: #eff8fe;
-  height: 201px;
-  width: 138px;
-  margin: 8px;
-}
-
-.cart-tray .tray-area .centered-tray-box
-{
-  padding-top: 145px;
-  margin: 0 auto;
-  width: 130px;
-}
-
-.cart-tray .product-added .regular-button
-{
-  white-space: normal;
-}
-
-.cart-tray.droppable .tray-area
-{
-  background-color: white;
-}
-
-.cart-tray .tray-status
-{
-  color: #53769d;
-  line-height: 1.5;
-}
-
-.cart-tray .progress-bar
-{
-  border: 1px solid #CADCE8;
-  background-color: #fff;
-  width: 100%;
-}
-
-.cart-tray .block-wait {
-  border: 0px none;
-  min-width: 100%;
-}
-
 .products-grid .product-thumbnail
 {
   margin-bottom: 20px;
@@ -889,26 +811,6 @@ ul.subcategory-list.subcategory-view-list li a {
 .products-list span.product-price
 {
   padding-top: 0.5em;
-}
-
-.products .product .drag-n-drop-handle
-{
-  font-size: 11px;
-  color: #8fa8c0;
-}
-
-.products-grid .product .drag-n-drop-handle
-{
-  position: relative;
-  top: -10px;
-  left: -6px;
-}
-
-.products-list .product .drag-n-drop-handle
-{
-  position: absolute;
-  right: 0px;
-  top: -12px;
 }
 
 .products-sidebar-small-thumbnails .product-cell .product {
@@ -1131,6 +1033,23 @@ body.store-product h1#page-title,
   cursor: default;
 }
 
+.product-details .image {
+  max-width: 100%;
+}
+
+.product-photo.cloud-zoom-photo a
+{
+  width: auto !important;
+  max-width: 100%;
+  height: auto !important;
+}
+
+.product-details .product-photo {
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+}
+
 
 .product-details .loupe
 {
@@ -1261,6 +1180,13 @@ div.product-price {
   display: block;
 }
 
+.product-details div.product-price .vat-price,
+.product-quicklook div.product-price .vat-price {
+  display: inline-block;
+  line-height: 20px;
+  vertical-align: text-bottom;
+}
+
 .products-sidebar div.product-price {
   display: block;
 }
@@ -1280,14 +1206,36 @@ div.product-price {
   list-style: none;
   display: inline-block;
   margin-bottom: 10px;
+  width: 100%;
+}
+
+.product-details ul.product-price .product-labels ul.labels,
+.product-quicklook ul.product-price .product-labels ul.labels {
+    display: inline-block;
+    line-height: 30px;
+}
+
+.product-details ul.product-price ~ .labels ,
+.product-quicklook ul.product-price ~ .labels{
+  display: inline-block;
+  margin: 2px 0;
+  vertical-align: text-bottom;
 }
 
 .product-details ul.product-price li,
-  .product-quicklook ul.product-price li
+.product-quicklook ul.product-price li
 {
   display: inline-block;
   background: none;
   padding: 0px;
+}
+
+.product-details ul.product-price li.product-labels,
+.product-quicklook ul.product-price li.product-labels {
+  display: block;
+  line-height: 30px;
+  min-height: 30px;
+  /*white-space: nowrap;*/
 }
 
 .product-details .product-notify-on-price-drop,
@@ -1314,8 +1262,9 @@ div.product-price {
 .product-details .product-buttons button,
 .product-quicklook .product-buttons button
 {
-  margin-top: 0px;
-  margin-bottom: 0px;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-right: 10px;
 }
 
 .add-button-wrapper {
@@ -1332,9 +1281,27 @@ div.product-price {
 .product-details .product-qty {
   padding-right: 4px;
 }
+
+.product-details-info .product-buttons .buttons-row {
+  margin-bottom: 20px;
+}
+
 .product-details-info .product-buttons .buttons-row > * {
   vertical-align: top;
-  margin-top: 10px
+  margin-bottom: 10px;
+}
+
+.product-details-info .product-buttons .buttons-row > .product-stock {
+  display: inline-flex;
+  flex-wrap: wrap;
+  width: 72%;
+  margin: -9px 0 0;
+  align-items: center;
+  line-height: 24px;
+}
+
+.product-details-info .product-buttons .buttons-row > .clearfix {
+  margin: 0;
 }
 
 .product-details .product-out-of-stock,
@@ -1361,6 +1328,7 @@ div.product-price {
 .product-quicklook .product-in-stock
 {
   display: block;
+  margin-right: 10px;
 }
 
 .product-details .product-items-available,
@@ -1394,11 +1362,12 @@ div.product-price {
 .product-details .product-added-note,
 .product-quicklook .product-added-note
 {
-  margin: 30px 0 20px;
+  margin: 0;
   font-size: 15px;
-  line-height: 1;
   color: #60ac70;
   vertical-align: middle;
+  order: 3;
+  flex-basis: 100%;
 }
 
 .product-details .product-added-note .fa-check-square,
@@ -3811,4 +3780,8 @@ form div.table-value.xcart-form-id-value {
 
 .tooltip-arrow {
   display: none !important;
+}
+
+.page-404 {
+  margin-bottom: 10px;
 }

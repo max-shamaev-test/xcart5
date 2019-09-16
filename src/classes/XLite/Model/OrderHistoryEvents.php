@@ -8,6 +8,8 @@
 
 namespace XLite\Model;
 
+use Doctrine\Common\Collections\ArrayCollection;
+
 /**
  * Order history events
  * todo: rename to OrderHistoryEvent
@@ -77,7 +79,7 @@ class OrderHistoryEvents extends \XLite\Model\AEntity
     /**
      * Event details
      *
-     * @var \XLite\Model\OrderHistoryEventsData
+     * @var \XLite\Model\OrderHistoryEventsData[]
      *
      * @OneToMany (targetEntity="XLite\Model\OrderHistoryEventsData", mappedBy="event", cascade={"all"})
      */
@@ -134,6 +136,13 @@ class OrderHistoryEvents extends \XLite\Model\AEntity
         if (!is_numeric($this->date)) {
             $this->setDate(\XLite\Core\Converter::time());
         }
+    }
+
+    public function __construct(array $data = [])
+    {
+        parent::__construct($data);
+
+        $this->details = new ArrayCollection();
     }
 
     /**

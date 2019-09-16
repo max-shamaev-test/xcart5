@@ -11,10 +11,6 @@ namespace Includes\Decorator\Plugin\Doctrine\Plugin\UpdateSchema;
 use Includes\Decorator\Plugin\Doctrine\Utils\SchemaMigrationManager;
 use XLite\Core\Database;
 
-/**
- * Main 
- *
- */
 class Main extends \Includes\Decorator\Plugin\Doctrine\Plugin\APlugin
 {
     /**

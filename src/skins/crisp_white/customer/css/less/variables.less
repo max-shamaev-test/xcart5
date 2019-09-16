@@ -23,8 +23,10 @@
 
 @color-contrast: #000;
 @color-border: #e2e2e2;
+@color-dark-border: #9b9b9b;
 @color-green: #6abd0a;
 
+@color-accent: #ff7000;
 
 /* // colors */
 
@@ -44,7 +46,7 @@
 @headings-line-height: @rhythmic-unit;
 @line-height-computed: @rhythmic-unit;
 
-@screen-xxs-max: 480px; // ??
+@screen-xxs-max: (@screen-xs - 1); // ??
 
 @disabled-color: @color-light;
 
@@ -58,6 +60,8 @@
 
 @link-color: @color-link;
 @link-hover-color: @color-hover;
+
+@iconfont-size: 16px;
 
 // Grid and rhythm settings
 @grid-gutter-width: 42px;
@@ -79,11 +83,11 @@
 
 @header-shadow: 0 0 10px 0 rgba(74, 73, 74, 0.2);
 @dropdown-shadow: 0 2px 10px 0 rgba(74, 73, 74, 0.2);
+@drag-n-drop-shadow: 0 6px 6px 0 rgba(155, 154, 155, 0.5);
 
 /**
  * Form controls
  */
-@line-height-base: 20px;
 @line-height-computed: 20px;
 @padding-base-vertical: 8px;
 @padding-base-horizontal: 14px;
@@ -93,6 +97,7 @@
 @input-border: rgba(199, 197, 199, 0.8);
 @input-border-radius: 2px;
 @input-bg: @color-background;
+@switcher-color: #1ab394;
 
 /**
  * Navbars
@@ -161,6 +166,7 @@
 @button-gradient-end-color: transparent;
 @button-active-bg: transparent;
 
+@button-main-color: #fff;
 @button-main-gradient-start-color: @btn-base-color;
 @button-main-gradient-end-color: @btn-base-color;
 
@@ -184,6 +190,7 @@
 @display-sort-selected-link-bg: #637b8e;
 
 @price-color: @color-text-dark;
+@price-font-size: 20px;
 
 // variables for the new mobile header
 

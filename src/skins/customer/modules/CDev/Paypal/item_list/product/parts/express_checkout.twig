@@ -5,7 +5,7 @@
  #}
 {% if this.isDisplayAdd2CartButton() %}
   <div class="add-to-cart-button pp-button">
-    {% if not this.product.isOutOfStock() %}
+    {% if not this.product.isAllStockInCart() %}
       {{ widget('\\XLite\\Module\\CDev\\Paypal\\View\\Button\\ProductList\\ExpressCheckout', productId=this.product.product_id) }}
     {% endif %}
   </div>

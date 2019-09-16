@@ -8,27 +8,20 @@
 
 namespace Includes\Decorator\Utils;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Operator
  *
  */
 abstract class Operator extends \Includes\Decorator\Utils\AUtils
 {
-    protected static $classesDirLength = 0;
-    
     /**
      * Tags to ignore
      *
      * @var array
      */
     protected static $ignoredTags = array('see', 'since');
-
-    /**
-     * Cached modules 
-     * 
-     * @var   array
-     */
-    protected static $cachedModules;
 
     // {{ Classes tree
 
@@ -41,76 +34,8 @@ abstract class Operator extends \Includes\Decorator\Utils\AUtils
     {
         return new \Includes\Utils\FileFilter(
             static::getClassesDir(),
-            \Includes\Utils\ModulesManager::getPathPatternForPHP()
+            Manager::getPathPatternForPHP(static::getClassesDir())
         );
-    }
-
-    // }}}
-
-    // {{{ Modules graph
-
-    /**
-     * Check all module dependencies and create the graph
-     *
-     * @return \Includes\Decorator\DataStructure\Graph\Modules
-     */
-    public static function createModulesGraph()
-    {
-        // Tree is not a separate data structure - it's only the root node
-        $root = new \Includes\Decorator\DataStructure\Graph\Modules();
-
-        // It's the (<module_name, descriptor>) list
-        foreach (($index = static::getModulesGraphIndex()) as $node) {
-
-            // Two possibilities:
-            // 1. Module have dependencies. Add module as a child to all its parents
-            // 2. Module have no dependencies. Add it as a child to the root node
-            if ($dependencies = $node->getDependencies()) {
-
-                // It's the (<module_name>) list
-                foreach ($dependencies as $module) {
-
-                    // Module from the dependencies may be disbaled,
-                    // or included into the mutual modules list
-                    // of some other module(s)
-                    if (isset($index[$module])) {
-
-                        // Case 1 (with dependencies)
-                        $index[$module]->addChild($node);
-                    }
-                }
-
-            } else {
-
-                // Case 2 (without dependencies)
-                $root->addChild($node);
-            }
-        }
-
-        // Check modules graph integrity
-        $root->checkIntegrity();
-
-        return $root;
-    }
-
-    /**
-     * Get all active modules and return plain array with the module descriptors
-     *
-     * @return array
-     */
-    protected static function getModulesGraphIndex()
-    {
-        $index = array();
-
-        // Fetch all active modules from database.
-        // Dependencies are checked and corrected by the ModulesManager
-        foreach (\Includes\Utils\ModulesManager::getActiveModules() as $module => $tmp) {
-
-            // Unconditionally add module to the index (since its dependencies are already checked)
-            $index[$module] = new \Includes\Decorator\DataStructure\Graph\Modules($module);
-        }
-
-        return $index;
     }
 
     // }}}

@@ -232,9 +232,9 @@ function doCheckRequirements($environment = array())
 {
     $passed = true;
     $result = [];
+    $exclude = [];
 
     $requirements = new \Includes\Requirements($environment);
-    $exclude = [ 'mysql_cache' ];
     foreach ($requirements->getResult($exclude) as $name => $requirement) {
         if ($name === 'install_script') {
             continue;
@@ -273,6 +273,10 @@ function doCheckRequirements($environment = array())
                 break;
             case 'mysql_version':
                 $value = isset($data['version']) ? $data['version'] : '';
+                if ($value && 'unknown' != $value) {
+                    global $params;
+                    $params['mysqlVersion'] = $mysqlVersion = $value;
+                }
                 break;
             case 'php_gdlib':
                 $value = isset($data['version']) ? $data['version'] : '';
@@ -350,7 +354,7 @@ function doPrepareFixtures(&$params, $silentMode = false)
 
         $author = basename($authorDir);
 
-        foreach ((array) glob(LC_DIR_MODULES . $author . '/*/Main.php') as $f) {
+        foreach ((array) glob(LC_DIR_MODULES . $author . '/*/main.yaml') as $f) {
 
             $moduleName = basename(dirname($f));
 
@@ -358,6 +362,10 @@ function doPrepareFixtures(&$params, $silentMode = false)
                 !empty($lcSettings['enable_modules'][$author])
                 && in_array($moduleName, $lcSettings['enable_modules'][$author])
             );
+
+            if (!$enabledModules[$author][$moduleName]) {
+                continue;
+            }
 
             $dir = 'classes' . LC_DS
                 . 'XLite' . LC_DS
@@ -383,7 +391,8 @@ function doPrepareFixtures(&$params, $silentMode = false)
 
     sort($moduleYamlFiles, SORT_STRING);
 
-    \Includes\Utils\ModulesManager::saveModulesToFile($enabledModules);
+    \Includes\Utils\Module\Manager::getRegistry()->clear();
+    \Includes\Utils\Module\Manager::saveModulesToStorage($enabledModules);
 
     // Generate fixtures list
     $yamlFiles = $lcSettings['yaml_files']['base'];
@@ -743,16 +752,6 @@ function doCreateAdminAccount(&$params, $silentMode = false)
 }
 
 /**
- * Make new safe mode key
- *
- * @return void
- */
-function generate_safe_mode_key()
-{
-    \Includes\SafeMode::regenerateAccessKey(false);
-}
-
-/**
  * Do some final actions
  *
  * @param array  $params     Database access data and other parameters
@@ -769,9 +768,7 @@ function doFinishInstallation(&$params, $silentMode = false)
     // Update config settings
     update_config_settings($params);
 
-    update_modules_install_date();
-
-    generate_safe_mode_key();
+    \XLite\Core\Marketplace::getInstance()->setFreshInstall();
 
     // Save authcode for the further install runs
     $authcode = save_authcode($params);
@@ -855,7 +852,7 @@ OUT;
             ':perms'        => $perms_no_tags,
             ':renametext'   => $install_rename_email,
             ':authcode'     => $authcode,
-            ':safekey'      => \Includes\SafeMode::getAccessKey(),
+            ':safekey'      => '',
         )
     );
 
@@ -878,7 +875,6 @@ OUT;
 <br />
 
 <?php echo $permsHTML; ?>
-<?php x_install_check_step_seven_requirements($params); ?>
 
 <div class="field-label second-title"><?php echo xtr('X-Cart software has been successfully installed and is now available at the following URLs:'); ?></div>
 
@@ -911,47 +907,6 @@ OUT;
     x_install_log(xtr('Installation complete'));
 
     return $result;
-}
-
-function x_install_check_step_seven_requirements($params)
-{
-    $requirements = new \Includes\Requirements($params);
-
-    $requirement = $requirements->getSingleResult('mysql_cache');
-    $status = $requirement['state'] === \Includes\Requirements::STATE_SUCCESS;
-
-    $value = '';
-
-    $resultRequirement = [
-        'title' => xtr($requirement['title']),
-        'status' => $status,
-        'critical' => $requirement['level'] === \Includes\Requirements::LEVEL_CRITICAL,
-        'value' => $value,
-        'data' => $requirement['data'],
-    ];
-
-    $messageData = [];
-    foreach ($requirement['data'] as $varName => $varValue) {
-        if (is_scalar($varValue)) {
-            $messageData[':' . $varName] = $varValue;
-        }
-    }
-    $resultRequirement['messageData'] = $messageData;
-
-    $resultRequirement['description'] = $status ? '' : xtr('mysql_cache.' . $requirement['description'], $messageData);
-
-    if ($requirement['state'] === \Includes\Requirements::STATE_SKIPPED) {
-        $resultRequirement['skipped'] = true;
-    }
-    if (!$status
-        && !$resultRequirement['status']
-        && isset($resultRequirement['description'])
-    ) {
-        echo sprintf(
-           '<p><strong>%s:</strong> %s</p>',
-            xtr('Warning'), $resultRequirement['description']
-        );
-    }
 }
 
 /*
@@ -1213,6 +1168,7 @@ function change_config(&$params)
         'username'     => 'mysqluser',
         'password'     => 'mysqlpass',
         'table_prefix' => 'mysqlprefix',
+        'charset'      => 'mysqlcharset',
         'port'         => 'mysqlport',
         'socket'       => 'mysqlsock',
         'http_host'    => 'xlite_http_host',
@@ -1505,9 +1461,7 @@ function make_check_report($requirements)
 
     foreach ($requirements as $reqName => $reqData) {
 
-        if (($reqName === 'mysql_version' && $reqData['data']['version'] === 'unknown')
-            || ($reqName === 'mysql_cache' && $reqData['data']['query_cache_type'] === 'unknown')
-        ) {
+        if ($reqName === 'mysql_version' && $reqData['data']['version'] === 'unknown') {
             continue;
         }
 
@@ -1919,7 +1873,7 @@ function default_js_next()
 function generate_authcode()
 {
     // see include/functions.php
-    return generate_code();
+    return generate_code(32);
 }
 
 /**
@@ -2043,17 +1997,6 @@ function update_config_settings($params)
     }
 
     \XLite\Core\Database::getEM()->flush();
-}
-
-function update_modules_install_date() {
-    $qb = \XLite\Core\Database::getRepo('XLite\Model\Module')
-        ->createQueryBuilder();
-
-    $qb->update()
-        ->set("{$qb->getMainAlias()}.date", ':time')
-        ->setParameter('time', \XLite\Core\Converter::time())
-        ->getQuery()
-        ->execute();
 }
 
 /**
@@ -2423,6 +2366,7 @@ function applySuggestedDefValues(&$paramFields)
     $paramFields['mysqlport']['def_value'] = ini_get('mysqli.default_port') ?: (ini_get('mysql.default_port') ?: '');
     $paramFields['mysqlsock']['def_value'] = ini_get('pdo_mysql.default_socket') ?: (ini_get('mysqli.default_socket') ?: (ini_get('mysql.default_socket') ?: ''));
     $paramFields['mysqlprefix']['def_value'] = 'xc_';
+    $paramFields['mysqlcharset']['def_value'] = 'utf8mb4';
 
     $paramFields['demo']['def_value'] = '1';
 
@@ -2506,6 +2450,14 @@ function module_cfg_install_db(&$params)
             'title'       => xtr('MySQL tables prefix'),
             'description' => xtr('The prefix of the shop tables in database'),
             'required'    => true,
+            'section'     => 'advanced-mysql',
+        ),
+        'mysqlcharset'       => array(
+            'title'       => xtr('Default charset'),
+            'description' => '',
+            'select_data' => ['utf8mb4' => 'utf8mb4', 'utf8' => 'utf8'],
+            'required'    => false,
+            'type'        => 'select',
             'section'     => 'advanced-mysql',
         ),
         'xlite_http_host'  => array(
@@ -2696,15 +2648,6 @@ function module_cfg_install_db(&$params)
                     $checkError = true;
                 }
 
-                if (!$checkError
-                    && isset($requirements['mysql_cache'])
-                    && $requirements['mysql_cache']
-                    && !$requirements['mysql_cache']['status']
-                ) {
-                    warning_error($requirements['mysql_cache']['description'], 'reqs');
-                    $checkWarning = true;
-                }
-
                 // Check if config.php file is writeable
                 if (!$checkError && !@is_writable(LC_DIR_CONFIG . constant('LC_CONFIG_FILE'))) {
                     fatal_error(xtr('Cannot open file \':filename\' for writing. To install the software, please correct the problem and start the installation again...', array(':filename' => constant('LC_CONFIG_FILE'))), 'file', 'config write failed');
@@ -2876,7 +2819,7 @@ function module_cfg_install_db_js_next()
  */
 function module_install_cache(&$params, $silentMode = false)
 {
-    global $error;
+    global $error, $lcSettings;
 
     $result = false;
 
@@ -2916,6 +2859,9 @@ function module_install_cache(&$params, $silentMode = false)
                     $sql = str_replace('`FK_',  '`FK_'  . $randPrefix, $sql);
                     $sql = str_replace('`IDX_', '`IDX_' . $randPrefix, $sql);
 
+                    if ($params['mysqlcharset'] !== 'utf8') {
+                        $sql = str_replace('utf8', $params['mysqlcharset'], $sql);
+                    }
 
                     // Load SQL dump to the database
                     $pdoErrorMsg = '';
@@ -2985,11 +2931,16 @@ setTimeout('isProcessComplete()', 1000);
 
             doRemoveCache(null);
 
+            $enabledModules = json_encode($lcSettings['enable_modules']);
 ?>
 
 <div id="cache-rebuild-failed" class="cache-error" style="display: none;"><span><?php echo xtr('Oops!'); ?></span> <?php echo xtr('The current step of the cache rebuilding process is taking longer than expected. Check for possible problems <a href="https://kb.x-cart.com/pages/viewpage.action?pageId=7504578" target="_blank">here</a>.'); ?></div>
 
-<iframe id="process_iframe" style="padding-top: 15px;" src="admin.php?doNotRedirectAfterCacheIsBuilt&<?php echo time(); ?>" width="100%" height="300" frameborder="0" marginheight="10" marginwidth="10"></iframe>
+<?php
+$params['auth_code'] = $params['auth_code'] ? $params['auth_code'] : save_authcode($params);
+?>
+
+<iframe id="process_iframe" style="padding-top: 15px;" src="service.php?/install&<?php echo http_build_query(['modules' => $enabledModules, 'version' => LC_VERSION, 'auth_code' => $params['auth_code']]); ?>" width="100%" height="300" frameborder="0" marginheight="10" marginwidth="10"></iframe>
 
 <br />
 <br />
@@ -3012,22 +2963,22 @@ setTimeout('isProcessComplete()', 1000);
 
         } else {
 
-            var pattern = /^.*Deploying store \[step (\d+) of (\d+)\].*$/m;
-            var matches = iframe.body.innerHTML.match(pattern);
-
-            if (matches && currentStep !== matches[1]) {
-               errCount = 0;
-               currentStep = matches[1];
-               resetCacheRebuildFailure();
-            }
-
-            if (errCount > 60) {
-                processCacheRebuildFailure(matches);
-                isStopped = true;
-
-            } else {
-                errCount = errCount + 1;
-            }
+            // var pattern = /^.*Deploying store \[step (\d+) of (\d+)\].*$/m;
+            // var matches = iframe.body.innerHTML.match(pattern);
+            //
+            // if (matches && currentStep !== matches[1]) {
+            //    errCount = 0;
+            //    currentStep = matches[1];
+            //    resetCacheRebuildFailure();
+            // }
+            //
+            // if (errCount > 60) {
+            //     processCacheRebuildFailure(matches);
+            //     isStopped = true;
+            //
+            // } else {
+            //     errCount = errCount + 1;
+            // }
 
             setTimeout('isProcessComplete()', 1000);
         }

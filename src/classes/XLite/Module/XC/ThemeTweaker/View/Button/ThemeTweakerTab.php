@@ -26,11 +26,37 @@ class ThemeTweakerTab extends \XLite\View\Button\AButton
         return 'modules/XC/ThemeTweaker/button/themetweaker-tab.twig';
     }
 
+    /**
+     * getDefaultStyle
+     *
+     * @return string
+     */
+    protected function getDefaultButtonClass()
+    {
+        return '';
+    }
+
+    /**
+     * Define the button type (btn-warning and so on)
+     *
+     * @return string
+     */
+    protected function getDefaultButtonType()
+    {
+        return 'themetweaker-button';
+    }
+
+    /**
+     * @return string
+     */
     protected function getDefaultStyle()
     {
         return 'themetweaker-tab';
     }
 
+    /**
+     * @return string
+     */
     protected function getWrapperClass()
     {
         return 'themetweaker-tab-wrapper';

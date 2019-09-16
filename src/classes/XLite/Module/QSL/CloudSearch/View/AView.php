@@ -28,29 +28,15 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
 
         if (!XLite::isAdminZone()) {
             $list[] = 'modules/QSL/CloudSearch/init.js';
+            $list[] = 'modules/QSL/CloudSearch/loader.js';
         }
 
         return $list;
     }
 
     /**
-     * @return array
+     * @return bool
      */
-    protected function getCommonFiles()
-    {
-        $list = parent::getCommonFiles();
-
-        if (!XLite::isAdminZone()) {
-            $list[static::RESOURCE_JS][] = 'modules/QSL/CloudSearch/loader.js';
-            $list[static::RESOURCE_JS][] = 'modules/QSL/CloudSearch/lib/handlebars.min.js';
-            $list[static::RESOURCE_JS][] = 'modules/QSL/CloudSearch/lib/jquery.hoverIntent.min.js';
-
-            $list[static::RESOURCE_CSS][] = 'modules/QSL/CloudSearch/style.less';
-        }
-
-        return $list;
-    }
-
     protected function isCloudFiltersMobileLinkVisible()
     {
         return Main::isCloudFiltersEnabled()

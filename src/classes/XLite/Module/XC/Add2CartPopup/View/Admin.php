@@ -8,8 +8,10 @@
 
 namespace XLite\Module\XC\Add2CartPopup\View;
 
+use Includes\Utils\Module\Manager;
+
 /**
- * Add2CartPopup module settings page widget 
+ * Add2CartPopup module settings page widget
  *
  * @ListChild (list="admin.center", zone="admin")
  */
@@ -22,23 +24,10 @@ class Admin extends \XLite\View\Dialog
      */
     public static function getAllowedTargets()
     {
-        $result = parent::getAllowedTargets();
+        $result   = parent::getAllowedTargets();
         $result[] = 'add2_cart_popup';
 
         return $result;
-    }
-
-    /**
-     * Get a list of CSS files required to display the widget properly
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/style.css';
-
-        return $list;
     }
 
     /**
@@ -58,32 +47,23 @@ class Admin extends \XLite\View\Dialog
      */
     protected function getPromotionMessage()
     {
-        $addons = $this->getAddons();
-        $modules = array();
-
-        $params = array('clearCnd' => 1);
+        $addons  = $this->getAddons();
+        $modules = [];
 
         foreach ($addons as $addon => $title) {
+            list($author, $name) = explode('\\', $addon);
 
-            $module = \XLite\Core\Database::getRepo('XLite\Model\Module')->findOneByModuleName($addon, true);
-
-            if (!$module) {
+            if (!$author || !$name || Manager::getRegistry()->isModuleEnabled($author, $name)) {
                 continue;
             }
 
-            if ($module->getModuleInstalled() && $module->getModuleInstalled()->getEnabled()) {
-                continue;
-            }
-
-            $url = $module->isInstalled()
-                ? $module->getInstalledURL()
-                : $module->getMarketplaceURL();
+            $url = Manager::getRegistry()->getModuleServiceURL($author, $name);
 
             $modules[] = '<a href="' . $url . '">' . $title . '</a>';
         }
 
         return (0 < count($modules))
-            ? static::t('Install additional modules to add more product sources', array('list' => implode(', ', $modules)))
+            ? static::t('Install additional modules to add more product sources', ['list' => implode(', ', $modules)])
             : '';
     }
 
@@ -94,9 +74,9 @@ class Admin extends \XLite\View\Dialog
      */
     protected function getAddons()
     {
-        return array(
+        return [
             'XC\Upselling'        => 'Related Products',
             'CDev\ProductAdvisor' => 'Product Advisor',
-        );
+        ];
     }
 }

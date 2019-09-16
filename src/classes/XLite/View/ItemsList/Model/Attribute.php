@@ -27,18 +27,10 @@ class Attribute extends \XLite\View\ItemsList\Model\Table
     {
         return array(
             'name' => array(
-                static::COLUMN_NAME     => $this->getAttributeGroup()
+                static::COLUMN_NAME      => $this->getAttributeGroup()
                     ? $this->getAttributeGroup()->getName()
                     : \XLite\Core\Translation::lbl('No group'),
-                static::COLUMN_CLASS    => 'XLite\View\FormField\Inline\Input\Text',
-                static::COLUMN_PARAMS   => array('required' => true),
-                static::COLUMN_NO_WRAP  => true,
-                static::COLUMN_ORDERBY  => 100,
-                static::COLUMN_EDIT_LINK => true,
-                static::COLUMN_LINK      => 'attribute',
-            ),
-            'type' => array(
-                static::COLUMN_NAME     => $this->getAttributeGroup()
+                static::COLUMN_SUBHEADER => $this->getAttributeGroup()
                     ? static::t(
                         'X attributes in group',
                         array(
@@ -46,6 +38,13 @@ class Attribute extends \XLite\View\ItemsList\Model\Table
                         )
                     )
                     : null,
+                static::COLUMN_CLASS     => 'XLite\View\FormField\Inline\Input\Text',
+                static::COLUMN_PARAMS    => array('required' => true),
+                static::COLUMN_NO_WRAP   => true,
+                static::COLUMN_ORDERBY   => 100,
+                static::COLUMN_LINK      => 'attribute',
+            ),
+            'type' => array(
                 static::COLUMN_TEMPLATE => 'attributes/parts/type.twig',
                 static::COLUMN_ORDERBY  => 200,
             ),
@@ -185,6 +184,14 @@ class Attribute extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
+     * @return string
+     */
+    protected function getEditLink()
+    {
+        return true;
+    }
+
+    /**
      * Get edit link params string
      *
      * @param \XLite\Model\AEntity $entity Entity
@@ -229,20 +236,7 @@ class Attribute extends \XLite\View\ItemsList\Model\Table
      */
     protected function getPanelClass()
     {
-        $groups = $this->getAttributeGroups();
-
-        return (
-            $this->getAttributesCount()
-            && (
-                0 == count($groups)
-                || (
-                    $this->getAttributeGroup()
-                    && end($groups)->getId() == $this->getAttributeGroup()->getId()
-                )
-            )
-        )
-            ? 'XLite\View\StickyPanel\ItemsList\Attribute'
-            : null;
+        return null;
     }
 
 

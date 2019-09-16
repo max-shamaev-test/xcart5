@@ -8,16 +8,12 @@
 
 namespace XLite\Core\Templating\Twig;
 
-use ArrayAccess;
-use BadMethodCallException;
 use Closure;
 use ReflectionClass;
-use ReflectionMethod;
 use Twig_Error;
-use Twig_Error_Runtime;
-use Twig_Markup;
-use Twig_TemplateInterface;
 use XLite\Core\Converter;
+use XLite\Core\Exception\CallToAMethodOnNonObject;
+use XLite\Core\Exception\MethodNotFound;
 use XLite\View\AView;
 
 /**
@@ -92,20 +88,32 @@ abstract class Template extends \Twig_Template
         $ignoreStrictCheck = false
     ) {
         if ($type == self::METHOD_CALL) {
-            if (LC_IS_PHP_7) {
-                // Since PHP 7.0.0 we can't bind closure to InternalClass,
-                // see http://php.net/manual/en/closure.bind.php
-                // The only way to check if class is internal is reflection
-                if(!$this->isObjectBindable($object)) {
-                   return call_user_func_array(array($object, $item), $arguments);
+            try {
+                if (!is_object($object)) {
+                    throw new CallToAMethodOnNonObject($object, $item, $arguments);
                 }
+
+                if (LC_IS_PHP_7) {
+                    // Since PHP 7.0.0 we can't bind closure to InternalClass,
+                    // see http://php.net/manual/en/closure.bind.php
+                    // The only way to check if class is internal is reflection
+                    if(!$this->isObjectBindable($object)) {
+                        return call_user_func_array(array($object, $item), $arguments);
+                    }
+                }
+
+                $closure = Closure::bind(function () use ($object, $item, $arguments) {
+                    return call_user_func_array(array($object, $item), $arguments);
+                }, null, $object);
+
+                return $closure();
+            } catch (MethodNotFound $e) {
+                $this->logMethodNotFoundInTemplate($e, $object);
+            } catch (\TypeError $e) {
+                $this->logMethodTypeErrorInTemplate($e);
+            } catch (CallToAMethodOnNonObject $e) {
+                $this->logCallToMethodOnNonObjectInTemplate($e);
             }
-
-            $closure = Closure::bind(function () use ($object, $item, $arguments) {
-                return call_user_func_array(array($object, $item), $arguments);
-            }, null, $object);
-
-            return $closure();
         } else {
 
             if ($object instanceof \XLite\Model\AEntity) {
@@ -152,6 +160,49 @@ abstract class Template extends \Twig_Template
         /*catch (Exception $e) {
             throw new Twig_Error_Runtime(sprintf('An exception has been thrown during the rendering of a template ("%s").', $e->getMessage()), -1, $this->getTemplateName(), $e);
         }*/
+    }
+
+    /**
+     * @param MethodNotFound $e
+     */
+    protected function logMethodNotFoundInTemplate(MethodNotFound $e, $object)
+    {
+        $template = $this->getSourceContext()->getPath() ?: $this->getTemplateName();
+
+        \XLite::getInstance()->doGlobalDie(sprintf(
+            "Trying to call undefined method; \ntemplate: %s \nfunction: %s \nobject - %s",
+            $template,
+            $e->getMethod(),
+            get_class($object)
+        ));
+    }
+
+    /**
+     * @param \TypeError $e
+     */
+    protected function logMethodTypeErrorInTemplate(\TypeError $e)
+    {
+        $template = $this->getSourceContext()->getPath() ?: $this->getTemplateName();
+
+        \XLite::getInstance()->doGlobalDie(sprintf(
+            "Template:%s \n%s",
+            $template,
+            $e->getMessage()
+        ));
+    }
+
+    /**
+     * @param CallToAMethodOnNonObject $e
+     */
+    protected function logCallToMethodOnNonObjectInTemplate(CallToAMethodOnNonObject $e)
+    {
+        $template = $this->getSourceContext()->getPath() ?: $this->getTemplateName();
+
+        \XLite::getInstance()->doGlobalDie(sprintf(
+            "Template: %s \n%s",
+            $template,
+            $e->getMessage()
+        ));
     }
 
     /**

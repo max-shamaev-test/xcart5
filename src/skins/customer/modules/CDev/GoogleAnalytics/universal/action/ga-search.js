@@ -12,23 +12,14 @@ define('googleAnalytics/searchEvent', [ 'googleAnalytics/event' ], function(Even
     namespace: 'search',
 
     processReady: function() {
-      // Register "Search" event
-      var searchTextInput = jQuery(".search-product-form input[name='substring']");
-
-      if (searchTextInput.length) {
-        if (searchTextInput.val()) {
-          this.registerSearchSubstring(searchTextInput.val());
-        }
-
-        jQuery(".search-product-form button[type='submit']").click(_.bind(function (event) {
-          this.registerSearchSubstring(searchTextInput.val());
-        }, this));
-      }
+      jQuery(".search-product-form button[type='submit'], .simple-search-product-form button[type='submit']").click(_.bind(function (event) {
+        this.registerSearchSubstring(jQuery(event.currentTarget).closest('form').find('input[name="substring"]').val());
+      }, this));
     },
 
     registerSearchSubstring: function(substring) {
       if (substring) {
-        this.sendEvent('do_search', substring);
+        this.sendEvent('Search', substring, undefined, 'Product');
       }
     }
   });

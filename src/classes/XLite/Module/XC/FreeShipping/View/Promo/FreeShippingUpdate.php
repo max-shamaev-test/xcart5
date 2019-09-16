@@ -16,7 +16,7 @@ use XLite\Core\Database;
  *
  * @ListChild (list="crud.modulesettings.header", zone="admin", weight="100")
  */
-class FreeShippingUpdate extends \XLite\Module\XC\FreeShipping\View\AlertWarning
+class FreeShippingUpdate extends \XLite\View\Alert\Warning
 {
     public static function getAllowedTargets()
     {
@@ -45,10 +45,8 @@ class FreeShippingUpdate extends \XLite\Module\XC\FreeShipping\View\AlertWarning
     protected function isVisible()
     {
         return parent::isVisible()
-            && $this->getModule()
-            && $this->getModule()->getAuthor() === 'XC'
-            && $this->getModule()->getName() === 'FreeShipping'
-            && !is_null(Config::getInstance()->XC->FreeShipping->display_update_info);
+            && $this->getModule() === 'XC\\FreeShipping'
+            && Config::getInstance()->XC->FreeShipping->display_update_info !== null;
     }
 
     protected function getAlertContent()

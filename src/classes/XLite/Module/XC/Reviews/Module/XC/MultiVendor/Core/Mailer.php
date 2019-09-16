@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\Reviews\Module\XC\MultiVendor\Core;
 
+use XLite\Module\XC\Reviews\Core\Mail\NewReviewVendor;
+
 /**
  * Mailer
  * 
@@ -16,11 +18,7 @@ namespace XLite\Module\XC\Reviews\Module\XC\MultiVendor\Core;
 abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorator
 {
     /**
-     * Send new review message
-     *
      * @param \XLite\Module\XC\Reviews\Model\Review $review Review
-     *
-     * @return string
      */
     public static function sendNewReview(\XLite\Module\XC\Reviews\Model\Review $review)
     {
@@ -35,51 +33,18 @@ abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorat
     }
 
     /**
-     * Send new review message
-     *
      * @param \XLite\Module\XC\Reviews\Model\Review $review Review
-     *
-     * @return string
      */
     public static function sendNewReviewVendor(\XLite\Model\Profile $vendor, \XLite\Module\XC\Reviews\Model\Review $review)
     {
-        static::register('review', $review);
-
-        $from = $review->getEmail() ?: '';
-
-        if ($from && $review->getReviewerName()) {
-            $from = [[
-                'address' => $from,
-                'name'    => $review->getReviewerName(),
-            ]];
-        }
-
-        static::compose(
-            'siteAdmin',
-            static::composeVendorReplyTo(
-                static::getOrdersDepartmentMail(),
-                $from
-            ),
-            $vendor->getLogin(),
-            static::NEW_REVIEW_NOTIFICATION,
-            [],
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
-
-        return static::getMailer()->getLastError();
+        (new NewReviewVendor($review, $vendor))->schedule();
     }
 
     /**
-     * Send new review message
-     *
      * @param \XLite\Module\XC\Reviews\Model\Review $review Review
-     *
-     * @return string
      */
     public static function sendNewReviewAdmin(\XLite\Module\XC\Reviews\Model\Review $review)
     {
-        return parent::sendNewReview($review);
+        parent::sendNewReview($review);
     }
 }

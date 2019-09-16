@@ -74,6 +74,7 @@ abstract class AAdmin extends \XLite\View\Menu\AMenu
             'origin_address',
             'automate_shipping_refunds',
             'automate_shipping_routine',
+            'packaging_supplies',
         ),
         'countries' => array(
             'zones',
@@ -110,6 +111,7 @@ abstract class AAdmin extends \XLite\View\Menu\AMenu
             'notification_common',
             'notification_attachments',
             'email_settings',
+            'test_email',
         ),
         'custom_css' => array(
             'custom_js',

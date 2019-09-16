@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\PINCodes\Controller\Admin;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Module settings
  */
@@ -23,7 +25,7 @@ class Module extends \XLite\Controller\Admin\Module implements \XLite\Base\IDeco
         $request = \XLite\Core\Request::getInstance();
         if (
             $this->getModuleID()
-            && 'CDev\PINCodes' === $this->getModule()->getActualName()
+            && $this->getModule() === \Includes\Utils\Module\Module::buildId('CDev', 'PINCodes')
             && $request->action === 'update'
         ) {
 

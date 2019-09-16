@@ -1026,6 +1026,7 @@ abstract class AModel extends \XLite\View\ItemsList\AItemsList
     {
         $list = parent::getCSSFiles();
 
+        $list[] = $this->getDir() . '/model/style.less';
         $list[] = $this->getDir() . '/model/style.css';
 
         return $list;
@@ -1214,7 +1215,9 @@ abstract class AModel extends \XLite\View\ItemsList\AItemsList
         return 'widget items-list'
             . ' widgetclass-' . $this->getWidgetClass()
             . ' widgettarget-' . static::getWidgetTarget()
-            . ' sessioncell-' . $this->getSessionCell();
+            . ' sessioncell-' . $this->getSessionCell()
+            . ($this->isPagerVisible() ? ' pager-visible' : '')
+            . ($this->isListBlank() ? ' list-blank' : '');
     }
 
     /**

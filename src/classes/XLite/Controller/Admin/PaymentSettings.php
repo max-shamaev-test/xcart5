@@ -44,7 +44,7 @@ class PaymentSettings extends \XLite\Controller\Admin\AAdmin
      */
     protected function run()
     {
-        \XLite\Core\Marketplace::getInstance()->updatePaymentMethods();
+        \XLite\Core\Marketplace::getInstance()->updatePaymentMethods(\XLite\Core\Config::getInstance()->Company->location_country);
 
         parent::run();
     }
@@ -255,7 +255,7 @@ class PaymentSettings extends \XLite\Controller\Admin\AAdmin
             $method->setDescription($description);
             $method->setClass('Model\\Payment\\Processor\\Offline');
             $method->setAdded(true);
-            $method->setModuleEnabled(true);
+            //$method->setModuleEnabled(true);
             $method->setType(\XLite\Model\Payment\Method::TYPE_OFFLINE);
             $method->setServiceName(microtime(true));
             if ($instruction) {

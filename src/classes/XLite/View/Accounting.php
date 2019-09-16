@@ -8,6 +8,8 @@
 
 namespace XLite\View;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * News messages page view
  *
@@ -44,7 +46,7 @@ class Accounting extends \XLite\View\AView
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'accounting/style.css';
+        $list[] = 'accounting/style.less';
 
         return $list;
     }
@@ -55,13 +57,22 @@ class Accounting extends \XLite\View\AView
      * Get marketplace module page link
      *
      * @param string $moduleName    Module name
-     * @param string $tag           Tag name    OPTIONAL
      *
      * @return string
      */
-    protected function getModuleLink($moduleName, $tag = 'Accounting')
+    protected function getModuleLink($moduleName)
     {
         return \XLite\Core\Promo::getInstance()->getRecommendedModuleURL($moduleName);
+    }
+
+    /**
+     * @param string $moduleName    Module name
+     *
+     * @return string
+     */
+    protected function getSettingsLink($moduleName)
+    {
+        return Manager::getRegistry()->getModuleSettingsUrl($moduleName);
     }
 
     /**
@@ -99,7 +110,7 @@ class Accounting extends \XLite\View\AView
                 ],
                 'link' => [
                     'name' => '1C integration',
-                    'href' => $this->getModuleLink('XC\\OneCIntegration'),
+                    'href' => $this->getModuleLink('XC-OneCIntegration'),
                 ],
             ],
         ];
@@ -126,27 +137,7 @@ class Accounting extends \XLite\View\AView
      */
     protected function getInstalledModules()
     {
-        $repo = \XLite\Core\Database::getRepo('XLite\Model\Module');
-
-        $cnd = new \XLite\Core\CommonCell;
-        $cnd->{\XLite\Model\Repo\Module::P_TAG} = 'accounting';
-        $cnd->{\XLite\Model\Repo\Module::P_FROM_MARKETPLACE} = true;
-
-        $modules = $repo->search($cnd);
-
-        $installedModules = array_filter(
-            $modules,
-            function($module) {
-                return $module->isInstalled();
-            }
-        );
-
-        return array_map(
-            function($module) use ($repo) {
-                return $repo->getModuleInstalled($module);
-            },
-            $installedModules
-        );
+        return \XLite\Core\Marketplace::getInstance()->getAccountingModules();
     }
 
     /**

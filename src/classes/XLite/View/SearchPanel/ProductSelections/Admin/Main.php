@@ -61,8 +61,10 @@ class Main extends \XLite\View\SearchPanel\ProductSelections\Admin\AAdmin
                 \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY => true,
             ),
             'categoryId' => array(
-                static::CONDITION_CLASS => 'XLite\View\FormField\Select\Category',
+                static::CONDITION_CLASS => 'XLite\View\FormField\Select\Select2\Category',
+                \XLite\View\FormField\Select\Category::PARAM_DISPLAY_NO_CATEGORY => true,
                 \XLite\View\FormField\Select\Category::PARAM_DISPLAY_ANY_CATEGORY => true,
+                \XLite\View\FormField\Select\Category::PARAM_DISPLAY_ROOT_CATEGORY => false,
                 \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY => true,
             ),
         );

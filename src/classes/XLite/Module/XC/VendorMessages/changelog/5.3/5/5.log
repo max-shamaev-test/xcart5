@@ -1,6 +1,0 @@
-Version 5.3.5.5
-
-Fixes (2)
-2018-09-21 - [Bug] The count of unread messages in MultiVendor was incorrect. Fixed. #BUG-5632 (Shevelov Alexander) #VendorMessages
-2018-07-24 - [Bug] Creation by a vendor of a communication thread about an order with themselves caused an error. Fixed. #BUG-6485 (Sergey Elmanov) #VendorMessages
-

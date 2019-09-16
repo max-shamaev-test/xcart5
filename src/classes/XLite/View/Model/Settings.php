@@ -73,6 +73,10 @@ class Settings extends \XLite\View\Model\AModel
     {
         $list = parent::getCSSFiles();
         $list[] = 'settings/summary/summary.css';
+        if (\XLite\Core\Request::getInstance()->page == 'CleanURL') {
+            $list[] = 'settings/clean_url/style.less';
+        }
+
         if ($this->getTarget() === 'email_settings') {
             $list[] = 'settings/email/style.less';
         }
@@ -177,7 +181,7 @@ class Settings extends \XLite\View\Model\AModel
                 break;
 
             case 'checkbox':
-                $class = 'XLite\View\FormField\Input\Checkbox\Simple';
+                $class = 'XLite\View\FormField\Input\Checkbox\OnOffLegacy';
                 break;
 
             case 'country':
@@ -371,48 +375,6 @@ class Settings extends \XLite\View\Model\AModel
             );
         }
 
-        if ('cache_management' === $this->getTarget()) {
-            $url = $this->buildURL('cache_management', 'rebuild');
-            $result['re_deploy_cache'] = new \XLite\View\Button\Tooltip(
-                array(
-                    \XLite\View\Button\AButton::PARAM_LABEL => 'Re-deploy the store',
-                    \XLite\View\Button\AButton::PARAM_STYLE => 'action always-enabled',
-                    \XLite\View\Button\Tooltip::PARAM_SEPARATE_TOOLTIP => static::t('Re-deploy the store help text'),
-                    \XLite\View\Button\Regular::PARAM_JS_CODE => sprintf('if (confirm("' . static::t("Are you sure?") .'")) self.location="%s";', $url),
-                )
-            );
-
-            $url = $this->buildURL('cache_management', 'quick_data');
-            $result['quick_data'] = new \XLite\View\Button\Tooltip(
-                array(
-                    \XLite\View\Button\AButton::PARAM_LABEL => 'Calculate quick data',
-                    \XLite\View\Button\AButton::PARAM_STYLE => 'action always-enabled',
-                    \XLite\View\Button\Tooltip::PARAM_SEPARATE_TOOLTIP => static::t('Calculate quick data help text'),
-                    \XLite\View\Button\Regular::PARAM_JS_CODE => 'self.location=\'' . $url . '\'',
-                )
-            );
-
-            $url = $this->buildURL('cache_management', 'clear_cache');
-            $result['clear_cache'] = new \XLite\View\Button\Tooltip(
-                array(
-                    \XLite\View\Button\AButton::PARAM_LABEL => 'Clear cache',
-                    \XLite\View\Button\AButton::PARAM_STYLE => 'action always-enabled',
-                    \XLite\View\Button\Tooltip::PARAM_SEPARATE_TOOLTIP => static::t('Clear cache help text'),
-                    \XLite\View\Button\Regular::PARAM_JS_CODE => 'self.location=\'' . $url . '\'',
-                )
-            );
-
-            $url = $this->buildURL('cache_management', 'rebuild_view_lists');
-            $result['rebuild_view_lists'] = new \XLite\View\Button\Tooltip(
-                array(
-                    \XLite\View\Button\AButton::PARAM_LABEL => 'Rebuild view lists',
-                    \XLite\View\Button\AButton::PARAM_STYLE => 'action always-enabled',
-                    \XLite\View\Button\Tooltip::PARAM_SEPARATE_TOOLTIP => static::t('Rebuild view lists help text'),
-                    \XLite\View\Button\Regular::PARAM_JS_CODE => 'self.location=\'' . $url . '\'',
-                )
-            );
-        }
-
         return $result;
     }
 
@@ -484,6 +446,10 @@ class Settings extends \XLite\View\Model\AModel
         $optionsToUpdate = $this->getOptionsToUpdate($data);
 
         $this->updateOptions($optionsToUpdate);
+
+        if (isset($data['upgrade_wave'])) {
+            \XLite\Core\Marketplace::getInstance()->setWave($data['upgrade_wave']);
+        }
     }
 
     /**
@@ -499,6 +465,10 @@ class Settings extends \XLite\View\Model\AModel
 
         // Find changed options and store them in $optionsToUpdate
         foreach ($this->getEditableOptions() as $key => $option) {
+            if ($key === 'upgrade_wave') {
+                continue;
+            }
+
             $name  = $option->getName();
             $newValue = $this->sanitizeOptionValue($option, isset($data[$name]) ? $data[$name] : null);
 
@@ -550,32 +520,6 @@ class Settings extends \XLite\View\Model\AModel
 
         if (method_exists($this, $method)) {
             $result = $this->$method($option);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Preprocess option Environment - update_wave
-     *
-     * @param \XLite\Model\Config $option Option entity
-     *
-     * @return boolean
-     */
-    protected function preprocessUpgradeWaveOption($option)
-    {
-        $result = false;
-        $value = $option->getNewValue();
-        $waves = \XLite\Core\Marketplace::getInstance()->getWaves();
-
-        if ($waves && isset($waves[$value])) {
-            if (\XLite\Core\Marketplace::getInstance()->changeKeysWave($value)) {
-                \XLite\Core\TopMessage::addInfo('Upgrade access level has been successfully assigned to your license keys');
-                $result = true;
-
-            } else {
-                \XLite\Core\TopMessage::addError('Could not assign upgrade access level to your license keys');
-            }
         }
 
         return $result;
@@ -751,10 +695,5 @@ class Settings extends \XLite\View\Model\AModel
         }
 
         return parent::defineSectionWidget($section, $params);
-    }
-
-    protected function useButtonPanel()
-    {
-        return 'email_settings' !== $this->getTarget();
     }
 }

@@ -274,7 +274,7 @@ class CreateShipment extends \XLite\View\Model\AModel
             case 'weight':
                 $value = 0;
                 foreach ($this->getOrder()->getItems() as $item) {
-                    $value += $item->getWeight() * $item->getAmount();
+                    $value += $item->getWeight();
                 }
                 break;
             case 'dimensions':

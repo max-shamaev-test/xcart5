@@ -28,18 +28,14 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
      */
     protected function parseURLProduct($url, $last = '', $rest = '', $ext = '')
     {
-        $result = null;
+        $result = parent::parseURLProduct($url, $last, $rest, $ext);
 
-        if ($ext) {
+        if (empty($result) && 0 === strpos($url, static::REVIEWS_PREFIX)) {
+            $url = preg_replace('/^' . preg_quote(static::REVIEWS_PREFIX) . '/', '', $url);
             $result = parent::parseURLProduct($url, $last, $rest, $ext);
 
-            if (empty($result) && 0 === strpos($url, static::REVIEWS_PREFIX)) {
-                $url = preg_replace('/^' . preg_quote(static::REVIEWS_PREFIX) . '/', '', $url);
-                $result = parent::parseURLProduct($url, $last, $rest, $ext);
-
-                if ($result) {
-                    $result[0] = 'product_reviews';
-                }
+            if ($result) {
+                $result[0] = 'product_reviews';
             }
         }
 

@@ -10,7 +10,7 @@ XLite\Model\Payment\Method:
     class: Module\XC\Stripe\Model\Payment\Stripe
     type: C
     orderby: -10300
-    countries: [AU, CA, DK, FI, FR, IE, JP, NO, SG, ES, SE, GB, US, AT, BE, DE, HK, IT, LU, NL, PT, CH]
+    countries: [AT, AU, BE, BR, CA, CH, DE, DK, EE, ES, FI, FR, GB, GR, HK, IE, IN, IT, JP, LT, LU, LV, MX, MY, NL, NO, NZ, PL, PT, SE, SG, US]
     translations:
       - code: en
         name: 'Stripe'

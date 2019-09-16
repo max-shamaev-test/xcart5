@@ -9,11 +9,7 @@
 
 .featured_products .fa-star {
   margin-right: 4px;
-  color: #f9da49;
-  -webkit-text-stroke: 1px rgba(246, 160, 67, 1);
-  background: -webkit-linear-gradient(#faf3d1, #f9d244);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #ffa52b;
 }
 
 .featured_products .cell {

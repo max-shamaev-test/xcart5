@@ -35,7 +35,7 @@ class Mediator extends \XLite\Base\Singleton
      */
     public function getWriteKey()
     {
-        return \XLite\Core\Config::getInstance()->XC->Concierge->write_key;
+        return \XLite\Core\Config::getInstance()->XC->Concierge->write_key ?? '';
     }
 
     /**

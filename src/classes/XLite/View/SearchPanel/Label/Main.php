@@ -53,29 +53,4 @@ class Main extends \XLite\View\SearchPanel\ASearchPanel
             ),
         );
     }
-
-    /**
-     * Define actions
-     *
-     * @return array
-     */
-    protected function defineActions()
-    {
-        $list = parent::defineActions();
-
-        $list['import_language'] = array(
-            'class' => '\XLite\View\Button\FileSelector',
-            \XLite\View\Button\AButton::PARAM_LABEL => static::t('Import language from CSV file'),
-            \XLite\View\Button\FileSelector::PARAM_OBJECT => 'language',
-            \XLite\View\Button\FileSelector::PARAM_FILE_OBJECT => 'file',
-        );
-
-        $list['add_label'] = array(
-            'class' => '\XLite\View\LanguagesModify\Button\AddNewLabel',
-            \XLite\View\Button\AButton::PARAM_LABEL => static::t('Add new label'),
-            \XLite\View\LanguagesModify\Button\AddNewLabel::PARAM_LANGUAGE => \XLite\Core\Request::getInstance()->code,
-        );
-
-        return $list;
-    }
 }

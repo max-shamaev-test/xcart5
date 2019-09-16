@@ -34,7 +34,7 @@ class DiscountCoupon extends \XLite\View\Order\Details\Admin\Modifier
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'modules/CDev/Coupons/order/page/parts/style.css';
+        $list[] = 'modules/CDev/Coupons/order/page/parts/style.less';
 
         return $list;
     }

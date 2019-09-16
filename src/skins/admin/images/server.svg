@@ -18,14 +18,14 @@
                 <g id="1481815536_Internet_database_server_hosting_network" transform="translate(333.000000, 253.000000)">
                     <g id="Group-5">
                         <g id="Group">
-                            <use id="Rectangle-4" stroke="#526AA7" mask="url(#mask-2)" stroke-width="2" xlink:href="#path-1"></use>
-                            <rect id="Rectangle-5" fill="#5C73AC" x="1" y="1" width="2" height="1"></rect>
-                            <ellipse id="Oval" fill="#5C73AC" cx="7.43652174" cy="1.5" rx="0.688695652" ry="0.699595142"></ellipse>
+                            <use id="Rectangle-4" stroke="#0f8dd0" mask="url(#mask-4)" stroke-width="2" xlink:href="#path-3"></use>
+                            <rect id="Rectangle-5" fill="#0f8dd0" x="1" y="1" width="2" height="1"></rect>
+                            <ellipse id="Oval" fill="#0f8dd0" cx="7.43652174" cy="1.5" rx="0.688695652" ry="0.699595142"></ellipse>
                         </g>
                         <g id="Group" transform="translate(0.000000, 4.000000)">
-                            <use id="Rectangle-4" stroke="#526AA7" mask="url(#mask-4)" stroke-width="2" xlink:href="#path-3"></use>
-                            <rect id="Rectangle-5" fill="#5C73AC" x="1" y="1" width="2" height="1"></rect>
-                            <ellipse id="Oval" fill="#5C73AC" cx="7.43652174" cy="1.5" rx="0.688695652" ry="0.699595142"></ellipse>
+                            <use id="Rectangle-4" stroke="#0f8dd0" mask="url(#mask-4)" stroke-width="2" xlink:href="#path-3"></use>
+                            <rect id="Rectangle-5" fill="#0f8dd0" x="1" y="1" width="2" height="1"></rect>
+                            <ellipse id="Oval" fill="#0f8dd0" cx="7.43652174" cy="1.5" rx="0.688695652" ry="0.699595142"></ellipse>
                         </g>
                     </g>
                 </g>

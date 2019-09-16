@@ -266,6 +266,7 @@ show_install_css();
 ?>
 
 <script src="skins/common/js/jquery.min.js"></script>
+<script src="skins/common/js/jquery-migrate.js"></script>
 <script src="skins/common/bootstrap/js/bootstrap.min.js"></script>
 <script src="skins/common/js/clipboard.min.js"></script>
 

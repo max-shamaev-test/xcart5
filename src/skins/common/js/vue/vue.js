@@ -68,6 +68,8 @@ define('js/vue/vue', ['vue/vue', 'js/vue/component'], function (Vue, XLiteVueCom
     } else {
       this.components[name] = new XLiteVueComponent(name, definition);
     }
+
+    return this.components[name].definition;
   };
 
   return new XLiteVue();

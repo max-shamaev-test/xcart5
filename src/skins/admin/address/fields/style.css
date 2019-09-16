@@ -17,15 +17,7 @@
   width: 60%;
 }
 
-.items-list-table.address-fields table.list tbody.lines td.serviceName .plain-value{
-  padding: 6px 10px 6px 9px;
-}
-
 .items-list-table.address-fields table.list tbody.create td.actions.right,
 .items-list-table.address-fields table.list tbody.lines td.actions.right {
   min-width: 28px;
-}
-
-div.action.next {
-  width: 31px;
 }

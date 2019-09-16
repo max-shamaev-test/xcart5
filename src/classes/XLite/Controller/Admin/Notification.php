@@ -8,6 +8,8 @@
 
 namespace XLite\Controller\Admin;
 
+use XLite\Core\Request;
+
 /**
  * Notification controller
  */
@@ -15,14 +17,90 @@ class Notification extends \XLite\Controller\Admin\AAdmin
 {
     use \XLite\Controller\Features\FormModelControllerTrait;
 
-    /**
-     * @param array $params Handler params OPTIONAL
-     */
     public function __construct(array $params)
     {
         parent::__construct($params);
 
         $this->params = array_merge($this->params, ['page', 'templatesDirectory']);
+    }
+
+    public function handleRequest()
+    {
+        $this->handleNotificationPageParam();
+
+        parent::handleRequest();
+    }
+
+    /**
+     * Redirect if url invalid
+     */
+    protected function handleNotificationPageParam()
+    {
+        $page = Request::getInstance()->page;
+
+        if (!$this->isValidPage($page)) {
+            if ($url = $this->buildValidPageUrl()) {
+                $this->redirect($this->buildValidPageUrl());
+            } else {
+                $this->redirect($this->buildURL('notifications'));
+            }
+        }
+    }
+
+    protected function addBaseLocation()
+    {
+        parent::addBaseLocation();
+
+        $this->addLocationNode(static::t('Email notifications'), $this->buildURL('notifications'));
+    }
+
+    /**
+     * @param $page
+     *
+     * @return bool
+     */
+    protected function isValidPage($page)
+    {
+        $notification = $this->getNotification();
+
+        return in_array($page, [
+                'admin',
+                'customer',
+            ], true)
+            && (
+                $page !== 'customer'
+                || $notification->getEnabledForCustomer()
+                || $notification->getAvailableForCustomer()
+            )
+            && (
+                $page !== 'admin'
+                || $notification->getEnabledForAdmin()
+                || $notification->getAvailableForAdmin()
+            );
+    }
+
+    /**
+     * @return string
+     */
+    protected function buildValidPageUrl()
+    {
+        $notification = $this->getNotification();
+
+        if ($notification->getAvailableForCustomer() || $notification->getEnabledForCustomer()) {
+            return $this->buildURL('notification', '', [
+                'templatesDirectory' => $notification->getTemplatesDirectory(),
+                'page'               => 'customer',
+            ]);
+        }
+
+        if ($notification->getAvailableForAdmin() || $notification->getEnabledForAdmin()) {
+            return $this->buildURL('notification', '', [
+                'templatesDirectory' => $notification->getTemplatesDirectory(),
+                'page'               => 'admin',
+            ]);
+        }
+
+        return '';
     }
 
     /**
@@ -37,42 +115,6 @@ class Notification extends \XLite\Controller\Admin\AAdmin
         return $notification
             ? $notification->getName()
             : '';
-    }
-
-    /**
-     * Get pages sections
-     *
-     * @return array
-     */
-    public function getPages()
-    {
-        $list = parent::getPages();
-
-        $notification = $this->getNotification();
-
-        if ($notification->getAvailableForCustomer() || $notification->getEnabledForCustomer()) {
-            $list['customer'] = static::t('notification.section.customer');
-        }
-
-        if ($notification->getAvailableForAdmin() || $notification->getEnabledForAdmin()) {
-            $list['admin'] = static::t('notification.section.administrator');
-        }
-
-        return $list;
-    }
-
-    /**
-     * Get pages templates
-     *
-     * @return array
-     */
-    protected function getPageTemplates()
-    {
-        $list = parent::getPageTemplates();
-        $list['customer'] = 'notification/body.twig';
-        $list['admin'] = 'notification/body.twig';
-
-        return $list;
     }
 
     /**
@@ -106,7 +148,7 @@ class Notification extends \XLite\Controller\Admin\AAdmin
      */
     protected function getFormModelObjectClass()
     {
-        return 'admin' === $this->getPage()
+        return 'admin' === Request::getInstance()->page
             ? 'XLite\Model\DTO\Settings\Notification\Admin'
             : 'XLite\Model\DTO\Settings\Notification\Customer';
     }
@@ -143,7 +185,7 @@ class Notification extends \XLite\Controller\Admin\AAdmin
      *
      * @return \XLite\Model\Notification
      */
-    protected function getNotification()
+    public function getNotification()
     {
         $id = \XLite\Core\Request::getInstance()->templatesDirectory;
 
@@ -160,5 +202,13 @@ class Notification extends \XLite\Controller\Admin\AAdmin
     protected function isVisible()
     {
         return parent::isVisible() && $this->getNotification();
+    }
+
+    /**
+     * @return string
+     */
+    public function getPage()
+    {
+        return $this->page;
     }
 }

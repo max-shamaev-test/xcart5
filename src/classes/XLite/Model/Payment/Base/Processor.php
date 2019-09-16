@@ -8,6 +8,9 @@
 
 namespace XLite\Model\Payment\Base;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
+
 /**
  * Processor
  */
@@ -39,14 +42,13 @@ abstract class Processor extends \XLite\Base
     protected $request;
 
     /**
-     * Module processor cache object
-     * false                        - it is not initialized yet
-     * null                         - no payment processor
-     * \XLite\Model\Module class    - payment processor assigned
+     * null   - it is not initialized yet
+     * false  - no module
+     * string - moduleId
      *
-     * @var boolean|null|\XLite\Model\Module
+     * @var boolean|null|string
      */
-    protected $moduleCache = false;
+    protected $moduleId;
 
     /**
      * Do initial payment
@@ -344,18 +346,15 @@ abstract class Processor extends \XLite\Base
     /**
      * Get processor module
      *
-     * @return \XLite\Model\Module|null
+     * @return string|null|bool
      */
-    public function getModule()
+    public function getModuleId()
     {
-        if (false === $this->moduleCache) {
-            $this->moduleCache = preg_match('/XLite\\\Module\\\(\w+)\\\(\w+)\\\/Ss', get_called_class(), $match)
-                ? \XLite\Core\Database::getRepo('XLite\Model\Module')
-                    ->findOneBy(array('author' => $match[1], 'name' => $match[2]))
-                : null;
+        if (null === $this->moduleId) {
+            $this->moduleId = Module::getModuleIdByClassName(get_called_class()) ?: false;
         }
 
-        return $this->moduleCache;
+        return $this->moduleId;
     }
 
     /**
@@ -365,7 +364,9 @@ abstract class Processor extends \XLite\Base
      */
     public function getModuleSettingsForm()
     {
-        return $this->getModule() ? $this->getModule()->getSettingsForm() : null;
+        return $this->getModuleId()
+            ? Module::callMainClassMethod($this->getModuleId(), 'getSettingsForm')
+            : null;
     }
 
     /**

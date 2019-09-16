@@ -85,7 +85,7 @@ class OnlineMethods extends \XLite\View\ItemsList\Model\Table
      */
     public static function getDefaultCountry()
     {
-        return null;
+        return \XLite\Core\Config::getInstance()->Company->location_country;
     }
 
     /**
@@ -193,10 +193,14 @@ class OnlineMethods extends \XLite\View\ItemsList\Model\Table
      */
     protected function getSearchCondition()
     {
+        $countryCode = trim($this->getParam(static::PARAM_COUNTRY));
+
+        \XLite\Core\Marketplace::getInstance()->updatePaymentMethods($countryCode);
+
         $result = parent::getSearchCondition();
 
         $result->{\XLite\Model\Repo\Payment\Method::P_ORDER_BY_FORCE} = array(
-            'm.adminOrderby, translations.name', 'asc'
+            'adminPosition, countryPosition.adminPosition, translations.name', 'asc'
         );
         $result->{\XLite\Model\Repo\Payment\Method::P_TYPE} = array(
             \XLite\Model\Payment\Method::TYPE_ALLINONE,
@@ -204,9 +208,27 @@ class OnlineMethods extends \XLite\View\ItemsList\Model\Table
             \XLite\Model\Payment\Method::TYPE_ALTERNATIVE,
         );
 
-        $result->{\XLite\Model\Repo\Payment\Method::P_EX_COUNTRY} = trim($this->getParam(static::PARAM_COUNTRY));
+        $result->{\XLite\Model\Repo\Payment\Method::P_EX_COUNTRY} = $countryCode;
 
         return $result;
+    }
+
+    /**
+     * Default search conditions
+     *
+     * @param  \XLite\Core\CommonCell $searchCase Search case
+     *
+     * @return \XLite\Core\CommonCell
+     */
+    protected function postprocessSearchCase(\XLite\Core\CommonCell $searchCase)
+    {
+        $serchCase = parent::postprocessSearchCase($searchCase);
+
+        if ($serchCase->{\XLite\Model\Repo\Payment\Method::P_COUNTRY} === null) {
+            $serchCase->{\XLite\Model\Repo\Payment\Method::P_COUNTRY} = static::getDefaultCountry();
+        }
+
+        return $searchCase;
     }
 
     /**

@@ -1,5 +1,5 @@
 {
-    "Version": "2.1.12.94",
+    "Version": "2.1.44.91",
     "Names": {
         "ADP": [
             "ADP",
@@ -217,9 +217,13 @@
             "BYB",
             "Yeni Beyaz Rusya Rublesi (1994–1999)"
         ],
+        "BYN": [
+            "BYN",
+            "Belarus Rublesi"
+        ],
         "BYR": [
             "BYR",
-            "Beyaz Rusya Rublesi"
+            "Beyaz Rusya Rublesi (2000–2016)"
         ],
         "BZD": [
             "BZD",
@@ -256,6 +260,10 @@
         "CLP": [
             "CLP",
             "Şili Pesosu"
+        ],
+        "CNH": [
+            "CNH",
+            "Çin Yuanı (offshore)"
         ],
         "CNX": [
             "CNX",
@@ -675,7 +683,11 @@
         ],
         "MRO": [
             "MRO",
-            "Moritanya Ouguiyası"
+            "Moritanya Ugiyası (1973–2017)"
+        ],
+        "MRU": [
+            "MRU",
+            "Moritanya Ugiyası"
         ],
         "MTL": [
             "MTL",
@@ -775,11 +787,11 @@
         ],
         "PEN": [
             "PEN",
-            "Peru Nuevo Solü"
+            "Peru Solü"
         ],
         "PES": [
             "PES",
-            "Peru Solu"
+            "Peru Solü (1863–1965)"
         ],
         "PGK": [
             "PGK",
@@ -907,6 +919,10 @@
         ],
         "STD": [
             "STD",
+            "São Tomé ve Príncipe Dobrası (1977–2017)"
+        ],
+        "STN": [
+            "STN",
             "São Tomé ve Príncipe Dobrası"
         ],
         "SUR": [
@@ -1028,6 +1044,10 @@
         ],
         "VEF": [
             "VEF",
+            "Venezuela Bolivarı (2008–2018)"
+        ],
+        "VES": [
+            "VES",
             "Venezuela Bolivarı"
         ],
         "VND": [

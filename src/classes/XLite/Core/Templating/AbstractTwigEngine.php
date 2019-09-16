@@ -15,7 +15,6 @@ use XLite\Core\Templating\Twig\Extension\XCart;
 use XLite\Core\Templating\Twig\NodeVisitor\CExtDisablingNodeVisitor;
 
 use Symfony\Bridge\Twig\Extension\FormExtension;
-use Symfony\Bridge\Twig\Form\TwigRenderer;
 use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 
 /**
@@ -42,12 +41,17 @@ abstract class AbstractTwigEngine
 
         $this->twig->addExtension(new XCart());
 
-        /** @todo: marge theme to one file */
-        $formEngine = new TwigRendererEngine(array('twig_form/bootstrap_3_horizontal_layout.html.twig'));
-        $formEngine->setEnvironment($this->twig);
-
-        $this->twig->addExtension(
-            new FormExtension(new TwigRenderer($formEngine))
+        $formEngine = new TwigRendererEngine(['twig_form/bootstrap_3_horizontal_layout.html.twig'], $this->twig);
+        $this->twig->addRuntimeLoader(
+            new \Twig\RuntimeLoader\FactoryRuntimeLoader(
+                [
+                    \Symfony\Component\Form\FormRenderer::class => function () use ($formEngine) {
+                        return new \Symfony\Component\Form\FormRenderer($formEngine);
+                    },
+                ]
+            )
         );
+
+        $this->twig->addExtension(new FormExtension());
     }
 }

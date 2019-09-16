@@ -209,7 +209,7 @@ class Conversations extends \XLite\View\ItemsList\AItemsList
     {
         $message = $this->getLastMessage($conversation);
 
-        return $message ? $this->formatTime($message->getDate()) : static::t('n/a');
+        return $message ? $message->getDate() : 0;
     }
 
     /**

@@ -8,21 +8,19 @@
 
 namespace XLite\Controller\Admin;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Module settings
  */
 class Module extends \XLite\Controller\Admin\AAdmin
 {
     /**
-     * Module object
-     *
      * @var mixed
      */
     protected $module;
 
     /**
-     * Define body classes
-     *
      * @param array $classes Classes
      *
      * @return array
@@ -31,23 +29,36 @@ class Module extends \XLite\Controller\Admin\AAdmin
     {
         $classes = parent::defineBodyClasses($classes);
 
-        $module = $this->getModule();
-        if ($module) {
-            $classes[] = strtolower('module-' . $module->getAuthor() . '-' . $module->getName());
+        list($author, $name) = \Includes\Utils\Module\Module::explodeModuleId($this->getModule());
+
+        if ($author && $name) {
+            $classes[] = strtolower('module-' . $author . '-' . $name);
         }
 
         return $classes;
     }
 
-    /**
-     * handleRequest
-     *
-     * @return void
-     */
     public function handleRequest()
     {
-        if (!$this->getModuleID()) {
+        $module = $this->getModule();
+
+        if (!$module) {
             $this->setReturnURL($this->buildURL('addons_list_installed'));
+
+        } else {
+            $showSettingsForm = Manager::getRegistry()->getModule($module)->showSettingsForm;
+            $settingsUrl = \Includes\Utils\Module\Module::callMainClassMethod($module, 'getSettingsForm');
+            parse_str(parse_url($settingsUrl, PHP_URL_QUERY), $settingsUrlParams);
+            if (
+                $showSettingsForm
+                && $settingsUrl
+                && (
+                    empty($settingsUrlParams['target'])
+                    || $settingsUrlParams['target'] !== $this->getTarget()
+                )
+            ) {
+                $this->setReturnURL($settingsUrl);
+            }
         }
 
         parent::handleRequest();
@@ -60,42 +71,41 @@ class Module extends \XLite\Controller\Admin\AAdmin
      */
     public function getOptions()
     {
+        list($author, $name) = \Includes\Utils\Module\Module::explodeModuleId($this->getModule());
+
         return \XLite\Core\Database::getRepo('XLite\Model\Config')
-            ->findByCategoryAndVisible($this->getModule()->getActualName());
+            ->findByCategoryAndVisible($author . '\\' . $name);
     }
 
     /**
      * Return the current page title (for the content area)
      *
      * @return string
+     * @todo: use readable name
      */
     public function getTitle()
     {
+        list($author, $name) = \Includes\Utils\Module\Module::explodeModuleId($this->getModule());
+
         return static::t(
             'X module settings',
-            array(
-                'name'   => $this->getModule()->getModuleName(),
-            )
+            [
+                'name' => $name,
+            ]
         );
     }
 
     /**
      * Return current module object
      *
-     * @return \XLite\Model\Module
-     * @throws \Exception
+     * @return string
      */
     public function getModule()
     {
-        if (!isset($this->module)) {
-            $this->module = \XLite\Core\Database::getRepo('\XLite\Model\Module')->find($this->getModuleID());
-
-            if (!$this->module) {
-                \XLite\Core\TopMessage::addError('Add-on does not exist.');
-                \XLite\Logger::getInstance()->log('Add-on does not exist (ID: ' . $this->getModuleID() . ')', LOG_ERR);
-
-                $this->redirect($this->buildURL('addons_list_installed'));
-            }
+        if ($this->module === null) {
+            $this->module = Manager::getRegistry()->isModuleEnabled($this->getModuleId())
+                ? $this->getModuleId()
+                : false;
         }
 
         return $this->module;
@@ -106,7 +116,7 @@ class Module extends \XLite\Controller\Admin\AAdmin
      *
      * @return integer
      */
-    protected function getModuleID()
+    protected function getModuleId()
     {
         return \XLite\Core\Request::getInstance()->moduleId;
     }

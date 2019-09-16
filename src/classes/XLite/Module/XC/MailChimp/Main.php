@@ -8,92 +8,8 @@
 
 namespace XLite\Module\XC\MailChimp;
 
-/**
- * Main module class
- */
 abstract class Main extends \XLite\Module\AModule
 {
-    /**
-     * Author name
-     *
-     * @return string
-     */
-    public static function getAuthorName()
-    {
-        return 'X-Cart team';
-    }
-
-    /**
-     * Module name
-     *
-     * @return string
-     */
-    public static function getModuleName()
-    {
-        return 'Mailchimp Integration with E-commerce support';
-    }
-
-    /**
-     * Get module major version
-     *
-     * @return string
-     */
-    public static function getMajorVersion()
-    {
-        return '5.3';
-    }
-
-    /**
-     * Module version
-     *
-     * @return string
-     */
-    public static function getMinorVersion()
-    {
-        return '7';
-    }
-
-    /**
-     * Get module build number (4th number in the version)
-     *
-     * @return string
-     */
-    public static function getBuildVersion()
-    {
-        return '1';
-    }
-
-    /**
-     * Get minor core version which is required for the module activation
-     *
-     * @return string
-     */
-    public static function getMinorRequiredCoreVersion()
-    {
-        return '4';
-    }
-
-    /**
-     * Module description
-     *
-     * @return string
-     */
-    public static function getDescription()
-    {
-        return 'Mailchimp is an email marketing service with powerful tools to manage your email campaigns and'
-               . ' subscribers while gathering advanced analytics information on your campaign performance.';
-    }
-
-    /**
-     * Determines if we need to show settings form link
-     *
-     * @return boolean
-     */
-    public static function showSettingsForm()
-    {
-        return true;
-    }
-
     /**
      * Return link to settings form
      *
@@ -152,8 +68,8 @@ abstract class Main extends \XLite\Module\AModule
         $repo = \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\Store');
 
         return $repo->findBy([
-                                 'main' => true
-                             ]);
+            'main' => true,
+        ]);
     }
 
     /**

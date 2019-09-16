@@ -3,10 +3,14 @@
 /*
  * This file is part of Twig.
  *
- * (c) 2009 Fabien Potencier
+ * (c) Fabien Potencier
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
+ */
+
+/**
+ * @final
  */
 class Twig_Extension_Sandbox extends Twig_Extension
 {
@@ -22,12 +26,12 @@ class Twig_Extension_Sandbox extends Twig_Extension
 
     public function getTokenParsers()
     {
-        return array(new Twig_TokenParser_Sandbox());
+        return [new Twig_TokenParser_Sandbox()];
     }
 
     public function getNodeVisitors()
     {
-        return array(new Twig_NodeVisitor_Sandbox());
+        return [new Twig_NodeVisitor_Sandbox()];
     }
 
     public function enableSandbox()
@@ -95,3 +99,5 @@ class Twig_Extension_Sandbox extends Twig_Extension
         return 'sandbox';
     }
 }
+
+class_alias('Twig_Extension_Sandbox', 'Twig\Extension\SandboxExtension', false);

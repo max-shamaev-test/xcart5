@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Product;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * The "tab" model class
  *
@@ -111,6 +113,6 @@ class GlobalTabProvider extends \XLite\Model\AEntity
     public function checkProvider()
     {
         return $this->getCode() === static::PROVIDER_CORE
-               || \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled($this->getCode());
+               || Manager::getRegistry()->isModuleEnabled($this->getCode());
     }
 }

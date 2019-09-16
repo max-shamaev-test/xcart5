@@ -414,45 +414,6 @@ ul.inline li
 }
 
 /*
- * Popup box
- */
-
-.ui-dialog {
-  border: 0 none;
-  overflow: visible;
-  padding: 60px;
-  background: #fff;
-}
-
-.ui-dialog .ui-dialog-titlebar {
-  padding: 0;
-  margin: 0;
-  -moz-border-radius: 0;
-  -webkit-border-top: 0;
-  border-radius: 0;
-  border: 0 none;
-  background: #fff none;
-}
-
-.ui-dialog .ui-dialog-titlebar-close .ui-icon-closethick {
-  display: none;
-}
-
-.ui-dialog .ui-dialog-content {
-  overflow: visible;
-  padding: 0;
-  position: relative;
-}
-
-.ui-dialog.no-title .ui-dialog-title {
-  display: none;
-}
-
-.mini-block-wait div {
-  margin: 0;
-}
-
-/*
  * Primary links
  */
 

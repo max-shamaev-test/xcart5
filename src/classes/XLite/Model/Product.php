@@ -167,16 +167,6 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     protected $taxable = true;
 
     /**
-     * Custom javascript code
-     * @deprecated 5.3.5.4
-     *
-     * @var string
-     *
-     * @Column (type="text")
-     */
-    protected $javascript = '';
-
-    /**
      * Arrival date (UNIX timestamp)
      *
      * @var integer
@@ -1085,7 +1075,44 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     public function isOutOfStock()
     {
-        return $this->getStockAvailabilityPolicy()->isOutOfStock(Cart::getInstance());
+        return !$this->getAmount();
+    }
+
+    /**
+     * Alias: is all product items in cart
+     *
+     * @return boolean
+     */
+    public function isAllStockInCart()
+    {
+        return $this->getAvailableAmount() <= $this->getItemsInCart();
+    }
+
+    /**
+     * How many product items added to cart
+     *
+     * @return boolean
+     */
+    public function getItemsInCart()
+    {
+        return $this->getStockAvailabilityPolicy()->getInCartAmount(Cart::getInstance());
+    }
+
+
+    /**
+     * How many product items added to cart
+     *
+     * @return boolean
+     */
+    public function getItemsInCartMessage()
+    {
+        $count = $this->getStockAvailabilityPolicy()->getInCartAmount(Cart::getInstance());
+
+        return \XLite\Core\Translation::getInstance()->translate(
+                'Items in your cart: X',
+                array('count' => $count)
+            );
+
     }
 
     /**
@@ -1099,6 +1126,17 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
             && $this->getLowLimitEnabledCustomer()
             && $this->getPublicAmount() <= $this->getLowLimitAmount()
             && !$this->isOutOfStock();
+    }
+
+    /**
+     * Check if the product is out-of-stock
+     *
+     * @return boolean
+     */
+    public function isShowOutOfStockWarning()
+    {
+        return $this->getInventoryEnabled()
+            && $this->isOutOfStock();
     }
 
     /**
@@ -1116,7 +1154,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      *
      * @return array
      */
-    protected function prepareDataForNotification()
+    public function prepareDataForNotification()
     {
         $data = array();
 
@@ -1181,7 +1219,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      *
      * @return string
      */
-    public function getFrontURL($withAttributes = false)
+    public function getFrontURL($withAttributes = false, $buildCuInAdminZone = false)
     {
         return $this->getProductId()
             ? \XLite\Core\Converter::makeURLValid(
@@ -1190,7 +1228,8 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
                         'product',
                         '',
                         $this->getParamsForFrontURL($withAttributes),
-                        \XLite::getCustomerScript()
+                        \XLite::getCustomerScript(),
+                        $buildCuInAdminZone
                     )
                 )
             )
@@ -2052,30 +2091,6 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     public function getTaxable()
     {
         return $this->taxable;
-    }
-
-    /**
-     * Set javascript
-     * @deprecated 5.3.5.4
-     *
-     * @param text $javascript
-     * @return Product
-     */
-    public function setJavascript($javascript)
-    {
-        $this->javascript = $javascript;
-        return $this;
-    }
-
-    /**
-     * Get javascript
-     * @deprecated 5.3.5.4
-     *
-     * @return string
-     */
-    public function getJavascript()
-    {
-        return $this->javascript;
     }
 
     /**

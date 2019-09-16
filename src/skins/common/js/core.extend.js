@@ -16,7 +16,7 @@ Object.getOwnPropertyDescriptors = function getOwnPropertyDescriptors(obj) {
     return descriptors;
 };
 
-Function.prototype.extend = function extend(proto) {
+Function.prototype.extend = function (proto) {
     var superclass = this;
     var constructor;
 

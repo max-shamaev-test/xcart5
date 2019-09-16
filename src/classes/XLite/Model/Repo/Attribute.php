@@ -46,7 +46,7 @@ class Attribute extends \XLite\Model\Repo\Base\I18n
     public function findMultipleAttributes(\XLite\Model\Product $product, $ids)
     {
         return $ids
-            ? $this->definefindMultipleAttributesQuery($product, $ids)->getResult()
+            ? $this->defineFindMultipleAttributesQuery($product, $ids)->getResult()
             : array();
     }
 
@@ -58,7 +58,7 @@ class Attribute extends \XLite\Model\Repo\Base\I18n
      *  
      * @return \XLite\Model\QueryBuilder\AQueryBuilder
      */
-    protected function definefindMultipleAttributesQuery(\XLite\Model\Product $product, array $ids)
+    protected function defineFindMultipleAttributesQuery(\XLite\Model\Product $product, array $ids)
     {
         $qb = $this->createQueryBuilder('a');
 
@@ -67,6 +67,56 @@ class Attribute extends \XLite\Model\Repo\Base\I18n
             ->addInCondition('a.id', $ids)
             ->addGroupBy('a.id')
             ->setParameter('product', $product);
+    }
+
+    /**
+     * Define items iterator
+     *
+     * @param integer $position Position OPTIONAL
+     *
+     * @return \Doctrine\ORM\Internal\Hydration\IterableResult
+     */
+    public function getRemoveGlobalAttributesDataIterator($position = 0)
+    {
+        return $this->defineRemoveGlobalAttributesDataQueryBuilder($position)
+            ->setMaxResults(\XLite\Core\EventListener\RemoveData::CHUNK_LENGTH)
+            ->iterate();
+    }
+
+    /**
+     * Define remove data iterator query builder
+     *
+     * @param integer $position Position
+     *
+     * @return \XLite\Model\QueryBuilder\AQueryBuilder
+     */
+    protected function defineRemoveGlobalAttributesDataQueryBuilder($position)
+    {
+        $qb = parent::defineRemoveDataQueryBuilder($position);
+
+        return $qb->andWhere($qb->getMainAlias() . '.product IS NULL');
+    }
+
+    /**
+     * Count items for remove data
+     *
+     * @return integer
+     */
+    public function countForRemoveGlobalAttributesData()
+    {
+        return (int) $this->defineCountForRemoveGlobalAttributesDataQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * Define query builder for COUNT query
+     *
+     * @return \XLite\Model\QueryBuilder\AQueryBuilder
+     */
+    protected function defineCountForRemoveGlobalAttributesDataQuery()
+    {
+        $qb = parent::defineCountForRemoveDataQuery();
+
+        return $qb->andWhere($qb->getMainAlias() . '.product IS NULL');
     }
 
     /**

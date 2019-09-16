@@ -128,26 +128,6 @@ class Category extends \XLite\Model\Category implements \XLite\Base\IDecorator
     }
 
     /**
-     * Set ogMeta
-     *
-     * @param string $ogMeta
-     * @return static
-     */
-    public function setOgMeta($ogMeta)
-    {
-        $this->ogMeta = $ogMeta;
-        return $this;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getOgMeta()
-    {
-        return $this->ogMeta;
-    }
-
-    /**
      * Set useCustomOG
      *
      * @param boolean $useCustomOG

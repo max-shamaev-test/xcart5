@@ -62,34 +62,6 @@ class HttpsSettings extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
-     * @deprecated
-     */
-    public function doActionSwitchCustomerSecurity()
-    {
-    }
-
-    /**
-     * Send specific headers and print AJAX data as JSON string
-     *
-     * @param array $data
-     *
-     * @return void
-     */
-    protected function printAJAX($data)
-    {
-        // Move top messages into headers since we print data and die()
-        $this->translateTopMessagesToHTTPHeaders();
-
-        $content = json_encode($data);
-
-        header('Content-Type: application/json; charset=UTF-8');
-        header('Content-Length: ' . strlen($content));
-        header('ETag: ' . md5($content));
-
-        print ($content);
-    }
-
-    /**
      * Switch HTTPS options
      *
      * @param boolean $enableHTTPS Value

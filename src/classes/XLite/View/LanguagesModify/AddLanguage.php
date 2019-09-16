@@ -8,6 +8,8 @@
 
 namespace XLite\View\LanguagesModify;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Add (activate) language dialog
  */
@@ -23,7 +25,6 @@ class AddLanguage extends \XLite\View\AView
         return \XLite\Core\Database::getRepo('\XLite\Model\Language')
             ->findInactiveLanguages();
     }
-
 
     /**
      * Return widget default template
@@ -55,15 +56,15 @@ class AddLanguage extends \XLite\View\AView
      */
     protected function getModulePageURL($entity)
     {
-        $url = null;
-
         $module = $entity->getModule();
+        if ($module) {
+            list($author, $name) = explode('\\', $entity->getModule());
 
-        if (!empty($module) && preg_match('/(\w+)\\\\(\w+)/', $module, $match)) {
-            $moduleObj = \XLite\Core\Database::getRepo('XLite\Model\Module')->findModuleByName($module);
-            $url = $moduleObj->getInstalledURL();
+            return $author && $name
+                ? Manager::getRegistry()->getModuleServiceURL($author, $name)
+                : null;
         }
 
-        return $url;
+        return null;
     }
 }

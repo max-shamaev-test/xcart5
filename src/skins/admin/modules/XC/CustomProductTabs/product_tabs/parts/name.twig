@@ -15,9 +15,6 @@
   {% if not this.isLink(this.column, this.entity) %}
     <span class="value">{{ this.getColumnValue(this.column, this.entity)|raw }}</span>
   {% endif %}
-  {% if this.column.noWrap %}
-    <img src="{{ asset('images/spacer.gif') }}" class="right-fade" alt="" />
-  {% endif %}
   {% if this.isGlobal(this.entity) %}
     <span class="global-tab-label">{{ t('Global tab label') }}</span>
   {% endif %}

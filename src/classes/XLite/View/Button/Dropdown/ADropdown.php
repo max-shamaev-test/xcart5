@@ -110,7 +110,7 @@ class ADropdown extends \XLite\View\Button\AButton
      */
     protected function getDefaultUseCaretButton()
     {
-        return true;
+        return false;
     }
 
     /**

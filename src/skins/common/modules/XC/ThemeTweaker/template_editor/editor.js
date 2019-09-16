@@ -17,7 +17,8 @@ jQuery(document).ready(
     jQuery('#themeTweaker_wrapper').resizable(
       {
         resize: function (event, ui) {
-          jQuery('body').css('margin-left', ui.size.width);
+          // Change left margin for preview area
+          jQuery('body #main .notification_editor').css('margin-left', jQuery('#themeTweaker_wrapper').outerWidth() + 'px');
         }
       }
     ).show();
@@ -54,24 +55,9 @@ jQuery(document).ready(
     });
     switcher.prop('checked', templateNavigator.enabled);
 
-    jQuery('#changeOrderId').bind('keydown', function (event) {
-      var value = jQuery(this).val();
-      if (event.which === 13 && value) {
-
-        var url = window.location.href;
-        url += '&action=change_order_id';
-        url += '&order_number=' + value.replace(/[^0-9]/g, '');
-        url += '&' + xliteConfig.form_id_name + '=' + xliteConfig.form_id;
-
-        window.location = url;
-      }
-    });
-
-    jQuery('.themeTweaker-order-change', controlPanel).click(function (event) {
-      jQuery('.themeTweaker-order-change-input', controlPanel).toggle();
-      event.preventDefault();
-    });
-
     tree.prepend(controlPanel);
+
+    // Initialize left margin for preview area
+    jQuery('body #main .notification_editor').css('margin-left', jQuery('#themeTweaker_wrapper').outerWidth() + 'px');
   }
 );

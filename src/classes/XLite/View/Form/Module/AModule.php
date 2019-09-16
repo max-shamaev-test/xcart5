@@ -13,18 +13,18 @@ namespace XLite\View\Form\Module;
  */
 abstract class AModule extends \XLite\View\Form\AForm
 {
-    /**
-     * Return list of the form default parameters
-     *
-     * @return array
-     */
-    protected function getDefaultParams()
-    {
-        return array_merge(
-            parent::getDefaultParams(),
-            array(
-                \XLite\View\Pager\Admin\Module\AModule::PARAM_CLEAR_PAGER => 1,
-            )
-        );
-    }
+    ///**
+    // * Return list of the form default parameters
+    // *
+    // * @return array
+    // */
+    //protected function getDefaultParams()
+    //{
+    //    return array_merge(
+    //        parent::getDefaultParams(),
+    //        array(
+    //            \XLite\View\Pager\Admin\Module\AModule::PARAM_CLEAR_PAGER => 1,
+    //        )
+    //    );
+    //}
 }

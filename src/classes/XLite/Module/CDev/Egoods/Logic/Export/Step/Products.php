@@ -56,9 +56,11 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
      */
     protected function formatAttachmentModel(\XLite\Module\CDev\FileAttachments\Model\Product\Attachment $attachment)
     {
+        $isUrl = $attachment->getStorage() && $attachment->getStorage()->isURL();
+
         return $this->formatStorageModel(
             $attachment->getStorage(),
-            $attachment->getPrivate() ?: null
+            $attachment->getPrivate() ?: ($isUrl ? false : null)
         );
     }
 }

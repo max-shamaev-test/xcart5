@@ -45,16 +45,6 @@ class USPS extends \XLite\Model\Shipping\Processor\AProcessor
     }
 
     /**
-     * Returns processor name (displayed name)
-     *
-     * @return string
-     */
-    public function getProcessorName()
-    {
-        return 'U.S.P.S.';
-    }
-
-    /**
      * Returns url for sign up
      *
      * @return string
@@ -1244,7 +1234,7 @@ OUT;
             'ME' => 'Montenegro',
             'MG' => 'Madagascar',
             'MH' => 'Marshall Islands',
-            'MK' => 'Macedonia',
+            'MK' => 'North Macedonia',
             'ML' => 'Mali',
             'MM' => 'Burma',
             'MN' => 'Mongolia',
@@ -1412,7 +1402,7 @@ OUT;
      */
     public function getTrackingInformationURL($trackingNumber)
     {
-        return 'https://tools.usps.com/go/TrackConfirmAction.action';
+        return 'https://tools.usps.com/go/TrackConfirmAction.action?' . $this->getTrackingURLParams($trackingNumber);
     }
 
     /**

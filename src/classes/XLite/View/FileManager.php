@@ -59,19 +59,7 @@ class FileManager extends \XLite\View\AView
     protected function getCommonFiles()
     {
         return [
-            static::RESOURCE_JS => [
-                [
-                    'file'      => $this->isDeveloperMode() ? 'vue/vue.js' : 'vue/vue.min.js',
-                    'no_minify' => true,
-                ],
-                [
-                    'file'      => $this->isDeveloperMode() ? 'vue/vuex.js' : 'vue/vuex.min.js',
-                    'no_minify' => true,
-                ],
-                'vue/vue.loadable.js',
-                'js/vue/vue.js',
-                'js/vue/component.js',
-            ],
+            static::RESOURCE_JS => static::getVueLibraries(),
         ];
     }
 

@@ -55,7 +55,14 @@ class ActivateTopBox extends \XLite\View\AView
      */
     protected function isNoticeActive()
     {
-        return !\XLite::getXCNLicense();
+        return !\XLite::hasXCNLicenseKey();
     }
 
+    /**
+     * @return string
+     */
+    protected function getBusinessViewUrl()
+    {
+        return \XLite::getInstance()->getShopURL('service.php#/business-view');
+    }
 }

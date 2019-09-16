@@ -9,9 +9,13 @@
 
 define('form_model/file_uploader/onboarding', ['js/vue/vue', 'file_uploader'], function (XLiteVue) {
 
+  var fileUploadedDefer = null;
   XLiteVue.component('xlite-file-uploader', {
     ready: function () {
       this.showsMessages = true;
+      if (fileUploadedDefer !== null) {
+        fileUploadedDefer.resolve();
+      }
     },
     methods: {
       reset: function () {
@@ -23,6 +27,7 @@ define('form_model/file_uploader/onboarding', ['js/vue/vue', 'file_uploader'], f
         this.$dispatch('file-uploader-overlay', parent, this, arguments);
       },
       doRequest: function () {
+        fileUploadedDefer = new $.Deferred();
         var promise = this.$options.methods.doRequest.parent.apply(this, arguments);
         return promise.done(this.onUploadSuccess).fail(this.onUploadError);
       },
@@ -33,7 +38,10 @@ define('form_model/file_uploader/onboarding', ['js/vue/vue', 'file_uploader'], f
           this.$dispatch('file-uploader-error', error, this);
           return;
         }
-        this.$dispatch('file-uploader-success', data, this);
+
+        fileUploadedDefer.then(_.bind(function () {
+          this.$dispatch('file-uploader-success', data, this);
+        }, this));
       },
       onUploadError: function (jqXHR, textStatus, textResponse) {
         this.$dispatch('file-uploader-error', '', this);

@@ -19,7 +19,7 @@ XLite\Model\LanguageLabel:
   - { name: "Disable facebook product feed", translations: [{ code: en, label: "Remove from product feed" }] }
   - { name: "Facebook product feed enabled", translations: [{ code: en, label: "Add to Facebook product feed" }] }
   - { name: 'Wrong "facebook marketing enabled" format', translations: [{ code: en, label: 'Wrong "Facebook marketing enabled" format' }] }
-  - { name: 'Use the module Google Product Feed for advanced flexibility generating a data feed for Facebook based on the product attributes and variants from your store catalog', translations: [{ code: en, label: 'Use the module Google Product Feed for advanced flexibility generating a data feed for Facebook based on the product attributes and variants from your store catalog' }]}
+  - { name: 'Use the addon Google Product Feed for advanced flexibility generating a data feed for Facebook based on the product attributes and variants from your store catalog', translations: [{ code: en, label: 'Use the addon Google Product Feed for advanced flexibility generating a data feed for Facebook based on the product attributes and variants from your store catalog' }]}
   - { name: 'Generate product feed', translations: [{ code: en, label: 'Generate product feed' }]}
   - { name: 'Include out of stock products into feed', translations: [{ code: en, label: 'Include out of stock products into feed' }]}
 

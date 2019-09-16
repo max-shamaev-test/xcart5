@@ -7,9 +7,11 @@
   {% if this.getPageData() %}
     <ul>
       {% for method in this.getPageData() %}
-      <li class="{{ this.getLineClass(method) }}" data-module-name="{{ method.getModuleName() }}">
-      {{ widget_list('payment.methods.list.line', method=method) }}
-      </li>
+        <li class="{{ this.getLineClass(method) }}" data-module-name="{{ method.getModuleName() }}">
+          <div class="offline-method-line">
+            {{ widget_list('payment.offline-methods.list.line', method=method) }}
+          </div>
+        </li>
       {% endfor %}
     </ul>
   {% endif %}

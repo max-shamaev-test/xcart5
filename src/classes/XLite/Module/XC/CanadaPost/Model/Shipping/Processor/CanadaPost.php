@@ -33,16 +33,6 @@ class CanadaPost extends \XLite\Model\Shipping\Processor\AProcessor
     }
 
     /**
-     * Returns processor name
-     *
-     * @return string
-     */
-    public function getProcessorName()
-    {
-        return 'Canada Post';
-    }
-
-    /**
      * Returns settings template
      *
      * @return string

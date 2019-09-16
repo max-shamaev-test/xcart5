@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\Add2CartPopup\View\Model;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * General settings widget extention
  */
@@ -20,7 +22,7 @@ class Settings extends \XLite\View\Model\Settings implements \XLite\Base\IDecora
      */
     public function getCSSFiles()
     {
-        $list = parent::getCSSFiles();
+        $list   = parent::getCSSFiles();
         $list[] = 'modules/XC/Add2CartPopup/style.css';
 
         return $list;
@@ -37,13 +39,12 @@ class Settings extends \XLite\View\Model\Settings implements \XLite\Base\IDecora
     {
         $cell = parent::getFormFieldByOption($option);
 
-        if ('redirect_to_cart' == $option->getName() && $cell) {
-            $module = \XLite\Core\Database::getRepo('XLite\Model\Module')->findModuleByName('XC\\Add2CartPopup');
-            $url = $module->getInstalledURL();
+        if ('redirect_to_cart' === $option->getName() && $cell) {
+            $url = Manager::getRegistry()->getModuleServiceURL('XC', 'Add2CartPopup');
 
             $cell[static::SCHEMA_COMMENT] = static::t(
                 'This option is ignored as Add to Cart Popup module is installed and enabled.',
-                array('url' => $url)
+                ['url' => $url]
             );
         }
 

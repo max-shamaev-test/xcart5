@@ -35,7 +35,6 @@ class Images extends \XLite\View\AView
         $list = parent::getCSSFiles();
 
         $list[] = 'items_list/model/table/style.css';
-        $list[] = 'items_list/model/style.css';
         $list[] = 'modules/XC/ThemeTweaker/images/style.css';
 
         return $list;

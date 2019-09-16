@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\MultiCurrency\Core;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Cache decorator
  */
@@ -328,7 +330,7 @@ class MultiCurrency extends \XLite\Base
             $selectedCountry = $address->getCountry();
         }
 
-        if (!$selectedCountry && \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\Geolocation')) {
+        if (!$selectedCountry && Manager::getRegistry()->isModuleEnabled('XC\Geolocation')) {
             $selectedCountry = \XLite\Model\Address::getDefaultFieldValue('country');
         }
 

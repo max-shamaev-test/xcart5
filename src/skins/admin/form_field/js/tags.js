@@ -23,7 +23,7 @@ CommonElement.prototype.handlers.push(
         jQuery(this).siblings('.chosen-container').find('input').get(0).click();
       });
 
-      jQuery('.chosen-container .search-choice').live('click', function () {
+      jQuery('.chosen-container').on('click', '.search-choice', function () {
         jQuery('.search-choice-close', this).trigger('click.chosen');
       });
    }

@@ -16,12 +16,11 @@ class RemoveData extends \XLite\View\ItemsList\Model\Table
     /**
      * Types
      */
-    const TYPE_PRODUCTS   = 'products';
-    const TYPE_CATEGORIES = 'categories';
-    const TYPE_ORDERS     = 'orders';
-    const TYPE_CUSTOMERS  = 'customers';
-
-    const LIMIT = 100;
+    const TYPE_PRODUCTS               = 'products';
+    const TYPE_CATEGORIES             = 'categories';
+    const TYPE_ORDERS                 = 'orders';
+    const TYPE_CUSTOMERS              = 'customers';
+    const TYPE_CLASSES_AND_ATTRIBUTES = 'classesAndAttributes';
 
     /**
      * Cached list
@@ -40,36 +39,21 @@ class RemoveData extends \XLite\View\ItemsList\Model\Table
         return true;
     }
 
-    /**
-     * Return wrapper form options
-     *
-     * @return string
-     */
     protected function getFormOptions()
     {
         return array_merge(
             parent::getFormOptions(),
-            array(
-                'action'    => $this->getFormAction(),
-            )
+            [
+                'action' => $this->getFormAction(),
+            ]
         );
     }
 
-    /**
-     * Get wrapper form target
-     *
-     * @return array
-     */
     protected function getFormTarget()
     {
         return 'remove_data';
     }
 
-    /**
-     * Get wrapper form action
-     *
-     * @return array
-     */
     protected function getFormAction()
     {
         return 'remove_data';
@@ -82,21 +66,7 @@ class RemoveData extends \XLite\View\ItemsList\Model\Table
      */
     public static function getAllowedTargets()
     {
-        return array_merge(parent::getAllowedTargets(), array('remove_data'));
-    }
-
-    /**
-     * Get a list of CSS files required to display the widget properly
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-
-        $list[] = 'page/remove_data/style.css';
-
-        return $list;
+        return array_merge(parent::getAllowedTargets(), ['remove_data']);
     }
 
     /**
@@ -117,13 +87,12 @@ class RemoveData extends \XLite\View\ItemsList\Model\Table
      */
     protected function defineColumns()
     {
-        return array(
-            'name' => array(
-                static::COLUMN_MAIN     => true,
-                static::COLUMN_NAME     => static::t('Name'),
-                static::COLUMN_ORDERBY  => 100,
-            ),
-        );
+        return [
+            'name' => [
+                static::COLUMN_MAIN    => true,
+                static::COLUMN_ORDERBY => 100,
+            ],
+        ];
     }
 
     /**
@@ -147,9 +116,9 @@ class RemoveData extends \XLite\View\ItemsList\Model\Table
     protected function getData(\XLite\Core\CommonCell $cnd, $countOnly = false)
     {
         if (null === $this->cachedList) {
-            $this->cachedList = array();
+            $this->cachedList = [];
             foreach ($this->getPlainData() as $id => $cell) {
-                $this->cachedList[] = new \XLite\Model\RemoveDataCell(array('id' => $id) + $cell);
+                $this->cachedList[] = new \XLite\Model\RemoveDataCell(['id' => $id] + $cell);
             }
         }
 
@@ -163,20 +132,23 @@ class RemoveData extends \XLite\View\ItemsList\Model\Table
      */
     protected function getPlainData()
     {
-        return array(
-            static::TYPE_PRODUCTS   => array(
+        return [
+            static::TYPE_PRODUCTS               => [
                 'name' => static::t('Products'),
-            ),
-            static::TYPE_CATEGORIES => array(
+            ],
+            static::TYPE_CATEGORIES             => [
                 'name' => static::t('Categories'),
-            ),
-            static::TYPE_ORDERS     => array(
+            ],
+            static::TYPE_ORDERS                 => [
                 'name' => static::t('Orders'),
-            ),
-            static::TYPE_CUSTOMERS  => array(
+            ],
+            static::TYPE_CUSTOMERS              => [
                 'name' => static::t('Customers'),
-            ),
-        );
+            ],
+            static::TYPE_CLASSES_AND_ATTRIBUTES => [
+                'name' => static::t('Classes & Global Attributes'),
+            ],
+        ];
     }
 
     /**
@@ -188,9 +160,9 @@ class RemoveData extends \XLite\View\ItemsList\Model\Table
      */
     protected function isAllowEntityRemove(\XLite\Model\AEntity $entity)
     {
-        $method = $this->buildMetodName($entity, 'isAllowRemove%s');
+        $method = $this->buildMethodName($entity, 'isAllowRemove%s');
 
-        return false !== $this->$method();
+        return $method && false !== $this->$method();
     }
 
     /**
@@ -224,6 +196,18 @@ class RemoveData extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
+     * Check - allow remove orders or not
+     *
+     * @return boolean
+     */
+    protected function isAllowRemoveClassesAndAttributes()
+    {
+        return 0 < \XLite\Core\Database::getRepo('XLite\Model\ProductClass')->count()
+            || 0 < \XLite\Core\Database::getRepo('XLite\Model\Attribute')->countForRemoveGlobalAttributesData()
+            || 0 < \XLite\Core\Database::getRepo('XLite\Model\AttributeGroup')->count();
+    }
+
+    /**
      * Check - allow remove customers or not
      *
      * @return boolean
@@ -244,34 +228,24 @@ class RemoveData extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Build metod name
+     * Build method name
      *
      * @param \XLite\Model\AEntity $entity  Entity
      * @param string               $pattern Pattern
      *
      * @return string
      */
-    protected function buildMetodName(\XLite\Model\AEntity $entity, $pattern)
+    protected function buildMethodName(\XLite\Model\AEntity $entity, $pattern)
     {
         $name = '';
         switch ($entity->getId()) {
             case static::TYPE_PRODUCTS:
-                $name = 'Products';
-                break;
-
             case static::TYPE_CATEGORIES:
-                $name = 'Categories';
-                break;
-
             case static::TYPE_ORDERS:
-                $name = 'Orders';
-                break;
-
             case static::TYPE_CUSTOMERS:
-                $name = 'Customers';
+            case static::TYPE_CLASSES_AND_ATTRIBUTES:
+                $name = ucfirst($entity->getId());
                 break;
-
-            default:
         }
 
         return $name ? sprintf($pattern, $name) : null;
@@ -279,138 +253,20 @@ class RemoveData extends \XLite\View\ItemsList\Model\Table
 
     // {{{ Process
 
-    /**
-     * Find for remove
-     *
-     * @param mixed $id Entity id
-     *
-     * @return \XLite\Model\AEntity
-     */
     protected function findForRemove($id)
     {
-        $result = null;
-        $list = $this->getPageData();
-        foreach ($list as $entity) {
-            if ($entity->getId() == $id) {
-                $result = $entity;
-                break;
-            }
-        }
-
-        return $result;
+        return null;
     }
 
-    /**
-     * Remove entity
-     *
-     * @param \XLite\Model\AEntity $entity Entity
-     *
-     * @return boolean
-     */
     protected function removeEntity(\XLite\Model\AEntity $entity)
     {
-        $method = $this->buildMetodName($entity, 'remove%s');
-
-        return false !== $this->$method();
-    }
-
-    /**
-     * Remove products
-     *
-     * @return integer
-     */
-    protected function removeProducts()
-    {
-        return $this->removeCommon('XLite\Model\Product');
-    }
-
-    /**
-     * Remove products
-     *
-     * @return integer
-     */
-    protected function removeCategories()
-    {
-        return $this->removeCommon('XLite\Model\Category');
-    }
-
-    /**
-     * Remove orders
-     *
-     * @return integer
-     */
-    protected function removeOrders()
-    {
-        return $this->removeCommon('XLite\Model\Order');
-    }
-
-    /**
-     * Remove customers
-     *
-     * @return integer
-     */
-    protected function removeCustomers()
-    {
-        $repo = \XLite\Core\Database::getRepo('XLite\Model\Profile');
-
-        $i = 1;
-        $count = 0;
-        foreach ($repo->iterateByCustomers() as $data) {
-            $repo->delete($data[0], false);
-            $count++;
-            $i++;
-
-            if ($count >= static::LIMIT) {
-                \XLite\Core\Database::getEM()->flush();
-                $count = 0;
-            }
-        }
-
-        \XLite\Core\Database::getEM()->flush();
-
-        return $i;
-    }
-
-    /**
-     * Remove (common routine)
-     *
-     * @param string $repoName Repository name
-     *
-     * @return integer
-     */
-    protected function removeCommon($repoName)
-    {
-        $repo = \XLite\Core\Database::getRepo($repoName);
-
-        $i = 1;
-        $count = 0;
-        foreach ($repo->iterateAll() as $data) {
-            $repo->delete($data[0], false);
-            $count++;
-            $i++;
-
-            if ($count >= static::LIMIT) {
-                \XLite\Core\Database::getEM()->flush();
-                \XLite\Core\Database::getEM()->clear();
-                $count = 0;
-            }
-        }
-
-        \XLite\Core\Database::getEM()->flush();
-        \XLite\Core\Database::getEM()->clear();
-
-        return $i;
+        return false;
     }
 
     // }}}
 
     // {{{ Behaviors
 
-    /**
-     * Mark list as removable
-     *
-     * @return boolean
-     */
     protected function isRemoved()
     {
         return true;
@@ -418,21 +274,11 @@ class RemoveData extends \XLite\View\ItemsList\Model\Table
 
     // }}}
 
-    /**
-     * Get container class
-     *
-     * @return string
-     */
     protected function getContainerClass()
     {
         return parent::getContainerClass() . ' remove-data';
     }
 
-    /**
-     * Get panel class
-     *
-     * @return \XLite\View\Base\FormStickyPanel
-     */
     protected function getPanelClass()
     {
         return 'XLite\View\StickyPanel\ItemsList\RemoveData';

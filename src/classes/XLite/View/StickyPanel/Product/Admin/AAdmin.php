@@ -26,8 +26,7 @@ abstract class AAdmin extends \XLite\View\StickyPanel\Product\AProduct
                 'params'   => [
                     'label'         => '',
                     'style'         => 'always-enabled more-action icon-only hide-on-disable',
-                    'icon-style'    => 'fa fa-power-off',
-                    'useCaretButton' => false,
+                    'icon-style'    => 'fa fa-power-off iconfont',
                     'dropDirection' => 'dropup',
                 ],
                 'position' => 200,

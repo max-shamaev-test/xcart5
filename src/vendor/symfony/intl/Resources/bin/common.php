@@ -55,7 +55,7 @@ function run($command)
 
 function get_icu_version_from_genrb($genrb)
 {
-    exec($genrb.' --version 2>&1', $output, $status);
+    exec($genrb.' --version - 2>&1', $output, $status);
 
     if (0 !== $status) {
         bailout($genrb.' failed.');
@@ -68,7 +68,7 @@ function get_icu_version_from_genrb($genrb)
     return $matches[1];
 }
 
-set_exception_handler(function (\Exception $exception) {
+set_exception_handler(function (\Throwable $exception) {
     echo "\n";
 
     $cause = $exception;

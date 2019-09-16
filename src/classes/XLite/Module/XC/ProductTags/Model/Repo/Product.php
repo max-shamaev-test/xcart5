@@ -13,9 +13,9 @@ namespace XLite\Module\XC\ProductTags\Model\Repo;
  */
 class Product extends \XLite\Model\Repo\Product implements \XLite\Base\IDecorator
 {
-    const P_TAGS     = 'tags';
-    const P_BY_TAG   = 'byTag';
-    const TAG_FIELD  = 'tt.name';
+    const P_TAGS    = 'tags';
+    const P_BY_TAG  = 'byTag';
+    const TAG_FIELD = 'tt.name';
 
     /**
      * Return conditions parameters that are responsible for substring set of fields.
@@ -24,8 +24,7 @@ class Product extends \XLite\Model\Repo\Product implements \XLite\Base\IDecorato
      */
     protected function getConditionBy()
     {
-        $list = parent::getConditionBy();
-
+        $list   = parent::getConditionBy();
         $list[] = static::P_BY_TAG;
 
         return $list;
@@ -38,9 +37,9 @@ class Product extends \XLite\Model\Repo\Product implements \XLite\Base\IDecorato
      */
     protected function getSubstringSearchFieldsByTag()
     {
-        return array(
+        return [
             self::TAG_FIELD,
-        );
+        ];
     }
 
     /**

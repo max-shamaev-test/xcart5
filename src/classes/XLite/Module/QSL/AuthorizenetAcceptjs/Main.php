@@ -8,75 +8,8 @@
 
 namespace XLite\Module\QSL\AuthorizenetAcceptjs;
 
-/**
- * Authorize.net accept.js module
- */
 abstract class Main extends \XLite\Module\AModule
 {
-    /**
-     * @inheritdoc
-     */
-    public static function getAuthorName()
-    {
-        return 'Qualiteam';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getModuleName()
-    {
-        return 'Authorize.Net Accept.js';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getMajorVersion()
-    {
-        return '5.3';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getMinorVersion()
-    {
-        return '15';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getBuildVersion()
-    {
-        return '8';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getMinorRequiredCoreVersion()
-    {
-        return '3';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getDescription()
-    {
-        return 'The module integrates your store with Authorize.Net Accept.js to accept payments in a PCI-DSS compliant way.';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getModuleType()
-    {
-        return static::MODULE_TYPE_PAYMENT;
-    }
-
     /**
      * Logging
      *
@@ -85,9 +18,8 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function log($message, $force = false)
     {
-        if ($force || \Includes\Utils\ConfigParser::getOptions(array('performance', 'developer_mode'))) {
+        if ($force || \Includes\Utils\ConfigParser::getOptions(['performance', 'developer_mode'])) {
             \XLite\Logger::getInstance()->logCustom('AuthorizenetAcceptjs', $message);
         }
     }
-
 }

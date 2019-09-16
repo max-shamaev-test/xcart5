@@ -52,46 +52,6 @@ class Begin extends \XLite\View\RequestHandler\ARequestHandler
     }
 
     /**
-     * Define sections list
-     *
-     * @return string[]
-     */
-    protected function defineSections()
-    {
-        return array(
-            'XLite\Logic\Export\Step\Products'   => 'Products',
-            'XLite\Logic\Export\Step\Attributes' => 'Classes & Attributes',
-            'XLite\Logic\Export\Step\AttributeValues\AttributeValueCheckbox' => 'Product attributes values',
-            'XLite\Logic\Export\Step\Orders'     => 'Orders',
-            'XLite\Logic\Export\Step\Categories' => 'Categories',
-            'XLite\Logic\Export\Step\Users'      => 'Customers',
-        );
-    }
-
-    /**
-     * Return sections list
-     *
-     * @return string[]
-     */
-    protected function getSections()
-    {
-        return $this->defineSections();
-    }
-
-    /**
-     * Check section is selected or not
-     *
-     * @param string $class Class
-     *
-     * @return boolean
-     */
-    protected function isSectionSelected($class)
-    {
-        return $this->getParam(static::PARAM_PRESELECT) == $class && !$this->isSectionDisabled($class)
-            && !$this->isSectionDisabled($class);
-    }
-
-    /**
      * Avoid using preselect from session
      *
      * @param string $param Parameter name
@@ -110,42 +70,10 @@ class Begin extends \XLite\View\RequestHandler\ARequestHandler
     }
 
     /**
-     * Check section is disabled or not
-     *
-     * @param string $class Class
-     *
-     * @return boolean
+     * @return string
      */
-    protected function isSectionDisabled($class)
+    protected function getPreselectedClass()
     {
-        $found = false;
-
-        $classes = array();
-
-        $classes[] = $class;
-
-        if ('XLite\Logic\Export\Step\AttributeValues\AttributeValueCheckbox' == $class) {
-            $classes[] = 'XLite\Logic\Export\Step\AttributeValues\AttributeValueSelect';
-            $classes[] = 'XLite\Logic\Export\Step\AttributeValues\AttributeValueText';
-        }
-
-        foreach ($classes as $c) {
-            $class = new $c;
-            if ($found = (0 < $class->count())) {
-                break;
-            }
-        }
-
-        return !$found;
-    }
-
-    /**
-     * Check - charset enabledor not
-     * 
-     * @return boolean
-     */
-    protected function isCharsetEnabled()
-    {
-        return \XLite\Core\Iconv::getInstance()->isValid();
+        return $this->getParam(self::PARAM_PRESELECT);
     }
 }

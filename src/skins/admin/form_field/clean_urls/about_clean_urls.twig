@@ -2,14 +2,16 @@
  # About clean urls section template
  #}
 
-<p>
-  {{ t('More information about clean urls in X-Cart is available in ', {'url': this.getCleanURLArticleURL()} )|raw }}
-</p>
+<div class="input-field-wrapper">
+  <p>
+    {{ t('More information about clean urls in X-Cart is available in ', {'url': this.getCleanURLArticleURL()} )|raw }}
+  </p>
 
-<p>
-  {{ t('Every object stores history with 8 clean urls which were previously used for this object.') }}
-</p>
+  <p>
+    {{ t('Every object stores history with 8 clean urls which were previously used for this object.') }}
+  </p>
 
-<p>
-  {{ t('Also, to manage your redirects you can define 301 redirects in .htaccess file.')|raw }}
-</p>
+  <p>
+    {{ t('Also, to manage your redirects you can define 301 redirects in .htaccess file.')|raw }}
+  </p>
+</div>

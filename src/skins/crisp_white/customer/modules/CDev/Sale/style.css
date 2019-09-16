@@ -42,6 +42,10 @@ ul.products.products-sidebar .sale-label-product-details {
   margin-top: 0px;
 }
 
+.sale-label-product-details {
+  display: inline-block;
+}
+
 .sale-label-product-details .text {
   display: inline;
 }

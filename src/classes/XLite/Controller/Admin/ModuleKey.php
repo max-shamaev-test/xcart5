@@ -13,8 +13,6 @@ namespace XLite\Controller\Admin;
  */
 class ModuleKey extends \XLite\Controller\Admin\AAdmin
 {
-    // {{{ Public methods for viewers
-
     /**
      * Return page title
      *
@@ -23,39 +21,6 @@ class ModuleKey extends \XLite\Controller\Admin\AAdmin
     public function getTitle()
     {
         return static::t('Enter license key');
-    }
-
-    /**
-     * isBlockContentAllowed
-     *
-     * @return boolean
-     */
-    public function isBlockContentAllowed()
-    {
-        return false;
-    }
-
-    // }}}
-
-    /**
-     * Return true if unallowed modules should be ignored on current page
-     *
-     * @return boolean
-     */
-    protected function isIgnoreUnallowedModules()
-    {
-        return true;
-    }
-
-    // {{{ "Register key" action handler
-
-    /**
-     * Action of view license view
-     *
-     * @return void
-     */
-    protected function doActionView()
-    {
     }
 
     /**
@@ -69,6 +34,15 @@ class ModuleKey extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * Action of view license view
+     *
+     * @return void
+     */
+    protected function doActionView()
+    {
+    }
+
+    /**
      * Action of license key registration
      *
      * @return void
@@ -76,277 +50,35 @@ class ModuleKey extends \XLite\Controller\Admin\AAdmin
     protected function doActionRegisterKey()
     {
         $key = trim(\XLite\Core\Request::getInstance()->key);
+        $result = \XLite\Core\Marketplace::getInstance()->registerLicense($key);
 
-        if ($key) {
-            $keysInfo = \XLite\Core\Marketplace::getInstance()->checkAddonKey($key);
+        if ($result['key'] && $result['action']) {
+            $this->setReturnURL(\XLite::getInstance()->getShopURL('service.php#/') . $result['action']);
+        } elseif ($result['alert']) {
+            $alert = $result['alert'][0];
+            $alertParams = $alert['params'] ? json_decode($alert['params']) : [];
 
-        } else {
-            $keysInfo = null;
-            $emptyKey = true;
-        }
+            if ($alert['message'] === 'activate_license_dialog.result.success.core') {
+                \XLite\Core\TopMessage::addInfo('X-Cart license key has been successfully verified');
 
-        $this->setReturnURL($this->buildURL('addons_list_marketplace'));
+            } elseif ($alert['message'] === 'activate_license_dialog.result.success.module') {
+                \XLite\Core\TopMessage::addInfo(
+                    'License key has been successfully verified and activated for "{{name}}" module by "{{author}}" author.',
+                    [
+                        'name' => $alertParams[0],
+                        'author' => $alertParams[1],
+                    ]
+                );
 
-        if ($keysInfo && $keysInfo[$key]) {
-            $keysInfo = $keysInfo[$key];
-            $repo = \XLite\Core\Database::getRepo('\XLite\Model\ModuleKey');
-
-            foreach ($keysInfo as $info) {
-                if (\XLite\Model\ModuleKey::KEY_TYPE_XCN == $info['keyType']) {
-                    $xcnPlan = $info['xcnPlan'];
-                    $keyData = $info['keyData'];
-
-                    // Unset some fields which is not in database
-                    unset($info['xcnPlan']);
-                    unset($info['keyData']);
-                    unset($info['key']);
-
-                    $entity = $repo->findOneBy($info);
-
-                    if (!$entity) {
-                        $entity = new \XLite\Model\ModuleKey();
-                        $entity->map($info);
-                    }
-
-                    $entity->setKeyValue($key);
-                    $entity->setXcnPlan($xcnPlan);
-                    $entity->setKeyData($keyData);
-
-                    if (!empty($keyData['wave'])) {
-                        $this->updateUpgradeWaveOption($keyData['wave']);
-                    }
-
-                    $isValid = true;
-
-                    $isFreeLicense = \XLite::isFreeLicense($entity);
-
-                    if ($isFreeLicense) {
-                        if (0 == \XLite\Core\Database::getRepo('XLite\Model\Module')->hasMarketplaceModules(true)) {
-                            $isValid = false;
-                            $this->showError(
-                                __FUNCTION__,
-                                static::t('Cannot gather modules from the marketplace. Please try later.')
-                            );
-                        }
-                    }
-
-                    if ($isValid) {
-                        // Save entity (key) in the database
-                        \XLite\Core\Database::getEM()->persist($entity);
-                        \XLite\Core\Database::getEM()->flush();
-
-                        if ($isFreeLicense) {
-                            // Search for modules from non-free edition
-                            $nonFreeModules = \XLite\Core\Database::getRepo('XLite\Model\Module')
-                                ->getNonFreeEditionModulesList(false);
-
-                            if ($nonFreeModules) {
-                                // Try to uninstall these modules...
-                                foreach ($nonFreeModules as $module) {
-                                    $messages = array();
-
-                                    $res = \XLite\Core\Database::getRepo('XLite\Model\Module')
-                                        ->uninstallModule($module, $messages);
-
-                                    if ($messages) {
-                                        foreach ($messages as $message) {
-                                            $method = ($res ? 'Info' : 'Error');
-                                            \XLite\Upgrade\Logger::getInstance()
-                                                ->{'log' . $method}($message, array(), false);
-                                        }
-                                    }
-                                }
-                            }
-
-                            \XLite::setCleanUpCacheFlag(true);
-                        }
-
-                        $this->showInfo(
-                            __FUNCTION__,
-                            static::t('X-Cart license key has been successfully verified')
-                        );
-
-                        if (!empty($keyData['message'])) {
-                            \XLite\Core\TopMessage::addWarning(
-                                'The key does not allow getting new features and upgrades.',
-                                [
-                                    'renewalUrl' => \XLite\Core\Marketplace::getRenewalURL($entity)
-                                ]
-                            );
-                        }
-
-                        // Renew marketplace cache
-                        $this->renewMarketplaceCache();
-
-                        $this->setHardRedirect();
-                    }
-
-                } else {
-
-                    $keyData = $info['keyData'];
-
-                    /** @var \XLite\Model\Module $module */
-                    $module = \XLite\Core\Database::getRepo('\XLite\Model\Module')->findOneBy(
-                        array(
-                            'author' => $info['author'],
-                            'name'   => $info['name'],
-                        )
-                    );
-
-                    if ($module) {
-                        $entity = $repo->findKey($info['author'], $info['name']);
-
-                        if ($entity) {
-                            $entity->setKeyValue($key);
-                            $repo->update($entity);
-
-                        } else {
-                            unset($info['key']);
-                            $entity = $repo->insert($info + array('keyValue' => $key));
-                        }
-
-                        if ($module->getPurchaseStatus() === \XLite\Model\Module::PURCHASE_STATUS_PENDING) {
-                            $module->setPurchaseStatus(\XLite\Model\Module::PURCHASE_STATUS_PURCHASED);
-                        }
-
-                        if (!empty($keyData['wave'])) {
-                            $this->updateUpgradeWaveOption($keyData['wave']);
-                        }
-
-                        // Clear cache for proper installation
-                        \XLite\Core\Marketplace::getInstance()->clearActionCache();
-
-                        $this->showInfo(
-                            __FUNCTION__,
-                            static::t(
-                                'License key has been successfully verified and activated for "{{name}}" module by "{{author}}" author.',
-                                array(
-                                    'name'   => $module->getModuleName(),
-                                    'author' => $module->getAuthorName(),
-                                )
-                            )
-                        );
-
-                        if (!empty($keyData['message'])) {
-                            \XLite\Core\TopMessage::addWarning(
-                                'The key does not allow getting new features and upgrades.',
-                                [
-                                    'renewalUrl' => \XLite\Core\Marketplace::getRenewalURL($entity)
-                                ]
-                            );
-                        }
-
-                        if (!$module->isInstalled()) {
-                            // We install the addon after the successfull key verification
-                            $this->setReturnURL(
-                                $this->buildURL(
-                                    'upgrade',
-                                    'install_addon_force',
-                                    array(
-                                        'moduleIds[]' => $module->getModuleID(),
-                                        'agree'       => 'Y',
-                                    )
-                                )
-                            );
-                        }
-
-                    } else {
-                        $this->showError(
-                            __FUNCTION__,
-                            static::t('Key is validated, but the module X was not found', array('module' => implode(',', $info)))
-                        );
-                    }
-                }
-            }
-
-        } elseif (!isset($emptyKey)) {
-            $error = \XLite\Core\Marketplace::getInstance()->getError();
-            $message = $error
-                ? static::t('Response from marketplace: X', array('response' => $error))
-                : static::t('Response from marketplace is not received');
-            $this->showError(__FUNCTION__, $message);
-
-        } else {
-            $this->showError(__FUNCTION__, static::t('Please specify non-empty key'));
-        }
-    }
-
-    /**
-     * Update value of 'upgrade_wave' option
-     *
-     * @param integer $wave Wave number
-     *
-     * @return void
-     */
-    protected function updateUpgradeWaveOption($wave)
-    {
-        $data = array(
-            'category' => 'Environment',
-            'name'     => 'upgrade_wave',
-            'value'    => $wave,
-        );
-
-        \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption($data);
-    }
-
-    // }}}
-
-    /**
-     * Do action 'unset_core_license'
-     *
-     * @return void
-     */
-    protected function doActionUnsetCoreLicense()
-    {
-        $keys = \XLite\Core\Database::getRepo('XLite\Model\ModuleKey')->findBy(
-            array(
-                'name'   => 'Core',
-                'author' => 'CDev',
-            )
-        );
-
-        $allKeys = \XLite\Core\Database::getRepo('XLite\Model\ModuleKey')->findAll();
-
-        $toDelete = array();
-
-        foreach ($keys as $key) {
-            foreach ($allKeys as $key2) {
-                // Search and delete all keys with the same keyBody
-                // (used in case of license key assigned to several entities)
-                if ($key->getKeyValue() == $key2->getKeyValue()) {
-                    $toDelete[] = $key2;
-                }
+            } elseif ($alert['message'] === 'activate_license_dialog.result.invalid') {
+                \XLite\Core\TopMessage::addError(
+                    'License registration error: {{error}} ({{code}})',
+                    [
+                        'error' => $alertParams[2],
+                        'code' => $alertParams[1],
+                    ]
+                );
             }
         }
-
-        if ($toDelete) {
-            // Delete core license
-            \XLite\Core\Database::getRepo('XLite\Model\ModuleKey')->deleteInBatch($toDelete);
-
-            // Renew marketplace cache
-            $this->renewMarketplaceCache();
-        }
-
-        $this->setReturnURL($this->buildURL('main'));
-    }
-
-    /**
-     * Renew marketplace cache
-     *
-     * @return void
-     */
-    protected function renewMarketplaceCache()
-    {
-        // Force to re-read core license
-        \XLite::getXCNLicense(true);
-
-        // Clear marketplace actions cache
-        \XLite\Core\Marketplace::getInstance()->clearActionCache();
-
-        // Update addons list
-        \XLite\Core\Marketplace::getInstance()->getAddonsList(0);
-
-        // Update inactive licenses information
-        \XLite\Core\Marketplace::getInstance()->getInactiveLicenseKeys(0);
     }
 }

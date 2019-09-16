@@ -37,11 +37,11 @@ abstract class RemoveData extends \XLite\View\ItemsList\Model\RemoveData impleme
      *
      * @return string
      */
-    protected function buildMetodName(\XLite\Model\AEntity $entity, $pattern)
+    protected function buildMethodName(\XLite\Model\AEntity $entity, $pattern)
     {
         return static::TYPE_PAGES == $entity->getId()
             ? sprintf($pattern, 'Pages')
-            : parent::buildMetodName($entity, $pattern);
+            : parent::buildMethodName($entity, $pattern);
     }
 
     /**
@@ -52,16 +52,6 @@ abstract class RemoveData extends \XLite\View\ItemsList\Model\RemoveData impleme
     protected function isAllowRemovePages()
     {
         return 0 < \XLite\Core\Database::getRepo('XLite\Module\CDev\SimpleCMS\Model\Page')->count();
-    }
-
-    /**
-     * Remove coupons
-     *
-     * @return integer
-     */
-    protected function removePages()
-    {
-        return $this->removeCommon('XLite\Module\CDev\SimpleCMS\Model\Page');
     }
 
 }

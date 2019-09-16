@@ -6,4 +6,5 @@
 
 <order-total inline-template>
     <div class="order-total" v-text='total_text'></div>
+    {% include 'checkout/steps/review/parts/items.paid.twig' %}
 </order-total>

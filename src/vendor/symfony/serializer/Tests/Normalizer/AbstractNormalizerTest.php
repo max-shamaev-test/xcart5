@@ -9,7 +9,10 @@ use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Tests\Fixtures\AbstractNormalizerDummy;
+use Symfony\Component\Serializer\Tests\Fixtures\NullableConstructorArgumentDummy;
 use Symfony\Component\Serializer\Tests\Fixtures\ProxyDummy;
+use Symfony\Component\Serializer\Tests\Fixtures\StaticConstructorDummy;
+use Symfony\Component\Serializer\Tests\Fixtures\StaticConstructorNormalizer;
 
 /**
  * Provides a dummy Normalizer which extends the AbstractNormalizer.
@@ -30,8 +33,8 @@ class AbstractNormalizerTest extends TestCase
 
     protected function setUp()
     {
-        $loader = $this->getMockBuilder('Symfony\Component\Serializer\Mapping\Loader\LoaderChain')->setConstructorArgs(array(array()))->getMock();
-        $this->classMetadata = $this->getMockBuilder('Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory')->setConstructorArgs(array($loader))->getMock();
+        $loader = $this->getMockBuilder('Symfony\Component\Serializer\Mapping\Loader\LoaderChain')->setConstructorArgs([[]])->getMock();
+        $this->classMetadata = $this->getMockBuilder('Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory')->setConstructorArgs([$loader])->getMock();
         $this->normalizer = new AbstractNormalizerDummy($this->classMetadata);
     }
 
@@ -57,11 +60,11 @@ class AbstractNormalizerTest extends TestCase
 
         $this->classMetadata->method('getMetadataFor')->willReturn($classMetadata);
 
-        $result = $this->normalizer->getAllowedAttributes('c', array(AbstractNormalizer::GROUPS => array('test')), true);
-        $this->assertEquals(array('a2', 'a4'), $result);
+        $result = $this->normalizer->getAllowedAttributes('c', [AbstractNormalizer::GROUPS => ['test']], true);
+        $this->assertEquals(['a2', 'a4'], $result);
 
-        $result = $this->normalizer->getAllowedAttributes('c', array(AbstractNormalizer::GROUPS => array('other')), true);
-        $this->assertEquals(array('a3', 'a4'), $result);
+        $result = $this->normalizer->getAllowedAttributes('c', [AbstractNormalizer::GROUPS => ['other']], true);
+        $this->assertEquals(['a3', 'a4'], $result);
     }
 
     public function testGetAllowedAttributesAsObjects()
@@ -86,22 +89,46 @@ class AbstractNormalizerTest extends TestCase
 
         $this->classMetadata->method('getMetadataFor')->willReturn($classMetadata);
 
-        $result = $this->normalizer->getAllowedAttributes('c', array(AbstractNormalizer::GROUPS => array('test')), false);
-        $this->assertEquals(array($a2, $a4), $result);
+        $result = $this->normalizer->getAllowedAttributes('c', [AbstractNormalizer::GROUPS => ['test']], false);
+        $this->assertEquals([$a2, $a4], $result);
 
-        $result = $this->normalizer->getAllowedAttributes('c', array(AbstractNormalizer::GROUPS => array('other')), false);
-        $this->assertEquals(array($a3, $a4), $result);
+        $result = $this->normalizer->getAllowedAttributes('c', [AbstractNormalizer::GROUPS => 'test'], false);
+        $this->assertEquals([$a2, $a4], $result);
+
+        $result = $this->normalizer->getAllowedAttributes('c', [AbstractNormalizer::GROUPS => ['other']], false);
+        $this->assertEquals([$a3, $a4], $result);
     }
 
     public function testObjectToPopulateWithProxy()
     {
         $proxyDummy = new ProxyDummy();
 
-        $context = array(AbstractNormalizer::OBJECT_TO_POPULATE => $proxyDummy);
+        $context = [AbstractNormalizer::OBJECT_TO_POPULATE => $proxyDummy];
 
         $normalizer = new ObjectNormalizer();
-        $normalizer->denormalize(array('foo' => 'bar'), 'Symfony\Component\Serializer\Tests\Fixtures\ToBeProxyfiedDummy', null, $context);
+        $normalizer->denormalize(['foo' => 'bar'], 'Symfony\Component\Serializer\Tests\Fixtures\ToBeProxyfiedDummy', null, $context);
 
         $this->assertSame('bar', $proxyDummy->getFoo());
+    }
+
+    public function testObjectWithStaticConstructor()
+    {
+        $normalizer = new StaticConstructorNormalizer();
+        $dummy = $normalizer->denormalize(['foo' => 'baz'], StaticConstructorDummy::class);
+
+        $this->assertInstanceOf(StaticConstructorDummy::class, $dummy);
+        $this->assertEquals('baz', $dummy->quz);
+        $this->assertNull($dummy->foo);
+    }
+
+    /**
+     * @requires PHP 7.1
+     */
+    public function testObjectWithNullableConstructorArgument()
+    {
+        $normalizer = new ObjectNormalizer();
+        $dummy = $normalizer->denormalize(['foo' => null], NullableConstructorArgumentDummy::class);
+
+        $this->assertNull($dummy->getFoo());
     }
 }

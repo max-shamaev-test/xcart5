@@ -8,8 +8,12 @@
 
 namespace XLite\Controller;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
 use XLite\Core\Cache\ExecuteCachedTrait;
 use XLite\Core\DependencyInjection\ContainerAwareTrait;
+use XLite\View\AView;
+use XLite\View\CommonResources;
 use XLite\View\FormField\Select\ObjectNameInPageTitleOrder;
 
 /**
@@ -208,6 +212,27 @@ abstract class AController extends \XLite\Core\Handler
         print $data;
     }
 
+    /**
+     * Send specific headers and print AJAX data as JSON string
+     *
+     * @param array $data
+     *
+     * @return void
+     */
+    protected function printAJAX($data)
+    {
+        // Move top messages into headers since we print data and die()
+        $this->translateTopMessagesToHTTPHeaders();
+
+        $content = json_encode($data);
+
+        header('Content-Type: application/json; charset=UTF-8');
+        header('Content-Length: ' . strlen($content));
+        header('ETag: ' . md5($content));
+
+        print ($content);
+    }
+
     // {{{ Pages
 
     /**
@@ -218,19 +243,8 @@ abstract class AController extends \XLite\Core\Handler
     public function defineCommonJSData()
     {
         return array(
-            'dragDropCart' => $this->getDragDropCartFlag(),
             'tabletDevice' => $this->isTableDevice(),
         );
-    }
-
-    /**
-     * Currently the drag and drop cart feature is disabled for the mobile devices
-     *
-     * @return boolean
-     */
-    protected function getDragDropCartFlag()
-    {
-        return \XLite\Core\Request::isDragDropCartFlag();
     }
 
     /**
@@ -327,8 +341,9 @@ abstract class AController extends \XLite\Core\Handler
             && !\XLite\Core\Session::getInstance()->get(\XLite::SHOW_TRIAL_NOTICE)
             && !\XLite\Core\Session::getInstance()->get(static::TRIAL_NOTICE_DISPLAYED)
             && !$this->isDisplayBlockContent()
+            && !Manager::getRegistry()->isModuleEnabled('XC', 'Trial')
             && \XLite\Core\Marketplace::getInstance()->hasUnallowedModules()
-            && (\XLite::getXCNLicense(false) || \XLite::isTrialPeriodExpired())
+            && (\XLite::hasXCNLicenseKey() || \XLite::isTrialPeriodExpired())
             && !\XLite\Core\Request::getInstance()->activate_key;
 
         if (\XLite\Core\Session::getInstance()->get(static::TRIAL_NOTICE_DISPLAYED)) {
@@ -345,10 +360,16 @@ abstract class AController extends \XLite\Core\Handler
      */
     public function isDisplayBlockContent()
     {
-        return $this->isRootAdmin()
-            && \XLite::getXCNLicense()
+        if ($this->isRootAdmin()
+            && \XLite::hasXCNLicenseKey()
             && !\XLite::isFreeLicense()
-            && \XLite\Core\Marketplace::getInstance()->hasInactiveLicenseKey();
+        ) {
+            $coreLicense = \XLite::getXCNLicense();
+
+            return $coreLicense && !($coreLicense['active'] ?? true);
+        }
+
+        return false;
     }
 
     /**
@@ -359,7 +380,6 @@ abstract class AController extends \XLite\Core\Handler
     public function isRootAdmin()
     {
         return \XLite::isAdminZone()
-            && \XLite\Core\Auth::getInstance()->isLogged()
             && \XLite\Core\Auth::getInstance()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS);
     }
 
@@ -520,7 +540,7 @@ abstract class AController extends \XLite\Core\Handler
      */
     public function setReturnURL($url)
     {
-        $this->returnURL = str_replace('&amp;', '&', $url);
+        $this->returnURL = $url ? str_replace('&amp;', '&', $url) : '?';
     }
 
     /**
@@ -1842,6 +1862,7 @@ abstract class AController extends \XLite\Core\Handler
 
         echo (
             '<div'
+            . ' id="' . \XLite\Core\Request::getInstance()->getUniqueIdentifier() . '"'
             . ' class="' . $class . '"'
             . ' title="' . func_htmlspecialchars(static::t($this->getTitle())) . '"'
             . ' ' . $this->printAJAXAttributes() . ' >' . PHP_EOL
@@ -1866,6 +1887,16 @@ abstract class AController extends \XLite\Core\Handler
      */
     protected function printAJAXResources()
     {
+        \XLite\Core\Layout::getInstance()->registerResources([
+            AView::RESOURCE_CSS => CommonResources::getInstance()->getCommonLessFiles(),
+        ], 100, \XLite::COMMON_INTERFACE, 'getCommonFiles');
+
+        if (\XLite\Core\Request::getInstance()->interface !== \XLite::CUSTOMER_INTERFACE) {
+            \XLite\Core\Layout::getInstance()->registerResources([
+                AView::RESOURCE_CSS => CommonResources::getInstance()->getCSSFiles()
+            ], 10, null, 'getCSSFiles');
+        }
+
         $resources = \XLite\Core\Layout::getInstance()->getRegisteredPreparedResources();
 
         $resContainer = array(

@@ -8,6 +8,10 @@
 
 namespace XLite\Module\XC\ThemeTweaker\View;
 
+use XLite\Core\Mail\Sender;
+use XLite\Module\XC\ThemeTweaker\Core\Notifications\Data;
+use XLite\Module\XC\ThemeTweaker\Core\Notifications\DataPreProcessor;
+
 /**
  * Theme tweaker template page view
  *
@@ -28,17 +32,9 @@ class NotificationEditor extends \XLite\View\AView
         return $list;
     }
 
-    /**
-     * Returns CSS files
-     *
-     * @return array
-     */
-    public function getCSSFiles()
+    protected function isVisible()
     {
-        $list = parent::getCSSFiles();
-        $list[] = 'modules/XC/ThemeTweaker/notification_editor/style.css';
-
-        return $list;
+        return parent::isVisible() && $this->getDataSource();
     }
 
     /**
@@ -56,13 +52,125 @@ class NotificationEditor extends \XLite\View\AView
      */
     protected function getNotificationContent()
     {
-        $mailer = new \XLite\View\Mailer();
-
-        return $mailer->getNotificationEditableContent(
+        $content = Sender::getNotificationEditableContent(
             $this->getDir(),
-            $this->getData(),
+            $this->prepareData($this->getData()),
             $this->getInterface()
         );
+
+        return \XLite::getController()->isTemplateFailed()
+            ? $this->prepareFailedTemplates(\XLite::getController()->getFailedTemplates())
+            : $content;
+    }
+
+    /**
+     * @param array $templates
+     *
+     * @return string
+     */
+    protected function prepareFailedTemplates(array $templates)
+    {
+        return sprintf(
+            '<div class="notification_editor">%s:<br> %s</div>',
+            static::t('Templates error'),
+            implode('<br>', array_map(function ($template) {
+                if (mb_strpos($template, LC_DIR_SKINS) === 0) {
+                    $template = mb_substr($template, mb_strlen(LC_DIR_SKINS));
+                }
+
+                return $template;
+            }, $templates))
+        );
+    }
+
+    /**
+     * Return true if current template's content is empty
+     *
+     * @return boolean
+     */
+    protected function isEmptyTemplateContent()
+    {
+        $result = false;
+
+        $path = $this->getNotificationTemplatePath();
+
+        if ($path) {
+            $content = \Includes\Utils\FileManager::read($path);
+
+            if (preg_match('/^[\s\n]*({#[\s\S]*[^#]#})?([\s\S]*?)$/', $content, $m)) {
+                $result = empty($m[2]);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get notification template full or local path
+     *
+     * @return string
+     */
+    protected function getNotificationTemplatePath($local = false)
+    {
+        $fullPath = $this->getNotificationRootTemplate($this->getDataSource()->getDirectory(), $this->getInterface());
+
+        return $local
+            ? substr($fullPath, strlen(\LC_DIR_SKINS))
+            : $fullPath;
+    }
+
+    /**
+     * Get URL for 'Add TWIG code' button
+     *
+     * @return boolean
+     */
+    protected function getAddTwigCodeButtonURL()
+    {
+        return $this->buildURL(
+            'theme_tweaker_template',
+            '',
+            [
+                'template'       => $this->getNotificationTemplatePath(true),
+                'interface'      => 'mail',
+                'innerInterface' => $this->getInterface(),
+            ]
+        );
+    }
+
+    /**
+     * Get URL for 'Preview full email' button
+     *
+     * @return boolean
+     */
+    protected function getPreviewURL()
+    {
+        return $this->buildURL(
+            'notification',
+            '',
+            [
+                'templatesDirectory' => $this->getDataSource()->getDirectory(),
+                'page'               => $this->getInterface(),
+                'preview'            => true,
+            ]
+        );
+    }
+
+    /**
+     * @param $data
+     *
+     * @return array
+     */
+    protected function prepareData(array $data)
+    {
+        return DataPreProcessor::prepareDataForNotification($this->getDir(), $data);
+    }
+
+    /**
+     * @return Data
+     */
+    protected function getDataSource()
+    {
+        return \XLite::getController()->getDataSource();
     }
 
     /**
@@ -78,9 +186,7 @@ class NotificationEditor extends \XLite\View\AView
      */
     protected function getData()
     {
-        return [
-            'order' => \XLite\Module\XC\ThemeTweaker\Main::getDumpOrder(),
-        ];
+        return $this->getDataSource()->getData();
     }
 
     /**

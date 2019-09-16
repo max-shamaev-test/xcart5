@@ -130,7 +130,7 @@ class Checkbox extends \XLite\View\Product\AttributeValue\Customer\ACustomer
         }
 
         return $modifiers
-            ? ' <span>(' . implode(', ', $modifiers) . ')</span>'
+            ? ' <span>' . implode(', ', $modifiers) . '</span>'
             : '';
     }
 

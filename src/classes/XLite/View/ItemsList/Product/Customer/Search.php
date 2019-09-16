@@ -30,7 +30,7 @@ class Search extends \XLite\View\ItemsList\Product\Customer\ACustomer
     /**
      * Allowed sort criteria
      */
-    const SORT_BY_MODE_DEFAULT = 'cp.orderby';
+    const SORT_BY_MODE_DEFAULT = 'p.product_id';
 
     /**
      * Widget target
@@ -387,5 +387,15 @@ class Search extends \XLite\View\ItemsList\Product\Customer\ACustomer
         parent::displayCommentedData(array_merge($data, [
             'searchUrlParams' => $this->getSearchUrlParams()
         ]));
+    }
+
+    /**
+     * Return file name for the center part template
+     *
+     * @return string
+     */
+    protected function getBody()
+    {
+        return $list[] = $this->getDir() . '/search/body.twig';
     }
 }

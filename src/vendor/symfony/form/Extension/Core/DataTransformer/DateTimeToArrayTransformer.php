@@ -12,7 +12,6 @@
 namespace Symfony\Component\Form\Extension\Core\DataTransformer;
 
 use Symfony\Component\Form\Exception\TransformationFailedException;
-use Symfony\Component\Form\Exception\UnexpectedTypeException;
 
 /**
  * Transforms between a normalized time and a localized time string/array.
@@ -27,53 +26,47 @@ class DateTimeToArrayTransformer extends BaseDateTimeTransformer
     private $fields;
 
     /**
-     * Constructor.
-     *
      * @param string $inputTimezone  The input timezone
      * @param string $outputTimezone The output timezone
      * @param array  $fields         The date fields
      * @param bool   $pad            Whether to use padding
-     *
-     * @throws UnexpectedTypeException if a timezone is not a string
      */
-    public function __construct($inputTimezone = null, $outputTimezone = null, array $fields = null, $pad = false)
+    public function __construct(string $inputTimezone = null, string $outputTimezone = null, array $fields = null, bool $pad = false)
     {
         parent::__construct($inputTimezone, $outputTimezone);
 
         if (null === $fields) {
-            $fields = array('year', 'month', 'day', 'hour', 'minute', 'second');
+            $fields = ['year', 'month', 'day', 'hour', 'minute', 'second'];
         }
 
         $this->fields = $fields;
-        $this->pad = (bool) $pad;
+        $this->pad = $pad;
     }
 
     /**
      * Transforms a normalized date into a localized date.
      *
-     * @param \DateTime|\DateTimeInterface $dateTime A DateTime object
+     * @param \DateTimeInterface $dateTime A DateTimeInterface object
      *
-     * @return array Localized date.
+     * @return array Localized date
      *
-     * @throws TransformationFailedException If the given value is not an
-     *                                       instance of \DateTime or if the
-     *                                       output timezone is not supported.
+     * @throws TransformationFailedException If the given value is not a \DateTimeInterface
      */
     public function transform($dateTime)
     {
         if (null === $dateTime) {
-            return array_intersect_key(array(
+            return array_intersect_key([
                 'year' => '',
                 'month' => '',
                 'day' => '',
                 'hour' => '',
                 'minute' => '',
                 'second' => '',
-            ), array_flip($this->fields));
+            ], array_flip($this->fields));
         }
 
-        if (!$dateTime instanceof \DateTime && !$dateTime instanceof \DateTimeInterface) {
-            throw new TransformationFailedException('Expected a \DateTime or \DateTimeInterface.');
+        if (!$dateTime instanceof \DateTimeInterface) {
+            throw new TransformationFailedException('Expected a \DateTimeInterface.');
         }
 
         if ($this->inputTimezone !== $this->outputTimezone) {
@@ -81,21 +74,17 @@ class DateTimeToArrayTransformer extends BaseDateTimeTransformer
                 $dateTime = clone $dateTime;
             }
 
-            try {
-                $dateTime = $dateTime->setTimezone(new \DateTimeZone($this->outputTimezone));
-            } catch (\Exception $e) {
-                throw new TransformationFailedException($e->getMessage(), $e->getCode(), $e);
-            }
+            $dateTime = $dateTime->setTimezone(new \DateTimeZone($this->outputTimezone));
         }
 
-        $result = array_intersect_key(array(
+        $result = array_intersect_key([
             'year' => $dateTime->format('Y'),
             'month' => $dateTime->format('m'),
             'day' => $dateTime->format('d'),
             'hour' => $dateTime->format('H'),
             'minute' => $dateTime->format('i'),
             'second' => $dateTime->format('s'),
-        ), array_flip($this->fields));
+        ], array_flip($this->fields));
 
         if (!$this->pad) {
             foreach ($result as &$entry) {
@@ -118,8 +107,6 @@ class DateTimeToArrayTransformer extends BaseDateTimeTransformer
      *
      * @throws TransformationFailedException If the given value is not an array,
      *                                       if the value could not be transformed
-     *                                       or if the input timezone is not
-     *                                       supported.
      */
     public function reverseTransform($value)
     {
@@ -127,7 +114,7 @@ class DateTimeToArrayTransformer extends BaseDateTimeTransformer
             return;
         }
 
-        if (!is_array($value)) {
+        if (!\is_array($value)) {
             throw new TransformationFailedException('Expected an array.');
         }
 
@@ -135,7 +122,7 @@ class DateTimeToArrayTransformer extends BaseDateTimeTransformer
             return;
         }
 
-        $emptyFields = array();
+        $emptyFields = [];
 
         foreach ($this->fields as $field) {
             if (!isset($value[$field])) {
@@ -143,10 +130,8 @@ class DateTimeToArrayTransformer extends BaseDateTimeTransformer
             }
         }
 
-        if (count($emptyFields) > 0) {
-            throw new TransformationFailedException(
-                sprintf('The fields "%s" should not be empty', implode('", "', $emptyFields)
-            ));
+        if (\count($emptyFields) > 0) {
+            throw new TransformationFailedException(sprintf('The fields "%s" should not be empty', implode('", "', $emptyFields)));
         }
 
         if (isset($value['month']) && !ctype_digit((string) $value['month'])) {

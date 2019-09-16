@@ -45,6 +45,7 @@ class WebmasterMode extends \XLite\View\AView
     public function getJSFiles()
     {
         $list = parent::getJSFiles();
+        $list[] = $this->getDir() . '/new_template_button.js';
         $list[] = $this->getDir() . '/webmaster_mode.js';
 
         return $list;
@@ -75,10 +76,10 @@ class WebmasterMode extends \XLite\View\AView
         $list = parent::getCommonFiles();
 
         if (ThemeTweaker::getInstance()->isInWebmasterMode()) {
-            $list[static::RESOURCE_JS][] = 'modules/XC/ThemeTweaker/template_editor/vakata-jstree/dist/jstree.min.js';
+            $list[static::RESOURCE_JS][] = 'jstree/jstree.js';
             $list[static::RESOURCE_JS][] = 'modules/XC/ThemeTweaker/template_editor/tree-view.js';
-            $list[static::RESOURCE_JS][] = 'modules/XC/ThemeTweaker/template_editor/template-navigator.js';
-            $list[static::RESOURCE_CSS][] = 'modules/XC/ThemeTweaker/template_editor/vakata-jstree/dist/themes/default/style.min.css';
+            $list[static::RESOURCE_JS][] = 'modules/XC/ThemeTweaker/template_editor/template-navigator-customer.js';
+            $list[static::RESOURCE_CSS][] = 'jstree/themes/default/style.min.css';
             $list[static::RESOURCE_CSS][] = 'modules/XC/ThemeTweaker/template_editor/template-navigator.css';
         }
 

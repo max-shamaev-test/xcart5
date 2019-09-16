@@ -3,10 +3,14 @@
 /*
  * This file is part of Twig.
  *
- * (c) 2011 Fabien Potencier
+ * (c) Fabien Potencier
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
+ */
+
+/**
+ * @final
  */
 class Twig_Extension_Debug extends Twig_Extension
 {
@@ -19,12 +23,12 @@ class Twig_Extension_Debug extends Twig_Extension
             // false means that it was not set (and the default is on) or it explicitly enabled
             // xdebug.overload_var_dump produces HTML only when html_errors is also enabled
             && (false === ini_get('html_errors') || ini_get('html_errors'))
-            || 'cli' === php_sapi_name()
+            || 'cli' === PHP_SAPI
         ;
 
-        return array(
-            new Twig_SimpleFunction('dump', 'twig_var_dump', array('is_safe' => $isDumpOutputHtmlSafe ? array('html') : array(), 'needs_context' => true, 'needs_environment' => true)),
-        );
+        return [
+            new Twig_SimpleFunction('dump', 'twig_var_dump', ['is_safe' => $isDumpOutputHtmlSafe ? ['html'] : [], 'needs_context' => true, 'needs_environment' => true]),
+        ];
     }
 
     public function getName()
@@ -43,7 +47,7 @@ function twig_var_dump(Twig_Environment $env, $context)
 
     $count = func_num_args();
     if (2 === $count) {
-        $vars = array();
+        $vars = [];
         foreach ($context as $key => $value) {
             if (!$value instanceof Twig_Template) {
                 $vars[$key] = $value;
@@ -59,3 +63,5 @@ function twig_var_dump(Twig_Environment $env, $context)
 
     return ob_get_clean();
 }
+
+class_alias('Twig_Extension_Debug', 'Twig\Extension\DebugExtension', false);

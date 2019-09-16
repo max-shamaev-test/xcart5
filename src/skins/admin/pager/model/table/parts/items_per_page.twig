@@ -8,7 +8,7 @@
     <div class="search-total-items">
       {{ t('<span>X</span> items', {'X': this.getItemsTotal()})|raw }}
     </div>
-    <select name="itemsPerPage" class="page-length not-significant">
+    <select name="itemsPerPage" class="form-control page-length not-significant" title="Items per page">
       {% for range in this.getItemsPerPageRanges() %}
         <option value="{{ range }}" {% if this.isRangeSelected(range) %} selected="selected" {% endif %}>{{ range }}</option>
       {% endfor %}

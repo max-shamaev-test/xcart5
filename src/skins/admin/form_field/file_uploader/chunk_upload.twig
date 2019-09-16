@@ -4,7 +4,8 @@
 
 <span class="input-field-wrapper chunk-file-upload {{ this.getWrapperClass() }} hidden">
   {{ this.displayCommentedData(this.getCommentedData()) }}
-  <input type="file" {{ this.getAttributesCode()|raw }} {% if this.getExtensions() %} accept="{{ this.getExtensions() }}" {% endif %} />
+  <input id="files" class="inputfile" type="file" {{ this.getAttributesCode()|raw }} {% if this.getExtensions() %} accept="{{ this.getExtensions() }}" {% endif %} />
+  <label for="files" class="input-button">Choose files</label>
   <div class="hidden popup-content">
     <div class="upload-by-chunks-popup">
     <div class="title">{{ t('File uploading') }}</div>

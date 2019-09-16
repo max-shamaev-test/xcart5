@@ -8,92 +8,8 @@
 
 namespace XLite\Module\XC\CanadaPost;
 
-/**
- * Canada Post module main class
- *
- */
 abstract class Main extends \XLite\Module\AModule
 {
-    /**
-     * Author name
-     *
-     * @return string
-     */
-    public static function getAuthorName()
-    {
-        return 'X-Cart team';
-    }
-
-    /**
-     * Module name
-     *
-     * @return string
-     */
-    public static function getModuleName()
-    {
-        return 'Canada Post';
-    }
-
-    /**
-     * Get module major version
-     *
-     * @return string
-     */
-    public static function getMajorVersion()
-    {
-        return '5.3';
-    }
-
-    /**
-     * Module version
-     *
-     * @return string
-     */
-    public static function getMinorVersion()
-    {
-        return '3';
-    }
-
-    /**
-     * Get module build number (4th number in the version)
-     *
-     * @return string
-     */
-    public static function getBuildVersion()
-    {
-        return '3';
-    }
-
-    /**
-     * Get minor core version which is required for the module activation
-     *
-     * @return string
-     */
-    public static function getMinorRequiredCoreVersion()
-    {
-        return '4';
-    }
-
-    /**
-     * Module description
-     *
-     * @return string
-     */
-    public static function getDescription()
-    {
-        return 'Gets shipping quotes for Canada Post delivery methods.';
-    }
-
-    /**
-     * Determines if we need to show settings form link
-     *
-     * @return boolean
-     */
-    public static function showSettingsForm()
-    {
-        return true;
-    }
-
     /**
      * Return link to settings form
      *
@@ -115,18 +31,8 @@ abstract class Main extends \XLite\Module\AModule
 
         // Register CanadaPost shipping processor
         \XLite\Model\Shipping::getInstance()->registerProcessor(
-            '\XLite\Module\XC\CanadaPost\Model\Shipping\Processor\CanadaPost'
+            'XLite\Module\XC\CanadaPost\Model\Shipping\Processor\CanadaPost'
         );
-    }
-
-    /**
-     * The module is defined as the shipping module
-     *
-     * @return integer|null
-     */
-    public static function getModuleType()
-    {
-        return static::MODULE_TYPE_SHIPPING;
     }
 
     /**
@@ -138,15 +44,5 @@ abstract class Main extends \XLite\Module\AModule
     public static function isStrictMode()
     {
         return false;
-    }
-
-    /**
-     * @return array
-     */
-    public static function getSkins()
-    {
-        return [
-            \XLite::ADMIN_INTERFACE => ['admin/modules/XC/CanadaPost/admin_skin'],
-        ];
     }
 }

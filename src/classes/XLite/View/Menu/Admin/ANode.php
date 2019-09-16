@@ -11,7 +11,7 @@ namespace XLite\View\Menu\Admin;
 /**
  * Abstract menu node
  */
-class ANode extends \XLite\View\AView
+class ANode extends \XLite\View\AView implements \Serializable
 {
     /**
      * Widget param names
@@ -87,6 +87,22 @@ class ANode extends \XLite\View\AView
             ),
             static::PARAM_NAME   => new \XLite\Model\WidgetParam\TypeString('Name', ''),
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function serialize()
+    {
+        return serialize($this->getWidgetParams());
+    }
+
+    /**
+     * @param string $serialized
+     */
+    public function unserialize($serialized)
+    {
+        $this->widgetParams = unserialize($serialized);
     }
 
     /**

@@ -59,8 +59,8 @@
     </td>
     <td>
     <select id="settings_test" name="settings[test]">
-      <option value="1" {% if this.isSelected(this.paymentMethod.getSetting('test'), '1') %} selected="selected" {% endif %}>{{ t('Test mode: Test') }}</option>
-      <option value="0" {% if this.isSelected(this.paymentMethod.getSetting('test'), '0') %} selected="selected" {% endif %}>{{ t('Test mode: Live') }}</option>
+      <option value="1" {% if this.paymentMethod.getSetting('test') == '1' %} selected="selected" {% endif %}>{{ t('Test mode: Test') }}</option>
+      <option value="0" {% if this.paymentMethod.getSetting('test') == '0' %} selected="selected" {% endif %}>{{ t('Test mode: Live') }}</option>
     </select>
     </td>
   </tr>
@@ -72,8 +72,8 @@
     </td>
     <td>
       <select id="settings_debug_enabled" name='settings[debug_enabled]'>
-        <option value="0" {% if this.isSelected(this.paymentMethod.getSetting('debug_enabled'), '0') %} selected="selected" {% endif %}>{{ t('No') }}</option>
-        <option value="1" {% if this.isSelected(this.paymentMethod.getSetting('debug_enabled'), '1') %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
+        <option value="0" {% if this.paymentMethod.getSetting('debug_enabled') == '0' %} selected="selected" {% endif %}>{{ t('No') }}</option>
+        <option value="1" {% if this.paymentMethod.getSetting('debug_enabled') == '1' %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
       </select>
     </td>
   </tr>

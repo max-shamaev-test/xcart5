@@ -6,6 +6,7 @@
  * Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
+@import "../../../../../css/initialize";
 
 .conversations {
   .messages {
@@ -13,14 +14,17 @@
       background-color: #f8f8f8;
 
       th {
-        border: none;
-        padding: 16px 13px;
-        color: #8f8f8f;
         font-weight: normal;
         font-size: 14px;
+        white-space: nowrap;
+        height: 60px;
 
         &.select-all {
-          padding-left: 16px;
+          div {
+            input {
+              margin: 0;
+            }
+          }
         }
       }
     }
@@ -30,29 +34,29 @@
       border-top: 1px solid #ececec;
       border-bottom: 1px solid #ececec;
       white-space: nowrap;
-      padding: 0;
 
       &.select {
         .selector {
-          margin-left: 8px;
-          margin-top: 4px;
-          margin-bottom: 4px;
+          margin: 0;
         }
+      }
+
+      &.date .time {
+        font-size: 12px;
+        display: block;
+        line-height: (@line-height-base * 3 / 4);
+        color: @color-tip;
       }
     }
 
-    .message:first-child td {
+    .message:last-child td {
       border-bottom: 0 none;
     }
 
-    .message:last-child td {
-      border-bottom: 1px solid #ececec;
-    }
-
     a {
-      padding: 11px 13px;
       text-decoration: none;
       display: inline-block;
+      vertical-align: middle;
       width: 100%;
       max-width: 300px;
       overflow: hidden;
@@ -69,12 +73,6 @@
       min-width: 60px;
     }
 
-    .body,
-    .date,
-    .date a {
-      color: #999;
-    }
-
     .body {
       text-overflow: ellipsis;
       overflow: hidden;
@@ -86,40 +84,16 @@
     .text {
       position: relative;
       width: 100%;
-    }
 
-    .date {
-      text-align: right;
-
-      a {
-        padding-right: 15px;
+      & > div {
+        vertical-align: middle;
       }
     }
+
     .conversation-label {
-      color: #5194c5;
-    }
-
-    .unread {
-      .conversation-link,
-      .conversation-label,
-      .date {
-        font-weight: bold;
-
-        a {
-          color: #666;
-        }
-      }
-    }
-
-    .read {
-      td {
-        background-color: #fafafa;
-        opacity: 0.8;
-      }
-
-      &:hover td {
-        background-color: #f4f6f8;
-      }
+      font-size: 12px;
+      line-height: 18px;
+      color: @color-error;
     }
 
     .has-marks a.text-link {
@@ -132,10 +106,9 @@
 
     .dispute {
       display: inline-block;
-      font-weight: bold;
       vertical-align: top;
       margin-right: 10px;
-      color: red;
+      color: @color-error;
 
       svg {
         margin-top: 3px;

@@ -26,7 +26,7 @@ class Carriers extends \XLite\View\ItemsList\Model\Table
     /**
      * Get wrapper form target
      *
-     * @return array
+     * @return string
      */
     protected function getFormTarget()
     {
@@ -64,7 +64,7 @@ class Carriers extends \XLite\View\ItemsList\Model\Table
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'items_list/model/table/shipping/carriers/style.css';
+        $list[] = 'items_list/model/table/shipping/carriers/style.less';
 
         $editMethod = new \XLite\View\Button\Shipping\EditMethod();
         $list = array_merge($list, $editMethod->getCSSFiles());

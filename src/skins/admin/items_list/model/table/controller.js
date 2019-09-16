@@ -21,6 +21,8 @@ TableItemsList.prototype.form = null;
 
 TableItemsList.prototype.newLinesIndex = 0;
 
+TableItemsList.prototype.binded = false;
+
 // Set a param and send the request
 TableItemsList.prototype.process = function(paramName, paramValue)
 {
@@ -87,14 +89,17 @@ TableItemsList.prototype.listeners.form = function(handler)
     form.get(0).commonController.submitOnlyChanged = false;
   }
 
-  form.bind('submit', function (event) {
-    if (form.hasClass('confirm-remove') && form.find('.line.remove-mark').length > 0) {
-      if (!confirm(core.t('Do you really want to delete selected items?'))) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
+  if (!TableItemsList.prototype.binded) {
+    TableItemsList.prototype.binded = true;
+    form.bind('submit', function (event) {
+      if (form.hasClass('confirm-remove') && form.find('.line.remove-mark').length > 0) {
+        if (!confirm(core.t('Do you really want to delete selected items?'))) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
       }
-    }
-  });
+    });
+  }
 
   form.bind('submit.prevalidate', function () {
     handler.updateChangedMarks(jQuery(this));
@@ -190,7 +195,7 @@ TableItemsList.prototype.markPagerAsEnabled = function()
 // Process form and form's elements after form cancel all changes
 TableItemsList.prototype.processFormUndo = function(form)
 {
-  this.container.find('.table-pager .input input, .table-pager .page-length').removeProp('disabled');
+  this.container.find('.table-pager .input input, .table-pager .page-length').removeAttr('disabled');
   this.markPagerAsEnabled();
 };
 
@@ -201,7 +206,7 @@ TableItemsList.prototype.listeners.createButton = function(handler)
     .addClass('no-validate');
 
   jQuery('button.create-inline', handler.container)
-    .removeProp('onclick')
+    .prop('onclick', null)
     .click(
       function (event) {
 
@@ -250,8 +255,9 @@ TableItemsList.prototype.listeners.createButton = function(handler)
         }
 
         jQuery('table.list', handler.container).removeClass('list-no-items');
+        jQuery('.table-wrapper', handler.container).removeClass('empty');
         jQuery('.no-items', handler.container).hide();
-        jQuery('.sticky-panel').css('display', '').height(jQuery('.sticky-panel').find('.box').eq(0).height());
+        jQuery('.sticky-panel').css('display', 'block').height(jQuery('.sticky-panel').find('.box').eq(0).height());
         jQuery('.additional-panel').removeClass('hidden').show();
 
         if (2 == box.children('tr').length) {

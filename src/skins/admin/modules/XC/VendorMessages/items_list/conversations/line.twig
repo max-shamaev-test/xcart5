@@ -11,25 +11,29 @@
     </div>
   </td>
   <td class="conversation-link">
-    <a href="{{ this.getConversationLink(conversation) }}" title="{{ conversation.getName() }}">{{ conversation.getName() }}</a>
+    <a href="{{ this.getOrderLink(conversation) }}" title="{{ this.getOrderNumber(conversation) }}">
+      {{ this.getOrderNumber(conversation) }}
+    </a>
   </td>
   <td class="text">
-    <a href="{{ this.getConversationLink(conversation) }}" class="text-link">
+    <div>
       {% if this.getLabel(conversation) %}
-        <span class="conversation-label">{{ this.getLabel(conversation) }}</span>
-        <span class="dash">-</span>
+        <div class="conversation-label">{{ this.getLabel(conversation) }}</div>
       {% endif %}
-      <span class="body">{{ this.prepareBody(conversation) }}</span>
-    </a>
-    {% if this.isMarksVisible(conversation) %}
-      <a class="marks" href="{{ this.getConversationLink(conversation) }}">
-        {% if this.isOpenedDispute(conversation) %}
-          <div class="dispute">{{ t('Dispute') }}</div>
-        {% endif %}
+      <a href="{{ this.getConversationLink(conversation) }}" class="text-link">
+        <span class="body">{{ this.prepareBody(conversation) }}</span>
       </a>
-    {% endif %}
+      {% if this.isMarksVisible(conversation) %}
+        <a class="marks" href="{{ this.getConversationLink(conversation) }}">
+          {% if this.isOpenedDispute(conversation) %}
+            <div class="dispute">{{ t('Dispute') }}</div>
+          {% endif %}
+        </a>
+      {% endif %}
+    </div>
   </td>
   <td class="date">
-    <a href="{{ this.getConversationLink(conversation) }}">{{ this.prepareTime(conversation) }}</a>
+    <span class="date">{{ this.formatDate(this.prepareTime(conversation)) }}</span>
+    <span class="time">{{ this.formatDayTime(this.prepareTime(conversation)) }}</span>
   </td>
 </tr>

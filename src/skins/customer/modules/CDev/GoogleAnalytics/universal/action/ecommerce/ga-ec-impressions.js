@@ -35,15 +35,17 @@ define('googleAnalytics/eCommerceCoreEvent', ['googleAnalytics/eCommerceCoreEven
 
       var shouldSend = false;
 
+      this.processsedImpressions = [];
+
       _.each(
           this.getActions('impression', widget['base']),
           function (action, index) {
-            shouldSend = self.addImpression(action.data);
+            shouldSend = self.addImpression(action.data) || shouldSend;
           }
       );
 
       if (shouldSend) {
-        ga('send', 'event', 'Ecommerce', 'Dynamic list impressions');
+        ga('send', 'pageview');
       }
     },
 

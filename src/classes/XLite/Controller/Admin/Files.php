@@ -245,8 +245,9 @@ class Files extends \XLite\Controller\Admin\AAdmin
     /**
      * Calls response strategy for chosen response mode
      *
-     * @param \XLite\Model\Base\Storage $file    Uploaded file object
-     * @param string                    $message Possible error message
+
+     * @param \XLite\Model\Base\Storage $file Uploaded file object
+     * @param string $message Possible error message
      *
      * @return void
      */
@@ -300,7 +301,7 @@ class Files extends \XLite\Controller\Admin\AAdmin
      * Prints json output with image data
      *
      * @param  \XLite\Model\Base\Storage $file    Image file
-     * @param  string                    $message Possible error message
+     * @param  string $message Possible error message
      */
     protected function sendResponseAsJSON($file, $message)
     {

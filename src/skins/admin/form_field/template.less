@@ -7,6 +7,8 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
+@import (reference) "../css/initialize";
+
 .templates {
   .hidden-field {
     display: none;
@@ -16,34 +18,32 @@
 .templates-list {
   .flex-display();
   .flex-wrap(wrap);
+  margin: -(@rhythmic-unit) -(@rhythmic-unit / 2);
+  margin-bottom: 0;
 
   .template {
-    width: 233px;
+    flex: 0 0 20%;
     cursor: pointer;
-    margin-bottom: 37px;
-    padding: 18px 0;
+    padding: (@rhythmic-unit);
     img {
       display: block;
-      margin: 2px auto 15px;
-      width: 196px;
-      height: 252px;
-      border: 1px solid #d6d9dc;
+      max-height: 100%;
+      max-width: 100%;
+      border: @border-base solid @color-border;
     }
 
     .name {
+      .heading(@font-size-h4, @rhythmic-unit / 2, @rhythmic-unit / 2);
       text-align: center;
-      font-size: 17px;
     }
 
     &.selected, &.selected:hover, &.selected.checked, &.selected.checked:hover {
       img {
-        width: 200px;
-        height: 256px;
-        margin: 0 auto 13px;
-        border: 3px solid #f69c3b;
+        border-color: @color-success;
+        box-shadow: 0 0 0 2px @color-success;
       }
       .name {
-        color: #f69c3b;
+        color: @color-success;
       }
     }
 
@@ -53,22 +53,19 @@
 
     &.checked {
       img {
-        width: 200px;
-        height: 256px;
-        margin: 0 auto 13px;
-        border: 3px solid #64c1ee;
+        border-color: @color-hover;
+        box-shadow: 0 0 0 2px @color-hover;
       }
     }
 
     &:hover {
       img {
-        width: 200px;
-        height: 256px;
-        margin: 0 auto 13px;
-        border: 3px solid #64c1ee;
+        border-color: @color-hover;
+        box-shadow: 0 0 0 2px @color-hover;
       }
+
       .name {
-        color: #64c1ee;
+        color: @color-hover;
       }
     }
 
@@ -84,25 +81,18 @@
 }
 
 .quote {
-  border-top: 1px solid #d6d9dc;
-  margin-left: -25px;
-  padding-left: 25px;
-  width: ~"calc(100% + 25px + 25px)";
-  text-align: center;
-  font-size: 22px;
-  font-weight: lighter;
-  padding-top: 31px;
-  letter-spacing: -0.55px;
-  line-height: 45px;
+  .flex-display();
+  .align-items(center);
+  .justify-content(center);
+  padding-top: @rhythmic-unit;
+  border-top: 1px solid @color-border;
+
+  h3 {
+    margin: 0;
+  }
 
   button {
-    margin-bottom: 4px;
-    padding: 0 16px;
-    margin-left: 10px;
-
-    span {
-      font-size: 18px;
-    }
+    margin-left: @rhythmic-unit;
   }
 }
 

@@ -7,7 +7,11 @@
  */
 
 namespace XLite\Model;
+
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\LockMode;
+use Doctrine\ORM\EntityManager;
+use XLite\Core\Database;
 use XLite\Model\Payment\Transaction;
 
 /**
@@ -30,6 +34,7 @@ use XLite\Model\Payment\Transaction;
  *      }
  * )
  *
+ * @ClearDiscriminatorCondition
  * @HasLifecycleCallbacks
  * @InheritanceType       ("SINGLE_TABLE")
  * @DiscriminatorColumn   (name="is_order", type="integer", length=1)
@@ -347,6 +352,22 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      * @Column (type="boolean")
      */
     protected $xcPendingExport = false;
+
+    /**
+     * Profiles
+     *
+     * @var ArrayCollection
+     *
+     * @ManyToMany (targetEntity="XLite\Model\Order")
+     * @JoinTable  (
+     *      name="order_backorder_competitors",
+     *      joinColumns={@JoinColumn(name="id", referencedColumnName="order_id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@JoinColumn(name="competitor_id", referencedColumnName="order_id", onDelete="CASCADE")}
+     * )
+     */
+    protected $backorderCompetitors;
+
+    protected $backorderProductAmounts = [];
 
     /**
      * If entity temporary
@@ -1444,7 +1465,8 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     /**
      * Called when an order successfully placed by a client
      *
-     * @return void
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function processSucceed()
     {
@@ -1454,14 +1476,15 @@ class Order extends \XLite\Model\Base\SurchargeOwner
             $this->setShippingStatus(\XLite\Model\Order\Status\Shipping::STATUS_NEW);
         }
 
-        $property = \XLite\Core\Database::getRepo('XLite\Model\Order\Status\Property')->findOneBy(
-            array(
-                'paymentStatus'  => $this->getPaymentStatus(),
-                'shippingStatus' => $this->getShippingStatus(),
-            )
-        );
+
+        $property = \XLite\Core\Database::getRepo('XLite\Model\Order\Status\Property')->findOneBy([
+            'paymentStatus'  => $this->getPaymentStatus(),
+            'shippingStatus' => $this->getShippingStatus(),
+        ]);
+
         $incStock = $property ? $property->getIncStock() : null;
         if (false === $incStock) {
+            $this->processBackorderedItems();
             $this->decreaseInventory();
         }
 
@@ -1474,6 +1497,116 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         $this->sendOrderCreatedIfNeeded();
 
         $this->sendOrderWaitingForApproveIfNeeded();
+    }
+
+    /**
+     * @return int
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    protected function processBackorderedItems()
+    {
+        $backstockCount = 0;
+
+        foreach ($this->getItems() as $item) {
+            \XLite\Core\Database::getEM()->transactional(function (EntityManager $em) use ($item, &$backstockCount) {
+                /* @var OrderItem $ite */
+                $product = $item->getProduct();
+                $em->lock($item->getProduct(), LockMode::PESSIMISTIC_READ);
+                $em->refresh($product);
+
+                $pa = $this->getProductAmountForItem($item);
+                $this->reduceProductAmountForItem($item);
+                $ia = $item->getAmount();
+                if ($pa < $ia) {
+                    $backstockCount += $ia - $pa;
+                    $item->setBackorderedAmount($ia - $pa);
+                }
+            });
+        }
+
+        if ($backstockCount) {
+            $this->setShippingStatus(\XLite\Model\Order\Status\Shipping::STATUS_NEW_BACKORDERED);
+            $this->assignBackorderCompetitors();
+        }
+
+        return $backstockCount;
+    }
+
+    /**
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    protected function assignBackorderCompetitors()
+    {
+        $repo = Database::getRepo('XLite\Model\Order');
+        $competitors = $this->getBackorderCompetitors();
+        foreach ($this->getItems() as $item) {
+            if (
+                $item->getBackorderedAmount()
+                && $competitor = $repo->getBackorderCompetitorByItem($item)
+            ) {
+                if (!$competitors->contains($competitor)) {
+                    $this->getBackorderCompetitors()->add($competitor);
+                }
+            }
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isBackordered()
+    {
+        return $this->getShippingStatusCode() === \XLite\Model\Order\Status\Shipping::STATUS_NEW_BACKORDERED;
+    }
+
+    /**
+     * @param OrderItem $item
+     *
+     * @return int
+     */
+    protected function getProductAmountForItem(OrderItem $item) {
+        $key = $this->getProductKeyForItem($item);
+
+        if (!isset($this->backorderProductAmounts[$key])) {
+            $this->backorderProductAmounts[$key] = $this->calculateProductAmountForItem($item);
+        }
+
+        return $this->backorderProductAmounts[$key];
+    }
+
+    /**
+     * @param OrderItem $item
+     *
+     * @return int
+     */
+    protected function calculateProductAmountForItem(OrderItem $item)
+    {
+        return $item->getProduct()->getAmount();
+    }
+
+    /**
+     * @param OrderItem $item
+     *
+     * @return static
+     */
+    protected function reduceProductAmountForItem(OrderItem $item)
+    {
+        $this->backorderProductAmounts[$this->getProductKeyForItem($item)]
+            = max($this->getProductAmountForItem($item) - $item->getAmount(), 0);
+
+        return $this;
+    }
+
+    /**
+     * @param OrderItem $item
+     *
+     * @return string
+     */
+    protected function getProductKeyForItem(OrderItem $item)
+    {
+        return $item->getProduct()->getId();
     }
 
     protected function registerPlaceOrder()
@@ -1494,7 +1627,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
                 true
             )
         ) {
-            \XLite\Core\Mailer::getInstance()->sendOrderCreated($this);
+            \XLite\Core\Mailer::sendOrderCreated($this);
         }
     }
 
@@ -1570,12 +1703,13 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     public function __construct(array $data = array())
     {
-        $this->details              = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->items                = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->surcharges           = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->payment_transactions = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->events               = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->trackingNumbers      = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->details              = new ArrayCollection();
+        $this->items                = new ArrayCollection();
+        $this->surcharges           = new ArrayCollection();
+        $this->payment_transactions = new ArrayCollection();
+        $this->events               = new ArrayCollection();
+        $this->trackingNumbers      = new ArrayCollection();
+        $this->backorderCompetitors = new ArrayCollection();
 
         parent::__construct($data);
     }
@@ -1784,7 +1918,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     public function isItemProductIdEqual(\XLite\Model\OrderItem $item, $productId)
     {
-        return $item->getProduct()->getProductId() == $productId;
+        return $item->getProductId() == $productId;
     }
 
     /**
@@ -1834,6 +1968,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
             }
         }
 
+        $this->setPaymentMethodName('');
         if (null !== $paymentMethod) {
             $this->unsetPaymentMethod();
             $this->addPaymentTransaction($paymentMethod, $value);
@@ -3207,6 +3342,18 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      *
      * @return void
      */
+    protected function processReleaseBackorder()
+    {
+        foreach ($this->getItems() as $item) {
+            $item->releaseBackorder();
+        }
+    }
+
+    /**
+     * A "change status" handler
+     *
+     * @return void
+     */
     protected function processIncrease()
     {
         $this->increaseInventory();
@@ -4178,6 +4325,29 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     }
 
     /**
+     * Return BackorderCompetitors
+     *
+     * @return ArrayCollection
+     */
+    public function getBackorderCompetitors()
+    {
+        return $this->backorderCompetitors;
+    }
+
+    /**
+     * Set BackorderCompetitors
+     *
+     * @param Order[] $backorderCompetitors
+     *
+     * @return $this
+     */
+    public function setBackorderCompetitors($backorderCompetitors)
+    {
+        $this->backorderCompetitors = $backorderCompetitors;
+        return $this;
+    }
+
+    /**
      * Get total
      *
      * @return float
@@ -4378,9 +4548,8 @@ class Order extends \XLite\Model\Base\SurchargeOwner
             $iterator = $result->getIterator();
             $iterator->uasort($compare);
 
-            $result->clear();
-            foreach ($iterator as $item) {
-                $result->add($item);
+            foreach ($iterator as $key => $item) {
+                $result->set($key, $item);
             }
         } elseif (is_array($result)) {
             uasort($result, $compare);
@@ -4409,5 +4578,16 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     public function getCurrency()
     {
         return $this->currency;
+    }
+
+    /**
+     * Check - block Paid is visible or not
+     *
+     * @return boolean
+     */
+    protected function blockPaidIsVisible()
+    {
+        return $this->getPaidTotal() > 0
+            && $this->getOpenTotal() >= 0;
     }
 }

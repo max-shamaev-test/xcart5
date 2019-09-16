@@ -1,5 +1,0 @@
-Version 5.3.4.4
-
-Fixes (1)
-2018-11-15 - [Bug] HTML tags are now stripped correctly from the meta description field of products, categories, pages, news (in the cases when it is generated automatically). #BUG-6781 (Vladimir Semyonov) #Core #SimpleCMS #News
-

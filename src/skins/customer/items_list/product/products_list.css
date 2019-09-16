@@ -121,73 +121,6 @@ ul.products-sidebar li .clearfix {
   position: relative;
 }
 
-.products .product-cell .draggable .drag-n-drop-handle
-{
-  background: transparent url(images/icon_drag.png) no-repeat left center;
-  padding-left: 20px;
-  visibility: hidden;
-  cursor: move;
-  min-height: 15px;
-}
-
-.products .product-cell .ui-draggable-disabled .drag-n-drop-handle {
-  background: none;
-  padding-left: 0px;
-}
-
-.products .product-cell .drag-n-drop-handle,
-.products .product-cell .quicklook,
-.products .product-cell:hover .ui-draggable-dragging .quicklook,
-.products .product-cell:hover .drag-owner .quicklook
-{
-  visibility: hidden;
-}
-
-.products .product-cell:hover .drag-n-drop-handle,
-.products .ui-draggable-dragging .drag-n-drop-handle,
-.products .product-cell:hover .quicklook
-{
-  visibility: visible;
-}
-
-.products .out-of-stock .drag-n-drop-handle,
-.products .not-available .drag-n-drop-handle
-{
-  background: transparent none;
-  padding-left: 0;
-  cursor: default;
-}
-
-.products .drag-n-drop-handle .out-message,
-  .products .drag-n-drop-handle .choose-product-option
-{
-  display: none;
-}
-
-.products .out-of-stock .drag-n-drop-handle .drag-message,
-  .products .not-available .drag-n-drop-handle .drag-message,
-  .products .need-choose-options .drag-n-drop-handle .drag-message
-{
-  display: none;
-}
-
-.products .out-of-stock .drag-n-drop-handle .out-message
-{
-  display: inline;
-}
-
-.products .need-choose-options .drag-n-drop-handle .choose-product-option
-{
-  display: inline;
-  cursor: default;
-}
-
-.items-list-products .products .product-cell .product.cancel-ui-state-disabled {
-  opacity: 1;
-  filter: Alpha(Opacity=100);
-  background-image: none;
-}
-
 .products .product .quicklook
 {
   position: absolute;
@@ -232,7 +165,7 @@ ul.products-sidebar li .clearfix {
 
 .products .product-add2cart {
   background: transparent url(images/bag/small.png) no-repeat;
-  width: 29px;
+  width: 26px;
   height: 26px;
   border: 0px none;
   -moz-border-radius: 0px;
@@ -269,79 +202,6 @@ ul.products-sidebar li .clearfix {
   -webkit-border-radius: 0px;
   border-radius: 0px;
   outline: none;
-}
-
-.cart-tray
-{
-  position: fixed;
-  top: 5em;
-  right: 5em;
-  z-index: 200;
-  width: 158px;
-  height: 221px;
-  border-style: solid;
-  background-color: white;
-}
-
-.cart-tray .tray-area,
-.preload-cart-tray
-{
-  background-image: url(images/bag/tray.png);
-  background-repeat: no-repeat;
-  background-position: center top;
-}
-
-.cart-tray.cart-tray-added .tray-area
-{
-  background-position: center bottom;
-}
-
-.cart-tray .product-added.tray-status button.action
-{
-  position: relative;
-  top: 3px;
-  padding: 6px 24px;
-  margin: 0px;
-  white-space: normal;
-  height: auto;
-}
-
-.cart-tray .product-added.tray-status button.action span
-{
-  white-space: normal;
-}
-
-.preload-cart-tray {
-  position: absolute;
-  left: 0px;
-  top: 0px;
-}
-
-.cart-tray-box,
-.cart-tray-active .progress-bar,
-.cart-tray-active .product-added,
-.cart-tray-adding .drop-here,
-.cart-tray-box .dropped-here,
-.cart-tray-adding .product-added,
-.cart-tray-added .drop-here,
-.cart-tray-added .progress-bar
-{
-  display: none !important;
-}
-
-.cart-tray-active,
-.cart-tray-moving .drop-here,
-.cart-tray-adding .progress-bar,
-.cart-tray-added .product-added
-{
-  display: block !important;
-}
-
-.cart-tray .tray-status,
-.cart-tray .block-wait
-{
-  text-align: center;
-  margin: 0 auto;
 }
 
 .products-sidebar-small-thumbnails .clear,
@@ -418,9 +278,18 @@ ul.products-sidebar li .clearfix {
 
 .items-list .products-grid .add-to-cart-button {
   position: absolute;
-  right: 9px;
+  right: 12px;
   bottom: 7px;
   text-align: right;
+}
+
+.items-list .products-grid .add-to-cart-button .btn.regular-button,
+.items-list .products-grid .add-to-cart-button a {
+  margin-right: 16px;
+}
+
+.items-list .products-grid .add-to-cart-button .btn.regular-button.add-to-cart {
+  padding: 0;
 }
 
 .items-list .products-grid .add-to-cart-button .out-of-stock{
@@ -442,13 +311,4 @@ ul.products-sidebar li .clearfix {
 
 .products-table .product-cell.product.out-of-stock .regular-button span {
   display: none;
-}
-
-.products-grid .product-cell .product.out-of-stock,
-.products-grid .product-cell .not-available,
-.products-list .product-cell .product.out-of-stock,
-.products-list .product-cell .not-available {
-  opacity: .35;
-  filter: Alpha(Opacity=35);
-  background-image: none;
 }

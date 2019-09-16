@@ -34,6 +34,7 @@ class OrdersStats extends \XLite\Controller\Admin\Stats
     }
 
     /**
+     * TODO: Move to widget
      * getPageTemplate
      *
      * @return string

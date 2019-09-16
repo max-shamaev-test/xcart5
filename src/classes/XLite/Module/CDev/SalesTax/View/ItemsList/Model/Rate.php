@@ -14,7 +14,6 @@ namespace XLite\Module\CDev\SalesTax\View\ItemsList\Model;
 class Rate extends \XLite\View\ItemsList\Model\Table
 {
     protected $sortByModes = array(
-        'r.position'   => 'Position',
         'r.zone'       => 'Zone',
         'r.membership' => 'User membership',
         'r.taxClass'   => 'Tax class',
@@ -33,7 +32,7 @@ class Rate extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_NAME          => static::t('Zone'),
                 static::COLUMN_CLASS         => 'XLite\View\Taxes\Inline\Zone',
                 static::COLUMN_ORDERBY       => 100,
-                static::COLUMN_HEAD_TEMPLATE => 'modules/CDev/SalesTax/zone_head.twig',
+                static::COLUMN_HEAD_HELP     => '<a href="' . static::buildURL('zones') . '" target="_blank">' . static::t('Manage zones') . '</a>',
                 static::COLUMN_SORT          => 'r.zone',
             ),
             'membership' => array(
@@ -70,14 +69,6 @@ class Rate extends \XLite\View\ItemsList\Model\Table
         }
 
         return $columns;
-    }
-
-    /**
-     * @return bool
-     */
-    protected function isPositionSortable()
-    {
-        return true;
     }
 
     /**
@@ -155,23 +146,13 @@ class Rate extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Check - pager box is visible or not
-     *
-     * @return boolean
-     */
-    protected function isPagerVisible()
-    {
-        return true;
-    }
-
-    /**
      * Mark list as sortable
      *
      * @return integer
      */
     protected function getSortableType()
     {
-        return static::SORT_TYPE_MOVE;
+        return static::SORT_TYPE_NONE;
     }
 
     /**

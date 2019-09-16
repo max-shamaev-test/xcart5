@@ -34,7 +34,6 @@ class TopMessage extends \XLite\View\AView
         $list[] = array(
             'file'  => $this->getDir() . '/style.less',
             'media' => 'screen',
-            'merge' => 'bootstrap/css/bootstrap.less',
         );
 
         return $list;

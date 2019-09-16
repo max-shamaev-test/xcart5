@@ -19,8 +19,6 @@ namespace Symfony\Component\Serializer\Mapping;
 class AttributeMetadata implements AttributeMetadataInterface
 {
     /**
-     * @var string
-     *
      * @internal This property is public in order to reduce the size of the
      *           class' serialized representation. Do not access it. Use
      *           {@link getName()} instead.
@@ -28,20 +26,31 @@ class AttributeMetadata implements AttributeMetadataInterface
     public $name;
 
     /**
-     * @var array
-     *
      * @internal This property is public in order to reduce the size of the
      *           class' serialized representation. Do not access it. Use
      *           {@link getGroups()} instead.
      */
-    public $groups = array();
+    public $groups = [];
 
     /**
-     * Constructs a metadata for the given attribute.
+     * @var int|null
      *
-     * @param string $name
+     * @internal This property is public in order to reduce the size of the
+     *           class' serialized representation. Do not access it. Use
+     *           {@link getMaxDepth()} instead.
      */
-    public function __construct($name)
+    public $maxDepth;
+
+    /**
+     * @var string|null
+     *
+     * @internal This property is public in order to reduce the size of the
+     *           class' serialized representation. Do not access it. Use
+     *           {@link getSerializedName()} instead.
+     */
+    public $serializedName;
+
+    public function __construct(string $name)
     {
         $this->name = $name;
     }
@@ -59,7 +68,7 @@ class AttributeMetadata implements AttributeMetadataInterface
      */
     public function addGroup($group)
     {
-        if (!in_array($group, $this->groups)) {
+        if (!\in_array($group, $this->groups)) {
             $this->groups[] = $group;
         }
     }
@@ -75,10 +84,52 @@ class AttributeMetadata implements AttributeMetadataInterface
     /**
      * {@inheritdoc}
      */
+    public function setMaxDepth($maxDepth)
+    {
+        $this->maxDepth = $maxDepth;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMaxDepth()
+    {
+        return $this->maxDepth;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setSerializedName(string $serializedName = null)
+    {
+        $this->serializedName = $serializedName;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSerializedName(): ?string
+    {
+        return $this->serializedName;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function merge(AttributeMetadataInterface $attributeMetadata)
     {
         foreach ($attributeMetadata->getGroups() as $group) {
             $this->addGroup($group);
+        }
+
+        // Overwrite only if not defined
+        if (null === $this->maxDepth) {
+            $this->maxDepth = $attributeMetadata->getMaxDepth();
+        }
+
+        // Overwrite only if not defined
+        if (null === $this->serializedName) {
+            $this->serializedName = $attributeMetadata->getSerializedName();
         }
     }
 
@@ -89,6 +140,6 @@ class AttributeMetadata implements AttributeMetadataInterface
      */
     public function __sleep()
     {
-        return array('name', 'groups');
+        return ['name', 'groups', 'maxDepth', 'serializedName'];
     }
 }

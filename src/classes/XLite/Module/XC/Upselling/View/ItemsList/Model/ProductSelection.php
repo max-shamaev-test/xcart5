@@ -36,4 +36,15 @@ class ProductSelection extends \XLite\View\ItemsList\Model\ProductSelection
 
         return $options;
     }
+
+    /**
+     * @return array
+     */
+    protected function getCommonParams()
+    {
+        $this->commonParams = parent::getCommonParams();
+        $this->commonParams['product_id'] = \XLite\Core\Request::getInstance()->product_id;
+
+        return $this->commonParams;
+    }
 }

@@ -8,6 +8,8 @@
 
 namespace XLite\View\Shipping;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Online shipping carriers list
  */
@@ -50,17 +52,12 @@ class OnlineList extends \XLite\View\AView
         $module = $method->getProcessorModule();
 
         if ($module) {
-
-            if ($module->isInstalled() && $module->getEnabled()) {
+            if (Manager::getRegistry()->isModuleEnabled($module)) {
                 $url = $method->getProcessorObject()
                     ? $method->getProcessorObject()->getSettingsURL()
                     : '';
-
-            } elseif ($module->isInstalled()) {
-                $url = $module->getInstalledURL();
-
             } else {
-                $url = $module->getMarketplaceURL();
+                $url = Manager::getRegistry()->getModuleServiceURL($module);
             }
         }
 

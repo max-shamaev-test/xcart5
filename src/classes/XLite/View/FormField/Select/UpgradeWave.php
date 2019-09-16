@@ -18,7 +18,7 @@ class UpgradeWave extends \XLite\View\FormField\Select\Regular
      *
      * @var array
      */
-    protected static $waves = null;
+    protected static $waves;
 
     /**
      * Return CSS files list
@@ -27,7 +27,7 @@ class UpgradeWave extends \XLite\View\FormField\Select\Regular
      */
     public function getCSSFiles()
     {
-        $list = parent::getCSSFiles();
+        $list   = parent::getCSSFiles();
         $list[] = 'form_field/select_upgrade_wave.css';
 
         return $list;
@@ -40,14 +40,17 @@ class UpgradeWave extends \XLite\View\FormField\Select\Regular
      */
     public function getValue()
     {
-        $value = parent::getValue();
+        $systemData = \XLite\Core\Marketplace::getInstance()->getSystemData();
+        $value      = $systemData['wave'] ?? null;
+
+        //$value = parent::getValue();
 
         $waves = $this->getWaves();
 
         if ($waves) {
             if (empty($value) || (!isset($waves[$value]) && !is_numeric($value))) {
                 $waveKeys = array_keys($waves);
-                $value = array_pop($waveKeys);
+                $value    = array_pop($waveKeys);
             }
         }
 
@@ -62,13 +65,10 @@ class UpgradeWave extends \XLite\View\FormField\Select\Regular
     protected function getDefaultOptions()
     {
         $options = $this->getWaves();
-        $value = $this->getValue();
+        $value   = $this->getValue();
 
         if (!isset($options[$value])) {
-            $options = array_merge(
-                array($value => static::t('Tester')),
-                $options
-            );
+            $options = [$value => static::t('Tester')] + $options;
         }
 
         return $options;
@@ -81,8 +81,13 @@ class UpgradeWave extends \XLite\View\FormField\Select\Regular
      */
     protected function getWaves()
     {
-        if (!isset(static::$waves)) {
-            static::$waves = \XLite\Core\Marketplace::getInstance()->getWaves();
+        if (static::$waves === null) {
+            $waves         = \XLite\Core\Marketplace::getInstance()->getWaves();
+            static::$waves = [];
+
+            foreach ($waves as $wave) {
+                static::$waves[(string) $wave['id']] = $wave['name'];
+            }
         }
 
         return static::$waves;
@@ -107,7 +112,7 @@ class UpgradeWave extends \XLite\View\FormField\Select\Regular
      */
     protected function isDefaultFreeLicenseActivated()
     {
-        return \XLite\Core\Marketplace::XC_FREE_LICENSE_KEY == \XLite::getXCNLicenseKey();
+        return \XLite::getXCNLicenseKey() === 'XC5-FREE-LICENSE';
     }
 
     /**

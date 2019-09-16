@@ -13,6 +13,27 @@ namespace XLite\View\SearchPanel\Profile\Admin;
  */
 class Main extends \XLite\View\SearchPanel\Profile\Admin\AAdmin
 {
+    /**
+     * Widget parameter names
+     */
+    const CHANGE_HIDDEN_CONDITIONS_COUNT_PARAM = 'changeHiddenConditionsCount';
+
+    /**
+     * Define widget parameters
+     *
+     * @return void
+     */
+    protected function defineWidgetParams()
+    {
+        parent::defineWidgetParams();
+
+        $this->widgetParams += array(
+            self::CHANGE_HIDDEN_CONDITIONS_COUNT_PARAM => new \XLite\Model\WidgetParam\TypeBool(
+                'changeHiddenConditionsCount',
+                true
+            )
+        );
+    }
 
     /**
      * Via this method the widget registers the CSS files which it uses.

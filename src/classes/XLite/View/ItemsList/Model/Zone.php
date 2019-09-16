@@ -21,7 +21,8 @@ class Zone extends \XLite\View\ItemsList\Model\Table
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'zones/style.css';
+        $list[] = 'items_list/model/table/zones/style.less';
+        $list[] = 'zones/style.less';
 
         return $list;
     }
@@ -40,7 +41,6 @@ class Zone extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_PARAMS    => ['required' => true],
                 static::COLUMN_ORDERBY   => 100,
                 static::COLUMN_MAIN      => true,
-                static::COLUMN_EDIT_LINK => true,
                 static::COLUMN_LINK      => 'zones',
             ],
         ];
@@ -180,6 +180,14 @@ class Zone extends \XLite\View\ItemsList\Model\Table
         $result->{\XLite\Model\Repo\Zone::P_ORDER_BY} = ['z.zone_name', 'ASC'];
 
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getEditLink()
+    {
+        return 'zones';
     }
 
     /**

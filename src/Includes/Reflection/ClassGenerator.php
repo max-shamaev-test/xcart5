@@ -8,7 +8,6 @@
 
 namespace Includes\Reflection;
 
-
 class ClassGenerator implements ClassGeneratorInterface
 {
     private $namespace;
@@ -25,6 +24,7 @@ class ClassGenerator implements ClassGeneratorInterface
 
     /**
      * @param $namespace
+     *
      * @return ClassGeneratorInterface
      */
     public function setNamespace($namespace)
@@ -36,6 +36,7 @@ class ClassGenerator implements ClassGeneratorInterface
 
     /**
      * @param $class
+     *
      * @return ClassGeneratorInterface
      */
     public function setClassName($class)
@@ -47,6 +48,7 @@ class ClassGenerator implements ClassGeneratorInterface
 
     /**
      * @param $isAbstract
+     *
      * @return ClassGeneratorInterface
      */
     public function setAbstract($isAbstract)
@@ -58,6 +60,7 @@ class ClassGenerator implements ClassGeneratorInterface
 
     /**
      * @param $class
+     *
      * @return ClassGeneratorInterface
      */
     public function setParent($class)
@@ -69,6 +72,7 @@ class ClassGenerator implements ClassGeneratorInterface
 
     /**
      * @param $text
+     *
      * @return ClassGeneratorInterface
      */
     public function setDocComment($text)
@@ -80,6 +84,7 @@ class ClassGenerator implements ClassGeneratorInterface
 
     /**
      * @param $annotation
+     *
      * @return ClassGeneratorInterface
      */
     public function addAnnotation($annotation)

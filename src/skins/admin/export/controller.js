@@ -24,6 +24,14 @@ jQuery().ready(
             self.location = URLHandler.buildURL({ 'target': 'export', 'completed': 1 });
           }
         }
+      )
+      .bind(
+        'cancel',
+        function() {
+          setTimeout(function() {
+            self.location = URLHandler.buildURL({ 'target': 'export' });
+          }, 4000);
+        }
       );
 
     var height = 0;

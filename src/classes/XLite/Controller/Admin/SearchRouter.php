@@ -154,7 +154,7 @@ class SearchRouter extends \XLite\Controller\Admin\AAdmin
                 $url = null;
         }
 
-        \XLite\Core\Request::getInstance()->setcookie('XCartAdminHeaderSearchType', $request->code);
+        \XLite\Core\Request::getInstance()->setCookie('XCartAdminHeaderSearchType', $request->code);
 
         return $url;
     }

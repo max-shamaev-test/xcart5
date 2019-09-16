@@ -8,19 +8,22 @@
  */
 
 .inline-field.inline-text-file {
-  margin-left: 30px;
   position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
 }
 
 .inline-field.inline-text-file:before {
   content: '';
-  position: absolute;
-  left: -30px;
-  display: block;
+  position: relative;
   height: 40px;
   width: 25px;
   background-image: url(../../../../../../common/images/files/text.svg);
   background-size: 25px;
   background-repeat: no-repeat;
   background-position: 50%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
 }

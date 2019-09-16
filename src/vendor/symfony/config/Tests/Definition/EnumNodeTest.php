@@ -11,13 +11,14 @@
 
 namespace Symfony\Component\Config\Tests\Definition;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\EnumNode;
 
-class EnumNodeTest extends \PHPUnit_Framework_TestCase
+class EnumNodeTest extends TestCase
 {
     public function testFinalizeValue()
     {
-        $node = new EnumNode('foo', null, array('foo', 'bar'));
+        $node = new EnumNode('foo', null, ['foo', 'bar']);
         $this->assertSame('foo', $node->finalize('foo'));
     }
 
@@ -27,18 +28,24 @@ class EnumNodeTest extends \PHPUnit_Framework_TestCase
      */
     public function testConstructionWithNoValues()
     {
-        new EnumNode('foo', null, array());
+        new EnumNode('foo', null, []);
     }
 
     public function testConstructionWithOneValue()
     {
-        $node = new EnumNode('foo', null, array('foo'));
+        $node = new EnumNode('foo', null, ['foo']);
         $this->assertSame('foo', $node->finalize('foo'));
     }
 
     public function testConstructionWithOneDistinctValue()
     {
-        $node = new EnumNode('foo', null, array('foo', 'foo'));
+        $node = new EnumNode('foo', null, ['foo', 'foo']);
+        $this->assertSame('foo', $node->finalize('foo'));
+    }
+
+    public function testConstructionWithNullName()
+    {
+        $node = new EnumNode(null, null, ['foo']);
         $this->assertSame('foo', $node->finalize('foo'));
     }
 
@@ -48,7 +55,7 @@ class EnumNodeTest extends \PHPUnit_Framework_TestCase
      */
     public function testFinalizeWithInvalidValue()
     {
-        $node = new EnumNode('foo', null, array('foo', 'bar'));
+        $node = new EnumNode('foo', null, ['foo', 'bar']);
         $node->finalize('foobar');
     }
 }

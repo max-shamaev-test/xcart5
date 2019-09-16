@@ -84,13 +84,9 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
      */
     public static function getHtmlTree()
     {
-        if (static::buildHtmlTreeNode(static::$tree)) {
-            return \XLite::isAdminZone()
-                ? static::getAdminHtmlTree()
-                : static::getCustomerHtmlTree();
-        }
-
-        return '';
+        return \XLite::isAdminZone()
+            ? static::getAdminHtmlTree()
+            : static::getCustomerHtmlTree();
     }
 
     /**
@@ -100,48 +96,7 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
      */
     protected static function getAdminHtmlTree()
     {
-        $result = '<div id="themeTweaker_wrapper" style="display: none;" data-editor-wrapper>';
-
-        $backTitle = static::t('Back to notification settings');
-        $backUrl = \XLite\Core\Converter::buildURL(
-            'notification',
-            '',
-            [
-                'templatesDirectory' => \XLite\Core\Request::getInstance()->templatesDirectory,
-                'page'               => \XLite\Core\Request::getInstance()->interface,
-            ]
-        );
-
-        $title = static::t('Edit template based on');
-
-        $order = \XLite\Module\XC\ThemeTweaker\Main::getDumpOrder();
-        $orderTitle = static::t('Order X', ['id' => $order->getOrderNumber()]);
-        $orderChange = static::t('Change');
-        $orderChangePlaceholder = static::t('Enter Order number');
-
-        $result .= <<<HTML
-<div class="themeTweaker-control-panel" data-editor-control-panel>
-<div class="themeTweaker-back">
-    <a href="{$backUrl}">{$backTitle}</a>
-</div>
-<div class="themeTweaker-title">{$title}</div>
-<div class="themeTweaker-order">
-<div class="themeTweaker-order-title">{$orderTitle}</div>
-<div class="themeTweaker-order-change"><a href="#">{$orderChange}</a></div>
-<div class="themeTweaker-order-change-input">
-    <input type="text" id="changeOrderId" class="form-control" placeholder="{$orderChangePlaceholder}" />
-</div>
-</div>
-</div>
-HTML;
-
-        // inner interface
-        $innerInterface = \XLite\Core\Request::getInstance()->interface;
-        $result .= '<div class="themeTweaker_tree not-processed" data-editor-tree data-interface="' . \XLite::MAIL_INTERFACE . '" data-inner-interface="' . $innerInterface . '">';
-        $result .= static::buildHtmlTreeNode(static::$tree);
-        $result .= '</div></div>';
-
-        return $result;
+        return static::buildHtmlTreeNode(static::$tree);
     }
 
     /**
@@ -151,14 +106,20 @@ HTML;
      */
     protected static function getCustomerHtmlTree()
     {
+        $htmlTree =  static::buildHtmlTreeNode(static::$tree);
+
+        if (!$htmlTree) {
+            return '';
+        }
+
         $result = '<div class="themeTweaker_tree not-processed" data-editor-tree data-interface="' . \XLite::CUSTOMER_INTERFACE . '">';
-        $result .= static::buildHtmlTreeNode(static::$tree);
+        $result .= $htmlTree;
         $result .= '</div>';
 
         return $result;
     }
 
-/**
+    /**
      * Returns current templates tree (HTML)
      *
      * @param \Includes\DataStructure\Graph $node Node
@@ -177,21 +138,31 @@ HTML;
             foreach ($children as $child) {
                 $data = $child->getData();
 
-                $additionalData = [];
+                $jstreeOptions = [];
+
                 if ($data->isList) {
-                    $additionalData['disabled'] = true;
+                    $jstreeOptions['disabled'] = true;
                 }
+
+                $additionalAttrs = [
+                    'data-template-id' => $data->templateId,
+                    'data-template-path' => $child->getKey(),
+                    'data-template-weight' => $data->viewListWeight,
+                    'data-template-list' => $data->viewList,
+                    'data-user-generated' => static::isUserGeneratedTemplate($child) ? 'true' : 'false',
+                    'data-added-via-editor' => static::isAddedViaEditor($child) ? 'true' : 'false'
+                ];
 
                 $label = $data->class
                     ? sprintf('%s (%s)', $child->getKey(), $data->class)
                     : $child->getKey();
 
                 $result .= sprintf(
-                    '<li id="template_%s" data-template-id="%s" data-template-path="%s" data-jstree=\'%s\'>%s%s</li>',
+                    '<li id="template_%s" data-jstree=\'%s\' %s><span class="template-weight">%s</span>%s%s</li>',
                     $data->templateId,
-                    $data->templateId,
-                    $child->getKey(),
-                    json_encode($additionalData),
+                    json_encode($jstreeOptions),
+                    static::convertToHtmlAttributeString($additionalAttrs),
+                    $data->viewListWeight,
                     $label,
                     static::buildHtmlTreeNode($child)
                 );
@@ -201,6 +172,32 @@ HTML;
         }
 
         return $result;
+    }
+
+    /**
+     * Checks if this file is a user-generated template
+     *
+     * @param \Includes\DataStructure\Graph $node
+     * @return bool
+     */
+    public static function isUserGeneratedTemplate($node)
+    {
+        return strpos($node->getKey(), 'theme_tweaker') === 0;
+    }
+
+    /**
+     * Checks if this file is a user-generated template
+     *
+     * @param \Includes\DataStructure\Graph $node
+     * @return bool
+     */
+    public static function isAddedViaEditor($node)
+    {
+        $basename = basename($node->getKey());
+        $suffix = '.new.twig';
+
+        // checking that basename ends with '.new.twig'
+        return ($temp = strlen($basename) - strlen($suffix)) >= 0 && strpos($basename, $suffix, $temp) !== false;
     }
 
     /**
@@ -286,7 +283,6 @@ HTML;
             $list[static::RESOURCE_CSS][] = 'modules/XC/ThemeTweaker/template_editor/template-navigator.css';
         }
 
-
         return $list;
     }
 
@@ -324,12 +320,12 @@ HTML;
 
     protected function isCustomJsEnabled()
     {
-        return \XLite\Core\Config::getInstance()->XC->ThemeTweaker->use_custom_js;
+        return ThemeTweaker::castCheckboxValue(\XLite\Core\Config::getInstance()->XC->ThemeTweaker->use_custom_js);
     }
 
     protected function isCustomCssEnabled()
     {
-        return \XLite\Core\Config::getInstance()->XC->ThemeTweaker->use_custom_css;
+        return ThemeTweaker::castCheckboxValue(\XLite\Core\Config::getInstance()->XC->ThemeTweaker->use_custom_css);
     }
 
     /**
@@ -381,6 +377,14 @@ HTML;
             $data = new \XLite\Core\CommonCell();
             $data->class = get_class($this);
             $data->templateId = $templateId;
+
+            if ($this->viewListWeight) {
+                $data->viewListWeight = $this->viewListWeight;
+            }
+            if ($this->viewListWeight) {
+                $data->viewList = $this->viewList;
+            }
+
             $current->setData($data);
 
             static::$current->addChild($current);
@@ -453,11 +457,31 @@ HTML;
         }
     }
 
+    /**
+     * Returns view list item widget params, used in getWidget call
+     *
+     * @param \XLite\Model\ViewList $item
+     *
+     * @return array
+     */
+    protected function getViewListItemWidgetParams(\XLite\Model\ViewList $item)
+    {
+        $params = parent::getViewListItemWidgetParams($item);
+
+        if (ThemeTweaker::getInstance()->isInWebmasterMode()) {
+            $params['viewListWeight'] = $item->getWeightActual();
+            $params['viewList'] = $item->getListActual();
+        }
+
+        return $params;
+    }
+
     protected function setStartMark($template)
     {
         if (null === static::$mark) {
             if (\XLite::isAdminZone()) {
-                if ($this->checkNotificationRootTemplate($template)) {
+                $interface = \XLite\Core\Request::getInstance()->interface ?: \XLite::ADMIN_INTERFACE;
+                if ($this->checkNotificationRootTemplate($template, $interface)) {
                     static::$mark = $this->isMarkTemplates();
                 }
             } else {
@@ -472,7 +496,8 @@ HTML;
     {
         if (null !== static::$mark) {
             if (\XLite::isAdminZone()) {
-                if ($this->checkNotificationRootTemplate($template)) {
+                $interface = \XLite\Core\Request::getInstance()->interface ?: \XLite::ADMIN_INTERFACE;
+                if ($this->checkNotificationRootTemplate($template, $interface)) {
                     static::$mark = false;
                 }
             }
@@ -605,6 +630,34 @@ HTML;
         return parent::isCacheAllowed()
             && !ThemeTweaker::getInstance()->isInWebmasterMode()
             && !\XLite\Core\Translation::getInstance()->isInlineEditingEnabled();
+    }
+
+    /**
+     * Get apple icon
+     *
+     * @return string
+     */
+    public function getAppleIcon()
+    {
+        $url = parent::getAppleIcon();
+
+        return ThemeTweaker::getInstance()->isInLayoutMode()
+            ? $url . '?' . time()
+            : $url;
+    }
+
+    /**
+     * Return favicon resource path
+     *
+     * @return string
+     */
+    protected function getFavicon()
+    {
+        $url = parent::getFavicon();
+
+        return ThemeTweaker::getInstance()->isInLayoutMode()
+            ? $url . '?' . time()
+            : $url;
     }
 }
 

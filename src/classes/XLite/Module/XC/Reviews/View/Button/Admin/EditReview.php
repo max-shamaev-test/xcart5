@@ -105,6 +105,16 @@ class EditReview extends \XLite\View\Button\APopupButton
      */
     protected function getClass()
     {
-        return parent::getClass() . 'edit-review';
+        return $this->getParam(static::PARAM_STYLE);
     }
+
+    /**
+     * Return widget default template
+     *
+     * @return string
+     */
+    /*protected function getDefaultTemplate()
+    {
+        return 'button/edit_review.twig';
+    }*/
 }

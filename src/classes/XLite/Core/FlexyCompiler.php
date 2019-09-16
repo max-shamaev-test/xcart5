@@ -8,6 +8,8 @@
 
 namespace XLite\Core;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Flexy compiler
  */
@@ -487,7 +489,7 @@ class FlexyCompiler extends \XLite\Base\Singleton
     {
         $result = '';
 
-        if (!isset($module) || \Includes\Utils\ModulesManager::isActiveModule($module)) {
+        if (!isset($module) || Manager::getRegistry()->isModuleEnabled($module)) {
 
             $class = isset($attrs['class']) ? $this->flexyAttribute($attrs['class'], false) : null;
 

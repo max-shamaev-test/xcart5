@@ -13,8 +13,8 @@
   width: -moz-calc(~"50% - 20px");
   width: calc(~"50% - 20px");
   display: inline-block;
-  border: 2px solid @color-border;
-  border-radius: 2px;
+  border: @border-base solid @color-border;
+  border-radius: @border-radius-base;
   padding: @rhythmic-unit;
   margin: 0px;
   margin-right: 20px;
@@ -37,7 +37,7 @@
       color: @color-highlight;
       top: @rhythmic-unit;
       right: @rhythmic-unit;
-      font-size: 12px;
+      font-size: @font-size-small;
       line-height: @rhythmic-unit;
     }
   }

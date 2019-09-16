@@ -29,7 +29,6 @@ class AttributeTypeHidden extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Fi
                 'label'             => $attribute->getName(),
                 'type'              => 'Symfony\Component\Form\Extension\Core\Type\ChoiceType',
                 'choices'           => array_flip($list),
-                'choices_as_values' => true,
                 'placeholder'       => null,
                 'position'          => $position,
             ],

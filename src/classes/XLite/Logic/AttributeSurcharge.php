@@ -37,7 +37,7 @@ class AttributeSurcharge extends \XLite\Logic\ALogic
      * @param array                $behaviors Behaviors
      * @param string               $purpose   Purpose
      *
-     * @return void
+     * @return float
      */
     static public function modifyMoney($value, \XLite\Model\AEntity $model, $property, array $behaviors, $purpose)
     {

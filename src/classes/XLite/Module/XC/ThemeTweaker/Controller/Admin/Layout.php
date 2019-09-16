@@ -46,7 +46,7 @@ class Layout extends \XLite\Controller\Admin\Layout implements \XLite\Base\IDeco
     {
         parent::doActionChangeTemplate();
 
-        if (\XLite\Core\Config::getInstance()->XC->ThemeTweaker->use_custom_css) {
+        if (ThemeTweaker::castCheckboxValue(\XLite\Core\Config::getInstance()->XC->ThemeTweaker->use_custom_css)) {
             $content = \Includes\Utils\FileManager::read(
                 \XLite\Module\XC\ThemeTweaker\Main::getThemeDir() . 'custom.css'
             );

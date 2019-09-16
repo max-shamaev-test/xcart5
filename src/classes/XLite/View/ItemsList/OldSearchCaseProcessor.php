@@ -88,12 +88,17 @@ class OldSearchCaseProcessor implements \XLite\View\ItemsList\ISearchCaseProvide
     }
 
     /**
-     * @param \XLite\View\ItemsList\ISearchValuesStorage $storage
+     * @param \XLite\View\ItemsList\ISearchValuesStorage $defaultStorage
      */
-    public function setDefaultValuesStorage(ISearchValuesStorage $storage)
+    public function setDefaultValuesStorage(ISearchValuesStorage $defaultStorage)
     {
-        if ($this->searchValuesStorage instanceof ASearchValuesStorage) {
-            $this->searchValuesStorage->setFallbackStorage($storage);
+        $storage = $this->searchValuesStorage;
+
+        if (
+            $storage
+            && $storage instanceof ASearchValuesStorage
+        ) {
+            $storage->passFallbackStorage($defaultStorage);
         }
     }
 }

@@ -123,6 +123,7 @@ define(
       },
 
       placeOrder: function() {
+        this.validatePaymentForm();
         var root = this.$root;
         if (this.ready) {
           root.startLoadAnimation();
@@ -155,6 +156,16 @@ define(
         this.isFormValid = this.formController
           && this.formController.validate({
             silent: !this.formController.isChanged(true) || !this.formController.wasFilledOnce(),
+            focus: false
+          });
+      },
+
+      validatePaymentForm: function () {
+        var paymentFormController = document.querySelector('form.payment-form') ? document.querySelector('form.payment-form').commonController : null;
+
+        this.isFormValid = paymentFormController
+          && paymentFormController.validate({
+            silent: false,
             focus: false
           });
       },

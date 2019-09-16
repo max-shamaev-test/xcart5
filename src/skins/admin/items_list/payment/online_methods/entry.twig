@@ -28,10 +28,10 @@
     <div class="separator"></div>
 
     <div class="button">
-      {% if this.getPayment().getModuleEnabled() and not this.getPayment().getAdded() %}
+      {% if this.getPayment().isModuleEnabled() and not this.getPayment().getAdded() %}
         {{ widget('XLite\\View\\Button\\Link', label=t('Add'), location=url('payment_settings', 'add', {'id': this.getPayment().getMethodId()})) }}
       {% endif %}
-      {% if this.getPayment().getModuleEnabled() and this.getPayment().getAdded() %}
+      {% if this.getPayment().isModuleEnabled() and this.getPayment().getAdded() %}
         {{ widget('XLite\\View\\Button\\Link', label=t('Settings'), location=url('payment_settings', 'add', {'id': this.getPayment().getMethodId()})) }}
       {% endif %}
       {% if this.isDisplayInstallModuleLink(this.getPayment()) %}

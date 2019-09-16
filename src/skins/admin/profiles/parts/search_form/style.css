@@ -14,7 +14,7 @@
 }
 
 .searchpanel-profile-admin-main .search-conditions-box .search-conditions-hidden .table-label {
-  width: 90px;
+  width: 110px;
 }
 
 .searchpanel-profile-admin-main .search-conditions-hidden > .country-condition,
@@ -30,7 +30,7 @@
   float: none;
   display: block;
   position: absolute;
-  top: 0px;
+  top: 0;
   left: 35%;
 }
 
@@ -41,11 +41,7 @@
 }
 
 .searchpanel-profile-admin-main .search-conditions-box .date_type-condition .date-condition-value {
-  padding: 0px;
-}
-
-.searchpanel-profile-admin-main .search-conditions-box .date_type-condition input {
-  vertical-align: text-bottom;
+  padding: 0;
 }
 
 .searchpanel-profile-admin-main .search-conditions-box .date_type-condition li,
@@ -55,8 +51,12 @@
 }
 
 .searchpanel-profile-admin-main .search-conditions-box .date_type-condition li {
-  line-height: 32px;
-  padding: 4px 0px 6px;
+  line-height: 24px;
+  padding: 12px 0 6px;
+}
+
+.searchpanel-profile-admin-main .search-conditions-box .date_type-condition li input {
+  vertical-align: middle;
 }
 
 .searchpanel-profile-admin-main .search-conditions-box .date_type-condition .date-range-box {
@@ -69,7 +69,7 @@
 }
 
 .searchpanel-profile-admin-main .search-conditions-box div.daterange-value input[type="text"] {
-  margin: 0px;
+  margin: 0;
   width: 240px;
 }
 
@@ -77,14 +77,4 @@
   margin-right: 20px;
   width: auto;
   float: left;
-}
-
-.searchpanel-profile-admin-main .date-condition-value li label {
-  font-size: 14px;
-  vertical-align: middle;
-}
-
-.searchpanel-profile-admin-main .date-condition-value li input {
-  vertical-align: middle;
-  margin-top: 3px;
 }

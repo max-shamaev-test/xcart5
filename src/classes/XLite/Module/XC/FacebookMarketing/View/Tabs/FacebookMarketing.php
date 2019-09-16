@@ -97,9 +97,7 @@ class FacebookMarketing extends \XLite\View\Tabs\ATabs
      */
     protected function generateFeedKey()
     {
-        $key = function_exists('openssl_random_pseudo_bytes')
-            ? bin2hex(openssl_random_pseudo_bytes(16))
-            : md5(microtime(true) + mt_rand(0, 1000000));
+        $key = \Includes\Utils\Operator::generateHash(32);
 
         \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption([
             'category' => 'XC\FacebookMarketing',
@@ -136,5 +134,17 @@ class FacebookMarketing extends \XLite\View\Tabs\ATabs
     protected function getRenewalFrequency()
     {
         return \XLite\Module\XC\FacebookMarketing\Core\Task\GenerateProductFeed::getRenewalPeriod();
+    }
+
+    /**
+     * Register CSS files
+     *
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        return array_merge(parent::getCSSFiles(), [
+            'modules/XC/FacebookMarketing/general/style.less'
+        ]);
     }
 }

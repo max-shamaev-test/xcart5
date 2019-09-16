@@ -28,7 +28,7 @@
 }
 
 ul.states-list {
-  padding-bottom: 40px;
+  margin-bottom: 14px;
 }
 
 ul.states-list li {
@@ -38,21 +38,10 @@ ul.states-list li {
   padding-bottom: 10px;
 }
 
-ul.states-list li span,
 ul.states-list li a {
-  font-size: 16px;
-}
-
-ul.states-list li a {
-  text-decoration: underline;
+  border-bottom: 1px dashed;
 }
 
 ul.states-list li span {
-  padding: 5px 10px;
-  background-color: #ebf7ff;
-  border: 1px solid #cadce8;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
   cursor: context-menu;
 }

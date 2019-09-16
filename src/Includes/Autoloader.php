@@ -10,6 +10,7 @@ namespace Includes;
 
 use Includes\Decorator\ADecorator;
 use Includes\Decorator\Utils\Operator;
+use Includes\Utils\Module\Manager;
 
 /**
  * Autoloader
@@ -146,24 +147,11 @@ abstract class Autoloader
     {
         self::unregisterClassCacheAutoloader();
 
-        // First, trying to get module list from DB
-        $activeModules = array_keys(
-            array_filter(Utils\ModulesManager::fetchModulesListFromDB(), function ($module) {
-                return $module['enabled'];
-            })
+        self::$classCacheAutoloader = new Autoload\DevClassAutoLoader(
+            LC_DIR_CLASSES,
+            Operator::getCacheClassesDir(),
+            Manager::getRegistry()->getEnabledModuleIds()
         );
-
-        // If module list is empty (we're on cache rebuild), then call ModulesManager::getActiveModules
-        if (empty($activeModules)) {
-            // Autoload switch trick is required because ModulesManager::getActiveModules accesses some classes from classes/
-            self::registerClassCacheProductionAutoloader();
-
-            $activeModules = array_keys(Utils\ModulesManager::getActiveModules());
-
-            self::unregisterClassCacheAutoloader();
-        }
-
-        self::$classCacheAutoloader = new Autoload\DevClassAutoLoader(LC_DIR_CLASSES, Operator::getCacheClassesDir(), $activeModules);
 
         self::$classCacheAutoloader->register();
     }
@@ -194,6 +182,7 @@ abstract class Autoloader
      * Register autoload functions
      *
      * @return void
+     * @throws \Doctrine\Common\Proxy\Exception\InvalidArgumentException
      */
     public static function registerEverythingExceptClassCache()
     {
@@ -204,12 +193,6 @@ abstract class Autoloader
 
         // PEAR2
         static::registerPEARAutolader();
-
-        // Load lessphp
-        static::loadLESSPhp();
-
-        //// Load PHPMailer
-        //static::loadPHPMailer();
 
         // Register Doctrine proxy autoloader
         \Doctrine\Common\Proxy\Autoloader::register(
@@ -225,17 +208,7 @@ abstract class Autoloader
      */
     protected static function registerPEARAutolader()
     {
-        require_once (LC_DIR_LIB . 'PEAR2' . LC_DS . 'Autoload.php');
-    }
-
-    /**
-     * Load lessphp
-     *
-     * @return void
-     */
-    protected static function loadLESSPhp()
-    {
-        require_once (LC_DIR_LIB . 'Less' . LC_DS . 'Less.php');
+        require_once LC_DIR_LIB . 'PEAR2' . LC_DS . 'Autoload.php';
     }
 
     /**
@@ -264,7 +237,7 @@ abstract class Autoloader
 
     /**
      * Initialize classes directory
-     * 
+     *
      * @return void
      */
     protected static function initializeClassesDir()

@@ -11,30 +11,19 @@
 
 namespace Symfony\Component\Form\Extension\Validator\ViolationMapper;
 
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\Exception\ErrorMappingException;
+use Symfony\Component\Form\FormInterface;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class MappingRule
 {
-    /**
-     * @var FormInterface
-     */
     private $origin;
-
-    /**
-     * @var string
-     */
     private $propertyPath;
-
-    /**
-     * @var string
-     */
     private $targetPath;
 
-    public function __construct(FormInterface $origin, $propertyPath, $targetPath)
+    public function __construct(FormInterface $origin, string $propertyPath, string $targetPath)
     {
         $this->origin = $origin;
         $this->propertyPath = $propertyPath;
@@ -55,9 +44,9 @@ class MappingRule
      * If the rule matches, the form mapped by the rule is returned.
      * Otherwise this method returns false.
      *
-     * @param string $propertyPath The property path to match against the rule.
+     * @param string $propertyPath The property path to match against the rule
      *
-     * @return null|FormInterface The mapped form or null.
+     * @return FormInterface|null The mapped form or null
      */
     public function match($propertyPath)
     {
@@ -69,13 +58,13 @@ class MappingRule
     /**
      * Matches a property path against a prefix of the rule path.
      *
-     * @param string $propertyPath The property path to match against the rule.
+     * @param string $propertyPath The property path to match against the rule
      *
-     * @return bool Whether the property path is a prefix of the rule or not.
+     * @return bool Whether the property path is a prefix of the rule or not
      */
     public function isPrefix($propertyPath)
     {
-        $length = strlen($propertyPath);
+        $length = \strlen($propertyPath);
         $prefix = substr($this->propertyPath, 0, $length);
         $next = isset($this->propertyPath[$length]) ? $this->propertyPath[$length] : null;
 

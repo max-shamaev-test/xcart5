@@ -37,6 +37,8 @@ abstract class SelectAddress extends \XLite\Controller\Customer\SelectAddress im
 
             $this->selectCartAddress($atype, $addressId, $hasEmptyFields, $preserveSameAddress);
             $this->silent = true;
+            $this->setSuppressOutput(true);
+
         } else {
             parent::doActionSelect();
         }

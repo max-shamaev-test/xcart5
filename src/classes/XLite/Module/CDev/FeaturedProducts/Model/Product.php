@@ -22,7 +22,6 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     protected $featuredProducts;
 
-
     /**
      * Constructor
      *

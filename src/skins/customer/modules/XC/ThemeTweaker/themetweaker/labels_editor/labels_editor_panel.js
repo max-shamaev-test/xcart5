@@ -9,11 +9,6 @@
 
 define('themetweaker/labels_editor', ['js/vue/vue'], function (XLiteVue) {
     XLiteVue.component('xlite-labels-editor', {
-        activate: function (done) {
-            core.trigger('labels-editor.activate', this);
-            done();
-        },
-
         ready: function() {
             core.trigger('labels-editor.ready', this);
 
@@ -62,15 +57,15 @@ define('themetweaker/labels_editor', ['js/vue/vue'], function (XLiteVue) {
         methods: {
             hasState: function() {
                 var key = 'labels-editor-mode';
-                return localStorage.getItem(key) !== null;
+                return sessionStorage.getItem(key) !== null;
             },
             getState: function() {
                 var key = 'labels-editor-mode';
-                return localStorage.getItem(key) === 'true';
+                return sessionStorage.getItem(key) === 'true';
             },
             setState: function(value) {
                 var key = 'labels-editor-mode';
-                localStorage.setItem(key, value);
+                sessionStorage.setItem(key, value);
             },
             initializePopovers: function() {
                 $(document).on('click', EditableLabel.closePopovers);

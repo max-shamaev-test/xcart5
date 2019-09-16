@@ -27,7 +27,6 @@ class Review extends \XLite\View\StickyPanel\ItemsListForm
                     'label'         => '',
                     'style'         => 'more-action icon-only hide-on-disable hidden',
                     'icon-style'    => 'fa fa-check',
-                    'useCaretButton' => false,
                     'dropDirection' => 'dropup',
                 ],
                 'position' => 100,

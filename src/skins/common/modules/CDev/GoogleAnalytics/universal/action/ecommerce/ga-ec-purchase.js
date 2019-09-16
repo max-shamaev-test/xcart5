@@ -16,7 +16,6 @@ define('googleAnalytics/eCommercePurchaseEvent', ['googleAnalytics/eCommerceCore
           return {
             'load':                 this.registerFullPurchase,
             'ga-pageview-sending':  this.registerPurchase,
-            'ga-ec-purchase':       this.registerPurchaseExternal
           };
         },
 
@@ -34,25 +33,18 @@ define('googleAnalytics/eCommercePurchaseEvent', ['googleAnalytics/eCommerceCore
         },
 
         registerPurchase: function (event, data) {
-          var actionData = _.first(this.getActions('purchase'));
+          //to prevent sending purchase action before step 5 checkout action
+          setTimeout(function () {
+            var actionData = _.first(this.getActions('purchase'));
 
-          if (actionData) {
-            this._registerPurchase(
+            if (actionData) {
+              this._registerPurchase(
                 actionData['data']['products'],
                 actionData['data']['actionData']
-            );
-          }
-        },
-
-        registerPurchaseExternal: function(event, data) {
-          if (data) {
-            this._registerPurchase(
-                data['products'],
-                data['actionData']
-            );
-          }
-
-          ga('send', 'event', 'Ecommerce', 'Checkout successful');
+              );
+              ga('send', 'event', 'Checkout', 'Purchase');
+            }
+          }.bind(this), 300);
         },
 
         _registerPurchase: function (productsData, actionData) {

@@ -262,7 +262,8 @@ class AverageRating extends \XLite\View\AView
      * @return boolean
      */
     public function isVisibleAddReviewLink($product = null)
-    {
+    {   
+        
         return $this->isAllowedAddReview($product)
                && $this->getWidgetMode() !== \XLite\View\ItemsList\Product\Customer\ACustomer::DISPLAY_MODE_GRID;
     }
@@ -273,7 +274,7 @@ class AverageRating extends \XLite\View\AView
      * @return string
      */
     protected function getReviewsLinkLabel()
-    {
+    {   
         return $this->getReviewsCount()
             ? static::t('Add review')
             : static::t('Be the first and leave a feedback.');

@@ -8,6 +8,8 @@
 
 namespace XLite\Model;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Language
  *
@@ -97,18 +99,9 @@ class Language extends \XLite\Model\Base\I18n
      */
     public function getValidModule()
     {
-        $result = null;
-
         $module = $this->getModule();
 
-        if (!empty($module) && preg_match('/\w+\\\\\w+/', $module)) {
-            $class = \Includes\Utils\ModulesManager::getClassNameByModuleName($module);
-            if (class_exists($class)) {
-                $result = $module;
-            }
-        }
-
-        return $result;
+        return Manager::getRegistry()->isModuleEnabled($module) ? $module : null;
     }
 
     /**
@@ -360,7 +353,7 @@ class Language extends \XLite\Model\Base\I18n
     /**
      * Get module
      *
-     * @return string 
+     * @return string
      */
     public function getModule()
     {

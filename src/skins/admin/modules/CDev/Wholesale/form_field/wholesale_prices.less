@@ -12,26 +12,18 @@
   padding: 0;
 }
 
-.items-list-table table.list tbody.lines tr.line td.cell.wholesalePrices .cell {
-  padding-left: 6px;
+.items-list-table table.list tbody.lines tr.line td.cell.wholesalePrices {
+  padding-right: @rhythmic-unit / 2;
 }
 
 .wp-tooltip {
   display: block;
-  width: 23px;
   height: 20px;
-
-  svg {
-    polygon,
-    polyline,
-    path {
-      stroke: #c2c2c2;
-    }
-  }
 }
 
 .wp-link-tooltip {
   display: block;
+  cursor: pointer;
   width: 23px;
   height: 20px;
 
@@ -39,7 +31,7 @@
     polygon,
     polyline,
     path {
-      stroke: #536ba6;
+      stroke: @color-link;
     }
   }
 
@@ -48,7 +40,7 @@
       polygon,
       polyline,
       path {
-        stroke: #1cbbe8;
+        stroke: @color-link-2;
       }
     }
   }

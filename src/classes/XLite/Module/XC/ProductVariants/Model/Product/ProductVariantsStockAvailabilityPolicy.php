@@ -71,7 +71,32 @@ class ProductVariantsStockAvailabilityPolicy extends \XLite\Model\Product\Produc
             $cartItems  = $cart->getItemsByVariantId($variant[self::VARIANT_ID]);
             $cartAmount = ArrayManager::sumObjectsArrayFieldValues($cartItems, 'getAmount', true);
 
-            return max(0, $variant[self::VARIANT_AMOUNT] - $cartAmount);
+            return max(0, $variant[self::VARIANT_AMOUNT]);
+        }
+    }
+
+
+    /**
+     * Get available amount for a specific variant
+     *
+     * @param Cart $cart
+     * @param      $variantId
+     *
+     * @return int
+     */
+    public function getInCartVariantAmount(Cart $cart, $variantId)
+    {
+        $variant = $this->dto[self::PRODUCT_VARIANTS][$variantId];
+
+        if ($variant[self::VARIANT_USE_PRODUCTS_AMOUNT]) {
+            return parent::getInCartAmount($cart);
+
+        } else {
+            
+            $cartItems  = $cart->getItemsByVariantId($variant[self::VARIANT_ID]);
+            $cartAmount = ArrayManager::sumObjectsArrayFieldValues($cartItems, 'getAmount', true);
+
+            return max(0, $cartAmount);
         }
     }
 

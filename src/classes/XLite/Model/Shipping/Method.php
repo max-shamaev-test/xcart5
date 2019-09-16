@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Shipping;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
 use XLite\View\FormField\Input\PriceOrPercent;
 
 /**
@@ -190,7 +192,7 @@ class Method extends \XLite\Model\Base\I18n
     /**
      * Returns processor module
      *
-     * @return \XLite\Model\Module
+     * @return string|null
      */
     public function getProcessorModule()
     {
@@ -198,15 +200,15 @@ class Method extends \XLite\Model\Base\I18n
         $processor = $this->getProcessorObject();
 
         if ($processor) {
-            $module = $this->getProcessorObject()->getModule();
+            $module = $processor->getModule();
+
         } else {
             $moduleName = $this->getModuleName();
 
             if ($moduleName) {
-                list ($author, $name) = explode('_', $moduleName);
-                /** @var \XLite\Model\Repo\Module $repo */
-                $repo = \XLite\Core\Database::getRepo('XLite\Model\Module');
-                $module = $repo->findModuleByName($author . '\\' . $name);
+                list($author, $name) = explode('_', $moduleName);
+
+                $module = Module::buildId($author, $name);
             }
         }
 
@@ -225,11 +227,11 @@ class Method extends \XLite\Model\Base\I18n
             : $this->getIconURL();
 
         if (true === $url || null === $url) {
-            $module = $this->getProcessorModule();
-            $url = $module
-                ? \XLite\Core\Layout::getInstance()->getResourceWebPath(
-                    'modules/' . $module->getAuthor() . '/' . $module->getName() . '/method_icon.jpg'
-                )
+            list($author, $name) = Module::explodeModuleId($this->getProcessorModule());
+
+            $url = $author && $name
+                ? \XLite\Core\Layout::getInstance()
+                    ->getResourceWebPath('modules/' . $author . '/' . $name . '/method_icon.jpg')
                 : null;
         }
 
@@ -318,9 +320,9 @@ class Method extends \XLite\Model\Base\I18n
         if (!$this->isFromMarketplace()) {
             $processor = $this->getProcessorObject();
             if ($processor) {
-                $module = $processor->getModule();
-                if ($module) {
-                    $result = $module->getAuthor() . '_' . $module->getName();
+                list($author, $name) = Module::explodeModuleId($processor->getModule());
+                if ($author && $name) {
+                    $result = $author . '_' . $name;
                 }
             }
         }

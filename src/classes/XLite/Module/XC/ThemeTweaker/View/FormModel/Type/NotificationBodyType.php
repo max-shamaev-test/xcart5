@@ -11,6 +11,8 @@ namespace XLite\Module\XC\ThemeTweaker\View\FormModel\Type;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use XLite\Module\XC\ThemeTweaker\Core\Notifications\Data;
+use XLite\Module\XC\ThemeTweaker\Core\Notifications\ErrorTranslator;
 use XLite\View\FormModel\Type\Base\AType;
 
 class NotificationBodyType extends AType
@@ -38,17 +40,39 @@ class NotificationBodyType extends AType
     }
 
     /**
+     * @return Data
+     */
+    protected function getDataSource()
+    {
+        return \XLite::getController()->getDataSource();
+    }
+
+    /**
      * @param FormView      $view
      * @param FormInterface $form
      * @param array         $options
      */
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
+        $unavailabilityReason = '';
+
+        if (!$this->getDataSource()->isAvailable()) {
+            foreach ($this->getDataSource()->getUnavailableProviders() as $provider) {
+                $unavailabilityReason = ErrorTranslator::translateAvailabilityError($provider) ?: '';
+
+                if ($unavailabilityReason) {
+                    break;
+                }
+            }
+        }
+
         $view->vars = array_replace(
             $view->vars,
             [
-                'url'      => $options['url'],
-                'editable' => (bool) \XLite\Module\XC\ThemeTweaker\Main::getDumpOrder(),
+                'url'                  => $options['url'],
+                'editable'             => $this->getDataSource()->isEditable(),
+                'available'            => $this->getDataSource()->isAvailable(),
+                'unavailabilityReason' => $unavailabilityReason,
             ]
         );
     }

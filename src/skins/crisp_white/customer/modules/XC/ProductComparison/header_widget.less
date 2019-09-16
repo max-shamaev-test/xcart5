@@ -10,9 +10,12 @@
 .header_product-comparison {
   & > a {
     position: relative;
-    .icon-compare;
+    .icon-compare-header;
+
     &:before {
       display: inline-block;
+      margin-right: 2px;
+      margin-top: 2px;
     }
 
     span {
@@ -25,7 +28,10 @@
 
   &.recently-updated {
     > a {
-      .recently-updated-icon;
+
+      &:before {
+        color: @color-hover;
+      }
     }
   }
 }
@@ -33,11 +39,8 @@
 .mobile_header-slidebar {
   &.recently-updated {
     > a {
-      .recently-updated-icon;
-
-      &:after {
-        bottom: 18px;
-        left: 10px;
+      &:before {
+        color: @color-hover;
       }
     }
   }
@@ -45,13 +48,18 @@
 
 .account-link-compare {
   & > a {
-    .icon-compare;
+    .icon-compare-header;
     width: 100%;
     display: block;
   }
 
   &.recently-updated {
     a {
+
+      &:before {
+        color: @color-hover;
+      }
+
       .counter {
         color: @color-hover;
       }

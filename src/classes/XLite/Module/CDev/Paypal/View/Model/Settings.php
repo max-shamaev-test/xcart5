@@ -8,6 +8,9 @@
 
 namespace XLite\Module\CDev\Paypal\View\Model;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
+
 /**
  * Settings dialog model widget
  */
@@ -52,9 +55,9 @@ abstract class Settings extends \XLite\View\Model\Settings implements \XLite\Bas
      */
     protected function isPaypalSettings()
     {
-        return 'module' == $this->getTarget()
+        return 'module' === $this->getTarget()
             && $this->getModule()
-            && 'CDev\Paypal' == $this->getModule()->getActualName();
+            && Module::buildId('CDev', 'Paypal') === $this->getModule();
     }
 
     /**

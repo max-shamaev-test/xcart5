@@ -23,8 +23,6 @@ class Marketplace extends \XLite\View\Menu\Admin\ANodeNotification
         return false;
     }
 
-    // {{{ View helpers
-
     /**
      * Returns node style class
      *
@@ -32,12 +30,11 @@ class Marketplace extends \XLite\View\Menu\Admin\ANodeNotification
      */
     protected function getNodeStyleClasses()
     {
-        $list = parent::getNodeStyleClasses();
+        $list   = parent::getNodeStyleClasses();
         $list[] = 'marketplace';
 
         return $list;
     }
-
 
     /**
      * Returns icon
@@ -56,7 +53,7 @@ class Marketplace extends \XLite\View\Menu\Admin\ANodeNotification
      */
     protected function getHeaderUrl()
     {
-        return $this->buildURL('addons_list_marketplace', '', array('landing' => true));
+        return \XLite::getInstance()->getShopURL('service.php#/marketplace');
     }
 
     /**
@@ -68,6 +65,4 @@ class Marketplace extends \XLite\View\Menu\Admin\ANodeNotification
     {
         return static::t('Marketplace');
     }
-
-    // }}}
 }

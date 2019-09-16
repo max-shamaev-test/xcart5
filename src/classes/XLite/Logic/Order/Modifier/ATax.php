@@ -25,7 +25,7 @@ abstract class ATax extends \XLite\Logic\Order\Modifier\AModifier
      *
      * @var integer
      */
-    protected $sortingWeight = 100;
+    protected $sortingWeight = 300;
 
     /**
      * Get default customer address for taxes calculation

@@ -4,11 +4,10 @@
 
 {% if this.isVATApplicable() %}
   {% if this.isDisplayedPriceIncludingVAT() %}
-    <li class="vat-price"><span class="vat-note-product-price">{{ t('incl.VAT', {'name': this.getVATName()}) }}</span>
-    </li>
+    <span class="vat-price"><span class="vat-note-product-price">{{ t('incl.VAT', {'name': this.getVATName()}) }}</span>
+    </span>
   {% else %}
-    <li class="vat-price"><span class="vat-note-product-price">{{ t('excl.VAT', {'name': this.getVATName()}) }}</span>
-    </li>
+    <span class="vat-price"><span class="vat-note-product-price">{{ t('excl.VAT', {'name': this.getVATName()}) }}</span>
+    </span>
   {% endif %}
-  <br>
 {% endif %}

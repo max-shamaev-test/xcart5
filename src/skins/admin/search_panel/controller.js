@@ -159,7 +159,7 @@ var SearchConditionBox = function (submitFormFlag)
           var filled = false;
           var parentBlock = jQuery(this).parents('.search-conditions-box').eq(0);
           if (0 < parentBlock.length && true != core.getCommentedData(parentBlock, 'hideAdditionalFields')) {
-            jQuery(this).find('input[type="text"],input[type="checkbox"]:checked,select,textarea').each(
+            jQuery(this).find('input[type="text"],input[type="radio"]:checked:not(.default),input[type="checkbox"]:checked,select,textarea').each(
               function() {
                 if (jQuery(this).val()) {
                   if (jQuery(this).attr('id') == 'stateSelectorId') {

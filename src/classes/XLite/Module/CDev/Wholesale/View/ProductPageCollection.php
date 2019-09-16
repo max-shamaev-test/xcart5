@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\Wholesale\View;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Product page widgets collection
  */
@@ -68,7 +70,7 @@ class ProductPageCollection extends \XLite\View\ProductPageCollection implements
 
         if (!isset($this->productModifierTypes)) {
             $variantsEnabled = false;
-            if (\Includes\Utils\ModulesManager::isActiveModule('XC\ProductVariants')) {
+            if (Manager::getRegistry()->isModuleEnabled('XC', 'ProductVariants')) {
                 $variantsEnabled = true;
                 // ProductVariants module detected
                 $additional = \XLite\Core\Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant')

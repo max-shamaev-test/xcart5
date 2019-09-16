@@ -27,10 +27,10 @@ class RadioTypeExtension extends AbstractTypeExtension
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
-    public function getExtendedType()
+    public static function getExtendedTypes(): iterable
     {
-        return 'Symfony\Component\Form\Extension\Core\Type\RadioType';
+        return [\Symfony\Component\Form\Extension\Core\Type\RadioType::class];
     }
 }

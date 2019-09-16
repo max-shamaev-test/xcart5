@@ -28,6 +28,9 @@ class CleanURL extends \XLite\Model\Repo\ARepo
     const CATEGORY_URL_FORMAT_NON_CANONICAL_EXT = 'domain/parent/goalcategory.html';
     const CATEGORY_URL_FORMAT_CANONICAL_EXT = 'domain/goalcategory.html';
 
+    const PRODUCT_URL_FORMAT_NO_EXT = 'domain/goalproduct';
+    const PRODUCT_URL_FORMAT_EXT = 'domain/goalproduct.html';
+
     /**
      * Limit of iterations to generate clean URL
      */
@@ -107,16 +110,6 @@ class CleanURL extends \XLite\Model\Repo\ARepo
     protected function getCommonPattern()
     {
         return '[.\w_\-]*';
-    }
-
-    /**
-     * Returns product url regexp pattern
-     *
-     * @return string
-     */
-    protected function getPatternProduct()
-    {
-        return $this->getCommonPattern() . '(\.' . static::CLEAN_URL_DEFAULT_EXTENSION . ')?';
     }
 
     // }}}
@@ -441,7 +434,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
                 }
             }
 
-            if (!$tmpEntity && static::isCategoryUrlHasExt()) {
+            if (!$tmpEntity) {
                 $tmpEntity = $this->findCategoryConflictWithOtherTypes($cleanURL);
             }
             
@@ -506,10 +499,11 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      *
      * @param string              $url    URL
      * @param \XLite\Model\AEntity $entity Entity
+     * @param boolean             $ignoreExtension Ignore default extension
      *
      * @return string
      */
-    protected function postProcessURL($url, $entity)
+    protected function postProcessURL($url, $entity, $ignoreExtension = false)
     {
         $entityType = static::getEntityType($entity);
 
@@ -518,7 +512,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
             : null;
 
         return method_exists($this, $method)
-            ? $this->{$method}($url, $entity)
+            ? $this->{$method}($url, $entity, $ignoreExtension)
             : $url;
     }
 
@@ -527,12 +521,13 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      *
      * @param string               $url    URL
      * @param \XLite\Model\AEntity $entity Entity
+     * @param boolean             $ignoreExtension Ignore default extension
      *
      * @return string
      */
-    protected function postProcessURLProduct($url, $entity)
+    protected function postProcessURLProduct($url, $entity, $ignoreExtension = false)
     {
-        return $url . '.' . static::CLEAN_URL_DEFAULT_EXTENSION;
+        return $url . ($this->isProductUrlHasExt() && !$ignoreExtension ? '.' . static::CLEAN_URL_DEFAULT_EXTENSION : '');
     }
 
     /**
@@ -540,12 +535,13 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      *
      * @param string               $url    URL
      * @param \XLite\Model\AEntity $entity Entity
+     * @param boolean             $ignoreExtension Ignore default extension
      *
      * @return string
      */
-    protected function postProcessURLCategory($url, $entity)
+    protected function postProcessURLCategory($url, $entity, $ignoreExtension = false)
     {
-        return $url . ($this->isCategoryUrlHasExt() ? '.' . static::CLEAN_URL_DEFAULT_EXTENSION : '');
+        return $url . ($this->isCategoryUrlHasExt() && !$ignoreExtension ? '.' . static::CLEAN_URL_DEFAULT_EXTENSION : '');
     }
 
     // }}}
@@ -697,9 +693,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
     {
         $result = null;
 
-        if ($ext) {
-            $result = $this->findByURL('product', $url . $ext);
-        }
+        $result = $this->findByURL('product', $url . $ext);
 
         return $result;
     }
@@ -1005,6 +999,33 @@ class CleanURL extends \XLite\Model\Repo\ARepo
     }
 
     /**
+     * Returns 'product_clean_urls_format' option value
+     *
+     * @return string
+     */
+    public static function getProductCleanUrlFormat()
+    {
+        $format = \Includes\Utils\ConfigParser::getOptions(array('clean_urls', 'product_clean_urls_format'));
+
+        return in_array($format, [
+            static::PRODUCT_URL_FORMAT_EXT,
+            static::PRODUCT_URL_FORMAT_NO_EXT
+        ])
+            ? $format
+            : static::PRODUCT_URL_FORMAT_NO_EXT;
+    }
+
+    /**
+     * Is use extension for categories
+     *
+     * @return boolean
+     */
+    public static function isProductUrlHasExt()
+    {
+        return static::getProductCleanUrlFormat() === static::PRODUCT_URL_FORMAT_EXT;
+    }
+
+    /**
      * Analyze current target and request params and get a canonical redirect URL or null if redirect is not needed
      *
      * @param string $target
@@ -1193,10 +1214,11 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      *
      * @param \XLite\Model\AEntity|string $entity Entity
      * @param array                       $params Params OPTIONAL
+     * @param boolean                     $ignoreExtension Ignore default extension OPTIONAL
      *
      * @return string
      */
-    public function buildFakeURL($entity, array $params = array())
+    public function buildFakeURL($entity, array $params = array(), $ignoreExtension = false)
     {
         $result = '';
 
@@ -1207,7 +1229,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
             : null;
 
         $data = method_exists($this, $method)
-            ? $this->{$method}($entity, $params)
+            ? $this->{$method}($entity, $params, $ignoreExtension)
             : array();
 
         if ($data) {
@@ -1236,12 +1258,13 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      *
      * @param \XLite\Model\AEntity|string $entity Entity
      * @param array                       $params Params
+     * @param boolean                     $ignoreExtension Ignore default extension
      *
      * @return string
      */
-    protected function buildFakeURLProduct($entity, $params)
+    protected function buildFakeURLProduct($entity, $params, $ignoreExtension = false)
     {
-        $urlParts = array($this->postProcessURL(static::PLACEHOLDER, $entity));
+        $urlParts = array($this->postProcessURL(static::PLACEHOLDER, $entity, $ignoreExtension));
 
         /** @var \XLite\Model\Product $entity */
 //        if (is_object($entity) && $entity->getCategoryId()) {
@@ -1256,12 +1279,13 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      *
      * @param \XLite\Model\AEntity|string $entity Entity
      * @param array                       $params Params
+     * @param boolean                     $ignoreExtension Ignore default extension
      *
      * @return string
      */
-    protected function buildFakeURLCategory($entity, $params)
+    protected function buildFakeURLCategory($entity, $params, $ignoreExtension = false)
     {
-        $urlParts = array($this->postProcessURL(static::PLACEHOLDER, $entity));
+        $urlParts = array($this->postProcessURL(static::PLACEHOLDER, $entity, $ignoreExtension));
 
         /** @var \XLite\Model\Category $entity */
         if (is_object($entity) && $entity->getParentId() && !static::isCategoryUrlCanonical()) {

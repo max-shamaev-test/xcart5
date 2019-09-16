@@ -209,13 +209,14 @@ abstract class AItemsList extends \XLite\View\Container
     {
         $list = parent::getCSSFiles();
         // Static call of the non-static function
+        $list[] = self::getDir() . '/items_list.less';
         $list[] = self::getDir() . '/items_list.css';
         $list = self::preparePagerCSSFiles($list);
 
         $list[] = 'form_field/inline/style.css';
         $list[] = 'form_field/input/price.css';
         $list[] = 'form_field/input/symbol.css';
-        $list[] = 'form_field/input/checkbox/switcher.css';
+        //$list[] = 'form_field/input/checkbox/switcher.css'; // TODO: less ajax loading
 
         return $list;
     }

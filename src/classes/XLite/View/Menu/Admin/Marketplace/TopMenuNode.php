@@ -26,6 +26,16 @@ class TopMenuNode extends \XLite\View\AView
     }
 
     /**
+     * Returns header url
+     *
+     * @return string
+     */
+    protected function getUrl()
+    {
+        return \XLite::getInstance()->getShopURL('service.php#/marketplace');
+    }
+
+    /**
      * @return boolean
      */
     protected function isVisible()

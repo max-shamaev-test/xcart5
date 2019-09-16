@@ -56,11 +56,13 @@ class Cart extends \XLite\Controller\Customer\Cart implements \XLite\Base\IDecor
     /**
      * Do not add successful top message
      *
+     * @param \XLite\Model\OrderItem $item
+     *
      * @return void
      */
-    protected function processAddItemSuccess()
+    protected function processAddItemSuccess($item)
     {
-        parent::processAddItemSuccess();
+        parent::processAddItemSuccess($item);
 
         \Xlite\Core\TopMessage::getInstance()->unloadPreviousMessages();
     }

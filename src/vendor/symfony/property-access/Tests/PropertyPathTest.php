@@ -11,9 +11,10 @@
 
 namespace Symfony\Component\PropertyAccess\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\PropertyAccess\PropertyPath;
 
-class PropertyPathTest extends \PHPUnit_Framework_TestCase
+class PropertyPathTest extends TestCase
 {
     public function testToString()
     {
@@ -40,15 +41,15 @@ class PropertyPathTest extends \PHPUnit_Framework_TestCase
 
     public function providePathsContainingUnexpectedCharacters()
     {
-        return array(
-            array('property.'),
-            array('property.['),
-            array('property..'),
-            array('property['),
-            array('property[['),
-            array('property[.'),
-            array('property[]'),
-        );
+        return [
+            ['property.'],
+            ['property.['],
+            ['property..'],
+            ['property['],
+            ['property[['],
+            ['property[.'],
+            ['property[]'],
+        ];
     }
 
     /**
@@ -86,7 +87,9 @@ class PropertyPathTest extends \PHPUnit_Framework_TestCase
 
     public function testZeroIsValidPropertyPath()
     {
-        new PropertyPath('0');
+        $propertyPath = new PropertyPath('0');
+
+        $this->assertSame('0', (string) $propertyPath);
     }
 
     public function testGetParentWithDot()

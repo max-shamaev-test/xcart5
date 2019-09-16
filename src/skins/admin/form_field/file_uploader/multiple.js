@@ -19,17 +19,48 @@ define('multiple_file_uploader', [
     },
 
     events: {
-      'new-file-uploaded': function (data, fileUploader) {
+      'new-file-uploaded': function (index, data, fileUploader) {
         var element = jQuery(data).find('xlite-file-uploader');
 
         if (element.length) {
-          element.insertBefore(jQuery(fileUploader.getFileUploaderElement()));
+          var anchorElement = jQuery(fileUploader.getFileUploaderElement());
+          anchorElement = anchorElement.siblings().toArray().reduce(function (carry, item) {
+            var current = jQuery(item);
+            var next = current.next('div.file-uploader.item');
+
+            if (!next.length) {
+              return carry;
+            }
+
+            var currentIndex = parseInt(current.attr('data-position-index'));
+            var nextIndex = parseInt(next.attr('data-position-index'));
+
+            if (isNaN(currentIndex) && isNaN(nextIndex)) {
+              return carry;
+            }
+
+            if (isNaN(currentIndex) && nextIndex > index) {
+              return next;
+            }
+
+            if (currentIndex < index && nextIndex > index) {
+              return next;
+            }
+
+            return carry;
+          }, anchorElement);
+
+          element.insertBefore(anchorElement);
           var v = new Vue();
           v.el = element.get(0);
+          element.attr('data-position-index', index);
           v.$compile(element.get(0), this);
           this.repositionFiles();
         }
         fileUploader.$reload();
+      },
+      'before-new-files-uploaded': function (fileUploader) {
+        jQuery(fileUploader.getFileUploaderElement()).siblings().removeAttr('data-position-index');
       }
     },
 

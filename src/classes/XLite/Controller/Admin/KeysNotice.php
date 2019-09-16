@@ -8,21 +8,14 @@
 
 namespace XLite\Controller\Admin;
 
+use XCart\Marketplace\Constant;
+
 /**
  * License keys notice page controller
+ * @deprecated move logic to BUS
  */
 class KeysNotice extends \XLite\Controller\Admin\AAdmin
 {
-    /**
-     * Return true if unallowed modules should be ignored on current page
-     *
-     * @return boolean
-     */
-    protected function isIgnoreUnallowedModules()
-    {
-        return true;
-    }
-
     /**
      * Do action 'Re-check'
      *
@@ -30,16 +23,17 @@ class KeysNotice extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionRecheck()
     {
+        // todo: reimplement with BUS
         // Clear cahche of some marketplace actions
-        \XLite\Core\Marketplace::getInstance()->clearActionCache(
-            array(
-                \XLite\Core\Marketplace::ACTION_CHECK_FOR_UPDATES,
-                \XLite\Core\Marketplace::ACTION_CHECK_ADDON_KEY,
-                \XLite\Core\Marketplace::INACTIVE_KEYS,
-            )
-        );
-
-        \XLite\Core\Marketplace::getInstance()->getAddonsList(0);
+        //\XLite\Core\Marketplace::getInstance()->clearActionCache(
+        //    array(
+        //        Constant::REQUEST_UPDATES,
+        //        Constant::REQUEST_CHECK_ADDON_KEY,
+        //        Constant::INACTIVE_KEYS,
+        //    )
+        //);
+        //
+        //\XLite\Core\Marketplace::getInstance()->getAddonsList(0);
 
         $returnUrl = \XLite\Core\Request::getInstance()->returnUrl ?: $this->buildURL('main');
 

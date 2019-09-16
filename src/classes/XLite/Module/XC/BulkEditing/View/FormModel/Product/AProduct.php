@@ -31,7 +31,7 @@ abstract class AProduct extends \XLite\View\FormModel\AFormModel
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'modules/XC/BulkEditing/form_model/product.css';
+        $list[] = 'modules/XC/BulkEditing/form_model/product.less';
 
         return $list;
     }

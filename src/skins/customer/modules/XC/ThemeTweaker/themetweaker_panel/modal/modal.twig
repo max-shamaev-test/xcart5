@@ -23,10 +23,6 @@
 
         <div class="themetweaker-modal-footer">
           <slot name="footer">
-            <button class="themetweaker-modal-button secondary"
-                    @click="sendEvent('cancel')">
-              <span>{{ t('Cancel') }}</span>
-            </button>
             <button class="themetweaker-modal-button"
                     @click="sendEvent('ok')">
               <span>{{ t('OK') }}</span>

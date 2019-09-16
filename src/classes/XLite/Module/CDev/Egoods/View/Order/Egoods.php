@@ -29,7 +29,7 @@ class Egoods extends \XLite\View\AView
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'modules/CDev/Egoods/order_egoods.css';
+        $list[] = 'modules/CDev/Egoods/order_egoods.less';
 
         return $list;
     }
@@ -138,5 +138,15 @@ class Egoods extends \XLite\View\AView
         }
 
         return $class;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getCommonFiles()
+    {
+        return array_merge_recursive(parent::getCommonFiles(), [
+            static::RESOURCE_CSS => ['css/files.css']
+        ]);
     }
 }

@@ -11,7 +11,7 @@ namespace XLite\View\FormField\Input;
 /**
  * Password
  */
-class Password extends \XLite\View\FormField\Input\Secure
+class Password extends \XLite\View\FormField\Input\Secure implements \XLite\Core\PreloadedLabels\ProviderInterface
 {
     /**
      * setCommonAttributes
@@ -36,5 +36,17 @@ class Password extends \XLite\View\FormField\Input\Secure
     public function isTrusted()
     {
         return true;
+    }
+
+    /**
+     * Array of labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return $this->getPasswordDifficultyLabels();
     }
 }

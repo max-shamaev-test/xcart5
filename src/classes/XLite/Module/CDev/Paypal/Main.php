@@ -8,9 +8,8 @@
 
 namespace XLite\Module\CDev\Paypal;
 
-/**
- * Paypal module
- */
+use Includes\Utils\Module\Manager;
+
 abstract class Main extends \XLite\Module\AModule
 {
     /**
@@ -40,92 +39,13 @@ abstract class Main extends \XLite\Module\AModule
     protected static $paymentMethod = [];
 
     /**
-     * Author name
-     *
-     * @return string
-     */
-    public static function getAuthorName()
-    {
-        return 'X-Cart team';
-    }
-
-    /**
-     * Module name
-     *
-     * @return string
-     */
-    public static function getModuleName()
-    {
-        return 'PayPal';
-    }
-
-    /**
-     * Module major version
-     *
-     * @return string
-     */
-    public static function getMajorVersion()
-    {
-        return '5.3';
-    }
-
-    /**
-     * Module version
-     *
-     * @return string
-     */
-    public static function getMinorVersion()
-    {
-        return '7';
-    }
-
-    /**
-     * Get module build number (4th number in the version)
-     *
-     * @return string
-     */
-    public static function getBuildVersion()
-    {
-        return '10';
-    }
-
-    /**
-     * Get minor core version which is required for the module activation
-     *
-     * @return string
-     */
-    public static function getMinorRequiredCoreVersion()
-    {
-        return '5';
-    }
-
-    /**
-     * Module description
-     *
-     * @return string
-     */
-    public static function getDescription()
-    {
-        return 'Enables taking payments for your online store via PayPal services.';
-    }
-
-    /**
      * Defines the link for the payment settings form
      *
      * @return string
      */
     public static function getPaymentSettingsForm()
     {
-        return \XLite\Core\Converter::buildURL(
-            'module',
-            '',
-            [
-                'moduleId'     => \XLite\Core\Database::getRepo('XLite\Model\Module')
-                    ->findOneBy(['author' => 'CDev', 'name' => 'Paypal', 'fromMarketplace' => false])
-                    ->getModuleId(),
-                'returnTarget' => 'addons_list_installed',
-            ]
-        );
+        return Manager::getRegistry()->getModuleSettingsUrl('CDev', 'Paypal');
     }
 
     /**
@@ -153,7 +73,7 @@ abstract class Main extends \XLite\Module\AModule
         }
 
         \XLite\Logger::logCustom(
-            self::getModuleName(),
+            'Paypal',
             $msg
         );
     }
@@ -175,10 +95,11 @@ abstract class Main extends \XLite\Module\AModule
                 static::$paymentMethod[$serviceName] = false;
             }
         }
+
         return static::$paymentMethod[$serviceName]
         && (
             is_null($enabled)
-            || static::$paymentMethod[$serviceName]->getEnabled() === (bool)$enabled
+            || static::$paymentMethod[$serviceName]->getEnabled() === (bool) $enabled
         )
             ? static::$paymentMethod[$serviceName]
             : null;
@@ -198,7 +119,7 @@ abstract class Main extends \XLite\Module\AModule
         $index = (null !== $order) ? 1 : 0;
 
         if (!isset($result[$index])) {
-            $paymentMethod = static::getPaymentMethod(static::PP_METHOD_EC, true);
+            $paymentMethod  = static::getPaymentMethod(static::PP_METHOD_EC, true);
             $result[$index] = $paymentMethod && $paymentMethod->isEnabled();
 
             if ($order && $result[$index]) {
@@ -223,7 +144,7 @@ abstract class Main extends \XLite\Module\AModule
         $index = (null !== $order) ? 1 : 0;
 
         if (!isset($result[$index])) {
-            $paymentMethod = static::getPaymentMethod(static::PP_METHOD_PFM, true);
+            $paymentMethod  = static::getPaymentMethod(static::PP_METHOD_PFM, true);
             $result[$index] = $paymentMethod && $paymentMethod->isEnabled();
 
             if ($order && $result[$index]) {
@@ -246,7 +167,7 @@ abstract class Main extends \XLite\Module\AModule
         if (null === $result) {
             $paymentMethod = static::getPaymentMethod(static::PP_METHOD_EC, true);
 
-            $result = (bool)$paymentMethod->getSetting('buyNowEnabled');
+            $result = (bool) $paymentMethod->getSetting('buyNowEnabled');
         }
 
         return $result;
@@ -267,7 +188,7 @@ abstract class Main extends \XLite\Module\AModule
 
         if (!isset($result[$index])) {
             if (\XLite\Core\Config::getInstance()->Company->location_country === 'US') {
-                $paymentMethod = static::getPaymentMethod(static::PP_METHOD_PC, true);
+                $paymentMethod  = static::getPaymentMethod(static::PP_METHOD_PC, true);
                 $result[$index] = $paymentMethod
                     && $paymentMethod->isEnabled()
                     && $paymentMethod->getSetting('enabled')
@@ -294,7 +215,7 @@ abstract class Main extends \XLite\Module\AModule
         $index = (null !== $order) ? 1 : 0;
 
         if (!isset($result[$index])) {
-            $paymentMethod = static::getPaymentMethod(static::PP_METHOD_PPS, true);
+            $paymentMethod  = static::getPaymentMethod(static::PP_METHOD_PPS, true);
             $result[$index] = $paymentMethod && $paymentMethod->isEnabled();
         }
 
@@ -315,34 +236,11 @@ abstract class Main extends \XLite\Module\AModule
         $index = (null !== $order) ? 1 : 0;
 
         if (!isset($result[$index])) {
-            $paymentMethod = static::getPaymentMethod(static::PP_METHOD_PAD, true);
+            $paymentMethod  = static::getPaymentMethod(static::PP_METHOD_PAD, true);
             $result[$index] = $paymentMethod && $paymentMethod->isEnabled();
         }
 
         return $result[$index];
-    }
-
-    /**
-     * Return list of mutually exclusive modules
-     *
-     * @return array
-     */
-    public static function getMutualModulesList()
-    {
-        $list = parent::getMutualModulesList();
-        $list[] = 'CDev\PaypalWPS';
-
-        return $list;
-    }
-
-    /**
-     * The module is defined as the payment module
-     *
-     * @return integer
-     */
-    public static function getModuleType()
-    {
-        return static::MODULE_TYPE_PAYMENT;
     }
 
     /**

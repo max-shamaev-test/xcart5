@@ -36,8 +36,6 @@ class WidgetCacheManager implements WidgetCacheRegistryInterface
     {
         $notAffectingEntities = [
             'XLite\Model\TmpVar',
-            'XLite\Model\Module',
-            'XLite\Model\ModuleKey',
             'XLite\Model\Payment\Transaction',
             'XLite\Model\NotificationTranslation',
             'XLite\Model\Notification',

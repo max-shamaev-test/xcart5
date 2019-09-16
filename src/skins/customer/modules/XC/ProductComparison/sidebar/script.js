@@ -74,7 +74,7 @@ ProductComparisonView.prototype.postprocess = function(isSuccess)
             rpc: true
           }
         );
-        jQuery('.compare-checkbox input').removeProp('checked');
+        jQuery('.compare-checkbox input').prop('checked', false);
 
         return false;
       }

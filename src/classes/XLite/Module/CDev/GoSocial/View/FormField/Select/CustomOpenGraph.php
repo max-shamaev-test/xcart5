@@ -30,6 +30,19 @@ class CustomOpenGraph extends \XLite\View\FormField\Input\Text
     }
 
     /**
+     * Get a list of JS files required to display the widget properly
+     *
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        $list = parent::getJSFiles();
+        $list[] = 'modules/CDev/GoSocial/custom_og.less';
+
+        return $list;
+    }
+
+    /**
      * Return name of the folder with templates
      *
      * @return string

@@ -12,19 +12,6 @@ namespace XLite\View\FormField\CleanUrls;
 class PageTitleFormat extends \XLite\View\FormField\AFormField
 {
     /**
-     * Get a list of CSS files required to display the widget properly
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-        $list[] = 'form_field/clean_urls/page_title_format.css';
-
-        return $list;
-    }
-
-    /**
      * Return field type
      *
      * @return string

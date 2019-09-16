@@ -8,6 +8,6 @@
  */
 
 div.panel-help {
-  margin-top: -15px;
+  max-width: 600px;
   margin-bottom: 20px;
 }

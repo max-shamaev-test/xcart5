@@ -38,6 +38,30 @@ class Stock extends \XLite\View\Product\Details\Customer\Stock implements \XLite
     }
 
     /**
+     * Return available amount
+     *
+     * @return integer
+     */
+    protected function getItemsInCart()
+    {   
+        return $this->getProductVariant()
+            ? $this->getProductVariant()->getItemsInCart()
+            : parent::getItemsInCart();
+    }
+
+    /**
+     * Return available amount message
+     *
+     * @return integer
+     */
+    protected function getItemsInCartMessage()
+    {   
+        return $this->getProductVariant()
+            ? $this->getProductVariant()->getItemsInCartMessage()
+            : parent::getItemsInCartMessage();
+    }
+
+    /**
      * Check - 'items available' label is visible or not
      *
      * @return boolean

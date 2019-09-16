@@ -19,7 +19,7 @@ var EventTaskProgress = Object.extend({
     this.$progress = this.$component.find(this.progressSelector);
     this.$bar = this.$progress.find(this.barSelector);
     this.$message = this.$component.find(this.messageSelector);
-    this.$cancelButton = this.$component.find(this.cancelSelector);
+    this.$cancelButton = this.$component.closest('form').find(this.cancelSelector);
     this.initialize();
   },
 

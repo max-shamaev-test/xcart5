@@ -23,6 +23,22 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\Customer\ACustome
     protected $ga_position_in_list = 1;
 
     /**
+     * Get a list of JavaScript files required to display the widget properly
+     *
+     * @return array
+     */
+    public function getJSFiles()
+    {
+        $list = parent::getJSFiles();
+
+        if (\XLite\Module\CDev\GoogleAnalytics\Main::isECommerceEnabled()) {
+            $list[] = 'modules/CDev/GoogleAnalytics/items_list/product/products_list.js';
+        }
+
+        return $list;
+    }
+
+    /**
      * Get product list item widget params required for the widget of type getProductWidgetClass().
      *
      * @param \XLite\Model\Product $product

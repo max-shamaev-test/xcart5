@@ -13,7 +13,6 @@
 
 ItemsList.prototype.listeners.popup = function(handler)
 {
-  core.autoload(PopupButtonInstallAddon);
   jQuery('.no-payment-methods-appearance .no-payments-found .search-worldwide').click(function(event) {
     var box = jQuery(this).parents('.dialog-content.payment-gateways').eq(0);
     if (0 < box.length) {

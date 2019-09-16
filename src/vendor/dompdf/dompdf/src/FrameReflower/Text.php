@@ -408,7 +408,7 @@ class Text extends AbstractFrameReflower
                 // This technique (using arrays & an anonymous function) is actually
                 // faster than doing a single-pass character by character scan.  Heh,
                 // yes I took the time to bench it ;)
-                $words = array_flip(preg_split("/[\s-\w]+/u", $str, -1, PREG_SPLIT_DELIM_CAPTURE));
+                $words = array_flip(preg_split("/[\s-]+/u", $str, -1, PREG_SPLIT_DELIM_CAPTURE));
                 $root = $this;
                 array_walk($words, function(&$val, $str) use ($font, $size, $word_spacing, $char_spacing, $root) {
                     $val = $root->getFontMetrics()->getTextWidth($str, $font, $size, $word_spacing, $char_spacing);
@@ -467,9 +467,18 @@ class Text extends AbstractFrameReflower
             $style->border_right_width,
             $style->margin_right), $line_width);
         $min += $delta;
+        $min_word = $min;
         $max += $delta;
 
-        return $this->_min_max_cache = array($min, $max, "min" => $min, "max" => $max);
+        if ($style->word_wrap === 'break-word') {
+            // If it is allowed to break words, the min width is the widest character.
+            // But for performance reasons, we only check the first character.
+            $char = mb_substr($str, 0, 1);
+            $min_char = $this->getFontMetrics()->getTextWidth($char, $font, $size, $word_spacing, $char_spacing);
+            $min = $delta + $min_char;
+        }
+
+        return $this->_min_max_cache = array($min, $max, $min_word, "min" => $min, "max" => $max, 'min_word' => $min_word);
     }
 
     /**

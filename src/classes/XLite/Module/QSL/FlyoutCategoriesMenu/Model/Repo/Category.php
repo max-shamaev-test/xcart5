@@ -43,7 +43,7 @@ abstract class Category extends \XLite\Model\Repo\Category implements \XLite\Bas
                 )
                 ->setParameter('enabled', true);
 
-            if ('directLink' === \XLite\Core\Config::getInstance()->General->show_out_of_stock_products) {
+            if ('directLink' === \XLite\Core\Config::getInstance()->General->show_out_of_stock_products || 'searchOnly' === \XLite\Core\Config::getInstance()->General->show_out_of_stock_products) {
                 $queryBuilder->andWhere('(categoryProductsProduct.inventoryEnabled = false OR categoryProductsProduct.amount > 0 OR categoryProductsProduct.product_id IS NULL)');
             }
 

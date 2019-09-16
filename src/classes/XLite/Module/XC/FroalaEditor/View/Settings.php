@@ -41,7 +41,7 @@ class Settings extends \XLite\View\Model\Settings
     {
         $result = parent::getFieldSchemaArgs($name, $data);
 
-        if ($name !== 'use_custom_colors') {
+        if ($name === 'custom_colors') {
             $result[static::SCHEMA_DEPENDENCY] = [
                 static::DEPENDENCY_SHOW => [
                     'use_custom_colors' => [true],

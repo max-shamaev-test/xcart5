@@ -25,7 +25,6 @@ abstract class AAdmin extends \XLite\View\StickyPanel\Product\Admin\AAdmin imple
             'class'    => 'XLite\Module\XC\BulkEditing\View\Button\Product',
             'params'   => [
                 'style'          => 'more-action always-enabled',
-                'useCaretButton' => false,
                 'dropDirection'  => 'dropup',
             ],
             'position' => 50,

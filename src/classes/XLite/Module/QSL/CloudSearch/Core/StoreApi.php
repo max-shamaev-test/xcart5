@@ -121,7 +121,7 @@ class StoreApi extends \XLite\Base\Singleton
             Config::getInstance()->General->show_out_of_stock_products !== 'directLink'
             || Main::isAdminSearchEnabled()
         ) {
-            $cnd->{ProductRepo::P_INVENTORY} = false;
+            $cnd->{ProductRepo::P_INVENTORY} = ProductRepo::INV_ALL;
         }
 
         $cnd->{ProductRepo::P_SKIP_MEMBERSHIP_CONDITION} = true;
@@ -738,14 +738,16 @@ class StoreApi extends \XLite\Base\Singleton
     protected function getProductStockStatus(Product $product)
     {
         if (!$product->getInventoryEnabled()) {
-            return 'in';
+            return ProductRepo::INV_IN;
         }
 
-        if ($product->getPublicAmount() === 0) {
-            return 'out';
+        if ($product->getPublicAmount() <= 0) {
+            return ProductRepo::INV_OUT;
         }
 
-        return $product->getPublicAmount() < $product->getLowLimitAmount() ? 'low' : 'in';
+        return $product->getPublicAmount() < $product->getLowLimitAmount()
+            ? ProductRepo::INV_LOW
+            : ProductRepo::INV_IN;
     }
 
     /**

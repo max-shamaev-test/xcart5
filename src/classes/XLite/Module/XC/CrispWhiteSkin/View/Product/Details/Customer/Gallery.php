@@ -37,16 +37,4 @@ class Gallery extends \XLite\View\Product\Details\Customer\Gallery implements \X
     {
         return 4;
     }
-
-    /**
-     * @deprecated 5.3.4
-     *
-     * Checks if slider mode is required for the gallery
-     *
-     * @return boolean
-     */
-    protected function isInSliderMode()
-    {
-        return count($this->getProduct()->getPublicImages()) > $this->getMinCountForSlider();
-    }
 }

@@ -8,10 +8,6 @@
 
 namespace XLite\View;
 
-use XLite\Core\Templating\EngineInterface;
-use XLite\Core\Templating\TemplateFinderInterface;
-
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use XLite\Core\DependencyInjection\ContainerAwareTrait;
 use XLite\Core\Event\WidgetAfterRenderEvent;
 use XLite\Core\Event\WidgetBeforeRenderEvent;
@@ -29,20 +25,20 @@ use XLite\Core\WidgetCache;
  */
 abstract class AView extends \XLite\Core\Handler
 {
-    use ContainerAwareTrait;
+    use ContainerAwareTrait, OutputHelpersTrait;
 
     /**
      * Resource types
      */
-    const RESOURCE_JS   = 'js';
-    const RESOURCE_CSS  = 'css';
+    const RESOURCE_JS  = 'js';
+    const RESOURCE_CSS = 'css';
 
     /**
      * Common widget parameter names
      */
-    const PARAM_TEMPLATE      = 'template';
-    const PARAM_METADATA      = 'metadata';
-    const PARAM_MODES         = 'modes';
+    const PARAM_TEMPLATE = 'template';
+    const PARAM_METADATA = 'metadata';
+    const PARAM_MODES    = 'modes';
 
     /**
      *  View list insertation position
@@ -61,14 +57,14 @@ abstract class AView extends \XLite\Core\Handler
      *
      * @var   array
      */
-    protected static $viewsTail = array();
+    protected static $viewsTail = [];
 
     /**
      * View lists (cache)
      *
      * @var \XLite\View\AView[][]
      */
-    protected $viewLists = array();
+    protected $viewLists = [];
 
     /**
      * isCloned
@@ -80,7 +76,7 @@ abstract class AView extends \XLite\Core\Handler
     /**
      * Runtime cache for widgets initialization
      */
-    protected static $initFlags = array();
+    protected static $initFlags = [];
 
     /**
      * Return widget default template
@@ -141,9 +137,9 @@ abstract class AView extends \XLite\Core\Handler
      *
      * @return mixed
      */
-    public function __call($method, array $args = array())
+    public function __call($method, array $args = [])
     {
-        return call_user_func_array(array(\XLite::getController(), $method), $args);
+        return call_user_func_array([\XLite::getController(), $method], $args);
     }
 
     /**
@@ -168,7 +164,7 @@ abstract class AView extends \XLite\Core\Handler
      *
      * @return \XLite\View\AView
      */
-    public function getWidget(array $params = array(), $class = null)
+    public function getWidget(array $params = [], $class = null)
     {
         // Create/clone current widget
         $widget = $this->getChildWidget($class, $params);
@@ -256,7 +252,7 @@ abstract class AView extends \XLite\Core\Handler
     public function display($template = null)
     {
         $overrideTemplate = isset($template);
-        $originalWidget = !$this->isCloned && !$overrideTemplate;
+        $originalWidget   = !$this->isCloned && !$overrideTemplate;
 
         if (
             $this->getRenderingContext()->isBuffering()
@@ -276,7 +272,7 @@ abstract class AView extends \XLite\Core\Handler
                 $this->initView();
             }
 
-            $cacheEnabled = $this->isCacheAllowed() && $originalWidget;
+            $cacheEnabled   = $this->isCacheAllowed() && $originalWidget;
             $renderedWidget = $cacheEnabled ? $this->getRenderedWidgetFromCache() : null;
 
             if ($renderedWidget !== null) {
@@ -428,7 +424,7 @@ abstract class AView extends \XLite\Core\Handler
      *
      * @return \XLite\View\AView
      */
-    public function getChildWidget($class = null, array $params = array())
+    public function getChildWidget($class = null, array $params = [])
     {
         if (null !== $class) {
             /** @var AView $widget */
@@ -503,7 +499,7 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function prepareTemplateDisplay($template)
     {
-        return array();
+        return [];
     }
 
     /**
@@ -528,20 +524,7 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function getDefaultModes()
     {
-        return array();
-    }
-
-    /**
-     * Return favicon resource path
-     *
-     * @return string
-     */
-    protected function getFavicon()
-    {
-        return \XLite\Core\Layout::getInstance()->getResourceWebPath(
-            static::FAVICON,
-            \XLite\Core\Layout::WEB_PATH_OUTPUT_URL
-        );
+        return [];
     }
 
     /**
@@ -562,11 +545,11 @@ abstract class AView extends \XLite\Core\Handler
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_TEMPLATE => new \XLite\Model\WidgetParam\TypeFile('Template', $this->getDefaultTemplate()),
-            self::PARAM_METADATA => new \XLite\Model\WidgetParam\TypeCollection('Widget metadata', array()),
+            self::PARAM_METADATA => new \XLite\Model\WidgetParam\TypeCollection('Widget metadata', []),
             self::PARAM_MODES    => new \XLite\Model\WidgetParam\TypeCollection('Modes', $this->getDefaultModes()),
-        );
+        ];
     }
 
     /**
@@ -580,7 +563,7 @@ abstract class AView extends \XLite\Core\Handler
     {
         $targets = static::getAllowedTargets();
 
-        return (!((bool)$targets) || static::isDisplayRequired($targets)) && !static::isDisplayRestricted(static::getDisallowedTargets());
+        return (!((bool) $targets) || static::isDisplayRequired($targets)) && !static::isDisplayRestricted(static::getDisallowedTargets());
     }
 
     /**
@@ -710,11 +693,11 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected static function getResourcesSchema()
     {
-        return array(
-            array('getCommonFiles', 100, \XLite::COMMON_INTERFACE),
-            array('getResources',   200, null),
-            array('getThemeFiles',  300, null),
-        );
+        return [
+            ['getCommonFiles', 100, \XLite::COMMON_INTERFACE],
+            ['getResources', 200, null],
+            ['getThemeFiles', 300, null],
+        ];
     }
 
     /**
@@ -758,14 +741,7 @@ abstract class AView extends \XLite\Core\Handler
      */
     public function getCSSFiles()
     {
-        return array(
-            array(
-                'file'  => 'css/style.less',
-                'media' => 'screen',
-                // We use the bootstrap LESS instructions
-                'merge' => 'bootstrap/css/bootstrap.less',
-            ),
-        );
+        return [];
     }
 
     /**
@@ -797,7 +773,7 @@ abstract class AView extends \XLite\Core\Handler
      */
     public function getJSFiles()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -826,16 +802,29 @@ abstract class AView extends \XLite\Core\Handler
      */
     public function getMetaTags()
     {
-        return array();
+        return [];
     }
 
     /**
-     * Flag indicating that AView's common files were already registered to avoid iterating over and over again
-     * Much more clean way is to move the whole resource declaration into the concrete widget class (representing a root of the page), but it will break BC
-     *
-     * @var bool
+     * @return array
      */
-    private static $returnedAViewsCommonFiles = false;
+    public static function getVueLibraries()
+    {
+        return [
+            [
+                'file' => LC_DEVELOPER_MODE ? 'vue/vue.js' : 'vue/vue.min.js',
+                'no_minify' => true
+            ],
+            [
+                'file' => LC_DEVELOPER_MODE ? 'vue/vuex.js' : 'vue/vuex.min.js',
+                'no_minify' => true
+            ],
+            'vue/vue.loadable.js',
+            'vue/vue.registerComponent.js',
+            'js/vue/vue.js',
+            'js/vue/component.js'
+        ];
+    }
 
     /**
      * Register files from common repository
@@ -844,16 +833,10 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function getCommonFiles()
     {
-        if (self::$returnedAViewsCommonFiles) {
-            return array();
-        }
-
-        self::$returnedAViewsCommonFiles = true;
-
-        return array(
-            static::RESOURCE_JS => array(),
-            static::RESOURCE_CSS => array(),
-        );
+        return [
+            static::RESOURCE_JS  => [],
+            static::RESOURCE_CSS => [],
+        ];
     }
 
     /**
@@ -874,15 +857,15 @@ abstract class AView extends \XLite\Core\Handler
     protected function getThemeFiles($adminZone = null)
     {
         if (self::$returnedAViewsThemeFiles) {
-            return array();
+            return [];
         }
 
         self::$returnedAViewsThemeFiles = true;
 
-        return array(
-            static::RESOURCE_JS => array(),
-            static::RESOURCE_CSS => array(),
-        );
+        return [
+            static::RESOURCE_JS  => [],
+            static::RESOURCE_CSS => [],
+        ];
     }
 
     /**
@@ -892,10 +875,10 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function getResources()
     {
-        return array(
-            static::RESOURCE_JS   => $this->getJSFiles(),
-            static::RESOURCE_CSS  => $this->getCSSFiles(),
-        );
+        return [
+            static::RESOURCE_JS  => $this->getJSFiles(),
+            static::RESOURCE_CSS => $this->getCSSFiles(),
+        ];
     }
 
     /**
@@ -918,14 +901,14 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function getValidationEngineLanguageResource()
     {
-        return array(
-            'file' => 'js/validationEngine.min/languages/jquery.validationEngine-LANGUAGE_CODE.js',
-            'filelist' => array(
+        return [
+            'file'      => 'js/validationEngine.min/languages/jquery.validationEngine-LANGUAGE_CODE.js',
+            'filelist'  => [
                 $this->getValidationEngineLanguageFile(),
                 'js/validationEngine.min/languages/jquery.validationEngine-en.js',
-            ),
+            ],
             'no_minify' => true,
-        );
+        ];
     }
 
     /**
@@ -1001,10 +984,10 @@ abstract class AView extends \XLite\Core\Handler
      *
      * $interface - parameter to inform where the resources are placed.
      *
-     * @param array   $resources List of resources to register
-     * @param integer $index     Position in the ordered resources queue
-     * @param string  $interface Interface where the resources are placed OPTIONAL
-     * @param \XLite\View\AView  $owner Mark resources with this object OPTIONAL
+     * @param array             $resources List of resources to register
+     * @param integer           $index     Position in the ordered resources queue
+     * @param string            $interface Interface where the resources are placed OPTIONAL
+     * @param \XLite\View\AView $owner     Mark resources with this object OPTIONAL
      *
      * @return void
      *
@@ -1041,7 +1024,7 @@ abstract class AView extends \XLite\Core\Handler
      *
      * @return void
      */
-    public function displayViewListContent($list, array $arguments = array())
+    public function displayViewListContent($list, array $arguments = [])
     {
         foreach ($this->getViewList($list, $arguments) as $widget) {
             $widget->display();
@@ -1056,7 +1039,7 @@ abstract class AView extends \XLite\Core\Handler
      *
      * @return void
      */
-    public function displayNestedViewListContent($part, array $params = array())
+    public function displayNestedViewListContent($part, array $params = [])
     {
         $this->displayViewListContent($this->getNestedListName($part), $params);
     }
@@ -1070,7 +1053,7 @@ abstract class AView extends \XLite\Core\Handler
      *
      * @return void
      */
-    public function displayInheritedViewListContent($part, array $params = array())
+    public function displayInheritedViewListContent($part, array $params = [])
     {
         $this->displayViewListContent($this->getInheritedListName($part), $params);
     }
@@ -1095,7 +1078,7 @@ abstract class AView extends \XLite\Core\Handler
      *
      * @return array
      */
-    protected function getNestedViewList($part, array $arguments = array())
+    protected function getNestedViewList($part, array $arguments = [])
     {
         return $this->getViewList($this->getNestedListName($part), $arguments);
     }
@@ -1120,7 +1103,7 @@ abstract class AView extends \XLite\Core\Handler
      *
      * @return array
      */
-    protected function getInheritedViewList($part, array $arguments = array())
+    protected function getInheritedViewList($part, array $arguments = [])
     {
         return $this->getViewList($this->getInheritedListName($part), $arguments);
     }
@@ -1137,7 +1120,7 @@ abstract class AView extends \XLite\Core\Handler
     public function displayCommentedData(array $data)
     {
         if (!empty($data)) {
-            echo ('<script type="text/x-cart-data">' . "\r\n" . json_encode($data) . "\r\n" . '</script>' . "\r\n");
+            echo('<script type="text/x-cart-data">' . "\r\n" . json_encode($data) . "\r\n" . '</script>' . "\r\n");
         }
     }
 
@@ -1157,7 +1140,7 @@ abstract class AView extends \XLite\Core\Handler
         }
 
         if ($currency->getRoundUp() !== \XLite\Model\Currency::ROUNDUP_NONE && !\XLite::isAdminZone()) {
-            $pow = pow(10, (int)$currency->getRoundUp());
+            $pow   = pow(10, (int) $currency->getRoundUp());
             $value = ceil($value * $pow) / $pow;
         }
 
@@ -1198,8 +1181,8 @@ abstract class AView extends \XLite\Core\Handler
     /**
      * Format price as HTML block
      *
-     * @param float                 $value    Value
-     * @param \XLite\Model\Currency $currency Currency OPTIONAL
+     * @param float                 $value        Value
+     * @param \XLite\Model\Currency $currency     Currency OPTIONAL
      * @param boolean               $strictFormat Flag if the price format is strict (trailing zeroes and so on options)
      *
      * @return string
@@ -1211,7 +1194,7 @@ abstract class AView extends \XLite\Core\Handler
         }
 
         if ($currency->getRoundUp() !== \XLite\Model\Currency::ROUNDUP_NONE && !\XLite::isAdminZone()) {
-            $pow = pow(10, (int)$currency->getRoundUp());
+            $pow   = pow(10, (int) $currency->getRoundUp());
             $value = ceil($value * $pow) / $pow;
         }
 
@@ -1226,7 +1209,7 @@ abstract class AView extends \XLite\Core\Handler
         }
 
         foreach ($parts as $name => $value) {
-            $class = 'part-' . $name;
+            $class        = 'part-' . $name;
             $parts[$name] = '<span class="' . $class . '">' . func_htmlspecialchars($value) . '</span>';
         }
 
@@ -1242,17 +1225,9 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function printTagAttributes(array $attributes)
     {
-        $pairs = array();
-        foreach ($attributes as $name => $value) {
-            if (is_array($value)) {
-                $value = implode(' ', $value);
-            }
-
-            $pairs[] = func_htmlspecialchars(strtolower($name)) . '="' . func_htmlspecialchars(trim($value)) . '"';
-        }
-
-        return implode(' ', $pairs);
+        return static::convertToHtmlAttributeString($attributes);
     }
+
     /**
      * Check - view list is visible or not
      *
@@ -1261,7 +1236,7 @@ abstract class AView extends \XLite\Core\Handler
      *
      * @return boolean
      */
-    public function isViewListVisible($list, array $arguments = array())
+    public function isViewListVisible($list, array $arguments = [])
     {
         return 0 < count($this->getViewList($list, $arguments));
     }
@@ -1276,16 +1251,16 @@ abstract class AView extends \XLite\Core\Handler
     protected function formatSize($size)
     {
         if (1024 > $size) {
-            $result = static::t('X bytes', array('value' => $size));
+            $result = static::t('X bytes', ['value' => $size]);
 
         } elseif (1048576 > $size) {
-            $result = static::t('X kB', array('value' => round($size / 1024, 1)));
+            $result = static::t('X kB', ['value' => round($size / 1024, 1)]);
 
         } elseif (1073741824 > $size) {
-            $result = static::t('X MB', array('value' => round($size / 1048576, 1)));
+            $result = static::t('X MB', ['value' => round($size / 1048576, 1)]);
 
         } else {
-            $result = static::t('X GB', array('value' => round($size / 1073741824, 1)));
+            $result = static::t('X GB', ['value' => round($size / 1073741824, 1)]);
 
         }
 
@@ -1332,7 +1307,7 @@ abstract class AView extends \XLite\Core\Handler
         $indexName = $listName . 'ArrayPointer';
         $countName = $listName . 'ArraySize';
 
-        $class = array();
+        $class = [];
 
         if (1 == $this->$indexName) {
             $class[] = 'first';
@@ -1356,35 +1331,6 @@ abstract class AView extends \XLite\Core\Handler
     protected function formatFileSize($size)
     {
         return \XLite\Core\Converter::formatFileSize($size);
-    }
-
-    /**
-     * Compares two values
-     * @deprecated Used only in deprecated class (\XLite\View\MembershipSelect)
-     *
-     * @param mixed $val1 Value 1
-     * @param mixed $val2 Value 2
-     * @param mixed $val3 Value 3 OPTIONAL
-     *
-     * @return boolean
-     */
-    protected function isSelected($val1, $val2, $val3 = null)
-    {
-        if (null !== $val1 && null !== $val3) {
-            $method = 'get';
-
-            if ($val1 instanceof \XLite\Model\AEntity) {
-                $method .= \Includes\Utils\Converter::convertToPascalCase($val2);
-            }
-
-            // Get value with get() method and compare it with third value
-            $result = $val1->$method() == $val3;
-
-        } else {
-            $result = $val1 == $val2;
-        }
-
-        return $result;
     }
 
     /**
@@ -1603,7 +1549,7 @@ abstract class AView extends \XLite\Core\Handler
      *
      * @return \XLite\View\AView[]
      */
-    protected function getViewList($list, array $arguments = array())
+    protected function getViewList($list, array $arguments = [])
     {
         if (!isset($this->viewLists[$list])) {
             $this->viewLists[$list] = $this->defineViewList($list);
@@ -1615,7 +1561,7 @@ abstract class AView extends \XLite\Core\Handler
             }
         }
 
-        $result = array();
+        $result = [];
         foreach ($this->viewLists[$list] as $widget) {
             if ($widget->checkVisibility() || $widget instanceof DynamicWidgetInterface) {
                 $result[] = $widget;
@@ -1634,10 +1580,12 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function getViewListChildren($list)
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\ViewList')->findClassList(
+        $children = \XLite\Core\Database::getRepo('XLite\Model\ViewList')->findClassList(
             $list,
             static::detectCurrentViewZone()
         );
+
+        return $children;
     }
 
     /**
@@ -1693,7 +1641,7 @@ abstract class AView extends \XLite\Core\Handler
         $properties['list']   = $node->getList();
 
         // Add element to the array
-        array_splice($list, $key, 0, array(new \XLite\Model\ViewList($properties)));
+        array_splice($list, $key, 0, [new \XLite\Model\ViewList($properties)]);
     }
 
     /**
@@ -1705,38 +1653,50 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function defineViewList($list)
     {
-        $widgets = array();
+        $widgets = [];
 
         foreach ($this->getViewListChildren($list) as $widget) {
             /** @var \XLite\View\AView $widgetClass */
             $widgetClass = $widget->getChild();
-            $metadata = $this->getListItemMetadata($widget);
 
             if ($widgetClass && $widgetClass::checkTarget()) {
                 // List child is widget
                 $widgets[] = $this->getWidget(
-                    array(
-                        'viewListClass' => $this->getViewListClass(),
-                        'viewListName'  => $widget->getList(),
-                        'metadata'      => $metadata,
-                    ),
+                    $this->getViewListItemWidgetParams($widget),
                     $widget->getChild()
                 );
 
             } elseif ($widget->getTpl()) {
                 // List child is template
                 $widgets[] = $this->getWidget(
-                    array(
-                        'viewListClass' => $this->getViewListClass(),
-                        'viewListName'  => $list,
-                        'metadata'      => $metadata,
-                        'template'      => $widget->getTpl(),
-                    )
+                    $this->getViewListItemWidgetParams($widget)
                 );
             }
         }
 
         return $widgets;
+    }
+
+    /**
+     * Returns view list item widget params, used in getWidget call
+     *
+     * @param \XLite\Model\ViewList $item
+     *
+     * @return array
+     */
+    protected function getViewListItemWidgetParams(\XLite\Model\ViewList $item)
+    {
+        $params = [
+            'viewListClass' => $this->getViewListClass(),
+            'viewListName'  => $item->getList(),
+            'metadata'      => $this->getListItemMetadata($item),
+        ];
+
+        if ($item->getTpl()) {
+            $params['template'] = $item->getTpl();
+        }
+
+        return $params;
     }
 
     /**
@@ -1748,7 +1708,7 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function getListItemMetadata($item)
     {
-        return array();
+        return [];
     }
 
     /**
@@ -1771,7 +1731,7 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function getXpathByContent($content)
     {
-        $dom = new \DOMDocument();
+        $dom               = new \DOMDocument();
         $dom->formatOutput = true;
 
         return @$dom->loadHTML($content) ? new \DOMXPath($dom) : null;
@@ -1785,7 +1745,7 @@ abstract class AView extends \XLite\Core\Handler
      *
      * @return string
      */
-    protected function getViewListContent($list, array $arguments = array())
+    protected function getViewListContent($list, array $arguments = [])
     {
         ob_start();
         $this->displayViewListContent($list, $arguments);
@@ -1805,9 +1765,9 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function getViewListContentAsNodes($list)
     {
-        $d = new \DOMDocument();
+        $d       = new \DOMDocument();
         $content = $this->getViewListContent($list);
-        $result = null;
+        $result  = null;
         if ($content && @$d->loadHTML($content)) {
             $result = $d->documentElement->childNodes->item(0)->childNodes;
         }
@@ -1830,7 +1790,7 @@ abstract class AView extends \XLite\Core\Handler
     {
         $xpath = $this->getXpathByContent($content);
         if ($xpath) {
-            $places = $xpath->query($query);
+            $places  = $xpath->query($query);
             $patches = $this->getViewListContentAsNodes($list);
             if (0 < $places->length && $patches && 0 < $patches->length) {
                 $this->applyXpathPatches($places, $patches, $insertPosition);
@@ -1867,7 +1827,7 @@ abstract class AView extends \XLite\Core\Handler
                     if ($place->nextSibling) {
                         $place->parentNode->insertBefore($node, $place->nextSibling);
                         $insertType = self::INSERT_BEFORE;
-                        $place = $place->nextSibling;
+                        $place      = $place->nextSibling;
 
                     } else {
                         $place->parentNode->appendChild($node);
@@ -1878,11 +1838,11 @@ abstract class AView extends \XLite\Core\Handler
                     $place->parentNode->replaceChild($node, $place);
 
                     if ($node->nextSibling) {
-                        $place = $node->nextSibling;
+                        $place      = $node->nextSibling;
                         $insertType = self::INSERT_BEFORE;
 
                     } else {
-                        $place = $node;
+                        $place      = $node;
                         $insertType = self::INSERT_AFTER;
                     }
                 }
@@ -1992,7 +1952,7 @@ abstract class AView extends \XLite\Core\Handler
      */
     public function getAjaxPrefix()
     {
-        $result  = '';
+        $result = '';
 
         if (LC_USE_CLEAN_URLS
             && \XLite\Core\Router::getInstance()->isUseLanguageUrls()
@@ -2046,6 +2006,16 @@ abstract class AView extends \XLite\Core\Handler
     }
 
     /**
+     * Return favicon resource path
+     *
+     * @return string
+     */
+    protected function getFavicon()
+    {
+        return \XLite\Core\Layout::getInstance()->getFavicon();
+    }
+
+    /**
      * Get invoice logo
      *
      * @return string
@@ -2063,18 +2033,23 @@ abstract class AView extends \XLite\Core\Handler
      *
      * @return array
      */
-    protected function getAddressSectionData(\XLite\Model\Address $address, $showEmpty = false)
+    protected function getAddressSectionData(\XLite\Model\Address $address = null, $showEmpty = false)
     {
-        $result = array();
+        $result    = [];
+
+        if (!$address) {
+            return $result;
+        }
+
         $hasStates = $address->getCountry() ? $address->getCountry()->hasStates() : false;
 
         foreach (\XLite\Core\Database::getRepo('XLite\Model\AddressField')->findAllEnabled() as $field) {
-            $method = 'get'
+            $method            = 'get'
                 . \Includes\Utils\Converter::convertToCamelCase(
                     $field->getViewGetterName() ?: $field->getServiceName()
                 );
             $addressFieldValue = $address->{$method}();
-            $cssFieldName = $field->getCSSFieldName();
+            $cssFieldName      = $field->getCSSFieldName();
 
             switch ($field->getServiceName()) {
                 case 'state_id':
@@ -2092,11 +2067,11 @@ abstract class AView extends \XLite\Core\Handler
             }
 
             if (strlen($addressFieldValue) || $showEmpty) {
-                $result[$field->getServiceName()] = array(
+                $result[$field->getServiceName()] = [
                     'css_class' => $cssFieldName,
                     'title'     => $field->getName(),
                     'value'     => $addressFieldValue,
-                );
+                ];
             }
         }
 
@@ -2123,7 +2098,7 @@ abstract class AView extends \XLite\Core\Handler
     /**
      * Get SVG image
      *
-     * @param string $path Path
+     * @param string $path      Path
      * @param string $interface Interface code OPTIONAL
      *
      * @return string
@@ -2137,7 +2112,7 @@ abstract class AView extends \XLite\Core\Handler
         if ($path && file_exists($path)) {
             $content = file_get_contents($path);
             $content = preg_replace(
-                array(
+                [
                     '/<\?xml [^>]+>/Ssi',
                     '/<!ENTITY [^>]+>/Ss',
                     '/<!DOCTYPE svg [^>]*>/Ssi',
@@ -2145,8 +2120,8 @@ abstract class AView extends \XLite\Core\Handler
                     '/xmlns:(?:x|i|graph)="[^"]+"/Ss',
                     '/>\s+</Ss',
                     '/<!--\s.+\s-->/USs',
-                ),
-                array('', '', '', '', '', '><', ''),
+                ],
+                ['', '', '', '', '', '><', ''],
                 $content
             );
             $content = trim($content);
@@ -2242,12 +2217,12 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function getCacheParameters()
     {
-        return array(
+        return [
             \Includes\Utils\URLManager::isHTTPS(),
             \XLite\Core\Session::getInstance()->getLanguage()->getCode(),
             \XLite\Core\Config::getInstance()->General->default_language,
             substr(get_called_class(), 6),
-        );
+        ];
     }
 
     /**
@@ -2333,7 +2308,7 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function getActivateFreeLicenseURL()
     {
-        return \XLite\Core\Converter::buildURL('activate_free_license', '', [], \XLite::getAdminScript());
+        return \Includes\Utils\Module\Manager::getRegistry()->getServiceURL('free-license');
     }
 
     /**
@@ -2343,7 +2318,7 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function hasLicense()
     {
-        return (bool)\XLite::getXCNLicense();
+        return \XLite::hasXCNLicenseKey();
     }
 
     /**
@@ -2380,7 +2355,7 @@ abstract class AView extends \XLite\Core\Handler
      */
     protected function getTagName($tag)
     {
-        $label = 'tag-' . $tag;
+        $label       = 'tag-' . $tag;
         $translation = (string) static::t($label);
 
         return ($translation === $label) ? $tag : $translation;

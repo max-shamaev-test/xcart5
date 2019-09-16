@@ -141,7 +141,7 @@ XLite\Model\LanguageLabel:
   - { name: 'There are no comments yet. Be the first to leave a comment', translations: [{ code: 'en', label: 'There are no comments yet. Be the first to leave a comment' }] }
   - { name: 'A new review has been submitted for the product "{{name}}".', translations: [{ code: 'en', label: 'A new review has been submitted for the product "{{name}}".' }] }
   - { name: 'Go to see the review [in the Admin area]', translations: [{ code: 'en', label: 'Go to see the review <a href="{{link}}">in the Admin area</a>' }] }
-  - { name: 'itemslist.admin.review.blank', translations: [{ code: en, label: '<p class="items-list-blank-description-heading text-center">No one has rated your products yet.</p><p class="text-center">Once someone reviews your product (or you add a review manually), this is the place to track, moderate and remove reviews.</p>' },{ code: ru, label: '<p class="items-list-blank-description-heading text-center">Никто пока не оценил ваши товары.</p><p class="text-center">Как только появятся отзывы о ваших товарах, вы сможете управлять ими на этой странице.</p>' }] }
+  - { name: 'itemslist.admin.review.blank', translations: [{ code: en, label: '<p>No one has rated your products yet. Once someone reviews your product (or you add a review manually), this is the place to track, moderate and remove reviews.</p>' },{ code: ru, label: '<p>Никто пока не оценил ваши товары. Как только появятся отзывы о ваших товарах, вы сможете управлять ими на этой странице.</p>' }] }
   - { name: 'Please review purchased product {{product}}', translations: [{ code: en, label: 'Please review the product {{product}}' },{ code: ru, label: 'Пожалуйств, оставьте отзыв на товар {{product}}' }] }
   - { name: 'Recently, you have made a purchase from our company:', translations: [{ code: en, label: "<p>Thank you for your recent purchase from {{company}} – Order #{{orderNumber}} ({{orderDate}}):</p>" },{ code: ru, label: "<p>Благодарим Вас за недавнюю покупку у {{company}} – Заказ #{{orderNumber}} ({{orderDate}}):</p>" }] }
   - { name: 'Please review purchased products', translations: [{ code: en, label: "<p>Would you be willing to rate these products and write a review? Your opinion is important us.</p><p>To write a review:</p><p>1) Click on the product name to open the Customer reviews section for the product<br />2) Click Add review<br />3) Rate the product and write your feedback.</p><p>Thank you so much for taking the time to let us know what you think. It is truly appreciated.</p>" },{ code: ru, label: "<p>Готовы ли вы оценить эти товары и написать отзыв? Ваше мнение очень важно для нас!</p><p>Чтобы написать отзыв:</p><p>1) Нажмите на название товара, чтобы открыть раздел Отзывы для этого товара<br />2) Нажмите кнопку Добавить отзыв<br />3) Оцените товар и напишите свой отзыв.</p><p>Спасибо, что нашли время сообщить нам свое мнение. Мы очень ценим это.</p>" }] }
@@ -173,39 +173,43 @@ XLite\Model\Notification:
     enabledForAdmin: true
     enabledForCustomer: false
     adminHeaderEnabled: true
-    adminGreetingEnabled: false
+    adminGreetingEnabled: true
     adminSignatureEnabled: true
     customerHeaderEnabled: false
     customerGreetingEnabled: false
     customerSignatureEnabled: false
+    editable: true
     translations:
       - code: en
-        name: New product review submitted - (Product Reviews module)
-        description: "This message is used to notify the administrator when a customer submits a new product review."
-        adminSubject: "A new review has been submitted"
-        adminText: ""
+        name: 'New product review submitted - (Product Reviews module)'
+        description: 'This message is used to notify the administrator when a customer submits a new product review.'
+        adminSubject: 'New review for ‘%product_name%’'
+        adminText: '<p dir="ltr">%author_name% has just rated your &quot;%product_name%&quot; and left a review for you.</p><p dir="ltr">%dynamic_message%</p><blockquote><p dir="ltr">%review%</p></blockquote><p dir="ltr">Follow <a href="%product_link%">this link</a> to approve or remove this review. And don&rsquo;t forget to reply to your customer &mdash; we all love to be heard ;)</p>'
       - code: ru
         name: Получен новый отзыв о товаре - (модуль Product Reviews)
         description: "Данное сообщение используется для уведомления администратора о том, что клиент оставил отзыв о каком-либо товаре."
         adminSubject: "Получен новый отзыв о товаре"
         adminText: ""
+
   - templatesDirectory: modules/XC/Reviews/review_key
+    position: 0
     availableForAdmin: false
-    availableForCustomer: false
+    availableForCustomer: true
     enabledForAdmin: false
-    enabledForCustomer: true
+    enabledForCustomer: false
     adminHeaderEnabled: false
     adminGreetingEnabled: false
     adminSignatureEnabled: false
     customerHeaderEnabled: true
     customerGreetingEnabled: true
     customerSignatureEnabled: true
+    editable: true
     translations:
       - code: en
-        name: "Request to review purchased products - (Product Reviews module)"
-        description: "This message is used to invite customers to leave feedback on the products they have purchased."
-        customerSubject: "Please review your purchase"
-        customerText: ""
+        name: 'Request to review purchased products - (Product Reviews module)'
+        description: 'This message is used to invite customers to leave feedback on the products they have purchased.'
+        customerSubject: 'Order #%order_number%: Please, review'
+        customerText: '<p>Thank you for purchasing our products!</p><p>%dynamic_message%</p><p>We hope you love them. And if you really do, please take a minute to review your order to let others know that we care about delivering the best quality.</p>'
       - code: ru
         name: "Приглашение оставить отзыв на купленные товары - (модуль Product Reviews)"
         description: "Данное сообщение используется для отправки покупателю приглашения оставить отзыв о купленных им товарах."

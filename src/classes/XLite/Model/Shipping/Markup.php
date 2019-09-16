@@ -14,9 +14,10 @@ namespace XLite\Model\Shipping;
  * @Entity
  * @Table (name="shipping_markups",
  *      indexes={
- *          @Index (name="rate", columns={"method_id","zone_id","min_weight","min_total","min_items"}),
+ *          @Index (name="rate", columns={"method_id","zone_id","min_weight","min_total","min_discounted_total","min_items"}),
  *          @Index (name="max_weight", columns={"max_weight"}),
  *          @Index (name="max_total", columns={"max_total"}),
+ *          @Index (name="max_discounted_total", columns={"max_discounted_total"}),
  *          @Index (name="max_items", columns={"max_items"}),
  *          @Index (name="markup_flat", columns={"markup_flat"}),
  *          @Index (name="markup_per_item", columns={"markup_per_item"}),
@@ -75,6 +76,24 @@ class Markup extends \XLite\Model\AEntity
      * @Column (type="decimal", precision=14, scale=2)
      */
     protected $max_total = self::INFINITY_VALUE;
+
+    /**
+     * Markup condition: min discounted order subtotal
+     *
+     * @var float
+     *
+     * @Column (type="decimal", precision=14, scale=2)
+     */
+    protected $min_discounted_total = 0;
+
+    /**
+     * Markup condition: max discounted order subtotal
+     *
+     * @var float
+     *
+     * @Column (type="decimal", precision=14, scale=2)
+     */
+    protected $max_discounted_total = self::INFINITY_VALUE;
 
     /**
      * Markup condition: min product items in the order
@@ -246,6 +265,34 @@ class Markup extends \XLite\Model\AEntity
     }
 
     /**
+     * Returns discounted subtotal range
+     *
+     * @return array
+     */
+    public function getDiscountedSubtotalRange()
+    {
+        return array(
+            $this->getMinDiscountedTotal(),
+            $this->getMaxDiscountedTotal() == static::INFINITY_VALUE ? html_entity_decode('&#x221E;') : $this->getMaxDiscountedTotal()
+        );
+    }
+
+    /**
+     * Set discounted subtotal range
+     *
+     * @param array $value value
+     *
+     * @return array
+     */
+    public function setDiscountedSubtotalRange($value)
+    {
+        if (is_array($value)) {
+            $this->setMinDiscountedTotal($value[0]);
+            $this->setMaxDiscountedTotal($value[1] === html_entity_decode('&#x221E;') ? static::INFINITY_VALUE : $value[1]);
+        }
+    }
+
+    /**
      * Returns items range
      *
      * @return array
@@ -369,6 +416,52 @@ class Markup extends \XLite\Model\AEntity
     public function getMaxTotal()
     {
         return $this->max_total;
+    }
+
+    /**
+     * Set min_discounted_total
+     *
+     * @param float $minDiscountedTotal
+     * @return Markup
+     */
+    public function setMinDiscountedTotal($minDiscountedTotal)
+    {
+        $this->min_discounted_total = $minDiscountedTotal;
+//        var_dump($this->min_discounted_total);
+        return $this;
+    }
+
+    /**
+     * Get min_discounted_total
+     *
+     * @return float
+     */
+    public function getMinDiscountedTotal()
+    {
+        return $this->min_discounted_total;
+    }
+
+    /**
+     * Set max_discounted_total
+     *
+     * @param float $maxDiscountedTotal
+     * @return Markup
+     */
+    public function setMaxDiscountedTotal($maxDiscountedTotal)
+    {
+        $this->max_discounted_total = $maxDiscountedTotal;
+//        var_dump($this->max_discounted_total);
+        return $this;
+    }
+
+    /**
+     * Get max_discounted_total
+     *
+     * @return float
+     */
+    public function getMaxDiscountedTotal()
+    {
+        return $this->max_discounted_total;
     }
 
     /**

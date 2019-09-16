@@ -41,6 +41,7 @@ class Session extends \Includes\Utils\AUtils
     public static function clearAdminCookie()
     {
         static::setCookieWrapper(static::getAdminCookieName(), false);
+        static::setCookieWrapper('bus_token', false);
     }
 
     /**

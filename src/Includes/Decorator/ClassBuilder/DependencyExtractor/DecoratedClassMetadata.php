@@ -10,59 +10,61 @@ namespace Includes\Decorator\ClassBuilder\DependencyExtractor;
 
 class DecoratedClassMetadata implements \Serializable
 {
-    /** @var string[] */
+    /**
+     * @var string
+     */
+    private static $root = LC_DIR_ROOT;
+
+    /**
+     * @var string[]
+     */
     private $decorators;
 
-    static $ROOT = LC_DIR_ROOT;
-
+    /**
+     * @param string[] $decorators
+     */
     public function __construct($decorators)
     {
         $this->decorators = $decorators;
     }
 
     /**
-     * @return mixed
+     * @return string[]
      */
     public function getDecorators()
     {
         return $this->decorators;
     }
 
+    /**
+     * @param string $root
+     */
     public static function setRoot($root)
     {
-        static::$ROOT = $root;
+        static::$root = $root;
     }
 
     /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * String representation of object
-     * @link http://php.net/manual/en/serializable.serialize.php
-     * @return string the string representation of the object or null
+     * @return string
      */
     public function serialize()
     {
         $decorators = array_map(function ($decorator) {
-            return substr($decorator, strlen(static::$ROOT));
+            return substr($decorator, strlen(static::$root));
         }, $this->decorators);
 
         return json_encode($decorators);
     }
 
     /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * Constructs the object
-     * @link http://php.net/manual/en/serializable.unserialize.php
-     * @param string $serialized <p>
-     *                           The string representation of the object.
-     *                           </p>
-     * @return void
+     * @param string $serialized
      */
     public function unserialize($serialized)
     {
         $decorators = json_decode($serialized);
 
         $this->decorators = array_map(function ($decorator) {
-            return static::$ROOT . $decorator;
+            return static::$root . $decorator;
         }, $decorators);
     }
 }

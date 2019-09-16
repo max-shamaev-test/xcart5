@@ -220,6 +220,10 @@ abstract class ConfigParser extends \Includes\Utils\AUtils
                 static::$options = array_replace_recursive(static::$options, static::parseLocalFile(static::$configFiles[$i]));
             }
 
+            if (defined('XC5_TEST')) {
+                static::$options = array_replace_recursive(static::$options, static::parseLocalFile('config.test.php'));
+            }
+
             static::executeMutators();
         }
 

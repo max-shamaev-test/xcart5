@@ -165,11 +165,11 @@ abstract class AXPayments extends \XLite\Model\Payment\Base\WebBased
      */
     public function getConfigurationURL(\XLite\Model\Payment\Method $method, $justAdded = false)
     {
-        return ($this->getModule() && $this->getModule()->getModuleId())
+        return ($this->getModuleId())
             ? \XLite\Core\Converter::buildURL(
                 'xpc',
                 '',
-                array('section' => 'payment_methods')
+                ['section' => 'payment_methods']
             )
             : parent::getConfigurationURL($method, $justAdded);
     }

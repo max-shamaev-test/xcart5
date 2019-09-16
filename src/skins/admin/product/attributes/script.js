@@ -158,7 +158,7 @@ jQuery().ready(
     jQuery('form.attrs').change(
       function () {
         if (jQuery(this).hasClass('changed') || jQuery(this).find('.line.is-changed').length) {
-          jQuery('#save-mode').removeProp('disabled');
+          jQuery('#save-mode').removeAttr('disabled');
 
         } else {
           jQuery('#save-mode').prop('disabled', 'disabled');

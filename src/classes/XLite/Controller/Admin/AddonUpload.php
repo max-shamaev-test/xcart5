@@ -13,13 +13,4 @@ namespace XLite\Controller\Admin;
  */
 class AddonUpload extends \XLite\Controller\Admin\AAdmin
 {
-    /**
-     * Controller title
-     *
-     * @return string
-     */
-    public function getTitle()
-    {
-        return static::t('Upload add-on');
-    }
 }

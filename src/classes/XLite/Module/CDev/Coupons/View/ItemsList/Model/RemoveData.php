@@ -37,11 +37,11 @@ abstract class RemoveData extends \XLite\View\ItemsList\Model\RemoveData impleme
      *
      * @return string
      */
-    protected function buildMetodName(\XLite\Model\AEntity $entity, $pattern)
+    protected function buildMethodName(\XLite\Model\AEntity $entity, $pattern)
     {
         return static::TYPE_COUPONS === $entity->getId()
             ? sprintf($pattern, 'Coupons')
-            : parent::buildMetodName($entity, $pattern);
+            : parent::buildMethodName($entity, $pattern);
     }
 
     /**
@@ -52,15 +52,5 @@ abstract class RemoveData extends \XLite\View\ItemsList\Model\RemoveData impleme
     protected function isAllowRemoveCoupons()
     {
         return 0 < \XLite\Core\Database::getRepo('XLite\Module\CDev\Coupons\Model\Coupon')->count();
-    }
-
-    /**
-     * Remove coupons
-     *
-     * @return integer
-     */
-    protected function removeCoupons()
-    {
-        return $this->removeCommon('XLite\Module\CDev\Coupons\Model\Coupon');
     }
 }

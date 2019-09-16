@@ -126,6 +126,15 @@ class Notification extends \XLite\Model\Base\I18n
     protected $position = 0;
 
     /**
+     * Is signature editable
+     *
+     * @var boolean
+     *
+     * @Column (type="boolean")
+     */
+    protected $editable = false;
+
+    /**
      * Set templatesDirectory
      *
      * @param string $templatesDirectory
@@ -356,6 +365,29 @@ class Notification extends \XLite\Model\Base\I18n
     public function setPosition($position)
     {
         $this->position = $position;
+        return $this;
+    }
+
+    /**
+     * Return Editable
+     *
+     * @return bool
+     */
+    public function isEditable()
+    {
+        return $this->editable;
+    }
+
+    /**
+     * Set Editable
+     *
+     * @param bool $editable
+     *
+     * @return $this
+     */
+    public function setEditable($editable)
+    {
+        $this->editable = (boolean)$editable;
         return $this;
     }
 }

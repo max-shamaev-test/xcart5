@@ -24,7 +24,6 @@ class TaxClass extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Field\AField
                 'label'             => static::t('Tax Class'),
                 'type'              => 'Symfony\Component\Form\Extension\Core\Type\ChoiceType',
                 'choices'           => array_flip($list),
-                'choices_as_values' => true,
                 'placeholder'       => static::t('Default tax class'),
                 'position'          => $position,
             ],

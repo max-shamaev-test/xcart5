@@ -4,10 +4,8 @@
 
 {% for av in this.item.getAttributeValues() %}
 <li class="item-attribute-values-list-item">
+  <span>, </span>
   <span class="name">{{ av.getName() }}:</span>
   <span>{{ av.getValue() }}</span>
-  {% if not loop.last %}
-  <span> /</span>
-  {% endif %}
 </li>
 {% endfor %}

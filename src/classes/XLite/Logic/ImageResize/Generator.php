@@ -8,6 +8,8 @@
 
 namespace XLite\Logic\ImageResize;
 
+use XLite\Core\Skin;
+
 /**
  * ImageResize
  */
@@ -15,6 +17,7 @@ class Generator extends \XLite\Logic\AGenerator
 {
     const MODEL_PRODUCT  = 'XLite\Model\Image\Product\Image';
     const MODEL_CATEGORY = 'XLite\Model\Image\Category\Image';
+    const MODEL_LOGO     = 'XLite\Model\Image\Common\Logo';
 
     /**
      * Image sizes
@@ -59,6 +62,9 @@ class Generator extends \XLite\Logic\AGenerator
                 'LGThumbnail'  => [160, 160],
                 'Default'      => [160, 160], // Category thumbnail
             ],
+            static::MODEL_LOGO => [
+                'Default' => [0, 0],
+            ],
         ];
     }
 
@@ -76,6 +82,9 @@ class Generator extends \XLite\Logic\AGenerator
                 'Default',
             ],
             static::MODEL_CATEGORY => [
+                'Default',
+            ],
+            static::MODEL_LOGO     => [
                 'Default',
             ],
         ];
@@ -176,7 +185,7 @@ class Generator extends \XLite\Logic\AGenerator
     {
         $result = [];
 
-        $sizes = \XLite\Core\Layout::getInstance()->getCurrentImagesSettings();
+        $sizes = Skin::getInstance()->getCurrentImagesSettings();
 
         if ($sizes) {
             foreach ($sizes as $size) {

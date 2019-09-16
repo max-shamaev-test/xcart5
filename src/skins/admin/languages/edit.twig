@@ -10,21 +10,23 @@
 
   {% form '\\XLite\\View\\Form\\Translations\\Labels' with {formAction: 'edit'} %}
 
-    <ul>
+    {% spaceless %}
+      <ul>
 
-      <li>
-        <label for="edit_name" class="label-name">{{ t('Label name') }}</label>
-        <input type="text" id="edit_name" name="name" value="{{ this.label.name }}" readonly="readonly" class="name" />
-      </li>
-
-      {% for l in this.getAddedLanguages() %}
         <li>
-          <label for="edit_label_{{ l.code }}" class="language" style="background-image: url({{ l.flagURL }});">{{ l.name }}{% if this.isRequiredLanguage(l) %}<span> ({{ t('default') }})</span>{% endif %}</label>
-          <textarea id="edit_label_{{ l.code }}" name="label[{{ l.code }}]" class="form-control" lang="{{ l.code }}" xml:lang="{{ l.code }}"{% if l.r2l %} dir="rtl"{% endif %}>{{ this.getTranslation(l.code) }}</textarea>
+          <label for="edit_name" class="label-name">{{ t('Label name') }}</label>
+          <input type="text" id="edit_name" name="name" value="{{ this.label.name }}" readonly="readonly" class="name" />
         </li>
-      {% endfor %}
 
-    </ul>
+        {% for l in this.getAddedLanguages() %}
+          <li>
+            <label for="edit_label_{{ l.code }}" class="language{% if this.isRequiredLanguage(l) %} default{% endif %}">{{ l.code|upper }}</label>
+            <textarea id="edit_label_{{ l.code }}" name="label[{{ l.code }}]" class="form-control" lang="{{ l.code }}" xml:lang="{{ l.code }}"{% if l.r2l %} dir="rtl"{% endif %}>{{ this.getTranslation(l.code) }}</textarea>
+          </li>
+        {% endfor %}
+
+      </ul>
+    {% endspaceless %}
 
     {{ widget('\\XLite\\View\\StickyPanel\\Language\\LabelDetails') }}
 

@@ -13,6 +13,8 @@ namespace XLite\Module\XC\Stripe\Model\Payment;
  */
 class Stripe extends \XLite\Model\Payment\Base\Online
 {
+    const API_VERSION = '2019-03-14';
+
     /**
      * Stripe library included flag
      *
@@ -192,7 +194,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
         $note = '';
 
         try {
-            $customer = \Stripe_Customer::create([
+            $customer = \Stripe\Customer::create([
                 'description' => "Customer for {$this->transaction->getOrder()->getProfile()->getEmail()}",
                 'source'      => $this->request['token'],
             ]);
@@ -223,7 +225,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
                 $card->save();
             }
 
-            $payment = \Stripe_Charge::create([
+            $payment = \Stripe\Charge::create([
                 'amount'      => $this->formatCurrency($this->transaction->getValue()),
                 'currency'    => $this->transaction->getCurrency()->getCode(),
                 'customer'    => $customer,
@@ -254,16 +256,16 @@ class Stripe extends \XLite\Model\Payment\Base\Online
 
             $this->setDetail('stripe_id', $payment->id);
 
-            if (!empty($payment->card->cvc_check)) {
-                $note .= static::t('CVC verification: X', array('state' => $payment->card->cvc_check)) . PHP_EOL;
+            if (!empty($payment->source->cvc_check)) {
+                $note .= static::t('CVC verification: X', array('state' => $payment->source->cvc_check)) . PHP_EOL;
             }
 
-            if (!empty($payment->card->address_line1_check)) {
-                $note .= static::t('Address line verification: X', array('state' => $payment->card->address_line1_check)) . PHP_EOL;
+            if (!empty($payment->source->address_line1_check)) {
+                $note .= static::t('Address line verification: X', array('state' => $payment->source->address_line1_check)) . PHP_EOL;
             }
 
-            if (!empty($payment->card->address_zip_check)) {
-                $note .= static::t('Address zipcode verification: X', array('state' => $payment->card->address_zip_check)) . PHP_EOL;
+            if (!empty($payment->source->address_zip_check)) {
+                $note .= static::t('Address zipcode verification: X', array('state' => $payment->source->address_zip_check)) . PHP_EOL;
             }
 
 
@@ -358,7 +360,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
     protected function includeStripeLibrary()
     {
         if (!$this->stripeLibIncluded) {
-            require_once LC_DIR_MODULES . 'XC' . LC_DS . 'Stripe' . LC_DS . 'lib' . LC_DS . 'Stripe.php';
+            require_once LC_DIR_MODULES . 'XC' . LC_DS . 'Stripe' . LC_DS . 'lib' . LC_DS . 'vendor' . LC_DS . 'autoload.php';
 
             if ($this->transaction) {
                 $method = $this->transaction->getPaymentMethod();
@@ -370,7 +372,8 @@ class Stripe extends \XLite\Model\Payment\Base\Online
                 $key = $this->getActualClientSecret($method);
             }
 
-            \Stripe::setApiKey($key);
+            \Stripe\Stripe::setApiKey($key);
+            \Stripe\Stripe::setApiVersion(static::API_VERSION);
 
             $this->stripeLibIncluded = true;
         }
@@ -392,7 +395,8 @@ class Stripe extends \XLite\Model\Payment\Base\Online
         $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_FAILED;
 
         try {
-            $payment = \Stripe_Charge::retrieve(
+            /** @var \Stripe\Charge $payment */
+            $payment = \Stripe\Charge::retrieve(
                 $transaction->getPaymentTransaction()->getDataCell('stripe_id')->getValue()
             );
             $payment->capture();
@@ -457,8 +461,8 @@ class Stripe extends \XLite\Model\Payment\Base\Online
         $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_FAILED;
 
         try {
-            /** @var \Stripe_Charge $payment */
-            $payment = \Stripe_Charge::retrieve(
+            /** @var \Stripe\Charge $payment */
+            $payment = \Stripe\Charge::retrieve(
                 $transaction->getPaymentTransaction()->getDataCell('stripe_id')->getValue()
             );
             if ($transaction->getValue() != $transaction->getPaymentTransaction()->getValue()) {
@@ -470,8 +474,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
                 $refundTransaction = null;
 
                 if ($payment->refunds) {
-                    /** @var array $refunds */
-                    $refunds = $payment->refunds instanceof \Stripe_List
+                    $refunds = $payment->refunds instanceof \Stripe\Collection
                         ? $payment->refunds->data
                         : $payment->refunds;
 
@@ -485,7 +488,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
 
             } else {
                 $payment->refund();
-                $refunds = $payment->refunds instanceof \Stripe_List
+                $refunds = $payment->refunds instanceof \Stripe\Collection
                     ? $payment->refunds->data
                     : $payment->refunds;
                 $refundTransaction = reset($refunds);
@@ -544,7 +547,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
 
     protected function getRefundObject($event)
     {
-        $refunds = $event->data->object->refunds instanceof \Stripe_List
+        $refunds = $event->data->object->refunds instanceof \Stripe\Collection
             ? $event->data->object->refunds->data
             : $event->data->object->refunds;
 
@@ -575,7 +578,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
             $this->includeStripeLibrary();
 
             try {
-                $event = \Stripe_Event::retrieve($eventId);
+                $event = \Stripe\Event::retrieve($eventId);
                 if ($event) {
                     $transaction = \XLite\Core\Database::getRepo('XLite\Model\Payment\Transaction')
                         ->findOneByCell('stripe_id', $event->data->object->id);
@@ -670,7 +673,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
         $this->includeStripeLibrary();
 
         try {
-            $event = \Stripe_Event::retrieve($this->eventId);
+            $event = \Stripe\Event::retrieve($this->eventId);
             if ($event) {
                 $name = 'processEvent' . \XLite\Core\Converter::convertToCamelCase(str_replace('.', '_', $event->type));
                 if (method_exists($this, $name)) {
@@ -974,14 +977,14 @@ class Stripe extends \XLite\Model\Payment\Base\Online
     /**
      * Retrieve acount 
      * 
-     * @return \Stripe_Account
+     * @return \Stripe\Account
      */
     public function retrieveAcount()
     {
         $this->includeStripeLibrary();
 
         try {
-            $account = \Stripe_Account::retrieve();
+            $account = \Stripe\Account::retrieve();
 
         } catch (\Exception $e) {
             $account = null;

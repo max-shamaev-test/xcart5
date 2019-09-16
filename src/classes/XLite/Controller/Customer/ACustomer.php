@@ -8,6 +8,8 @@
 
 namespace XLite\Controller\Customer;
 
+use Doctrine\ORM\EntityManager;
+
 /**
  * Abstract controller for Customer interface
  */
@@ -511,18 +513,14 @@ abstract class ACustomer extends \XLite\Controller\AController
      */
     protected function updateCart($silent = false)
     {
-        $em = \XLite\Core\Database::getEM();
-        $em->transactionalWithRestarts(function() use ($em, &$cart) {
-            $cart = $this->getCart();
-            if ($cart->isManaged()) {
-                $em->lock($cart, \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE);
-            }
-
+        $cart = $this->getCart();
+        \XLite\Core\Database::getEM()->transactional(function(EntityManager $em) use (&$cart) {
             if ($this->markCartCalculate()) {
+                if ($cart->isManaged()) {
+                    $em->lock($cart, \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE);
+                }
                 $cart->updateOrder();
             }
-
-            \XLite\Core\Database::getRepo('XLite\Model\Cart')->update($cart);
         });
 
         if (!$silent) {
@@ -697,38 +695,43 @@ abstract class ACustomer extends \XLite\Controller\AController
      * Get or create cart profile
      *
      * @return \XLite\Model\Profile
+     * @throws \Exception
      */
     protected function getCartProfile()
     {
-        $profile = $this->getCart()->getProfile();
+        $profile = null;
 
-        if (!$profile && $this->getCart()->isManaged()) {
-            $cart = $this->getCart();
+        try {
+            \XLite\Core\Database::getEM()->transactional(function (\XLite\Core\Doctrine\ORM\EntityManager $em) use (&$profile) {
+                $cart = $this->getCart();
+                if ($cart->isManaged()) {
+                    $em->lock($cart, \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE);
+                    $em->refresh($cart);
+                }
 
-            $profile = new \XLite\Model\Profile;
-            $profile->setLogin('');
-            $profile->setOrder($cart);
-            $profile->setAnonymous(true);
-
-            try {
-                \XLite\Core\Database::getEM()->transactional(function($em) use (&$profile, &$cart) {
-                    if ($cart->isManaged()) {
-                        $em->lock($cart, \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE);
-                    }
+                $profile = $cart->getProfile();
+                if (!$profile && $cart->isManaged()) {
+                    $profile = new \XLite\Model\Profile;
+                    $profile->setLogin('');
+                    $profile->setOrder($cart);
+                    $profile->setAnonymous(true);
 
                     $cart->setProfile($profile);
                     $em->persist($profile);
-                });
-            } catch (\Exception $e) {
-                \XLite\Logger::getInstance()->log(
-                    'Failure to create anonymous profile for cart ' . 
-                    $this->getCart()->getUniqueIdentifier() . PHP_EOL . 
-                    $e->getMessage() . PHP_EOL . 
-                    $e->getTraceAsString(), LOG_ERR);
+                }
+            });
+        } catch (\Exception $e) {
+            \XLite\Logger::getInstance()->log(
+                'Failure to create anonymous profile for cart '
+                . $this->getCart()->getUniqueIdentifier() . PHP_EOL
+                . $e->getMessage() . PHP_EOL
+                . $e->getTraceAsString(),
+                LOG_ERR
+            );
 
-                // TODO: check if this is appropriate way to handle the concurrency problem
-                sleep(3);
-                $profile = $this->getCart()->getProfile();
+            if (!\XLite\Core\Database::getEM()->isOpen()) {
+
+                throw $e;
             }
         }
 

@@ -43,7 +43,7 @@ class TemporaryFile extends \XLite\Model\Base\Image
      *
      * @param string $path Path
      *
-     * @return true
+     * @return bool
      */
     protected function renewByPath($path)
     {

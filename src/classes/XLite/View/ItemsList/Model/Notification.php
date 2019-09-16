@@ -26,7 +26,7 @@ class Notification extends \XLite\View\ItemsList\Model\Table
     /**
      * Get wrapper form target
      *
-     * @return array
+     * @return string
      */
     protected function getFormTarget()
     {
@@ -51,7 +51,7 @@ class Notification extends \XLite\View\ItemsList\Model\Table
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'notifications/style.css';
+        $list[] = 'notifications/style.less';
 
         return $list;
     }
@@ -71,12 +71,12 @@ class Notification extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_ORDERBY => 100,
             ),
             'enabledForAdmin' => array(
-                static::COLUMN_NAME    => static::t('notification.section.administrator'),
+                static::COLUMN_NAME    => static::t('notification.column.administrator'),
                 static::COLUMN_CLASS   => 'XLite\View\FormField\Inline\Input\Checkbox\Switcher\NotificationStatus',
                 static::COLUMN_ORDERBY => 200,
             ),
             'enabledForCustomer' => array(
-                static::COLUMN_NAME    => static::t('notification.section.customer'),
+                static::COLUMN_NAME    => static::t('notification.column.customer'),
                 static::COLUMN_CLASS   => 'XLite\View\FormField\Inline\Input\Checkbox\Switcher\NotificationStatus',
                 static::COLUMN_ORDERBY => 300,
             ),
@@ -157,5 +157,15 @@ class Notification extends \XLite\View\ItemsList\Model\Table
         }
 
         return $result;
+    }
+
+    /**
+     * Return true if DOM warning should be displayed
+     *
+     * @return boolean
+     */
+    public function isDOMWarningVisible()
+    {
+        return !class_exists('DOMDocument');
     }
 }

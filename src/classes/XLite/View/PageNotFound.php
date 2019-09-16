@@ -53,5 +53,62 @@ class PageNotFound extends \XLite\View\AView
         return '404.twig';
     }
 
+    /**
+     * @return string
+     */
+    protected function getEmail()
+    {
+        return \XLite\Core\Config::getInstance()->CDev->ContactUs->showEmail
+            ? \XLite\Core\Mailer::getUsersDepartmentMail()
+            : '';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getPhone()
+    {
+        return \XLite\Core\Config::getInstance()->Company->company_phone;
+    }
+
+    /**
+     * Is show email address
+     *
+     * @return boolean
+     */
+    protected function isShowEmail()
+    {
+        return \XLite\Core\Config::getInstance()->CleanURL->show_email_404;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getPageType()
+    {
+        $pageType = 'default';
+
+        if (\XLite\Core\Request::getInstance()->category_id) {
+            if (\XLite\Core\Request::getInstance()->product_id) {
+                $pageType = 'product';
+            } else {
+                $pageType = 'category';
+            }
+        }
+
+        return $pageType;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getRegularText()
+    {
+        $regularText = static::t('default-404-text');
+        $regularText = str_replace('{home}', static::buildURL(), $regularText);
+        $regularText = str_replace('{contact us}', static::buildURL('contact_us'), $regularText);
+
+        return $regularText;
+    }
 }
 

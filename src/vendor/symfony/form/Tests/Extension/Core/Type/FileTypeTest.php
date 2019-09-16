@@ -11,59 +11,73 @@
 
 namespace Symfony\Component\Form\Tests\Extension\Core\Type;
 
-class FileTypeTest extends \Symfony\Component\Form\Test\TypeTestCase
-{
-    /**
-     * @group legacy
-     */
-    public function testLegacyName()
-    {
-        $form = $this->factory->create('file');
+use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationRequestHandler;
+use Symfony\Component\Form\NativeRequestHandler;
+use Symfony\Component\Form\RequestHandlerInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-        $this->assertSame('file', $form->getConfig()->getType()->getName());
-    }
+class FileTypeTest extends BaseTypeTest
+{
+    const TESTED_TYPE = 'Symfony\Component\Form\Extension\Core\Type\FileType';
 
     // https://github.com/symfony/symfony/pull/5028
     public function testSetData()
     {
-        $form = $this->factory->createBuilder('Symfony\Component\Form\Extension\Core\Type\FileType')->getForm();
-        $data = $this->createUploadedFileMock('abcdef', 'original.jpg', true);
+        $form = $this->factory->createBuilder(static::TESTED_TYPE)->getForm();
+        $data = $this->getMockBuilder('Symfony\Component\HttpFoundation\File\File')
+            ->setConstructorArgs([__DIR__.'/../../../Fixtures/foo', 'foo'])
+            ->getMock();
 
         $form->setData($data);
 
+        // Ensures the data class is defined to accept File instance
         $this->assertSame($data, $form->getData());
     }
 
-    public function testSubmit()
+    /**
+     * @dataProvider requestHandlerProvider
+     */
+    public function testSubmit(RequestHandlerInterface $requestHandler)
     {
-        $form = $this->factory->createBuilder('Symfony\Component\Form\Extension\Core\Type\FileType')->getForm();
-        $data = $this->createUploadedFileMock('abcdef', 'original.jpg', true);
+        $form = $this->factory->createBuilder(static::TESTED_TYPE)->setRequestHandler($requestHandler)->getForm();
+        $data = $this->createUploadedFileMock($requestHandler, __DIR__.'/../../../Fixtures/foo', 'foo.jpg');
 
         $form->submit($data);
 
         $this->assertSame($data, $form->getData());
     }
 
-    // https://github.com/symfony/symfony/issues/6134
-    public function testSubmitEmpty()
+    /**
+     * @dataProvider requestHandlerProvider
+     */
+    public function testSetDataMultiple(RequestHandlerInterface $requestHandler)
     {
-        $form = $this->factory->createBuilder('Symfony\Component\Form\Extension\Core\Type\FileType')->getForm();
+        $form = $this->factory->createBuilder(static::TESTED_TYPE, null, [
+            'multiple' => true,
+        ])->setRequestHandler($requestHandler)->getForm();
 
-        $form->submit(null);
+        $data = [
+            $this->createUploadedFileMock($requestHandler, __DIR__.'/../../../Fixtures/foo', 'foo.jpg'),
+            $this->createUploadedFileMock($requestHandler, __DIR__.'/../../../Fixtures/foo2', 'foo2.jpg'),
+        ];
 
-        $this->assertNull($form->getData());
+        $form->setData($data);
+        $this->assertSame($data, $form->getData());
     }
 
-    public function testSubmitMultiple()
+    /**
+     * @dataProvider requestHandlerProvider
+     */
+    public function testSubmitMultiple(RequestHandlerInterface $requestHandler)
     {
-        $form = $this->factory->createBuilder('Symfony\Component\Form\Extension\Core\Type\FileType', null, array(
+        $form = $this->factory->createBuilder(static::TESTED_TYPE, null, [
             'multiple' => true,
-        ))->getForm();
+        ])->setRequestHandler($requestHandler)->getForm();
 
-        $data = array(
-            $this->createUploadedFileMock('abcdef', 'first.jpg', true),
-            $this->createUploadedFileMock('zyxwvu', 'second.jpg', true),
-        );
+        $data = [
+            $this->createUploadedFileMock($requestHandler, __DIR__.'/../../../Fixtures/foo', 'foo.jpg'),
+            $this->createUploadedFileMock($requestHandler, __DIR__.'/../../../Fixtures/foo2', 'foo2.jpg'),
+        ];
 
         $form->submit($data);
         $this->assertSame($data, $form->getData());
@@ -73,40 +87,116 @@ class FileTypeTest extends \Symfony\Component\Form\Test\TypeTestCase
         $this->assertArrayHasKey('multiple', $view->vars['attr']);
     }
 
-    public function testDontPassValueToView()
+    /**
+     * @dataProvider requestHandlerProvider
+     */
+    public function testDontPassValueToView(RequestHandlerInterface $requestHandler)
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\FileType');
-        $form->submit(array(
-            'Symfony\Component\Form\Extension\Core\Type\FileType' => $this->createUploadedFileMock('abcdef', 'original.jpg', true),
-        ));
-        $view = $form->createView();
+        $form = $this->factory->createBuilder(static::TESTED_TYPE)->setRequestHandler($requestHandler)->getForm();
+        $form->submit([
+            'file' => $this->createUploadedFileMock($requestHandler, __DIR__.'/../../../Fixtures/foo', 'foo.jpg'),
+        ]);
 
-        $this->assertEquals('', $view->vars['value']);
+        $this->assertEquals('', $form->createView()->vars['value']);
     }
 
-    private function createUploadedFileMock($name, $originalName, $valid)
+    public function testPassMultipartFalseToView()
     {
-        $file = $this
-            ->getMockBuilder('Symfony\Component\HttpFoundation\File\UploadedFile')
-            ->setConstructorArgs(array(__DIR__.'/../../../Fixtures/foo', 'foo'))
-            ->getMock()
-        ;
-        $file
-            ->expects($this->any())
-            ->method('getBasename')
-            ->will($this->returnValue($name))
-        ;
-        $file
-            ->expects($this->any())
-            ->method('getClientOriginalName')
-            ->will($this->returnValue($originalName))
-        ;
-        $file
-            ->expects($this->any())
-            ->method('isValid')
-            ->will($this->returnValue($valid))
-        ;
+        $view = $this->factory->create(static::TESTED_TYPE)
+            ->createView();
 
-        return $file;
+        $this->assertTrue($view->vars['multipart']);
+    }
+
+    public function testSubmitNull($expected = null, $norm = null, $view = null)
+    {
+        parent::testSubmitNull($expected, $norm, '');
+    }
+
+    public function testSubmitNullWhenMultiple()
+    {
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
+            'multiple' => true,
+        ]);
+        // submitted data when an input file is uploaded without choosing any file
+        $form->submit([null]);
+
+        $this->assertSame([], $form->getData());
+        $this->assertSame([], $form->getNormData());
+        $this->assertSame([], $form->getViewData());
+    }
+
+    /**
+     * @dataProvider requestHandlerProvider
+     */
+    public function testSubmittedFilePathsAreDropped(RequestHandlerInterface $requestHandler)
+    {
+        $form = $this->factory->createBuilder(static::TESTED_TYPE)->setRequestHandler($requestHandler)->getForm();
+        $form->submit('file:///etc/passwd');
+
+        $this->assertNull($form->getData());
+        $this->assertNull($form->getNormData());
+        $this->assertSame('', $form->getViewData());
+    }
+
+    /**
+     * @dataProvider requestHandlerProvider
+     */
+    public function testMultipleSubmittedFilePathsAreDropped(RequestHandlerInterface $requestHandler)
+    {
+        $form = $this->factory
+            ->createBuilder(static::TESTED_TYPE, null, [
+                'multiple' => true,
+            ])
+            ->setRequestHandler($requestHandler)
+            ->getForm();
+        $form->submit([
+            'file:///etc/passwd',
+            $this->createUploadedFileMock(new HttpFoundationRequestHandler(), __DIR__.'/../../../Fixtures/foo', 'foo.jpg'),
+            $this->createUploadedFileMock(new NativeRequestHandler(), __DIR__.'/../../../Fixtures/foo2', 'foo2.jpg'),
+        ]);
+
+        $this->assertCount(1, $form->getData());
+    }
+
+    /**
+     * @dataProvider requestHandlerProvider
+     */
+    public function testSubmitNonArrayValueWhenMultiple(RequestHandlerInterface $requestHandler)
+    {
+        $form = $this->factory
+            ->createBuilder(static::TESTED_TYPE, null, [
+                'multiple' => true,
+            ])
+            ->setRequestHandler($requestHandler)
+            ->getForm();
+        $form->submit(null);
+
+        $this->assertSame([], $form->getData());
+        $this->assertSame([], $form->getNormData());
+        $this->assertSame([], $form->getViewData());
+    }
+
+    public function requestHandlerProvider()
+    {
+        return [
+            [new HttpFoundationRequestHandler()],
+            [new NativeRequestHandler()],
+        ];
+    }
+
+    private function createUploadedFileMock(RequestHandlerInterface $requestHandler, $path, $originalName)
+    {
+        if ($requestHandler instanceof HttpFoundationRequestHandler) {
+            return new UploadedFile($path, $originalName, null, null, true);
+        }
+
+        return [
+            'name' => $originalName,
+            'error' => 0,
+            'type' => 'text/plain',
+            'tmp_name' => $path,
+            'size' => null,
+        ];
     }
 }

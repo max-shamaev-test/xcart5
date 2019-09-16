@@ -37,7 +37,11 @@ CleanURLSwitcher = Object.extend({
   },
 
   onFormatChange: function() {
-    var template = _.template("<div class='product'><span><%=productTitle%>: </span><span><%=product%></span></div><div class='category'><span><%=categoryTitle%>: </span><span><%=category%></span></div><div class='static'><span><%=staticTitle%>: </span><span><%=static%></span></div>");
+    var template = _.template("<div class='cleanurls-format'>" +
+      "<div class='product'><span><%=productTitle%>: </span><span><%=product%></span></div>" +
+      "<div class='category'><span><%=categoryTitle%>: </span><span><%=category%></span></div>" +
+      "<div class='static'><span><%=staticTitle%>: </span><span><%=static%></span></div>" +
+      "</div>");
     var helpData = core.getCommentedData('#clean-url-help-data');
 
     var options = {

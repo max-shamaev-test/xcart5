@@ -44,16 +44,21 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     protected $defaultVariant;
 
     /**
-     * Cached stock state
+     * Cached variants count
      */
-    protected $hasStock;
+    protected $variantsCount;
+
+    /**
+     * Cached variants state
+     */
+    protected $hasVariants;
 
     /**
      * Constructor
      *
      * @param array $data Entity properties OPTIONAL
      */
-    public function __construct(array $data = array())
+    public function __construct(array $data = [])
     {
         $this->variants = new \Doctrine\Common\Collections\ArrayCollection();
         $this->variantsAttributes = new \Doctrine\Common\Collections\ArrayCollection();
@@ -64,20 +69,20 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     /**
      * Get variant by attribute values ids
      *
-     * @param array   $ids           Ids
+     * @param array $ids Ids
      * @param boolean $singleVariant Return single variants (true) or array of all matched variants (false) OPTIONAL
      *
      * @return mixed
      */
     public function getVariantByAttributeValuesIds(array $ids, $singleVariant = true)
     {
-        $result = $singleVariant ? null : array();
+        $result = $singleVariant ? null : [];
 
         foreach ($this->getVariants() as $variant) {
             $match = true;
             foreach ($variant->getValues() as $v) {
                 $match = isset($ids[$v->getAttribute()->getId()])
-                    && $ids[$v->getAttribute()->getId()] == $v->getId();
+                         && $ids[$v->getAttribute()->getId()] == $v->getId();
                 if (!$match) {
                     break;
                 }
@@ -99,14 +104,14 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     /**
      * Get variant by any count of attribute values ids
      *
-     * @param array   $ids           Ids [attribute_id => value_id]
+     * @param array $ids Ids [attribute_id => value_id]
      * @param boolean $singleVariant Return single variants (true) or array of all matched variants (false) OPTIONAL
      *
      * @return mixed
      */
     public function getVariantByAnyAttributeValuesIds(array $ids, $singleVariant = true)
     {
-        $result = $singleVariant ? null : array();
+        $result = $singleVariant ? null : [];
 
         $variant = $this->getVariants() ? $this->getVariants()->first() : null;
 
@@ -140,7 +145,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
                 }
 
                 $match = isset($temporaryIds[$v->getAttribute()->getId()])
-                    && $temporaryIds[$v->getAttribute()->getId()] == $v->getId();
+                         && $temporaryIds[$v->getAttribute()->getId()] == $v->getId();
 
                 if ($match) {
                     unset($temporaryIds[$v->getAttribute()->getId()]);
@@ -173,7 +178,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
 
         foreach ($attributeValues as $attributeId => $valueId) {
             if (is_scalar($valueId)) {
-                $result[(int) $attributeId] = (int) $valueId;
+                $result[(int)$attributeId] = (int)$valueId;
 
             } elseif ($valueId instanceof \XLite\Model\AttributeValue\AAttributeValue) {
                 $result[$valueId->getAttribute()->getId()] = $valueId->getId();
@@ -238,11 +243,43 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     public function getDefaultVariant()
     {
-        if (null === $this->defaultVariant || \XLite::isAdminZone()) {
-            $this->defaultVariant = $this->defineDefaultVariant() ?: false;
+        if ($this->hasVariants()) {
+            if (null === $this->defaultVariant) {
+                $this->defineDefaultVariant();
+            }
+            if (!\XLite::isAdminZone() && $this->defaultVariant->isOutOfStock()) {
+                $this->setFirstAvailableVariantAsDefault();
+            }
         }
 
         return $this->defaultVariant ?: null;
+    }
+
+    /**
+     * Set first variant as default
+     *
+     * @return void
+     */
+    public function setFirstVariantAsDefault()
+    {
+        $this->defaultVariant = $this->variants->first();
+        $this->defaultVariant->setDefaultValue(true);
+        \XLite\Core\Database::getEM()->flush($this->defaultVariant);
+    }
+
+    /**
+     * Set first available variant as default
+     *
+     * @return void
+     */
+    public function setFirstAvailableVariantAsDefault()
+    {
+        foreach ($this->getVariants() as $variant) {
+            if (!$variant->isOutOfStock()) {
+                $this->defaultVariant = $variant;
+                return;
+            }
+        }
     }
 
     /**
@@ -292,8 +329,8 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     protected function isUseVariantImage()
     {
         $result = !\XLite::isAdminZone()
-            && $this->getDefaultVariant()
-            && $this->getDefaultVariant()->getImage();
+                  && $this->getDefaultVariant()
+                  && $this->getDefaultVariant()->getImage();
 
         if (
             $result
@@ -320,48 +357,6 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
         }
 
         return $list;
-    }
-
-    /**
-     * Define default variant
-     *
-     * @return \XLite\Module\XC\ProductVariants\Model\ProductVariant
-     */
-    protected function defineDefaultVariant()
-    {
-        $defVariant = null;
-
-        if ($this->mustHaveVariants() && $this->hasVariants()) {
-
-            $repo = \XLite\Core\Database::getRepo('\XLite\Module\XC\ProductVariants\Model\ProductVariant');
-            $defVariant = $repo->findOneBy(
-                array(
-                    'product'      => $this,
-                    'defaultValue' => true,
-                )
-            );
-
-            if (!$defVariant || (!\XLite::isAdminZone() && $defVariant->isOutOfStock())) {
-                $minPrice = $minPriceOutOfStock = false;
-                $defVariantOutOfStock = null;
-                foreach ($this->getVariants() as $variant) {
-                    if (!$variant->isOutOfStock()) {
-                        if (false === $minPrice || $minPrice > $variant->getClearPrice()) {
-                            $minPrice = $variant->getClearPrice();
-                            $defVariant = $variant;
-                        }
-                    } elseif (!$defVariant) {
-                        if (false === $minPriceOutOfStock || $minPriceOutOfStock > $variant->getClearPrice()) {
-                            $minPriceOutOfStock = $variant->getClearPrice();
-                            $defVariantOutOfStock = $variant;
-                        }
-                    }
-                }
-                $defVariant = $defVariant ?: $defVariantOutOfStock;
-            }
-        }
-
-        return $defVariant;
     }
 
     /**
@@ -402,13 +397,39 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     }
 
     /**
+     * Return variants count
+     *
+     * @return integer
+     */
+    public function getVariantsCount()
+    {
+        if (null === $this->variantsCount && $this->isPersistent()) {
+            $repo = \XLite\Core\Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant');
+            $this->variantsCount = $repo->getVariantsCountByProduct($this);
+        }
+
+        return $this->variantsCount;
+    }
+
+    /**
      * Check product has variants or not
      *
      * @return boolean
      */
     public function hasVariants()
     {
-        return 0 < $this->getVariants()->count();
+        if ($this->hasVariants === null) {
+            if ($this->isPersistent()) {
+                $repo          = \XLite\Core\Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant');
+                $variantsCount = $repo->getVariantsCountByProduct($this);
+
+                $this->hasVariants = 0 < $variantsCount;
+            } else {
+                $this->hasVariants = false;
+            }
+        }
+
+        return $this->hasVariants;
     }
 
     /**
@@ -435,6 +456,26 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
             : parent::isOutOfStock();
     }
 
+
+    public function getItemsInCart()
+    {
+        return $this->hasVariants()
+            ? $this->getVariant()->getItemsInCart()
+            : parent::getItemsInCart();
+    }
+
+    /**
+     * Alias: is all product items in cart
+     *
+     * @return boolean
+     */
+    public function isAllStockInCart()
+    {
+        return $this->hasVariants()
+            ? $this->getVariant()->isAllStockInCart()
+            : parent::isAllStockInCart();
+    }
+
     /**
      * Get all possible variants count
      *
@@ -458,7 +499,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     public function getVariantsAttributeIds()
     {
-        $variantsAttributeIds = array();
+        $variantsAttributeIds = [];
 
         foreach ($this->getVariantsAttributes() as $va) {
             $variantsAttributeIds[$va->getId()] = $va->getId();
@@ -625,7 +666,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
         $newProduct = parent::cloneEntity();
 
         if ($this->mustHaveVariants()) {
-            $attrs = array();
+            $attrs = [];
             foreach ($this->getVariantsAttributes() as $a) {
                 $attribute = null;
 
@@ -719,11 +760,11 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     /**
      * Get variants
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getVariants()
     {
-        return $this->getVariantsCollection()->filter(function($variant) {
+        return $this->getVariantsCollection()->filter(function ($variant) {
             return $variant && $variant->getValues();
         });
     }
@@ -755,7 +796,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     /**
      * Get variantsAttributes
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getVariantsAttributes()
     {
@@ -769,6 +810,30 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     public function isDisplayPriceAsRange()
     {
-        return \XLite\Module\XC\ProductVariants\Main::isDisplayPriceAsRange() && $this->getVariants()->count() > 1;
+        return \XLite\Module\XC\ProductVariants\Main::isDisplayPriceAsRange() && $this->getVariantsCount() > 1;
+    }
+
+    /**
+     * Define default variant
+     *
+     * @return void
+     */
+    protected function defineDefaultVariant()
+    {
+        $defaultVariant = null;
+
+        $repo = \XLite\Core\Database::getRepo('\XLite\Module\XC\ProductVariants\Model\ProductVariant');
+        $defaultVariant = $repo->findOneBy(
+            array(
+                'product'      => $this,
+                'defaultValue' => true,
+            )
+        );
+
+        if ($defaultVariant) {
+            $this->defaultVariant = $defaultVariant;
+        } else {
+            $this->setFirstVariantAsDefault();
+        }
     }
 }

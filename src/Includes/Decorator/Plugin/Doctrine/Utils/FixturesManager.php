@@ -8,6 +8,9 @@
 
 namespace Includes\Decorator\Plugin\Doctrine\Utils;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
+
 /**
  * FixturesManager 
  *
@@ -66,7 +69,26 @@ abstract class FixturesManager extends \Includes\Decorator\Plugin\Doctrine\ADoct
      */
     public static function addFixtureToList($file)
     {
-        static::$fixtures[] = LC_DIR_ROOT . $file;
+        if (!static::$fixtures || !in_array(LC_DIR_ROOT . $file, static::$fixtures, true)) {
+            static::$fixtures[] = LC_DIR_ROOT . $file;
+
+            static::saveFile();
+        }
+    }
+
+    /**
+     * Add path to fixtures list
+     *
+     * @param array $list
+     * @return void
+     */
+    public static function setFixtures(array $list)
+    {
+        foreach ($list as $file) {
+            if (!static::$fixtures || !in_array($file, static::$fixtures, true)) {
+                static::$fixtures[] = $file;
+            }
+        }
 
         static::saveFile();
     }
@@ -84,7 +106,7 @@ abstract class FixturesManager extends \Includes\Decorator\Plugin\Doctrine\ADoct
 
             foreach (static::$fixtures as $k => $v) {
 
-                if ($v == $file) {
+                if ($v === $file) {
                     unset(static::$fixtures[$k]);
                 }
             }
@@ -128,8 +150,6 @@ abstract class FixturesManager extends \Includes\Decorator\Plugin\Doctrine\ADoct
      */
     protected static function checkFile($file)
     {
-        $module = \Includes\Utils\ModulesManager::getFileModule($file);
-
-        return !isset($module) || \Includes\Utils\ModulesManager::isActiveModule($module);
+        return Manager::getRegistry()->isModuleEnabled(Module::getModuleIdByFilePath($file)) !== false;
     }
 }

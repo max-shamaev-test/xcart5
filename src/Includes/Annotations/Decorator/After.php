@@ -8,6 +8,8 @@
 
 namespace Includes\Annotations\Decorator;
 
+use Includes\Utils\Module\Module;
+
 /**
  * @Annotation
  */
@@ -20,6 +22,7 @@ class After
         $params = is_array($param['value']) ? $param['value'] : [$param['value']];
 
         foreach ($params as $value) {
+            $value = Module::convertId($value);
             $this->modules[] = $value;
         }
     }

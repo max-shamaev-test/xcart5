@@ -11,10 +11,11 @@
 
 namespace Symfony\Component\Validator\Constraints;
 
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
+use Symfony\Component\Validator\Exception\InvalidOptionsException;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -52,8 +53,8 @@ class UrlValidator extends ConstraintValidator
             return;
         }
 
-        if (!is_scalar($value) && !(is_object($value) && method_exists($value, '__toString'))) {
-            throw new UnexpectedTypeException($value, 'string');
+        if (!is_scalar($value) && !(\is_object($value) && method_exists($value, '__toString'))) {
+            throw new UnexpectedValueException($value, 'string');
         }
 
         $value = (string) $value;
@@ -61,39 +62,43 @@ class UrlValidator extends ConstraintValidator
             return;
         }
 
-        $pattern = sprintf(static::PATTERN, implode('|', $constraint->protocols));
+        $pattern = $constraint->relativeProtocol ? str_replace('(%s):', '(?:(%s):)?', static::PATTERN) : static::PATTERN;
+        $pattern = sprintf($pattern, implode('|', $constraint->protocols));
 
         if (!preg_match($pattern, $value)) {
-            if ($this->context instanceof ExecutionContextInterface) {
-                $this->context->buildViolation($constraint->message)
-                    ->setParameter('{{ value }}', $this->formatValue($value))
-                    ->setCode(Url::INVALID_URL_ERROR)
-                    ->addViolation();
-            } else {
-                $this->buildViolation($constraint->message)
-                    ->setParameter('{{ value }}', $this->formatValue($value))
-                    ->setCode(Url::INVALID_URL_ERROR)
-                    ->addViolation();
-            }
+            $this->context->buildViolation($constraint->message)
+                ->setParameter('{{ value }}', $this->formatValue($value))
+                ->setCode(Url::INVALID_URL_ERROR)
+                ->addViolation();
 
             return;
         }
 
         if ($constraint->checkDNS) {
+            if (!\in_array($constraint->checkDNS, [
+                Url::CHECK_DNS_TYPE_ANY,
+                Url::CHECK_DNS_TYPE_A,
+                Url::CHECK_DNS_TYPE_A6,
+                Url::CHECK_DNS_TYPE_AAAA,
+                Url::CHECK_DNS_TYPE_CNAME,
+                Url::CHECK_DNS_TYPE_MX,
+                Url::CHECK_DNS_TYPE_NAPTR,
+                Url::CHECK_DNS_TYPE_NS,
+                Url::CHECK_DNS_TYPE_PTR,
+                Url::CHECK_DNS_TYPE_SOA,
+                Url::CHECK_DNS_TYPE_SRV,
+                Url::CHECK_DNS_TYPE_TXT,
+            ], true)) {
+                throw new InvalidOptionsException(sprintf('Invalid value for option "checkDNS" in constraint %s', \get_class($constraint)), ['checkDNS']);
+            }
+
             $host = parse_url($value, PHP_URL_HOST);
 
-            if (!is_string($host) || !checkdnsrr($host, 'ANY')) {
-                if ($this->context instanceof ExecutionContextInterface) {
-                    $this->context->buildViolation($constraint->dnsMessage)
-                        ->setParameter('{{ value }}', $this->formatValue($host))
-                        ->setCode(Url::INVALID_URL_ERROR)
-                        ->addViolation();
-                } else {
-                    $this->buildViolation($constraint->dnsMessage)
-                        ->setParameter('{{ value }}', $this->formatValue($host))
-                        ->setCode(Url::INVALID_URL_ERROR)
-                        ->addViolation();
-                }
+            if (!\is_string($host) || !checkdnsrr($host, $constraint->checkDNS)) {
+                $this->context->buildViolation($constraint->dnsMessage)
+                    ->setParameter('{{ value }}', $this->formatValue($host))
+                    ->setCode(Url::INVALID_URL_ERROR)
+                    ->addViolation();
             }
         }
     }

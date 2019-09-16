@@ -242,7 +242,7 @@ abstract class FileManager extends \Includes\Utils\AUtils
     public static function mkdir($dir, $mode = 0755)
     {
         return static::isOperateable($dir) && !static::isDir($dir)
-            ? mkdir($dir, $mode)
+            ? @mkdir($dir, $mode)
             : false;
     }
 
@@ -604,6 +604,28 @@ abstract class FileManager extends \Includes\Utils\AUtils
         }
 
         return $availableSpace;
+    }
+
+    /**
+     * @param $root
+     * @param $name
+     * @return array
+     */
+    public static function findFoldersStartingWithName($root, $name)
+    {
+        $paths = [];
+        $iterator = new \DirectoryIterator($root);
+
+        foreach ($iterator as $fileinfo) {
+            if (!$fileinfo->isDot()
+                && $fileinfo->isDir()
+                && ($fileinfo->getFilename() === $name || 0 === strpos($fileinfo->getFilename(), $name . '_'))
+            ) {
+                $paths[] = $fileinfo->getPathname();
+            }
+        }
+
+        return $paths;
     }
 
     /**

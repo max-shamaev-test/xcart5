@@ -299,7 +299,7 @@ body.target-checkoutPayment {
         font-size: 9px;
         font-weight: bold;
         margin-right: 10px;
-        line-height: @rhythmic-unit;
+        line-height: @line-height-base;
       }
 
       sup {
@@ -310,7 +310,7 @@ body.target-checkoutPayment {
         #rhythmless > .rhythm(@font-size-base);
         color: @color-text-dark;
         float: right;
-        line-height: 20px;
+        line-height: @line-height-base;
       }
     }
 
@@ -327,8 +327,8 @@ body.target-checkoutPayment {
   {
     #rhythmless > .rhythm(@font-size-small);
     padding-left: 60px;
-    line-height: 20px;
-    color: #7d7d7d;
+    line-height: @line-height-base;
+    color: @color-text-default;
     clear: both;
   }
 
@@ -339,7 +339,7 @@ body.target-checkoutPayment {
 
   .review-step .step-box {
     box-shadow: 0 0 0px 1px #cacaca;
-    border-radius: 2px;
+    border-radius: @border-radius-base;
     padding: (@rhythmic-unit * 2) !important;
 
     @media(max-width: @screen-xs-max) {
@@ -362,7 +362,7 @@ body.target-checkoutPayment {
           .flex-display();
           .align-items(top);
 
-          line-height: 20px;
+          line-height: @line-height-base;
           margin-top: (@rhythmic-unit / 2);
 
           a {
@@ -391,7 +391,7 @@ body.target-checkoutPayment {
 
       .modifiers {
         & > li {
-          line-height: 20px;
+          line-height: @line-height-base;
           margin-top: (@rhythmic-unit / 2);
 
           .name {
@@ -400,7 +400,7 @@ body.target-checkoutPayment {
         }
 
         .discount-code-modifier, .dcoupon-code-modifier {
-          color: #6abd0a;
+          color: @color-green;
         }
 
         &.included-modifiers {
@@ -415,7 +415,7 @@ body.target-checkoutPayment {
             .surcharge {
               font-weight: normal;
               color: @color-text-default;
-              font-size: 14px;
+              font-size: @font-size-base;
             }
           }
         }

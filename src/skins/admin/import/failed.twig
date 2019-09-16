@@ -17,9 +17,8 @@
     <div class="subcontent clearfix">
       {{ widget_list('import.failed.content') }}
     </div>
-    <div class="buttons">
-      {{ widget_list('import.failed.buttons') }}
-    </div>
   </div>
 
 </div>
+
+{{ widget('XLite\\View\\StickyPanel\\ImportFailed', isDisplayProceedButton = this.isDisplayProceedButton()) }}

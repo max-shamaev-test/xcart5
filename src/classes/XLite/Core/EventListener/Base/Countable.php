@@ -153,9 +153,7 @@ abstract class Countable extends \XLite\Core\EventListener\AEventListener
             foreach ($items as $item) {
                 if ($this->processItem($item)) {
                     $this->record['position']++;
-                    if ($repo->getEventState($this->getEventName())) {
-                        $repo->setEventState($this->getEventName(), $this->record, false);
-                    }
+                    $repo->setEventState($this->getEventName(), $this->record, false);
                 }
                 if (!$this->isContinue($item)) {
                     break;

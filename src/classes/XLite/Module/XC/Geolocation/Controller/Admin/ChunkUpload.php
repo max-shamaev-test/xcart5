@@ -8,6 +8,7 @@
 
 namespace XLite\Module\XC\Geolocation\Controller\Admin;
 
+use Includes\Utils\Module\Manager;
 
 class ChunkUpload extends \XLite\Controller\Admin\ChunkUpload implements \XLite\Base\IDecorator
 {
@@ -33,7 +34,8 @@ class ChunkUpload extends \XLite\Controller\Admin\ChunkUpload implements \XLite\
                     'value'    => $path,
                 ]);
 
-                $redirectUrl = \XLite\Core\Database::getRepo('XLite\Model\Module')->findModuleByName('XC\Geolocation')->getSettingsForm();
+                $redirectUrl = Manager::getRegistry()->getModuleSettingsUrl('XC', 'Geolocation');
+
             } else {
                 $this->errors[] = 'Cannot move tmp file';
 

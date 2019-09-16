@@ -13,15 +13,10 @@
   right: 18px
 }
 
-.next-previous-order a {
-  color: #8f8f8f;
-}
-
 .next-previous-order a:hover,
 .next-previous-order a:active,
 .next-previous-order a:focus {
   text-decoration: none;
-  color: #2a6496;
 }
 
 .next-previous-order a:hover .text,

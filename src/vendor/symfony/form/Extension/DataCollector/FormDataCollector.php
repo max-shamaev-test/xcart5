@@ -16,20 +16,20 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
+use Symfony\Component\Validator\ConstraintViolationInterface;
+use Symfony\Component\VarDumper\Caster\Caster;
+use Symfony\Component\VarDumper\Caster\ClassStub;
+use Symfony\Component\VarDumper\Caster\StubCaster;
+use Symfony\Component\VarDumper\Cloner\Stub;
 
 /**
  * Data collector for {@link FormInterface} instances.
- *
- * @since  2.4
  *
  * @author Robert Schönthal <robert.schoenthal@gmail.com>
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class FormDataCollector extends DataCollector implements FormDataCollectorInterface
 {
-    /**
-     * @var FormDataExtractor
-     */
     private $dataExtractor;
 
     /**
@@ -67,12 +67,13 @@ class FormDataCollector extends DataCollector implements FormDataCollectorInterf
 
     public function __construct(FormDataExtractorInterface $dataExtractor)
     {
+        if (!class_exists(ClassStub::class)) {
+            throw new \LogicException(sprintf('The VarDumper component is needed for using the %s class. Install symfony/var-dumper version 3.4 or above.', __CLASS__));
+        }
+
         $this->dataExtractor = $dataExtractor;
-        $this->data = array(
-            'forms' => array(),
-            'forms_by_hash' => array(),
-            'nb_errors' => 0,
-        );
+
+        $this->reset();
     }
 
     /**
@@ -80,6 +81,15 @@ class FormDataCollector extends DataCollector implements FormDataCollectorInterf
      */
     public function collect(Request $request, Response $response, \Exception $exception = null)
     {
+    }
+
+    public function reset()
+    {
+        $this->data = [
+            'forms' => [],
+            'forms_by_hash' => [],
+            'nb_errors' => 0,
+        ];
     }
 
     /**
@@ -98,7 +108,7 @@ class FormDataCollector extends DataCollector implements FormDataCollectorInterf
         $hash = spl_object_hash($form);
 
         if (!isset($this->dataByForm[$hash])) {
-            $this->dataByForm[$hash] = array();
+            $this->dataByForm[$hash] = [];
         }
 
         $this->dataByForm[$hash] = array_replace(
@@ -119,7 +129,7 @@ class FormDataCollector extends DataCollector implements FormDataCollectorInterf
         $hash = spl_object_hash($form);
 
         if (!isset($this->dataByForm[$hash])) {
-            $this->dataByForm[$hash] = array();
+            $this->dataByForm[$hash] = [];
         }
 
         $this->dataByForm[$hash] = array_replace(
@@ -152,11 +162,17 @@ class FormDataCollector extends DataCollector implements FormDataCollectorInterf
 
         // Count errors
         if (isset($this->dataByForm[$hash]['errors'])) {
-            $this->data['nb_errors'] += count($this->dataByForm[$hash]['errors']);
+            $this->data['nb_errors'] += \count($this->dataByForm[$hash]['errors']);
         }
 
         foreach ($form as $child) {
             $this->collectSubmittedData($child);
+
+            // Expand current form if there are children with errors
+            if (empty($this->dataByForm[$hash]['has_children_error'])) {
+                $childData = $this->dataByForm[spl_object_hash($child)];
+                $this->dataByForm[$hash]['has_children_error'] = !empty($childData['has_children_error']) || !empty($childData['errors']);
+            }
         }
     }
 
@@ -168,7 +184,7 @@ class FormDataCollector extends DataCollector implements FormDataCollectorInterf
         $hash = spl_object_hash($view);
 
         if (!isset($this->dataByView[$hash])) {
-            $this->dataByView[$hash] = array();
+            $this->dataByView[$hash] = [];
         }
 
         $this->dataByView[$hash] = array_replace(
@@ -186,9 +202,7 @@ class FormDataCollector extends DataCollector implements FormDataCollectorInterf
      */
     public function buildPreliminaryFormTree(FormInterface $form)
     {
-        $this->data['forms'][$form->getName()] = array();
-
-        $this->recursiveBuildPreliminaryFormTree($form, $this->data['forms'][$form->getName()], $this->data['forms_by_hash']);
+        $this->data['forms'][$form->getName()] = &$this->recursiveBuildPreliminaryFormTree($form, $this->data['forms_by_hash']);
     }
 
     /**
@@ -196,9 +210,7 @@ class FormDataCollector extends DataCollector implements FormDataCollectorInterf
      */
     public function buildFinalFormTree(FormInterface $form, FormView $view)
     {
-        $this->data['forms'][$form->getName()] = array();
-
-        $this->recursiveBuildFinalFormTree($form, $view, $this->data['forms'][$form->getName()], $this->data['forms_by_hash']);
+        $this->data['forms'][$form->getName()] = &$this->recursiveBuildFinalFormTree($form, $view, $this->data['forms_by_hash']);
     }
 
     /**
@@ -217,26 +229,72 @@ class FormDataCollector extends DataCollector implements FormDataCollectorInterf
         return $this->data;
     }
 
-    private function recursiveBuildPreliminaryFormTree(FormInterface $form, &$output, array &$outputByHash)
+    /**
+     * @internal
+     */
+    public function serialize()
+    {
+        foreach ($this->data['forms_by_hash'] as &$form) {
+            if (isset($form['type_class']) && !$form['type_class'] instanceof ClassStub) {
+                $form['type_class'] = new ClassStub($form['type_class']);
+            }
+        }
+
+        return serialize($this->cloneVar($this->data));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCasters()
+    {
+        return parent::getCasters() + [
+            \Exception::class => function (\Exception $e, array $a, Stub $s) {
+                foreach (["\0Exception\0previous", "\0Exception\0trace"] as $k) {
+                    if (isset($a[$k])) {
+                        unset($a[$k]);
+                        ++$s->cut;
+                    }
+                }
+
+                return $a;
+            },
+            FormInterface::class => function (FormInterface $f, array $a) {
+                return [
+                    Caster::PREFIX_VIRTUAL.'name' => $f->getName(),
+                    Caster::PREFIX_VIRTUAL.'type_class' => new ClassStub(\get_class($f->getConfig()->getType()->getInnerType())),
+                ];
+            },
+            FormView::class => [StubCaster::class, 'cutInternals'],
+            ConstraintViolationInterface::class => function (ConstraintViolationInterface $v, array $a) {
+                return [
+                    Caster::PREFIX_VIRTUAL.'root' => $v->getRoot(),
+                    Caster::PREFIX_VIRTUAL.'path' => $v->getPropertyPath(),
+                    Caster::PREFIX_VIRTUAL.'value' => $v->getInvalidValue(),
+                ];
+            },
+        ];
+    }
+
+    private function &recursiveBuildPreliminaryFormTree(FormInterface $form, array &$outputByHash)
     {
         $hash = spl_object_hash($form);
 
+        $output = &$outputByHash[$hash];
         $output = isset($this->dataByForm[$hash])
             ? $this->dataByForm[$hash]
-            : array();
+            : [];
 
-        $outputByHash[$hash] = &$output;
-
-        $output['children'] = array();
+        $output['children'] = [];
 
         foreach ($form as $name => $child) {
-            $output['children'][$name] = array();
-
-            $this->recursiveBuildPreliminaryFormTree($child, $output['children'][$name], $outputByHash);
+            $output['children'][$name] = &$this->recursiveBuildPreliminaryFormTree($child, $outputByHash);
         }
+
+        return $output;
     }
 
-    private function recursiveBuildFinalFormTree(FormInterface $form = null, FormView $view, &$output, array &$outputByHash)
+    private function &recursiveBuildFinalFormTree(FormInterface $form = null, FormView $view, array &$outputByHash)
     {
         $viewHash = spl_object_hash($view);
         $formHash = null;
@@ -249,23 +307,24 @@ class FormDataCollector extends DataCollector implements FormDataCollectorInterf
             // corresponding FormInterface instance for its view in a different way
             $formHash = $this->formsByView[$viewHash];
         }
+        if (null !== $formHash) {
+            $output = &$outputByHash[$formHash];
+        }
 
         $output = isset($this->dataByView[$viewHash])
             ? $this->dataByView[$viewHash]
-            : array();
+            : [];
 
         if (null !== $formHash) {
             $output = array_replace(
                 $output,
                 isset($this->dataByForm[$formHash])
                     ? $this->dataByForm[$formHash]
-                    : array()
+                    : []
             );
-
-            $outputByHash[$formHash] = &$output;
         }
 
-        $output['children'] = array();
+        $output['children'] = [];
 
         foreach ($view->children as $name => $childView) {
             // The CSRF token, for example, is never added to the form tree.
@@ -274,9 +333,9 @@ class FormDataCollector extends DataCollector implements FormDataCollectorInterf
                 ? $form->get($name)
                 : null;
 
-            $output['children'][$name] = array();
-
-            $this->recursiveBuildFinalFormTree($childForm, $childView, $output['children'][$name], $outputByHash);
+            $output['children'][$name] = &$this->recursiveBuildFinalFormTree($childForm, $childView, $outputByHash);
         }
+
+        return $output;
     }
 }

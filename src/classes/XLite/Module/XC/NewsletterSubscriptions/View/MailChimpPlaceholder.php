@@ -8,6 +8,7 @@
 
 namespace XLite\Module\XC\NewsletterSubscriptions\View;
 
+use Includes\Utils\Module\Manager;
 use XLite\Module\XC\MailChimp\Core;
 
 /**
@@ -18,32 +19,6 @@ use XLite\Module\XC\MailChimp\Core;
 class MailChimpPlaceholder extends \XLite\View\AView
 {
     /**
-     * Register CSS files
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $return = parent::getCSSFiles();
-
-        $return[] = 'main/style.css';
-        $return[] = 'modules/XC/MailChimp/settings/header.css';
-        $return[] = 'modules/XC/NewsletterSubscriptions/mail_chimp/header.css';
-
-        return $return;
-    }
-
-    /**
-     * Return widget default template
-     *
-     * @return string
-     */
-    protected function getDefaultTemplate()
-    {
-        return 'modules/XC/NewsletterSubscriptions/mail_chimp/items_list_header.twig';
-    }
-
-    /**
      * Return list of allowed targets
      *
      * @return array
@@ -51,8 +26,20 @@ class MailChimpPlaceholder extends \XLite\View\AView
     public static function getAllowedTargets()
     {
         $return = parent::getAllowedTargets();
-
         $return[] = 'newsletter_subscribers';
+
+        return $return;
+    }
+
+    /**
+     * Register CSS files
+     *
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        $return = parent::getCSSFiles();
+        $return[] = 'main/style.css';
 
         return $return;
     }
@@ -65,7 +52,7 @@ class MailChimpPlaceholder extends \XLite\View\AView
     public function getLogoUrl()
     {
         return \XLite\Core\Layout::getInstance()->getResourceWebPath(
-            'modules/XC/MailChimp/settings/images/logo.png'
+            'modules/XC/NewsletterSubscriptions/mail_chimp/logo.png'
         );
     }
 
@@ -81,45 +68,13 @@ class MailChimpPlaceholder extends \XLite\View\AView
     }
 
     /**
-     * Get recommended module URL
-     *
-     * @param string $moduleName
-     *
-     * @return string
-     */
-    protected function getAddonLink()
-    {
-        /** @var \XLite\Model\Module $module */
-        $module = \XLite\Core\Database::getRepo('XLite\Model\Module')->findOneBy(
-            [
-                'author' => 'XC',
-                'name'   => 'MailChimp',
-            ],
-            [ 'fromMarketplace' => 'ASC' ]
-        );
-
-        $result = null;
-
-        if ($module && !$module->getEnabled()) {
-            // Module disabled or not installed
-            $result = $module->getFromMarketplace()
-                ? $module->getMarketplaceURL()
-                : $module->getInstalledURL();
-        }
-
-        return $result;
-    }
-
-    /**
      * Check if XC\MailChimp configured
      *
      * @return boolean
      */
     public function isMailChimpInstalled()
     {
-        $repo = \XLite\Core\Database::getRepo('XLite\Model\Module');
-
-        return $repo->isModuleEnabled('XC\MailChimp');
+        return Manager::getRegistry()->isModuleEnabled('XC', 'MailChimp');
     }
 
     /**
@@ -161,12 +116,35 @@ class MailChimpPlaceholder extends \XLite\View\AView
     public function getExportSubscribersLink()
     {
         $subscribersStepName = 'XLite\Module\XC\NewsletterSubscriptions\Logic\Export\Step\NewsletterSubscribers';
+
         return $this->buildURL(
             'export',
             '',
-            array(
-                \XLite\View\Export\Begin::PARAM_PRESELECT => $subscribersStepName
-            )
+            [
+                \XLite\View\Export\Begin::PARAM_PRESELECT => $subscribersStepName,
+            ]
         );
+    }
+
+    /**
+     * Return widget default template
+     *
+     * @return string
+     */
+    protected function getDefaultTemplate()
+    {
+        return 'modules/XC/NewsletterSubscriptions/mail_chimp/items_list_header.twig';
+    }
+
+    /**
+     * Get recommended module URL
+     *
+     * @return string
+     */
+    protected function getAddonLink()
+    {
+        return Manager::getRegistry()->isModuleEnabled('XC', 'MailChimp')
+            ? null
+            : Manager::getRegistry()->getModuleServiceURL('XC', 'MailChimp');
     }
 }

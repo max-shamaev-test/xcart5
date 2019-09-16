@@ -24,50 +24,51 @@ class Main extends \Includes\Decorator\Plugin\APlugin
      */
     public function executeHookHandler()
     {
-        if (\XLite\Upgrade\Cell::getInstance()->isUpgraded()) {
-            $entries = \XLite\Upgrade\Cell::getInstance()->getEntries();
-            if ($entries) {
-                \Includes\Utils\Operator::showMessage('', true, false);
-
-                /** @var \XLite\Upgrade\Entry\AEntry $entry */
-                foreach ($entries as $entry) {
-                    if (!$entry->isPostUpgradeActionsCalled()) {
-                        if (!$entry->isPostUpgradeActionsStillValid()) {
-                            $message = '...Actions can\'t be invoked because entry is not valid: ' . $entry->getActualName();
-                            \Includes\Utils\Operator::showMessage(str_replace('\\', '\\\\', $message), true, true);
-                            $entry->setPostUpgradeActionsCalled();
-                            break;
-                        }
-
-                        $message = '...Invoke actions for ' . $entry->getActualName();
-                        \Includes\Utils\Operator::showMessage(str_replace('\\', '\\\\', $message), true, true);
-                        \Includes\Decorator\Utils\CacheManager::logMessage(PHP_EOL);
-                        \Includes\Decorator\Utils\CacheManager::logMessage($message);
-
-                        $isInvoked = \XLite\Upgrade\Cell::getInstance()->runHelper($entry, 'post_rebuild');
-
-                        if ($isInvoked && \XLite\Upgrade\Cell::getInstance()->getHookRedirect()) {
-                            break;
-                        }
-
-                        if (!\XLite\Upgrade\Cell::getInstance()->hasUnfinishedUpgradeHooks('post_rebuild', $entry)) {
-                            // All post-rebuild hooks completed, run the rest actions...
-                            \XLite\Upgrade\Cell::getInstance()->runCommonHelper($entry, 'add_labels');
-                            \XLite\Upgrade\Cell::getInstance()->callInstallEvent($entry);
-                            $entry->setPostUpgradeActionsCalled();
-                        }
-
-                        if (\Includes\Decorator\Utils\CacheManager::isTimeExceeds(static::STEP_TTL)) {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        \Includes\Decorator\Utils\CacheManager::logMessage(PHP_EOL);
-
-        \XLite\Core\Database::getEM()->flush();
-        \XLite\Core\Database::getEM()->clear();
+        // todo: rewrite it to execute hooks from list provided by BUS
+        //if (\XLite\Upgrade\Cell::getInstance()->isUpgraded()) {
+        //    $entries = \XLite\Upgrade\Cell::getInstance()->getEntries();
+        //    if ($entries) {
+        //        \Includes\Utils\Operator::showMessage('', true, false);
+        //
+        //        /** @var \XLite\Upgrade\Entry\AEntry $entry */
+        //        foreach ($entries as $entry) {
+        //            if (!$entry->isPostUpgradeActionsCalled()) {
+        //                if (!$entry->isPostUpgradeActionsStillValid()) {
+        //                    $message = '...Actions can\'t be invoked because entry is not valid: ' . $entry->getActualName();
+        //                    \Includes\Utils\Operator::showMessage(str_replace('\\', '\\\\', $message), true, true);
+        //                    $entry->setPostUpgradeActionsCalled();
+        //                    break;
+        //                }
+        //
+        //                $message = '...Invoke actions for ' . $entry->getActualName();
+        //                \Includes\Utils\Operator::showMessage(str_replace('\\', '\\\\', $message), true, true);
+        //                \Includes\Decorator\Utils\CacheManager::logMessage(PHP_EOL);
+        //                \Includes\Decorator\Utils\CacheManager::logMessage($message);
+        //
+        //                $isInvoked = \XLite\Upgrade\Cell::getInstance()->runHelper($entry, 'post_rebuild');
+        //
+        //                if ($isInvoked && \XLite\Upgrade\Cell::getInstance()->getHookRedirect()) {
+        //                    break;
+        //                }
+        //
+        //                if (!\XLite\Upgrade\Cell::getInstance()->hasUnfinishedUpgradeHooks('post_rebuild', $entry)) {
+        //                    // All post-rebuild hooks completed, run the rest actions...
+        //                    \XLite\Upgrade\Cell::getInstance()->runCommonHelper($entry, 'add_labels');
+        //                    \XLite\Upgrade\Cell::getInstance()->callInstallEvent($entry);
+        //                    $entry->setPostUpgradeActionsCalled();
+        //                }
+        //
+        //                if (\Includes\Decorator\Utils\CacheManager::isTimeExceeds(static::STEP_TTL)) {
+        //                    break;
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+        //
+        //\Includes\Decorator\Utils\CacheManager::logMessage(PHP_EOL);
+        //
+        //\XLite\Core\Database::getEM()->flush();
+        //\XLite\Core\Database::getEM()->clear();
     }
 }

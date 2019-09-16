@@ -7,46 +7,51 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-function TemplatesSelector() {
-  var o = this;
+var TemplatesSelector = Object.extend({
+  constructor: function TemplatesSelector (base) {
+    this.base = $(base);
+    this.base.commonController = this;
 
-  o.base = jQuery('.templates:first');
-  o.base.commonController = o;
+    this.selector = jQuery('.hidden-field select', this.base);
+    this.form = this.base.closest('form');
 
-  o.selector = jQuery('.hidden-field select', o.base);
+    $('.template', this.base).on('click', this.onTemplateClick.bind(this));
+    $('.template.marked', this.base).addClass('active');
 
-  jQuery('.template', o.base).bind('click', _.bind(o.handleClickTemplate, o));
-  jQuery('.template.marked', o.base).addClass('active');
+    this.form.on('submit', this.onSubmit.bind(this));
+  },
 
-  jQuery('button.submit', o.base.closest('form')).bind('click', function (e) {
-    if (jQuery('.template.checked', o.base).data('is-redeploy-required') == 1
-      && !confirm(core.t('To make your changes visible in the customer area, cache rebuild is required. It will take several seconds. You don’t need to close the storefront, the operation is executed in the background.'))
+  onTemplateClick: function (event) {
+    $('.template', this.base).removeClass('checked');
+
+    var templateId = $(event.currentTarget).addClass('checked').data('template-id');
+    this.selectTemplate(templateId);
+
+    var settingsWidget = $('.layout-settings.settings');
+
+    if (this.selector.parents('form').get(0).isChanged()) {
+      window.assignShadeOverlay(settingsWidget);
+    } else {
+      window.unassignShadeOverlay(settingsWidget);
+    }
+  },
+
+  onSubmit: function (event) {
+    var isRedeployRequired = typeof $('.template.checked', this.base).data('is-redeploy-required') !== 'undefined';
+    var confirmMsg = core.t('To make your changes visible in the customer area, cache rebuild is required. It will take several seconds. You don’t need to close the storefront, the operation is executed in the background.');
+    if (isRedeployRequired && !confirm(confirmMsg)
     ) {
-      e.stopPropagation();
-      e.preventDefault();
+      event.stopPropagation();
+      event.preventDefault();
 
       return false;
     }
-  });
-}
+  },
 
-TemplatesSelector.prototype.base = null;
-TemplatesSelector.prototype.selector = null;
-
-TemplatesSelector.prototype.handleClickTemplate = function (event) {
-  jQuery('.template', this.base).removeClass('checked');
-  this.setTemplate(jQuery(event.currentTarget).addClass('checked').data('template-id'));
-  var settingsWidget = jQuery('.layout-settings.settings');
-  if (this.selector.parents('form').get(0).isChanged()) {
-    assignShadeOverlay(settingsWidget);
-  } else {
-    unassignShadeOverlay(settingsWidget);
+  selectTemplate: function (template) {
+    this.selector.val(template);
+    this.selector.trigger('change');
   }
-};
+})
 
-TemplatesSelector.prototype.setTemplate = function (template) {
-  this.selector.val(template);
-  this.selector.trigger('change');
-};
-
-core.autoload(TemplatesSelector);
+core.autoload(TemplatesSelector, '.change-template .templates');

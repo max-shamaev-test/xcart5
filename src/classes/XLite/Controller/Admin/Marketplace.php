@@ -44,18 +44,18 @@ class Marketplace extends \XLite\Controller\Admin\AAdmin
     /**
      * 'Update' action
      *
-     * @return void
+     * TODO Consider reimplementation of this without additional request to X-Cart backend
      */
     protected function doActionUpdate()
     {
         // Update info about payment methods
-        \XLite\Core\Marketplace::getInstance()->updatePaymentMethods();
+        \XLite\Core\Marketplace::getInstance()->updatePaymentMethods(\XLite\Core\Config::getInstance()->Company->location_country);
 
         // Update info about shipping methods
         \XLite\Core\Marketplace::getInstance()->updateShippingMethods();
 
         // Run get_dataset query for expired actions
-        $result = \XLite\Core\Marketplace::getInstance()->getDataset();
+        //$result = \XLite\Core\Marketplace::getInstance()->getDataset();
 
         if (empty($result) ) {
             $result = array();

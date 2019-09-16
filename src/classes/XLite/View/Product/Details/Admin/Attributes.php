@@ -23,7 +23,7 @@ class Attributes extends \XLite\View\Product\Details\AAttributes
         $list = parent::getCSSFiles();
 
         $list[] = 'product/attribute/style.css';
-        $list[] = 'product/attributes/style.css';
+        $list[] = 'product/attributes/style.less';
         $list[] = 'product/attributes/additional_style.less';
 
         return $list;

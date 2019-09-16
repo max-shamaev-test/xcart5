@@ -12,22 +12,49 @@ interface StaticReflectorInterface
 {
     // Generic type introspection
 
+    /**
+     * @return string
+     */
     public function getPathname();
 
+    /**
+     * @return string
+     */
     public function getNamespace();
 
+    /**
+     * @return bool
+     */
     public function isAbstract();
 
+    /**
+     * @return bool
+     */
     public function isClass();
 
+    /**
+     * @return bool
+     */
     public function isInterface();
 
+    /**
+     * @return bool
+     */
     public function isTrait();
 
+    /**
+     * @return string
+     */
     public function getClassName();
 
+    /**
+     * @return string
+     */
     public function getFQCN();
 
+    /**
+     * @return string
+     */
     public function getDocCommentText();
 
     public function getClassAnnotations();
@@ -38,10 +65,16 @@ interface StaticReflectorInterface
 
     public function getImplements();
 
+    /**
+     * @return bool
+     */
     public function isPSR0();
 
     // Decorator-related functions
 
+    /**
+     * @return bool
+     */
     public function isDecorator();
 
     /**
@@ -81,9 +114,18 @@ interface StaticReflectorInterface
 
     // Doctrine entities
 
+    /**
+     * @return bool
+     */
     public function isEntity();
 
+    /**
+     * @return bool
+     */
     public function isMappedSuperclass();
 
+    /**
+     * @return bool
+     */
     public function hasLifecycleCallbacks();
 }

@@ -23,6 +23,7 @@ database = ""
 username = ""
 password = ""
 table_prefix = "xlite_"
+charset = "utf8"
 
 ;
 ; ----------------------
@@ -123,14 +124,50 @@ use_canonical_urls_only = On
 ; and requires to re-deploy your store
 category_clean_urls_format = "domain/parent/goalcategory/"
 
+; Product Clean URL’s format
+; possible values:
+; domain/goalproduct
+; domain/goalproduct.html
+;
+; Changing this setting will not affect existing url's
+; and requires to re-deploy your store
+product_clean_urls_format = "domain/goalproduct.html"
+
+; Static page Clean URL’s format
+; possible values:
+; domain/goalpage
+; domain/goalpage.html
+;
+; Changing this setting will not affect existing url's
+; and requires to re-deploy your store
+static_page_clean_urls_format = "domain/goalpage.html"
+
+; Vendor Clean URL’s format
+; possible values:
+; domain/goalvendor
+; domain/goalvendor.html
+;
+; Changing this setting will not affect existing url's
+; and requires to re-deploy your store
+vendor_clean_urls_format = "domain/goalvendor.html"
+
+; News Clean URL’s format
+; possible values:
+; domain/goalnews
+; domain/goalnews.html
+;
+; Changing this setting will not affect existing url's
+; and requires to re-deploy your store
+news_clean_urls_format = "domain/goalnews.html"
+
 [clean_urls_aliases]
 ; to define your own alias add line below as:
 ; target = "clean-url"
 new_arrivals = "newarrivals"
-sale_products = "sale_products"
-coming_soon = "coming_soon"
+sale_products = "sale-products"
+coming_soon = "coming-soon"
 bestsellers = "bestsellers"
-contact_us = "contact_us"
+contact_us = "contact-us"
 
 ;
 ; -----------------
@@ -217,6 +254,7 @@ url = "http://my.x-cart.com/index.php?q=api"
 log_data = Off
 upgrade_step_time_limit = 240
 banner_url = "http://my.x-cart.com/xcinfo"
+editions_url = "http://my.x-cart.com/sites/default/files/editions.yaml"
 
 ;
 ; Language options
@@ -369,6 +407,12 @@ use_sendfile = Off
 ; Next-previous order criteria
 ; allowed values: orderNumber, date
 next_previous_order_criteria = orderNumber
+
+; SameSite prevents the browser from sending this cookie along with cross-site requests.
+; The main goal is mitigate the risk of cross-origin information leakage. It also provides
+; some protection against cross-site request forgery attacks (https://www.owasp.org/index.php/SameSite)
+; Possible values for the flag are 'lax', 'strict' or '' (not set)
+cookie_samesite = 'lax'
 
 [export-import]
 

@@ -53,6 +53,7 @@ class ActivateKey extends \XLite\View\Form\Module\AModule
     {
         parent::setReturnURLParam($params);
 
-        $params[\XLite\Controller\AController::RETURN_URL] = \XLite\Core\Request::getInstance()->returnUrl;
+        $params[\XLite\Controller\AController::RETURN_URL] = \XLite\Core\Request::getInstance()->returnUrl
+            ?: \XLite\Core\URLManager::getSelfURI();
     }
 }

@@ -11,8 +11,6 @@ namespace XLite\Module\CDev\Egoods\View\Button;
 
 /**
  * RenewAll
- *
- * @ListChild (list="page.tabs.after", zone="admin", weight="0")
  */
 class RenewAll extends \XLite\View\Button\Link
 {

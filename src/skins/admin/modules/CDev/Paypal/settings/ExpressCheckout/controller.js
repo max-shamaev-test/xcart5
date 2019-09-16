@@ -10,7 +10,9 @@
 
   var checkAuthType = function (authType) {
     if ('email' == authType) {
-      jQuery('.section_api').hide();
+      jQuery('.section_api')
+        .hide()
+        .removeClass('section-visible');
       jQuery('#email')
         .prop('disabled', false)
         .removeClass('no-validate');
@@ -18,7 +20,9 @@
         .css('visibility', 'visible');
 
     } else {
-      jQuery('.section_api').show();
+      jQuery('.section_api')
+        .show()
+        .addClass('section-visible');
       jQuery('#email')
         .prop('disabled', true)
         .addClass('no-validate');

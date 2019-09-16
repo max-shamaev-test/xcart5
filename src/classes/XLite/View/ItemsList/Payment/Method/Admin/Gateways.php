@@ -30,5 +30,15 @@ class Gateways extends \XLite\View\ItemsList\Payment\Method\Admin\AAdmin
         return $cnd;
     }
 
+    /**
+     * Return dir which contains the page body template
+     *
+     * @return string
+     */
+    protected function getPageBodyDir()
+    {
+        return 'payment/methods/online';
+    }
+
 }
 

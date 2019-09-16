@@ -20,10 +20,13 @@
           {% endfor %}
         </ul>
 
+        {{ widget_list('checkout_fastlane.blocks.payment_methods.available') }}
       {% endform %}
     </div>
   {% elseif this.isPayedCart() %}
-    <p class="payment-methods-not-defined payment-not-required">{{ t('Payment is not required') }}</p>
+    {% form 'XLite\\View\\Form\\Checkout\\PaymentMethod' with {className: 'payment-form'} %}
+      <p class="payment-methods-not-defined payment-not-required">{{ t('Payment is not required') }}</p>
+    {% endform %}
 
   {% else %}
     <p class="payment-methods-not-defined">{{ t('There\'s no payment method available', {'email': this.getSupportDepartmentMail()})|raw }}</p>

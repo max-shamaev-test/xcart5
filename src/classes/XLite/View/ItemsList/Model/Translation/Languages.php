@@ -8,6 +8,9 @@
 
 namespace XLite\View\ItemsList\Model\Translation;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
+
 /**
  * Languages list
  */
@@ -84,7 +87,9 @@ class Languages extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_ORDERBY  => 200,
             ),
             'defaultCustomer' => array(
-                static::COLUMN_NAME  => static::t('Default for customers'),
+                static::COLUMN_NAME  => static::t('Customer area'),
+                static::COLUMN_SUBHEADER => static::t('Default: {{code}}',
+                    ['code' => mb_strtoupper(\XLite\Core\Config::getInstance()->General->default_language)]),
                 static::COLUMN_CLASS => '\XLite\View\FormField\Inline\Input\Radio\Radio',
                 static::COLUMN_EDIT_ONLY => true,
                 static::COLUMN_PARAMS => array(
@@ -93,7 +98,9 @@ class Languages extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_ORDERBY  => 300,
             ),
             'defaultAdmin' => array(
-                static::COLUMN_NAME => static::t('Default for admins'),
+                static::COLUMN_NAME => static::t('Admin panel'),
+                static::COLUMN_SUBHEADER => static::t('Default: {{code}}',
+                    ['code' => mb_strtoupper(\XLite\Core\Config::getInstance()->General->default_admin_language)]),
                 static::COLUMN_CLASS => '\XLite\View\FormField\Inline\Input\Radio\Radio',
                 static::COLUMN_EDIT_ONLY => true,
                 static::COLUMN_PARAMS => array(
@@ -106,7 +113,7 @@ class Languages extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_TEMPLATE => $this->getDir() . '/' . $this->getPageBodyDir() . '/languages/cell.labels.twig',
                 static::COLUMN_LINK => 'language',
                 static::COLUMN_HEAD_HELP => $this->getColumnLabelsCountHelp(),
-                static::COLUMN_ORDERBY  => 500,
+                static::COLUMN_ORDERBY  => 250,
             ),
         );
     }
@@ -274,7 +281,8 @@ class Languages extends \XLite\View\ItemsList\Model\Table
     {
         $list = parent::getRightActions();
 
-        array_unshift($list, 'items_list/model/table/languages/action.csv.twig');
+        array_unshift($list, $this->getDir() . '/' . $this->getPageBodyDir() . '/languages/action.csv.twig');
+        $list[] = $this->getDir() . '/' . $this->getPageBodyDir() . '/languages/action.help.twig';
 
         return $list;
     }
@@ -301,17 +309,19 @@ class Languages extends \XLite\View\ItemsList\Model\Table
     /**
      * Get specific language help message
      *
-     * @param \XLite\Model\AEntity $entity Language object
+     * @param \XLite\Model\Language $entity Language object
      *
      * @return string
      */
-    protected function getLanguageHelpMessage(\XLite\Model\AEntity $entity)
+    protected function getLanguageHelpMessage(\XLite\Model\Language $entity)
     {
         $message = null;
 
         if ($entity->getValidModule()) {
-            $moduleClass = \Includes\Utils\ModulesManager::getClassNameByModuleName($entity->getModule());
-            $moduleName = sprintf('%s (%s)', $moduleClass::getModuleName(), $moduleClass::getAuthorName());
+            $author = Module::callMainClassMethod($entity->getModule(), 'getAuthorName');
+            $module = Module::callMainClassMethod($entity->getModule(), 'getModuleName');
+
+            $moduleName = sprintf('%s (%s)', $module, $author);
             $message = static::t('This language is added by module and cannot be removed.', array('module' => $moduleName));
 
         } elseif ('en' === $entity->getCode()) {

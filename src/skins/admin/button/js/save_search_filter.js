@@ -14,11 +14,7 @@ jQuery().ready(
         //jQuery(this).hide();
         var boxAction = jQuery(this).parent().find('.button-action').eq(0);
         if (0 < boxAction.length) {
-          var visibility = 'visible';
-          if (visibility == jQuery(boxAction).css('visibility')) {
-            visibility = 'hidden';
-          }
-          jQuery(boxAction).css('visibility', visibility);
+          jQuery(boxAction).toggle();
         }
       }
     );

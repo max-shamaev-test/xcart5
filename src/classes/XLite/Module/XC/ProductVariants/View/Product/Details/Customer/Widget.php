@@ -53,6 +53,18 @@ abstract class Widget extends \XLite\View\Product\Details\Customer\Widget implem
     }
 
     /**
+     * Alias: is product in stock or not
+     *
+     * @return boolean
+     */
+    public function isAllStockInCart()
+    {
+        return $this->getProductVariant()
+            ? $this->getProductVariant()->isAllStockInCart()
+            : parent::isAllStockInCart();
+    }
+
+    /**
      * @return boolean
      */
     public function showPlaceholderOption()

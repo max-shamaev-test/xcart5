@@ -13,52 +13,35 @@ namespace Symfony\Component\Form\Extension\DataCollector;
 
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
-use Symfony\Component\HttpKernel\DataCollector\Util\ValueExporter;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
 /**
  * Default implementation of {@link FormDataExtractorInterface}.
- *
- * @since  2.4
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class FormDataExtractor implements FormDataExtractorInterface
 {
     /**
-     * @var ValueExporter
-     */
-    private $valueExporter;
-
-    /**
-     * Constructs a new data extractor.
-     */
-    public function __construct(ValueExporter $valueExporter = null)
-    {
-        $this->valueExporter = $valueExporter ?: new ValueExporter();
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function extractConfiguration(FormInterface $form)
     {
-        $data = array(
+        $data = [
             'id' => $this->buildId($form),
             'name' => $form->getName(),
-            'type' => $form->getConfig()->getType()->getName(),
-            'type_class' => get_class($form->getConfig()->getType()->getInnerType()),
-            'synchronized' => $this->valueExporter->exportValue($form->isSynchronized()),
-            'passed_options' => array(),
-            'resolved_options' => array(),
-        );
+            'type_class' => \get_class($form->getConfig()->getType()->getInnerType()),
+            'synchronized' => $form->isSynchronized(),
+            'passed_options' => [],
+            'resolved_options' => [],
+        ];
 
-        foreach ($form->getConfig()->getAttribute('data_collector/passed_options', array()) as $option => $value) {
-            $data['passed_options'][$option] = $this->valueExporter->exportValue($value);
+        foreach ($form->getConfig()->getAttribute('data_collector/passed_options', []) as $option => $value) {
+            $data['passed_options'][$option] = $value;
         }
 
         foreach ($form->getConfig()->getOptions() as $option => $value) {
-            $data['resolved_options'][$option] = $this->valueExporter->exportValue($value);
+            $data['resolved_options'][$option] = $value;
         }
 
         ksort($data['passed_options']);
@@ -72,19 +55,19 @@ class FormDataExtractor implements FormDataExtractorInterface
      */
     public function extractDefaultData(FormInterface $form)
     {
-        $data = array(
-            'default_data' => array(
-                'norm' => $this->valueExporter->exportValue($form->getNormData()),
-            ),
-            'submitted_data' => array(),
-        );
+        $data = [
+            'default_data' => [
+                'norm' => $form->getNormData(),
+            ],
+            'submitted_data' => [],
+        ];
 
         if ($form->getData() !== $form->getNormData()) {
-            $data['default_data']['model'] = $this->valueExporter->exportValue($form->getData());
+            $data['default_data']['model'] = $form->getData();
         }
 
         if ($form->getViewData() !== $form->getNormData()) {
-            $data['default_data']['view'] = $this->valueExporter->exportValue($form->getViewData());
+            $data['default_data']['view'] = $form->getViewData();
         }
 
         return $data;
@@ -95,52 +78,42 @@ class FormDataExtractor implements FormDataExtractorInterface
      */
     public function extractSubmittedData(FormInterface $form)
     {
-        $data = array(
-            'submitted_data' => array(
-                'norm' => $this->valueExporter->exportValue($form->getNormData()),
-            ),
-            'errors' => array(),
-        );
+        $data = [
+            'submitted_data' => [
+                'norm' => $form->getNormData(),
+            ],
+            'errors' => [],
+        ];
 
         if ($form->getViewData() !== $form->getNormData()) {
-            $data['submitted_data']['view'] = $this->valueExporter->exportValue($form->getViewData());
+            $data['submitted_data']['view'] = $form->getViewData();
         }
 
         if ($form->getData() !== $form->getNormData()) {
-            $data['submitted_data']['model'] = $this->valueExporter->exportValue($form->getData());
+            $data['submitted_data']['model'] = $form->getData();
         }
 
         foreach ($form->getErrors() as $error) {
-            $errorData = array(
+            $errorData = [
                 'message' => $error->getMessage(),
-                'origin' => is_object($error->getOrigin())
+                'origin' => \is_object($error->getOrigin())
                     ? spl_object_hash($error->getOrigin())
                     : null,
-                'trace' => array(),
-            );
+                'trace' => [],
+            ];
 
             $cause = $error->getCause();
 
             while (null !== $cause) {
                 if ($cause instanceof ConstraintViolationInterface) {
-                    $errorData['trace'][] = array(
-                        'class' => $this->valueExporter->exportValue(get_class($cause)),
-                        'root' => $this->valueExporter->exportValue($cause->getRoot()),
-                        'path' => $this->valueExporter->exportValue($cause->getPropertyPath()),
-                        'value' => $this->valueExporter->exportValue($cause->getInvalidValue()),
-                    );
-
+                    $errorData['trace'][] = $cause;
                     $cause = method_exists($cause, 'getCause') ? $cause->getCause() : null;
 
                     continue;
                 }
 
                 if ($cause instanceof \Exception) {
-                    $errorData['trace'][] = array(
-                        'class' => $this->valueExporter->exportValue(get_class($cause)),
-                        'message' => $this->valueExporter->exportValue($cause->getMessage()),
-                    );
-
+                    $errorData['trace'][] = $cause;
                     $cause = $cause->getPrevious();
 
                     continue;
@@ -154,7 +127,7 @@ class FormDataExtractor implements FormDataExtractorInterface
             $data['errors'][] = $errorData;
         }
 
-        $data['synchronized'] = $this->valueExporter->exportValue($form->isSynchronized());
+        $data['synchronized'] = $form->isSynchronized();
 
         return $data;
     }
@@ -164,20 +137,14 @@ class FormDataExtractor implements FormDataExtractorInterface
      */
     public function extractViewVariables(FormView $view)
     {
-        $data = array();
-
-        // Set the ID in case no FormInterface object was collected for this
-        // view
-        if (!isset($data['id'])) {
-            $data['id'] = isset($view->vars['id']) ? $view->vars['id'] : null;
-        }
-
-        if (!isset($data['name'])) {
-            $data['name'] = isset($view->vars['name']) ? $view->vars['name'] : null;
-        }
+        $data = [
+            'id' => isset($view->vars['id']) ? $view->vars['id'] : null,
+            'name' => isset($view->vars['name']) ? $view->vars['name'] : null,
+            'view_vars' => [],
+        ];
 
         foreach ($view->vars as $varName => $value) {
-            $data['view_vars'][$varName] = $this->valueExporter->exportValue($value);
+            $data['view_vars'][$varName] = $value;
         }
 
         ksort($data['view_vars']);
@@ -187,8 +154,6 @@ class FormDataExtractor implements FormDataExtractorInterface
 
     /**
      * Recursively builds an HTML ID for a form.
-     *
-     * @param FormInterface $form The form
      *
      * @return string The HTML ID
      */

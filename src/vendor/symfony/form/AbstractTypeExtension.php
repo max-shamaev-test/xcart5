@@ -11,8 +11,8 @@
 
 namespace Symfony\Component\Form;
 
+use Symfony\Component\Form\Exception\LogicException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -43,21 +43,25 @@ abstract class AbstractTypeExtension implements FormTypeExtensionInterface
     /**
      * {@inheritdoc}
      */
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
-        if (!$resolver instanceof OptionsResolver) {
-            throw new \InvalidArgumentException(sprintf('Custom resolver "%s" must extend "Symfony\Component\OptionsResolver\OptionsResolver".', get_class($resolver)));
-        }
-
-        $this->configureOptions($resolver);
     }
 
     /**
-     * Configures the options for this type.
+     * {@inheritdoc}
      *
-     * @param OptionsResolver $resolver The resolver for the options.
+     * @deprecated since Symfony 4.2, use getExtendedTypes() instead.
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function getExtendedType()
     {
+        if (!method_exists($this, 'getExtendedTypes')) {
+            throw new LogicException(sprintf('You need to implement the static getExtendedTypes() method when implementing the %s in %s.', FormTypeExtensionInterface::class, static::class));
+        }
+
+        @trigger_error(sprintf('The %s::getExtendedType() method is deprecated since Symfony 4.2 and will be removed in 5.0. Use getExtendedTypes() instead.', \get_class($this)), E_USER_DEPRECATED);
+
+        foreach (static::getExtendedTypes() as $extendedType) {
+            return $extendedType;
+        }
     }
 }

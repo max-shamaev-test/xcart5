@@ -251,14 +251,4 @@ trait OpenGraphTrait
     {
         return 0;
     }
-
-    /**
-     * Get ogMeta
-     *
-     * @return string
-     */
-    public function getOgMeta()
-    {
-        return null;
-    }
 }

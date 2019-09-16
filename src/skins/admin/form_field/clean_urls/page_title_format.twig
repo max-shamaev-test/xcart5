@@ -1,7 +1,9 @@
 {##
  # Page title format header clean urls settings template
  #}
-<h3>
-  {{ t(this.getLabel()) }}
-  {{ widget('XLite\\View\\Tooltip', text=this.getHelpLabel(), isImageTag='true', className='help-icon') }}
-</h3>
+<span class="input-field-wrapper">
+  <h3>
+    {{ t(this.getLabel()) }}
+    {{ widget('XLite\\View\\Tooltip', text=this.getHelpLabel(), isImageTag='true', className='help-icon') }}
+  </h3>
+</span>

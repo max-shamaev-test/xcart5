@@ -8,81 +8,8 @@
 
 namespace XLite\Module\XC\ThemeTweaker;
 
-/**
- * Theme tweaker module main class
- */
 abstract class Main extends \XLite\Module\AModule
 {
-    /**
-     * Author name
-     *
-     * @return string
-     */
-    public static function getAuthorName()
-    {
-        return 'X-Cart team';
-    }
-
-    /**
-     * Get module major version
-     *
-     * @return string
-     */
-    public static function getMajorVersion()
-    {
-        return '5.3';
-    }
-
-    /**
-     * Module version
-     *
-     * @return string
-     */
-    public static function getMinorVersion()
-    {
-        return '4';
-    }
-
-    /**
-     * Get module build number (4th number in the version)
-     *
-     * @return string
-     */
-    public static function getBuildVersion()
-    {
-        return '5';
-    }
-
-    /**
-     * Get minor core version which is required for the module activation
-     *
-     * @return string
-     */
-    public static function getMinorRequiredCoreVersion()
-    {
-        return '4';
-    }
-
-    /**
-     * Module name
-     *
-     * @return string
-     */
-    public static function getModuleName()
-    {
-        return 'Theme tweaker';
-    }
-
-    /**
-     * Module description
-     *
-     * @return string
-     */
-    public static function getDescription()
-    {
-        return 'This extension allows you to tweak your store design by adding and editing custom CSS styles and JavaScript code directly in the store back end. Also you can upload images to link them from your CSS styles.';
-    }
-
     /**
      * Get theme files directory
      *
@@ -93,48 +20,10 @@ abstract class Main extends \XLite\Module\AModule
         return LC_DIR_VAR . 'theme' . LC_DS;
     }
 
-    /**
-     * Return list of mutually exclusive modules
-     *
-     * @return array
-     */
-    public static function getMutualModulesList()
-    {
-        $list = parent::getMutualModulesList();
-        $list[] = 'CDev\DrupalConnector';
-
-        return $list;
-    }
-
-    /**
-     * Decorator run this method at the end of cache rebuild
-     *
-     * @return void
-     */
-    public static function runBuildCacheHandler()
-    {
-        parent::runBuildCacheHandler();
-
-        $overriddenData = \XLite\Core\Database::getRepo('XLite\Model\ViewList')->findOverriddenData();
-        \XLite\Core\Database::getRepo('XLite\Module\XC\ThemeTweaker\Model\OverriddenViewList')->replaceOverriddenData($overriddenData);
-
-        $overriddenLists = \XLite\Core\Database::getRepo('XLite\Module\XC\ThemeTweaker\Model\OverriddenViewList')->findAll();
-        if ($overriddenLists) {
-            foreach ($overriddenLists as $overriddenList) {
-                $tempList = $overriddenList->getTemporaryViewList();
-                $entity = \XLite\Core\Database::getRepo('XLite\Model\ViewList')->findEqual($tempList, true);
-
-                if ($entity) {
-                    $entity->mapOverrides($tempList);
-                }
-            }
-        }
-    }
-
     public static function getDumpOrder()
     {
         $orderId = \XLite\Core\TmpVars::getInstance()->themeTweakerDumpOrderId;
-        $order = \XLite\Core\Database::getRepo('XLite\Model\Order')->find($orderId);
+        $order   = \XLite\Core\Database::getRepo('XLite\Model\Order')->find($orderId);
 
         if (null === $order) {
             $order = \XLite\Core\Database::getRepo('XLite\Model\Order')->findDumpOrder();

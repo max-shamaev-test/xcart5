@@ -8,6 +8,9 @@
 
 namespace XLite\Module\XC\ThemeTweaker\View\Page;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
+
 /**
  * Google Tag manager promo
  */
@@ -47,43 +50,13 @@ class GoogleTagManagerPromo extends \XLite\View\AView
     }
 
     /**
-     * Get module id
-     *
-     * @return string
-     */
-    protected function getModuleId()
-    {
-        return $this->isModuleInstalled() && $this->getModule() ? $this->getModule()->getModuleID() : '';
-    }
-
-    /**
-     * Get module id
-     *
-     * @return \XLite\Model\Module
-     */
-    protected function getModule()
-    {
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')->findOneByModuleName($this->getModuleName());
-    }
-
-    /**
      * Check module installed
      *
      * @return boolean
      */
     protected function isModuleEnabled()
     {
-        return \Includes\Utils\ModulesManager::isModuleInstalled($this->getModuleName());
-    }
-
-    /**
-     * Check module installed
-     *
-     * @return boolean
-     */
-    protected function isModuleInstalled()
-    {
-        return $this->getModule() && $this->getModule()->isInstalled();
+        return Manager::getRegistry()->isModuleEnabled($this->getModuleName());
     }
 
     /**
@@ -99,40 +72,19 @@ class GoogleTagManagerPromo extends \XLite\View\AView
      */
     protected function getModuleConfigURL()
     {
-        return $this->buildURL(
-            'module',
-            '',
-            [
-                'moduleId'     => $this->getModuleId(),
-                'returnTarget' => $this->getCurrentTarget(),
-            ]
-        );
+        list($author, $name) = explode('\\', $this->getModuleName());
+
+        return Manager::getRegistry()->getModuleSettingsUrl($author, $name);
     }
 
     /**
      * @return string
      */
-    protected function getModuleEnableURL()
+    protected function getModuleURL()
     {
-        return $this->buildURL(
-                'addons_list_installed',
-                '',
-                [
-                    'clearCnd' => 1,
-                    'pageId'   => 1,
-                ]
-            ) . '#' . $this->getModule()->getName();
-    }
+        list($author, $name) = explode('\\', $this->getModuleName());
 
-    /**
-     * @return string
-     */
-    protected function getModuleInstallURL()
-    {
-        list($author, $module) = explode('\\', $this->getModuleName());
-
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')
-            ->getMarketplaceUrlByName($author, $module);
+        return Manager::getRegistry()->getModuleServiceURL($author, $name);
     }
 
     /**

@@ -52,6 +52,16 @@ class ForceChangePassword extends \XLite\View\Model\Profile\Main
     }
 
     /**
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        return array_merge(parent::getCSSFiles(), [
+            'model/profile/force_change_password.css'
+        ]);
+    }
+
+    /**
      * Get container class
      *
      * @return string

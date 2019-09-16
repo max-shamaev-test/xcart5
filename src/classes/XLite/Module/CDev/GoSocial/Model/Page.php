@@ -163,26 +163,6 @@ class Page extends \XLite\Module\CDev\SimpleCMS\Model\Page implements \XLite\Bas
     }
 
     /**
-     * Set ogMeta
-     *
-     * @param string $ogMeta
-     * @return static
-     */
-    public function setOgMeta($ogMeta)
-    {
-        $this->ogMeta = $ogMeta;
-        return $this;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getOgMeta()
-    {
-        return $this->ogMeta;
-    }
-
-    /**
      * Get showSocialButtons
      *
      * @return boolean 

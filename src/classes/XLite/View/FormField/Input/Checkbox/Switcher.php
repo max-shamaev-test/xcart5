@@ -27,7 +27,7 @@ class Switcher extends \XLite\View\FormField\Input\Checkbox
         parent::defineWidgetParams();
 
         $this->widgetParams += array(
-            self::PARAM_SWITCHER_ICON => new \XLite\Model\WidgetParam\TypeString('Switcher icon', 'fa-power-off'),
+            self::PARAM_SWITCHER_ICON => new \XLite\Model\WidgetParam\TypeString('Switcher icon', 'fa-power-off iconfont'),
             self::PARAM_SWITCHER_OFF_LABEL => new \XLite\Model\WidgetParam\TypeString('Switcher disabled label', 'Disabled'),
             self::PARAM_SWITCHER_ON_LABEL => new \XLite\Model\WidgetParam\TypeString('Switcher enabled label', 'Enabled'),
         );
@@ -41,7 +41,7 @@ class Switcher extends \XLite\View\FormField\Input\Checkbox
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/input/checkbox/switcher.css';
+        $list[] = $this->getDir() . '/input/checkbox/switcher.less';
 
         return $list;
     }

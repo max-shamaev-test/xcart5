@@ -59,7 +59,12 @@ class NextPrevious extends \XLite\View\AView
     protected function getNextOrder()
     {
         if ($this->nextOrder === null) {
-            $this->nextOrder = \XLite\Core\Database::getRepo('XLite\Model\Order')->findNextOrder($this->getOrder());
+            $conditions = \XLite\View\ItemsList\Model\Order\Admin\Search::getInstance()->getConditionForNexPrevious();
+            $conditions->np_order = $this->getOrder();
+            $this->nextOrder = \XLite\Core\Database::getRepo('XLite\Model\Order')->search(
+                $conditions,
+                \XLite\Model\Repo\Order::SEARCH_MODE_NEXT_ORDER
+            );
         }
 
         return $this->nextOrder;
@@ -71,7 +76,12 @@ class NextPrevious extends \XLite\View\AView
     protected function getPreviousOrder()
     {
         if ($this->previousOrder === null) {
-            $this->previousOrder = \XLite\Core\Database::getRepo('XLite\Model\Order')->findPreviousOrder($this->getOrder());
+            $conditions = \XLite\View\ItemsList\Model\Order\Admin\Search::getInstance()->getConditionForNexPrevious();
+            $conditions->np_order = $this->getOrder();
+            $this->previousOrder = \XLite\Core\Database::getRepo('XLite\Model\Order')->search(
+                $conditions,
+                \XLite\Model\Repo\Order::SEARCH_MODE_PREV_ORDER
+            );
         }
 
         return $this->previousOrder;

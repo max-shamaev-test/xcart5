@@ -24,15 +24,15 @@ class LocaleTest extends AbstractLocaleTest
 {
     protected function setUp()
     {
-        IntlTestHelper::requireFullIntl($this);
+        IntlTestHelper::requireFullIntl($this, false);
 
         parent::setUp();
     }
 
     protected function call($methodName)
     {
-        $args = array_slice(func_get_args(), 1);
+        $args = \array_slice(\func_get_args(), 1);
 
-        return call_user_func_array(array('Locale', $methodName), $args);
+        return \Locale::{$methodName}(...$args);
     }
 }

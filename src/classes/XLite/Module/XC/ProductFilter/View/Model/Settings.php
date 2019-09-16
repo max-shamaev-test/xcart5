@@ -8,6 +8,9 @@
 
 namespace XLite\Module\XC\ProductFilter\View\Model;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
+
 /**
  * Settings dialog model widget
  */
@@ -24,7 +27,7 @@ class Settings extends \XLite\View\Model\Settings implements \XLite\Base\IDecora
 
         if (('module' === $this->getTarget()
                 && $this->getModule()
-                && 'XC\ProductFilter' === $this->getModule()->getActualName()
+                && Module::buildId('XC', 'ProductFilter') === $this->getModule()
             )
             && \XLite\Core\Config::getInstance()->XC->ProductFilter->attributes_filter_by_category
             && \XLite\Core\Config::getInstance()->XC->ProductFilter->attributes_filter_cache_mode

@@ -25,7 +25,7 @@ class GlobalTabs extends \XLite\View\ItemsList\Model\Table
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'modules/XC/CustomProductTabs/global_tabs/style.css';
+        $list[] = 'modules/XC/CustomProductTabs/global_tabs/style.less';
 
         return $list;
     }
@@ -190,19 +190,21 @@ class GlobalTabs extends \XLite\View\ItemsList\Model\Table
 
         if ($model->getServiceName() === 'Comments') {
             return static::t('Tab displaying comments about the product. Added by the addons VK/GoSocial/Disqus', [
-                'modules' => implode(', ', array_filter(array_map(function(GlobalTabProvider $provider) {
+                'modules' => implode(', ', array_filter(array_map(function (GlobalTabProvider $provider) {
                     $code = $provider->getCode();
-                    $repo = Database::getRepo('XLite\Model\Module');
+                    //$repo = Database::getRepo('XLite\Model\Module');
 
-                    if ($module = $repo->findOneByModuleName($code)) {
+                    //if ($module = $repo->findOneByModuleName($code)) {
                         return sprintf(
                             '<a href="%s">%s</a>',
-                            $module->isInstalled() ? $module->getInstalledURL(): $module->getMarketplaceURL(),
-                            $module->getName()
+                            \Includes\Utils\Module\Manager::getRegistry()->getModuleServiceURL($code),
+                            //$module->isInstalled() ? $module->getInstalledURL(): $module->getMarketplaceURL(),
+                            //$module->getName()
+                            $code // @todo: get uninstalled module info
                         );
-                    }
+                    //}
 
-                    return null;
+                    //return null;
                 }, $model->getProviders()->toArray())))
             ]);
         }

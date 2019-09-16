@@ -21,6 +21,11 @@ td.cell.product div.cell {
   position: relative;
 }
 
+td.cell.product div.cell a {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .cdev-featuredproducts-searchpanel-main .search-conditions-box .search-conditions {
   min-width: initial;
 }

@@ -17,7 +17,6 @@ use XLite\Model\ViewList;
  */
 class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
 {
-
     /**
      * Check - current plugin is bocking or not
      *
@@ -25,7 +24,7 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
      */
     public function isBlockingPlugin()
     {
-        return CacheManager::isCapsular();
+        return $this->getVersionKey();
     }
 
     /**
@@ -36,14 +35,55 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
     public function executeHookHandler()
     {
         // Delete old and rename new
-        if (CacheManager::isCapsular()) {
+        if ($this->getVersionKey()) {
             ViewList::setVersionKey(null);
 
             $repo = Database::getRepo('XLite\Model\ViewList');
-            $key  = CacheManager::getKey();
+            $key  = $this->getVersionKey();
+
+            $this->restoreOverriddenRecords($key);
 
             $repo->deleteObsolete($key);
             $repo->markCurrentVersion($key);
+
+            $this->deleteVersionKey();
+        }
+    }
+
+    /**
+     * Restores overridden records
+     *
+     * @param $currentKey
+     */
+    public function restoreOverriddenRecords($currentKey)
+    {
+        $repo = \XLite\Core\Database::getRepo('XLite\Model\ViewList');
+        $overrides = $repo->findOverridden();
+
+        if ($overrides) {
+            /** @var \XLite\Model\ViewList $override */
+            foreach ($overrides as $override) {
+                $entity = $repo->findEqual($override, true);
+
+                if ($entity) {
+                    $entity->mapOverrides($override);
+                } else {
+                    $entity = $override->cloneEntity();
+                    $entity->setVersion($currentKey);
+
+                    \XLite\Core\Database::getEM()->persist($entity);
+                }
+
+                if ($override->getParent()) {
+                    $equalParent = $repo->findEqual($override->getParent(), true);
+
+                    if ($equalParent) {
+                        $entity->setParent($equalParent);
+                    }
+                }
+            }
+
+            \XLite\Core\Database::getEM()->flush();
         }
     }
 }

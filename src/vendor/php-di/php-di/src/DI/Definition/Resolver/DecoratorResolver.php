@@ -5,7 +5,7 @@ namespace DI\Definition\Resolver;
 use DI\Definition\DecoratorDefinition;
 use DI\Definition\Definition;
 use DI\Definition\Exception\DefinitionException;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
 /**
  * Resolves a decorator definition to a value.
@@ -71,7 +71,7 @@ class DecoratorResolver implements DefinitionResolver
             ));
         }
 
-        $decorated = $this->definitionResolver->resolve($decoratedDefinition);
+        $decorated = $this->definitionResolver->resolve($decoratedDefinition, $parameters);
 
         return call_user_func($callable, $decorated, $this->container);
     }

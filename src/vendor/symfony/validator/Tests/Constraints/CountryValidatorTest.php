@@ -14,15 +14,10 @@ namespace Symfony\Component\Validator\Tests\Constraints;
 use Symfony\Component\Intl\Util\IntlTestHelper;
 use Symfony\Component\Validator\Constraints\Country;
 use Symfony\Component\Validator\Constraints\CountryValidator;
-use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
-class CountryValidatorTest extends AbstractConstraintValidatorTest
+class CountryValidatorTest extends ConstraintValidatorTestCase
 {
-    protected function getApiVersion()
-    {
-        return Validation::API_VERSION_2_5;
-    }
-
     protected function createValidator()
     {
         return new CountryValidator();
@@ -43,7 +38,7 @@ class CountryValidatorTest extends AbstractConstraintValidatorTest
     }
 
     /**
-     * @expectedException \Symfony\Component\Validator\Exception\UnexpectedTypeException
+     * @expectedException \Symfony\Component\Validator\Exception\UnexpectedValueException
      */
     public function testExpectsStringCompatibleType()
     {
@@ -62,11 +57,11 @@ class CountryValidatorTest extends AbstractConstraintValidatorTest
 
     public function getValidCountries()
     {
-        return array(
-            array('GB'),
-            array('AT'),
-            array('MY'),
-        );
+        return [
+            ['GB'],
+            ['AT'],
+            ['MY'],
+        ];
     }
 
     /**
@@ -74,9 +69,9 @@ class CountryValidatorTest extends AbstractConstraintValidatorTest
      */
     public function testInvalidCountries($country)
     {
-        $constraint = new Country(array(
+        $constraint = new Country([
             'message' => 'myMessage',
-        ));
+        ]);
 
         $this->validator->validate($country, $constraint);
 
@@ -88,10 +83,10 @@ class CountryValidatorTest extends AbstractConstraintValidatorTest
 
     public function getInvalidCountries()
     {
-        return array(
-            array('foobar'),
-            array('EN'),
-        );
+        return [
+            ['foobar'],
+            ['EN'],
+        ];
     }
 
     public function testValidateUsingCountrySpecificLocale()

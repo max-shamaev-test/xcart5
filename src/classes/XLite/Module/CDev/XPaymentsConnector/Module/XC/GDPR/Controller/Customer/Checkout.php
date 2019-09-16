@@ -25,7 +25,7 @@ class Checkout extends \XLite\Controller\Customer\Checkout implements \XLite\Bas
         /** @var \XLite\Model\Cart $cart */
         $cart = \XLite::getController()->getCart();
 
-        $xpaymentsEnabled = \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('CDev\XPaymentsConnector');
+        $xpaymentsEnabled = \Includes\Utils\Module\Manager::getRegistry()->isModuleEnabled('CDev\XPaymentsConnector');
 
         return $cart
             && $xpaymentsEnabled

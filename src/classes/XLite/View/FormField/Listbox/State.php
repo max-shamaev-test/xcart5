@@ -72,4 +72,14 @@ class State extends \XLite\View\FormField\Listbox\AListbox
     {
         return parent::getValueContainerClass() . ' state-listbox';
     }
+
+    /**
+     * Get field label template
+     *
+     * @return string
+     */
+    protected function getFieldLabelTemplate()
+    {
+        return 'form_field/label/state_label.twig';
+    }
 }

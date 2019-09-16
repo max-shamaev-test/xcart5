@@ -9,39 +9,8 @@
 namespace XLite\Module\CDev\SimpleCMS\View\FormField\Input;
 
 /**
- * Favicon input form field
- *
+ * Favicon
  */
 class Favicon extends \XLite\Module\CDev\SimpleCMS\View\FormField\Input\AImage
 {
-    /**
-     * Return the image URL value
-     *
-     * @return string
-     */
-    protected function getImage()
-    {
-        return $this->getFavicon();
-    }
-
-    /**
-     * Return default label
-     *
-     * @return string
-     */
-    protected function getReturnToDefaultLabel()
-    {
-        return 'Return to default favicon';
-    }
-
-    /**
-     * Return the inner name for widget.
-     * It is used in model widget identification of the "useDefaultImage" value
-     *
-     * @return string
-     */
-    protected function getImageName()
-    {
-        return 'favicon';
-    }
 }

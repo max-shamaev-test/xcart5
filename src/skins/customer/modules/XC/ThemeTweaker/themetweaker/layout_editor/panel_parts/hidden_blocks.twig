@@ -5,7 +5,8 @@
  #}
 
 <div class='layout-editor-hidden-list'>
-	<a class='layout-editor-hidden-block' v-for="item in hiddenBlocks" @click="showBlock(item)">
+	<button class='themetweaker-button layout-editor-hidden-block' v-for="item in hiddenBlocks" @click="showBlock(item.element)">
 		<span class="name" v-text="getBlockName(item)"></span>
-	</a>
+		<span class="action"><i class="icon">{{ svg('modules/XC/ThemeTweaker/themetweaker/layout_editor/icons/view.svg')|raw }}</i>{{ t('Enable hidden block') }}</span>
+	</button>
 </div>

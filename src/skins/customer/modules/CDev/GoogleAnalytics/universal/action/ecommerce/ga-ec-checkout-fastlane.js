@@ -40,7 +40,27 @@ define('googleAnalytics/eCommerceCheckoutFastlaneEvent', ['googleAnalytics/eComm
         getListeners: function () {
           return {
             'fastlane_section_switched':  this.sectionChanged,
+            'checkout.common.ready':      this.registerPlaceOrder,
           };
+        },
+
+        registerPlaceOrder: function() {
+          core.trigger('ga-ec-checkout-option', {
+            step: 3,
+            option: this.getOptionBySection('payment'),
+          });
+
+          var checkoutActionData = _.first(
+            this.getActions('checkout')
+          );
+
+          if (checkoutActionData) {
+            core.trigger('ga-ec-checkout', {
+              products:     checkoutActionData.data.products,
+              actionData:   { step: 4 },
+              message:      'Checkout continue'
+            });
+          }
         },
 
         paymentSectionCompleted: function(callback) {
@@ -53,8 +73,36 @@ define('googleAnalytics/eCommerceCheckoutFastlaneEvent', ['googleAnalytics/eComm
         },
 
         sectionChanged: function (event, data) {
-          if (!_.isUndefined(data.oldSection) && !_.isUndefined(Checkout.instance)) {
+          var oldStep = 0;
+          if (!_.isNull(data.oldSection) && !_.isUndefined(data.oldSection)) {
             this.registerCompletedSection(data.oldSection);
+            oldStep = data.oldSection.index + 1;
+          }
+
+          if (!_.isNull(data.newSection) && !_.isUndefined(data.newSection)) {
+            var newStep = data.newSection.index + 1;
+            var checkoutActionData = _.first(
+              this.getActions('checkout')
+            );
+            for (++oldStep; oldStep < newStep; oldStep++) {
+              var actionData = { step: oldStep };
+              var message = 'Checkout continue';
+
+              if (oldStep === 1) {
+                actionData.option = 'Address chosen';
+                message = 'Checkout entered';
+              }
+              if (oldStep === 2 && !_.isUndefined(checkoutActionData.data.shipping_method)) {
+                actionData.option = checkoutActionData.data.shipping_method;
+              }
+
+              core.trigger('ga-ec-checkout', {
+                products:     checkoutActionData.data.products,
+                actionData:   actionData,
+                message:      message
+              });
+            }
+
             this.registerNewSection(data.newSection);
           }
         },
@@ -73,10 +121,15 @@ define('googleAnalytics/eCommerceCheckoutFastlaneEvent', ['googleAnalytics/eComm
           var checkoutActionData = _.first(
               this.getActions('checkout')
           );
+          var message = 'Checkout continue';
+          if (step === 1) {
+            message = 'Checkout entered';
+          }
+
           var data = {
             products:     checkoutActionData.data.products,
             actionData:   { step: step },
-            message:      'Checkout continue'
+            message:      message
           };
 
           core.trigger('ga-ec-checkout', data);

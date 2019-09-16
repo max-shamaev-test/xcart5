@@ -8,6 +8,8 @@
 
 namespace XLite\View\FormField\Select;
 
+use XLite\Core\Skin;
+
 /**
  * \XLite\View\FormField\Select\LayoutType
  */
@@ -153,9 +155,9 @@ class LayoutType extends \XLite\View\FormField\Select\Regular
      */
     protected function getPreviewImage($value)
     {
-        return \XLite\Core\Layout::getInstance()->getLayoutPreview(
-            \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule(),
-            \XLite\Core\Layout::getInstance()->getLayoutColor(),
+        return Skin::getInstance()->getSkinPreview(
+            Skin::getInstance()->getCurrentSkinModule(),
+            Skin::getInstance()->getSkinColorId(),
             $value
         );
     }

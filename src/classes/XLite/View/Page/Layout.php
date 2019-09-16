@@ -28,12 +28,12 @@ class Layout extends \XLite\View\AView
     /**
      * Returns CSS style files
      *
-     * @return string
+     * @return array
      */
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'layout_settings/style.css';
+        $list[] = 'layout_settings/style.less';
 
         return $list;
     }

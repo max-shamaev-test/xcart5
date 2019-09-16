@@ -39,6 +39,10 @@ ul.products.products-sidebar .product-list-market-price {
   display: block;
 }
 
+div.product-details-market-price {
+  display: inline-block;
+}
+
 div.product-details-market-price div.text {
   display: inline;
 }
@@ -55,8 +59,4 @@ div.product-details-market-price ul.labels li div {
 
 div.product-details-market-price div.text span.value {
   text-decoration: line-through;
-}
-
-div.product-details-market-price div.text span.you-save {
-  color: #ff9000;
 }

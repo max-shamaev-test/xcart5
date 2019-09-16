@@ -167,6 +167,7 @@ class Products extends \XLite\View\ItemsList\Product\Customer\ACustomer
     protected function getData(\XLite\Core\CommonCell $cnd, $countOnly = false)
     {
         if (!isset($this->products)) {
+            $this->products = [];
 
             $productIds = $this->getExcludedProductIds();
 

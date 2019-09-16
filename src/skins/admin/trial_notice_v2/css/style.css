@@ -23,7 +23,7 @@
 }
 
 .trial-notice-block.alert {
-  max-width: 724px;
+  max-width: 750px;
 }
 
 .trial-notice-block h2.title {
@@ -35,7 +35,7 @@
 }
 
 .trial-notice-block .register-license-key {
-  margin-top: 27px;
+  margin-top: 10px;
 }
 
 .trial-notice-block .open-license-key-form {
@@ -73,6 +73,11 @@
 
 .trial-notice-block .additional-link {
   font-size: 12px;
+}
+
+.additional-link.activate-free-license-link {
+  font-size: 14px;
+  margin-top: 10px;
 }
 
 .trial-notice-block hr {

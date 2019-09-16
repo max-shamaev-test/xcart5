@@ -8,16 +8,20 @@
  */
 
 .onboarding-wizard-informer {
-  margin-bottom: 20px;
-  padding: 20px;
+  margin-top: @rhythmic-unit;
+  padding: @rhythmic-unit;
   border-radius: 8px;
   background-color: #97c564;
   color: white;
   text-align: center;
 
+  .progress-circle {
+    height: @rhythmic-unit * 4;
+  }
+
   .status-message {
-    margin-top: 17px;
-    margin-bottom: 17px;
+    margin-top: @rhythmic-unit / 2;
+    margin-bottom: @rhythmic-unit / 2;
   }
 
   .status-message .special {
@@ -26,6 +30,9 @@
   }
 
   button.regular-button {
+    margin-top: 4px;
+    margin-bottom: 4px;
+
     border: none;
     min-width: 150px;
 

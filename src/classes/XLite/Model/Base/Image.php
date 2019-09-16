@@ -9,6 +9,7 @@
 namespace XLite\Model\Base;
 
 use XLite\Core\ImageOperator;
+use XLite\Core\Skin;
 
 /**
  * Image abstract store
@@ -181,6 +182,15 @@ abstract class Image extends \XLite\Model\Base\Storage
             $newExtension = $this->getExtensionByMIME();
             $pathinfo = pathinfo($path);
 
+            if (!$newExtension) {
+                $this->loadErrorMessage = [
+                    'The file extension is forbidden ({{file}})',
+                    ['file' => $this->getFileName()],
+                ];
+
+                return false;
+            }
+
             $extension = isset($pathinfo['extension']) ? $pathinfo['extension'] : '';
 
             // HARDCODE for BUG-2520
@@ -217,11 +227,11 @@ abstract class Image extends \XLite\Model\Base\Storage
         $result = parent::renewByPath($path);
 
         if ($result) {
-            $data = @getimagesize($path);
+            $data = $this->getSystemImageData($path);
 
-            if (is_array($data)) {
-                $this->setWidth($data[0]);
-                $this->setHeight($data[1]);
+            if (is_array($data) && count($data) > 0) {
+                $this->updateDimensionsSizes($data);
+
                 $this->setMime($data['mime']);
                 $hash = \Includes\Utils\FileManager::getHash($path, false, $this->includeFilenameInHash);
                 if ($hash) {
@@ -234,6 +244,43 @@ abstract class Image extends \XLite\Model\Base\Storage
         }
 
         return $result;
+    }
+
+    public function updateDimensionsSizes(array $data = null)
+    {
+        if (!$data) {
+            $data = $this->getSystemImageData(
+                $this->getPath()
+            );
+        }
+
+        if ($data) {
+            $this->setWidth($data[0]);
+            $this->setHeight($data[1]);
+        }
+    }
+
+    public function updateMimeType(array $data = null)
+    {
+        if (!$data) {
+            $data = $this->getSystemImageData(
+                $this->getPath()
+            );
+        }
+
+        if ($data) {
+            $this->setMime($data['mime']);
+        }
+    }
+
+    /**
+     * @param $path
+     *
+     * @return array
+     */
+    protected function getSystemImageData($path)
+    {
+        return @getimagesize($path) ?: [];
     }
 
     /**
@@ -288,7 +335,9 @@ abstract class Image extends \XLite\Model\Base\Storage
                 $url = $retinaURL = $this->getURL();
 
             } else {
-                $name = $this->getPath();
+                $name = $this->getStorageType()===static::STORAGE_ABSOLUTE
+                    ? basename($this->getPath())
+                    : $this->getPath();
 
                 $size = ($width ?: 'x') . '.' . ($height ?: 'x');
                 $path = $retinaPath = $this->getResizedPath($size, $name);
@@ -407,7 +456,9 @@ abstract class Image extends \XLite\Model\Base\Storage
 
         list($newWidth, $newHeight) = $this->getCropDimensions($width, $height);
 
-        $name = $this->getPath();
+        $name = $this->getStorageType()===static::STORAGE_ABSOLUTE
+            ? basename($this->getPath())
+            : $this->getPath();
         $size = ($width ?: 'x') . '.' . ($height ?: 'x');
         $path = $this->getResizedPath($size, $name);
         $url = $this->getResizedPublicURL($size, $name);
@@ -687,7 +738,7 @@ abstract class Image extends \XLite\Model\Base\Storage
         );
 
         if (static::isValueLocalURL($url)) {
-            $path = static::getLocalPathFromURL($url);   
+            $path = static::getLocalPathFromURL($url);
         } else {
             $path = $url;
         }

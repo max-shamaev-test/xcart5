@@ -97,6 +97,10 @@ StickyPanel.prototype.process = function()
       'more-action-initial',
       _.bind(this.unmarkMoreActionAsEnabled, this)
     );
+    form.bind(
+      'submit',
+      _.bind(this.blockSubmitButton, this)
+    )
   }
 
   this.fixMoreActionButtons();
@@ -222,13 +226,8 @@ StickyPanel.prototype.isFormDoNotChangeActivation = function()
 // Mark as changed
 StickyPanel.prototype.markAsChanged = function(event, data)
 {
-  // Disable submit button if invalid form
-  // if (!_.isUndefined(data) && !data.valid) {
-  //   this.unmarkAsChanged();
-  //   return;
-  // }
-
   this.triggerVent('markAsChanged', { 'widget': this });
+  this.getSubmitButton().removeClass('blocked');
 
   this.getFormChangedButtons().each(
     _.bind(
@@ -362,8 +361,8 @@ StickyPanel.prototype.getFormChangedButtons = function()
   // If there is any element inside the dropdown menu with the "always-enabled" state
   // then we do not disable the toggle list action button
   return (this.base.find('.dropdown-menu .always-enabled').length > 0)
-    ? buttons.not('.always-enabled, .toggle-list-action, .more-action, .more-actions')
-    : buttons.not('.always-enabled, .more-action, .more-actions');
+    ? buttons.not('.always-enabled, .toggle-list-action, .more-action, .more-actions, .blocked')
+    : buttons.not('.always-enabled, .more-action, .more-actions, .blocked');
 };
 
 StickyPanel.prototype.getMoreActionButtons = function()
@@ -371,15 +370,34 @@ StickyPanel.prototype.getMoreActionButtons = function()
   return this.base.find('.more-action, .more-actions');
 };
 
+StickyPanel.prototype.getSubmitButton = function()
+{
+  return this.base.find('button[type=submit]');
+};
+
+StickyPanel.prototype.blockSubmitButton = function ()
+{
+  this.getSubmitButton().each(
+    _.bind(
+      function(index, button) {
+        this.disableButton(button);
+      },
+      this
+    )
+  );
+  this.getSubmitButton().addClass('blocked');
+};
+
 StickyPanel.prototype.fixMoreActionButtons = function()
 {
-  this.getMoreActionButtons().removeClass('fist-visible').removeClass('last-visible')
+  this.getMoreActionButtons().removeClass('first-visible').removeClass('last-visible')
     .filter(':visible')
     .first().addClass('first-visible')
     .end()
     .last().addClass('last-visible');
 
-  this.base.find('.additional-buttons .or').toggle(!!this.getMoreActionButtons().filter(':visible').length);
+  this.base.find('.additional-buttons').parent()
+    .toggleClass('additional-hidden', !this.getMoreActionButtons().filter(':visible').length);
 };
 
 // Get a form links, which should change as the state of the form

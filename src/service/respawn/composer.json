@@ -1,0 +1,19 @@
+{
+  "name": "",
+  "config": {
+    "autoloader-suffix": "XCart-SUS",
+    "optimize-autoloader": true
+  },
+  "description": "",
+  "license": "",
+  "type": "project",
+  "require": {
+    "roave/security-advisories": "dev-master"
+  },
+  "autoload": {
+    "classmap": [
+      "sus_internals.php"
+    ]
+  }
+}
+

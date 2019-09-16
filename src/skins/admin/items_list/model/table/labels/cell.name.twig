@@ -13,22 +13,31 @@
         {% endfor %}
       </ul>
     {% endif %}
-
-    <ul class="lng-marks">
-      <li><span class="open-edit-box">{{ t('Edit') }}</span></li>
-    </ul>
     
     <span class="name">{{ this.entity.getName() }}</span>
-
-    <img src="skins/admin/images/spacer.gif" class="right-fade" alt="">
 
   </div>
 
   <div class="label-edit" style="display: none;">
 
+    <div class="lng-container">
+      <div class="lng-title lng-title-default">{{ this.defaultLanguageObject.code|upper }}</div>
+      <textarea
+        {% if this.isDefaultLanguageNonEditable() %}
+          readonly="readonly"
+          class="form-control non-editable"
+        {% else %}
+          class="form-control"
+          name="current[{{ this.entity.label_id }}]"
+        {% endif %}
+        lang="{{ this.defaultLanguageObject.code }}"
+        xml:lang="{{ this.defaultLanguageObject.code }}"
+        {% if this.defaultLanguageObject.r2l %} dir="rtl"{% endif %}>{{ this.getLabelDefaultValue(this.entity) }}</textarea>
+    </div>
+
     {% if this.isTranslatedLanguageSelected() %}
-      <div class="left">
-        <div class="lng-title">{{ this.translationLanguageObject.name }}</div>
+      <div class="lng-container">
+        <div class="lng-title">{{ this.translationLanguageObject.code|upper }}</div>
         <textarea
           name="translated[{{ this.entity.label_id }}]"
           lang="{{ this.translationLanguageObject.code }}"
@@ -37,21 +46,6 @@
           {% if this.translationLanguageObject.r2l %} dir="rtl"{% endif %}>{{ this.getLabelTranslatedValue(this.entity) }}</textarea>
       </div>
     {% endif %}
-
-    <div class="right">
-      <div class="lng-title">{{ this.defaultLanguageObject.name }} ({{ t('default') }})</div>
-      <textarea
-        {% if this.isDefaultLanguageNonEditable() %}
-        readonly="readonly"
-        class="form-control non-editable"
-        {% else %}
-        class="form-control"
-        name="current[{{ this.entity.label_id }}]"
-        {% endif %}
-        lang="{{ this.defaultLanguageObject.code }}"
-        xml:lang="{{ this.defaultLanguageObject.code }}"
-        {% if this.defaultLanguageObject.r2l %} dir="rtl"{% endif %}>{{ this.getLabelDefaultValue(this.entity) }}</textarea>
-    </div>
 
   </div>
 

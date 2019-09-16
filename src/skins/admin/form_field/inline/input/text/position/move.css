@@ -9,9 +9,7 @@
 
 .inline-move .move {
   cursor: move;
-  margin-left: auto;
-  margin-top: 0;
-  margin-right: 5px;
+  margin: 0 4px;
   position: relative;
   color: #bec6d8;
   line-height: 1;
@@ -24,5 +22,16 @@
 }
 
 .sortable-placeholder {
-  background: #fffecd;
+  background: #fffcad;
 }
+
+.ui-sortable-helper {
+  background: rgba(252, 235, 176, 0.3);
+}
+.ui-sortable-helper .inline-field.editable .view,
+.ui-sortable-helper .inline-field.editable .form-control {
+  border: none !important;
+  box-shadow: none !important;
+  background: none !important;
+}
+

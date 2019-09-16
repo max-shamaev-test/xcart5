@@ -580,7 +580,7 @@
 
         watch: {
             'filters.min_price[0]': function (val, oldVal) {
-                if (val !== oldVal && !(typeof val === 'undefined' && oldVal === null)) {
+                if (val !== oldVal && !(!val && !oldVal)) {
                     if (this.master) {
                         this.priceFilterChanged();
                     } else {
@@ -589,7 +589,7 @@
                 }
             },
             'filters.max_price[0]': function (val, oldVal) {
-                if (val !== oldVal && !(typeof val === 'undefined' && oldVal === null)) {
+                if (val !== oldVal && !(!val && !oldVal)) {
                     if (this.master) {
                         this.priceFilterChanged();
                     } else {

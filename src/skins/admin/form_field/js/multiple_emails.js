@@ -17,10 +17,10 @@ CommonElement.prototype.handlers.push(
       element.css({display: 'none'});
       element.data('jqv', {validateNonVisibleFields: true});
 
-      var container = $('<div class="multiple-emails-container"></div>').insertAfter(element);
+      var container = $('<div class="multiple-emails-container form-control" tabindex="-1"><div class="options"></div></div>').insertAfter(element);
 
       function getOptionTemplate() {
-        return '<div class="option"><div class="option-text"></div><div class="option-remove"><span>+</span></div></div>';
+        return '<div class="option"><div class="option-text"></div><div class="option-remove"><span>×</span></div></div>';
       }
 
       function getOptionElem(initialOption) {
@@ -37,7 +37,7 @@ CommonElement.prototype.handlers.push(
       }
 
       element.find('option').each(function () {
-        container.append(getOptionElem($(this)));
+        container.find('.options').append(getOptionElem($(this)));
       });
 
       container.bind('try2CreateOption', function () {
@@ -63,13 +63,13 @@ CommonElement.prototype.handlers.push(
 
           getOptionElem(option).insertBefore(input);
           input.text('');
-          container.removeClass('invalid');
+          container.removeClass('has-error');
           element.change();
         } else if (val && val.trim().length) {
-          container.addClass('invalid');
+          container.addClass('has-error');
           input.focus();
         } else {
-          container.removeClass('invalid');
+          container.removeClass('has-error');
         }
       });
 
@@ -80,21 +80,24 @@ CommonElement.prototype.handlers.push(
             container.trigger('try2CreateOption');
             return false;
           }
+        }).focus(function () {
+          container.addClass('focused');
         }).blur(function (e) {
           if (!e.relatedTarget || e.relatedTarget !== this || e.relatedTarget !== container.get(0)) {
+            container.removeClass('focused');
             container.trigger('try2CreateOption');
           }
         });
         return input;
       }
 
-      container.append(getInputElem());
+      container.find('.options').append(getInputElem());
       container.click(function (e) {
         if ($(e.target).has('.multiple-emails-container')) {
           $(this).find('[contenteditable="true"]').focus();
         }
       });
-      container.sortable({
+      container.find('.options').sortable({
         items: ".option",
         update: function (event, ui) {
           var elem = $(ui.item.get(0));

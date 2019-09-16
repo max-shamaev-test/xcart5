@@ -14,78 +14,6 @@ namespace XLite\Module\QSL\BraintreeVZ;
 abstract class Main extends \XLite\Module\AModule
 {
     /**
-     * Author name
-     *
-     * @return string
-     */
-    public static function getAuthorName()
-    {
-        return 'X-Cart team';
-    }
-
-    /**
-     * Get module major version
-     *
-     * @return string
-     */
-    public static function getMajorVersion()
-    {
-        return '5.3';
-    }
-
-    /**
-     * Module version
-     *
-     * @return string
-     */
-    public static function getMinorVersion()
-    {
-        return '4';
-    }
-
-    /**
-     * Get module build number (4th number in the version)
-     *
-     * @return string
-     */
-    public static function getBuildVersion()
-    {
-        return '2';
-    }
-
-    /**
-     * Get minor core version which is required for the module activation
-     *
-     * @return string
-     */
-    public static function getMinorRequiredCoreVersion()
-    {
-        return '0';
-    }
-
-    /**
-     * Module name
-     *
-     * @return string
-     */
-    public static function getModuleName()
-    {
-        return 'PayPal powered by Braintree';
-    }
-
-    /**
-     * Module description
-     *
-     * @return string
-     */
-    public static function getDescription()
-    {
-        return 'Braintree is a full-stack payments platform that makes it easy to accept payments '
-            . 'in your app or website. The service replaces the traditional model of sourcing '
-            . 'a payment gateway and merchant account from different providers.';
-    }
-
-    /**
      * Add record to the module log file
      *
      * @param string $message Text message OPTIONAL
@@ -112,16 +40,6 @@ abstract class Main extends \XLite\Module\AModule
     }
 
     /**
-     * The module is defined as the payment module
-     *
-     * @return integer|null
-     */
-    public static function getModuleType()
-    {
-        return static::MODULE_TYPE_PAYMENT;
-    }
-
-    /**
      * Get path of SDK classes file
      *
      * @return string
@@ -134,7 +52,7 @@ abstract class Main extends \XLite\Module\AModule
     /**
      * Perform some actions at startup
      *
-     * @return string
+     * @return void
      */
     public static function init()
     {
@@ -143,16 +61,4 @@ abstract class Main extends \XLite\Module\AModule
         require_once self::getLibClassesFile();
     }
 
-    /**
-     * Return list of mutually exclusive modules
-     *
-     * @return array
-     */
-    public static function getMutualModulesList()
-    {
-        $list   = parent::getMutualModulesList();
-        $list[] = 'QSL\Braintree';
-
-        return $list;
-    }
 }

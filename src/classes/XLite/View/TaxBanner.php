@@ -8,6 +8,8 @@
 
 namespace XLite\View;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Tax banner page
  *
@@ -22,7 +24,7 @@ class TaxBanner extends \XLite\View\AView
      */
     public static function getAllowedTargets()
     {
-        $result = parent::getAllowedTargets();
+        $result   = parent::getAllowedTargets();
         $result[] = 'tax_classes';
         $result[] = 'sales_tax';
         $result[] = 'vat_tax';
@@ -38,8 +40,8 @@ class TaxBanner extends \XLite\View\AView
      */
     public function getCSSFiles()
     {
-        $list = parent::getCSSFiles();
-        $list[] = 'tax_banner/style.css';
+        $list   = parent::getCSSFiles();
+        $list[] = 'tax_banner/style.less';
 
         return $list;
     }
@@ -61,23 +63,23 @@ class TaxBanner extends \XLite\View\AView
      */
     protected function defineHelpLinks()
     {
-        $links = array();
-        $links[] = array(
+        $links   = [];
+        $links[] = [
             'title' => static::t('Setting up VAT / GST'),
             'url'   => static::t('https://kb.x-cart.com/taxes/setting_up_vat_gst.html'),
-        );
-        $links[] = array(
+        ];
+        $links[] = [
             'title' => static::t('Setting up sales tax'),
             'url'   => static::t('https://kb.x-cart.com/taxes/setting_up_sales_tax.html'),
-        );
-        $links[] = array(
+        ];
+        $links[] = [
             'title' => static::t('Setting up Canadian taxes'),
             'url'   => static::t('https://kb.x-cart.com/taxes/setting_up_canadian_taxes.html'),
-        );
-        $links[] = array(
+        ];
+        $links[] = [
             'title' => static::t('Setting up tax classes'),
             'url'   => static::t('https://kb.x-cart.com/taxes/setting_up_tax_classes.html'),
-        );
+        ];
 
         return $links;
     }
@@ -99,10 +101,7 @@ class TaxBanner extends \XLite\View\AView
      */
     protected function getAvaTaxLink()
     {
-        list($author, $module) = explode('\\', 'XC\\AvaTax');
-
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')
-            ->getMarketplaceUrlByName($author, $module);
+        return Manager::getRegistry()->getModuleServiceURL('XC', 'AvaTax');
     }
 
     /**

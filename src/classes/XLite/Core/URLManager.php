@@ -65,7 +65,9 @@ abstract class URLManager extends \Includes\Utils\URLManager
     {
         $result = false;
 
-        $domain = parse_url($url, PHP_URL_HOST);
+        $port = parse_url($url, PHP_URL_PORT);
+        $domain = parse_url($url, PHP_URL_HOST) . ($port ? (':' . $port) : '');
+
         $path = parse_url($url, PHP_URL_PATH);
 
         // Checks if there is a redirect hack in returnURL. See bug #BUG-3904

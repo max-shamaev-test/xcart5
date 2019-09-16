@@ -9,6 +9,7 @@
 namespace XLite\View\Order\Details\Admin;
 
 use XLite\Core\PreloadedLabels\ProviderInterface;
+use XLite\Model\Order;
 
 /**
  * Order info
@@ -46,7 +47,7 @@ class Info extends \XLite\View\AView implements ProviderInterface
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'order/page/info.css';
+        $list[] = 'order/page/info.less';
         $list[] = 'address/order/style.css';
         $list[] = 'select_address/style.css';
 
@@ -92,6 +93,14 @@ class Info extends \XLite\View\AView implements ProviderInterface
     }
 
     // {{{ Content helpers
+
+    /**
+     * @return Order
+     */
+    protected function getOrder()
+    {
+        return \XLite::getController()->getOrder();
+    }
 
     /**
      * Get order formatted creation date
@@ -314,5 +323,42 @@ class Info extends \XLite\View\AView implements ProviderInterface
     protected function getAntiFraudAdLink()
     {
         return 'https://www.x-cart.com/extensions/addons/antifraud.html?utm_source=xcart5&utm_medium=link&utm_campaign=xcart5_antifraud_link';
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isDisplayBackorderWarning()
+    {
+        return $this->getOrder()->getShippingStatusCode() === Order\Status\Shipping::STATUS_NEW_BACKORDERED;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getBackorderWarningText()
+    {
+        return static::t('This order was placed at the same time as {{orders}}; as a result, some items were out of stock at the time of order placement.', [
+            'orders' => $this->getBackorderCompetitorsText(),
+            'kb_link' => 'https://kb.x-cart.com',
+        ]);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getBackorderCompetitorsText()
+    {
+        return $this->getOrder()->getBackorderCompetitors()->isEmpty()
+            ? static::t('deleted')
+            : implode(', ', array_map(function (Order $order) {
+                return sprintf(
+                    '<a href="%s">%s</a>',
+                    $this->buildFullURL('order', '', [
+                        'order_number' => $order->getOrderNumber(),
+                    ]),
+                    '#' . $order->getOrderNumber()
+                    );
+            }, $this->getOrder()->getBackorderCompetitors()->toArray()));
     }
 }

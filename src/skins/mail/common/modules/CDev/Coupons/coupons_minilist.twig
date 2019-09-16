@@ -5,7 +5,7 @@
  #}
 
 {% if this.isDiscountCouponSubpanelVisible(this.surcharge) %}
-  <ul class="discount-coupons-panel">
+  <ul class="discount-coupons-panel" style="list-style: none outside none">
     {% for usedCoupon in this.getDiscountCoupons() %}
       <li>
         <span>{{ usedCoupon.getPublicName() }}</span>

@@ -8,81 +8,8 @@
 
 namespace XLite\Module\CDev\AustraliaPost;
 
-/**
- * Main
- */
 abstract class Main extends \XLite\Module\AModule
 {
-    /**
-     * Author name
-     *
-     * @return string
-     */
-    public static function getAuthorName()
-    {
-        return 'X-Cart team';
-    }
-
-    /**
-     * Module name
-     *
-     * @return string
-     */
-    public static function getModuleName()
-    {
-        return 'Australia Post';
-    }
-
-    /**
-     * Get module major version
-     *
-     * @return string
-     */
-    public static function getMajorVersion()
-    {
-        return '5.3';
-    }
-
-    /**
-     * Module version
-     *
-     * @return string
-     */
-    public static function getMinorVersion()
-    {
-        return '1';
-    }
-
-    /**
-     * Get module build number (4th number in the version)
-     *
-     * @return string
-     */
-    public static function getBuildVersion()
-    {
-        return '1';
-    }
-
-    /**
-     * Module description
-     *
-     * @return string
-     */
-    public static function getDescription()
-    {
-        return 'Gets shipping quotes for Australia Post delivery methods.';
-    }
-
-    /**
-     * Determines if we need to show settings form link
-     *
-     * @return boolean
-     */
-    public static function showSettingsForm()
-    {
-        return true;
-    }
-
     /**
      * Return link to settings form
      *
@@ -104,18 +31,8 @@ abstract class Main extends \XLite\Module\AModule
 
         // Register AustraliaPost shipping processor
         \XLite\Model\Shipping::getInstance()->registerProcessor(
-            '\XLite\Module\CDev\AustraliaPost\Model\Shipping\Processor\AustraliaPost'
+            'XLite\Module\CDev\AustraliaPost\Model\Shipping\Processor\AustraliaPost'
         );
-    }
-
-    /**
-     * The module is defined as the shipping module
-     *
-     * @return integer|null
-     */
-    public static function getModuleType()
-    {
-        return static::MODULE_TYPE_SHIPPING;
     }
 
     /**

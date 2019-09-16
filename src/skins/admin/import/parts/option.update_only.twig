@@ -5,8 +5,5 @@
  #}
 
 <li class="import-mode-option">
-  {{ widget('\\XLite\\View\\FormField\\Select\\Regular', fieldName='options[importMode]', fieldId='importMode', label=t('Import mode'), value=this.config.Import.importMode, options=this.getImportModeOptions()) }}
-  {% if this.getImportModeComment() %}
-    {{ widget('\\XLite\\View\\Tooltip', text=this.getImportModeComment(), isImageTag='true', className='help-icon', placement='bottom') }}
-  {% endif %}
+  {{ widget('\\XLite\\View\\FormField\\Select\\Regular', fieldName='options[importMode]', fieldId='importMode', label=t('Import mode'), value=this.config.Import.importMode, options=this.getImportModeOptions(), help=this.getImportModeComment()) }}
 </li>

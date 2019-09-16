@@ -272,7 +272,7 @@ body.target-cart {
 
   .totals {
     box-shadow: 0 0 0px 1px #cacaca;
-    border-radius: 2px;
+    border-radius: @border-radius-base;
     padding: (@rhythmic-unit * 2) !important;
 
     & > li + li {
@@ -332,7 +332,7 @@ body.target-cart {
 
     & > li {
       font-weight: 600;
-      font-size: 14px;
+      font-size: @font-size-base;
       strong {
         font-weight: 600;
       }
@@ -398,7 +398,7 @@ body.target-cart {
     }
 
     .discount-code-modifier, .dcoupon-code-modifier {
-      color: #6abd0a;
+      color: @color-green;
     }
 
     .separator {

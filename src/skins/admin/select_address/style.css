@@ -11,7 +11,7 @@
   margin: 0px;
   padding: 0px;
   padding-top: 5px;
-  width: 600px;
+  width: 620px;
 }
 
 .select-address ul.addresses li {
@@ -22,16 +22,15 @@
 
 .select-address ul.addresses > li {
   list-style: none;
-  width: 278px;
+  width: 300px;
   float: left;
-  background: #f4f4f4 none;
   border: 1px solid #dfdfdf;
-  -moz-border-radius: 10px;
-  -webkit-border-radius: 10px;
-  border-radius: 10px;
-  padding: 13px 10px 12px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  padding: 20px;
   margin: 0px;
-  margin-right: 30px;
+  margin-right: 20px;
   margin-bottom: 20px;
   position: relative;
   cursor: pointer;

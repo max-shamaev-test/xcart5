@@ -169,16 +169,6 @@ class AustraliaPost extends \XLite\Model\Shipping\Processor\AProcessor
     }
 
     /**
-     * Returns processor name
-     *
-     * @return string
-     */
-    public function getProcessorName()
-    {
-        return 'Australia Post';
-    }
-
-    /**
      * Returns url for sign up
      *
      * @return string
@@ -1132,7 +1122,7 @@ class AustraliaPost extends \XLite\Model\Shipping\Processor\AProcessor
      */
     public function getTrackingInformationURL($trackingNumber)
     {
-        return 'http://auspost.com.au/track/track.html';
+        return 'http://auspost.com.au/track/track.html?' . $this->getTrackingURLParams($trackingNumber);
     }
 
     /**
@@ -1145,8 +1135,7 @@ class AustraliaPost extends \XLite\Model\Shipping\Processor\AProcessor
     public function getTrackingInformationParams($trackingNumber)
     {
         $list = parent::getTrackingInformationParams($trackingNumber);
-        $list['exp']      = 'b';
-        $list['trackIds'] = $trackingNumber;
+        $list['id'] = $trackingNumber;
 
         return $list;
     }

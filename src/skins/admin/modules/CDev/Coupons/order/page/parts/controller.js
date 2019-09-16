@@ -81,7 +81,7 @@ DCouponOrderView.prototype.postprocess = function(isSuccess)
 
   if (isSuccess) {
     this.base.find('.remove').click(_.bind(this.handleRemove, this));
-    this.base.find('.add-new a.add').click(_.bind(this.handleOpenBox, this));
+    this.base.siblings('.dcoupon-code-modifier').find('.value a.add').click(_.bind(this.handleOpenBox, this));
     this.base.find('.add-new button').click(_.bind(this.handleRedeem, this));
   }
 }
@@ -211,7 +211,7 @@ DCouponOrderView.prototype.addCoupon = function(code, amount, publicName)
   line.find('input').val(code);
   setPriceElement(line.find('.cost'), amount, jQuery('.order-info').data('e'));
 
-  this.base.before(line);
+  this.base.after(line);
 
   form.change();
 }

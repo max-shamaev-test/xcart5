@@ -3,7 +3,7 @@
  #}
 <li {{ this.printTagAttributes(this.getNodeTagAttributes())|raw }}>
   {% if this.getHeaderURL() %}
-    <a href="{{ this.getHeaderURL() }}">
+    <a href="{{ this.getHeaderURL() }}"{% if this.targetIsBlank() %} target="_blank"{% endif %}>
       <div class="notification-header">
       {{ this.getIcon()|raw }}
       <span>{{ this.getHeader() }}</span>

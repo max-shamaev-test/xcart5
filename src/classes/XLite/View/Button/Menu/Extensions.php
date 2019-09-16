@@ -32,7 +32,7 @@ class Extensions extends \XLite\View\Button\APopupLink
     {
         return [
             'target' => 'hot_addons_list',
-            'widget' => 'XLite\View\ItemsList\Module\HotAddons',
+            'widget' => 'XLite\View\HotAddons',
         ];
     }
 

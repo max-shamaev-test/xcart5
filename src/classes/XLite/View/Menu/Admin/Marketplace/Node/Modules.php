@@ -8,6 +8,8 @@
 
 namespace XLite\View\Menu\Admin\Marketplace\Node;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Modules node
  */
@@ -19,16 +21,6 @@ class Modules extends \XLite\View\Menu\Admin\ANodeNotification
      * @var array
      */
     protected $messages;
-
-    /**
-     * Check if widget is visible
-     *
-     * @return boolean
-     */
-    protected function isVisible()
-    {
-        return parent::isVisible() && $this->getMessages();
-    }
 
     /**
      * Check if content is updated
@@ -58,6 +50,16 @@ class Modules extends \XLite\View\Menu\Admin\ANodeNotification
     public function getCacheParameters()
     {
         return [];
+    }
+
+    /**
+     * Check if widget is visible
+     *
+     * @return boolean
+     */
+    protected function isVisible()
+    {
+        return parent::isVisible() && $this->getMessages();
     }
 
     /**
@@ -161,10 +163,9 @@ class Modules extends \XLite\View\Menu\Admin\ANodeNotification
      */
     protected function getModuleURL($moduleName)
     {
-        list($author, $module) = explode('-', $moduleName);
+        list($author, $name) = explode('-', $moduleName);
 
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')
-            ->getMarketplaceUrlByName($author, $module);
+        return Manager::getRegistry()->getModuleServiceURL($author, $name);
     }
 
     /**

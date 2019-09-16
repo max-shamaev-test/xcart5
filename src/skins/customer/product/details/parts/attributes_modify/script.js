@@ -67,20 +67,19 @@ function bindAttributeValuesTriggers()
     core.trigger('update-product-page', productId);
   };
 
-  // There are may be more than one form on product details page with product lists and quicklook
-  jQuery("ul.attribute-values").closest('form').each(
-    function(id, obj) {
-      var productId = jQuery('input[name="product_id"]', obj).val();
-      jQuery("ul.attribute-values input[type='checkbox']", obj).unbind('change').bind('change', function (e) {handler(productId)});
-      jQuery("ul.attribute-values select", obj).unbind('change').bind('change', function (e) {handler(productId)});
+  var obj = jQuery("ul.attribute-values").closest('.product-details-info').find('form.product-details');
+  if (obj.length > 0) {
+    var productId = jQuery('input[name="product_id"]', obj).val();
 
-      jQuery("ul.attribute-values textarea", obj).each(function(index, elem) {
-        if (textAttrCache[jQuery(elem).data('attribute-id')]) {
-          jQuery(elem).val(textAttrCache[jQuery(elem).data('attribute-id')]);
-        };
-      });
-    }
-  );
+    jQuery("ul.attribute-values input[type='checkbox']").unbind('change').bind('change', function (e) {handler(productId)});
+    jQuery("ul.attribute-values select").unbind('change').bind('change', function (e) {handler(productId)});
+
+    jQuery("ul.attribute-values textarea").each(function(index, elem) {
+      if (textAttrCache[jQuery(elem).data('attribute-id')]) {
+        jQuery(elem).val(textAttrCache[jQuery(elem).data('attribute-id')]);
+      };
+    });
+  }
 }
 
 core.registerWidgetsParamsGetter('update-product-page', getAttributeValuesParams);

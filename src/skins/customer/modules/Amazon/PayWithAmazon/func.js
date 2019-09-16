@@ -180,8 +180,8 @@ define('Amazon/PayWithAmazon', ['js/jquery', 'Amazon/Config', 'ready'], function
         // see checkout/steps/shipping/parts/shippingMethods.js
         if (jQuery(ship_block).find("input[name*='methodId']").length > 0 || jQuery(ship_block).find("select[name*='methodId']").length > 0) {
 
-          jQuery(ship_block).find("input[name*='methodId']").live('change', _.bind(self.onChangeShipping, self));
-          jQuery(ship_block).find("select[name*='methodId']").live('change', _.bind(self.onChangeShipping, self));
+          jQuery(ship_block).on('change', "input[name*='methodId']", _.bind(self.onChangeShipping, self));
+          jQuery(ship_block).on('change', "select[name*='methodId']", _.bind(self.onChangeShipping, self));
 
           self.addressSelected = true;
         } else {
@@ -327,18 +327,29 @@ define('Amazon/PayWithAmazon', ['js/jquery', 'Amazon/Config', 'ready'], function
       // prevent double submission
       this.placeOrderEnabled = false;
 
-      // submit form
-      this.blockElement('body', true);
+      OffAmazonPayments.initConfirmationFlow(amazonConfig.sid, this.orderReference, function(confirmationFlow) {
+        // submit form
+        this.blockElement('body', true);
 
-      var co_form = jQuery('div.review-step form.place');
-      co_form.removeAttr('onsubmit');
-      co_form.attr('action', 'cart.php?target=amazon_checkout');
-      co_form.find("input[name='target']").val('amazon_checkout');
-      co_form.append('<input type="hidden" name="orderReference" value="' + this.orderReference + '" />');
-      if (amazonConfig.orderReference) {
-        co_form.append('<input type="hidden" name="isRetry" value="true" />');
-      }
-      return true;
+        var co_form = jQuery('div.review-step form.place');
+        co_form.removeAttr('onsubmit');
+        co_form.attr('action', 'cart.php?target=amazon_checkout');
+        co_form.find("input[name='target']").val('amazon_checkout');
+        co_form.append('<input type="hidden" name="orderReference" value="' + this.orderReference + '" />');
+        if (amazonConfig.orderReference) {
+          co_form.append('<input type="hidden" name="isRetry" value="true" />');
+        }
+
+        co_form[0].commonController.enableBackgroundSubmit(
+          false,
+          function () {
+            confirmationFlow.success();
+          }.bind(this));
+        co_form.submit();
+
+      }.bind(this));
+
+      return false;
     },
 
     paymentSelected: false,

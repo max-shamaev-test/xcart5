@@ -29,16 +29,6 @@
   font-weight: bold;
 }
 
-.products .drag-n-drop-handle .coming-soon-message
-{
-  display: none;
-}
-
-.products .coming-soon .drag-n-drop-handle .coming-soon-message
-{
-  display: inline;
-}
-
 ul.products-sidebar ul.labels li, ul.products-sidebar ul.labels li.coming-soon {
   margin: 0;
   padding: 0;

@@ -8,6 +8,8 @@
 
 namespace XLite\Controller\Admin;
 
+use XLite\Rebuild\Connector;
+
 /**
  * Login
  * FIXME: must be completely refactored
@@ -59,7 +61,27 @@ class Login extends \XLite\Controller\Admin\AAdmin
 
         if (\XLite\Core\Auth::getInstance()->isAdmin()) {
             $this->setReturnURL($this->buildURL());
+        } elseif (\XLite\Core\Request::getInstance()->returnToSpa) {
+            \XLite\Core\Session::getInstance()->lastWorkingURL = Connector::getFrontendUrl();
         }
+    }
+
+    protected function doActionVerify()
+    {
+        $authInst = \XLite\Core\Auth::getInstance();
+        $authorized = $authInst->isLogged()
+            && $authInst->isAdmin()
+            && $authInst->hasRootAccess();
+
+        print json_encode([
+            'authorized'  => $authorized,
+            'admin_login' => $authorized && $authInst->getProfile()
+                ? $authInst->getProfile()->getLogin()
+                : ''
+        ]);
+
+        $this->setSuppressOutput(true);
+        $this->silence = true;
     }
 
     /**
@@ -90,7 +112,7 @@ class Login extends \XLite\Controller\Admin\AAdmin
             $returnURL = $this->buildURL('login');
 
         } else {
-            if (!\XLite::getXCNLicense()) {
+            if (!\XLite::hasXCNLicenseKey()) {
                 \XLite\Core\Session::getInstance()->set(\XLite::SHOW_TRIAL_NOTICE, true);
             }
 
@@ -117,7 +139,10 @@ class Login extends \XLite\Controller\Admin\AAdmin
      */
     public static function defineFreeFormIdActions()
     {
-        return array_merge(parent::defineFreeFormIdActions(), array('logoff'));
+        return array_merge(parent::defineFreeFormIdActions(), [
+            'logoff',
+            'verify'
+        ]);
     }
 
     /**
@@ -127,7 +152,8 @@ class Login extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionLogoff()
     {
-        \XLite\Controller\Admin\Base\AddonsList::cleanRecentlyInstalledModuleList();
+        // TODO: FIX properly
+//        \XLite\Controller\Admin\Base\AddonsList::cleanRecentlyInstalledModuleList();
 
         \Includes\Utils\Session::clearAdminCookie();
 

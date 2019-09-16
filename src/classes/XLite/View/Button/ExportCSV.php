@@ -61,8 +61,8 @@ class ExportCSV extends \XLite\View\Button\APopupButton
         return array_merge(
             parent::getCSSFiles(),
             array(
-                'event_task_progress/style.css',
-                'export/style.css'
+                'event_task_progress/style.less',
+                'export/style.less'
             )
         );
     }

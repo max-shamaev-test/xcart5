@@ -14,7 +14,7 @@ namespace XLite\Module\XC\FreeShipping\View\Promo;
  *
  * @ListChild(list="import.failed.content", weight="0", zone="admin")
  */
-class FreeShippingUpdateImport extends \XLite\Module\XC\FreeShipping\View\AlertWarning
+class FreeShippingUpdateImport extends \XLite\View\Alert\Warning
 {
     protected function isVisible()
     {

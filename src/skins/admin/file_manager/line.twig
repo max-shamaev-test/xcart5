@@ -40,7 +40,7 @@
           <span class="mtime">{{ this.getMtime() }}</span>
         </div>
         <div class="actions">
-          <span class="download"><a href="{{ this.getLink() }}">{{ t('Download') }}</a></span>
+          {{ widget('XLite\\View\\Button\\SimpleLink', {location: this.getLink(), style: 'download-file', label: '', 'icon-style': 'fa fa-download'}) }}
         </div>
       </div>
     </div>

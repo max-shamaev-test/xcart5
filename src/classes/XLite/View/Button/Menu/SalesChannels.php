@@ -35,7 +35,7 @@ class SalesChannels extends \XLite\View\Button\APopupLink
     {
         return [
             'target' => 'addons_list_sales_channels',
-            'widget' => 'XLite\View\ItemsList\Module\SalesChannels',
+            'widget' => 'XLite\View\SalesChannels',
         ];
     }
 

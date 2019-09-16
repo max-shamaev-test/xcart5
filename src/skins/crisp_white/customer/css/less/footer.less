@@ -23,7 +23,7 @@
   .subscription-form-label {
     .h4;
     display: block;
-    margin-right: 0px;
+    margin-right: 0;
     margin-bottom: @rhythmic-unit;
   }
 }
@@ -44,8 +44,8 @@ body.target-checkoutPayment {
 
   .container {
     padding-top: (@rhythmic-unit * 3 - 1);
-    padding-left: 0px;
-    padding-right: 0px;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   &:before {
@@ -97,7 +97,7 @@ body.target-checkoutPayment {
         &.trigger-hide {
           .icon-minus;
           &:before{
-            font-size: 20px;
+            font-size: @line-height-base;
             display: block;
           }
         }
@@ -105,7 +105,7 @@ body.target-checkoutPayment {
         &.trigger-show {
           .icon-plus;
           &:before{
-            font-size: 20px;
+            font-size: @line-height-base;
             display: block;
           }
         }
@@ -141,14 +141,14 @@ body.target-checkoutPayment {
   margin-bottom: (@rhythmic-unit * 2);
 
   & > * {
-    line-height: 20px;
+    line-height: @line-height-base;
     display: inline-block;
   }
 }
 
 @media(max-width: @screen-xs-max) {
   #page {
-    padding-bottom: 0px !important;
+    padding-bottom: 0 !important;
   }
   #footer-area {
     position: relative;

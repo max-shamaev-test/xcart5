@@ -15,16 +15,12 @@ namespace XLite\View;
  */
 class HttpsSettings extends \XLite\View\Dialog
 {
+    use HttpsCheckerTrait;
+
     /**
      * Suffix of URL to check https availability
      */
     const CHECK_URI_SUFFIX = 'skins/common/js/php.js';
-
-    /**
-     * Flags
-     */
-    protected $isAvailableHTTPS;
-    protected $isValidSSL;
 
     /**
      * Return list of allowed targets
@@ -69,7 +65,7 @@ class HttpsSettings extends \XLite\View\Dialog
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/style.css';
+        $list[] = $this->getDir() . '/style.less';
 
         return $list;
     }
@@ -102,77 +98,6 @@ class HttpsSettings extends \XLite\View\Dialog
     protected function getArticleUrl()
     {
         return static::t('https://kb.x-cart.com/general_setup/inaccessible_admin_area_after_enabling_https.html');
-    }
-
-    /**
-     * Check if curl is available and we can check availablilty of https
-     *
-     * @return boolean
-     */
-    protected function isCurlAvailable()
-    {
-        return function_exists('curl_init');
-    }
-
-    /**
-     * Check if HTTPS feature is available and can be enabled
-     *
-     * @return boolean
-     */
-    protected function isAvailableHTTPS()
-    {
-        if (!isset($this->isAvailableHTTPS)) {
-            $this->isAvailableHTTPS = \XLite\Core\URLManager::isSecureURLAccessible($this->getTestURL());
-        }
-
-        return $this->isAvailableHTTPS;
-    }
-
-    /**
-     * Check if SSL certificate is valid
-     *
-     * @return boolean
-     */
-    protected function isValidSSL()
-    {
-        if (!isset($this->isValidSSL)) {
-            $this->isValidSSL = \XLite\Core\URLManager::isSecureURLAccessible($this->getTestURL(), true);
-        }
-
-        return $this->isValidSSL;
-    }
-
-    /**
-     * Get URL to test https connection
-     *
-     * @return string
-     */
-    protected function getTestURL()
-    {
-        return \XLite\Core\URLManager::getShopURL(static::CHECK_URI_SUFFIX, true);
-    }
-
-    /**
-     * Get URL to test https connection
-     *
-     * @return string
-     */
-    protected function getDomain()
-    {
-        $url = parse_url($this->getTestURL());
-
-        return $url['host'];
-    }
-
-    /**
-     * Check if HTTPS options are enabled
-     *
-     * @return boolean
-     */
-    protected function isEnabledHTTPS()
-    {
-        return \XLite\Core\Config::getInstance()->Security->admin_security
-            && \XLite\Core\Config::getInstance()->Security->customer_security;
     }
 
     /**

@@ -1,5 +1,0 @@
-Version 5.3.3.6
-
-Fixes (1)
-2018-11-14 - [Bug] If an order was placed with the status Authorized, and the setting "Register purchase on Paid status only" was disabled, then, after the order status was switched to Paid, a duplicate purchase transaction was created in GA. Fixed. #BUG-6829 (Shevelov Alexander) #GoogleAnalytics
-

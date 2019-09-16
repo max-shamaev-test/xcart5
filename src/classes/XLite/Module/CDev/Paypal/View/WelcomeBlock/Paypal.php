@@ -34,7 +34,7 @@ class Paypal extends \XLite\View\AWelcomeBlock
     {
         $list = parent::getCSSFiles();
 
-        $list[] = $this->getDir() . '/style.css';
+        $list[] = $this->getDir() . '/style.less';
 
         return $list;
     }

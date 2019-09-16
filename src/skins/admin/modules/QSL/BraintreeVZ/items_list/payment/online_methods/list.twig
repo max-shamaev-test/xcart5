@@ -25,7 +25,7 @@
     </div>
     <div class="separator"></div>
     <div class="button">
-    {% if payment.getModuleEnabled() and not payment.getAdded() %}
+    {% if payment.isModuleEnabled() and not payment.getAdded() %}
       {{ widget('XLite\\View\\Button\\Link', label=t('Add'), location=url('payment_settings', 'add', {'id': payment.getMethodId()})) }}
     {% endif %}
     {% if payment.getAdded() %}

@@ -157,30 +157,6 @@ class Translation extends \XLite\Base\Singleton implements \XLite\Base\IREST
     }
 
     /**
-     * Alias for getTmpTranslationCode()
-     *
-     * @deprecated
-     * @return string
-     */
-    public static function getTmpMailTranslationCode()
-    {
-        return static::getTmpTranslationCode();
-    }
-
-    /**
-     * Alias for setTmpTranslationCode($code)
-     *
-     * @param string $code Code
-     *
-     * @deprecated
-     * @return string
-     */
-    public static function setTmpMailTranslationCode($code = '')
-    {
-        static::setTmpTranslationCode($code);
-    }
-
-    /**
      * Get tmpTranslationCode
      *
      * @return string

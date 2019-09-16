@@ -19,7 +19,7 @@ define('googleAnalytics/changePaymentMethod', [ 'googleAnalytics/event' ], funct
 
     updateCartHandler: function(event, data) {
       if (data.paymentMethodName && core.getTarget() === 'checkout') {
-        this.sendEvent('changePaymentMethod', data.paymentMethodName);
+        this.sendEvent('changePaymentMethod', data.paymentMethodName, data.paymentMethodName, 'checkout');
       }
     },
   });

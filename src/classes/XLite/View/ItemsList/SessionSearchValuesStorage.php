@@ -11,7 +11,7 @@ namespace XLite\View\ItemsList;
 /**
  * SessionSearchValuesStorage
  */
-class SessionSearchValuesStorage extends \XLite\View\ItemsList\ASearchValuesStorage implements \XLite\View\ItemsList\ISearchValuesStorage
+class SessionSearchValuesStorage extends \XLite\View\ItemsList\ASearchValuesStorage
 {
     /**
      * Session cell

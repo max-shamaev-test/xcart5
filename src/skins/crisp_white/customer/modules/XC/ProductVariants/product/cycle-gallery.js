@@ -12,9 +12,7 @@ jQuery(document).ready(function() {
       'ProductDetailsView',
       'processVariantImageAsGallery',
       function (data) {
-        $('.cycle-slideshow').cycle('destroy');
         arguments.callee.previousMethod.apply(this, arguments);
-
         core.trigger('init-cycle-gallery');
       }
     );
@@ -23,7 +21,6 @@ jQuery(document).ready(function() {
       'ProductQuickLookVariantView',
       'processVariantImageAsGallery',
       function (data) {
-        $('.cycle-slideshow').cycle('destroy');
         arguments.callee.previousMethod.apply(this, arguments);
         core.trigger('init-cycle-gallery');
       }

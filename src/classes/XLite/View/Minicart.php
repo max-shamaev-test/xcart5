@@ -84,7 +84,7 @@ class Minicart extends \XLite\View\SideBarBox
      */
     protected function getCart()
     {
-        return parent::getCart(false);
+        return \XLite::getController()->getCart(false);
     }
 
     /**

@@ -38,7 +38,23 @@ class AttributeMetadataTest extends TestCase
         $attributeMetadata->addGroup('a');
         $attributeMetadata->addGroup('b');
 
-        $this->assertEquals(array('a', 'b'), $attributeMetadata->getGroups());
+        $this->assertEquals(['a', 'b'], $attributeMetadata->getGroups());
+    }
+
+    public function testMaxDepth()
+    {
+        $attributeMetadata = new AttributeMetadata('name');
+        $attributeMetadata->setMaxDepth(69);
+
+        $this->assertEquals(69, $attributeMetadata->getMaxDepth());
+    }
+
+    public function testSerializedName()
+    {
+        $attributeMetadata = new AttributeMetadata('name');
+        $attributeMetadata->setSerializedName('serialized_name');
+
+        $this->assertEquals('serialized_name', $attributeMetadata->getSerializedName());
     }
 
     public function testMerge()
@@ -50,10 +66,14 @@ class AttributeMetadataTest extends TestCase
         $attributeMetadata2 = new AttributeMetadata('a2');
         $attributeMetadata2->addGroup('a');
         $attributeMetadata2->addGroup('c');
+        $attributeMetadata2->setMaxDepth(2);
+        $attributeMetadata2->setSerializedName('a3');
 
         $attributeMetadata1->merge($attributeMetadata2);
 
-        $this->assertEquals(array('a', 'b', 'c'), $attributeMetadata1->getGroups());
+        $this->assertEquals(['a', 'b', 'c'], $attributeMetadata1->getGroups());
+        $this->assertEquals(2, $attributeMetadata1->getMaxDepth());
+        $this->assertEquals('a3', $attributeMetadata1->getSerializedName());
     }
 
     public function testSerialize()
@@ -61,6 +81,8 @@ class AttributeMetadataTest extends TestCase
         $attributeMetadata = new AttributeMetadata('attribute');
         $attributeMetadata->addGroup('a');
         $attributeMetadata->addGroup('b');
+        $attributeMetadata->setMaxDepth(3);
+        $attributeMetadata->setSerializedName('serialized_name');
 
         $serialized = serialize($attributeMetadata);
         $this->assertEquals($attributeMetadata, unserialize($serialized));

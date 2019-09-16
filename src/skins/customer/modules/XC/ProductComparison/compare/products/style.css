@@ -19,6 +19,7 @@ div.add-to-compare.products div.compare-popup {
   margin: 0 30px;
   top: 1px;
   position: relative;
+  z-index: 1;
 }
 
 .grid-5-columns div.add-to-compare.products div.compare-popup {

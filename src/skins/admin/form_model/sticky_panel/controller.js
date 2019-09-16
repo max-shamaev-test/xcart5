@@ -46,7 +46,7 @@ define('form_model/sticky_panel', ['js/vue/vue'], function (XLiteVue) {
           if (newValue) {
             buttons
               .removeClass('disabled')
-              .removeProp('disabled');
+              .removeAttr('disabled');
 
           } else {
             buttons

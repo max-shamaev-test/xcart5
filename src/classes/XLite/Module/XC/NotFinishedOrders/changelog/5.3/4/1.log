@@ -1,5 +1,0 @@
-Version 5.3.4.1
-
-Fixes (1)
-2018-12-10 - [Bug] Fatal error when logging in as a vendor if the module Not finished orders was enabled. Fixed. #BUG-6870 (Vladimir Semyonov) #NotFinishedOrders
-

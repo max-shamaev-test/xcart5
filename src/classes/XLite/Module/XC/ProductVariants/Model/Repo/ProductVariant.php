@@ -10,6 +10,8 @@ namespace XLite\Module\XC\ProductVariants\Model\Repo;
 
 use XLite\Core\Cache\ExecuteCachedTrait;
 
+use Doctrine\ORM\NoResultException;
+
 /**
  * @Api\Operation\Create(modelClass="XLite\Module\XC\ProductVariants\Model\ProductVariant", summary="Add product variant")
  * @Api\Operation\Read(modelClass="XLite\Module\XC\ProductVariants\Model\ProductVariant", summary="Retrieve product variant by id")
@@ -318,4 +320,70 @@ class ProductVariant extends \XLite\Model\Repo\ARepo
             $entity->getProduct()->updateQuickData();
         }
     }
+
+    /**
+     * @param $term
+     * @param $max
+     *
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    protected function defineFindByTermQB($term, $max)
+    {
+        $qb = $this->createPureQueryBuilder('p');
+
+        return $qb->andWhere($qb->expr()->like(
+            'p.variant_id',
+            ':term'
+        ))
+            ->setMaxResults((int)$max)
+            ->setParameter('term', '%' . addcslashes($term, '%_') . '%');
+    }
+
+    /**
+     * @param     $term
+     * @param int $max
+     *
+     * @return array
+     */
+    public function findProductVariantsByTerm($term, $max = 1)
+    {
+        return $this->defineFindByTermQB($term, $max)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return \XLite\Module\XC\ProductVariants\Model\ProductVariant|null
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findDumpProductVariant()
+    {
+        $qb = $this->createPureQueryBuilder();
+        $qb->setMaxResults(1)
+            ->orderBy("{$qb->getMainAlias()}.id", 'ASC');
+
+        try {
+            return $qb->getQuery()->getSingleResult();
+        } catch (NoResultException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get variants count by product
+     *
+     * @param \XLite\Model\Product $product Product
+     *
+     * @return string
+     */
+    public function getVariantsCountByProduct(\XLite\Model\Product $product)
+    {
+        return $this->createQueryBuilder('v')
+            ->selectCount()
+            ->andWhere('v.product = :product')
+            ->setParameter('product', $product)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
 }

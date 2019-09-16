@@ -7,18 +7,34 @@
 {{ widget_list('active_currencies.before') }}
 
 <div>
-  {{ widget('\\XLite\\Module\\XC\\MultiCurrency\\View\\FormField\\Input\\TrailingZeroesCheckbox', label=t('Hide trailing zeros in fractional part'), fieldId='trailing-zeroes', fieldName='trailing_zeroes') }}
-  {{ widget('\\XLite\\View\\CurrencyViewInfo') }}
-  
-  {{ widget('\\XLite\\Module\\XC\\MultiCurrency\\View\\FormField\\Select\\RateProvider', label=t('Online currency rates service'), fieldId='rate-provider', fieldName='rate_provider') }}
-
-  {{ widget('\\XLite\\Module\\XC\\MultiCurrency\\View\\FormField\\Input\\Text\\CurrencyConverterApiKey', label=t('The Currency Converter API key'), fieldName='currency_converter_api_key') }}
-
-  {{ widget('\\XLite\\Module\\XC\\MultiCurrency\\View\\FormField\\Select\\RateUpdateInterval', label=t('Update online rates every'), fieldId='rate-update-interval', fieldName='update_interval') }}
-
-  <div class="table-label"></div>
-  <div class="star"></div>
-  <div class="table-value last-rate-update">{{ t('Last update date') }}:&nbsp;{{ this.getLastUpdateDate() }}</div>
+  <ul class="table currencies">
+    <li>
+      {{ widget('\\XLite\\Module\\XC\\MultiCurrency\\View\\FormField\\Input\\TrailingZeroesCheckbox',
+        label=t('Hide trailing zeros in fractional part'), fieldId='trailing-zeroes', fieldName='trailing_zeroes') }}
+    </li>
+    <li class="currency-view-info-container">
+      {{ widget('\\XLite\\View\\CurrencyViewInfo') }}
+    </li>
+    <li>
+      {{ widget('\\XLite\\Module\\XC\\MultiCurrency\\View\\FormField\\Select\\RateProvider',
+        label=t('Online currency rates service'), fieldId='rate-provider', fieldName='rate_provider') }}
+    </li>
+    <li>
+      {{ widget('\\XLite\\Module\\XC\\MultiCurrency\\View\\FormField\\Input\\Text\\CurrencyConverterApiKey',
+        label=t('The Currency Converter API key'), fieldName='currency_converter_api_key') }}
+    </li>
+    <li class="update-interval">
+      {{ widget('\\XLite\\Module\\XC\\MultiCurrency\\View\\FormField\\Select\\RateUpdateInterval',
+        label=t('Update online rates every'), fieldId='rate-update-interval', fieldName='update_interval') }}
+    </li>
+    <li class="last-update-date">
+      <div class="form-field-comment">
+        <div class="table-label"></div>
+        <div class="star"></div>
+        <div class="table-value last-rate-update">{{ t('Last update date') }}:&nbsp;{{ this.getLastUpdateDate() }}</div>
+      </div>
+    </li>
+  </ul>
 </div>
 
 <div class="clear"></div>

@@ -20,7 +20,6 @@ CommonForm.elementControllers.push(
 
       // Function to update view part of widget
       this.updateMoreLessLinksVisibility = function() {
-
         var content = jQuery('.view .value', this).html().trim();
 
         // Set view value
@@ -57,12 +56,11 @@ CommonForm.elementControllers.push(
         }
 
         if (displayMoreLink) {
-          jQuery('.view', this).addClass('has-more-link');
-
+          jQuery(this).siblings('.more-less-link.more').show();
         } else {
-          jQuery('.view', this).removeClass('has-more-link');
+          jQuery(this).siblings('.more-less-link.more').hide();
         }
-      }
+      };
 
       this.updateMoreLessLinksVisibility();
 
@@ -79,27 +77,12 @@ CommonForm.elementControllers.push(
         )
       );
 
-      // Process more/less link hover
-      field.find('.more-less-link').hover(
-        function() {
-          field.addClass('expand-focused');
-        },
-        function() {
-          field.removeClass('expand-focused');
-        }
-      );
-
       // Process more/less link click
-      field.find('.view .more-less-link').click(
+      field.siblings('.more-less-link').click(
         _.bind(
-          function(event) {
-            if (field.hasClass('expanded')) {
-              field.removeClass('expanded');
-
-            } else {
-              field.addClass('expanded');
-            }
-
+          function() {
+            field.toggleClass('expanded');
+            field.siblings('.more-less-link').toggle();
             return false;
           },
           this
@@ -117,7 +100,7 @@ CommonForm.elementControllers.push(
 
       field.bind(
         'saveEmptyFieldInline',
-        function(event) {
+        function() {
           field.removeClass('filled').addClass('empty');
           this.getViewValueElements().html(field.find('.value').data('empty'));
           this.updateMoreLessLinksVisibility();
@@ -142,8 +125,9 @@ CommonForm.elementControllers.push(
 
       field.bind(
         'beforeStartEditInline',
-        function(event) {
+        function() {
           this.lastWidth = jQuery('.view', this).outerWidth();
+          jQuery(this).siblings('.more-less-link.more').hide();
         }
       );
 

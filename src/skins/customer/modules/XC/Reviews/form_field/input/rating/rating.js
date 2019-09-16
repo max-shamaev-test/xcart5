@@ -169,7 +169,19 @@ VoteBarView.prototype.rateProduct = _.throttle(function(event, block) {
     this.widgetMode = widgetMode;
   }
 
-  var block = jQuery(block).closest('form');
+  var blocksThatNeedToBeRefreshed;
+  if (productId) {
+    blocksThatNeedToBeRefreshed = jQuery('input[name="product_id"]')
+      .filter(function() {
+        return ($(this).val() == productId);
+      })
+      .closest('form')
+      .filter(function() {
+        return ($(this).find(VoteBarController.prototype.findPattern).length > 0);
+      });
+  } else {
+    blocksThatNeedToBeRefreshed = jQuery(block).closest('form');
+  }
 
   core.post(
     URLHandler.buildURL(
@@ -179,7 +191,7 @@ VoteBarView.prototype.rateProduct = _.throttle(function(event, block) {
       }
     ),
     function () {
-      jQuery(VoteBarController.prototype.findPattern, block).trigger('re-load');
+      jQuery(VoteBarController.prototype.findPattern, blocksThatNeedToBeRefreshed).trigger('re-load');
     },
     {
       'product_id': productId,

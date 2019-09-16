@@ -74,10 +74,19 @@ jQuery().ready(
             self.location = URLHandler.buildURL({ 'target': importTarget, 'completed': 1 });
           }
         }
+      )
+      .bind(
+        'cancel',
+        function() {
+          setTimeout(function() {
+            self.location = URLHandler.buildURL({ 'target': importTarget });
+          }, 4000);
+        }
       );
 
-    jQuery('#files').live(
+    jQuery(document).on(
       'change',
+      '#files',
       function () {
         if (jQuery('#files').val()) {
           if (this.files) {

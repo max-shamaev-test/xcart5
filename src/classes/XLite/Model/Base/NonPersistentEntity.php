@@ -16,6 +16,11 @@ use XLite\Core\MagicMethodsIntrospectionInterface;
  */
 abstract class NonPersistentEntity extends \XLite\Base\SuperClass
 {
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     /**
      * Return true if specified property exists
      *

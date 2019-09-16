@@ -205,4 +205,15 @@ class ThemeTweaker extends \XLite\Base\Singleton
             && $auth->getProfile()->isAdmin()
             && \XLite\Core\Auth::getInstance()->isPermissionAllowed(\XLite\Model\Role\Permission::ROOT_ACCESS);
     }
+
+    /**
+     * Checks checkbox config value and casts to proper boolean
+     *
+     * @param $value
+     * @return bool
+     */
+    public static function castCheckboxValue($value)
+    {
+        return true === $value || 'true' === $value || '1' === $value || 'Y' === $value;
+    }
 }

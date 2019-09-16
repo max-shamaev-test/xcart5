@@ -11,6 +11,7 @@ namespace XLite\Module\CDev\GoogleAnalytics\Controller\Admin;
 use XLite\Module\CDev\GoogleAnalytics\Logic\Action;
 use XLite\Module\CDev\GoogleAnalytics\Logic\BackendActionExecutor;
 use XLite\Module\CDev\GoogleAnalytics\Logic\DataMapper\OrderItemDataMapper;
+use XLite\Model\Order\Status;
 
 class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecorator
 {
@@ -22,13 +23,28 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
         if ($this->shouldRegisterChange()) {
             $old = $this->collectData($this->getOrder());
 
+            $needRegisterChanges = $this->getOrder()->getPaymentStatusCode() === Status\Payment::STATUS_PAID
+                || (
+                    \XLite\Module\CDev\GoogleAnalytics\Main::isPurchaseImmediatelyOnSuccess()
+                    && in_array(
+                        $this->getOrder()->getPaymentStatusCode(),
+                        [
+                            Status\Payment::STATUS_AUTHORIZED,
+                            Status\Payment::STATUS_QUEUED
+                        ]
+                    )
+                );
+
             parent::doActionUpdate();
 
             $new = $this->collectData($this->getOrder());
 
-            $this->registerEvent(
-                $this->getGAChanges($old, $new)
-            );
+            if ($needRegisterChanges) {
+                $this->registerEvent(
+                    $this->getGAChanges($old, $new)
+                );
+            }
+
         } else {
             parent::doActionUpdate();
         }

@@ -7,65 +7,12 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-#autopincodes {
-  width: 300px;
-}
-
-.pin-codes-enabled > label,
-.requires-shipping > label {
-  float: left;
-  padding-left: 10px;
-  line-height: 30px;
-  vertical-align: middle;
-  display: block;
-  padding-top: 6px;
-  font-size: 16px;
-}
-
-.pins-enabled-value {
-  padding-right: 7px;
-}
-
-.pin-codes-auto {
-  margin-top: 6px;
-  margin-bottom: 20px;
-}
-
-.pin-codes-status {
-  padding-bottom: 20px;
-}
-
-.pin-codes-status .table-label {
-  width: 150px;
-}
-
-.pin-codes-status .table-value {
-  margin-right: 20px;
-  width: auto;
-  vertical-align: top;
-  padding-top: 10px;
-}
-
-.pin-codes-status div * {
-  font-size: 16px;
-}
-
-.pin-codes-status .star {
-  width: 7px;
-}
-
-.pin-codes-actions {
-  margin-bottom: 7px;
+.pin-codes-actions > * + * {
+  margin-left: 24px;
 }
 
 .items-list-table.pincodes table.list {
   max-width: 800px;
-}
-
-.items-list-table.pincodes table.list tbody tr td,
-.items-list-table.pincodes table.list tbody tr td .view {
-  font-size: 16px;
-  height: auto;
 }
 
 .items-list-table.pincodes table.list tbody .pin-sold,
@@ -101,5 +48,5 @@
 
 .items-list-table.pincodes table.list tbody tr td.statusData a {
   text-decoration: underline;
-  color: #154E9C;
+  color: #0f8dd0;
 }

@@ -4,16 +4,20 @@
 
 {% if this.isImageResizeNotFinished() %}
 
-{{ widget('\\XLite\\View\\ImageResize\\Progress') }}
+  {{ widget('\\XLite\\View\\ImageResize\\Progress') }}
 
 {% else %}
 
-{% form '\\XLite\\View\\Form\\ImagesSettings' %}
+  {% form '\\XLite\\View\\Form\\ImagesSettings' %}
 
-{{ widget_list('images_settings') }}
+    <ul class="table">
+      {% for item in this.getViewList('images_settings') %}
+        <li>{{ item.display() }}</li>
+      {% endfor %}
+    </ul>
 
-{{ widget('\\XLite\\View\\StickyPanel\\ImagesSettings') }}
+    {{ widget('\\XLite\\View\\StickyPanel\\ImagesSettings') }}
 
-{% endform %}
+  {% endform %}
 
 {% endif %}

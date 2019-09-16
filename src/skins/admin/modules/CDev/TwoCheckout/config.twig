@@ -6,19 +6,19 @@
 
   <tr>
     <td class="setting-name">
-    <label for="settings_login">{{ t('2Checkout.com account number') }}</label>
+      <label for="settings_login">{{ t('2Checkout.com account number') }}</label>
     </td>
     <td>
-    <input type="text" id="settings_account" name="settings[account]" value="{{ this.paymentMethod.getSetting('account') }}" class="validate[required,maxSize[255]]" />
+      <input type="text" id="settings_account" name="settings[account]" value="{{ this.paymentMethod.getSetting('account') }}" class="validate[required,maxSize[255]]" />
     </td>
   </tr>
 
   <tr>
     <td class="setting-name">
-    <label for="settings_key">{{ t('Secret word') }}</label>
+      <label for="settings_key">{{ t('Secret word') }}</label>
     </td>
     <td>
-    <input type="text" id="settings_secret" name="settings[secret]" value="{{ this.paymentMethod.getSetting('secret') }}" class="validate[required,maxSize[255]]" />
+      <input type="text" id="settings_secret" name="settings[secret]" value="{{ this.paymentMethod.getSetting('secret') }}" class="validate[required,maxSize[255]]" />
     </td>
   </tr>
 
@@ -49,19 +49,19 @@
 
   <tr>
     <td class="setting-name">
-    <label for="settings_mode">{{ t('Test/Live mode') }}</label>
+      <label for="settings_mode">{{ t('Test/Live mode') }}</label>
     </td>
     <td>
-    {{ widget('\\XLite\\View\\FormField\\Select\\TestLiveMode', fieldId='settings_mode', fieldName='settings[mode]', fieldOnly='true', value=this.paymentMethod.getSetting('mode')) }}
+      {{ widget('\\XLite\\View\\FormField\\Select\\TestLiveMode', fieldId='settings_mode', fieldName='settings[mode]', fieldOnly='true', value=this.paymentMethod.getSetting('mode')) }}
     </td>
   </tr>
 
   <tr>
     <td class="setting-name">
-    <label for="settings_prefix">{{ t('Order prefix') }}</label>
+      <label for="settings_prefix">{{ t('Order prefix') }}</label>
     </td>
     <td>
-    <input type="text" id="settings_prefix" value="{{ this.paymentMethod.getSetting('prefix') }}" name="settings[prefix]" />
+      <input type="text" id="settings_prefix" value="{{ this.paymentMethod.getSetting('prefix') }}" name="settings[prefix]" />
     </td>
   </tr>
 
@@ -105,17 +105,25 @@
     </td>
   </tr>
   <tr>
-    <td colspan="2" class="note">
-      {{ t('To set up the integration you should follow ') }}
-      <a href="https://www.2checkout.com/va/acct/detail_company_info" target="_blank">{{ t('"Site management"') }}</a>
-      {{ t(' page and make sure that:') }}<br /><br />
-      <ol>
-        <li>{{ t('The "Pricing currency" value must be exactly the same as on it.') }}</li>
-        <li>
-          {{ t('The "Approved URL" value must be exact as this') }}:<br /><br />
-          <input type="text" value="{{ this.getSecureShopURL('cart.php?target=payment_return') }}" readonly="readonly" size="60" />
-        </li>
-      </ol>
+    <td class="setting-name">
+      <label for="settings_approved_url">{{ t('Approved URL') }}</label>
+    </td>
+    <td>
+      <input type="text" id="settings_approved_url" value="{{ this.getSecureShopURL('cart.php?target=payment_return') }}" readonly="readonly" />
+      <div class="help-wrapper">
+        {% set tooltipText %}
+          <p>
+            {{ t('To set up the integration you should follow ') }}
+            <a href='https://www.2checkout.com/va/acct/detail_company_info' target='_blank'>{{ t('"Site management"') }}</a>
+            {{ t(' page and make sure that:') }}
+          </p>
+          <ul class='custom-disc'>
+            <li>{{ t('The "Pricing currency" value must be exactly the same as on it.') }}</li>
+            <li>{{ t('The "Approved URL" value must be exact as this') }}.</li>
+          </ul>
+        {% endset %}
+        {{ widget('XLite\\View\\Tooltip', text=tooltipText, isImageTag='true', className='help-icon') }}
+      </div>
     </td>
   </tr>
 </table>

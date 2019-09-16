@@ -79,4 +79,14 @@ class AddAttribute extends \XLite\View\Button\Dropdown\ADropdown
     {
         return parent::getStyle() . ' use-first-item';
     }
+
+    /**
+     * Return widget default template
+     *
+     * @return string
+     */
+    protected function getDefaultTemplate()
+    {
+        return 'button/dropdown_with_angle_button.twig';
+    }
 }

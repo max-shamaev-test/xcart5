@@ -19,7 +19,6 @@
       border-bottom: 1px dashed;
 
       &.selected {
-        font-weight: bold;
         color: @text-color;
         border-bottom: none;
       }
@@ -48,35 +47,19 @@
   }
 
   td.title {
-    font-weight: bold;
+    font-weight: @font-bold;
     color: @text-color;
   }
 
 }
 
-table.top-sellers {
-  &.data-table {
-    width: 1000px;
-  }
+.top-sellers-container .table-wrapper {
+  width: 1000px;
 
-  th {
-    text-align: left;
-  }
-
-  tr {
-    td {
-      white-space: normal;
-      padding-top: 6px;
-      padding-bottom: 6px;
-
-      &.title {
-        width: 40%;
-      }
-    }
-
-    &:nth-child(odd) {
-      td {
-        background-color: #fafafa;
+  table.top-sellers {
+    tr {
+      td.item {
+        width: 100%;
       }
     }
   }

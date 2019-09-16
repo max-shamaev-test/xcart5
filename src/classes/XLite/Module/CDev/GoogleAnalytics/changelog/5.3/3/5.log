@@ -1,7 +1,0 @@
-Version 5.3.3.5
-
-Fixes (3)
-2018-09-21 - [Bug] JS error on a category page when adding a product to cart if GA was enabled and table view had been selected for the product list. Fixed. #BUG-6702 https://bt.x-cart.com/view.php?id=49966 (Kirill Stadler) #Core #GoogleAnalytics
-2018-09-18 - [Bug] Fatal error on the order page in Admin if the order contained products that had been removed and the module GA was enabled. Fixed. #BUG-6684 https://bt.x-cart.com/view.php?id=49908 (Kirill Stadler) #GoogleAnalytics
-2018-08-03 - [Bug] Use of '&' as a delimeter in the http_build_query function is now enforced. #BUG-6576 (Sergey Elmanov) #Core #GoogleAnalytics #GoSocial #Paypal #USPS #ProductFilter #AvaTax #MultiCurrency #MailChimp #YandexMoney #G2APay #Beanstream #TaxJar
-

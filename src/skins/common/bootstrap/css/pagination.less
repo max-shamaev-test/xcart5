@@ -40,6 +40,7 @@
   > li > span {
     &:hover,
     &:focus {
+      z-index: 2;
       color: @pagination-hover-color;
       background-color: @pagination-hover-bg;
       border-color: @pagination-hover-border;
@@ -51,7 +52,7 @@
     &,
     &:hover,
     &:focus {
-      z-index: 2;
+      z-index: 3;
       color: @pagination-active-color;
       background-color: @pagination-active-bg;
       border-color: @pagination-active-border;
@@ -69,7 +70,7 @@
       color: @pagination-disabled-color;
       background-color: @pagination-disabled-bg;
       border-color: @pagination-disabled-border;
-      cursor: not-allowed;
+      cursor: @cursor-disabled;
     }
   }
 }

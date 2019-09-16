@@ -224,6 +224,26 @@ class Rate extends \XLite\Model\AEntity
     }
 
     /**
+     * Calculate surcharges tax cost
+     *
+     * @param $surchargesCost
+     *
+     * @return float
+     */
+    public function calculateSurchargesTax($surchargesCost)
+    {
+        $cost = 0;
+
+        if ($surchargesCost) {
+            $cost = $this->getType() == static::TYPE_PERCENT
+                ? $surchargesCost * $this->getValue() / 100
+                : $this->getValue();
+        }
+
+        return $cost;
+    }
+
+    /**
      * Get list of allowed taxable base types
      *
      * @return array

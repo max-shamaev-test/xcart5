@@ -25,18 +25,19 @@ table.wholesale-prices-product-block.quicklook {
 table.wholesale-prices-product-block td {
   min-height: 40px;
   height: 40px;
-  padding: 0 9px;
+  padding: 0 15px;
+  white-space: nowrap;
 }
 
-.price-value,
-.save-price-label,
-.save-price-value {
-  color: #ff6c00;
-  font-size: 14px;
+table.wholesale-prices-product-block td:nth-child(1) {
+  padding: 0 20px;
 }
 
-.price-label {
-  color: #8f8f8f;
+@media (max-width: 812px) {
+  table.wholesale-prices-product-block td,
+  table.wholesale-prices-product-block td:nth-child(1) {
+    padding: 0 5px;
+  }
 }
 
 .items-range,

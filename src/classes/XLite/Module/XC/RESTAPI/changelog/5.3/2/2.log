@@ -1,5 +1,0 @@
-Version 5.3.2.2
-
-Fixes
-2017-02-20 - [Bug] A wrong buyer shipping address was passed to RESTapi. #BUG-4549 (Michael Lipinski) #RESTAPI
-2017-02-09 - [Bug] In REST api, write key could be easily obtained with read key. #BUG-4547 (Michael Lipinski) #RESTAPI

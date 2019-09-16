@@ -63,7 +63,7 @@ abstract class Request extends \XLite\Core\Request implements \XLite\Base\IDecor
         $utmSource  = $this->getCheckedParam('utm_source', $data);
 
         if ($mcId || $utmSource) {
-            setcookie(
+            $this->setCookie(
                 static::MAILCHIMP_LANDING_SITE,
                 URLManager::getCurrentURL(),
                 \XLite\Core\Converter::getInstance()->time() + 2592000
@@ -94,7 +94,7 @@ abstract class Request extends \XLite\Core\Request implements \XLite\Base\IDecor
         $param = $this->getCheckedParam($name, $data);
 
         if ($param) {
-            setcookie(
+            $this->setCookie(
                 $name,
                 $param,
                 \XLite\Core\Converter::getInstance()->time() + 2592000

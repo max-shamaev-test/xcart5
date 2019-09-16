@@ -8,8 +8,7 @@
 
 namespace XLite\Module\XC\Reviews\Module\XC\CustomProductTabs\View\ItemsList\Model;
 
-
-use XLite\Core\Database;
+use Includes\Utils\Module\Manager;
 use XLite\Model\Product\GlobalTab;
 
 /**
@@ -22,13 +21,10 @@ class GlobalTabs extends \XLite\Module\XC\CustomProductTabs\View\ItemsList\Model
     protected function getTabHelpText(GlobalTab $model)
     {
         if ($model->getServiceName() === 'Reviews') {
-            $url = Database::getRepo('XLite\Model\Module')
-                ->findOneByModuleName('XC\Reviews')
-                ->getInstalledURL();
             return static::t(
                 'Tab displaying product reviews. Added by the addon Product Reviews',
                 [
-                    'url' => $url,
+                    'url' => Manager::getRegistry()->getModuleServiceURL('XC\Reviews'),
                 ]
             );
         }

@@ -9,6 +9,7 @@
 namespace XLite\Model\Base;
 
 use XLite\Core\Database;
+use XLite\Model\AddressField;
 
 /**
  * Abstract address model
@@ -364,8 +365,14 @@ abstract class Address extends \XLite\Model\AEntity
      */
     static protected function getAddressFieldByServiceName($fieldName)
     {
+        if (empty(static::$addressFieldsCache[$fieldName])) {
+            array_map(function (AddressField $field) {
+                static::$addressFieldsCache[$field->getServiceName()] = $field;
+            }, Database::getRepo('XLite\Model\AddressField')->findAll());
+        }
+
         if (!isset(static::$addressFieldsCache[$fieldName])) {
-            static::$addressFieldsCache[$fieldName] = \XLite\Core\Database::getRepo('XLite\Model\AddressField')
+            static::$addressFieldsCache[$fieldName] = Database::getRepo('XLite\Model\AddressField')
                 ->findOneByServiceName($fieldName);
         }
 

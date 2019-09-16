@@ -106,7 +106,7 @@ class NextPreviousProduct extends \XLite\View\AView
                 return false;
             }
 
-            if (null === $this->getItemsList()) {
+            if (null === $this->getItemsList() && !$this->isDirectLink()) {
                 return false;
             }
 
@@ -172,7 +172,7 @@ class NextPreviousProduct extends \XLite\View\AView
         }
 
         foreach ($toUnset as $cookieKey) {
-            setcookie($cookieKey, '', time() - 3600);
+            \XLite\Core\Request::getInstance()->unsetCookie($cookieKey);
         }
     }
 
@@ -208,7 +208,7 @@ class NextPreviousProduct extends \XLite\View\AView
         $cookieData = $this->getCookieData();
         $cookieKey = 'xc_np_product_' . $this->getProductId();
 
-        setcookie($cookieKey, json_encode(array_merge($cookieData, $data)), time() + 30 * 60);
+        \XLite\Core\Request::getInstance()->setCookie($cookieKey, json_encode(array_merge($cookieData, $data)), time() + 30 * 60);
     }
 
     /**
@@ -387,7 +387,10 @@ class NextPreviousProduct extends \XLite\View\AView
             }
 
             $result = null;
-            if (isset($cookieData['class'])) {
+            if (
+                isset($cookieData['class'])
+                && method_exists($cookieData['class'], 'getSearchSessionCellName')
+            ) {
                 $searchCondition = \XLite\Core\Session::getInstance()
                     ->{$cookieData['class']::getSearchSessionCellName() . '_np'};
                 $result          = hash(
@@ -436,6 +439,19 @@ class NextPreviousProduct extends \XLite\View\AView
     }
 
     /**
+     * Return true if user open product page by direct link
+     *
+     * @return boolean
+     */
+    protected function isDirectLink()
+    {
+        $np_key = 'xc_np_product_' . $this->getProductId();
+
+        return !isset($_COOKIE[$np_key]);
+    }
+
+
+    /**
      * Get three items around current
      *
      * @return array
@@ -443,8 +459,13 @@ class NextPreviousProduct extends \XLite\View\AView
     protected function getNextPreviousItems()
     {
         return $this->executeCachedRuntime(function () {
-            $itemsList = $this->getItemsList();
-            $result    = $itemsList ? $itemsList->getNextPreviousItems($this->getItemPosition()) : [];
+            if ($this->isDirectLink()) {
+                $itemsList = new \XLite\View\ItemsList\Product\Customer\Category\Main();
+            } else {
+                $itemsList = $this->getItemsList();
+            }
+
+            $result = $itemsList ? $itemsList->getNextPreviousItems($this->getItemPosition()) : [];
 
             return array_values($result);
         });
@@ -482,18 +503,22 @@ class NextPreviousProduct extends \XLite\View\AView
                 $sessionCell = \XLite\Core\Session::getInstance()->{$this->getSessionCellName()};
 
                 if (isset($sessionCell['cnd'])) {
-                    $cnd       = $sessionCell['cnd'];
-                    $productId = $this->getProductId();
-
+                    $cnd = $sessionCell['cnd'];
                     if ($this->getItemsList() instanceof \XLite\View\ItemsList\Product\Customer\Category\Main) {
                         $cnd->{\XLite\Model\Repo\Product::P_CATEGORY_ID} = $this->getCategoryId();
                     }
-                    $ids = \XLite\Core\Database::getRepo('XLite\Model\Product')->searchOnlyIds($cnd);
+                } else {
+                    $cnd = new \XLite\Core\CommonCell();
+                    $cnd->{\XLite\Model\Repo\Product::P_CATEGORY_ID} = $this->getCategoryId();
+                }
 
-                    foreach (array_values($ids) as $i => $id) {
-                        if ($id['product_id'] == $productId) {
-                            return $i;
-                        }
+                $productId = $this->getProductId();
+
+                $ids = \XLite\Core\Database::getRepo('XLite\Model\Product')->searchOnlyIds($cnd);
+
+                foreach (array_values($ids) as $i => $id) {
+                    if ($id['product_id'] == $productId) {
+                        return $i;
                     }
                 }
             }

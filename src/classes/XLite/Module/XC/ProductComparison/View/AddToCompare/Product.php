@@ -11,8 +11,8 @@ namespace XLite\Module\XC\ProductComparison\View\AddToCompare;
 /**
  * Add to compare widget
  *
- * @ListChild (list="product.details.page.info.buttons.cart-buttons", zone="customer", weight="120")
- * @ListChild (list="product.details.page.info.buttons-added.cart-buttons", zone="customer", weight="120")
+ * @ListChild (list="product.details.page.info.form.buttons.cart-buttons", zone="customer", weight="120")
+ * @ListChild (list="product.details.page.info.form.buttons-added.cart-buttons", zone="customer", weight="120")
  */
 class Product extends \XLite\Module\XC\ProductComparison\View\AddToCompare\AAddToCompare
 {

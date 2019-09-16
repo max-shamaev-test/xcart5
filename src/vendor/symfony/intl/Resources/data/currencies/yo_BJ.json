@@ -1,5 +1,5 @@
 {
-    "Version": "2.1.13.24",
+    "Version": "2.1.44.53",
     "Names": {
         "AED": [
             "AED",
@@ -65,10 +65,6 @@
             "ETB",
             "Biri ti Orílɛ́ède Eutopia"
         ],
-        "EUR": [
-            "€",
-            "Uro"
-        ],
         "GBP": [
             "£",
             "Pɔɔn ti Orílɛ́ède Bírítísì"
@@ -123,6 +119,10 @@
         ],
         "MRO": [
             "MRO",
+            "Ouguiya ti Orílɛ́ède Maritania (1973–2017)"
+        ],
+        "MRU": [
+            "MRU",
             "Ouguiya ti Orílɛ́ède Maritania"
         ],
         "MUR": [
@@ -169,21 +169,17 @@
             "SHP",
             "Pɔɔun ti Orílɛ́ède ̣Elena"
         ],
-        "SLL": [
-            "SLL",
-            "Lioni"
-        ],
         "SOS": [
             "SOS",
             "Sile ti Orílɛ́ède Somali"
         ],
         "STD": [
             "STD",
-            "Dobira ti Orílɛ́ède Sao tome Ati Pirisipe"
+            "Dobira ti Orílɛ́ède Sao tome Ati Pirisipe (1977–2017)"
         ],
-        "SZL": [
-            "SZL",
-            "Lilangeni"
+        "STN": [
+            "STN",
+            "Dobira ti Orílɛ́ède Sao tome Ati Pirisipe"
         ],
         "TND": [
             "TND",

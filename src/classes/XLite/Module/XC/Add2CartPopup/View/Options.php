@@ -105,17 +105,13 @@ class Options extends \XLite\View\ItemsList\Model\Table
         return parent::getContainerClass() . ' a2cp-sources';
     }
 
-    // {{{ Sticky panel
-
     /**
-     * Get panel class
+     * Check if list blank(no products in store for products list)
      *
-     * @return \XLite\View\Base\FormStickyPanel
+     * @return boolean
      */
-    protected function getPanelClass()
+    protected function isListBlank()
     {
-        return 'XLite\Module\XC\Add2CartPopup\View\StickyPanel\Options';
+        return $this->getData(new \XLite\Core\CommonCell, true) === 0;
     }
-
-    // }}}
 }

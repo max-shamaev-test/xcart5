@@ -12,6 +12,8 @@ use Doctrine\Common\Annotations\AnnotationException;
 use Includes\Annotations\Parser\AnnotationParserInterface;
 use Includes\ClassPathResolverInterface;
 use Includes\Decorator\Utils\Tokenizer;
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
 use XLite\Logger;
 
 class StaticReflector implements StaticReflectorInterface
@@ -35,51 +37,82 @@ class StaticReflector implements StaticReflectorInterface
      */
     private $classPathResolver;
 
+    /**
+     * @param ClassPathResolverInterface $classPathResolver
+     * @param AnnotationParserInterface  $annotationParser
+     * @param string                     $pathname
+     */
     public function __construct(
-        ClassPathResolverInterface $classPathResolver, AnnotationParserInterface $annotationParser, $pathname
+        ClassPathResolverInterface $classPathResolver,
+        AnnotationParserInterface $annotationParser,
+        $pathname
     ) {
         $this->pathname          = $pathname;
         $this->annotationParser  = $annotationParser;
         $this->classPathResolver = $classPathResolver;
     }
 
+    /**
+     * @return string
+     */
     public function getPathname()
     {
         return $this->pathname;
     }
 
+    /**
+     * @return string
+     */
     public function getRealPathname()
     {
-        $from = LC_DS == '\\' ? '/' : '\\';
+        $from = LC_DS === '\\' ? '/' : '\\';
 
         return str_replace($from, LC_DS, $this->getPathname());
     }
 
+    /**
+     * @return string
+     */
     public function getNamespace()
     {
         return Tokenizer::getNamespace($this->pathname);
     }
 
+    /**
+     * @return bool
+     */
     public function isAbstract()
     {
         return Tokenizer::isAbstract($this->pathname);
     }
 
+    /**
+     * @return bool
+     */
     public function isClass()
     {
         return Tokenizer::getClassName($this->pathname) !== null;
     }
 
+    /**
+     * @return bool
+     */
     public function isInterface()
     {
         return Tokenizer::getInterfaceName($this->pathname) !== null;
     }
 
+    /**
+     * @return bool
+     */
     public function isTrait()
     {
         return Tokenizer::getTraitName($this->pathname) !== null;
     }
 
+    /**
+     * @return string
+     */
     public function getClassName()
     {
         $className = Tokenizer::getClassName($this->pathname);
@@ -95,6 +128,9 @@ class StaticReflector implements StaticReflectorInterface
         return $className;
     }
 
+    /**
+     * @return null|string
+     */
     public function getFQCN()
     {
         $className = $this->getClassName();
@@ -110,15 +146,22 @@ class StaticReflector implements StaticReflectorInterface
             : $this->getClassName();
     }
 
+    /**
+     * @return string
+     */
     public function getDocCommentText()
     {
         return Tokenizer::getDocBlock($this->pathname);
     }
 
+    /**
+     * @return array
+     */
     public function getClassAnnotations()
     {
         try {
             return $this->annotationParser->parse($this->getDocCommentText());
+
         } catch (AnnotationException $e) {
             $this->getLogger()->log(sprintf('AnnotationException: %s (%s)', $e->getMessage(), $this->getPathname()), LOG_WARNING);
 
@@ -126,6 +169,11 @@ class StaticReflector implements StaticReflectorInterface
         }
     }
 
+    /**
+     * @param string $type
+     *
+     * @return array
+     */
     public function getClassAnnotationsOfType($type)
     {
         if (!isset($this->annotationsByType)) {
@@ -133,7 +181,7 @@ class StaticReflector implements StaticReflectorInterface
                 $annotationClass = get_class($annotation);
 
                 if (!isset($this->annotationsByType[$annotationClass])) {
-                    if ($annotationClass == 'Includes\Annotations\LC_Dependencies') {
+                    if ($annotationClass === 'Includes\Annotations\LC_Dependencies') {
                         $error = sprintf('@LC_Dependencies annotation is deprecated, use @Decorator\Depend instead (%s)', $this->getPathname());
 
                         trigger_error($error, E_USER_DEPRECATED);
@@ -151,6 +199,9 @@ class StaticReflector implements StaticReflectorInterface
         return isset($this->annotationsByType[$type]) ? $this->annotationsByType[$type] : [];
     }
 
+    /**
+     * @return string
+     */
     public function getParent()
     {
         $class = Tokenizer::getParentClassName($this->pathname);
@@ -158,6 +209,9 @@ class StaticReflector implements StaticReflectorInterface
         return ltrim($class, '\\');
     }
 
+    /**
+     * @return array
+     */
     public function getImplements()
     {
         return array_map(
@@ -168,27 +222,35 @@ class StaticReflector implements StaticReflectorInterface
         );
     }
 
+    /**
+     * @return bool
+     */
     public function isPSR0()
     {
         $fqcn = $this->getFQCN();
 
-        return $fqcn !== null && $this->classPathResolver->getPathname($fqcn) == $this->getRealPathname();
+        return $fqcn !== null && $this->classPathResolver->getPathname($fqcn) === $this->getRealPathname();
     }
 
+    /**
+     * @return bool
+     */
     public function isDecorator()
     {
-        return in_array(self::DECORATOR_MARKER_INTERFACE, $this->getImplements());
+        return in_array(self::DECORATOR_MARKER_INTERFACE, $this->getImplements(), true);
     }
 
+    /**
+     * @return null|string
+     */
     public function getModule()
     {
-        $parts = explode('\\', $this->getNamespace());
-
-        return count($parts) > 3 && $parts[1] == 'Module'
-            ? $parts[2] . '\\' . $parts[3]
-            : null;
+        return Module::getModuleIdByClassName($this->getNamespace());
     }
 
+    /**
+     * @return array
+     */
     public function getPositiveDependencies()
     {
         $pos = [];
@@ -211,6 +273,9 @@ class StaticReflector implements StaticReflectorInterface
         return $pos;
     }
 
+    /**
+     * @return array
+     */
     public function getNegativeDependencies()
     {
         $neg = [];
@@ -233,6 +298,9 @@ class StaticReflector implements StaticReflectorInterface
         return $neg;
     }
 
+    /**
+     * @return array
+     */
     public function getAfterModules()
     {
         $modules = [];
@@ -255,6 +323,9 @@ class StaticReflector implements StaticReflectorInterface
         return $modules;
     }
 
+    /**
+     * @return array
+     */
     public function getBeforeModules()
     {
         $modules = [];
@@ -267,27 +338,39 @@ class StaticReflector implements StaticReflectorInterface
         return $modules;
     }
 
+    /**
+     * @return bool
+     */
     public function isEntity()
     {
         return $this->isModel() && $this->getClassAnnotationsOfType('Doctrine\ORM\Mapping\Entity');
     }
 
+    /**
+     * @return bool
+     */
     public function isMappedSuperclass()
     {
         return $this->isModel() && $this->getClassAnnotationsOfType('Doctrine\ORM\Mapping\MappedSuperclass');
     }
 
+    /**
+     * @return bool
+     */
     public function hasLifecycleCallbacks()
     {
         return $this->isModel() && $this->getClassAnnotationsOfType('Doctrine\ORM\Mapping\HasLifecycleCallbacks');
     }
 
+    /**
+     * @return bool
+     */
     private function isModel()
     {
         $parts = explode('\\', $this->getNamespace());
 
-        return count($parts) > 1 && $parts[1] == 'Model'
-               || count($parts) > 4 && $parts[1] == 'Module' && $parts[4] == 'Model';
+        return (count($parts) > 1 && $parts[1] === 'Model')
+            || (count($parts) > 4 && $parts[1] === 'Module' && $parts[4] === 'Model');
     }
 
     /**

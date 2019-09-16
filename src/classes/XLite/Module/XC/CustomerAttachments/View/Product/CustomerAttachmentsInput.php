@@ -12,7 +12,7 @@ namespace XLite\Module\XC\CustomerAttachments\View\Product;
 /**
  * Customer attachments input on product page
  *
- * @ListChild (list="product.details.page.info", weight="45")
+ * @ListChild (list="product.details.page.info.form", weight="45")
  * @ListChild (list="product.details.quicklook.info", weight="65")
  */
 class CustomerAttachmentsInput extends \XLite\View\AView

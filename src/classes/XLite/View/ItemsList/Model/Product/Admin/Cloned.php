@@ -115,10 +115,6 @@ class Cloned extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
                 static::COLUMN_CLASS => 'XLite\View\FormField\Inline\Input\Text\Integer\ProductQuantity',
                 static::COLUMN_ORDERBY  => 400,
             ),
-            'edit' => array(
-                static::COLUMN_TEMPLATE => 'items_list/product/table/parts/columns/edit.twig',
-                static::COLUMN_ORDERBY  => 500,
-            ),
         );
     }
 
@@ -264,6 +260,23 @@ class Cloned extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
     protected function isSelectable()
     {
         return true;
+    }
+
+    /**
+     * Get right actions templates name
+     *
+     * @return array
+     */
+    protected function getRightActions()
+    {
+        $list = parent::getRightActions();
+
+        array_unshift(
+            $list,
+            'items_list/product/table/parts/columns/action.edit.twig'
+        );
+
+        return $list;
     }
 
     // }}}

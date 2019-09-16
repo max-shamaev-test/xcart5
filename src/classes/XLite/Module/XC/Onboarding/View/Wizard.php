@@ -58,7 +58,7 @@ class Wizard extends \XLite\View\AView implements ProviderInterface
     {
         return [
             'animations/reloading.css',
-            $this->getDir() . '/wizard.css',
+            $this->getDir() . '/wizard.less',
             $this->getDir() . '/transitions.css',
         ];
     }
@@ -72,18 +72,7 @@ class Wizard extends \XLite\View\AView implements ProviderInterface
     protected function getCommonFiles()
     {
         $list = parent::getCommonFiles();
-
-        $list[static::RESOURCE_JS][] = [
-            'file' => $this->isDeveloperMode() ? 'vue/vue.js' : 'vue/vue.min.js',
-            'no_minify' => true
-        ];
-        $list[static::RESOURCE_JS][] = [
-            'file' => $this->isDeveloperMode() ? 'vue/vuex.js' : 'vue/vuex.min.js',
-            'no_minify' => true
-        ];
-        $list[static::RESOURCE_JS][] = 'vue/vue.loadable.js';
-        $list[static::RESOURCE_JS][] = 'js/vue/vue.js';
-        $list[static::RESOURCE_JS][] = 'js/vue/component.js';
+        $list[static::RESOURCE_JS] = array_merge($list[static::RESOURCE_JS], static::getVueLibraries());
 
         return $list;
     }

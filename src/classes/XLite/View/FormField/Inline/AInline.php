@@ -46,7 +46,7 @@ abstract class AInline extends \XLite\View\AView
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'form_field/inline/style.css';
+        $list[] = 'form_field/inline/style.less';
 
         return $list;
     }

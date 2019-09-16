@@ -5,23 +5,19 @@
 {% for section, data in this.getFormFieldsForDisplay() %}
   <fieldset>
     {% if this.isShowSectionHeader(section) %}
-    <legend>{{ data.sectionParamWidget.display() }}</legend>
+      <legend>{{ data.sectionParamWidget.display() }}</legend>
     {% endif %}
 
-    {% if this.isSectionCollapsible(section) %}
-    <div class="{% if this.isSectionCollapsed(section) %}collapse{% endif %}" id="section-{{ section }}" aria-expanded="true">
-    {% else %}
-    <div>
-    {% endif %}
-    <ul class="table {{ section }}-table">
-      {% for field in data.sectionParamFields %}
-        <li class="{{ this.getItemClass(loop.index, loop.length, field) }}">
-          {{ this.displayCommentedData(this.getFieldCommentedData(field)) }}
-          {{ field.display() }}
-          {{ this.displayViewSubList('field', {'section': section, 'field': field}) }}
-        </li>
-      {% endfor %}
-    </ul>
+    <div {% if this.isSectionCollapsible(section) %}class="{% if this.isSectionCollapsed(section) %}collapse{% endif %}" id="section-{{ section }}" aria-expanded="true"{% endif %}>
+      <ul class="table {{ section }}-table">
+        {% for field in data.sectionParamFields %}
+          <li class="{{ this.getItemClass(loop.index, loop.length, field) }}">
+            {{ this.displayCommentedData(this.getFieldCommentedData(field)) }}
+            {{ field.display() }}
+            {{ this.displayViewSubList('field', {'section': section, 'field': field}) }}
+          </li>
+        {% endfor %}
+      </ul>
     </div>
 
   </fieldset>

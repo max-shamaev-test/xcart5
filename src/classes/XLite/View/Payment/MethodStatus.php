@@ -23,7 +23,7 @@ class MethodStatus extends \XLite\View\AView
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'payment/method_status/style.css';
+        $list[] = 'payment/method_status/style.less';
 
         return $list;
     }

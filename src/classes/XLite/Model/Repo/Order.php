@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Repo;
 
+use Doctrine\ORM\QueryBuilder;
+
 /**
  * Order repository
  *
@@ -23,6 +25,8 @@ class Order extends \XLite\Model\Repo\ARepo
      * Additional search mode
      */
     const SEARCH_MODE_TOTALS  = 'totals';
+    const SEARCH_MODE_PREV_ORDER  = 'prev';
+    const SEARCH_MODE_NEXT_ORDER  = 'next';
 
     /**
      * Cart TTL (in seconds)
@@ -153,7 +157,7 @@ class Order extends \XLite\Model\Repo\ARepo
         $result = parent::createQueryBuilder($alias, $indexBy);
 
         if ($placedOnly) {
-            $result->andWhere($result->getMainAlias() . ' INSTANCE OF XLite\Model\Order');
+            $result->andWhere($result->getMainAlias() . ' NOT INSTANCE OF XLite\Model\Cart');
         }
 
         return $result;
@@ -175,7 +179,7 @@ class Order extends \XLite\Model\Repo\ARepo
         if ($placedOnly) {
             $aliases = $result->getRootAliases();
             $alias = $aliases[0];
-            $result->andWhere($alias . ' INSTANCE OF XLite\Model\Order');
+            $result->andWhere($alias . ' NOT INSTANCE OF XLite\Model\Cart');
         }
 
         return $result;
@@ -251,9 +255,11 @@ class Order extends \XLite\Model\Repo\ARepo
     {
         return array_merge(
             parent::getSearchModes(),
-            array(
+            [
                 static::SEARCH_MODE_TOTALS     => 'searchTotals',
-            )
+                static::SEARCH_MODE_PREV_ORDER => 'searchPrevOrder',
+                static::SEARCH_MODE_NEXT_ORDER => 'searchNextOrder',
+            ]
         );
     }
 
@@ -312,7 +318,7 @@ class Order extends \XLite\Model\Repo\ARepo
                 ->linkInner('o.profile', 'p')
                 ->linkInner('o.currency', 'c')
                 ->linkLeft('o.orig_profile', 'op')
-                ->addOrderBy('orders_total', 'DESC');
+                ->addGroupBy('c.currency_id');
         }
 
         return $queryBuilder;
@@ -468,24 +474,25 @@ class Order extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * @param \XLite\Model\Order $order
-     *
      * @return \XLite\Model\AEntity|\XLite\Model\Order|null
      */
-    public function findNextOrder($order)
+    public function searchNextOrder()
     {
-        return $this->defineFindNextOrder($order)->getSingleResult();
+        $qb = $this->searchState['queryBuilder'];
+        $order = $this->searchState['currentSearchCnd']->np_order;
+        return $order
+            ? $this->defineFindNextOrder($qb, $order)->getSingleResult()
+            : null;
     }
 
     /**
+     * @param QueryBuilder       $qb
      * @param \XLite\Model\Order $order
      *
      * @return \Doctrine\ORM\QueryBuilder|\XLite\Model\QueryBuilder\AQueryBuilder
      */
-    protected function defineFindNextOrder($order)
+    protected function defineFindNextOrder(QueryBuilder $qb, $order)
     {
-        $qb = $this->createQueryBuilder();
-
         if ($this->getNextPreviousOrderCriteria() === static::NEXT_PREVIOUS_CRITERIA_DATE) {
             $qb->andWhere($qb->expr()->andX(
                 $qb->expr()->gte('o.date', ':date'),
@@ -513,24 +520,25 @@ class Order extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * @param \XLite\Model\Order $order
-     *
      * @return \XLite\Model\AEntity|\XLite\Model\Order|null
      */
-    public function findPreviousOrder($order)
+    public function searchPrevOrder()
     {
-        return $this->defineFindPreviousOrder($order)->getSingleResult();
+        $qb = $this->searchState['queryBuilder'];
+        $order = $this->searchState['currentSearchCnd']->np_order;
+        return $order
+            ? $this->defineFindPreviousOrder($qb, $order)->getSingleResult()
+            : null;
     }
 
     /**
+     * @param QueryBuilder       $qb
      * @param \XLite\Model\Order $order
      *
      * @return \Doctrine\ORM\QueryBuilder|\XLite\Model\QueryBuilder\AQueryBuilder
      */
-    protected function defineFindPreviousOrder($order)
+    protected function defineFindPreviousOrder(QueryBuilder $qb, $order)
     {
-        $qb = $this->createQueryBuilder();
-
         if ($this->getNextPreviousOrderCriteria() === static::NEXT_PREVIOUS_CRITERIA_DATE) {
             $qb->andWhere($qb->expr()->andX(
                 $qb->expr()->lte('o.date', ':date'),
@@ -719,25 +727,41 @@ class Order extends \XLite\Model\Repo\ARepo
         if (!empty($value)) {
             $queryBuilder->linkInner('o.profile', 'p');
 
-            $orCnd = $queryBuilder->expr()->orX();;
-            $orCnd->add('p.login LIKE :substringLike');
+            $orCnd = $this->defineSubstringOrCnd($queryBuilder, $value);
 
-            if (preg_match('/^\d+\s*?\-\s*?\d+$/S', $value)) {
-                list($min, $max) = explode('-', $value);
-
-                $orCnd->add('o.orderNumber BETWEEN :orderNumMin and :orderNumMax');
-
-                $queryBuilder->setParameter('orderNumMin', (int) trim($min));
-                $queryBuilder->setParameter('orderNumMax', (int) trim($max));
-
-            } elseif (preg_match('/^\d+$/S', $value)) {
-                $orCnd->add('o.orderNumber = :substring');
-                $queryBuilder->setParameter('substring', (int) $value);
-            }
-
-            $queryBuilder->andWhere($orCnd)
-                ->setParameter('substringLike', '%' . $value . '%');
+            $queryBuilder->andWhere($orCnd);
         }
+    }
+
+
+    /**
+     * Define "or condition" for prepareCndSubstring
+     *
+     * @param \Doctrine\ORM\QueryBuilder $queryBuilder
+     * @param $value
+     * @return \Doctrine\ORM\Query\Expr\Orx
+     */
+    protected function defineSubstringOrCnd(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
+    {
+        $orCnd = $queryBuilder->expr()->orX();;
+        $orCnd->add('p.login LIKE :substringLike');
+
+        $queryBuilder->setParameter('substringLike', '%' . $value . '%');
+
+        if (preg_match('/^\d+\s*?\-\s*?\d+$/S', $value)) {
+            list($min, $max) = explode('-', $value);
+
+            $orCnd->add('o.orderNumber BETWEEN :orderNumMin and :orderNumMax');
+
+            $queryBuilder->setParameter('orderNumMin', (int) trim($min));
+            $queryBuilder->setParameter('orderNumMax', (int) trim($max));
+
+        } elseif (preg_match('/^\d+$/S', $value)) {
+            $orCnd->add('o.orderNumber = :substring');
+            $queryBuilder->setParameter('substring', (int) $value);
+        }
+
+        return $orCnd;
     }
 
     /**
@@ -1350,5 +1374,62 @@ class Order extends \XLite\Model\Repo\ARepo
         }
 
         return parent::assembleRegularFieldsFromRecord($record, $regular);
+    }
+
+    /**
+     * @param \XLite\Model\OrderItem $item
+     *
+     * @return \XLite\Model\QueryBuilder\AQueryBuilder
+     */
+    public function defineBackorderCompetitorsByOrderQB(\XLite\Model\OrderItem $item)
+    {
+        $qb = $this->createQueryBuilder();
+        $alias = $qb->getMainAlias();
+        $e = $qb->expr();
+        $qb->linkInner("$alias.items", 'i')
+            ->andWhere($e->eq('i.sku', ':sku'))
+            ->setMaxResults(1)
+            ->setParameter('sku', $item->getSku());
+
+        if ($this->getNextPreviousOrderCriteria() === static::NEXT_PREVIOUS_CRITERIA_DATE) {
+            $qb->andWhere($e->lt('o.date', $e->literal($item->getOrder()->getDate())))
+                ->orderBy('o.date', 'DESC')
+                ->addOrderBy('INTVAL(o.orderNumber)', 'ASC');
+        } else {
+            $qb->andWhere($e->lt('INTVAL(o.orderNumber)', $e->literal((integer)$item->getOrder()->getOrderNumber())))
+                ->orderBy('INTVAL(o.orderNumber)', 'DESC');
+        }
+
+        return $qb;
+    }
+
+    /**
+     * @param \XLite\Model\OrderItem $item
+     *
+     * @return null|\XLite\Model\Order
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getBackorderCompetitorByItem(\XLite\Model\OrderItem $item)
+    {
+        return $this->defineBackorderCompetitorsByOrderQB($item)
+            ->getQuery()
+            ->getSingleResult();
+    }
+
+    /**
+     * Get completed orders count
+     *
+     * @return int
+     */
+    public function getCompletedOrdersCount()
+    {
+        $qb = $this->createQueryBuilder();
+        $this->prepareCndPaymentStatus($qb, \XLite\Model\Order\Status\Payment::STATUS_PAID);
+        $this->prepareCndShippingStatus($qb, \XLite\Model\Order\Status\Shipping::STATUS_DELIVERED);
+
+        $result = $qb->count();
+
+        return $result;
     }
 }

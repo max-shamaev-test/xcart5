@@ -76,7 +76,7 @@ abstract class ASettings extends \XLite\View\Model\AModel
             self::SCHEMA_REQUIRED => false,
         ),
         'buyNowEnabled' => array(
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Checkbox\Enabled',
+            self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Checkbox\OnOff',
             self::SCHEMA_LABEL    => 'Display the "Buy Now with PayPal" button',
             self::SCHEMA_HELP     => 'This setting determines whether or not the "Buy Now with PayPal" button should be displayed on product list pages (in list view) and product details pages.',
             self::SCHEMA_REQUIRED => false,
@@ -92,7 +92,7 @@ abstract class ASettings extends \XLite\View\Model\AModel
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'modules/CDev/Paypal/settings/payments_style.css';
+        $list[] = 'modules/CDev/Paypal/settings/payments_style.less';
 
         return $list;
     }

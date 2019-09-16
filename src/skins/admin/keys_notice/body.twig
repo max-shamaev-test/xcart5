@@ -43,7 +43,7 @@
   <ul class="modules-list">
     {% for module in this.getUnallowedModules() %}
       <li class="module-info">
-        <div class="module-name">{{ module.title }}</div>
+        <div class="module-name">{{ module.moduleName }}</div>
         <div class="module-reason">{{ module.message|raw }}</div>
         <div class="module-action">{% if module.url %}<a href="{{ module.url }}" target="_blank">{{ t('Purchase') }}</a>{% endif %}</div>
       </li>

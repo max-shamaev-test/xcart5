@@ -11,15 +11,10 @@ namespace XLite\Controller\Admin;
 /**
  * Sales channels
  */
-class AddonsListSalesChannels extends \XLite\Controller\Admin\AddonsListMarketplace
+class AddonsListSalesChannels extends \XLite\Controller\Admin\AAdmin
 {
-    /**
-     * Return the current page title (for the content area)
-     *
-     * @return string
-     */
     public function getTitle()
     {
-        return static::t('Add sales channel');
+        return static::t('Sales channels');
     }
 }

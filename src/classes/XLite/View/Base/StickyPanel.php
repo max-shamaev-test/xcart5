@@ -28,20 +28,6 @@ abstract class StickyPanel extends \XLite\View\Container
     }
 
     /**
-     * Register CSS files
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-
-        $list[] = 'css/stickyPanel.css';
-
-        return $list;
-    }
-
-    /**
      * Return widget default template
      *
      * @return string

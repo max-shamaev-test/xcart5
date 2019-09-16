@@ -9,7 +9,7 @@ XLite\Model\Config:
   - name: wizard_state
     category: 'XC\Onboarding'
     type: hidden
-    value: 'visible' # possible states: 'visible', 'minimized', 'disabled'
+    value: 'minimized' # possible states: 'visible', 'minimized', 'disabled'
 
 XLite\Model\LanguageLabel:
   - name: "Add first product"

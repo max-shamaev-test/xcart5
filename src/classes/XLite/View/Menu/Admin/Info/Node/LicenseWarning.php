@@ -147,15 +147,15 @@ class LicenseWarning extends \XLite\View\Menu\Admin\ANodeNotification
     /**
      * Get entries count
      *
-     * @return integer
+     * @return int
      */
     protected function getLicenseWarnings()
     {
-        $unallowedModules = \XLite\Core\Marketplace::getInstance()->getInactiveContentData(false);
+        $unallowedModules = \XLite\Core\Marketplace::getInstance()->getInactiveContentData();
         $condition = $unallowedModules
             && \XLite::getController()->isRootAdmin()
             && !\XLite::getController()->isDisplayBlockContent()
-            && (\XLite::getXCNLicense(false) || \XLite::isTrialPeriodExpired());
+            && (\XLite::getXCNLicense() || \XLite::isTrialPeriodExpired());
 
         return $condition ? count($unallowedModules) : 0;
     }

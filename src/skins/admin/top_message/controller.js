@@ -27,26 +27,10 @@ function TopMessages(container) {
   }
 
   this.container.get(0).topMessagesController = this;
+  this.hiddenCloseMessageButton = this.container.children('a.close-message').hide();
 
   // Add listeners
   var o = this;
-
-  // Close button
-  jQuery('a.close-message', this.container).click(
-    function(event) {
-      event.stopPropagation();
-      o.clearRecords();
-
-      return false;
-    }
-  ).hover(
-    function() {
-      jQuery(this).addClass('close-hover');
-    },
-    function() {
-      jQuery(this).removeClass('close-hover');
-    }
-  );
 
   // Global event
   if ('undefined' != typeof(window.core)) {
@@ -109,6 +93,14 @@ function TopMessages(container) {
       }
     );
   }
+
+  jQuery('li', this.container).each(
+    function () {
+      const closeMessageButton = o.hiddenCloseMessageButton.clone().show()[0];
+      jQuery(this).append(closeMessageButton);
+      o.addEventsToCloseMessageButton(closeMessageButton);
+    }
+  );
 }
 
 /**
@@ -122,6 +114,28 @@ TopMessages.prototype.ttl = 10000;
 /**
  * Methods
  */
+
+TopMessages.prototype.addEventsToCloseMessageButton = function (closeMessageButton) {
+  const o = this;
+  jQuery(closeMessageButton)
+    .click(
+      function(event) {
+        event.stopPropagation();
+        const currentLi = $(this).closest('li')[0];
+        o.hideRecord(currentLi);
+
+        return false;
+      }
+    )
+    .hover(
+      function() {
+        jQuery(this).addClass('close-hover');
+      },
+      function() {
+        jQuery(this).removeClass('close-hover');
+      }
+    );
+};
 
 // Check visibility
 TopMessages.prototype.isVisible = function () {
@@ -172,18 +186,24 @@ TopMessages.prototype.addRecord = function (text, type) {
     : jQuery(document.createElement('UL')).appendTo(this.container);
 
   var sameLi = this.getSameRecord(ul, text);
+  var li;
 
   if (sameLi) {
     this.updateRecord(sameLi);
     li = sameLi;
   } else {
-    var li = document.createElement('LI');
+    li = document.createElement('LI');
     li.innerHTML = text;
     li.className = type;
     li.style.display = 'none';
 
     ul.append(li);
   }
+
+  const closeMessageButton = this.hiddenCloseMessageButton.clone().show()[0];
+  li.append(closeMessageButton);
+  this.addEventsToCloseMessageButton(closeMessageButton);
+
 
   if (
     jQuery('li', this.container).length

@@ -30,6 +30,7 @@ class Shipping extends \XLite\Model\Order\Status\AStatus
     const STATUS_WILL_NOT_DELIVER    = 'WND';
     const STATUS_RETURNED            = 'R';
     const STATUS_WAITING_FOR_APPROVE = 'WFA';
+    const STATUS_NEW_BACKORDERED     = 'NBA';
 
     /**
      * Disallowed to set manually statuses
@@ -40,6 +41,7 @@ class Shipping extends \XLite\Model\Order\Status\AStatus
     {
         return [
             static::STATUS_WAITING_FOR_APPROVE,
+            static::STATUS_NEW_BACKORDERED,
         ];
     }
 
@@ -146,6 +148,15 @@ class Shipping extends \XLite\Model\Order\Status\AStatus
 
             static::STATUS_WAITING_FOR_APPROVE => [
                 static::STATUS_SHIPPED => ['ship'],
+            ],
+
+            static::STATUS_NEW_BACKORDERED => [
+                static::STATUS_NEW              => ['releaseBackorder'],
+                static::STATUS_PROCESSING       => ['releaseBackorder'],
+                static::STATUS_SHIPPED          => ['ship', 'releaseBackorder'],
+                static::STATUS_DELIVERED        => ['releaseBackorder'],
+                static::STATUS_WILL_NOT_DELIVER => ['releaseBackorder'],
+                static::STATUS_RETURNED         => ['releaseBackorder'],
             ],
         ];
     }

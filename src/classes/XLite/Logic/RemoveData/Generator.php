@@ -40,12 +40,13 @@ class Generator extends \XLite\Logic\AGenerator
      */
     protected function getStepsList()
     {
-        return array(
+        return [
             'XLite\Logic\RemoveData\Step\Products',
             'XLite\Logic\RemoveData\Step\Categories',
             'XLite\Logic\RemoveData\Step\Orders',
             'XLite\Logic\RemoveData\Step\Customers',
-        );
+            'XLite\Logic\RemoveData\Step\ClassesAndAttributes',
+        ];
     }
 
     /**
@@ -55,7 +56,7 @@ class Generator extends \XLite\Logic\AGenerator
      */
     protected function defineSteps()
     {
-        $steps = array();
+        $steps = [];
         $options = $this->getOptions();
         if (isset($options['steps'])) {
             $requestedSteps = $options['steps'];
@@ -64,7 +65,6 @@ class Generator extends \XLite\Logic\AGenerator
                 foreach ($this->getStepsList() as $step) {
                     $_step = explode('\\', $step);
                     $_step = array_pop($_step);
-                    $_step = strtolower($_step);
 
                     if (in_array($_step, $requestedSteps)) {
                         $steps[] = $step;

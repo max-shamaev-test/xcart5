@@ -55,7 +55,8 @@ class PurchaseAdmin extends ABackendAction implements IBackendAction
         if ($this->order->getProfile()->getGaClientId()) {
             $result['cid']  = $this->order->getProfile()->getGaClientId();
         }
-        $result['ea'] = 'Purchase action';
+        $result['ec'] = 'Checkout';
+        $result['ea'] = 'Purchase';
         $result['pa'] = 'purchase';
 
         if ($this->itemsPurchased) {

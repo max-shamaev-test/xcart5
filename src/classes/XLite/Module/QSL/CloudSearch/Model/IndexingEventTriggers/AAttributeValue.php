@@ -8,6 +8,7 @@
 
 namespace XLite\Module\QSL\CloudSearch\Model\IndexingEventTriggers;
 
+use XLite\Module\QSL\CloudSearch\Core\IndexingEvent\IndexingEventCore;
 use XLite\Module\QSL\CloudSearch\Core\IndexingEvent\IndexingEventTriggerInterface;
 
 
@@ -23,7 +24,11 @@ abstract class AAttributeValue extends \XLite\Model\AttributeValue\AAttributeVal
 
     public function getCloudSearchEntityIds()
     {
-        return [$this->getProduct()->getProductId()];
+        if (!$this->getProduct()) {
+            return $this->getAttribute() ? IndexingEventCore::findProductIdsByAttribute($this->getAttribute()) : [];
+        } else {
+            return [$this->getProduct()->getProductId()];
+        }
     }
 
     public function getCloudSearchEventAction()

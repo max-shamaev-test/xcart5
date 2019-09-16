@@ -14,6 +14,10 @@
     user-select: none;
 }
 
+body.area-c .tpl-debug-canvas {
+    pointer-events: none;
+}
+
 .tpl-debug-tpl-canvas,
 .tpl-debug-list-canvas
 {

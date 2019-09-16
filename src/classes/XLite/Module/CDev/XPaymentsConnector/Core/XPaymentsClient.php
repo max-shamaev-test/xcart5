@@ -1378,7 +1378,9 @@ class XPaymentsClient extends \XLite\Base\Singleton
     public function forceCloseConnection($content = '', $forceCode = '')
     {
         ignore_user_abort(true);
-        ob_end_clean();
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
         ob_start();
 
         echo $content;

@@ -134,6 +134,7 @@ class Labels extends \XLite\View\ItemsList\Model\Table
         return array(
             'name' => array(
                 static::COLUMN_NAME      => static::t('Label'),
+                static::COLUMN_HEAD_TEMPLATE  => $this->getDir() . '/' . $this->getPageBodyDir() . '/labels/head.name.twig',
                 static::COLUMN_TEMPLATE  => $this->getDir() . '/' . $this->getPageBodyDir() . '/labels/cell.name.twig',
                 static::COLUMN_ORDERBY  => 100,
             ),
@@ -392,6 +393,7 @@ class Labels extends \XLite\View\ItemsList\Model\Table
     {
         $result = array();
 
+        $defaultLanguageCode = static::getLanguageCode();
         $languages = \XLite\Core\Database::getRepo('XLite\Model\Language')->findAddedLanguages();
 
         $translations = $entity->getTranslations();
@@ -408,7 +410,9 @@ class Labels extends \XLite\View\ItemsList\Model\Table
             $result[strtoupper($code)] = array(
                 'status' => $found ? 'set' : 'unset',
             );
-
+            if ($code == $defaultLanguageCode) {
+                $result[strtoupper($code)]['status'] .= ' default';
+            }
         }
 
         return $result;
@@ -446,5 +450,20 @@ class Labels extends \XLite\View\ItemsList\Model\Table
         $languages = \XLite\Core\Database::getRepo('XLite\Model\Language')->findAddedLanguages();
 
         return 1 < count($languages) || 'en' != $this->getLanguageCode();
+    }
+
+    /**
+     * Get top actions
+     *
+     * @return array
+     */
+    protected function getTopActions()
+    {
+        $list = [
+            $this->getDir() . '/' . $this->getPageBodyDir() . '/labels/action.add.twig',
+            $this->getDir() . '/' . $this->getPageBodyDir() . '/labels/action.import.twig',
+        ];
+
+        return array_merge(parent::getTopActions(), $list);
     }
 }

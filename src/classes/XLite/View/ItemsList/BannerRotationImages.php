@@ -63,13 +63,13 @@ class BannerRotationImages extends \XLite\View\ItemsList\Model\Table
                     AFileUploader::PARAM_REQUIRED     => true,
                     AFileUploader::PARAM_IS_REMOVABLE => false,
                 ],
-                static::COLUMN_MAIN    => true,
                 static::COLUMN_ORDERBY => 100,
             ],
             'link'  => [
                 static::COLUMN_NAME    => static::t('Link'),
                 static::COLUMN_LINK    => 'link',
                 static::COLUMN_CLASS   => 'XLite\View\FormField\Inline\Input\Text',
+                static::COLUMN_MAIN    => true,
                 static::COLUMN_ORDERBY => 200,
             ],
         ];

@@ -25,7 +25,7 @@ abstract class APage extends \XLite\View\Product\Details\Customer\ACustomer
      *
      * @var array
      */
-    protected $attributesWidgets = null;
+    protected $attributesWidgets;
 
     /**
      * Get a list of JavaScript files required to display the widget properly
@@ -86,9 +86,7 @@ abstract class APage extends \XLite\View\Product\Details\Customer\ACustomer
             $list = $this->defineTabs();
             $i = 0;
             foreach ($list as $k => $data) {
-                $id = isset($data['id'])
-                    ? $data['id']
-                    : preg_replace('/\W+/Ss', '-', strtolower($k));
+                $id = $data['id'] ?? preg_replace('/\W+/Ss', '-', strtolower($k));
 
                 $list[$k] = array(
                     'index'  => $i,
@@ -96,7 +94,7 @@ abstract class APage extends \XLite\View\Product\Details\Customer\ACustomer
                     'name'   => is_array($data) && !empty($data['name'])
                         ? $data['name']
                         : static::t($k),
-                    'weight' => isset($data['weight']) ? $data['weight'] : $i,
+                    'weight' => $data['weight'] ?? $i,
                 );
 
                 if(!empty($data['alt_id'])) {
@@ -227,13 +225,20 @@ abstract class APage extends \XLite\View\Product\Details\Customer\ACustomer
 
         $product = $this->getProduct();
 
+        $this->attributesWidgets[] = $this->getWidget(
+            array(
+                'product' => $product
+            ),
+            'XLite\View\Product\Details\Customer\CommonAttributes'
+        );
+
         if ($product->getProductClass()) {
             $this->attributesWidgets[] = $this->getWidget(
                 array(
                     'product'      => $product,
                     'productClass' => $product->getProductClass()
                 ),
-                '\XLite\View\Product\Details\Customer\Attributes'
+                'XLite\View\Product\Details\Customer\Attributes'
             );
         }
 
@@ -241,7 +246,7 @@ abstract class APage extends \XLite\View\Product\Details\Customer\ACustomer
             array(
                 'product' => $product
             ),
-            '\XLite\View\Product\Details\Customer\Attributes'
+            'XLite\View\Product\Details\Customer\Attributes'
         );
 
         $this->attributesWidgets[] = $this->getWidget(
@@ -249,7 +254,7 @@ abstract class APage extends \XLite\View\Product\Details\Customer\ACustomer
                 'product'      => $product,
                 'personalOnly' => true
             ),
-            '\XLite\View\Product\Details\Customer\Attributes'
+            'XLite\View\Product\Details\Customer\Attributes'
         );
 
         if ($product->getProductClass()) {
@@ -259,7 +264,7 @@ abstract class APage extends \XLite\View\Product\Details\Customer\ACustomer
                         'product' => $product,
                         'group'   => $group
                     ),
-                    '\XLite\View\Product\Details\Customer\Attributes'
+                    'XLite\View\Product\Details\Customer\Attributes'
                 );
             }
         }
@@ -270,7 +275,7 @@ abstract class APage extends \XLite\View\Product\Details\Customer\ACustomer
                     'product' => $product,
                     'group'   => $group
                 ),
-                '\XLite\View\Product\Details\Customer\Attributes'
+                'XLite\View\Product\Details\Customer\Attributes'
             );
         }
     }

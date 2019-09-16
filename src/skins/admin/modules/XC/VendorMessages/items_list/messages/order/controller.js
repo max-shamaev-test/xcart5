@@ -14,6 +14,23 @@ function OrderMessagesListView()
 
 extend(OrderMessagesListView, ItemsList);
 
+OrderMessagesListView.prototype.initialize = function(elem, urlparams, urlajaxparams)
+{
+    var result = ItemsList.prototype.initialize.apply(this, arguments);
+
+    var orderMessagesContainer = jQuery('.order-messages');
+    var submitBtn = orderMessagesContainer.find('.submit');
+    orderMessagesContainer.find('.new-message textarea').bind('input change', function() {
+      if (this.value.length) {
+        submitBtn.removeClass('disabled');
+      } else {
+        submitBtn.addClass('disabled');
+      }
+    });
+
+    return result;
+}
+
 OrderMessagesListView.prototype.listeners.common = function(handler)
 {
     handler.container.parents('form').get(0).commonController.enableBackgroundSubmit(false, function () {

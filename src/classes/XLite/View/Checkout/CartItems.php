@@ -135,17 +135,6 @@ class CartItems extends \XLite\View\AView
     }
 
     /**
-     * Check - order is partially paid or not
-     *
-     * @return boolean
-     */
-    protected function isPartiallyPaid()
-    {
-        return $this->getCart()->getPaidTotal() > 0
-            && $this->getCart()->isOpen();
-    }
-
-    /**
      * @return array
      */
     protected function getItemsCountLinkAttributes()

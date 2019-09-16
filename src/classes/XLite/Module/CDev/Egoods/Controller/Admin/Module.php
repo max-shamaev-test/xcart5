@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\Egoods\Controller\Admin;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Module settings
  */
@@ -21,9 +23,8 @@ class Module extends \XLite\Controller\Admin\Module implements \XLite\Base\IDeco
     public function handleRequest()
     {
         $request = \XLite\Core\Request::getInstance();
-        if (
-            $this->getModuleID()
-            && 'CDev\Egoods' == $this->getModule()->getActualName()
+        if ($this->getModuleId()
+            && $this->getModule() === \Includes\Utils\Module\Module::buildId('CDev', 'Egoods')
             && $request->action === 'update'
         ) {
 

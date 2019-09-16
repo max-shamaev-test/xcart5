@@ -3,7 +3,7 @@
  #}
 
 {% if this.getImages() %}
-<div class="items-list-table items-list">
+<div class="items-list-table items-list table-wrapper">
   <table class="list" cellspacing="0">
     <thead>
       <tr>
@@ -33,5 +33,5 @@
   </table>
 </div>
 {% else %}
-<div class="no-images">{{ t('No images uploaded') }}</div>
+<p class="no-images">{{ t('No images uploaded') }}</p>
 {% endif %}

@@ -31,7 +31,7 @@ class Coupons extends \XLite\View\ItemsList\Model\Table
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'modules/CDev/Coupons/coupons/list/style.css';
+        $list[] = 'modules/CDev/Coupons/coupons/list/style.less';
 
         return $list;
     }

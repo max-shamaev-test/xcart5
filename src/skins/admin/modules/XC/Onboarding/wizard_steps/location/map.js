@@ -724,7 +724,7 @@ $(document).ready(function () {
       "cy": "85.47060351408297px"
     },
     "MK": {
-      "name": "Macedonia",
+      "name": "North Macedonia",
       "cx": "139.5481214595224px",
       "cy": "71.62690427007917px"
     },

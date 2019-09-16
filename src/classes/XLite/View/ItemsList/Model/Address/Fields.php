@@ -96,7 +96,7 @@ class Fields extends \XLite\View\ItemsList\Model\Table
             ),
             'required' => array(
                 static::COLUMN_NAME     => static::t('Required'),
-                static::COLUMN_CLASS    => 'XLite\View\FormField\Inline\Input\Checkbox\Switcher\Enabled',
+                static::COLUMN_CLASS    => 'XLite\View\FormField\Inline\Input\Checkbox\Switcher\YesNo',
                 static::COLUMN_TEMPLATE => 'address/fields/required.help.twig',
                 static::COLUMN_PARAMS   => array(),
                 static::COLUMN_ORDERBY  => 300,

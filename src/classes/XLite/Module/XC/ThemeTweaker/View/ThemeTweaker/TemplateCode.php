@@ -83,6 +83,23 @@ class TemplateCode extends \XLite\View\AView
     }
 
     /**
+     * @return integer
+     */
+    protected function getTemplateObjectId()
+    {
+        return $this->getTemplateObject()
+            ? $this->getTemplateObject()->getId()
+            : null;
+    }
+
+    protected function getWidgetData()
+    {
+        return json_encode([
+            'templateId' => $this->getTemplateObjectId()
+        ]);
+    }
+
+    /**
      * @return \XLite\Module\XC\ThemeTweaker\Model\Template
      */
     protected function getTemplateObject()

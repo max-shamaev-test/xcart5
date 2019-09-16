@@ -8,6 +8,8 @@
 
 namespace XLite\Module;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
 use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -23,10 +25,36 @@ abstract class AModule
     const TO_DELETE = 'to_delete';
     const TO_ADD    = 'to_add';
 
-    const MODULE_TYPE_CUSTOM_MODULE     = 0x1;
-    const MODULE_TYPE_PAYMENT           = 0x2;
-    const MODULE_TYPE_SKIN              = 0x4;
-    const MODULE_TYPE_SHIPPING          = 0x8;
+    const MODULE_TYPE_CUSTOM_MODULE = 0x1;
+    const MODULE_TYPE_PAYMENT       = 0x2;
+    const MODULE_TYPE_SKIN          = 0x4;
+    const MODULE_TYPE_SHIPPING      = 0x8;
+
+    /**
+     * @var Module[]
+     */
+    static protected $moduleData = [];
+
+    /**
+     * @return string
+     */
+    public static function getId()
+    {
+        return Module::getModuleIdByClassName(static::class);
+    }
+
+    /**
+     * @return Module
+     */
+    public static function getModuleData()
+    {
+        $id = static::getId();
+        if (!isset(static::$moduleData[$id])) {
+            static::$moduleData[$id] = Manager::getRegistry()->getModule($id);
+        }
+
+        return static::$moduleData[$id];
+    }
 
     /**
      * Method to initialize concrete module instance
@@ -43,130 +71,12 @@ abstract class AModule
     }
 
     /**
-     * Decorator run this method at the end of cache rebuild
-     *
-     * @return void
+     * Update view list entries
      */
-    public static function runBuildCacheHandler()
+    public static function updateViewListEntries()
     {
-        static::registerPermissions();
-
         static::manageClasses();
         static::manageTemplates();
-    }
-
-    /**
-     * Method to call just before the module is uninstalled (totally remove) via core
-     *
-     * @return void
-     */
-    public static function callUninstallEvent()
-    {
-        // TODO: Check if it is to remove
-        //static::removePermissions();
-    }
-
-    /**
-     * Method to call just before the module is disabled via core
-     *
-     * @return void
-     */
-    public static function callDisableEvent()
-    {
-        static::unregisterPermissions();
-    }
-
-    /**
-     * Method to call just after the module is installed
-     *
-     * @return void
-     */
-    public static function callInstallEvent()
-    {
-    }
-
-    /**
-     * Defines the module type (skin or payment or any other types which are predefined in the constants: static::MODULE_TYPE_* )
-     *
-     * You are able to define several types, for example:
-     *
-     * return static::MODULE_TYPE_PAYMENT | static::MODULE_TYPE_SHIPPING
-     *
-     * @return integer
-     */
-    public static function getModuleType()
-    {
-        return null;
-    }
-
-    /**
-     * Check if the module is defined as payment module
-     *
-     * @return boolean
-     */
-    public static function isPaymentModule()
-    {
-        return (static::MODULE_TYPE_PAYMENT & static::getModuleType()) === static::MODULE_TYPE_PAYMENT;
-    }
-
-    /**
-     * Check if the module is defined as skin module
-     *
-     * @return boolean
-     */
-    public static function isSkinModule()
-    {
-        return (static::MODULE_TYPE_SKIN & static::getModuleType()) === static::MODULE_TYPE_SKIN;
-    }
-
-    /**
-     * Check if the module is defined as shipping module
-     *
-     * @return boolean
-     */
-    public static function isShippingModule()
-    {
-        return (static::MODULE_TYPE_SHIPPING & static::getModuleType()) === static::MODULE_TYPE_SHIPPING;
-    }
-
-    /**
-     * Return module name
-     *
-     * @return string
-     */
-    public static function getModuleName()
-    {
-        \Includes\ErrorHandler::fireErrorAbstractMethodCall(__METHOD__);
-    }
-
-    /**
-     * Return author full name
-     *
-     * @return string
-     */
-    public static function getAuthorName()
-    {
-        \Includes\ErrorHandler::fireErrorAbstractMethodCall(__METHOD__);
-    }
-
-    /**
-     * Return module description
-     *
-     * @return string
-     */
-    public static function getDescription()
-    {
-        \Includes\ErrorHandler::fireErrorAbstractMethodCall(__METHOD__);
-    }
-
-    /**
-     * Return URL for module icon
-     *
-     * @return string
-     */
-    public static function getIconURL()
-    {
-        return null;
     }
 
     /**
@@ -190,23 +100,13 @@ abstract class AModule
     }
 
     /**
-     * Determines if we need to show settings form link
-     *
-     * @return boolean
-     */
-    public static function showSettingsForm()
-    {
-        return static::isPaymentModule() && static::getSettingsForm();
-    }
-
-    /**
      * Return link to settings form
      *
      * @return string
      */
     public static function getSettingsForm()
     {
-        return static::isPaymentModule() ? static::getPaymentSettingsForm() : null;
+        return static::getModuleData()->type === 'payment' ? static::getPaymentSettingsForm() : null;
     }
 
     /**
@@ -223,6 +123,7 @@ abstract class AModule
      * Return module dependencies
      *
      * @return array
+     * @deprecated
      */
     public static function getDependencies()
     {
@@ -233,50 +134,11 @@ abstract class AModule
      * Return list of mutually exclusive modules
      *
      * @return array
+     * @deprecated
      */
     public static function getMutualModulesList()
     {
         return array();
-    }
-
-    /**
-     * Get module major version
-     *
-     * @return string
-     */
-    public static function getMajorVersion()
-    {
-        return \XLite::getInstance()->getMajorVersion();
-    }
-
-    /**
-     * Get minor core version which is required for the module activation
-     *
-     * @return string
-     */
-    public static function getMinorRequiredCoreVersion()
-    {
-        return '0';
-    }
-
-    /**
-     * Get module minor version
-     *
-     * @return string
-     */
-    public static function getMinorVersion()
-    {
-        \Includes\ErrorHandler::fireErrorAbstractMethodCall(__METHOD__);
-    }
-
-    /**
-     * Get module build number (4th number in the version)
-     *
-     * @return string
-     */
-    public static function getBuildVersion()
-    {
-        return '0';
     }
 
     /**
@@ -286,29 +148,7 @@ abstract class AModule
      */
     public static function getVersion()
     {
-        return \Includes\Utils\Converter::composeVersion(static::getMajorVersion(), static::getFullMinorVersion());
-    }
-
-    /**
-     * Get module version
-     *
-     * @return string
-     */
-    public static function getFullMinorVersion()
-    {
-        $build = static::getBuildVersion();
-
-        return static::getMinorVersion() . (!empty($build) ? '.' . $build : '');
-    }
-
-    /**
-     * Return true if module is 'system module' and admin cannot disable/uninstall and view this module in the modules list
-     *
-     * @return boolean
-     */
-    public static function isSystem()
-    {
-        return false;
+        return static::getModuleData()->version;
     }
 
     /**
@@ -319,16 +159,6 @@ abstract class AModule
     public static function isSeparateUninstall()
     {
         return false;
-    }
-
-    /**
-     * Check if module can be disabled
-     *
-     * @return boolean
-     */
-    public static function canDisable()
-    {
-        return true;
     }
 
     /**
@@ -359,7 +189,7 @@ abstract class AModule
      */
     public static function getSkins()
     {
-        return array();
+        return static::getModuleData() ? static::getModuleData()->skins : [];
     }
 
     /**
@@ -414,7 +244,7 @@ abstract class AModule
      */
     public static function getImageSizes()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -437,109 +267,6 @@ abstract class AModule
 
         if ($sizes) {
             \XLite\Logic\ImageResize\Generator::addImageSizes($sizes);
-        }
-    }
-
-    /**
-     * Use this method when your module must register some user permissions.
-     * Data contains pairs permission_code => permission_name
-     * permission_name is the permission name in English
-     *
-     * For example:
-     *
-     * return array(
-     *      'manage my own permission' => 'Manage my own permission',
-     *      'manage another actions'   => 'Manage another actions',
-     * )
-     *
-     * @return array
-     */
-    public static function getPermissions()
-    {
-        return array();
-    }
-
-    /**
-     * Get list of core permissions
-     *
-     * @return array
-     */
-    public static function getCorePermissions()
-    {
-        return array(
-            'root access'    => 'Root access',
-            'manage catalog' => 'Manage catalog',
-            'manage users'   => 'Manage users',
-            'manage orders'  => 'Manage orders',
-            'manage import'  => 'Manage import',
-            'manage export'  => 'Manage export',
-            'unfiltered html' => 'Allow unfiltered HTML',
-        );
-    }
-
-    /**
-     * Permission registration routine.
-     * It is called after the cache rebuilding procedure
-     * if the module is enabled
-     *
-     * @return void
-     */
-    protected static function registerPermissions()
-    {
-        foreach (static::getPermissions() as $permissionCode => $permissionName) {
-            static::registerPermission($permissionCode, $permissionName);
-        }
-    }
-
-    /**
-     * Permission unregistration routine.
-     * It is called during the "callDisableEvent" event after the module is disabled
-     * but before the cache rebuilding procedure.
-     *
-     * @return void
-     */
-    protected static function unregisterPermissions()
-    {
-        foreach (static::getPermissions() as $permissionCode => $permissionName) {
-            static::unregisterPermission($permissionCode);
-        }
-    }
-
-    /**
-     * One entry permission registration
-     * It is called in static::registerPermissions() method
-     *
-     * @param string $permissionCode Permission code
-     * @param string $permissionName Permission name
-     *
-     * @return void
-     */
-    protected static function registerPermission($permissionCode, $permissionName)
-    {
-    }
-
-    /**
-     * One entry permission unregistration
-     * It is called in static::unregisterPermissions() method
-     *
-     * @param string $permissionCode Permission code
-     *
-     * @return void
-     */
-    protected static function unregisterPermission($permissionCode)
-    {
-    }
-
-    /**
-     * TODO: Check if it is to remove
-     * Remove permissions
-     *
-     * @return void
-     */
-    protected static function removePermissions()
-    {
-        foreach (static::getPermissions() as $permissionCode => $permissionName) {
-            static::removePermission($permissionCode);
         }
     }
 
@@ -592,7 +319,7 @@ abstract class AModule
      */
     protected static function moveClassesInLists()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -644,7 +371,7 @@ abstract class AModule
      */
     protected static function moveTemplatesInLists()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -660,21 +387,21 @@ abstract class AModule
     {
         $layout = \XLite\Core\Layout::getInstance();
         foreach (call_user_func('static::' . $getter) as $name => $params) {
-            $toSet = array();
-            $fromSet = array();
+            $toSet   = [];
+            $fromSet = [];
 
             if (isset($params[static::TO_ADD]) || isset($params[static::TO_DELETE])) {
-                $fromSet = isset($params[static::TO_DELETE]) ? $params[static::TO_DELETE] : array();
-                $toSet = isset($params[static::TO_ADD]) ? $params[static::TO_ADD] : array();
+                $fromSet = isset($params[static::TO_DELETE]) ? $params[static::TO_DELETE] : [];
+                $toSet   = isset($params[static::TO_ADD]) ? $params[static::TO_ADD] : [];
 
             } elseif (count($params) === 1) {
                 // Remove case
-                $fromSet = array(is_array($params[0]) ? $params[0] : array($params[0]));
+                $fromSet = [is_array($params[0]) ? $params[0] : [$params[0]]];
 
             } else {
                 // Move widgets case
-                $fromSet = array(is_array($params[0]) ? $params[0] : array($params[0]));
-                $toSet = array(is_array($params[1]) ? $params[1] : array($params[1]));
+                $fromSet = [is_array($params[0]) ? $params[0] : [$params[0]]];
+                $toSet   = [is_array($params[1]) ? $params[1] : [$params[1]]];
             }
 
             foreach ($fromSet as $from) {
@@ -682,7 +409,7 @@ abstract class AModule
             }
 
             foreach ($toSet as $to) {
-                $toParams = array();
+                $toParams = [];
                 if (isset($to[1])) {
                     $toParams['weight'] = $to[1];
                 }
@@ -717,16 +444,6 @@ abstract class AModule
     }
 
     /**
-     * Gets the container.
-     *
-     * @return ContainerInterface  A ContainerInterface instance
-     */
-    private static function getContainer()
-    {
-        return \XLite::getInstance()->getContainer();
-    }
-
-    /**
      * Returns an EventDispatcherInterface implementation to use in AModule::init to register event listeners/subscribers.
      *
      * @return EventDispatcherInterface
@@ -735,5 +452,15 @@ abstract class AModule
     protected static function getEventDispatcher()
     {
         return self::getContainer()->get('event_dispatcher');
+    }
+
+    /**
+     * Gets the container.
+     *
+     * @return ContainerInterface  A ContainerInterface instance
+     */
+    private static function getContainer()
+    {
+        return \XLite::getInstance()->getContainer();
     }
 }

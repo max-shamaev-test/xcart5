@@ -16,8 +16,9 @@ ul.attribute-values {
 
 .ui-dialog ul.attribute-values {
   width: auto;
-  margin: 0 0 20px;
-  padding: 20px 20px 1px;
+  margin: 0;
+  padding: 0;
+  background: none;
 }
 
 ul.attribute-values li {

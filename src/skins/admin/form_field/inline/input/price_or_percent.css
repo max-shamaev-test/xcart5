@@ -10,12 +10,16 @@
 .inline-price-or-percent .input-price-or-percent .input-group-btn button {
     padding: 4px 8px;
     min-height: 32px;
+    height: 40px;
 }
 
 .items-list-table .inline-field.inline-price-or-percent .table-value .input-price-or-percent .table-value {
     float: left;
+    top: 4px;
 }
 
 .inline-field.inline-price-or-percent .table-value .input-price-or-percent {
-    margin-top: 7px;
+    display: inline-block;
+    white-space: nowrap;
+    position: relative;
 }

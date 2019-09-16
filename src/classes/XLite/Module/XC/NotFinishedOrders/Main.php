@@ -8,9 +8,6 @@
 
 namespace XLite\Module\XC\NotFinishedOrders;
 
-/**
- * Main module
- */
 abstract class Main extends \XLite\Module\AModule
 {
     /**
@@ -19,74 +16,15 @@ abstract class Main extends \XLite\Module\AModule
     const NFO_MODE_ON_FAILURE = 'onFailure';
     const NFO_MODE_ON_PLACE   = 'onPlaceOrder';
 
-    /**
-     * Author name
-     *
-     * @return string
-     */
-    public static function getAuthorName()
+    protected static function moveTemplatesInLists()
     {
-        return 'X-Cart team';
-    }
-
-    /**
-     * Module name
-     *
-     * @return string
-     */
-    public static function getModuleName()
-    {
-        return 'Not Finished Orders';
-    }
-
-    /**
-     * Module description
-     *
-     * @return string
-     */
-    public static function getDescription()
-    {
-        return 'This addon allows you to track not finished orders and contact customers, who have failed to proceed through the payment process.';
-    }
-
-    /**
-     * Get module major version
-     *
-     * @return string
-     */
-    public static function getMajorVersion()
-    {
-        return '5.3';
-    }
-
-    /**
-     * Module version
-     *
-     * @return string
-     */
-    public static function getMinorVersion()
-    {
-        return '4';
-    }
-
-    /**
-     * Get module build number (4th number in the version)
-     *
-     * @return string
-     */
-    public static function getBuildVersion()
-    {
-        return '1';
-    }
-
-    /**
-     * Determines if we need to show settings form link
-     *
-     * @return boolean
-     */
-    public static function showSettingsForm()
-    {
-        return true;
+        return [
+            'failed_transaction/parts/transaction_url.twig' => [
+                static::TO_DELETE => [
+                    ['failed_transaction.after'],
+                ],
+            ],
+        ];
     }
 
     /**

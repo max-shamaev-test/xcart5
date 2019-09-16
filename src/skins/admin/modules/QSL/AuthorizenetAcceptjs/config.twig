@@ -44,8 +44,8 @@
         <td class="setting-name"><label for="settings_type">{{ t('Transaction type') }}</label></td>
         <td>
             <select id="settings_type" name="settings[type]" class="form-control">
-                <option value="sale" {% if this.isSelected(this.paymentMethod.getSetting('type'), 'sale') %} selected="selected" {% endif %}>{{ t('Authorization and Capture') }}</option>
-                <option value="auth" {% if this.isSelected(this.paymentMethod.getSetting('type'), 'auth') %} selected="selected" {% endif %}>{{ t('Authorization only') }}</option>
+                <option value="sale" {% if this.paymentMethod.getSetting('type') == 'sale' %} selected="selected" {% endif %}>{{ t('Authorization and Capture') }}</option>
+                <option value="auth" {% if this.paymentMethod.getSetting('type') == 'auth' %} selected="selected" {% endif %}>{{ t('Authorization only') }}</option>
             </select>
         </td>
     </tr>

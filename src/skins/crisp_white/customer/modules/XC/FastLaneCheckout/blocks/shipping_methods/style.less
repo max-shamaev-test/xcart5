@@ -48,23 +48,21 @@
       }
     }
 
-    input:checked ~ .rate-title,
-    input:checked ~ .value {
+    input:checked ~ .rate-title {
       color: @color-highlight;
     }
 
     .rate-title {
-      color: @color-text-dark;
-      display: inline-block;
-      float: left;
+      color: @color-text-default;
+      display: block;
       #rhythmless > .rhythm(@font-size-base);
     }
 
     .rate-description{
       color: @color-text-default;
-      display: block;
+      display: inline-block;
       white-space: normal;
-      #rhythmless > .rhythm(@font-size-small);
+      #rhythmless > .rhythm(@font-size-base);
     }
 
     .change {
@@ -86,15 +84,10 @@
     }
 
     span.value {
-      color: @color-text-dark;
+      color: @color-text-default;
       #rhythmless > .rhythm(@font-size-base);
       line-height: 20px;
-
-      &:before {
-        content:"\2014";
-        margin-left: 9px;
-        margin-right: 5px;
-      }
+      font-weight: bold;
     }
   }
 
@@ -105,5 +98,9 @@
         font-weight: bold;
       }
     }
+  }
+
+  .chosen-container {
+    max-width: 100%;
   }
 }

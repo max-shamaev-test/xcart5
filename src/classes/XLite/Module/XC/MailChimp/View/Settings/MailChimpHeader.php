@@ -11,8 +11,6 @@ namespace XLite\Module\XC\MailChimp\View\Settings;
 use  XLite\Module\XC\MailChimp\Core;
 
 /**
- * Warning
- *
  * @ListChild (list="crud.modulesettings.header", zone="admin", weight="100")
  */
 class MailChimpHeader extends \XLite\Module\XC\MailChimp\View\Settings\ASettings
@@ -25,9 +23,7 @@ class MailChimpHeader extends \XLite\Module\XC\MailChimp\View\Settings\ASettings
     public function getCSSFiles()
     {
         $return = parent::getCSSFiles();
-
         $return[] = 'main/style.css';
-        $return[] = $this->getDir() . '/header.css';
 
         return $return;
     }

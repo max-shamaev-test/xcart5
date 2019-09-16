@@ -8,24 +8,12 @@
 
 namespace XLite\Console\Command\Helpers;
 
-use XLite\Model\Repo;
-
 class Module
 {
     const NOT_FOUND = 'not_found';
     const NOT_INSTALLED = 'not_installed';
     const INSTALLED = 'installed';
     const ENABLED = 'enabled';
-
-    /**
-     * @var Repo\Module
-     */
-    private $repo;
-
-    public function __construct(Repo\Module $repo)
-    {
-        $this->repo = $repo;
-    }
 
     /**
      * @param $name
@@ -41,14 +29,14 @@ class Module
 
         list($author, $name) = explode('\\', $name);
 
-        /** @var \XLite\Model\Module $module */
-        $module = $this->repo->findOneBy(
-            [
-                'author' => $author,
-                'name'   => $name,
-            ],
-            [ 'fromMarketplace' => 'ASC' ]
-        );
+        $module = null; // todo: reimplement with BUS
+        //$module = $this->repo->findOneBy(
+        //    [
+        //        'author' => $author,
+        //        'name'   => $name,
+        //    ],
+        //    [ 'fromMarketplace' => 'ASC' ]
+        //);
 
         $result = static::NOT_FOUND;
 

@@ -7,10 +7,21 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-.settings ul.table p {
-  margin: 15px 0;
-}
-
 .settings ul.table li.instructions.even {
   background: none;
+}
+
+.settings ul.table li.instructions {
+  -webkit-flex-wrap: wrap;
+  -moz-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.settings ul.table li.instructions h2 {
+  margin-top: 0;
+}
+
+.settings ul.table li.instructions h2 + p {
+  margin-top: 0;
 }

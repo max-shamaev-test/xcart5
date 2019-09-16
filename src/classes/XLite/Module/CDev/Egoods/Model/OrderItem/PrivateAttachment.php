@@ -463,5 +463,17 @@ class PrivateAttachment extends \XLite\Model\AEntity
     {
         return $this->attachment;
     }
+
+    /**
+     * Get attachment icon type
+     *
+     * @return string
+     */
+    public function getAttachmentIcon()
+    {
+        return $this->getAttachment()
+            ? $this->getAttachment()->getIconType()
+            : 'no';
+    }
 }
 

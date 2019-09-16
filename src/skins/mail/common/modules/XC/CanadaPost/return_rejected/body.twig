@@ -1,7 +1,5 @@
 {##
  # Products return reject email body (to customer)
  #}
-<p>
-  {{ t('Administrator notes') }}:<br />
-  {{ this.notes|raw }}
-</p>
+
+{{ widget('\\XLite\\View\\ItemsList\\Product\\MailBox', products=this.products) }}

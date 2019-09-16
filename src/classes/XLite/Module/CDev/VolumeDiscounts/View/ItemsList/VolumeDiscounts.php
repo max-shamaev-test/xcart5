@@ -23,7 +23,7 @@ class VolumeDiscounts extends \XLite\View\ItemsList\Model\Table
      *
      * @var   array
      */
-    protected $discountKeys = array();
+    protected $discountKeys = [];
 
     /**
      * Get a list of CSS files required to display the widget properly
@@ -33,7 +33,7 @@ class VolumeDiscounts extends \XLite\View\ItemsList\Model\Table
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'modules/CDev/VolumeDiscounts/discounts/list/style.css';
+        $list[] = 'modules/CDev/VolumeDiscounts/discounts/list/style.less';
 
         return $list;
     }
@@ -45,32 +45,25 @@ class VolumeDiscounts extends \XLite\View\ItemsList\Model\Table
      */
     protected function defineColumns()
     {
-        return array(
-            'subtotalRangeBegin' => array(
-                static::COLUMN_NAME => \XLite\Core\Translation::lbl('Subtotal'),
-                static::COLUMN_CLASS => 'XLite\Module\CDev\VolumeDiscounts\View\FormField\SubtotalRangeBegin',
+        return [
+            'subtotalRangeBegin' => [
+                static::COLUMN_NAME         => \XLite\Core\Translation::lbl('Subtotal'),
+                static::COLUMN_CLASS        => 'XLite\Module\CDev\VolumeDiscounts\View\FormField\SubtotalRangeBegin',
                 static::COLUMN_CREATE_CLASS => 'XLite\Module\CDev\VolumeDiscounts\View\FormField\SubtotalRangeBegin',
-                static::COLUMN_ORDERBY  => 100,
-            ),
-            'value' => array(
-                static::COLUMN_NAME => \XLite\Core\Translation::lbl('Discount'),
-                static::COLUMN_CLASS => 'XLite\Module\CDev\VolumeDiscounts\View\FormField\DiscountValue',
-                static::COLUMN_CREATE_CLASS => 'XLite\Module\CDev\VolumeDiscounts\View\FormField\DiscountValue',
-                static::COLUMN_ORDERBY  => 200,
-            ),
-            'type' => array(
-                static::COLUMN_NAME => '',
-                static::COLUMN_CLASS => 'XLite\Module\CDev\VolumeDiscounts\View\FormField\DiscountType',
-                static::COLUMN_CREATE_CLASS => 'XLite\Module\CDev\VolumeDiscounts\View\FormField\DiscountType',
-                static::COLUMN_ORDERBY  => 300,
-            ),
-            'membership' => array(
-                static::COLUMN_NAME => \XLite\Core\Translation::lbl('Membership'),
-                static::COLUMN_CLASS => 'XLite\Module\CDev\VolumeDiscounts\View\FormField\Membership',
+                static::COLUMN_ORDERBY      => 100,
+            ],
+            'discount'           => [
+                static::COLUMN_NAME    => static::t('Discount'),
+                static::COLUMN_CLASS   => 'XLite\View\FormField\Inline\Input\PriceOrPercent',
+                static::COLUMN_ORDERBY => 300,
+            ],
+            'membership'         => [
+                static::COLUMN_NAME         => \XLite\Core\Translation::lbl('Membership'),
+                static::COLUMN_CLASS        => 'XLite\Module\CDev\VolumeDiscounts\View\FormField\Membership',
                 static::COLUMN_CREATE_CLASS => 'XLite\Module\CDev\VolumeDiscounts\View\FormField\Membership',
-                static::COLUMN_ORDERBY  => 400,
-            ),
-        );
+                static::COLUMN_ORDERBY      => 400,
+            ],
+        ];
     }
 
     /**
@@ -150,7 +143,7 @@ class VolumeDiscounts extends \XLite\View\ItemsList\Model\Table
      */
     protected function getListNameSuffixes()
     {
-        return array('volumeDiscounts');
+        return ['volumeDiscounts'];
     }
 
     /**
@@ -256,15 +249,15 @@ class VolumeDiscounts extends \XLite\View\ItemsList\Model\Table
     /**
      * Return discounts list
      *
-     * @param \XLite\Core\CommonCell $cnd       Search condition
-     * @param boolean                $countOnly Return items list or only its size OPTIONAL
+     * @param \XLite\Core\CommonCell $cnd Search condition
+     * @param boolean $countOnly Return items list or only its size OPTIONAL
      *
      * @return array|integer
      */
     protected function getData(\XLite\Core\CommonCell $cnd, $countOnly = false)
     {
-        $cnd->{\XLite\Module\CDev\VolumeDiscounts\Model\Repo\VolumeDiscount::P_ORDER_BY_MEMBERSHIP} = array('membership.membership_id', 'ASC');
-        $cnd->{\XLite\Module\CDev\VolumeDiscounts\Model\Repo\VolumeDiscount::P_ORDER_BY_SUBTOTAL} = array('v.subtotalRangeBegin', 'ASC');
+        $cnd->{\XLite\Module\CDev\VolumeDiscounts\Model\Repo\VolumeDiscount::P_ORDER_BY_MEMBERSHIP} = ['membership.membership_id', 'ASC'];
+        $cnd->{\XLite\Module\CDev\VolumeDiscounts\Model\Repo\VolumeDiscount::P_ORDER_BY_SUBTOTAL} = ['v.subtotalRangeBegin', 'ASC'];
 
         return \XLite\Core\Database::getRepo('XLite\Module\CDev\VolumeDiscounts\Model\VolumeDiscount')
             ->search($cnd, $countOnly);

@@ -38,7 +38,6 @@ class Admin extends \XLite\View\StickyPanel\ItemsListForm
                 'disabled'       => false,
                 'label'          => 'Add new language',
                 'style'          => 'more-action always-enabled',
-                'useCaretButton' => false,
                 'dropDirection'  => 'dropup',
             ],
             'position' => 100,

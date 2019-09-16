@@ -14,32 +14,21 @@
 .product-tags-list li {
   display: inline-block;
   height: 26px;
-  background: #dff2ff;
-  color: #2c537d;
+  background: #f2f2f2;
+  color: #0ba2e8;
   margin: 0 10px 10px 0;
-  border-radius: 2px;
+  border-radius: 4px;
   line-height: 20px;
-  padding: 4px 31px 0 10px;
+  padding: 3px 10px;
   position: relative;
 }
 
 .product-tags-list li a {
   text-decoration: none;
-  color: #0062A0;
+  color: #0ba2e8;
 }
 
 .product-tags-list li a:hover {
   text-decoration: none;
-  color: #0f9dcc;
-}
-
-.product-tags-list li .circle {
-  border-radius: 7px;
-  width: 7px;
-  height: 7px;
-  background: #ffffff;
-  display: inline-block;
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  color: #25c5df;
 }

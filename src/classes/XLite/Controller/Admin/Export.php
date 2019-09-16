@@ -170,6 +170,7 @@ class Export extends \XLite\Controller\Admin\AAdmin
     protected function doActionCancel()
     {
         \XLite\Logic\Export\Generator::cancel();
+        \XLite\Core\TopMessage::addWarning('Export has been cancelled.');
 
         $this->setSilenceClose(true);
     }

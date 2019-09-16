@@ -94,7 +94,7 @@ class Download extends \XLite\View\AView
     {
         return $this->isCompletedSection()
             ? static::t('Download CSV files')
-            : static::t('Exported in X', array('date' => $this->getLastExportDate()));
+            : static::t('Exported files');
     }
 
     /**
@@ -178,6 +178,19 @@ class Download extends \XLite\View\AView
     protected function getAllowedPackTypes()
     {
         return $this->getGenerator()->getAllowedArchives();
+    }
+
+    /**
+     * Register CSS files
+     *
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        $list = parent::getCSSFiles();
+        $list[] = 'items_list/model/table/style.less';
+
+        return $list;
     }
 }
 

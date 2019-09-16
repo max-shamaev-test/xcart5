@@ -35,6 +35,20 @@ class Table extends \XLite\View\Form\ItemsList\AItemsList
     }
 
     /**
+     * Get a list of CSS files
+     *
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        $list = parent::getCSSFiles();
+
+        $list[] = 'modules/XC/ProductTags/tags/style.css';
+
+        return $list;
+    }
+
+    /**
      * Required form parameters
      *
      * @return array

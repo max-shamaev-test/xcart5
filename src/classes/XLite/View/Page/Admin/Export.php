@@ -38,7 +38,7 @@ class Export extends \XLite\View\AView
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'export/style.css';
+        $list[] = 'export/style.less';
 
         return $list;
     }
@@ -80,7 +80,8 @@ class Export extends \XLite\View\AView
             $result = 'XLite\View\Export\Progress';
 
         } elseif ($this->isExportFinished()) {
-            $result = 'XLite\View\Export\Completed';
+            \XLite\Core\Request::getInstance()->page = 'last';
+            $result = 'XLite\View\Export\Begin';
 
         } elseif ($this->isExportFailed()) {
             $result = 'XLite\View\Export\Failed';

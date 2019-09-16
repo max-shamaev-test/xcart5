@@ -8,6 +8,14 @@
 
 namespace XLite\Module\XC\ThemeTweaker\Controller\Admin;
 
+use XLite\Core\Auth;
+use XLite\Core\Mail\Sender;
+use XLite\Core\Mailer;
+use XLite\Core\Request;
+use XLite\Core\TopMessage;
+use XLite\Module\XC\ThemeTweaker\Core\Notifications\Data;
+use XLite\Module\XC\ThemeTweaker\Core\Notifications\DataPreProcessor;
+
 /**
  * Notification
  */
@@ -15,60 +23,83 @@ class Notification extends \XLite\Controller\Admin\Notification implements \XLit
 {
     protected function doActionSendTestEmail()
     {
-        $request = \XLite\Core\Request::getInstance();
+        $request = Request::getInstance();
+        $dataSource = $this->getDataSource();
         $templatesDirectory = $request->templatesDirectory;
-        $order = \XLite\Module\XC\ThemeTweaker\Main::getDumpOrder();
+        $interface = $request->page === \XLite::ADMIN_INTERFACE
+            ? \XLite::ADMIN_INTERFACE
+            : \XLite::CUSTOMER_INTERFACE;
 
-        if (\XLite\Module\XC\ThemeTweaker\Main::isOrderNotification($templatesDirectory) && $order) {
-            $to = \XLite\Core\Auth::getInstance()->getProfile()->getLogin();
+        if (
+            $dataSource->isEditable()
+            && $dataSource->isAvailable()
+        ) {
+            $to = Auth::getInstance()->getProfile()->getLogin();
 
-            $result = \XLite\Core\Mailer::getInstance()->sendOrderRelatedPreview(
+            $result = Mailer::getInstance()->sendNotificationPreview(
                 $templatesDirectory,
                 $to,
-                $request->page === \XLite::ADMIN_INTERFACE ? \XLite::ADMIN_INTERFACE : \XLite::CUSTOMER_INTERFACE,
-                $order
+                $interface,
+                DataPreProcessor::prepareDataForNotification(
+                    $templatesDirectory,
+                    $dataSource->getData()
+                )
             );
 
             if ($result) {
-                \XLite\Core\TopMessage::addInfo('The test email notification has been sent to X', ['email' => $to]);
-
+                TopMessage::addInfo('The test email notification has been sent to X', ['email' => $to]);
             } else {
-                \XLite\Core\TopMessage::addWarning('Failure sending test email to X', ['email' => $to]);
+                TopMessage::addWarning('Failure sending test email to X', ['email' => $to]);
             }
         }
 
-        $this->setReturnURL($this->getURL());
+        $this->setReturnURL($this->buildFullURL(
+            $request->from_notification ? 'notification' : 'notification_editor',
+            '',
+            [
+                'templatesDirectory'                               => $request->templatesDirectory,
+                $request->from_notification ? 'page' : 'interface' => $interface,
+            ]
+        ));
     }
 
     /**
      * Process request
-     *
-     * @return void
      */
     public function processRequest()
     {
-        $request = \XLite\Core\Request::getInstance();
-        $order = \XLite\Module\XC\ThemeTweaker\Main::getDumpOrder();
+        $request = Request::getInstance();
+        $dataSource = $this->getDataSource();
 
-        if ($request->preview && $order) {
-            $innerInterface = \XLite\Core\Request::getInstance()->page === \XLite::ADMIN_INTERFACE
+        if (
+            $request->preview
+            && $dataSource->isEditable()
+            && $dataSource->isAvailable()
+        ) {
+            $innerInterface = Request::getInstance()->page === \XLite::ADMIN_INTERFACE
                 ? \XLite::ADMIN_INTERFACE
                 : \XLite::CUSTOMER_INTERFACE;
 
-            $data = [
-                'order' => $order
-            ];
-
-            $mailer = new \XLite\View\Mailer();
-
-            echo $mailer->getNotificationPreviewContent(
+            echo Sender::getNotificationPreviewContent(
                 $request->templatesDirectory,
-                $data,
+                DataPreProcessor::prepareDataForNotification(
+                    $request->templatesDirectory,
+                    $dataSource->getData()
+                ),
                 $innerInterface
             );
 
         } else {
             parent::processRequest();
         }
+    }
+
+    /**
+     * @return Data
+     */
+    public function getDataSource()
+    {
+        return $this->dataSource
+            ?: ($this->dataSource = new Data($this->getNotification()));
     }
 }

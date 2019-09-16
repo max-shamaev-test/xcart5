@@ -8,11 +8,14 @@
 
 namespace XLite\Module\CDev\SalesTax\Controller\Admin;
 
+use XLite\Controller\Features\TaxControllerTrait;
+
 /**
  * Taxes controller
  */
 class SalesTax extends \XLite\Controller\Admin\AAdmin
 {
+    use TaxControllerTrait;
 
     /**
      * Return the current page title (for the content area)
@@ -49,13 +52,7 @@ class SalesTax extends \XLite\Controller\Admin\AAdmin
     {
         $tax = $this->getTax();
 
-        $name = trim(\XLite\Core\Request::getInstance()->name);
-        if (0 < strlen($name)) {
-            $tax->setName($name);
-
-        } else {
-            \XLite\Core\TopMessage::addError('The name of the tax has not been preserved, because that is not filled');
-        }
+        $this->updateTaxSettings($tax);
 
         $optionNames = array(
             'ignore_memberships',

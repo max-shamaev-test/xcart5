@@ -4,7 +4,7 @@
  # @ListChild (list="checkout.review.selected.items", weight="50")
  # @ListChild (list="checkout.review.inactive.items", weight="50")
  #}
-{% if this.isPartiallyPaid() %}
+{% if this.cart.blockPaidIsVisible() %}
   <div class="paid clearfix">
     {{ t('Paid') }}:
     <span class="value">{{ widget('XLite\\View\\Surcharge', surcharge=this.cart.getPaidTotal(), currency=this.cart.getCurrency()) }}</span>

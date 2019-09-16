@@ -21,6 +21,11 @@ define(
     vuex: {
       getters: {
         complete: function(state) {
+          window.addEventListener('popstate', function() {
+            var sections = Checkout.instance.getState().sections;
+            sections.current = sections.list.address;
+          });
+
           return state.sections.list.address.complete;
         }
       },

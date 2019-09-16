@@ -1,5 +1,0 @@
-Version 5.3.7.9
-
-Fixes (1)
-2019-04-08 - [Bug] JS errors blocking the store operation while PayPal Credit banners are enabled. Fixed. #BUG-7280 https://bt.x-cart.com/view.php?id=50618 (Maxim Kuznetsov) #Paypal
-

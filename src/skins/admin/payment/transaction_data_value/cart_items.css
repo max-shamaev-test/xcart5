@@ -28,10 +28,20 @@
 	overflow: hidden;
 }
 
+.items-list-table table.list tbody.lines tr.line table.cart-items-summary td.name-column p {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 .items-list-table table.list tbody.lines tr.line table.cart-items-summary td.attr-column {
 	padding-left: 10px;
 	width: 120px;
 	overflow: hidden;
+}
+
+.items-list-table table.list tbody.lines tr.line table.cart-items-summary td.attr-column li {
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .items-list-table table.list tbody.lines tr.line table.cart-items-summary td.attr-column ul.attributes {

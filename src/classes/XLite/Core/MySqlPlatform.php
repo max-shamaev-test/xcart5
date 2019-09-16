@@ -15,9 +15,9 @@ class MySqlPlatform extends \Doctrine\DBAL\Platforms\MySqlPlatform
 {
     /**
      * Get binary type declaration SQL
-     * 
+     *
      * @param array $field Field declaration
-     *  
+     *
      * @return string
      */
     public function getBinaryTypeDeclarationSQL(array $field)
@@ -34,11 +34,11 @@ class MySqlPlatform extends \Doctrine\DBAL\Platforms\MySqlPlatform
     }
 
     /**
-     * Get binary type declaration SQL snippet 
-     * 
+     * Get binary type declaration SQL snippet
+     *
      * @param integer $length Field length
-     * @param boolean $fixed  Fixed type flag
-     *  
+     * @param boolean $fixed Fixed type flag
+     *
      * @return string
      */
     protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
@@ -54,5 +54,17 @@ class MySqlPlatform extends \Doctrine\DBAL\Platforms\MySqlPlatform
     public function getColumnCharsetDeclarationSQL($charset)
     {
         return 'CHARACTER SET ' . $charset;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    {
+        if (!isset($options['charset'])) {
+            $options['charset'] = \XLite\Core\Database::getCharset();
+        }
+
+        return parent::_getCreateTableSQL($tableName, $columns, $options);
     }
 }

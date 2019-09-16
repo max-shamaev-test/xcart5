@@ -26,26 +26,10 @@ abstract class Main extends \Includes\Decorator\Plugin\APlugin
     {
         $list = \XLite\Core\Layout::getInstance()->getLESSResources($interface);
 
-        $commonBootstrap = array(
-            'file' => \XLite\Core\Layout::getInstance()->getResourceFullPath('bootstrap/css/bootstrap.less', \XLite::COMMON_INTERFACE),
-            'media' => 'screen',
-            'weight' => 0,
-            'filelist' => array(
-                'bootstrap/css/bootstrap.less',
-            ),
-            'interface' => \XLite::COMMON_INTERFACE,
-            'original' => 'bootstrap/css/bootstrap.less',
-            'url' => \XLite\Core\Layout::getInstance()->getResourceWebPath('bootstrap/css/bootstrap.less', \XLite\Core\Layout::WEB_PATH_OUTPUT_SHORT, \XLite::COMMON_INTERFACE),
-            'less' => true,
-        );
-
-        $result = array($commonBootstrap);
-
         foreach ($list as $less) {
             $result[] = array(
                 'file'          => \XLite\Core\Layout::getInstance()->getResourceFullPath($less, $interface),
                 'media'         => 'screen',
-                'merge'         => 'bootstrap/css/bootstrap.less',
                 'filelist'      => array(
                     $less,
                 ),

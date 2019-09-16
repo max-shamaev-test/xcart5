@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\ThemeTweaker\Core;
 
+use XLite\Module\XC\ThemeTweaker\Controller\Admin\NotificationEditor;
+
 /**
  * Layout manager
  */
@@ -76,6 +78,12 @@ class Layout extends \XLite\Core\Layout implements \XLite\Base\IDecorator
                 ],
             ]
             : parent::getSkinPaths($interface, $reset, $baseSkins, $allInnerInterfaces);
+    }
+
+    public function getSkinRelativePathByLocalPath($localPath, $interface)
+    {
+        $full = $this->getFullPathByLocalPath($localPath, $interface);
+        return substr($full, strlen(\LC_DIR_SKINS));
     }
 
     public function getFullPathByLocalPath($localPath, $interface)
@@ -164,5 +172,11 @@ class Layout extends \XLite\Core\Layout implements \XLite\Base\IDecorator
         }
 
         return $result;
+    }
+
+    protected function isAdminSidebarFirstVisible()
+    {
+        return (!\XLite::getController() instanceof NotificationEditor)
+            && parent::isAdminSidebarFirstVisible();
     }
 }

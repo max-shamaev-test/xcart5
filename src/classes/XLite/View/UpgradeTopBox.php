@@ -80,7 +80,121 @@ class UpgradeTopBox extends \XLite\View\AView
     protected function isVisible()
     {
         return parent::isVisible()
-            && \XLite\Core\Auth::getInstance()->isAdmin();
+            && \XLite\Core\Auth::getInstance()->isAdmin()
+            && $this->getUpgradeTypesEntries();
+    }
+
+    /**
+     * @return array
+     */
+    protected function getUpgradeTypesEntries()
+    {
+        // TODO Implement real non-realtime cache, find some appropriate cacheKey base
+
+        $systemData = \XLite\Core\Marketplace::getInstance()->getSystemData();
+
+        $cacheParts = [
+            'getUpgradeTypesEntries',
+            $systemData['dataDate'] ?? 0
+        ];
+
+        return ExecuteCached::executeCached(function () {
+            $data = \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
+                \XLite\Core\Marketplace\QueryRegistry::getQuery('upgrade_entries'),
+                new \XLite\Core\Marketplace\Normalizer\Raw()
+            );
+
+            if (!$data) {
+                return [];
+            }
+
+            foreach ($data as $key => $datum) {
+                $datum = $datum ?: [];
+                $keys = array_map(function ($type) {
+                    return $type['id'];
+                }, $datum);
+                $data[$key] = array_combine($keys, $datum);
+            }
+
+            return $data;
+        }, $cacheParts);
+    }
+
+    /**
+     * @param bool $withCore
+     *
+     * @return array
+     */
+    protected function getHashMap($withCore = true)
+    {
+        $entries = $this->getUpgradeTypesEntries();
+
+        $listToCheckInOrder = [
+            'build',
+            'minor',
+            'major',
+            'core', // Means 1 number changes, e.g. 5.x.x.x to 6.x.x.x
+        ];
+
+        $result = array_merge(
+            [
+                'total' => 0,
+                'core-types' => []
+            ],
+            array_fill_keys($listToCheckInOrder, 0)
+        );
+
+        foreach ($listToCheckInOrder as $type) {
+            if (!empty($entries[$type])) {
+                if (isset($entries[$type]['CDev-Core']) && $entries[$type]['CDev-Core']['type'] === $type) {
+                    $result['core-types'][] = $type;
+                }
+
+                $entriesOfType = array_filter(
+                    $entries[$type],
+                    function ($entry) use ($withCore, $type) {
+                        return $entry['type'] === $type && ($withCore || $entry['id'] !== 'CDev-Core');
+                    }
+                );
+
+                $previousTypeIndex = (int) $type - 1;
+                $previousTypeCount = isset($result[$previousTypeIndex])
+                    ? $result[$previousTypeIndex]
+                    : 0;
+                $countOnlyThisType = count($entriesOfType) - $previousTypeCount;
+                $result[$type] = $countOnlyThisType;
+                $result['total'] += $countOnlyThisType;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string $type
+     *
+     * @param bool   $withCore
+     *
+     * @return int
+     */
+    protected function getCountOfType($type, $withCore = true)
+    {
+        $modulesHash = $this->getHashMap($withCore);
+
+        return isset($modulesHash[$type])
+            ? $modulesHash[$type]
+            : 0;
+    }
+
+    /**
+     * @param      $type
+     * @param bool $withCore
+     *
+     * @return bool
+     */
+    protected function hasEntriesOfType($type, $withCore = true)
+    {
+        return $this->getCountOfType($type, $withCore) > 0;
     }
 
     /**
@@ -88,7 +202,7 @@ class UpgradeTopBox extends \XLite\View\AView
      */
     protected function hasHotfixes()
     {
-        return \XLite\Upgrade\Cell::getInstance()->hasHotfixEntries();
+        return $this->hasEntriesOfType('build');
     }
 
     /**
@@ -96,7 +210,7 @@ class UpgradeTopBox extends \XLite\View\AView
      */
     protected function hasUpdates()
     {
-        return \XLite\Upgrade\Cell::getInstance()->hasUpdateEntries();
+        return $this->hasEntriesOfType('minor');
     }
 
     /**
@@ -104,19 +218,12 @@ class UpgradeTopBox extends \XLite\View\AView
      */
     protected function hasUpgrades()
     {
-        $infoHash = \XLite\Core\Database::getRepo('XLite\Model\Module')->getUpgradeModulesInfoHash();
+        $entries = $this->getUpgradeTypesEntries();
 
         $hasCoreUpgrade = false;
-        if (!$infoHash['hotfix'] && !$infoHash['update']) {
-            $coreVersions = \XLite\Upgrade\Cell::getInstance()->getCoreVersions();
-            $currentCoreMajorVersion = \XLite::getInstance()->getMajorVersion();
-            foreach ($coreVersions as $coreVersion) {
-                $version = implode('.', array_slice(explode('.', $coreVersion[0]), 0, 2));
-                if (version_compare($currentCoreMajorVersion, $version, '<')) {
-                    $hasCoreUpgrade = true;
-                    break;
-                }
-            }
+        if (!$this->hasEntriesOfType('build') && !$this->hasEntriesOfType('minor')) {
+            return !empty($entries['major']['CDev-Core']['type'])
+                && $entries['major']['CDev-Core']['type'] === 'major';
         }
 
         return $hasCoreUpgrade;
@@ -139,9 +246,33 @@ class UpgradeTopBox extends \XLite\View\AView
      */
     protected function isCoreUpgradeAvailable()
     {
-        $hasCoreUpdate = \XLite\Upgrade\Cell::getInstance()->hasCoreUpdate();
-        
-        return $hasCoreUpdate || $this->hasUpgrades();
+        return (boolean) $this->getCoreUpgradeTypes();
+    }
+
+    /**
+     * Check if there is a new core version
+     *
+     * @return array
+     */
+    protected function getCoreUpgradeTypes()
+    {
+        $map = $this->getHashMap();
+
+        return $map['core-types'];
+    }
+
+    /**
+     * Check if there is a new core version
+     *
+     * @param string $type
+     *
+     * @return array
+     */
+    protected function hasCoreUpgradeType($type)
+    {
+        $map = $this->getHashMap();
+
+        return in_array($type, $map['core-types'], true);
     }
 
     /**
@@ -151,9 +282,7 @@ class UpgradeTopBox extends \XLite\View\AView
      */
     protected function areUpdatesAvailable()
     {
-        $infoHash = \XLite\Core\Database::getRepo('XLite\Model\Module')->getUpgradeModulesInfoHash();
-
-        return $infoHash['total'] > 0;
+        return $this->hasEntriesOfType('minor', false) || $this->hasEntriesOfType('build', false);
     }
 
     /**
@@ -182,32 +311,12 @@ class UpgradeTopBox extends \XLite\View\AView
             $data[] = 'invisible';
         }
 
-        $isHotfixMode = \XLite\Upgrade\Cell::getInstance()->isUpgradeHotfixModeSelectorAvailable()
-            ? \XLite\Core\Session::getInstance()->upgradeHotfixMode
-            : null;
-
-        $cacheUpgradeParams = [
-            'hasHotfixEntries',
-            get_class($this),
-            \XLite\Core\Database::getRepo('XLite\Model\Module')->getVersion(),
-            \XLite\Core\Marketplace::getInstance()->getCores(
-                \XLite\Core\Marketplace::TTL_SHORT
-            ),
-            $isHotfixMode
-        ];
-
-        $hasNewFeaturesEntries = ExecuteCached::executeCached(function () {
-            return $this->hasUpdates() || $this->hasUpgrades();
-        }, array_merge($cacheUpgradeParams, ['hasNewFeaturesEntries']));
-
-        $isHotfix = ExecuteCached::executeCached(function () {
-            return \XLite\Upgrade\Cell::getInstance()->hasHotfixEntries();
-        }, array_merge($cacheUpgradeParams, ['isHotfix']));
-
-        if ($hasNewFeaturesEntries) {
-            $data[] = 'update';
-        } elseif ($isHotfix) {
+        if ($this->isHotfixMode()) {
             $data[] = 'hotfix';
+        }
+
+        if ($this->hasEntriesOfType('minor')) {
+            $data[] = 'update';
         }
 
         return [
@@ -216,31 +325,56 @@ class UpgradeTopBox extends \XLite\View\AView
     }
 
     /**
+     * @return bool
+     */
+    protected function isHotfixMode()
+    {
+        return $this->hasEntriesOfType('build') || $this->hasCoreUpgradeType('build');
+    }
+    /**
      * @return string
      */
     protected function getDescription()
     {
-        $coreAvailable = $this->isCoreUpgradeAvailable();
+        $coreAvailable = false;
 
-        $infoHash = \XLite\Core\Database::getRepo('XLite\Model\Module')->getUpgradeModulesInfoHash();
-        if ($this->hasHotfixes()) {
-            $count = $infoHash['hotfix'];
-        } elseif ($this->hasUpdates()) {
-            $count = $infoHash['update'];
-        } else {
-            $count = $infoHash['upgrade'];
+        if ($this->isCoreUpgradeAvailable()) {
+            $coreAvailable = $this->isHotfixMode()
+                ? $this->hasCoreUpgradeType('build')
+                : !$this->hasCoreUpgradeType('build');
         }
 
-        if ($coreAvailable && $count) {
-            $result = static::t('new core and X addons', ['count' => $count]);
+        $totalModulesCount = $this->isHotfixMode()
+            ? $this->getCountOfType('build', false)
+            : $this->getCountOfType('total', false) - $this->getCountOfType('build', false);
 
-        } elseif ($count) {
-            $result = static::t('X addons', ['count' => $count]);
+        if ($coreAvailable && $totalModulesCount) {
+            $result   = static::t('new core and X addons', ['count' => $totalModulesCount]);
+
+        } elseif ($totalModulesCount) {
+            $result   = static::t('X addons', ['count' => $totalModulesCount]);
 
         } else {
             $result = static::t('new core');
         }
 
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUpgradeUrl()
+    {
+        $entries = $this->getUpgradeTypesEntries();
+        if ($entries['self']) {
+            return \XLite::getInstance()->getShopURL('service.php#/upgrade/');
+        }
+
+        $type = $this->isHotfixMode()
+            ? 'build'
+            : 'minor';
+
+        return \XLite::getInstance()->getShopURL('service.php#/upgrade-details/' . $type);
     }
 }

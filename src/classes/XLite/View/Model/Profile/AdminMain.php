@@ -313,7 +313,7 @@ class AdminMain extends \XLite\View\Model\AModel
                     }
                 }
 
-                if (!$value || !count($value)) {
+                if (!$value) {
                     $rootRole = \XLite\Core\Database::getRepo('XLite\Model\Role')->findOneRoot();
 
                     if ($rootRole) {

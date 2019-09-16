@@ -89,7 +89,7 @@ class Review extends \XLite\View\ItemsList\Model\Table
     /**
      * Get wrapper form target
      *
-     * @return array
+     * @return string
      */
     protected function getFormTarget()
     {
@@ -253,7 +253,10 @@ class Review extends \XLite\View\ItemsList\Model\Table
     {
         $list = parent::getRightActions();
 
-        $list[] = 'modules/XC/Reviews/' . $this->getDir() . '/' . $this->getPageBodyDir() . '/review/action.link.twig';
+        array_unshift(
+            $list,
+            'modules/XC/Reviews/' . $this->getDir() . '/' . $this->getPageBodyDir() . '/review/action.link.twig'
+        );
 
         return $list;
     }
@@ -386,6 +389,7 @@ class Review extends \XLite\View\ItemsList\Model\Table
             ],
             'additionDate' => [
                 static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Date'),
+                static::COLUMN_TEMPLATE => 'modules/XC/Reviews/reviews/cell/cell.date.twig',
                 static::COLUMN_SORT     => static::SORT_BY_MODE_ADDITION_DATE,
                 static::COLUMN_ORDERBY  => 500,
             ],

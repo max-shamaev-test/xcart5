@@ -84,6 +84,7 @@ class MigrationFactory
      * @param array $classes The classes to consider.
      *
      * @return SchemaDiff
+     * @throws \Doctrine\ORM\ORMException
      */
     protected function getUpdateSchemaDiff(array $classes)
     {

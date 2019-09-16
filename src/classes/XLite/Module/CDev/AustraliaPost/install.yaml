@@ -124,7 +124,7 @@ XLite\Model\Shipping\Method:
     moduleName: CDev_AustraliaPost
     translations:
       - code: en
-        name: AustraliaPost
+        name: Australia Post
 
 XLite\Model\LanguageLabel:
   - { name: 'When AustraliaPost returns shipping methods which does not exists in the available methods list, these methods will be created in the list automatically', translations: [{ code: en, label: 'If AustraliaPost returns shipping methods that do not exist in the available methods list, these methods will be created in the list automatically. You can specify whether these methods should be created as enabled and available to customers right away, or should be hidden from customers until you manually enable them on <a href="{{URL}}">the shipping methods list page</a>.' }] }

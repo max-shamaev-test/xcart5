@@ -8,6 +8,15 @@
 
 namespace XLite\View\ItemsList\Model\Product\Admin;
 
+use XLite\Model\Repo\Product;
+use XLite\Model\SearchCondition\RepositoryHandler;
+use XLite\View\FormField\AFormField;
+use XLite\View\FormField\Select\Category;
+use XLite\View\ItemsList\ArrayDataSearchValuesStorage;
+use XLite\View\ItemsList\ASearchValuesStorage;
+use XLite\View\SearchPanel\ASearchPanel;
+use XLite\View\SearchPanel\SimpleSearchPanel;
+
 /**
  * Search product
  *
@@ -26,20 +35,21 @@ class Search extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
     const PARAM_BY_SKU            = 'by_sku';
     const PARAM_INVENTORY         = 'inventory';
     const PARAM_ENABLED           = 'enabled';
+    const PARAM_INCLUDING         = 'including';
 
     /**
      * Define and set widget attributes; initialize widget
      *
      * @param array $params Widget params OPTIONAL
      */
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
-        $this->sortByModes += array(
+        $this->sortByModes += [
             static::SORT_BY_MODE_PRICE  => 'Price',
             static::SORT_BY_MODE_NAME   => 'Name',
             static::SORT_BY_MODE_SKU    => 'SKU',
             static::SORT_BY_MODE_AMOUNT => 'Amount',
-        );
+        ];
 
         parent::__construct($params);
     }
@@ -77,7 +87,7 @@ class Search extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
      */
     public static function getAllowedTargets()
     {
-        return array_merge(parent::getAllowedTargets(), array('product_list'));
+        return array_merge(parent::getAllowedTargets(), ['product_list']);
     }
 
     /**
@@ -103,25 +113,11 @@ class Search extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
     /**
      * Get wrapper form target
      *
-     * @return array
+     * @return string
      */
     protected function getFormTarget()
     {
         return 'product_list';
-    }
-
-    /**
-     * Get a list of CSS files
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/' . $this->getPageBodyDir() . '/product/style.css';
-        $list[] = $this->getDir() . '/' . $this->getPageBodyDir() . '/product/search_panel_style.css';
-
-        return $list;
     }
 
     /**
@@ -131,40 +127,40 @@ class Search extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
      */
     protected function defineColumns()
     {
-        return array(
-            'sku' => array(
+        return [
+            'sku'      => [
                 static::COLUMN_NAME    => \XLite\Core\Translation::lbl('SKU'),
-                static::COLUMN_NO_WRAP => true,
+                static::COLUMN_NO_WRAP => false,
                 static::COLUMN_SORT    => static::SORT_BY_MODE_SKU,
                 static::COLUMN_ORDERBY => 100,
-            ),
-            'name' => array(
+            ],
+            'name'     => [
                 static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Name'),
                 static::COLUMN_MAIN    => true,
                 static::COLUMN_NO_WRAP => true,
                 static::COLUMN_SORT    => static::SORT_BY_MODE_NAME,
                 static::COLUMN_ORDERBY => 200,
                 static::COLUMN_LINK    => 'product',
-            ),
-            'category' => array(
+            ],
+            'category' => [
                 static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Category'),
                 static::COLUMN_NO_WRAP => true,
                 static::COLUMN_ORDERBY => 300,
-            ),
-            'price' => array(
+            ],
+            'price'    => [
                 static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Price'),
                 static::COLUMN_CLASS   => 'XLite\View\FormField\Inline\Input\Text\Price',
-                static::COLUMN_PARAMS  => array('min' => 0),
+                static::COLUMN_PARAMS  => ['min' => 0],
                 static::COLUMN_SORT    => static::SORT_BY_MODE_PRICE,
                 static::COLUMN_ORDERBY => 400,
-            ),
-            'qty' => array(
+            ],
+            'qty'      => [
                 static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Stock'),
                 static::COLUMN_CLASS   => 'XLite\View\FormField\Inline\Input\Text\Integer\ProductQuantity',
                 static::COLUMN_SORT    => static::SORT_BY_MODE_AMOUNT,
                 static::COLUMN_ORDERBY => 500,
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -204,7 +200,7 @@ class Search extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
      */
     protected function getListNameSuffixes()
     {
-        return array_merge(parent::getListNameSuffixes(), array('search'));
+        return array_merge(parent::getListNameSuffixes(), ['search']);
     }
 
     /**
@@ -234,9 +230,9 @@ class Search extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
      */
     public function getSearchFormOptions()
     {
-        return array(
-            'target' => 'product_list'
-        );
+        return [
+            'target' => 'product_list',
+        ];
     }
 
     /**
@@ -252,6 +248,23 @@ class Search extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
             static::getSearchValuesStorage()
         );
     }
+
+    public static function getSearchValuesStorage($forceFallback = false)
+    {
+        $storage = parent::getSearchValuesStorage($forceFallback);
+
+        if (
+            $storage
+            && $storage instanceof ASearchValuesStorage
+        ) {
+            $storage->passFallbackStorage(new ArrayDataSearchValuesStorage([
+                static::PARAM_INCLUDING => Product::INCLUDING_ALL
+            ]));
+        }
+
+        return $storage;
+    }
+
     /**
      * Return search parameters.
      *
@@ -261,69 +274,61 @@ class Search extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
     {
         return array_merge(
             parent::getSearchParams(),
-            array(
-                static::PARAM_SUBSTRING    => array(
-                    'condition'     => new \XLite\Model\SearchCondition\RepositoryHandler('substring'),
-                    'widget'            => array(
-                        \XLite\View\SearchPanel\ASearchPanel::CONDITION_CLASS => 'XLite\View\FormField\Input\Text',
-                        \XLite\View\FormField\Input\Text::PARAM_PLACEHOLDER => static::t('Search keywords'),
-                        \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY => true,
+            [
+                static::PARAM_SUBSTRING   => [
+                    'condition' => new RepositoryHandler('substring'),
+                    'widget'    => [
+                        ASearchPanel::CONDITION_CLASS => 'XLite\View\FormField\Input\Text',
+                        \XLite\View\FormField\Input\Text::PARAM_PLACEHOLDER   => static::t('Search keywords'),
+                        AFormField::PARAM_FIELD_ONLY    => true,
+                    ],
+                ],
+                static::PARAM_CATEGORY_ID => [
+                    'condition' => new RepositoryHandler('categoryId'),
+                    'widget'    => [
+                        ASearchPanel::CONDITION_CLASS        => 'XLite\View\FormField\Select\Select2\Category',
+                        Category::PARAM_DISPLAY_ANY_CATEGORY => true,
+                        Category::PARAM_DISPLAY_NO_CATEGORY  => true,
+                        AFormField::PARAM_FIELD_ONLY         => true,
+                    ],
+                ],
+                static::PARAM_INVENTORY   => [
+                    'condition' => new RepositoryHandler('inventory'),
+                    'widget'    => [
+                        ASearchPanel::CONDITION_CLASS => 'XLite\View\FormField\Select\InventoryState',
+                        AFormField::PARAM_FIELD_ONLY    => true,
+                    ],
+                ],
+                static::PARAM_INCLUDING   => [
+                    'condition' => new RepositoryHandler(
+                        Product::P_INCLUDING
                     ),
-                ),
-                static::PARAM_CATEGORY_ID    => array(
-                    'condition'     => new \XLite\Model\SearchCondition\RepositoryHandler('categoryId'),
-                    'widget'            => array(
-                        \XLite\View\SearchPanel\ASearchPanel::CONDITION_CLASS => 'XLite\View\FormField\Select\Category',
-                        \XLite\View\FormField\Select\Category::PARAM_DISPLAY_ANY_CATEGORY => true,
-                        \XLite\View\FormField\Select\Category::PARAM_DISPLAY_NO_CATEGORY => true,
-                        \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY => true,
+                    'widget' => [
+                        SimpleSearchPanel::CONDITION_TYPE => SimpleSearchPanel::CONDITION_TYPE_HIDDEN,
+                        ASearchPanel::CONDITION_CLASS => 'XLite\View\FormField\Select\RadioButtonsList\ProductSearch\IncludingCondition',
+                    ],
+                ],
+                'by_conditions'           => [
+                    'condition' => new RepositoryHandler(
+                        Product::P_BY
                     ),
-                ),
-                static::PARAM_INVENTORY    => array(
-                    'condition'     => new \XLite\Model\SearchCondition\RepositoryHandler('inventory'),
-                    'widget'            => array(
-                        \XLite\View\SearchPanel\ASearchPanel::CONDITION_CLASS => 'XLite\View\FormField\Select\InventoryState',
-                        \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY => true,
-                    ),
-                ),
-                'by_conditions'      => array(
-                    'widget'            => array(
-                        \XLite\View\SearchPanel\SimpleSearchPanel::CONDITION_TYPE    => \XLite\View\SearchPanel\SimpleSearchPanel::CONDITION_TYPE_HIDDEN,
-                        \XLite\View\SearchPanel\ASearchPanel::CONDITION_TEMPLATE => 'product/search/parts/condition.by_conditions.twig',
-                    ),
-                ),
-                static::PARAM_BY_TITLE    => array(
-                    'condition'     => new \XLite\Model\SearchCondition\RepositoryHandler(\XLite\Model\Repo\Product::P_BY_TITLE),
-                ),
-                static::PARAM_BY_DESCR    => array(
-                    'condition'     => new \XLite\Model\SearchCondition\RepositoryHandler(\XLite\Model\Repo\Product::P_BY_DESCR),
-                ),
-                static::PARAM_BY_SKU    => array(
-                    'condition'     => new \XLite\Model\SearchCondition\RepositoryHandler(\XLite\Model\Repo\Product::P_BY_SKU),
-                ),
-                static::PARAM_ENABLED           => array(
-                    'condition'     => new \XLite\Model\SearchCondition\Expression\TypeEquality('enabled'),
-                    'widget'    => array(
-                        \XLite\View\SearchPanel\SimpleSearchPanel::CONDITION_TYPE    => \XLite\View\SearchPanel\SimpleSearchPanel::CONDITION_TYPE_HIDDEN,
-                        \XLite\View\SearchPanel\ASearchPanel::CONDITION_CLASS => 'XLite\View\FormField\Select\Product\AvailabilityStatus',
-                        \XLite\View\FormField\AFormField::PARAM_LABEL => static::t('Availability'),
-                    ),
-                ),
-            )
+                    'widget' => [
+                        SimpleSearchPanel::CONDITION_TYPE => SimpleSearchPanel::CONDITION_TYPE_HIDDEN,
+                        ASearchPanel::CONDITION_CLASS  => 'XLite\View\FormField\Select\CheckboxList\ProductSearch\ByCondition',
+                        AFormField::PARAM_LABEL             => static::t('Search in'),
+                    ],
+                ],
+                static::PARAM_ENABLED     => [
+                    'condition' => new \XLite\Model\SearchCondition\Expression\TypeEquality('enabled'),
+                    'widget'    => [
+                        SimpleSearchPanel::CONDITION_TYPE => SimpleSearchPanel::CONDITION_TYPE_HIDDEN,
+                        ASearchPanel::CONDITION_CLASS     => 'XLite\View\FormField\Select\Product\AvailabilityStatus',
+                        AFormField::PARAM_LABEL             => static::t('Availability'),
+                    ],
+                ],
+            ]
         );
     }
-
-    /**
-     * Define widget parameters
-     *
-     * @return void
-     */
-    protected function defineWidgetParams()
-    {
-        parent::defineWidgetParams();
-    }
-
-    // {{{ Search
 
     /**
      * Return params list to use for search
@@ -335,10 +340,10 @@ class Search extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
         $result = parent::getSearchCondition();
 
         // We initialize structure to define order (field and sort direction) in search query.
-        $result->{\XLite\Model\Repo\Product::P_ORDER_BY} = $this->getOrderBy();
+        $result->{Product::P_ORDER_BY} = $this->getOrderBy();
 
         // Prepare filter by 'enabled' field
-        $enabledFieldName = \XLite\Model\Repo\Product::P_ENABLED;
+        $enabledFieldName = Product::P_ENABLED;
 
         if ($result->{$enabledFieldName} && $result->{$enabledFieldName}->getValue()) {
             $booleanValue = 'enabled' === $result->{$enabledFieldName}->getValue()
@@ -419,8 +424,6 @@ class Search extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
         return parent::hasColumnAttention($column, $entity)
             || ('qty' == $column[static::COLUMN_CODE] && $entity && $entity->isLowLimitReached());
     }
-
-    // }}}
 
     // {{{ Behaviors
 

@@ -317,6 +317,11 @@ div.table-value span.label-field {
   z-index: 100000;
 }
 
+/* via-url-popup */
+.via-url-popup div.checkbox {
+  margin-top: 20px;
+}
+
 /**
  * Category page: products and subcategories
  */
@@ -356,10 +361,6 @@ ul.subcategory-list.subcategory-view-list li a {
 }
 
 /* Drag'n'drop */
-
-.products-list .ui-draggable-dragging{
-  padding: 12px !important;
-}
 
 .products-table th
 {
@@ -419,13 +420,6 @@ ul.subcategory-list.subcategory-view-list li a {
 .products-table span.product-price
 {
   text-align: right;
-}
-
-.products-list .product .drag-n-drop-handle
-{
-  position: absolute;
-  right: 0;
-  top: -12px;
 }
 
 .products-sidebar-big-thumbnails .product-name
@@ -640,16 +634,8 @@ body.store-product h1#page-title,
 .product-quicklook .product-in-stock
 {
   color: #019026;
-}
-
-.product-details input.quantity,
-.product-quicklook input.quantity
-{
-  width: 60px;
-  text-align: right;
-  padding: 4px 6px;
-  margin-left: 0;
-  vertical-align: middle;
+  order: 1;
+  margin-right: 10px;
 }
 
 .product-details .quantity-box-container .wheel-mark,
@@ -1281,4 +1267,8 @@ table.login-form.locked-out .timer-table-body .timer-header td{
   font-weight: normal;
   line-height: 1.1;
   color: #579ed2;
+}
+
+.page-404 {
+  margin-bottom: 10px;
 }

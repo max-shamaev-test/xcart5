@@ -148,4 +148,14 @@ abstract class Widget extends \XLite\View\Product\AProduct
     {
         return parent::isVisible() && $this->getProduct();
     }
+
+    /**
+     * Alias: is product in stock or not
+     *
+     * @return boolean
+     */
+    public function isAllStockInCart()
+    {
+        return $this->getProduct()->isAllStockInCart();
+    }
 }

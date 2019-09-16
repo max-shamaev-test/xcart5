@@ -77,6 +77,10 @@ define('checkout_fastlane/loader', ['vue/vue', 'ready'], function(Vue){
         updateSectionHandler: function(event, data) {
           if (!_.isUndefined(data['oldSection']) && data['oldSection'] !== null) {
             jQuery('body').removeClass('fastlane-step-' + data['oldSection']['name']);
+
+            if (data['oldSection']['name'] == 'address') {
+              history.pushState(null, null, null);
+            }
           };
           if (!_.isUndefined(data['newSection']) && data['newSection'] !== null) {
             jQuery('body').addClass('fastlane-step-' + data['newSection']['name']);

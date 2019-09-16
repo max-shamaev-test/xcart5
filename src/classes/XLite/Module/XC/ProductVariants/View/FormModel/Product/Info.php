@@ -85,9 +85,13 @@ class Info extends \XLite\View\FormModel\Product\Info implements \XLite\Base\IDe
         /** @var \XLite\Module\XC\ProductVariants\Model\Product $product */
         $product = $this->getProductEntity();
 
-        return $product
-            ? count($product->getVariants())
-            : '';
+        $variantsCount = '';
+        if ($product && $product->isPersistent()) {
+            $repo = \XLite\Core\Database::getRepo('XLite\Module\XC\ProductVariants\Model\ProductVariant');
+            $variantsCount = $repo->getVariantsCountByProduct($this->getProduct());
+        }
+
+        return $variantsCount;
     }
 
     protected function defineFields()

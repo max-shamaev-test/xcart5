@@ -176,9 +176,7 @@ class AccessControlCell extends \XLite\Model\Repo\ARepo
      */
     public function generateHash()
     {
-        return function_exists('openssl_random_pseudo_bytes')
-            ? bin2hex(openssl_random_pseudo_bytes(32))
-            : (md5(microtime(true) + mt_rand(0, 1000000)) . md5(microtime(true) + mt_rand(0, 1000000)));
+        return \Includes\Utils\Operator::generateHash(64);
     }
 
     /**
@@ -209,5 +207,18 @@ class AccessControlCell extends \XLite\Model\Repo\ARepo
         $cnd = new \XLite\Core\CommonCell();
         $cnd->hashes = $hashes;
         return $this->search($cnd);
+    }
+
+    /**
+     * Find last Access Control Cell
+     *
+     * @return null|\XLite\Model\AccessControlCell
+     */
+    public function findLast()
+    {
+        return $this->createQueryBuilder('acc')
+            ->addOrderBy('acc.date', 'desc')
+            ->setMaxResults(1)
+            ->getSingleResult();
     }
 }

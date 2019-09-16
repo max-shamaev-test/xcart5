@@ -60,6 +60,10 @@ div.card-container div.card-number span.card-expire {
 
 /* Transaction link block */
 
+div.xpc-cell {
+  display: block;
+}
+
 div.links-container {
   margin-bottom: 7px;
 }

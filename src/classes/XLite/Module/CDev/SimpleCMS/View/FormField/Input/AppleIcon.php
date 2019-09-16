@@ -13,35 +13,4 @@ namespace XLite\Module\CDev\SimpleCMS\View\FormField\Input;
  */
 class AppleIcon extends \XLite\Module\CDev\SimpleCMS\View\FormField\Input\AImage
 {
-    /**
-     * Return the image URL value
-     *
-     * @return string
-     */
-    protected function getImage()
-    {
-        return $this->getAppleIcon();
-    }
-
-    /**
-     * Return the default label
-     *
-     * @return string
-     */
-    protected function getReturnToDefaultLabel()
-    {
-        return 'Return to default AppleIcon';
-    }
-
-    /**
-     * Return the inner name for widget.
-     * It is used in model widget identification of the "useDefaultImage" value
-     *
-     * @return string
-     */
-    protected function getImageName()
-    {
-        return 'appleIcon';
-    }
-
 }

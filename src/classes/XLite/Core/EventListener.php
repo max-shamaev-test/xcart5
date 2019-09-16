@@ -86,7 +86,6 @@ class EventListener extends \XLite\Base\Singleton
             'quickData'             => ['XLite\Core\EventListener\QuickData'],
             'removeData'            => ['XLite\Core\EventListener\RemoveData'],
             'membershipsQuickData'  => ['XLite\Core\EventListener\MembershipsQuickData'],
-            'integrityCheck'        => ['XLite\Core\EventListener\IntegrityCheck'],
             'sales'                 => ['XLite\Core\EventListener\Sales'],
         ];
     }

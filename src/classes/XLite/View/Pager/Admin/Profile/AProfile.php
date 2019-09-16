@@ -13,13 +13,4 @@ namespace XLite\View\Pager\Admin\Profile;
  */
 abstract class AProfile extends \XLite\View\Pager\Admin\AAdmin
 {
-    /**
-     * Return number of items per page
-     *
-     * @return integer
-     */
-    protected function getItemsPerPageDefault()
-    {
-        return intval(\XLite\Core\Config::getInstance()->General->users_per_page);
-    }
 }

@@ -262,12 +262,6 @@ table.data.empty-data tr.head {
   max-width: 200px;
 }
 
-td.label {
-  padding: 0;
-  display: table-cell;
-  vertical-align: middle;
-}
-
 .edit-sales-tax #shipping-rates {
   padding-top: 30px;
 }

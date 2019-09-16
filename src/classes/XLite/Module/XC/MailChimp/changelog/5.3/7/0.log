@@ -1,5 +1,0 @@
-Version 5.3.7.0
-
-Improvements (1)
-2019-02-13 - [Change] Added mc.js support; Pop-up forms from Mailchimp are now fully supported. #XCN-9540 (Kirill Stadler) #MailChimp
-

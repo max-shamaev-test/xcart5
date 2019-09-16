@@ -40,7 +40,7 @@ function openEditLabelDialog(link, id, language)
     url += '&code=' + language;
   }
 
-  loadDialogByLink(link, url, {width: 600, height: 600});
+  loadDialogByLink(link, url, {width: 600});
 
   return false;
 }

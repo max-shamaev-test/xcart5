@@ -8,10 +8,10 @@
 
 namespace XLite\Module\CDev\Egoods\View\ItemsList;
 
-
 use XLite\Core\Auth;
 use XLite\Model\Order;
 use XLite\Model\Profile;
+use Includes\Utils\Module\Manager;
 use XLite\Module\CDev\Egoods\Model\Product\Attachment\AttachmentHistoryPoint;
 
 class AttachmentsHistory extends \XLite\View\ItemsList\Model\Table
@@ -95,9 +95,7 @@ class AttachmentsHistory extends \XLite\View\ItemsList\Model\Table
     protected function getBlankItemsListDescription()
     {
         if (!\XLite\Core\Config::getInstance()->CDev->Egoods->enable_history) {
-            $link = \XLite\Core\Database::getRepo('XLite\Model\Module')
-                ->findOneBy(['author' => 'CDev', 'name' => 'Egoods'])
-                ->getSettingsForm();
+            $link = Manager::getRegistry()->getModuleSettingsUrl('CDev', 'Egoods');
 
             return static::t(
                 'The history of downloads feature for this product is disabled. You can enable it here',

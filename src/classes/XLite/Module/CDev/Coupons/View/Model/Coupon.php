@@ -101,9 +101,10 @@ class Coupon extends \XLite\View\Model\AModel
             self::SCHEMA_LABEL    => 'Coupon cannot be combined with other coupons',
         ),
         'categories' => array(
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\Categories',
-            self::SCHEMA_LABEL    => 'Categories',
-            self::SCHEMA_HELP     => 'If you want the coupon discount to be applied only to products from specific categories, specify these categories here.',
+            self::SCHEMA_CLASS                                                       => 'XLite\View\FormField\Select\Select2\Category',
+            \XLite\View\FormField\Select\Select2\Category::PARAM_MULTIPLE            => true,
+            self::SCHEMA_LABEL                                                       => 'Categories',
+            self::SCHEMA_HELP                                                        => 'If you want the coupon discount to be applied only to products from specific categories, specify these categories here.',
         ),
         'productClasses' => array(
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\ProductClasses',

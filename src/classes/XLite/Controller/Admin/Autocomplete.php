@@ -23,7 +23,7 @@ class Autocomplete extends \XLite\Controller\Admin\AAdmin
      *
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * Check ACL permissions
@@ -75,14 +75,17 @@ class Autocomplete extends \XLite\Controller\Admin\AAdmin
      */
     protected function getDictionaryPermissions()
     {
-        return array(
-            'attributeOption' => array(
+        return [
+            'attributeOption' => [
                 'manage catalog',
-            ),
-            'profiles' => array(
+            ],
+            'profiles'        => [
                 'manage orders',
-            ),
-        );
+            ],
+            'categories'      => [
+                'manage catalog'
+            ],
+        ];
     }
 
     /**
@@ -99,7 +102,7 @@ class Autocomplete extends \XLite\Controller\Admin\AAdmin
             if (method_exists($this, $method)) {
 
                 // Method name assmbled from 'assembleDictionary' + dictionary input argument
-                $data = $this->$method((string) \XLite\Core\Request::getInstance()->term);
+                $data       = $this->$method((string) \XLite\Core\Request::getInstance()->term);
                 $this->data = $this->processData($data);
             }
         }
@@ -116,13 +119,13 @@ class Autocomplete extends \XLite\Controller\Admin\AAdmin
      */
     protected function processData(array $data)
     {
-        $list = array();
+        $list = [];
 
         foreach ($data as $k => $v) {
-            $list[] = array(
+            $list[] = [
                 'label' => $v,
                 'value' => $k,
-            );
+            ];
         }
 
         return $list;
@@ -149,9 +152,9 @@ class Autocomplete extends \XLite\Controller\Admin\AAdmin
 
         $cnd->{\XLite\Model\Repo\AttributeOption::P_ORDER_BY} = ['a.position', 'ASC'];
 
-        $list = array();
+        $list = [];
         foreach (\XLite\Core\Database::getRepo('\XLite\Model\AttributeOption')->search($cnd) as $a) {
-            $name = $a->getName();
+            $name        = $a->getName();
             $list[$name] = $name;
         }
 
@@ -174,6 +177,24 @@ class Autocomplete extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * Assemble dictionary - conversation recipient
+     *
+     * @param string $term Term
+     *
+     * @return array
+     */
+    protected function assembleDictionaryCategories($term)
+    {
+        $profiles = \XLite\Core\Database::getRepo('XLite\Model\Category')
+            ->getFilteredCategoriesAsDTO($term);
+
+        return array_reduce($profiles, function($acc, $item) {
+            $acc[$item['id']] = isset($item['fullNameHtml']) ? $item['fullNameHtml'] : $item['fullName'];
+            return $acc;
+        }, []);
+    }
+
+    /**
      * Get certain data from profile array for new array
      *
      * @param array $profiles Array of profiles
@@ -182,7 +203,7 @@ class Autocomplete extends \XLite\Controller\Admin\AAdmin
      */
     protected function packProfilesData(array $profiles)
     {
-        $result = array();
+        $result = [];
 
         if ($profiles) {
             foreach ($profiles as $k => $profile) {

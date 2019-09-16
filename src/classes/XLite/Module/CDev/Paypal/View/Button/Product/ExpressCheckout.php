@@ -29,7 +29,8 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\View\Button\AExpressChec
     public function getJSFiles()
     {
         return array_merge(parent::getJSFiles(), [
-            'modules/CDev/Paypal/button/js/form.js'
+            'modules/CDev/Paypal/button/js/form.js',
+            'modules/CDev/Paypal/button/js/button_buy_now.js'
         ]);
     }
 

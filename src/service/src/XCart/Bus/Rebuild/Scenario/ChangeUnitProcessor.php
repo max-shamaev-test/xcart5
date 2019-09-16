@@ -1,0 +1,241 @@
+<?php
+// vim: set ts=4 sw=4 sts=4 et:
+
+/**
+ * Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+ * See https://www.x-cart.com/license-agreement.html for license details.
+ */
+
+namespace XCart\Bus\Rebuild\Scenario;
+
+use XCart\Bus\Domain\Module;
+use XCart\Bus\Exception\ScenarioTransitionFailed;
+use XCart\Bus\Query\Data\InstalledModulesDataSource;
+use XCart\Bus\Query\Data\MarketplaceModulesDataSource;
+use XCart\Bus\Rebuild\Scenario\ChangeUnitBuildRule\ConflictResolver;
+use XCart\Bus\Rebuild\Scenario\Transition\TransitionInterface;
+use XCart\SilexAnnotations\Annotations\Service;
+
+/**
+ * @Service\Service()
+ */
+class ChangeUnitProcessor
+{
+    const TRANSITION_INSTALL_ENABLED  = 'install_enabled';
+    const TRANSITION_INSTALL_DISABLED = 'install_disabled';
+    const TRANSITION_ENABLE           = 'enable';
+    const TRANSITION_DISABLE          = 'disable';
+    const TRANSITION_REMOVE           = 'remove';
+    const TRANSITION_UPGRADE          = 'upgrade';
+
+    /**
+     * @var InstalledModulesDataSource
+     */
+    private $installedModulesDataSource;
+
+    /**
+     * @var TransitionBuilder
+     */
+    private $transitionBuilder;
+
+    /**
+     * @var ScenarioBuilder
+     */
+    private $scenarioBuilder;
+
+    /**
+     * @param InstalledModulesDataSource   $installedModulesDataSource
+     * @param MarketplaceModulesDataSource $marketplaceModulesDataSource
+     * @param ScenarioBuilder              $scenarioBuilder
+     *
+     * @return static
+     *
+     * @Service\Constructor
+     * @codeCoverageIgnore
+     */
+    public static function serviceConstructor(
+        InstalledModulesDataSource $installedModulesDataSource,
+        MarketplaceModulesDataSource $marketplaceModulesDataSource,
+        ScenarioBuilder $scenarioBuilder
+    ) {
+        return new self(
+            $installedModulesDataSource,
+            new TransitionBuilder(
+                [
+                    new ChangeUnitBuildRule\Enable($installedModulesDataSource),
+                    new ChangeUnitBuildRule\Install($installedModulesDataSource, $marketplaceModulesDataSource),
+                    new ChangeUnitBuildRule\Remove($installedModulesDataSource),
+                    new ChangeUnitBuildRule\Upgrade($installedModulesDataSource, $marketplaceModulesDataSource),
+                ],
+                new ConflictResolver()
+            ),
+            $scenarioBuilder
+        );
+    }
+
+    /**
+     * @param InstalledModulesDataSource $installedModulesDataSource
+     * @param TransitionBuilder          $transitionBuilder
+     * @param ScenarioBuilder            $scenarioBuilder
+     */
+    public function __construct(
+        InstalledModulesDataSource $installedModulesDataSource,
+        TransitionBuilder $transitionBuilder,
+        ScenarioBuilder $scenarioBuilder
+    ) {
+        $this->installedModulesDataSource = $installedModulesDataSource;
+        $this->transitionBuilder          = $transitionBuilder;
+        $this->scenarioBuilder            = $scenarioBuilder;
+    }
+
+    /**
+     * @param array|null $scenario
+     * @param array      $changeUnits
+     *
+     * @return array
+     * @throws ScenarioRule\ScenarioRuleException
+     * @throws \Exception
+     */
+    public function process(array $scenario, array $changeUnits): array
+    {
+        if (!$changeUnits) {
+            $tempScenario       = $this->fillModulesTransitions([], $changeUnits);
+            $modulesTransitions = !empty($tempScenario['modulesTransitions'])
+                ? $tempScenario['modulesTransitions']
+                : [];
+
+            return $scenario + ['modulesTransitions' => $modulesTransitions];
+        }
+
+        $scenario['modulesTransitions'] = [];
+
+        if (isset($scenario['changeUnits'])) {
+            $changeUnits = $this->mergeChangeUnits(
+                $scenario['changeUnits'],
+                $changeUnits
+            );
+        }
+
+        $changeUnits = $this->indexChangeUnits($changeUnits);
+
+        $transitions = $this->buildTransitionsFromChangeUnits($changeUnits);
+
+        foreach ($transitions as $id => $transition) {
+            if ($transition === null) {
+                $this->scenarioBuilder->removeTransition($id);
+            }
+        }
+
+        $this->scenarioBuilder->addSystemTransitions();
+
+        foreach ($transitions as $id => $transition) {
+            if ($transition) {
+                $this->scenarioBuilder->addTransition($transition);
+            }
+        }
+
+        $scenario              = $this->fillModulesTransitions($scenario, $changeUnits);
+        $scenario['updatedAt'] = time();
+
+        return $scenario;
+    }
+
+    /**
+     * @param array $scenario
+     * @param array $changeUnits
+     *
+     * @return array
+     * @throws ScenarioRule\ScenarioRuleException
+     */
+    protected function fillModulesTransitions(array $scenario, array $changeUnits): array
+    {
+        $transitions = $this->scenarioBuilder->getTransitions();
+
+        $changeUnitsResult = [];
+        foreach ($transitions as $transition) {
+            $id = $transition->getModuleId();
+            if (isset($changeUnits[$id])) {
+                $changeUnitsResult[$id] = $changeUnits[$id];
+            }
+            $scenario['modulesTransitions'][$id] = $this->convertTransitionIntoType($transition);
+        }
+
+        $scenario['changeUnits'] = $changeUnitsResult;
+
+        return $scenario;
+    }
+
+    /**
+     * @param array $old
+     * @param array $new
+     *
+     * @return array
+     */
+    protected function mergeChangeUnits(array $old, array $new)
+    {
+        $oldChangeUnits = $this->indexChangeUnits($old);
+        $changeUnits    = $this->indexChangeUnits($new);
+
+        return array_merge(
+            $oldChangeUnits,
+            $changeUnits
+        );
+    }
+
+    /**
+     * @param array $units
+     *
+     * @return array
+     */
+    protected function indexChangeUnits(array $units)
+    {
+        $ids = array_map(function ($unit) {
+            return $unit['id'];
+        }, $units);
+
+        return array_combine(
+            $ids,
+            $units
+        );
+    }
+
+    /**
+     * @param array $changeUnits
+     *
+     * @return array
+     * @throws \Exception
+     */
+    protected function buildTransitionsFromChangeUnits($changeUnits): array
+    {
+        $transitions = [];
+        foreach ($changeUnits as $changeUnit) {
+            $transitions[$changeUnit['id']] = $this->transitionBuilder->build($changeUnit);
+        }
+
+        return $transitions;
+    }
+
+    /**
+     * @param TransitionInterface $transition
+     *
+     * @return array
+     */
+    protected function convertTransitionIntoType(TransitionInterface $transition)
+    {
+        $info = $transition->getInfo();
+        /** @var Module $module */
+        $module     = $this->installedModulesDataSource->find($transition->getModuleId()) ?: [];
+        $moduleData = $module ? $module->toArray() : [];
+
+        return [
+            'id'                    => $transition->getModuleId(),
+            'transition'            => $transition->getType(),
+            'stateBeforeTransition' => $transition->getStateBeforeTransition($moduleData),
+            'stateAfterTransition'  => $transition->getStateAfterTransition($moduleData),
+            'info'                  => [
+                'reason'      => $info ? $info->getReason() : '',
+                'humanReason' => $info ? $info->getReasonHuman() : '',
+            ],
+        ];
+    }
+}

@@ -17,6 +17,10 @@ abstract class CommonResources extends \XLite\View\CommonResources implements \X
         if (!(null === $adminZone ? \XLite::isAdminZone() : $adminZone)) {
             $list[static::RESOURCE_JS][] = 'js/bootstrap-tabcollapse.js';
             $list[static::RESOURCE_JS][] = 'js/jquery.collapser.js';
+            $list[static::RESOURCE_JS][] = [
+                'file' => 'js/jquery.actual.min.js',
+                'no_minify' => true
+            ];
             $list[static::RESOURCE_JS][] = 'js/jquery.floating-label.js';
             $list[static::RESOURCE_JS][] = 'js/jquery.path.js';
             $list[static::RESOURCE_JS][] = 'js/jquery.fly.js';

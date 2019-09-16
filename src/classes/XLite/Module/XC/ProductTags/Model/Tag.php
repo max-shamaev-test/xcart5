@@ -49,7 +49,7 @@ class Tag extends \XLite\Model\Base\I18n
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -71,7 +71,7 @@ class Tag extends \XLite\Model\Base\I18n
     /**
      * Get position
      *
-     * @return integer 
+     * @return integer
      */
     public function getPosition()
     {
@@ -101,7 +101,10 @@ class Tag extends \XLite\Model\Base\I18n
      */
     public function addProduct(\XLite\Model\Product $product)
     {
-        if (!$this->products->contains($product)) {
+        if (
+            !$this->products
+            || !$this->products->contains($product)
+        ) {
             $this->products[] = $product;
         }
 
@@ -111,7 +114,7 @@ class Tag extends \XLite\Model\Base\I18n
     /**
      * Get products
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getProducts()
     {

@@ -29,7 +29,9 @@ class CommonCell extends CoreCommonCell implements \ArrayAccess, \Countable
      */
     public function offsetGet($offset)
     {
-        return $this->properties[$offset];
+        return isset($this->properties[$offset])
+            ? $this->properties[$offset]
+            : null;
     }
 
     /**

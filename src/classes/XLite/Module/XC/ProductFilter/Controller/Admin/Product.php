@@ -20,6 +20,30 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
      */
     protected function doActionUpdateAttributes()
     {
+        $this->resetProductFilterCache();
+
+        parent::doActionUpdateAttributes();
+    }
+
+    /**
+     * Update products
+     *
+     * @return void
+     */
+    protected function doActionUpdate()
+    {
+        $this->resetProductFilterCache();
+
+        parent::doActionUpdate();
+    }
+
+    /**
+     * Reset product filter cache
+     *
+     * @return void
+     */
+    protected function resetProductFilterCache()
+    {
         $categoriesToRemoveCache = array();
         foreach ($this->getProduct()->getCategoryProducts()->toArray() as $cp) {
             $categoriesToRemoveCache[] = $cp->getCategory()->getCategoryId();
@@ -30,7 +54,5 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
                 $categoriesToRemoveCache
             );
         }
-
-        parent::doActionUpdateAttributes();
     }
 }

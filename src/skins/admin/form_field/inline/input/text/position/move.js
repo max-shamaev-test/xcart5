@@ -50,7 +50,6 @@ CommonForm.elementControllers.push(
               function (index) {
                 var td = jQuery(this);
                 td.width(td.data('saved-width'));
-                sortablePlaceholder.find('td').eq(index).width(Math.round(td.innerWidth()));
               }
             );
 

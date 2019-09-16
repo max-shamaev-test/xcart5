@@ -83,7 +83,7 @@ XLite\Model\Payment\Method:
     class: 'Module\CDev\Paypal\Model\Payment\Processor\PaypalWPS'
     type: A
     orderby: -10800
-    countries: [US, CA, MX, BE, DK, FR, DE, IE, IT, LU, NL, NO, PL, RU, JP, ES, NZ, BR, SE, GB, AU, CN, IL, SG]
+    countries: [DZ, AO, BJ, BW, BF, BI, CM, CV, TD, KM, CI, CD, DJ, EG, ER, ET, GA, GM, GN, GW, KE, LS, MG, MW, ML, MR, MU, YT, MA, MZ, NA, NE, NG, CG, RE, RW, SH, ST, SN, SC, SL, SO, ZA, SZ, TZ, TG, TN, UG, ZM, ZW, AI, AG, AR, AW, BS, BB, BZ, BM, BO, BR, VG, CA, KY, CL, CO, CR, DM, DO, EC, SV, FK, GF, GL, GD, GP, GT, GY, HN, JM, MQ, MX, MS, NA, NI, PA, PY, PE, KN, LC, PM, VC, SR, TT, TC, US, UY, VE, AM, AU, BH, BT, BN, KH, CN, CK, FJ, PF, HK, IN, ID, IL, JP, JO, KZ, KI, KW, KG, LA, MY, MV, MH, FM, MN, NR, NP, NC, NZ, NU, NF, OM, PW, PG, PH, PN, QA, WS, SA, SG, SB, KR, LK, TW, TJ, TH, TO, TM, TV, AE, VU, VN, WF, YE, AL, AD, AT, AZ, BY, BE, BA, BG, HR, CY, CZ, DK, EE, FO, FI, FR, GE, DE, GI, GR, HU, IS, IE, IT, LV, LI, LT, LU, MK, MT, MD, MC, ME, NL, NO, PL, PT, RO, RU, SM, RS, SK, SI, ES, SJ, SE, CH, UA, GB, VA]
     translations:
       - code: en
         name: 'PayPal Payments Standard'
@@ -102,7 +102,7 @@ XLite\Model\Payment\Method:
     added: true
     type: C
     orderby: -102000
-    countries: [US, MX, BE, DK, FR, DE, IE, IT, LU, NL, NO, PL, RU, JP, ES, NZ, BR, SE, GB, AU, CN, IL, SG]
+    countries: [US, MX, BE, DK, FR, DE, IE, IT, LU, NL, NO, PL, RU, ES, NZ, SE, GB, AU, CN, IL, SG, BR, JP]
     translations:
       - code: en
         name: 'PayPal Express Checkout'
@@ -239,7 +239,7 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: PayPal Login
-        option_comment: 'To enable PayPal login, you need to create a PayPal application for your website. The recommended procedure is to go to the My Apps page and create an app for testing, then to go live with this app. For detailed instructions on creating the app, see PayPal documentation at <a href="https://developer.paypal.com/docs/integration/admin/manage-apps/">https://developer.paypal.com/docs/integration/admin/manage-apps/</a>. Be sure to specify your "App return URL" as the value of "Redirect URL" field below.<br /><br />Once the app has been created, be sure to copy your Client Id and Client Secret from the app details and credentials and have them stored in the fields below.'
+        option_comment: '<p>To enable PayPal login, you need to create a PayPal application for your website. The recommended procedure is to go to the My Apps page and create an app for testing, then to go live with this app. For detailed instructions on creating the app, see PayPal documentation at <a href="https://developer.paypal.com/docs/integration/admin/manage-apps/">https://developer.paypal.com/docs/integration/admin/manage-apps/</a>. Be sure to specify your "App return URL" as the value of "Redirect URL" field below.</p><p>Once the app has been created, be sure to copy your Client Id and Client Secret from the app details and credentials and have them stored in the fields below.</p>'
   - name: loginRedirectURLProtocol
     category: CDev\Paypal
     type: XLite\Module\CDev\Paypal\View\FormField\Select\Protocol

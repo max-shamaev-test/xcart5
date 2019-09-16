@@ -5,27 +5,25 @@
 <a name="{{ this.getAnchorName() }}" class="list-anchor"></a>
 <div {{ this.getContainerAttributesAsString()|raw }}>
   {{ this.displayCommentedData(this.getItemsListParams()) }}
+  {% if not this.hasResults() %}
+    {% include 'items_list/model/empty_table_description.twig' %}
+  {% else %}
+    <div class="no-items" style="display: none;"></div>
+  {% endif %}
   {% if this.isHeaderVisible() %}
-    <div class="list-header">
-      {{ widget_list('header.before', type='inherited') }}
-      {% for tpl in this.getTopActions() %}
-        <div class="button-container">{% include tpl %}</div>
-      {% endfor %}
-      {{ widget_list('header', type='inherited') }}
-    </div>
+    {% spaceless %}
+      <div class="list-header">
+        {{ widget_list('header.before', type='inherited') }}
+        {% for tpl in this.getTopActions() %}
+          <div class="button-container">{% include tpl %}</div>
+        {% endfor %}
+        {{ widget_list('header', type='inherited') }}
+      </div>
+    {% endspaceless %}
   {% endif %}
 
   {% if this.isPageBodyVisible() %}
     {% include this.getPageBodyTemplate() %}
-  {% endif %}
-  {% if not this.isPageBodyVisible() %}
-    <div class="no-items">
-      {% if this.isDisplayBlankItemsListDescription() %}
-        {% include this.getBlankListTemplate() %}
-      {% elseif this.isEmptyListTemplateVisible() %}
-        {% include this.getEmptyListTemplate() %}
-      {% endif %}
-    </div>
   {% endif %}
   {% if this.isPagerVisible() %}
     <div class="table-pager">{{ this.pager.display() }}</div>

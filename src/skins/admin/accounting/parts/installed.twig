@@ -6,7 +6,7 @@
   <ul class="installed-block-list">
     {% for module in this.getInstalledModules() %}
       <li class="installed-module">
-        {{ widget(template='accounting/parts/installed.module.twig', moduleParam=module) }}
+        {{ widget(template='accounting/parts/installed.module.twig', module=module) }}
       </li>
     {% endfor %}
   </ul>

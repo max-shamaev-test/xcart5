@@ -49,7 +49,9 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
      */
     public function createReviewKey()
     {
-        if ($this->isOrderValidForReviewKey()) {
+        if (\XLite\Module\XC\Reviews\Main::isCustomerFollowupEnabled()
+            && $this->isOrderValidForReviewKey()
+        ) {
             $reviewKey = new \XLite\Module\XC\Reviews\Model\OrderReviewKey;
             $reviewKey->setOrder($this);
             $reviewKey->setAddedDate(\XLite\Core\Converter::time());

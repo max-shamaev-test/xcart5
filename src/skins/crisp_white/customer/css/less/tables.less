@@ -36,10 +36,10 @@
   > tbody,
   > tfoot {
     > tr > th {
-      border-bottom: 1px solid @table-border-color;
+      border-bottom: @border-table solid @table-border-color;
       font-weight: normal;
       position: relative;
-      #gradient > .vertical (@table-gradient-start-color, @table-gradient-end-color) !important;;
+      #gradient > .vertical (@table-gradient-start-color, @table-gradient-end-color) !important;
     }
     > tr > th:before {
       content: "";
@@ -52,7 +52,7 @@
     }
   }
   > tbody + tbody {
-    border-top: 1px solid @table-border-color;
+    border-top: @border-table solid @table-border-color;
   }
 }
 
@@ -61,21 +61,21 @@
 // Add borders all around the table and between all the columns.
 
 .table-bordered {
-  border: 1px solid @table-border-color;
+  border: @border-table solid @table-border-color;
   > thead,
   > tbody,
   > tfoot {
     > tr {
       > th,
       > td {
-        border: 1px solid @table-border-color;
+        border: @border-table solid @table-border-color;
       }
     }
   }
   > thead > tr {
     > th,
     > td {
-      border-bottom-width: 2px;
+      border-bottom-width: @border-base;
     }
   }
 }

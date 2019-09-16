@@ -48,6 +48,14 @@ XLite\Model\Product:
   - { product_id: 40, demo: true }
   - { product_id: 41, demo: true }
   - { product_id: 42, demo: true }
+  - { product_id: 43, demo: true }
+  - { product_id: 44, demo: true }
+  - { product_id: 45, demo: true }
+  - { product_id: 46, demo: true }
+  - { product_id: 47, demo: true }
+  - { product_id: 48, demo: true }
+  - { product_id: 49, demo: true }
+  - { product_id: 50, demo: true }
 
 XLite\Model\Category:
   - category_id: 2
@@ -63,6 +71,14 @@ XLite\Model\Category:
   - category_id: 7
     demo: true
   - category_id: 8
+    demo: true
+  - category_id: 9
+    demo: true
+  - category_id: 10
+    demo: true
+  - category_id: 11
+    demo: true
+  - category_id: 12
     demo: true
 
 XLite\Model\Order:

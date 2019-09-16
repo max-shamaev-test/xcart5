@@ -14,11 +14,9 @@ namespace Symfony\Component\Form\Util;
 /**
  * Iterator for {@link OrderedHashMap} objects.
  *
- * This class is internal and should not be used.
- *
  * @author Bernhard Schussek <bschussek@gmail.com>
  *
- * @since 2.2.6
+ * @internal
  */
 class OrderedHashMapIterator implements \Iterator
 {
@@ -58,26 +56,22 @@ class OrderedHashMapIterator implements \Iterator
     private $current;
 
     /**
-     * Creates a new iterator.
-     *
      * @param array $elements       The elements of the map, indexed by their
-     *                              keys.
+     *                              keys
      * @param array $orderedKeys    The keys of the map in the order in which
-     *                              they should be iterated.
+     *                              they should be iterated
      * @param array $managedCursors An array from which to reference the
      *                              iterator's cursor as long as it is alive.
      *                              This array is managed by the corresponding
      *                              {@link OrderedHashMap} instance to support
      *                              recognizing the deletion of elements.
-     *
-     * @since 2.2.6
      */
     public function __construct(array &$elements, array &$orderedKeys, array &$managedCursors)
     {
         $this->elements = &$elements;
         $this->orderedKeys = &$orderedKeys;
         $this->managedCursors = &$managedCursors;
-        $this->cursorId = count($managedCursors);
+        $this->cursorId = \count($managedCursors);
 
         $this->managedCursors[$this->cursorId] = &$this->cursor;
     }
@@ -85,20 +79,16 @@ class OrderedHashMapIterator implements \Iterator
     /**
      * Removes the iterator's cursors from the managed cursors of the
      * corresponding {@link OrderedHashMap} instance.
-     *
-     * @since 2.2.6
      */
     public function __destruct()
     {
-        // Use array_splice() instead of isset() to prevent holes in the
+        // Use array_splice() instead of unset() to prevent holes in the
         // array indices, which would break the initialization of $cursorId
         array_splice($this->managedCursors, $this->cursorId, 1);
     }
 
     /**
-     *{@inheritdoc}
-     *
-     * @since 2.2.6
+     * {@inheritdoc}
      */
     public function current()
     {
@@ -107,8 +97,6 @@ class OrderedHashMapIterator implements \Iterator
 
     /**
      * {@inheritdoc}
-     *
-     * @since 2.2.6
      */
     public function next()
     {
@@ -124,19 +112,21 @@ class OrderedHashMapIterator implements \Iterator
     }
 
     /**
-     *{@inheritdoc}
-     *
-     * @since 2.2.6
+     * {@inheritdoc}
      */
     public function key()
     {
-        return $this->key;
+        if (null === $this->key) {
+            return null;
+        }
+
+        $array = [$this->key => null];
+
+        return key($array);
     }
 
     /**
-     *{@inheritdoc}
-     *
-     * @since 2.2.6
+     * {@inheritdoc}
      */
     public function valid()
     {
@@ -144,9 +134,7 @@ class OrderedHashMapIterator implements \Iterator
     }
 
     /**
-     *{@inheritdoc}
-     *
-     * @since 2.2.6
+     * {@inheritdoc}
      */
     public function rewind()
     {

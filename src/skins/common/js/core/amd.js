@@ -34,7 +34,7 @@ var CoreAMD = {
 
     jQuery
       .when.apply(jQuery, dependencies.map(_.bind(this._createDeferred, this)))
-      .then(function () {
+      .done(function () {
         moduleDeferred.resolve(callback.apply(window, arguments));
       })
   },
@@ -46,7 +46,7 @@ var CoreAMD = {
 
     jQuery
       .when.apply(jQuery, dependencies.map(_.bind(this._createDeferred, this)))
-      .then(function () {
+      .done(function () {
         callback.apply(window, arguments);
       });
   },
@@ -91,10 +91,12 @@ define('js/underscore', function () {
 jQuery(function () {
   define('ready');
 
-  var unresolvedDependencies = CoreAMD.getUnresolvedDependencies();
-  if (unresolvedDependencies.length) {
-    console.warn('Unresolved dependencies', unresolvedDependencies);
-  }
+  setTimeout(function() {
+    var unresolvedDependencies = CoreAMD.getUnresolvedDependencies();
+    if (unresolvedDependencies.length) {
+      console.warn('Unresolved dependencies', unresolvedDependencies);
+    }
+  }, 1);
 });
 
 (function () {

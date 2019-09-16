@@ -44,56 +44,9 @@ ul.products-sidebar li .clearfix {
   clear: none;
 }
 
-.products .product-cell .drag-n-drop-handle
-{
-  background: transparent url(images/icon_drag.png) no-repeat left center;
-  padding-left: 20px;
-  visibility: hidden;
-  cursor: move;
-  min-height: 20px;
-}
-
-.products .product-cell .ui-draggable-disabled .drag-n-drop-handle {
-  background: none;
-}
-
-.products .product-cell:hover .drag-n-drop-handle,
-.products .ui-draggable-dragging .drag-n-drop-handle,
 .products .product-cell:hover .quicklook
 {
   visibility: visible;
-}
-
-.products .out-of-stock .drag-n-drop-handle,
-.products .not-available .drag-n-drop-handle
-{
-  background: transparent none;
-  padding-left: 0;
-  cursor: default;
-}
-
-.products .drag-n-drop-handle .out-message,
-.products .drag-n-drop-handle .choose-product-option
-{
-  display: none;
-}
-
-.products .out-of-stock .drag-n-drop-handle .drag-message,
-.products .not-available .drag-n-drop-handle .drag-message,
-.products .need-choose-options .drag-n-drop-handle .drag-message
-{
-  display: none;
-}
-
-.products .out-of-stock .drag-n-drop-handle .out-message
-{
-  display: inline;
-}
-
-.products .need-choose-options .drag-n-drop-handle .choose-product-option
-{
-  display: inline;
-  cursor: default;
 }
 
 .items-list-products .products .product-cell .product.cancel-ui-state-disabled {
@@ -142,11 +95,11 @@ ul.products-sidebar li .clearfix {
   margin-top: 14px;
 }
 
-.items-list .products-grid .add-to-cart-button .out-of-stock{
+.items-list .products-grid .add-to-cart-button .out-of-stock {
   display: none;
 }
 
-.products-table .product-cell.product.out-of-stock .regular-button{
+.products-table .product-cell.product.out-of-stock .regular-button {
   display: none;
 }
 
@@ -154,8 +107,8 @@ ul.products-sidebar li .clearfix {
 .products-list .product-cell .not-available,
 .products-grid .product-cell .product.out-of-stock,
 .products-grid .product-cell .not-available {
-  opacity: .35;
-  filter: Alpha(Opacity=35);
+  opacity: 1;
+  filter: Alpha(Opacity=100);
   background-image: none;
 }
 

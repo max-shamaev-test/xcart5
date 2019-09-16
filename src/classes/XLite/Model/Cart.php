@@ -219,29 +219,23 @@ class Cart extends \XLite\Model\Order
     /**
      * Try close
      *
-     * @param \XLite\Controller\Customer\Checkout $controller Controller OPTIONAL
-     *
      * @return boolean
      */
-    public function tryClose(\XLite\Controller\Customer\Checkout $controller = null)
+    public function tryClose()
     {
         $result = false;
 
         if (!$this->isOpen()) {
-            if (!$controller) {
-                \XLite\Model\Cart::setObject($this);
+            \XLite\Model\Cart::setObject($this);
 
-                if ($this instanceof \XLite\Model\Cart) {
-                    $this->assignOrderNumber();
-                }
+            if ($this instanceof \XLite\Model\Cart) {
+                $this->assignOrderNumber();
             }
 
             $paymentStatus = $this->getCalculatedPaymentStatus(true);
             $this->setPaymentStatus($paymentStatus);
 
-            if (!$controller) {
-                $controller = new \XLite\Controller\Customer\Checkout();
-            }
+            $controller = new \XLite\Controller\Customer\Checkout();
             $controller->processSucceed();
 
             $result = true;

@@ -29,9 +29,7 @@ jQuery(function () {
     }
   );
 
-  var notificationMenu = jQuery('.menu.notification');
-
-  notificationMenu.live('mouseenter', function () {
+  jQuery('body').on('mouseenter', '.menu.notification', function () {
     var element = jQuery(this);
     if (!element.is('.has-unread')) {
       return;
@@ -49,7 +47,7 @@ jQuery(function () {
     }, 2000)
   });
 
-  notificationMenu.live('mouseleave', function () {
+  jQuery('body').on('mouseleave', '.menu.notification', function () {
     clearInterval(this.readTimer);
   });
 });

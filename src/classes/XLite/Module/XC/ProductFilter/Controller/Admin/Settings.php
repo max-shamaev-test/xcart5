@@ -11,7 +11,7 @@ namespace XLite\Module\XC\ProductFilter\Controller\Admin;
 /**
  * Settings page controller
  */
-class Settings extends \XLite\Controller\Admin\Settings implements \XLite\Base\IDecorator
+class Settings extends \XLite\Controller\Admin\Module implements \XLite\Base\IDecorator
 {
     /**
      * Remove product filter cache

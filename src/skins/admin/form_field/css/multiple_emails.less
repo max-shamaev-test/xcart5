@@ -7,74 +7,94 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-.multiple-emails-container {
-  display: inline-block;
-  border: 1px solid #c3c3c3;
-  border-radius: 3px;
-  background-color: #fff;
-  min-width: 250px;
-  max-width: 400px;
-  min-height: 34px;
-  padding: 3px 0 0 3px;
-  cursor: text;
+@import (reference) '../../css/initialize';
 
-  &.invalid {
-    border-color: #a94442;
+.multiple-emails-container.form-control {
+  min-width: @form-value-input-width;
+  max-width: @form-value-input-width-large;
+  width: auto !important;
+  cursor: text;
+  padding: (@multiselect-margin / 2);
+  position: relative;
+  height: auto;
+
+  .options {
+    padding: 0;
+    .flex-display();
+    .align-items(center);
+    .flex-wrap(wrap);
+
+    & > span {
+      margin: @multiselect-margin / 2;
+      padding: @multiselect-option-padding;
+      padding-left: 0;
+      padding-right: 1px;
+    }
   }
 
   .option {
+    margin: (@multiselect-margin / 2);
     position: relative;
-    background-color: #6cb5d7;
-    height: 25px;
+    background: @color-link-2;
+    color: @input-bg;
+    height: 100%;
     display: inline-block;
-    padding: 2px 20px 2px 4px;
-    margin-bottom: 3px;
-    margin-right: 3px;
-    border-radius: 3px;
+    line-height: @line-height-base;
+    padding: @multiselect-option-padding;
+    border-radius: @border-radius-base;
     cursor: move;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: @multiselect-option-max-width;
 
-    transition: background-color 1000ms linear;
-
-    .option-text {
-      color: white;
-      font-size: 12px;
-    }
+    .transition-multi(@input-transition-property);
 
     .option-remove {
       position: absolute;
       cursor: pointer;
-      right: 5px;
-      top: 2px;
-      color: white;
+      .flex-display();
+      .align-items(center);
+      right: 0;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      margin-right: 2px;
 
       span {
-        display: block;
-        -webkit-transform: rotate(45deg);
-        transform: rotate(45deg);
-        font-size: 18px;
+        display: inline-block;
+        font-size: @rhythmic-lineheight;
+        font-weight: @font-thin;
       }
 
       &:hover {
-        color: #19259C;
+        color: darken(@multiselect-color, 10%);
       }
     }
 
     &:first-of-type {
-      background-color: #2d799c;
-      transition: background-color 1000ms linear;
+      background-color: @multiselect-bg-primary;
+      color: @multiselect-color-primary;
+      box-shadow: none;
+
+      .option-remove {
+        color: @multiselect-color-primary;
+
+        &:hover {
+          color: darken(@multiselect-color-primary, 10%);
+        }
+      }
     }
 
     &.ui-sortable-placeholder {
-      height: 25px;
+      height: @rhythmic-unit;
       vertical-align: bottom;
     }
   }
 
   & > [contenteditable=true] {
-    height: 25px;
+    height: 100%;
     display: inline-block;
-    margin: 0 3px 3px 0;
-    padding: 2px;
-    font-size: 12px;
+    padding: @multiselect-margin;
+    margin: (@multiselect-margin / 2);
+    font-size: @font-size-base;
   }
 }

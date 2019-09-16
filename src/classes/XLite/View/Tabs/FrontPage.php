@@ -8,6 +8,9 @@
 
 namespace XLite\View\Tabs;
 
+use XLite\Core\Auth;
+use XLite\Model\Role\Permission;
+
 /**
  * Tabs related to front page section
  *
@@ -44,15 +47,18 @@ class FrontPage extends \XLite\View\Tabs\ATabs
      */
     protected function defineTabs()
     {
-        $tabs = [
-            'front_page' => [
+        $tabs = [];
+
+        if (Auth::getInstance()->isPermissionAllowed(Permission::ROOT_ACCESS)) {
+            $tabs['front_page'] = [
                 'weight' => 100,
                 'title' => static::t('Front page'),
                 'template' => 'front_page/body.twig',
-            ],
-        ];
+            ];
+        }
 
-        if (\XLite\Core\Auth::getInstance()->isPermissionAllowed('manage banners')) {
+
+        if (Auth::getInstance()->isPermissionAllowed('manage banners')) {
             $tabs['banner_rotation'] = [
                 'weight'   => 200,
                 'title'    => static::t('Banner rotation'),
@@ -73,8 +79,8 @@ class FrontPage extends \XLite\View\Tabs\ATabs
     {
         $tabs = parent::prepareTabs();
 
-        if (!\XLite\Core\Auth::getInstance()->isPermissionAllowed('manage catalog')
-            && \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage banners')) {
+        if (!Auth::getInstance()->isPermissionAllowed('manage catalog')
+            && Auth::getInstance()->isPermissionAllowed('manage banners')) {
             $tabs = array_filter($tabs, function($key) {
                 return $key === 'banner_rotation';
             }, ARRAY_FILTER_USE_KEY);

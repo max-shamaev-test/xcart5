@@ -44,14 +44,7 @@ class Tooltip extends \XLite\View\AView
     public function getCommonFiles()
     {
         $list = parent::getCommonFiles();
-
-        $list[static::RESOURCE_JS][] = [
-            'file' => $this->isDeveloperMode() ? 'vue/vue.js' : 'vue/vue.min.js',
-            'no_minify' => true
-        ];
-        $list[static::RESOURCE_JS][] = 'js/vue/vue.js';
-        $list[static::RESOURCE_JS][] = 'js/vue/component.js';
-        $list[static::RESOURCE_JS][] = 'js/tooltip.js';
+        $list[static::RESOURCE_JS] = array_merge($list[static::RESOURCE_JS], static::getVueLibraries());
 
         return $list;
     }
@@ -145,21 +138,13 @@ class Tooltip extends \XLite\View\AView
 
     /**
      * Return HTML representation for widget attributes
-     * TODO - REWORK with AFormField class - same method using
      *
      * @return string
      */
     protected function getAttributesCode()
     {
-        $result = '';
-
-        foreach ($this->getAttributes() as $name => $value) {
-            $result .= ' ' . $name . '="' . $value . '"';
-        }
-
-        return $result;
+        return ' ' . static::convertToHtmlAttributeString($this->getAttributes());
     }
-
 
     /**
      * Define CSS class of caption text
@@ -181,7 +166,7 @@ class Tooltip extends \XLite\View\AView
     protected function getImageCSSClass()
     {
         return $this->getParam(static::PARAM_IMAGE_CLASS)
-            ?: 'fa fa-question-circle';
+            ?: 'icon-tooltip';
     }
 
     /**

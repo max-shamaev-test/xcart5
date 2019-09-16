@@ -14,7 +14,7 @@
 jQuery().ready(
   function() {
 
-    jQuery('.order-statistics-mini-informer .header').live('click', function () {
+    jQuery('.order-statistics-mini-informer').on('click', '.header', function () {
       jQuery(this).parent().toggleClass('collapsed');
       jQuery(this).parent().toggleClass('expanded');
     });

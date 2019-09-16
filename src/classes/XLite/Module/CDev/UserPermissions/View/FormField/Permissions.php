@@ -43,7 +43,7 @@ class Permissions extends \XLite\View\FormField\Select\Tags\ATags
     {
         $list = array();
 
-        foreach (\XLite\Core\Database::getRepo('XLite\Model\Role\Permission')->findByEnabled(true) as $perm) {
+        foreach (\XLite\Core\Database::getRepo('XLite\Model\Role\Permission')->findAll() as $perm) {
             $section = $perm->getSection();
             if (!isset($list[$section])) {
                 $list[$section] = array(

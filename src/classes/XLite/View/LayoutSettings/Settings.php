@@ -8,6 +8,9 @@
 
 namespace XLite\View\LayoutSettings;
 
+use Includes\Utils\Module\Manager;
+use XLite\Core\Skin;
+
 /**
  * Layout settings
  */
@@ -42,11 +45,11 @@ class Settings extends \XLite\View\AView
     /**
      * Returns current skin
      *
-     * @return \XLite\Model\Module
+     * @return \Includes\Utils\Module\Module
      */
     public function getCurrentSkin()
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
+        return Skin::getInstance()->getCurrentSkinModule();
     }
 
     /**
@@ -66,7 +69,7 @@ class Settings extends \XLite\View\AView
      */
     protected function getPreviewImageURL()
     {
-        return \XLite\Core\Layout::getInstance()->getCurrentLayoutPreview();
+        return Skin::getInstance()->getCurrentLayoutPreview();
     }
 
     /**
@@ -76,15 +79,7 @@ class Settings extends \XLite\View\AView
      */
     protected function getCurrentSkinName()
     {
-        $name = static::t('Standard');
-
-        /** @var \XLite\Model\Module $module */
-        $module = $this->getCurrentSkin();
-        if ($module) {
-            $name = \XLite\Core\Layout::getInstance()->getLayoutColorName() ?: $module->getModuleName();
-        }
-
-        return $name;
+        return Skin::getInstance()->getSkinDisplayName();
     }
 
     /**
@@ -94,10 +89,10 @@ class Settings extends \XLite\View\AView
      */
     protected function showSettingsForm()
     {
-        /** @var \XLite\Model\Module $module */
+        /** @var \Includes\Utils\Module\Module $module */
         $module = $this->getCurrentSkin();
 
-        return $module && $module->callModuleMethod('showSettingsForm', false);
+        return $module && $module->showSettingsForm;
     }
 
     /**
@@ -107,11 +102,9 @@ class Settings extends \XLite\View\AView
      */
     protected function getSettingsForm()
     {
-        /** @var \XLite\Model\Module $module */
+        /** @var \Includes\Utils\Module\Module $module */
         $module = $this->getCurrentSkin();
 
-        return $module
-            ? $module->getSettingsForm()
-            : '';
+        return Manager::getRegistry()->getModuleSettingsUrl($module->id);
     }
 }

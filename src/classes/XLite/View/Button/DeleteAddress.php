@@ -40,7 +40,7 @@ class DeleteAddress extends \XLite\View\Button\Regular
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'button/css/delete_address.css';
+        $list[] = 'button/css/delete_address.less';
 
         return $list;
     }

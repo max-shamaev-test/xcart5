@@ -39,10 +39,10 @@ class BulkEditTypeExtension extends AbstractTypeExtension
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
-    public function getExtendedType()
+    public static function getExtendedTypes(): iterable
     {
-        return 'Symfony\Component\Form\Extension\Core\Type\FormType';
+        return [\Symfony\Component\Form\Extension\Core\Type\FormType::class];
     }
 }

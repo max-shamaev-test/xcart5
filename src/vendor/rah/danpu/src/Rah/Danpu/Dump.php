@@ -9,7 +9,7 @@
  */
 
 /*
- * Copyright (C) 2013 Jukka Svahn
+ * Copyright (C) 2018 Jukka Svahn
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -51,8 +51,9 @@ namespace Rah\Danpu;
  * @method Dump tmp(string $directory)
  * @method Dump file(string $filename)
  * @method Dump data(bool $includeRows)
+ * @method Dump structure(bool $includeStructure)
  * @method Dump triggers(bool $includeTriggers)
- * @method Dump prefix(string filterByTableViewPrefix)
+ * @method Dump prefix(string $filterByTableViewPrefix)
  * @method Dump disableForeignKeyChecks(bool $disabled)
  * @method Dump disableUniqueKeyChecks(bool $disabled)
  * @method Dump disableAutoCommit(bool $disabled)

@@ -64,7 +64,7 @@ class RemoveData extends \XLite\Controller\Admin\AAdmin
 
         foreach ($request->delete as $step => $delete) {
             if ($delete) {
-                $steps[] = strtolower($step);
+                $steps[] = ucfirst($step);
             }
         }
 

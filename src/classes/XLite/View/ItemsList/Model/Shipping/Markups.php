@@ -28,7 +28,7 @@ class Markups extends \XLite\View\ItemsList\Model\Table
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/' . $this->getPageBodyDir() . '/shipping/markups/style.css';
+        $list[] = $this->getDir() . '/' . $this->getPageBodyDir() . '/shipping/markups/style.less';
 
         return $list;
     }
@@ -76,6 +76,13 @@ class Markups extends \XLite\View\ItemsList\Model\Table
         return array(
             'subtotalRange' => array(
                 static::COLUMN_NAME => static::t('Subtotal range'),
+                static::COLUMN_CLASS => 'XLite\View\FormField\Inline\Input\Text\PriceRange',
+                static::COLUMN_TEMPLATE => 'items_list/model/table/shipping/markups/cell.header.twig',
+                static::COLUMN_EDIT_ONLY => true,
+                static::COLUMN_ORDERBY => 100,
+            ),
+            'discountedSubtotalRange' => array(
+                static::COLUMN_NAME => static::t('Discounted subtotal range'),
                 static::COLUMN_CLASS => 'XLite\View\FormField\Inline\Input\Text\PriceRange',
                 static::COLUMN_TEMPLATE => 'items_list/model/table/shipping/markups/cell.header.twig',
                 static::COLUMN_EDIT_ONLY => true,
@@ -385,5 +392,40 @@ class Markups extends \XLite\View\ItemsList\Model\Table
         }
 
         return 1;
+    }
+
+    /**
+     * isEmptyListTemplateVisible
+     *
+     * @return boolean
+     */
+    protected function isEmptyListTemplateVisible()
+    {
+        return false;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getShippingTableType()
+    {
+        $method = null;
+        if ($this->getModelForm()) {
+            $method = $this->getModelForm()->getModelObject()->getTableType();
+        }
+
+        return $method;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormulaSubtotalLabel()
+    {
+        if ($this->getShippingTableType() && $this->getShippingTableType() == 'DS') {
+            return static::t('shippingFormula.DiscountedSubtotal');
+        }
+
+        return static::t('shippingFormula.Subtotal');
     }
 }

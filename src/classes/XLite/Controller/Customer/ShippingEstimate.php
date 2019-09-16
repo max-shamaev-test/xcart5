@@ -106,6 +106,10 @@ class ShippingEstimate extends \XLite\Controller\Customer\ACustomer
             ? \XLite\Model\Address::getDefaultFieldValue('country')
             : \XLite\Core\Database::getRepo('XLite\Model\Country')->find($countryCode);
 
+        if (!$countryCode && $country) {
+            $countryCode = $country->getCode();
+        }
+
         $state = null;
 
         if ($country

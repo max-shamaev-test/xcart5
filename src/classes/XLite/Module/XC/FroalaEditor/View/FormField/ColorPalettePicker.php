@@ -77,14 +77,7 @@ class ColorPalettePicker extends \XLite\View\FormField\Input\Text
     protected function getCommonFiles()
     {
         $list = parent::getCommonFiles();
-
-        $list[static::RESOURCE_JS][] = [
-            'file' => $this->isDeveloperMode() ? 'vue/vue.js' : 'vue/vue.min.js',
-            'no_minify' => true
-        ];
-
-        $list[static::RESOURCE_JS][] = 'js/vue/vue.js';
-        $list[static::RESOURCE_JS][] = 'js/vue/component.js';
+        $list[static::RESOURCE_JS] = array_merge($list[static::RESOURCE_JS], static::getVueLibraries());
 
         $list[static::RESOURCE_JS][]  = 'colorpicker/js/colorpicker.js';
         $list[static::RESOURCE_CSS][] = 'colorpicker/css/colorpicker.css';

@@ -13,13 +13,4 @@ namespace XLite\View\Pager\Admin\Product;
  */
 abstract class AProduct extends \XLite\View\Pager\Admin\AAdmin
 {
-    /**
-     * Return number of items per page
-     *
-     * @return integer
-     */
-    protected function getItemsPerPageDefault()
-    {
-        return intval(\XLite\Core\Config::getInstance()->General->products_per_page_admin);
-    }
 }

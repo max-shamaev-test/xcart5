@@ -342,7 +342,7 @@ class ProductVariant extends \XLite\Model\AEntity
     /**
      * Return VariantId
      *
-     * @return string
+        @return string
      */
     public function getVariantId()
     {
@@ -425,7 +425,7 @@ class ProductVariant extends \XLite\Model\AEntity
         /** @var ProductVariantsStockAvailabilityPolicy $availabilityPolicy */
         $availabilityPolicy = $this->getProduct()->getStockAvailabilityPolicy();
 
-        return $availabilityPolicy->isVariantOutOfStock(Cart::getInstance(), $this->getId());
+        return !$availabilityPolicy->getAvailableVariantAmount(Cart::getInstance(),     $this->getId());
     }
 
     /**
@@ -451,6 +451,46 @@ class ProductVariant extends \XLite\Model\AEntity
         $availabilityPolicy = $this->getProduct()->getStockAvailabilityPolicy();
 
         return $availabilityPolicy->getAvailableVariantAmount(Cart::getInstance(), $this->getId());
+        
+    }
+
+    /**
+     * How many product items added to cart
+     *
+     * @return boolean
+     */
+    public function getItemsInCart()
+    {   
+        $availabilityPolicy = $this->getProduct()->getStockAvailabilityPolicy();
+
+        return $availabilityPolicy->getInCartVariantAmount(Cart::getInstance(), $this->getId());
+    }
+
+    /**
+     * How many product items added to cart
+     *
+     * @return boolean
+     */
+    public function getItemsInCartMessage()
+    {
+        $availabilityPolicy = $this->getProduct()->getStockAvailabilityPolicy();
+
+        $count = $availabilityPolicy->getInCartVariantAmount(Cart::getInstance(), $this->getId());
+
+        return \XLite\Core\Translation::getInstance()->translate(
+            'Items with selected options in your cart: X',
+            ['count' => $count]
+        );
+    }
+
+    /**
+     * Alias: is all product items in cart
+     *
+     * @return boolean
+     */
+    public function isAllStockInCart()
+    {
+        return $this->getAvailableAmount() <= $this->getItemsInCart();
     }
 
     /**
@@ -588,7 +628,7 @@ class ProductVariant extends \XLite\Model\AEntity
      *
      * @return array
      */
-    protected function prepareDataForNotification()
+    public function prepareDataForNotification()
     {
         $data = [];
 

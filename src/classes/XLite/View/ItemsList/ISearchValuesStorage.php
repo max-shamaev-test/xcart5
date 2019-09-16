@@ -34,4 +34,16 @@ interface ISearchValuesStorage
      * Update storage
      */
     public function update();
+
+    /**
+     * @param \XLite\View\ItemsList\ISearchValuesStorage $storage Fallback storage to use
+     */
+    public function setFallbackStorage(\XLite\View\ItemsList\ISearchValuesStorage $storage);
+
+    /**
+     * Return FallbackStorage
+     *
+     * @return ISearchValuesStorage
+     */
+    public function getFallbackStorage();
 }

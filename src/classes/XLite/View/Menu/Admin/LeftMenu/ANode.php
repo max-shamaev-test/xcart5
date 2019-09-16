@@ -40,20 +40,4 @@ abstract class ANode extends \XLite\View\Menu\Admin\ANode
     {
         return null;
     }
-
-    /**
-     * Get container tag attributes
-     *
-     * @return array
-     */
-    protected function getContainerTagAttributes()
-    {
-        $attributes = parent::getContainerTagAttributes();
-
-        if (!empty($_COOKIE['XCAdminLeftMenuCompressed'])) {
-            //$attributes['class'] = str_replace('pre-expanded', 'has-expanded', $attributes['class']);
-        }
-
-        return $attributes;
-    }
 }

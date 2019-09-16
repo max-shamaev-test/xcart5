@@ -88,16 +88,12 @@ abstract class ThemeTweaker extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionSave()
     {
-        $setting = \XLite\Core\Database::getRepo('XLite\Model\Config')->findOneBy(
+        \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
             array(
-                'name' => 'use_' . \XLite\Core\Request::getInstance()->target,
-                'category' => 'XC\\ThemeTweaker'
+                'category' => 'XC\\ThemeTweaker',
+                'name'     => 'use_' . \XLite\Core\Request::getInstance()->target,
+                'value'    => \XLite\Core\Request::getInstance()->use ? '1' : '0',
             )
-        );
-
-        \XLite\Core\Database::getRepo('XLite\Model\Config')->update(
-            $setting,
-            array('value' => \XLite\Core\Request::getInstance()->use ? '1' : '')
         );
 
         $data = \XLite\Core\Request::getInstance()->getNonFilteredData();

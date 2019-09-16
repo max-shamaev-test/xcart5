@@ -22,7 +22,7 @@ function lcPinCodesUpdateEnabled() {
 function lcPinCodesUpdateAuto() {
   var auto = jQuery('#autopincodes').val();
 
-  var elements = jQuery('div.pin-codes-actions, div.pin-codes-status .remaining, div.can-add-after-saving');
+  var elements = jQuery('div.pin-codes-actions, div.pin-codes-status.remaining, div.can-add-after-saving');
   if ('0' === auto) {
     elements.show();
   } else {

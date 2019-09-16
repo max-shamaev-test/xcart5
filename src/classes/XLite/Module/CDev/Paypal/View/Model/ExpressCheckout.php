@@ -30,7 +30,6 @@ class ExpressCheckout extends \XLite\Module\CDev\Paypal\View\Model\ASettings
             self::SCHEMA_LABEL    => '',
             self::SCHEMA_HELP     => 'Start accepting Express Checkout payments immediately by simply plugging in the email address where you would like to receive payments.',
             self::SCHEMA_REQUIRED => true,
-            \XLite\View\FormField\AFormField::PARAM_USE_COLON => false,
         ),
         'section_api_sep' => array(
             self::SCHEMA_CLASS    => 'XLite\Module\CDev\Paypal\View\FormField\Separator\Selectable',

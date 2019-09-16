@@ -8,6 +8,8 @@
 
 namespace XLite\Controller\Admin;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Payment method selection  controller
  */
@@ -114,16 +116,7 @@ class PaymentMethodSelection extends \XLite\Controller\Admin\AAdmin
      */
     protected function isModuleEnabled(\XLite\Model\Payment\Method $method)
     {
-        $result = true;
-
-        $result = (bool)$method->getProcessor();
-
-        if ($method->getModuleEnabled() != $result) {
-            $method->setModuleEnabled($result);
-            $method->update();
-        }
-
-        return $result;
+        return (bool) $method->getProcessor();
     }
 
     /**
@@ -136,34 +129,9 @@ class PaymentMethodSelection extends \XLite\Controller\Admin\AAdmin
     public function isDisplayInstallModuleButton(\XLite\Model\Payment\Method $method)
     {
         $result = false;
-
-        if ($method->getModuleName() && !$method->isModuleInstalled()) {
-            $module = $method->getModule();
-            $result = $module
-                && $module->getFromMarketplace()
-                && $module->canEnable(false)
-                && (
-                    $module->isFree()
-                    || $module->isPurchased()
-                )
-                && $this->isLicenseAllowed($module);
-
-        }
+        // todo: get this info from BUS
 
         return $result;
-    }
-
-    /**
-     * Check if module license is available and allowed
-     *
-     * @param \XLite\Model\Module $module Module
-     *
-     * @return boolean
-     */
-    protected function isLicenseAllowed(\XLite\Model\Module $module)
-    {
-        return \XLite\Model\Module::NOT_XCN_MODULE == $module->getXcnPlan()
-            || (\XLite\Model\Module::NOT_XCN_MODULE < $module->getXcnPlan() && 1 == $module->getEditionState());
     }
 
     /**
@@ -175,23 +143,8 @@ class PaymentMethodSelection extends \XLite\Controller\Admin\AAdmin
      */
     public function getPaymentModuleURL(\XLite\Model\Payment\Method $method)
     {
-        $result = '';
+        list($author, $name) = explode('_', $method->getModuleName());
 
-        if ($method->isModuleInstalled()) {
-
-            // Payment module is installed
-
-            $result = $method->getModule()->getInstalledURL();
-
-        } else {
-
-            // Payment module is not installed
-            $module = $method->getModule();
-            if ($module) {
-                $result = $module->getMarketplaceURL();
-            }
-        }
-
-        return $result;
+        return \Includes\Utils\Module\Manager::getRegistry()->getModuleServiceURL($author, $name);
     }
 }

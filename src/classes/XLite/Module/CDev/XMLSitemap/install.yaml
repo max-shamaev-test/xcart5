@@ -71,6 +71,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Sitemap generation has been completed successfully.', translations: [{ code: en, label: 'Sitemap generation has been completed successfully.' }] }
   - { name: 'Sitemap generation has been stopped.', translations: [{ code: en, label: 'Sitemap generation has been stopped.' }] }
   - { name: "The process of sitemap generation may take a while to complete. Please do not close this page until the process is fully completed.", translations: [{ code: en, label: "The process of sitemap generation may take a while to complete. Please do not close this page until the process is fully completed." }] }
+  - { name: "Sitemap settings", translations: [{ code: en, label: "Sitemap settings" }] }
 
 XLite\Model\Task:
   - owner: XLite\Module\CDev\XMLSitemap\Core\Task\GenerateSitemap

@@ -14,10 +14,10 @@
     </a>
     {% if this.isColumnSorted(column) %}
       {% if 'desc' == this.getSortOrder() %}
-        <span class="dir desc-order">&uarr;</span>
+        <i class="dir desc-order"></i>
       {% endif %}
       {% if 'asc' == this.getSortOrder() %}
-        <span class="dir asc-order">&darr;</span>
+        <i class="dir asc-order"></i>
       {% endif %}
     {% endif %}
   </div>

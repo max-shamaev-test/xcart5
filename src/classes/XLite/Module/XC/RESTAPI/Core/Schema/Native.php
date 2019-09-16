@@ -9,6 +9,7 @@
 namespace XLite\Module\XC\RESTAPI\Core\Schema;
 
 use Doctrine\ORM\Internal\Hydration\IterableResult;
+use Includes\Utils\Module\Manager;
 
 /**
  * Native schema
@@ -233,10 +234,20 @@ class Native extends \XLite\Module\XC\RESTAPI\Core\Schema\ASchema
         }
 
         if (!$class && 2 < count($parts)) {
-            $module = \XLite\Core\Database::getRepo('XLite\Model\Module')
-                ->findOneByModuleName($parts[0] . '\\' . $parts[1], false);
+            $modules = Manager::getRegistry()->getModules();
+            $module = array_filter(
+                $modules,
+                function ($moduleName) use ($parts) {
+                    return strtolower($moduleName) === strtolower($parts[0] . '-' . $parts[1]);
+                },
+                ARRAY_FILTER_USE_KEY
+            );
+            if ($module) {
+                $moduleKeys = array_keys($module);
+                list($parts[0], $parts[1]) = explode('-', reset($moduleKeys));
+            }
 
-            if ($module && $module->getEnabled()) {
+            if (Manager::getRegistry()->isModuleEnabled($parts[0], $parts[1])) {
                 $path = $this->normalizeFilePath(
                     'XLite' . LC_DS . 'Module' . LC_DS
                     . $parts[0] . LC_DS . $parts[1] . LC_DS . 'Model'

@@ -71,4 +71,32 @@ class ACustomer extends \XLite\Controller\Customer\ACustomer implements \XLite\B
             $profile->update();
         }
     }
+
+    /**
+     * @param $category
+     *
+     * @return string
+     */
+    public function getGACategoryPath($category)
+    {
+        return $this->executeCachedRuntime(function () use ($category) {
+            $categoryPath = $category->getPath();
+
+            if (count($categoryPath) > 5) {
+                $categoryPath = array_merge(array_slice($categoryPath, 0, 4), end($categoryPath));
+            }
+
+            $categoryName = implode(
+                '/',
+                array_map(
+                    function ($elem) {
+                        return $elem->getName();
+                    },
+                    $categoryPath
+                )
+            );
+
+            return $categoryName;
+        }, ['getGACategoryPath', $category->getCategoryId()]);
+    }
 }

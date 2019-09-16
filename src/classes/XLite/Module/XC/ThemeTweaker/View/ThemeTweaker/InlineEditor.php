@@ -8,6 +8,7 @@
 
 namespace XLite\Module\XC\ThemeTweaker\View\ThemeTweaker;
 
+use Includes\Utils\Module\Manager;
 use XLite\Module\XC\ThemeTweaker\Core;
 
 use XLite\Core\PreloadedLabels\ProviderInterface;
@@ -127,7 +128,7 @@ class InlineEditor extends \XLite\View\AView implements ProviderInterface
      */
     public static function isTinymceWarningVisible()
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('CDev\TinyMCE');
+        return Manager::getRegistry()->isModuleEnabled('CDev', 'TinyMCE');
     }
 
     /**

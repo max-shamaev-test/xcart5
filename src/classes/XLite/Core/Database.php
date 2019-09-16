@@ -8,10 +8,13 @@
 
 namespace XLite\Core;
 
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Includes\Database\Migration\Migration;
 use Includes\Database\Migration\MigrationFactory;
 use Includes\Decorator\Plugin\Doctrine\Utils\SchemaMigrationManager;
 use Includes\Utils\FileManager;
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
 use XLite\Core\Database\Migration\PersistenceStrategy;
 use XLite\Core\Database\Migration\ReadStrategy;
 use XLite\Core\Doctrine\ORM\Repository\RepositoryFactory;
@@ -35,11 +38,6 @@ class Database extends \XLite\Base\Singleton
      * DB schema file indent
      */
     const SCHEMA_FILE_INDENT = '  ';
-
-    /**
-     * Charset which is used for DB connection
-     */
-    const DB_CONNECTION_CHARSET = 'utf8';
 
     /**
      * Scheme name pattern
@@ -727,7 +725,7 @@ class Database extends \XLite\Base\Singleton
 
                     \XLite\Core\Database::getInstance()->setFixturesLoadingOption(
                         'moduleName',
-                        \Includes\Utils\ModulesManager::getFileModule($path)
+                        Module::getModuleIdByFilePath($path)
                     );
 
                     $repo->loadFixtures($rows);
@@ -842,6 +840,7 @@ class Database extends \XLite\Base\Singleton
      */
     public function loadClassMetadata(\Doctrine\ORM\Event\LoadClassMetadataEventArgs $eventArgs)
     {
+        /* @var ClassMetadata $classMetadata */
         $classMetadata = $eventArgs->getClassMetadata();
         $tableName = isset($classMetadata->table['originalName'])
             ? $classMetadata->table['originalName']
@@ -849,6 +848,7 @@ class Database extends \XLite\Base\Singleton
 
         if ($classMetadata->discriminatorMap && $classMetadata->parentClasses) {
             $parentClassName = array_shift($classMetadata->parentClasses);
+            /* @var ClassMetadata $parentClassMetadata */
             $parentClassMetadata = static::getEM()->getMetadataFactory()->getMetadataFor($parentClassName);
 
             $tableName = isset($parentClassMetadata->table['originalName'])
@@ -859,7 +859,7 @@ class Database extends \XLite\Base\Singleton
         // Set table name prefix
         $prefix = $this->getTablePrefix();
         if ($prefix && !$classMetadata->isMappedSuperclass) {
-            if (($prefix . $tableName) !== $classMetadata->getTableName()) {
+            if (strpos($classMetadata->getTableName(), $prefix) !== 0) {
                 $classMetadata->setTableName($prefix . $tableName);
                 $classMetadata->table['originalName'] = $tableName;
 
@@ -940,7 +940,7 @@ class Database extends \XLite\Base\Singleton
                         }
 
                     } elseif (!$enabled) {
-                        \Includes\Utils\ModulesManager::removeModuleFromDisabledStructure($module);
+                        \Includes\Utils\Module\StructureRegistry::removeModuleFromDisabledStructure($module);
                     }
                 }
             }
@@ -961,10 +961,10 @@ class Database extends \XLite\Base\Singleton
     {
         $result = true;
 
-        $moduleState = static::getRepo('XLite\Model\Module')->getModuleState($module);
+        $moduleState = Manager::getRegistry()->isModuleEnabled($module);
 
         if (null !== $moduleState) {
-            $result = ($state == $moduleState);
+            $result = ((bool) $state === $moduleState);
         }
 
         return $result;
@@ -983,10 +983,10 @@ class Database extends \XLite\Base\Singleton
         $remove = !$structures || (!$structures['tables'] && !$structures['columns']);
 
         if ($remove) {
-            \Includes\Utils\ModulesManager::removeModuleFromDisabledStructure($module);
+            \Includes\Utils\Module\StructureRegistry::removeModuleFromDisabledStructure($module);
 
         } else {
-            if (!\Includes\Utils\ModulesManager::moveModuleToDisabledRegistry($module)) {
+            if (!\Includes\Utils\Module\StructureRegistry::moveModuleToDisabledRegistry($module)) {
                 $path = $this->getDisabledStructuresPath();
 
                 $data = file_exists($path)
@@ -995,7 +995,7 @@ class Database extends \XLite\Base\Singleton
 
                 $data[$module] = $structures;
 
-                \Includes\Utils\ModulesManager::storeModuleRegistry($path, $data);
+                \Includes\Utils\Module\StructureRegistry::storeModuleRegistry($path, $data);
             }
         }
     }
@@ -1010,7 +1010,7 @@ class Database extends \XLite\Base\Singleton
      */
     public function registerModuleToEnabledRegistry($module, array $data = [])
     {
-        \Includes\Utils\ModulesManager::registerModuleToEnabledRegistry($module, $data);
+        \Includes\Utils\Module\StructureRegistry::registerModuleToEnabledRegistry($module, $data);
     }
 
     /**
@@ -1207,7 +1207,7 @@ class Database extends \XLite\Base\Singleton
      */
     protected function setDoctrineCache()
     {
-        static::$cacheDriver = new \XLite\Core\Cache();
+        static::$cacheDriver = static::getFreshCacheDriver();
 
         $driver = static::$cacheDriver->getDriver();
         $this->configuration->setMetadataCacheImpl($driver);
@@ -1246,12 +1246,12 @@ class Database extends \XLite\Base\Singleton
         $dsnList['path'] = 'mysql:' . implode(';', $dsnString);
         $dsnList['user'] = $options['username'];
         $dsnList['password'] = $options['password'];
-        $dsnList['charset'] = static::DB_CONNECTION_CHARSET;
+        $dsnList['charset'] = static::getCharset();
 
         if ('pdo_mysql' === $dsnList['driver']) {
             $dsnList['driverClass'] = '\XLite\Core\PDOMySqlDriver';
             $dsnList['driverOptions'] = [
-                \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES ' . static::DB_CONNECTION_CHARSET . ", sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''))",
+                \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES ' . $dsnList['charset'] . ", sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''))",
             ];
         }
 
@@ -1265,7 +1265,7 @@ class Database extends \XLite\Base\Singleton
      */
     protected function getDisabledStructuresPath()
     {
-        return \Includes\Utils\ModulesManager::getDisabledStructuresPath();
+        return \Includes\Utils\Module\StructureRegistry::getDisabledStructuresPath();
     }
 
     /**
@@ -1275,7 +1275,7 @@ class Database extends \XLite\Base\Singleton
      */
     protected function getEnabledStructuresPath()
     {
-        return \Includes\Utils\ModulesManager::getEnabledStructurePath();
+        return \Includes\Utils\Module\StructureRegistry::getEnabledStructuresPath();
     }
 
     /**
@@ -1374,6 +1374,16 @@ class Database extends \XLite\Base\Singleton
         }
 
         return $orderedTables;
+    }
+
+    /**
+     * Return default charset
+     *
+     * @return string
+     */
+    public static function getCharset()
+    {
+        return \XLite::getInstance()->getOptions(['database_details', 'charset']) ?? 'utf8';
     }
 
     // {{{ Service methods

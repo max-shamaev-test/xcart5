@@ -33,16 +33,6 @@ class PB extends \XLite\Model\Shipping\Processor\AProcessor
     }
 
     /**
-     * Returns processor name
-     *
-     * @return string
-     */
-    public function getProcessorName()
-    {
-        return 'U.S.P.S.';
-    }
-
-    /**
      * Returns url for sign up
      *
      * @return string
@@ -66,11 +56,15 @@ class PB extends \XLite\Model\Shipping\Processor\AProcessor
     }
 
     /**
+     * Check test mode
+     *
      * @return boolean
      */
     public function isTestMode()
     {
-        return true;
+        $config = $this->getConfiguration();
+
+        return (bool) $config->pbSandbox;
     }
 
     /**
@@ -220,7 +214,7 @@ class PB extends \XLite\Model\Shipping\Processor\AProcessor
 
             foreach ($rates['rates'] as $rateData) {
                 $rate   = new Rate();
-                $method = $this->getMethodByCode($rateData['serviceId'], static::STATE_ALL);
+                $method = $this->getMethodByCode($rateData['serviceId']);
                 if ($method) {
                     $rate->setMethod($method);
                     $rateValue = (float) $rateData['totalCarrierCharge'];

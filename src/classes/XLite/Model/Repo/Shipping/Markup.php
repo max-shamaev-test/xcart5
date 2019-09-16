@@ -115,7 +115,7 @@ class Markup extends \XLite\Model\Repo\ARepo
     ) {
         $prepareSum = array(
             'm.markup_flat',
-            '(m.markup_percent * :value / 100)',
+            '(m.markup_percent * (CASE WHEN shipping_method.tableType = :DSType THEN :discounted_value ELSE :value END) / 100)',
             '(m.markup_per_item * :items)',
             '(m.markup_per_weight * :weight)'
         );
@@ -126,7 +126,8 @@ class Markup extends \XLite\Model\Repo\ARepo
             ->setParameter('zoneId', $zoneId)
             ->setParameter('weight', $modifier->getWeight())
             ->setParameter('items', $modifier->countItems())
-            ->setParameter('value', $modifier->getSubtotal());
+            ->setParameter('value', $modifier->getSubtotal())
+            ->setParameter('discounted_value', $modifier->getDiscountedSubtotal());
 
         $qb->linkInner('m.shipping_method');
 
@@ -155,6 +156,11 @@ class Markup extends \XLite\Model\Repo\ARepo
                     'shipping_method.tableType = :IType',
                     'm.min_items <= :itemsCondition',
                     'm.max_items >= :itemsCondition'
+                ),
+                $qb->expr()->andX(
+                    'shipping_method.tableType = :DSType',
+                    'm.min_discounted_total <= :discountedTotalCondition',
+                    'm.max_discounted_total >= :discountedTotalCondition'
                 )
             )
         );
@@ -162,10 +168,12 @@ class Markup extends \XLite\Model\Repo\ARepo
         $qb->setParameter('totalCondition', $modifier->getSubtotalCondition())
             ->setParameter('weightCondition', $modifier->getWeightCondition())
             ->setParameter('itemsCondition', $modifier->countItemsCondition())
+            ->setParameter('discountedTotalCondition', $modifier->getDiscountedSubtotalCondition())
             ->setParameter('WSIType', 'WSI')
             ->setParameter('WType', 'W')
             ->setParameter('SType', 'S')
-            ->setParameter('IType', 'I');
+            ->setParameter('IType', 'I')
+            ->setParameter('DSType', 'DS');
 
         return $qb;
     }

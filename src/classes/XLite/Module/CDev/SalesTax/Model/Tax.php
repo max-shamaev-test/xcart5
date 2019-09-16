@@ -155,7 +155,7 @@ class Tax extends \XLite\Model\Base\I18n
                     $ratesList[] = array(
                         'rate'      => $rate,
                         'zoneWeight' => $i,
-                        'ratePos'    => $rate->getPosition(),
+                        'rateMembershipId'  => $rate->getMembership() ? $rate->getMembership()->getMembershipId() : 0,
                     );
                     break;
                 }
@@ -204,7 +204,7 @@ class Tax extends \XLite\Model\Base\I18n
             $result = -1;
 
         } else {
-            $result = $a['ratePos'] < $b['ratePos'] ? -1 : (int) $a['ratePos'] > $b['ratePos'];
+            $result = $a['rateMembershipId'] > $b['rateMembershipId'] ? -1 : (int) ($a['rateMembershipId'] < $b['rateMembershipId']);
         }
 
         return $result;

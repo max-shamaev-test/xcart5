@@ -7,7 +7,7 @@
 
 {% if this.getModule() %}
 
-  {% set moduleName = this.getModule().getActualName() %}
+  {% set moduleName = this.getModule() %}
 
   {% if moduleName == 'XC\\Reviews' %}
     {{ widget('XLite\\Module\\XC\\Reviews\\View\\Promo\\ShopperApproved') }}

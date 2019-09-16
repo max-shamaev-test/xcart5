@@ -25,7 +25,6 @@ class UpsellingProduct extends \XLite\View\StickyPanel\ItemsListForm
             'class'    => 'XLite\Module\XC\Upselling\View\Button\EditUpsellingProducts',
             'params'   => [
                 'style'          => 'more-action always-enabled edit-all',
-                'useCaretButton' => false,
                 'dropDirection'  => 'dropup',
             ],
             'position' => 50,

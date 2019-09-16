@@ -33,7 +33,7 @@ class Info extends \XLite\View\StickyPanel\ItemForm
         $list = parent::defineButtons();
 
         if (\XLite::getController()->isOrderEditable()) {
-            $list['sendNotification'] = $this->getSendNotificationWidget();
+            $list['doNotSendNotification'] = $this->getDoNotSendNotificationWidget();
             $list['recalculate'] = $this->getRecalculateButton();
         }
 
@@ -45,12 +45,12 @@ class Info extends \XLite\View\StickyPanel\ItemForm
      *
      * @return \Xlite\View\AView
      */
-    protected function getSendNotificationWidget()
+    protected function getDoNotSendNotificationWidget()
     {
         return $this->getWidget(
             array(
-                'template' => 'order/page/parts/send_notification.twig',
-                'checked'  => true,
+                'template' => 'order/page/parts/do_not_send_notification.twig',
+                'checked'  => false,
             )
         );
     }

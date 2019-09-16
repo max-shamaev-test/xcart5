@@ -50,7 +50,7 @@ class PaymentMethod extends \XLite\View\AView
         $method = $this->getPayment();
         $url = $method->getAdminIconURL();
 
-        if (!$url && $method->isModuleInstalled() && !$method->getModuleEnabled()) {
+        if (!$url && $method->isModuleInstalled() && !$method->isModuleEnabled()) {
             $name = explode('_', $method->getModuleName(), 2);
 
             $url = \XLite\Core\Layout::getInstance()->getResourceWebPath(

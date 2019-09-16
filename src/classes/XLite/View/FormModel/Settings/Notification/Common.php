@@ -8,6 +8,8 @@
 
 namespace XLite\View\FormModel\Settings\Notification;
 
+use XLite\Core\Mail\AMail;
+
 class Common extends \XLite\View\FormModel\AFormModel
 {
     /**
@@ -50,12 +52,10 @@ class Common extends \XLite\View\FormModel\AFormModel
         return array_replace(parent::defineSections(), [
             'customer' => [
                 'label'       => static::t('notification.section.customer'),
-                'description' => static::t('The settings in this section determine the content of email notifications sent to customer.'),
                 'position'    => 100,
             ],
             'admin'    => [
                 'label'       => static::t('notification.section.administrator'),
-                'description' => static::t('The settings in this section determine the content of email notifications sent to admin.'),
                 'position'    => 200,
             ],
         ]);
@@ -71,14 +71,6 @@ class Common extends \XLite\View\FormModel\AFormModel
         ])->getContent();
 
         return [
-            self::SECTION_DEFAULT => [
-                'greeting' => [
-                    'label'    => static::t('Greeting'),
-                    'type'     => 'Symfony\Component\Form\Extension\Core\Type\TextareaType',
-                    'help'     => $help,
-                    'position' => 100,
-                ],
-            ],
             'customer'            => [
                 'header'    => [
                     'label'    => static::t('Header'),
@@ -86,11 +78,17 @@ class Common extends \XLite\View\FormModel\AFormModel
                     'help'     => $help,
                     'position' => 100,
                 ],
+                'greeting' => [
+                    'label'    => static::t('Greeting'),
+                    'type'     => 'Symfony\Component\Form\Extension\Core\Type\TextareaType',
+                    'help'     => $help,
+                    'position' => 200,
+                ],
                 'signature' => [
                     'label'    => static::t('Signature'),
                     'type'     => 'Symfony\Component\Form\Extension\Core\Type\TextareaType',
                     'help'     => $help,
-                    'position' => 200,
+                    'position' => 300,
                 ],
             ],
             'admin'               => [
@@ -100,11 +98,17 @@ class Common extends \XLite\View\FormModel\AFormModel
                     'help'     => $help,
                     'position' => 100,
                 ],
+                'greeting' => [
+                    'label'    => static::t('Greeting'),
+                    'type'     => 'Symfony\Component\Form\Extension\Core\Type\TextareaType',
+                    'help'     => $help,
+                    'position' => 200,
+                ],
                 'signature' => [
                     'label'    => static::t('Signature'),
                     'type'     => 'Symfony\Component\Form\Extension\Core\Type\TextareaType',
                     'help'     => $help,
-                    'position' => 200,
+                    'position' => 300,
                 ],
             ],
         ];
@@ -117,6 +121,6 @@ class Common extends \XLite\View\FormModel\AFormModel
      */
     protected function getVariables()
     {
-        return \XLite\Core\Mailer::getInstance()->getAllVariables();
+        return AMail::getVariables();
     }
 }

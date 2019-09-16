@@ -158,7 +158,7 @@ class Transaction extends \XLite\View\ItemsList\Model\Table
      */
     protected function getPurchaseLicenseURL()
     {
-        return \XLite\Core\Marketplace::getPurchaseURL();
+        return \XLite\Core\Marketplace::getBusinessPurchaseURL();
     }
     // }}}
 
@@ -207,6 +207,7 @@ class Transaction extends \XLite\View\ItemsList\Model\Table
             ),
             'date' => array(
                 static::COLUMN_NAME => static::t('Date'),
+                static::COLUMN_TEMPLATE => $this->getDir() . '/' . $this->getPageBodyDir() . '/order/cell.date.twig',
                 static::COLUMN_SORT => 't.date',
             ),
             'method_name' => array(

@@ -14,8 +14,9 @@ use XLite\Core\CommonCell;
 use XLite\Core\Config;
 use XLite\Core\Database;
 use XLite\Core\Layout;
-use XLite\Model\Repo\Product;
+use XLite\Module\QSL\CloudSearch\Core\SearchParameters;
 use XLite\Module\QSL\CloudSearch\Core\ServiceApiClient;
+use XLite\Module\QSL\CloudSearch\Model\Repo\Product as ProductRepo;
 use XLite\Module\QSL\CloudSearch\View\CloudFilters\FiltersBox;
 use XLite\Module\QSL\CloudSearch\View\CloudFilters\FiltersBoxPlaceholder;
 
@@ -83,7 +84,9 @@ class Controller extends \XLite\View\Controller implements \XLite\Base\IDecorato
         ];
 
         if (Config::getInstance()->General->show_out_of_stock_products === 'directLink') {
-            $conditions += ['stock_status' => [Product::INV_IN, Product::INV_LOW]];
+            $conditions += [
+                'stock_status' => SearchParameters::getStockStatusCondition(ProductRepo::INV_IN)
+            ];
         }
 
         $data = [

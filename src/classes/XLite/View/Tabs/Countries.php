@@ -75,7 +75,7 @@ class Countries extends \XLite\View\Tabs\ATabs
                 'title'    => static::t('Zones'),
                 'template' => 'zones/body.twig',
                 'jsFiles'  => 'zones/details/controller.js',
-                'cssFiles' => 'zones/style.css',
+                'cssFiles' => 'zones/style.less',
             ],
         ];
     }

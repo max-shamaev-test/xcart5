@@ -12,9 +12,11 @@ use Includes\Annotations\Parser\AnnotationParserFactory;
 use Includes\ClassPathResolver;
 use Includes\Decorator\Utils\Operator;
 use Includes\Reflection\StaticReflectorFactory;
+use Includes\Utils\Module\Manager;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
+use XLite\Core\Layout;
 
 /**
  * Main
@@ -29,6 +31,7 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
     const PARAM_TAG_LIST_CHILD_LIST       = 'list';
     const PARAM_TAG_LIST_CHILD_WEIGHT     = 'weight';
     const PARAM_TAG_LIST_CHILD_ZONE       = 'zone';
+    const PARAM_TAG_LIST_CHILD_PRESET     = 'preset';
     const PARAM_TAG_LIST_CHILD_FIRST      = 'first';
     const PARAM_TAG_LIST_CHILD_LAST       = 'last';
     const PARAM_TAG_LIST_CHILD_CONTROLLER = 'controller';
@@ -52,11 +55,6 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
      */
     public function executeHookHandler()
     {
-        // Truncate old
-        if (!\Includes\Decorator\Utils\CacheManager::isCapsular()) {
-            $this->clearAll();
-        }
-
         // Create new
         $this->createLists();
     }
@@ -68,7 +66,7 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
      */
     protected function clearAll()
     {
-        \XLite\Core\Database::getRepo('\XLite\Model\ViewList')->clearAll();
+        \XLite\Core\Database::getRepo('XLite\Model\ViewList')->clearAll();
     }
 
     /**
@@ -78,7 +76,32 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
      */
     protected function createLists()
     {
-        \XLite\Core\Database::getRepo('\XLite\Model\ViewList')->insertInBatch($this->getAllListChildTags());
+        $nodes = $this->getAllListChildTags();
+        $inserted = [];
+        $repo = \XLite\Core\Database::getRepo('\XLite\Model\ViewList');
+
+        foreach ($nodes as $key => $node) {
+            list($node, $omitted) = $this->omitKeys($node, ['parent', 'name']);
+            $parentKey = isset($omitted['parent']) ? $omitted['parent'] : null;
+
+            if ($parentKey && !isset($inserted[$parentKey])) {
+                $identifier = $node['child']
+                    ? 'Class: ' . $node['child']
+                    : 'Template: ' . $node['tpl'];
+                throw new \Exception('ListChild preset (' . $identifier . ') cannot be inserted without existing parent record');
+            }
+
+            /** @var \XLite\Model\ViewList $entity */
+            $entity = $repo->insert($node, false);
+
+            if ($parentKey) {
+                $entity->setParent($inserted[$parentKey]);
+            }
+
+            $inserted[$key] = $entity;
+        }
+
+        \XLite\Core\Database::getEM()->flush();
     }
 
     /**
@@ -98,8 +121,8 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
      */
     protected function getAnnotatedPHPCLasses()
     {
-        if (!isset($this->annotatedPHPCLasses)) {
-            $this->annotatedPHPCLasses = array();
+        if ($this->annotatedPHPCLasses === null) {
+            $this->annotatedPHPCLasses = [];
 
             $classPathResolver = new ClassPathResolver(Operator::getClassesDir());
             $reflectorFactory  = new StaticReflectorFactory($classPathResolver);
@@ -113,10 +136,15 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
                         'child'  => $classPathResolver->getClass($pathname),
                         'list'   => $annotation->list,
                         'weight' => $annotation->weight,
+                        'name'   => $annotation->name
                     ];
 
                     if ($annotation->zone) {
                         $newListChild['zone'] = $annotation->zone;
+                    }
+
+                    if ($annotation->preset) {
+                        $newListChild['preset'] = $annotation->preset;
                     }
 
                     /** @var \Includes\Annotations\ListChild $annotation */
@@ -187,27 +215,27 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
      */
     protected function prepareListChildTemplates(array $list)
     {
-        $result = array();
+        $result = [];
 
-        \XLite::getInstance()->initModules();
+        Manager::initModules();
 
-        $skins = array();
+        $skins         = [];
         $hasSubstSkins = false;
 
-        foreach (\XLite\Core\Layout::getInstance()->getSkinsAll() as $interface => $path) {
-            $skins[$interface] = \XLite\Core\Layout::getInstance()->getSkins($interface);
-            
+        foreach (Layout::getInstance()->getSkinsAll() as $interface => $path) {
+            $skins[$interface] = Layout::getInstance()->getSkins($interface);
+
             if (\XLite::MAIL_INTERFACE === $interface || \XLite::PDF_INTERFACE === $interface) {
                 $skins[$interface] = [];
-                foreach (\XLite\Core\Layout::getInstance()->getSkins($interface) as $skin) {
+                foreach (Layout::getInstance()->getSkins($interface) as $skin) {
                     foreach ([\XLite::ADMIN_INTERFACE, \XLite::COMMON_INTERFACE, \XLite::CUSTOMER_INTERFACE] as $innerInterface) {
                         $skins[$interface][] = $skin . LC_DS . $innerInterface;
                     }
                 }
             } else {
-                $skins[$interface] = \XLite\Core\Layout::getInstance()->getSkins($interface);
+                $skins[$interface] = Layout::getInstance()->getSkins($interface);
             }
-            
+
             if (!$hasSubstSkins) {
                 $hasSubstSkins = 1 < count($skins[$interface]);
             }
@@ -217,8 +245,8 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
             foreach ($skins as $interface => $paths) {
                 foreach ($paths as $path) {
                     if (0 === strpos($cell['tpl'], $path . LC_DS)) {
-                        $length = strlen($path) + 1;
-                        $list[$i]['tpl'] = substr($cell['tpl'], $length);
+                        $length           = strlen($path) + 1;
+                        $list[$i]['tpl']  = substr($cell['tpl'], $length);
                         $list[$i]['zone'] = $interface;
                     }
                 }
@@ -230,10 +258,10 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
         }
 
         if ($hasSubstSkins) {
-            $patterns = $hash = array();
+            $patterns = $hash = [];
 
             foreach ($skins as $interface => $data) {
-                $patterns[$interface] = array();
+                $patterns[$interface] = [];
 
                 foreach ($data as $skin) {
                     $patterns[$interface][] = preg_quote($skin, '/');
@@ -247,17 +275,17 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
 
                 if (preg_match($patterns[$item['zone']], $path, $matches)) {
                     $hash[$item['zone']][$item['tpl']][$matches[1]] = $index;
-                    $list[$index]['tpl'] = $matches[2];
+                    $list[$index]['tpl']                            = $matches[2];
                 }
             }
 
             foreach ($hash as $interface => $tpls) {
                 foreach ($tpls as $path => $indexes) {
-                    $idx = null;
-                    $tags = array();
+                    $idx  = null;
+                    $tags = [];
                     foreach (array_reverse($skins[$interface]) as $skin) {
                         if (isset($indexes[$skin])) {
-                            $idx = $indexes[$skin];
+                            $idx    = $indexes[$skin];
                             $tags[] = $list[$indexes[$skin]]['tags'];
                         }
                     }
@@ -271,7 +299,7 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
             }
 
             // Convert template short path to UNIX-style
-            if (DIRECTORY_SEPARATOR != '/') {
+            if (DIRECTORY_SEPARATOR !== '/') {
                 foreach ($result as $i => $v) {
                     $result[$i]['tpl'] = str_replace(DIRECTORY_SEPARATOR, '/', $v['tpl']);
                 }
@@ -280,7 +308,7 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
         } else {
 
             foreach ($list as $cell) {
-                foreach ($this->processTagsQuery(array($cell['tags'])) as $tag) {
+                foreach ($this->processTagsQuery([$cell['tags']]) as $tag) {
                     unset($cell['tags'], $cell['path']);
                     $result[] = $cell + $tag;
                 }
@@ -300,11 +328,11 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
      */
     protected function processTagsQuery(array $tags)
     {
-        $result = array();
+        $result = [];
 
         foreach ($tags as $step) {
             if (isset($step[static::TAG_CLEAR_LIST_CHILDREN])) {
-                $result = array();
+                $result = [];
             }
 
             if (isset($step[static::TAG_LIST_CHILD])) {
@@ -328,7 +356,48 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
      */
     protected function getAllListChildTagAttributes(array $nodes)
     {
-        return array_map(array($this, 'prepareListChildTagData'), $nodes);
+        $presetNodes = [];
+        $result = array_reduce($nodes, function($acc, $item) use (&$presetNodes) {
+            $data = $this->prepareListChildTagData($item);
+
+            if (isset($data['preset'])) {
+                $presetNodes[] = $data;
+            } else {
+                $key = $this->getUniqueHashForNode($data);
+                $acc[$key] = $data;
+            }
+
+            return $acc;
+        }, []);
+
+        if (count($presetNodes) > 0) {
+            foreach ($presetNodes as $node) {
+                $key = $this->getUniqueHashForNode($node);
+
+                if (array_key_exists($key, $result)) {
+                    $node['parent'] = $key;
+                }
+
+                $newKey = $key . $node['preset'];
+                $result[$newKey] = $node;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param $data
+     * @return string
+     */
+    protected function getUniqueHashForNode($data)
+    {
+        $zone = isset($data['zone']) ? $data['zone'] : '';
+        $tpl = isset($data['tpl']) ? $data['tpl'] : '';
+        $child = isset($data['child']) ? $data['child'] : '';
+        $nameOrList = isset($data['name']) && !empty($data['name']) ? $data['name'] : $data['list'];
+
+        return md5($zone . $tpl . $child . $nameOrList);
     }
 
     /**
@@ -400,9 +469,9 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
      */
     protected function getReservedWeightValues()
     {
-        return array(
+        return [
             static::PARAM_TAG_LIST_CHILD_FIRST => \XLite\Model\ViewList::POSITION_FIRST,
             static::PARAM_TAG_LIST_CHILD_LAST  => \XLite\Model\ViewList::POSITION_LAST,
-        );
+        ];
     }
 }

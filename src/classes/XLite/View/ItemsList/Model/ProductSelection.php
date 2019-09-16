@@ -49,7 +49,7 @@ class ProductSelection extends \XLite\View\ItemsList\Model\Table
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'product_selections/style.css';
+        $list[] = 'product_selections/style.less';
 
         return $list;
     }
@@ -93,20 +93,6 @@ class ProductSelection extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Get switcher field
-     *
-     * @return array
-     */
-    protected function getSwitcherField()
-    {
-        return array(
-            'class'  => 'XLite\View\FormField\Inline\Input\Checkbox\Switcher\EnabledReadOnly',
-            'name'   => 'enabled',
-            'params' => array(),
-        );
-    }
-
-    /**
      * Define columns structure
      *
      * @return array
@@ -125,6 +111,7 @@ class ProductSelection extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_SORT    => static::SORT_BY_NAME,
                 static::COLUMN_NO_WRAP => true,
                 static::COLUMN_ORDERBY  => 200,
+                static::COLUMN_MAIN    => true,
             ),
             'price' => array(
                 static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Price'),
@@ -138,16 +125,6 @@ class ProductSelection extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_ORDERBY  => 400,
             ),
         );
-    }
-
-    /**
-     * Mark list as switchable (enable / disable)
-     *
-     * @return boolean
-     */
-    protected function isSwitchable()
-    {
-        return true;
     }
 
     /**

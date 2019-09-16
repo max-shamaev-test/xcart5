@@ -9,6 +9,7 @@
 namespace XLite\Module\XC\ThemeTweaker\Core;
 
 use XLite\Core\Cache\ExecuteCachedTrait;
+use XLite\Module\XC\ThemeTweaker\Model\Template;
 
 /**
  * Request
@@ -40,7 +41,7 @@ class TemplateObjectProvider extends \XLite\Base\Singleton
     /**
      * Template Object
      *
-     * @return \XLite\Module\XC\ThemeTweaker\Model\Template
+     * @return Template
      */
     public function getTemplateObject()
     {
@@ -55,7 +56,7 @@ class TemplateObjectProvider extends \XLite\Base\Singleton
                     ->findOneByTemplate($localPath);
             }
 
-            return $model ?: new \XLite\Module\XC\ThemeTweaker\Model\Template();
+            return $model ?: new Template();
         }, [$this->getTemplateId(), $this->getTemplatePath()]);
     }
 }

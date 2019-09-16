@@ -73,6 +73,46 @@ class ProductPrice extends \XLite\View\Product\Details\Customer\Widget
     }
 
     /**
+     * @param \XLite\Module\CDev\Wholesale\Model\Base\AWholesalePrice[] $wholesalePrices
+     *
+     * @return array
+     */
+    protected function prepareWholesalePrices($wholesalePrices)
+    {
+        $result = [];
+        $minQty = $this->getProduct()->getMinQuantity(
+            $this->getCart()->getProfile()
+                ? $this->getCart()->getProfile()->getMembership()
+                : null
+        );
+
+        $attributesShift = \XLite\Logic\AttributeSurcharge::modifyMoney(0, $this->getProduct(), '', [], '');
+
+        if (
+            $wholesalePrices
+            && isset($wholesalePrices[0])
+            && $minQty < $wholesalePrices[0]->getQuantityRangeBegin()
+        ) {
+            $zeroTier = new \XLite\Module\CDev\Wholesale\Model\DTO\WholesalePrice();
+            $zeroTier['displayPrice'] = $wholesalePrices[0]->getOwner()->getBasePrice() + $attributesShift;
+            $zeroTier['quantityRangeBegin'] = $minQty;
+            $zeroTier['quantityRangeEnd'] = $wholesalePrices[0]->getQuantityRangeBegin() - 1;
+            $result[] = $zeroTier;
+        }
+
+        foreach ($wholesalePrices as $wholesalePrice) {
+            $tier = new \XLite\Module\CDev\Wholesale\Model\DTO\WholesalePrice();
+            $tier->init($wholesalePrice);
+
+            $tier['displayPrice'] += $attributesShift;
+
+            $result[] = $tier;
+        }
+
+        return $result;
+    }
+
+    /**
      * Return wholesale prices for the current product
      *
      * @return \Doctrine\ORM\PersistentCollection
@@ -80,22 +120,9 @@ class ProductPrice extends \XLite\View\Product\Details\Customer\Widget
     protected function getWholesalePrices()
     {
         if (!isset($this->wholesalePrices)) {
-            $this->wholesalePrices = $this->defineWholesalePrices();
-
-            $minQty = $this->getProduct()->getMinQuantity($this->getCart()->getProfile() ? $this->getCart()->getProfile()->getMembership() : null);
-            if (
-                $this->wholesalePrices
-                && isset($this->wholesalePrices[0])
-                && $minQty < $this->wholesalePrices[0]->getQuantityRangeBegin()
-            ) {
-                $class = get_class($this->wholesalePrices[0]);
-                $basePrice = new $class;
-                $basePrice->setPrice($this->wholesalePrices[0]->getOwner()->getBasePrice());
-                $basePrice->setQuantityRangeBegin($minQty);
-                $basePrice->setQuantityRangeEnd($this->wholesalePrices[0]->getQuantityRangeBegin() - 1);
-                $basePrice->setOwner($this->wholesalePrices[0]->getOwner());
-                array_unshift($this->wholesalePrices, $basePrice);
-            }
+            $this->wholesalePrices = $this->prepareWholesalePrices(
+                $this->defineWholesalePrices()
+            );
         }
 
         return $this->wholesalePrices;

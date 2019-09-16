@@ -11,7 +11,7 @@
 
 namespace Symfony\Component\Serializer\Encoder;
 
-use Symfony\Component\Serializer\Exception\UnexpectedValueException;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 
 /**
  * Decodes JSON data.
@@ -20,50 +20,43 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
  */
 class JsonDecode implements DecoderInterface
 {
+    protected $serializer;
+
     /**
-     * Specifies if the returned result should be an associative array or a nested stdClass object hierarchy.
-     *
-     * @var bool
+     * True to return the result as an associative array, false for a nested stdClass hierarchy.
      */
-    private $associative;
+    const ASSOCIATIVE = 'json_decode_associative';
+
+    const OPTIONS = 'json_decode_options';
 
     /**
      * Specifies the recursion depth.
-     *
-     * @var int
      */
-    private $recursionDepth;
+    const RECURSION_DEPTH = 'json_decode_recursion_depth';
 
-    private $lastError = JSON_ERROR_NONE;
-
-    protected $serializer;
+    private $defaultContext = [
+        self::ASSOCIATIVE => false,
+        self::OPTIONS => 0,
+        self::RECURSION_DEPTH => 512,
+    ];
 
     /**
      * Constructs a new JsonDecode instance.
      *
-     * @param bool $associative True to return the result associative array, false for a nested stdClass hierarchy
-     * @param int  $depth       Specifies the recursion depth
+     * @param array $defaultContext
      */
-    public function __construct($associative = false, $depth = 512)
+    public function __construct($defaultContext = [], int $depth = 512)
     {
-        $this->associative = $associative;
-        $this->recursionDepth = (int) $depth;
-    }
+        if (!\is_array($defaultContext)) {
+            @trigger_error(sprintf('Using constructor parameters that are not a default context is deprecated since Symfony 4.2, use the "%s" and "%s" keys of the context instead.', self::ASSOCIATIVE, self::RECURSION_DEPTH), E_USER_DEPRECATED);
 
-    /**
-     * Returns the last decoding error (if any).
-     *
-     * @return int
-     *
-     * @deprecated since version 2.5, to be removed in 3.0.
-     *             The {@self decode()} method throws an exception if error found.
-     * @see http://php.net/manual/en/function.json-last-error.php json_last_error
-     */
-    public function getLastError()
-    {
-        @trigger_error('The '.__METHOD__.' method is deprecated since version 2.5 and will be removed in 3.0. Catch the exception raised by the decode() method instead to get the last JSON decoding error.', E_USER_DEPRECATED);
+            $defaultContext = [
+                self::ASSOCIATIVE => (bool) $defaultContext,
+                self::RECURSION_DEPTH => $depth,
+            ];
+        }
 
-        return $this->lastError;
+        $this->defaultContext = array_merge($this->defaultContext, $defaultContext);
     }
 
     /**
@@ -76,7 +69,7 @@ class JsonDecode implements DecoderInterface
      * The $context array is a simple key=>value array, with the following supported keys:
      *
      * json_decode_associative: boolean
-     *      If true, returns the object as associative array.
+     *      If true, returns the object as an associative array.
      *      If false, returns the object as nested stdClass
      *      If not specified, this method will use the default set in JsonDecode::__construct
      *
@@ -85,30 +78,24 @@ class JsonDecode implements DecoderInterface
      *      If not specified, this method will use the default set in JsonDecode::__construct
      *
      * json_decode_options: integer
-     *      Specifies additional options as per documentation for json_decode. Only supported with PHP 5.4.0 and higher
+     *      Specifies additional options as per documentation for json_decode
      *
      * @return mixed
      *
-     * @throws UnexpectedValueException
+     * @throws NotEncodableValueException
      *
      * @see http://php.net/json_decode json_decode
      */
-    public function decode($data, $format, array $context = array())
+    public function decode($data, $format, array $context = [])
     {
-        $context = $this->resolveContext($context);
+        $associative = $context[self::ASSOCIATIVE] ?? $this->defaultContext[self::ASSOCIATIVE];
+        $recursionDepth = $context[self::RECURSION_DEPTH] ?? $this->defaultContext[self::RECURSION_DEPTH];
+        $options = $context[self::OPTIONS] ?? $this->defaultContext[self::OPTIONS];
 
-        $associative = $context['json_decode_associative'];
-        $recursionDepth = $context['json_decode_recursion_depth'];
-        $options = $context['json_decode_options'];
+        $decodedData = json_decode($data, $associative, $recursionDepth, $options);
 
-        if (PHP_VERSION_ID >= 50400) {
-            $decodedData = json_decode($data, $associative, $recursionDepth, $options);
-        } else {
-            $decodedData = json_decode($data, $associative, $recursionDepth);
-        }
-
-        if (JSON_ERROR_NONE !== $this->lastError = json_last_error()) {
-            throw new UnexpectedValueException(json_last_error_msg());
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new NotEncodableValueException(json_last_error_msg());
         }
 
         return $decodedData;
@@ -120,23 +107,5 @@ class JsonDecode implements DecoderInterface
     public function supportsDecoding($format)
     {
         return JsonEncoder::FORMAT === $format;
-    }
-
-    /**
-     * Merges the default options of the Json Decoder with the passed context.
-     *
-     * @param array $context
-     *
-     * @return array
-     */
-    private function resolveContext(array $context)
-    {
-        $defaultOptions = array(
-            'json_decode_associative' => $this->associative,
-            'json_decode_recursion_depth' => $this->recursionDepth,
-            'json_decode_options' => 0,
-        );
-
-        return array_merge($defaultOptions, $context);
     }
 }

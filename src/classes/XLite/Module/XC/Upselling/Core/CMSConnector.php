@@ -23,5 +23,6 @@ abstract class CMSConnector extends \XLite\Core\CMSConnector implements \XLite\B
         parent::__construct();
 
         $this->widgetsList['\XLite\Module\XC\Upselling\View\Customer\UpsellingProducts'] = 'Related products';
+        $this->widgetsList['\XLite\Module\XC\Upselling\View\Customer\UpsellingProducts404'] = 'Related products 404';
     }
 }

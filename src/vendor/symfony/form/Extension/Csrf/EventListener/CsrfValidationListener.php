@@ -12,119 +12,75 @@
 namespace Symfony\Component\Form\Extension\Csrf\EventListener;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Form\Exception\UnexpectedTypeException;
-use Symfony\Component\Form\Extension\Csrf\CsrfProvider\CsrfProviderAdapter;
-use Symfony\Component\Form\Extension\Csrf\CsrfProvider\CsrfProviderInterface;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\Util\ServerParams;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Translation\TranslatorInterface as LegacyTranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class CsrfValidationListener implements EventSubscriberInterface
 {
-    /**
-     * The name of the CSRF field.
-     *
-     * @var string
-     */
     private $fieldName;
-
-    /**
-     * The generator for CSRF tokens.
-     *
-     * @var CsrfTokenManagerInterface
-     */
     private $tokenManager;
-
-    /**
-     * A text mentioning the tokenId of the CSRF token.
-     *
-     * Validation of the token will only succeed if it was generated in the
-     * same session and with the same tokenId.
-     *
-     * @var string
-     */
     private $tokenId;
-
-    /**
-     * The message displayed in case of an error.
-     *
-     * @var string
-     */
     private $errorMessage;
-
-    /**
-     * @var TranslatorInterface
-     */
     private $translator;
-
-    /**
-     * @var null|string
-     */
     private $translationDomain;
+    private $serverParams;
 
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             FormEvents::PRE_SUBMIT => 'preSubmit',
-        );
+        ];
     }
 
-    public function __construct($fieldName, $tokenManager, $tokenId, $errorMessage, TranslatorInterface $translator = null, $translationDomain = null)
+    /**
+     * @param TranslatorInterface|null $translator
+     */
+    public function __construct(string $fieldName, CsrfTokenManagerInterface $tokenManager, string $tokenId, string $errorMessage, $translator = null, string $translationDomain = null, ServerParams $serverParams = null)
     {
-        if ($tokenManager instanceof CsrfProviderInterface) {
-            $tokenManager = new CsrfProviderAdapter($tokenManager);
-        } elseif (!$tokenManager instanceof CsrfTokenManagerInterface) {
-            throw new UnexpectedTypeException($tokenManager, 'CsrfProviderInterface or CsrfTokenManagerInterface');
+        if (null !== $translator && !$translator instanceof LegacyTranslatorInterface && !$translator instanceof TranslatorInterface) {
+            throw new \TypeError(sprintf('Argument 5 passed to %s() must be an instance of %s, %s given.', __METHOD__, TranslatorInterface::class, \is_object($translator) ? \get_class($translator) : \gettype($translator)));
         }
-
         $this->fieldName = $fieldName;
         $this->tokenManager = $tokenManager;
         $this->tokenId = $tokenId;
         $this->errorMessage = $errorMessage;
         $this->translator = $translator;
         $this->translationDomain = $translationDomain;
+        $this->serverParams = $serverParams ?: new ServerParams();
     }
 
     public function preSubmit(FormEvent $event)
     {
         $form = $event->getForm();
+        $postRequestSizeExceeded = 'POST' === $form->getConfig()->getMethod() && $this->serverParams->hasPostMaxSizeBeenExceeded();
 
-        if ($form->isRoot() && $form->getConfig()->getOption('compound')) {
+        if ($form->isRoot() && $form->getConfig()->getOption('compound') && !$postRequestSizeExceeded) {
             $data = $event->getData();
 
-            if (!isset($data[$this->fieldName]) || !$this->tokenManager->isTokenValid(new CsrfToken($this->tokenId, $data[$this->fieldName]))) {
+            $csrfToken = new CsrfToken($this->tokenId, $data[$this->fieldName] ?? null);
+            if (!isset($data[$this->fieldName]) || !$this->tokenManager->isTokenValid($csrfToken)) {
                 $errorMessage = $this->errorMessage;
 
                 if (null !== $this->translator) {
-                    $errorMessage = $this->translator->trans($errorMessage, array(), $this->translationDomain);
+                    $errorMessage = $this->translator->trans($errorMessage, [], $this->translationDomain);
                 }
 
-                $form->addError(new FormError($errorMessage));
+                $form->addError(new FormError($errorMessage, $errorMessage, [], null, $csrfToken));
             }
 
-            if (is_array($data)) {
+            if (\is_array($data)) {
                 unset($data[$this->fieldName]);
                 $event->setData($data);
             }
         }
-    }
-
-    /**
-     * Alias of {@link preSubmit()}.
-     *
-     * @deprecated since version 2.3, to be removed in 3.0.
-     *             Use {@link preSubmit()} instead.
-     */
-    public function preBind(FormEvent $event)
-    {
-        @trigger_error('The '.__METHOD__.' method is deprecated since version 2.3 and will be removed in 3.0. Use the preSubmit() method instead.', E_USER_DEPRECATED);
-
-        $this->preSubmit($event);
     }
 }

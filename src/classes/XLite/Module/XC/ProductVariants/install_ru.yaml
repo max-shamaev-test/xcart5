@@ -18,6 +18,12 @@ XLite\Model\LanguageLabel:
   - { name: 'Variant sku must be unique', translations: [{ code: ru, label: 'Артикул варианта должен быть уникальным' }] }
   - { name: "Couldn't identify a variant based on ID X being imported", translations: [{ code: ru, label: "Система не смогла идентифицировать вариант по импортируемому ID {{variantId}}; однако, вариант был успешно идентифицирован по комбинации атрибутов." }] }
   - { name: 'variant ID X was replaced by ID Y generated automatically', translations: [{ code: ru, label: 'Для обеспечения целостности данных ID варианта {{oldVariantId}} был заменен в процессе импорта на ID {{newVariantId}}, сгенерированный автоматически. Рекомендуется исправить файл импорта, заменив указанный в нем ID варианта на новый ({{newVariantId}}), если данный файл планируется к использованию в дальнейшем.' }] }
+  - { name: 'Field type for the attribute "{{value}}" is TEXT AREA; this type cannot be used to configure multiple attribute values.', translations: [{ code: ru, label: 'Тип поля атрибута "{{value}}" -ТЕКСТОВОЕ ПОЛЕ; данный тип не может быть использован для задания множественных значений атрибута.' }] }
+  - { name: "Product variant #{{value}} not found", translations: [{ code: ru, label: "Вариант товара {{value}} не найден" }] }
+  - { name: "No product variants available. Please create at least one.", translations: [{ code: ru, label: "Нет ни одного варианта товара. Создайте хотя бы один вариант." }] }
+  - { name: "Product variant id", translations: [{ code: ru, label: "ID варианта товара" }] }
+  - { name: "Enter product variant id", translations: [{ code: ru, label: "Введите ID варианта товара" }] }
+  - { name: "Items with selected options in your cart: X", translations: [{ code: ru, label: "{{count}}шт с выбранными опциями в <a href=\"cart.php?target=cart\">корзине</a>" }] }
 
 XLite\Model\Notification:
   - templatesDirectory: modules/XC/ProductVariants/low_variant_limit_warning

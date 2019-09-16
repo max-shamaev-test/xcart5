@@ -26,9 +26,22 @@ class ServerParams
     }
 
     /**
+     * Returns true if the POST max size has been exceeded in the request.
+     *
+     * @return bool
+     */
+    public function hasPostMaxSizeBeenExceeded()
+    {
+        $contentLength = $this->getContentLength();
+        $maxContentLength = $this->getPostMaxSize();
+
+        return $maxContentLength && $contentLength > $maxContentLength;
+    }
+
+    /**
      * Returns maximum post size in bytes.
      *
-     * @return null|int The maximum post size in bytes
+     * @return int|null The maximum post size in bytes
      */
     public function getPostMaxSize()
     {
@@ -40,17 +53,20 @@ class ServerParams
 
         $max = ltrim($iniMax, '+');
         if (0 === strpos($max, '0x')) {
-            $max = intval($max, 16);
+            $max = \intval($max, 16);
         } elseif (0 === strpos($max, '0')) {
-            $max = intval($max, 8);
+            $max = \intval($max, 8);
         } else {
             $max = (int) $max;
         }
 
         switch (substr($iniMax, -1)) {
             case 't': $max *= 1024;
+            // no break
             case 'g': $max *= 1024;
+            // no break
             case 'm': $max *= 1024;
+            // no break
             case 'k': $max *= 1024;
         }
 
@@ -70,7 +86,7 @@ class ServerParams
     /**
      * Returns the content length of the request.
      *
-     * @return mixed The request content length.
+     * @return mixed The request content length
      */
     public function getContentLength()
     {

@@ -1,0 +1,127 @@
+/* vim: set ts=2 sw=2 sts=2 et: */
+
+/**
+ * States page styles
+ *
+ * Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+ * See https://www.x-cart.com/license-agreement.html for license details.
+ */
+
+/**
+ * Zones list styles
+ */
+
+@import "../css/initialize";
+
+.items-list-table.zones table.list tr td.cell.edit {
+  text-align: center;
+}
+
+/**
+ * Zone details page styles
+ */
+
+.target-zones .tab-content a.back {
+  text-decoration: underline;
+  font-size: 14px;
+  float: right;
+  margin-right: 50px;
+}
+
+.zone-countries-label label,
+.zone-states-label label {
+  .heading(@font-size-h2, @rhythmic-unit, @rhythmic-unit);
+}
+
+.zone-cities-label,
+.zone-zipcodes-label {
+  margin-top: @rhythmic-unit;
+}
+
+.table-label.zone-name-label {
+  width: auto;
+  vertical-align: middle;
+  display: inline-block;
+}
+
+.table-value.zone-name-value {
+  display: inline-block;
+}
+
+div.table-value.input-listbox.country-listbox .listbox-item div.table-value select {
+  height: 300px;
+}
+
+div.table-value.input-listbox.state-listbox .listbox-item div.table-value select {
+  height: 300px;
+}
+
+.table-label.zone-zipcodes-label,
+.table-label.zone-cities-label,
+.table-label.zone-addresses-label {
+  display: block;
+  width: auto;
+}
+
+.table-value.zone-cities-value textarea,
+.table-value.zone-zipcodes-value textarea,
+.table-value.zone-addresses-value textarea {
+  width: 360px;
+  height: 190px;
+}
+
+.table-value.zone-cities-value,
+.table-value.zone-zipcodes-value,
+.table-value.zone-addresses-value {
+  display: table-cell;
+  vertical-align: middle;
+  padding-right: 25px;
+}
+
+.zone-cities-help,
+.zone-zipcodes-help,
+.zone-addresses-help {
+  width: 405px;
+  display: table-cell;
+  vertical-align: top;
+}
+
+.zone-details {
+  .states-for-countries-value {
+    display: inline-flex;
+    margin-bottom: @rhythmic-unit;
+
+    .input-checkbox-statesforcountries.input-field-wrapper {
+      min-height: unset;
+
+      .onoffswitch {
+        padding: 0;
+      }
+    }
+  }
+
+  .states-for-countries-label {
+    vertical-align: middle;
+    width: auto;
+    display: inline-flex;
+    margin-bottom: @rhythmic-unit;
+    margin-right: @rhythmic-unit;
+    padding: 1px 0;
+  }
+
+  div.table-value.input-listbox .listbox-item div.table-label {
+    &.zone-countries-listbox-select-from-label,
+    &.zone-countries-listbox-select-to-label,
+    &.zone-states-listbox-select-from-label,
+    &.zone-states-listbox-select-to-label {
+      label {
+        font-size: @font-size-base;
+        line-height: @line-height-base;
+      }
+    }
+  }
+
+  div.table-label.input-listbox.zone-states-label {
+    display: block;
+  }
+}

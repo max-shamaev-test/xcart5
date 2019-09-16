@@ -11,12 +11,26 @@ define('googleAnalytics/eCommerceChangeItemEvent', ['googleAnalytics/eCommerceCo
     function (eCommerceCoreEvent, _) {
 
       eCommerceChangeItemEvent = eCommerceCoreEvent.extend({
-
         getListeners: function () {
           return {
-            'updateCart':       this.registerItemsChange,
-            'ec-item-change':   this.registerItemsChangeExternal
+              'productAddedToCart': this.registerAddToCart,
           };
+        },
+
+        registerAddToCart: function (event, data) {
+          var gaProductData = data.gaProductData;
+
+          if (gaProductData) {
+            ga('ec:addProduct', gaProductData);
+
+            if (!_.isUndefined(gaProductData.list)) {
+              ga('ec:setAction', 'add', {list: gaProductData.list});
+            } else {
+              ga('ec:setAction', 'add');
+            }
+
+            ga('send', 'event', 'Product', 'AddToCart', 'Add to cart');
+          }
         },
 
         processReady: function () {
@@ -40,35 +54,11 @@ define('googleAnalytics/eCommerceChangeItemEvent', ['googleAnalytics/eCommerceCo
           }
         },
 
-        registerItemsChange: function (event, data) {
-          if (data.items) {
-            for (var i = 0; i < data.items.length; i++) {
-              var item = data.items[i];
-
-              item['ga-data']['quantity'] = Math.abs(item.quantity_change);
-
-              this.registerItemChange(
-                  item['ga-data'],
-                  this.getEventNameByItem(
-                      item.quantity_change,
-                      item.quantity
-                  )
-              );
-            }
-          }
-        },
-
         registerOrderChangedByAdmin: function (data) {
           data.actionData = data.actionData || {};
 
           ga('ec:setAction', data.actionName, data.actionData);
           ga('send', 'event', 'AOM', data.actionName);
-        },
-
-        registerItemChange: function (productData, action) {
-          ga('ec:addProduct', productData);
-          ga('ec:setAction', action);
-          ga('send', 'event', 'Cart', action, action + ' to cart');
         },
 
         registerItemChangedByAdmin: function (data) {
@@ -83,20 +73,6 @@ define('googleAnalytics/eCommerceChangeItemEvent', ['googleAnalytics/eCommerceCo
           ga('ec:addProduct', data.productData);
           ga('ec:setAction', data.actionName, data.actionData);
           ga('send', 'event', 'AOM', data.actionName, message);
-        },
-
-        registerItemsChangeExternal: function(event, data) {
-          this.registerItemsChange(event, { items: data });
-        },
-
-        getEventNameByItem: function(change, qty) {
-          if (change > 0) {
-            eventName = 'add';
-          } else if (change < 0) {
-            eventName = 'remove';
-          }
-
-          return eventName;
         },
 
       });

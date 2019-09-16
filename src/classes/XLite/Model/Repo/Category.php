@@ -9,6 +9,7 @@
 namespace XLite\Model\Repo;
 
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use XLite\Core\Cache\ExecuteCachedTrait;
 
 /**
@@ -402,20 +403,44 @@ class Category extends \XLite\Model\Repo\Base\I18n
                     $names   = array_unique($names);
                 }
 
+                $defaultLanguage = 'en';
+
+                if ($this->getTranslationCode() !== $defaultLanguage) {
+                    // Add additional join to translations with default language code (en)
+                    $this->addDefaultTranslationJoins(
+                        $qb,
+                        $this->getMainAlias($qb),
+                        'default',
+                        $defaultLanguage
+                    );
+                }
+
                 if (1 < count($names)) {
 
                     $orCnd = new \Doctrine\ORM\Query\Expr\Orx();
 
                     foreach ($names as $k => $v) {
-                        $orCnd->add('translations.name = :name' . $k);
+                        if ($this->getTranslationCode() !== $defaultLanguage) {
+                            $orCnd->add('(CASE WHEN translations.name IS NOT NULL
+                                THEN translations.name
+                                ELSE default.name END) = :name' . $k);
+                        } else {
+                            $orCnd->add('translations.name = :name' . $k);
+                        }
                         $qb->setParameter('name' . $k, $v);
                     }
 
                     $qb->andWhere($orCnd);
 
                 } else {
-                    $qb->andWhere('translations.name = :name')
-                        ->setParameter('name', $name);
+                    if ($this->getTranslationCode() !== $defaultLanguage) {
+                        $qb->andWhere('(CASE WHEN translations.name IS NOT NULL
+                            THEN translations.name
+                            ELSE default.name END) = :name');
+                    } else {
+                        $qb->andWhere('translations.name = :name');
+                    }
+                    $qb->setParameter('name', $name);
                 }
 
                 $result = $qb->getSingleResult();
@@ -428,6 +453,57 @@ class Category extends \XLite\Model\Repo\Base\I18n
         }
 
         return [$completeResult, $result];
+    }
+
+    /**
+     * Find all by name part
+     *
+     * @param string $namePart Part of the category name
+     * @param int $page Page number
+     * @param int $countPerPage Number of elements per page
+     * @param int $excludeCategoryId Id of the category which must be excluded
+     *
+     * @return \Doctrine\ORM\Tools\Pagination\Paginator
+     */
+    public function findAllByNamePart(string $namePart, int $page, int $countPerPage, int $excludeCategoryId)
+    {
+        $qb = $this->createQueryBuilder();
+
+        $defaultLanguage = 'en';
+
+        if ($this->getTranslationCode() !== $defaultLanguage) {
+            // Add additional join to translations with default language code (en)
+            $this->addDefaultTranslationJoins(
+                $qb,
+                $this->getMainAlias($qb),
+                'default',
+                $defaultLanguage
+            );
+
+            $qb->andWhere('IF (translations.name IS NOT NULL, translations.name, default.name) LIKE :namePart');
+        } else {
+            $qb->andWhere('translations.name LIKE :namePart');
+        }
+
+        if ($excludeCategoryId) {
+            $excludeCategory = $this->getCategory($excludeCategoryId);
+            $exRpos = $excludeCategory->getRpos();
+            $exLpos = $excludeCategory->getLpos();
+
+            $qb->andWhere('NOT (c.lpos >= :exLpos AND c.rpos <= :exRpos)');
+
+            $qb->setParameter('exLpos', $exLpos);
+            $qb->setParameter('exRpos', $exRpos);
+        }
+
+        $qb->setParameter('namePart', '%'.$namePart.'%');
+        $qb->orderBy('c.lpos', 'ASC');
+        $qb->setFirstResult($countPerPage * ($page - 1));
+        $qb->setMaxResults($countPerPage);
+
+        $paginator = new Paginator($qb, $fetchJoinCollection = false);
+
+        return $paginator;
     }
 
     /**
@@ -1268,7 +1344,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
         $query = 'SELECT ' . implode(',', $fields) . ' FROM ' . $this->getTableName() . ' c '
                  . ' LEFT JOIN ' . \XLite\Core\Database::getRepo('XLite\Model\Category\QuickFlags')->getTableName()
                  . ' qf ON c.category_id = qf.category_id '
-                 . ' ORDER BY c.category_id';
+                 . ' ORDER BY c.pos';
 
         return \Includes\Utils\Database::fetchAll($query);
     }
@@ -1331,46 +1407,78 @@ class Category extends \XLite\Model\Repo\Base\I18n
 
         return \XLite\Core\Cache\ExecuteCached::executeCached(function () {
             $rawCategories = $this->getAllCategoriesAsDTOQueryBuilder()->getResult();
-            if (!$rawCategories || ($rawCategories instanceof Collection && !$rawCategories->count())) {
-                return [];
+
+            return $this->categoriesWithPathdata($rawCategories);
+        }, $cacheParameters);
+    }
+
+    /**
+     * @param $rawCategories
+     *
+     * @return array
+     */
+    protected function categoriesWithPathdata($rawCategories)
+    {
+        if (!$rawCategories || ($rawCategories instanceof Collection && !$rawCategories->count())) {
+            return [];
+        }
+
+        $rawCategories = $this->sortCategoriesTree($rawCategories);
+
+        $categories = [];
+        foreach ($rawCategories as $category) {
+            if (!$category['name']) {
+                $category['name'] = $this->getFirstTranslatedName($category['id']);
             }
 
-            $rawCategories = $this->sortCategoriesTree($rawCategories);
+            $categories[$category['id']] = $category;
+        }
 
-            $categories = [];
-            foreach ($rawCategories as $category) {
-                if (!$category['name']) {
-                    $category['name'] = $this->getFirstTranslatedName($category['id']);
-                }
+        $rootId = $this->getRootCategoryId();
+        $separator = ' / ';
 
-                $categories[$category['id']] = $category;
-            }
+        array_walk($categories, function (array &$category) use ($categories, $rootId, $separator) {
+            $result = [$category['name']];
+            $idsPath = [$category['id']];
+            $parentId = (int)$category['parent_id'];
+            while ($parentId !== $rootId) {
+                $found = false;
+                foreach ($categories as $tmpCategory) {
+                    if ((int)$tmpCategory['id'] === $parentId) {
+                        $parentId = (int)$tmpCategory['parent_id'];
+                        $idsPath[] = $tmpCategory['id'];
+                        $result[] = $tmpCategory['name'];
 
-            $rootId = $this->getRootCategoryId();
-            array_walk($categories, function (array &$category) use ($categories, $rootId) {
-                $result = [$category['name']];
-                $parentId = (int)$category['parent_id'];
-                while ($parentId !== $rootId) {
-                    $found = false;
-                    foreach ($categories as $tmpCategory) {
-                        if ((int)$tmpCategory['id'] === $parentId) {
-                            $parentId = (int)$tmpCategory['parent_id'];
-                            $result[] = $tmpCategory['name'];
-                            $found = true;
-                            break;
+                        if ($category['accessible'] && !$tmpCategory['accessible']) {
+                            $category['accessible'] = false;
                         }
-                    }
 
-                    if (!$found) {
+
+                        $found = true;
                         break;
                     }
                 }
 
-                $category['fullName'] = implode('/', array_reverse($result));
-            });
+                if (!$found) {
+                    break;
+                }
+            }
 
-            return $categories;
-        }, $cacheParameters);
+            $parts = array_reverse($result);
+            $path = array_slice($parts, 0, -1);
+
+            $category['fullName'] = implode($separator, $parts);
+
+            if (count($path) > 0) {
+                $category['fullNameHtml'] = '<span class="path">' . implode($separator, $path) . $separator . '</span><span class="name">' . array_pop($parts) . '</span>';
+            } else {
+                $category['fullNameHtml'] = '<span class="name">' . implode($separator, $parts) . '</span>';
+            }
+
+            $category['idsPath'] = array_reverse($idsPath);
+        });
+
+        return $categories;
     }
 
     /**
@@ -1468,6 +1576,7 @@ class Category extends \XLite\Model\Repo\Base\I18n
         $queryBuilder->addSelect('IDENTITY(c.parent) as parent_id');
         $queryBuilder->addSelect('c.depth as depth');
         $queryBuilder->addSelect('c.pos as pos');
+        $queryBuilder->addSelect('c.enabled as accessible');
 
         $queryBuilder->linkLeft('c.children', 'conditional_children');
 
@@ -1486,6 +1595,24 @@ class Category extends \XLite\Model\Repo\Base\I18n
     }
 
     // }}}
+
+    /**
+     * Get categories as dtos, filtered by some term (using runtime cache)
+     *
+     * @param string $term
+     *
+     * @return array
+     */
+    public function getFilteredCategoriesAsDTO($term)
+    {
+        return $this->executeCachedRuntime(function () use ($term) {
+            $categories = $this->getAllCategoriesAsDTO();
+
+            return array_filter($categories, function($item) use ($term) {
+                return stripos($item['fullName'], $term) !== false;
+            });
+        });
+    }
 
     /**
      * Get categories as dtos with runtime cache

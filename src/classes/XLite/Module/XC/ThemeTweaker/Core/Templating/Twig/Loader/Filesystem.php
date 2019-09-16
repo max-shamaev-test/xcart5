@@ -17,11 +17,12 @@ class Filesystem extends \XLite\Core\Templating\Twig\Loader\Filesystem implement
 
         if (
             $result
-            && strpos($result, 'theme_tweaker') !== false
             && \XLite\Core\Layout::getInstance()->isDisabledTemplate($name)
         ) {
             $name = $this->normalizeName($name);
             list($namespace, $shortname) = $this->parseName($name);
+
+            $actual = false;
 
             foreach ($this->paths[$namespace] as $path) {
                 if (
@@ -29,12 +30,16 @@ class Filesystem extends \XLite\Core\Templating\Twig\Loader\Filesystem implement
                     && is_file($path.'/'.$shortname)
                 ) {
                     if (false !== $realpath = realpath($path.'/'.$shortname)) {
-                        return $this->cache[$name] = $realpath;
+                        $actual = $realpath;
+                        break;
                     }
 
-                    return $this->cache[$name] = $path.'/'.$shortname;
+                    $actual = $path.'/'.$shortname;
+                    break;
                 }
             }
+
+            return $this->cache[$name] = $actual;
         }
 
         return $result;

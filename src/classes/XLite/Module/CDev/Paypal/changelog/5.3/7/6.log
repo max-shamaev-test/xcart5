@@ -1,6 +1,0 @@
-Version 5.3.7.6
-
-Fixes (2)
-2018-12-03 - [Bug] Order note in Not Finished Orders (NFO) was lost if the module MultiVendor was enabled. Fixed. #BUG-6794 (Shevelov Alexander) #Core #Paypal #FastLaneCheckout #MultiVendor #NotFinishedOrders
-2018-11-23 - [Bug] Fixed the headers for some module files. #BUG-6825 (Vladimir Semyonov) #Paypal #EWAYStoredShared #FirstDataPayeezyGatewayHP #VendorPartners
-

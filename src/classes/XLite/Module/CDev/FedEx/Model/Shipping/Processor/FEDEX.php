@@ -25,16 +25,6 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
     }
 
     /**
-     * Returns processor name (displayed name)
-     *
-     * @return string
-     */
-    public function getProcessorName()
-    {
-        return 'FedEx';
-    }
-
-    /**
      * Returns url for sign up
      *
      * @return string
@@ -421,7 +411,7 @@ class FEDEX extends \XLite\Model\Shipping\Processor\AProcessor
      */
     public function getTrackingInformationURL($trackingNumber)
     {
-        return 'https://www.fedex.com/apps/fedextrack/index.html';
+        return 'https://www.fedex.com/apps/fedextrack/index.html?' . $this->getTrackingURLParams($trackingNumber);
     }
 
     /**

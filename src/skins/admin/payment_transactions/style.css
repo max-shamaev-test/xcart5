@@ -7,19 +7,6 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-.searchpanel-payment-transaction-admin-main .search-conditions-box .search-conditions div.table-value input[type="text"],
-.searchpanel-payment-transaction-admin-main .search-conditions-box .search-conditions-hidden div.table-value input[type="text"] { 
-  width: 210px;
-}
-
-.searchpanel-payment-transaction-admin-main .search-conditions-box .search-conditions div.table-value select {
-  width: 245px;
-}
-
-.searchpanel-payment-transaction-admin-main .search-conditions-box .search-conditions-hidden div.table-label {
-  width: auto;
-}
-
 .items-list-table table.list tbody.lines tr.line td.cell.profile {
   line-height: 20px;
 }
@@ -34,11 +21,6 @@
 
 .items-list.payment-transactions th.profile {
   padding-left: 41px;
-}
-
-.items-list.payment-transactions .order .cell {
-  width: 80px;
-  max-width: 80px;
 }
 
 .items-list.payment-transactions .profile .cell {
@@ -61,8 +43,7 @@
 
 .items-list.payment-transactions .profile .cell .profile-icon,
 .items-list.payment-transactions .profile .cell .profile-anonymous-icon {
-  display: inline-block;
-  vertical-align: middle;
+  flex: 1 0 auto;
   width: 20px;
   height: 20px;
 }
@@ -70,13 +51,6 @@
 .items-list.payment-transactions .profile .cell .profile-anonymous-icon svg {
   width: 100%;
   height: 100%;
-}
-
-.items-list.payment-transactions img.anonym {
-  width: 15px;
-  height: 17px;
-  background: transparent url(../../../images/anonym_icon.png) no-repeat left top;
-  margin-right: 5px;
 }
 
 .items-list.payment-transactions img.anonymous {
@@ -100,11 +74,7 @@
     align-items: center;
 }
 .items-list.payment-transactions table.list tbody.lines tr.failed-transaction td{
-  background: #FAF2F0;
-}
-
-.items-list.payment-transactions table.list tbody.lines tr.failed-transaction .cell.status .value{
-  color: #C8635F;
+  background: rgba(255, 197, 198, 0.3);
 }
 
 .items-list.payment-transactions table.list tbody.lines .cell.status .cell{
@@ -112,36 +82,23 @@
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-          justify-content: space-between;
   -webkit-box-align: center;
   -webkit-align-items: center;
   -ms-flex-align: center;
-          align-items: center;
+  align-items: center;
 }
 
 .items-list.payment-transactions table.list tbody.lines .cell.status .details{
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
   margin-left: 10px;
-}
-
-.items-list.payment-transactions table.list tbody.lines .cell.status .details .tooltip-caption{
-  font-size: 12px;
-  background-color: #509FE1;
-  color: #fff;
-  padding: 2px 5px;
-  border-radius: 3px;
-  border: none;
 }
 
 .items-list.payment-transactions table.list tbody.lines .cell.status .details .tooltip-main{
   padding: 0;
-}
-
-.items-list.payment-transactions table.list tbody.lines .cell.status .details .tooltip-main .tooltip-title{
-  color: #509FE1;
-  font-size: 16px;
+    width: auto;
 }
 
 .items-list.payment-transactions table.list tbody.lines .cell.status .details .tooltip-main .tooltip-content{
@@ -162,4 +119,9 @@
 
 .items-list.payment-transactions table.list tbody td.status .details .popover {
   max-width: 550px;
+}
+
+.items-list.payment-transactions table.list tbody.lines .cell.value .cell,
+.items-list.payment-transactions table.list th.value {
+  text-align: right;
 }

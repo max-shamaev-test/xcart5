@@ -8,12 +8,18 @@
 
 namespace XLite\Core;
 
+use Includes\Decorator\Utils\CacheManager;
+use XLite\Core\Cache\ExecuteCachedTrait;
+use XLite\Core\Less\ImportPathResolver;
+
 /**
  * LESS parser wrapper
  */
 class LessParser extends \XLite\Base\Singleton
 {
-    use \XLite\Core\Cache\ExecuteCachedTrait;
+    use ExecuteCachedTrait;
+
+    const LESS_PARENT_CONDITION = '~parent';
 
     /**
      * Less parser object
@@ -45,9 +51,19 @@ class LessParser extends \XLite\Base\Singleton
     protected $LESSResourceHash;
 
     /**
+     * @var ImportPathResolver
+     */
+    protected $importPathResolver;
+
+    public function __construct()
+    {
+        $this->importPathResolver = new ImportPathResolver();
+    }
+
+    /**
      * Defines the cache dir for the media type
      *
-     * @param string $media Media type
+     * @param string  $media    Media type
      * @param boolean $original Get original path OPTIONAL
      *
      * @return string
@@ -55,9 +71,9 @@ class LessParser extends \XLite\Base\Singleton
     protected function getCacheDir($media, $original = false)
     {
         $interface = is_null($this->interface) ? (\XLite::isAdminZone() ? 'admin' : 'default') : $this->interface;
-        $http = is_null($this->http) ? (\XLite\Core\Request::getInstance()->isHTTPS() ? 'https' : 'http') : $this->http;
+        $http = is_null($this->http) ? (Request::getInstance()->isHTTPS() ? 'https' : 'http') : $this->http;
 
-        return \Includes\Decorator\Utils\CacheManager::getResourcesDir($original)
+        return CacheManager::getResourcesDir($original)
             . $interface . LC_DS
             . $http . LC_DS
             . $media . LC_DS;
@@ -66,7 +82,8 @@ class LessParser extends \XLite\Base\Singleton
     /**
      * Interface setter
      *
-     * @param string $interface The interface which will be used for less generation. Can be 'admin', 'default'.
+     * @param string $interface The interface which will be used for less generation. Can be
+     *                          'admin', 'default'.
      *
      * @return void
      */
@@ -98,7 +115,7 @@ class LessParser extends \XLite\Base\Singleton
     {
         $file = $this->makeLESSResourcePath($lessFiles);
         $path = $this->getCSSResource($lessFiles);
-        $url  = $this->getCSSResourceURL($path);
+        $url = $this->getCSSResourceURL($path);
 
         $data = [
             'file'  => $path,
@@ -177,9 +194,17 @@ class LessParser extends \XLite\Base\Singleton
 
                 while (($offset = strpos($content, '@import ', $offset)) !== false) {
                     $import = substr($content, $offset + 8, strpos($content, ';', $offset) - $offset - 8);
-                    $import = trim($import, "\n\r'\" ;@");
+                    $import = trim($import, "\n\r ");
+                    preg_match("#^(\([^)]+\))?+(.*)$#", $import, $matches);
+                    $import = trim($matches[2], "\n\r'\" ;@");
 
-                    $result .= $this->calcLESSFileHash(dirname($lessFile) . LC_DS . $import);
+                    if ($import === static::LESS_PARENT_CONDITION) {
+                        @list($path, ) = $this->importPathResolver->getParentPathAndUri($lessFile, '');
+                        $result .= $this->calcLESSFileHash($path);
+                    } else {
+                        $result .= $this->calcLESSFileHash(sprintf("%s/%s", dirname($lessFile), $import));
+                    }
+
                     $offset++;
                 }
 
@@ -210,8 +235,8 @@ class LessParser extends \XLite\Base\Singleton
     /**
      * Get LESSResourceHash
      *
-     * @param array $lessFiles LESS files structures array
-     * @param boolean $original Get original path OPTIONAL
+     * @param array   $lessFiles LESS files structures array
+     * @param boolean $original  Get original path OPTIONAL
      *
      * @return array
      */
@@ -284,7 +309,12 @@ class LessParser extends \XLite\Base\Singleton
 
             foreach ($lessFiles as $resource) {
                 $resourcePath = \Includes\Utils\FileManager::makeRelativePath($this->getCacheDir('screen'), $resource['file']);
-                $content .= "\r\n" . '@import "' . str_replace('/', LC_DS, $resourcePath) . '";' . "\r\n";
+
+                if (isset($resource['reference'])) {
+                    $content .= "\r\n" . '@import (reference) "' . str_replace('/', LC_DS, $resourcePath) . '";' . "\r\n";
+                } else {
+                    $content .= "\r\n" . '@import "' . str_replace('/', LC_DS, $resourcePath) . '";' . "\r\n";
+                }
             }
 
             \Includes\Utils\FileManager::mkdirRecursive(dirname($filePath));
@@ -306,11 +336,11 @@ class LessParser extends \XLite\Base\Singleton
      */
     protected function getCSSResource($lessFiles, $original = false, $shortName = false)
     {
-        $reslut = $this->getCacheDir('screen', $original) . $this->getUniqueName($lessFiles) . '.css';
+        $result = $this->getCacheDir('screen', $original) . $this->getUniqueName($lessFiles) . '.css';
 
         return $shortName
-            ? $this->getShortName($reslut)
-            : $reslut;
+            ? $this->getShortName($result)
+            : $result;
     }
 
     /**
@@ -408,26 +438,26 @@ class LessParser extends \XLite\Base\Singleton
     /**
      * Define the new LESS variables for the specific resource
      *
-     * @param array  $data Resource data
+     * @param array $data Resource data
      *
      * @return array
      */
     protected function getModifiedLESSVars($data)
     {
-        $xlite  = \XLite::getInstance();
-        $layout = \XLite\Core\Layout::getInstance();
+        $xlite = \XLite::getInstance();
+        $layout = Layout::getInstance();
 
         return [
             // Defines the admin skin path
             'admin-skin'    => '\'' . $xlite->getShopURL(
-                dirname($layout->getResourceWebPath('body.twig', \XLite\Core\Layout::WEB_PATH_OUTPUT_URL, \XLite::ADMIN_INTERFACE))
-            ) . '\'',
+                    dirname($layout->getResourceWebPath('body.twig', Layout::WEB_PATH_OUTPUT_URL, \XLite::ADMIN_INTERFACE))
+                ) . '\'',
             'customer-skin' => '\'' . $xlite->getShopURL(
-                dirname($layout->getResourceWebPath('body.twig', \XLite\Core\Layout::WEB_PATH_OUTPUT_URL, \XLite::CUSTOMER_INTERFACE))
-            ) . '\'',
-            'common-skin' => '\'' . $xlite->getShopURL(
-                $layout->getResourceWebPath('', \XLite\Core\Layout::WEB_PATH_OUTPUT_URL, \XLite::COMMON_INTERFACE)
-            ) . '\'',
+                    dirname($layout->getResourceWebPath('body.twig', Layout::WEB_PATH_OUTPUT_URL, \XLite::CUSTOMER_INTERFACE))
+                ) . '\'',
+            'common-skin'   => '\'' . $xlite->getShopURL(
+                    $layout->getResourceWebPath('', Layout::WEB_PATH_OUTPUT_URL, \XLite::COMMON_INTERFACE)
+                ) . '\'',
         ];
     }
 
@@ -439,8 +469,28 @@ class LessParser extends \XLite\Base\Singleton
     protected function getLessParserOptions()
     {
         return [
-            'compress'  => true,
-            'root_dir'  => LC_DIR_ROOT,
+            'compress'        => true,
+            'cache_dir'       => LC_DIR_DATACACHE . '/less',
+            'import_callback' => $this->getImportCallback(),
         ];
+    }
+
+    /**
+     * @return \Closure
+     */
+    protected function getImportCallback()
+    {
+        return function (\Less_Tree_Import $import) {
+            $filePath = $import->currentFileInfo['filename'];
+            $entryDir = $import->currentFileInfo['entryPath'];
+
+            if (($path = $import->path) instanceof \Less_Tree_Quoted) {
+                $path = $path->value;
+            }
+
+            return $path === static::LESS_PARENT_CONDITION
+                ? $this->importPathResolver->getParentPathAndUri($filePath, $entryDir)
+                : $this->importPathResolver->getImportPathAndUri(dirname($filePath) . '/' . $import->getPath(), $entryDir);
+        };
     }
 }

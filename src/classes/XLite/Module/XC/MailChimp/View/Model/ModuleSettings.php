@@ -22,23 +22,18 @@ class ModuleSettings extends \XLite\View\Model\ModuleSettings
      */
     protected function getFormButtons()
     {
-        $return = parent::getFormButtons();
+        $result = parent::getFormButtons();
 
-        $return['mailchimp-lists'] = new \XLite\View\Button\Link(
-            array(
+        $result['mailchimp-lists'] = new \XLite\View\Button\Link(
+            [
                 \XLite\View\Button\Link::PARAM_LABEL    => static::t('Update MailChimp Lists'),
                 \XLite\View\Button\AButton::PARAM_STYLE => 'model-button always-enabled',
                 \XLite\View\Button\Link::PARAM_DISABLED => !Core\MailChimp::hasAPIKey(),
                 \XLite\View\Button\Link::PARAM_LOCATION => $this->getMailChimpListsURL()
-            )
+            ]
         );
 
-        $reorderedButtons = array();
-        $reorderedButtons['submit']             = $return['submit'];
-        $reorderedButtons['mailchimp-lists']    = $return['mailchimp-lists'];
-        $reorderedButtons['addons-list']        = $return['addons-list'];
-
-        return $reorderedButtons;
+        return $result;
     }
 
     /**
@@ -61,6 +56,7 @@ class ModuleSettings extends \XLite\View\Model\ModuleSettings
 
         return $cell;
     }
+
     /**
      * Return name of web form widget class
      *

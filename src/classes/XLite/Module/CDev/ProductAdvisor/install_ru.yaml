@@ -8,3 +8,4 @@
 XLite\Model\LanguageLabel:
   - { name: 'Text links', translations: [{ code: ru, label: 'Текстовые ссылки' }] }
   - { name: 'Expected on', translations: [{ code: ru, label: 'Ожидается' }] }
+  - { name: 'Expected on X', translations: [{ code: ru, label: 'Ожидается <span>{{date}}</span>' }] }

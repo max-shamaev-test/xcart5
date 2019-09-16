@@ -36,7 +36,8 @@ class Info extends \XLite\Model\DTO\Base\ADTO
             }
 
             if (!$dto->marketing->clean_url->force) {
-                $value = $dto->marketing->clean_url->clean_url . '.html';
+                $cleanUrlExt = $dto->marketing->clean_url->clean_url_ext ?: '';
+                $value = $dto->marketing->clean_url->clean_url . $cleanUrlExt;
 
                 if (!$repo->isURLUnique($value, 'XLite\Model\Product', $dto->default->identity)) {
                     $conflict = $repo->getConflict($value, 'XLite\Model\Product', $dto->default->identity);
@@ -158,10 +159,21 @@ class Info extends \XLite\Model\DTO\Base\ADTO
             ]
         );
 
+        $cleanUrlExt = \XLite\Model\Repo\CleanURL::isProductUrlHasExt() ? '.html' : '';
+        if ($object->getCleanURL()
+            && \XLite\Model\Repo\CleanURL::isProductUrlHasExt()
+            && !preg_match('/.html$/', $object->getCleanURL())
+        ) {
+            $cleanUrlExt = '';
+        }
+
         $cleanURL = new CommonCell([
             'autogenerate' => !(boolean) $object->getCleanURL(),
-            'clean_url'    => preg_replace('/.html$/', '', $object->getCleanURL()),
+            'clean_url'    => \XLite\Model\Repo\CleanURL::isProductUrlHasExt()
+                ? preg_replace('/.html$/', '', $object->getCleanURL())
+                : $object->getCleanURL(),
             'force'        => false,
+            'clean_url_ext' => $cleanUrlExt,
         ]);
 
         $marketing       = [
@@ -276,7 +288,8 @@ class Info extends \XLite\Model\DTO\Base\ADTO
             $object->setCleanURL(\XLite\Core\Database::getRepo('XLite\Model\CleanURL')->generateCleanURL($object));
 
         } else {
-            $value = $marketing->clean_url->clean_url . '.html';
+            $cleanUrlExt = $marketing->clean_url->clean_url_ext ?: '';
+            $value = $marketing->clean_url->clean_url . $cleanUrlExt;
             if ($marketing->clean_url->force) {
                 $repo           = \XLite\Core\Database::getRepo('XLite\Model\CleanURL');
                 $conflictEntity = $repo->getConflict(

@@ -15,42 +15,69 @@
 
     {{ this.displayCommentedData(this.getSearchPanelParams()) }}
 
-    <ul class="search-conditions clear clearfix">
-      {% for name, conditionWidget in this.getConditions() %}
-        <li class="{{ name }}-condition">{{ conditionWidget.display() }}</li>
-      {% endfor %}
-      <li class="actions">
-        {% for name, action in this.getActions() %}
-          {{ action.display() }}
+    <div class="search-conditions">
+      <ul class="inline-table">
+        {% for name, conditionWidget in this.getConditions() %}
+          <li class="{{ name }}-condition">{{ conditionWidget.display() }}</li>
         {% endfor %}
-        {{ widget_list('actions', type='nested') }}
-      </li>
-      {{ widget_list('conditions', type='nested') }}
-    </ul>
-
-    {% if this.getHiddenConditions() %}
-      <span class="search-conditions-hr">
-        <hr noshade class="line1 search-conditions-hidden">
-        <hr noshade class="line2 search-conditions-hidden">
-      </span>
-    {% endif %}
-
-    {% if this.getHiddenConditions() %}
-      <ul class="search-conditions-hidden clear clearfix">
-        {% for name, conditionWidget in this.getHiddenConditions() %}
-          <li class="{{ name }}-condition {{ this.getRowClass(loop.index, 'odd', 'even') }}">{{ conditionWidget.display() }}</li>
-        {% endfor %}
-        {{ widget_list('hiddenConditions', type='nested') }}
+        <li class="actions">
+          {% for name, action in this.getActions() %}
+            {{ action.display() }}
+          {% endfor %}
+        </li>
+        {{ widget_list('conditions', type='nested') }}
       </ul>
+    </div>
+
+    {% if this.getHiddenConditions() %}
+      <div class="search-conditions-hr">
+      </div>
     {% endif %}
 
     {% if this.getHiddenConditions() %}
-      <div class="arrow"></div>
+      <div class="search-conditions-hidden">
+        {% set count = this.getHiddenConditions()|length %}
+
+        {%  if this.widgetParams.changeHiddenConditionsCount %}
+          {% set count = count + 1 %}
+        {% endif %}
+
+        {% if count % 2 > 0 %}
+          {% set firstColumnLength = count / 2 + 1 %}
+        {% else %}
+          {% set firstColumnLength = count / 2 %}
+        {% endif %}
+
+        <div class="left-column">
+          <ul class="table">
+            {% for name, conditionWidget in this.getHiddenConditions()|slice(0, firstColumnLength) %}
+              <li class="{{ name }}-condition {{ this.getRowClass(loop.index, 'odd', 'even') }}">{{ conditionWidget.display() }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="right-column">
+          <ul class="table">
+            {% for name, conditionWidget in this.getHiddenConditions()|slice(firstColumnLength, count) %}
+              <li class="{{ name }}-condition {{ this.getRowClass(loop.index, 'odd', 'even') }}">{{ conditionWidget.display() }}</li>
+            {% endfor %}
+
+            {{ widget_list('hiddenConditions', type='nested') }}
+          </ul>
+        </div>
+      </div>
     {% endif %}
 
-    {% if this.isUseFilter() and this.canSaveFilter() %}
-      {{ widget('\\XLite\\View\\Button\\SaveSearchFilter') }}
+    {% if this.getHiddenConditions() %}
+      <div class="arrow"><span class="fa fa-angle-down"></span></div>
     {% endif %}
+
+    <div class="actions-bottom">
+      {% if this.isUseFilter() and this.canSaveFilter() %}
+        {{ widget('\\XLite\\View\\Button\\SaveSearchFilter') }}
+      {% endif %}
+      {{ widget_list('actions', type='nested') }}
+    </div>
 
   </div>
 

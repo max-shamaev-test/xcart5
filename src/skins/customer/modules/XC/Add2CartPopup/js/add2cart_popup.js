@@ -17,17 +17,7 @@ function PopupButtonAdd2CartPopup() {
     },
     5000
   );
-  core.bind(
-    'addToCartViaDrop',
-    function (event, data) {
-      if (!core.getCommentedData(jQuery('body'), 'a2cp_enable_for_dropping')) {
-        showAdd2CartPopup = data.widget && data.widget.base.eq(0).hasClass('add-to-cart-popup');
-      }
-
-      deboucedFallback();
-    }
-  );
-
+  
   core.bind('tryOpenAdd2CartPopup', _.debounce(
     this.handleOpenPopup,
     500

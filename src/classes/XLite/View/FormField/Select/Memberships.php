@@ -13,6 +13,43 @@ namespace XLite\View\FormField\Select;
  */
 class Memberships extends \XLite\View\FormField\Select\Multiple
 {
+    use Select2Trait {
+        getValueContainerClass as getSelect2ValueContainerClass;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getValueContainerClass()
+    {
+        $class = $this->getSelect2ValueContainerClass();
+
+        $class .= ' input-memberships-select2';
+
+        return $class;
+    }
+
+    /**
+     * Register JS files
+     *
+     * @return array
+     */
+    public function getJSFiles()
+    {
+        $list   = parent::getJSFiles();
+        $list[] = $this->getDir() . '/select/memberships.js';
+
+        return $list;
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function getPlaceholderLabel()
+    {
+        return static::t('Select a membership');
+    }
+
     /**
      * Get Memberships list
      *

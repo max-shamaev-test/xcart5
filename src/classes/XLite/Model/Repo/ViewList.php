@@ -7,6 +7,7 @@
  */
 
 namespace XLite\Model\Repo;
+use XLite\Core\Layout;
 
 /**
  * View list repository
@@ -61,10 +62,10 @@ class ViewList extends \XLite\Model\Repo\ARepo
      */
     public function findClassList($list, $zone = \XLite\Model\ViewList::INTERFACE_CUSTOMER)
     {
-        $data = $this->getFromCache('class_list', ['list' => $list, 'zone' => $zone]);
+        $data = $this->getFromCache('class_list', ['list' => $list, 'zone' => $zone, 'preset' => $this->getCurrentPreset()]);
         if (!isset($data)) {
             $data = $this->retrieveClassList($list, $zone);
-            $this->saveToCache($data, 'class_list', ['list' => $list, 'zone' => $zone]);
+            $this->saveToCache($data, 'class_list', ['list' => $list, 'zone' => $zone, 'preset' => $this->getCurrentPreset()]);
         }
 
         return $data;
@@ -138,6 +139,7 @@ class ViewList extends \XLite\Model\Repo\ARepo
         $result = [];
 
         $actual = $this->defineClassListWithFallbackQuery($list, $zone)->getResult();
+
         foreach ($actual as $viewList) {
             $key = $viewList->getHashWithoutZone();
 
@@ -152,6 +154,32 @@ class ViewList extends \XLite\Model\Repo\ARepo
     }
 
     /**
+     * Define default query builder for findClassList() without zone parameter
+     *
+     * @param string $list Class list name
+     *
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    protected function defineZoneAgnosticClassListQuery($list)
+    {
+        $qb = $this->createQueryBuilder()
+            ->addSelect('CASE WHEN v.override_mode > 0 THEN v.weight_override ELSE v.weight END AS HIDDEN ORD')
+            ->andWhere('IF (v.list_override != :empty AND v.override_mode > 0, v.list_override, v.list) IN (:list)')
+            ->andWhere('v.list_id NOT IN (SELECT DISTINCT IDENTITY(vl.parent) FROM XLite\Model\ViewList vl WHERE IDENTITY(vl.parent) IS NOT NULL AND vl.preset LIKE :preset AND vl.override_mode != :disable_preset_mode)')
+            ->andWhere('v.list_id NOT IN (SELECT DISTINCT vll.list_id FROM XLite\Model\ViewList vll WHERE IDENTITY(vll.parent) IS NOT NULL AND (vll.preset NOT LIKE :preset OR vll.override_mode = :disable_preset_mode))')
+            ->andWhere('v.version IS NULL')
+            ->andWhere('v.override_mode IN (:modes)')
+            ->orderBy('ORD', 'asc')
+            ->setParameter('empty', '')
+            ->setParameter('list', explode(',', $list))
+            ->setParameter('preset', $this->getCurrentPreset())
+            ->setParameter('modes', $this->getDisplayableModes())
+            ->setParameter('disable_preset_mode', \XLite\Model\ViewList::OVERRIDE_DISABLE_PRESET);
+
+        return $qb;
+    }
+
+    /**
      * Define query builder for findClassList()
      *
      * @param string $list Class list name
@@ -161,11 +189,11 @@ class ViewList extends \XLite\Model\Repo\ARepo
      */
     protected function defineClassListQuery($list, $zone)
     {
-        return $this->createQueryBuilder()
-            ->where('v.list IN (:list) AND v.zone IN (:zone, :empty) AND v.version IS NULL')
-            ->setParameter('empty', '')
-            ->setParameter('list', explode(',', $list))
+        $qb = $this->defineZoneAgnosticClassListQuery($list)
+            ->andWhere('v.zone LIKE :zone')
             ->setParameter('zone', $zone);
+
+        return $qb;
     }
 
     /**
@@ -178,12 +206,31 @@ class ViewList extends \XLite\Model\Repo\ARepo
      */
     protected function defineClassListWithFallbackQuery($list, $zone)
     {
-        return $this->createQueryBuilder()
-            ->where('v.list IN (:list) AND v.zone IN (:zone, :fallback, :empty) AND v.version IS NULL')
-            ->setParameter('empty', '')
-            ->setParameter('list', explode(',', $list))
-            ->setParameter('fallback', \XLite::COMMON_INTERFACE)
-            ->setParameter('zone', $zone);
+        $qb = $this->defineZoneAgnosticClassListQuery($list)
+            ->andWhere('v.zone IN (:zone, :fallback)')
+            ->setParameter('zone', $zone)
+            ->setParameter('fallback', \XLite::COMMON_INTERFACE);
+
+        return $qb;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getDisplayableModes()
+    {
+        return [
+            \XLite\Model\ViewList::OVERRIDE_OFF,
+            \XLite\Model\ViewList::OVERRIDE_MOVE
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    protected function getCurrentPreset()
+    {
+        return Layout::getInstance()->getCurrentLayoutPreset();
     }
 
     // }}}
@@ -248,5 +295,118 @@ class ViewList extends \XLite\Model\Repo\ARepo
     }
 
     // }}}
+
+    /**
+     * Find overridden view list items
+     *
+     * @return array
+     */
+    public function findOverridden()
+    {
+        return $this->defineOverriddenQueryBuilder()->getResult();
+    }
+
+    /**
+     * Find overridden view list items
+     *
+     * @return array
+     */
+    public function findOverriddenData()
+    {
+        $qb = $this->defineOverriddenQueryBuilder();
+        $alias = $qb->getMainAlias();
+
+        $properties = [
+            'list_override',
+            'weight_override',
+            'override_mode',
+            'list',
+            'child',
+            'tpl',
+            'zone',
+            'weight',
+            'preset'
+        ];
+
+        $qb->select("v.list_id");
+
+        foreach ($properties as $property) {
+            $qb->addSelect("{$alias}.{$property}");
+        }
+
+        $qb->addSelect('IDENTITY(v.parent)');
+
+        return $qb->getArrayResult();
+    }
+
+    /**
+     * Define overridden query builder
+     *
+     * @return \XLite\Model\QueryBuilder\AQueryBuilder
+     */
+    public function defineOverriddenQueryBuilder()
+    {
+        return $this->createQueryBuilder()
+            ->where('v.override_mode > :off_mode')
+            ->andWhere('v.version IS NULL')
+            ->setParameter('off_mode', \XLite\Model\ViewList::OVERRIDE_OFF);
+    }
+
+    /**
+     * Find first entity equal to $other
+     *
+     * @param \XLite\Model\ViewList $other     Other entity
+     * @param boolean               $versioned Add `version is not null` condition
+     *
+     * @return \XLite\Model\ViewList|null
+     */
+    public function findEqual(\XLite\Model\ViewList $other, $versioned = false)
+    {
+        if (!$other) {
+            return null;
+        }
+
+        $conditions = [
+            'list'   => $other->getList(),
+            'child'  => $other->getChild(),
+            'tpl'    => $other->getTpl(),
+            'zone'   => $other->getZone(),
+            'weight' => $other->getWeight(),
+            'preset' => $other->getPreset()
+        ];
+
+        return $this->findEqualByData($conditions, $versioned);
+    }
+
+    /**
+     * Find first entity equal to data
+     *
+     * @param array   $conditions
+     * @param boolean $versioned Add `version is not null` condition
+     *
+     * @return \XLite\Model\ViewList|null
+     */
+    public function findEqualByData($conditions, $versioned = false)
+    {
+        $params = array_filter($conditions, function ($item) {
+            return $item !== null;
+        });
+
+        $qb = $this->createQueryBuilder()->setParameters($params);
+
+        foreach ($conditions as $key => $condition) {
+            if ($condition === null) {
+                $qb->andWhere("v.{$key} IS NULL");
+            } else {
+                $qb->andWhere("v.{$key} = :{$key}");
+            }
+        }
+
+        if ($versioned) {
+            $qb->andWhere('v.version IS NOT NULL');
+        }
+
+        return $qb->getSingleResult();
+    }
 }
 

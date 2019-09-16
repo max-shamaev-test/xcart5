@@ -90,4 +90,19 @@ abstract class ARadioButtonsList extends \XLite\View\FormField\Select\ASelect
     {
         return false;
     }
+
+    /**
+     * Assemble classes
+     *
+     * @param array $classes Classes
+     *
+     * @return array
+     */
+    protected function assembleClasses(array $classes)
+    {
+        $classes   = parent::assembleClasses($classes);
+        $classes[] = 'single-selector';
+
+        return $classes;
+    }
 }

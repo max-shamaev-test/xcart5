@@ -8,15 +8,15 @@
  */
 
 .sale-discount-types {
-  margin: 10px 0px 10px 0px;
+  margin: 10px 0 10px 0;
 }
 
 .sale-discount {
   display: block;
   height: 30px;
   list-style: none outside none;
-  margin: 11px 0px;
-  padding: 0px;
+  margin: 11px 0;
+  padding: 0;
 }
 
 .sale-discount li {
@@ -26,8 +26,8 @@
 }
 
 .sale-discount li.discount-type {
-  width: 104px;
-  height: 35px;
+  width: 120px;
+  height: 40px;
   background-color: #f2f2f2;
   border: solid 1px #f2f2f2;
   border-radius: 3px;
@@ -50,7 +50,7 @@
 }
 
 .sale-price-value div.table-value {
-  padding: 0px;
+  padding: 0;
 }
 
 div.table-value.sale-price-value input[type="checkbox"] {

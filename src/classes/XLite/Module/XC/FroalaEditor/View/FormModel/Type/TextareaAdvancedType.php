@@ -27,11 +27,9 @@ class TextareaAdvancedType extends \XLite\View\FormModel\Type\TextareaAdvancedTy
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(
-            [
-                'oldType' => 'XLite\Module\XC\FroalaEditor\View\FormField\Textarea\Advanced',
-            ]
-        );
+        $resolver->setDefaults([
+            'oldType' => 'XLite\Module\XC\FroalaEditor\View\FormField\Textarea\Advanced',
+        ]);
     }
 
     /**
@@ -42,13 +40,13 @@ class TextareaAdvancedType extends \XLite\View\FormModel\Type\TextareaAdvancedTy
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
         $view->vars = array_replace($view->vars, [
-            'input_grid' => 'froala-widget-column',
+            'input_grid'   => 'froala-widget-column',
             'fieldOptions' => array_replace(
                 $view->vars['fieldOptions'],
                 [
                     'attributes' => [
-                        'v-model'   => $view->vars['v_model'],
-                        'id'        => '',
+                        'v-model' => $view->vars['v_model'],
+                        'id'      => '',
                     ],
                     'value'      => $view->vars['value'],
                 ]

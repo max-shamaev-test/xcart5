@@ -6,7 +6,7 @@
 
   <span class="flat-rate"><span class="part-value"></span> <span class="plus">+</span></span>
   <span class="items">{{ t('shippingFormula.Items') }} * <span class="part-value"></span> <span class="plus">+</span></span>
-  <span class="subtotal">{{ t('shippingFormula.Subtotal') }} * <span class="part-value"></span>% <span class="plus">+</span></span>
+  <span class="subtotal">{{ this.getFormulaSubtotalLabel() }} * <span class="part-value"></span>% <span class="plus">+</span></span>
   <span class="weight">{{ t('shippingFormula.Weight') }} * <span class="part-value"></span></span>
   <span class="free">{{ t('shippingFormula.Free') }}</span>
 </span>

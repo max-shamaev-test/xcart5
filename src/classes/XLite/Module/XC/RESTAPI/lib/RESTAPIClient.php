@@ -11,20 +11,20 @@
  */
 class RESTAPIClient extends \GuzzleHttp\Client
 {
-    
     CONST DEFAULT_MODE = 'default';
 
     /**
-     * Factory 
+     * Factory
      *
      * @param string $url URL
      * @param string $key Access key
-     *  
+     * @param string $mode
+     *
      * @return \RESTAPIClient
      */
     public static function factory($url, $key, $mode = 'default')
     {
-        $client = new static(array('base_url' => $url));
+        $client = new static(['base_url' => $url]);
         $client->setKey($key);
         $client->setMode($mode);
 
@@ -33,7 +33,7 @@ class RESTAPIClient extends \GuzzleHttp\Client
 
     public function setMode($mode) 
     {
-        if (!in_array($mode, $this->getAllowedModes())) {
+        if (!in_array($mode, $this->getAllowedModes(), true)) {
             $mode = static::DEFAULT_MODE;
         }
 
@@ -47,9 +47,8 @@ class RESTAPIClient extends \GuzzleHttp\Client
 
     protected function getAllowedModes() 
     {
-        return array ('default', 'complex');
+        return ['default', 'complex'];
     }
-
 
     /**
      * Set key
@@ -75,38 +74,38 @@ class RESTAPIClient extends \GuzzleHttp\Client
 
     // {{{ Interfaces
 
-    public function get($uri = null, $options = array())
+    public function get($uri = null, $options = [])
     {
         return parent::get($this->assembleAPIURI($uri), $options);
     }
 
-    public function head($uri = null, array $options = array())
+    public function head($uri = null, array $options = [])
     {
         throw new \Exception('HEAD request not supported');
     }
 
-    public function delete($uri = null, array $options = array())
+    public function delete($uri = null, array $options = [])
     {
         return parent::delete($this->assembleAPIURI($uri), $options);
     }
 
-    public function put($uri = null, array $options = array())
+    public function put($uri = null, array $options = [])
     {
         if (isset($options['body']) && is_array($options['body'])) {
-            $options['body'] = http_build_query(array('model' => $options['body']));
+            $options['body'] = http_build_query(['model' => $options['body']]);
         }
 
         return parent::put($this->assembleAPIURI($uri), $options);
     }
 
-    public function patch($uri = null, array $options = array())
+    public function patch($uri = null, array $options = [])
     {
         throw new \Exception('PATCH request not supported');
     }
 
-    public function post($uri = null, array $options = array())
+    public function post($uri = null, array $options = [])
     {
-        $request = $this->createRequest('POST', $this->assembleAPIURI($uri));
+        $request = $this->createRequest('POST', $this->assembleAPIURI($uri), $options);
 
         if (isset($options['body']) && is_array($options['body'])) {
             $postBody = $request->getBody();
@@ -116,7 +115,7 @@ class RESTAPIClient extends \GuzzleHttp\Client
         return $this->send($request);
     }
 
-    public function options($uri = null, array $options = array())
+    public function options($uri = null, array $options = [])
     {
         throw new \Exception('OPTIONS request not supported');
     }

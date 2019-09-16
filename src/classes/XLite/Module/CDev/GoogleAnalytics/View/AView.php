@@ -64,6 +64,7 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
             $list[] = 'modules/CDev/GoogleAnalytics/universal/action/ecommerce/ga-ec-checkout-step.js';
             $list[] = 'modules/CDev/GoogleAnalytics/universal/action/ecommerce/ga-change-shipping.js';
             $list[] = 'modules/CDev/GoogleAnalytics/universal/action/ecommerce/ga-change-payment.js';
+            $list[] = 'modules/CDev/GoogleAnalytics/universal/action/ecommerce/ga-ec-checkout-complete.js';
         }
 
         return $list;

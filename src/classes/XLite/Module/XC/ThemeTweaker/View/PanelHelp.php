@@ -8,11 +8,12 @@
 
 namespace XLite\Module\XC\ThemeTweaker\View;
 
+use XLite\Module\XC\ThemeTweaker\Core\ThemeTweaker;
 
 /**
  * PanelHelp
  *
- * @ListChild (list="layout_settings.settings", zone="admin", weight="100")
+ * @ListChild (list="layout_settings.settings", zone="admin", weight="50")
  */
 class PanelHelp extends \XLite\View\AView
 {
@@ -29,17 +30,21 @@ class PanelHelp extends \XLite\View\AView
      */
     protected function getHelpText()
     {
-        return static::t(
-            'Open the storefront while logged in as administrator to change the look & feel of the store.',
-            [
-                'url' => \XLite\Core\Converter::buildFullURL(
-                    '',
-                    '',
-                    [],
-                    \XLite::getCustomerScript()
-                ),
-                'cog' => $this->getSVGImage('modules/XC/ThemeTweaker/panel/settings.svg')
-            ]
+        return static::t('You can customize the look & feel of the store by configuring the layout and adding the custom CSS or HTML code.');
+    }
+
+    /**
+     * @return string
+     */
+    public function getStorefrontUrl()
+    {
+        return \XLite::getInstance()->getShopURL(
+            \XLite\Core\Converter::buildURL(
+                '',
+                '',
+                ['activate_mode' => ThemeTweaker::MODE_LAYOUT_EDITOR],
+                \XLite::getCustomerScript()),
+            \XLite\Core\Config::getInstance()->Security->customer_security
         );
     }
 

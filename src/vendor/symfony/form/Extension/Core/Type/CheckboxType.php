@@ -12,9 +12,9 @@
 namespace Symfony\Component\Form\Extension\Core\Type;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\DataTransformer\BooleanToStringTransformer;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\Extension\Core\DataTransformer\BooleanToStringTransformer;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -32,7 +32,7 @@ class CheckboxType extends AbstractType
         // We cannot solve this case via overriding the "data" option, because
         // doing so also calls setDataLocked(true).
         $builder->setData(isset($options['data']) ? $options['data'] : false);
-        $builder->addViewTransformer(new BooleanToStringTransformer($options['value']));
+        $builder->addViewTransformer(new BooleanToStringTransformer($options['value'], $options['false_values']));
     }
 
     /**
@@ -40,10 +40,10 @@ class CheckboxType extends AbstractType
      */
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
-        $view->vars = array_replace($view->vars, array(
+        $view->vars = array_replace($view->vars, [
             'value' => $options['value'],
             'checked' => null !== $form->getViewData(),
-        ));
+        ]);
     }
 
     /**
@@ -55,19 +55,14 @@ class CheckboxType extends AbstractType
             return $viewData;
         };
 
-        $resolver->setDefaults(array(
+        $resolver->setDefaults([
             'value' => '1',
             'empty_data' => $emptyData,
             'compound' => false,
-        ));
-    }
+            'false_values' => [null],
+        ]);
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return $this->getBlockPrefix();
+        $resolver->setAllowedTypes('false_values', 'array');
     }
 
     /**

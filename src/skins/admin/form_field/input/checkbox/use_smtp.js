@@ -13,7 +13,7 @@ jQuery(document).ready(function () {
     'input[name="use_smtp"]',
     function() {
       $(this).change(function () {
-        if ($(this).attr('checked')) {
+        if ($(this).prop('checked')) {
           $('[name="smtp_server_url"]').closest('li.input').show();
           $('[name="smtp_server_port"]').closest('li.input').show();
           $('[name="use_smtp_auth"]').closest('li.input').show();

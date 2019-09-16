@@ -29,7 +29,8 @@ class AddNewLabel extends \XLite\View\Button\Regular
         parent::defineWidgetParams();
 
         $this->widgetParams += array(
-            self::PARAM_LANGUAGE => new \XLite\Model\WidgetParam\TypeString('Language code', null),
+            self::PARAM_LANGUAGE => new \XLite\Model\WidgetParam\TypeString('Language code',
+                \XLite\Core\Request::getInstance()->code),
             self::PARAM_PAGE     => new \XLite\Model\WidgetParam\TypeInt('Page index', 1),
         );
     }

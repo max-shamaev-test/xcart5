@@ -1,0 +1,15 @@
+{##
+ # Sitemap generation progress section
+ #}
+
+<div class="generation-progress">
+
+  <div class="content">
+    {% form 'XLite\\Module\\XC\\GoogleFeed\\View\\Form\\FeedGeneration' with {formAction: 'feedGenerationCancel'} %}
+    <div class="subcontent">
+      {{ widget('XLite\\View\\EventTaskProgress', event=this.getEventName(), message=this.getProgressMessage() ) }}
+    </div>
+    {% endform %}
+  </div>
+
+</div>

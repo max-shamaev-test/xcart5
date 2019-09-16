@@ -26,6 +26,8 @@ function TopMessages(container) {
     return false;
   }
 
+  this.messages = {};
+
   // Add listeners
 
   // Close button
@@ -212,6 +214,7 @@ TopMessages.prototype.addRecord = function (text, type) {
     : jQuery(document.createElement('UL')).appendTo(this.container);
 
   var sameLi = this.getSameRecord(ul, text);
+  var hash = objectHash.sha1({text: text, type: type});
 
   if (sameLi) {
     this.updateRecord(sameLi);
@@ -224,6 +227,9 @@ TopMessages.prototype.addRecord = function (text, type) {
 
     ul.append(li);
   }
+
+  li.hash = hash;
+  this.messages[hash] = {text: text, type: type};
 
   if (
     ul.find('li').length
@@ -250,6 +256,10 @@ TopMessages.prototype.hideRecord = function(li)
       'fast',
       function() {
         jQuery(this).remove();
+
+        if (this.messages && typeof li.hash !== 'undefined') {
+          delete this.messages[li.hash];
+        }
       }
     );
   }
@@ -260,6 +270,7 @@ TopMessages.prototype.clearRecords = function () {
   var container = this.container;
   this.hide(function () {
     jQuery('li', container).remove();
+    this.messages = {};
   });
 };
 
@@ -281,11 +292,17 @@ TopMessages.prototype.setTimer = function (li) {
   );
 };
 
+TopMessages.prototype.hasVisibleMessages = function () {
+  return Object.keys(this.messages).length > 0;
+}
+
+TopMessages.instance = null;
+
 // onmessage event handler
 TopMessages.prototype.messageHandler = function (text, type) {
   this.addRecord(text, type);
 };
 
 jQuery(function () {
-  new TopMessages(jQuery('#status-messages'));
+  TopMessages.instance = new TopMessages(jQuery('#status-messages'));
 });

@@ -12,6 +12,7 @@ use Bernard\EventListener\ErrorLogSubscriber;
 use Bernard\EventListener\FailureSubscriber;
 use Bernard\QueueFactory;
 use Bernard\Router;
+use Bernard\Producer;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class MainConsumer
@@ -20,6 +21,11 @@ class MainConsumer
      * @var QueueFactory
      */
     protected $factory;
+
+    /**
+     * @var Producer
+     */
+    protected $producer;
 
     /**
      * @var QueueFactory
@@ -38,7 +44,12 @@ class MainConsumer
 
         $this->dispatcher = new EventDispatcher();
         $this->dispatcher->addSubscriber(new ErrorLogSubscriber());
-        $this->dispatcher->addSubscriber(new FailureSubscriber($this->factory));
+
+        $this->producer = new Producer(
+            $this->factory,
+            $this->dispatcher
+        );
+        $this->dispatcher->addSubscriber(new FailureSubscriber($this->producer));
 
         $this->consumer = new CheckingInnerConsumer($router, $this->dispatcher);
     }

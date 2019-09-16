@@ -61,7 +61,7 @@ function product_comparison() {
               pr.prop('checked', 'checked');
 
             } else {
-              pr.removeProp('checked');
+              pr.prop('checked', false);
             }
           }
         }

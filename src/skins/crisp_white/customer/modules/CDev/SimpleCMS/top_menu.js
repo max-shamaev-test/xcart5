@@ -46,7 +46,7 @@ TopMenuAutoHide.prototype.bindHandlers = function () {
 
   jQuery('#logo img').bind('transitionend', handler);
 
-  jQuery('.has-sub', this.$element).live('hover', superBind(this.checkSubMenuPosition, this));
+  jQuery(this.$element).on('mouseenter', '.has-sub', superBind(this.checkSubMenuPosition, this));
 };
 
 TopMenuAutoHide.prototype.init = function () {

@@ -38,7 +38,7 @@ class Import extends \XLite\View\AView
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'import/style.css';
+        $list[] = 'import/style.less';
 
         return $list;
     }

@@ -27,6 +27,7 @@ class Shipping extends \XLite\View\Tabs\ATabs
         $list[] = 'origin_address';
         $list[] = 'automate_shipping_refunds';
         $list[] = 'automate_shipping_routine';
+        $list[] = 'packaging_supplies';
 
         return $list;
     }
@@ -75,6 +76,11 @@ class Shipping extends \XLite\View\Tabs\ATabs
                 'weight' => 400,
                 'title'  => static::t('More shipping solutions'),
                 'widget' => 'XLite\View\AutomateShippingRoutine',
+            ],
+            'packaging_supplies' => [
+                'weight' => 500,
+                'title'  => static::t('Packaging Supplies'),
+                'widget' => 'XLite\View\PackagingSupplies',
             ],
         ];
     }

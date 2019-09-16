@@ -31,9 +31,6 @@ abstract class AFormField extends \XLite\View\AView
     const PARAM_FIELD_ONLY      = 'fieldOnly';
     const PARAM_WRAPPER_CLASS   = 'wrapperClass';
     const PARAM_FORM_CONTROL   = 'formControl';
-
-    /** @deprecated */
-    const PARAM_USE_COLON       = 'useColon';
     const PARAM_LINK_HREF       = 'linkHref';
     const PARAM_LINK_TEXT       = 'linkText';
     const PARAM_LINK_IMG        = 'linkImg';
@@ -305,6 +302,14 @@ abstract class AFormField extends \XLite\View\AView
     }
 
     /**
+     * @return string
+     */
+    protected function getFieldLabelTemplate()
+    {
+        return 'form_field/form_field_label.twig';
+    }
+
+    /**
      * Return name of the folder with templates
      *
      * @return string
@@ -478,13 +483,7 @@ abstract class AFormField extends \XLite\View\AView
      */
     protected function getAttributesCode()
     {
-        $result = '';
-
-        foreach ($this->getAttributes() as $name => $value) {
-            $result .= ' ' . $name . '="' . func_htmlspecialchars($value) . '"';
-        }
-
-        return $result;
+        return ' ' . static::convertToHtmlAttributeString($this->getAttributes());
     }
 
     /**
@@ -602,9 +601,6 @@ abstract class AFormField extends \XLite\View\AView
             self::PARAM_ATTRIBUTES => new \XLite\Model\WidgetParam\TypeCollection('Attributes', $this->getDefaultAttributes()),
             self::PARAM_WRAPPER_CLASS => new \XLite\Model\WidgetParam\TypeString('Wrapper class', $this->getDefaultWrapperClass()),
             self::PARAM_FORM_CONTROL   => new \XLite\Model\WidgetParam\TypeBool('Is form control', true),
-
-            /** @deprecated */
-            self::PARAM_USE_COLON     => new \XLite\Model\WidgetParam\TypeBool('Use colon', false),
 
             self::PARAM_LINK_HREF     => new \XLite\Model\WidgetParam\TypeString('Link href', ''),
             self::PARAM_LINK_TEXT     => new \XLite\Model\WidgetParam\TypeString('Link text', ''),

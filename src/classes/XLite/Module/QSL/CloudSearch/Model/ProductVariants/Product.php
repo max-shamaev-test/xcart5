@@ -23,50 +23,55 @@ abstract class Product extends \XLite\Model\Product implements \XLite\Base\IDeco
     /**
      * Define default variant
      *
-     * @return \XLite\Module\XC\ProductVariants\Model\ProductVariant
+     * @return void
      */
     protected function defineDefaultVariant()
     {
-        $defVariant = null;
+        $defaultVariant = null;
 
         if ($this->constrainCloudSearchProductVariants !== null) {
             if ($this->mustHaveVariants() && $this->hasVariants()) {
                 $filteredVariants = $this->getFilteredCloudSearchVariants();
 
                 $repo = Database::getRepo('\XLite\Module\XC\ProductVariants\Model\ProductVariant');
-                $defVariant = $repo->findOneBy(
+                $defaultVariant = $repo->findOneBy(
                     [
                         'product'      => $this,
                         'defaultValue' => true,
                     ]
                 );
 
-                if (
-                    !$defVariant
-                    || $defVariant->isOutOfStock()
-                    || !$filteredVariants->contains($defVariant)
+                if (!$defaultVariant
+                    || $defaultVariant->isOutOfStock()
+                    || !$filteredVariants->contains($defaultVariant)
                 ) {
                     $minPrice             = $minPriceOutOfStock = false;
                     $defVariantOutOfStock = null;
+
                     foreach ($filteredVariants as $variant) {
                         if (!$variant->isOutOfStock()) {
                             if (false === $minPrice || $minPrice > $variant->getClearPrice()) {
                                 $minPrice   = $variant->getClearPrice();
-                                $defVariant = $variant;
+                                $defaultVariant = $variant;
                             }
-                        } elseif (!$defVariant) {
+                        } elseif (!$defaultVariant) {
                             if (false === $minPriceOutOfStock || $minPriceOutOfStock > $variant->getClearPrice()) {
                                 $minPriceOutOfStock   = $variant->getClearPrice();
                                 $defVariantOutOfStock = $variant;
                             }
                         }
                     }
-                    $defVariant = $defVariant ?: $defVariantOutOfStock;
+
+                    $defaultVariant = $defaultVariant ?: $defVariantOutOfStock;
                 }
             }
         }
 
-        return $defVariant !== null ? $defVariant : parent::defineDefaultVariant();
+        if ($defaultVariant) {
+            $this->defaultVariant = $defaultVariant;
+        } else {
+            parent::defineDefaultVariant();
+        }
     }
 
     /**

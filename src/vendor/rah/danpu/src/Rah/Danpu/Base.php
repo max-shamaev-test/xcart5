@@ -9,7 +9,7 @@
  */
 
 /*
- * Copyright (C) 2013 Jukka Svahn
+ * Copyright (C) 2018 Jukka Svahn
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -95,6 +95,24 @@ abstract class Base implements BaseInterface
     protected $delimiter = ';';
 
     /**
+     * The current database name.
+     *
+     * @var   string
+     * @since 2.7.0
+     */
+
+    protected $database;
+
+    /**
+     * Server version number.
+     *
+     * @var   string
+     * @since 2.7.0
+     */
+
+    protected $version;
+
+    /**
      * {@inheritdoc}
      */
 
@@ -123,6 +141,7 @@ abstract class Base implements BaseInterface
     public function connect()
     {
         if ($this->config->dsn === null && $this->config->db !== null) {
+            trigger_error('Config::$db is deprecated, see Config::$dsn.', E_USER_DEPRECATED);
             $this->config->dsn("mysql:dbname={$this->config->db};host={$this->config->host}");
         }
 
@@ -138,6 +157,11 @@ abstract class Base implements BaseInterface
             foreach ($this->config->attributes as $name => $value) {
                 $this->pdo->setAttribute($name, $value);
             }
+
+            $sth = $this->pdo->query('SELECT DATABASE() FROM DUAL');
+            $database = $sth->fetch();
+            $this->database = end($database);
+            $this->version = (string) $this->pdo->getAttribute(\PDO::ATTR_SERVER_VERSION);
         } catch (\PDOException $e) {
             throw new Exception('Connecting to database failed with message: '.$e->getMessage());
         }
@@ -279,6 +303,29 @@ abstract class Base implements BaseInterface
         }
 
         throw new Exception('Unable to move the temporary file.');
+    }
+
+    /**
+     * Gets a SQL delimiter.
+     *
+     * Gives out a character sequence that isn't
+     * in the given query.
+     *
+     * @param  string      $delimiter Delimiter character
+     * @param  string|null $query     The query to check
+     * @return string      Unique delimiter character sequence
+     * @since  2.7.0
+     */
+
+    protected function getDelimiter($delimiter = ';', $query = null)
+    {
+        while (1) {
+            if ($query === null || strpos($query, $delimiter) === false) {
+                return $delimiter;
+            }
+
+            $delimiter .= $delimiter;
+        }
     }
 
     /**

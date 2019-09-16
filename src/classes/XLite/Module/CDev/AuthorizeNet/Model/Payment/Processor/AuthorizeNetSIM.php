@@ -194,26 +194,6 @@ class AuthorizeNetSIM extends \XLite\Model\Payment\Base\WebBased
     }
 
     /**
-     * @param \XLite\Model\Payment\Transaction $transaction Return-owner transaction
-     *
-     * @return bool
-     */
-    protected function isShaType($transaction = null)
-    {
-        return $transaction
-            ? $transaction->getPaymentMethod()->getSetting('hash_type') !== 'md5'
-            : $this->getSetting('hash_type') !== 'md5';
-    }
-
-    /**
-     * @return string
-     */
-    protected function getAlgo()
-    {
-        return $this->isShaType() ? 'sha512' : 'md5';
-    }
-
-    /**
      * Get settings widget or template
      *
      * @return string Widget class name or template path
@@ -289,45 +269,41 @@ class AuthorizeNetSIM extends \XLite\Model\Payment\Base\WebBased
 
         // Stop processing if configured hash key and request hash don't match.
         if ($this->isHashProtected($transaction)) {
-            if ($this->isShaType($transaction)) {
-                $sha512data = [
-                    $request->x_trans_id,
-                    $request->x_test_request,
-                    $request->x_response_code,
-                    $request->x_auth_code,
-                    $request->x_cvv2_resp_code,
-                    $request->x_cavv_response,
-                    $request->x_avs_code,
-                    $request->x_method,
-                    $request->x_account_number,
-                    $request->x_amount,
-                    $request->x_company,
-                    $request->x_first_name,
-                    $request->x_last_name,
-                    $request->x_address,
-                    $request->x_city,
-                    $request->x_state,
-                    $request->x_zip,
-                    $request->x_country,
-                    $request->x_phone,
-                    $request->x_fax,
-                    $request->x_email,
-                    $request->x_ship_to_company,
-                    $request->x_ship_to_first_name,
-                    $request->x_ship_to_last_name,
-                    $request->x_ship_to_address,
-                    $request->x_ship_to_city,
-                    $request->x_ship_to_state,
-                    $request->x_ship_to_zip,
-                    $request->x_ship_to_country,
-                    $request->x_invoice_num,
-                ];
+            $sha512data = [
+                $request->x_trans_id,
+                $request->x_test_request,
+                $request->x_response_code,
+                $request->x_auth_code,
+                $request->x_cvv2_resp_code,
+                $request->x_cavv_response,
+                $request->x_avs_code,
+                $request->x_method,
+                $request->x_account_number,
+                $request->x_amount,
+                $request->x_company,
+                $request->x_first_name,
+                $request->x_last_name,
+                $request->x_address,
+                $request->x_city,
+                $request->x_state,
+                $request->x_zip,
+                $request->x_country,
+                $request->x_phone,
+                $request->x_fax,
+                $request->x_email,
+                $request->x_ship_to_company,
+                $request->x_ship_to_first_name,
+                $request->x_ship_to_last_name,
+                $request->x_ship_to_address,
+                $request->x_ship_to_city,
+                $request->x_ship_to_state,
+                $request->x_ship_to_zip,
+                $request->x_ship_to_country,
+                $request->x_invoice_num,
+            ];
 
 
-                if ($this->calculateSha512Hash($this->getSetting('signature'), $sha512data) !== $request->x_SHA2_Hash) {
-                    $requestVerified = false;
-                }
-            } elseif ($this->calculateHash($transaction) !== $request->x_MD5_Hash) {
+            if ($this->calculateSha512Hash($this->getSetting('signature'), $sha512data) !== $request->x_SHA2_Hash) {
                 $requestVerified = false;
             }
 
@@ -514,32 +490,7 @@ class AuthorizeNetSIM extends \XLite\Model\Payment\Base\WebBased
      */
     public function isHashProtected(\XLite\Model\Payment\Transaction $transaction)
     {
-        $key = $transaction->getPaymentMethod()->getSetting('hash_key');
-        $shaKey = $transaction->getPaymentMethod()->getSetting('signature');
-
-        return ((boolean)$key && !$this->isShaType($transaction))
-            || ((boolean)$shaKey && $this->isShaType($transaction));
-    }
-
-    /**
-     * Generates Authorize.net comparable hash string from request and method data.
-     *
-     * @param  \XLite\Model\Payment\Transaction $transaction
-     *
-     * @return string
-     */
-    public function calculateHash(\XLite\Model\Payment\Transaction $transaction)
-    {
-        $request = \XLite\Core\Request::getInstance();
-
-        $parts = [
-            $transaction->getPaymentMethod()->getSetting('hash_key'),
-            $transaction->getPaymentMethod()->getSetting('login'),
-            $request->x_trans_id,
-            $request->x_amount,
-        ];
-
-        return strtoupper(md5(join('', $parts)));
+        return (boolean)$transaction->getPaymentMethod()->getSetting('signature');
     }
 
     /**
@@ -667,9 +618,9 @@ class AuthorizeNetSIM extends \XLite\Model\Payment\Base\WebBased
     }
 
     /**
-     * Get RFC 2104 HMAC (MD5 or SHA512)
+     * Get RFC 2104 HMAC (SHA512)
      *
-     * @param string $key  Key
+     * @param string $key Key
      * @param string $data Date
      * @param string $signature
      *
@@ -677,16 +628,9 @@ class AuthorizeNetSIM extends \XLite\Model\Payment\Base\WebBased
      */
     protected function getHMAC($key, $data, $signature)
     {
-        if (function_exists('hash_hmac')) {
-            if ($this->isShaType()) {
-                $key = hex2bin($signature);
-            }
-            return hash_hmac($this->getAlgo(), $data, $key);
-        }
-
-        return $this->isShaType()
-            ? $this->getSha512HMAC($signature, $data)
-            : $this->getMd5HMAC($key, $data);
+        return function_exists('hash_hmac')
+            ? hash_hmac('sha512', $data, hex2bin($signature))
+            : $this->getSha512HMAC($signature, $data);
     }
 
     /**
@@ -710,30 +654,5 @@ class AuthorizeNetSIM extends \XLite\Model\Payment\Base\WebBased
         $kOpad = $key ^ $opad;
 
         return hash('sha512', $kOpad . pack('H*', hash('sha512', $kIpad . $data)));
-    }
-
-    /**
-     * RFC 2104 HMAC implementation for php. Creates an md5 HMAC.
-     * Eliminates the need to install mhash to compute a HMAC. Hacked by Lance Rushing
-     *
-     * @param $key
-     * @param $data
-     *
-     * @return string
-     */
-    protected function getMd5HMAC($key, $data)
-    {
-        $b = 64; // byte length for md5
-        if (strlen($key) > $b) {
-            $key = pack('H*', md5($key));
-        }
-
-        $key = str_pad($key, $b, chr(0x00));
-        $ipad = str_pad('', $b, chr(0x36));
-        $opad = str_pad('', $b, chr(0x5c));
-        $kIpad = $key ^ $ipad;
-        $kOpad = $key ^ $opad;
-
-        return md5($kOpad . pack('H*', md5($kIpad . $data)));
     }
 }

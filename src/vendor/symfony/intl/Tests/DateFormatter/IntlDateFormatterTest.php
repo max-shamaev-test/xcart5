@@ -28,6 +28,12 @@ class IntlDateFormatterTest extends AbstractIntlDateFormatterTest
         $this->assertEquals('y-M-d', $formatter->getPattern());
     }
 
+    public function testConstructorWithoutCalendar()
+    {
+        $formatter = new IntlDateFormatter('en', IntlDateFormatter::MEDIUM, IntlDateFormatter::SHORT, 'UTC', null, 'y-M-d');
+        $this->assertEquals('y-M-d', $formatter->getPattern());
+    }
+
     /**
      * @expectedException \Symfony\Component\Intl\Exception\MethodArgumentValueNotImplementedException
      */
@@ -46,7 +52,7 @@ class IntlDateFormatterTest extends AbstractIntlDateFormatterTest
     {
         $formatter = $this->getDefaultDateFormatter();
 
-        $localtime = array(
+        $localtime = [
             'tm_sec' => 59,
             'tm_min' => 3,
             'tm_hour' => 15,
@@ -56,7 +62,7 @@ class IntlDateFormatterTest extends AbstractIntlDateFormatterTest
             'tm_wday' => 0,
             'tm_yday' => 105,
             'tm_isdst' => 0,
-        );
+        ];
 
         try {
             $formatter->format($localtime);
@@ -83,7 +89,7 @@ class IntlDateFormatterTest extends AbstractIntlDateFormatterTest
     public function testFormatWithNonIntegerTimestamp()
     {
         $formatter = $this->getDefaultDateFormatter();
-        $formatter->format(array());
+        $formatter->format([]);
     }
 
     public function testGetErrorCode()
@@ -209,14 +215,12 @@ class IntlDateFormatterTest extends AbstractIntlDateFormatterTest
      * + 10 seconds) are added, then we have 86,400 seconds (24h * 60min * 60s)
      * + 10 seconds
      *
-     * @param array $dataSets
-     *
      * @return array
      */
     private function notImplemented(array $dataSets)
     {
-        return array_map(function ($row) {
-                return array($row[0], $row[1], 0);
-            }, $dataSets);
+        return array_map(function (array $row) {
+            return [$row[0], $row[1], 0];
+        }, $dataSets);
     }
 }

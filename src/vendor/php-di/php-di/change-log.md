@@ -1,6 +1,70 @@
 # Change log
 
+## 5.4.6
+
+- Fix [#554](https://github.com/PHP-DI/PHP-DI/issues/554): `Container::make()` fails when combined with `decorate()`.
+
+## 5.4.5
+
+Fixup of 5.4.4.
+
+- [#531](https://github.com/PHP-DI/PHP-DI/issues/531): performance improvement.
+
+## 5.4.4
+
+This release was broken because it was tagged against the wrong branch.
+
+- [#531](https://github.com/PHP-DI/PHP-DI/issues/531): performance improvement.
+
+## 5.4.3
+
+- [#467](https://github.com/PHP-DI/PHP-DI/issues/467): register the container against the PSR ContainerInterface
+
+## 5.4.2
+
+- Minor patch to add the `provide: psr/container-implementation` to `composer.json`.
+
+## 5.4.1
+
+- [PSR-11](http://www.php-fig.org/psr/) compliance
+
+Note that PHP-DI was already compliant with PSR-11 because it was implementing container-interop, and container-interop 1.2 extends PSR-11. This new version just makes it more explicit and will allow to drop container-interop support in the next major versions.
+
+## 5.4
+
+Read the [news entry](news/20-php-di-5-4-released.md).
+
+New features:
+
+- [#362](https://github.com/PHP-DI/PHP-DI/issues/362) implemented in [#428](https://github.com/PHP-DI/PHP-DI/pull/428), [#430](https://github.com/PHP-DI/PHP-DI/pull/430), [#431](https://github.com/PHP-DI/PHP-DI/pull/431) and [#432](https://github.com/PHP-DI/PHP-DI/pull/432): factory parameters can now be configured, for example:
+    ```php
+    return [
+        'Database' => DI\factory(function ($host) {...})
+            ->parameter('host', DI\get('db.host')),
+    ];
+    ```
+    Read the [factories documentation](http://php-di.org/doc/php-definitions.html#factories) to learn more. Feature implemented by [@predakanga](https://github.com/predakanga).
+
+Improvements:
+
+- [#429](https://github.com/PHP-DI/PHP-DI/pull/429): performance improvements in definition resolution (by [@mnapoli](https://github.com/mnapoli))
+- [#421](https://github.com/PHP-DI/PHP-DI/issues/421): once a `ContainerBuilder` has built a container, it is locked to prevent confusion when adding new definitions to it (by [@mnapoli](https://github.com/mnapoli))
+- [#423](https://github.com/PHP-DI/PHP-DI/pull/423): improved exception messages (by [@mnapoli](https://github.com/mnapoli))
+
+## 5.3
+
+Read the [news entry](news/19-php-di-5-3-released.md).
+
+- release of the [2.0 version](https://github.com/PHP-DI/Symfony-Bridge/releases/tag/2.0.0) of the Symfony bridge (by [@mnapoli](https://github.com/mnapoli))
+- PHP 5.5 or above is now required
+- a lot of documentation improvements by 9 different contributors
+- [#389](https://github.com/PHP-DI/PHP-DI/pull/389): exception message improvement by [@mopahle](https://github.com/mopahle)
+- [#359](https://github.com/PHP-DI/PHP-DI/issues/359), [#411](https://github.com/PHP-DI/PHP-DI/issues/411), [#414](https://github.com/PHP-DI/PHP-DI/pull/414), [#412](https://github.com/PHP-DI/PHP-DI/pull/412): compatibility with ProxyManager 1.* and 2.* (by [@holtkamp](https://github.com/holtkamp) and [@mnapoli](https://github.com/mnapoli))
+- [#416](https://github.com/PHP-DI/PHP-DI/pull/416): dumping definitions was refactored into a more lightweight and simple solution; definition "dumpers" have been removed (internal classes), definitions can now be cast to string directly (by [@mnapoli](https://github.com/mnapoli))
+
 ## 5.2
+
+Read the [news entry](news/17-php-di-5-2-released.md).
 
 Improvements:
 

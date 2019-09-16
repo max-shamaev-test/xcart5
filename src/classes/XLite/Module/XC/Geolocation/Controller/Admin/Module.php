@@ -9,6 +9,8 @@
 namespace XLite\Module\XC\Geolocation\Controller\Admin;
 
 
+use Includes\Utils\Module\Manager;
+
 class Module extends \XLite\Controller\Admin\Module implements \XLite\Base\IDecorator
 {
     /**
@@ -20,14 +22,9 @@ class Module extends \XLite\Controller\Admin\Module implements \XLite\Base\IDeco
     {
         parent::doActionUpdate();
 
-        if (
-            $this->getModule()
-            && $this->getModule()->getName() == 'Geolocation'
-            && $this->getModule()->getAuthor() == 'XC'
-        ) {
+        if ($this->getModule() === \Includes\Utils\Module\Module::buildId('XC', 'Geolocation')) {
             if (\XLite\Core\Request::getInstance()->restore_default_database) {
-                if (
-                    \XLite\Core\Config::getInstance()->XC->Geolocation->extended_db_path
+                if (\XLite\Core\Config::getInstance()->XC->Geolocation->extended_db_path
                     && file_exists(\XLite\Core\Config::getInstance()->XC->Geolocation->extended_db_path)
                 ) {
                     unlink(\XLite\Core\Config::getInstance()->XC->Geolocation->extended_db_path);

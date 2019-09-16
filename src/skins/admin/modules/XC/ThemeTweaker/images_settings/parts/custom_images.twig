@@ -8,10 +8,14 @@
 
   <h2>{{ t('Custom images') }}</h2>
 
-  {{ widget('\\XLite\\Module\\XC\\ThemeTweaker\\View\\Images') }}
-
   <div class="new-image">
-    {{ t('New images') }}: <input type="file" name="new_images[]" multiple />
+    <div>
+      <input id="new_images" class="inputfile" type="file" name="new_images[]" multiple />
+      <label for="new_images" class="input-button">{{ t('Upload image') }}</label>
+      <span class="input-filename"></span>
+    </div>
   </div>
+
+  {{ widget('\\XLite\\Module\\XC\\ThemeTweaker\\View\\Images') }}
 
 </div>

@@ -8,6 +8,9 @@
 
 namespace XLite\Module\CDev\SimpleCMS\View\Model;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
+
 /**
  * Settings dialog model widget
  */
@@ -36,7 +39,7 @@ abstract class Settings extends \XLite\View\Model\Settings implements \XLite\Bas
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'modules/CDev/SimpleCMS/settings.css';
+        $list[] = 'modules/CDev/SimpleCMS/settings.less';
 
         return $list;
     }
@@ -80,17 +83,31 @@ abstract class Settings extends \XLite\View\Model\Settings implements \XLite\Bas
      */
     protected function setModelProperties(array $data)
     {
-        $options = $this->getEditableOptions();
 
         if ('logo_favicon' === $this->getTarget()) {
-            foreach ($options as $k => $v) {
-                if (in_array($v->name, static::$logoFaviconFields, true)) {
-                    $data[$v->name] = $this->prepareImageData($v->value, $v->name);
+            foreach ($this->formFields as $section) {
+                foreach ($section[static::SECTION_PARAM_FIELDS] as $k => $v) {
+                    if (in_array($v->getName(), static::$logoFaviconFields, true)) {
+                        $data[$v->getName()] = ($v->getValue())
+                            ? $this->prepareImageData($v->getValue(), $v->getName())
+                            : \XLite\Core\Config::getInstance()->CDev->SimpleCMS->{$v->getName()};
+                    }
                 }
             }
         }
 
         parent::setModelProperties($data);
+
+        if (
+            'logo_favicon' === $this->getTarget()
+            && (
+                !empty($data['logo'])
+                || !empty(\XLite\Core\Request::getInstance()->useDefaultImage['logo'])
+            )
+        ) {
+            $logoImage = \XLite\Core\Database::getRepo('XLite\Model\Image\Common\Logo')->getLogo();
+            $logoImage->prepareSizes(true);
+        }
     }
 
     /**
@@ -105,7 +122,7 @@ abstract class Settings extends \XLite\View\Model\Settings implements \XLite\Bas
         if ('logo_favicon' === $this->getTarget()
             || ('module' === $this->getTarget()
                 && $this->getModule()
-                && 'CDev\SimpleCMS' === $this->getModule()->getActualName()
+                && Module::buildId('CDev', 'SimpleCMS') === $this->getModule()
             )
         ) {
             foreach ($list as $k => $v) {
@@ -136,85 +153,77 @@ abstract class Settings extends \XLite\View\Model\Settings implements \XLite\Bas
      */
     protected function prepareImageData($optionValue, $imageType)
     {
+        $currentFile = \XLite\Core\Config::getInstance()->CDev->SimpleCMS->{$imageType};
+
         $dir = static::getLogoFaviconDir();
-        if (
-            $_FILES
-            && $_FILES[$imageType]
-            && $_FILES[$imageType]['name']
-        ) {
-            $path = null;
 
-            $originalName = $_FILES[$imageType]['name'];
-            $realName = preg_replace('/([^a-zA-Z0-9_\-\.]+)/', '_', $originalName);
-            $realName = $imageType . '_' . $realName;
+        $fileMustBeDeleted = isset($optionValue['delete']);
+        if ($fileMustBeDeleted) {
+            \Includes\Utils\FileManager::deleteFile(\XLite\Core\Config::getInstance()->CDev->SimpleCMS->{$imageType});
+            return '';
+        }
 
-            $validImage = $imageType === 'appleIcon'
-                ? $this->isValidAppleIcon($_FILES[$imageType]['tmp_name'], $realName)
-                : $this->isImage($_FILES[$imageType]['tmp_name'], $realName);
+        $temporaryFile = isset($optionValue['temp_id'])
+            ? \XLite\Core\Database::getRepo('\XLite\Model\TemporaryFile')->find($optionValue['temp_id'])
+            : null;
 
-            if ($validImage) {
+        if (!$temporaryFile) {
+            return $currentFile;
+        }
 
-                if (!\Includes\Utils\FileManager::isDir($dir)) {
-                    \Includes\Utils\FileManager::mkdirRecursive($dir);
-                }
+        $originalName = $temporaryFile->getPath();
+        $realName = preg_replace('/([^a-zA-Z0-9_\-\.]+)/', '_', $originalName);
+        $realName = $imageType . '_' . $realName;
 
-                if (\Includes\Utils\FileManager::isDir($dir)) {
+        $validImage = $imageType === 'appleIcon'
+                ? $this->isValidAppleIcon($temporaryFile->getStoragePath(), $realName)
+                : true;
 
-                    // Remove file with same name as uploaded file in the destination directory
-                    \Includes\Utils\FileManager::deleteFile(
-                        $dir . LC_DS . ('favicon' === $imageType ? static::FAVICON : $realName)
-                    );
-
-                    // Move uploaded file to destination directory
-                    $path = \Includes\Utils\FileManager::moveUploadedFile(
-                        $imageType,
-                        $dir,
-                        'favicon' === $imageType ? static::FAVICON : $realName
-                    );
-
-                    if ($path) {
-                        if ($optionValue && 'logo' === $imageType && basename($optionValue) != $realName) {
-                            // Remove old image file
-                            \Includes\Utils\FileManager::deleteFile($dir . basename($optionValue));
-                        }
-                        $optionValue = static::getLogoFaviconSubDir() . basename($path);
-                    }
-                }
-
-                if (!isset($path)) {
-                    $this->logoFaviconValidation = false;
-                    \XLite\Core\TopMessage::addError(
-                        'The "{{file}}" file was not uploaded',
-                        array('file' => $realName)
-                    );
-                }
-
+        if (!$validImage) {
+            $this->logoFaviconValidation = false;
+            if ($imageType === 'appleIcon') {
+                \XLite\Core\TopMessage::addError(
+                    'The AppleIcon image could not be uploaded (Unallowed image type. Must be a .png image with the resolution of 192x192 px)',
+                    array(
+                        'file' => $originalName,
+                    )
+                );
             } else {
-                $this->logoFaviconValidation = false;
+                \XLite\Core\TopMessage::addError(
+                    'The "{{file}}" file is not allowed image and was not uploaded. Allowed images are: {{extensions}}',
+                    array(
+                        'file' => $originalName,
+                        'extensions' => implode(', ', $this->getImageExtensions()),
+                    )
+                );
+            }
+            return $currentFile;
+        }
 
-                if ($imageType === 'appleIcon') {
-                    \XLite\Core\TopMessage::addError(
-                        'The AppleIcon image could not be uploaded (Unallowed image type. Must be a .png image with the resolution of 192x192 px)',
-                        array(
-                            'file' => $originalName,
-                        )
-                    );
-                } else {
-                    \XLite\Core\TopMessage::addError(
-                        'The "{{file}}" file is not allowed image and was not uploaded. Allowed images are: {{extensions}}',
-                        array(
-                            'file' => $originalName,
-                            'extensions' => implode(', ', $this->getImageExtensions()),
-                        )
-                    );
-                }
+        if (!\Includes\Utils\FileManager::isDir($dir)) {
+            \Includes\Utils\FileManager::mkdirRecursive($dir);
+        }
+
+        if (\Includes\Utils\FileManager::isDir($dir)) {
+            // Remove current file if it is not default
+            if ($currentFile) {
+                \Includes\Utils\FileManager::deleteFile($currentFile);
             }
 
-        } elseif (\XLite\Core\Request::getInstance()->useDefaultImage[$imageType]) {
-            if ($optionValue) {
-                \Includes\Utils\FileManager::deleteFile($dir . basename($optionValue));
+            // Move uploaded file to destination directory
+            $file = $temporaryFile->cloneEntity();
+            \XLite\Core\Database::getEM()->remove($temporaryFile);
+            \XLite\Core\Database::getEM()->flush();
+
+            $pathFrom = $file->getStoragePath();
+            $pathTo = $dir . ('favicon' === $imageType ? static::FAVICON : $realName);
+
+            $fileIsMoved = \Includes\Utils\FileManager::move($pathFrom, $pathTo, true);
+            if ($fileIsMoved) {
+                \Includes\Utils\FileManager::chmod($pathTo, 0644);
             }
-            $optionValue = '';
+
+            $optionValue = static::getLogoFaviconSubDir() . ('favicon' === $imageType ? static::FAVICON : $realName);
         }
 
         return $optionValue;
@@ -228,26 +237,9 @@ abstract class Settings extends \XLite\View\Model\Settings implements \XLite\Bas
      *
      * @return boolean
      */
-    protected function isImage($path, $name)
-    {
-        return $this->hasImageName($name)
-            && \Includes\Utils\FileManager::isImageExtension($name)
-            && \Includes\Utils\FileManager::isImage($path);
-    }
-
-    /**
-     * Check if file is valid image
-     *
-     * @param string $path Temporary uploaded file path
-     * @param string $name Real file name
-     *
-     * @return boolean
-     */
     protected function isValidAppleIcon($path, $name)
     {
-        return $this->hasImageName($name)
-            && strtolower(pathinfo($name, PATHINFO_EXTENSION)) === 'png'
-            && \Includes\Utils\FileManager::isImage($path)
+        return strtolower(pathinfo($name, PATHINFO_EXTENSION)) === 'png'
             && $this->isValidResolution($path, '192x192');
     }
 

@@ -8,7 +8,6 @@
 
 namespace XLite\Controller\Admin;
 
-
 class Logs extends \XLite\Controller\Admin\AAdmin
 {
     public function getTitle()

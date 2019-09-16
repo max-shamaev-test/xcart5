@@ -33,27 +33,35 @@ body.live-css-reloading .themetweaker-modal-container * {
 }
 
 .themetweaker-modal-container {
-	width: 400px;
+	width: 500px;
 	margin: 0px auto;
-	padding: 30px 30px;
+	padding: 24px 44px;
 	background-color: #fff;
-	border-radius: 2px;
+	border-radius: 6px;
 	transition: all .3s ease;
 	position: relative;
+	box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.16);
+	font-family: 'Open Sans', sans-serif !important;
+}
+
+
+.themetweaker-modal-container p,
+.themetweaker-modal-container span {
+	font-size: 14px;
 }
 
 .themetweaker-modal-button {
 	padding: 0 20px;
 	height: 100%;
 	vertical-align: middle;
-	font-size: 12px;
-	min-height: 30px;
+	font-size: 14px;
+	min-height: 35px;
 }
 
 .themetweaker-modal-close {
 	position: absolute;
-	right: 10px;
-	top: 10px;
+	right: 22px;
+	top: 22px;
 	cursor: pointer;
 }
 
@@ -64,7 +72,7 @@ body.live-css-reloading .themetweaker-modal-container * {
 }
 
 .themetweaker-modal-close svg path {
-	fill: #000;
+	fill: #9b9b9b;
 }
 
 .themetweaker-modal-close:hover svg path,
@@ -79,10 +87,11 @@ body.live-css-reloading .themetweaker-modal-container * {
 button.themetweaker-modal-button,
 a.themetweaker-modal-button {
 	cursor: pointer;
-	border-radius: 2px;
-	border: none;
-	background: #000;
+	border-radius: 4px;
+	border: 1px solid #eea236;
 	min-width: 80px;
+	color: #fff;
+	background-color: #f0ad4e;
 }
 
 button.themetweaker-modal-button span,
@@ -92,27 +101,28 @@ a.themetweaker-modal-button span {
 
 .themetweaker-modal-button:hover,
 .themetweaker-modal-button:focus {
-	background: #0ba2e8;
+	background-color: #ed9c28;
+	border-color: #d58512;
 }
 
 .themetweaker-modal-button.secondary {
 	background: #fff;
-	border: 2px solid #000;
+	border: solid 1px #cccccc;
 }
 
 .themetweaker-modal-button.secondary:hover,
 .themetweaker-modal-button.secondary:focus {
-	border: 2px solid #0ba2e8;
-	background: #0ba2e8;
+	background-color: #eff8fe;
+	border-color: #c9dcea;
 }
 
 .themetweaker-modal-button.secondary:hover span,
 .themetweaker-modal-button.secondary:focus span {
-	color: #fff;
+	color: #2c5fa6;
 }
 
 .themetweaker-modal-button.secondary span {
-	color: #000;
+	color: #2c5fa6;
 }
 
 /*

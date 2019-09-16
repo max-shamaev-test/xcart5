@@ -21,6 +21,29 @@ class GroupedArraySort extends BaseImplementation implements GroupedTopSortInter
     protected $debugging = false;
 
     /**
+     * When active the sorter creates a new group when a element has a dependency to the same type.
+     *
+     * @var bool
+     */
+    protected $sameTypeExtraGrouping = false;
+
+    /**
+     * @return boolean
+     */
+    public function isSameTypeExtraGrouping()
+    {
+        return $this->sameTypeExtraGrouping;
+    }
+
+    /**
+     * @param boolean $sameTypeExtraGrouping
+     */
+    public function setSameTypeExtraGrouping($sameTypeExtraGrouping)
+    {
+        $this->sameTypeExtraGrouping = $sameTypeExtraGrouping;
+    }
+
+    /**
      * @param string   $name
      * @param string   $type
      * @param string[] $dependencies
@@ -38,6 +61,7 @@ class GroupedArraySort extends BaseImplementation implements GroupedTopSortInter
         );
     }
 
+
     /**
      * @param array[] $elements ['id' => ['type', ['dep1', 'dep2']], 'id2' => ...]
      */
@@ -47,7 +71,7 @@ class GroupedArraySort extends BaseImplementation implements GroupedTopSortInter
             $this->add(
                 $element,
                 $typeAndDependencies[0],
-                isset($typeAndDependencies[1]) ? $typeAndDependencies[1] : []
+                isset($typeAndDependencies[1]) ? $typeAndDependencies[1] : array()
             );
         }
     }
@@ -76,6 +100,12 @@ class GroupedArraySort extends BaseImplementation implements GroupedTopSortInter
                     if ($addedAtGroupLevel > $minLevel) {
                         $minLevel = $addedAtGroupLevel;
                     }
+                    if ($this->isSameTypeExtraGrouping()) {
+                        if ($this->elements[$dependency]->type === $element->type) {
+                            //add a new group
+                            $minLevel = $this->groupLevel;
+                        }
+                    }
                 } else {
                     throw ElementNotFoundException::create($element->id, $dependency);
                 }
@@ -86,7 +116,7 @@ class GroupedArraySort extends BaseImplementation implements GroupedTopSortInter
 
             $this->injectElement($element, $minLevel);
 
-            return $minLevel;
+            return $minLevel === -1 ? $element->addedAtLevel : $minLevel;
         }
 
         return $element->addedAtLevel;
@@ -112,13 +142,14 @@ class GroupedArraySort extends BaseImplementation implements GroupedTopSortInter
                 }
             }
             $element->addedAtLevel = $group->level;
+            $this->position++;
         } else {
-            $this->groups[] = (object)[
+            $this->groups[] = (object)array(
                 'type' => $element->type,
                 'level' => $this->groupLevel,
                 'position' => $this->position,
                 'length' => 1
-            ];
+            );
             $element->addedAtLevel = $this->groupLevel;
             $this->sorted[] = $element->id;
             $this->position++;
@@ -157,6 +188,20 @@ class GroupedArraySort extends BaseImplementation implements GroupedTopSortInter
     }
 
     /**
+     * @return array
+     */
+    public function sortGrouped()
+    {
+        $items = $this->sort();
+        $groups = array();
+        foreach ($this->getGroups() as $group) {
+            $groups[] = array('type' => $group->type, 'elements' => array_slice($items, $group->position, $group->length));
+        }
+
+        return $groups;
+    }
+
+    /**
      * @param string  $type
      * @param integer $minLevel
      *
@@ -189,10 +234,20 @@ class GroupedArraySort extends BaseImplementation implements GroupedTopSortInter
      */
     public function doSort()
     {
-        $this->sorted = [];
+        if ($this->sorted) {
+            //reset state when already executed
+            foreach ($this->elements as $element) {
+                $element->visited = false;
+            }
+        }
+
+        $this->sorted = array();
+        $this->groups = array();
+        $this->position = 0;
+        $this->groupLevel = 0;
 
         foreach ($this->elements as $element) {
-            $parents = [];
+            $parents = array();
             $this->visit($element, $parents);
         }
 

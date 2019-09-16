@@ -43,6 +43,16 @@ abstract class AFileUploader extends \XLite\View\FormField\AFormField
     /**
      * @inheritdoc
      */
+    public function getCSSFiles()
+    {
+        return array_merge(parent::getJSFiles(), [
+            'form_field/file_uploader/style.less'
+        ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getJSFiles()
     {
         return array_merge(parent::getJSFiles(), [
@@ -90,6 +100,16 @@ abstract class AFileUploader extends \XLite\View\FormField\AFormField
     }
 
     /**
+     * Set the form field as "form control" (some major styling will be applied)
+     *
+     * @return boolean
+     */
+    protected function isFormControl()
+    {
+        return false;
+    }
+
+    /**
      * Return field template
      *
      * @return string
@@ -126,31 +146,22 @@ abstract class AFileUploader extends \XLite\View\FormField\AFormField
     {
         $list = parent::getCommonAttributes();
 
-        if ($this->getParam(static::PARAM_MULTIPLE)) {
-            $list['multiple'] = $this->getParam(static::PARAM_MULTIPLE);
-        }
-        $list['max_width'] = $this->getParam(static::PARAM_MAX_WIDTH);
-        $list['max_height'] = $this->getParam(static::PARAM_MAX_HEIGHT);
-
-        return $list;
-    }
-
-    /**
-     * Return HTML representation for widget attributes
-     *
-     * @return string
-     */
-    protected function getDataCode()
-    {
-        $result = '';
-
-        foreach ($this->getAttributes() as $name => $value) {
+        foreach ($list as $name => $value) {
             if ('class' != $name) {
-                $result .= ' data-' . $name . '="' . func_htmlspecialchars($value) . '"';
+                $list['data-' . $name] = func_htmlspecialchars($value);
             }
         }
 
-        return $result;
+        $list['class'] = 'file-uploader-widget';
+        if ($this->getParam(static::PARAM_MULTIPLE)) {
+            $list['data-multiple'] = $this->getParam(static::PARAM_MULTIPLE);
+            $list['class'] .= ' multiple-files';
+        }
+
+        $list['data-max_width'] = $this->getParam(static::PARAM_MAX_WIDTH);
+        $list['data-max_height'] = $this->getParam(static::PARAM_MAX_HEIGHT);
+
+        return $list;
     }
 
     /**

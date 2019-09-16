@@ -68,7 +68,7 @@ class CoreVersion extends \XLite\View\AView
         $license = \XLite::getXCNLicense();
 
         if ($license
-            && ($keyData = $license->getKeyData())
+            && ($keyData = $license['keyData'])
             && !empty($keyData['editionName'])
         ) {
             $result = $keyData['editionName'];

@@ -120,7 +120,7 @@ class ProductSelections extends \XLite\Controller\Admin\AAdmin
      */
     public function getStyleExcludedProduct($productId)
     {
-        return 'fa-check-square';
+        return 'fa-selected';
     }
 
     /**

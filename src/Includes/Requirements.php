@@ -67,6 +67,7 @@ final class Requirements
      * filePermissionsPaths => $lcSettings['mustBeWritable'] (file_permissions)
      *
      * minMysqlVersion => LC_MYSQL_VERSION_MIN
+     * minMariadbVersion => LC_MARIADB_VERSION_MIN
      *
      * databaseDetails
      *
@@ -82,7 +83,7 @@ final class Requirements
             'configFileName'        => 'config.php',
             'defaultConfigFileName' => 'config.default.php',
 
-            'minPhpVersion'        => '5.4.0',
+            'minPhpVersion'        => '7.2.0',
             'maxPhpVersion'        => '',
             'forbiddenPhpVersions' => [],
 
@@ -92,7 +93,8 @@ final class Requirements
 
             'filePermissionsPaths' => self::getFilePermissionsPaths(),
 
-            'minMysqlVersion' => '5.0.3',
+            'minMysqlVersion' => '5.7.7',
+            'minMariadbVersion' => '10.2.4',
             'databaseDetails' => isset($config['database_details']) ? $config['database_details'] : [],
         ];
 
@@ -305,16 +307,10 @@ final class Requirements
                 'dependency'  => ['php_pdo_mysql'],
                 'environment' => [
                     'minMysqlVersion', // LC_MYSQL_VERSION_MIN
+                    'minMariadbVersion', // LC_MARIADB_VERSION_MIN
                     'databaseDetails',
                 ],
                 'checker'     => $this->getMysqlVersionChecker(),
-            ],
-            'mysql_cache'              => [
-                'title'      => 'MySQL cache',
-                'state'      => self::STATE_UNCHECKED,
-                'level'      => self::LEVEL_OPTIONAL,
-                'dependency' => ['php_pdo_mysql'],
-                'checker'    => $this->getMysqlCacheChecker(),
             ],
             'php_gdlib'                => [
                 'title'   => 'GDlib extension',
@@ -745,6 +741,7 @@ final class Requirements
             $innodb  = false;
             $version = 'unknown';
             $error   = '';
+            $rdbms = 'MySQL';
 
             if ($pdo) {
                 try {
@@ -755,6 +752,11 @@ final class Requirements
                 }
 
                 if ($version) {
+                    if ($this->isMariaDB($version)) {
+                        $version = explode('-', $version)[1];
+                        $minMysqlVersion = $this->getEnvironment('minMariadbVersion');
+                        $rdbms = 'MariaDB';
+                    }
                     if (version_compare($version, $minMysqlVersion) < 0) {
                         return [
                             false,
@@ -762,6 +764,7 @@ final class Requirements
                             [
                                 'version'         => $version,
                                 'minMysqlVersion' => $minMysqlVersion,
+                                'rdbms'           => $rdbms
                             ],
                         ];
 
@@ -791,45 +794,6 @@ final class Requirements
                 [
                     'version' => $version,
                     'error'   => $error,
-                ],
-            ];
-        };
-    }
-
-    /**
-     * @return \Closure
-     */
-    private function getMysqlCacheChecker()
-    {
-        return function () {
-            $pdo = $this->getPDO();
-            $result = true;
-            $haveQueryCache = $queryCacheType = $queryCacheSize = [];
-            if ($pdo) {
-                $statement = $pdo->prepare('SHOW VARIABLES LIKE \'have_query_cache\';');
-                $statement->execute();
-                $haveQueryCache = $statement->fetch();
-
-                $statement = $pdo->prepare('SHOW VARIABLES LIKE \'query_cache_type\';');
-                $statement->execute();
-                $queryCacheType = $statement->fetch();
-
-                $statement = $pdo->prepare('SHOW VARIABLES LIKE \'query_cache_size\';');
-                $statement->execute();
-                $queryCacheSize = $statement->fetch();
-
-                $result = (isset($haveQueryCache['Value']) ? strtolower($haveQueryCache['Value']) === 'yes' : false)
-                    && (isset($queryCacheType['Value']) ? in_array(strtolower($queryCacheType['Value']), ['on', '1'], true) : false)
-                    && (isset($queryCacheSize['Value']) ? ((int)$queryCacheSize['Value']) > 0 : false);
-            }
-
-            return [
-                $result,
-                'error_message_1',
-                [
-                    'have_query_cache' => isset($haveQueryCache['Value']) ? $haveQueryCache['Value'] : 'unknown',
-                    'query_cache_type' => isset($queryCacheType['Value']) ? $queryCacheType['Value'] : 'unknown',
-                    'query_cache_size' => isset($queryCacheSize['Value']) ? $queryCacheSize['Value'] : 'unknown',
                 ],
             ];
         };
@@ -1544,6 +1508,13 @@ final class Requirements
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    /**
+     * @return boolean
+     */
+    private function isMariaDB($version) {
+        return strpos($version, 'MariaDB');
     }
 
     // }}}

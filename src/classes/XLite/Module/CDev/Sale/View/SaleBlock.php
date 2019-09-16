@@ -13,7 +13,8 @@ use XLite\View\CacheableTrait;
 /**
  * Sale products block widget
  *
- * @ListChild (list="sidebar.first", zone="customer", weight="1000")
+ * @ListChild (list="sidebar.first", zone="customer", weight="1000", name="main")
+ * @ListChild (list="center.bottom", zone="customer", weight="350", preset="one", name="main")
  */
 class SaleBlock extends \XLite\Module\CDev\Sale\View\ASale
 {
@@ -64,6 +65,7 @@ class SaleBlock extends \XLite\Module\CDev\Sale\View\ASale
         unset(
             $this->widgetParams[\XLite\View\Pager\APager::PARAM_SHOW_ITEMS_PER_PAGE_SELECTOR],
             $this->widgetParams[\XLite\View\Pager\APager::PARAM_ITEMS_PER_PAGE],
+            $this->widgetParams[static::PARAM_SHOW_SORT_BY_SELECTOR],
             $this->widgetParams[self::PARAM_SHOW_DISPLAY_MODE_SELECTOR]
         );
 

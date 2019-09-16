@@ -61,6 +61,25 @@ class Request extends \XLite\Base\Singleton
     protected $languageCode = '';
 
     /**
+     * @var string
+     */
+    protected $identifier;
+
+    /**
+     * Current request identifier
+     *
+     * @return string
+     */
+    public function getUniqueIdentifier()
+    {
+        if (null === $this->identifier) {
+            $this->identifier = hash('md5', uniqid('', true));
+        }
+
+        return $this->identifier;
+    }
+
+    /**
      * @return string
      */
     public function getLanguageCode()
@@ -80,15 +99,6 @@ class Request extends \XLite\Base\Singleton
         return $this;
     }
 
-    /**
-     * Drag-n-drop-cart feature is turned off for the mobile devices
-     *
-     * @return boolean
-     */
-    public static function isDragDropCartFlag()
-    {
-        return !static::isMobileDevice();
-    }
 
     /**
      * Detect Mobile version
@@ -546,7 +556,7 @@ class Request extends \XLite\Base\Singleton
 
         if ($secure) {
             $domain = $this->getCookieDomain(true);
-            $result = @setcookie(
+            $result = $this->_setcookie(
                 $name,
                 $value,
                 $ttl,
@@ -557,7 +567,7 @@ class Request extends \XLite\Base\Singleton
             );
         } else {
             $httpDomain = $this->getCookieDomain(false);
-            $result = @setcookie(
+            $result = $this->_setcookie(
                 $name,
                 $value,
                 $ttl,
@@ -570,7 +580,7 @@ class Request extends \XLite\Base\Singleton
             $httpsDomain = $this->getCookieDomain(true);
 
             if ($httpDomain != $httpsDomain) {
-                $result = @setcookie(
+                $result = $this->_setcookie(
                     $name,
                     $value,
                     $ttl,
@@ -595,7 +605,7 @@ class Request extends \XLite\Base\Singleton
 
         if ($secure) {
             $domain = $this->getCookieDomain(true);
-            @setcookie(
+            $this->_setcookie(
                 $name,
                 null,
                 -1,
@@ -606,7 +616,7 @@ class Request extends \XLite\Base\Singleton
             );
         } else {
             $httpDomain = $this->getCookieDomain(false);
-            @setcookie(
+            $this->_setcookie(
                 $name,
                 null,
                 -1,
@@ -618,7 +628,7 @@ class Request extends \XLite\Base\Singleton
 
             $httpsDomain = $this->getCookieDomain(true);
             if ($httpDomain != $httpsDomain) {
-                @setcookie(
+                $this->_setcookie(
                     $name,
                     null,
                     -1,
@@ -628,6 +638,39 @@ class Request extends \XLite\Base\Singleton
                     true
                 );
             }
+        }
+    }
+
+    /**
+     * Wrapper for setcookie PHP function
+     */
+    public function _setcookie($name, $value = '', $expires = 0, $path = '', $domain = '', $secure = false, $httponly = false, $samesite = null)
+    {
+        $samesite = $samesite ?: $this->getCookieSameSiteOptionValue();
+
+        if (PHP_VERSION_ID >= 70300) {
+            $options = [
+                'expires' => $expires,
+                'path'    => $path,
+                'domain'  => $domain,
+                'secure'  => $secure,
+                'httponly' => $httponly,
+            ];
+
+            if ($samesite) {
+                $options['samesite'] = $samesite;
+            }
+
+            @setcookie($name, $value, $options);
+
+        } else {
+
+            if ($samesite) {
+                // Use a bug in PHP prior to v7.3.0 to pass 'samesite' option into cookie
+                $path .= '; samesite=' . $this->getCookieSameSiteOptionValue() . ';';
+            }
+
+            @setcookie($name, $value, $expires, $path, $domain, $secure, $httponly);
         }
     }
 
@@ -657,6 +700,16 @@ class Request extends \XLite\Base\Singleton
         $url = $this->getCookieURL($secure);
 
         return isset($url['path']) ? $url['path'] : '/';
+    }
+
+    /**
+     * Get samesite option value
+     *
+     * @return string
+     */
+    protected function getCookieSameSiteOptionValue()
+    {
+        return \Includes\Utils\ConfigParser::getOptions(array('other', 'cookie_samesite'));
     }
 
     /**
@@ -926,5 +979,19 @@ class Request extends \XLite\Base\Singleton
         }
 
         return $result;
+    }
+
+    /**
+     * Returns customer user agent
+     *
+     * @return string
+     */
+    public function getClientUserAgent()
+    {
+        if (isset($_SERVER['HTTP_USER_AGENT'])) {
+            return $_SERVER['HTTP_USER_AGENT'];
+        }
+
+        return 'UNKNOWN';
     }
 }

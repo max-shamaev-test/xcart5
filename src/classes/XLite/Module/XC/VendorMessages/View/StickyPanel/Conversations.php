@@ -27,7 +27,6 @@ class Conversations extends \XLite\View\StickyPanel\ItemsListForm implements \XL
                 'params'   => [
                     'label'          => 'Mark all',
                     'style'          => 'more-action always-enabled icon-only',
-                    'useCaretButton' => false,
                     'dropDirection'  => 'dropup',
                 ],
                 'position' => 250,

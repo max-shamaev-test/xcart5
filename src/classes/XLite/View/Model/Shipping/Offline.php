@@ -63,7 +63,9 @@ class Offline extends \XLite\View\Model\AModel
             : null;
 
         $model = $model ?: new \XLite\Model\Shipping\Method();
-        $model->setEnabled(true);
+        if (!$model->getAdded()) {
+            $model->setEnabled(true);
+        };
         $model->setAdded(true);
         $model->setProcessor('offline');
 

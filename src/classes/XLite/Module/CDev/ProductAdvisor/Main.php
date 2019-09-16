@@ -8,9 +8,6 @@
 
 namespace XLite\Module\CDev\ProductAdvisor;
 
-/**
- * ProductAdvisor main class
- */
 abstract class Main extends \XLite\Module\AModule
 {
     /**
@@ -36,86 +33,6 @@ abstract class Main extends \XLite\Module\AModule
     const LC_RECENTLY_VIEWED_COOKIE_TTL = 0;
 
     /**
-     * Author name
-     *
-     * @return string
-     */
-    public static function getAuthorName()
-    {
-        return 'X-Cart team';
-    }
-
-    /**
-     * Get module major version
-     *
-     * @return string
-     */
-    public static function getMajorVersion()
-    {
-        return '5.3';
-    }
-
-    /**
-     * Module version
-     *
-     * @return string
-     */
-    public static function getMinorVersion()
-    {
-        return '3';
-    }
-
-    /**
-     * Get module build number (4th number in the version)
-     *
-     * @return string
-     */
-    public static function getBuildVersion()
-    {
-        return '5';
-    }
-
-    /**
-     * Get minor core version which is required for the module activation
-     *
-     * @return string
-     */
-    public static function getMinorRequiredCoreVersion()
-    {
-        return '3';
-    }
-
-    /**
-     * Module name
-     *
-     * @return string
-     */
-    public static function getModuleName()
-    {
-        return 'Product Advisor';
-    }
-
-    /**
-     * Module description
-     *
-     * @return string
-     */
-    public static function getDescription()
-    {
-        return 'Adds specific products lists to the catalog: new arrivals, coming soon, recently viewed etc.';
-    }
-
-    /**
-     * Determines if we need to show settings form link
-     *
-     * @return boolean
-     */
-    public static function showSettingsForm()
-    {
-        return true;
-    }
-
-    /**
      * Get the "New!" label
      *
      * @param \XLite\Model\Product $product Current product
@@ -124,7 +41,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getLabels(\XLite\Model\Product $product)
     {
-        $result  = array();
+        $result = [];
 
         if ($product->isNewProduct()
             && \XLite\Module\CDev\ProductAdvisor\View\FormField\Select\MarkProducts::isCatalogEnabled(
@@ -138,14 +55,21 @@ abstract class Main extends \XLite\Module\AModule
             && \XLite\Module\CDev\ProductAdvisor\View\FormField\Select\MarkProducts::isCatalogEnabled(
                 \XLite\Core\Config::getInstance()->CDev->ProductAdvisor->cs_mark_with_label
             )
-        ) {
+        ) { 
+            
             $result[self::PA_MODULE_PRODUCT_LABEL_SOON]
-                = \XLite\Core\Translation::getInstance()->translate('Coming soon');
+                = \XLite\Core\Translation::getInstance()->translate('Expected on X', 
+                array('date' => \XLite\Core\Converter::getInstance()->
+                        formatDate(
+                            $product->getArrivalDate()
+                        )
+                     )
+                     );
+                
         }
-
+        
         return $result;
     }
-
 
     /**
      * Get the "New!" label
@@ -156,7 +80,7 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getProductPageLabels(\XLite\Model\Product $product)
     {
-        $result  = array();
+        $result = [];
 
         if ($product->isNewProduct()
             && \XLite\Module\CDev\ProductAdvisor\View\FormField\Select\MarkProducts::isProductPageEnabled(
@@ -174,6 +98,7 @@ abstract class Main extends \XLite\Module\AModule
             $result[self::PA_MODULE_PRODUCT_LABEL_SOON]
                 = \XLite\Core\Translation::getInstance()->translate('Coming soon');
         }
+
 
         return $result;
     }
@@ -185,13 +110,13 @@ abstract class Main extends \XLite\Module\AModule
      */
     public static function getProductIds()
     {
-        $result = array();
+        $result = [];
 
         $productIdsString = \XLite\Core\Request::getInstance()->{self::LC_RECENTLY_VIEWED_COOKIE_NAME};
 
         if ($productIdsString) {
             $productIds = explode('-', $productIdsString);
-            $result = array_unique(array_map('intval', $productIds), SORT_NUMERIC);
+            $result     = array_unique(array_map('intval', $productIds), SORT_NUMERIC);
 
             $key = array_search(0, $result);
 

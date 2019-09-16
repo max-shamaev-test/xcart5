@@ -8,6 +8,9 @@
 
 namespace XLite\Model\Payment;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
+
 /**
  * Payment method
  *
@@ -16,7 +19,8 @@ namespace XLite\Model\Payment;
  *      indexes={
  *          @Index (name="orderby", columns={"orderby"}),
  *          @Index (name="class", columns={"class","enabled"}),
- *          @Index (name="enabled", columns={"enabled"})
+ *          @Index (name="enabled", columns={"enabled"}),
+ *          @Index (name="serviceName", columns={"service_name"})
  *      }
  * )
  */
@@ -97,15 +101,6 @@ class Method extends \XLite\Model\Base\I18n
     protected $enabled = false;
 
     /**
-     * Module enabled status
-     *
-     * @var boolean
-     *
-     * @Column (type="boolean")
-     */
-    protected $moduleEnabled = true;
-
-    /**
      * Added status
      *
      * @var boolean
@@ -170,6 +165,14 @@ class Method extends \XLite\Model\Base\I18n
      */
     protected $exCountries;
 
+    /**
+     * Settings
+     *
+     * @var \XLite\Model\Payment\MethodCountryPosition[]
+     *
+     * @OneToMany (targetEntity="XLite\Model\Payment\MethodCountryPosition", mappedBy="paymentMethod", cascade={"all"})
+     */
+    protected $countryPositions;
 
     /**
      * Get processor
@@ -193,7 +196,7 @@ class Method extends \XLite\Model\Base\I18n
     {
         return ($this->getEnabled() || $this->isForcedEnabled())
             && $this->getAdded()
-            && $this->getModuleEnabled()
+            && $this->isModuleEnabled()
             && $this->getProcessor()
             && $this->getProcessor()->isConfigured($this);
     }
@@ -378,12 +381,15 @@ class Method extends \XLite\Model\Base\I18n
      */
     public function getAdminIconURL()
     {
-        $url = $this->getProcessor() ? $this->getProcessor()->getAdminIconURL($this) : null;
+        $processor = $this->getProcessor();
+        $url = $processor ? $processor->getAdminIconURL($this) : null;
 
         if (true === $url) {
-            $module = $this->getProcessor()->getModule();
-            $url = $module
-                ? \XLite\Core\Layout::getInstance()->getResourceWebPath('modules/' . $module->getAuthor() . '/' . $module->getName() . '/method_icon.png')
+            list($author, $name) = Module::explodeModuleId($processor->getModuleId());
+
+            $url = $author && $name
+                ? \XLite\Core\Layout::getInstance()
+                    ->getResourceWebPath('modules/' . $author . '/' . $name . '/method_icon.png')
                 : null;
         }
 
@@ -397,11 +403,11 @@ class Method extends \XLite\Model\Base\I18n
      */
     public function getAltAdminIconURL()
     {
-        $module = $this->getProcessor()->getModule();
+        list($author, $name) = Module::explodeModuleId($this->getProcessor()->getModuleId());
 
-        return $module
+        return $author && $name
             ? \XLite\Core\Layout::getInstance()->getResourceWebPath(
-                'modules/' . $module->getAuthor() . '/' . $module->getName() . '/method_icon_' . $this->getAdaptedServiceName() . '.png'
+                'modules/' . $author . '/' . $name . '/method_icon_' . $this->getAdaptedServiceName() . '.png'
             )
             : null;
     }
@@ -483,43 +489,6 @@ class Method extends \XLite\Model\Base\I18n
     }
 
     /**
-     * Return true if payment module is installed
-     *
-     * @return boolean
-     */
-    public function isModuleInstalled()
-    {
-        $result = true;
-        $moduleName = $this->getModuleName();
-
-        if ($moduleName) {
-            $moduleName = str_replace('_', '\\', $moduleName);
-            $module = \XLite\Core\Database::getRepo('XLite\Model\Module')->findOneByModuleName($moduleName);
-            $result = !empty($module);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Get payment module
-     *
-     * @return \XLite\Model\Module|null
-     */
-    public function getModule()
-    {
-        $module = null;
-        $moduleName = $this->getModuleName();
-
-        if ($moduleName) {
-            $moduleName = str_replace('_', '\\', $moduleName);
-            $module = \XLite\Core\Database::getRepo('XLite\Model\Module')->findModuleByName($moduleName);
-        }
-
-        return $module;
-    }
-
-    /**
      * Get message why we can't switch payment method
      *
      * @return string
@@ -532,11 +501,25 @@ class Method extends \XLite\Model\Base\I18n
     /**
      * Get payment module ID
      *
-     * @return integer|null
+     * @return string|null
      */
     public function getModuleId()
     {
-        return $this->getModule() ? $this->getModule()->getModuleId() : null;
+        list($author, $name) = explode('_', $this->getModuleName());
+
+        return Manager::getRegistry()->isModuleEnabled($author, $name)
+            ? Module::buildId($author, $name)
+            : null;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isModuleInstalled()
+    {
+        list($author, $name) = explode('_', $this->getModuleName());
+
+        return (bool) Manager::getRegistry()->getModule($author, $name);
     }
 
     /**
@@ -658,25 +641,20 @@ class Method extends \XLite\Model\Base\I18n
     }
 
     /**
-     * Set moduleEnabled
-     *
-     * @param boolean $moduleEnabled
-     * @return Method
-     */
-    public function setModuleEnabled($moduleEnabled)
-    {
-        $this->moduleEnabled = $moduleEnabled;
-        return $this;
-    }
-
-    /**
      * Get moduleEnabled
      *
-     * @return boolean 
+     * @return boolean
      */
-    public function getModuleEnabled()
+    public function isModuleEnabled()
     {
-        return $this->moduleEnabled;
+        $result = true;
+
+        if ($this->getModuleName()) {
+            list($author, $name) = explode('_', $this->getModuleName());
+            $result = (bool) Manager::getRegistry()->isModuleEnabled($author, $name);
+        }
+
+        return $result;
     }
 
     /**
@@ -819,5 +797,38 @@ class Method extends \XLite\Model\Base\I18n
     public function getSettings()
     {
         return $this->settings;
+    }
+
+    /**
+     * @return MethodCountryPosition[]
+     */
+    public function getCountryPositions()
+    {
+        return $this->countryPositions;
+    }
+
+    /**
+     * @param string $countryCode
+     *
+     * @return MethodCountryPosition|null
+     */
+    public function getCountryPosition($countryCode): ?MethodCountryPosition
+    {
+        foreach ($this->countryPositions ?: [] as $countryPosition) {
+            if ($countryPosition->getCountryCode() === $countryCode) {
+
+                return $countryPosition;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param MethodCountryPosition $countryPosition
+     */
+    public function addCountryPositions($countryPosition): void
+    {
+        $this->countryPositions[] = $countryPosition;
     }
 }

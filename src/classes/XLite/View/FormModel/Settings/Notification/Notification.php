@@ -8,6 +8,8 @@
 
 namespace XLite\View\FormModel\Settings\Notification;
 
+use XLite\Core\Auth;
+
 class Notification extends \XLite\View\FormModel\AFormModel
 {
     /**
@@ -83,9 +85,11 @@ class Notification extends \XLite\View\FormModel\AFormModel
     {
         $available = $this->getDataObject()->settings->available;
 
-        $help = $this->getWidget([
-            'template' => 'notification/help.twig',
-        ])->getContent();
+        $help = $this->getWidget(
+            [
+                'template' => 'notification/help.twig',
+            ]
+        )->getContent();
 
         return [
             'settings'        => [
@@ -140,14 +144,14 @@ class Notification extends \XLite\View\FormModel\AFormModel
                 ],
                 'text'      => [
                     'label'    => static::t('Text'),
-                    'type'     => 'Symfony\Component\Form\Extension\Core\Type\TextareaType',
+                    'type'     => 'XLite\View\FormModel\Type\MailTextareaAdvancedType',
                     'help'     => $help,
                     'position' => 300,
                 ],
                 'body'      => [
-                    'label'    => static::t('Body'),
+                    'label'    => static::t('Dynamic message'),
                     'position' => 400,
-                    'help'     => static::t('The body template may include other templates to generate the email notification. To customize it, please, copy appropriate templates to "skins/theme_tweaker/mail/"'),
+                    'help'     => static::t('This content shows via %dynamic_message% variable. Do not use this variable to put content (if it exists) below the main message'),
                 ],
                 'signature' => [
                     'label'    => static::t('Signature'),
@@ -193,26 +197,6 @@ class Notification extends \XLite\View\FormModel\AFormModel
         ];
     }
 
-
-    /**
-     * Return list of the "Button" widgets
-     *
-     * @return array
-     */
-    protected function getFormButtons()
-    {
-        $list = parent::getFormButtons();
-        // $list['notifications'] = new \XLite\View\Button\SimpleLink(
-        //     [
-        //         \XLite\View\Button\Link::PARAM_LOCATION => $this->buildURL('notifications'),
-        //         \XLite\View\Button\AButton::PARAM_LABEL => 'Back to notifications list',
-        //         \XLite\View\Button\AButton::PARAM_STYLE => 'action',
-        //     ]
-        // );
-
-        return $list;
-    }
-
     /**
      * Return form theme files. Used in template.
      *
@@ -233,6 +217,82 @@ class Notification extends \XLite\View\FormModel\AFormModel
      */
     protected function getVariables()
     {
-        return \XLite\Core\Mailer::getInstance()->getAllVariables();
+        $variables = \XLite\Core\Mail\Registry::getNotificationVariables(
+            $this->getDataObject()->default->templatesDirectory,
+            $this->getDataObject() instanceof \XLite\Model\DTO\Settings\Notification\Admin
+                ? \XLite::ADMIN_INTERFACE
+                : \XLite::CUSTOMER_INTERFACE
+        );
+
+        return $variables;
+    }
+
+    /**
+     * Return list of the "Button" widgets
+     *
+     * @return array
+     */
+    protected function getFormButtons()
+    {
+        $result = parent::getFormButtons();
+
+        $result['preview'] = new \XLite\View\Button\Link(
+            [
+                \XLite\View\Button\AButton::PARAM_LABEL => static::t('Preview full email'),
+                \XLite\View\Button\AButton::PARAM_STYLE => 'model-button always-enabled',
+                \XLite\View\Button\Link::PARAM_LOCATION => $this->getPreviewURL(),
+                \XLite\View\Button\Link::PARAM_BLANK    => true,
+            ]
+        );
+
+        $result['send_test_email'] = new \XLite\View\Button\Link(
+            [
+                \XLite\View\Button\AButton::PARAM_LABEL => static::t('Send to {{email}}', ['email' => Auth::getInstance()->getProfile()->getLogin()]),
+                \XLite\View\Button\AButton::PARAM_STYLE => 'model-button always-enabled',
+                \XLite\View\Button\Link::PARAM_LOCATION => $this->getSendTestEmailURL(),
+            ]
+        );
+
+        return $result;
+    }
+
+    /**
+     * Get Preview template URL
+     *
+     * @return string
+     */
+    protected function getPreviewURL()
+    {
+        return $this->buildURL(
+            'notification',
+            '',
+            [
+                'templatesDirectory' => $this->getDataObject()->default->templatesDirectory,
+                'page'               => $this->getDataObject() instanceof \XLite\Model\DTO\Settings\Notification\Admin
+                    ? \XLite::ADMIN_INTERFACE
+                    : \XLite::CUSTOMER_INTERFACE,
+                'preview'            => true,
+            ]
+        );
+    }
+
+    /**
+     * Get Send test email URL
+     *
+     * @return string
+     */
+    protected function getSendTestEmailURL()
+    {
+        return $this->buildURL(
+            'notification',
+            'send_test_email',
+            [
+                'templatesDirectory' => $this->getDataObject()->default->templatesDirectory,
+                'page'               => $this->getDataObject() instanceof \XLite\Model\DTO\Settings\Notification\Admin
+                    ? \XLite::ADMIN_INTERFACE
+                    : \XLite::CUSTOMER_INTERFACE,
+                'from_notification'  => 1,
+            ]
+        );
     }
 }

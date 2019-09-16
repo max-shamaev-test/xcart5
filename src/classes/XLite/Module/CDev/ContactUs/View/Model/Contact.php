@@ -132,15 +132,11 @@ class Contact extends \XLite\View\Model\AModel
      */
     protected function sendEmail()
     {
-        $errorMessage = \XLite\Core\Mailer::sendContactUsMessage(
+        \XLite\Core\Mailer::sendContactUsMessage(
             $this->getModelObject(),
             \XLite\Core\Config::getInstance()->CDev->ContactUs->email
                 ?: \XLite\Core\Mailer::getSupportDepartmentMails()
         );
-
-        if ($errorMessage) {
-            $this->addErrorMessage('mail sending', $errorMessage);
-        }
     }
 
     /**

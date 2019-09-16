@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\XPaymentsConnector\View\ItemsList\Model\Order;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * List of XPC transactions and cards 
  */
@@ -135,7 +137,7 @@ class Transactions extends \XLite\View\ItemsList\Model\Table
         $class = '\XLite\Module\CDev\XPaymentsConnector\Model\Repo\Payment\BackendTransaction';
 
         if (
-            \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+            Manager::getRegistry()->isModuleEnabled('XC\MultiVendor')
             && $this->getOrder()->getParent()
         ) {
             $order = $this->getOrder()->getParent();
@@ -315,7 +317,7 @@ class Transactions extends \XLite\View\ItemsList\Model\Table
     protected function isVisible()
     {
         if (
-            \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+            Manager::getRegistry()->isModuleEnabled('XC\MultiVendor')
             && \XLite\Core\Auth::getInstance()->isVendor()
         ) {
             $result = false;

@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\XPaymentsConnector\View\ItemsList\Model\Payment\Item;
 
+use XLite\Module\CDev\XPaymentsConnector\Core\Settings;
+
 class PaymentMethod extends \XLite\View\ItemsList\Model\Payment\Item\PaymentMethod implements \XLite\Base\IDecorator
 {
     /**
@@ -17,13 +19,13 @@ class PaymentMethod extends \XLite\View\ItemsList\Model\Payment\Item\PaymentMeth
     {
         $method = $this->getPayment();
 
-        if ('CDev_XPaymentsConnector' === $method->getModuleName()) {
+        if (Settings::XP_MODULE_NAME === $method->getModuleName()) {
             $url = $method->getAdminIconURL();
 
             if (
                 !$url
                 && $method->isModuleInstalled()
-                && !$method->getModuleEnabled()
+                && !$method->isModuleEnabled()
             ) {
                 $url = \XLite\Core\Layout::getInstance()
                     ->getResourceWebPath('modules/CDev/XPaymentsConnector/method_icon_xp.png');

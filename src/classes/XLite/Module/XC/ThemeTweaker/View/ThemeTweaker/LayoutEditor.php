@@ -8,6 +8,9 @@
 
 namespace XLite\Module\XC\ThemeTweaker\View\ThemeTweaker;
 
+use Includes\Utils\Module\Manager;
+use XLite\Core\Layout;
+
 /**
  * Main panel of layout editing mode
  *
@@ -58,6 +61,7 @@ class LayoutEditor extends \XLite\View\AView
     {
         $list = parent::getJSFiles();
 
+        $list[] = $this->getDir() . '/panel_parts/layout_options.js';
         $list[] = $this->getDir() . '/layout_editor_panel.js';
 
         return $list;
@@ -90,6 +94,71 @@ class LayoutEditor extends \XLite\View\AView
     protected function getFinishOperateAsUrl()
     {
         return $this->buildURL('login', 'logoff');
+    }
+
+    /**
+     * Returns current used layout preset key
+     * @return string
+     */
+    protected function getCurrentLayoutPreset()
+    {
+        return Layout::getInstance()->getCurrentLayoutPreset();
+    }
+
+    /**
+     * Check if logo configuration is available
+     *
+     * @return bool
+     */
+    protected function isLogoConfigurable()
+    {
+        return Manager::getRegistry()->isModuleEnabled('CDev\SimpleCMS');
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function isResetAvailable()
+    {
+        return \XLite\Core\Database::getRepo('XLite\Model\ViewList')->hasOverriddenRecords($this->getCurrentLayoutPreset());
+    }
+
+    /**
+     * @param string $key Field name
+     *
+     * @return \XLite\Model\Image\Common\Logo
+     */
+    protected function getImageObject($key)
+    {
+        /** @var \XLite\Model\Repo\Image\Common\Logo $repo */
+        $repo = \XLite\Core\Database::getRepo('XLite\Model\Image\Common\Logo');
+
+        switch($key) {
+            case 'logo':
+                return $repo->getLogo();
+            case 'favicon':
+                return $repo->getFavicon();
+            case 'appleIcon':
+                return $repo->getAppleIcon();
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getImageMaxWidth()
+    {
+        return '70';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getImageMaxHeight()
+    {
+        return '70';
     }
 }
 

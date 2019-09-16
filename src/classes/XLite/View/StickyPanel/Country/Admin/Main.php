@@ -26,9 +26,8 @@ class Main extends \XLite\View\StickyPanel\ItemsListForm
                 'params'   => [
                     'label'          => static::t('Status'),
                     'style'          => 'more-action hide-on-disable hidden',
-                    'icon-style'     => 'fa fa-power-off',
+                    'icon-style'     => 'fa fa-power-off iconfont',
                     'showCaret'      => true,
-                    'useCaretButton' => false,
                     'dropDirection'  => 'dropup',
                 ],
                 'position' => 200,

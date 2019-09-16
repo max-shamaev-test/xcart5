@@ -13,18 +13,13 @@ namespace Symfony\Component\Validator\Tests\Constraints;
 
 use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\CountValidator;
-use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-abstract class CountValidatorTest extends AbstractConstraintValidatorTest
+abstract class CountValidatorTest extends ConstraintValidatorTestCase
 {
-    protected function getApiVersion()
-    {
-        return Validation::API_VERSION_2_5;
-    }
-
     protected function createValidator()
     {
         return new CountValidator();
@@ -40,7 +35,7 @@ abstract class CountValidatorTest extends AbstractConstraintValidatorTest
     }
 
     /**
-     * @expectedException \Symfony\Component\Validator\Exception\UnexpectedTypeException
+     * @expectedException \Symfony\Component\Validator\Exception\UnexpectedValueException
      */
     public function testExpectsCountableType()
     {
@@ -49,29 +44,29 @@ abstract class CountValidatorTest extends AbstractConstraintValidatorTest
 
     public function getThreeOrLessElements()
     {
-        return array(
-            array($this->createCollection(array(1))),
-            array($this->createCollection(array(1, 2))),
-            array($this->createCollection(array(1, 2, 3))),
-            array($this->createCollection(array('a' => 1, 'b' => 2, 'c' => 3))),
-        );
+        return [
+            [$this->createCollection([1])],
+            [$this->createCollection([1, 2])],
+            [$this->createCollection([1, 2, 3])],
+            [$this->createCollection(['a' => 1, 'b' => 2, 'c' => 3])],
+        ];
     }
 
     public function getFourElements()
     {
-        return array(
-            array($this->createCollection(array(1, 2, 3, 4))),
-            array($this->createCollection(array('a' => 1, 'b' => 2, 'c' => 3, 'd' => 4))),
-        );
+        return [
+            [$this->createCollection([1, 2, 3, 4])],
+            [$this->createCollection(['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4])],
+        ];
     }
 
     public function getFiveOrMoreElements()
     {
-        return array(
-            array($this->createCollection(array(1, 2, 3, 4, 5))),
-            array($this->createCollection(array(1, 2, 3, 4, 5, 6))),
-            array($this->createCollection(array('a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5))),
-        );
+        return [
+            [$this->createCollection([1, 2, 3, 4, 5])],
+            [$this->createCollection([1, 2, 3, 4, 5, 6])],
+            [$this->createCollection(['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5])],
+        ];
     }
 
     /**
@@ -79,7 +74,7 @@ abstract class CountValidatorTest extends AbstractConstraintValidatorTest
      */
     public function testValidValuesMax($value)
     {
-        $constraint = new Count(array('max' => 3));
+        $constraint = new Count(['max' => 3]);
         $this->validator->validate($value, $constraint);
 
         $this->assertNoViolation();
@@ -90,7 +85,7 @@ abstract class CountValidatorTest extends AbstractConstraintValidatorTest
      */
     public function testValidValuesMin($value)
     {
-        $constraint = new Count(array('min' => 5));
+        $constraint = new Count(['min' => 5]);
         $this->validator->validate($value, $constraint);
 
         $this->assertNoViolation();
@@ -112,15 +107,15 @@ abstract class CountValidatorTest extends AbstractConstraintValidatorTest
      */
     public function testTooManyValues($value)
     {
-        $constraint = new Count(array(
+        $constraint = new Count([
             'max' => 4,
             'maxMessage' => 'myMessage',
-        ));
+        ]);
 
         $this->validator->validate($value, $constraint);
 
         $this->buildViolation('myMessage')
-            ->setParameter('{{ count }}', count($value))
+            ->setParameter('{{ count }}', \count($value))
             ->setParameter('{{ limit }}', 4)
             ->setInvalidValue($value)
             ->setPlural(4)
@@ -133,15 +128,15 @@ abstract class CountValidatorTest extends AbstractConstraintValidatorTest
      */
     public function testTooFewValues($value)
     {
-        $constraint = new Count(array(
+        $constraint = new Count([
             'min' => 4,
             'minMessage' => 'myMessage',
-        ));
+        ]);
 
         $this->validator->validate($value, $constraint);
 
         $this->buildViolation('myMessage')
-            ->setParameter('{{ count }}', count($value))
+            ->setParameter('{{ count }}', \count($value))
             ->setParameter('{{ limit }}', 4)
             ->setInvalidValue($value)
             ->setPlural(4)
@@ -154,16 +149,16 @@ abstract class CountValidatorTest extends AbstractConstraintValidatorTest
      */
     public function testTooManyValuesExact($value)
     {
-        $constraint = new Count(array(
+        $constraint = new Count([
             'min' => 4,
             'max' => 4,
             'exactMessage' => 'myMessage',
-        ));
+        ]);
 
         $this->validator->validate($value, $constraint);
 
         $this->buildViolation('myMessage')
-            ->setParameter('{{ count }}', count($value))
+            ->setParameter('{{ count }}', \count($value))
             ->setParameter('{{ limit }}', 4)
             ->setInvalidValue($value)
             ->setPlural(4)
@@ -176,16 +171,16 @@ abstract class CountValidatorTest extends AbstractConstraintValidatorTest
      */
     public function testTooFewValuesExact($value)
     {
-        $constraint = new Count(array(
+        $constraint = new Count([
             'min' => 4,
             'max' => 4,
             'exactMessage' => 'myMessage',
-        ));
+        ]);
 
         $this->validator->validate($value, $constraint);
 
         $this->buildViolation('myMessage')
-            ->setParameter('{{ count }}', count($value))
+            ->setParameter('{{ count }}', \count($value))
             ->setParameter('{{ limit }}', 4)
             ->setInvalidValue($value)
             ->setPlural(4)

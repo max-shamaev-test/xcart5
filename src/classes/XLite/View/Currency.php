@@ -34,7 +34,7 @@ class Currency extends \XLite\View\Dialog
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/css/style.css';
+        $list[] = $this->getDir() . '/css/style.less';
 
         return $list;
     }

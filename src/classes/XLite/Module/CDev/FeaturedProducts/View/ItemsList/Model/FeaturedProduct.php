@@ -69,7 +69,6 @@ class FeaturedProduct extends \XLite\View\ItemsList\Model\Table
         return [
             'sku'     => [
                 static::COLUMN_NAME    => static::t('SKU'),
-                static::COLUMN_NO_WRAP => true,
                 static::COLUMN_ORDERBY => 100,
             ],
             'product' => [
@@ -130,7 +129,7 @@ class FeaturedProduct extends \XLite\View\ItemsList\Model\Table
      */
     public function isCrossIcon()
     {
-        return true;
+        return false;
     }
 
     /**

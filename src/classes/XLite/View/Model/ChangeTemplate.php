@@ -8,6 +8,8 @@
 
 namespace XLite\View\Model;
 
+use XLite\Core\Skin;
+
 /**
  * Change template
  */
@@ -78,11 +80,11 @@ class ChangeTemplate extends \XLite\View\Model\AModel
             case 'template':
                 $result = \XLite\View\FormField\Select\Template::SKIN_STANDARD;
 
-                $currentModule = \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
+                $currentModule = Skin::getInstance()->getCurrentSkinModule();
                 if ($currentModule) {
-                    $currentColor = \XLite\Core\Layout::getInstance()->getLayoutColor();
+                    $currentColor = Skin::getInstance()->getSkinColorId();
 
-                    $result = $currentModule->getModuleId()
+                    $result = $currentModule->id
                         . ($currentColor ? ('_' . $currentColor) : '');
                 }
 

@@ -8,36 +8,18 @@
 
 namespace XLite\Module\XC\ProductVariants\Core;
 
+use XLite\Module\XC\ProductVariants\Core\Mail\LowVariantLimitWarningAdmin;
+
 /**
  * Mailer
  */
 abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorator
 {
     /**
-     * New mail type
-     */
-    const TYPE_LOW_VARIANT_LIMIT_WARNING = 'low_variant_limit_warning';
-
-    /**
-     * Send low variant limit warning message
-     *
      * @param array $data Data
-     *
-     * @return string | null
      */
     public static function sendLowVariantLimitWarningAdmin(array $data)
     {
-        static::register('data', $data);
-
-        static::compose(
-            static::TYPE_LOW_VARIANT_LIMIT_WARNING,
-            static::getOrdersDepartmentMail(),
-            implode(\XLite\View\Mailer::MAIL_SEPARATOR, static::getSiteAdministratorMails()),
-            'modules/XC/ProductVariants/low_variant_limit_warning',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
+        (new LowVariantLimitWarningAdmin($data))->schedule();
     }
 }

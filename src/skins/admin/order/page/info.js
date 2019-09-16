@@ -43,9 +43,9 @@ OrderInfoForm.prototype.initialize = function()
 
   this.base.find('.order-shippingId select').change(_.bind(this.handleChangeShippingMethod, this));
 
-  this.base.find('.sticky-panel .sendNotification label')
+  this.base.find('.sticky-panel .doNotSendNotification label')
     .addClass('disabled');
-  this.base.find('.sticky-panel .sendNotification :checkbox')
+  this.base.find('.sticky-panel .doNotSendNotification :checkbox')
     .addClass('disabled')
     .attr('disabled', 'disabled');
 
@@ -438,9 +438,9 @@ OrderInfoForm.prototype.canEnableButton = function(button)
 OrderInfoForm.prototype.enableSendNotification = function()
 {
   // Send notification
-  this.base.find('.sticky-panel .sendNotification label')
+  this.base.find('.sticky-panel .doNotSendNotification label')
     .removeClass('disabled');
-  this.base.find('.sticky-panel .sendNotification :checkbox')
+  this.base.find('.sticky-panel .doNotSendNotification :checkbox')
     .removeClass('disabled')
     .removeAttr('disabled');
 
@@ -452,9 +452,9 @@ OrderInfoForm.prototype.enableSendNotification = function()
 OrderInfoForm.prototype.disableSendNotification = function()
 {
   // Send notification
-  this.base.find('.sticky-panel .sendNotification label')
+  this.base.find('.sticky-panel .doNotSendNotification label')
     .addClass('disabled');
-  this.base.find('.sticky-panel .sendNotification :checkbox')
+  this.base.find('.sticky-panel .doNotSendNotification :checkbox')
     .addClass('disabled')
     .attr('disabled', 'disabled');
 

@@ -10,6 +10,7 @@ namespace XLite\Model;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
+use XLite\Core\Lock\SynchronousTrait;
 
 /**
  * Session
@@ -27,6 +28,8 @@ use Doctrine\ORM\EntityManager;
  */
 class Session extends \XLite\Model\AEntity
 {
+    use SynchronousTrait;
+
     /**
      * Maximum admin session TTL (12 hours)
      */
@@ -37,6 +40,10 @@ class Session extends \XLite\Model\AEntity
      */
     const MAX_CUSTOMER_TTL = 604800;
 
+    /**
+     * Update sessions expiration every hour
+     */
+    const EXPIRATION_UPDATE_PERIOD = 3600;
 
     /**
      * Session increment id
@@ -100,7 +107,7 @@ class Session extends \XLite\Model\AEntity
      *
      * @return integer
      */
-    protected static function getMaxTTL()
+    public static function getMaxTTL()
     {
         return \XLite::isAdminZone()
             ? static::MAX_ADMIN_TTL
@@ -145,12 +152,18 @@ class Session extends \XLite\Model\AEntity
     /**
      * Update expiration time
      *
-     * @return void
+     * @return bool
      */
     public function updateExpiry()
     {
-        $ttl = \XLite\Core\Session::getTTL();
-        $this->setExpiry(0 < $ttl ? $ttl : \XLite\Core\Converter::time() + static::getMaxTTL());
+        if ($this->getExpiry() - static::getMaxTTL() < \XLite\Core\Converter::time() - static::EXPIRATION_UPDATE_PERIOD) {
+            $ttl = \XLite\Core\Session::getTTL();
+            $this->setExpiry(0 < $ttl ? $ttl : \XLite\Core\Converter::time() + static::getMaxTTL());
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -321,15 +334,15 @@ class Session extends \XLite\Model\AEntity
         $id = $this->getId();
         $data = $this->prepareDataForNewCell($id, $name, $value);
 
-        $connection = \XLite\Core\Database::getEM()->getConnection();
-        /** @var Connection $connection */
-        $connection->connect();
+        $this->synchronize(function () use ($data) {
+            $connection = \XLite\Core\Database::getEM()->getConnection();
+            /** @var Connection $connection */
+            $connection->connect();
 
-        \XLite\Core\Database::getEM()->transactionalWithRestarts(function(EntityManager $em) use ($data) {
             $cols = array();
             $placeholders = array();
 
-            foreach ($data as $columnName => $value) {
+            foreach ($data as $columnName => $val) {
                 $cols[] = $columnName;
                 $placeholders[] = '?';
             }
@@ -340,10 +353,9 @@ class Session extends \XLite\Model\AEntity
                 implode(', ', $placeholders)
             );
 
-
             $values = array_values($data);
-            $em->getConnection()->executeUpdate($query, $values);
-        }, null, 5);
+            $connection->executeUpdate($query, $values);
+        }, 'session' . $id);
 
         return static::getSessionCellRepo()->findOneBy([
             'session' => $this,

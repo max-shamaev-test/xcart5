@@ -30,11 +30,27 @@ class Order extends \XLite\Model\Repo\Order implements \XLite\Base\IDecorator
         if ($value) {
             $alias = 'PinCodesShippingStatusAlias';
 
-            $queryBuilder->innerJoin('o.shippingStatus', $alias)
-                         ->orWhere($alias . '.code = :shippingStatus')
-                         ->setParameter('shippingStatus', \XLite\Model\Order\Status\Shipping::STATUS_WAITING_FOR_APPROVE);
+            $queryBuilder->innerJoin('o.shippingStatus', $alias);
+            $this->assignRecentCondition($queryBuilder, $alias);
+            $queryBuilder->setParameter('shippingStatus', \XLite\Model\Order\Status\Shipping::STATUS_WAITING_FOR_APPROVE);
         }
     }
+
+    /**
+     * Assign recent search condition
+     *
+     * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder
+     * @param string $alias
+     */
+    protected function assignRecentCondition(\Doctrine\ORM\QueryBuilder $queryBuilder, $alias)
+    {
+        $queryBuilder->orWhere($queryBuilder->expr()->andX(
+            $alias . '.code = :shippingStatus',
+            'o.orderNumber IS NOT NULL'
+        ));
+    }
+
+
 
     /**
      * Search orders with pincodes

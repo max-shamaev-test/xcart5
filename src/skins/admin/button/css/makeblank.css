@@ -19,12 +19,3 @@ button.makeblank {
   background: transparent none;
   color: #526aa8;
 }
-
-.makeblank-wrapper,
-button.makeblank {
-  font-size: 0;
-}
-button.makeblank svg {
-  width: 14px;
-  height: 14px;
-}

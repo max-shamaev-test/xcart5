@@ -218,7 +218,7 @@ class QuantityBox extends \XLite\View\Product\AProduct
 
         return isset($maxValue)
             ? $maxValue
-            : $this->getProduct()->getAvailableAmount() + $orderItemsAmount;
+            : $this->getProduct()->getAvailableAmount()-$this->getProduct()->getItemsInCart() + $orderItemsAmount;
     }
 
     /**

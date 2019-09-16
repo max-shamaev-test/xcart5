@@ -104,7 +104,7 @@ ConciergeController.prototype.addClickHandlers = function () {
   var handlers = {};
 
   for (var selector in handlers) if (handlers.hasOwnProperty(selector)) {
-    jQuery(selector).live('click', _.partial(_.bind(this.handleClick), handlers[selector]));
+    jQuery('body').on('click', selector, _.partial(_.bind(this.handleClick), handlers[selector]));
   }
 
   // Mark segment click handler by adding data-segment-click with value as a Link Name
@@ -113,7 +113,7 @@ ConciergeController.prototype.addClickHandlers = function () {
   // You can specify internal handler by adding segment-click-handler with value as a selector based on element with
   // data-segment-click attribute
   // <div data-segment-click data-segment-click-handler="a"><a href="...">Contact Us</a></div>
-  jQuery('[data-segment-click]').live('click', contextAsArgument(_.bind(this.handleClickEvent, this)));
+  jQuery('body').on('click', '[data-segment-click]', contextAsArgument(_.bind(this.handleClickEvent, this)));
 };
 
 ConciergeController.prototype.handleClickEvent = function (element, event) {

@@ -38,7 +38,7 @@ a[data-toggle=collapse] {
   #gradient > .vertical (@button-gradient-start-color, @button-gradient-end-color);
 
   position: relative;
-  border: 2px solid @color-contrast;
+  border: @border-base solid @color-contrast;
   padding: @padding-base-vertical @padding-large-horizontal;
   background-color: @button-gradient-start-color;
 
@@ -91,7 +91,7 @@ a[data-toggle=collapse] {
 
 .main-button-style {
   &, span {
-    color: #fff;
+    color: @button-main-color;
   }
 
   #gradient > .vertical (@button-main-gradient-start-color, @button-main-gradient-end-color);
@@ -103,7 +103,7 @@ a[data-toggle=collapse] {
     background-color: @btn-hover-color;
     border-color: @btn-hover-color;
     &, span {
-      color: #fff;
+      color: @button-main-color;
     }
   }
 
@@ -116,11 +116,11 @@ a[data-toggle=collapse] {
   &.disabled,
   &[disabled],
   fieldset[disabled] & {
-    color: #fff;
+    color: @button-main-color;
     &:active,
     &.active {
       #gradient > .vertical (@button-main-gradient-start-color, @button-main-gradient-end-color);
-      color: #fff;
+      color: @button-main-color;
     }
   }
 }
@@ -153,7 +153,7 @@ a[data-toggle=collapse] {
 
 .regular-main-button.progress-state {
   .fail, .success {
-    color: #fff;
+    color: @button-main-color;
   }
 
   .loader:after {
@@ -201,13 +201,13 @@ a[data-toggle=collapse] {
 
 // Warning appears as orange
 .btn-warning {
-  color: #fff;
+  color: @button-main-color;
   #gradient > .vertical (@button-main-gradient-start-color, @button-main-gradient-end-color);
 
   &:hover,
   &:focus {
     #gradient > .vertical (@btn-hover-color, @btn-hover-color);
-    color: #fff;
+    color: @button-main-color;
   }
 
   &:active,

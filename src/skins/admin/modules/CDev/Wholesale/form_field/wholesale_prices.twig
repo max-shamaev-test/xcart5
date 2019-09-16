@@ -15,12 +15,12 @@
 
 <div id="wp-{{ this.entity.getId() }}" style="display: none;">
     {% if this.entity.getDefaultPrice() %}
-    <b>{{ t('Set the price for this variant to define variant\'s personal wholesale prices') }}</b><br />
+    {{ t('Set the price for this variant to define variant\'s personal wholesale prices') }}<br />
     {% if this.getWholesalePrices() %}
       <a href="{{ this.getLink() }}">{{ t('View parent product\'s wholesale prices') }}</a>
     {% endif %}
     {% elseif this.getWholesalePrices() %}
-    <b>{{ t('Wholesale pricing') }}</b><br />
+    {{ t('Wholesale pricing') }}<br />
     <ul>
       {% for wp in this.getWholesalePrices() %}
         <li>
@@ -33,6 +33,6 @@
       {% endfor %}
     </ul>
     {% else %}
-    <b>{{ t('Wholesale prices are not defined') }}</b>
+    {{ t('Wholesale prices are not defined') }}
     {% endif %}
 </div>

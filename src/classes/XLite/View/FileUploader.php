@@ -13,6 +13,8 @@ namespace XLite\View;
  */
 class FileUploader extends \XLite\View\AView
 {
+    use \XLite\View\Base\ViewListsFallbackTrait;
+
     /**
      * Widget param names
      */
@@ -38,42 +40,21 @@ class FileUploader extends \XLite\View\AView
     {
         $list = parent::getCommonFiles();
 
-        $list[static::RESOURCE_JS][] = [
-            'file'      => $this->isDeveloperMode() ? 'vue/vue.js' : 'vue/vue.min.js',
-            'no_minify' => true,
-        ];
-
-        $list[static::RESOURCE_JS][] = 'vue/vue.loadable.js';
-        $list[static::RESOURCE_JS][] = 'js/vue/vue.js';
-        $list[static::RESOURCE_JS][] = 'js/vue/component.js';
+        $list[static::RESOURCE_CSS][] = $this->getDir() . '/style.less';
+        $list[static::RESOURCE_JS] = array_merge($list[static::RESOURCE_JS], static::getVueLibraries());
+        $list[static::RESOURCE_JS][] = $this->getDir() . '/controller.js';
 
         return $list;
     }
 
     /**
-     * Get a list of JS files required to display the widget properly
-     *
-     * @return array
-     */
-    public function getJSFiles()
-    {
-        $list = parent::getJSFiles();
-        $list[] = $this->getDir() . '/controller.js';
-
-        return $list;
-    }
-
-    /**
-     * Get a list of CSS files required to display the widget properly
-     *
      * @return array
      */
     public function getCSSFiles()
     {
-        $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/style.less';
-
-        return $list;
+        return [
+            $this->getDir() . '/additional_style.less'
+        ];
     }
 
     /**
@@ -246,11 +227,13 @@ class FileUploader extends \XLite\View\AView
     {
         if ($this->isImage() && $this->hasFile()) {
             $viewer = new \XLite\View\Image([
-                'image'       => $this->getObject(),
-                'maxWidth'    => $this->getParam(static::PARAM_MAX_WIDTH),
-                'maxHeight'   => $this->getParam(static::PARAM_MAX_HEIGHT),
-                'alt'         => '',
-                'centerImage' => true,
+                'image'        => $this->getObject(),
+                'maxWidth'     => $this->getParam(static::PARAM_MAX_WIDTH),
+                'maxHeight'    => $this->getParam(static::PARAM_MAX_HEIGHT),
+                'alt'          => '',
+                'centerImage'  => true,
+                'useBlurBg'    => false,
+                'useTimestamp' => $this->isFavicon()
             ]);
 
             return $viewer->getContent();
@@ -364,7 +347,17 @@ class FileUploader extends \XLite\View\AView
      */
     protected function getLink()
     {
-        return $this->hasView() ? $this->getObject()->getFrontURL() : '#';
+        $link = '#';
+
+        if ($this->hasView()) {
+            $link = $this->getObject()->getFrontURL();
+
+            if ($this->isFavicon()) {
+                $link .= '?' . time();
+            }
+        }
+
+        return $link;
     }
 
     /**
@@ -471,5 +464,15 @@ class FileUploader extends \XLite\View\AView
     protected function getDefaultTemplate()
     {
         return $this->getDir() . '/body.twig';
+    }
+
+    /**
+     * Check favicon or not
+     *
+     * @return boolean
+     */
+    protected function isFavicon()
+    {
+        return $this->fieldName == 'favicon';
     }
 }

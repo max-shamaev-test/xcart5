@@ -54,7 +54,7 @@ class Page extends \XLite\View\ItemsList\Model\Table
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'modules/CDev/SimpleCMS/pages/style.css';
+        $list[] = 'modules/CDev/SimpleCMS/pages/style.less';
 
         return $list;
     }

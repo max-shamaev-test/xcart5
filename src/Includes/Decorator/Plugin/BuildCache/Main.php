@@ -10,14 +10,13 @@ namespace Includes\Decorator\Plugin\BuildCache;
 
 use Includes\Decorator\ClassBuilder\ClassBuilderFactory;
 use Includes\Decorator\Utils\Operator;
-use Includes\Utils\ModulesManager;
+use Includes\Utils\Module\Manager;
 
 /**
  * Main
  */
 class Main extends \Includes\Decorator\Plugin\APlugin
 {
-
     /**
      * Get title
      *
@@ -37,12 +36,12 @@ class Main extends \Includes\Decorator\Plugin\APlugin
     {
         \Includes\Autoloader::switchToOriginalClassDir();
 
-        $modules = array_keys(ModulesManager::processActiveModules());
+        $modules = Manager::getRegistry()->getEnabledModuleIds();
 
-        $classBuilder = (new ClassBuilderFactory())->create(LC_DIR_CLASSES, $this->getCacheClassesDir(), $modules);
+        $classBuilder = (new ClassBuilderFactory())->create(LC_DIR_CLASSES, self::getCacheClassesDir(), $modules);
 
         foreach (Operator::getClassFileIterator()->getIterator() as $file) {
-            $classBuilder->buildPathname((string)$file);
+            $classBuilder->buildPathname((string) $file);
         }
     }
 }

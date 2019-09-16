@@ -9,7 +9,7 @@
 
   <div class="alert alert-warning alert-link">
     {{ t('Warning: The restoration procedure is irreversible and erases all the data tables from the store database. It is highly recommended that you back up your current database before restoring one of the previous states from a back-up.') }}
-    <hr />
+    <br/>
     {{ t('If you want to upload the backup of another X-Cart installation, ensure that you have completed the steps described here', {'url': this.getKbUrl()})|raw }}
   </div>
 
@@ -20,9 +20,11 @@
         <tbody>
             <tr>
               <td class="column column-name">
-                <p class="action-name">{{ t('Upload from your computer') }}</p>
+                <h4 class="action-name">{{ t('Upload from your computer') }}</h4>
                 <p class="action-description">{{ t('You can upload the database data directly from your local computer', {'N': this.getUploadMaxFilesize()}) }}</p>
-                <input class="input-file form-control" type="file" name="userfile" />
+                <input id="userfile" class="inputfile" type="file" name="userfile" />
+                <label for="userfile" class="input-button">Choose file</label>
+                <span class="input-filename"></span>
               </td>
               <td class="column column-action">
                 {{ widget('\\XLite\\View\\Button\\Submit', style='upload-restore', label='Upload and restore') }}
@@ -30,7 +32,7 @@
             </tr>
             <tr>
               <td class="column column-name">
-                <p class="action-name">{{ t('Upload from server') }}</p>
+                <h4 class="action-name">{{ t('Upload from server') }}</h4>
                 <p class="action-description">{{ t('Alternatively, upload file sqldump.sql.php to the var/backup/ sub-directory click on the "Restore from server" button') }}</p>
               </td>
               <td class="column column-action">

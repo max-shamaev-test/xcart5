@@ -8,36 +8,10 @@
  */
 
 .seventy-one-pounds-promo {
-  padding-left: 18px;
   max-width: 900px;
-  font-size: 15px;
-}
-
-.seventy-one-pounds-promo .promo-video {
-  padding-top: 25px;
-}
-
-.seventy-one-pounds-promo h2 {
-  font-size: 20px;
-  margin-top: 30px;
-}
-
-.seventy-one-pounds-promo .features {
-  padding-top: 20px;
-  padding-left: 20px;
-  line-height: 30px;
-  margin-bottom: 25px;
-}
-
-.seventy-one-pounds-promo p {
-  margin-bottom: 25px;
 }
 
 .seventy-one-pounds-promo .promo-module {
-  margin-top: 40px;
+  margin-top: 24px;
+  margin-bottom: 24px;
 }
-
-.seventy-one-pounds-promo .promo-module button {
-  padding: 7px 18px;
-}
-

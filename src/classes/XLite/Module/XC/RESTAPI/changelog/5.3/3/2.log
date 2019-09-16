@@ -1,4 +1,0 @@
-Version 5.3.3.2
-
-Fixes
-2017-08-07 - [Bug] Some fixes in the RESTAPI module to support the Zapier module. #XCN-7872 (Michael Lipinski) #RESTAPI

@@ -60,6 +60,8 @@ class Cron extends \XLite\Controller\Console\AConsole
         $this->memoryLimitIni = \XLite\Core\Converter::convertShortSize(ini_get('memory_limit') ?: '16M');
 
         foreach (\XLite\Core\Database::getRepo('XLite\Model\Task')->findAll() as $task) {
+            $task = \XLite\Core\Database::getEM()->merge($task);
+
             if (!$task->isExpired()) {
                 continue;
             }

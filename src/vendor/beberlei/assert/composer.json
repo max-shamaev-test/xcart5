@@ -1,6 +1,7 @@
 {
   "name": "beberlei/assert",
   "description": "Thin assertion library for input validation in business models.",
+  "version": "v2.9.6",
   "authors": [
     {
       "name": "Benjamin Eberlei",
@@ -28,7 +29,7 @@
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^2.1.1",
-    "phpunit/phpunit": "^4|^5"
+    "phpunit/phpunit": "^4.8.35|^5.7"
   },
   "autoload": {
     "psr-4": {

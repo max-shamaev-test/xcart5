@@ -91,17 +91,10 @@ class ListItem extends \XLite\View\Product\ListItem implements \XLite\Base\IDeco
      */
     protected function getCategoryName()
     {
-        $categoryName = '';
+        $controller = \XLite::getController();
+        $mainCategory = $this->getProduct()->getCategory();
 
-        if (method_exists($this, 'getCategory')
-            || method_exists(\XLite::getController(), 'getCategory')
-        ) {
-            $categoryName = $this->getCategory()
-                ? $this->getCategory()->getName()
-                : '';
-        }
-
-        return $categoryName;
+        return $controller->getGACategoryPath($mainCategory);
     }
 
     /**

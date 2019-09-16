@@ -29,35 +29,40 @@ abstract class AImage extends \XLite\View\FormField\Input\AInput
      *
      * @return string
      */
-    abstract protected function getImage();
+     protected function getImage() {
+         $func = 'get' . $this->getClassName();
+         $image = $this->$func();
+
+         return \XLite\Model\Repo\Image\Common\Logo::getFakeImageObject($image);
+     }
+
 
     /**
-     * Return the image URL value
+     * Return the field name for widget.
      *
      * @return string
      */
-    abstract protected function getReturnToDefaultLabel();
-
-    /**
-     * Return the inner name for widget.
-     * It is used in model widget identification of the "useDefaultImage" value
-     *
-     * @return string
-     */
-    abstract protected function getImageName();
-
-    /**
-     * Get common attributes
-     *
-     * @return array
-     */
-    protected function getCommonAttributes()
+    protected function getImageName()
     {
-        $list = parent::getCommonAttributes();
-        // We encorage to upload the image files only. HTML5 support
-        $list['accept'] = 'image/*';
+        return lcfirst($this->getClassName());
+    }
 
-        return $list;
+    /**
+     * @return boolean
+     */
+    protected function isRemovable()
+    {
+        return \XLite\Core\Config::getInstance()->CDev->SimpleCMS->{lcfirst($this->getClassName())}
+            ? true
+            : false;
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function showDimensionsLink()
+    {
+        return false;
     }
 
     /**
@@ -78,5 +83,23 @@ abstract class AImage extends \XLite\View\FormField\Input\AInput
     protected function getDir()
     {
         return 'modules/CDev/SimpleCMS';
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function hasAlt()
+    {
+        return false;
+    }
+
+    /**
+     * Return class name
+     *
+     * @return string
+     */
+    private function getClassName()
+    {
+        return (new \ReflectionClass($this))->getShortName();
     }
 }

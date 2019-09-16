@@ -3,6 +3,12 @@
  #}
 
 <div class="product-stock {{ this.getFingerprint() }}">
+  {% if this.getItemsInCart() %}
+    <p class="product-added-note">
+      <i class="icon-ok-mark"></i>
+      {{ this.getItemsInCartMessage() | raw}}
+    </p>
+  {% endif %}
   {% if this.isInStock() %}
     <span class="stock-level product-in-stock">
       {% if this.isShowStockWarning() %}
@@ -17,4 +23,9 @@
       <span class="stock-level product-out-of-stock">{{ this.getOutOfStockMessage() }}</span>
     {% endif %}
   {% endif %}
+
+  {{ widget_list('product.stock.info') }}
+
+  
 </div>
+<div class="clearfix"></div>

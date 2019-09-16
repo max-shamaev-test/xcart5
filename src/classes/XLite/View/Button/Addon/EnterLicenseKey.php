@@ -69,6 +69,6 @@ class EnterLicenseKey extends \XLite\View\Button\APopupButton
      */
     protected function isVisible()
     {
-        return parent::isVisible() && \XLite::getXCNLicense();
+        return parent::isVisible() && \XLite::hasXCNLicenseKey();
     }
 }

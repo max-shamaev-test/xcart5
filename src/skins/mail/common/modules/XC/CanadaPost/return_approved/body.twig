@@ -1,13 +1,5 @@
 {##
  # Products return approved email body (to customer)
  #}
-<p>
-  {{ t('Administrator notes') }}:<br />
-  {{ this.notes|raw }}
-</p>
-<p>
-  {{ t('Documents') }}:<br />
-  {% for link in this.productsReturn.getLinks() %}
-    <a href="{{ link.storage.getURL() }}">{{ link.getLinkTitle() }}</a><br />
-  {% endfor %}
-</p>
+
+{{ widget('\\XLite\\View\\ItemsList\\Product\\MailBox', products=this.products) }}

@@ -9,7 +9,7 @@
  */
 
 /*
- * Copyright (C) 2013 Jukka Svahn
+ * Copyright (C) 2018 Jukka Svahn
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -108,7 +108,7 @@ class Config
      *
      * @var   string
      * @since 2.2.0
-     * @link  http://www.php.net/manual/en/ref.pdo-mysql.connection.php
+     * @link  https://www.php.net/manual/en/ref.pdo-mysql.connection.php
      */
 
     public $dsn;
@@ -277,6 +277,22 @@ class Config
     public $data = true;
 
     /**
+     * Dump table structure.
+     *
+     * Set FALSE to only dump table data.
+     *
+     * <code>
+     * $dump = new \Rah\Danpu\Dump();
+     * $dump->structure(false);
+     * </code>
+     *
+     * @var   bool
+     * @since 2.7.0
+     */
+
+    public $structure = true;
+
+    /**
      * Dump triggers.
      *
      * Set FALSE to skip triggers. The dump
@@ -292,6 +308,40 @@ class Config
      */
 
     public $triggers = true;
+
+    /**
+     * Dump events.
+     *
+     * Set FALSE to skip events. The dump
+     * file will not contain any events.
+     *
+     * <code>
+     * $dump = new \Rah\Danpu\Dump();
+     * $dump->events(false);
+     * </code>
+     *
+     * @var   bool
+     * @since 2.7.0
+     */
+
+    public $events = true;
+
+    /**
+     * Enables dumping the database create statement.
+     *
+     * Set to TRUE to add create database statement
+     * to the created SQL dump file.
+     *
+     * <code>
+     * $dump = new \Rah\Danpu\Dump();
+     * $dump->createDatabase(true);
+     * </code>
+     *
+     * @var   bool
+     * @since 2.7.0
+     */
+
+    public $createDatabase = false;
 
     /**
      * Disables foreign key checks.
@@ -334,10 +384,8 @@ class Config
     /**
      * Disables auto-commit mode.
      *
-     * Set TRUE to disable automatic commits. The generated dump
-     * file will contain statements that temporarily disable
-     * unique key checks. This will speed up large data
-     * imports to InnoDB tables as each commit is not
+     * Set TRUE to disable automatic commits. This will speed up
+     * large data imports to InnoDB tables as each commit is not
      * written to the disk right after.
      *
      * When the generated dump is imported, MySQL is instructed

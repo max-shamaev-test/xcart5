@@ -67,25 +67,25 @@ CurrencyManageForm.prototype.initialize = function ()
 
   var renewCountriesList = function () {
     setTimeout(function () {
-      $('.input-countries-select2 > select option:not(:disabled, :selected)').filter(function () {
+      $('.input-countries-select2 select option:not(:disabled, :selected)').filter(function () {
         return unavailableCountries.indexOf($(this).val()) >= 0;
       }).attr('disabled', true);
-      $('.input-countries-select2 > select option:disabled').filter(function () {
+      $('.input-countries-select2 select option:disabled').filter(function () {
         return unavailableCountries.indexOf($(this).val()) === -1;
       }).attr('disabled', false);
 
-      $('.input-countries-select2 > select').each(function () {
+      $('.input-countries-select2 select').each(function () {
         $(this).select2($(this).data('select2').options.options);
       });
     });
   };
   renewCountriesList();
 
-  $('.input-countries-select2 > select').each(function () {
+  $('.input-countries-select2 select').each(function () {
     this.oldCountries = $(this).val();
   });
 
-  $('.input-countries-select2 > select').change(function (event) {
+  $('.input-countries-select2 select').change(function (event) {
     var removed = $(this.oldCountries).not($(this).val()).get();
     var added = $($(this).val()).not(this.oldCountries).get();
 

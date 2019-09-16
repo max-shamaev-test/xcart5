@@ -12,10 +12,11 @@
 namespace Symfony\Component\Form\Tests\Extension\Core\Type;
 
 use Symfony\Component\Form\FormError;
-use Symfony\Component\Form\Test\TypeTestCase as TestCase;
 
-class DateTimeTypeTest extends TestCase
+class DateTimeTypeTest extends BaseTypeTest
 {
+    const TESTED_TYPE = 'Symfony\Component\Form\Extension\Core\Type\DateTimeType';
+
     protected function setUp()
     {
         \Locale::setDefault('en');
@@ -23,92 +24,110 @@ class DateTimeTypeTest extends TestCase
         parent::setUp();
     }
 
-    /**
-     * @group legacy
-     */
-    public function testLegacyName()
-    {
-        $form = $this->factory->create('datetime');
-
-        $this->assertSame('datetime', $form->getConfig()->getType()->getName());
-    }
-
     public function testSubmitDateTime()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
             'model_timezone' => 'UTC',
             'view_timezone' => 'UTC',
             'date_widget' => 'choice',
-            'years' => array(2010),
+            'years' => [2010],
             'time_widget' => 'choice',
             'input' => 'datetime',
-        ));
+        ]);
 
-        $form->submit(array(
-            'date' => array(
+        $form->submit([
+            'date' => [
                 'day' => '2',
                 'month' => '6',
                 'year' => '2010',
-            ),
-            'time' => array(
+            ],
+            'time' => [
                 'hour' => '3',
                 'minute' => '4',
-            ),
-        ));
+            ],
+        ]);
 
         $dateTime = new \DateTime('2010-06-02 03:04:00 UTC');
 
-        $this->assertDateTimeEquals($dateTime, $form->getData());
+        $this->assertEquals($dateTime, $form->getData());
+    }
+
+    public function testSubmitDateTimeImmutable()
+    {
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
+            'model_timezone' => 'UTC',
+            'view_timezone' => 'UTC',
+            'date_widget' => 'choice',
+            'years' => [2010],
+            'time_widget' => 'choice',
+            'input' => 'datetime_immutable',
+        ]);
+
+        $form->submit([
+            'date' => [
+                'day' => '2',
+                'month' => '6',
+                'year' => '2010',
+            ],
+            'time' => [
+                'hour' => '3',
+                'minute' => '4',
+            ],
+        ]);
+
+        $dateTime = new \DateTimeImmutable('2010-06-02 03:04:00 UTC');
+
+        $this->assertEquals($dateTime, $form->getData());
     }
 
     public function testSubmitString()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
             'model_timezone' => 'UTC',
             'view_timezone' => 'UTC',
             'input' => 'string',
             'date_widget' => 'choice',
-            'years' => array(2010),
+            'years' => [2010],
             'time_widget' => 'choice',
-        ));
+        ]);
 
-        $form->submit(array(
-            'date' => array(
+        $form->submit([
+            'date' => [
                 'day' => '2',
                 'month' => '6',
                 'year' => '2010',
-            ),
-            'time' => array(
+            ],
+            'time' => [
                 'hour' => '3',
                 'minute' => '4',
-            ),
-        ));
+            ],
+        ]);
 
         $this->assertEquals('2010-06-02 03:04:00', $form->getData());
     }
 
     public function testSubmitTimestamp()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
             'model_timezone' => 'UTC',
             'view_timezone' => 'UTC',
             'input' => 'timestamp',
             'date_widget' => 'choice',
-            'years' => array(2010),
+            'years' => [2010],
             'time_widget' => 'choice',
-        ));
+        ]);
 
-        $form->submit(array(
-            'date' => array(
+        $form->submit([
+            'date' => [
                 'day' => '2',
                 'month' => '6',
                 'year' => '2010',
-            ),
-            'time' => array(
+            ],
+            'time' => [
                 'hour' => '3',
                 'minute' => '4',
-            ),
-        ));
+            ],
+        ]);
 
         $dateTime = new \DateTime('2010-06-02 03:04:00 UTC');
 
@@ -117,92 +136,92 @@ class DateTimeTypeTest extends TestCase
 
     public function testSubmitWithoutMinutes()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
             'model_timezone' => 'UTC',
             'view_timezone' => 'UTC',
             'date_widget' => 'choice',
-            'years' => array(2010),
+            'years' => [2010],
             'time_widget' => 'choice',
             'input' => 'datetime',
             'with_minutes' => false,
-        ));
+        ]);
 
         $form->setData(new \DateTime());
 
-        $input = array(
-            'date' => array(
+        $input = [
+            'date' => [
                 'day' => '2',
                 'month' => '6',
                 'year' => '2010',
-            ),
-            'time' => array(
+            ],
+            'time' => [
                 'hour' => '3',
-            ),
-        );
+            ],
+        ];
 
         $form->submit($input);
 
-        $this->assertDateTimeEquals(new \DateTime('2010-06-02 03:00:00 UTC'), $form->getData());
+        $this->assertEquals(new \DateTime('2010-06-02 03:00:00 UTC'), $form->getData());
     }
 
     public function testSubmitWithSeconds()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
             'model_timezone' => 'UTC',
             'view_timezone' => 'UTC',
             'date_widget' => 'choice',
-            'years' => array(2010),
+            'years' => [2010],
             'time_widget' => 'choice',
             'input' => 'datetime',
             'with_seconds' => true,
-        ));
+        ]);
 
         $form->setData(new \DateTime());
 
-        $input = array(
-            'date' => array(
+        $input = [
+            'date' => [
                 'day' => '2',
                 'month' => '6',
                 'year' => '2010',
-            ),
-            'time' => array(
+            ],
+            'time' => [
                 'hour' => '3',
                 'minute' => '4',
                 'second' => '5',
-            ),
-        );
+            ],
+        ];
 
         $form->submit($input);
 
-        $this->assertDateTimeEquals(new \DateTime('2010-06-02 03:04:05 UTC'), $form->getData());
+        $this->assertEquals(new \DateTime('2010-06-02 03:04:05 UTC'), $form->getData());
     }
 
     public function testSubmitDifferentTimezones()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
             'model_timezone' => 'America/New_York',
             'view_timezone' => 'Pacific/Tahiti',
             'date_widget' => 'choice',
-            'years' => array(2010),
+            'years' => [2010],
             'time_widget' => 'choice',
             'input' => 'string',
             'with_seconds' => true,
-        ));
+        ]);
 
         $dateTime = new \DateTime('2010-06-02 03:04:05 Pacific/Tahiti');
 
-        $form->submit(array(
-            'date' => array(
+        $form->submit([
+            'date' => [
                 'day' => (int) $dateTime->format('d'),
                 'month' => (int) $dateTime->format('m'),
                 'year' => (int) $dateTime->format('Y'),
-            ),
-            'time' => array(
+            ],
+            'time' => [
                 'hour' => (int) $dateTime->format('H'),
                 'minute' => (int) $dateTime->format('i'),
                 'second' => (int) $dateTime->format('s'),
-            ),
-        ));
+            ],
+        ]);
 
         $dateTime->setTimezone(new \DateTimeZone('America/New_York'));
 
@@ -211,98 +230,118 @@ class DateTimeTypeTest extends TestCase
 
     public function testSubmitDifferentTimezonesDateTime()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
             'model_timezone' => 'America/New_York',
             'view_timezone' => 'Pacific/Tahiti',
             'widget' => 'single_text',
             'input' => 'datetime',
-        ));
+        ]);
 
         $outputTime = new \DateTime('2010-06-02 03:04:00 Pacific/Tahiti');
 
-        $form->submit('2010-06-02T03:04:00-10:00');
+        $form->submit('2010-06-02T03:04:00');
 
         $outputTime->setTimezone(new \DateTimeZone('America/New_York'));
 
-        $this->assertDateTimeEquals($outputTime, $form->getData());
-        $this->assertEquals('2010-06-02T03:04:00-10:00', $form->getViewData());
+        $this->assertEquals($outputTime, $form->getData());
+        $this->assertEquals('2010-06-02T03:04:00', $form->getViewData());
+    }
+
+    public function testSubmitDifferentTimezonesDateTimeImmutable()
+    {
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
+            'model_timezone' => 'America/New_York',
+            'view_timezone' => 'Pacific/Tahiti',
+            'widget' => 'single_text',
+            'input' => 'datetime_immutable',
+        ]);
+
+        $outputTime = new \DateTimeImmutable('2010-06-02 03:04:00 Pacific/Tahiti');
+
+        $form->submit('2010-06-02T03:04:00');
+
+        $outputTime = $outputTime->setTimezone(new \DateTimeZone('America/New_York'));
+
+        $this->assertInstanceOf(\DateTimeImmutable::class, $form->getData());
+        $this->assertEquals($outputTime, $form->getData());
+        $this->assertEquals('2010-06-02T03:04:00', $form->getViewData());
     }
 
     public function testSubmitStringSingleText()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
             'model_timezone' => 'UTC',
             'view_timezone' => 'UTC',
             'input' => 'string',
             'widget' => 'single_text',
-        ));
+        ]);
 
-        $form->submit('2010-06-02T03:04:00Z');
+        $form->submit('2010-06-02T03:04:00');
 
         $this->assertEquals('2010-06-02 03:04:00', $form->getData());
-        $this->assertEquals('2010-06-02T03:04:00Z', $form->getViewData());
+        $this->assertEquals('2010-06-02T03:04:00', $form->getViewData());
     }
 
     public function testSubmitStringSingleTextWithSeconds()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
             'model_timezone' => 'UTC',
             'view_timezone' => 'UTC',
             'input' => 'string',
             'widget' => 'single_text',
             'with_seconds' => true,
-        ));
+        ]);
 
-        $form->submit('2010-06-02T03:04:05Z');
+        $form->submit('2010-06-02T03:04:05');
 
         $this->assertEquals('2010-06-02 03:04:05', $form->getData());
-        $this->assertEquals('2010-06-02T03:04:05Z', $form->getViewData());
+        $this->assertEquals('2010-06-02T03:04:05', $form->getViewData());
     }
 
     public function testSubmitDifferentPattern()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
             'date_format' => 'MM*yyyy*dd',
             'date_widget' => 'single_text',
             'time_widget' => 'single_text',
             'input' => 'datetime',
-        ));
+        ]);
 
         $dateTime = new \DateTime('2010-06-02 03:04');
 
-        $form->submit(array(
+        $form->submit([
             'date' => '06*2010*02',
             'time' => '03:04',
-        ));
+        ]);
 
-        $this->assertDateTimeEquals($dateTime, $form->getData());
+        $this->assertEquals($dateTime, $form->getData());
     }
 
     public function testInitializeWithDateTime()
     {
         // Throws an exception if "data_class" option is not explicitly set
         // to null in the type
-        $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', new \DateTime());
+        $this->assertInstanceOf('Symfony\Component\Form\FormInterface', $this->factory->create(static::TESTED_TYPE, new \DateTime()));
     }
 
     public function testSingleTextWidgetShouldUseTheRightInputType()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $view = $this->factory->create(static::TESTED_TYPE, null, [
             'widget' => 'single_text',
-        ));
+        ])
+            ->createView();
 
-        $view = $form->createView();
-        $this->assertEquals('datetime', $view->vars['type']);
+        $this->assertEquals('datetime-local', $view->vars['type']);
     }
 
     public function testPassDefaultPlaceholderToViewIfNotRequired()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $view = $this->factory->create(static::TESTED_TYPE, null, [
             'required' => false,
             'with_seconds' => true,
-        ));
+        ])
+            ->createView();
 
-        $view = $form->createView();
         $this->assertSame('', $view['date']['year']->vars['placeholder']);
         $this->assertSame('', $view['date']['month']->vars['placeholder']);
         $this->assertSame('', $view['date']['day']->vars['placeholder']);
@@ -313,12 +352,12 @@ class DateTimeTypeTest extends TestCase
 
     public function testPassNoPlaceholderToViewIfRequired()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $view = $this->factory->create(static::TESTED_TYPE, null, [
             'required' => true,
             'with_seconds' => true,
-        ));
+        ])
+            ->createView();
 
-        $view = $form->createView();
         $this->assertNull($view['date']['year']->vars['placeholder']);
         $this->assertNull($view['date']['month']->vars['placeholder']);
         $this->assertNull($view['date']['day']->vars['placeholder']);
@@ -329,60 +368,35 @@ class DateTimeTypeTest extends TestCase
 
     public function testPassPlaceholderAsString()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $view = $this->factory->create(static::TESTED_TYPE, null, [
             'placeholder' => 'Empty',
             'with_seconds' => true,
-        ));
+        ])
+            ->createView();
 
-        $view = $form->createView();
         $this->assertSame('Empty', $view['date']['year']->vars['placeholder']);
         $this->assertSame('Empty', $view['date']['month']->vars['placeholder']);
         $this->assertSame('Empty', $view['date']['day']->vars['placeholder']);
         $this->assertSame('Empty', $view['time']['hour']->vars['placeholder']);
         $this->assertSame('Empty', $view['time']['minute']->vars['placeholder']);
         $this->assertSame('Empty', $view['time']['second']->vars['placeholder']);
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testPassEmptyValueBC()
-    {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
-            'empty_value' => 'Empty',
-            'with_seconds' => true,
-        ));
-
-        $view = $form->createView();
-        $this->assertSame('Empty', $view['date']['year']->vars['placeholder']);
-        $this->assertSame('Empty', $view['date']['month']->vars['placeholder']);
-        $this->assertSame('Empty', $view['date']['day']->vars['placeholder']);
-        $this->assertSame('Empty', $view['time']['hour']->vars['placeholder']);
-        $this->assertSame('Empty', $view['time']['minute']->vars['placeholder']);
-        $this->assertSame('Empty', $view['time']['second']->vars['placeholder']);
-        $this->assertSame('Empty', $view['date']['year']->vars['empty_value']);
-        $this->assertSame('Empty', $view['date']['month']->vars['empty_value']);
-        $this->assertSame('Empty', $view['date']['day']->vars['empty_value']);
-        $this->assertSame('Empty', $view['time']['hour']->vars['empty_value']);
-        $this->assertSame('Empty', $view['time']['minute']->vars['empty_value']);
-        $this->assertSame('Empty', $view['time']['second']->vars['empty_value']);
     }
 
     public function testPassPlaceholderAsArray()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
-            'placeholder' => array(
+        $view = $this->factory->create(static::TESTED_TYPE, null, [
+            'placeholder' => [
                 'year' => 'Empty year',
                 'month' => 'Empty month',
                 'day' => 'Empty day',
                 'hour' => 'Empty hour',
                 'minute' => 'Empty minute',
                 'second' => 'Empty second',
-            ),
+            ],
             'with_seconds' => true,
-        ));
+        ])
+            ->createView();
 
-        $view = $form->createView();
         $this->assertSame('Empty year', $view['date']['year']->vars['placeholder']);
         $this->assertSame('Empty month', $view['date']['month']->vars['placeholder']);
         $this->assertSame('Empty day', $view['date']['day']->vars['placeholder']);
@@ -393,18 +407,18 @@ class DateTimeTypeTest extends TestCase
 
     public function testPassPlaceholderAsPartialArrayAddEmptyIfNotRequired()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $view = $this->factory->create(static::TESTED_TYPE, null, [
             'required' => false,
-            'placeholder' => array(
+            'placeholder' => [
                 'year' => 'Empty year',
                 'day' => 'Empty day',
                 'hour' => 'Empty hour',
                 'second' => 'Empty second',
-            ),
+            ],
             'with_seconds' => true,
-        ));
+        ])
+            ->createView();
 
-        $view = $form->createView();
         $this->assertSame('Empty year', $view['date']['year']->vars['placeholder']);
         $this->assertSame('', $view['date']['month']->vars['placeholder']);
         $this->assertSame('Empty day', $view['date']['day']->vars['placeholder']);
@@ -415,18 +429,18 @@ class DateTimeTypeTest extends TestCase
 
     public function testPassPlaceholderAsPartialArrayAddNullIfRequired()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $view = $this->factory->create(static::TESTED_TYPE, null, [
             'required' => true,
-            'placeholder' => array(
+            'placeholder' => [
                 'year' => 'Empty year',
                 'day' => 'Empty day',
                 'hour' => 'Empty hour',
                 'second' => 'Empty second',
-            ),
+            ],
             'with_seconds' => true,
-        ));
+        ])
+            ->createView();
 
-        $view = $form->createView();
         $this->assertSame('Empty year', $view['date']['year']->vars['placeholder']);
         $this->assertNull($view['date']['month']->vars['placeholder']);
         $this->assertSame('Empty day', $view['date']['day']->vars['placeholder']);
@@ -437,99 +451,99 @@ class DateTimeTypeTest extends TestCase
 
     public function testPassHtml5TypeIfSingleTextAndHtml5Format()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $view = $this->factory->create(static::TESTED_TYPE, null, [
             'widget' => 'single_text',
-        ));
+        ])
+            ->createView();
 
-        $view = $form->createView();
-        $this->assertSame('datetime', $view->vars['type']);
+        $this->assertSame('datetime-local', $view->vars['type']);
     }
 
     public function testDontPassHtml5TypeIfHtml5NotAllowed()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $view = $this->factory->create(static::TESTED_TYPE, null, [
             'widget' => 'single_text',
             'html5' => false,
-        ));
+        ])
+            ->createView();
 
-        $view = $form->createView();
-        $this->assertFalse(isset($view->vars['type']));
+        $this->assertArrayNotHasKey('type', $view->vars);
     }
 
     public function testDontPassHtml5TypeIfNotHtml5Format()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $view = $this->factory->create(static::TESTED_TYPE, null, [
             'widget' => 'single_text',
             'format' => 'yyyy-MM-dd HH:mm',
-        ));
+        ])
+            ->createView();
 
-        $view = $form->createView();
-        $this->assertFalse(isset($view->vars['type']));
+        $this->assertArrayNotHasKey('type', $view->vars);
     }
 
     public function testDontPassHtml5TypeIfNotSingleText()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $view = $this->factory->create(static::TESTED_TYPE, null, [
             'widget' => 'text',
-        ));
+        ])
+            ->createView();
 
-        $view = $form->createView();
-        $this->assertFalse(isset($view->vars['type']));
+        $this->assertArrayNotHasKey('type', $view->vars);
     }
 
     public function testDateTypeChoiceErrorsBubbleUp()
     {
         $error = new FormError('Invalid!');
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null);
+        $form = $this->factory->create(static::TESTED_TYPE, null);
 
         $form['date']->addError($error);
 
-        $this->assertSame(array(), iterator_to_array($form['date']->getErrors()));
-        $this->assertSame(array($error), iterator_to_array($form->getErrors()));
+        $this->assertSame([], iterator_to_array($form['date']->getErrors()));
+        $this->assertSame([$error], iterator_to_array($form->getErrors()));
     }
 
     public function testDateTypeSingleTextErrorsBubbleUp()
     {
         $error = new FormError('Invalid!');
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
             'date_widget' => 'single_text',
-        ));
+        ]);
 
         $form['date']->addError($error);
 
-        $this->assertSame(array(), iterator_to_array($form['date']->getErrors()));
-        $this->assertSame(array($error), iterator_to_array($form->getErrors()));
+        $this->assertSame([], iterator_to_array($form['date']->getErrors()));
+        $this->assertSame([$error], iterator_to_array($form->getErrors()));
     }
 
     public function testTimeTypeChoiceErrorsBubbleUp()
     {
         $error = new FormError('Invalid!');
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null);
+        $form = $this->factory->create(static::TESTED_TYPE, null);
 
         $form['time']->addError($error);
 
-        $this->assertSame(array(), iterator_to_array($form['time']->getErrors()));
-        $this->assertSame(array($error), iterator_to_array($form->getErrors()));
+        $this->assertSame([], iterator_to_array($form['time']->getErrors()));
+        $this->assertSame([$error], iterator_to_array($form->getErrors()));
     }
 
     public function testTimeTypeSingleTextErrorsBubbleUp()
     {
         $error = new FormError('Invalid!');
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
             'time_widget' => 'single_text',
-        ));
+        ]);
 
         $form['time']->addError($error);
 
-        $this->assertSame(array(), iterator_to_array($form['time']->getErrors()));
-        $this->assertSame(array($error), iterator_to_array($form->getErrors()));
+        $this->assertSame([], iterator_to_array($form['time']->getErrors()));
+        $this->assertSame([$error], iterator_to_array($form->getErrors()));
     }
 
     public function testPassDefaultChoiceTranslationDomain()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
             'with_seconds' => true,
-        ));
+        ]);
 
         $view = $form->createView();
 
@@ -543,10 +557,10 @@ class DateTimeTypeTest extends TestCase
 
     public function testPassChoiceTranslationDomainAsString()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
             'choice_translation_domain' => 'messages',
             'with_seconds' => true,
-        ));
+        ]);
 
         $view = $form->createView();
         $this->assertSame('messages', $view['date']['year']->vars['choice_translation_domain']);
@@ -559,15 +573,15 @@ class DateTimeTypeTest extends TestCase
 
     public function testPassChoiceTranslationDomainAsArray()
     {
-        $form = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\DateTimeType', null, array(
-            'choice_translation_domain' => array(
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
+            'choice_translation_domain' => [
                 'year' => 'foo',
                 'month' => 'test',
                 'hour' => 'foo',
                 'second' => 'test',
-            ),
+            ],
             'with_seconds' => true,
-        ));
+        ]);
 
         $view = $form->createView();
         $this->assertSame('foo', $view['date']['year']->vars['choice_translation_domain']);
@@ -576,5 +590,85 @@ class DateTimeTypeTest extends TestCase
         $this->assertSame('foo', $view['time']['hour']->vars['choice_translation_domain']);
         $this->assertFalse($view['time']['minute']->vars['choice_translation_domain']);
         $this->assertSame('test', $view['time']['second']->vars['choice_translation_domain']);
+    }
+
+    public function testSubmitNull($expected = null, $norm = null, $view = null)
+    {
+        parent::testSubmitNull($expected, $norm, [
+            // View data is an array of choice values array
+            'date' => ['year' => '', 'month' => '', 'day' => ''],
+            'time' => ['hour' => '', 'minute' => ''],
+        ]);
+    }
+
+    public function testSubmitNullWithText()
+    {
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
+            'widget' => 'text',
+        ]);
+        $form->submit(null);
+
+        $this->assertNull($form->getData());
+        $this->assertNull($form->getNormData());
+        $this->assertSame([
+            // View data is an array of choice values array
+            'date' => ['year' => '', 'month' => '', 'day' => ''],
+            'time' => ['hour' => '', 'minute' => ''],
+        ], $form->getViewData());
+    }
+
+    public function testSubmitNullWithSingleText()
+    {
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
+            'widget' => 'single_text',
+        ]);
+        $form->submit(null);
+
+        $this->assertNull($form->getData());
+        $this->assertNull($form->getNormData());
+        $this->assertSame('', $form->getViewData());
+    }
+
+    public function testSubmitNullUsesDefaultEmptyData($emptyData = [], $expectedData = null)
+    {
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
+            'empty_data' => $emptyData,
+        ]);
+        $form->submit(null);
+
+        // view transformer writes back empty strings in the view data
+        $this->assertSame(
+            ['date' => ['year' => '', 'month' => '', 'day' => ''], 'time' => ['hour' => '', 'minute' => '']],
+            $form->getViewData()
+        );
+        $this->assertSame($expectedData, $form->getNormData());
+        $this->assertSame($expectedData, $form->getData());
+    }
+
+    /**
+     * @dataProvider provideEmptyData
+     */
+    public function testSubmitNullUsesDateEmptyData($widget, $emptyData, $expectedData)
+    {
+        $form = $this->factory->create(static::TESTED_TYPE, null, [
+            'widget' => $widget,
+            'empty_data' => $emptyData,
+        ]);
+        $form->submit(null);
+
+        $this->assertSame($emptyData, $form->getViewData());
+        $this->assertEquals($expectedData, $form->getNormData());
+        $this->assertEquals($expectedData, $form->getData());
+    }
+
+    public function provideEmptyData()
+    {
+        $expectedData = \DateTime::createFromFormat('Y-m-d H:i', '2018-11-11 21:23');
+
+        return [
+            'Simple field' => ['single_text', '2018-11-11T21:23:00', $expectedData],
+            'Compound text field' => ['text', ['date' => ['year' => '2018', 'month' => '11', 'day' => '11'], 'time' => ['hour' => '21', 'minute' => '23']], $expectedData],
+            'Compound choice field' => ['choice', ['date' => ['year' => '2018', 'month' => '11', 'day' => '11'], 'time' => ['hour' => '21', 'minute' => '23']], $expectedData],
+        ];
     }
 }

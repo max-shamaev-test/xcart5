@@ -69,7 +69,7 @@ class PaypalForMarketplacesAPI
     {
         return $this->isSelfConfigured()
             && \XLite\Core\Config::getInstance()->Security->customer_security
-            && \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor');
+            && \Includes\Utils\Module\Manager::getRegistry()->isModuleEnabled('XC\MultiVendor');
     }
 
     /**
@@ -246,7 +246,7 @@ class PaypalForMarketplacesAPI
             $shippingAddress->setState($address->getState() ? $address->getState()->getCode() : '');
             $shippingAddress->setCountryCode($address->getCountryCode());
             $shippingAddress->setPostalCode($address->getZipcode());
-            $shippingAddress->setPhone($address->getPhone() ?: null);
+            $shippingAddress->setPhone($address->getPhone() ? $this->normalizePhoneNumber($address->getPhone()) : null);
             $purchaseUnit->setShippingAddress($shippingAddress);
 
             $purchaseUnit->setShippingMethod($xcartOrder->getShippingMethodName());
@@ -255,6 +255,31 @@ class PaypalForMarketplacesAPI
         $purchaseUnit->setPaymentDescriptor($config['payment_descriptor']);
 
         return [$purchaseUnit];
+    }
+
+    /**
+     * @param $phone
+     *
+     * @return string
+     */
+    protected function normalizePhoneNumber($phone)
+    {
+        $result = '';
+        $parenthesesOpen = false;
+        foreach (str_split(preg_replace('/[^+0-9\s\(\)-\.]/', '', trim($phone))) as $pos => $ch) {
+            if ($pos != 0 && $ch == '+'
+                || $parenthesesOpen && $ch == '('
+                || !$parenthesesOpen && $ch == ')'
+            ) {
+                continue;
+            }
+            $parenthesesOpen = $ch == '(' ?: $parenthesesOpen;
+            $parenthesesOpen = $ch == ')' ? !($ch == ')') : $parenthesesOpen;
+
+            $result .= $ch;
+        }
+
+        return $result;
     }
 
     /**

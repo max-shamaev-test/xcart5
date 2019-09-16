@@ -8,70 +8,10 @@
 
 namespace XLite\Module\XC\Concierge;
 
-use XLite\Core\Config;
 use XLite\Module\XC\Concierge\Core\Mediator;
 
-/**
- * Segment module
- */
 abstract class Main extends \XLite\Module\AModule
 {
-    /**
-     * @return string
-     */
-    public static function getAuthorName()
-    {
-        return 'X-Cart team';
-    }
-
-    /**
-     * @return string
-     */
-    public static function getModuleName()
-    {
-        return 'Concierge';
-    }
-
-    /**
-     * @return string
-     */
-    public static function getMajorVersion()
-    {
-        return '5.3';
-    }
-
-    /**
-     * @return string
-     */
-    public static function getMinorVersion()
-    {
-        return '1';
-    }
-
-    /**
-     * @return string
-     */
-    public static function getBuildVersion()
-    {
-        return '5';
-    }
-
-    /**
-     * @return string
-     */
-    public static function getMinorRequiredCoreVersion()
-    {
-        return '3';
-    }
-
-    /**
-     * @return string
-     */
-    public static function getDescription()
-    {
-        return 'This module helps X-Cart team to improve merchants experience, track errors and make X-Cart better.';
-    }
-
     public static function init()
     {
         parent::init();

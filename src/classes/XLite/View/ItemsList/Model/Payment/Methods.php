@@ -44,7 +44,7 @@ class Methods extends \XLite\View\ItemsList\Model\Table
     /**
      * Get wrapper form target
      *
-     * @return array
+     * @return string
      */
     protected function getFormTarget()
     {
@@ -60,7 +60,7 @@ class Methods extends \XLite\View\ItemsList\Model\Table
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'payment/appearance/style.css';
+        $list[] = 'payment/appearance/style.less';
 
         return $list;
     }
@@ -83,23 +83,31 @@ class Methods extends \XLite\View\ItemsList\Model\Table
     protected function defineColumns()
     {
         return array(
-            'title' => array(
-                static::COLUMN_NAME      => static::t('Title'),
-                static::COLUMN_CLASS     => 'XLite\View\FormField\Inline\Input\Text',
+            'name' => array(
+                static::COLUMN_NAME      => static::t('Original name'),
+                static::COLUMN_CLASS     => 'XLite\View\FormField\Inline\Label',
                 static::COLUMN_TEMPLATE  => 'items_list/model/table/payment/cell.name.twig',
+                static::COLUMN_ORDERBY   => 100,
+                static::COLUMN_NO_WRAP  => true
+
+            ),
+            'title' => array(
+                static::COLUMN_NAME      => static::t('Title for customers'),
+                static::COLUMN_CLASS     => 'XLite\View\FormField\Inline\Input\Text',
                 static::COLUMN_PARAMS    => array('required' => true),
                 static::COLUMN_ORDERBY   => 200,
                 static::COLUMN_EDIT_ONLY => true,
             ),
             'description' => array(
-                static::COLUMN_NAME    => static::t('Description'),
-                static::COLUMN_CLASS   => 'XLite\View\FormField\Inline\Input\Text',
-                static::COLUMN_PARAMS  => array(
-                    'required' => false,
+                static::COLUMN_NAME      => static::t('Description for customers'),
+                static::COLUMN_CLASS     => 'XLite\View\FormField\Inline\Input\Text',
+                static::COLUMN_PARAMS    => array(
+                    'required'                                                  => false,
                     \XLite\View\FormField\Inline\AInline::PARAM_VIEW_FULL_WIDTH => true,
                 ),
-                static::COLUMN_ORDERBY  => 300,
+                static::COLUMN_ORDERBY   => 300,
                 static::COLUMN_EDIT_ONLY => true,
+                static::COLUMN_MAIN      => true,
             ),
         );
     }
@@ -181,11 +189,11 @@ class Methods extends \XLite\View\ItemsList\Model\Table
         $result = parent::getSearchCondition();
 
         $result->{\XLite\Model\Repo\Payment\Method::P_MODULE_ENABLED} = true;
-        $result->{\XLite\Model\Repo\Payment\Method::P_ADDED} = true;
-        $result->{\XLite\Model\Repo\Payment\Method::P_POSITION} = array(
+        $result->{\XLite\Model\Repo\Payment\Method::P_ADDED}          = true;
+        $result->{\XLite\Model\Repo\Payment\Method::P_POSITION}       = [
             \XLite\Model\Repo\Payment\Method::FIELD_DEFAULT_POSITION,
             static::SORT_ORDER_ASC,
-        );
+        ];
 
         return $result;
     }

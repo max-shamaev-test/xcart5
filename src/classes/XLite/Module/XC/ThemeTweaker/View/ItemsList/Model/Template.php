@@ -60,7 +60,7 @@ class Template extends \XLite\View\ItemsList\Model\Table
             'date' => array(
                 static::COLUMN_NAME     => static::t('Date'),
                 static::COLUMN_TEMPLATE => 'modules/XC/ThemeTweaker/theme_tweaker_templates/parts/cell.date.twig',
-                static::COLUMN_NO_WRAP  => true,
+                static::COLUMN_NO_WRAP  => false,
                 static::COLUMN_ORDERBY  => 200,
             ),
         );

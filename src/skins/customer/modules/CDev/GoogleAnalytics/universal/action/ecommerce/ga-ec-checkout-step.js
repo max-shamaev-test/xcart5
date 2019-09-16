@@ -18,19 +18,71 @@ define('googleAnalytics/eCommerceCheckoutStepEvent', ['googleAnalytics/eCommerce
             'ga-pageview-sent':       this.registerInitialCheckoutOptions,
             'ga-ec-checkout':         this.registerCheckoutExternal,
             'ga-ec-checkout-option':  this.registerCheckoutOptionExternal,
+            'checkout.common.ready':  this.registerPlaceOrder,
           };
         },
 
         registerCheckoutEnter: function (event, data) {
           var actionData = _.first(
-              this.getActions('checkout')
+            this.getActions('checkout')
           );
 
           if (actionData) {
-            this._registerCheckoutEnter(
+            if (this.isForceLoginPage()) {
+              this._registerCheckoutEnter(
                 actionData['data']['products'],
-                actionData['data']['actionData']
+                { step: 1 }
+              );
+              ga('send', 'event', 'Checkout', 'Checkout entered');
+
+            } else if (this.isOnePageCheckout()) {
+              this._registerCheckoutEnter(
+                actionData['data']['products'],
+                { step: 1 }
+              );
+              ga('send', 'event', 'Checkout', 'Checkout entered');
+
+              this._registerCheckoutEnter(
+                actionData['data']['products'],
+                { step: 2 }
+              );
+              ga('send', 'event', 'Checkout', 'Checkout continue');
+
+              this._registerCheckoutEnter(
+                actionData['data']['products'],
+                { step: 3 }
+              );
+              ga('send', 'event', 'Checkout', 'Checkout continue');
+            }
+          }
+        },
+
+        registerPlaceOrder: function() {
+          if (this.isOnePageCheckout()) {
+            core.trigger('ga-ec-checkout-option', {
+              step: 1,
+              option: 'Address chosen',
+            });
+            core.trigger('ga-ec-checkout-option', {
+              step: 2,
+              option: this.getOPCShippingMethodName(),
+            });
+            core.trigger('ga-ec-checkout-option', {
+              step: 3,
+              option: this.getOPCPaymentMethodName(),
+            });
+
+            var checkoutActionData = _.first(
+              this.getActions('checkout')
             );
+
+            if (checkoutActionData) {
+              core.trigger('ga-ec-checkout', {
+                products: checkoutActionData.data.products,
+                actionData: {step: 4},
+                message: 'Checkout continue'
+              });
+            }
           }
         },
 
@@ -88,6 +140,22 @@ define('googleAnalytics/eCommerceCheckoutStepEvent', ['googleAnalytics/eCommerce
             ga('ec:addProduct', product);
           });
           ga('ec:setAction', 'checkout', actionData || {});
+        },
+
+        isOnePageCheckout: function () {
+          return jQuery('.checkout_fastlane_container').length === 0
+        },
+
+        isForceLoginPage: function () {
+          return jQuery('.signin-anonymous-wrapper').length !== 0;
+        },
+
+        getOPCPaymentMethodName: function () {
+          return jQuery('.step-payment-methods input[name="methodId"]:checked').siblings('.payment-title').text();
+        },
+
+        getOPCShippingMethodName: function () {
+          return jQuery('.step-shipping-methods input[name="methodId"]:checked').siblings('.rate-title').text();
         },
 
       });

@@ -8,17 +8,13 @@
 
 namespace XLite\View;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Automate shipping routine page view
  */
 class AutomateShippingReturns extends \XLite\View\AView
 {
-    /**
-     * Runtime cache for module object
-     * @var \XLite\Model\Module | null
-     */
-    protected $module;
-
     /**
      * Return list of allowed targets
      *
@@ -59,30 +55,13 @@ class AutomateShippingReturns extends \XLite\View\AView
     }
 
     /**
-     * Get module object (fromMarketplace=true one)
-     *
-     * @return \XLite\Model\Module | null
-     */
-    protected function getModule()
-    {
-        if(!$this->module) {
-            $this->module = \XLite\Core\Database::getRepo('XLite\Model\Module')
-                ->findOneByModuleName('AutomatedShippingRefunds71LBS\\SeventyOnePounds', true);
-        }
-
-        return $this->module;
-    }
-
-    /**
      * Is 71lbs installed
      *
      * @return boolean
      */
     public function isModuleInstalled()
     {
-        return $this->getModule()
-            ? $this->getModule()->isInstalled()
-            : false;
+        return (bool) Manager::getRegistry()->getModule('AutomatedShippingRefunds71LBS\SeventyOnePounds');
     }
 
     /**
@@ -92,13 +71,9 @@ class AutomateShippingReturns extends \XLite\View\AView
      */
     public function getConfigureLink()
     {
-        $moduleInstalled = $this->getModule()
-            ?  $this->getModule()->getModuleInstalled()
-            : null;
-
-        return $moduleInstalled
-            ? $moduleInstalled->getSettingsForm()
-            : $this->buildURL('addons_list_marketplace', '', [ 'substring' => 'SeventyOnePounds' ]);
+        return Manager::getRegistry()->isModuleEnabled('AutomatedShippingRefunds71LBS\SeventyOnePounds')
+            ? Manager::getRegistry()->getModuleSettingsUrl('AutomatedShippingRefunds71LBS\SeventyOnePounds')
+            : Manager::getRegistry()->getModuleServiceURL('AutomatedShippingRefunds71LBS\SeventyOnePounds');
     }
 
     /**
@@ -108,8 +83,6 @@ class AutomateShippingReturns extends \XLite\View\AView
      */
     public function getEnableLink()
     {
-        return $this->getModule()
-            ? $this->getModule()->getMarketplaceURL()
-            : $this->buildURL('addons_list_marketplace', '', [ 'substring' => 'SeventyOnePounds' ]);
+        return Manager::getRegistry()->getModuleSettingsUrl('AutomatedShippingRefunds71LBS\SeventyOnePounds');
     }
 }

@@ -1,8 +1,0 @@
-{##
- # Stuff to put in header
- #}
-
-{% set googleToken = this.getGoogleVerificationToken() %}
-{% if googleToken %}
-    <meta name="google-site-verification" content="{{ googleToken }}" />
-{% endif %}

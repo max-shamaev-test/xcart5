@@ -189,6 +189,19 @@ class State extends \XLite\Model\Repo\ARepo
     }
 
     /**
+     * Find states by country code and by state id
+     *
+     * @param string $countryCode Country code
+     * @param string stateId State id
+     *
+     * @return integer
+     */
+    public function getCountByCountryAndStateId($countryCode, $stateId)
+    {
+        return $this->defineGetCountByCountryAndStateId($countryCode, $stateId)->getSingleResult()['cnt'];
+    }
+
+    /**
      * Find states by country code and state code
      *
      * @param string $countryCode Country code
@@ -366,6 +379,25 @@ class State extends \XLite\Model\Repo\ARepo
             ->andWhere($orCnd)
             ->setParameter('country', $countryCode)
             ->setParameter('stateCode', $code);
+    }
+
+    /**
+     * Define query for getCountByCountryAndStateId() method
+     *
+     * @param string $countryCode Country code
+     * @param string $stateId State id
+     *
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    protected function defineGetCountByCountryAndStateId($countryCode, $stateId)
+    {
+        return $this->createQueryBuilder()
+            ->select('COUNT(s.state_id) AS cnt')
+            ->innerJoin('s.country', 'country')
+            ->andWhere('country.code = :country')
+            ->andWhere('s.state_id = :stateId')
+            ->setParameter('country', $countryCode)
+            ->setParameter('stateId', $stateId);
     }
 
     // {{{ Cache

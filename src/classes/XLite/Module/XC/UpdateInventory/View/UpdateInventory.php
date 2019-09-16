@@ -35,7 +35,7 @@ class UpdateInventory extends \XLite\View\Page\Admin\Import
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'modules/XC/UpdateInventory/style.css';
+        $list[] = 'modules/XC/UpdateInventory/style.less';
 
         return $list;
     }

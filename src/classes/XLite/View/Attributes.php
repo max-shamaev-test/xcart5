@@ -35,15 +35,13 @@ class Attributes extends \XLite\View\AView
         $list = parent::getCSSFiles();
 
         $list[] = 'attribute/style.css';
-        $list[] = 'attributes/style.css';
+        $list[] = 'attributes/style.less';
         $list[] = 'form_field/inline/style.css';
         $list[] = 'form_field/inline/input/text/position/move.css';
         $list[] = 'form_field/inline/input/text/position.css';
         $list[] = 'form_field/form_field.css';
         $list[] = 'form_field/input/text/position.css';
-        $list[] = 'form_field/input/checkbox/switcher.css';
         $list[] = 'items_list/items_list.css';
-        $list[] = 'items_list/model/style.css';
         $list[] = 'items_list/model/table/style.css';
         $list[] = 'form_field/inline/input/text.css';
 
@@ -82,14 +80,7 @@ class Attributes extends \XLite\View\AView
     {
         $list = parent::getCommonFiles();
         $list[static::RESOURCE_JS][] = 'js/jquery.textarea-expander.js';
-
-        $list[static::RESOURCE_JS][] = [
-            'file' => $this->isDeveloperMode() ? 'vue/vue.js' : 'vue/vue.min.js',
-            'no_minify' => true
-        ];
-        $list[static::RESOURCE_JS][] = 'js/vue/vue.js';
-        $list[static::RESOURCE_JS][] = 'js/vue/component.js';
-        $list[static::RESOURCE_JS][] = 'js/tooltip.js';
+        $list[static::RESOURCE_JS] = array_merge($list[static::RESOURCE_JS], static::getVueLibraries());
 
         return $list;
     }

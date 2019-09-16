@@ -31,16 +31,6 @@ class UPS extends \XLite\Model\Shipping\Processor\AProcessor
     }
 
     /**
-     * Returns processor name
-     *
-     * @return string
-     */
-    public function getProcessorName()
-    {
-        return 'UPS';
-    }
-
-    /**
      * Returns url for sign up
      *
      * @return string
@@ -129,17 +119,7 @@ class UPS extends \XLite\Model\Shipping\Processor\AProcessor
      */
     public function getTrackingInformationURL($trackingNumber)
     {
-        $params = $this->getTrackingInformationParams($trackingNumber);
-        return sprintf(
-            'http://wwwapps.ups.com/tracking/tracking.cgi?%s',
-            implode('&', array_map(function ($n, $v) {
-                return sprintf(
-                    '%s=%s',
-                    urlencode($n),
-                    urlencode($v)
-                );
-            }, array_keys($params), array_values($params)))
-        );
+        return 'http://wwwapps.ups.com/tracking/tracking.cgi?' . $this->getTrackingURLParams($trackingNumber);
     }
 
     /**
@@ -154,10 +134,6 @@ class UPS extends \XLite\Model\Shipping\Processor\AProcessor
         $list = parent::getTrackingInformationParams($trackingNumber);
         $list['tracknum']                     = $trackingNumber;
         $list['accept_UPS_license_agreement'] = 'yes';
-        $list['nonUPS_title']                 = '';
-        $list['nonUPS_header']                = '';
-        $list['nonUPS_body']                  = '';
-        $list['nonUPS_footer']                = '';
 
         return $list;
     }

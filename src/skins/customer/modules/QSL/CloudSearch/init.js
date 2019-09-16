@@ -20,83 +20,9 @@
             var elem = searchInput.closest('.simple-search-box');
 
             return elem.length === 1 ? elem : searchInput;
-        }
+        },
+        pricesUrl: cloudSearchData.dynamicPricesEnabled
+            ? URLHandler.buildURL({target: 'cloud_search_api', action: 'get_prices'})
+            : null
     };
-
-    if (cloudSearchData.dynamicPricesEnabled) {
-        var priceCache = {};
-
-        window.Cloud_Search.EventHandlers.OnPopupRender.push(function (searchTerm, menu) {
-            var popup = $(menu),
-                products = $('.block-products dd', popup),
-                prices = products.find('.price'),
-                url;
-
-            function populatePricesFromCache() {
-                var pricesToRequest = [];
-
-                prices.each(function () {
-                    var e = $(this),
-                        id = $(this).closest('dd').attr('data-id'),
-                        price = priceCache[id];
-
-                    if (typeof price !== 'undefined') {
-                        if (price !== null) {
-                            e.html(price);
-                        }
-                    } else {
-                        pricesToRequest.push(id);
-                    }
-                });
-
-                return pricesToRequest;
-            }
-
-            var pricesToRequest = populatePricesFromCache();
-
-            if (pricesToRequest.length > 0) {
-                prices.each(function () {
-                    var id = $(this).closest('dd').attr('data-id');
-
-                    if (pricesToRequest.indexOf(id) !== -1) {
-                        $(this).hide();
-                    }
-                });
-
-                url = URLHandler.buildURL({
-                    target: 'cloud_search_api',
-                    action: 'get_prices',
-                    ids: pricesToRequest.join(',')
-                });
-
-                core.get(url, function (data) {
-                    var actualPrices = JSON.parse(data.responseText);
-
-                    if (actualPrices) {
-                        $.each(actualPrices, function (index) {
-                            var price = actualPrices[index];
-
-                            if (price !== null) {
-                                priceCache[pricesToRequest[index]] = price;
-                            }
-                        });
-
-                        populatePricesFromCache();
-                    }
-
-                    prices.show();
-                });
-            }
-        });
-    }
-
-    core.bind('labels-editor.ready', function(event, labelsEditor) {
-        window.Cloud_Search.EventHandlers.OnPopupRender.push(function (searchTerm, menu) {
-            var labelsEditorState = labelsEditor.getState();
-
-            $('.xlite-translation-label', $(menu)).each(function (index, el) {
-                $(el).data('controller', new EditableLabel($(el))[labelsEditorState ? 'enable' : 'disable']());
-            });
-        });
-    });
 })(jQuery);

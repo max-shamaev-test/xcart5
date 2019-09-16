@@ -8,6 +8,7 @@
 
 namespace XLite\Module\XC\FreeShipping\View\Menu\Admin;
 
+use Includes\Utils\Module\Manager;
 
 class FreeShippingUpdate extends \XLite\View\Menu\Admin\ANodeNotification
 {
@@ -29,7 +30,6 @@ class FreeShippingUpdate extends \XLite\View\Menu\Admin\ANodeNotification
     protected function isVisible()
     {
         return parent::isVisible()
-            && $this->getModule()
             && $this->isShouldDisplayUpdateInfo();
     }
 
@@ -42,7 +42,7 @@ class FreeShippingUpdate extends \XLite\View\Menu\Admin\ANodeNotification
     {
         $config = \XLite\Core\Config::getInstance()->XC->FreeShipping;
 
-        return (boolean)$config->display_update_info;
+        return (bool) $config->display_update_info;
     }
 
     /**
@@ -99,13 +99,6 @@ class FreeShippingUpdate extends \XLite\View\Menu\Admin\ANodeNotification
         return $this->getSVGImage('images/icon-attention.svg');
     }
 
-    protected function getModule()
-    {
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')->findOneByModuleName(
-            'XC\\FreeShipping'
-        );
-    }
-
     /**
      * Returns header url
      *
@@ -113,7 +106,7 @@ class FreeShippingUpdate extends \XLite\View\Menu\Admin\ANodeNotification
      */
     protected function getHeaderUrl()
     {
-        return $this->getModule()->getSettingsForm();
+        return Manager::getRegistry()->getModuleSettingsUrl('XC', 'FreeShipping');
     }
 
     /**

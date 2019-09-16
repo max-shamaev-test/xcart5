@@ -9,13 +9,7 @@
 
 define('themetweaker/custom_css', ['js/vue/vue'], function (XLiteVue) {
     XLiteVue.component('xlite-custom-css', {
-        props: {
-            initial: {
-                coerce: function (val) {
-                    return val == 'true';
-                }
-            }
-        },
+        props: ['initial'],
 
         vuex: {
             getters: {
@@ -70,7 +64,7 @@ define('themetweaker/custom_css', ['js/vue/vue'], function (XLiteVue) {
 
             'action.save': function() {
                 var params = {
-                    use: this.use,
+                    use: this.use ? 1 : 0,
                     code: this.content
                 };
 
@@ -95,9 +89,9 @@ define('themetweaker/custom_css', ['js/vue/vue'], function (XLiteVue) {
                     var text = this.$css.text();
 
                     if (value) {
-                        this.$css.replaceWith('<style rel="stylesheet" media="screen" data-custom-css>');
+                        this.$css.replaceWith('<style rel="stylesheet" type="text/css" media="screen" data-custom-css>');
                     } else {
-                        this.$css.replaceWith('<script data-custom-css>');
+                        this.$css.replaceWith('<script type="text/css" data-custom-css>');
                     }
 
                     this.updateStoreState({use: value});
@@ -152,7 +146,7 @@ define('themetweaker/custom_css', ['js/vue/vue'], function (XLiteVue) {
                 this.updateStoreState({use: this.switcher, content: text}, true);
 
                 var self = this;
-                this.$nextTick(function() {
+                jQuery(document).ready(function () {
                     self.resizeTextarea();
                     self.codeMirrorInstance.on('change', _.bind(self.onCodeMirrorChange, this));
                 });

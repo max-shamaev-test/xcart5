@@ -8,81 +8,8 @@
 
 namespace XLite\Module\XC\IdealPayments;
 
-/**
- * IdealPayments module
- */
 abstract class Main extends \XLite\Module\AModule
 {
-    /**
-     * Author name
-     *
-     * @return string
-     */
-    public static function getAuthorName()
-    {
-        return 'X-Cart team';
-    }
-
-    /**
-     * Module name
-     *
-     * @return string
-     */
-    public static function getModuleName()
-    {
-        return 'iDEAL Payments';
-    }
-
-    /**
-     * Get module major version
-     *
-     * @return string
-     */
-    public static function getMajorVersion()
-    {
-        return '5.3';
-    }
-
-    /**
-     * Module version
-     *
-     * @return string
-     */
-    public static function getMinorVersion()
-    {
-        return '2';
-    }
-
-    /**
-     * Get module build number (4th number in the version)
-     *
-     * @return string
-     */
-    public static function getBuildVersion()
-    {
-        return '0';
-    }
-
-    /**
-     * Get minor core version which is required for the module activation
-     *
-     * @return string
-     */
-    public static function getMinorRequiredCoreVersion()
-    {
-        return '4';
-    }
-
-    /**
-     * Module description
-     *
-     * @return string
-     */
-    public static function getDescription()
-    {
-        return 'Enables taking credit card payments for your online store via iDEAL payment system.';
-    }
-
     /**
      * Add record to the module log file
      *
@@ -108,7 +35,7 @@ abstract class Main extends \XLite\Module\AModule
         }
 
         \XLite\Logger::logCustom(
-            self::getModuleName(),
+            'IdealPayments',
             $msg
         );
     }
@@ -121,15 +48,5 @@ abstract class Main extends \XLite\Module\AModule
     public static function getLibClassesFile()
     {
         return LC_DIR_MODULES . 'XC' . LC_DS . 'IdealPayments' . LC_DS . 'lib' . LC_DS . 'IdealProRequest.php';
-    }
-
-    /**
-     * The module is defined as the payment module
-     *
-     * @return integer|null
-     */
-    public static function getModuleType()
-    {
-        return static::MODULE_TYPE_PAYMENT;
     }
 }

@@ -41,7 +41,7 @@ class UpsellingProduct extends \XLite\View\ItemsList\Model\Table
     /**
      * Get wrapper form target
      *
-     * @return array
+     * @return string
      */
     protected function getFormTarget()
     {
@@ -118,7 +118,6 @@ class UpsellingProduct extends \XLite\View\ItemsList\Model\Table
         return array(
             'sku' => array(
                 static::COLUMN_NAME => \XLite\Core\Translation::lbl('SKU'),
-                static::COLUMN_NO_WRAP => true,
                 static::COLUMN_ORDERBY  => 100,
             ),
             'product' => array(
@@ -139,8 +138,7 @@ class UpsellingProduct extends \XLite\View\ItemsList\Model\Table
             ),
             'bidirectional' => array(
                 static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Mutual link'),
-                static::COLUMN_CLASS    => 'XLite\View\FormField\Inline\Input\Checkbox\Simple',
-                static::COLUMN_NO_WRAP  => true,
+                static::COLUMN_CLASS    => 'XLite\View\FormField\Inline\Input\Checkbox\Switcher\OnOff',
                 static::COLUMN_ORDERBY  => 500,
                 static::COLUMN_HEAD_HELP  => $this->getMutualHeadHelp(),
             ),
@@ -196,7 +194,7 @@ class UpsellingProduct extends \XLite\View\ItemsList\Model\Table
      */
     public function isCrossIcon()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -250,7 +248,7 @@ class UpsellingProduct extends \XLite\View\ItemsList\Model\Table
     /**
      * Get panel class
      *
-     * @return \XLite\View\Base\FormStickyPanel
+     * @return string
      */
     protected function getPanelClass()
     {

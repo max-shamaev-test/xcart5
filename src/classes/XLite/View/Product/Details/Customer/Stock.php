@@ -38,6 +38,27 @@ class Stock extends \XLite\View\Product\Details\Customer\Widget
      *
      * @return integer
      */
+    protected function getItemsInCart()
+    {
+        return $this->getProduct()->getItemsInCart();
+    }
+
+    /**
+     * Return available amount
+     *
+     * @return integer
+     */
+    protected function getItemsInCartMessage()
+    {
+        return $this->getProduct()->getItemsInCartMessage();
+    }
+
+
+    /**
+     * Return available amount
+     *
+     * @return integer
+     */
     protected function getAvailableAmount()
     {
         return $this->getProduct()->getAvailableAmount();

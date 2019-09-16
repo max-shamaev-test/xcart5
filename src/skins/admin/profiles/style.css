@@ -20,4 +20,6 @@
   width: 250px;
 }
 
-
+.items-list-table table.list tbody.lines td.login .profile-box {
+  overflow: hidden;
+}

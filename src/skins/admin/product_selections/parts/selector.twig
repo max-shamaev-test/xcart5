@@ -2,7 +2,7 @@
  # Selector
  #}
 
-<div class="selector">
+<div class="selector {% if this.isExcludedProductId(this.entity.getUniqueIdentifier()) %}already-added{% endif %}">
   {% if this.isExcludedProductId(this.entity.getUniqueIdentifier()) %}
     <div class="title" title="{{ this.getTitleExcludedProduct(this.entity.getUniqueIdentifier()) }}">
       <i class="fa {{ this.getStyleExcludedProduct(this.entity.getUniqueIdentifier()) }}"></i>

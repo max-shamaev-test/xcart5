@@ -8,9 +8,6 @@
 
 namespace XLite\Module\QSL\CloudSearch\View\Menu\Admin;
 
-use XLite;
-use XLite\Module\QSL\CloudSearch\Main;
-
 /**
  * Left menu widget
  */
@@ -26,18 +23,13 @@ class LeftMenu extends \XLite\View\Menu\Admin\LeftMenu implements \XLite\Base\ID
         $list = parent::defineItems();
 
         if (isset($list['catalog'])) {
-            $version = XLite::getInstance()->getVersion();
-
-            if (version_compare($version, '5.3.3') >= 0) {
-                $title = 'CloudSearch & CloudFilters';
-
-                $list['catalog'][static::ITEM_CHILDREN]['cloud_search'] = [
-                    static::ITEM_TITLE      => $title,
-                    static::ITEM_TARGET     => 'cloud_search',
-                    static::ITEM_PERMISSION => 'manage catalog',
-                    static::ITEM_WEIGHT     => 440,
-                ];
-            }
+            $list['catalog'][static::ITEM_CHILDREN]['cloud_search'] = [
+                static::ITEM_TITLE      => 'CloudSearch & CloudFilters',
+                static::ITEM_TARGET     => 'module',
+                static::ITEM_EXTRA      => ['moduleId' => 'QSL-CloudSearch'],
+                static::ITEM_PERMISSION => 'manage catalog',
+                static::ITEM_WEIGHT     => 440,
+            ];
         }
 
         return $list;

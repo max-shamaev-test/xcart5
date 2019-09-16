@@ -16,6 +16,16 @@
   float: right;
 }
 
+.items-list-table .tooltip-main {
+  width: auto;
+}
+
+.items-list-table .tooltip-main tooltip-caption {
+  width: 16px;
+  height: 16px;
+}
+
+
 .items-list-table .tooltip-main .not-removed{
   border: none;
   font-size: 18px;
@@ -25,5 +35,5 @@
 }
 
 .items-list-table td.orders_count .cell {
-  text-align: center;
+  text-align: right;
 }

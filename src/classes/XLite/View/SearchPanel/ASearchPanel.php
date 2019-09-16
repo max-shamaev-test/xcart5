@@ -355,7 +355,7 @@ abstract class ASearchPanel extends \XLite\View\AView
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'search_panel/style.css';
+        $list[] = 'search_panel/style.less';
 
         return $list;
     }

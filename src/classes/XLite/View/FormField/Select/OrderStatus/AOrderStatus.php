@@ -8,6 +8,8 @@
 
 namespace XLite\View\FormField\Select\OrderStatus;
 
+use XLite\Core\Database;
+
 /**
  * Abstract order status selector
  */
@@ -32,6 +34,14 @@ abstract class AOrderStatus extends \XLite\View\FormField\Select\Regular
      * @return string
      */
     abstract protected function getAllStatusesLabel();
+
+    /**
+     * @return \XLite\Model\Repo\ARepo
+     */
+    protected function getRepo()
+    {
+        return Database::getRepo($this->defineRepositoryName());
+    }
 
     /**
      * Define widget params
@@ -79,7 +89,7 @@ abstract class AOrderStatus extends \XLite\View\FormField\Select\Regular
      */
     protected function getOptions()
     {
-        $data = \XLite\Core\Database::getRepo($this->defineRepositoryName())->findBy(
+        $data = $this->getRepo()->findBy(
             array(),
             array('position' => 'asc')
         );

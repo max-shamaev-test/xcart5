@@ -26,7 +26,7 @@ class GeolocationHeader extends \XLite\View\AView
     protected function isVisible()
     {
         return parent::isVisible()
-            && $this->getModule()->getActualName() === 'XC\Geolocation'
+            && $this->getModule() === 'XC\\Geolocation'
             && !\XLite\Core\Config::getInstance()->XC->Geolocation->extended_db_path;
     }
 

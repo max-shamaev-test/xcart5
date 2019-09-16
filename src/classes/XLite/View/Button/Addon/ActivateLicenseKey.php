@@ -42,6 +42,6 @@ class ActivateLicenseKey extends \XLite\View\Button\ActivateKey
      */
     protected function isVisible()
     {
-        return parent::isVisible() && !\XLite::getXCNLicense();
+        return parent::isVisible() && !\XLite::hasXCNLicenseKey();
     }
 }

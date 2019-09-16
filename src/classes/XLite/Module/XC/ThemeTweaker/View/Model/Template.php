@@ -17,6 +17,8 @@ use XLite\Module\XC\ThemeTweaker\View\FormField\Textarea\CodeMirror;
  */
 class Template extends \XLite\View\Model\AModel
 {
+    protected $savedData;
+
     /**
      * Schema default
      *
@@ -36,6 +38,47 @@ class Template extends \XLite\View\Model\AModel
             CodeMirror::PARAM_COLS      => 130,
         ],
     ];
+
+    /**
+     * @inheritdoc
+     */
+    public function __construct(array $params = array(), array $sections = array())
+    {
+        parent::__construct($params, $sections);
+
+        $this->preprocessSchema();
+    }
+
+    /**
+     * Add placeholder if a template of an email notification body is edited
+     */
+    protected function preprocessSchema()
+    {
+        if (
+            \XLite\Core\Request::getInstance()->interface === \XLite::MAIL_INTERFACE
+            && ($path = \XLite\Core\Request::getInstance()->template)
+            && preg_match('/\/body\.twig/', $path)
+        ) {
+            $this->schemaDefault['body'][self::SCHEMA_PLACEHOLDER] = static::t("There is no special code for this notification");
+        }
+    }
+
+    protected function validateFields(array $data, $section)
+    {
+        if (isset($data[static::SECTION_PARAM_FIELDS]['body'])) {
+            $value = $data[static::SECTION_PARAM_FIELDS]['body']->getValue();
+            $error = \XLite::getController()->validateTemplate(
+                $value,
+                \XLite::getController()->getTemplateLocalPath()
+            );
+
+            if ($error) {
+                $this->addErrorMessage('body_invalid', $error['message']);
+            }
+        }
+
+        parent::validateFields($data, $section);
+    }
 
     /**
      * Return current model ID
@@ -166,6 +209,13 @@ class Template extends \XLite\View\Model\AModel
 
                 if ($localPath) {
                     $value = \Includes\Utils\FileManager::read(\LC_DIR_SKINS . $localPath);
+
+                    if (
+                        \XLite\Core\Request::getInstance()->interface === \XLite::MAIL_INTERFACE
+                        && mb_strpos($localPath, 'theme_tweaker/') !== 0
+                    ) {
+                        $value = $this->postProcessThemeTweakerMailBody($value);
+                    }
                 }
 
                 break;
@@ -173,6 +223,15 @@ class Template extends \XLite\View\Model\AModel
             default:
                 $value = parent::getModelObjectValue($name);
                 break;
+        }
+
+        return $value;
+    }
+
+    protected function postProcessThemeTweakerMailBody($value)
+    {
+        if (preg_match('/^[\s\n]*({#[\s\S]*[^#]#})?([\s\S]*?)$/', $value, $m)) {
+            return $m[2];
         }
 
         return $value;
@@ -221,7 +280,16 @@ class Template extends \XLite\View\Model\AModel
 
             $fullPath = $layout->getFullPathByLocalPath($localPath, $interface);
 
+            $savedBody = \Includes\Utils\FileManager::read(LC_DIR_SKINS . $localPath);
             if (\Includes\Utils\FileManager::write($fullPath, $body)) {
+                if ($savedBody) {
+                    $this->savedData = [
+                        'path' => $fullPath,
+                        'body' => $savedBody,
+                        'original' => mb_strpos($localPath, 'theme_tweaker/') !== 0
+                    ];
+                }
+
                 $data['template'] = substr($fullPath, strlen(\LC_DIR_SKINS));
 
                 $this->getTemplateCacheManager()->invalidate($fullPath);
@@ -236,5 +304,18 @@ class Template extends \XLite\View\Model\AModel
         }
 
         parent::setModelProperties($data);
+    }
+
+    protected function rollbackModel()
+    {
+        if (isset($this->savedData)) {
+            if (!$this->savedData['original']) {
+                \Includes\Utils\FileManager::write($this->savedData['path'], $this->savedData['body']);
+            } else {
+                \Includes\Utils\FileManager::deleteFile($this->savedData['path']);
+            }
+        }
+
+        parent::rollbackModel();
     }
 }

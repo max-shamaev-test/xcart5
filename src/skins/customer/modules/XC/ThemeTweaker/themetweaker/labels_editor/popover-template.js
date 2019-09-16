@@ -8,11 +8,11 @@
  */
 
 var EditableLabelTemplate =
-    '<textarea class="xlite-translation-wrapper form-control">' +
+    '<textarea class="xlite-translation-wrapper">' +
         '<%= translation %>' +
     '</textarea>' +
     '<span class="xlite-translation-help"><%= core.t("xlite-translation-popover.help") %></span>' +
     '<div class="xlite-translation-buttons">' +
-        '<button class="xlite-translation-button btn regular-button" data-action="discard">Cancel</button>' +
-        '<button class="xlite-translation-button btn regular-main-button" data-action="save">Save</button>' +
+        '<button class="xlite-translation-button themetweaker-button" data-action="discard">Cancel</button>' +
+        '<button class="xlite-translation-button themetweaker-main-button" data-action="save">Save</button>' +
     '</div>';

@@ -18,4 +18,8 @@ class ListChild
     public $zone;
 
     public $weight;
+
+    public $preset;
+
+    public $name = '';
 }

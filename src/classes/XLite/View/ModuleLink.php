@@ -8,14 +8,16 @@
 
 namespace XLite\View;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Module banner
  */
 class ModuleLink extends \XLite\View\AView
 {
     const PARAM_MODULE_NAME = 'moduleName';
-    const PARAM_LABEL_TEXT = 'label';
-    const PARAM_SHOW_ICON = 'showIcon';
+    const PARAM_LABEL_TEXT  = 'label';
+    const PARAM_SHOW_ICON   = 'showIcon';
 
     /**
      * Returns CSS files
@@ -24,7 +26,7 @@ class ModuleLink extends \XLite\View\AView
      */
     public function getCSSFiles()
     {
-        $list = parent::getCSSFiles();
+        $list   = parent::getCSSFiles();
         $list[] = 'module_link/style.css';
 
         return $list;
@@ -49,11 +51,11 @@ class ModuleLink extends \XLite\View\AView
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
-            static::PARAM_MODULE_NAME    => new \XLite\Model\WidgetParam\TypeString('Module name', null),
-            static::PARAM_LABEL_TEXT    => new \XLite\Model\WidgetParam\TypeString('Label text', null),
+        $this->widgetParams += [
+            static::PARAM_MODULE_NAME => new \XLite\Model\WidgetParam\TypeString('Module name', null),
+            static::PARAM_LABEL_TEXT  => new \XLite\Model\WidgetParam\TypeString('Label text', null),
             static::PARAM_SHOW_ICON   => new \XLite\Model\WidgetParam\TypeBool('Show module icon', true),
-        );
+        ];
     }
 
     /**
@@ -74,7 +76,7 @@ class ModuleLink extends \XLite\View\AView
      */
     protected function isModuleInstalled()
     {
-        return \Includes\Utils\ModulesManager::isModuleInstalled($this->getModuleName());
+        return Manager::getRegistry()->isModuleEnabled($this->getModuleName());
     }
 
     /**
@@ -128,7 +130,7 @@ class ModuleLink extends \XLite\View\AView
      */
     protected function getStringModuleName()
     {
-        return str_replace('\\', '_', $this->getModuleName());
+        return str_replace('-', '_', $this->getModuleName());
     }
 
     /**
@@ -148,9 +150,6 @@ class ModuleLink extends \XLite\View\AView
      */
     protected function getModuleURL()
     {
-        list($author, $module) = explode('\\', $this->getModuleName());
-
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')
-            ->getMarketplaceUrlByName($author, $module);
+        return Manager::getRegistry()->getModuleServiceURL($this->getModuleName());
     }
 }

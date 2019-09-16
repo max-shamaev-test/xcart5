@@ -19,7 +19,7 @@ ItemsListPayment.prototype.addListeners = function ()
 {
   var base = this.base;
 
-  jQuery('.switch a', this.base).click(function (event)
+  jQuery('.switcher input[type=checkbox]', this.base).change(function (event)
   {
     event.stopImmediatePropagation();
 
@@ -46,6 +46,7 @@ ItemsListPayment.prototype.addListeners = function ()
 
   jQuery('.switcher', this.base).click(
     function () {
+      console.log(this);
       var p = jQuery(this).parent().parent();
       if (p.hasClass('blocked-enable')) {
         p.find('button.configure').addClass('hover');
@@ -63,26 +64,17 @@ core.bind(
   function (event, data)
   {
     var $switch = data;
+    var methodId = $switch.data('methodId');
 
-    data.closest('.switch').toggleClass('disabled').toggleClass('enabled');
     core.get(
-      $switch.attr('href'),
+      window.URLHandler.buildURL({target: "payment_settings", action: 'switch', id: methodId}),
       function (data) {
         core.trigger('payment.methods.switch.loaded', {data: data, switcher: $switch});
       }
-    );
-  }
-);
-
-// Payment methods switch loaded event
-core.bind(
-  'payment.methods.switch.loaded',
-  function (event, data)
-  {
-    if (data.data.responseJSON && data.data.responseJSON.href) {
-      data.switcher.attr('href', data.data.responseJSON.href);
-      data.switcher.closest('.switch').addClass(data.data.responseJSON.addCSS).removeClass(data.data.responseJSON.removeCSS);
-    }
+    ).fail(function() {
+      // toggle back on failed request
+      $switch.prop('checked', !$switch.prop('checked'));
+    })
   }
 );
 

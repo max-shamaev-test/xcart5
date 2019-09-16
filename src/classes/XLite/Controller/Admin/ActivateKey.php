@@ -20,18 +20,6 @@ class ActivateKey extends \XLite\Controller\Admin\ModuleKey
      */
     public function getTitle()
     {
-        return $this->isModuleActivation()
-            ? static::t('Activate your X-Cart installation first')
-            : static::t('License key registration');
-    }
-
-    /**
-     * Check if module activation
-     *
-     * @return boolean
-     */
-    protected function isModuleActivation()
-    {
-        return (bool) \XLite\Core\Request::getInstance()->isModule;
+        return static::t('License key registration');
     }
 }

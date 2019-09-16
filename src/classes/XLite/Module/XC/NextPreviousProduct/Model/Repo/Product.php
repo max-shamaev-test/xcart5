@@ -42,7 +42,7 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
     public function searchIdsResult(\Doctrine\ORM\QueryBuilder $qb)
     {
         $qb->select('p.product_id')
-            ->orderBy('p.product_id')
+            ->orderBy('cp.orderby')
             ->groupBy('p.product_id');
 
         return $qb->getQuery()->getScalarResult();

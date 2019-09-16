@@ -37,10 +37,13 @@ class Application extends Console\Application
         $defaultCommands[] = new Command\Utils\LoadYaml();
         $defaultCommands[] = new Command\Utils\ReloadModuleInstall();
         $defaultCommands[] = new Command\Utils\RunHook();
+        $defaultCommands[] = new Command\Utils\YamlFormat();
+        $defaultCommands[] = new Command\Utils\GenerateMainYaml();
 
         $defaultCommands[] = new Command\GenerateData\GenerateDataCommand();
         $defaultCommands[] = new Command\GenerateData\GenerateProductCommand();
         $defaultCommands[] = new Command\GenerateData\GenerateCategoryCommand();
+        $defaultCommands[] = new Command\GenerateData\GenerateProfileCommand();
 
         $defaultCommands[] = new Command\Scaffolding\ItemsList();
         $defaultCommands[] = new Command\Scaffolding\FormModel();

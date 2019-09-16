@@ -8,40 +8,19 @@
 
 namespace XLite\Module\CDev\PINCodes\Core;
 
+use XLite\Module\CDev\PINCodes\Core\Mail\AcquirePinFailedAdmin;
+
 /**
  * Mailer
  *
  */
 abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorator
 {
-    const TYPE_ACQUIRE_PIN_CODES_FAILED_LINKS = 'siteAdmin';
-
     /**
-     * Send failed acquiring pin codes message
-     *
      * @param \XLite\Model\Order $order Order model
-     *
-     * @return string
      */
     public static function sendAcquirePinCodesFailedAdmin(\XLite\Model\Order $order)
     {
-        static::register('order', $order);
-        static::register('items', $order->getItems());
-
-        static::compose(
-            static::TYPE_ACQUIRE_PIN_CODES_FAILED_LINKS,
-            static::composeOrderAdminReplyTo(
-                static::getOrdersDepartmentMail(),
-                $order
-            ),
-            implode(\XLite\View\Mailer::MAIL_SEPARATOR, static::getOrdersDepartmentMails()),
-            'modules/CDev/PINCodes/acquire_pin_codes_failed',
-            array(),
-            true,
-            \XLite::ADMIN_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::ADMIN_INTERFACE)
-        );
-
-        return static::getMailer()->getLastError();
+        (new AcquirePinFailedAdmin($order))->schedule();
     }
 }

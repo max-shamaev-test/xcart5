@@ -12,3 +12,9 @@
   white-space: nowrap;
   overflow: hidden;
 }
+
+.inline-textarea .view span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

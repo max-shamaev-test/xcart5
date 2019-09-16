@@ -29,6 +29,9 @@ class Settings extends \XLite\Base\Singleton
     const RESULT_SUCCESS = 1;
     const RESULT_API_VERSION_CHANGED = 2;
 
+    const XP_ALLOWED_PREFIX = 'XPayments.Allowed';
+    const XP_MODULE_NAME = 'CDev_XPaymentsConnector';
+
     /**
      * Default error text
      */
@@ -69,56 +72,72 @@ class Settings extends \XLite\Base\Singleton
     /**
      * List oof module names with associated class
      */
-    protected $modulesMap = array(
-        'ANZ eGate' => 'XPay_Module_ANZeGate',
-        'American Express Web-Services API Integration' => 'XPay_Module_Amex',
-        'Authorize.Net AIM' => 'XPay_Module_AuthorizeNet',
-        'Authorize.Net CIM' => 'XPay_Module_AuthorizeNetCim',
-        'Authorize.Net AIM (XML API)' => 'XPay_Module_AuthorizeNetXML',
-        'Bean Stream/FirstData Canada' => 'XPay_Module_Bean',
-        'BluePay' => 'XPay_Module_BluePay',
-        'Braintree' => 'XPay_Module_Braintree',
-        'Caledon' => 'XPay_Module_Caledon',
-        'Cardinal Commerce Centinel' => 'XPay_Module_CardinalCommerce',
-        'Chase Paymentech' => 'XPay_Module_Chase',
-        'CyberSource - SOAP toolkit API' => 'XPay_Module_CyberSourceSOAP',
-        'DIBS' => 'XPay_Module_Dibs',
-        'DirectOne - Direct Interface' => 'XPay_Module_DirectOne',
+    public $modulesMap = [
+        'ANZ eGate'                                         => 'XPay_Module_ANZeGate',
+        'American Express Web-Services API Integration'     => 'XPay_Module_Amex',
+        'Authorize.Net AIM'                                 => 'XPay_Module_AuthorizeNet',
+        'Authorize.Net CIM'                                 => 'XPay_Module_AuthorizeNetCim',
+        'Authorize.Net AIM (XML API)'                       => 'XPay_Module_AuthorizeNetXML',
+        'Bambora (Beanstream)'                              => 'Xpay_Module_Bambora',
+        'Beanstream (legacy API)'                           => 'XPay_Module_Bean',
+        'Bendigo Bank'                                      => 'XPay_Module_BendigoBank',
+        'BillriantPay'                                      => 'XPay_Module_BillriantPay',
+        'BluePay'                                           => 'XPay_Module_BluePay',
+        'BlueSnap Payment API (XML)'                        => 'XPay_Module_BlueSnap',
+        'Braintree'                                         => 'XPay_Module_Braintree',
+        'Caledon'                                           => 'XPay_Module_Caledon',
+        'Cardinal Commerce Centinel'                        => 'XPay_Module_CardinalCommerce',
+        'Chase Paymentech'                                  => 'XPay_Module_Chase',
+        'CommWeb - Commonwealth Bank'                       => 'XPay_Module_CommWeb',
+        'CyberSource - SOAP toolkit API'                    => 'XPay_Module_CyberSourceSOAP',
+        'DIBS'                                              => 'XPay_Module_Dibs',
+        'DirectOne - Direct Interface'                      => 'XPay_Module_DirectOne',
         'eProcessing Network - Transparent Database Engine' => 'XPay_Module_EProcessingTDE',
-        'SecurePay Australia' => 'XPay_Module_ESec',
-        'eSelect DirectPost' => 'XPay_Module_ESelect',
-        'ECHO NVP' => 'XPay_Module_Echo',
-        'Elavon Payment Gateway' => 'XPay_Module_Elavon',
-        'ePDQ MPI XML (Phased out)' => 'XPay_Module_EpdqXML',
-        'eWay Realtime Payments XML' => 'XPay_Module_EwayXML',
-        '5th Dimension Gateway' => 'XPay_Module_FifthDimensionGateway',
-        'First Data Global Gateway e4(SM) Web Service API' => 'XPay_Module_FirstDataE4',
-        'Global Iris' => 'XPay_Module_GlobalIris',
-        'GoEmerchant - XML Gateway API' => 'XPay_Module_GoEmerchant',
-        'Innovative Gateway' => 'XPay_Module_InnovativeGateway',
-        'Intuit QuickBooks Payments' => 'XPay_Module_Intuit',
-        'iTransact XML' => 'XPay_Module_ItransactXML',
-        'Meritus Web Host' => 'XPay_Module_Meritus',
-        'NetRegistry' => 'XPay_Module_NetRegistry',
-        'Netbilling - Direct Mode 3.1' => 'XPay_Module_Netbilling',
-        'Ogone/ePDQ e-Commerce' => 'XPay_Module_Ogone',
-        'PayGate Korea' => 'XPay_Module_PayGate',
-        'Payflow Pro' => 'XPay_Module_PayflowPro',
-        'PayPal Payments Pro (PayPal API)' => 'XPay_Module_PaypalWPPDirectPayment',
-        'PayPal Payments Pro (Payflow API)' => 'XPay_Module_PaypalWPPPEDirectPayment',
-        'PSiGate XML API' => 'XPay_Module_PsiGateXML',
-        'QuantumGateway - Transparent QGWdatabase Engine' => 'XPay_Module_QuantumGateway',
-        'QuantumGateway - XML Requester' => 'XPay_Module_QuantumGatewayXML',
-        'Worldpay Corporate Gateway - Direct Model' => 'XPay_Module_RBSGlobalGatewayDirect',
-        'Realex' => 'XPay_Module_Realex',
-        'Sage Pay Go - Direct Interface' => 'XPay_Module_SagePayDirect',
-        'SecurePay' => 'XPay_Module_Securepay',
-        'SkipJack' => 'XPay_Module_SkipJack',
-        'USA ePay - Transaction Gateway API' => 'XPay_Module_USAePay',
-        'Virtual Merchant - Merchant Provided Form' => 'XPay_Module_VirtualMerchantMPF',
-        'WebXpress' => 'XPay_Module_WebXpress',
-        'Worldpay US' => 'XPay_Module_WorldpayUs',
-    );
+        'SecurePay Australia'                               => 'XPay_Module_ESec',
+        'eSelect DirectPost'                                => 'XPay_Module_ESelect',
+        'ECHO NVP'                                          => 'XPay_Module_Echo',
+        'Elavon (Realex API)'                               => 'XPay_Module_Elavon',
+        'ePDQ MPI XML (Phased out)'                         => 'XPay_Module_EpdqXML',
+        'eWay Realtime Payments XML'                        => 'XPay_Module_EwayXML',
+        'eWAY Rapid - Direct Connection'                    => 'XPay_Module_EwayRapid',
+        '5th Dimension Gateway'                             => 'XPay_Module_FifthDimensionGateway',
+        'First Data Global Gateway e4(SM) Web Service API'  => 'XPay_Module_FirstDataE4',
+        'Global Iris'                                       => 'XPay_Module_GlobalIris',
+        'GoEmerchant - XML Gateway API'                     => 'XPay_Module_GoEmerchant',
+        'HeidelPay'                                         => 'XPay_Module_HeidelPay',
+        'Innovative Gateway'                                => 'XPay_Module_InnovativeGateway',
+        'Intuit QuickBooks Payments (Legacy QBMS API)'      => 'XPay_Module_Intuit',
+        'iTransact XML'                                     => 'XPay_Module_ItransactXML',
+        'Meritus Web Host'                                  => 'XPay_Module_Meritus',
+        'NAB - National Australia Bank'                     => 'XPay_Module_NAB',
+        'Netevia'                                           => 'XPay_Module_Netevia',
+        'NetRegistry'                                       => 'XPay_Module_NetRegistry',
+        'Netbilling - Direct Mode 3.1'                      => 'XPay_Module_Netbilling',
+        'NMI (Network Merchants Inc.)'                      => 'XPay_Module_NMI',
+        'Ogone/ePDQ e-Commerce'                             => 'XPay_Module_Ogone',
+        'PayGate Korea'                                     => 'XPay_Module_PayGate',
+        'Payflow Pro'                                       => 'XPay_Module_PayflowPro',
+        'PayPal Payments Pro (PayPal API)'                  => 'XPay_Module_PaypalWPPDirectPayment',
+        'PayPal Payments Pro (Payflow API)'                 => 'XPay_Module_PaypalWPPPEDirectPayment',
+        'PSiGate XML API'                                   => 'XPay_Module_PsiGateXML',
+        'QuantumGateway - Transparent QGWdatabase Engine'   => 'XPay_Module_QuantumGateway',
+        'QuantumGateway - XML Requester'                    => 'XPay_Module_QuantumGatewayXML',
+        'Intuit QuickBooks Payments'                        => 'XPay_Module_QuickBooksPayments',
+        'QuickPay'                                          => 'XPay_Module_QuickPay',
+        'Worldpay Corporate Gateway - Direct Model'         => 'XPay_Module_RBSGlobalGatewayDirect',
+        'Global Payments (ex. Realex)'                      => 'XPay_Module_Realex',
+        'Sage Pay Go - Direct Interface'                    => 'XPay_Module_SagePayDirect',
+        'SecurePay'                                         => 'XPay_Module_Securepay',
+        'SkipJack'                                          => 'XPay_Module_SkipJack',
+        'Paya (ex. Sage Payments US)'                       => 'XPay_Module_SageUs',
+        'Simplify Commerce by MasterCard'                   => 'XPay_Module_SimplifyCommerce',
+        'Suncorp'                                           => 'XPay_Module_Suncorp',
+        'USA ePay - Transaction Gateway API'                => 'XPay_Module_USAePay',
+        'Virtual Merchant - Merchant Provided Form'         => 'XPay_Module_VirtualMerchantMPF',
+        'WebXpress'                                         => 'XPay_Module_WebXpress',
+        'Worldpay Total US'                                 => 'XPay_Module_WorldpayTotalUS',
+        'Worldpay US'                                       => 'XPay_Module_WorldpayUs',
+    ];
 
     /**
      * List of configuration fields separated by pages
@@ -177,7 +196,7 @@ class Settings extends \XLite\Base\Singleton
     /**
      * Get all pages
      *
-     * @return string
+     * @return array
      */
     public static function getAllPages()
     {
@@ -185,7 +204,7 @@ class Settings extends \XLite\Base\Singleton
 
             if (static::hasSaveCardsPaymentMethods()) {
 
-                // Spagetti-code here is the simplest way to keep the order of pages
+                // Spaghetti-code here is the simplest way to keep the order of pages
 
                 $pages = array(
                     static::PAGE_PAYMENT_METHODS => static::t('Payment methods'),
@@ -238,6 +257,8 @@ class Settings extends \XLite\Base\Singleton
 
     /**
      * Check - is payment configurations imported early or not
+     *
+     * @param string $processor Payment processor to check
      *
      * @return boolean
      */
@@ -432,7 +453,7 @@ class Settings extends \XLite\Base\Singleton
     }
 
     /**
-     * Get configuration array from configuration deployement path
+     * Get configuration array from configuration deployment path
      *
      * @return array
      */
@@ -531,7 +552,7 @@ class Settings extends \XLite\Base\Singleton
     /**
      * Detect X-Payments' module class
      *
-     * @param $moduleData Module data received from X-Payments or from X-Cart site 
+     * @param array $moduleData Module data received from X-Payments or from X-Cart site
      *
      * @return array
      */
@@ -568,14 +589,14 @@ class Settings extends \XLite\Base\Singleton
      * @param \XLite\Model\Payment\Method $paymentMethod       Payment method
      * @param array                       $list List of the imported payment methods
      *
-     * @return void
+     * @return bool
      */
     protected function checkMethodInImportedList(\XLite\Model\Payment\Method $paymentMethod, &$list)
     {
         $result = false;
 
-        if (0 === strpos($paymentMethod->getServiceName(), 'XPayments.Allowed')) {
-            $xpModuleClass = str_replace('XPayments.Allowed', '', $paymentMethod->getServiceName());
+        if (0 === strpos($paymentMethod->getServiceName(), self::XP_ALLOWED_PREFIX)) {
+            $xpModuleClass = str_replace(self::XP_ALLOWED_PREFIX, '', $paymentMethod->getServiceName());
         } else {
             $xpModuleClass = str_replace('XPayments.', '', $paymentMethod->getServiceName());
         }
@@ -613,18 +634,40 @@ class Settings extends \XLite\Base\Singleton
 
         if (is_array($list) && !empty($list)) {
 
-            $pmNames = array();
+            $pmNames = [];
 
-            foreach ($this->getPaymentMethods() as $pm) {
+            $pmsToRemove = [];
+
+            foreach (static::getPaymentMethods() as $pm) {
 
                 if (!$this->checkMethodInImportedList($pm, $list)) {
 
                     $pmNames[] = $pm->getName();
 
-                    $pm->setFromMarketplace(true);
-                    $pm->setAdded(false);
-                    $pm->setEnabled(false);
-                    $pm->setName($this->getOriginalPaymentMethodName($pm->getName()));
+                    $pmsToRemove[$pm->getServiceName()][] = $pm;
+                }
+            }
+
+            $allPmsNeedToRemove = false;
+
+            foreach ($pmsToRemove as $key => $pms) {
+
+                foreach ($list as $item) {
+                    if (self::XP_ALLOWED_PREFIX . '.' . $item['class'] == $key) {
+                        $allPmsNeedToRemove = true;
+                        break;
+                    }
+                }
+
+                foreach ($pms as $keyInner => $pm) {
+                    if (
+                        0 == $keyInner
+                        && !$allPmsNeedToRemove
+                    ) {
+                        $pm->makeMethodFake();
+                    } else {
+                        \XLite\Core\Database::getEM()->remove($pm);
+                    }
                 }
             }
 
@@ -649,7 +692,10 @@ class Settings extends \XLite\Base\Singleton
                     $xpModuleClass = $this->detectModuleClass($settings);
 
                     $pm = \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')
-                        ->findOneBy(['service_name' => 'XPayments.Allowed.' . $xpModuleClass]);
+                        ->findOneBy([
+                            'service_name' => self::XP_ALLOWED_PREFIX . '.' . $xpModuleClass,
+                            'fromMarketplace' => true,
+                        ]);
 
                     if ($pm) {
                         // Make fake PM the real one instead of adding new PM
@@ -657,20 +703,36 @@ class Settings extends \XLite\Base\Singleton
                         $pm->setName($this->getPaymentMethodName($settings['name']));
                         $pm->setAdded(true);
                         $pm->setEnabled(true);
-                        $pm->setModuleEnabled(true);
+
+                        \XLite\Core\Database::getEM()->flush();
 
                     } else {
                         // Create new payment method
                         $pm = new \XLite\Model\Payment\Method;
                         \XLite\Core\Database::getEM()->persist($pm);
 
+                        /** @var \XLite\Model\Payment\Method $realPm */
+                        $realPm = \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')
+                            ->findOneBy([
+                                'service_name' => self::XP_ALLOWED_PREFIX . '.' . $xpModuleClass,
+                                'fromMarketplace' => false,
+                            ]);
+
                         $pm->setClass('Module\CDev\XPaymentsConnector\Model\Payment\Processor\XPayments');
-                        $pm->setServiceName('XPayments.Allowed.' . $xpModuleClass);
+                        $pm->setServiceName(self::XP_ALLOWED_PREFIX . '.' . $xpModuleClass);
                         $pm->setName($this->getPaymentMethodName($settings['name']));
                         $pm->setType(\XLite\Model\Payment\Method::TYPE_CC_GATEWAY);
-                        $pm->setAdminOrderby(static::DEFAULT_ADMIN_ORDER_ID);
                         $pm->setAdded(true);
                         $pm->setEnabled(true);
+                        $pm->setFromMarketplace(false);
+
+                        if ($realPm) {
+                            $pm->setIconURL($realPm->getIconURL());
+                            $pm->setCountries($realPm->getCountries());
+                            $pm->setExCountries($realPm->getExCountries());
+                            $pm->setOrderby($realPm->getOrderby());
+                            $pm->setAdminOrderby($realPm->getAdminOrderby());
+                        }
 
                         // Tokenization is disabled by default
                         $pm->setSetting('saveCards', 'N');
@@ -692,12 +754,20 @@ class Settings extends \XLite\Base\Singleton
 
         } elseif (is_array($list)) {
 
-            foreach ($this->getPaymentMethods() as $pm) {
-                // Make real payment methods fake ones instead of its removing
-                $pm->setFromMarketplace(true);
-                $pm->setAdded(false);
-                $pm->setEnabled(false);
-                $pm->setName($this->getOriginalPaymentMethodName($pm->getName()));
+            $pmsToRemove = [];
+
+            foreach (static::getPaymentMethods() as $pm) {
+                $pmsToRemove[$pm->getServiceName()][] = $pm;
+            }
+
+            foreach ($pmsToRemove as $pms) {
+                foreach ($pms as $key => $pm) {
+                    if (0 == $key) {
+                        $pm->makeMethodFake();
+                    } else {
+                        \XLite\Core\Database::getEM()->remove($pm);
+                    }
+                }
             }
 
             if (self::RESULT_API_VERSION_CHANGED === $connectResult) {
@@ -759,7 +829,7 @@ class Settings extends \XLite\Base\Singleton
      *
      * @return string
      */
-    protected function getPaymentMethodName($origName)
+    public function getPaymentMethodName($origName)
     {
         if (preg_match('/\b(credit|debit|card)\b/i', $origName)) {
             $newName = $origName;
@@ -768,24 +838,6 @@ class Settings extends \XLite\Base\Singleton
         }
 
         return $newName;
-    }
-
-    /**
-     * Return the original name for a payment method
-     *
-     * @param string $modifiedName Modified payment method name
-     *
-     * @return string
-     */
-    protected function getOriginalPaymentMethodName($modifiedName)
-    {
-        if (preg_match('/^Credit or debit card via /', $modifiedName)) {
-            $origName = str_replace('Credit or debit card via ', '', $modifiedName);
-        } else {
-            $origName = $modifiedName;
-        }
-
-        return $origName;
     }
 
     // }}}

@@ -18,6 +18,9 @@ function extend(child, parent) {
   child.prototype = new F();
   child.prototype.constructor = child;
   child.superclass = parent.prototype;
+
+  child.prototype.inherit_stack = child.prototype.inherit_stack === undefined ? [] : child.prototype.inherit_stack.slice(0);
+  child.prototype.inherit_stack.push(parent);
 }
 
 // Decorate / add method
@@ -55,20 +58,25 @@ function Base()
   this.triggerVent('initialize');
 }
 
-// Get superclass without class name
-Base.prototype.getSuperclass = function()
-{
-    var m = this.constructor.toString().match(/function ([^\(]+)/);
-
-    return eval(m[1] + '.superclass');
-}
-
 // Call parent method by name nad arguments list
 Base.prototype.callSupermethod = function(name, args)
 {
-    superClass = this.getSuperclass();
+  var call_stack_head = false;
+  this.call_stack = this.call_stack === undefined ? {} : this.call_stack;
+  if (!this.call_stack.hasOwnProperty(name) || this.call_stack[name] === undefined) {
+    call_stack_head = true;
+    this.call_stack[name] = this.inherit_stack.slice(0);
+  }
 
-    return superClass[name].apply(this, args);
+  var superClass = this.call_stack[name].pop();
+  var result = (name === 'constructor' ? superClass : superClass.prototype[name]).apply(this, args);
+  this.call_stack[name].push(superClass);
+
+  if (call_stack_head) {
+    this.call_stack[name] = undefined;
+  }
+
+  return result;
 }
 
 // Bind event handler
@@ -131,6 +139,18 @@ window.core = {
   widgetsParamsGetters: {},
 
   doShadeWidgetsCollection: true,
+
+  xhrMiddlewares: [],
+
+  getXhrMiddlewares: function () {
+    return [
+      this.processBackendEvents
+    ].concat(this.xhrMiddlewares);
+  },
+
+  addXhrMiddleware: function (callback) {
+    this.xhrMiddlewares.push(callback);
+  },
 
   registerWidgetsParamsGetter: function (widgetsId, getter)
   {
@@ -241,7 +261,7 @@ window.core = {
       {
         // Unshadow triggers (bind and enable trigger elements)
         for (var k in triggers) {
-          jQuery(triggers[k]).removeProp('disabled');
+          jQuery(triggers[k]).removeAttr('disabled');
         }
         core.unshadeWidgetsCollection('.product-details-info');
         core.callTriggersBind(widgetsId);
@@ -475,9 +495,19 @@ window.core = {
   // Process response from server
   processResponse: function(xhr)
   {
-    var responseStatus = parseInt(xhr.getResponseHeader('ajax-response-status'));
+    var response = xhr.responseText;
+    this.getXhrMiddlewares().forEach(function(callback) {
+      var result = callback(xhr, response);
+      if (typeof(result) !== 'undefined') {
+        response = result;
+      }
+    });
 
-    if (4 == xhr.readyState && 200 == xhr.status) {
+    return (4 == xhr.readyState && 200 == xhr.status) ? response : false;
+  },
+
+  processBackendEvents: function (xhr) {
+    if (4 == xhr.readyState) {
       var list = xhr.getAllResponseHeaders().split(/\n/);
 
       for (var i = 0; i < list.length; i++) {
@@ -489,8 +519,6 @@ window.core = {
         }
       }
     }
-
-    return (4 == xhr.readyState && 200 == xhr.status) ? xhr.responseText : false;
   },
 
   showInternalError: function()

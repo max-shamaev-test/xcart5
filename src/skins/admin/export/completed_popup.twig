@@ -4,9 +4,11 @@
 
 <div class="export-box export-completed-popup">
 
-  <p class="export-completed-message">
-      {{ this.getCompleteMessage()|raw }}
-  </p>
+  {% if (this.getCompleteMessage()) %}
+    <p class="export-completed-message">
+        {{ this.getCompleteMessage()|raw }}
+    </p>
+  {% endif %}
 
   <div class="content">
     {{ widget('XLite\\View\\Export\\Download', popupContext='true') }}

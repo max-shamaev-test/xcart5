@@ -36,7 +36,7 @@
 .form-scheme-greeting-link,
 .form-scheme-signature-link {
   & > .input-widget {
-    margin-left: -70px;
+    margin-top: 3px;
     white-space: nowrap;
   }
 }
@@ -46,18 +46,22 @@
   .input-widget {
     .make-sm-column(6);
 
+    padding-left: 0;
+
     textarea {
       height: 100px;
     }
   }
 }
 
-.form-scheme-body {
-  .input-widget {
-    .flex-wrap(nowrap);
+.form-horizontal {
+  fieldset:first-child > legend {
+    display: none;
+  }
+}
 
-    .help-wrapper {
-      padding-left: 10px;
-    }
+.target-notification {
+  .breadcrumb > li {
+    display: inline;
   }
 }

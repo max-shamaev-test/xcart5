@@ -12,6 +12,11 @@
   display: inline-block;
 }
 
+.product-freeship-label {
+  vertical-align: text-bottom;
+  margin: -3px 0 0;
+}
+
 .free-shipping .label-main-box .content,
 .product-freeship-label .label-main-box .content {
   background-color: #5a9fd2;

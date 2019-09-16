@@ -26,20 +26,6 @@ class ProductClass extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Get a list of CSS files required to display the widget properly
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-
-        $list[] = 'product_classes/style.css';
-
-        return $list;
-    }
-
-    /**
      * Should itemsList be wrapped with form
      *
      * @return boolean

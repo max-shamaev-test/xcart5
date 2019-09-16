@@ -441,6 +441,34 @@ class Shipping extends \XLite\Logic\Order\Modifier\AShipping
     }
 
     /**
+     * Get order discounted subtotal only for shipped items
+     *
+     * @return float
+     */
+    public function getDiscountedSubtotal()
+    {
+        $subtotal = 0;
+
+        foreach ($this->getItems() as $item) {
+            $subtotal += $this->getItemDiscountedSubtotal($item);
+        }
+
+        return $subtotal;
+    }
+
+    /**
+     * Get item discounted subtotal
+     *
+     * @param \XLite\Model\OrderItem $item
+     *
+     * @return float
+     */
+    protected function getItemDiscountedSubtotal($item)
+    {
+        return $item->getDiscountedSubtotal();
+    }
+
+    /**
      * Get shipped items for check condition
      *
      * @return array
@@ -504,7 +532,24 @@ class Shipping extends \XLite\Logic\Order\Modifier\AShipping
             $subtotal += $item->getTotal();
         }
 
-        return $subtotal;
+        return max(0, $subtotal);
+    }
+
+    /**
+     * Get order discounted subtotal only for shipped items for check condition
+     *
+     * @return float
+     */
+    public function getDiscountedSubtotalCondition()
+    {
+        $discountedSubtotal = 0;
+
+        foreach ($this->getItemsCondition() as $item) {
+            /** @var \XLite\Model\OrderItem $item */
+            $discountedSubtotal += $item->getDiscountedSubtotal();
+        }
+
+        return $discountedSubtotal;
     }
 
 

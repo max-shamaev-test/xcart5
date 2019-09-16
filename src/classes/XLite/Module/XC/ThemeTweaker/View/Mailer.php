@@ -8,32 +8,19 @@
 
 namespace XLite\Module\XC\ThemeTweaker\View;
 
+
 /**
  * Theme tweaker template page view
  */
 class Mailer extends \XLite\View\Mailer implements \XLite\Base\IDecorator
 {
-    public function getNotificationEditableContent($dir, $data, $interface)
+    public function getNotificationEditableContent($interface)
     {
-        array_walk($data, function ($value, $key) {
-            $this->set($key, $value);
-        });
-
-        $this->set('dir', $dir);
-        $result = $this->compile('modules/XC/ThemeTweaker/common/layout.twig', $interface, false);
-
-        return \XLite\Core\Mailer::getInstance()->populateVariables($result);
+        return $this->compile('modules/XC/ThemeTweaker/common/layout.twig', $interface, true);
     }
 
-    public function getNotificationPreviewContent($dir, $data, $interface)
+    public function getNotificationPreviewContent($interface)
     {
-        array_walk($data, function ($value, $key) {
-            $this->set($key, $value);
-        });
-
-        $this->set('dir', $dir);
-        $result = $this->compile($this->get('layoutTemplate'), $interface, true);
-
-        return \XLite\Core\Mailer::getInstance()->populateVariables($result);
+        return $this->compile($this->get('layoutTemplate'), $interface, true);
     }
 }

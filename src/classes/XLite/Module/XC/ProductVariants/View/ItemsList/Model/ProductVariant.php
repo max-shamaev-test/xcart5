@@ -412,5 +412,24 @@ class ProductVariant extends \XLite\View\ItemsList\Model\Table
         return parent::removeEntity($entity);
     }
 
+    /**
+     * Update entities
+     *
+     * @return void
+     */
+    protected function updateEntities()
+    {
+        foreach ($this->getPageDataForUpdate() as $entity) {
+            if ($this->isDefault()) {
+                $this->setDefaultValue($entity, $this->isDefaultEntity($entity));
+            }
+        }
+        \XLite\Core\Database::getEM()->flush();
+
+        foreach ($this->getPageDataForUpdate() as $entity) {
+            $entity->getRepository()->update($entity, array(), false);
+        }
+    }
+
     // }}}
 }

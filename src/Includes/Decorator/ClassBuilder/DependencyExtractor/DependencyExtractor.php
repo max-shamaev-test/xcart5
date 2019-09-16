@@ -9,16 +9,13 @@
 namespace Includes\Decorator\ClassBuilder\DependencyExtractor;
 
 use Includes\ClassPathResolverInterface;
-use Includes\Decorator\ClassBuilder\DependencyExtractor\DependencyExtractorInterface;
-use Includes\Reflection\StaticReflectorInterface;
-use Includes\Utils\ModulesManager;
-use MJS\TopSort\Implementations\StringSort;
-use Includes\Decorator\ClassBuilder\ModuleInterface;
 use Includes\Decorator\ClassBuilder\ModuleRegistryInterface;
+use Includes\Reflection\StaticReflectorFactoryInterface;
+use Includes\Utils\Module\Manager;
+use MJS\TopSort\Implementations\StringSort;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
-use Includes\Reflection\StaticReflectorFactoryInterface;
 
 class DependencyExtractor implements DependencyExtractorInterface
 {
@@ -62,7 +59,7 @@ class DependencyExtractor implements DependencyExtractorInterface
 
     public function getDecoratorCandidates()
     {
-        if (!isset($this->decoratorCandidates)) {
+        if ($this->decoratorCandidates === null) {
             $decorators = [];
 
             foreach ($this->moduleRegistry->getModules() as $module) {
@@ -182,7 +179,7 @@ class DependencyExtractor implements DependencyExtractorInterface
             $afterModules = array_merge(
                 $reflector->getAfterModules(),
                 array_diff(
-                    ModulesManager::callModuleMethod($module, 'getDependencies') ?: [],
+                    Manager::getRegistry()->getDependencies($module),
                     $reflector->getBeforeModules()
                 )
             );

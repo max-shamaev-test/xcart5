@@ -8,6 +8,9 @@
 
 namespace XLite\Controller\Admin;
 
+use XLite\Core\Auth;
+use XLite\Model\Role\Permission;
+
 /**
  * Front page controller
  */
@@ -22,6 +25,12 @@ class FrontPage extends \XLite\Controller\Admin\Category
         parent::__construct($params);
 
         $this->params = ['target'];
+    }
+
+    public function checkACL()
+    {
+        return Auth::getInstance()->isPermissionAllowed(Permission::ROOT_ACCESS)
+            && parent::checkACL();
     }
 
     /**

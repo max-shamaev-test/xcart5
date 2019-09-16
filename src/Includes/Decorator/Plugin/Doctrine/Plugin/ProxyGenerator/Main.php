@@ -21,6 +21,9 @@ class Main extends \Includes\Decorator\Plugin\Doctrine\Plugin\APlugin
      */
     public function executeHookHandler()
     {
+        // @todo: temporary solution, we need better way to manage autoloading
+        \Includes\Utils\Module\Manager::loadModules();
+
         if (!$this->areProxiesExist()) {
 
             // Create the proxies folder

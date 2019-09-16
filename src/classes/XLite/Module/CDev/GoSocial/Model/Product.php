@@ -16,15 +16,6 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     use \XLite\Module\CDev\GoSocial\Core\OpenGraphTrait;
 
     /**
-     * Custom Open graph meta tags
-     *
-     * @var string
-     *
-     * @Column (type="text", nullable=true)
-     */
-    protected $ogMeta = '';
-
-    /**
      * User Open graph meta tags generator flag
      *
      * @var boolean
@@ -178,26 +169,6 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
             ],
             $tags
         );
-    }
-
-    /**
-     * Set ogMeta
-     *
-     * @param string $ogMeta
-     * @return Product
-     */
-    public function setOgMeta($ogMeta)
-    {
-        $this->ogMeta = $ogMeta;
-        return $this;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getOgMeta()
-    {
-        return $this->ogMeta;
     }
 
     /**

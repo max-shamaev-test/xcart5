@@ -48,6 +48,7 @@ class TotalChange extends ABackendAction implements IBackendAction
     {
         $result = $this->getCommonDataForBackend();
 
+        $result['ec'] = 'Checkout';
         $result['pa'] = 'purchase';
         $result['ea'] = 'Total change action';
         $result['ti'] = $this->order->getOrderNumber();

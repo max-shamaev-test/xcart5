@@ -210,6 +210,7 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel implements Provi
     {
         $list = parent::getCSSFiles();
 
+        $list[] = $this->getDir() . '/' . $this->getPageBodyDir() . '/style.less';
         $list[] = $this->getDir() . '/' . $this->getPageBodyDir() . '/style.css';
 
         if (static::SORT_TYPE_MOVE === $this->getSortableType()) {
@@ -738,6 +739,15 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel implements Provi
                     static::COLUMN_TEMPLATE => 'items_list/model/table/empty.twig',
                 );
             }
+        }
+
+        if ($this->getEditLink()) {
+            $columns[] = array(
+                static::COLUMN_CODE     => 'edit-link',
+                static::COLUMN_NAME     => '',
+                static::COLUMN_TEMPLATE => 'items_list/model/table/parts/empty.twig',
+                static::COLUMN_SERVICE  => true,
+            );
         }
 
         if ($this->getRightActions()) {
@@ -1431,7 +1441,7 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel implements Provi
      */
     protected function getEditLinkLabel($entity)
     {
-        return static::t('Edit');
+        return '';
     }
 
     /**

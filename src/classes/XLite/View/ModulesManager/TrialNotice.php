@@ -138,7 +138,7 @@ class TrialNotice extends \XLite\View\ModulesManager\AModulesManager
      */
     protected function getPurchaseURL()
     {
-        return \XLite\Core\Marketplace::getPurchaseURL();
+        return \XLite\Core\Marketplace::getBusinessPurchaseURL();
     }
 
     /**

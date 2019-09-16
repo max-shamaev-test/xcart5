@@ -7,11 +7,11 @@
 {% if this.isInCustomCssMode() %}
 
     {% if this.isCustomCssEnabled() %}
-        <style rel="stylesheet" media="screen" data-custom-css>
+        <style rel="stylesheet" media="screen" type="text/css" data-custom-css>
         {{ this.getCustomCssText() }}
         </style>
     {% else %}
-        <script data-custom-css>
+        <script type="text/css" data-custom-css>
         {{ this.getCustomCssText() }}
         </script>
     {% endif %}

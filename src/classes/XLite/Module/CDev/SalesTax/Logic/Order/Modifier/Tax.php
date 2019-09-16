@@ -141,6 +141,10 @@ class Tax extends \XLite\Logic\Order\Modifier\ATax
 
                             $cost += $rate->calculate($items);
                         }
+
+                        $handlingSurchargesSum = $this->getOrder()->getSurchargeSumByType(\XLite\Model\Base\Surcharge::TYPE_HANDLING);
+                        $cost += $rate->calculateSurchargesTax($handlingSurchargesSum);
+
                         $previousClasses[] = $taxClass;
                     }
                 }

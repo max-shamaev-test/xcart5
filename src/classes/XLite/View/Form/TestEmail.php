@@ -20,7 +20,7 @@ class TestEmail extends \XLite\View\Form\AForm
      */
     protected function getDefaultTarget()
     {
-        return 'settings';
+        return 'test_email';
     }
 
     /**
@@ -31,19 +31,5 @@ class TestEmail extends \XLite\View\Form\AForm
     protected function getDefaultAction()
     {
         return 'test_email';
-    }
-
-    /**
-     * Required form parameters
-     *
-     * @return array
-     */
-    protected function getCommonFormParams()
-    {
-        $list = parent::getCommonFormParams();
-
-        $list['page'] = $this->page;
-
-        return $list;
     }
 }

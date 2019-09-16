@@ -24,6 +24,8 @@ class Main extends \Includes\Decorator\Plugin\LessParser\Main
      */
     public function executeHookHandler()
     {
+        \XLite\Core\Layout::getInstance()->setAdminSkin();
+
         $adminLESS = static::getLESS(\XLite::ADMIN_INTERFACE);
 
         $lessParser = \XLite\Core\LessParser::getInstance();

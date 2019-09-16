@@ -141,11 +141,13 @@ class Profile extends \XLite\View\ItemsList\Model\Table
             ),
             'added' => array(
                 static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Created'),
+                static::COLUMN_TEMPLATE => $this->getDir() . '/' . $this->getPageBodyDir() . '/profile/cell.added.twig',
                 static::COLUMN_SORT     => static::SORT_BY_MODE_CREATED,
                 static::COLUMN_ORDERBY  => 500,
             ),
             'last_login' => array(
                 static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Last login'),
+                static::COLUMN_TEMPLATE => $this->getDir() . '/' . $this->getPageBodyDir() . '/profile/cell.last_login.twig',
                 static::COLUMN_SORT     => static::SORT_BY_MODE_LAST_LOGIN,
                 static::COLUMN_ORDERBY  => 600,
             ),

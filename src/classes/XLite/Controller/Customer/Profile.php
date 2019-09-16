@@ -271,10 +271,6 @@ class Profile extends \XLite\Controller\Customer\ACustomer
     protected function doActionUpdate()
     {
         $result = $this->getModelForm()->performAction('update');
-
-        if ($result) {
-            \XLite\Core\Mailer::sendProfileUpdated($this->getModelForm()->getModelObject());
-        }
     }
 
     /**

@@ -53,6 +53,6 @@ class PopupLoginLink extends \XLite\View\Button\PopupLogin
      */
     protected function getDefaultTemplate()
     {
-        return 'button/popup_link.twig';
+        return 'button/popup_login_link.twig';
     }
 }

@@ -2,7 +2,7 @@
  # Layout editor panel
  #}
 
-<xlite-custom-css inline-template initial="{{ this.isCustomCssEnabled() ? 'true' : 'false' }}">
+<xlite-custom-css inline-template :initial="{{ this.isCustomCssEnabled() ? 'true' : 'false' }}">
     <div class="custom-css-section themetweaker-section">
       {{ widget(
       'XLite\\Module\\XC\\ThemeTweaker\\View\\FormField\\Textarea\\CodeMirror',

@@ -21,7 +21,7 @@ class AddMethod extends \XLite\View\Button\APopupButton
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'shipping/add_method/style.css';
+        $list[] = 'shipping/add_method/style.less';
 
         $onlineCarrierLink = new \XLite\View\Button\Shipping\OnlineCarrier();
         $list = array_merge($list, $onlineCarrierLink->getCSSFiles());

@@ -11,7 +11,7 @@ namespace XLite\Module\XC\ProductTags\View;
 /**
  * Product modify widget.
  *
- * @ListChild (list="product.details.page.info", weight="15", zone="customer")
+ * @ListChild (list="product.details.page.info", weight="90", zone="customer")
  */
 class TagsList extends \XLite\View\AView
 {

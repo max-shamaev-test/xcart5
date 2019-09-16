@@ -10,5 +10,9 @@
 .inline-text .view {
   position: relative;
   white-space: nowrap;
+}
+
+.inline-text .view .value {
   overflow: hidden;
+  text-overflow: ellipsis;
 }

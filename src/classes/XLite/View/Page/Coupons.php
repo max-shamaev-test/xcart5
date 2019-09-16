@@ -43,6 +43,6 @@ class Coupons extends \XLite\View\AView
      */
     protected function getPurchaseLicenseURL()
     {
-        return \XLite\Core\Marketplace::getPurchaseURL();
+        return \XLite\Core\Marketplace::getBusinessPurchaseURL();
     }
 }

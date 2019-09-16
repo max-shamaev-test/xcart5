@@ -47,7 +47,10 @@ extend(ProductFilterView, ALoadable);
 
 ProductFilterView.autoload = function () {
   core.trigger('autoload.before.product_filter_view');
-  new ProductFilterView(jQuery('.product-filter'));
+
+  jQuery(document).ready(function () {
+    new ProductFilterView(jQuery('.product-filter'));
+  });
 };
 
 // No shade widget
@@ -106,6 +109,7 @@ ProductFilterView.prototype.mergeFilters = function () {
 };
 
 ProductFilterView.prototype.postprocess = function (isSuccess) {
+  arguments[1] = false;
   this.callSupermethod('postprocess', arguments);
 
   if (isSuccess) {

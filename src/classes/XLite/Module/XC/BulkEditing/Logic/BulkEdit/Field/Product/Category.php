@@ -28,7 +28,6 @@ class Category extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Field\AField
                     static::t('Remove')  => 'remove',
                     static::t('Move to') => 'move-to',
                 ],
-                'choices_as_values' => true,
                 'placeholder'       => false,
                 'multiple'          => false,
                 'expanded'          => true,

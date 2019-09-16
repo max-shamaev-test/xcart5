@@ -17,6 +17,8 @@ XLite\Model\Config:
 
 XLite\Model\LanguageLabel:
   - { name: 'The product SKU#"X" is already set as featured for the category', translations: [{ code: en, label: 'The product SKU#"{{SKU}}" is already set as featured for the category' }] }
+  - { name: 'Related products you may be interested in', translations: [{ code: en, label: 'Related products you may be interested in' }] }
+  - { name: 'Although you may find related products below.', translations: [{ code: en, label: 'Although you may find related products below.' }] }
   - { name: 'Add featured products for "X"', translations: [{ code: en, label: 'Add featured products for "{{category}}"' }] }
   - { name: 'Add featured products for the front page', translations: [{ code: en, label: 'Add featured products for the front page' }] }
   - { name: 'Featured', translations: [{ code: en, label: 'Featured' }] }

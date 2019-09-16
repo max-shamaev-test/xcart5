@@ -8,81 +8,8 @@
 
 namespace XLite\Module\XC\SagePay;
 
-/**
- * SagePay form module
- */
 abstract class Main extends \XLite\Module\AModule
 {
-    /**
-     * Author name
-     *
-     * @return string
-     */
-    public static function getAuthorName()
-    {
-        return 'X-Cart team';
-    }
-
-    /**
-     * Module name
-     *
-     * @return string
-     */
-    public static function getModuleName()
-    {
-        return 'Sage Pay (Form)';
-    }
-
-    /**
-     * Get module major version
-     *
-     * @return string
-     */
-    public static function getMajorVersion()
-    {
-        return '5.3';
-    }
-
-    /**
-     * Module version
-     *
-     * @return string
-     */
-    public static function getMinorVersion()
-    {
-        return '3';
-    }
-
-    /**
-     * Get module build number (4th number in the version)
-     *
-     * @return string
-     */
-    public static function getBuildVersion()
-    {
-        return '2';
-    }
-
-    /**
-     * Get minor core version which is required for the module activation
-     *
-     * @return string
-     */
-    public static function getMinorRequiredCoreVersion()
-    {
-        return '3';
-    }
-
-    /**
-     * Module description
-     *
-     * @return string
-     */
-    public static function getDescription()
-    {
-        return 'Enables taking credit card payments for your online store via SagePay payment gateway (Form protocol method).';
-    }
-
     /**
      * Add record to the module log file
      *
@@ -94,10 +21,10 @@ abstract class Main extends \XLite\Module\AModule
     public static function addLog($message = null, $data = null)
     {
         if ($message && $data) {
-            $msg = array(
+            $msg = [
                 'message' => $message,
                 'data'    => $data,
-            );
+            ];
 
         } else {
             $msg = ($message ?: ($data ?: null));
@@ -108,18 +35,8 @@ abstract class Main extends \XLite\Module\AModule
         }
 
         \XLite\Logger::logCustom(
-            self::getModuleName(),
+            'SagePay',
             $msg
         );
-    }
-
-    /**
-     * The module is defined as the payment module
-     *
-     * @return integer|null
-     */
-    public static function getModuleType()
-    {
-        return static::MODULE_TYPE_PAYMENT;
     }
 }

@@ -141,6 +141,7 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
             'extensions'      => [
                 static::ITEM_TITLE    => static::t('My addons'),
                 static::ITEM_WIDGET   => 'XLite\View\Menu\Admin\LeftMenu\Extensions',
+                static::ITEM_LINK     => \XLite::getInstance()->getShopURL('service.php#/installed-addons'),
                 static::ITEM_ICON_SVG => 'images/fa-puzzle-piece.svg',
                 static::ITEM_WEIGHT   => 100,
                 static::ITEM_TARGET   => 'addons_list_installed',
@@ -254,6 +255,7 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
                     ],
                     'integrity_check'   => [
                         static::ITEM_TITLE  => static::t('Integrity check'),
+                        static::ITEM_LINK     => \XLite::getInstance()->getShopURL('service.php#/integrity-check'),
                         static::ITEM_TARGET => 'integrity_check',
                         static::ITEM_WEIGHT => 400,
                     ],
@@ -266,11 +268,6 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
                         static::ITEM_TITLE      => static::t('System logs'),
                         static::ITEM_TARGET     => 'logs',
                         static::ITEM_WEIGHT     => 500,
-                    ],
-                    'safe_mode'         => [
-                        static::ITEM_TITLE  => static::t('Safe mode'),
-                        static::ITEM_TARGET => 'safe_mode',
-                        static::ITEM_WEIGHT => 600,
                     ],
                     'remove_data'       => [
                         static::ITEM_TITLE  => static::t('Remove data'),
@@ -300,6 +297,7 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
             'sales'          => [
                 static::ITEM_TITLE       => static::t('Orders'),
                 static::ITEM_ICON_SVG    => 'images/orders.svg',
+                static::ITEM_WIDGET      => 'XLite\View\Menu\Admin\LeftMenu\Sales',
                 static::ITEM_WEIGHT      => 100,
                 static::ITEM_TARGET      => 'order_list',
                 static::ITEM_LABEL_LINK  => $this->buildURL('order_list', 'search', ['filter_id' => 'recent']),
@@ -396,14 +394,12 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
             ],
             'content'        => [
                 static::ITEM_TITLE    => static::t('Content'),
-                //static::ITEM_TARGET   => 'front_page',
                 static::ITEM_WEIGHT   => 500,
                 static::ITEM_ICON_SVG => 'images/contacts.svg',
                 static::ITEM_CHILDREN => [
                     'front_page' => [
                         static::ITEM_TITLE      => static::t('Front page'),
                         static::ITEM_TARGET     => 'front_page',
-                        static::ITEM_PERMISSION => 'manage catalog',
                         static::ITEM_WEIGHT     => 100,
                     ],
                 ],
@@ -412,7 +408,7 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
                 static::ITEM_TITLE    => static::t('Sales channels'),
                 //static::ITEM_TARGET   => 'sales_channels',
                 static::ITEM_WIDGET   => 'XLite\View\Menu\Admin\LeftMenu\SalesChannels',
-                static::ITEM_WEIGHT   => 600,
+                static::ITEM_WEIGHT   => 250,
                 static::ITEM_ICON_SVG => 'images/sales_channels.svg',
                 static::ITEM_CHILDREN => [
                 ],
@@ -448,8 +444,6 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
                 $items['promotions'][static::ITEM_EXTRA] = ['page' => $k];
             }
         }
-
-        $items['sales'][static::ITEM_LABEL] = $this->getRecentOrdersCount();
 
         if (!$items['promotions'][static::ITEM_CHILDREN]) {
             $items['promotions'][static::ITEM_TARGET] = 'promotions';
@@ -499,19 +493,19 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
     {
         $offsetTop = 60;
 
-        if (!\XLite::getXCNLicense()) {
+        if (!\XLite::hasXCNLicenseKey()) {
             $offsetTop += 50;
         }
 
-        $flags = \XLite\Core\Marketplace::getInstance()->checkForUpdates();
+        //$flags = \XLite\Core\Marketplace::getInstance()->checkForUpdates();
+        $flags = null;
         if (is_array($flags)
-            && (!empty($flags[\XLite\Core\Marketplace::FIELD_ARE_UPDATES_AVAILABLE])
-                || !empty($flags[\XLite\Core\Marketplace::FIELD_IS_UPGRADE_AVAILABLE])
+            && (!empty($flags[\XCart\Marketplace\Constant::FIELD_ARE_UPDATES_AVAILABLE])
+                || !empty($flags[\XCart\Marketplace\Constant::FIELD_IS_UPGRADE_AVAILABLE])
             )
         ) {
             $offsetTop += 25;
         }
-
 
         $attributes = [
             'id'              => 'leftMenu',
@@ -545,7 +539,6 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
                     ? \XLite\Core\Auth::getInstance()->getProfile()->getProfileId()
                     : 'no_profile',
                 \XLite::isFreeLicense(),
-                $this->getRecentOrdersCount()
             ]
         );
     }

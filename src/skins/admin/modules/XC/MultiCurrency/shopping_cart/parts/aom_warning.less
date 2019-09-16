@@ -8,14 +8,15 @@
  */
 
 .multicurrency-warning {
-  position: relative;
-  height: 27px;
-
   .total-change-help {
     position: absolute;
-    right: 20px;
-    margin-top: 7px;
+    right: 0;
+    padding: (@rhythmic-unit / 2) 0;
 
+    .real-charge-note {
+      padding: 0;
+      line-height: @line-height-base;
+    }
     div.line-3 & a {
       color: #0055bd;
       text-decoration: underline;

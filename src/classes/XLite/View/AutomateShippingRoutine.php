@@ -85,19 +85,20 @@ class AutomateShippingRoutine extends \XLite\View\AView
      */
     protected function getShippingModules()
     {
-        $repo = \XLite\Core\Database::getRepo('XLite\Model\Module');
+        //$repo = \XLite\Core\Database::getRepo('XLite\Model\Module');
 
+        // todo: re-implement with BUS
         $modules = array(
-            $repo->findOneByModuleName('Qualiteam\\ShippingEasy', true)
-                ?: [
-                    'name' => 'ShippingEasy',
-                    'humanName' => 'ShippingEasy'
-                ],
-            $repo->findOneByModuleName('ShipStation\\Api', true)
-                ?: [
-                    'name' => 'Api',
-                    'humanName' => 'ShipStation'
-                ],
+            //$repo->findOneByModuleName('Qualiteam\\ShippingEasy', true)
+            //    ?: [
+            //        'name' => 'ShippingEasy',
+            //        'humanName' => 'ShippingEasy'
+            //    ],
+            //$repo->findOneByModuleName('ShipStation\\Api', true)
+            //    ?: [
+            //        'name' => 'Api',
+            //        'humanName' => 'ShipStation'
+            //    ],
             [
                 'name' => 'ShipWorks',
                 'link' => 'http://www.shipworks.com/integrations/xcart/?source=si10049347',

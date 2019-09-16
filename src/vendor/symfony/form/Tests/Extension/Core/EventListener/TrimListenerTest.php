@@ -11,15 +11,18 @@
 
 namespace Symfony\Component\Form\Tests\Extension\Core\EventListener;
 
-use Symfony\Component\Form\FormEvent;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\EventListener\TrimListener;
+use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormConfigInterface;
+use Symfony\Component\Form\FormEvent;
 
-class TrimListenerTest extends \PHPUnit_Framework_TestCase
+class TrimListenerTest extends TestCase
 {
     public function testTrim()
     {
         $data = ' Foo! ';
-        $form = $this->getMock('Symfony\Component\Form\Test\FormInterface');
+        $form = new Form($this->getMockBuilder(FormConfigInterface::class)->getMock());
         $event = new FormEvent($form, $data);
 
         $filter = new TrimListener();
@@ -31,7 +34,7 @@ class TrimListenerTest extends \PHPUnit_Framework_TestCase
     public function testTrimSkipNonStrings()
     {
         $data = 1234;
-        $form = $this->getMock('Symfony\Component\Form\Test\FormInterface');
+        $form = new Form($this->getMockBuilder(FormConfigInterface::class)->getMock());
         $event = new FormEvent($form, $data);
 
         $filter = new TrimListener();

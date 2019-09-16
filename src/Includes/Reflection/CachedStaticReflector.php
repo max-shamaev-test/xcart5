@@ -13,14 +13,14 @@ use Includes\ClassPathResolverInterface;
 
 class CachedStaticReflector extends StaticReflector implements SerializableState
 {
+    /**
+     * @var array
+     */
     private $cachedState = [];
 
-    public function __construct(
-        ClassPathResolverInterface $classPathResolver, AnnotationParserInterface $annotationParser, $pathname
-    ) {
-        parent::__construct($classPathResolver, $annotationParser, $pathname);
-    }
-
+    /**
+     * @return bool
+     */
     public function getNamespace()
     {
         if (!isset($this->cachedState['namespace'])) {
@@ -30,6 +30,9 @@ class CachedStaticReflector extends StaticReflector implements SerializableState
         return $this->cachedState['namespace'];
     }
 
+    /**
+     * @return bool
+     */
     public function isAbstract()
     {
         if (!isset($this->cachedState['isAbstract'])) {
@@ -39,6 +42,9 @@ class CachedStaticReflector extends StaticReflector implements SerializableState
         return $this->cachedState['isAbstract'];
     }
 
+    /**
+     * @return bool
+     */
     public function isClass()
     {
         if (!isset($this->cachedState['isClass'])) {

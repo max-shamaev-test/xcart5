@@ -493,20 +493,32 @@ class OrderHistory extends \XLite\Base\Singleton
      *
      * @return string
      */
-    protected function getTrackingInfoComment($added, $removed, $changed)
+    public function getTrackingInfoComment($added, $removed, $changed)
     {
-        $comment = '';
+        return implode('<br>', $this->getTrackingInfoLines($added, $removed, $changed));
+    }
+
+    /**
+     * @param array $added
+     * @param array $removed
+     * @param array $changed
+     *
+     * @return array
+     */
+    public function getTrackingInfoLines($added, $removed, $changed)
+    {
+        $comment = [];
 
         foreach ($added as $value) {
-            $comment .= static::t(static::TXT_TRACKING_INFO_ADDED, array('number' => $value)) . '<br />';
+            $comment[] = static::t(static::TXT_TRACKING_INFO_ADDED, array('number' => $value));
         }
 
         foreach ($removed as $value) {
-            $comment .= static::t(static::TXT_TRACKING_INFO_REMOVED, array('number' => $value)) . '<br />';
+            $comment[] = static::t(static::TXT_TRACKING_INFO_REMOVED, array('number' => $value));
         }
 
         foreach ($changed as $value) {
-            $comment .= static::t(static::TXT_TRACKING_INFO_CHANGED, array('old_number' => $value['old'], 'new_number' => $value['new'])) . '<br />';
+            $comment[] = static::t(static::TXT_TRACKING_INFO_CHANGED, array('old_number' => $value['old'], 'new_number' => $value['new']));
         }
 
         return $comment;

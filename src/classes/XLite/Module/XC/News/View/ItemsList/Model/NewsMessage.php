@@ -57,7 +57,6 @@ class NewsMessage extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_PARAMS    => array('required' => true),
                 static::COLUMN_SORT      => 'translations.name',
                 static::COLUMN_MAIN      => true,
-                static::COLUMN_EDIT_LINK => true,
                 static::COLUMN_LINK      => 'news_message',
                 static::COLUMN_ORDERBY   => 200,
             ),
@@ -158,4 +157,11 @@ class NewsMessage extends \XLite\View\ItemsList\Model\Table
         return 'XLite\Module\XC\News\View\StickyPanel\ItemsList\NewsMessage';
     }
 
+    /**
+     * @return string
+     */
+    protected function getEditLink()
+    {
+        return 'news_message';
+    }
 }

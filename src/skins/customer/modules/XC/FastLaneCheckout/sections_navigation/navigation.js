@@ -70,6 +70,7 @@ define(
     events: {
       requestNext: function() {
         if (this.sections.current.complete) {
+
           var self = this;
           var next = this.$children.find(function(item) {
             return item.index > self.currentIndex;

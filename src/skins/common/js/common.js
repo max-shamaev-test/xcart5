@@ -755,6 +755,71 @@ CacheEngine.prototype.clear = function () {
   this.cache = [];
 };
 
+function getPasswordDifficulty(password) {
+  var digits = new RegExp('\\d');
+
+  var lowerLetters, upperLetters, specials;
+  try {
+    lowerLetters = new RegExp('\\p{Ll}', 'u');
+    upperLetters = new RegExp('\\p{Lu}', 'u');
+    specials = new RegExp('[^\\d\\p{L}]', 'u');
+  } catch (e) {
+    console.log("Current browser doesn't support regular expressions with unicode");
+    lowerLetters = new RegExp('[a-z]');
+    upperLetters = new RegExp('[A-Z]');
+    specials = new RegExp('[^A-Za-z\\d]');
+  }
+
+  var rating = 0;
+  [digits, lowerLetters, upperLetters, specials].forEach(function(item) {
+    if (item.test(password)) {
+      rating++;
+    }
+  });
+
+  if (password.length >= 6) {
+    rating++;
+  }
+
+  if (rating < 3) {
+    return 'Weak password';
+  }
+
+  return (rating < 4) ? 'Good password' : 'Strong password';
+}
+
+function showPasswordDifficultyMessage(elem, difficulty) {
+  elem.html(core.t(difficulty));
+}
+
+function setPasswordDifficultyColor(elem, difficulty) {
+  if (difficulty == 'Weak password') {
+    elem.css("color", "#D4142C");
+  } else if (difficulty == 'Good password') {
+    elem.css("color", "#F5A623");
+  } else if (difficulty == 'Strong password') {
+    elem.css("color", "#7ED321");
+  }
+}
+
+function smartTrim(string, maxLength) {
+  if (string.length <= maxLength) {
+    return string;
+  }
+
+  if (maxLength == 1) {
+    return string.substring(0,1) + '...';
+  }
+
+  const midpoint = Math.ceil(string.length / 2);
+  const toremove = string.length - maxLength;
+  const lstrip = Math.ceil(toremove/2);
+  const rstrip = toremove - lstrip;
+
+  return string.substring(0, midpoint-lstrip) + '...'
+    + string.substring(midpoint+rstrip);
+};
+
 jQuery(document).ready(
   function () {
     var isIE11 = !!navigator.userAgent.match(/Trident.*rv[ :]*11\./);
@@ -839,6 +904,58 @@ jQuery(document).ready(
         });
       }
     );
+
+    core.microhandlers.add(
+      'input-file',
+      'input.inputfile',
+      function (event) {
+        $(this).change(function () {
+          if (this.files) {
+            var filename = '';
+            if (this.files.length > 1) {
+              filename = this.files.length + " files selected";
+            } else {
+              filename = this.files[0].name;
+            }
+
+            const filenameElement = $(this).siblings('span.input-filename');
+            if (filename) {
+              filenameElement.html(smartTrim(filename, 20));
+            }
+          }
+        });
+      }
+    );
+
+
+    if (xliteConfig.zone === 'customer') {
+      core.microhandlers.add(
+        '.profile-form',
+        'input#password',
+        function (event) {
+          $(this)
+            .filter(":last")
+            .on('input', function () {
+              var difficulty = getPasswordDifficulty($(this).val());
+
+              var form = $(this).closest('form');
+              var formId = form.attr('id')
+              var passwordDifficultyElem = $(".password-difficulty[form-id=" + formId + "]");
+
+              if (passwordDifficultyElem.length == 0) {
+                form.find('.password-label').append(
+                  "<span class='password-difficulty' form-id='" + formId + "'></span>"
+                );
+                passwordDifficultyElem = $(".password-difficulty[form-id=" + formId + "]");
+              }
+
+
+              showPasswordDifficultyMessage(passwordDifficultyElem, difficulty);
+              setPasswordDifficultyColor(passwordDifficultyElem, difficulty);
+            });
+        }
+      );
+    }
 
     core.bind('popup.open', function () {
       jQuery('html').addClass('popup-opened');

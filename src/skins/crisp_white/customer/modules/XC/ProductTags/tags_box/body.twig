@@ -6,10 +6,9 @@
 	<ul class="tags-list">
 	  {% for tag in this.getTags() %}
 	    <li title="{{ tag.getName() }}">
-        <a href="{{ this.getActionURL({'tag': tag.getName()}) }}">
-					{{ tag.getName() }}
-					<div class="circle"></div>
-				</a>
+	        <a href="{{ this.getActionURL({'tag': tag.getName()}) }}">
+				#{{ tag.getName() }}
+			</a>
 	    </li>
 	  {% endfor %}
 	</ul>

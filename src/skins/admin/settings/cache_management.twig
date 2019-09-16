@@ -7,7 +7,6 @@
       <span>{{ t('Last time re-deployed at') }} </span>
       <span class="time" data-time="{{ this.getLastRebuildTimeRaw() }}">{{ this.getLastRebuildTime() }}</span>
   </div>
-  <br>
   {{ widget('\\XLite\\View\\ItemsList\\Model\\CacheManagementActions') }}
 {% endif %}
 {% if this.isQuickDataNotFinished() %}

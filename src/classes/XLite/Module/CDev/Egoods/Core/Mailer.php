@@ -8,45 +8,26 @@
 
 namespace XLite\Module\CDev\Egoods\Core;
 
+use XLite\Module\CDev\Egoods\Core\Mail\EgoodsLinkCustomer;
+
 /**
  * Mailer
  */
 abstract class Mailer extends \XLite\Core\Mailer implements \XLite\Base\IDecorator
 {
-    const TYPE_EGOODS_LINKS = 'siteAdmin';
-
     /**
-     * Send e-goods links
-     *
      * @param \XLite\Model\Order $order Order model
-     *
-     * @return void
      */
     public static function sendEgoodsLinks(\XLite\Model\Order $order)
     {
-        static::register('order', $order);
-
         static::sendEgoodsLinksCustomer($order);
     }
 
     /**
-     * Send e-goods links to customer
-     *
      * @param \XLite\Model\Order $order Order model
-     *
-     * @return void
      */
     public static function sendEgoodsLinksCustomer(\XLite\Model\Order $order)
     {
-        static::compose(
-            static::TYPE_EGOODS_LINKS,
-            static::getOrdersDepartmentMail(),
-            $order->getProfile()->getLogin(),
-            'modules/CDev/Egoods/egoods_links',
-            [],
-            true,
-            \XLite::CUSTOMER_INTERFACE,
-            static::getMailer()->getLanguageCode(\XLite::CUSTOMER_INTERFACE, $order->getProfile()->getLanguage())
-        );
+        (new EgoodsLinkCustomer($order))->schedule();
     }
 }

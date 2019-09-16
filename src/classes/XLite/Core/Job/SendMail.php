@@ -9,19 +9,19 @@
 namespace XLite\Core\Job;
 
 
+use XLite\Core\Mail\AMail;
+
 class SendMail extends JobAbstract
 {
     use SerializeModels;
 
-    protected $name;
-    protected $arguments;
+    protected $mail;
 
-    public function __construct($name, $arguments)
+    public function __construct(AMail $mail)
     {
         parent::__construct();
 
-        $this->name = $name;
-        $this->arguments = $arguments;
+        $this->mail = $mail;
     }
 
     public function getName()
@@ -32,13 +32,7 @@ class SendMail extends JobAbstract
     public function handle()
     {
         $this->markAsStarted();
-        $function = array('\XLite\Core\Mailer', $this->name);
-
-        // This is hack to avoid recursive scheduling
-        \XLite\Core\Mailer::setSchedule(false);
-        \XLite\Core\Mailer::setScheduledJob(null);
-        call_user_func_array($function, $this->arguments);
-        \XLite\Core\Mailer::setSchedule(true);
+        $this->mail->send();
         $this->markAsFinished();
     }
 }

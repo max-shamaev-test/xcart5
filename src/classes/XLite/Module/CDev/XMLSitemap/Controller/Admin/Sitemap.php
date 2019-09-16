@@ -38,11 +38,11 @@ class Sitemap extends \XLite\Controller\Admin\AAdmin
         return array(
             'Google'  => array(
                 'title' => 'Google',
-                'url'   => 'http://google.com/webmasters/tools/ping?sitemap=%url%',
+                'url'   => 'https://google.com/webmasters/tools/ping?sitemap=%url%',
             ),
             'Bing / Yahoo'    => array(
                 'title' => 'Bing / Yahoo',
-                'url'   => 'http://www.bing.com/webmaster/ping.aspx?siteMap=%url%',
+                'url'   => 'https://www.bing.com/webmaster/ping.aspx?siteMap=%url%',
             ),
         );
     }

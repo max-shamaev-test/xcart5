@@ -60,10 +60,26 @@ class ProductStockAvailabilityPolicy implements Serializable
             $cartItems  = $cart->getItemsByProductId($this->dto[static::PRODUCT_ID]);
             $cartAmount = ArrayManager::sumObjectsArrayFieldValues($cartItems, 'getAmount', true);
 
-            return max(0, $this->dto[static::PRODUCT_AMOUNT] - $cartAmount);
+            return max(0, $this->dto[static::PRODUCT_AMOUNT]);
         } else {
             return $this->dto[static::PRODUCT_DEFAULT_AMOUNT];
         }
+    }
+
+    /**
+     * Get product amount in cart.
+     *
+     * @param Cart $cart
+     *
+     * @return int
+     */
+    public function getInCartAmount(Cart $cart)
+    {   
+
+        $cartItems  = $cart->getItemsByProductId($this->dto[static::PRODUCT_ID]);
+        $cartAmount = ArrayManager::sumObjectsArrayFieldValues($cartItems, 'getAmount', true);
+
+        return max(0, $cartAmount);
     }
 
     /**

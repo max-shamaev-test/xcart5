@@ -159,7 +159,6 @@ function CommonForm(form)
     this.commonController.setDependencyState(state);
   };
 
-  // Process form changed
   form.change(changeHandler);
 
   var state = this.checkDependencyState();
@@ -1565,7 +1564,7 @@ CommonElement.prototype.postprocessBackgroundSubmit = function()
     if (isElement(this.element, 'select')) {
       this.$element.removeClass('readonly-mark');
     }
-    this.$element.removeProp('readonly');
+    this.$element.prop('readonly', false);
     this.element.isTemporaryReadonly = null;
   }
 };
@@ -1731,7 +1730,7 @@ CommonElement.prototype.disable = function()
 {
   this.$element
     .addClass('disabled')
-    .prop('disabled', 'disabled');
+    .prop('disabled', true);
 };
 
 // Enable element
@@ -1739,7 +1738,7 @@ CommonElement.prototype.enable = function()
 {
   this.$element
     .removeClass('disabled')
-    .removeProp('disabled');
+    .prop('disabled', false);
 };
 
 CommonElement.prototype.handleChange = function(event)

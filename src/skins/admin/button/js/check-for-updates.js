@@ -36,8 +36,7 @@ CheckForUpdatesButton.prototype.clearCache = function() {
   var obj = this;
   core.get(
     URLHandler.buildURL({
-      'target': 'addons_list_marketplace',
-      'action': 'clear_cache'
+      'base': 'service.php?/clear-cache',
     }),
     function(xhr, status, data) {
       obj.setStateSuccess();

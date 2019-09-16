@@ -13,19 +13,6 @@ namespace XLite\Module\QSL\AuthorizenetAcceptjs\View\Checkout;
  */
 abstract class Payment extends \XLite\View\Checkout\Payment implements \XLite\Base\IDecorator
 {
-
-    /**
-     * @inheritdoc
-     */
-    public function getCommonFiles()
-    {
-        $list = parent::getCommonFiles();
-
-        $list[static::RESOURCE_JS][] = 'js/tooltip.js';
-
-        return $list;
-    }
-
     /**
      * @inheritdoc
      */

@@ -31,7 +31,6 @@ class Tag extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Field\AField
                     static::t('Remove')    => 'remove',
                     static::t('Replace with') => 'replace_with',
                 ],
-                'choices_as_values' => true,
                 'placeholder'       => false,
                 'multiple'          => false,
                 'expanded'          => true,

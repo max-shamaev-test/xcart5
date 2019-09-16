@@ -25,7 +25,6 @@ class Membership extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Field\AFiel
                 'type'              => 'XLite\View\FormModel\Type\Select2Type',
                 'multiple'          => true,
                 'choices'           => array_flip($memberships),
-                'choices_as_values' => true,
                 'position'          => $position,
             ],
             $name . '_edit_mode' => [
@@ -35,7 +34,6 @@ class Membership extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Field\AFiel
                     static::t('Remove')    => 'remove',
                     static::t('Replace with') => 'replace_with',
                 ],
-                'choices_as_values' => true,
                 'placeholder'       => false,
                 'multiple'          => false,
                 'expanded'          => true,

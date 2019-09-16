@@ -70,6 +70,8 @@ class ThemeTweakerPanel extends \XLite\View\AView implements ProviderInterface
     {
         $list = parent::getJSFiles();
 
+        $list[] = $this->getDir() . '/getters.js';
+        $list[] = $this->getDir() . '/modals.js';
         $list[] = $this->getDir() . '/store.js';
         $list[] = $this->getDir() . '/panel.js';
         $list[] = $this->getDir() . '/store/actions.js';
@@ -90,18 +92,7 @@ class ThemeTweakerPanel extends \XLite\View\AView implements ProviderInterface
     protected function getCommonFiles()
     {
         $list = parent::getCommonFiles();
-
-        $list[static::RESOURCE_JS][] = [
-            'file' => $this->isDeveloperMode() ? 'vue/vue.js' : 'vue/vue.min.js',
-            'no_minify' => true
-        ];
-        $list[static::RESOURCE_JS][] = [
-            'file' => $this->isDeveloperMode() ? 'vue/vuex.js' : 'vue/vuex.min.js',
-            'no_minify' => true
-        ];
-        $list[static::RESOURCE_JS][] = 'vue/vue.loadable.js';
-        $list[static::RESOURCE_JS][] = 'js/vue/vue.js';
-        $list[static::RESOURCE_JS][] = 'js/vue/component.js';
+        $list[static::RESOURCE_JS] = array_merge($list[static::RESOURCE_JS], static::getVueLibraries());
         $list[static::RESOURCE_JS][] = 'js/keymaster.min.js';
         $list[static::RESOURCE_JS][] = 'js/keymaster.adapter.js';
 
@@ -213,7 +204,12 @@ class ThemeTweakerPanel extends \XLite\View\AView implements ProviderInterface
             'Unable to save changes',
             'You have unsaved changes. Are you really sure to exit?',
             'Layout block',
-            'xlite-translation-popover.help'
+            'xlite-translation-popover.help',
+            'Revert to default',
+            'Delete custom file',
+            'new template',
+            'type filename and press Enter',
+            'template weight'
         );
 
         $data = array();

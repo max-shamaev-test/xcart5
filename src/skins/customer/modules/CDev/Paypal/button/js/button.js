@@ -144,17 +144,3 @@ core.bind([
 core.bind('resources.ready', _.once(function () {
   core.trigger('renderPPButtons');
 }));
-
-define(["ProductDetails"], function () {
-  decorate(
-    'ProductDetailsView',
-    'postprocessAdd2Cart',
-    function (event, data) {
-      if (!paypalAdd2CartAwaiting) {
-        arguments.callee.previousMethod.apply(this, arguments);
-      }
-
-      core.trigger('activateExpressCheckout');
-    }
-  );
-});

@@ -8,6 +8,8 @@
 
 namespace Includes\Annotations\Decorator;
 
+use Includes\Utils\Module\Module;
+
 /**
  * @Annotation
  */
@@ -22,6 +24,7 @@ class Rely
         $params = is_array($param['value']) ? $param['value'] : [$param['value']];
 
         foreach ($params as $value) {
+            $value = Module::convertId($value);
             if (strpos($value, '!') === 0) {
                 $this->incompatibilities[] = substr($value, 1);
             } else {

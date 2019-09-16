@@ -57,21 +57,4 @@ abstract class Method extends \XLite\Model\Shipping\Method implements \XLite\Bas
             );
         }
     }
-
-    /**
-     * @return string
-     */
-    public function getModuleName()
-    {
-        $result = $this->moduleName;
-
-        if (!$this->isFromMarketplace()) {
-            $processor = $this->getProcessorObject();
-            if ($processor && $processor->getModule()) {
-                $result = parent::getModuleName();
-            }
-        }
-
-        return $result;
-    }
 }

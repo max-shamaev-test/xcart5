@@ -23,7 +23,7 @@ class Info extends \XLite\View\StickyPanel\Order\Admin\Info implements \XLite\Ba
         $list = parent::defineButtons();
 
         if ($this->getOrder()->isNotFinishedOrder()) {
-            $list['sendNotification'] = $this->getSendNotificationWidget();
+            $list['sendNotification'] = $this->getDoNotSendNotificationWidget();
         }
 
         return $list;

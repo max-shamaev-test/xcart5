@@ -8,6 +8,8 @@
 
 namespace XLite\Core\Doctrine\ORM;
 
+use Doctrine\DBAL\Connection;
+
 
 /**
  * EntityManager
@@ -36,7 +38,7 @@ class EntityManager extends \Doctrine\ORM\EntityManager
 
             return $return ?: true;
         } catch (\Exception $e) {
-            $this->getConnection()->rollback();
+            $this->getConnection()->rollBack();
             if (is_callable($rollbackCallback)) {
                 $rollbackCallback($this);
             }
@@ -48,6 +50,18 @@ class EntityManager extends \Doctrine\ORM\EntityManager
             $this->close();
             throw $e;
         }
+    }
+
+    /**
+     * @param $func
+     * @return bool|mixed
+     * @throws \Exception
+     */
+    public function transactional($func)
+    {
+        $this->getConnection()->setTransactionIsolation(Connection::TRANSACTION_READ_COMMITTED);
+
+        return parent::transactional($func);
     }
 
     /**

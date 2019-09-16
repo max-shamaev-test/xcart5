@@ -36,7 +36,7 @@ class EditUpsellingProducts extends \XLite\View\Button\Dropdown\ADropdown
                 'params'   => [
                     'label'      => static::t('Delete'),
                     'style'      => 'more-action link list-action delete-relations',
-                    'icon-style' => 'fa fa-times',
+                    'icon-style' => 'fa fa-trash',
                 ],
                 'position' => 0,
             ],
@@ -44,7 +44,7 @@ class EditUpsellingProducts extends \XLite\View\Button\Dropdown\ADropdown
                 'class'    => 'XLite\Module\XC\Upselling\View\Button\UpsellingActions\EnableMutual',
                 'params'   => [
                     'style'      => 'more-action link list-action enable-mutual',
-                    'icon-style' => 'fa fa-power-off',
+                    'icon-style' => 'fa fa-power-off iconfont',
                 ],
                 'position' => 0,
             ],
@@ -52,7 +52,7 @@ class EditUpsellingProducts extends \XLite\View\Button\Dropdown\ADropdown
                 'class'    => 'XLite\Module\XC\Upselling\View\Button\UpsellingActions\DisableMutual',
                 'params'   => [
                     'style'      => 'more-action link list-action disable-mutual',
-                    'icon-style' => 'fa fa-power-off',
+                    'icon-style' => 'fa fa-power-off iconfont',
                 ],
                 'position' => 0,
             ],

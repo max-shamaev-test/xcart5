@@ -22,6 +22,7 @@ class ShippingTableType extends \XLite\View\FormField\Select\Regular
     {
         return array(
             'S'   => static::t('shippingTableType.Subtotal'),
+            'DS'  => static::t('shippingTableType.DiscountedSubtotal'),
             'W'   => static::t('shippingTableType.Weight'),
             'I'   => static::t('shippingTableType.Items'),
             'WSI' => static::t('shippingTableType.All'),

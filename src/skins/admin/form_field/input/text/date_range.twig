@@ -1,0 +1,15 @@
+{##
+ # Daterange picker template
+ #}
+
+{% spaceless %}
+  <span class="input-field-wrapper {{ this.getWrapperClass() }}">
+    {{ this.displayCommentedData(this.getCommentedData()) }}
+    <span class="input-group-addon">
+      <i class="fa fa-calendar" aria-hidden="true"></i>
+    </span>
+    <span class="input-date-range-container">
+      <input{{ this.getAttributesCode()|raw }} />
+    </span>
+  </span>
+{% endspaceless %}

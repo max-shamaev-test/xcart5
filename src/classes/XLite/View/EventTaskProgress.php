@@ -48,7 +48,7 @@ class EventTaskProgress extends \XLite\View\AView implements ProviderInterface
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'event_task_progress/style.css';
+        $list[] = 'event_task_progress/style.less';
 
         return $list;
     }

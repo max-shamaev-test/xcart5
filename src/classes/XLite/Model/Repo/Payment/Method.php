@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Repo\Payment;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
 use XLite\Model\QueryBuilder\AQueryBuilder;
 
 /**
@@ -17,7 +19,7 @@ use XLite\Model\QueryBuilder\AQueryBuilder;
  * @Api\Operation\ReadAll(modelClass="XLite\Model\Payment\Method", summary="Retrieve payment methods by conditions")
  * @Api\Operation\Update(modelClass="XLite\Model\Payment\Method", summary="Update payment method by id")
  */
-class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Base\IModuleLinked
+class Method extends \XLite\Model\Repo\Base\I18n
 {
     /**
      * Names of fields that are used in search
@@ -120,49 +122,6 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
         parent::update($entity, $data, $flush);
     }
 
-
-    // {{{ Module link
-
-    /**
-     * Switch module link
-     *
-     * @param boolean             $enabled Module enabled status
-     * @param \XLite\Model\Module $module  Model module
-     *
-     * @return mixed
-     */
-    public function switchModuleLink($enabled, \XLite\Model\Module $module)
-    {
-        return $this->defineQuerySwitchModuleLink($enabled, $module)->execute();
-    }
-
-    /**
-     * Define query for switchModuleLink() method
-     *
-     * @param boolean             $enabled Module enabled status
-     * @param \XLite\Model\Module $module  Model module
-     *
-     * @return \XLite\Model\QueryBuilder\AQueryBuilder
-     */
-    protected function defineQuerySwitchModuleLink($enabled, \XLite\Model\Module $module)
-    {
-        $qb = $this->getQueryBuilder()
-            ->update($this->_entityName, 'e')
-            ->set('e.moduleEnabled', ':enabled')
-            ->where('LOCATE(:class, e.class) > 0')
-            ->setParameter('enabled', (bool)$enabled ? 1 : 0)
-            ->setParameter('class', $module->getActualName());
-
-        if ($enabled) {
-            $qb->set('e.fromMarketplace', ':disabled')
-                ->setParameter('disabled', false);
-        }
-
-        return $qb;
-    }
-
-    // }}}
-
     /**
      * Prepare certain search condition for module name
      * @Api\Condition(description="Retrieve payment method by its name", type="string")
@@ -194,8 +153,14 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
      */
     protected function prepareCndCountry(\Doctrine\ORM\QueryBuilder $queryBuilder, $value, $countOnly)
     {
+        $alias = $this->getMainAlias($queryBuilder);
+
+        $country = $value ?: \XLite\Core\Config::getInstance()->Company->location_country;
+        $queryBuilder->linkLeft($alias . '.countryPositions', 'countryPosition', 'WITH', 'countryPosition.countryCode = :countryCode')
+            ->setParameter('countryCode', $country);
+        $queryBuilder->addSelect('(CASE WHEN countryPosition.adminPosition IS NULL THEN 1 ELSE 0 END) AS HIDDEN adminPosition');
+
         if (!empty($value)) {
-            $alias = $this->getMainAlias($queryBuilder);
 
             $queryBuilder->andWhere(
                     $queryBuilder->expr()->orX(
@@ -265,9 +230,18 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
      */
     protected function prepareCndModuleEnabled(\Doctrine\ORM\QueryBuilder $queryBuilder, $value, $countOnly)
     {
+        $enabledModules = array_map(
+            function ($module) {
+                /** @var Module $module */
+                return $module->author . '_' . $module->name;
+            },
+            Manager::getRegistry()->getEnabledPaymentModules()
+        );
+
+        $enabledModules[] = '';
+
         $queryBuilder
-            ->andWhere($this->getMainAlias($queryBuilder) . '.moduleEnabled = :module_enabled_value')
-            ->setParameter('module_enabled_value', (bool)$value);
+            ->andWhere($queryBuilder->expr()->in($this->getMainAlias($queryBuilder) . '.moduleName', $enabledModules));
     }
 
     /**
@@ -418,11 +392,12 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
     /**
      * Check - has active payment modules or not
      *
-     * @return boolean
+     * @return bool
      */
     public function hasActivePaymentModules()
     {
-        return 0 < $this->defineHasActivePaymentModulesQuery()->getSingleScalarResult();
+        return (bool) \count(Manager::getRegistry()->getEnabledPaymentModules());
+        // return 0 < $this->defineHasActivePaymentModulesQuery()->getSingleScalarResult();
     }
 
     /**
@@ -527,18 +502,19 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
 
     /**
      * Define query for hasActivePaymentModules() method
+     * @todo: remove, unused
      *
      * @return \XLite\Model\QueryBuilder\AQueryBuilder
      */
     protected function defineHasActivePaymentModulesQuery()
     {
-        return $this->createPureQueryBuilder()
-            ->select('COUNT(m.method_id) cns')
-            ->andWhere('m.type != :offline')
-            ->andWhere('m.moduleEnabled = :moduleEnabled')
-            ->setParameter('offline', \XLite\Model\Payment\Method::TYPE_OFFLINE)
-            ->setParameter('moduleEnabled', true)
-            ->setMaxResults(1);
+        //return $this->createPureQueryBuilder()
+        //    ->select('COUNT(m.method_id) cns')
+        //    ->andWhere('m.type != :offline')
+        //    ->andWhere('m.moduleEnabled = :moduleEnabled')
+        //    ->setParameter('offline', \XLite\Model\Payment\Method::TYPE_OFFLINE)
+        //    ->setParameter('moduleEnabled', true)
+        //    ->setMaxResults(1);
     }
 
     /**
@@ -559,11 +535,12 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
     /**
      * Update payment methods with data received from the marketplace
      *
-     * @param array List of payment methods received from marketplace
+     * @param array  $data List of payment methods received from marketplace
+     * @param string $countryCode
      *
      * @return void
      */
-    public function updatePaymentMethods($data)
+    public function updatePaymentMethods($data, $countryCode = '')
     {
         if (!empty($data) && is_array($data)) {
 
@@ -603,11 +580,18 @@ class Method extends \XLite\Model\Repo\Base\I18n implements \XLite\Model\Repo\Ba
 
                     } else {
                         $data[$i]['fromMarketplace'] = 1;
-                        $data[$i]['moduleEnabled']   = 0;
                     }
 
                     if (isset($data[$i]['orderby'])) {
                         $data[$i]['adminOrderby'] = $data[$i]['orderby'];
+
+                        $data[$i]['countryPositions'] = [
+                            [
+                                'countryCode' => $countryCode,
+                                'adminPosition' => $data[$i]['orderby'],
+                            ]
+                        ];
+
                         unset($data[$i]['orderby']);
                     }
 

@@ -3,7 +3,7 @@
 /*
  * This file is part of Twig.
  *
- * (c) 2015 Fabien Potencier
+ * (c) Fabien Potencier
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,6 +11,8 @@
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final
  */
 class Twig_Profiler_Profile implements IteratorAggregate, Serializable
 {
@@ -22,9 +24,9 @@ class Twig_Profiler_Profile implements IteratorAggregate, Serializable
     private $template;
     private $name;
     private $type;
-    private $starts = array();
-    private $ends = array();
-    private $profiles = array();
+    private $starts = [];
+    private $ends = [];
+    private $profiles = [];
 
     public function __construct($template = 'main', $type = self::ROOT, $name = 'main')
     {
@@ -74,7 +76,7 @@ class Twig_Profiler_Profile implements IteratorAggregate, Serializable
         return $this->profiles;
     }
 
-    public function addProfile(Twig_Profiler_Profile $profile)
+    public function addProfile(self $profile)
     {
         $this->profiles[] = $profile;
     }
@@ -124,11 +126,11 @@ class Twig_Profiler_Profile implements IteratorAggregate, Serializable
      */
     public function enter()
     {
-        $this->starts = array(
+        $this->starts = [
             'wt' => microtime(true),
             'mu' => memory_get_usage(),
             'pmu' => memory_get_peak_usage(),
-        );
+        ];
     }
 
     /**
@@ -136,11 +138,17 @@ class Twig_Profiler_Profile implements IteratorAggregate, Serializable
      */
     public function leave()
     {
-        $this->ends = array(
+        $this->ends = [
             'wt' => microtime(true),
             'mu' => memory_get_usage(),
             'pmu' => memory_get_peak_usage(),
-        );
+        ];
+    }
+
+    public function reset()
+    {
+        $this->starts = $this->ends = $this->profiles = [];
+        $this->enter();
     }
 
     public function getIterator()
@@ -150,7 +158,7 @@ class Twig_Profiler_Profile implements IteratorAggregate, Serializable
 
     public function serialize()
     {
-        return serialize(array($this->template, $this->name, $this->type, $this->starts, $this->ends, $this->profiles));
+        return serialize([$this->template, $this->name, $this->type, $this->starts, $this->ends, $this->profiles]);
     }
 
     public function unserialize($data)
@@ -158,3 +166,5 @@ class Twig_Profiler_Profile implements IteratorAggregate, Serializable
         list($this->template, $this->name, $this->type, $this->starts, $this->ends, $this->profiles) = unserialize($data);
     }
 }
+
+class_alias('Twig_Profiler_Profile', 'Twig\Profiler\Profile', false);

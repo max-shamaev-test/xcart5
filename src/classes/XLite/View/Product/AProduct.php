@@ -93,4 +93,16 @@ abstract class AProduct extends \XLite\View\AView
     {
         return $this->getCart()->isProductAdded($this->getProduct()->getProductId());
     }
+
+
+    /**
+     * Checks whether a product was added to the cart
+     *
+     * @return boolean
+     */
+    protected function getItemsInCart()
+    {
+        return $this->getProduct()->getItemsInCart();
+    }
+
 }

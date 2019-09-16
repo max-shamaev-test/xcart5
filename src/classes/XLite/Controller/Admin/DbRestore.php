@@ -124,7 +124,9 @@ class DbRestore extends \XLite\Controller\Admin\Base\BackupRestore
             $message = static::t('Database restored successfully!');
 
             // Prepare the cache rebuilding
-            \XLite::setCleanUpCacheFlag(true);
+            $returnUrl = \XLite::getInstance()->getShopURL('service.php?/rebuild', null,
+                ['returnUrl' => $this->buildFullURL('db_restore')]);
+            $this->setReturnURL($returnUrl);
 
         } else {
             // If an error occurred while loading file into database

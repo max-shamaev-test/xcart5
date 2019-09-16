@@ -62,6 +62,7 @@ class MethodsLoader
         $repo = \XLite\Core\Database::getRepo('XLite\Model\Shipping\Method');
 
         return (boolean)$repo->findOneBy([
+            'free' => $code === 'FREESHIP',
             'code' => $code
         ]);
     }

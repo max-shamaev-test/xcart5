@@ -21,12 +21,15 @@ class MessageDispute extends \XLite\View\Model\AModel
     protected function getFormFieldsForSectionDefault()
     {
         $schema = [
+            'label' => [
+                self::SCHEMA_CLASS => 'XLite\View\FormField\Label',
+                self::SCHEMA_LABEL => static::t('Reason'),
+            ],
             'body' => [
                 self::SCHEMA_CLASS                                          => 'XLite\View\FormField\Textarea\Simple',
                 self::SCHEMA_LABEL                                          => 'Reason',
                 self::SCHEMA_REQUIRED                                       => true,
                 \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY          => true,
-                \XLite\View\FormField\Textarea\ATextarea::PARAM_PLACEHOLDER => static::t('Reason'),
                 \XLite\View\FormField\Textarea\ATextarea::PARAM_ROWS        => 4,
             ],
         ];

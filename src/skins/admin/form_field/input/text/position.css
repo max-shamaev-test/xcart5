@@ -7,7 +7,7 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-.input-field-wrapper.position input[type="text"] {
+.input-field-wrapper.position input[type="text"].form-control {
   padding-left: 10px;
   width: 53px;
   text-align: right;

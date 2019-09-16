@@ -6,7 +6,7 @@
 
 {% if this.isDisplayAdd2CartButton() %}
   <div class="add-to-cart-button">
-    {% if not this.product.isOutOfStock() %}
+    {% if not this.product.isAllStockInCart() %}
         {{ widget('\\XLite\\View\\Button\\Submit', label='Add to cart', style='regular-main-button add2cart add-to-cart productid-' ~ this.product.product_id) }}
     {% endif %}
   </div>

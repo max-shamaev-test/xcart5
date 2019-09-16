@@ -34,20 +34,33 @@ panel.on('hidden.bs.collapse', function() {
 
 panel.on('show.bs.collapse', function() {
   $(this).siblings('a').removeClass('collapsed');
-  //setTimeout - mobile hack
-  setTimeout(function(){
-    panel.find('input[name="substring"]').focus();
-  },0);
 });
 
-$(document).click(function(event) {
-    if(!$(event.target).closest('.simple-search-box').length &&
-       !$(event.target).is('.simple-search-box')) {
-      if (panel.hasClass('in')) {
-        panel.collapse('hide');
-      }
-    }
+$(document).on('click', '.header_search a', function() {
+  if ($(this).hasClass('shown')) {
+    panel.find('input[name="substring"]').focus();
+  }
 });
+
+function searchPanelToggle(event) {
+  if(!$(event.target).closest('.simple-search-box').length &&
+      !$(event.target).is('.simple-search-box')) {
+    if (panel.hasClass('in')) {
+      panel.collapse('hide');
+      panel.find('input[name="substring"]').blur();
+    }
+  }
+}
+
+if ('ontouchstart' in document.documentElement) {
+  $(document).on('touchstart', function(event) {
+    searchPanelToggle(event);
+  });
+} else {
+  $(document).click(function(event) {
+    searchPanelToggle(event);
+  });
+}
 
 $('.simple-search-box').focusin(function () {
   $(this).addClass('focus');

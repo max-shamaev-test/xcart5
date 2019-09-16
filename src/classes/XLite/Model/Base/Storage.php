@@ -436,9 +436,6 @@ abstract class Storage extends \XLite\Model\AEntity
         if (isset(static::$types[$this->getMime()])) {
             $result = static::$types[$this->getMime()];
 
-        } elseif ($this->getMime()) {
-            list($tmp, $result) = explode('/', $this->getMime(), 2);
-
         } else {
             $result = '';
         }
@@ -823,7 +820,7 @@ abstract class Storage extends \XLite\Model\AEntity
         $domains = \XLite\Core\URLManager::getShopDomains();
 
         if (LC_DEVELOPER_MODE) {
-            $domains[] = $_SERVER['HTTP_HOST'];
+            $domains[] = $_SERVER['HTTP_HOST'] ?? '';
         }
 
         $isSameHost = in_array(parse_url($value, PHP_URL_HOST), $domains, true);

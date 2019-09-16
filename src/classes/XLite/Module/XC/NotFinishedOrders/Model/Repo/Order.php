@@ -42,8 +42,6 @@ class Order extends \XLite\Model\Repo\Order implements \XLite\Base\IDecorator
      */
     public function addNotFinishedCnd($qb)
     {
-        $qb->linkInner('o.shippingStatus', 'shipping');
-
         $qb->orWhere($this->defineNotFinishedCndSubquery($qb));
 
         return $qb;
@@ -58,6 +56,8 @@ class Order extends \XLite\Model\Repo\Order implements \XLite\Base\IDecorator
      */
     protected function defineNotFinishedCndSubquery($qb)
     {
+        $qb->linkInner('o.shippingStatus', 'shipping');
+
         $result = $qb->expr()->andX(
             'o INSTANCE OF XLite\Model\Cart',
             'shipping.code = :shipstatus'

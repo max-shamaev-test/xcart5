@@ -14,6 +14,19 @@ namespace XLite\Module\CDev\FedEx\View\Model;
 class Settings extends \XLite\View\Model\AShippingSettings
 {
     /**
+     * Get a list of CSS files required to display the widget properly
+     *
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        $list = parent::getCSSFiles();
+        $list[] = 'modules/CDev/FedEx/settings.css';
+
+        return $list;
+    }
+
+    /**
      * Detect form field class by option
      *
      * @param \XLite\Model\Config $option Option

@@ -67,7 +67,7 @@ define('wizard/steps/location', ['js/vue/vue'], function (XLiteVue) {
           weight_unit: this.weight_unit
         };
 
-        var currenciesList = core.getCommentedData($('#location-currency').parent(), 'currencies');
+        var currenciesList = core.getCommentedData($('#location-currency').parents('.location-currency-value').get(0), 'currencies');
 
         this.$dispatch('wizard.tracking.event', 'form', '', {
           onboarding_country: this.country,

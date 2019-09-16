@@ -36,7 +36,7 @@ abstract class ADecorator
     /**
      * Current step
      *
-     * @var string
+     * @var int
      */
     protected static $step;
 
@@ -48,16 +48,9 @@ abstract class ADecorator
     protected static $forceOriginalClassesDir = false;
 
     /**
-     * Modules graph
-     *
-     * @var \Includes\Decorator\DataStructure\Graph\Modules
-     */
-    protected static $modulesGraph;
-
-    /**
      * Get step
      *
-     * @return mixed
+     * @return int
      */
     public static function getStep()
     {
@@ -70,27 +63,16 @@ abstract class ADecorator
     }
 
     /**
-     * Return modules graph
-     *
-     * @return \Includes\Decorator\DataStructure\Graph\Modules
-     */
-    public static function getModulesGraph()
-    {
-        if (!isset(static::$modulesGraph)) {
-            static::$modulesGraph = \Includes\Decorator\Utils\Operator::createModulesGraph();
-        }
-
-        return static::$modulesGraph;
-    }
-
-    /**
      * Return classes repository path
      *
      * @return string
      */
     public static function getClassesDir()
     {
-        return self::STEP_FIRST == static::$step || self::STEP_SECOND == static::$step || static::$forceOriginalClassesDir
+        return (self::STEP_FIRST === static::$step
+            || self::STEP_SECOND === static::$step
+            || static::$forceOriginalClassesDir
+        )
             ? LC_DIR_CLASSES
             : static::getCacheClassesDir();
     }

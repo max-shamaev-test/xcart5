@@ -21,7 +21,7 @@ class RepositoryHandler extends \XLite\Model\SearchCondition\ASearchCondition im
     protected $repoHandlerName;
 
     /**
-     * @param  $repoHandlerName Repository handler name
+     * @param string $repoHandlerName Repository handler name
      */
     public function __construct($repoHandlerName)
     {

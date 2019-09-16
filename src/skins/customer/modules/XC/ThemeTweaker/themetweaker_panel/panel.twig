@@ -5,12 +5,12 @@
 <div id="themetweaker-panel-loader-point">
   <xlite-themetweaker-panel inline-template mode="{{ this.getThemeTweakerMode() }}">
     <div class="themetweaker-panel-wrapper themetweaker-panel--initial {{ this.getThemeTweakerMode() ? 'state-on' : 'state-off' }}">
-      <div id="themetweaker-panel" class="themetweaker-panel" v-show="isExpanded" transition="expand">
+      <div id="themetweaker-panel" class="themetweaker-panel">
         <div class="themetweaker-panel--inner" :class="panelClasses">
           <div class="themetweaker-panel--header">
             {{ widget_list('themetweaker-panel--header') }}
           </div>
-          <div class="themetweaker-panel--body" v-show="mode">
+          <div class="themetweaker-panel--body" v-show="mode && isExpanded" transition="expand">
             {{ widget_list('themetweaker-panel--body') }}
           </div>
         </div>

@@ -15,7 +15,7 @@ use DI\Definition\Source\MutableDefinitionSource;
 use DI\Invoker\DefinitionParameterResolver;
 use DI\Proxy\ProxyFactory;
 use Exception;
-use Interop\Container\ContainerInterface;
+use Interop\Container\ContainerInterface as InteropContainerInterface;
 use InvalidArgumentException;
 use Invoker\Invoker;
 use Invoker\ParameterResolver\AssociativeArrayResolver;
@@ -23,13 +23,14 @@ use Invoker\ParameterResolver\Container\TypeHintContainerResolver;
 use Invoker\ParameterResolver\DefaultValueResolver;
 use Invoker\ParameterResolver\NumericArrayResolver;
 use Invoker\ParameterResolver\ResolverChain;
+use Psr\Container\ContainerInterface;
 
 /**
  * Dependency Injection Container.
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class Container implements ContainerInterface, FactoryInterface, \DI\InvokerInterface
+class Container implements ContainerInterface, InteropContainerInterface, FactoryInterface, \DI\InvokerInterface
 {
     /**
      * Map of entries with Singleton scope that are already resolved.
@@ -46,6 +47,13 @@ class Container implements ContainerInterface, FactoryInterface, \DI\InvokerInte
      * @var DefinitionResolver
      */
     private $definitionResolver;
+
+    /**
+     * Map of definitions that are already looked up.
+     *
+     * @var array
+     */
+    private $definitionCache = [];
 
     /**
      * Array of entries being resolved. Used to avoid circular dependencies and infinite loops.
@@ -85,9 +93,10 @@ class Container implements ContainerInterface, FactoryInterface, \DI\InvokerInte
         $this->definitionResolver = new ResolverDispatcher($this->wrapperContainer, $proxyFactory);
 
         // Auto-register the container
-        $this->singletonEntries['DI\Container'] = $this;
-        $this->singletonEntries['DI\FactoryInterface'] = $this;
-        $this->singletonEntries['DI\InvokerInterface'] = $this;
+        $this->singletonEntries[self::class] = $this;
+        $this->singletonEntries[FactoryInterface::class] = $this;
+        $this->singletonEntries[InvokerInterface::class] = $this;
+        $this->singletonEntries[ContainerInterface::class] = $this;
     }
 
     /**
@@ -114,7 +123,7 @@ class Container implements ContainerInterface, FactoryInterface, \DI\InvokerInte
             return $this->singletonEntries[$name];
         }
 
-        $definition = $this->definitionSource->getDefinition($name);
+        $definition = $this->getDefinition($name);
         if (! $definition) {
             throw new NotFoundException("No entry or class found for '$name'");
         }
@@ -127,6 +136,15 @@ class Container implements ContainerInterface, FactoryInterface, \DI\InvokerInte
         }
 
         return $value;
+    }
+
+    private function getDefinition($name)
+    {
+        if(!array_key_exists($name, $this->definitionCache)){
+            $this->definitionCache[$name] = $this->definitionSource->getDefinition($name);
+        }
+
+        return $this->definitionCache[$name];
     }
 
     /**
@@ -157,7 +175,7 @@ class Container implements ContainerInterface, FactoryInterface, \DI\InvokerInte
             ));
         }
 
-        $definition = $this->definitionSource->getDefinition($name);
+        $definition = $this->getDefinition($name);
         if (! $definition) {
             // Try to find the entry in the singleton map
             if (array_key_exists($name, $this->singletonEntries)) {
@@ -191,7 +209,7 @@ class Container implements ContainerInterface, FactoryInterface, \DI\InvokerInte
             return true;
         }
 
-        $definition = $this->definitionSource->getDefinition($name);
+        $definition = $this->getDefinition($name);
         if ($definition === null) {
             return false;
         }
@@ -304,7 +322,9 @@ class Container implements ContainerInterface, FactoryInterface, \DI\InvokerInte
             throw new \LogicException('The container has not been initialized correctly');
         }
 
-        // Clear existing entry if it exists
+        $this->definitionCache = []; //Completely clear definitionCache
+
+        // Clear existing entries if it exists
         if (array_key_exists($name, $this->singletonEntries)) {
             unset($this->singletonEntries[$name]);
         }

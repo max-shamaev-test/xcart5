@@ -8,6 +8,9 @@
 
 namespace XLite\Module\XC\RESTAPI\View;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
+
 /**
  * Warning
  *
@@ -61,7 +64,7 @@ class Warning extends \XLite\View\AView
     protected function isVisible()
     {
         return parent::isVisible()
-            && 'XC\\RESTAPI' == $this->getModule()->getActualName();
+            && Module::buildId('XC', 'RESTAPI') === $this->getModule();
     }
 
 }

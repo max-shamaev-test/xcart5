@@ -4,9 +4,5 @@
  # @ListChild (list="searchPanel.order.admin.main.actions")
  #}
 
-<a href="{{ url('order_list', 'clearSearch') }}" class="clear-search">
-    <span class="clear-search-image" title="{{ t('Clear search') }}">
-        {{ this.getSVGImage('images/broom.svg')|raw }}
-    </span>
-</a>
+<a href="{{ url('order_list', 'clearSearch') }}" class="clear-search">{{ t('Clear search') }}</a>
 

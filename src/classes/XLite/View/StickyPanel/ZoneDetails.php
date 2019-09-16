@@ -13,4 +13,23 @@ namespace XLite\View\StickyPanel;
  */
 class ZoneDetails extends \XLite\View\StickyPanel\ItemForm
 {
+    /**
+     * Define buttons widgets
+     *
+     * @return array
+     */
+    protected function defineButtons()
+    {
+        $list = parent::defineButtons();
+
+        $list['shipping_methods'] = new \XLite\View\Button\SimpleLink(
+            array(
+                \XLite\View\Button\AButton::PARAM_LABEL => static::t('Back to Zones list'),
+                \XLite\View\Button\AButton::PARAM_STYLE => 'action zone-back-button',
+                \XLite\View\Button\Link::PARAM_LOCATION => $this->buildURL('zones'),
+            )
+        );
+
+        return $list;
+    }
 }

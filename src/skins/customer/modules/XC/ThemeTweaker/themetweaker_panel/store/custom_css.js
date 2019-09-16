@@ -12,7 +12,6 @@ define('themetweaker/store/custom_css', [], function(){
         state: {
             originalState: null,
             currentState: null,
-            isChanged: false,
         },
 
         mutations: {
@@ -25,7 +24,6 @@ define('themetweaker/store/custom_css', [], function(){
                     state.currentState = value;
                 } else {
                     state.currentState = _.extend({}, state.currentState, value);
-                    state.isChanged = objectHash.sha1(state.originalState) !== objectHash.sha1(state.currentState);
                 }
             },
         }

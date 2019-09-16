@@ -82,6 +82,13 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
     protected static $cacheDriver;
 
     /**
+     * Ignore identity map flag (is used in findOneBy() method)
+     *
+     * @var boolean
+     */
+    protected static $ignoreIM = false;
+
+    /**
      * Cache cells (local cache)
      *
      * @var array
@@ -393,11 +400,13 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
     /**
      * Count records
      *
+     * @param array $criteria
+     *
      * @return integer
      */
-    public function count()
+    public function count(array $criteria = [])
     {
-        return $this->defineCountQuery()->count();
+        return $this->defineCountQuery()->count($criteria);
     }
 
     /**
@@ -436,6 +445,125 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
         }
 
         return null !== $id ? parent::find($id, $lockMode, $lockVersion) : null;
+    }
+
+    public function findOneBy(array $criteria, array $orderBy = null)
+    {
+        if (
+            !static::$ignoreIM
+            && !$orderBy
+            && $entity = $this->tryToFindEntityInIMByCriteria($criteria)
+        ) {
+            return $entity;
+        }
+
+        return parent::findOneBy($criteria, $orderBy);
+    }
+
+    /**
+     * @param array $criteria
+     *
+     * @return object|null
+     */
+    public function tryToFindEntityInIMByCriteria(array $criteria)
+    {
+        $im = $this->getIdentityMapForRepo();
+
+        foreach ($im as $entity) {
+            if ($this->isEntityMatchCriteria($entity, $criteria)) {
+                return $entity;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param object $entity
+     * @param array  $criteria
+     *
+     * @return bool
+     */
+    protected function isEntityMatchCriteria($entity, array $criteria)
+    {
+        foreach ($criteria as $name => $value) {
+            if ($this->_class->hasField($name)) {
+                if (!$this->matchEntityField($entity, $name, $value)) {
+                    return false;
+                } else {
+                    continue;
+                }
+            }
+
+            if ($this->_class->hasAssociation($name)) {
+                if (!$this->matchEntityAssociation($entity, $name, $value)) {
+                    return false;
+                } else {
+                    continue;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param object $entity
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    protected function matchEntityField($entity, $name, $value)
+    {
+        $reflection = new \ReflectionObject($entity);
+
+        if ($reflection->hasProperty($name)) {
+            $prop = $reflection->getProperty($name);
+            $prop->setAccessible(true);
+
+            return $prop->getValue($entity) === $value;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param object $entity
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    protected function matchEntityAssociation($entity, $name, $value)
+    {
+        $reflection = new \ReflectionObject($entity);
+
+        if ($reflection->hasProperty($name)) {
+            $prop = $reflection->getProperty($name);
+            $prop->setAccessible(true);
+
+            $v = $prop->getValue($entity);
+
+            return !$value && !$v
+                || $v === $value;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getIdentityMapForRepo()
+    {
+        $im = $this->getEntityManager()
+            ->getUnitOfWork()
+            ->getIdentityMap();
+
+        return !empty($im[$this->getEntityName()])
+            ? $im[$this->getEntityName()]
+            : [];
     }
 
     /**
@@ -776,7 +904,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
      *
      * @param integer $position Position OPTIONAL
      *
-     * @return \Doctrine\ORM\Internal\Hydration\IterableResult
+     * @return \Iterator
      */
     public function getRemoveDataIterator($position = 0)
     {
@@ -909,7 +1037,10 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
 
         // Strongly insert entity
         $insert = \XLite\Core\Database::getInstance()->getFixturesLoadingOption('insert');
+        $ignoreIMbak = static::$ignoreIM;
+        static::$ignoreIM = true;
         $entity = $insert ? null : $this->findOneByRecord($record, $parent);
+        static::$ignoreIM = $ignoreIMbak;
         if (!$entity && !$insert && $parent && $parentAssoc && $parentAssoc['getter'] && !$parentAssoc['many']) {
             $entity = $parent->{$parentAssoc['getter']}();
         }
@@ -1491,8 +1622,15 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
         $qb = $this->createPureQueryBuilder();
         $alias = $this->getMainAlias($qb);
         foreach ($conditions as $name => $value) {
-            $qb->andWhere($alias . '.' . $name . ' = :' . $name)
-                ->setParameter($name, $value);
+            if (is_null($value)) {
+                $qb->andWhere("{$alias}.{$name} IS NULL");
+            } elseif (is_array($value)) {
+                $qb->andWhere("{$alias}.{$name} IN (:{$name})")
+                    ->setParameter($name, $value);
+            } else {
+                $qb->andWhere("{$alias}.{$name} = :{$name}")
+                    ->setParameter($name, $value);
+            }
         }
 
         return $qb->select('COUNT(' . implode(', ', $this->getIdentifiersList($qb)) . ')')
@@ -2342,7 +2480,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
      * @param \XLite\Core\CommonCell $cnd           Search conditions                   OPTIONAL
      * @param boolean|string         $searchMode    Return items list or only its size  OPTIONAL
      *
-     * @return \Doctrine\ORM\PersistentCollection|integer
+     * @return \Doctrine\ORM\PersistentCollection|integer|mixed
      */
     public function search(\XLite\Core\CommonCell $cnd = null, $searchMode = self::SEARCH_MODE_ENTITIES)
     {

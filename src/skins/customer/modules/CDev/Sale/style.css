@@ -38,8 +38,13 @@ ul.products.products-sidebar .sale-label-product-details {
 }
 
 .sale-label-product-details {
-  display: block;
-  margin-bottom: 15px;
+  display: inline-block;
+  line-height: 30px;
+  vertical-align: text-bottom;
+}
+
+.product-quicklook .sale-label-product-details {
+  margin-top: 10px;
 }
 
 .products-sidebar .sale-label-product-details {

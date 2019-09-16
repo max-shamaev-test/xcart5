@@ -31,7 +31,7 @@ class Product extends \XLite\View\AView
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'modules/XC/BulkEditing/bulk_edit/style.css';
+        $list[] = 'modules/XC/BulkEditing/bulk_edit/style.less';
         
         return $list;
     }

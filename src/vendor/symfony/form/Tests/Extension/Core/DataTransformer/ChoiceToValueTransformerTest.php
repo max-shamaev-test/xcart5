@@ -11,18 +11,19 @@
 
 namespace Symfony\Component\Form\Tests\Extension\Core\DataTransformer;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\ChoiceList\ArrayChoiceList;
 use Symfony\Component\Form\Extension\Core\DataTransformer\ChoiceToValueTransformer;
 
-class ChoiceToValueTransformerTest extends \PHPUnit_Framework_TestCase
+class ChoiceToValueTransformerTest extends TestCase
 {
     protected $transformer;
     protected $transformerWithNull;
 
     protected function setUp()
     {
-        $list = new ArrayChoiceList(array('', false, 'X', true));
-        $listWithNull = new ArrayChoiceList(array('', false, 'X', null));
+        $list = new ArrayChoiceList(['', false, 'X', true]);
+        $listWithNull = new ArrayChoiceList(['', false, 'X', null]);
 
         $this->transformer = new ChoiceToValueTransformer($list);
         $this->transformerWithNull = new ChoiceToValueTransformer($listWithNull);
@@ -36,13 +37,13 @@ class ChoiceToValueTransformerTest extends \PHPUnit_Framework_TestCase
 
     public function transformProvider()
     {
-        return array(
+        return [
             // more extensive test set can be found in FormUtilTest
-            array('', '', '', '0'),
-            array(false, '0', false, '1'),
-            array('X', 'X', 'X', '2'),
-            array(true, '1', null, '3'),
-        );
+            ['', '', '', '0'],
+            [false, '0', false, '1'],
+            ['X', 'X', 'X', '2'],
+            [true, '1', null, '3'],
+        ];
     }
 
     /**
@@ -56,14 +57,14 @@ class ChoiceToValueTransformerTest extends \PHPUnit_Framework_TestCase
 
     public function reverseTransformProvider()
     {
-        return array(
+        return [
             // values are expected to be valid choice keys already and stay
             // the same
-            array('', '', '0', ''),
-            array('0', false, '1', false),
-            array('X', 'X', '2', 'X'),
-            array('1', true, '3', null),
-        );
+            ['', '', '0', ''],
+            ['0', false, '1', false],
+            ['X', 'X', '2', 'X'],
+            ['1', true, '3', null],
+        ];
     }
 
     /**
@@ -77,12 +78,12 @@ class ChoiceToValueTransformerTest extends \PHPUnit_Framework_TestCase
 
     public function reverseTransformExpectsStringOrNullProvider()
     {
-        return array(
-            array(0),
-            array(true),
-            array(false),
-            array(array()),
-        );
+        return [
+            [0],
+            [true],
+            [false],
+            [[]],
+        ];
     }
 
     /**

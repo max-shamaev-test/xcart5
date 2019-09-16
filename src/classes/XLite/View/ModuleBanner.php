@@ -8,6 +8,8 @@
 
 namespace XLite\View;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Module banner
  */
@@ -23,7 +25,7 @@ class ModuleBanner extends \XLite\View\AView
      */
     public function getCSSFiles()
     {
-        $list = parent::getCSSFiles();
+        $list   = parent::getCSSFiles();
         $list[] = 'module_banner/style.css';
 
         return $list;
@@ -36,7 +38,7 @@ class ModuleBanner extends \XLite\View\AView
      */
     public function getJSFiles()
     {
-        $list = parent::getJSFiles();
+        $list   = parent::getJSFiles();
         $list[] = 'module_banner/controller.js';
 
         return $list;
@@ -61,10 +63,10 @@ class ModuleBanner extends \XLite\View\AView
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
-            static::PARAM_MODULE_NAME    => new \XLite\Model\WidgetParam\TypeString('Module name', null),
-            static::PARAM_CAN_CLOSE => new \XLite\Model\WidgetParam\TypeBool('Can close', true),
-        );
+        $this->widgetParams += [
+            static::PARAM_MODULE_NAME => new \XLite\Model\WidgetParam\TypeString('Module name', null),
+            static::PARAM_CAN_CLOSE   => new \XLite\Model\WidgetParam\TypeBool('Can close', true),
+        ];
     }
 
     /**
@@ -86,7 +88,9 @@ class ModuleBanner extends \XLite\View\AView
      */
     protected function isModuleInstalled()
     {
-        return \Includes\Utils\ModulesManager::isModuleInstalled($this->getModuleName());
+        list($author, $name) = explode('\\', $this->getModuleName());
+
+        return Manager::getRegistry()->isModuleEnabled($author, $name);
     }
 
     /**
@@ -126,7 +130,7 @@ class ModuleBanner extends \XLite\View\AView
      */
     protected function isBannerClosed()
     {
-        $closedModuleBanners = \XLite\Core\TmpVars::getInstance()->closedModuleBanners ?: array();
+        $closedModuleBanners = \XLite\Core\TmpVars::getInstance()->closedModuleBanners ?: [];
 
         return $this->isCanClose() && !empty($closedModuleBanners[$this->getModuleName()]);
     }
@@ -148,15 +152,14 @@ class ModuleBanner extends \XLite\View\AView
      */
     protected function getModuleURL()
     {
-        list($author, $module) = explode('\\', $this->getModuleName());
+        list($author, $name) = explode('\\', $this->getModuleName());
 
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')
-            ->getMarketplaceUrlByName($author, $module);
+        return Manager::getRegistry()->getModuleServiceURL($author, $name);
     }
 
     /**
      * Template method
-     * 
+     *
      * @return string
      */
     protected function getModuleBannerImageUrl()

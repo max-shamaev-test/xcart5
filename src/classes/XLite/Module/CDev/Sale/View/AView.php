@@ -21,7 +21,7 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'modules/CDev/Sale/css/lc.css';
+        $list[] = 'modules/CDev/Sale/css/lc.less';
 
         return $list;
     }

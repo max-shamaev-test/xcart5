@@ -14,11 +14,38 @@ namespace XLite\View\StickyPanel;
 class ItemForm extends \XLite\View\Base\FormStickyPanel
 {
     /**
+     * Widget parameter names
+     */
+    const PARAM_ALWAYS_VISIBLE = 'alwaysVisible';
+
+    /**
      * Buttons list (cache)
      *
      * @var array
      */
     protected $buttonsList;
+
+    /**
+     * Define widget parameters
+     */
+    protected function defineWidgetParams()
+    {
+        parent::defineWidgetParams();
+
+        $this->widgetParams += array(
+            static::PARAM_ALWAYS_VISIBLE => new \XLite\Model\WidgetParam\TypeBool('alwaysVisible', false)
+        );
+    }
+
+    /**
+     * Check if the sticky panel is always visible.
+     *
+     * @return boolean
+     */
+    protected function alwaysVisible()
+    {
+        return $this->getParam(static::PARAM_ALWAYS_VISIBLE);
+    }
 
     /**
      * Get buttons widgets
@@ -83,5 +110,17 @@ class ItemForm extends \XLite\View\Base\FormStickyPanel
     protected function getSaveWidgetStyle()
     {
         return 'regular-main-button';
+    }
+
+    /**
+     * Get class
+     *
+     * @return string
+     */
+    protected function getClass()
+    {
+        return $this->alwaysVisible()
+            ? parent::getClass() . ' always-visible'
+            : parent::getClass();
     }
 }

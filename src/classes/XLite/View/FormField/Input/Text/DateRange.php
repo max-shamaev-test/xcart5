@@ -21,6 +21,16 @@ class DateRange extends \XLite\View\FormField\Input\Text
     protected static $labelsDisplayed = false;
 
     /**
+     * Return field template
+     *
+     * @return string
+     */
+    protected function getFieldTemplate()
+    {
+        return 'input/text/date_range.twig';
+    }
+
+    /**
      * Parse range as string
      *
      * @param string $string String
@@ -42,7 +52,7 @@ class DateRange extends \XLite\View\FormField\Input\Text
      */
     protected static function getDateFormat($forJS = false)
     {
-        return $forJS ? 'DD-MMM-YYYY' : 'd-M-Y';
+        return $forJS ? 'M d, yy' : 'd-M-Y';
     }
 
     /**
@@ -64,12 +74,10 @@ class DateRange extends \XLite\View\FormField\Input\Text
     {
         $list = parent::getCommonFiles();
 
-        $list[static::RESOURCE_JS][] = 'js/moment-with-langs.min.js';
-        $list[static::RESOURCE_JS][] = array(
-            'file'      => 'js/daterangepicker.js',
-            'no_minify' => true,
-        );
-        $list[static::RESOURCE_CSS][] = 'css/daterangepicker.css';
+        $list[static::RESOURCE_JS][] = 'js/jquery-ui-i18n.min.js';
+        $list[static::RESOURCE_JS][] = 'js/moment.min.js';
+        $list[static::RESOURCE_JS][] = 'js/jquery.comiseo.daterangepicker.js';
+        $list[static::RESOURCE_CSS][] = 'css/jquery.comiseo.daterangepicker.css';
 
         return $list;
     }
@@ -83,6 +91,7 @@ class DateRange extends \XLite\View\FormField\Input\Text
     {
         $list = parent::getCSSFiles();
 
+        $list[] = 'form_field/input/text/date.less';
         $list[] = 'form_field/input/text/date_range.less';
 
         return $list;
@@ -155,18 +164,18 @@ class DateRange extends \XLite\View\FormField\Input\Text
         $start = \XLite\Core\Config::getInstance()->Units->week_start;
 
         $starts = [
-            'sun' => 'sunday',
-            'mon' => 'monday',
-            'tue' => 'tuesday',
-            'wed' => 'wednesday',
-            'thu' => 'thursday',
-            'fri' => 'friday',
-            'sat' => 'saturday',
+            'sun' => 0,
+            'mon' => 1,
+            'tue' => 2,
+            'wed' => 3,
+            'thu' => 4,
+            'fri' => 5,
+            'sat' => 6,
         ];
 
         return isset($starts[$start])
             ? $starts[$start]
-            : 'sunday';
+            : 0;
     }
 
     /**
@@ -183,26 +192,16 @@ class DateRange extends \XLite\View\FormField\Input\Text
         $config = array(
             'separator' => static::getDatesSeparator(),
             'language'  => $lng,
-            'startOfWeek'   => $this->getStartDay(),
+            'startDay'  => $this->getStartDay(),
             'format'    => static::getDateFormat(true),
-            'shortcuts' => array(),
-            'customShortcuts' => array(
-                array(
-                    'name' => 'today',
-                ),
-                array(
-                    'name' => 'this week',
-                ),
-                array(
-                    'name' => 'this month',
-                ),
-                array(
-                    'name' => 'this quarter',
-                ),
-                array(
-                    'name' => 'this year',
-                ),
-            ),
+            'labels'    => [
+                'today'           => static::t('Today'),
+                'thisWeek'       => static::t('This week'),
+                'thisMonth'      => static::t('This month'),
+                'thisQuarter'    => static::t('This quarter'),
+                'thisYear'       => static::t('This year'),
+                'allTime'        => static::t('All time'),
+            ]
         );
 
         return json_encode($config);
@@ -222,74 +221,6 @@ class DateRange extends \XLite\View\FormField\Input\Text
         $list[] = 'date-range';
 
         return $list;
-    }
-
-    /**
-     * Some JavaScript code to insert
-     *
-     * @return string
-     */
-    protected function getInlineJSCode()
-    {
-        return parent::getInlineJSCode() . PHP_EOL
-            . 'jQuery.dateRangePickerLanguages.en = ' . json_encode($this->getJavascriptLanguagesLabels()) . PHP_EOL;
-    }
-
-    /**
-     * Get languages labels
-     *
-     * @return array
-     */
-    protected function getJavascriptLanguagesLabels()
-    {
-        return array(
-            'selected'        => static::t('Selected:'),
-            'days'            => static::t('Days'),
-            'day'             => static::t('Day'),
-            'apply'           => static::t('Close'),
-            'week-1'          => static::t('MO'),
-            'week-2'          => static::t('TU'),
-            'week-3'          => static::t('WE'),
-            'week-4'          => static::t('TH'),
-            'week-5'          => static::t('FR'),
-            'week-6'          => static::t('SA'),
-            'week-7'          => static::t('SU'),
-            'month-name'      => array(
-                static::t('JANUARY'),
-                static::t('FEBRUARY'),
-                static::t('MARCH'),
-                static::t('APRIL'),
-                static::t('MAY'),
-                static::t('JUNE'),
-                static::t('JULY'),
-                static::t('AUGUST'),
-                static::t('SEPTEMBER'),
-                static::t('OCTOBER'),
-                static::t('NOVEMBER'),
-                static::t('DECEMBER'),
-            ),
-            'shortcuts'       => static::t('Shortcuts'),
-            'past'            => static::t('Past'),
-            '7days'           => static::t('7days'),
-            '14days'          => static::t('14days'),
-            '30days'          => static::t('30days'),
-            'previous'        => static::t('Previous'),
-            'prev-week'       => static::t('Week'),
-            'prev-month'      => static::t('Month'),
-            'prev-quarter'    => static::t('Quarter'),
-            'prev-year'       => static::t('Year'),
-            'less-than'       => static::t('Date range should longer than %d days'),
-            'more-than'       => static::t('Date range should less than %d days'),
-            'default-more'    => static::t('Please select a date range longer than %d days'),
-            'default-less'    => static::t('Please select a date range less than %d days'),
-            'default-range'   => static::t('Please select a date range between %d and %d days'),
-            'default-default' => static::t('Please select a date range'),
-            'today'           => static::t('Today'),
-            'this week'       => static::t('This week'),
-            'this month'      => static::t('This month'),
-            'this quarter'    => static::t('This quarter'),
-            'this year'       => static::t('This year'),
-        );
     }
 
     /**

@@ -29,6 +29,7 @@ class ClassTransformer implements ClassTransformerInterface
 
     /**
      * @param $class
+     *
      * @return ClassTransformerInterface
      */
     public function setClassName($class)
@@ -40,6 +41,7 @@ class ClassTransformer implements ClassTransformerInterface
 
     /**
      * @param $isAbstract
+     *
      * @return ClassTransformerInterface
      */
     public function setAbstract($isAbstract)
@@ -51,6 +53,7 @@ class ClassTransformer implements ClassTransformerInterface
 
     /**
      * @param $class
+     *
      * @return ClassTransformerInterface
      */
     public function setParent($class)
@@ -62,6 +65,7 @@ class ClassTransformer implements ClassTransformerInterface
 
     /**
      * @param $text
+     *
      * @return ClassTransformerInterface
      */
     public function setDocComment($text)

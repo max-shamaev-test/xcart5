@@ -35,7 +35,6 @@ class RecentLogin extends \XLite\View\Dialog
         $list = parent::getCSSFiles();
 
         $list[] = 'items_list/model/table/style.css';
-        $list[] = 'items_list/model/style.css';
 
         return $list;
     }

@@ -13,7 +13,7 @@ define('dashboard/wizard', ['ready'], function() {
       var progress = $(base).find('.progress-circle');
       var widget = progress.circleProgress({
         value: progress.data('value'),
-        size: 80,
+        size: 96,
         startAngle: Math.PI / 2,
         fill: 'white',
         emptyFill: 'rgba(255,255,255,0.1)'

@@ -23,6 +23,7 @@ class ShowOutOfStockProducts extends \XLite\View\FormField\Select\Regular
         return array(
             'everywhere'   => static::t('Show in all the sections'),
             'catAndSearch' => static::t('Show only in categories and search listings'),
+            'searchOnly' => static::t('Show only in search listing'),
             'directLink'   => static::t('Hide and make them available only via a direct link'),
         );
     }

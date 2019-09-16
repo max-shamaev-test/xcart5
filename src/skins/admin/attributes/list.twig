@@ -7,4 +7,5 @@
     {% for group in this.getAttributeGroups() %}
       {{ widget('XLite\\View\\ItemsList\\Model\\Attribute', group=group) }}
     {% endfor %}
+    {{ widget('XLite\\View\\StickyPanel\\ItemsList\\Attribute') }}
 {% endform %}

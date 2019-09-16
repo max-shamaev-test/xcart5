@@ -14,19 +14,6 @@ namespace XLite\View\FormField\Input\Checkbox;
 class Enabled extends \XLite\View\FormField\Input\Checkbox\Simple
 {
     /**
-     * Get a list of CSS files required to display the widget properly
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/input/checkbox/enabled.css';
-
-        return $list;
-    }
-
-    /**
      * Prepare request data (typecasting)
      *
      * @param mixed $value Value

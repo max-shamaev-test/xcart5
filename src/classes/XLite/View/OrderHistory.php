@@ -47,7 +47,7 @@ class OrderHistory extends \XLite\View\AView implements ProviderInterface
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'order/history/style.css';
+        $list[] = 'order/history/style.less';
 
         return $list;
     }

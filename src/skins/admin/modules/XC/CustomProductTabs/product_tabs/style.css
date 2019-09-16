@@ -17,19 +17,18 @@
 }
 
 .items-list.product_tabs .line.global-tab .cell.name .plain-value {
-  position: relative;
-  padding-right: 0;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  flex-flow: column-reverse;
 }
 
 .items-list.product_tabs .line.global-tab .cell.name .global-tab-label {
-  color: #E57C32;
-  font-style: italic;
   font-size: 12px;
-  position: absolute;
-  left: 100%;
-  display: inline-block;
-  margin-top: -4px;
-  margin-left: 5px;
+  line-height: 18px;
+  color: #a94461;
+  text-transform: capitalize;
 }
 
 a.manage-global-tabs {

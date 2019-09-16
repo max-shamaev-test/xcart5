@@ -122,8 +122,11 @@ ALoadable.prototype.doReplaceState = function(params) {
       !_.isUndefined(pair[0])
       && !_.isUndefined(pair[1])
       && pair[0] !== o.replaceStatePrefix
-      && pair[0].indexOf(o.replaceStatePrefix + '[') !== 0
     ) {
+      // this condition for 'reset filter'
+      if (jQuery.isEmptyObject(params) && pair[0].indexOf(o.replaceStatePrefix + '[') == 0) {
+        return;
+      }
       origParams[pair[0]] = pair[1];
     }
   });

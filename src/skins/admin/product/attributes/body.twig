@@ -3,14 +3,14 @@
  #}
 <div class="{{ this.getBlockStyle() }}">
   <div class="header">
-    <div class="title">
+    <h2 class="title">
       <span class="title">{{ this.getTitle() }}</span>
       {% if this.getTooltip() %}
         {{ widget('XLite\\View\\Tooltip', text=this.getTooltip(), isImageTag='true', className='help-icon') }}
       {% endif %}
-    </div>
+    </h2>
     {% if this.canAddAttributes() %}
-      {{ widget('XLite\\View\\Button\\Dropdown\\AddAttribute', listId=this.getListId()) }}
+      {{ widget('XLite\\View\\Button\\Dropdown\\AddAttribute', useCaretButton=false, listId=this.getListId()) }}
     {% endif %}
   </div>
   <ul class="data lines" id="list{{ this.getListId() }}">

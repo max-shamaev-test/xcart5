@@ -24,14 +24,21 @@ abstract class AController extends \XLite\Controller\AController implements \XLi
     {
         parent::processRequest();
 
-        if (!$this->suppressOutput
+        if (
+            !$this->suppressOutput
             && !$this->isAJAX()
             && ThemeTweaker::getInstance()->isInWebmasterMode()
+            && $this->isDisplayHtmlTree()
         ) {
             $viewer = $this->getViewer();
 
             echo $viewer::getHtmlTree();
         }
+    }
+
+    protected function isDisplayHtmlTree()
+    {
+        return true;
     }
 
     /**

@@ -2,7 +2,7 @@
  # Link 
  #}
 {% if this.isConfigured() %}
-  <p class="ga-note"><a href="https://www.google.com/analytics/web/" target="_blank" class="google-analytics">{{ t('Advanced statistics with Google Analytics') }}</a></p>
+  <div class="alert alert-info">{{ t('Advanced statistics with') }} <a href="https://www.google.com/analytics/web/" target="_blank">{{ t('Google Analytics') }}</a></div>
 {% else %}
-  <p class="ga-note"><a href="{{ this.getModuleLink() }}" target="_blank" class="google-analytics">{{ t('Configure the Google Analytics module to view the advanced statistics') }}</a></p>
+  <div class="alert alert-info"><a href="{{ this.getModuleLink() }}" target="_blank">{{ t('Configure the Google Analytics module') }}</a> {{ t('to view the advanced statistics') }}</div>
 {% endif %}

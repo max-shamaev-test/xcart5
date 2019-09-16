@@ -20,7 +20,7 @@
       {% for rate in this.getRates() %}
         <li>
           <div class="radio">
-            <label title="{{ this.getMethodName(rate) }}">
+            <label title="{{ this.getMethodName(rate)|striptags }}">
               <input type="radio" id="method{{ this.getMethodId(rate) }}" name="{{ this.getFieldName() }}" value="{{ this.getMethodId(rate) }}" {% if this.isRateSelected(rate) %} checked="checked" {% endif %} />
               <span class="value">{{ widget('XLite\\View\\Surcharge', surcharge=this.getTotalRate(rate), currency=this.cart.getCurrency()) }}</span>
               <span class="rate-title">{{ this.getMethodName(rate)|raw }}</span>

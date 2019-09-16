@@ -9,21 +9,23 @@
 
   {% form '\\XLite\\View\\Form\\Translations\\Labels' with {formAction: 'add'} %}
 
-    <ul>
+    {% spaceless %}
+      <ul>
 
-      <li>
-        <label for="new_name" class="label-name">{{ t('Label name') }}<span> ({{ t('required') }})</span></label>
-        <input type="text" id="new_name" name="name" value="" class="form-control field-required" />
-      </li>
-
-      {% for l in this.getAddedLanguages() %}
         <li>
-          <label for="new_label_{{ l.code }}" class="language" style="background-image: url({{ l.flagURL }});">{{ l.name }}{% if this.isRequiredLanguage(l) %}<span> ({{ t('default') }})</span>{% endif %}</label>
-          <textarea id="new_label_{{ l.code }}" name="label[{{ l.code }}]" class="form-control" lang="{{ l.code }}" xml:lang="{{ l.code }}"{% if l.r2l %} dir="rtl"{% endif %}></textarea>
+          <label for="new_name" class="label-name">{{ t('Label name') }}</label>
+          <input type="text" id="new_name" name="name" value="" class="form-control field-required" />
         </li>
-      {% endfor %}
 
-    </ul>
+        {% for l in this.getAddedLanguages() %}
+          <li>
+            <label for="new_label_{{ l.code }}" class="language{% if this.isRequiredLanguage(l) %} default{% endif %}">{{ l.code|upper }}</label>
+            <textarea id="new_label_{{ l.code }}" name="label[{{ l.code }}]" class="form-control" lang="{{ l.code }}" xml:lang="{{ l.code }}"{% if l.r2l %} dir="rtl"{% endif %}></textarea>
+          </li>
+        {% endfor %}
+
+      </ul>
+    {% endspaceless %}
 
     {{ widget('\\XLite\\View\\StickyPanel\\Language\\LabelDetails') }}
 

@@ -2,4 +2,6 @@
  # ____file_title____
  #}
 
-<span{{ this.getAttributesCode()|raw }}>{{ t(this.getLabelValue())|raw }}</span>
+<span class="input-field-wrapper {{ this.getWrapperClass() }}">
+  <span{{ this.getAttributesCode()|raw }}>{{ t(this.getLabelValue())|raw }}</span>
+</span>

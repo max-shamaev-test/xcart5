@@ -8,6 +8,8 @@
 
 namespace XLite\Core;
 
+use Includes\Utils\FileManager;
+
 /**
  * Layout manager
  */
@@ -49,6 +51,9 @@ class Layout extends \XLite\Base\Singleton
     const SIDEBAR_STATE_SECOND_EMPTY = 2;
     const SIDEBAR_STATE_FIRST_ONLY_CATEGORIES = 4;
     const SIDEBAR_STATE_SECOND_ONLY_CATEGORIES = 8;
+
+    const INITIALIZE_LESS = 'bootstrap/css/initialize.less';
+    const MERGE_ROOT = 'root';
 
     /**
      * Widgets resources collector
@@ -123,6 +128,13 @@ class Layout extends \XLite\Base\Singleton
     protected $skinPaths = array();
 
     /**
+     * Skin paths
+     *
+     * @var array
+     */
+    protected $existingSkinPaths = array();
+
+    /**
      * Resources cache
      *
      * @var array
@@ -176,6 +188,16 @@ class Layout extends \XLite\Base\Singleton
      *
      * @return string
      */
+    public function getFavicon()
+    {
+        return $this->getResourceWebPath('favicon.ico', static::WEB_PATH_OUTPUT_URL, \XLite::ADMIN_INTERFACE);
+    }
+
+    /**
+     * Get apple icon
+     *
+     * @return string
+     */
     public function getAppleIcon()
     {
         $color = $this->getLayoutColor();
@@ -187,7 +209,7 @@ class Layout extends \XLite\Base\Singleton
             $url = $this->getResourceWebPath('images/icon192x192.png', static::WEB_PATH_OUTPUT_URL, \XLite::COMMON_INTERFACE);
         }
 
-        return \XLite::getInstance()->getShopURL($url);
+        return $url;
     }
 
     // {{{ Layout changers methods
@@ -209,7 +231,7 @@ class Layout extends \XLite\Base\Singleton
      *
      * @return void
      *
-     * @see \XLite\Module\AModule::runBuildCacheHandler()
+     * @see \XLite\Module\AModule::updateViewListEntries()
      */
     public function removeClassFromLists($class)
     {
@@ -241,7 +263,7 @@ class Layout extends \XLite\Base\Singleton
      *
      * @return void
      *
-     * @see \XLite\Module\AModule::runBuildCacheHandler()
+     * @see \XLite\Module\AModule::updateViewListEntries()
      */
     public function removeClassFromList($class, $listName, $zone = null)
     {
@@ -285,7 +307,7 @@ class Layout extends \XLite\Base\Singleton
      * @return \XLite\Model\ViewList New entry of the viewList
      *
      * @see \XLite\Model\ViewList
-     * @see \XLite\Module\AModule::runBuildCacheHandler()
+     * @see \XLite\Module\AModule::updateViewListEntries()
      */
     public function addClassToList($class, $listName, $options = array())
     {
@@ -317,7 +339,7 @@ class Layout extends \XLite\Base\Singleton
      *
      * @return void
      *
-     * @see \XLite\Module\AModule::runBuildCacheHandler()
+     * @see \XLite\Module\AModule::updateViewListEntries()
      */
     public function removeTemplateFromLists($tpl)
     {
@@ -349,7 +371,7 @@ class Layout extends \XLite\Base\Singleton
      *
      * @return void
      *
-     * @see \XLite\Module\AModule::runBuildCacheHandler()
+     * @see \XLite\Module\AModule::updateViewListEntries()
      */
     public function removeTemplateFromList($tpl, $listName, $zone = null)
     {
@@ -393,7 +415,7 @@ class Layout extends \XLite\Base\Singleton
      * @return \XLite\Model\ViewList
      *
      * @see \XLite\Model\ViewList
-     * @see \XLite\Module\AModule::runBuildCacheHandler()
+     * @see \XLite\Module\AModule::updateViewListEntries()
      */
     public function addTemplateToList($tpl, $listName, $options = array())
     {
@@ -469,6 +491,8 @@ class Layout extends \XLite\Base\Singleton
     public function getLESSResources($interface)
     {
         $result = array(
+            'bootstrap/css/initialize.less',
+            'bootstrap/css/bootstrap.less',
             'css/style.less',
         );
 
@@ -534,17 +558,6 @@ class Layout extends \XLite\Base\Singleton
     }
 
     /**
-     * Return inner widget interface (compatibility alias)
-     *
-     * @deprecated
-     * @return string
-     */
-    public function getMailInterface()
-    {
-        return $this->getInnerInterface();
-    }
-
-    /**
      * Returns the layout path
      *
      * @return string
@@ -584,6 +597,45 @@ class Layout extends \XLite\Base\Singleton
     }
 
     /**
+     *
+     */
+    public function getCurrentLayoutPreset()
+    {
+        return $this->getLayoutType();
+    }
+
+    /**
+     * Switches the layout type for the given layout group
+     *
+     * @param string $group
+     * @param string $type
+     * @return bool
+     */
+    public function switchLayoutType($group, $type)
+    {
+        $group = $group ?: static::LAYOUT_GROUP_DEFAULT;
+
+        $availableLayoutTypes = $this->getAvailableLayoutTypes();
+        $groupAvailableTypes = isset($availableLayoutTypes[$group])
+            ? $availableLayoutTypes[$group]
+            : [];
+
+        if (in_array($type, $groupAvailableTypes, true)) {
+            $group_suffix = ($group === static::LAYOUT_GROUP_DEFAULT ? '' : '_' . $group);
+
+            \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption([
+                'category' => 'Layout',
+                'name' => 'layout_type' . $group_suffix,
+                'value' => $type,
+            ]);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Returns layout types
      *
      * @return array
@@ -606,7 +658,7 @@ class Layout extends \XLite\Base\Singleton
      *
      * @return array
      */
-    public function getLayoutGroups()
+    public function getLayoutGroupTargets()
     {
         return array(
             static::LAYOUT_GROUP_HOME => array(
@@ -622,14 +674,7 @@ class Layout extends \XLite\Base\Singleton
      */
     public function getAvailableLayoutTypes()
     {
-        $module = \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
-
-        return $module
-            ? $this->getModuleLayoutTypes($module)
-            : array(
-                static::LAYOUT_GROUP_DEFAULT => $this->getLayoutTypes(),
-                static::LAYOUT_GROUP_HOME => $this->getLayoutTypes(),
-            );
+        return Skin::getInstance()->getAvailableLayoutTypes();
     }
 
     /**
@@ -698,116 +743,63 @@ class Layout extends \XLite\Base\Singleton
     }
 
     /**
+     * @deprecated 5.4.0 Skin-related methods moved to \XLite\Core\Skin
+     * @see \XLite\Core\Skin::getAvailableLayoutColors()
      * Returns available layout colors
      *
      * @return array
      */
     public function getAvailableLayoutColors()
     {
-        $module = \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
-
-        return $module
-            ? $module->callModuleMethod('getLayoutColors', array())
-            : array();
+        return Skin::getInstance()->getAvailableLayoutColors();
     }
 
     /**
+     * @deprecated 5.4.0 Skin-related methods moved to \XLite\Core\Skin
+     * @see \XLite\Core\Skin::getSkinColorId()
      * Returns current layout type
      *
      * @return string
      */
     public function getLayoutColor()
     {
-        $layoutColor = Config::getInstance()->Layout->color;
-        $availableColors = $this->getAvailableLayoutColors();
-
-        return isset($availableColors[$layoutColor])
-            ? $layoutColor
-            : '';
+        return Skin::getInstance()->getSkinColorId();
     }
 
     /**
+     * @deprecated 5.4.0 Skin-related methods moved to \XLite\Core\Skin
+     * @see \XLite\Core\Skin::getSkinDisplayName()
      * Returns current layout type
      *
      * @return string
      */
     public function getLayoutColorName()
     {
-        $layoutColor = Config::getInstance()->Layout->color;
-        $availableColors = $this->getAvailableLayoutColors();
-
-        return isset($availableColors[$layoutColor])
-            ? $availableColors[$layoutColor]
-            : '';
+        return Skin::getInstance()->getSkinDisplayName();
     }
 
     /**
-     * Returns skin preview image URL
-     *
-     * @param \XLite\Model\Module $module Skin module
-     * @param string              $color  Color
-     * @param string              $type   Layout type
-     *
-     * @return string
-     */
-    public function getLayoutPreview($module, $color, $type)
-    {
-        $result = null;
-        $path = $module && $module instanceof \XLite\Model\Module
-            ? 'modules/' . $module->getAuthor() . '/' . $module->getName() . '/'
-            : 'images/layout/';
-
-        $image = 'preview' . ($color ? ('_' . $color) : '') . ($type ? ('_' . $type) : '') . '.jpg';
-        $result = $this->getResourceWebPath($path . $image);
-
-        if (null === $result) {
-            $image = 'preview' . ($color ? ('_' . $color) : '') . '.jpg';
-            $result = $this->getResourceWebPath($path . $image);
-        }
-
-        if (null === $result) {
-            $image = 'preview' . ($type ? ('_' . $type) : '') . '.jpg';
-            $result = $this->getResourceWebPath($path . $image);
-        }
-
-        if (null === $result) {
-            $image = 'preview.jpg';
-            $result = $this->getResourceWebPath($path . $image);
-        }
-
-        return $result ?: $this->getResourceWebPath('images/layout/preview_placeholder.jpg');
-    }
-
-    /**
-     * Returns current layout preview image URL
+     * @deprecated 5.4.0 Skin-related methods moved to \XLite\Core\Skin
+     * @see \XLite\Core\Skin::getCurrentLayoutPreview()
+     * Returns current skin + color + layout preview image
      *
      * @return string
      */
     public function getCurrentLayoutPreview()
     {
-        return $this->getLayoutPreview(
-            \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule(),
-            $this->getLayoutColor(),
-            $this->getLayoutType()
-        );
+        return Skin::getInstance()->getCurrentLayoutPreview();
     }
 
     /**
-     * Returns current layout images settings (sizes)
+     * @deprecated 5.4.0 Skin-related methods moved to \XLite\Core\Skin
+     * @see \XLite\Core\Skin::getCurrentImagesSettings()
+     * Returns current skin image settings
      *
      * @return \XLite\Model\ImageSettings[]
      */
     public function getCurrentImagesSettings()
     {
-        $currentSkinModule = \XLite\Core\Database::getRepo('XLite\Model\Module')
-            ->getCurrentSkinModule();
-
-        $skinModuleName = $currentSkinModule && $currentSkinModule->getActualName() !== "XC\ColorSchemes"
-            ? $currentSkinModule->getActualName()
-            : 'default';
-
-        return \XLite\Core\Database::getRepo('XLite\Model\ImageSettings')
-            ->findByModuleName($skinModuleName);
+        return Skin::getInstance()->getCurrentImagesSettings();
     }
 
     /**
@@ -870,9 +862,9 @@ class Layout extends \XLite\Base\Singleton
      */
     public function isCloudZoomAllowed()
     {
-        $skin = \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
+        $skin = Skin::getInstance()->getCurrentSkinModule();
 
-        return $skin ? $skin->callModuleMethod('isUseCloudZoom') : true;
+        return $skin ? $skin->callClassMethod('isUseCloudZoom') : true;
     }
 
     /**
@@ -892,9 +884,7 @@ class Layout extends \XLite\Base\Singleton
      */
     public function isSkinAllowsLazyLoad()
     {
-        $skin = \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
-
-        return $skin ? $skin->callModuleMethod('isUseLazyLoad') : false;
+        return \Xlite\Core\Skin::getInstance()->isUseLazyLoad();
     }
 
     /**
@@ -904,9 +894,7 @@ class Layout extends \XLite\Base\Singleton
      */
     public function isSkinAllowsPreloadedImages()
     {
-        $skin = \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
-
-        return $skin ? $skin->callModuleMethod('isUsePreloadedImages') : false;
+        return \Xlite\Core\Skin::getInstance()->isUsePreloadedImages();
     }
 
     // }}}
@@ -977,13 +965,18 @@ class Layout extends \XLite\Base\Singleton
     /**
      * Returns the resource full path
      *
-     * @param string $shortPath Short path
+     * @param array|string $shortPath Short path
      * @param string $interface Interface code OPTIONAL
      *
-     * @return string
+     * @return array|string
      */
     public function getResourceFullPath($shortPath, $interface = null)
     {
+        if (is_array($shortPath)) {
+            return array_map(function ($shortPath) use ($interface) {
+                return $this->getResourceFullPath($shortPath, $interface);
+            }, $shortPath);
+        }
         $interface = $interface ?: $this->currentInterface;
 
         $key = $this->prepareResourceKey($shortPath, $interface);
@@ -1079,10 +1072,11 @@ class Layout extends \XLite\Base\Singleton
     /**
      * Get skin paths (file system and web)
      *
-     * @param string  $interface          Interface code OPTIONAL
-     * @param boolean $reset              Local cache reset flag OPTIONAL
-     * @param boolean $baseSkins          Use base skins only flag OPTIONAL
+     * @param string $interface Interface code OPTIONAL
+     * @param boolean $reset Local cache reset flag OPTIONAL
+     * @param boolean $baseSkins Use base skins only flag OPTIONAL
      * @param boolean $allInnerInterfaces
+     * @param array $locales
      *
      * @return array
      *
@@ -1090,20 +1084,8 @@ class Layout extends \XLite\Base\Singleton
      */
     public function getSkinPaths($interface = null, $reset = false, $baseSkins = false, $allInnerInterfaces = false)
     {
-        $interface = $interface ?: $this->currentInterface;
-
-        if (\XLite::MAIL_INTERFACE === $interface || \XLite::PDF_INTERFACE === $interface) {
-            $innerInterface = $this->getInnerInterface();
-            $key = $interface . '-' . $innerInterface;
-            $innerInterfaces = $allInnerInterfaces
-                ? [\XLite::CUSTOMER_INTERFACE, \XLite::COMMON_INTERFACE, \XLite::ADMIN_INTERFACE]
-                : [$innerInterface, \XLite::COMMON_INTERFACE];
-
-        } else {
-            $innerInterface = null;
-            $key = $interface;
-            $innerInterfaces = [$innerInterface];
-        }
+        /** @var array $innerInterfaces */
+        list($key, $innerInterfaces) = $this->getInterfacesByKey($interface, $allInnerInterfaces);
 
         if ($reset || !isset($this->skinPaths[$key])) {
             $this->skinPaths[$key] = [];
@@ -1144,6 +1126,70 @@ class Layout extends \XLite\Base\Singleton
         }
 
         return $this->skinPaths[$key];
+    }
+
+
+    /**
+     * Get skin paths
+     *
+     * @param null $interface
+     * @return array
+     */
+    public function getExistingCoreSkinPaths($interface = null)
+    {
+        /** @var array $innerInterfaces */
+        list($key, $innerInterfaces) = $this->getInterfacesByKey($interface, true);
+
+        if (!isset($this->existingSkinPaths[$key])) {
+            $paths = [];
+            $interfaceBasenames = $this->getBaseSkinByInterface($interface);
+            foreach ($interfaceBasenames as $name) {
+                $interfacePaths = FileManager::findFoldersStartingWithName(LC_DIR_SKINS, $name);
+                $paths = $interfacePaths;
+
+                if ($innerInterfaces && $innerInterfaces[0] !== null) {
+                    foreach ($innerInterfaces as $inner) {
+                        foreach ($interfacePaths as $basePath) {
+                            /** @noinspection SlowArrayOperationsInLoopInspection */
+                            $paths = array_merge(
+                                $paths,
+                                FileManager::findFoldersStartingWithName($basePath, $inner)
+                            );
+                        }
+                    }
+                }
+            }
+
+            $this->existingSkinPaths[$key] = $paths;
+        }
+
+        return $this->existingSkinPaths[$key];
+    }
+
+    /**
+     * @param string $interface
+     * @param bool $allInnerInterfaces
+     *
+     * @return array
+     */
+    protected function getInterfacesByKey($interface = null, $allInnerInterfaces = false)
+    {
+        $interface = $interface ?: $this->currentInterface;
+
+        if (\XLite::MAIL_INTERFACE === $interface || \XLite::PDF_INTERFACE === $interface) {
+            $innerInterface = $this->getInnerInterface();
+            $key = $interface . '-' . $innerInterface;
+            $innerInterfaces = $allInnerInterfaces
+                ? [\XLite::CUSTOMER_INTERFACE, \XLite::COMMON_INTERFACE, \XLite::ADMIN_INTERFACE]
+                : [$innerInterface, \XLite::COMMON_INTERFACE];
+
+        } else {
+            $innerInterface = null;
+            $key = $interface;
+            $innerInterfaces = [$innerInterface];
+        }
+
+        return [$key, $innerInterfaces];
     }
 
     /**
@@ -1288,6 +1334,8 @@ class Layout extends \XLite\Base\Singleton
      */
     public function setAdminSkin()
     {
+        $this->prepareResources();
+
         $this->currentInterface = \XLite::ADMIN_INTERFACE;
         $this->setSkin(static::PATH_ADMIN);
     }
@@ -1299,6 +1347,8 @@ class Layout extends \XLite\Base\Singleton
      */
     public function setConsoleSkin()
     {
+        $this->prepareResources();
+
         $this->currentInterface = \XLite::CONSOLE_INTERFACE;
         $this->setSkin(static::PATH_CONSOLE);
     }
@@ -1312,6 +1362,8 @@ class Layout extends \XLite\Base\Singleton
      */
     public function setMailSkin($interface = \XLite::CUSTOMER_INTERFACE)
     {
+        $this->prepareResources();
+
         $this->currentInterface = \XLite::MAIL_INTERFACE;
 
         $this->innerInterface = $interface;
@@ -1328,6 +1380,8 @@ class Layout extends \XLite\Base\Singleton
      */
     public function setPdfSkin($interface = \XLite::CUSTOMER_INTERFACE)
     {
+        $this->prepareResources();
+
         $this->currentInterface = \XLite::PDF_INTERFACE;
 
         $this->innerInterface = $interface;
@@ -1342,6 +1396,8 @@ class Layout extends \XLite\Base\Singleton
      */
     public function setCustomerSkin()
     {
+        $this->prepareResources();
+
         $this->skin = null;
         $this->locale = null;
         $this->currentInterface = \XLite::CUSTOMER_INTERFACE;
@@ -1552,10 +1608,7 @@ class Layout extends \XLite\Base\Singleton
      */
     protected function getPreparedResources()
     {
-        if (!$this->prepareResourcesFlag) {
-            $this->resources = $this->prepareResources($this->resources);
-            $this->prepareResourcesFlag = true;
-        }
+        $this->prepareResources();
 
         return $this->resources;
     }
@@ -1567,39 +1620,41 @@ class Layout extends \XLite\Base\Singleton
      *
      * @return array
      */
-    protected function prepareResources(array $resources)
+    protected function prepareResources()
     {
-        ksort($resources, SORT_NUMERIC);
+        if (!$this->prepareResourcesFlag) {
+            ksort($this->resources, SORT_NUMERIC);
 
-        foreach ($resources as $index => $subresources) {
-            foreach ($subresources as $type => $files) {
-                foreach ($files as $name => $file) {
-                    $file = $this->prepareResource($file, $type);
-                    if ($file) {
-                        $files[$name] = $file;
+            foreach ($this->resources as $index => $subresources) {
+                foreach ($subresources as $type => $files) {
+                    foreach ($files as $name => $file) {
+                        $file = $this->prepareResource($file, $type);
+                        if ($file) {
+                            $files[$name] = $file;
+
+                        } else {
+                            unset($files[$name]);
+                        }
+                    }
+
+                    if ($files) {
+                        $subresources[$type] = $files;
 
                     } else {
-                        unset($files[$name]);
+                        unset($subresources[$type]);
                     }
                 }
 
-                if ($files) {
-                    $subresources[$type] = $files;
+                if ($subresources) {
+                    $this->resources[$index] = $subresources;
 
                 } else {
-                    unset($subresources[$type]);
+                    unset($this->resources[$index]);
                 }
             }
 
-            if ($subresources) {
-                $resources[$index] = $subresources;
-
-            } else {
-                unset($resources[$index]);
-            }
+            $this->prepareResourcesFlag = true;
         }
-
-        return $resources;
     }
 
     /**
@@ -1771,11 +1826,12 @@ class Layout extends \XLite\Base\Singleton
             if (isset($resource['less'])) {
                 if ($resource['media'] === 'force_all') {
                     $resources[$index]['media'] = 'all';
-                } elseif (!isset($resource['merge']) && 'common' !== $resource['interface']) {
-                    $resource['merge'] = 'bootstrap/css/initialize.less';
+                } elseif (!isset($resource['merge'])
+                    && 'common' !== $resource['interface']) {
+                    $resource['merge'] = static::INITIALIZE_LESS;
                 }
 
-                if (isset($resource['merge'])) {
+                if (isset($resource['merge']) && $resource['merge'] !== static::MERGE_ROOT) {
                     $lessResources[$resource['merge']][] = $resource;
                     unset($resources[$index]);
                 }
@@ -1947,7 +2003,7 @@ class Layout extends \XLite\Base\Singleton
     public function getCurrentLayoutGroup()
     {
         $target = \XLite\Core\Request::getInstance()->target;
-        $groups = $this->getLayoutGroups();
+        $groups = $this->getLayoutGroupTargets();
 
         $current = static::LAYOUT_GROUP_DEFAULT;
 

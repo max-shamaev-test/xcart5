@@ -6,7 +6,7 @@
 
 {% if this.getModule() %}
 
-  {% set moduleName = this.getModule().getActualName() %}
+  {% set moduleName = this.getModule() %}
 
   {% if moduleName == 'CDev\\GoogleAnalytics' %}
     {{ widget('XLite\\View\\SimplePromoBlock', promoId="seo-promo-1") }}

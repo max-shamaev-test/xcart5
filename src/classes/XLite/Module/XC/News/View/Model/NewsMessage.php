@@ -20,7 +20,7 @@ class NewsMessage extends \XLite\View\Model\AModel
      */
     protected $schemaDefault = array(
         'date' => array(
-            self::SCHEMA_CLASS    => 'XLite\View\DatePicker',
+            self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Text\Date',
             self::SCHEMA_LABEL    => 'Date',
             \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY => false,
             self::SCHEMA_REQUIRED => false,
@@ -78,7 +78,6 @@ class NewsMessage extends \XLite\View\Model\AModel
         'meta_desc' => array(
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Textarea\Simple',
             self::SCHEMA_LABEL    => '',
-            \XLite\View\FormField\AFormField::PARAM_USE_COLON => false,
             self::SCHEMA_REQUIRED => true,
             self::SCHEMA_DEPENDENCY => array(
                 self::DEPENDENCY_SHOW => array (
@@ -112,6 +111,20 @@ class NewsMessage extends \XLite\View\Model\AModel
             $data[static::SCHEMA_PLACEHOLDER] = static::t('Default');
         }
 
+        if ('cleanURL' === $name) {
+            $cleanUrlExt = \XLite\Model\Repo\CleanURL::isNewsUrlHasExt() ? \XLite\Model\Repo\CleanURL::CLEAN_URL_DEFAULT_EXTENSION : '';
+
+            if ($this->getModelObject()
+                && $this->getModelObject()->getCleanURL()
+                && \XLite\Model\Repo\CleanURL::isNewsUrlHasExt()
+                && !preg_match('/.html$/', $this->getModelObject()->getCleanURL())
+            ) {
+                $cleanUrlExt = '';
+            }
+
+            $data[\XLite\View\FormField\Input\Text\CleanURL::PARAM_EXTENSION] = $cleanUrlExt;
+        }
+
         return parent::getFieldBySchema($name, $data);
     }
 
@@ -127,6 +140,35 @@ class NewsMessage extends \XLite\View\Model\AModel
             : null;
 
         return $model ?: new \XLite\Module\XC\News\Model\NewsMessage;
+    }
+
+    /**
+     * Validate date field
+     *
+     * @param \XLite\View\FormField\AFormField $field      Form field object
+     * @param array                            $formFields
+     *
+     * @return array
+     */
+    protected function validateFormFieldDateValue($field, $formFields)
+    {
+        $result = [true, null];
+
+        $data = $this->getRequestData();
+
+        if (!empty($data['date'])) {
+
+            $value = (int) \XLite\Core\Converter::parseFromJsFormat($data['date']);
+
+            if (0 >= $value || $value > 2147483647) {
+                $result = [
+                    false,
+                    static::t('[field] year must be between 1970 and 2038', ['field' => static::t('Date')])
+                    ];
+            }
+        }
+
+        return $result;
     }
 
     /**

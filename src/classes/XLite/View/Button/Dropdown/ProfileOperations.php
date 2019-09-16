@@ -93,7 +93,7 @@ class ProfileOperations extends \XLite\View\Button\Dropdown\ADropdown
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'profile/profile_operations.css';
+        $list[] = 'profile/profile_operations.less';
 
         return $list;
     }
@@ -106,5 +106,15 @@ class ProfileOperations extends \XLite\View\Button\Dropdown\ADropdown
     protected function getDefaultStyle()
     {
         return 'profile-actions always-enabled';
+    }
+
+    /**
+     * Return widget default template
+     *
+     * @return string
+     */
+    protected function getDefaultTemplate()
+    {
+        return 'button/dropdown_with_angle_button.twig';
     }
 }

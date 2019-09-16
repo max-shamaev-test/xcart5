@@ -53,7 +53,7 @@ class ListItem extends \XLite\View\Product\ListItem implements \XLite\Base\IDeco
             $labels += \XLite\Module\CDev\ProductAdvisor\Main::getLabels($this->getProduct());
             $labels = array_reverse($labels);
         }
-
+        
         return $labels;
     }
 

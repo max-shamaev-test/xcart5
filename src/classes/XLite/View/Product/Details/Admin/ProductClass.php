@@ -34,7 +34,7 @@ class ProductClass extends \XLite\View\Product\Details\Admin\AAdmin
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/style.css';
+        $list[] = $this->getDir() . '/style.less';
 
         return $list;
     }

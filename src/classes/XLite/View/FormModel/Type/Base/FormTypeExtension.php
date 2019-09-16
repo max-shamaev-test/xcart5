@@ -160,6 +160,8 @@ class FormTypeExtension extends AbstractTypeExtension
     {
         parent::configureOptions($resolver);
 
+        $resolver->addAllowedTypes('help', 'XLite\Core\Translation\Label');
+
         $resolver->setDefaults([
             'show_label_block'  => null,
             'label_description' => '',
@@ -181,10 +183,10 @@ class FormTypeExtension extends AbstractTypeExtension
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
-    public function getExtendedType()
+    public static function getExtendedTypes(): iterable
     {
-        return 'Symfony\Component\Form\Extension\Core\Type\FormType';
+        return [\Symfony\Component\Form\Extension\Core\Type\FormType::class];
     }
 }

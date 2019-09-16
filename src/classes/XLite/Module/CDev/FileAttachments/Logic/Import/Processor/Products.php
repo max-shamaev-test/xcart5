@@ -105,7 +105,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                     }
 
                     if (1 < count(parse_url($path))) {
-                        $attachment->getStorage()->loadFromURL($path, true);
+                        $attachment->getStorage()->loadFromURL($path);
 
                     } else {
                         $attachment->getStorage()->loadFromLocalFile(LC_DIR_ROOT . $path);

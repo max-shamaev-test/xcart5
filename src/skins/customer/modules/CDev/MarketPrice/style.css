@@ -39,6 +39,12 @@ ul.products.products-sidebar .product-list-market-price {
   display: block;
 }
 
+.product-details-market-price {
+  display: inline-block;
+  line-height: 30px;
+  vertical-align: text-bottom;
+}
+
 div.product-details-market-price div.text {
   display: inline;
   font-size: 16px;

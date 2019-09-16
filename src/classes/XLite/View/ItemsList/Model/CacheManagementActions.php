@@ -67,7 +67,7 @@ class CacheManagementActions extends \XLite\View\AView
                     \XLite\View\Button\AButton::PARAM_LABEL => static::t('Start'),
                     \XLite\View\Button\AButton::PARAM_STYLE => 'always-enabled regular-main-button btn',
                     \XLite\View\Button\Link::PARAM_LOCATION => $this->buildURL('cache_management', 'rebuild'),
-                    \XLite\View\Button\Regular::PARAM_JS_CODE => sprintf('if (confirm("' . static::t("Are you sure?") .'")) self.location="%s";', $this->buildURL('cache_management', 'rebuild')),
+                    \XLite\View\Button\Regular::PARAM_JS_CODE => sprintf('if (confirm("' . static::t("Are you sure?") .'")) self.location="%s";', \XLite::getInstance()->getShopURL('service.php?/rebuild', null, ['returnUrl' => $this->buildFullURL('cache_management')])),
                 ],
                 'options'   => $this->getRebuildOptions()
             ],

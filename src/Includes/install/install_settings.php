@@ -15,10 +15,10 @@ if (!defined('XLITE_INSTALL_MODE')) {
 }
 
 // Current X-Cart version
-define('LC_VERSION', '5.3.6');
+define('LC_VERSION', '5.4.0.4');
 
 // Minimum PHP version supported
-define('LC_PHP_VERSION_MIN', '5.4.0');
+define('LC_PHP_VERSION_MIN', '7.2.0');
 
 // Maximum PHP version supported (none if empty)
 define('LC_PHP_VERSION_MAX', '');
@@ -27,7 +27,7 @@ define('LC_PHP_VERSION_MAX', '');
 define('LC_PHP_MEMORY_LIMIT_MIN', PHP_INT_SIZE === 8 ? '256M' : '128M');
 
 // Minimum MySQL version supported
-define('LC_MYSQL_VERSION_MIN', '5.0.3');
+define('LC_MYSQL_VERSION_MIN', '5.7.7');
 
 // Default config file name
 define('LC_DEFAULT_CONFIG_FILE', 'config.default.php');
@@ -86,24 +86,15 @@ $lcSettings = array(
             'sql' . LC_DS . 'xlite_menu.yaml',
             'sql' . LC_DS . 'module.XC.Onboarding.yaml',
 
-        ) : (
-            XLITE_EDITION_LNG === 'zh' ? array(
-                'sql' . LC_DS . 'xlite_demo_zh.yaml',
-                'sql' . LC_DS . 'product_attributes_zh.sql',
-                'sql' . LC_DS . 'xlite_menu_zh.yaml',
-                'sql' . LC_DS . 'xlite_demo_sale_zh.yaml',
-                'sql' . LC_DS . 'xlite_demo_orders_zh.yaml',
-
-            ) : array(
-                'sql' . LC_DS . 'xlite_demo.yaml',
-                'sql' . LC_DS . 'xlite_demo_featured.yaml',
-                'sql' . LC_DS . 'xlite_demo_orders_en.yaml',
-                'sql' . LC_DS . 'xlite_demo_sale.yaml',
-                'sql' . LC_DS . 'product_attributes.sql',
-                'sql' . LC_DS . 'xlite_demo_reviews.sql',
-                'sql' . LC_DS . 'xlite_menu.yaml',
-                'sql' . LC_DS . 'module.XC.Onboarding.yaml',
-            )
+        ) : array(
+            'sql' . LC_DS . 'xlite_demo.yaml',
+            'sql' . LC_DS . 'xlite_demo_featured.yaml',
+            'sql' . LC_DS . 'xlite_demo_orders_en.yaml',
+            'sql' . LC_DS . 'xlite_demo_sale.yaml',
+            'sql' . LC_DS . 'product_attributes.sql',
+            'sql' . LC_DS . 'xlite_demo_reviews.sql',
+            'sql' . LC_DS . 'xlite_menu.yaml',
+            'sql' . LC_DS . 'module.XC.Onboarding.yaml',
         ),
     ),
 
@@ -124,31 +115,36 @@ $lcSettings = array(
             'SocialLogin',
             'TwoCheckout',
             'UserPermissions',
+            'VolumeDiscounts',
             'XMLSitemap',
-            'VolumeDiscounts'
         ),
         'XC' => array(
-    	    'ThemeTweaker',
-            'Upselling',
-            'Reviews',
-            'UPS',
-            'News',
-            'FreeShipping',
-            'UpdateInventory',
-            'NewsletterSubscriptions',
+    	    'BulkEditing',
+            'Concierge',
             'CrispWhiteSkin',
+            'CustomProductTabs',
             'FastLaneCheckout',
-            'BulkEditing',
+            'FreeShipping',
             'FroalaEditor',
             'MailChimp',
-            'Concierge',
-            'Onboarding',
+            'News',
+            'NewsletterSubscriptions',
             'NotFinishedOrders',
+            'Onboarding',
             'ProductFilter',
+            'Reviews',
+            'ThemeTweaker',
+            'UpdateInventory',
+            'UPS',
+            'Upselling',
+            'FacebookMarketing',
         ),
         'QSL' => array(
             'CloudSearch',
             'FlyoutCategoriesMenu'
+        ),
+        'Kliken' => array(
+            'GoogleAds'
         )
     ),
 );
@@ -168,12 +164,10 @@ if (XLITE_EDITION_LNG === 'ru') {
             ),
             'XC' => array(
                 // RU edition
-                'EMS',
                 'Robokassa',
                 'Qiwi',
                 'Webmoney',
-                'YandexMoney',
-                'OneCIntegration'
+                'YandexCheckout'
             ),
             'QSL' => [
                 'Sbrf'
@@ -199,7 +193,6 @@ if (XLITE_EDITION_LNG === 'ru') {
         array(
             'CDev' => array(
                 // EN edition
-                'Moneybookers',
                 'XPaymentsConnector',
                 'Quantum',
                 'AuthorizeNet',
@@ -229,14 +222,12 @@ if (XLITE_EDITION_LNG === 'ru') {
     $lcSettings['yaml_files']['base'][] = 'sql' . LC_DS . 'xlite_data_zones_gb.yaml';
     $lcSettings['yaml_files']['base'][] = 'sql' . LC_DS . 'xlite_data_gb.yaml';
     $lcSettings['yaml_files']['base_after'][] = 'sql' . LC_DS . 'xlite_data_after_gb.yaml';
-    $lcSettings['yaml_files']['demo'][] = 'sql' . LC_DS . 'xlite_demo_gb.yaml';
 
     $lcSettings['enable_modules'] = array_merge_recursive(
         $lcSettings['enable_modules'],
         array(
             'CDev' => array(
                 // UK edition
-                'Moneybookers',
                 'XPaymentsConnector',
                 'Quantum',
                 'AuthorizeNet',

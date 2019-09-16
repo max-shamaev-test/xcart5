@@ -9,18 +9,8 @@
 namespace XLite\View\FormField\Label;
 
 
-class TranslationLabel extends \XLite\View\FormField\AFormField
+class TranslationLabel extends \XLite\View\FormField\Label
 {
-    /**
-     * Return field type
-     *
-     * @return string
-     */
-    public function getFieldType()
-    {
-        return self::FIELD_TYPE_LABEL;
-    }
-
     /**
      * Get label value
      *
@@ -51,15 +41,5 @@ class TranslationLabel extends \XLite\View\FormField\AFormField
     protected function getLabelEditURL()
     {
         return $this->buildURL('labels', '', ['substring' => $this->getValue()]);
-    }
-
-    /**
-     * Set the form field as "form control" (some major styling will be applied)
-     *
-     * @return boolean
-     */
-    protected function isFormControl()
-    {
-        return false;
     }
 }

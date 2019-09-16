@@ -20,7 +20,8 @@ abstract class Product extends \XLite\Model\Product implements \XLite\Base\IDeco
     {
         if ($this->getInventoryEnabled()
             && $this->getAmount() > 0
-            && 'directLink' === \XLite\Core\Config::getInstance()->General->show_out_of_stock_products
+            && ('directLink' === \XLite\Core\Config::getInstance()->General->show_out_of_stock_products
+            || 'searchOnly' === \XLite\Core\Config::getInstance()->General->show_out_of_stock_products)
             && \XLite\Core\Config::getInstance()->QSL->FlyoutCategoriesMenu->fcm_show_product_num
         ) {
             parent::changeAmount($delta);

@@ -86,56 +86,35 @@
 }
 
 .progress-state .loader .dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-  background: #2c5fa6;
-  position: absolute;
-  -webkit-animation-duration: 0.5s;
-  -webkit-animation-timing-function: linear;
-  -webkit-animation-iteration-count: infinite;
-}
-.regular-main-button.progress-state .loader .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 100%;
   background-color: #fff;
-}
-.progress-state .loader .dot1,
-.progress-state .loader .dot2 {
-  left: 0;
+  opacity: 0;
+  vertical-align: text-top;
 }
 
-.progress-state .loader .dot3 {
-  left: 15px;
-}
-
-.progress-state .loader .dot4 {
-  left: 30px;
-}
-
-@keyframes xc_progress_reveal {
-  from { transform: scale(0.001); }
-  to { transform: scale(1); }
-}
-
-@keyframes xc_progress_slide {
-  from {
-    transform: translate(0, 0);
-  }
-  to {
-    transform: translate(15px, 0);
-  }
-}
 .progress-state .loader .dot1 {
-  -webkit-animation-name: xc_progress_reveal;
+  animation: opacitychange 1s ease-in-out infinite;
 }
 
-.progress-state .loader .dot2,
+.progress-state .loader .dot2 {
+  animation: opacitychange 1s ease-in-out 0.33s infinite;
+}
+
 .progress-state .loader .dot3 {
-  -webkit-animation-name: xc_progress_slide;
+  animation: opacitychange 1s ease-in-out 0.66s infinite;
 }
 
-.progress-state .loader .dot4 {
-  -webkit-animation-name: xc_progress_reveal;
-  -webkit-animation-direction: reverse;
+@keyframes opacitychange{
+  0%, 100%{
+    opacity: 0;
+  }
+
+  60%{
+    opacity: 1;
+  }
 }
 
 /* }}} */

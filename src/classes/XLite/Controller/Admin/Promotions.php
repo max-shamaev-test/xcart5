@@ -40,7 +40,7 @@ class Promotions extends \XLite\Controller\Admin\AAdmin
      */
     public function getPurchaseLicenseURL()
     {
-        return \XLite\Core\Marketplace::getPurchaseURL();
+        return \XLite\Core\Marketplace::getBusinessPurchaseURL();
     }
 
     // {{{ Pages

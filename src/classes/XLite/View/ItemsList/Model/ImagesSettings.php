@@ -8,6 +8,9 @@
 
 namespace XLite\View\ItemsList\Model;
 
+use Includes\Utils\Module\Module;
+use XLite\Core\Skin;
+
 /**
  * Images settings items list widget
  */
@@ -31,6 +34,7 @@ class ImagesSettings extends \XLite\View\ItemsList\Model\Table
         return array(
             'name' => array(
                 static::COLUMN_NAME => static::t('Name'),
+                static::COLUMN_TEMPLATE  => 'images_settings/table/cell.name.twig',
             ),
             'width' => array(
                 static::COLUMN_NAME      => static::t('Width (px)'),
@@ -73,11 +77,44 @@ class ImagesSettings extends \XLite\View\ItemsList\Model\Table
      */
     protected function getData(\XLite\Core\CommonCell $cnd, $countOnly = false)
     {
-        $options = $this->prepareOptions(
-            \XLite\Core\Layout::getInstance()->getCurrentImagesSettings()
-        );
+        $options = $this->prepareOptions(Skin::getInstance()->getCurrentImagesSettings());
 
         return $countOnly ? count($options) : $options;
+    }
+
+    /**
+     * @param \XLite\Model\ImageSettings $entity
+     *
+     * @return bool
+     */
+    protected function isNameTooltipVisible($entity)
+    {
+        return in_array($entity->getCode(), [
+            'LGThumbnailGrid',
+            'LGThumbnailList'
+        ], true);
+    }
+
+    /**
+     * @param \XLite\Model\ImageSettings $entity
+     *
+     * @return string
+     */
+    protected function getNameTooltip($entity)
+    {
+        switch ($entity->getCode()) {
+            case 'LGThumbnailGrid':
+                $path = 'images/preview_grid.png';
+                break;
+            case 'LGThumbnailList':
+                $path = 'images/preview_list.png';
+                break;
+            default:
+                $path = '';
+        }
+
+        $url = \XLite\Core\Layout::getInstance()->getResourceWebPath($path);
+        return "<img src='$url'>";
     }
 
     /**
@@ -126,12 +163,7 @@ class ImagesSettings extends \XLite\View\ItemsList\Model\Table
                 }
             }
 
-            $currentSkinModule = \XLite\Core\Database::getRepo('XLite\Model\Module')
-                ->getCurrentSkinModule();
-
-            $skinModuleName = $currentSkinModule && $currentSkinModule->getActualName() !== "XC\ColorSchemes"
-                ? $currentSkinModule->getActualName()
-                : 'default';
+            $moduleName = Skin::getInstance()->getCurrentSkinModuleId();
 
             // Search for image sizes which should be added to the database
             foreach ($tmp as $k => $v) {
@@ -140,7 +172,7 @@ class ImagesSettings extends \XLite\View\ItemsList\Model\Table
                     $entity = new \XLite\Model\ImageSettings();
                     $entity->setModel($v['model']);
                     $entity->setCode($v['code']);
-                    $entity->setModuleName($skinModuleName);
+                    $entity->setModuleName($moduleName);
                     $entity->setWidth($v['size'][0]);
                     $entity->setHeight($v['size'][1]);
 

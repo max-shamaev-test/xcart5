@@ -9,66 +9,168 @@
 
 (function () {
 
+  function drawTooltipOnLongTitles(elements) {
+    elements
+      .filter(function() {
+        return $(this).attr('title').length > 40
+      })
+      .tooltip({
+        placement: 'auto bottom'
+      });
+  }
+
+  function addDisabledCategoryTooltip(optionText, tooltipLbl, element, rootSelect, enabled) {
+    var option = rootSelect.find('option:contains("' + optionText + '")');
+
+    if ((option.length > 0 && option.data('disabled')) || !enabled) {
+      element
+        .tooltip({
+          title: tooltipLbl,
+          html: true
+        })
+        .attr('data-disabled', true);
+    }
+  }
+
+  function markInaccessibleOptions(elements, rootSelect) {
+    elements.each(function() {
+      var text = $(this).attr('title') || $(this).attr('data-original-title');
+      var option = rootSelect.find('option:contains("' + text + '")');
+
+      if (option.length > 0 && option.data('disabled')) {
+        $(this).attr('data-disabled', true);
+      }
+    })
+  }
+
   Vue.directive('xliteProductCategory', {
-    params: ['searchingLbl', 'noResultsLbl', 'enterTermLbl'],
+    params: ['searchingLbl', 'noResultsLbl', 'enterTermLbl', 'placeholderLbl', 'disabledLbl', 'shortLbl', 'moreLbl'],
     twoWay: true,
     bind: function () {
       var self = this;
       var $el = $(this.el);
       var model = this.expression;
-      var term = '';
 
       $el
-        .select2(
-          {
-            debug: true,
-            language: {
-              noResults: function () {
-                return term.length ? self.params.noResultsLbl : self.params.enterTermLbl;
-              },
-              searching: function () {
-                return self.params.searchingLbl;
-              }
+        .select2({
+          debug: core.isDeveloperMode,
+          language: {
+            noResults: function () {
+              return self.params.noResultsLbl;
             },
-            escapeMarkup: function (markup) { return markup; },
-            templateResult: function (repo) {
-              var term = $('.select2-search__field', $el.parent()).val();
-
-              return repo.loading
-                ? htmlspecialchars(repo.text)
-                : htmlspecialchars(repo.text).replace(new RegExp('('+term+')([^/]*)$', 'i'), '<em>$1</em>$2');
+            searching: function () {
+              return '<span class="searching">' + self.params.searchingLbl + '</span>';
             },
-            templateSelection: function (selection) {
-              return '<span class="select2-selection-text">' + htmlspecialchars(selection.text) + '</span>';
+            inputTooShort:function () {
+              return self.params.shortLbl;
             },
-            matcher: function (params, match) {
-              if (params.term == null || $.trim(params.term) === '') {
-                return match;
-              }
-
-              var re = new RegExp('('+params.term+')([^/]*)$', 'i');
-              if (re.test(match.text)) {
-                return match;
-              }
-
-              return null;
+            loadingMore:function () {
+              return '<span class="loading-more">' + self.params.moreLbl + '</span>';
             }
+          },
+          minimumInputLength: 3,
+          placeholder: this.params.placeholderLbl,
+          escapeMarkup: function (markup) { return markup; },
+          ajax: {
+            url: xliteConfig.script + "?target=search_categories",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+              var query = {
+                search: params.term,
+                page: params.page || 1
+              };
+
+              return query;
+            },
+            processResults: function (data, params) {
+              params.page = params.page || 1;
+
+              return {
+                results: data.categories,
+                pagination: {
+                  more: data.more
+                }
+              };
+            },
+          },
+          templateResult: function (category, selectItem) {
+            if (category.loading) {
+              return '<span class="searching">' + self.params.searchingLbl + '</span>';
+            }
+
+            var parts = category.path.split('/');
+
+            var markup = '';
+            if (parts.length > 1) {
+              markup += '<span class="path">' + parts.slice(0, -1).join(' / ') + ' / </span>';
+            }
+            markup += '<span class="name">' + category.name + '</span>';
+
+            $(selectItem).data('name', category.name);
+
+            if (category.enabled == undefined) {
+              category.enabled = true;
+            }
+
+            addDisabledCategoryTooltip(category.name, self.params.disabledLbl, $(selectItem), $(self), category.enabled);
+
+            return markup;
+          },
+          templateSelection: function (category, selectItem) {
+            var path = category.path == undefined ? category.text : category.path;
+            var parts = path.split('/');
+
+            var tooltipText = '<div class="path">';
+            parts.forEach(function(part) {
+              tooltipText += '<div class="part">' + part;
+            });
+            parts.forEach(function() {
+              tooltipText += '</div>';
+            });
+            tooltipText += '</div>';
+
+            $(selectItem).tooltip({
+              title: tooltipText,
+              html: true,
+              placement: 'auto bottom'
+            });
+
+            var name = category.name ? category.name : parts.pop();
+
+            if (category.enabled == undefined) {
+              category.enabled = true;
+            }
+
+            addDisabledCategoryTooltip(name, self.params.disabledLbl, $(selectItem), $(self), category.enabled);
+            $('.tooltip').hide();
+
+            return name;
           }
-        )
-        .on('select2:select', _.bind(function (e) {
+        })
+        .on('select2:select', _.bind(function () {
           var $el = $(this.el);
           this.vm.$set(model, $el.val() || []);
         }, this))
-        .on('select2:unselect', _.bind(function (e) {
+        .on('select2:unselect', _.bind(function () {
           var $el = $(this.el);
           this.vm.$set(model, $el.val() || []);
-        }, this));
+        }, this))
+        .on('change', function () {
+          var selectedOptions = $el.parent().find('.select2-selection__choice');
+          markInaccessibleOptions(selectedOptions, $el);
+          drawTooltipOnLongTitles(selectedOptions);
+        });
 
-      this.vm.$watch(this.expression, function (newValue, oldValue) {
+      var selectedOptions = $el.parent().find('.select2-selection__choice');
+      markInaccessibleOptions(selectedOptions, $el);
+      drawTooltipOnLongTitles(selectedOptions);
+
+      this.vm.$watch(this.expression, function (newValue) {
         self.vm.$set('form.default.category_tree', newValue);
       });
 
-      this.vm.$watch('form.default.category_tree', function (newValue, oldValue) {
+      this.vm.$watch('form.default.category_tree', function (newValue) {
         self.vm.$set(self.expression, newValue);
       });
 
@@ -99,7 +201,7 @@
         });
       }, 1000);
     },
-    update: function (newValue, oldValue) {
+    update: function (newValue) {
       if (newValue.filter(function (value) { return value.length }).length === 0) {
         return;
       }

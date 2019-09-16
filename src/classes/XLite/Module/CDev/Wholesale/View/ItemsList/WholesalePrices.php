@@ -21,7 +21,7 @@ class WholesalePrices extends \XLite\View\ItemsList\Model\Table
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'modules/CDev/Wholesale/pricing/style.css';
+        $list[] = 'modules/CDev/Wholesale/pricing/style.less';
 
         return $list;
     }

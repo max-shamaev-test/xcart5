@@ -5,7 +5,7 @@
 
   <span class="trial-notice">
     {% if this.getTrialPeriodLeft() > 0 %}
-      {{ t('Your access to X-Cart Business features expires in X days', {count: this.getTrialPeriodLeft(), url: this.buildUrl('activate_free_license', '', {page: 'business_view'})})|raw }}
+      {{ t('Your access to X-Cart Business features expires in X days', {count: this.getTrialPeriodLeft(), url: this.getBusinessViewUrl()})|raw }}
     {% else %}
       {{ t('Trial has expired!') }}
     {% endif %}

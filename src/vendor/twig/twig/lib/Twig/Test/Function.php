@@ -3,7 +3,7 @@
 /*
  * This file is part of Twig.
  *
- * (c) 2010 Fabien Potencier
+ * (c) Fabien Potencier
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,7 +22,7 @@ class Twig_Test_Function extends Twig_Test
 {
     protected $function;
 
-    public function __construct($function, array $options = array())
+    public function __construct($function, array $options = [])
     {
         $options['callable'] = $function;
 

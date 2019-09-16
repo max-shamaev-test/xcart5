@@ -8,7 +8,6 @@
 
 namespace XLite\Module\XC\VendorMessages\View;
 
-
 /**
  * ContactNow
  *
@@ -61,7 +60,12 @@ class ContactNow extends \XLite\View\AView
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'modules/XC/VendorMessages/vendor/contact_now.css';
+        
+        $list[] = array(
+            'file'  => 'modules/XC/VendorMessages/vendor/contact_now.less',
+            'media' => 'screen',
+            'merge' => 'bootstrap/css/bootstrap.less',
+        );
 
         return $list;
     }

@@ -10,6 +10,7 @@ namespace Includes\Decorator\Plugin\Doctrine\Plugin\PostprocessFixtures;
 
 use Includes\Decorator\Plugin\Doctrine\Utils\FixturesManager;
 use Includes\Decorator\Utils\CacheManager;
+use Includes\Utils\Module\Manager;
 
 /**
  * Main 
@@ -28,6 +29,8 @@ class Main extends \Includes\Decorator\Plugin\Doctrine\Plugin\APlugin
             CacheManager::$skipStepCompletion = true;
 
         } else {
+            Manager::getRegistry()->markEnabledModulesAsLoaded();
+
             FixturesManager::removeFixtures();
         }
     }

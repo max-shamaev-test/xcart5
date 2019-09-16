@@ -12,6 +12,7 @@ use XLite\Model\Attribute;
 use XLite\Model\AttributeValue\AttributeValueCheckbox;
 use XLite\Model\Product;
 use XLite\Module\QSL\CloudSearch\Main;
+use XLite\Module\QSL\CloudSearch\Model\Repo\Product as ProductRepo;
 use XLite\Module\XC\ProductVariants\Model\AttributeValue\AttributeValueSelect;
 use XLite\Module\XC\ProductVariants\Model\ProductVariant;
 
@@ -122,14 +123,16 @@ abstract class StoreApiProductVariants extends \XLite\Module\QSL\CloudSearch\Cor
     protected function getVariantStockStatus(Product $product, ProductVariant $variant)
     {
         if (!$product->getInventoryEnabled()) {
-            return 'in';
+            return ProductRepo::INV_IN;
         }
 
-        if ($variant->getPublicAmount() === 0) {
-            return 'out';
+        if ($variant->getPublicAmount() <= 0) {
+            return ProductRepo::INV_OUT;
         }
 
-        return $variant->getPublicAmount() < $product->getLowLimitAmount() ? 'low' : 'in';
+        return $variant->getPublicAmount() < $product->getLowLimitAmount()
+            ? ProductRepo::INV_LOW
+            : ProductRepo::INV_IN;
     }
 
     /**

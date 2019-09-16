@@ -30,6 +30,7 @@ use Doctrine\ORM\Cache\EntityCacheKey;
  * Specific read-write entity persister
  *
  * @author Fabio B. Silva <fabio.bat.silva@gmail.com>
+ * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
  * @since 2.5
  */
 class ReadWriteCachedEntityPersister extends AbstractEntityPersister
@@ -72,7 +73,7 @@ class ReadWriteCachedEntityPersister extends AbstractEntityPersister
             $this->timestampRegion->update($this->timestampKey);
         }
 
-        $this->queuedCache = array();
+        $this->queuedCache = [];
     }
 
     /**
@@ -92,7 +93,7 @@ class ReadWriteCachedEntityPersister extends AbstractEntityPersister
             }
         }
 
-        $this->queuedCache = array();
+        $this->queuedCache = [];
     }
 
     /**
@@ -100,21 +101,24 @@ class ReadWriteCachedEntityPersister extends AbstractEntityPersister
      */
     public function delete($entity)
     {
-        $key   = new EntityCacheKey($this->class->rootEntityName, $this->uow->getEntityIdentifier($entity));
-        $lock  = $this->region->lock($key);
+        $key     = new EntityCacheKey($this->class->rootEntityName, $this->uow->getEntityIdentifier($entity));
+        $lock    = $this->region->lock($key);
+        $deleted = $this->persister->delete($entity);
 
-        if ($this->persister->delete($entity)) {
+        if ($deleted) {
             $this->region->evict($key);
         }
 
         if ($lock === null) {
-            return;
+            return $deleted;
         }
 
-        $this->queuedCache['delete'][] = array(
+        $this->queuedCache['delete'][] = [
             'lock'   => $lock,
             'key'    => $key
-        );
+        ];
+
+        return $deleted;
     }
 
     /**
@@ -131,9 +135,9 @@ class ReadWriteCachedEntityPersister extends AbstractEntityPersister
             return;
         }
 
-        $this->queuedCache['update'][] = array(
+        $this->queuedCache['update'][] = [
             'lock'   => $lock,
             'key'    => $key
-        );
+        ];
     }
 }

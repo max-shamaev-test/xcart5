@@ -8,6 +8,8 @@
 
 namespace XLite\Controller\Admin;
 
+use XLite\Core\OrderHistory;
+
 /**
  * Order page controller
  */
@@ -386,6 +388,13 @@ class Order extends \XLite\Controller\Admin\AAdmin
                 : ''
             ) . static::t('Invoice');
 
+        } elseif ('packing_slip' === \XLite\Core\Request::getInstance()->mode) {
+            $result = (
+                \XLite\Core\Config::getInstance()->Company->company_name
+                    ? \XLite\Core\Config::getInstance()->Company->company_name . ': '
+                    : ''
+                ) . static::t('Packing slip');
+
         } elseif ('XLite\View\Address\OrderModify' === ltrim(\XLite\Core\Request::getInstance()->widget, '\\')) {
             $result = static::t('Customer information');
 
@@ -406,7 +415,7 @@ class Order extends \XLite\Controller\Admin\AAdmin
             $result = $paymentMethod ?: static::t('Payment method data');
 
         } else {
-            $result = static::t('Order details');
+            $result = static::t('Order X', ['id' => $this->getOrder()->getOrderNumber()]);
         }
 
         return $result;
@@ -815,7 +824,7 @@ class Order extends \XLite\Controller\Admin\AAdmin
         static::$isNeedProcessStock = true;
 
         // Set this flag to prevent duplicate 'Order changed' email notifications
-        $this->getOrder()->setIgnoreCustomerNotifications(!$this->getSendNotificationFlag());
+        $this->getOrder()->setIgnoreCustomerNotifications($this->getIgnoreCustomerNotificationFlag());
         $oldSentFlagValue = $this->getOrder()->setIsNotificationSent(true);
 
         if ($this->isOrderEditable()) {
@@ -842,14 +851,19 @@ class Order extends \XLite\Controller\Admin\AAdmin
         // Update customer note (visible on invoice)
         $this->updateCustomerNotes();
 
-        if ($this->getOrderChanges()) {
-            // Register order changes
-            \XLite\Core\OrderHistory::getInstance()
-                ->registerGlobalOrderChanges($order->getOrderId(), $this->getOrderChanges());
+        if ($this->isOrderChanged()) {
+            if ($this->getOrderChanges()) {
+                \XLite\Core\OrderHistory::getInstance()
+                    ->registerGlobalOrderChanges($order->getOrderId(), $this->getOrderChanges());
+            }
 
-            // Send notification
             $this->sendOrderChangeNotification();
         }
+    }
+
+    protected function isOrderChanged()
+    {
+        return (boolean)$this->getOrderChanges();
     }
 
     /**
@@ -900,12 +914,70 @@ class Order extends \XLite\Controller\Admin\AAdmin
      */
     protected function updateTracking()
     {
+        $numbers = $this->prepareTrackingData($this->getOrder()->getTrackingNumbers()->toArray());
+
         $list = new \XLite\View\ItemsList\Model\OrderTrackingNumber(
             array(
                 \XLite\View\ItemsList\Model\OrderTrackingNumber::PARAM_ORDER_ID => $this->getOrder()->getOrderId(),
             )
         );
         $list->processQuick();
+
+        $this->processTrackingInfoChanges(
+            $numbers,
+            $this->prepareTrackingData($this->getOrder()->getTrackingNumbers()->toArray())
+        );
+    }
+
+    /**
+     * @param \XLite\Model\OrderTrackingNumber[] $numbers
+     *
+     * @return array
+     */
+    protected function prepareTrackingData(array $numbers)
+    {
+        return array_combine(
+            array_map(function (\XLite\Model\OrderTrackingNumber $number) {
+                return $number->getTrackingId();
+            }, $numbers),
+            array_map(function (\XLite\Model\OrderTrackingNumber $number) {
+                return $number->getValue();
+            }, $numbers)
+        );
+    }
+
+    /**
+     * @param array $old
+     * @param array $new
+     */
+    protected function processTrackingInfoChanges(array $old, array $new)
+    {
+        $deleted = array_diff_key(array_diff($old, $new), $new);
+        $added = array_diff_key(array_diff($new, $old), $old);
+        $changed = array_map(function ($key) use ($old, $new) {
+            return [
+                'old' => $old[$key],
+                'new' => $new[$key],
+            ];
+        }, array_keys(array_intersect_key(array_diff($new, $old), $old)));
+
+        if ($deleted || $added || $changed) {
+            $info = OrderHistory::getInstance()->getTrackingInfoLines(
+                $added,
+                $deleted,
+                $changed
+            );
+
+            $i = 0;
+            foreach ($info as $line) {
+                $i++;
+                static::setOrderChanges(
+                    static::t('Order tracking information') . ":$i",
+                    $line,
+                    ''
+                );
+            }
+        }
     }
 
     /**
@@ -915,19 +987,22 @@ class Order extends \XLite\Controller\Admin\AAdmin
      */
     protected function sendOrderChangeNotification()
     {
-        if ($this->getSendNotificationFlag() && !$this->getOrder()->isNotificationSent()) {
-            \XLite\Core\Mailer::getInstance()->sendOrderAdvancedChangedCustomer($this->getOrder());
+        if (!$this->getOrder()->isNotificationSent()) {
+            \XLite\Core\Mailer::sendOrderChanged(
+                $this->getOrder(),
+                $this->getIgnoreCustomerNotificationFlag()
+            );
         }
     }
 
     /**
-     * Get 'sendNotification' flag from request
+     * Get 'doNotSendNotification' flag from request
      *
      * @return boolean
      */
-    protected function getSendNotificationFlag()
+    protected function getIgnoreCustomerNotificationFlag()
     {
-        return (bool) \XLite\Core\Request::getInstance()->sendNotification;
+        return (bool) \XLite\Core\Request::getInstance()->doNotSendNotification;
     }
 
     /**

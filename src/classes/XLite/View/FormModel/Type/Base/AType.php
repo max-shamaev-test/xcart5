@@ -8,8 +8,12 @@
 
 namespace XLite\View\FormModel\Type\Base;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
+use Includes\Utils\Module\Registry;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Util\StringUtil;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 abstract class AType extends AbstractType
 {
@@ -32,14 +36,7 @@ abstract class AType extends AbstractType
      */
     public function getBlockPrefix()
     {
-        $fqcn = get_class($this);
-        $name = $this->getName();
-
-        if ($fqcn === $name) {
-            $name = $this->generateBlockPrefix() ?: parent::getBlockPrefix();
-        }
-
-        return $name;
+        return $this->generateBlockPrefix() ?: parent::getBlockPrefix();
     }
 
     /**
@@ -51,8 +48,9 @@ abstract class AType extends AbstractType
         $fqcn = get_class($this);
 
         $modulePrefix = '';
-        if (preg_match('/XLite\\\\Module\\\\(\w+\\\\\w+)/i', $fqcn, $matches)) {
-            $modulePrefix .= $matches[1];
+
+        if ($moduleId = Module::getModuleIdByClassName($fqcn)) {
+            $modulePrefix .= implode('\\', Module::explodeModuleId($moduleId));
         }
 
         if (preg_match('/View\\\\FormModel\\\\Type\\\\([\w+\\\\]+)/', $fqcn, $matches)) {

@@ -173,6 +173,7 @@ abstract class ACategory extends \XLite\View\ItemsList\Product\Customer\ACustome
     {
         $searchCase = parent::postprocessSearchCase($searchCase);
         if ('directLink' !== \XLite\Core\Config::getInstance()->General->show_out_of_stock_products
+            && 'searchOnly' !== \XLite\Core\Config::getInstance()->General->show_out_of_stock_products
             && !\XLite::isAdminZone()
         ) {
             $searchCase->{\XLite\Model\Repo\Product::P_INVENTORY} = false;

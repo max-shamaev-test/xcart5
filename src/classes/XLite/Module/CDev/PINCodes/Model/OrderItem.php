@@ -46,7 +46,7 @@ class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\IDecorator
      */
     public function isCustomerInterface()
     {
-        return \XLite::CUSTOMER_INTERFACE == \XLite\Core\Layout::getInstance()->getMailInterface()
+        return \XLite::CUSTOMER_INTERFACE == \XLite\Core\Layout::getInstance()->getInnerInterface()
             || \XLite::CUSTOMER_INTERFACE == \XLite\Core\Layout::getInstance()->getInterface();
     }
 
@@ -218,5 +218,14 @@ class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\IDecorator
     public function getPinCodes()
     {
         return $this->pinCodes;
+    }
+
+    public function releaseBackorder()
+    {
+        parent::releaseBackorder();
+
+        if ($this->countMissingPinCodes()) {
+            $this->setBackorderedAmount($this->countMissingPinCodes());
+        }
     }
 }

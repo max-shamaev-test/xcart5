@@ -45,9 +45,10 @@ class Attributes extends AFilter
                     break;
 
                 default:
-                    $iList = new \XLite\Module\XC\ProductFilter\View\ItemsList\Product\Customer\Category\CategoryFilter;
+                    $cnd = new \XLite\Core\CommonCell();
+                    $cnd->{\XLite\Model\Repo\Product::P_CATEGORY_ID} = $this->getCategoryId();
                     $this->productClasses = \XLite\Core\Database::getRepo('XLite\Model\Product')
-                        ->findFilteredProductClasses($iList->getSearchCondition());
+                        ->findFilteredProductClasses($cnd);
             }
         }
 

@@ -390,7 +390,7 @@ class Settings extends \XLite\Controller\Admin\AAdmin
                 break;
 
             case 'license_keys':
-                $return = \XLite\Core\Database::getRepo('XLite\Model\ModuleKey')->findAll();
+                $return = [];
                 break;
 
             default:
@@ -606,27 +606,6 @@ class Settings extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
-     * Send specific headers and print AJAX data as JSON string
-     *
-     * @param array $data
-     *
-     * @return void
-     */
-    protected function printAJAX($data)
-    {
-        // Move top messages into headers since we print data and die()
-        $this->translateTopMessagesToHTTPHeaders();
-
-        $content = json_encode($data);
-
-        header('Content-Type: application/json; charset=UTF-8');
-        header('Content-Length: ' . strlen($content));
-        header('ETag: ' . md5($content));
-
-        print ($content);
-    }
-
-    /**
      * Actions to enable the clean URL functionality
      *
      * @return void
@@ -675,58 +654,6 @@ class Settings extends \XLite\Controller\Admin\AAdmin
     public function getStateById($stateId)
     {
         return \XLite\Core\Database::getRepo('XLite\Model\State')->find($stateId);
-    }
-
-    /**
-     * Flag to has email error
-     *
-     * @return string
-     */
-    public function hasTestEmailError()
-    {
-        return '' !== (string)\XLite\Core\Session::getInstance()->test_email_error;
-    }
-
-    /**
-     * Return error test email sending
-     *
-     * @return string
-     */
-    public function getTestEmailError()
-    {
-        $error = (string)\XLite\Core\Session::getInstance()->test_email_error;
-
-        \XLite\Core\Session::getInstance()->test_email_error = '';
-
-        return $error;
-    }
-
-    // }}}
-
-    // {{{ Service actions
-
-    /**
-     * Action to send test email notification
-     *
-     * @return void
-     */
-    protected function doActionTestEmail()
-    {
-        $request = \XLite\Core\Request::getInstance();
-
-        $error = \XLite\Core\Mailer::sendTestEmail(
-            $request->test_from_email_address,
-            $request->test_to_email_address,
-            $request->test_email_body
-        );
-
-        if ($error) {
-            \XLite\Core\Session::getInstance()->test_email_error = $error;
-            \XLite\Core\TopMessage::getInstance()->addError('Error of test e-mail sending: ' . $error);
-
-        } else {
-            \XLite\Core\TopMessage::getInstance()->add('Test e-mail have been successfully sent');
-        }
     }
 
     // }}}

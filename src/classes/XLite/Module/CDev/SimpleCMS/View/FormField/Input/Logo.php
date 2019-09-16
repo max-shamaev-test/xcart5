@@ -14,34 +14,18 @@ namespace XLite\Module\CDev\SimpleCMS\View\FormField\Input;
 class Logo extends \XLite\Module\CDev\SimpleCMS\View\FormField\Input\AImage
 {
     /**
-     * Return the image URL value
-     *
-     * @return string
+     * @return boolean
      */
-    protected function getImage()
+    protected function hasAlt()
     {
-        return $this->getLogo();
+        return true;
     }
 
     /**
-     * Return the default label
-     *
      * @return string
      */
-    protected function getReturnToDefaultLabel()
+    protected function getFieldLabelTemplate()
     {
-        return 'Return to default logo';
+        return 'form_field/label/logo_label.twig';
     }
-
-    /**
-     * Return the inner name for widget.
-     * It is used in model widget identification of the "useDefaultImage" value
-     *
-     * @return string
-     */
-    protected function getImageName()
-    {
-        return 'logo';
-    }
-
 }

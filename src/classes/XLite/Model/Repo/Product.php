@@ -48,6 +48,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     const P_ARRIVAL_DATE       = 'arrivalDate';
     const P_ARRIVAL_DATE_RANGE = 'arrivalDateRange';
 
+    const P_BY = 'by';
     const P_BY_TITLE = 'byTitle';
     const P_BY_DESCR = 'byDescr';
     const P_BY_SKU   = 'bySKU';
@@ -391,10 +392,21 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     protected function getSubstringSearchFields()
     {
         $conditionsBy = $this->getConditionBy();
+        $conditionBySelected = $this->searchState['currentSearchCnd']->{static::P_BY} ?? [];
+
+        // Compatibility to old search processor
+        if (empty($conditionBySelected)) {
+            foreach ($conditionsBy as $conditionBy) {
+                if ('Y' === $this->searchState['currentSearchCnd']->{$conditionBy}) {
+                    $conditionBySelected[$conditionBy] = $conditionBy;
+                }
+            }
+        }
+
         $allEmpty = true;
 
         foreach ($conditionsBy as $conditionBy) {
-            if ('Y' === $this->searchState['currentSearchCnd']->{$conditionBy}) {
+            if (in_array($conditionBy, $conditionBySelected, true)) {
                 $allEmpty = false;
             }
         }
@@ -402,21 +414,19 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
         // if ALL parameters is FALSE then we search by ALL parameters
         if ($allEmpty) {
             foreach ($conditionsBy as $conditionBy) {
-                $this->searchState['currentSearchCnd']->{$conditionBy} = 'Y';
+                $conditionBySelected[$conditionBy] = $conditionBy;
             }
         }
 
         $result = [];
 
         foreach ($conditionsBy as $conditionBy) {
-            $conditionFields = ('Y' === $this->searchState['currentSearchCnd']->{$conditionBy})
+            $result[] = in_array($conditionBy, $conditionBySelected, true)
                 ? $this->{'getSubstringSearchFields' . ucfirst($conditionBy)}()
                 : [];
-
-            $result = array_merge($result, $conditionFields);
         }
 
-        return $result;
+        return $result ? array_merge(...$result) : [];
     }
 
     /**
@@ -431,6 +441,7 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
             [
                 static::P_SEARCH_IN_SUBCATS,
                 static::P_INCLUDING,
+                static::P_BY,
             ]
         );
 
@@ -558,6 +569,40 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
         } elseif (!\XLite\Core\Database::getRepo('XLite\Model\Category')->addSubTreeCondition($queryBuilder, $value)) {
             // TODO - add throw exception
         }
+    }
+
+    /**
+     * Prepare certain search condition
+     *
+     * @Api\Condition(description="Filters products by category ids", type="array")
+     *
+     * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
+     * @param array                      $value        Condition data
+     *
+     * @return void
+     */
+    protected function prepareCndCategoryIds(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
+    {
+        if (!is_array($value) || count(array_filter($value)) === 0) {
+            return;
+        }
+
+        $queryBuilder->linkLeft('p.categoryProducts', 'cp')
+            ->linkLeft('cp.category', 'c');
+
+        $exprs = [];
+
+        if (($key = array_search('no_category', $value, true)) !== false) {
+            $exprs[] = 'p.categoryProducts is empty';
+            unset($value[$key]);
+        }
+
+        if (count($value) > 0) {
+            $exprs[] = 'c.category_id IN (:categoryIds)';
+            $queryBuilder->setParameter('categoryIds', $value);
+        }
+
+        $queryBuilder->andWhere(call_user_func_array([$queryBuilder->expr(), 'orX'], $exprs));
     }
 
     /**
@@ -937,6 +982,10 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
             }
 
             $queryBuilder->addOrderBy($sort, $order);
+
+            if ('p.product_id' !== $sort) {
+                $queryBuilder->addOrderBy('p.product_id', $order);
+            }
         }
     }
 
@@ -1020,27 +1069,39 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      */
     protected function defineCalculatedPriceDQL(\XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder, $alias)
     {
-        $profile = \XLite\Core\Auth::getInstance()->getProfile();
-        if ($profile
-            && $profile->getMembership()
-        ) {
-            $queryBuilder->innerJoin(
-                $alias . '.quickData',
-                'qd',
-                'WITH',
-                'qd.membership = :qdMembership'
-            )->setParameter('qdMembership', $profile->getMembership());
+        $conditions = $this->getCalculatedPriceJoinConditions();
 
-        } else {
-            $queryBuilder->innerJoin(
-                $alias . '.quickData',
-                'qd',
-                'WITH',
-                'qd.membership is null'
-            );
+        $joinConditions = [];
+        foreach ($conditions as $condName => $condValue) {
+            if (is_null($condValue)) {
+                $joinConditions[] = 'qd.' . $condName . ' is null';
+            } else {
+                $joinConditions[] = 'qd.' . $condName . ' = :' . $condName;
+                $queryBuilder->setParameter($condName, $condValue);
+            }
         }
+        $queryBuilder->innerJoin(
+            $alias . '.quickData',
+            'qd',
+            'WITH',
+            implode(' AND ', $joinConditions)
+        );
 
         return 'qd.price';
+    }
+
+    /**
+     * Get quick data join conditions for defineCalculatedPriceDQL
+     *
+     * @return array
+     */
+    protected function getCalculatedPriceJoinConditions()
+    {
+        $profile = \XLite\Core\Auth::getInstance()->getProfile();
+
+        return [
+            'membership' => $profile && $profile->getMembership() ? $profile->getMembership() : null,
+        ];
     }
 
     /**

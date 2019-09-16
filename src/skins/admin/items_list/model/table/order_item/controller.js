@@ -113,7 +113,7 @@ OrderItemsList.prototype.handlePopoverSelectChange = function(event)
   var original = box.find('.edit-options-dialog select[name="' + event.currentTarget.name + '"]').get(0);
   original.selectedIndex = event.currentTarget.selectedIndex;
   jQuery(original.options).removeAttr('selected');
-  jQuery(original.options[event.currentTarget.selectedIndex]).attr('selected', 'selected');
+  jQuery(original.options[event.currentTarget.selectedIndex]).prop('selected', 'selected');
 
   core.trigger('order.itemAttributes.changed', { line: box.parents('tr').eq(0) });
 }

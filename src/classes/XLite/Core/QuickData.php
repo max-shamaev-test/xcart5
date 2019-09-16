@@ -156,13 +156,21 @@ class QuickData extends \XLite\Base\Singleton implements \Countable
      */
     public function updateProductDataInternal(\XLite\Model\Product $product)
     {
+        $this->processUpdateProductData($product);
+        $product->updateSales();
+        $product->setNeedProcess(false);
+    }
+
+    /**
+     * @param \XLite\Model\Product $product
+     */
+    protected function processUpdateProductData(\XLite\Model\Product $product)
+    {
         foreach ($this->getMemberships() as $membership) {
             if (!isset($membership) || \XLite\Core\Database::getEM()->contains($membership)) {
                 $this->updateData($product, $membership);
             }
         }
-        $product->updateSales();
-        $product->setNeedProcess(false);
     }
 
     /**
@@ -175,9 +183,30 @@ class QuickData extends \XLite\Base\Singleton implements \Countable
      */
     public function updateData(\XLite\Model\Product $product, $membership)
     {
-        $data = null;
+        $data = $this->getProductQuickData($product, $membership);
 
+        if (!$data) {
+            $data = new \XLite\Model\QuickData;
+            $data->setProduct($product);
+            $data->setMembership($membership);
+            $product->addQuickData($data);
+        }
+        $data->setPrice($product->getQuickDataPrice());
+
+        return $data;
+    }
+
+    /**
+     * @param \XLite\Model\Product $product
+     * @param                      $membership
+     *
+     * @return \XLite\Model\QuickData|null
+     */
+    protected function getProductQuickData(\XLite\Model\Product $product, $membership)
+    {
         $quickData = $product->getQuickData() ?: array();
+
+        $data = null;
 
         foreach ($quickData as $qd) {
             if (($qd->getMembership()
@@ -190,14 +219,6 @@ class QuickData extends \XLite\Base\Singleton implements \Countable
                 break;
             }
         }
-
-        if (!$data) {
-            $data = new \XLite\Model\QuickData;
-            $data->setProduct($product);
-            $data->setMembership($membership);
-            $product->addQuickData($data);
-        }
-        $data->setPrice($product->getQuickDataPrice());
 
         return $data;
     }

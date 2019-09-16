@@ -49,6 +49,7 @@ define('wizard/controller', ['js/vue/vue', 'wizard/store', 'wizard/tracking'], f
       this.currentStep = this.accessCurrentProgress() || this.step;
       $('[data-toggle="tooltip"]', this.$el).tooltip();
       core.trigger('wizard.ready', this);
+      this.calculateViewport();
     },
 
     data: function () {
@@ -155,6 +156,7 @@ define('wizard/controller', ['js/vue/vue', 'wizard/store', 'wizard/tracking'], f
         $(this.$el).addClass('onboarding-wizard--initial');
         var height = $('#main').height();
         var width = $('#main').width();
+        height = height < 650 ? 650 : height;
         $(this.$el).height(height);
         $(this.$el).width(width);
         $(this.$el).find('.onboarding-wizard--body').css('max-height', height);

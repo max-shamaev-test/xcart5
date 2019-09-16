@@ -12,14 +12,7 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: Product list sources
-  - name: a2cp_enable_for_dropping
-    category: XC\Add2CartPopup
-    type: checkbox
-    value: Y
-    translations:
-      - code: en
-        option_name: Enable popup when product added to cart via drag-n-drop feature
-
+  
 XLite\Model\LanguageLabel:
   - { name: "a2cp-source-code-R", translations: [{ code: en, label: "Random products" }] }
   - { name: "Install additional modules to add more product sources", translations: [{ code: en, label: "Install additional modules to add more product sources: {{list}}" }] }
@@ -32,4 +25,3 @@ XLite\Model\LanguageLabel:
   - { name: "Customers also bought", translations: [{ code: en, label: "Customers who bought this also bought" }] }
   - { name: "Random products", translations: [{ code: en, label: "Random products" }] }
   - { name: "This option is ignored as Add to Cart Popup module is installed and enabled.", translations: [{ code: en, label: '<i class="fa fa-exclamation-triangle"></i>This option is ignored as <a href="{{url}}">Add to Cart Popup</a> module is installed and enabled.' }] }
-  - { name: "Enable popup after product added to cart via drag-n-drop", translations: [{ code: en, label: "Enable a popup after a product is added to cart via drag-n-drop" }] }

@@ -36,6 +36,8 @@ class ThemeTweakerTemplate extends \XLite\View\AView
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
+        $list[] = 'modules/XC/ThemeTweaker/theme_tweaker_template/style.css';
+
         if ($this->isCreate()) {
             $list[] = 'modules/XC/ThemeTweaker/theme_tweaker_template/create.css';
         }

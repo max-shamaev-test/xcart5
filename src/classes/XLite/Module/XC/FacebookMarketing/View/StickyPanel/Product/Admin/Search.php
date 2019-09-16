@@ -27,7 +27,6 @@ class Search extends \XLite\View\StickyPanel\Product\Admin\AAdmin implements \XL
                 'label'         => '',
                 'style'         => 'more-action icon-only hide-on-disable hidden',
                 'icon-style'    => 'fa fa-facebook-official',
-                'useCaretButton' => false,
                 'dropDirection' => 'dropup',
             ],
             'position' => 250,

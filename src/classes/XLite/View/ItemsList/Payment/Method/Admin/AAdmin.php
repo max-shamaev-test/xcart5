@@ -80,10 +80,10 @@ abstract class AAdmin extends \XLite\View\ItemsList\AItemsList
         $cnd = parent::getSearchCondition();
 
         $cnd->{\XLite\Model\Repo\Payment\Method::P_MODULE_ENABLED} = true;
-        $cnd->{\XLite\Model\Repo\Payment\Method::P_ADDED} = true;
-        $cnd->{\XLite\Model\Repo\Payment\Method::P_ORDER_BY} = [
+        $cnd->{\XLite\Model\Repo\Payment\Method::P_ADDED}          = true;
+        $cnd->{\XLite\Model\Repo\Payment\Method::P_ORDER_BY}       = [
             'm.adminOrderby, translations.name',
-            'asc'
+            'asc',
         ];
 
         return $cnd;

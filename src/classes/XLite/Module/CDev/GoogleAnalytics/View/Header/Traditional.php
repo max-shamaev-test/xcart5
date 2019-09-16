@@ -13,7 +13,7 @@ use XLite\Module\CDev\GoogleAnalytics;
 /**
  * Header declaration (Traditional)
  *
- * @ListChild (list="head")
+ * @ListChild (list="head", weight="0")
  */
 class Traditional extends \XLite\Module\CDev\GoogleAnalytics\View\Header\AHeader
 {

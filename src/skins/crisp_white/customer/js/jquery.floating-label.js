@@ -22,15 +22,21 @@
 
     if (this.length > 0) {
       this.each(function() {
-        var parent = findParent(this);
-        var label = jQuery(this).siblings('label');
-        if (label.outerWidth() < jQuery(this).outerWidth()) {
-          assignHandlers(this);
+        const parent = findParent(this);
+        if (parent) {
+          const label = jQuery(parent).find('label');
 
-          // capture initial state
-          handler.apply(this, [null]);
-        } else if (parent && parent.length) {
-          parent.addClass('not-floating');
+          const labelWidth = parent.is(':hidden') ? label.actual('outerWidth') : label.outerWidth();
+          const elemWidth = parent.is(':hidden') ? jQuery(this).actual('outerWidth') : jQuery(this).outerWidth();
+
+          if (labelWidth < elemWidth) {
+            assignHandlers(this);
+
+            // capture initial state
+            handler.apply(this, [null]);
+          } else if (parent && parent.length) {
+            parent.addClass('not-floating');
+          }
         }
       })
     }

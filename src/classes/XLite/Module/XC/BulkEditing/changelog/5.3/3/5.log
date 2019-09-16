@@ -1,5 +1,0 @@
-Version 5.3.3.5
-
-Fixes (1)
-2018-09-10 - [Bug] XSS on category and product pages in the Admin area if the name of the category contained js code. Fixed. #BUG-6667 https://bt.x-cart.com/view.php?id=49899 (Kirill Stadler) #Core #MultiVendor #BulkEditing
-

@@ -8,47 +8,17 @@
 
 namespace Includes\Decorator\Plugin\ModuleHandlers;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
+use XLite\Logger;
+
 /**
- * Main 
+ * Main
  *
  */
 class Main extends \Includes\Decorator\Plugin\APlugin
 {
-    protected $doneClasses = array();
-
-    /**
-     * Recursive run of runBuildCacheHandler with dependencies
-     * 
-     * @param string    $class  Class name of module to run cach handler
-     * @param array     $stack  Depenencies stack of module                 OPTIONAL
-     * 
-     * @return void
-     */
-    protected function runBuildCacheHandler($class, $stack = array())
-    {
-        if (in_array($class, $this->doneClasses)) {
-            return;
-        }
-
-        if (in_array($class, $stack)) {
-            throw new Exception("A circular dependency found:" . $class  . '  ' . var_export($stack, true), 500);
-        }
-
-        $dependenciesClasses = array_map(
-            function($name){
-                return \Includes\Utils\ModulesManager::getClassNameByModuleName($name);
-            }, $class::getDependencies()
-        );
-
-        $stack[] = $class;
-
-        foreach ($dependenciesClasses as $depClass) {
-            $this->runBuildCacheHandler($depClass, $stack);
-        }
-
-        $class::runBuildCacheHandler();
-        $this->doneClasses[] = $class;
-    }
+    protected $finished = [];
 
     /**
      * Execute certain hook handler
@@ -57,14 +27,20 @@ class Main extends \Includes\Decorator\Plugin\APlugin
      */
     public function executeHookHandler()
     {
-        $modulesNames = array_keys(\Includes\Utils\ModulesManager::processActiveModules());
+        $registry = Manager::getRegistry();
 
-        $classes = array_map(function($name){
-            return \Includes\Utils\ModulesManager::getClassNameByModuleName($name);
-        }, $modulesNames);
+        try {
+            $moduleIds = $registry->getEnabledModuleIds();
+            $sorted = Manager::sortModulesByDependency($moduleIds);
 
-        foreach ($classes as $class) {
-            $this->runBuildCacheHandler($class);
+            foreach ($sorted as $moduleId) {
+                if (!in_array($moduleId, $this->finished, true)) {
+                    Module::callMainClassMethod($moduleId, 'updateViewListEntries');
+                    $this->finished[] = $moduleId;
+                }
+            }
+        } catch (\Exception $e) {
+            Logger::getInstance()->logPostponed($e->getMessage(), LOG_ERR, $e->getTraceAsString());
         }
     }
 }

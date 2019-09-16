@@ -29,27 +29,12 @@ use Symfony\Component\Intl\Locale;
  */
 class LocaleDataGenerator
 {
-    /**
-     * @var string
-     */
     private $dirName;
-
-    /**
-     * @var LanguageDataProvider
-     */
     private $languageDataProvider;
-
-    /**
-     * @var ScriptDataProvider
-     */
     private $scriptDataProvider;
-
-    /**
-     * @var RegionDataProvider
-     */
     private $regionDataProvider;
 
-    public function __construct($dirName, LanguageDataProvider $languageDataProvider, ScriptDataProvider $scriptDataProvider, RegionDataProvider $regionDataProvider)
+    public function __construct(string $dirName, LanguageDataProvider $languageDataProvider, ScriptDataProvider $scriptDataProvider, RegionDataProvider $regionDataProvider)
     {
         $this->dirName = $dirName;
         $this->languageDataProvider = $languageDataProvider;
@@ -57,9 +42,6 @@ class LocaleDataGenerator
         $this->regionDataProvider = $regionDataProvider;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function generateData(GeneratorConfig $config)
     {
         $filesystem = new Filesystem();
@@ -75,6 +57,7 @@ class LocaleDataGenerator
 
         $locales = $localeScanner->scanLocales($config->getSourceDir().'/locales');
         $aliases = $localeScanner->scanAliases($config->getSourceDir().'/locales');
+        $parents = $localeScanner->scanParents($config->getSourceDir().'/locales');
 
         // Flip to facilitate lookup
         $flippedLocales = array_flip($locales);
@@ -88,12 +71,12 @@ class LocaleDataGenerator
         // Generate a list of (existing) locale fallbacks
         $fallbackMapping = $this->generateFallbackMapping($displayLocales, $aliases);
 
-        $localeNames = array();
+        $localeNames = [];
 
         // Generate locale names for all locales that have translations in
         // at least the language or the region bundle
         foreach ($displayLocales as $displayLocale => $_) {
-            $localeNames[$displayLocale] = array();
+            $localeNames[$displayLocale] = [];
 
             foreach ($locales as $locale) {
                 try {
@@ -124,14 +107,14 @@ class LocaleDataGenerator
             }
 
             // If no names remain to be saved for the current locale, skip it
-            if (0 === count($localeNames[$displayLocale])) {
+            if (0 === \count($localeNames[$displayLocale])) {
                 continue;
             }
 
             foreach ($writers as $targetDir => $writer) {
-                $writer->write($targetDir.'/'.$this->dirName, $displayLocale, array(
+                $writer->write($targetDir.'/'.$this->dirName, $displayLocale, [
                     'Names' => $localeNames[$displayLocale],
-                ));
+                ]);
             }
         }
 
@@ -139,19 +122,25 @@ class LocaleDataGenerator
         // target
         foreach ($aliases as $alias => $aliasOf) {
             foreach ($writers as $targetDir => $writer) {
-                $writer->write($targetDir.'/'.$this->dirName, $alias, array(
+                $writer->write($targetDir.'/'.$this->dirName, $alias, [
                     '%%ALIAS' => $aliasOf,
-                ));
+                ]);
             }
         }
 
         // Create root file which maps locale codes to locale codes, for fallback
         foreach ($writers as $targetDir => $writer) {
-            $writer->write($targetDir.'/'.$this->dirName, 'meta', array(
+            $writer->write($targetDir.'/'.$this->dirName, 'meta', [
                 'Locales' => $locales,
                 'Aliases' => $aliases,
-            ));
+            ]);
         }
+
+        // Write parents locale file for the Translation component
+        \file_put_contents(
+            __DIR__.'/../../../Translation/Resources/data/parents.json',
+            \json_encode($parents, \JSON_PRETTY_PRINT).\PHP_EOL
+        );
     }
 
     private function generateLocaleName($locale, $displayLocale)
@@ -165,7 +154,7 @@ class LocaleDataGenerator
 
         // Currently the only available variant is POSIX, which we don't want
         // to include in the list
-        if (count($variants) > 0) {
+        if (\count($variants) > 0) {
             return;
         }
 
@@ -186,7 +175,7 @@ class LocaleDataGenerator
         //    continue;
         //}
 
-        $extras = array();
+        $extras = [];
 
         // Discover the name of the script part of the locale
         // i.e. in zh_Hans_MO, "Hans" is the script
@@ -210,7 +199,7 @@ class LocaleDataGenerator
             $extras[] = $regionName;
         }
 
-        if (count($extras) > 0) {
+        if (\count($extras) > 0) {
             // Remove any existing extras
             // For example, in German, zh_Hans is "Chinesisch (vereinfacht)".
             // The latter is the script part which is already included in the
@@ -227,7 +216,7 @@ class LocaleDataGenerator
 
     private function generateFallbackMapping(array $displayLocales, array $aliases)
     {
-        $mapping = array();
+        $mapping = [];
 
         foreach ($displayLocales as $displayLocale => $_) {
             $mapping[$displayLocale] = null;
@@ -237,7 +226,7 @@ class LocaleDataGenerator
             while (null !== ($fallback = Locale::getFallback($fallback))) {
                 // Currently, no locale has an alias as fallback locale.
                 // If this starts to be the case, we need to add code here.
-                assert(!isset($aliases[$fallback]));
+                \assert(!isset($aliases[$fallback]));
 
                 // Check whether the fallback exists
                 if (isset($displayLocales[$fallback])) {

@@ -7,12 +7,14 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-div div.product-details .product-details-info {
+div div.product-details .product-details-info,
+div div.product-quicklook .product-details-info{
   @media (min-width: @screen-sm-min) {
     width: percentage((5 / @grid-columns));
   }
 }
 
+div.product-quicklook div.product-image-gallery,
 div.product-details div.product-image-gallery{
   &.mobile {
     display: none;

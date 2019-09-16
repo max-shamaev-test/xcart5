@@ -36,8 +36,8 @@ class Main extends \Includes\Decorator\Plugin\Doctrine\Plugin\APlugin
     }
 
     /**
-     * Save current metadata 
-     * 
+     * Save current metadata
+     *
      * @return void
      */
     protected function saveMetadata()
@@ -50,7 +50,7 @@ class Main extends \Includes\Decorator\Plugin\Doctrine\Plugin\APlugin
 
     /**
      * Check - metadata is changed or not
-     * 
+     *
      * @return boolean
      */
     protected function isMetadataChanged()
@@ -61,32 +61,32 @@ class Main extends \Includes\Decorator\Plugin\Doctrine\Plugin\APlugin
             $result = true;
 
         } else {
-            $currentHash = $this->getMetadataHash(CacheInfo::get('metadata'));
+            $currentHash  = $this->getMetadataHash(CacheInfo::get('metadata'));
             $previousHash = $this->getMetadataHash($previous);
 
             CacheInfo::set(
                 'metadataHashes',
-                array(
+                [
                     'current'  => $currentHash,
                     'previous' => $previousHash,
-                )
+                ]
             );
-            $result = $currentHash != $previousHash;
+            $result = $currentHash !== $previousHash;
         }
 
         return $result;
     }
 
     /**
-     * Get metadata hash 
-     * 
+     * Get metadata hash
+     *
      * @param array $metadatas Metadata list
-     *  
+     *
      * @return string
      */
     protected function getMetadataHash(array $metadatas)
     {
-        $hashs = array();
+        $hashs = [];
         foreach ($metadatas as $metadata) {
             $hashs[] = md5(serialize($metadata));
         }

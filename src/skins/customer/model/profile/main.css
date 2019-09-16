@@ -28,3 +28,7 @@
 .model-form-buttons .button.submit {
   float: left;
 }
+
+.profile-form-container .model-form-buttons {
+  padding-top: 0;
+}

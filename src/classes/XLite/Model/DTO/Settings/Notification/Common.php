@@ -18,17 +18,15 @@ class Common extends \XLite\Model\DTO\Base\ADTO
      */
     protected function init($object)
     {
-        $default = [
-            'greeting' => static::getValue('emailNotificationGreeting'),
-        ];
-        $this->default = new CommonCell($default);
         $customer = [
             'header'    => static::getValue('emailNotificationCustomerHeader'),
+            'greeting'    => static::getValue('emailNotificationCustomerGreeting'),
             'signature' => static::getValue('emailNotificationCustomerSignature'),
         ];
         $this->customer = new CommonCell($customer);
         $admin = [
             'header'    => static::getValue('emailNotificationAdminHeader'),
+            'greeting'    => static::getValue('emailNotificationAdminGreeting'),
             'signature' => static::getValue('emailNotificationAdminSignature'),
         ];
         $this->admin = new CommonCell($admin);
@@ -42,10 +40,11 @@ class Common extends \XLite\Model\DTO\Base\ADTO
      */
     public function populateTo($object, $rawData = null)
     {
-        static::setValue('emailNotificationGreeting', $rawData['default']['greeting']);
         static::setValue('emailNotificationCustomerHeader', $rawData['customer']['header']);
+        static::setValue('emailNotificationCustomerGreeting', $rawData['customer']['greeting']);
         static::setValue('emailNotificationCustomerSignature', $rawData['customer']['signature']);
         static::setValue('emailNotificationAdminHeader', $rawData['admin']['header']);
+        static::setValue('emailNotificationAdminGreeting', $rawData['admin']['greeting']);
         static::setValue('emailNotificationAdminSignature', $rawData['admin']['signature']);
     }
 

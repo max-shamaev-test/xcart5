@@ -8,10 +8,10 @@
 
 namespace XLite\Module\CDev\XPaymentsConnector\Model;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * XPayments extensions to Order entity
- *
- * @MappedSuperclass
  *
  * @Table (indexes={
  *      @Index (name="is_zero_auth", columns={"is_zero_auth"}),
@@ -406,7 +406,7 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
     public function isAllowRecharge()
     {
         return !(
-                \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+                Manager::getRegistry()->isModuleEnabled('XC\MultiVendor')
                 && \XLite\Core\Auth::getInstance()->isVendor()
             )
             && $this->isXpc()
@@ -577,7 +577,7 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
      */
     public function hasRelations()
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+        return Manager::getRegistry()->isModuleEnabled('XC\MultiVendor')
             && !(bool)$this->getOrderNumber()
             && $this->getChildren()
             && 1 < $this->getChildren()->count();
@@ -590,7 +590,7 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
      */
     public function getRelations()
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+        return Manager::getRegistry()->isModuleEnabled('XC\MultiVendor')
             ? $this->getChildren()
             : null;
     }
@@ -625,7 +625,7 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
     protected function getParentOrChildOrder()
     {
         if (
-            \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\MultiVendor')
+            Manager::getRegistry()->isModuleEnabled('XC\MultiVendor')
             && $this->getParent()
         ) {
             $order = $this->getParent();
@@ -634,6 +634,29 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
         }
 
         return $order;
+    }
+
+    /**
+     * Process backordered items
+     *
+     * @return int
+     *
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    protected function processBackorderedItems()
+    {
+        if (
+            $this->getItems()
+            && $this->getItems()->last()
+            && $this->getItems()->last()->isXpcFakeItem()
+        ) {
+            $result = 0;
+        } else {
+            $result = parent::processBackorderedItems();
+        }
+
+        return $result;
     }
 
 }

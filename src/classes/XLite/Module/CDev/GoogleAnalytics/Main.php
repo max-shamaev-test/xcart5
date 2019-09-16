@@ -8,94 +8,11 @@
 
 namespace XLite\Module\CDev\GoogleAnalytics;
 
-use XLite\Module\CDev\GoogleAnalytics\Logic\ActionsStorage;
 use XLite\Module\CDev\GoogleAnalytics\Logic\Action;
+use XLite\Module\CDev\GoogleAnalytics\Logic\ActionsStorage;
 
-/**
- * Module class
- */
 abstract class Main extends \XLite\Module\AModule
 {
-    /**
-     * Author name
-     *
-     * @return string
-     */
-    public static function getAuthorName()
-    {
-        return 'X-Cart team';
-    }
-
-    /**
-     * Get module major version
-     *
-     * @return string
-     */
-    public static function getMajorVersion()
-    {
-        return '5.3';
-    }
-
-    /**
-     * Module version
-     *
-     * @return string
-     */
-    public static function getMinorVersion()
-    {
-        return '3';
-    }
-
-    /**
-     * Get module build number (4th number in the version)
-     *
-     * @return string
-     */
-    public static function getBuildVersion()
-    {
-        return '6';
-    }
-
-    /**
-     * Get minor core version which is required for the module activation
-     *
-     * @return string
-     */
-    public static function getMinorRequiredCoreVersion()
-    {
-        return '3';
-    }
-
-    /**
-     * Module name
-     *
-     * @return string
-     */
-    public static function getModuleName()
-    {
-        return 'Google Analytics';
-    }
-
-    /**
-     * Module description
-     *
-     * @return string
-     */
-    public static function getDescription()
-    {
-        return 'Enables tracking and analyzing your website e-commerce statistics with Google Analytics.';
-    }
-
-    /**
-     * Determines if we need to show settings form link
-     *
-     * @return boolean
-     */
-    public static function showSettingsForm()
-    {
-        return true;
-    }
-
     /**
      * @inheritdoc
      */
@@ -112,6 +29,11 @@ abstract class Main extends \XLite\Module\AModule
             'checkoutEnteredAction',
             new Action\CheckoutInit()
         );
+
+        ActionsStorage::getInstance()->addAction(
+            'checkoutComplete',
+            new Action\CheckoutComplete()
+        );
     }
 
     /**
@@ -120,9 +42,9 @@ abstract class Main extends \XLite\Module\AModule
     public static function useUniversalAnalytics()
     {
         return \XLite\Core\Config::getInstance()->CDev
-               && \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics
-               && \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics->ga_account
-               && 'U' === \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics->ga_code_version;
+            && \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics
+            && \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics->ga_account
+            && 'U' === \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics->ga_code_version;
     }
 
     /**
@@ -131,7 +53,7 @@ abstract class Main extends \XLite\Module\AModule
     public static function isECommerceEnabled()
     {
         return static::useUniversalAnalytics()
-               && \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics->ecommerce_enabled;
+            && \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics->ecommerce_enabled;
     }
 
     /**

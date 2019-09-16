@@ -27,6 +27,7 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
         if ($result
             && !$this->addItemError
             && $this->shouldRegisterChange()
+            && $newItem->getObject()
             && $newItem->getObject()->getCategory()
         ) {
             $category    = $newItem->getObject()->getCategory(

@@ -1,5 +1,0 @@
-Version 5.3.1.0
-
-Improvements (1)
-2019-01-29 - [Change] Developed an integration of Facebook Ads & Instagram Ads with Google Product Feed. Now product attributes tha are linked to Google groups can be included into Facebook product feed. Added the field Inventory to Facebook feed. Other minor improvements. #XCN-9404 (Shevelov Alexander) #Sale #SystemFields #Facebook Commerce #GoogleFeed
-

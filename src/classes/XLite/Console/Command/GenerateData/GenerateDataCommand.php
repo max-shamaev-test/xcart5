@@ -177,6 +177,9 @@ class GenerateDataCommand extends Command
             }
         }
 
+        \XLite\Core\Database::getEM()->flush();
+        \XLite\Core\Database::getEM()->clear();
+
         $commonProgress->finish();
         $commonProgress->clear();
     }

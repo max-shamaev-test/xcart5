@@ -26,7 +26,7 @@ class ModuleSettings extends \XLite\View\Model\ModuleSettings implements \XLite\
     protected function isReviewModule()
     {
         if (!isset($this->isReviewModule)) {
-            $this->isReviewModule = $this->getModule() && 'XC\\Reviews' === $this->getModule()->getActualName();
+            $this->isReviewModule = $this->getModule() && 'XC-Reviews' === $this->getModule();
         }
 
         return $this->isReviewModule;

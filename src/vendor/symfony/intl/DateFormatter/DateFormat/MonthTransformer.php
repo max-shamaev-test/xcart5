@@ -20,10 +20,7 @@ namespace Symfony\Component\Intl\DateFormatter\DateFormat;
  */
 class MonthTransformer extends Transformer
 {
-    /**
-     * @var array
-     */
-    protected static $months = array(
+    protected static $months = [
         'January',
         'February',
         'March',
@@ -36,35 +33,26 @@ class MonthTransformer extends Transformer
         'October',
         'November',
         'December',
-    );
+    ];
 
     /**
      * Short months names (first 3 letters).
-     *
-     * @var array
      */
-    protected static $shortMonths = array();
+    protected static $shortMonths = [];
 
     /**
      * Flipped $months array, $name => $index.
-     *
-     * @var array
      */
-    protected static $flippedMonths = array();
+    protected static $flippedMonths = [];
 
     /**
      * Flipped $shortMonths array, $name => $index.
-     *
-     * @var array
      */
-    protected static $flippedShortMonths = array();
+    protected static $flippedShortMonths = [];
 
-    /**
-     * Constructor.
-     */
     public function __construct()
     {
-        if (0 === count(self::$shortMonths)) {
+        if (0 === \count(self::$shortMonths)) {
             self::$shortMonths = array_map(function ($month) {
                 return substr($month, 0, 3);
             }, self::$months);
@@ -77,14 +65,14 @@ class MonthTransformer extends Transformer
     /**
      * {@inheritdoc}
      */
-    public function format(\DateTime $dateTime, $length)
+    public function format(\DateTime $dateTime, int $length): string
     {
-        $matchLengthMap = array(
+        $matchLengthMap = [
             1 => 'n',
             2 => 'm',
             3 => 'M',
             4 => 'F',
-        );
+        ];
 
         if (isset($matchLengthMap[$length])) {
             return $dateTime->format($matchLengthMap[$length]);
@@ -100,7 +88,7 @@ class MonthTransformer extends Transformer
     /**
      * {@inheritdoc}
      */
-    public function getReverseMatchingRegExp($length)
+    public function getReverseMatchingRegExp(int $length): string
     {
         switch ($length) {
             case 1:
@@ -126,7 +114,7 @@ class MonthTransformer extends Transformer
     /**
      * {@inheritdoc}
      */
-    public function extractDateOptions($matched, $length)
+    public function extractDateOptions(string $matched, int $length): array
     {
         if (!is_numeric($matched)) {
             if (3 === $length) {
@@ -141,8 +129,8 @@ class MonthTransformer extends Transformer
             $matched = (int) $matched;
         }
 
-        return array(
+        return [
             'month' => $matched,
-        );
+        ];
     }
 }

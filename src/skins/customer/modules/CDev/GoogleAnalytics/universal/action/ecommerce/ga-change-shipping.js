@@ -19,7 +19,7 @@ define('googleAnalytics/changeShippingEvent', [ 'googleAnalytics/event' ], funct
 
     updateCartHandler: function(event, data) {
       if (data.shippingMethodName) {
-        this.sendEvent('changeShippingMethod', data.shippingMethodName);
+        this.sendEvent('changeShippingMethod', data.shippingMethodName, data.shippingMethodName, 'checkout');
       }
     },
   });

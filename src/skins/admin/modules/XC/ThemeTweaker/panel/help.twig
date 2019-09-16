@@ -2,4 +2,7 @@
  # Webmaster panel help
  #}
 
-<div class="panel-help">{{ this.getHelpText()|raw }}</div>
+<div class="panel-help">
+  <div>{{ this.getHelpText()|raw }}</div>
+  {{ widget('XLite\\View\\Button\\Link', location=this.getStorefrontUrl(), label=t('Customize storefront'), style="regular-button") }}
+</div>

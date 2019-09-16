@@ -50,7 +50,7 @@ class OrderItem extends \XLite\View\ItemsList\Model\Table
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'items_list/model/table/order_item/style.css';
+        $list[] = 'items_list/model/table/order_item/style.less';
         $list[] = 'change_attribute_values/style.css';
         $list[] = 'product/details/parts/attributes_modify/style.css';
 
@@ -597,7 +597,7 @@ class OrderItem extends \XLite\View\ItemsList\Model\Table
     {
         return array(
             'name' => array(
-                static::COLUMN_NAME         => static::t('Item'),
+                static::COLUMN_NAME         => static::t('Order items'),
                 static::COLUMN_CREATE_CLASS => 'XLite\View\FormField\Inline\Select\Model\Product\OrderItem',
                 static::COLUMN_TEMPLATE     => 'items_list/model/table/order_item/cell.name.twig',
                 static::COLUMN_PARAMS       => array(
@@ -698,7 +698,11 @@ class OrderItem extends \XLite\View\ItemsList\Model\Table
      */
     protected function getContainerClass()
     {
-        return parent::getContainerClass() . ' order-items';
+        return parent::getContainerClass() . ' order-items ' . (
+            $this->getOrder()->isBackordered()
+                ? 'backordered'
+                : ''
+            );
     }
 
     /**

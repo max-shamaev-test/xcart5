@@ -59,6 +59,8 @@ abstract class Periodic extends \XLite\Core\Task\ATask
 
         $this->release();
 
+        $this->model = \XLite\Core\Database::getEM()->merge($this->model);
+
         $this->model->setTriggerTime(\XLite\Core\Converter::time() + $this->getPeriod());
     }
 

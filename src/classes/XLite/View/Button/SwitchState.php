@@ -19,6 +19,16 @@ class SwitchState extends \XLite\View\Button\Icon
     const PARAM_ENABLED = 'enabled';
 
     /**
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        return array_merge(parent::getCSSFiles(), [
+            'button/switch_state.css'
+        ]);
+    }
+
+    /**
      * Define widget parameters
      *
      * @return void
@@ -37,7 +47,7 @@ class SwitchState extends \XLite\View\Button\Icon
      *
      * @return string
      */
-    protected function  getClass()
+    protected function getClass()
     {
         return trim(
             parent::getClass()

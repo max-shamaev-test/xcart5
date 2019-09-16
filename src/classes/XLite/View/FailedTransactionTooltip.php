@@ -13,6 +13,17 @@ namespace XLite\View;
  */
 class FailedTransactionTooltip extends \XLite\View\AView
 {
+    const PARAM_TITLE = 'title';
+
+    protected function defineWidgetParams()
+    {
+        parent::defineWidgetParams();
+
+        $this->widgetParams += [
+            static::PARAM_TITLE => new \XLite\Model\WidgetParam\TypeObject('Title', $this->getDefaultTitle()),
+        ];
+    }
+
     /**
      * Preprocess printed value and output it
      *
@@ -62,5 +73,21 @@ class FailedTransactionTooltip extends \XLite\View\AView
     protected function getDefaultTemplate()
     {
         return 'payment_transactions/parts/cell.transaction_status.tooltip.twig';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getTitle()
+    {
+        return $this->getParam(static::PARAM_TITLE);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getDefaultTitle()
+    {
+        return static::t('Transactions details');
     }
 }

@@ -98,7 +98,7 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
      */
     public function isAllowVaraintAdd()
     {
-        return $this->getPossibleVariantsCount() > $this->getProduct()->getVariants()->count();
+        return $this->getPossibleVariantsCount() > $this->getProduct()->getVariantsCount();
     }
 
     /**

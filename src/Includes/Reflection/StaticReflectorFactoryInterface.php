@@ -13,12 +13,14 @@ interface StaticReflectorFactoryInterface
 {
     /**
      * @param $class
+     *
      * @return StaticReflectorInterface
      */
     public function reflectClass($class);
 
     /**
      * @param $pathname
+     *
      * @return StaticReflectorInterface
      */
     public function reflectSource($pathname);

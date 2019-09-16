@@ -50,7 +50,7 @@ class ActiveCurrencies extends \XLite\View\AView
     {
         $return = parent::getCSSFiles();
 
-        $return[] = $this->getDir() . LC_DS . 'style.css';
+        $return[] = $this->getDir() . LC_DS . 'style.less';
 
         return $return;
     }

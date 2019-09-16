@@ -8,8 +8,7 @@
 
 namespace XLite\Module\XC\Onboarding\View\WizardStep;
 
-use XLite\Model\Shipping\Method;
-
+use Includes\Utils\Module\Manager;
 
 /**
  * ShippingRates
@@ -37,12 +36,13 @@ class ShippingRates extends \XLite\Module\XC\Onboarding\View\AWizardStep
      */
     protected function getMethodsData()
     {
-        return array_reduce($this->getMethods(), function($data, $method) {
+        return array_reduce($this->getMethods(), function ($data, $method) {
+            /** @var \XLite\Model\Shipping\Method $method */
             $data[$method->getProcessor()] = [
                 'method_id' => $method->getMethodId(),
                 'processor' => $method->getProcessor(),
-                'is_added' => $method->isAdded(),
-                'name' => $method->getName()
+                'is_added'  => $method->isAdded(),
+                'name'      => $method->getName(),
             ];
 
             return $data;
@@ -56,15 +56,16 @@ class ShippingRates extends \XLite\Module\XC\Onboarding\View\AWizardStep
      */
     protected function getMethods()
     {
-        $repo = \XLite\Core\Database::getRepo('XLite\Model\Shipping\Method');
+        return [];
+        //$repo = \XLite\Core\Database::getRepo('XLite\Model\Shipping\Method');
 
-        return array_filter($repo->findOnlineCarriers(), function (\XLite\Model\Shipping\Method $method) {
-            return $method->getAdminIconURL()
-                && (
-                    !$method->getProcessorModule()
-                    || $method->getProcessorModule()->getEnabled()
-                );
-        });
+        //return array_filter($repo->findOnlineCarriers(), function (\XLite\Model\Shipping\Method $method) {
+        //    return $method->getAdminIconURL()
+        //        && (
+        //            !$method->getProcessorModule()
+        //            || $method->getProcessorModule()->getEnabled()
+        //        );
+        //});
     }
 
     /**
@@ -88,20 +89,21 @@ class ShippingRates extends \XLite\Module\XC\Onboarding\View\AWizardStep
 
         $module = $method->getProcessorModule();
 
-        if ($module) {
-
-            if ($module->isInstalled() && $module->getEnabled()) {
-                $url = $method->getProcessorObject()
-                    ? $method->getProcessorObject()->getSettingsURL()
-                    : '';
-
-            } elseif ($module->isInstalled()) {
-                $url = $module->getInstalledURL();
-
-            } else {
-                $url = $module->getMarketplaceURL();
-            }
-        }
+        //Manager::getRegistry()->isModuleEnabled($this->getModuleName());
+        //
+        //if ($module) {
+        //    if ($module->isInstalled() && $module->getEnabled()) {
+        //        $url = $method->getProcessorObject()
+        //            ? $method->getProcessorObject()->getSettingsURL()
+        //            : '';
+        //
+        //    } elseif ($module->isInstalled()) {
+        //        $url = $module->getInstalledURL();
+        //
+        //    } else {
+        //        $url = $module->getMarketplaceURL();
+        //    }
+        //}
 
         return $url;
     }

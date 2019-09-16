@@ -84,13 +84,12 @@ class SearchParameters implements SearchParametersInterface
             $sort = null;
         }
 
-        return [
+        $params = [
             'q'               => $query,
             'searchIn'        => $searchBy,
             'categoryId'      => $categoryId,
             'searchInSubcats' => $searchInSubcats,
             'conditions'      => [
-                'stock_status' => $this->getStockStatusCondition(),
                 'availability' => $this->getAvailabilityCondition(),
                 'categories'   => $this->getCategoriesCondition(),
             ],
@@ -106,36 +105,41 @@ class SearchParameters implements SearchParametersInterface
                 'pages'         => 0,
             ],
             'lang'            => Session::getInstance()->getLanguage()->getCode(),
-            'isAdmin'         => XLite::isAdminZone()
+            'isAdmin'         => XLite::isAdminZone(),
         ];
+
+        $stockStatusCondition = static::getStockStatusCondition($this->cnd->{Product::P_INVENTORY});
+
+        if ($stockStatusCondition) {
+            $params['conditions']['stock_status'] = $stockStatusCondition;
+        }
+
+        return $params;
     }
 
-    protected function getStockStatusCondition()
+    public static function getStockStatusCondition($condition)
     {
-        $anyStockStatus = [Product::INV_IN, Product::INV_LOW, Product::INV_OUT];
-        $inStock        = [Product::INV_IN, Product::INV_LOW];
+        $inStock = [Product::INV_IN, Product::INV_LOW];
 
         if (!XLite::isAdminZone()) {
-            if (!$this->cnd->{Product::P_INVENTORY}) {
-                return $anyStockStatus;
+            if (!$condition) {
+                return [];
 
-            } elseif ($this->cnd->{Product::P_INVENTORY} === Product::INV_IN) {
+            } elseif ($condition === Product::INV_IN) {
                 return $inStock;
 
             } else {
-                return [$this->cnd->{Product::P_INVENTORY}];
+                return [$condition];
             }
         } else {
-            if (!$this->cnd->{Product::P_INVENTORY}
-                || $this->cnd->{Product::P_INVENTORY} === Product::INV_ALL
-            ) {
-                return $anyStockStatus;
+            if (!$condition || $condition === Product::INV_ALL) {
+                return [];
 
-            } elseif ($this->cnd->{Product::P_INVENTORY} === Product::INV_IN) {
+            } elseif ($condition === Product::INV_IN) {
                 return $inStock;
 
             } else {
-                return [$this->cnd->{Product::P_INVENTORY}];
+                return [$condition];
             }
         }
     }

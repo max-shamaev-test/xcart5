@@ -5,5 +5,5 @@
  #}
 
 {% if this.getMoreLink() %}
-  <div class="more-link-button" onclick="self.location='{{ this.getMoreLink() }}';">{{ this.getMoreLinkTitle() }}</div>
+  {{ widget('XLite\\View\\Button\\Link', location=this.getMoreLink(), label=this.getMoreLinkTitle(), style ="more-link-button") }}
 {% endif %}

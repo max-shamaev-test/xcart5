@@ -1408,7 +1408,7 @@ XML;
         if (static::getStringLength($value) == $max) {
             //check if HTML entity(&[some_code];) is truncated - remove it
             if (preg_match('/(&[^;]++)(?!;)$/', $value)) {
-                $value = static::subString($value, 0, $max - ($max - strrpos($value, '&') - 1));
+                $value = static::subString($value, 0, strrpos($value, '&'));
             }
         }
 

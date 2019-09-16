@@ -48,11 +48,6 @@
 }
 
 .order-address-dialog .info {
-  border-bottom: 1px solid #e5e5e5;
-  padding-bottom: 27px;
-}
-
-.order-address-dialog .info {
   text-decoration: none;
 }
 
@@ -63,12 +58,7 @@
   float: left;
 }
 
-.order-address-dialog h3 {
-  color: #333;
-}
-
 .order-address-dialog .address-box {
-  padding-top: 15px;
   width: 100%;
   float: none;
 }
@@ -76,16 +66,16 @@
 .order-address-dialog .expander,
 .order-address-dialog .collapser
 {
-  line-height: 43px;
-  vertical-align: middle;
-  margin-top: 9px;
+  margin-top: 12px;
+  margin-bottom: 24px;
   margin-left: 10px;
+  line-height: 24px;
 }
 
 .order-address-dialog .address-book {
   float: right;
   text-decoration: none;
-  margin-top: 14px;
+  margin-top: 6px;
 }
 
 .order-address-dialog .address-book span{
@@ -99,9 +89,13 @@
   clear: both;
 }
 
+.order-address-dialog .address-box.shipping {
+  margin-top: 48px;
+}
+
 .order-address-dialog .buttons {
-  text-align: center;
-  margin-top: 30px;
+  margin-top: 24px;
+  padding: 4px 0;
 }
 
 .order-address-dialog .section {

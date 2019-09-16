@@ -7,7 +7,7 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-if ('cli' != PHP_SAPI) {
+if ('cli' !== PHP_SAPI) {
     exit (1);
 }
 

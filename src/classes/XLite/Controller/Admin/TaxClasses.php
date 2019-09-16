@@ -34,6 +34,17 @@ class TaxClasses extends \XLite\Controller\Admin\ACL\Catalog
     }
 
     /**
+     * Update tax rate
+     *
+     * @return void
+     */
+    protected function doActionUpdate()
+    {
+        $list = new \XLite\View\ItemsList\Model\TaxClass();
+        $list->processQuick();
+    }
+
+    /**
      * Export action
      *
      * @return void

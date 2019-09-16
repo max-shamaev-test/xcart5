@@ -26,7 +26,7 @@ XLite\Model\Config:
     category: 'CDev\Sale'
     type: text
     orderby: 80
-    value: 6
+    value: 4
     translations:
       - code: en
         option_name: 'The maximum number of products to be displayed in the "Products on sale" block'

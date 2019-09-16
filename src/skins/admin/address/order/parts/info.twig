@@ -5,13 +5,11 @@
  #}
 
 <div class="info">
-  <strong>
-    {% if this.order.origProfile and this.isShowProfileLink() %}
-      <a href="{{ url('profile', '', {'profile_id': this.order.origProfile.profileId}) }}">{{ this.getName() }}</a>
-    {% else %}
-      {{ this.getName() }}
-    {% endif %}
-  </strong>
+  {% if this.order.origProfile and this.isShowProfileLink() %}
+    <a href="{{ url('profile', '', {'profile_id': this.order.origProfile.profileId}) }}">{{ this.getName() }}</a>
+  {% else %}
+    {{ this.getName() }}
+  {% endif %}
   {% if this.isShowEmail() %}
     <span class="separator">-</span>
     {#<span class="email"><a href="mailto:{{ this.getEmail() }}">{{ this.getEmail() }}</a></span>#}

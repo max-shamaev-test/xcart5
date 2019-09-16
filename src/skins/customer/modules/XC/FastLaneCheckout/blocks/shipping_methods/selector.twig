@@ -20,10 +20,10 @@
                 <input type="radio" id="method{{ this.getMethodId(rate) }}" name="{{ this.getFieldName() }}"
                        value="{{ this.getMethodId(rate) }}" {% if this.isRateSelected(rate) %} checked="checked" {% endif %}
                        v-model="{{ this.getFieldName() }}"/>
-                <span class="value">{{ widget('XLite\\View\\Surcharge', surcharge=this.getTotalRate(rate), currency=this.cart.getCurrency()) }}</span>
                 <span class="rate-title">{{ this.getMethodName(rate)|raw }}</span>
+                <span class="value">{{ widget('XLite\\View\\Surcharge', surcharge=this.getTotalRate(rate), currency=this.cart.getCurrency()) }}</span>
                 {% if this.getMethodDeliveryTime(rate) %}
-                  <span class="rate-description">{{ this.getMethodDeliveryTime(rate) }}</span>
+                  <span class="rate-description">({{ this.getMethodDeliveryTime(rate) }})</span>
                 {% endif %}
               </label>
             </div>

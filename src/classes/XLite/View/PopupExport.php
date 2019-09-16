@@ -37,7 +37,7 @@ class PopupExport extends \XLite\View\AView
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'export/style.css';
+        $list[] = 'export/style.less';
 
         return $list;
     }

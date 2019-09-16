@@ -411,9 +411,9 @@ class Method extends \XLite\Model\Repo\Base\I18n
 
                 // Save data as temporary yaml file
                 $yaml = \Symfony\Component\Yaml\Yaml::dump(array('XLite\\Model\\Shipping\\Method' => $data));
-                $yamlFile = LC_DIR_TMP . 'pm.yaml';
+                $yamlFile = LC_DIR_TMP . 'shm.yaml';
 
-                \Includes\Utils\FileManager::write(LC_DIR_TMP . 'pm.yaml', $yaml);
+                \Includes\Utils\FileManager::write(LC_DIR_TMP . 'shm.yaml', $yaml);
 
                 // Update database from yaml file
                 \XLite\Core\Database::getInstance()->loadFixturesFromYaml($yamlFile);

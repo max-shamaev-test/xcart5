@@ -492,6 +492,7 @@ class Category extends \XLite\Model\Base\Catalog
         $cnd->{\XLite\Model\Repo\Product::P_CATEGORY_ID} = $this->getCategoryId();
 
         if ('directLink' !== \XLite\Core\Config::getInstance()->General->show_out_of_stock_products
+            && !'searchOnly' !== \XLite\Core\Config::getInstance()->General->show_out_of_stock_products
             && !\XLite::isAdminZone()
         ) {
             $cnd->{\XLite\Model\Repo\Product::P_INVENTORY} = false;
@@ -510,18 +511,6 @@ class Category extends \XLite\Model\Base\Catalog
     public function hasProduct($product)
     {
         return $this->getRepository()->hasProduct($this, $product);
-    }
-
-    /**
-     * @deprecated No longer used by internal code. Use getProducts($cnd, true) instead.
-     *
-     * @param \XLite\Core\CommonCell $cnd       Search condition OPTIONAL
-     *
-     * @return integer
-     */
-    public function countProducts(\XLite\Core\CommonCell $cnd = null)
-    {
-        return $this->getProducts($cnd, true);
     }
 
     /**
@@ -940,5 +929,27 @@ class Category extends \XLite\Model\Base\Catalog
     public function getCleanURLs()
     {
         return $this->cleanURLs;
+    }
+
+    /**
+     * Get front URL
+     *
+     * @return string
+     */
+    public function getFrontURL($buildCuInAdminZone = false)
+    {
+        return $this->getCategoryId()
+            ? \XLite\Core\Converter::makeURLValid(
+                \XLite::getInstance()->getShopURL(
+                    \XLite\Core\Converter::buildURL(
+                        'category',
+                        '',
+                        ['category_id' => $this->getCategoryId()],
+                        \XLite::getCustomerScript(),
+                        $buildCuInAdminZone
+                    )
+                )
+            )
+            : null;
     }
 }

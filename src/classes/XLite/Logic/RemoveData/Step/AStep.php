@@ -79,7 +79,7 @@ abstract class AStep extends \XLite\Logic\ARepoStep
      *
      * @param boolean $reset Reset iterator OPTIONAL
      *
-     * @return \Doctrine\ORM\Internal\Hydration\IterableResult
+     * @return \Iterator
      */
     protected function getItems($reset = false)
     {

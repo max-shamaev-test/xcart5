@@ -1,5 +1,0 @@
-Version 5.3.2.2
-
-Fixes (1)
-2018-08-07 - [Bug] Replaced the Tracking info button in the order email notification with a link. #BUG-6544 https://bt.x-cart.com/view.php?id=49692 (Sergey Elmanov) #Core #UPS
-

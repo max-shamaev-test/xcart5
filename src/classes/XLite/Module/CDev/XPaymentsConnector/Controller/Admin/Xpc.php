@@ -77,23 +77,7 @@ class Xpc extends \XLite\Controller\Admin\Module
      */   
     public function getModuleID()
     {
-        if (!isset($this->moduleID)) {
-            $module = \XLite\Core\Database::getRepo('\XLite\Model\Module')->findOneBy(
-                array(
-                    'name' => 'XPaymentsConnector',
-                    'author' => 'CDev',
-                    'installed' => 1,
-                    'enabled' => 1,
-                )
-            );
-
-            if ($module) {
-                $this->moduleID = $module->getModuleID();
-                $this->module = $module;
-            }
-        }
-
-        return $this->moduleID;
+        return \Includes\Utils\Module\Module::buildId('CDev', 'XPaymentsConnector');
     }
 
     /**
@@ -234,7 +218,6 @@ class Xpc extends \XLite\Controller\Admin\Module
                 $savedCardPM->setFromMarketplace(false);
                 $savedCardPM->setAdded(true);
                 $savedCardPM->setEnabled(true);
-                $savedCardPM->setModuleEnabled(true);
 
             } else {
                 // Add Saved credit card payment method if no one Saved Card PM is stored in the DB

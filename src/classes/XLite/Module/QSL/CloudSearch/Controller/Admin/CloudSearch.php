@@ -8,13 +8,7 @@
 
 namespace XLite\Module\QSL\CloudSearch\Controller\Admin;
 
-use XLite\Core\Config;
-use XLite\Core\Database;
-use XLite\Core\Request;
-use XLite\Model\Module;
-use XLite\Module\QSL\CloudSearch\Core\ServiceApiClient;
-use XLite\Module\QSL\CloudSearch\Main;
-
+use Includes\Utils\Module\Module;
 
 /**
  * CloudSearch admin controller
@@ -28,10 +22,9 @@ class CloudSearch extends \XLite\Controller\Admin\AAdmin
      */
     public function handleRequest()
     {
-        /** @var Module $module */
-        $module = Database::getRepo('XLite\Model\Module')->findModuleByName('QSL\CloudSearch');
+        $moduleId = Module::buildId('QSL', 'CloudSearch');
 
-        $url = $this->buildURL('module', '', ['moduleId' => $module->getModuleID()]);
+        $url = $this->buildURL('module', '', ['moduleId' => $moduleId]);
 
         $this->redirect($url);
     }

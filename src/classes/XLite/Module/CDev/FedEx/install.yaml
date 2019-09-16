@@ -187,6 +187,20 @@ XLite\Model\Config:
       - code: en
         option_name: Signature option
 
+  - name: shippingRefundsSeparator
+    category: CDev\FedEx
+    type: separator
+    orderby: 450
+    translations:
+    - code: en
+      option_name: Shipping refunds settings
+  - name: lbs71Info
+    category: CDev\FedEx
+    type: XLite\View\FormField\Label
+    value: 'As a FedEx user, you are entitled to receive shipping refunds usually left unclaimed with default FedEx service ($2B/year globally)'
+    orderby: 460
+    widgetParameters: {fieldOnly: true}
+
   - name: cacheOnDeliverySeparator
     category: CDev\FedEx
     type: separator
@@ -435,3 +449,4 @@ XLite\Model\LanguageLabel:
   - { name: 'FedEx module allows to use online shipping rates calculation via FedEx.', translations: [{ code: en, label: 'FedEx module allows you to use online shipping rates calculation via FedEx.' }] }
   - { name: '"Cash on delivery" status', translations: [{ code: en, label: '"Cash on delivery" status' }] }
   - { name: 'fedex.CODStatusOptionComment', translations: [{ code: en, label: 'Note: To enable/disable the "Cash on delivery" payment option, you should enable/disable the payment method "Cash on delivery (FedEx)" on the <a href="{{URL}}">Payment methods page</a>.' }] }
+  - { name: 'As a FedEx user, you are entitled to receive shipping refunds usually left unclaimed with default FedEx service ($2B/year globally)', translations: [{ code: en, label: 'As a FedEx user, you are entitled to receive shipping refunds usually left unclaimed with default FedEx service ($2B/year globally). <a href="https://71lbs.com/xcart" target="_blank">Get My FedEx Refunds</a>' }] }

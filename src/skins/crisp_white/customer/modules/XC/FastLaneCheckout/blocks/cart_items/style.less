@@ -13,6 +13,10 @@
       display: none;
     }
 
+    .paid {
+      display: none;
+    }
+
     .items-row {
       a {
         border-bottom: 1px dotted;
@@ -24,7 +28,7 @@
         .flex-display();
         .align-items(top);
 
-        line-height: 20px;
+        line-height: @line-height-base;
         margin-top: (@rhythmic-unit / 2);
 
         a {
@@ -55,7 +59,7 @@
 
     .modifiers {
       & > li {
-        line-height: 20px;
+        line-height: @line-height-base;
         margin-top: (@rhythmic-unit / 2);
 
         .name {

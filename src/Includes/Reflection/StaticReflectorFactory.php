@@ -24,7 +24,6 @@ class StaticReflectorFactory implements StaticReflectorFactoryInterface
     /**
      * @var SourceToTargetPathMapperInterface
      */
-
     private $reflectors = [];
 
     public function __construct(ClassPathResolverInterface $classPathResolver)

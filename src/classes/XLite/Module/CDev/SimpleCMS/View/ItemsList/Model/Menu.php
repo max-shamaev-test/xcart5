@@ -303,8 +303,7 @@ class Menu extends \XLite\View\ItemsList\Model\Table
     protected function isEditLinkEnabled(array $column, \XLite\Model\AEntity $entity)
     {
         return 'submenus' === $column[static::COLUMN_CODE]
-            ? parent::isEditLinkEnabled($column, $entity)
-            && !$entity->getSubmenusCount()
+            ? parent::isEditLinkEnabled($column, $entity) && !$entity->getSubmenusCount()
             : parent::isEditLinkEnabled($column, $entity);
     }
 

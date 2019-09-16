@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\Reviews\Core\Task;
 
+use XLite\Model\OrderItem;
+
 /**
  * Send order review keys (follow ups)
  */
@@ -65,55 +67,28 @@ class SendReviewKeys extends \XLite\Core\Task\Base\Periodic
     /**
      * Send review key
      *
-     * @param \XLite\Module\XC\Reviews\OrderReviewKey $reviewKey Review key model object
-     *
-     * @return void
+     * @param \XLite\Module\XC\Reviews\Model\OrderReviewKey $reviewKey
      */
     protected function sendReviewKey($reviewKey)
     {
-        $products = $this->getOrderedProducts($reviewKey);
+        $items = $reviewKey->getOrder()->getItems()->toArray();
 
-        if ($products) {
-            \XLite\Core\Mailer::sendOrderReviewKey($reviewKey, $products);
+        $hasReviewAbleProducts = (boolean)array_filter(array_map(function (OrderItem $item) {
+            return $this->isItemAvailableForReview($item);
+        }, $items));
+
+        if ($hasReviewAbleProducts) {
+            \XLite\Core\Mailer::sendOrderReviewKey($reviewKey);
             $reviewKey->setSentDate(\XLite\Core\Converter::time());
-
         } else {
             // Order without products - remove review key
+
+            if ($order = $reviewKey->getOrder()) {
+                $order->setReviewKey(null);
+            }
+
             \XLite\Core\Database::getEM()->remove($reviewKey);
         }
-    }
-
-    /**
-     * Get list of ordered products
-     *
-     * @param \XLite\Module\XC\Reviews\OrderReviewKey $reviewKey Review key model object
-     *
-     * @return array
-     */
-    protected function getOrderedProducts($reviewKey)
-    {
-        $products = array();
-
-        foreach ($reviewKey->getOrder()->getItems() as $item) {
-            if ($this->isItemAvailableForReview($item)) {
-                $products[] = array(
-                    'name' => $item->getName(),
-                    'url'  => \XLite::getInstance()->getShopURL(
-                        \XLite\Core\Converter::buildURL(
-                            'product',
-                            '',
-                            array(
-                                'product_id' => $item->getProduct()->getProductId(),
-                                'rkey'       => $reviewKey->getKeyValue()
-                            ),
-                            \XLite::CUSTOMER_INTERFACE
-                        )
-                    )
-                );
-            }
-        }
-
-        return $products;
     }
 
     /**

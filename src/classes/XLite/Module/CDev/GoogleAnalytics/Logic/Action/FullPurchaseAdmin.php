@@ -44,7 +44,8 @@ class FullPurchaseAdmin extends ABackendAction implements IBackendAction
     public function getActionDataForBackend()
     {
         $result = $this->getCommonDataForBackend();
-        $result['ea'] = 'Purchase action';
+        $result['ec'] = 'Checkout';
+        $result['ea'] = 'Purchase';
         $result['pa'] = 'purchase';
 
         if ($this->order->getProfile()->getGaClientId()) {

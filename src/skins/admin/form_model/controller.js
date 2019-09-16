@@ -137,12 +137,24 @@ define('form_model', ['js/vue/vue', 'form_model/sticky_panel'], function (XLiteV
         return result;
       },
 
+      blockSubmitButton: function () {
+        $(this.$el).find('button[type=submit]').addClass('disabled').prop('disabled', true);
+      },
+
+      unblockSubmitButton: function () {
+        $(this.$el).find('button[type=submit]').removeClass('disabled').prop('disabled', false);
+      },
+
       onSubmit: function (event) {
         var self = this;
         this.$form.submitted = true;
         this.$validate(true, function () {
           if (self.$form.invalid) {
             event.preventDefault()
+          }
+
+          if (!event.defaultPrevented) {
+            self.blockSubmitButton();
           }
         })
       }

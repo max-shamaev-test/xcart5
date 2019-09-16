@@ -1,9 +1,9 @@
 {##
- # Order created email body (to customer)
+ # transaction declined email body
  #}
+
 <p>
-    {{ t('You can find the failed transaction here', {'url': this.transactionSearchURL})|raw }}
-<p>
-<p>
-  {{ widget('XLite\\View\\CartData', order=this.order) }}
-<p>
+  {{ widget('\\XLite\\View\\TransactionDetails', transaction=this.transaction) }}
+</p>
+
+{{ widget_list('failed_transaction.after', transaction=this.transaction, transactionSearchURL=this.transactionSearchURL) }}

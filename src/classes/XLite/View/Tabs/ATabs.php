@@ -217,7 +217,15 @@ abstract class ATabs extends \XLite\View\AView
      */
     protected function isVisible()
     {
-        return parent::isVisible() && in_array($this->getCurrentTarget(), $this->getTabTargets(), true);
+        return parent::isVisible() && $this->isCurrentTargetInTabTargets();
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isCurrentTargetInTabTargets()
+    {
+        return in_array($this->getCurrentTarget(), $this->getTabTargets(), true);
     }
     
     /**

@@ -14,9 +14,9 @@ jQuery(document).ready(function () {
     function() {
       $(this).change(function () {
           if ($(this).val() === 'manual') {
-            $('.mail-from-manual-value').closest('.input').find(':not(.help-block)').show();
+            $('.mail-from-manual-value').closest('.input').show();
           } else {
-            $('.mail-from-manual-value').closest('.input').find(':not(.help-block)').hide();
+            $('.mail-from-manual-value').closest('.input').hide();
           }
       }).change();
     }

@@ -31,4 +31,14 @@ abstract class APage extends \XLite\View\Product\Details\Customer\Page\APage imp
             ];
         }
     }
+
+    /**
+     * Define whether to display the rating on the page
+     *
+     * @return boolean
+     */
+    public function isVisibleAverageRatingOnPage()
+    {
+        return true;
+    }
 }

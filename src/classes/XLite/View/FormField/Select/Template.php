@@ -8,6 +8,10 @@
 
 namespace XLite\View\FormField\Select;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
+use XLite\Core\Skin;
+
 /**
  * \XLite\View\FormField\Select\Template
  */
@@ -48,7 +52,7 @@ class Template extends \XLite\View\FormField\Select\Regular implements \XLite\Co
      */
     public function getValue()
     {
-        return parent::getValue() ?: static::SKIN_STANDARD;
+        return parent::getValue() ?: Skin::getInstance()->getDefaultSkinModuleId();
     }
 
     /**
@@ -58,12 +62,10 @@ class Template extends \XLite\View\FormField\Select\Regular implements \XLite\Co
      */
     protected function getDefaultOptions()
     {
-        $options = array();
-        foreach ($this->getSkinModules() as $module) {
-            $options[$this->getModuleId($module)] = $this->getModuleLabel($module);
-        }
-
-        return $options;
+        return array_reduce($this->getSkinModules(), function ($acc, $module) {
+            $acc[$this->getModuleId($module)] = $this->getModuleLabel($module);
+            return $acc;
+        }, []);
     }
 
     /**
@@ -73,28 +75,31 @@ class Template extends \XLite\View\FormField\Select\Regular implements \XLite\Co
      */
     protected function getSkinModules()
     {
-        $result = array(static::SKIN_STANDARD);
+        $result = $this->getDefaultSkinModules();
 
-        if (!defined('LC_MODULE_CONTROL')) {
-            define('LC_MODULE_CONTROL', true);
-        }
+        $skin_modules = Manager::getRegistry()->getSkinModules();
 
-        $skin_modules = \XLite\Core\Database::getRepo('XLite\Model\Module')->getSkinModules();
-
+        /** @var Module $module */
         foreach ($skin_modules as $module) {
-            $colors = $module->callModuleMethod('getLayoutColors');
+            $colors = $this->getSkinColors($module);
 
             if ($colors) {
-                foreach (array_keys($colors) as $color) {
-                    $result[] = array(
+                foreach ($colors as $color => $label) {
+                    $result[] = [
                         'module' => $module,
                         'color'  => $color,
-                    );
+                        'label'  => $label
+                    ];
                 }
             } else {
-                $result[] = array(
-                    'module' => $module,
-                );
+                if ($module->id === 'XC-CrispWhiteSkin') {
+                    $result = array_merge([['module' => $module]], $result);
+
+                } else {
+                    $result[] = [
+                        'module' => $module,
+                    ];
+                }
             }
         }
 
@@ -102,69 +107,68 @@ class Template extends \XLite\View\FormField\Select\Regular implements \XLite\Co
     }
 
     /**
+     * @return array
+     */
+    protected function getDefaultSkinModules()
+    {
+        return [
+            Skin::getInstance()->getDefaultSkinModuleId()
+        ];
+    }
+
+    /**
+     * @param Module $module
+     * @return array
+     */
+    protected function getSkinColors($module)
+    {
+        return Skin::getInstance()->getAvailableLayoutColors($module);
+    }
+
+    /**
      * Returns option id
      *
-     * @param array|string $module Module
+     * @param array|string $skin Module
      *
      * @return string
      */
-    protected function getModuleId($module)
+    protected function getModuleId($skin)
     {
-        if (static::SKIN_STANDARD === $module) {
-            $result = static::SKIN_STANDARD;
-
-        } else {
-            $result = $module['module']->getModuleId() . (isset($module['color']) ? ('_' . $module['color']) : '');
+        if (isset($skin['module'])) {
+            return $skin['module']->id . (isset($skin['color']) ? ('_' . $skin['color']) : '');
         }
 
-        return (string) $result;
+        return (string) $skin;
     }
 
     /**
      * Returns option image
      *
-     * @param array|string $module Module
+     * @param array|string $skin Module
      *
      * @return string
      */
-    protected function getModuleImage($module)
+    protected function getModuleImage($skin)
     {
-        if (static::SKIN_STANDARD === $module) {
-            $result = \XLite\Core\Layout::getInstance()->getResourceWebPath('images/layout/preview_list.jpg');
-
-        } else {
-            $skinModule = $module['module'];
-            $image = 'preview_list' . (isset($module['color']) ? ('_' . $module['color']) : '') . '.jpg';
-            $result = \XLite\Core\Layout::getInstance()->getResourceWebPath(
-                'modules/' . $skinModule->getAuthor() . '/' . $skinModule->getName() . '/' . $image
-            );
-        }
-
-        return $result
-            ?: \XLite\Core\Layout::getInstance()->getResourceWebPath('images/layout/preview_list_placeholder.jpg');
+        $module = isset($skin['module']) ? $skin['module'] : $skin;
+        $color = isset($skin['color']) ? $skin['color'] : '';
+        return Skin::getInstance()->getSkinListItemPreview($module, $color);
     }
 
     /**
      * Returns option image
      *
-     * @param array|string $module Module
+     * @param array|string $skin Module
      *
      * @return string
      */
-    protected function getModuleLabel($module)
+    protected function getModuleLabel($skin)
     {
-        if (static::SKIN_STANDARD === $module) {
-            $result = static::t('Standard');
-
-        } else {
-            $availableColors = $module['module']->callModuleMethod('getLayoutColors');
-
-            $result = (isset($module['color']) && isset($availableColors[$module['color']]))
-                ? $availableColors[$module['color']]
-                : $module['module']->getModuleName();
-        }
-
-        return $result;
+        $module = isset($skin['module']) ? $skin['module'] : $skin;
+        $color = isset($skin['color']) ? $skin['color'] : '';
+        return isset($skin['label'])
+            ? $skin['label']
+            : Skin::getInstance()->getSkinDisplayName($module, $color);
     }
 
     /**
@@ -176,16 +180,7 @@ class Template extends \XLite\View\FormField\Select\Regular implements \XLite\Co
      */
     protected function isModuleSelected($module)
     {
-        $value = $this->getValue();
-
-        if (static::SKIN_STANDARD === $module) {
-            $result = static::SKIN_STANDARD === $value;
-
-        } else {
-            $result = $this->getModuleId($module) === (string) $value;
-        }
-
-        return $result;
+        return $this->getModuleId($module) === (string) $this->getValue();
     }
 
     /**
@@ -199,22 +194,18 @@ class Template extends \XLite\View\FormField\Select\Regular implements \XLite\Co
     {
         $result = false;
 
-        if (static::SKIN_STANDARD !== $module
+        if (Skin::getInstance()->getDefaultSkinModuleId() !== $module
             && \XLite\Core\Request::getInstance()->recent
         ) {
-            $installedIds = \XLite\Controller\Admin\Base\AddonsList::getRecentlyInstalledModuleList();
+            $installedIds = \XLite\Core\Request::getInstance()->recent;
 
-            $result = in_array($module['module']->getModuleId(), $installedIds, false);
+            $result = in_array($module['module']->id, $installedIds, false);
         }
 
         $moduleId = \XLite\Core\Request::getInstance()->moduleId;
-        if ($moduleId) {
-            if (static::SKIN_STANDARD === $module) {
-                $result = static::SKIN_STANDARD === $moduleId;
 
-            } else {
-                $result = $this->getModuleId($module) === $moduleId;
-            }
+        if ($moduleId) {
+            $result = $this->getModuleId($module) === $moduleId;
         }
 
         return $result;
@@ -223,15 +214,14 @@ class Template extends \XLite\View\FormField\Select\Regular implements \XLite\Co
     /**
      * Check if redeploy is required
      *
-     * @param array|string $module Module
-     *
+     * @param array|string $skin
      * @return string
      */
-    protected function isRedeployRequired($module)
+    protected function isRedeployRequired($skin)
     {
-        $moduleId = static::SKIN_STANDARD !== $module ? $module['module']->getModuleId() : $module;
+        $moduleId = isset($skin['module']) ? $skin['module']->id : $skin;
 
-        return (string) ((int) $this->getValue() !== (int) $moduleId);
+        return strpos($this->getValue(), $moduleId) !== 0;
     }
 
     /**

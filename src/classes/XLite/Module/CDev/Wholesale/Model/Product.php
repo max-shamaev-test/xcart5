@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\Wholesale\Model;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Product
  *
@@ -140,7 +142,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     public function isWholesalePricesEnabled()
     {
-        return !\XLite\Core\Operator::isClassExists('\XLite\Module\CDev\Sale\Main')
+        return !Manager::getRegistry()->isModuleEnabled('CDev-Sale')
             || !$this->getParticipateSale();
     }
 

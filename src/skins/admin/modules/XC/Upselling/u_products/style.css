@@ -15,12 +15,6 @@
   background-position-y: -24px;
 }
 
-td.cell.product div.cell {
-  width: 212px;
-  overflow: hidden;
-  position: relative;
-}
-
 .xc-upselling-searchpanel-main .search-conditions-box .search-conditions > li.substring-condition,
 .xc-upselling-searchpanel-main .search-conditions-box .search-conditions > li.categoryId-condition
 {
@@ -34,18 +28,6 @@ td.cell.product div.cell {
 
 .xc-upselling-searchpanel-main .search-conditions-box .search-conditions > li.categoryId-condition div.table-value select {
   width: 324px;
-}
-
-.select2-container.select2-container--default.select2-container--open {
-  z-index: 10001;
-}
-
-.xc-upselling-searchpanel-main .search-conditions-box .search-conditions > li.categoryId-condition .input-category-select2 .select2-container .selection .select2-selection {
-  border-radius: 3px;
-  border: 1px solid #c3c3c3;;
-
-  min-width: 150px;
-  min-height: 35px;
 }
 
 .sticky-panel .additional-buttons .dropdown-menu .enable-mutual i.button-icon {

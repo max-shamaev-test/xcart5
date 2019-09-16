@@ -10,6 +10,7 @@ XLite\Model\Payment\Method:
     class: Module\CDev\TwoCheckout\Model\Payment\Processor\TwoCheckout
     type: C
     orderby: -10500
+    countries: [AI, AW, BB, BZ, BM, BQ, CA, KY, CR, CW, DM, DO, SV, GD, GT, HT, HN, MQ, MX, MS, PA, KN, LC, PM, VC, TC, US, VG, VI, AS, AG, BS, GP, JM, NI, PR, TT, UM, AX, AL, AD, AM, AT, AZ, BY, BE, BA, BV, BG, HR, CZ, DK, EE, FI, FR, TF, DE, GI, GR, GG, HU, IS, IE, IM, IT, JE, LV, LI, LT, LU, MK, MT, MD, MC, ME, NL, NO, PL, PT, RO, RU, SM, RS, SK, SI, ES, SJ, SE, CH, UA, GB, VA, FO, GF, GE, GL, KZ, MF, TR, AU, BD, BT, IO, CN, CX, CC, CK, PF, GU, HM, HK, IN, ID, JP, KI, KR, LA, MO, MY, MH, FM, MN, NR, NP, NZ, NU, NF, PK, PW, PG, PH, PN, WS, SG, SB, LK, TW, TH, TK, TO, TV, VN, WF, BN, KH, FJ, MV, NC, MP, TL, VU, AO, BH, BF, BI, CV, CF, TD, KM, CG, CD, CY, DJ, EG, GQ, ER, ET, GM, IL, JO, KE, XK, KW, KG, LB, LS, LR, MG, MW, MR, MU, YT, MA, NE, NG, OM, PS, ST, SA, SL, SO, GS, ZA, TG, AE, UZ, EH, ZM, ZW, AF, DZ, BJ, BW, CM, GA, GH, GN, GW, ML, MZ, NA, QA, RE, RW, SN, SC, SZ, TJ, TZ, TN, TM, UG, YE, XA, AR, BR, CL, CO, EC, FK, GY, PY, PE, SH, SR, UY, BO, VE, SX]
     translations:
       - code: en
         name: 2Checkout.com

@@ -8,11 +8,39 @@
 
 namespace XLite\View\FormField\Select\Select2;
 
+use XLite\Core\Cache\ExecuteCachedTrait;
+use XLite\View\FormField\Select\MultipleTrait;
+use XLite\View\FormField\Select\Select2Trait;
+
 /**
  * Category selector
  */
 class Category extends \XLite\View\FormField\Select\Category
 {
+    use ExecuteCachedTrait, MultipleTrait, Select2Trait {
+        MultipleTrait::getCommonAttributes as getCommonAttributesMultiple;
+        MultipleTrait::setCommonAttributes as setCommonAttributesMultiple;
+        MultipleTrait::isOptionSelected as isOptionSelectedMultiple;
+        Select2Trait::getCommentedData as getSelect2CommentedData;
+        Select2Trait::getValueContainerClass as getSelect2ContainerClass;
+    }
+
+    const PARAM_MULTIPLE = 'multiple';
+
+    /**
+     * Define widget params
+     *
+     * @return void
+     */
+    protected function defineWidgetParams()
+    {
+        parent::defineWidgetParams();
+
+        $this->widgetParams += [
+            static::PARAM_MULTIPLE => new \XLite\Model\WidgetParam\TypeBool('Select multiple', false),
+        ];
+    }
+
     /**
      * Get value container class
      *
@@ -20,7 +48,7 @@ class Category extends \XLite\View\FormField\Select\Category
      */
     protected function getValueContainerClass()
     {
-        $class = parent::getValueContainerClass();
+        $class = $this->getSelect2ContainerClass();
 
         $class .= ' input-category-select2';
 
@@ -28,15 +56,85 @@ class Category extends \XLite\View\FormField\Select\Category
     }
 
     /**
-     * Register files from common repository
+     * Set common attributes
+     *
+     * @param array $attrs Field attributes to prepare
      *
      * @return array
      */
-    public function getCommonFiles()
+    protected function setCommonAttributes(array $attrs)
     {
-        $list = parent::getCommonFiles();
-        $list[static::RESOURCE_JS][] = 'select2/dist/js/select2.min.js';
-        $list[static::RESOURCE_CSS][] = 'select2/dist/css/select2.min.css';
+        if ($this->getParam(static::PARAM_MULTIPLE)) {
+            return $this->setCommonAttributesMultiple($attrs);
+        }
+
+        return parent::setCommonAttributes($attrs);
+    }
+
+    /**
+     * Get common attributes
+     *
+     * @return array
+     */
+    protected function getCommonAttributes()
+    {
+        if ($this->getParam(static::PARAM_MULTIPLE)) {
+            return $this->getCommonAttributesMultiple();
+        }
+
+        return parent::getCommonAttributes();
+    }
+
+    /**
+     * Get option attributes
+     *
+     * @param mixed $value Value
+     * @param mixed $text  Text
+     *
+     * @return array
+     */
+    protected function getOptionAttributes($value, $text)
+    {
+        $attributes = parent::getOptionAttributes($value, $text);
+
+        if ($value !== 0 && $value !== 'no_category') {
+            $category = \XLite\Core\Database::getRepo('\XLite\Model\Category')->getCategory($value);
+
+            if (!$category->isVisible()) {
+                $attributes['data-disabled'] = true;
+            }
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * getOptions
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        $list = [];
+
+        if ($this->getValue()) {
+            foreach ($this->getValue() as $selectedCategoryId) {
+                if ($selectedCategoryId == '0') {
+                    $list[$selectedCategoryId] = static::t('Any category');
+                } elseif ($selectedCategoryId == 'no_category') {
+                    $list[$selectedCategoryId] = static::t('No category assigned');
+                } else {
+                    $selectedCategory = \XLite\Core\Database::getRepo('\XLite\Model\Category')->getCategory($selectedCategoryId);
+                    if ($selectedCategory->isRootCategory()) {
+                        $list[$selectedCategoryId] = $this->getTarget() == 'category'
+                            ? static::t('Root category')
+                            : static::t('Any category');
+                    } else {
+                        $list[$selectedCategoryId] = $selectedCategory->getStringPath();
+                    }
+                }
+            }
+        }
 
         return $list;
     }
@@ -48,8 +146,8 @@ class Category extends \XLite\View\FormField\Select\Category
      */
     public function getCSSFiles()
     {
-        $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/select/select2/category.css';
+        $list   = parent::getCSSFiles();
+        $list[] = $this->getDir() . '/select/select2/category.less';
 
         return $list;
     }
@@ -61,7 +159,7 @@ class Category extends \XLite\View\FormField\Select\Category
      */
     public function getJSFiles()
     {
-        $list = parent::getJSFiles();
+        $list   = parent::getJSFiles();
         $list[] = $this->getDir() . '/select/select2/category.js';
 
         return $list;
@@ -74,6 +172,15 @@ class Category extends \XLite\View\FormField\Select\Category
      */
     protected function getCommentedData()
     {
-        return array();
+        return array_merge($this->getSelect2CommentedData(), [
+            'placeholder-lbl'     => static::t('Any category'),
+            'disabled-lbl'        => static::t('Category is not accessible'),
+            'short-lbl'           => static::t('Please enter 3 or more characters'),
+            'more-lbl'            => static::t('Loading more results...'),
+            'displayNoCategory'   => $this->getParam(static::PARAM_DISPLAY_NO_CATEGORY) ? 1 : 0,
+            'displayRootCategory' => $this->getParam(static::PARAM_DISPLAY_ROOT_CATEGORY) ? 1 : 0,
+            'displayAnyCategory'  => $this->getParam(static::PARAM_DISPLAY_ANY_CATEGORY) ? 1 : 0,
+            'excludeCategory'     => $this->getParam(static::PARAM_EXCLUDE_CATEGORY) ?? 0,
+        ]);
     }
 }

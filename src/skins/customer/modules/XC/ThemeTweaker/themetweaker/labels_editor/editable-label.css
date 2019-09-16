@@ -7,6 +7,7 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
+
 .xlite-translation-label:not(.disabled) {
     cursor: text;
     position: relative;
@@ -37,6 +38,7 @@
     max-width: 400px;
     width: 100%;
     z-index: 9999999999;
+    font-family: 'Open Sans', sans-serif !important;
 }
 
 .xlite-translation-popover .xlite-translation-help .xlite-translation-label {
@@ -47,6 +49,55 @@
     font-size: 14px;
     z-index: 2;
     pointer-events: auto !important;
+    display: inline-block;
+    margin-bottom: 0;
+    position: relative;
+    padding: 6px 9px;
+    border-radius: 3px;
+    background: #fff;
+    color: #386eaf;
+    min-width: 100px;
+}
+
+.xlite-translation-button:hover,
+.xlite-translation-button:focus {
+    color: #1cb5fc;
+    background: #fff;
+    box-shadow: inset 0 1px 4px -1px rgba(51,51,51,.2);
+}
+
+.xlite-translation-button.themetweaker-main-button {
+    color: #fff;
+    background: #f0ad4e;
+    border-color: #eea236;
+}
+
+.xlite-translation-button.themetweaker-main-button:hover,
+.xlite-translation-button.themetweaker-main-button:focus {
+    color: #fff;
+    background: #ed9c28;
+}
+
+.xlite-translation-button span {
+    font-weight: normal;
+    text-transform: none;
+}
+
+.xlite-translation-button:active {
+    outline: 0;
+    background-image: none;
+    box-shadow: -1px 0 0px 0px #ececec, 1px 0 0px 0px #ececec, inset 0 1px 0px 0px #ececec;
+    background: #f8fdff;
+}
+
+.xlite-translation-button.disabled {
+    background: none;
+    -moz-opacity: .3;
+    -khtml-opacity: .3;
+    -webkit-opacity: .3;
+    opacity: .3;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(opacity=30)";
+    filter: alpha(opacity=30);
 }
 
 .xlite-translation-value {
@@ -58,7 +109,22 @@
 }
 
 .xlite-translation-wrapper {
-    margin-bottom: 10px;
+    display: block;
+    width: 100%;
+    padding: 7px 8px;
+    font-size: 14px;
+    color: #555 !important;
+    background: #fff none !important;;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    height: 34px;
+    line-height: 14px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+    -moz-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+    -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    margin-bottom: 10px !important;
 }
 
 .xlite-translation-heading {

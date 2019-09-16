@@ -30,7 +30,7 @@ ShipAsBillHandler.prototype.block = null;
 ShipAsBillHandler.prototype.changeFieldsAccessability = function()
 {
   this.block.find('input, select, textarea').prop('disabled', this.flag.prop('checked') ? 'disabled' : '');
-  this.flag.removeProp('disabled');
+  this.flag.removeAttr('disabled');
 };
 
 jQuery(document).ready(

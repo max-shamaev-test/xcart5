@@ -25,8 +25,8 @@
       </td>
       <td>
       <select id="settings_isAutoSettle" name="settings[isAutoSettle]">
-        <option value="1" {% if this.isSelected(this.paymentMethod.getSetting('isAutoSettle'), '1') %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
-        <option value="0" {% if this.isSelected(this.paymentMethod.getSetting('isAutoSettle'), '0') %} selected="selected" {% endif %}>{{ t('No') }}</option>
+        <option value="1" {% if '1' == this.paymentMethod.getSetting('isAutoSettle') %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
+        <option value="0" {% if '0' == this.paymentMethod.getSetting('isAutoSettle') %} selected="selected" {% endif %}>{{ t('No') }}</option>
       </select>
       </td>
     </tr>
@@ -72,8 +72,8 @@
     </td>
     <td>
       <select id="settings_isPayPal" name="settings[isPayPal]">
-        <option value="1" {% if this.isSelected(this.paymentMethod.getSetting('isPayPal'), '1') %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
-        <option value="0" {% if this.isSelected(this.paymentMethod.getSetting('isPayPal'), '0') %} selected="selected" {% endif %}>{{ t('No') }}</option>
+        <option value="1" {% if '1' == this.paymentMethod.getSetting('isPayPal') %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
+        <option value="0" {% if '0' == this.paymentMethod.getSetting('isPayPal') %} selected="selected" {% endif %}>{{ t('No') }}</option>
       </select>
     </td>
   </tr>
@@ -83,9 +83,9 @@
     </td>
     <td>
       <select id="settings_paypalButtonColor" name="settings[paypalButtonColor]">
-        <option value="gold" {% if this.isSelected(this.paymentMethod.getSetting('paypalButtonColor'), 'gold') %} selected="selected" {% endif %}>{{ t('Gold') }}</option>
-        <option value="silver" {% if this.isSelected(this.paymentMethod.getSetting('paypalButtonColor'), 'silver') %} selected="selected" {% endif %}>{{ t('Silver') }}</option>
-        <option value="blue" {% if this.isSelected(this.paymentMethod.getSetting('paypalButtonColor'), 'blue') %} selected="selected" {% endif %}>{{ t('Blue') }}</option>
+        <option value="gold" {% if 'gold' == this.paymentMethod.getSetting('paypalButtonColor') %} selected="selected" {% endif %}>{{ t('Gold') }}</option>
+        <option value="silver" {% if 'silver' == this.paymentMethod.getSetting('paypalButtonColor') %} selected="selected" {% endif %}>{{ t('Silver') }}</option>
+        <option value="blue" {% if 'blue' == this.paymentMethod.getSetting('paypalButtonColor') %} selected="selected" {% endif %}>{{ t('Blue') }}</option>
       </select>
     </td>
   </tr>
@@ -95,8 +95,8 @@
     </td>
     <td>
       <select id="settings_paypalButtonShape" name="settings[paypalButtonShape]">
-        <option value="pill" {% if this.isSelected(this.paymentMethod.getSetting('paypalButtonShape'), 'pill') %} selected="selected" {% endif %}>{{ t('Pill') }}</option>
-        <option value="rect" {% if this.isSelected(this.paymentMethod.getSetting('paypalButtonShape'), 'rect') %} selected="selected" {% endif %}>{{ t('Rect') }}</option>
+        <option value="pill" {% if 'pill' == this.paymentMethod.getSetting('paypalButtonShape') %} selected="selected" {% endif %}>{{ t('Pill') }}</option>
+        <option value="rect" {% if 'rect' == this.paymentMethod.getSetting('paypalButtonShape') %} selected="selected" {% endif %}>{{ t('Rect') }}</option>
       </select>
     </td>
   </tr>
@@ -111,8 +111,8 @@
     </td>
     <td>
     <select id="settings_isUseVault" name="settings[isUseVault]">
-      <option value="1" {% if this.isSelected(this.paymentMethod.getSetting('isUseVault'), '1') %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
-      <option value="0" {% if this.isSelected(this.paymentMethod.getSetting('isUseVault'), '0') %} selected="selected" {% endif %}>{{ t('No') }}</option>
+      <option value="1" {% if '1' == this.paymentMethod.getSetting('isUseVault') %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
+      <option value="0" {% if '0' == this.paymentMethod.getSetting('isUseVault') %} selected="selected" {% endif %}>{{ t('No') }}</option>
     </select>
     </td>
   </tr>
@@ -122,8 +122,8 @@
     </td>
     <td>
       <select id="settings_isShowSaveCardBox" name="settings[isShowSaveCardBox]">
-        <option value="1" {% if this.isSelected(this.paymentMethod.getSetting('isShowSaveCardBox'), '1') %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
-        <option value="0" {% if this.isSelected(this.paymentMethod.getSetting('isShowSaveCardBox'), '0') %} selected="selected" {% endif %}>{{ t('No') }}</option>
+        <option value="1" {% if '1' == this.paymentMethod.getSetting('isShowSaveCardBox') %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
+        <option value="0" {% if '0' == this.paymentMethod.getSetting('isShowSaveCardBox') %} selected="selected" {% endif %}>{{ t('No') }}</option>
       </select>
     </td>
   </tr>
@@ -138,8 +138,8 @@
     </td>
     <td>
       <select id="settings_is3dSecure" name="settings[is3dSecure]">
-        <option value="1" {% if this.isSelected(this.paymentMethod.getSetting('is3dSecure'), '1') %} selected="selected" {% endif %}>{{ t('Enabled') }}</option>
-        <option value="0" {% if this.isSelected(this.paymentMethod.getSetting('is3dSecure'), '0') %} selected="selected" {% endif %}>{{ t('Disabled') }}</option>
+        <option value="1" {% if '1' == this.paymentMethod.getSetting('is3dSecure') %} selected="selected" {% endif %}>{{ t('Enabled') }}</option>
+        <option value="0" {% if '0' == this.paymentMethod.getSetting('is3dSecure') %} selected="selected" {% endif %}>{{ t('Disabled') }}</option>
       </select>
     </td>
   </tr>
@@ -149,8 +149,8 @@
     </td>
     <td>
       <select id="settings_isAcceptNo3dSecure" name="settings[isAcceptNo3dSecure]">
-        <option value="1" {% if this.isSelected(this.paymentMethod.getSetting('isAcceptNo3dSecure'), '1') %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
-        <option value="0" {% if this.isSelected(this.paymentMethod.getSetting('isAcceptNo3dSecure'), '0') %} selected="selected" {% endif %}>{{ t('No') }}</option>
+        <option value="1" {% if '1' == this.paymentMethod.getSetting('isAcceptNo3dSecure') %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
+        <option value="0" {% if '0' == this.paymentMethod.getSetting('isAcceptNo3dSecure') %} selected="selected" {% endif %}>{{ t('No') }}</option>
       </select>
     </td>
   </tr>
@@ -160,8 +160,8 @@
     </td>
     <td>
       <select id="settings_is3dSecureForVault" name="settings[is3dSecureForVault]">
-        <option value="1" {% if this.isSelected(this.paymentMethod.getSetting('is3dSecureForVault'), '1') %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
-        <option value="0" {% if this.isSelected(this.paymentMethod.getSetting('is3dSecureForVault'), '0') %} selected="selected" {% endif %}>{{ t('No') }}</option>
+        <option value="1" {% if '1' == this.paymentMethod.getSetting('is3dSecureForVault') %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
+        <option value="0" {% if '0' == this.paymentMethod.getSetting('is3dSecureForVault') %} selected="selected" {% endif %}>{{ t('No') }}</option>
       </select>
     </td>
   </tr>

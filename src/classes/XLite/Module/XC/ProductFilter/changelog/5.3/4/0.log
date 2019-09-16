@@ -1,8 +1,0 @@
-Version 5.3.4.0
-
-Improvements (1)
-2018-11-12 - [Change] Hidden attributes feature added. #XCN-9252 (Shevelov Alexander) #Core #FileAttachments #ProductFilter #BulkEditing #GoogleFeed
-
-Fixes (1)
-2018-11-19 - [Bug] In mobile view, the filters were disappearing  after Reset filter was clicked. Fixed. #BUG-6807 https://bt.x-cart.com/view.php?id=50108 (Vladimir Semyonov) #ProductFilter
-

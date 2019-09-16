@@ -151,6 +151,20 @@ XLite\Model\Config:
       - code: en
         option_name: Insured value
 
+  - name: shippingRefundsSeparator
+    category: XC\UPS
+    type: separator
+    orderby: 390
+    translations:
+    - code: en
+      option_name: Shipping refunds settings
+  - name: lbs71Info
+    category: XC\UPS
+    type: XLite\View\FormField\Label
+    value: 'As a UPS user, you are entitled to receive shipping refunds usually left unclaimed with default UPS service ($2B/year globally)'
+    orderby: 395
+    widgetParameters: {fieldOnly: true}
+
   - name: cacheOnDeliverySeparator
     category: XC\UPS
     type: separator
@@ -452,3 +466,4 @@ XLite\Model\LanguageLabel:
   - { name: 'On call air', translations: [{ code: en, label: 'On call air' }] }
   - { name: 'One time pickup', translations: [{ code: en, label: 'One time pickup' }] }
   - { name: 'Suggested retail rates', translations: [{ code: en, label: 'Suggested retail rates' }] }
+  - { name: 'As a UPS user, you are entitled to receive shipping refunds usually left unclaimed with default UPS service ($2B/year globally)', translations: [{ code: en, label: 'As a UPS user, you are entitled to receive shipping refunds usually left unclaimed with default UPS service ($2B/year globally). <a href="https://71lbs.com/xcart" target="_blank">Get My UPS Refunds</a>' }] }

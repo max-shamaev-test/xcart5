@@ -128,6 +128,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                 'VARIANT-SKU-FMT'         => 'Variant sku must be unique',
                 'VARIANT-ID-MISMATCH'     => 'Couldn\'t identify a variant based on ID X being imported',
                 'VARIANT-ID-CHANGED'      => 'variant ID X was replaced by ID Y generated automatically',
+                'VARIANT-TYPE-FMT'        => 'Field type for the attribute "{{value}}" is TEXT AREA; this type cannot be used to configure multiple attribute values.',
             ];
     }
 
@@ -470,7 +471,14 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                     break;
                 }
 
+                if ($attribute::TYPE_TEXT == $attribute->getType() && sizeof($attributeValue) > 1) {
+                    $this->addError('VARIANT-TYPE-FMT', ['value' => $attr]);
+                }
+
                 foreach ($attributeValue as $k => $value) {
+                    if (is_array($value)) {
+                        $value = reset($value);
+                    }
                     if ($valueStringData = $this->parseAttributeValueString($value)) {
                         $variantsAttributes[$k][$attribute->getId()][] = $valueStringData['value'];
 
@@ -502,6 +510,9 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
 
             $repo = Database::getRepo($attribute->getAttributeValueClass($attribute->getType()));
             if ($attribute::TYPE_CHECKBOX == $attribute->getType()) {
+                if (is_array($value)) {
+                    $value = reset($value);
+                }
                 $values[$id] = $repo->findOneBy(
                     [
                         'attribute' => $attribute,
@@ -509,8 +520,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                         'value'     => $this->normalizeValueAsBoolean($value),
                     ]
                 );
-
-            } else {
+            } elseif ($attribute::TYPE_TEXT !== $attribute->getType()) {
                 $attributeOption = Database::getRepo('XLite\Model\AttributeOption')
                     ->findOneByNameAndAttribute($value, $attribute);
                 $values[$id] = $repo->findOneBy(

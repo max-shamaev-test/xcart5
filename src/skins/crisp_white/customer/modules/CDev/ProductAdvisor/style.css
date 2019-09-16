@@ -11,16 +11,6 @@
   font-weight: bold;
 }
 
-.products .drag-n-drop-handle .coming-soon-message
-{
-  display: none;
-}
-
-.products .coming-soon .drag-n-drop-handle .coming-soon-message
-{
-  display: inline;
-}
-
 ul.products-sidebar ul.labels li, ul.products-sidebar ul.labels li.coming-soon {
   margin: 0;
   padding: 0;
@@ -33,7 +23,11 @@ ul.products-sidebar ul.labels li, ul.products-sidebar ul.labels li.coming-soon d
 
 .product-details-info .coming-soon-label .labels {
   display: inline-block;
-  margin-right: 7px;
+}
+
+.product-details-info .coming-soon-label .labels .content span {
+  display: inline;
+  font-weight: bold;
 }
 
 .coming-soon-note {

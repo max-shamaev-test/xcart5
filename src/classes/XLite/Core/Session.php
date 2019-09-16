@@ -558,8 +558,9 @@ class Session extends \XLite\Base\Singleton
             if ('COOKIE' === $source) {
 
                 // DO NOT Change the current session if the $sid goes from COOKIE
-                $this->session->updateExpiry();
-                \XLite\Core\Database::getEM()->flush($this->session);
+                if ($this->session->updateExpiry()) {
+                    \XLite\Core\Database::getEM()->flush($this->session);
+                }
 
             } else {
 
@@ -669,7 +670,7 @@ class Session extends \XLite\Base\Singleton
                 \XLite\Core\Request::getInstance()->setCookie(
                     $this->getName(),
                     $this->getID(),
-                    static::getTTL()
+                    \XLite\Model\Session::getMaxTTL()
                 );
 
                 $this->setLCRefererCookie();
@@ -876,6 +877,7 @@ class Session extends \XLite\Base\Singleton
         return !\XLite\Core\Request::getInstance()->isCLI()
             && \XLite\Core\Config::getInstance()->General
             && \XLite\Core\Config::getInstance()->General->internal_cron_enabled
+            && null !== $this->session
             && 0 === $this->session->getId() % 100;
     }
 

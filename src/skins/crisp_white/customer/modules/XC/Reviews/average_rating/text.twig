@@ -1,7 +1,7 @@
 {##
  # Rating value in text
  #}
-<div class="text">
+ <div class="text">
   {% if this.getVotesCount() > 0 %}
     <div>{{ t('Score: X. Votes: Y', {'score': this.getAverageRating(), 'votes': this.getVotesCount()}) }}</div>
     {% if this.getReviewsCount() > 0 %}

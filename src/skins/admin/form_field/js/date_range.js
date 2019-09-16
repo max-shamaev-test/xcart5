@@ -13,48 +13,67 @@ CommonElement.prototype.handlers.push(
       return this.$element.is('input.date-range');
     },
     handler: function() {
-      var config = this.$element.data('datarangeconfig') || {};
+      const config = this.$element.data('datarangeconfig');
+      $.datepicker.setDefaults($.datepicker.regional[config.language]);
 
-      if (config.customShortcuts && config.customShortcuts.length > 0) {
-
-        var now = new Date();
-        var format = config.format || 'YYYY-MM-YY';
-
-        for (i = 0; i < config.customShortcuts.length; i++) {
-
-          var sh = config.customShortcuts[i];
-
-          if ('today' == sh.name) {
-            config.customShortcuts[i].dates = function() {
-              return [moment().toDate(format),moment().toDate(format)];
-            }
-
-          } else if ('this week' == sh.name) {
-            config.customShortcuts[i].dates = function() {
-              return [moment().startOf('week').toDate(), moment().toDate()];
-            }
-
-          } else if ('this month' == sh.name) {
-            config.customShortcuts[i].dates = function() {
-              return [moment().startOf('month').toDate(), moment().toDate()];
-            }
-
-          } else if ('this quarter' == sh.name) {
-            config.customShortcuts[i].dates = function() {
-              return [moment().startOf('quarter').toDate(), moment().toDate()];
-            }
-
-          } else if ('this year' == sh.name) {
-            config.customShortcuts[i].dates = function() {
-              return [moment().startOf('year').toDate(), moment().toDate()];
-            }
+      this.$element.daterangepicker({
+        presetRanges: [{
+          text: config.labels.today,
+          dateStart: function() {
+            return moment();
+          },
+          dateEnd: function() {
+            return moment();
           }
+        }, {
+          text: config.labels.thisWeek,
+          dateStart: function() {
+            return moment().startOf('week');
+          },
+          dateEnd: function() {
+            return (moment().endOf('week') > moment()) ? moment() : moment().endOf('week');
+          }
+        }, {
+          text: config.labels.thisMonth,
+          dateStart: function() {
+            return moment().startOf('month');
+          },
+          dateEnd: function() {
+            return (moment().endOf('month') > moment()) ? moment() : moment().endOf('month');
+          }
+        }, {
+          text: config.labels.thisQuarter,
+          dateStart: function() {
+            return moment().startOf('quarter');
+          },
+          dateEnd: function() {
+            return (moment().endOf('quarter') > moment()) ? moment() : moment().endOf('quarter');
+          }
+        }, {
+          text: config.labels.thisYear,
+          dateStart: function() {
+            return moment().startOf('year');
+          },
+          dateEnd: function() {
+            return (moment().endOf('year') > moment()) ? moment() : moment().endOf('year');
+          }
+        }, {
+          text: config.labels.allTime,
+          dateStart: function() {
+            return null;
+          },
+          dateEnd: function() {
+            return null;
+          }
+        }],
+        applyOnMenuSelect: false,
+        dateFormat: config.format,
+        rangeSplitter: config.separator,
+        mirrorOnCollision: false,
+        datepickerOptions: {
+          numberOfMonths: 2,
         }
-      }
-      if (this.$element.data('end-date')) {
-        config.endDate = this.$element.data('end-date');
-      }
-      this.$element.dateRangePicker(config);
+      });
     }
   }
 );

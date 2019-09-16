@@ -1,5 +1,5 @@
 {
-    "Version": "2.1.10.93",
+    "Version": "2.1.41.34",
     "Names": {
         "aa": "Afar",
         "ab": "Abchazysk",
@@ -151,7 +151,7 @@
         "frr": "Noard-Frysk",
         "frs": "East-Frysk",
         "fur": "Friulysk",
-        "fy": "West-Frysk",
+        "fy": "Frysk",
         "ga": "Iersk",
         "gaa": "Ga",
         "gay": "Gayo",
@@ -309,7 +309,6 @@
         "ms": "Maleis",
         "mt": "Maltees",
         "mua": "Mundang",
-        "mul": "Meardere talen",
         "mus": "Creek",
         "mwl": "Mirandees",
         "mwr": "Marwari",
@@ -434,8 +433,8 @@
         "sux": "Soemerysk",
         "sv": "Zweeds",
         "sw": "Swahili",
+        "sw_CD": "Congo Swahili",
         "swb": "Shimaore",
-        "swc": "Congo Swahili",
         "syc": "Klassiek Syrysk",
         "syr": "Syrysk",
         "ta": "Tamil",
@@ -476,7 +475,6 @@
         "uga": "Oegaritysk",
         "uk": "Oekraïens",
         "umb": "Umbundu",
-        "und": "Onbekende taal",
         "ur": "Urdu",
         "uz": "Oezbeeks",
         "vai": "Vai",
@@ -511,7 +509,6 @@
         "zh_Hant": "Tradisjoneel Sineesk",
         "zu": "Zulu",
         "zun": "Zuni",
-        "zxx": "Gjin linguïstyske ynhâld",
         "zza": "Zaza"
     }
 }

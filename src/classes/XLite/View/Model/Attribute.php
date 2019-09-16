@@ -71,7 +71,7 @@ class Attribute extends \XLite\View\Model\AModel
      */
     public function getCSSFiles()
     {
-        $list   = parent::getCSSFiles();
+        $list = parent::getCSSFiles();
         $list[] = 'attribute/style.css';
 
         return $list;
@@ -81,7 +81,7 @@ class Attribute extends \XLite\View\Model\AModel
     protected function isGlobalAttribute()
     {
         return !isset(\XLite\Core\Request::getInstance()->product_class_id)
-            || intval(\XLite\Core\Request::getInstance()->product_class_id) == 0;
+               || intval(\XLite\Core\Request::getInstance()->product_class_id) == 0;
     }
 
     /**
@@ -122,17 +122,21 @@ class Attribute extends \XLite\View\Model\AModel
             }
 
             if (
-                in_array(
-                    $this->getModelObject()->getType(),
-                    [
-                        \XLite\Model\Attribute::TYPE_SELECT,
-                        \XLite\Model\Attribute::TYPE_HIDDEN,
-                    ]
-                )
+            in_array(
+                $this->getModelObject()->getType(),
+                [
+                    \XLite\Model\Attribute::TYPE_SELECT,
+                    \XLite\Model\Attribute::TYPE_HIDDEN,
+                ]
+            )
             ) {
+                $this->schemaDefault['values_title'] = [
+                    self::SCHEMA_CLASS => 'XLite\View\FormField\Separator\Regular',
+                    self::SCHEMA_LABEL => 'Attribute values',
+                ];
                 $this->schemaDefault['values'] = [
                     self::SCHEMA_CLASS                                    => 'XLite\View\FormField\ItemsList',
-                    self::SCHEMA_LABEL                                    => 'Attribute values',
+                    self::SCHEMA_LABEL                                    => false,
                     \XLite\View\FormField\ItemsList::PARAM_LIST_CLASS     => 'XLite\View\ItemsList\Model\AttributeOption',
                     \XLite\View\FormField\AFormField::PARAM_WRAPPER_CLASS => 'custom-field type-' . $this->getModelObject()->getType(),
                 ];
@@ -142,8 +146,8 @@ class Attribute extends \XLite\View\Model\AModel
                     && $this->getModelObject()->getType() !== \XLite\Model\Attribute::TYPE_HIDDEN
                 ) {
                     $this->schemaDefault['applySortingGlobally'] = [
-                        self::SCHEMA_CLASS                                    => 'XLite\View\FormField\Input\Checkbox',
-                        self::SCHEMA_FIELD_ONLY => true,
+                        self::SCHEMA_CLASS                                  => 'XLite\View\FormField\Input\Checkbox',
+                        self::SCHEMA_FIELD_ONLY                             => true,
                         \XLite\View\FormField\Input\Checkbox::PARAM_CAPTION => static::t('Apply sorting globally'),
                     ];
                 }
@@ -215,11 +219,11 @@ class Attribute extends \XLite\View\Model\AModel
     protected function getContainerClass()
     {
         return parent::getContainerClass()
-        . (
-        $this->getModelObject()->getId()
-            ? ' attribute-type-' . $this->getModelObject()->getType()
-            : ''
-        );
+               . (
+               $this->getModelObject()->getId()
+                   ? ' attribute-type-' . $this->getModelObject()->getType()
+                   : ''
+               );
     }
 
     /**

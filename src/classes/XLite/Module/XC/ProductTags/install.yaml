@@ -31,5 +31,5 @@ XLite\Model\LanguageLabel:
   - { name: 'Please select the tags first', translations: [{ code: en, label: 'Please select the tags first' }] }
   - { name: 'Selected tags have been deleted', translations: [{ code: en, label: 'Selected tags have been deleted' }] }
   - { name: 'Categories and tags', translations: [{ code: en, label: 'Categories and tags' }] }
-  - { name: 'itemslist.admin.tag.blank', translations: [{ code: en, label: '<p class="items-list-blank-description-heading text-center">Tags list is empty.</p><p class="text-center">Tags help your customers to find products with the specific feature. You can add tags using the <b>"New tag"</b> button and then assign them to the product on its edit page.</p>' }] }
+  - { name: 'itemslist.admin.tag.blank', translations: [{ code: en, label: '<p>Tags list is empty. Tags help your customers to find products with the specific feature. You can add tags using the <b>"New tag"</b> button and then assign them to the product on its edit page.</p>' }] }
   - { name: "{{count}} Tag duplicates ignored", translations: [{ code: en, label: "{{count}} tag duplicates ignored" }] }

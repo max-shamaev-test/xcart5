@@ -3,6 +3,15 @@
  #}
 
 {% for i, tpl in this.getLeftActions() %}
-  <div class="{{ this.getActionCellClass(i, tpl) }}">{% include tpl %}</div>
+  {% set content %}
+    {% include tpl %}
+  {% endset %}
+
+  {% spaceless %}
+    <div class="{{ this.getActionCellClass(i, tpl) }}">{{ content }}</div>
+  {% endspaceless %}
+
+  {% if content|trim is not empty %}
+    <div class="separator"></div>
+  {% endif %}
 {% endfor %}
-<div class="separator"></div>

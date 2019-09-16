@@ -23,7 +23,7 @@ class Attributes extends \XLite\Module\XC\ProductVariants\View\Product\AProduct
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/style.css';
+        $list[] = $this->getDir() . '/style.less';
 
         return $list;
     }

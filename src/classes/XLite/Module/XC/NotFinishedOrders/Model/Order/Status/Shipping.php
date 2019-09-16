@@ -15,6 +15,13 @@ class Shipping extends \XLite\Model\Order\Status\Shipping implements \XLite\Base
 {
     const STATUS_NOT_FINISHED = 'NF';
 
+    public static function getDisallowedToSetManuallyStatuses()
+    {
+        return array_merge(parent::getDisallowedToSetManuallyStatuses(), [
+            static::STATUS_NOT_FINISHED,
+        ]);
+    }
+
     /**
      * List of change status handlers;
      * top index - old status, second index - new one

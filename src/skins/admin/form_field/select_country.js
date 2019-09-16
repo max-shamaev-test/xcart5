@@ -74,8 +74,8 @@ StateSelector.prototype.changeCountry = function (country) {
     if (StatesList.getInstance().getStates(country)) {
 
       if (StatesList.getInstance().isForceCustomState(country)) {
-        this.stateSelectBox.getParentBlock().hide();
-        this.stateInputBox.getParentBlock().show();
+        this.stateSelectBox.getParentBlock().addClass('hidden-state-field');
+        this.stateInputBox.getParentBlock().removeClass('hidden-state-field');
 
         $(this.stateInputBox).autocomplete({
           source: StatesList.getInstance().getStatesArray(country),
@@ -91,13 +91,13 @@ StateSelector.prototype.changeCountry = function (country) {
         this.removeOptions();
         this.addStates(StatesList.getInstance().getStates(country));
 
-        this.stateSelectBox.getParentBlock().show();
-        this.stateInputBox.getParentBlock().hide();
+        this.stateSelectBox.getParentBlock().removeClass('hidden-state-field');
+        this.stateInputBox.getParentBlock().addClass('hidden-state-field');
       }
 
     } else {
-      this.stateSelectBox.getParentBlock().hide();
-      this.stateInputBox.getParentBlock().show();
+      this.stateSelectBox.getParentBlock().addClass('hidden-state-field');
+      this.stateInputBox.getParentBlock().removeClass('hidden-state-field');
 
       $(this.stateInputBox)
         .autocomplete()

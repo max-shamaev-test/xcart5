@@ -5,7 +5,7 @@
  #}
 
 <div class="title">
-  <div class="placed-date">{{ t('Placed on DATE', {'date': this.getOrderDate()})|raw }}</div>
+  <div class="placed-date head-h4">{{ t('Placed on DATE', {'date': this.getOrderDate()})|raw }}</div>
   <div class="placed-customer">
   {% if this.hasProfilePage() %}
     {{ t('Placed by _NAME_', {'name': this.getProfileName(), 'url': this.getProfileURL()})|raw }}
@@ -13,9 +13,7 @@
     {{ t('Placed by NAME', {'name': this.getProfileName()})|raw }}
   {% endif %}
 
-  {% if this.getProfileEmail() %}
   <div class="profile-login">{{ this.orderForm.displayComplexField('login') }}</div>
-  {% endif %}
 
   {% if this.getMembership() %}
     <span class="membership">({{ this.membership.getName() }})</span>

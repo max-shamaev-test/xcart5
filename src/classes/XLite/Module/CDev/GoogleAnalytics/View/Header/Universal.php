@@ -13,8 +13,8 @@ use XLite\Module\CDev\GoogleAnalytics;
 /**
  * Header declaration (Universal)
  *
- * @ListChild (list="head", zone="customer")
- * @ListChild (list="head", zone="admin")
+ * @ListChild (list="head", zone="customer", weight="0")
+ * @ListChild (list="head", zone="admin", weight="0")
  */
 class Universal extends \XLite\Module\CDev\GoogleAnalytics\View\Header\AHeader
 {

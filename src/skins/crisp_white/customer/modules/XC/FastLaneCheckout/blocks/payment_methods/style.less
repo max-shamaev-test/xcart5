@@ -18,6 +18,7 @@
     overflow: hidden;
     position: relative;
     width: 100%;
+    padding-left: 0;
 
     img {
       max-width: 220px;
@@ -72,7 +73,7 @@
     color: @color-text-dark;
     float: right;
     #rhythmless > .rhythm(@font-size-base);
-    line-height: 20px;
+    line-height: @line-height-base;
   }
 
   .payment-tpl {
@@ -83,7 +84,7 @@
     margin-top: @rhythmic-unit;
     background: #fafafa;
     padding: 13px 20px;
-    border-radius: 2px;
+    border-radius: @border-radius-base;
 
     & > li {
       margin-top: 10px;

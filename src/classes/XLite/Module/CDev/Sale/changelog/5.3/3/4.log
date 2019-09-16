@@ -1,5 +1,0 @@
-Version 5.3.3.4
-
-Improvements (1)
-2018-08-30 - [Change] Currency suffix/prefix was displayed incorrectly in the Admin area. Fixed. #BUG-6655 https://bt.x-cart.com/view.php?id=49167 (Kirill Stadler) #Core #FeaturedProducts #Sale #RelatedProducts #MultiVendor
-

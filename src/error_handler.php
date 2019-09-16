@@ -25,12 +25,13 @@ function showErrorPage($code, $message, $page = LC_ERROR_PAGE_MESSAGE, $prefix =
 {
     header('Content-Type: text/html; charset=utf-8', true, $http_code);
 
-    echo str_replace(
+    $page = str_replace(
         array(LC_ERR_TAG_MSG, LC_ERR_TAG_ERROR, LC_ERR_TAG_CODE),
         array($message, str_replace($prefix, '', $code), defined($code) ? constant($code) : 'N/A'),
         $page
     );
 
+    echo '<script>document.addEventListener("DOMContentLoaded", function(event) {document.body.innerHTML=' . json_encode($page) . ';});</script>';
     exit (intval($code) ? $code : 1);
 }
 

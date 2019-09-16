@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\TwoFactorAuthentication\Controller\Admin;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Module settings
  */
@@ -22,15 +24,11 @@ class Module extends \XLite\Controller\Admin\Module implements \XLite\Base\IDeco
     {
         parent::doActionUpdate();
 
-        $moduleId = \XLite\Core\Database::getRepo('XLite\Model\Module')
-            ->findOneBy(array('name' => 'TwoFactorAuthentication'))
-            ->getModuleID();
-
-        if ($moduleId == $this->getModuleId()) {
+        if ($this->getModuleId() === \Includes\Utils\Module\Module::buildId('XC', 'TwoFactorAuthentication')) {
             $oldApiKey = \XLite\Core\Config::getInstance()->XC->TwoFactorAuthentication->api_key;
 
             $newApiKey = \XLite\Core\Request::getInstance()->api_key;
-            if ($oldApiKey!=$newApiKey && ''!=$newApiKey) {
+            if ($oldApiKey !== $newApiKey && '' !== $newApiKey) {
                 \XLite\Core\Database::getRepo('\XLite\Model\Profile')
                     ->clearAuthyIds();
             }

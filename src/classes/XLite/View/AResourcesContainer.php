@@ -220,7 +220,7 @@ abstract class AResourcesContainer extends \XLite\View\Container
      */
     protected function minifyCSS($content, $filePath)
     {
-        $minifier = new \CSSmin();
+        $minifier = new \tubalmartin\CssMin\Minifier();
 
         return $minifier->run($content);
     }
@@ -541,7 +541,7 @@ abstract class AResourcesContainer extends \XLite\View\Container
             }
         }
 
-        $webDir = ConfigParser::getOptions(['host_details', 'web_dir']);
+        $webDir = ConfigParser::getOptions(['host_details', 'web_dir_wo_slash']);
 
         $content = preg_replace_callback(
             '/url\(([^)]+)\)/Ss',
@@ -552,7 +552,8 @@ abstract class AResourcesContainer extends \XLite\View\Container
                     !preg_match('/^[\'"]?data:/Ss', $matches[1])
                     && !preg_match('/^(?:https?:)?\/\//Ss', $matches[1])
                 ) {
-                    return 'url(' . $webDir . '/' . mb_substr($relativeUrl, 4);
+                    $prefix = $webDir ? $webDir . '/' : '';
+                    return 'url(' . $prefix . mb_substr($relativeUrl, 4);
                 }
 
                 return $relativeUrl;

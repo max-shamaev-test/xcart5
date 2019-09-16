@@ -9,6 +9,9 @@
 namespace XLite\View;
 
 use XLite\Core\Promo;
+use XLite\Module\XC\TaxJar;
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
 
 /**
  * Tax banner alert widget
@@ -34,19 +37,6 @@ class TaxBannerAlert extends \XLite\View\ModuleBanner
     }
 
     /**
-     * Register CSS files
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-        $list[] = 'tax_banner_alert/style.less';
-
-        return $list;
-    }
-
-    /**
      * Return widget default template
      *
      * @return string
@@ -63,7 +53,7 @@ class TaxBannerAlert extends \XLite\View\ModuleBanner
      */
     protected function getModuleName()
     {
-        return 'XC\\AvaTax';
+        return 'XC-AvaTax';
     }
 
     /**
@@ -78,49 +68,13 @@ class TaxBannerAlert extends \XLite\View\ModuleBanner
         );
     }
 
-    /**
-     * Get module id
-     *
-     * @return string
-     */
-    protected function getModuleId()
-    {
-        return $this->isModuleInstalled() && $this->getModule() ? $this->getModule()->getModuleId() : '';
-    }
-
-    /**
-     * Get module id
-     *
-     * @return \XLite\Model\Module
-     */
-    protected function getModule()
-    {
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')->findOneByModuleName($this->getModuleName());
-    }
-
     public function getModuleLink()
     {
-        return $this->getModule() && $this->getModule()->getEnabled()
-            ? $this->getModule()->getSettingsForm()
-            : $this->getInstallLink();
-    }
+        $moduleName = $this->getModuleName();
 
-    public function getInstallLink()
-    {
-        return Promo::getInstance()->getRecommendedModuleURL($this->getModuleName());
-    }
-
-    /**
-     * Return Module link
-     *
-     * @return string
-     */
-    protected function getModuleMarketplaceLink()
-    {
-        list($author, $module) = explode('\\', $this->getModuleName());
-
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')
-            ->getMarketplaceUrlByName($author, $module);
+        return Manager::getRegistry()->isModuleEnabled($moduleName)
+            ? Manager::getRegistry()->getModuleSettingsUrl($moduleName)
+            : Manager::getRegistry()->getModuleServiceURL($moduleName);
     }
 
     /**

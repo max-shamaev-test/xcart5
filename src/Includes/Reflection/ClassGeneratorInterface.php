@@ -12,36 +12,42 @@ interface ClassGeneratorInterface
 {
     /**
      * @param $namespace
+     *
      * @return ClassGeneratorInterface
      */
     public function setNamespace($namespace);
 
     /**
      * @param $class
+     *
      * @return ClassGeneratorInterface
      */
     public function setClassName($class);
 
     /**
      * @param $isAbstract
+     *
      * @return ClassGeneratorInterface
      */
     public function setAbstract($isAbstract);
 
     /**
      * @param $class
+     *
      * @return ClassGeneratorInterface
      */
     public function setParent($class);
 
     /**
      * @param $text
+     *
      * @return ClassGeneratorInterface
      */
     public function setDocComment($text);
 
     /**
      * @param $annotation
+     *
      * @return ClassGeneratorInterface
      */
     public function addAnnotation($annotation);

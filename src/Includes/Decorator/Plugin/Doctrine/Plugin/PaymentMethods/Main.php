@@ -38,16 +38,16 @@ class Main extends \Includes\Decorator\Plugin\Doctrine\Plugin\APlugin
      */
     public function executeHookHandler()
     {
-        $repo = \XLite\Core\Database::getRepo('XLite\Model\Payment\Method');
-        foreach ($this->getChangedPaymentMethods() as $row) {
-            $row['method']->setModuleEnabled($row['state']);
-            if ($row['state']) {
-                $row['method']->setFromMarketplace(false);
-            }
-            $repo->update($row['method']);
-        }
-
-        $this->list = null;
+        //$repo = \XLite\Core\Database::getRepo('XLite\Model\Payment\Method');
+        //foreach ($this->getChangedPaymentMethods() as $row) {
+        //    $row['method']->setModuleEnabled($row['state']);
+        //    if ($row['state']) {
+        //        $row['method']->setFromMarketplace(false);
+        //    }
+        //    $repo->update($row['method']);
+        //}
+        //
+        //$this->list = null;
     }
 
     /**

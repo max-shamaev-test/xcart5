@@ -25,6 +25,19 @@ class Layout extends \XLite\Core\Layout implements \XLite\Base\IDecorator
         return $url ?: parent::getLogo();
     }
 
+
+    /**
+     * Return favicon resource path
+     *
+     * @return string
+     */
+    public function getFavicon()
+    {
+        $url = str_replace(LC_DS, '/', \XLite\Core\Config::getInstance()->CDev->SimpleCMS->favicon);
+
+        return $url ?: parent::getFavicon();
+    }
+
     /**
      * Get apple icon
      *
@@ -36,5 +49,4 @@ class Layout extends \XLite\Core\Layout implements \XLite\Base\IDecorator
 
         return $url ?: parent::getAppleIcon();
     }
-
 }

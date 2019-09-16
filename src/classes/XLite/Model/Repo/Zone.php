@@ -19,6 +19,8 @@ namespace XLite\Model\Repo;
  */
 class Zone extends \XLite\Model\Repo\ARepo
 {
+    use \XLite\Core\Cache\ExecuteCachedTrait;
+
     /**
      * Common search parameters
      */
@@ -173,7 +175,8 @@ class Zone extends \XLite\Model\Repo\ARepo
      */
     public function findApplicableZones($address)
     {
-        if (is_numeric($address['state'])) {
+        if (is_numeric($address['state']) &&
+            \XLite\Core\Database::getRepo('XLite\Model\State')->getCountByCountryAndStateId($address['country'], $address['state']) !== '0') {
             $address['state'] = \XLite\Core\Database::getRepo('XLite\Model\State')->getCodeById($address['state']);
         }
 

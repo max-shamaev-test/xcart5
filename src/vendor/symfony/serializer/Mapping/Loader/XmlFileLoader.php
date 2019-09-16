@@ -14,6 +14,7 @@ namespace Symfony\Component\Serializer\Mapping\Loader;
 use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Serializer\Exception\MappingException;
 use Symfony\Component\Serializer\Mapping\AttributeMetadata;
+use Symfony\Component\Serializer\Mapping\ClassDiscriminatorMapping;
 use Symfony\Component\Serializer\Mapping\ClassMetadataInterface;
 
 /**
@@ -36,12 +37,11 @@ class XmlFileLoader extends FileLoader
     public function loadClassMetadata(ClassMetadataInterface $classMetadata)
     {
         if (null === $this->classes) {
-            $this->classes = array();
-            $xml = $this->parseFile($this->file);
+            $this->classes = $this->getClassesFromXml();
+        }
 
-            foreach ($xml->class as $class) {
-                $this->classes[(string) $class['name']] = $class;
-            }
+        if (!$this->classes) {
+            return false;
         }
 
         $attributesMetadata = $classMetadata->getAttributesMetadata();
@@ -62,12 +62,47 @@ class XmlFileLoader extends FileLoader
                 foreach ($attribute->group as $group) {
                     $attributeMetadata->addGroup((string) $group);
                 }
+
+                if (isset($attribute['max-depth'])) {
+                    $attributeMetadata->setMaxDepth((int) $attribute['max-depth']);
+                }
+
+                if (isset($attribute['serialized-name'])) {
+                    $attributeMetadata->setSerializedName((string) $attribute['serialized-name']);
+                }
+            }
+
+            if (isset($xml->{'discriminator-map'})) {
+                $mapping = [];
+                foreach ($xml->{'discriminator-map'}->mapping as $element) {
+                    $elementAttributes = $element->attributes();
+                    $mapping[(string) $elementAttributes->type] = (string) $elementAttributes->class;
+                }
+
+                $classMetadata->setClassDiscriminatorMapping(new ClassDiscriminatorMapping(
+                    (string) $xml->{'discriminator-map'}->attributes()->{'type-property'},
+                    $mapping
+                ));
             }
 
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Return the names of the classes mapped in this file.
+     *
+     * @return string[] The classes names
+     */
+    public function getMappedClasses()
+    {
+        if (null === $this->classes) {
+            $this->classes = $this->getClassesFromXml();
+        }
+
+        return array_keys($this->classes);
     }
 
     /**
@@ -88,5 +123,17 @@ class XmlFileLoader extends FileLoader
         }
 
         return simplexml_import_dom($dom);
+    }
+
+    private function getClassesFromXml()
+    {
+        $xml = $this->parseFile($this->file);
+        $classes = [];
+
+        foreach ($xml->class as $class) {
+            $classes[(string) $class['name']] = $class;
+        }
+
+        return $classes;
     }
 }

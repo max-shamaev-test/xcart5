@@ -68,6 +68,14 @@ ItemsList.prototype.listeners.languages = function(handler)
     }
   }
 
+  function hideLanguageSwitcher($input) {
+    $input
+      .closest('tr')
+      .find('.actions.left')
+      .children()
+      .css('visibility', 'hidden');
+  }
+
   // Radio buttons: default customer language
   jQuery('input[type="radio"][name="defaultCustomer"]').change(
     function() {
@@ -135,7 +143,7 @@ ItemsList.prototype.listeners.languages = function(handler)
           var inp = jQuery('input', this).eq(0);
           var cell = btn.parents('.line').eq(0);
 
-          inp.removeProp('checked');
+          inp.removeAttr('checked');
           btn.removeClass('mark');
           cell.removeClass('remove-mark');
           cell.parents('form').change();
@@ -143,4 +151,7 @@ ItemsList.prototype.listeners.languages = function(handler)
       }
     }
   );
+
+  hideLanguageSwitcher(lastDefaultCustomer);
+  hideLanguageSwitcher(lastDefaultAdmin);
 }

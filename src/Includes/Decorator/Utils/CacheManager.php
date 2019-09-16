@@ -12,6 +12,8 @@ use Includes\Decorator\Plugin\Doctrine\Utils\SchemaMigrationManager;
 
 /**
  * Cache manager
+ *
+ * TODO to be rewritten after first interation of XCN-8332
  */
 abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
 {
@@ -40,7 +42,7 @@ abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
     /**
      * Cache key argument name
      */
-    const KEY_NAME = '__cache_key__';
+    const KEY_NAME = 'cacheId';
 
     /**
      * Current process ID argument name
@@ -69,7 +71,7 @@ abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
      *
      * @var array
      */
-    protected static $steps = array(
+    protected static $steps = [
         self::STEP_FIRST,
         self::STEP_SECOND,
         self::STEP_THIRD,
@@ -77,13 +79,13 @@ abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
         self::STEP_FIFTH,
         self::STEP_SIX,
         self::STEP_SEVEN,
-        self::STEP_EIGHT,
+        // self::STEP_EIGHT,
         self::STEP_NINE,
         self::STEP_TEN,
         self::STEP_ELEVEN,
         self::STEP_TWELVE,
         self::STEP_THIRTEEN,
-    );
+    ];
 
     /**
      * Timestamp of the step start
@@ -125,9 +127,9 @@ abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
      *
      * @return void
      */
-    public static function showStepMessage($text, $addNewline = false, $addJS = true, $logTimestamp = false)
+    public static function showStepMessage($text, $addNewline = false, $addJS = false, $logTimestamp = false)
     {
-        static::$stepStart  = microtime(true);
+        static::$stepStart = microtime(true);
         static::$stepMemory = memory_get_usage();
 
         \Includes\Utils\Operator::showMessage($text, $addNewline, $addJS);
@@ -136,7 +138,7 @@ abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
             if ($logTimestamp) {
                 $text = '[' . date('H:i:s') . ']' . $text;
             }
-            static::logMessage($text . ($addNewline ? PHP_EOL.PHP_EOL : ''));
+            static::logMessage($text . ($addNewline ? PHP_EOL . PHP_EOL : ''));
         }
     }
 
@@ -153,7 +155,7 @@ abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
         $text .= \Includes\Utils\Converter::formatFileSize($memory, '');
         $text .= ' (' . \Includes\Utils\Converter::formatFileSize(memory_get_usage() - static::$stepMemory, '') . ')';
 
-        \Includes\Utils\Operator::showMessage(' [' . $text . ']');
+        \Includes\Utils\Operator::showMessage(' [' . $text . ']', true, false);
 
         static::logMessage(' ' . $text . PHP_EOL);
     }
@@ -182,18 +184,18 @@ abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
         $newLine = substr($message, -1 * strlen(PHP_EOL)) === PHP_EOL;
 
         $message = preg_replace(
-            array(
+            [
                 '/<script[^>]*>.+<\/script>/USs',
-            ),
-            array(
+            ],
+            [
                 '',
-            ),
+            ],
             $message
         );
 
         $message = strip_tags($message);
         $message = preg_replace('/(\s)+/', '\1', trim($message));
-        $pathPart = date('Y/m');
+        $pathPart = date('Y' . LC_DS . 'm');
         $path = LC_DIR_LOG . $pathPart . LC_DS . 'decorator.log.' . date('Y-m-d') . '.php';
         if (!\Includes\Utils\FileManager::isExists($path)) {
             $message = '<' . '?php die(); ?' . '>' . PHP_EOL . $message;
@@ -209,7 +211,7 @@ abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
      */
     protected static function getMessage()
     {
-        return 'Deploying store [step ' . static::$step . ' of ' . static::LAST_STEP . '], please wait...';
+        return 'Executing step ' . static::$step . ' of ' . static::LAST_STEP . '.';
     }
 
     /**
@@ -229,54 +231,13 @@ abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
      */
     protected static function getHTMLMessage()
     {
-        $message = static::getMessage() . PHP_EOL;
+        $message = static::getMessage() . ' Please, don\'t close this page until the whole process is finished.' . PHP_EOL;
 
         return static::getJSMessage()
             . <<<HTML
-<style>
-<!--
-@-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
-}
-
-@keyframes spin {
-  0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
-}
-
-.spinner {
-  margin-right: 15px;
-  width: 26px;
-  height: 26px;
-
-  -webkit-animation: spin 0.5s infinite linear;
-
-          animation: spin 0.5s infinite linear;
-}
-
-.spinner .box {
-  width: 16px;
-  height: 16px;
-  overflow: hidden;
-}
-
-.spinner .subbox {
-  border-radius: 12px;
-  border: 3px solid #1abdc4;
-  width: 20px;
-  height: 20px;
-}
--->
-</style>
-<table>
-    <tr>
-        <td class="loading">
-            <div class="spinner"><div class="box"><div class="subbox"></div></div></div>
-        </td>
-        <td>$message</td>
-    </tr>
-</table>
+<div class="rebuild-message">
+  $message
+</div>
 HTML;
     }
 
@@ -289,7 +250,7 @@ HTML;
     {
         return !isset($_GET['doNotRedirectAfterCacheIsBuilt'])
             ? <<<OUT
-<script language="JavaScript" type="text/javascript">
+<script type="text/javascript">
 <!--
   window.onbeforeunload = confirmExit;
   function confirmExit()
@@ -299,7 +260,7 @@ HTML;
 -->
 </script>
 OUT
-        : '';
+            : '';
     }
 
     /**
@@ -339,9 +300,11 @@ OUT;
      */
     public static function setCacheRebuildMark()
     {
+        static::$key = static::generateKey();
+
         \Includes\Utils\FileManager::write(
             static::getRebuildMarkFileName(),
-            static::generateKey()
+            static::$key
         );
     }
 
@@ -420,7 +383,7 @@ OUT;
         $result = true;
 
         if (static::isRebuildAllowed()) {
-            $name    = static::getRebuildIndicatorFileName();
+            $name = static::getRebuildIndicatorFileName();
             $content = \Includes\Utils\FileManager::read($name);
 
             $result = !LC_IS_CLI_MODE && !empty($content) && static::getRebuildIndicatorFileContent() != $content;
@@ -437,13 +400,13 @@ OUT;
     public static function removeRebuildIndicatorFile()
     {
         if (static::isRebuildAllowed()) {
-            $name    = static::getRebuildIndicatorFileName();
+            $name = static::getRebuildIndicatorFileName();
             $content = \Includes\Utils\FileManager::read($name);
 
             // Only the process created the file can delete
-            if (!empty($content) && (LC_IS_CLI_MODE || static::getRebuildIndicatorFileContent() == $content)) {
-                \Includes\Utils\FileManager::deleteFile($name);
-            }
+//            if (!empty($content) && (LC_IS_CLI_MODE || static::getRebuildIndicatorFileContent() == $content)) {
+            \Includes\Utils\FileManager::deleteFile($name);
+//            }
         }
     }
 
@@ -455,7 +418,7 @@ OUT;
     protected static function isRebuildAllowed()
     {
         return defined('XCN_ADMIN_SCRIPT')
-            || \Includes\Utils\ConfigParser::getOptions(array('performance', 'developer_mode'));
+            || \Includes\Utils\ConfigParser::getOptions(['performance', 'developer_mode']);
     }
 
     /**
@@ -477,7 +440,7 @@ OUT;
     /**
      * Return name of the file, which indicates the cache state
      *
-     * @param string $step Current step name
+     * @param int $step Current step name
      *
      * @return string
      */
@@ -564,7 +527,7 @@ OUT;
      */
     protected static function getCacheStateFiles()
     {
-        return array_map(array('static', 'getCacheStateIndicatorFileName'), static::$steps);
+        return array_map(['static', 'getCacheStateIndicatorFileName'], static::$steps);
     }
 
     /**
@@ -607,7 +570,7 @@ OUT;
      */
     protected static function startStep($step)
     {
-        static::$step = $step;
+        static::$step = (int)$step;
 
         if (!LC_IS_CLI_MODE) {
             static::sendHeaders();
@@ -615,11 +578,16 @@ OUT;
 
         static::unsetProcessMark();
 
-        if (static::STEP_FIRST == $step) {
+        if (static::STEP_FIRST === $step) {
             static::initializeRebuild();
         }
 
-        static::showStepMessage(LC_IS_CLI_MODE ? static::getPlainMessage() : static::getHTMLMessage(), true, false, true);
+        static::showStepMessage(
+            LC_IS_CLI_MODE ? static::getPlainMessage() : static::getHTMLMessage(),
+            true,
+            false,
+            true
+        );
     }
 
     /**
@@ -694,18 +662,21 @@ OUT;
                 static::showStepMessage(static::getJSFinishMessage(), true, false);
             }
 
-            $arguments = array(
-                static::CPID_NAME => null,
-                static::KEY_NAME  => null,
-            );
-            if (static::LAST_STEP != $step) {
-                $arguments[static::CPID_NAME] = static::getRebuildIndicatorFileContent();
-                if (static::isCapsular()) {
-                    $arguments[static::KEY_NAME] = static::getKey();
-                }
-            }
+            //$arguments = [
+            //    static::CPID_NAME => null,
+            //    static::KEY_NAME  => null,
+            //];
+            //
+            //if (static::LAST_STEP !== $step) {
+            //    $arguments[static::CPID_NAME] = static::getRebuildIndicatorFileContent();
+            //    if (static::isCapsular()) {
+            //        $arguments[static::KEY_NAME] = static::getKey();
+            //    }
+            //}
 
-            \Includes\Utils\Operator::refresh($arguments, true);
+            //if ('cli' === PHP_SAPI) {
+            //    \Includes\Utils\Operator::refresh($arguments);
+            //}
         }
     }
 
@@ -773,7 +744,7 @@ OUT;
      */
     protected static function getStepCallback($step)
     {
-        return array(get_called_class(), 'executeStepHandler' . strval($step));
+        return [get_called_class(), 'executeStepHandler' . (string)$step];
     }
 
     /**
@@ -783,7 +754,7 @@ OUT;
      *
      * @return void
      */
-    protected static function runStep($step)
+    public static function runStep($step)
     {
         // Set internal flag
         if (!defined('LC_CACHE_BUILDING')) {
@@ -798,20 +769,20 @@ OUT;
         static::initializeLogging();
 
         // To prevent multiple processes execution
-        static::checkIfRebuildStarted();
+//        static::checkIfRebuildStarted();
 
         // Write indicator files and show the message
         static::startStep($step);
 
         // Enable output (if needed)
-        static::setFastCGITimeoutEcho();
+//        static::setFastCGITimeoutEcho();
 
         // Set version key for view lists
-        static::setViewListsVersionKey();
+//        static::setViewListsVersionKey();
 
         // Perform step-specific actions
         \Includes\Utils\Operator::executeWithCustomMaxExecTime(
-            \Includes\Utils\ConfigParser::getOptions(array('decorator', 'time_limit')),
+            \Includes\Utils\ConfigParser::getOptions(['decorator', 'time_limit']),
             static::getStepCallback($step)
         );
 
@@ -845,7 +816,7 @@ OUT;
      */
     protected static function initializeLogging()
     {
-        set_error_handler(array('Includes\ErrorHandler', 'handleCommonError'));
+        set_error_handler(['Includes\ErrorHandler', 'handleCommonError']);
     }
 
     /**
@@ -855,15 +826,15 @@ OUT;
      */
     protected static function setViewListsVersionKey()
     {
-        $steps = array(
+        $steps = [
             static::STEP_FIRST,
             static::STEP_SECOND,
             static::STEP_THIRD,
             static::STEP_FOURTH,
             static::STEP_FIFTH
-        );
+        ];
 
-        if (!in_array(static::$step, $steps)
+        if (!in_array(static::$step, $steps, true)
             && \Includes\Decorator\Utils\CacheManager::isCapsular()
         ) {
             \XLite\Model\ViewList::setVersionKey(\Includes\Decorator\Utils\CacheManager::getKey());
@@ -877,7 +848,7 @@ OUT;
      */
     protected static function clearOldDatacache()
     {
-        $old = new \XLite\Core\Cache(null, array('original' => true));
+        $old = new \XLite\Core\Cache(null, ['original' => true]);
         $old->flushAll();
     }
 
@@ -1194,7 +1165,7 @@ OUT;
     /**
      * Return current step identifier
      *
-     * @return string
+     * @return int
      */
     public static function getCurrentStep()
     {
@@ -1204,14 +1175,14 @@ OUT;
     /**
      * Check if cache rebuild is needed
      *
-     * @param string $step Current step name OPTIONAL
+     * @param int|null $step Current step OPTIONAL
      *
      * @return boolean
      */
     public static function isRebuildNeeded($step = null)
     {
-        if (!isset($step)) {
-            $step = static::getCurrentStep();
+        if ($step === null) {
+            $step = static::getStep();
         }
 
         return $step
@@ -1246,13 +1217,13 @@ OUT;
      */
     public static function getCacheDirs($originalDirs = false)
     {
-        return array(
+        return [
             static::getCompileDir($originalDirs),
             static::getLocaleDir($originalDirs),
             static::getDatacacheDir($originalDirs),
             static::getTmpDir($originalDirs),
             static::getResourcesDir($originalDirs),
-        );
+        ];
     }
 
     /**
@@ -1264,9 +1235,9 @@ OUT;
      */
     protected static function getDecoratorDataFiles($key = true)
     {
-        return array(
+        return [
             \Includes\Decorator\Utils\CacheInfo::getFilename($key),
-        );
+        ];
     }
 
     // }}}
@@ -1280,10 +1251,10 @@ OUT;
      */
     protected static function setFastCGITimeoutEcho()
     {
-        if (\Includes\Utils\ConfigParser::getOptions(array('decorator', 'use_output'))) {
-            declare(ticks = 10000);
+        if (\Includes\Utils\ConfigParser::getOptions(['decorator', 'use_output'])) {
+            declare(ticks=10000);
 
-            register_tick_function(array('\Includes\Utils\Operator', 'showMessage'), '.', false);
+            register_tick_function(['\Includes\Utils\Operator', 'showMessage'], '.', false);
         }
     }
 
@@ -1294,13 +1265,13 @@ OUT;
     /**
      * Check - current cache rebuild process is capsular or not
      *
-     * @return boolean
+     * @return bool
      */
     public static function isCapsular()
     {
         return static::getKey()
             && isset($_REQUEST[static::KEY_NAME])
-            && static::getKey() == $_REQUEST[static::KEY_NAME];
+            && static::getKey() === $_REQUEST[static::KEY_NAME];
     }
 
     /**
@@ -1416,7 +1387,7 @@ OUT;
      * Build copsular dirname
      *
      * @param string $name File path
-     * @param mixed  $key  Key OPTIONAL
+     * @param mixed $key Key OPTIONAL
      *
      * @return string
      */
@@ -1438,7 +1409,7 @@ OUT;
      * Build copsular filename
      *
      * @param string $name File path
-     * @param mixed  $key  Key OPTIONAL
+     * @param mixed $key Key OPTIONAL
      *
      * @return string
      */
@@ -1501,7 +1472,7 @@ OUT;
     /**
      * Set datacache suffix
      *
-     * @param string  $suffix   Suffix
+     * @param string $suffix Suffix
      * @param boolean $original Get original path OPTIONAL
      *
      * @return void
@@ -1521,7 +1492,7 @@ OUT;
      */
     protected static function generateDataCacheSuffix()
     {
-        return uniqid();
+        return uniqid('data_cache', true);
     }
 
     /**
@@ -1560,16 +1531,16 @@ OUT;
      *
      * @return void
      */
-    public static function setRebuildBlockMark($step, array $data = array())
+    public static function setRebuildBlockMark($step, array $data = [])
     {
         if (!static::isRebuildBlock()) {
             if (!\Includes\Decorator\Utils\CacheInfo::get('rebuildBlockMark')) {
                 \Includes\Decorator\Utils\CacheInfo::set(
                     'rebuildBlockMark',
-                    array(
+                    [
                         'step' => $step,
                         'time' => time(),
-                    ) + $data
+                    ] + $data
                 );
             }
 
@@ -1686,7 +1657,7 @@ OUT;
         if (static::getKey()) {
             \Includes\Utils\FileManager::write(static::getProcessMarkPath(), '');
             register_shutdown_function(
-                function() {
+                function () {
                     \Includes\Decorator\Utils\CacheManager::unsetProcessMark();
                 }
             );

@@ -641,6 +641,11 @@ class PayflowAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
             $result['HDRIMG'] = \XLite\Module\CDev\Paypal\Main::getLogo();
         }
 
+        if (\Includes\Utils\ConfigParser::getOptions(array('other', 'cookie_samesite'))) {
+            // Cookie's samesite option has non-empty value, pass user session as an additional parameter
+            $result['USER1'] = \XLite\Core\Session::getInstance()->getID();
+        }
+
         return $result;
     }
 

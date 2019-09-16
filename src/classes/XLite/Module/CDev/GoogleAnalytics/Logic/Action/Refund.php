@@ -47,7 +47,8 @@ class Refund extends ABackendAction implements IBackendAction
     {
         $result = $this->getCommonDataForBackend();
 
-        $result['ea']   = 'Refund action';
+        $result['ec']   = 'Checkout';
+        $result['ea']   = 'Refund';
         $result['pa'] = 'refund';
         $result['ti'] = $this->order->getOrderNumber();
 

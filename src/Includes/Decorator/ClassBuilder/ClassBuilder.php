@@ -18,6 +18,7 @@ use Includes\SourceToTargetPathMapperInterface;
 use Includes\Reflection\StaticReflectorFactoryInterface;
 use Includes\Autoload\StreamWrapperInterface;
 use Includes\Utils\FileManager;
+use Includes\Utils\Module\Manager;
 
 class ClassBuilder extends AbstractClassBuilder
 {
@@ -136,7 +137,7 @@ class ClassBuilder extends AbstractClassBuilder
 
     protected function buildDecoratedClass($class)
     {
-        $module = $this->getModule($class);
+        $module = \Includes\Utils\Module\Module::getModuleIdByClassName($class);
 
         if ($module != null && !$this->moduleRegistry->has($module)) {
             return [];
@@ -260,15 +261,6 @@ class ClassBuilder extends AbstractClassBuilder
     protected function getDecoratedAncestorClassName($original)
     {
         return $original . 'Abstract';
-    }
-
-    protected function getModule($class)
-    {
-        $parts = explode('\\', $class);
-
-        return count($parts) > 3 && $parts[1] == 'Module'
-            ? $parts[2] . '\\' . $parts[3]
-            : null;
     }
 
     protected function touchOriginalClass($class)

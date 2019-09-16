@@ -24,6 +24,16 @@ class PaymentActionsUnit extends \XLite\View\AView
     const PARAM_ORDER_NUMBER = 'order_number';
 
     /**
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        return [
+            'order/order/payment_actions/unit.css'
+        ];
+    }
+
+    /**
      * Cache of unit message value
      *
      * @var string

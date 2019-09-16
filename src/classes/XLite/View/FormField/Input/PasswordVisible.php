@@ -11,7 +11,7 @@ namespace XLite\View\FormField\Input;
 /**
  * Password (visible variant)
  */
-class PasswordVisible extends \XLite\View\FormField\Input\Secure
+class PasswordVisible extends \XLite\View\FormField\Input\Secure implements \XLite\Core\PreloadedLabels\ProviderInterface
 {
     /**
      * Register JS files
@@ -62,5 +62,17 @@ class PasswordVisible extends \XLite\View\FormField\Input\Secure
     public function isTrusted()
     {
         return true;
+    }
+
+    /**
+     * Array of labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return $this->getPasswordDifficultyLabels();
     }
 }

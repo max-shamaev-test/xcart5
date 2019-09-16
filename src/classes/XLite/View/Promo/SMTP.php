@@ -8,6 +8,8 @@
 
 namespace XLite\View\Promo;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Mandrill welcome header
  *
@@ -62,7 +64,7 @@ class SMTP extends \XLite\View\AView
         return parent::isVisible()
             && (
                 empty(\XLite\Core\Config::getInstance()->XC->Mandrill->mandrillAPIKey)
-                || !\XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\Mandrill')
+                || !Manager::getRegistry()->isModuleEnabled('XC', 'Mandrill')
             );
     }
 
@@ -71,7 +73,7 @@ class SMTP extends \XLite\View\AView
      */
     protected function getSecondButtonText()
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\Mandrill')
+        return Manager::getRegistry()->isModuleEnabled('XC', 'Mandrill')
             ? 'Configure'
             : 'Install Mandrill addon';
     }
@@ -81,15 +83,9 @@ class SMTP extends \XLite\View\AView
      */
     protected function getSecondButtonLink()
     {
-        if (\XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('XC\Mandrill')) {
-            return \XLite\Core\Converter::buildURL('mandrill_transactional_emails');
-        } else {
-            $module = \XLite\Core\Database::getRepo('XLite\Model\Module')->findOneByModuleName('XC\Mandrill');
-
-            return $module && $module->isInstalled()
-                ? $module->getInstalledURL()
-                : \XLite\Core\Database::getRepo('XLite\Model\Module')->getMarketplaceUrlByName('XC', 'Mandrill');
-        }
+        return Manager::getRegistry()->isModuleEnabled('XC', 'Mandrill')
+            ? \XLite\Core\Converter::buildURL('mandrill_transactional_emails')
+            : Manager::getRegistry()->getModuleServiceURL('XC', 'Mandrill');
     }
 
     /**

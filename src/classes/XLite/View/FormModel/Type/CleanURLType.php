@@ -20,6 +20,14 @@ class CleanURLType extends AType
     /**
      * @return array
      */
+    public static function getCSSFiles()
+    {
+        return ['form_model/type/clean_url_type.less'];
+    }
+
+    /**
+     * @return array
+     */
     public static function getJSFiles()
     {
         return ['form_model/type/clean_url_type.js'];
@@ -83,6 +91,7 @@ class CleanURLType extends AType
             ],
             'form_row_class' => '',
         ]);
+        $builder->add('clean_url_ext', 'Symfony\Component\Form\Extension\Core\Type\HiddenType');
     }
 
     /**
@@ -131,7 +140,7 @@ class CleanURLType extends AType
         $view->vars = array_replace($view->vars, [
             'disabled'              => $disabled,
             'disabledComment'       => $this->getDisabledCleanUrlComment(),
-            'cleanUrlTemplate'      => \XLite::getInstance()->getShopURL($repo->buildFakeURL($entity ?: $options['objectClassName'])),
+            'cleanUrlTemplate'      => \XLite::getInstance()->getShopURL($repo->buildFakeURL($entity ?: $options['objectClassName'], [], $options['extension'] === '')),
             'cleanUrl'              => \XLite::getInstance()->getShopURL($repo->buildURL($options['objectClassName'], [$options['objectIdName'] => $options['objectId']])),
             'savedValue'            => $entity ? $entity->getCleanURL() : '',
             'extension'             => $options['extension'],

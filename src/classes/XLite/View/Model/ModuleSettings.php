@@ -33,12 +33,12 @@ class ModuleSettings extends \XLite\View\Model\Settings
                 )
             );
         } else {
-            $result['addons-list'] = new \XLite\View\Button\BackToModulesLink(
-                array(
-                    \XLite\View\Button\BackToModulesLink::PARAM_MODULE_ID => \XLite\Core\Request::getInstance()->moduleId,
-                    \XLite\View\Button\AButton::PARAM_STYLE => 'action addons-list-back-button',
-                )
-            );
+            //$result['addons-list'] = new \XLite\View\Button\BackToModulesLink(
+            //    array(
+            //        \XLite\View\Button\BackToModulesLink::PARAM_MODULE_ID => \XLite\Core\Request::getInstance()->moduleId,
+            //        \XLite\View\Button\AButton::PARAM_STYLE => 'action addons-list-back-button',
+            //    )
+            //);
         }
 
         return $result;

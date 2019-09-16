@@ -37,6 +37,11 @@ class KeysNotice extends \XLite\View\ModulesManager\AModulesManager
     protected $purchaseAllURL = null;
 
     /**
+     * @var array
+     */
+    protected $xbProductIds = [];
+
+    /**
      * Get list of allowed targets
      *
      * @return array
@@ -62,7 +67,7 @@ class KeysNotice extends \XLite\View\ModulesManager\AModulesManager
         return $list;
     }
 
-    
+
     /**
      * Return templates directory name
      *
@@ -80,7 +85,7 @@ class KeysNotice extends \XLite\View\ModulesManager\AModulesManager
      */
     protected function getPurchaseURL()
     {
-        return \XLite\Core\Marketplace::getPurchaseURL();
+        return \XLite\Core\Marketplace::getBusinessPurchaseURL();
     }
 
     /**
@@ -107,38 +112,27 @@ class KeysNotice extends \XLite\View\ModulesManager\AModulesManager
             $this->xbProductIds = array(
                 'editions'        => array(),
                 'addons'          => array(),
-                'common_editions' => array(),
             );
 
-            $list = \XLite\Core\Marketplace::getInstance()->getInactiveContentData(false);
+            $list = \XLite\Core\Marketplace::getInstance()->getInactiveContentData();
 
             if ($list) {
-                foreach ($list as $k => $data) {
-                    $module = \XLite\Core\Database::getRepo('XLite\Model\Module')->findOneBy(
-                        array(
-                            'name' => $data['name'],
-                            'author' => $data['author'],
-                            'fromMarketplace' => 1,
-                        )
-                    );
-
-                    if ($module) {
-                        $item = $this->preprocessUnallowedModule($data, $module);
-                        if ($item) {
-                            $result[] = $item;
-                        }
+                foreach ($list as $k => $module) {
+                    $item = $this->preprocessUnallowedModule($module);
+                    if ($item) {
+                        $result[] = $item;
                     }
                 }
 
                 usort($result, array($this, 'sortUnallowedModules'));
 
                 if (!empty($this->xbProductIds['editions'])) {
-                    $this->xbProductIds['editions'] = array_unique($this->xbProductIds['editions']);
-                    if ($this->xbProductIds['common_editions']) {
-                        $this->xbProductIds['editions'] = $this->xbProductIds['common_editions'];
-                    }
-                    $first = array_shift($this->xbProductIds['editions']);
-                    $this->xbProductIds['editions'] = array($first);
+                    $editions = array_unique(
+                        array_intersect(...$this->xbProductIds['editions'])
+                        ?: array_merge(...$this->xbProductIds['editions'])
+                    );
+
+                    $this->xbProductIds['editions'] = [array_shift($editions)];
                 }
             }
 
@@ -154,82 +148,66 @@ class KeysNotice extends \XLite\View\ModulesManager\AModulesManager
      * @param array First module data
      * @param array Second module data
      *
-     * @return integer
+     * @return int
      */
     public function sortUnallowedModules($m1, $m2)
     {
-        return strcmp($m1['title'], $m2['title']);
+        return strcmp($m1['moduleName'], $m2['moduleName']);
     }
 
     /**
-     * Get module name
+     * @param array $module
+     *
+     * @return
      */
-    protected function preprocessUnallowedModule($moduleData, $module)
+    protected function preprocessUnallowedModule($module)
     {
-        $skipItem = false;
-
-        $result = $moduleData;
-        $result['title'] = $module->getModuleName();
+        $result = $module;
 
         $message = '';
         $url = '';
 
-        if (!empty($moduleData['key'])) {
-            $message = static::t('Inactive license key ({{key}})', array('key' => $moduleData['key']));
-
-            if ($module->getXbProductId()) {
-                $url = \XLite\Core\Marketplace::getPurchaseURL($module->getXbProductId());
-            }
+        if (!empty($module['license'])) {
+            $message = static::t('Inactive license key ({{key}})', array('key' => $module['license']));
+            $url = $module['purchaseUrl'] ?: '';
 
         } else {
-
             $license = \XLite::getXCNLicense();
             $edition = null;
 
-            $moduleEditions = $module->getEditionNames();
+            $moduleEditions = [];
+            foreach ($module['editions'] ?? [] as $moduleEdition) {
+                if (preg_match('/^(\d+)_(.+)$/', $moduleEdition, $match)) {
+                    $moduleEditions[$match[1]] = $match[2];
+                }
+            }
 
             if ($moduleEditions) {
+                if (in_array('Free', $moduleEditions, true)) {
 
-                // Get hash of edition IDs
-                $editionIds = $module->getEditionIds();
+                    return null;
+                }
 
-                $keyData = $license ? $license->getKeyData() : null;
-                $edition = !empty($keyData['edition']) ? $keyData['edition'] : null;
+                $keyData = $license['keyData'] ?? null;
+                $edition = $keyData['edition'] ?? null;
 
-                if (!in_array($edition, $moduleEditions)) {
+                if (!in_array($edition, $moduleEditions, true)) {
 
-                    $commonEditionIds = array();
+                    $this->xbProductIds['editions'][] = array_keys($moduleEditions);
 
-                    foreach ($moduleEditions as $k => $v) {
-
-                        if ('Free' == $v) {
-                            // Skip module available for Free license
-                            $skipItem = true;
-                        }
-
-                        if ($editionIds[$v]) {
-                            $moduleEditions[$k] = sprintf(
-                                '<a href="%s" target="_blank">%s</a>',
-                                \XLite\Core\Marketplace::getPurchaseURL($editionIds[$v]),
-                                $v
-                            );
-                            $this->xbProductIds['editions'][] = $editionIds[$v];
-                            $commonEditionIds[] = $editionIds[$v];
-                        }
-                    }
-
-                    if ($commonEditionIds) {
-                        $this->xbProductIds['common_editions'] = $this->xbProductIds['common_editions']
-                            ? array_intersect($this->xbProductIds['common_editions'], $commonEditionIds)
-                            : $commonEditionIds;
+                    foreach ($moduleEditions as $editionId => $editionName) {
+                        $moduleEditions[$editionId] = sprintf(
+                            '<a href="%s" target="_blank">%s</a>',
+                            \XLite\Core\Marketplace::getPurchaseURL($editionId),
+                            $editionName
+                        );
                     }
 
                     $list = '';
-
-                    if (1 == count($moduleEditions)) {
+                    if (count($moduleEditions) === 1) {
                         $list = array_pop($moduleEditions);
 
-                    } elseif (1 < count($moduleEditions)) {
+                    } elseif (count($moduleEditions) > 1) {
                         $last = array_shift($moduleEditions);
                         $list = implode(', ', $moduleEditions) . ' ' . static::t('or') . ' ' . $last;
                     }
@@ -242,11 +220,11 @@ class KeysNotice extends \XLite\View\ModulesManager\AModulesManager
                     }
                 }
 
-            } elseif (0 < $module->getPrice()) {
+            } elseif ($module['price'] > 0) {
                 $message = static::t('License key is missing');
-                if ($module->getXbProductId()) {
-                    $url = \XLite\Core\Marketplace::getPurchaseURL($module->getXbProductId());
-                    $this->xbProductIds['addons'][] = $module->getXbProductId();
+                if ($module['purchaseUrl']) {
+                    $url = $module['purchaseUrl'];
+                    $this->xbProductIds['addons'][] = $module['xbProductId'];
                 }
             }
         }
@@ -254,7 +232,7 @@ class KeysNotice extends \XLite\View\ModulesManager\AModulesManager
         $result['message'] = $message;
         $result['url'] = $url;
 
-        return !$skipItem ? $result : null;
+        return $result;
     }
 
     /**
@@ -264,7 +242,7 @@ class KeysNotice extends \XLite\View\ModulesManager\AModulesManager
      */
     protected function getRemoveModulesURL()
     {
-        return $this->buildURL('addons_list_installed', 'uninstall_unallowed');
+        return \XLite::getInstance()->getShopURL('service.php?/removeUnallowedModules');
     }
 
     /**
@@ -316,12 +294,12 @@ class KeysNotice extends \XLite\View\ModulesManager\AModulesManager
     {
         $result = false;
 
-        $flags = \XLite\Core\Marketplace::getInstance()->checkForUpdates();
-
-        if (!empty($flags[\XLite\Core\Marketplace::FIELD_IS_CONFIRMED])) {
-            $result = true;
-            \XLite\Core\Session::getInstance()->fraudWarningDisplayed = true;
-        }
+        //$flags = \XLite\Core\Marketplace::getInstance()->checkForUpdates();
+        //
+        //if (!empty($flags[\XCart\Marketplace\Constant::FIELD_IS_CONFIRMED])) {
+        //    $result = true;
+        //    \XLite\Core\Session::getInstance()->fraudWarningDisplayed = true;
+        //}
 
         return $result;
     }
@@ -390,14 +368,14 @@ class KeysNotice extends \XLite\View\ModulesManager\AModulesManager
             $license = \XLite::getXCNLicense();
 
             if ($license) {
-                $keyData = $license->getKeyData();
+                $keyData = $license['keyData'];
                 $xbProductId = !empty($keyData['xbProductId'])
                     ? $keyData['xbProductId']
                     : \XLite\Core\Database::getRepo('XLite\Model\Module')->getEditionIdByName($keyData['editionName']);
-                $xbProductId = intval($xbProductId);
+                $xbProductId = (int) $xbProductId;
 
                 $result['title'] = 'X-Cart ' . $keyData['editionName'];
-                $result['message'] = static::t('Inactive license key ({{key}})', array('key' => $license->getKeyValue()));
+                $result['message'] = static::t('Inactive license key ({{key}})', array('key' => $license['keyValue']));
                 if (0 < $xbProductId) {
                     $result['url'] = \XLite\Core\Marketplace::getPurchaseURL($xbProductId);
                     $result['xbProductId'] = $xbProductId;

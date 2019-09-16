@@ -14,25 +14,14 @@ namespace Symfony\Component\Form;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
 
 /**
- * A form extension with preloaded types, type exceptions and type guessers.
+ * A form extension with preloaded types, type extensions and type guessers.
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class PreloadedExtension implements FormExtensionInterface
 {
-    /**
-     * @var FormTypeInterface[]
-     */
-    private $types = array();
-
-    /**
-     * @var array[FormTypeExtensionInterface[]]
-     */
-    private $typeExtensions = array();
-
-    /**
-     * @var FormTypeGuesserInterface
-     */
+    private $types = [];
+    private $typeExtensions = [];
     private $typeGuesser;
 
     /**
@@ -44,15 +33,19 @@ class PreloadedExtension implements FormExtensionInterface
      */
     public function __construct(array $types, array $typeExtensions, FormTypeGuesserInterface $typeGuesser = null)
     {
+        foreach ($typeExtensions as $extensions) {
+            foreach ($extensions as $typeExtension) {
+                if (!method_exists($typeExtension, 'getExtendedTypes')) {
+                    @trigger_error(sprintf('Not implementing the static getExtendedTypes() method in %s when implementing the %s is deprecated since Symfony 4.2. The method will be added to the interface in 5.0.', \get_class($typeExtension), FormTypeExtensionInterface::class), E_USER_DEPRECATED);
+                }
+            }
+        }
+
         $this->typeExtensions = $typeExtensions;
         $this->typeGuesser = $typeGuesser;
 
         foreach ($types as $type) {
-            // Up to Symfony 2.8, types were identified by their names
-            $this->types[$type->getName()] = $type;
-
-            // Since Symfony 2.8, types are identified by their FQCN
-            $this->types[get_class($type)] = $type;
+            $this->types[\get_class($type)] = $type;
         }
     }
 
@@ -83,7 +76,7 @@ class PreloadedExtension implements FormExtensionInterface
     {
         return isset($this->typeExtensions[$name])
             ? $this->typeExtensions[$name]
-            : array();
+            : [];
     }
 
     /**

@@ -1,6 +1,0 @@
-Version 5.3.4.0
-
-Fixes (2)
-2018-12-03 - [Bug] Order note in Not Finished Orders (NFO) was lost if the module MultiVendor was enabled. Fixed. #BUG-6794 (Shevelov Alexander) #Core #Paypal #FastLaneCheckout #MultiVendor #NotFinishedOrders
-2018-11-20 - [Bug] NFO orders were not excluded from the results of application of the filter "Awaiting processing" in the Admin area. Fixed. Added a new filter - "Not finished". #BUG-6803 https://bt.x-cart.com/view.php?id=50111 (Vladimir Semyonov) #NotFinishedOrders
-

@@ -112,6 +112,20 @@ class Page extends \XLite\View\Model\AModel
             $data[static::SCHEMA_PLACEHOLDER] = static::t('Default');
         }
 
+        if ('cleanURL' === $name) {
+            $cleanUrlExt = \XLite\Model\Repo\CleanURL::isStaticPageUrlHasExt() ? \XLite\Model\Repo\CleanURL::CLEAN_URL_DEFAULT_EXTENSION : '';
+
+            if ($this->getModelObject()
+                && $this->getModelObject()->getCleanURL()
+                && \XLite\Model\Repo\CleanURL::isStaticPageUrlHasExt()
+                && !preg_match('/.html$/', $this->getModelObject()->getCleanURL())
+            ) {
+                $cleanUrlExt = '';
+            }
+
+            $data[CleanURL::PARAM_EXTENSION] = $cleanUrlExt;
+        }
+
         return parent::getFieldBySchema($name, $data);
     }
 

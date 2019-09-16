@@ -11,7 +11,7 @@ namespace XLite\View\ItemsList;
 /**
  * RequestSearchValuesStorage
  */
-class RequestSearchValuesStorage extends \XLite\View\ItemsList\ASearchValuesStorage implements \XLite\View\ItemsList\ISearchValuesStorage
+class RequestSearchValuesStorage extends \XLite\View\ItemsList\ASearchValuesStorage
 {
     /**
      * Request data

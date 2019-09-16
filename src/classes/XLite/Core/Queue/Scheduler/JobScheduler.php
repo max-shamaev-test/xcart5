@@ -26,6 +26,11 @@ class JobScheduler implements JobSchedulerInterface
     protected $factory;
 
     /**
+     * @var Producer
+     */
+    protected $producer;
+
+    /**
      * @var JobQueueResolverInterface
      */
     private $jobQueueResolver;
@@ -45,9 +50,9 @@ class JobScheduler implements JobSchedulerInterface
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addSubscriber(new ErrorLogSubscriber());
-        $dispatcher->addSubscriber(new FailureSubscriber($this->factory));
 
         $this->producer = new Producer($this->factory, $dispatcher);
+        $dispatcher->addSubscriber(new FailureSubscriber($this->producer));
     }
 
     /**

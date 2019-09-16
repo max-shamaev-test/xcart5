@@ -12,9 +12,9 @@ use Doctrine\DBAL\Logging\DebugStack;
 use XLite\Core\Config;
 use XLite\Core\Database;
 use XLite\Core\Request;
+use XLite\Model\Product;
 use XLite\Module\QSL\CloudSearch\Core\ServiceApiClient;
 use XLite\Module\QSL\CloudSearch\Core\StoreApi;
-use XLite\View\AView;
 
 /**
  * CloudSearch API controller
@@ -158,17 +158,11 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
 
     protected function doActionGetPrices()
     {
-        $prices   = [];
-        $products = [];
+        $prices = [];
 
-        $currency = $this->getCart()->getCurrency();
-
+        /** @var Product $product */
         foreach ($this->getProducts() as $product) {
-            $products[$product->getProductId()] = AView::formatPrice($product->getDisplayPrice(), $currency);
-        }
-
-        foreach ($this->getProductIds() as $productId) {
-            $prices[] = $products[$productId];
+            $prices[$product->getProductId()] = $product->getDisplayPrice();
         }
 
         $this->printJSONAndExit($prices);

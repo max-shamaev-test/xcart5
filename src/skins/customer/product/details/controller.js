@@ -624,7 +624,28 @@ ProductDetailsView.prototype.addProductToCart = function(event)
   // We do not shade widgets collection after the product is added to cart
   core.doShadeWidgetsCollection = false;
   this.base.get(0).controller.selfAdded = true;
+  this.gatherFormFields();
 };
+
+ProductDetailsView.prototype.gatherFormFields = function()
+{
+  var elements = jQuery('input:not(:checkbox,:radio),select,textarea,input:checkbox:checked,input:radio:checked', this.base);
+
+  for (i = 0; i < elements.length; i++) {
+    if (
+      (jQuery(elements[i]).hasClass('form-control')
+        || jQuery(elements[i]).parents('.attribute-values').length !== 0
+      )
+      && 0 == jQuery(elements[i]).parents('form').length
+    ) {
+      jQuery('<input>').attr({
+        type: 'hidden',
+        name: jQuery(elements[i]).prop('name'),
+        value: jQuery(elements[i]).val()
+      }).appendTo('form.product-details');
+    }
+  }
+}
 
 // Form POST processor
 ProductDetailsView.prototype.postprocessAdd2Cart = function(event, data)

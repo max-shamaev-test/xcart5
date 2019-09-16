@@ -25,7 +25,6 @@ class MakeAttributeBlank extends \XLite\View\Button\AButton
         $list = parent::getJSFiles();
 
         $list[] = 'button/js/makeblank.js';
-        $list[] = 'js/tooltip.js';
 
         return $list;
     }

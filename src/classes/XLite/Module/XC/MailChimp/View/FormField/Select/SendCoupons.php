@@ -9,6 +9,8 @@
 namespace XLite\Module\XC\MailChimp\View\FormField\Select;
 
 
+use Includes\Utils\Module\Manager;
+
 class SendCoupons extends \XLite\View\FormField\Select\Regular
 {
     const SEND_ALL   = 'all';
@@ -17,7 +19,7 @@ class SendCoupons extends \XLite\View\FormField\Select\Regular
     protected function isVisible()
     {
         return parent::isVisible()
-            && \XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('CDev\Coupons');
+            && Manager::getRegistry()->isModuleEnabled('CDev\Coupons');
     }
 
     /**

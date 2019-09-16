@@ -13,17 +13,17 @@
     class="{{ this.getSortLinkClass(column) }}">{{ column.name }}</a>
   {% if this.isColumnSorted(column) %}
   {% if 'desc' == this.getSortOrder() %}
-    <span class="dir desc-order">&uarr;</span>
+    <i class="dir desc-order"></i>
   {% endif %}
   {% if 'asc' == this.getSortOrder() %}
-    <span class="dir asc-order">&darr;</span>
+    <i class="dir asc-order"></i>
   {% endif %}
   {% endif %}
 {% else %}
-  {{ column.name }}
+  <div class="table-header">{{ column.name }}</div>
 {% endif %}
   {% if column.headHelp %}
-    <div class="column-header-help">
+    <div class="help-wrapper">
       {{ widget('\\XLite\\View\\Tooltip', id='menu-links-help-text', text=column.headHelp, isImageTag='true', className='help-small-icon') }}
     </div>
   {% endif %}

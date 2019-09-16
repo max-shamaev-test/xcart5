@@ -8,3 +8,7 @@ Options -Indexes
 <Files "*.*">
   Deny from all
 </Files>
+
+<Files "icon.png">
+  Allow from all
+</Files>

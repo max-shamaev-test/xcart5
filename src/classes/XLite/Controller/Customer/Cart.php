@@ -392,20 +392,24 @@ class Cart extends \XLite\Controller\Customer\ACustomer
     /**
      * Process 'Add item' success
      *
+     * @param \XLite\Model\OrderItem $item
+     *
      * @return void
      */
-    protected function processAddItemSuccess()
+    protected function processAddItemSuccess($item)
     {
         \XLite\Core\TopMessage::addInfo('Product has been added to cart');
-        \XLite\Core\Event::productAddedToCart($this->assembleProductAddedToCartEvent());
+        \XLite\Core\Event::productAddedToCart($this->assembleProductAddedToCartEvent($item));
     }
 
     /**
      * Returns event data
      *
+     * @param \XLite\Model\OrderItem $item
+     *
      * @return array
      */
-    protected function assembleProductAddedToCartEvent()
+    protected function assembleProductAddedToCartEvent($item)
     {
         return [];
     }
@@ -471,7 +475,7 @@ class Cart extends \XLite\Controller\Customer\ACustomer
             $item = $this->getCurrentItem();
 
             if ($item && $this->addItem($item)) {
-                $this->processAddItemSuccess();
+                $this->processAddItemSuccess($item);
 
             } else {
                 $this->processAddItemError();

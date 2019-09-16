@@ -2,7 +2,7 @@
  # Express checkout
  #}
 <div class="button pp-button {{ this.getFingerprint() }}">
-    {% if not this.isOutOfStock() and this.isProductAvailableForSale() %}
+    {% if not this.isAllStockInCart() and this.isProductAvailableForSale() %}
         {{ widget('\\XLite\\Module\\CDev\\Paypal\\View\\Button\\Product\\ExpressCheckout') }}
     {% endif %}
 </div>

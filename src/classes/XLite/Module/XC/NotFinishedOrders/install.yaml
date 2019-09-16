@@ -64,7 +64,7 @@ XLite\Model\Order\Status\Property:
 XLite\Model\SearchFilter:
   - filterKey: search-filter-order_list
     translations: [{ code: en, name: Not finished }, { code: ru, name: Незавершенные }]
-    parameters: { paymentStatus: [], shippingStatus: [8] }
+    parameters: { paymentStatus: [], shippingStatus: [NF] }
 
 XLite\Model\LanguageLabel:
   - { name: "Not finished order", translations: [{ code: en, label: "Not finished order" }, { code: ru, label: "Незавершенный заказ" }] }
@@ -73,3 +73,4 @@ XLite\Model\LanguageLabel:
   - { name: "by pressing Place order button", translations: [{ code: en, label: "before payment" }, { code: ru, label: "до оплаты" }] }
   - { name: "Export of Not Finished orders is not supported. To export the orders which are now in this state, change their fulfillment status from Not Finished to any other.", translations: [{ code: en, label: "Export of Not Finished orders is not supported. To export the orders which are now in this state, change their fulfillment status from Not Finished to any other." }, { code: ru, label: "Экспорт незавершённых заказов не поддерживается. Для экспорта имеющихся заказов в данном статусе необходимо изменить их статус доставки с 'Не завершен' на любой другой." }] }
   - { name: "Not Finished orders were skipped during the export process. If you wish to export the orders which are now in this state, change their fulfillment status from Not Finished to any other.", translations: [{ code: en, label: "Not Finished orders were skipped during the export process. If you wish to export the orders which are now in this state, change their fulfillment status from Not Finished to any other." }, { code: ru, label: "Незавершенные заказы были пропущены в процессе экспорта. Для экспорта заказов данного типа измените их статус доставки c 'Не завершен' на любой другой." }] }
+  - { name: "You can find the failed order here", translations: [{ code: en, label: 'You can find the failed order <a href="{{url}}">here</a>' }, { code: ru, label: 'Вы можете найти незавершенный заказ <a href="{{url}}">здесь</a>' }] }

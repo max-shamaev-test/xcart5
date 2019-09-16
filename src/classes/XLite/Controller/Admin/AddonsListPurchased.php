@@ -11,31 +11,6 @@ namespace XLite\Controller\Admin;
 /**
  * AddonsListInstalled
  */
-class AddonsListPurchased extends \XLite\Controller\Admin\AddonsListMarketplace
+class AddonsListPurchased extends \XLite\Controller\Admin\AAdmin
 {
-    /**
-     * Return the current page title (for the content area)
-     *
-     * @return string
-     */
-    public function getTitle()
-    {
-        return static::t('Purchased addons');
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isLandingPage()
-    {
-        return false;
-    }
-
-    /**
-     * @return integer
-     */
-    public function getModuleId()
-    {
-        return null;
-    }
 }

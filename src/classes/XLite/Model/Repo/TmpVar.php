@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Repo;
 
+use XLite\Core\Database;
+
 /**
  * Temporary variables repository
  *
@@ -33,7 +35,8 @@ class TmpVar extends \XLite\Model\Repo\ARepo
      */
     public function setVar($name, $value, $flush = true)
     {
-        $connection = \XLite\Core\Database::getEM()->getConnection();
+        $this->removeEntityFromUoW($name);
+        $connection = Database::getEM()->getConnection();
 
         $query = 'REPLACE INTO ' . $this->getTableName()
             . ' set `name` = ?, `value` = ?';
@@ -69,12 +72,20 @@ class TmpVar extends \XLite\Model\Repo\ARepo
      */
     public function removeVar($name)
     {
-        $connection = \XLite\Core\Database::getEM()->getConnection();
+        $this->removeEntityFromUoW($name);
+        $connection = Database::getEM()->getConnection();
 
         $query = 'DELETE FROM ' . $this->getTableName()
             . ' WHERE `name` = ?';
 
         $connection->executeUpdate($query, [$name]);
+    }
+
+    protected function removeEntityFromUoW($name)
+    {
+        if ($entity = Database::getRepo('XLite\Model\TmpVar')->tryToFindEntityInIMByCriteria(['name' => $name])) {
+            Database::getEM()->getUnitOfWork()->removeFromIdentityMap($entity);
+        }
     }
 
     // {{{ Event tasks-based temporary variable operations

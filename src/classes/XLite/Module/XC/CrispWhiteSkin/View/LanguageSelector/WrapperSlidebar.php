@@ -12,6 +12,7 @@ namespace XLite\Module\XC\CrispWhiteSkin\View\LanguageSelector;
  * Language selector (customer) wrapper
  *
  * @ListChild (list="slidebar.settings", weight="200", zone="customer")
+ * @ListChild (list="slidebar.navbar.settings", weight="200", zone="customer")
  */
 class WrapperSlidebar extends \XLite\View\LanguageSelector\Customer
 {

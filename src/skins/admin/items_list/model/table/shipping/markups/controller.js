@@ -106,6 +106,7 @@ ShippingMarkupItemsList.prototype.checkRemoveButton = function () {
 ShippingMarkupItemsList.prototype.setTableType = function (value) {
   var weight = jQuery('.cell.weightRange', this.container).hide();
   var subtotal = jQuery('.cell.subtotalRange', this.container).hide();
+  var discountedSubtotal = jQuery('.cell.discountedSubtotalRange', this.container).hide();
   var items = jQuery('.cell.itemsRange', this.container).hide();
 
   var markupFlat = jQuery('.cell.markup_flat', this.container).toggleClass('break', false);
@@ -129,6 +130,10 @@ ShippingMarkupItemsList.prototype.setTableType = function (value) {
 
     case 'I':
       items.show();
+      break;
+
+    case 'DS':
+      discountedSubtotal.show();
       break;
   }
 };
@@ -190,7 +195,7 @@ ShippingMarkupItemsList.prototype.creteFormulaElementHandler = function (element
 jQuery(function () {
   var infinitySign = jQuery('<div />').html('&#x221E;').text();
 
-  jQuery('.range-wrapper input.with-infinity').live('keyup', function () {
+  jQuery('.range-wrapper').on('keyup', 'input.with-infinity', function () {
     var value = jQuery(this).val();
     if (value === '999999999.00' || value === '999999999' || value === '') {
       jQuery(this).val(infinitySign);

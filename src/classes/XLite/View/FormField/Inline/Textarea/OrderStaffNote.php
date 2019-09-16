@@ -36,9 +36,19 @@ class OrderStaffNote extends \XLite\View\FormField\Inline\Textarea\Simple
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'form_field/inline/textarea/order_staff_note.css';
+        $list[] = 'form_field/inline/textarea/order_staff_note.less';
 
         return $list;
+    }
+
+    /**
+     * Return widget default template
+     *
+     * @return string
+     */
+    protected function getDefaultTemplate()
+    {
+        return 'form_field/inline/textarea/order_staff_note.inline.twig';
     }
 
     /**

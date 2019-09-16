@@ -39,10 +39,11 @@ class BackToModulesLink extends \XLite\View\Button\SimpleLink
      */
     protected function getLocationURL()
     {
-        $repo = \XLite\Core\Database::getRepo('XLite\Model\Module');
-        $module = $repo->find($this->getParam(static::PARAM_MODULE_ID));
-
-        return $module ? $module->getInstalledURL() : '';
+        return '';
+        //$repo = \XLite\Core\Database::getRepo('XLite\Model\Module');
+        //$module = $repo->find($this->getParam(static::PARAM_MODULE_ID));
+        //
+        //return $module ? $module->getInstalledURL() : '';
     }
 
     /**

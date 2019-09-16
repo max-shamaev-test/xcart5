@@ -99,7 +99,7 @@ class CleanURL extends \XLite\View\FormField\Input\Text
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/input/text/clean_url.css';
+        $list[] = $this->getDir() . '/input/text/clean_url.less';
 
         return $list;
     }
@@ -207,7 +207,7 @@ class CleanURL extends \XLite\View\FormField\Input\Text
         /** @var \XLite\Model\Repo\CleanURL $repo */
         $repo = \XLite\Core\Database::getRepo('XLite\Model\CleanURL');
 
-        return $this->getPreparedURL($repo->buildFakeURL($entity));
+        return $this->getPreparedURL($repo->buildFakeURL($entity, [], !$this->hasExtension()));
     }
 
     /**

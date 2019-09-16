@@ -7,6 +7,7 @@
  */
 
 namespace XLite\Module\CDev\PINCodes\Model;
+use XLite\Core\Converter;
 use XLite\Model\Order\Status\Shipping;
 
 /**
@@ -41,22 +42,28 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
     public function acquirePINCodes()
     {
         $missingCount = 0;
+        $lastProductId = null;
         foreach ($this->getItems() as $item) {
             if ($item->getProduct()->getPinCodesEnabled() && !$item->countPinCodes()) {
                 $item->acquirePinCodes();
                 $missingCount += $item->countMissingPinCodes();
+                $lastProductId = $item->getProduct()->getId() ?: $lastProductId;
             }
         }
 
         if ($missingCount) {
-             \XLite\Core\Mailer::sendAcquirePinCodesFailedAdmin($this);
-             \XLite\Core\TopMessage::addError(
-                 'Could not assign X PIN codes to order #Y.',
-                 [
-                     'count'   => $missingCount,
-                     'orderId' => $this->getOrderNumber(),
-                 ]
-             );
+            \XLite\Core\Mailer::sendAcquirePinCodesFailedAdmin($this);
+            \XLite\Core\TopMessage::addError(
+                'Could not assign X PIN codes to order #Y.',
+                [
+                    'count'   => $missingCount,
+                    'orderId' => $this->getOrderNumber(),
+                    'link'    => Converter::buildFullURL('product', '', [
+                        'page'       => 'pin_codes',
+                        'product_id' => $lastProductId,
+                    ]),
+                ]
+            );
         }
     }
 
@@ -108,11 +115,13 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
     {
         if ($this->isAllowToProcessPinCodes()) {
             $missingCount = 0;
+            $lastProductId = null;
             foreach ($this->getItems() as $item) {
                 if ($item->getProduct()->getPinCodesEnabled()) {
                     if (!$item->countPinCodes()) {
                         $item->acquirePinCodes();
                         $missingCount += $item->countMissingPinCodes();
+                        $lastProductId = $item->getProduct()->getId() ?: $lastProductId;
                     }
 
                     if ($item->countPinCodes()) {
@@ -122,12 +131,16 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
             }
 
             if ($missingCount) {
-                \XLite\Core\Mailer::getInstance()->sendAcquirePinCodesFailedAdmin($this);
+                \XLite\Core\Mailer::sendAcquirePinCodesFailedAdmin($this);
                 \XLite\Core\TopMessage::addError(
                     'Could not assign X PIN codes to order #Y.',
                     [
                         'count'   => $missingCount,
                         'orderId' => $this->getOrderNumber(),
+                        'link'    => Converter::buildFullURL('product', '', [
+                            'page'       => 'pin_codes',
+                            'product_id' => $lastProductId,
+                        ]),
                     ]
                 );
             }

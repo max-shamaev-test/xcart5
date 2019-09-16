@@ -139,5 +139,15 @@ abstract class ANodeNotification extends \XLite\View\AView
         return 0;
     }
 
+    /**
+     * Check if target is blank or not
+     *
+     * @return boolean
+     */
+    protected function targetIsBlank()
+    {
+        return false;
+    }
+
     // }}}
 }

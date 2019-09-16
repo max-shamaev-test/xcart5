@@ -1,8 +1,16 @@
 {##
  # Right actions
  #}
-
-<div class="separator"></div>
 {% for tpl in this.getRightActions() %}
-  <div class="{{ this.getActionCellClass(this.i, tpl) }}">{% include tpl %}</div>
+  {% set content %}
+    {% include tpl %}
+  {% endset %}
+
+  {% if content|trim is not empty %}
+    <div class="separator"></div>
+  {% endif %}
+
+  {% spaceless %}
+    <div class="{{ this.getActionCellClass(this.i, tpl) }}">{{ content }}</div>
+  {% endspaceless %}
 {% endfor %}

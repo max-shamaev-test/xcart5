@@ -28,16 +28,6 @@ class PaypalCredit extends \XLite\View\Model\AModel
             self::SCHEMA_LABEL    => 'PayPal Credit is',
             self::SCHEMA_REQUIRED => false,
         ),
-        'agreement' => array(
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Checkbox\Simple',
-            self::SCHEMA_LABEL    => 'I agree with PayPal terms & conditions',
-            self::SCHEMA_REQUIRED => true,
-            self::SCHEMA_DEPENDENCY => array(
-                self::DEPENDENCY_SHOW => array(
-                    'enabled' => array('1'),
-                ),
-            ),
-        ),
         'email' => array(
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Text\Email',
             self::SCHEMA_LABEL    => 'PayPal account email',

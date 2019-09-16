@@ -91,9 +91,9 @@ XLite\Model\Order:
         publicTxnId: '000001-KGSP'
         public_id: 'demostore-000001-KGSP'
     items:
-      - object: { sku: '1204' }
-        name: 'Vinyl Idolz: Ghostbusters [Wholesale prices]'
-        sku: '1204'
+      - object: { sku: '10000000118' }
+        name: 'Perfect Snacks [Wholesale prices]'
+        sku: '10000000118'
         price: 19.9900
         itemNetPrice: 19.9900
         discountedSubtotal: 16.9900
@@ -180,9 +180,9 @@ XLite\Model\Order:
         publicTxnId: '000002-FX7B'
         public_id: 'demostore-000002-FX7B'
     items:
-      - object: { sku: '12030' }
-        name: "Spiderman Selfie Ladies' Tee"
-        sku: '12030'
+      - object: { sku: '10000000069' }
+        name: "Beige Sneakers"
+        sku: '10000000069'
         price: 19.9900
         itemNetPrice: 19.9900
         discountedSubtotal: 39.9800
@@ -190,9 +190,9 @@ XLite\Model\Order:
         subtotal: 39.9800
         total: 39.9800
         object_type: product
-      - object: { sku: '12007' }
-        name: "Bow Ties Are Cool [Unlimited QTY]"
-        sku: '12007'
+      - object: { sku: '10000000081' }
+        name: "Pink Sneakers with White Soles"
+        sku: '10000000081'
         price: 14.9900
         itemNetPrice: 14.9900
         discountedSubtotal: 44.9700
@@ -274,9 +274,9 @@ XLite\Model\Order:
         publicTxnId: '000002-FX7B'
         public_id: 'demostore-000002-FX7B'
     items:
-      - object: { sku: '12022' }
-        name: 'Minions Pop Vinyl Figures'
-        sku: '12022'
+      - object: { sku: '10000000085' }
+        name: 'Waist Tie Dress in Blue and White Stripe'
+        sku: '10000000085'
         price: 9.9900
         itemNetPrice: 9.9900
         discountedSubtotal: 59.9400
@@ -284,9 +284,9 @@ XLite\Model\Order:
         subtotal: 59.9400
         total: 59.9400
         object_type: product
-      - object: { sku: '12026' }
-        name: 'Ollie - The App Controlled Robot'
-        sku: '12026'
+      - object: { sku: '10000000089' }
+        name: 'Sleeved Mini Dress in Color Block'
+        sku: '10000000089'
         price: 99.0000
         itemNetPrice: 99.0000
         discountedSubtotal: 99.9900
@@ -387,7 +387,7 @@ XLite\Model\Order:
           - name: 'cart_items'
             label: 'Cart items'
             access_level: A
-            value: 'a:1:{i:0;a:5:{s:4:"name";s:27:"Ewok Ladies Hooded Tank Top";s:3:"sku";s:6:"100ewl";s:5:"price";d:34.990000000000002;s:6:"amount";i:1;s:5:"attrs";a:0:{}}}'
+            value: 'a:1:{i:0;a:5:{s:4:"name";s:27:"Caged Cutout Sandals in Gold";s:3:"sku";s:6:"10000000083";s:5:"price";d:34.990000000000002;s:6:"amount";i:1;s:5:"attrs";a:0:{}}}'
 
       - method_name: SimplifyCommerceHP
         method_local_name: 'Simplify Commerce Hosted Payments'
@@ -419,11 +419,11 @@ XLite\Model\Order:
           - name: 'cart_items'
             label: 'Cart items'
             access_level: A
-            value: 'a:1:{i:0;a:5:{s:4:"name";s:27:"Ewok Ladies Hooded Tank Top";s:3:"sku";s:6:"100ewl";s:5:"price";d:34.990000000000002;s:6:"amount";i:1;s:5:"attrs";a:0:{}}}'
+            value: 'a:1:{i:0;a:5:{s:4:"name";s:27:"Caged Cutout Sandals in Gold";s:3:"sku";s:6:"10000000083";s:5:"price";d:34.990000000000002;s:6:"amount";i:1;s:5:"attrs";a:0:{}}}'
     items:
-      - object: { sku: '100ewl' }
-        name: "Ewok Ladies Hooded Tank Top"
-        sku: '100ewl'
+      - object: { sku: '10000000083' }
+        name: "Caged Cutout Sandals in Gold"
+        sku: '10000000083'
         price: 34.99
         itemNetPrice: 34.9900
         discountedSubtotal: 34.9900
@@ -528,9 +528,9 @@ XLite\Model\Order:
         publicTxnId: '000005-KXAQ'
         public_id: 'demostore-000005-KXAQ'
     items:
-      - object: { sku: '12029' }
-        name: 'Soft Kitty Singing Plush [Sale] [Reviews]'
-        sku: '12029'
+      - object: { sku: '10000000087' }
+        name: 'Multicolored Dress with Balloon Sleeves [Options Soft Kitty Singing Plush [Sale] [Reviews] Attributes]'
+        sku: '10000000087'
         price: 25.4900
         itemNetPrice: 25.4900
         discountedSubtotal: 305.8800
@@ -538,9 +538,9 @@ XLite\Model\Order:
         subtotal: 305.8800
         total: 305.8800
         object_type: product
-      - object: { sku: '12035' }
-        name: 'Superhero Mom Mug'
-        sku: '12035'
+      - object: { sku: '10000000101' }
+        name: 'Festival Braslet Pack in Gold Tone'
+        sku: '10000000101'
         price: 6.4900
         itemNetPrice: 6.4900
         discountedSubtotal: 45.4300
@@ -572,10 +572,10 @@ XLite\Model\Order:
 
 # The code below allows to recalculate 'sales' fields of updated products
 XLite\Model\Product:
-  - { sku: '12029', sales: 12 }
-  - { sku: '12007', sales: 3 }
-  - { sku: '12035', sales: 7 }
-  - { sku: '12030', sales: 2 }
-  - { sku: '12022', sales: 6 }
-  - { sku: '1204', sales: 1 }
-  - { sku: '12026', sales: 1 }
+  - { sku: '10000000087', sales: 12 }
+  - { sku: '10000000081', sales: 3 }
+  - { sku: '10000000101', sales: 7 }
+  - { sku: '10000000069', sales: 2 }
+  - { sku: '10000000085', sales: 6 }
+  - { sku: '10000000118', sales: 1 }
+  - { sku: '10000000089', sales: 1 }

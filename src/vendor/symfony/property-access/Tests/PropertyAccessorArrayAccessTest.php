@@ -11,10 +11,11 @@
 
 namespace Symfony\Component\PropertyAccess\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 
-abstract class PropertyAccessorArrayAccessTest extends \PHPUnit_Framework_TestCase
+abstract class PropertyAccessorArrayAccessTest extends TestCase
 {
     /**
      * @var PropertyAccessor
@@ -30,10 +31,10 @@ abstract class PropertyAccessorArrayAccessTest extends \PHPUnit_Framework_TestCa
 
     public function getValidPropertyPaths()
     {
-        return array(
-            array($this->getContainer(array('firstName' => 'Bernhard')), '[firstName]', 'Bernhard'),
-            array($this->getContainer(array('person' => $this->getContainer(array('firstName' => 'Bernhard')))), '[person][firstName]', 'Bernhard'),
-        );
+        return [
+            [$this->getContainer(['firstName' => 'Bernhard']), '[firstName]', 'Bernhard'],
+            [$this->getContainer(['person' => $this->getContainer(['firstName' => 'Bernhard'])]), '[person][firstName]', 'Bernhard'],
+        ];
     }
 
     /**
@@ -53,7 +54,7 @@ abstract class PropertyAccessorArrayAccessTest extends \PHPUnit_Framework_TestCa
             ->enableExceptionOnInvalidIndex()
             ->getPropertyAccessor();
 
-        $object = $this->getContainer(array('firstName' => 'Bernhard'));
+        $object = $this->getContainer(['firstName' => 'Bernhard']);
 
         $this->propertyAccessor->getValue($object, '[lastName]');
     }
@@ -81,6 +82,6 @@ abstract class PropertyAccessorArrayAccessTest extends \PHPUnit_Framework_TestCa
      */
     public function testIsWritable($collection, $path)
     {
-        $this->assertTrue($this->propertyAccessor->isWritable($collection, $path, 'Updated'));
+        $this->assertTrue($this->propertyAccessor->isWritable($collection, $path));
     }
 }

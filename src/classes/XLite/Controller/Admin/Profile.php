@@ -154,47 +154,24 @@ class Profile extends \XLite\Controller\Admin\AAdmin
      */
     protected function actionPostprocessModify()
     {
-        $params = array();
-
         if ($this->getModelForm()->isRegisterMode()) {
 
             // New profile is registered
             if ($this->isActionError()) {
-
                 // Return back to register page
                 $params = array('mode' => self::getRegisterMode());
-
             } else {
-
                 // Send notification
                 \XLite\Core\Mailer::sendProfileCreated($this->getProfile());
-
                 // Return to the created profile page
                 $params = array('profile_id' => $this->getProfile()->getProfileId());
             }
 
         } else {
-            // Existing profile is updated
-
-            $password = null;
-
-            // Check if user's password was changed
-            if (!empty(\XLite\Core\Request::getInstance()->password)) {
-                $password = \XLite\Core\Request::getInstance()->password;
-            }
-
-            if (!\XLite::isAdminZone()
-                || $this->getProfile()->getProfileId() != \XLite\Core\Auth::getInstance()->getProfile()->getProfileId()
-            ) {
-                \XLite\Core\Mailer::sendProfileUpdated($this->getProfile());
-            }
-
             // Get profile ID from modified profile model
             $profileId = $this->getProfile()->getProfileId();
-
             // Return to the profile page
             $params = array('profile_id' => $profileId);
-
             if (\XLite\Model\Profile::STATUS_DISABLED == $this->getProfile()->getStatus()) {
                 // Clear user session if user profile has been disabled
                 \XLite\Core\Session::getInstance()->clearUserSession($profileId);

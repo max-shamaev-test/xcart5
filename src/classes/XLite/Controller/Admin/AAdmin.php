@@ -151,12 +151,6 @@ abstract class AAdmin extends \XLite\Controller\AController
                 \XLite\Core\Session::getInstance()->no_https = true;
             }
 
-            if ($this->isLogged()) {
-                \XLite::getInstance()->updateModuleRegistry();
-            }
-
-            $this->disableUnallowedModules();
-
             parent::handleRequest();
         }
     }
@@ -186,9 +180,9 @@ abstract class AAdmin extends \XLite\Controller\AController
         if ($auth->isLogged()
             && $auth->getProfile()->isAdmin() == \XLite::isAdminZone()
         ) {
-            if (count(\XLite\Upgrade\Cell::getInstance()->getEntries())) {
-                $classes[] = 'upgrade-box-visible';
-            }
+            //if (count(\XLite\Upgrade\Cell::getInstance()->getEntries())) {
+            //    $classes[] = 'upgrade-box-visible';
+            //}
 
             if (!empty($_COOKIE['XCAdminLeftMenuCompressed'])) {
                 $classes[] = 'left-menu-compressed';
@@ -230,14 +224,15 @@ abstract class AAdmin extends \XLite\Controller\AController
      */
     public function isUpgradeEntryAvailable()
     {
-        \XLite\Upgrade\Cell::getInstance()->clear();
-
-        return (bool) array_filter(
-            \Includes\Utils\ArrayManager::getObjectsArrayFieldValues(
-                \XLite\Upgrade\Cell::getInstance()->getEntries(),
-                'isEnabled'
-            )
-        );
+        return false;
+        //\XLite\Upgrade\Cell::getInstance()->clear();
+        //
+        //return (bool) array_filter(
+        //    \Includes\Utils\ArrayManager::getObjectsArrayFieldValues(
+        //        \XLite\Upgrade\Cell::getInstance()->getEntries(),
+        //        'isEnabled'
+        //    )
+        //);
     }
 
     /**
@@ -287,33 +282,6 @@ abstract class AAdmin extends \XLite\Controller\AController
         } else {
             $this->redirect($this->buildURL('login'));
         }
-    }
-
-    /**
-     * Disable unallowed modules routine
-     *
-     * @return void
-     */
-    protected function disableUnallowedModules()
-    {
-        if (\XLite\Core\Session::getInstance()->fraudWarningDisplayed) {
-
-            \XLite\Core\Session::getInstance()->fraudWarningDisplayed = null;
-
-            if (!$this->isIgnoreUnallowedModules()) {
-                $this->redirect($this->buildURL('addons_list_installed', 'disable_unallowed'));
-            }
-        }
-    }
-
-    /**
-     * Return true if unallowed modules should be ignored on current page
-     *
-     * @return boolean
-     */
-    protected function isIgnoreUnallowedModules()
-    {
-        return false;
     }
 
     /**
@@ -411,84 +379,6 @@ OUT;
     {
         return substr(trim(preg_replace('/[^a-z0-9 \/\._-]+/Si', '', $cleanURL)), 0, 200);
     }
-
-    // {{{ Updates logging and error handling
-
-    /**
-     * Log upgrade error and show top message
-     *
-     * @param string $action  Current action
-     * @param string $message Message to log and show OPTIONAL
-     * @param array  $args    Arguments to substitute OPTIONAL
-     *
-     * @return void
-     */
-    protected function showError($action, $message = null, array $args = array())
-    {
-        $this->valid = false;
-        $this->showCommon('Error', $action, $message, $args);
-    }
-
-    /**
-     * Log upgrade warning and show top message
-     *
-     * @param string $action  Current action
-     * @param string $message Message to log and show OPTIONAL
-     * @param array  $args    Arguments to substitute OPTIONAL
-     *
-     * @return void
-     */
-    protected function showWarning($action, $message = null, array $args = array())
-    {
-        $this->showCommon('Warning', $action, $message, $args);
-    }
-
-    /**
-     * Log upgrade info and show top message
-     *
-     * @param string $action  Current action
-     * @param string $message Message to log and show OPTIONAL
-     * @param array  $args    Arguments to substitute OPTIONAL
-     *
-     * @return void
-     */
-    protected function showInfo($action, $message = null, array $args = array())
-    {
-        $this->showCommon('Info', $action, $message, $args);
-    }
-
-    /**
-     * Log upgrade info and show top message
-     *
-     * @param string $method  Method to call
-     * @param string $action  Current action
-     * @param string $message Message to log and show
-     * @param array  $args    Arguments to substitute
-     *
-     * @return void
-     */
-    protected function showCommon($method, $action, $message, array $args)
-    {
-        if (null === $message) {
-            $message = static::t(implode('; ', \XLite\Upgrade\Cell::getInstance()->getErrorMessages()))
-                ?: static::t('unknown error');
-        }
-
-        if (null !== $action && LC_DEVELOPER_MODE) {
-            $message = static::t(
-                'Action X::Y, M',
-                array(
-                    'class'   => get_class($this),
-                    'action'  => $action,
-                    'message' => $message,
-                )
-            );
-        }
-
-        \XLite\Upgrade\Logger::getInstance()->{'log' . $method}($message, $args, true);
-    }
-
-    // }}}
 
     /**
      * Check - need use secure protocol or not

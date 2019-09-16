@@ -1,6 +1,0 @@
-Version 5.3.4.7
-
-Fixes (2)
-2018-09-10 - [Bug] The option selection widget on the product page is now reloaded in the following cases: 1 - if the attributes that are not involved in any variants have price || weight modifiers; 2 - if there is a combination of attribute values for which there is not a variant. #BUG-6584 https://bt.x-cart.com/view.php?id=49764 (Kirill Stadler) #ProductVariants
-2018-07-10 - [Bug] When cloning a product with variants, a new variantID was not created. Fixed. #BUG-6532 https://bt.x-cart.com/view.php?id=49668 (Shevelov Alexander) #ProductVariants
-

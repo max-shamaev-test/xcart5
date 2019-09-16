@@ -15,12 +15,15 @@ use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Query;
+use XLite\Core\Lock\SynchronousTrait;
 
 /**
  * EntityTypeVersion repository
  */
 class EntityTypeVersion extends \XLite\Model\Repo\ARepo implements EventSubscriber
 {
+    use SynchronousTrait;
+
     /** @var string[] */
     protected $entityTypeVersions;
 
@@ -58,23 +61,44 @@ class EntityTypeVersion extends \XLite\Model\Repo\ARepo implements EventSubscrib
      * Bump version for a specific entity type
      *
      * @param $entityType
+     * @throws \Exception
      */
     public function bumpEntityTypeVersion($entityType)
     {
         $newVersion = $this->generateUUIDv4();
 
-        \XLite\Core\Database::getEM()->transactionalWithRestarts(function () use ($newVersion, $entityType) {
-            $em = \XLite\Core\Database::getEM();
-            $conn = $em->getConnection();
-            $tableName = $em->getClassMetadata('XLite\Model\EntityTypeVersion')->getTableName();
-            $conn->replace($tableName, ['version' => $newVersion, 'entityType' => $entityType]);
+        $this->retryOnException(function () use ($entityType, $newVersion) {
+            $this->replaceEntityTypeVersion($entityType, $newVersion);
+
+            if (isset($this->entityTypeVersions)) {
+                $this->entityTypeVersions[$entityType] = $newVersion;
+            }
+
+            $this->bumpedEntityTypes[$entityType] = $entityType;
         });
+    }
 
-        if (isset($this->entityTypeVersions)) {
-            $this->entityTypeVersions[$entityType] = $newVersion;
-        }
-
-        $this->bumpedEntityTypes[$entityType] = $entityType;
+    /**
+     * Prone to deadlocks
+     *
+     * @param $entityType
+     * @param $newVersion
+     *
+     * @throws DBALException
+     */
+    protected function replaceEntityTypeVersion($entityType, $newVersion)
+    {
+        $em = \XLite\Core\Database::getEM();
+        $conn = $em->getConnection();
+        $tableName = $em->getClassMetadata('XLite\Model\EntityTypeVersion')->getTableName();
+        $query = sprintf('INSERT INTO %s (%s) VALUES (%s) ON DUPLICATE KEY UPDATE %s=%s',
+            $tableName,
+            implode(', ', ['version', 'entityType']),
+            implode(', ', ['?, ?']),
+            'version',
+            '?'
+        );
+        $conn->executeUpdate($query, [$newVersion, $entityType, $newVersion]);
     }
 
     /**

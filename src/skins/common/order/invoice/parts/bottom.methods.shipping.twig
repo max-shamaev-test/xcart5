@@ -18,7 +18,15 @@
       <strong class="method-title">{{ t('Tracking numbers') }}</strong>
       <ul class="tracking-number-list">
         {% for number in this.order.trackingNumbers %}
-          <li>{{ number.getValue() }}</li>
+          <li>
+            {% if this.order.getTrackingInformationURL(number.getValue()) %}
+              <a href="{{ this.order.getTrackingInformationURL(number.getValue()) }}" target="_blank">
+                {{ number.getValue() }}
+              </a>
+            {% else %}
+              {{ number.getValue() }}
+            {% endif %}
+          </li>
         {% endfor %}
       </ul>
     </div>

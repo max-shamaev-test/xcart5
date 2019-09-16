@@ -13,13 +13,4 @@ namespace XLite\View\Pager\Customer\Order;
  */
 abstract class AOrder extends \XLite\View\Pager\Customer\ACustomer
 {
-    /**
-     * Return number of items per page
-     *
-     * @return integer
-     */
-    protected function getItemsPerPageDefault()
-    {
-        return (int) \XLite\Core\Config::getInstance()->General->orders_per_page;
-    }
 }

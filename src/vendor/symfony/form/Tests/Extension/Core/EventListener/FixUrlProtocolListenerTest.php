@@ -11,15 +11,18 @@
 
 namespace Symfony\Component\Form\Tests\Extension\Core\EventListener;
 
-use Symfony\Component\Form\FormEvent;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\EventListener\FixUrlProtocolListener;
+use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormConfigInterface;
+use Symfony\Component\Form\FormEvent;
 
-class FixUrlProtocolListenerTest extends \PHPUnit_Framework_TestCase
+class FixUrlProtocolListenerTest extends TestCase
 {
     public function testFixHttpUrl()
     {
         $data = 'www.symfony.com';
-        $form = $this->getMock('Symfony\Component\Form\Test\FormInterface');
+        $form = new Form($this->getMockBuilder(FormConfigInterface::class)->getMock());
         $event = new FormEvent($form, $data);
 
         $filter = new FixUrlProtocolListener('http');
@@ -31,7 +34,7 @@ class FixUrlProtocolListenerTest extends \PHPUnit_Framework_TestCase
     public function testSkipKnownUrl()
     {
         $data = 'http://www.symfony.com';
-        $form = $this->getMock('Symfony\Component\Form\Test\FormInterface');
+        $form = new Form($this->getMockBuilder(FormConfigInterface::class)->getMock());
         $event = new FormEvent($form, $data);
 
         $filter = new FixUrlProtocolListener('http');
@@ -40,15 +43,28 @@ class FixUrlProtocolListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('http://www.symfony.com', $event->getData());
     }
 
-    public function testSkipOtherProtocol()
+    public function provideUrlsWithSupportedProtocols()
     {
-        $data = 'ftp://www.symfony.com';
-        $form = $this->getMock('Symfony\Component\Form\Test\FormInterface');
-        $event = new FormEvent($form, $data);
+        return [
+            ['ftp://www.symfony.com'],
+            ['chrome-extension://foo'],
+            ['h323://foo'],
+            ['iris.beep://foo'],
+            ['foo+bar://foo'],
+        ];
+    }
+
+    /**
+     * @dataProvider provideUrlsWithSupportedProtocols
+     */
+    public function testSkipOtherProtocol($url)
+    {
+        $form = new Form($this->getMockBuilder(FormConfigInterface::class)->getMock());
+        $event = new FormEvent($form, $url);
 
         $filter = new FixUrlProtocolListener('http');
         $filter->onSubmit($event);
 
-        $this->assertEquals('ftp://www.symfony.com', $event->getData());
+        $this->assertEquals($url, $event->getData());
     }
 }

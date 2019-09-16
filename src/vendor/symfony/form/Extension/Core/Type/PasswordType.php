@@ -33,10 +33,10 @@ class PasswordType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(array(
+        $resolver->setDefaults([
             'always_empty' => true,
             'trim' => false,
-        ));
+        ]);
     }
 
     /**
@@ -45,14 +45,6 @@ class PasswordType extends AbstractType
     public function getParent()
     {
         return __NAMESPACE__.'\TextType';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return $this->getBlockPrefix();
     }
 
     /**

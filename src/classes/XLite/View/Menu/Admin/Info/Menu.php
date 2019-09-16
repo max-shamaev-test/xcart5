@@ -117,6 +117,10 @@ class Menu extends \XLite\View\Menu\Admin\AAdmin
                 static::ITEM_WEIGHT     => 600,
                 static::ITEM_WIDGET     => 'XLite\View\Menu\Admin\Info\Node\Membership',
             ],
+            'googleAds' => [
+                static::ITEM_WEIGHT     => 700,
+                static::ITEM_WIDGET     => 'XLite\View\Menu\Admin\Info\Node\GoogleAds',
+            ],
         ];
     }
 

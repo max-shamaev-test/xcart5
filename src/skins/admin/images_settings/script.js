@@ -8,18 +8,6 @@
  */
 
 jQuery(document).ready(function() {
-   jQuery(".preview").each(function() {
-     var img = jQuery(this).data('img');
-     if (img) {
-       jQuery(this).tooltip({
-        title : '<img src="' + xliteConfig.base_url  + 'skins/admin/images/' + img + '" />',
-        html: true,
-        placement: 'bottom',
-        delay: { show: 100, hide: 400 },
-       });
-     }
-   });
-
    jQuery('.sticky-panel.images-settings-panel .button-tooltip button').click(function(event) {
 
      var submitButton = jQuery('.sticky-panel.images-settings-panel button.submit').get(0);
@@ -37,21 +25,3 @@ jQuery(document).ready(function() {
      }
    });
 });
-
-
-function CloudZoomSwitcher() {
-  jQuery('#cloud-zoom').change(function (event)
-  {
-    if ($(this).is(':checked')) {
-      $('.cloud-zoom-mode-switch').stop().slideDown();
-    } else {
-      $('.cloud-zoom-mode-switch').stop().slideUp();
-
-      if (!_.isUndefined($('#cloud-zoom-mode').get(0).commonController)) {
-        $('#cloud-zoom-mode').get(0).commonController.undo();
-      }
-    }
-  }).change();
-}
-
-core.autoload(CloudZoomSwitcher);

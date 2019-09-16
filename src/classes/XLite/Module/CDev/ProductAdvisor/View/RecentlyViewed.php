@@ -173,11 +173,7 @@ class RecentlyViewed extends \XLite\View\ItemsList\Product\Customer\ACustomer
             ),
         ];
 
-        if (\XLite\Core\Layout::getInstance()->isSidebarFirstVisible()) {
-            $this->widgetParams[self::PARAM_WIDGET_TYPE]->setValue(self::WIDGET_TYPE_SIDEBAR);
-        } else {
-            $this->widgetParams[self::PARAM_WIDGET_TYPE]->setValue(self::WIDGET_TYPE_CENTER);
-        }
+        $this->widgetParams[self::PARAM_WIDGET_TYPE]->setValue(self::WIDGET_TYPE_CENTER);
         $this->widgetParams[self::PARAM_DISPLAY_MODE]->setValue(self::DISPLAY_MODE_TEXTS);
 
         unset(
@@ -265,25 +261,6 @@ class RecentlyViewed extends \XLite\View\ItemsList\Product\Customer\ACustomer
     }
 
     /**
-     * Return template of New arrivals widget. It depends on widget type:
-     * SIDEBAR/CENTER and so on.
-     *
-     * @return string
-     */
-    protected function getTemplate()
-    {
-        $template = parent::getTemplate();
-
-        if ($template === $this->getDefaultTemplate()
-            && self::WIDGET_TYPE_SIDEBAR === $this->getWidgetType()
-        ) {
-            $template = self::TEMPLATE_SIDEBAR;
-        }
-
-        return $template;
-    }
-
-    /**
      * Check if widget is visible
      *
      * @return boolean
@@ -302,9 +279,7 @@ class RecentlyViewed extends \XLite\View\ItemsList\Product\Customer\ACustomer
      */
     public function getProductTemplate()
     {
-        return $this->getWidgetType() === static::WIDGET_TYPE_CENTER
-            ? 'modules/CDev/ProductAdvisor/product.twig'
-            : parent::getProductTemplate();
+        return 'modules/CDev/ProductAdvisor/product.twig';
     }
 
     /**

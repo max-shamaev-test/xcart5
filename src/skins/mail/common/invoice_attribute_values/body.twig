@@ -3,8 +3,10 @@
  #}
 <li class="attributes">
   {% for av in this.item.getAttributeValues() %}
+    <span>, </span>
     <span class="option">
-      {{ av.getName() }}: {{ av.getValue() }} {% if not loop.last %} /{% endif %}
+      <span class="name">{{ av.getName() }}: </span>
+      <span class="value">{{ av.getValue() }}</span>
     </span>
   {% endfor %}
 </li>

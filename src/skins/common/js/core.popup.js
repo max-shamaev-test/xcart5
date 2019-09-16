@@ -343,7 +343,7 @@ popup.unfreezePopup = function()
         jQuery('button,input:image,input:submit', this).each(
           function() {
             if (this.temporaryDisabled) {
-              jQuery(this).removeProp('disabled');
+              jQuery(this).removeAttr('disabled');
               this.temporaryDisabled = true;
             }
           }
@@ -393,9 +393,9 @@ popup.open = function(box, additionalOptions)
     'widget': jQuery(box).dialog('widget')
   };
 
-  this.reposition();
 
   this.postprocess();
+  this.reposition();
 };
 
 popup.getPopupOptions = function(box)
@@ -461,18 +461,36 @@ popup.reposition = function()
     return;
   }
 
-  var box = this.currentPopup.box;
+  const box = this.currentPopup.box;
 
   if (box.length) {
-    box.dialog(
-      "option",
-      "position",
-      {
-        my: "center",
-        at: "center",
-        of: window
-      }
-    );
+    const widgetHeight = this.currentPopup.widget.outerHeight(true);
+    const windowHeight = $(window).height();
+
+    if ((widgetHeight + 100) < windowHeight) {
+      setTimeout(function () {
+        box.dialog(
+          "option",
+          "position",
+          {
+            my: "center",
+            at: "center",
+            of: window
+          }
+        );
+      }, 1);
+    } else {
+      box.dialog(
+        "option",
+        "position",
+        {
+          my: "top",
+          at: "top",
+          of: window,
+          collision: "fit"
+        }
+      );
+    }
   }
 };
 

@@ -127,7 +127,7 @@ CheckoutView.prototype.handleCheckoutBlock = function()
 CheckoutView.prototype.handleCheckoutUnblock = function()
 {
   this.base.find('button.place-order')
-    .removeProp('disabled')
+    .removeAttr('disabled')
     .removeClass('disabled')
     .removeAttr('title');
 };

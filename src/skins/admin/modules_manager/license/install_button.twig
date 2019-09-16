@@ -1,9 +1,0 @@
-{##
- # Modules
- #
- # @ListChild (list="install-addon.buttons")
- #}
-
-{% if not this.isUpgradeEntryAvailable() %}
-  {{ widget('\\XLite\\View\\Button\\Submit', label=t('Install add-on'), style='submit-button main-button', disabled='true') }}
-{% endif %}

@@ -18,20 +18,13 @@ use Symfony\Component\PropertyAccess\Exception\OutOfBoundsException;
  */
 class PropertyPathBuilder
 {
-    /**
-     * @var array
-     */
-    private $elements = array();
-
-    /**
-     * @var array
-     */
-    private $isIndex = array();
+    private $elements = [];
+    private $isIndex = [];
 
     /**
      * Creates a new property path builder.
      *
-     * @param null|PropertyPathInterface|string $path The path to initially store
+     * @param PropertyPathInterface|string|null $path The path to initially store
      *                                                in the builder. Optional.
      */
     public function __construct($path = null)
@@ -44,15 +37,15 @@ class PropertyPathBuilder
     /**
      * Appends a (sub-) path to the current path.
      *
-     * @param PropertyPathInterface|string $path   The path to append.
+     * @param PropertyPathInterface|string $path   The path to append
      * @param int                          $offset The offset where the appended
-     *                                             piece starts in $path.
-     * @param int                          $length The length of the appended piece.
-     *                                             If 0, the full path is appended.
+     *                                             piece starts in $path
+     * @param int                          $length The length of the appended piece
+     *                                             If 0, the full path is appended
      */
     public function append($path, $offset = 0, $length = 0)
     {
-        if (is_string($path)) {
+        if (\is_string($path)) {
             $path = new PropertyPath($path);
         }
 
@@ -110,19 +103,19 @@ class PropertyPathBuilder
     /**
      * Replaces a sub-path by a different (sub-) path.
      *
-     * @param int                          $offset     The offset at which to replace.
-     * @param int                          $length     The length of the piece to replace.
-     * @param PropertyPathInterface|string $path       The path to insert.
+     * @param int                          $offset     The offset at which to replace
+     * @param int                          $length     The length of the piece to replace
+     * @param PropertyPathInterface|string $path       The path to insert
      * @param int                          $pathOffset The offset where the inserted piece
-     *                                                 starts in $path.
-     * @param int                          $pathLength The length of the inserted piece.
-     *                                                 If 0, the full path is inserted.
+     *                                                 starts in $path
+     * @param int                          $pathLength The length of the inserted piece
+     *                                                 If 0, the full path is inserted
      *
      * @throws OutOfBoundsException If the offset is invalid
      */
     public function replace($offset, $length, $path, $pathOffset = 0, $pathLength = 0)
     {
-        if (is_string($path)) {
+        if (\is_string($path)) {
             $path = new PropertyPath($path);
         }
 
@@ -149,7 +142,7 @@ class PropertyPathBuilder
      * Replaces a property element by an index element.
      *
      * @param int    $offset The offset at which to replace
-     * @param string $name   The new name of the element. Optional.
+     * @param string $name   The new name of the element. Optional
      *
      * @throws OutOfBoundsException If the offset is invalid
      */
@@ -170,7 +163,7 @@ class PropertyPathBuilder
      * Replaces an index element by a property element.
      *
      * @param int    $offset The offset at which to replace
-     * @param string $name   The new name of the element. Optional.
+     * @param string $name   The new name of the element. Optional
      *
      * @throws OutOfBoundsException If the offset is invalid
      */
@@ -194,7 +187,7 @@ class PropertyPathBuilder
      */
     public function getLength()
     {
-        return count($this->elements);
+        return \count($this->elements);
     }
 
     /**
@@ -247,7 +240,7 @@ class PropertyPathBuilder
             return;
         }
 
-        $length = count($this->elements);
+        $length = \count($this->elements);
 
         if ($cutLength > $insertionLength) {
             // More elements should be removed than inserted

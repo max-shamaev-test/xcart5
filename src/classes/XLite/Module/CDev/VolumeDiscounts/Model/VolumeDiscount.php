@@ -8,6 +8,9 @@
 
 namespace XLite\Module\CDev\VolumeDiscounts\Model;
 
+use XLite\View\FormField\Input\PriceOrPercent;
+use XLite\View\FormField\Select\AbsoluteOrPercent;
+
 /**
  * Volume discount model
  *
@@ -81,6 +84,44 @@ class VolumeDiscount extends \XLite\Model\AEntity
      */
     protected $membership;
 
+    /**
+     * Returns handling fee
+     *
+     * @return float
+     */
+    public function getDiscount()
+    {
+        return [
+            PriceOrPercent::PRICE_VALUE => $this->getValue(),
+            PriceOrPercent::TYPE_VALUE  => $this->getType() === static::TYPE_PERCENT
+                ? AbsoluteOrPercent::TYPE_PERCENT
+                : AbsoluteOrPercent::TYPE_ABSOLUTE
+        ];
+    }
+
+    /**
+     * Set Discount
+     *
+     * @param array $Discount
+     * @return Method
+     */
+    public function setDiscount($Discount)
+    {
+        $this->setValue(
+            isset($Discount[PriceOrPercent::PRICE_VALUE])
+                ? $Discount[PriceOrPercent::PRICE_VALUE]
+                : 0
+        );
+
+        $this->setType(
+            isset($Discount[PriceOrPercent::TYPE_VALUE])
+            && $Discount[PriceOrPercent::TYPE_VALUE] === AbsoluteOrPercent::TYPE_PERCENT
+                ? static::TYPE_PERCENT
+                : static::TYPE_ABSOLUTE
+        );
+
+        return $this;
+    }
 
     /**
      * Check - discount is absolute or not
@@ -109,20 +150,20 @@ class VolumeDiscount extends \XLite\Model\AEntity
     }
 
     /**
-     * Get fingerprint 
-     * 
+     * Get fingerprint
+     *
      * @return string
      */
     public function getFingerprint()
     {
         return $this->getSubtotalRangeBegin() . ':'
-            . ($this->getMembership() ? $this->getMembership()->getMembershipId() : 0);
+               . ($this->getMembership() ? $this->getMembership()->getMembershipId() : 0);
     }
 
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -166,7 +207,7 @@ class VolumeDiscount extends \XLite\Model\AEntity
     /**
      * Get type
      *
-     * @return string 
+     * @return string
      */
     public function getType()
     {
@@ -232,7 +273,7 @@ class VolumeDiscount extends \XLite\Model\AEntity
     /**
      * Get membership
      *
-     * @return \XLite\Model\Membership 
+     * @return \XLite\Model\Membership
      */
     public function getMembership()
     {

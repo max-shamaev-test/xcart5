@@ -17,11 +17,6 @@ define('themetweaker/inline_editor', ['js/vue/vue'], function (XLiteVue) {
             }
         },
 
-        activate: function (done) {
-            core.trigger('inline-editor.activate', this);
-            done();
-        },
-
         ready: function() {
             core.trigger('inline-editor.ready', this);
             jQuery(this.$el).removeClass('inline-editor--initial');

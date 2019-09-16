@@ -11,7 +11,7 @@ namespace XLite\Model\WidgetParam;
 /**
  * ____description____
  */
-abstract class AWidgetParam extends \XLite\Base\SuperClass
+abstract class AWidgetParam extends \XLite\Base\SuperClass implements \Serializable
 {
     /**
      * Indexes in the "conditions" array
@@ -47,6 +47,32 @@ abstract class AWidgetParam extends \XLite\Base\SuperClass
      * @var mixed
      */
     protected $isSetting = false;
+
+    /**
+     * @return string
+     */
+    public function serialize()
+    {
+        return serialize([
+            $this->type,
+            $this->value,
+            $this->label,
+            $this->isSetting
+        ]);
+    }
+
+    /**
+     * @param string $serialized
+     */
+    public function unserialize($serialized)
+    {
+        list(
+            $this->type,
+            $this->value,
+            $this->label,
+            $this->isSetting
+            ) = unserialize($serialized);
+    }
 
     /**
      * Return list of conditions to check

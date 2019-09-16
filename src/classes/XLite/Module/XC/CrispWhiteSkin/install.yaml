@@ -22,6 +22,10 @@ XLite\Model\ImageSettings:
     code: Default
     width: 366
     height: 440
+  - model: XLite\Model\Image\Common\Logo
+    code: Default
+    width: 221
+    height: 40
 
 XLite\Model\LanguageLabel:
   - { name: 'You just added', translations: [{ code: en, label: 'You have just added' }, { code: ru, label: 'Вы добавили в корзину' }] }
@@ -32,7 +36,6 @@ XLite\Model\LanguageLabel:
   - { name: 'A - Z', translations: [{ code: en, label: 'A - Z' }, { code: ru, label: 'А - Я' }] }
   - { name: 'Z - A', translations: [{ code: en, label: 'Z - A' }, { code: ru, label: 'Я - А' }] }
   - { name: 'Added to comparison table', translations: [{ code: en, label: 'Added to comparison table' }, { code: ru, label: 'Добавлено в таблицу сравнения' }] }
-
   - { name: '+15550000000', translations: [{ code: en, label: '' }]}
   - { name: '1000 Main Street', translations: [{ code: en, label: 'Street number and street, unit number, etc' }, { code: ru, label: 'Улица, номер дома, номер квартиры, и т.д.' }]}
   - { name: 'Anyland', translations: [{ code: en, label: '' }]}

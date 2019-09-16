@@ -46,7 +46,7 @@
 
 .fr-box:not(.fr-inline).fr-code-view textarea.fr-code,
 .fr-box:not(.fr-inline) iframe {
-  min-height: 250px;
+  min-height: 270px;
 }
 
 .fr-box.fr-inline {

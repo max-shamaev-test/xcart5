@@ -194,4 +194,20 @@ abstract class AddressForm extends \XLite\View\Checkout\AAddressBlock
 
         return $result;
     }
+
+    /**
+     * Get an array of address fields
+     *
+     * @return array
+     */
+    public function getAddressFields()
+    {
+        $result = parent::getAddressFields();
+
+        if (array_key_exists('email', $result)) {
+            $result['email']['class'] = 'XLite\View\FormField\Input\Text';
+        }
+
+        return $result;
+    }
 }

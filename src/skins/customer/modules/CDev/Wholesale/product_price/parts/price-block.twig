@@ -4,6 +4,7 @@
  # @ListChild (list="wholesale.price", weight="20")
  #}
 
+{% if this.getProduct().isWholesalePricesEnabled() %}
 <table class="wholesale-prices-product-block">
 
   {% for wholesalePrice in this.getWholesalePrices() %}
@@ -15,3 +16,4 @@
   {% endfor %}
 
 </table>
+{% endif %}

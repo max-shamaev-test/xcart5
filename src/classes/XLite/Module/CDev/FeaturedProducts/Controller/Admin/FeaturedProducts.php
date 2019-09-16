@@ -8,6 +8,9 @@
 
 namespace XLite\Module\CDev\FeaturedProducts\Controller\Admin;
 
+use XLite\Core\Auth;
+use XLite\Model\Role\Permission;
+
 /**
  * Featured products
  */
@@ -27,7 +30,7 @@ class FeaturedProducts extends \XLite\Controller\Admin\AAdmin
      */
     public function checkACL()
     {
-        return parent::checkACL() || \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage catalog');
+        return parent::checkACL() || Auth::getInstance()->isPermissionAllowed('manage catalog');
     }
 
     /**
@@ -38,8 +41,10 @@ class FeaturedProducts extends \XLite\Controller\Admin\AAdmin
     public function getTitle()
     {
         return \XLite\Core\Request::getInstance()->id
-            ? static::t('Manage category (X)', array('category_name' => $this->getCategoryName()))
-            : static::t('Front page');
+            ? static::t('Manage category (X)', ['category_name' => $this->getCategoryName()])
+            : (Auth::getInstance()->isPermissionAllowed(Permission::ROOT_ACCESS)
+                ? static::t('Front page')
+                : static::t('Featured products'));
     }
 
     /**
@@ -76,10 +81,11 @@ class FeaturedProducts extends \XLite\Controller\Admin\AAdmin
         if (!$this->isVisible()) {
             return static::t('No category defined');
         } else {
-            return (\XLite\Core\Request::getInstance()->id
+            return \XLite\Core\Request::getInstance()->id
                 ? $this->getCategoryName()
-                : static::t('Front page')
-            );
+                : (Auth::getInstance()->isPermissionAllowed(Permission::ROOT_ACCESS)
+                    ? static::t('Front page')
+                    : static::t('Featured products'));
         }
     }
 

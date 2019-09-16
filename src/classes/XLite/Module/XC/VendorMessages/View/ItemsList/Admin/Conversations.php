@@ -163,4 +163,44 @@ class Conversations extends \XLite\Module\XC\VendorMessages\View\ItemsList\Conve
     {
         return \XLite\Module\XC\VendorMessages\Main::isAllowDisputes();
     }
+
+    /**
+     * Get order url
+     *
+     * @param \XLite\Module\XC\VendorMessages\Model\Conversation $conversation
+     *
+     * @return string
+     */
+    protected function getOrderLink($conversation)
+    {
+        if ($order = $conversation->getOrder()) {
+            $orderNumber = $order->getOrderNumber();
+            if (!$orderNumber && \XLite\Module\XC\VendorMessages\Main::isMultivendor() && $order->isChild()) {
+                $orderNumber = $order->getParent()->getOrderNumber();
+
+                return $this->buildURL('order', '', [
+                    'order_number' => $orderNumber,
+                    'recipient_id' => $order->getOrderId()
+                ]);
+            }
+
+            return $this->buildURL('order', '', [
+                'order_number' => $orderNumber,
+            ]);
+        }
+
+        return $this->buildURL('order_list', '', []);
+    }
+
+    /**
+     * Get order number
+     *
+     * @param \XLite\Module\XC\VendorMessages\Model\Conversation $conversation
+     *
+     * @return string
+     */
+    protected function getOrderNumber($conversation)
+    {
+        return $conversation->getOrder() ? $conversation->getOrder()->getPrintableOrderNumber() : '';
+    }
 }

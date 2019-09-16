@@ -10,7 +10,6 @@
 .product-attachments.items-list .list .cell.private,
 .product-attachments.items-list .list .cell.private .cell {
   position: relative;
-  padding-left: 0;
 }
 
 .product-attachments .lines .line.storage-url td:last-of-type {

@@ -62,7 +62,7 @@ abstract class AModel extends \XLite\View\FormField\AFormField
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'form_field/model_selector/style.css';
+        $list[] = 'form_field/model_selector/style.less';
 
         return $list;
     }

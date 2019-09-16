@@ -8,6 +8,10 @@
 
 namespace XLite\View;
 
+use XLite\Core\Cache\ExecuteCachedTrait;
+use XLite\Core\Config;
+use XLite\Core\Database;
+use XLite\Core\Mail\AMail;
 use XLite\Core\Mailer\Entries;
 use XLite\Core\Mailer\Entry;
 use XLite\View\FormField\Select\EmailFrom;
@@ -17,6 +21,8 @@ use XLite\View\FormField\Select\EmailFrom;
  */
 class Mailer extends \XLite\View\AView
 {
+    use ExecuteCachedTrait;
+
     const CRLF = "\r\n";
 
     /**
@@ -25,14 +31,6 @@ class Mailer extends \XLite\View\AView
     const MAIL_SEPARATOR = ',';
 
     const ATTACHMENT_ENCODING = 'base64';
-
-    /**
-     * Compose run
-     * todo: rename to 'composing'
-     *
-     * @var boolean
-     */
-    protected static $composeRunned = false;
 
     /**
      * Subject template file name
@@ -95,7 +93,7 @@ class Mailer extends \XLite\View\AView
      *
      * @var array
      */
-    protected $images = array();
+    protected $images = [];
 
     /**
      * Image parser
@@ -123,14 +121,23 @@ class Mailer extends \XLite\View\AView
      *
      * @var array
      */
-    protected $attachments = array();
+    protected $attachments = [];
 
     /**
      * Embedded string attachments list
      *
      * @var array
      */
-    protected $stringAttachments = array();
+    protected $stringAttachments = [];
+
+    protected function getCommonFiles()
+    {
+        return array_merge_recursive(parent::getCommonFiles(), [
+            static::RESOURCE_CSS => [
+                'mail/core.less',
+            ],
+        ]);
+    }
 
     /**
      * Get a list of CSS files required to display the widget properly
@@ -147,17 +154,6 @@ class Mailer extends \XLite\View\AView
     }
 
     /**
-     * Check - is compose procedure run or not
-     * todo: rename to 'isComposing'
-     *
-     * @return boolean
-     */
-    public static function isComposeRunned()
-    {
-        return static::$composeRunned;
-    }
-
-    /**
      * Setter
      *
      * @param string $name  Property name
@@ -167,7 +163,7 @@ class Mailer extends \XLite\View\AView
      */
     public function set($name, $value)
     {
-        if (in_array($name, array('to', 'from'), true)) {
+        if (in_array($name, ['to', 'from'], true)) {
             $value = $this->prepareAddress($value);
         }
 
@@ -202,19 +198,6 @@ class Mailer extends \XLite\View\AView
     }
 
     /**
-     * Get array of keys which should be setted without calling 'set<Name>' method
-     * 
-     * @return array
-     */
-    protected function getForcedKeys()
-    {
-        return array(
-            'subjectTemplate',
-            'layoutTemplate'
-        );
-    }
-
-    /**
      * Set subject template
      *
      * @param string $template Template path
@@ -241,10 +224,10 @@ class Mailer extends \XLite\View\AView
     /**
      * Add attachment to mailer
      *
-     * @param string    $path   Full path to file
-     * @param string    $name  Filename in mail OPTIONAL
-     * @param string    $encoding  File encoding (default: 'base64') OPTIONAL
-     * @param string    $mime  File MIME-type (default: 'Application/octet-stream') OPTIONAL
+     * @param string $path     Full path to file
+     * @param string $name     Filename in mail OPTIONAL
+     * @param string $encoding File encoding (default: 'base64') OPTIONAL
+     * @param string $mime     File MIME-type (default: 'Application/octet-stream') OPTIONAL
      *
      * @return void
      */
@@ -254,7 +237,7 @@ class Mailer extends \XLite\View\AView
 
         $encoding = $encoding ?: static::ATTACHMENT_ENCODING;
 
-        $file = array('path' => $path, 'name' => $name, 'encoding' => $encoding, 'mime' => $mime);
+        $file = ['path' => $path, 'name' => $name, 'encoding' => $encoding, 'mime' => $mime];
 
         $attachments[] = $file;
 
@@ -264,10 +247,10 @@ class Mailer extends \XLite\View\AView
     /**
      * Add attachment to mailer
      *
-     * @param string    $string   String contents
-     * @param string    $name  Filename in mail OPTIONAL
-     * @param string    $encoding  File encoding (default: 'base64') OPTIONAL
-     * @param string    $mime  File MIME-type (default: 'Application/octet-stream') OPTIONAL
+     * @param string $string   String contents
+     * @param string $name     Filename in mail OPTIONAL
+     * @param string $encoding File encoding (default: 'base64') OPTIONAL
+     * @param string $mime     File MIME-type (default: 'Application/octet-stream') OPTIONAL
      *
      * @return void
      */
@@ -277,7 +260,7 @@ class Mailer extends \XLite\View\AView
 
         $encoding = $encoding ?: static::ATTACHMENT_ENCODING;
 
-        $file = array('string' => $string, 'name' => $name, 'encoding' => $encoding, 'mime' => $mime);
+        $file = ['string' => $string, 'name' => $name, 'encoding' => $encoding, 'mime' => $mime];
 
         $attachments[] = $file;
 
@@ -301,60 +284,30 @@ class Mailer extends \XLite\View\AView
      */
     public function clearAttachments()
     {
-        $this->set('attachments', array());
+        $this->set('attachments', []);
     }
 
     /**
-     * Composes mail message.
-     *
-     * @param array|string $from          "Reply to" mails, first also could be used as "from"
-     * @param string       $to            The email address to send mail to
-     * @param string       $dir           The directiry there mail parts template located
-     * @param array        $customHeaders The headers you want to add/replace to. OPTIONAL
-     * @param string       $interface     Interface to use for mail OPTIONAL
-     * @param string       $languageCode  Language code OPTIONAL
-     *
-     * @return void
+     * @param AMail    $mail
+     * @param \Closure $populateVariables
      */
-    public function compose(
-        $from,
-        $to,
-        $dir,
-        array $customHeaders = array(),
-        $interface = \XLite::CUSTOMER_INTERFACE,
-        $languageCode = ''
-    ) {
-        static::$composeRunned = true;
+    public function compose(AMail $mail, \Closure $populateVariables)
+    {
+        \XLite\Core\Translation::setTmpTranslationCode($mail->getLanguageCode());
 
-        if (
-            '' === $languageCode
-            && \XLite::ADMIN_INTERFACE === $interface
-            && !\XLite::isAdminZone()
-        ) {
-            $languageCode = \XLite\Core\Config::getInstance()->General->default_admin_language;
-        }
-
-        \XLite\Core\Translation::setTmpTranslationCode($languageCode);
-
-        // initialize internal properties
-        $this->set('from', $from);
-        $this->set('to', $to);
-
-        $this->set('customHeaders', $customHeaders);
-
-        $this->set('dir', $dir);
-
-        $subject = $this->compile($this->get('subjectTemplate'), $interface);
-        $subject = \XLite\Core\Mailer::getInstance()->populateVariables($subject);
+        $this->set('from', $mail->getFrom());
+        $this->set('to', $mail->getTo());
+        $this->set('dir', $mail::getDir());
+        $subject = $this->compile($this->get('subjectTemplate'), $mail::getInterface());
+        $subject = $populateVariables($subject);
 
         $this->set('subject', $subject);
 
-        $body = $this->compile($this->get('layoutTemplate'), $interface, true);
+        $body = $this->compile($this->get('layoutTemplate'), $mail::getInterface(), true);
         $this->set('body', $body);
 
-        $body = \XLite\Core\Mailer::getInstance()->populateVariables($body);
+        $body = $populateVariables($body);
 
-        // find all images and fetch them; replace with cid:...
         $fname = tempnam(LC_DIR_COMPILE, 'mail');
 
         file_put_contents($fname, $body);
@@ -367,11 +320,11 @@ class Mailer extends \XLite\View\AView
         $this->set('images', $this->imageParser->images);
 
         ob_start();
-        // Initialize PHPMailer from configuration variables (it should be done once in a script execution)
         $this->initMailFromConfig();
 
-        // Initialize Mail from inner set of variables.
         $this->initMailFromSet();
+
+        $this->populateReplyTo($mail);
 
         $output = ob_get_contents();
         ob_end_clean();
@@ -389,15 +342,30 @@ class Mailer extends \XLite\View\AView
             unlink($fname);
         }
 
-        \XLite\Core\Translation::setTmpMailTranslationCode('');
+        \XLite\Core\Translation::setTmpTranslationCode('');
+    }
 
-        static::$composeRunned = false;
+    protected function populateReplyTo(AMail $mail)
+    {
+        $this->mail->clearReplyTos();
+        foreach ($mail->getReplyTo() as $replyTo) {
+            if (is_array($replyTo)) {
+                if (isset($replyTo['address'], $replyTo['name'])) {
+                    $this->mail->addReplyTo($replyTo['address'], $replyTo['name']);
+                } else {
+                    $this->mail->addReplyTo(reset($replyTo));
+                }
+            } else {
+                $this->mail->addReplyTo($replyTo);
+            }
+        }
     }
 
     /**
      * Send message
      *
      * @return boolean
+     * @throws \phpmailerException
      */
     public function send()
     {
@@ -459,7 +427,7 @@ class Mailer extends \XLite\View\AView
     /**
      * Return description of the last occurred error
      *
-     * @return string|void
+     * @return string|null
      */
     public function getLastError()
     {
@@ -479,8 +447,8 @@ class Mailer extends \XLite\View\AView
     {
         if (!$code) {
             $code = \XLite::CUSTOMER_INTERFACE === $interface
-                ? \XLite\Core\Config::getInstance()->General->default_language
-                : \XLite\Core\Config::getInstance()->General->default_admin_language;
+                ? Config::getInstance()->General->default_language
+                : Config::getInstance()->General->default_admin_language;
         }
 
         return $code;
@@ -574,11 +542,11 @@ class Mailer extends \XLite\View\AView
 
     protected function getFromMail()
     {
-        switch (\XLite\Core\Config::getInstance()->Email->mail_from_type) {
+        switch (Config::getInstance()->Email->mail_from_type) {
             case EmailFrom::OPTION_FROM_SERVER:
                 return null;
             case EmailFrom::OPTION_MANUAL:
-                return \XLite\Core\Config::getInstance()->Email->mail_from_manual;
+                return Config::getInstance()->Email->mail_from_manual;
             default:
                 $from = $this->get('from');
                 return $from instanceof Entries
@@ -588,20 +556,7 @@ class Mailer extends \XLite\View\AView
     }
 
     /**
-     * @return array|string
-     */
-    protected function getReplyTos()
-    {
-        $from = $this->get('from');
-        return $from instanceof Entries
-            ? $from->getReplyTos()
-            : [$from];
-    }
-
-    /**
      * Inner mailer initialization from set variables
-     *
-     * @return void
      */
     protected function initMailFromSet()
     {
@@ -616,19 +571,6 @@ class Mailer extends \XLite\View\AView
             $this->mail->Sender = $fromMail;
         }
 
-        $this->mail->clearReplyTos();
-        foreach ($this->getReplyTos() as $replyTo) {
-            if ($replyTo instanceof Entry) {
-                if ($replyTo->getName()) {
-                    $this->mail->addReplyTo($replyTo->getAddress(), $replyTo->getName());
-                } else {
-                    $this->mail->addReplyTo($replyTo->getAddress());
-                }
-            } else {
-                $this->mail->addReplyTo($replyTo);
-            }
-        }
-
         $this->mail->FromName = $this->get('fromName') ?: $fromMail;
 
         $this->mail->clearAllRecipients();
@@ -641,14 +583,9 @@ class Mailer extends \XLite\View\AView
             $this->mail->addAddress($email);
         }
 
-        $this->mail->Subject  = $this->get('subject');
-        $this->mail->AltBody  = $this->createAltBody($this->get('body'));
-        $this->mail->Body     = $this->get('body');
-
-        // add custom headers
-        foreach ($this->get('customHeaders') as $header) {
-            $this->mail->addCustomHeader($header);
-        }
+        $this->mail->Subject = $this->get('subject');
+        $this->mail->AltBody = $this->createAltBody($this->get('body'));
+        $this->mail->Body = $this->get('body');
 
         if (is_array($this->get('images'))) {
             foreach ($this->get('images') as $image) {
@@ -670,7 +607,7 @@ class Mailer extends \XLite\View\AView
                 $this->mail->addAttachment($file['path'], $file['name'], $file['encoding'], $file['mime']);
             }
         }
-        $this->set('attachments', array());
+        $this->set('attachments', []);
 
         $attachments = $this->get('stringAttachments');
 
@@ -679,7 +616,7 @@ class Mailer extends \XLite\View\AView
                 $this->mail->addStringAttachment($file['string'], $file['name'], $file['encoding'], $file['mime']);
             }
         }
-        $this->set('stringAttachments', array());
+        $this->set('stringAttachments', []);
     }
 
     /**
@@ -690,20 +627,21 @@ class Mailer extends \XLite\View\AView
     protected function initMailFromConfig()
     {
         if (null === $this->mail) {
-            $this->mail = new \PHPMailer();
+            $this->mail = new \PHPMailer\PHPMailer\PHPMailer();
             // SMTP settings
-            if (\XLite\Core\Config::getInstance()->Email->use_smtp) {
+            if (Config::getInstance()->Email->use_smtp) {
                 $this->mail->Mailer = 'smtp';
-                $this->mail->Host = \XLite\Core\Config::getInstance()->Email->smtp_server_url;
-                $this->mail->Port = \XLite\Core\Config::getInstance()->Email->smtp_server_port;
+                $this->mail->Host = Config::getInstance()->Email->smtp_server_url;
+                $this->mail->Port = Config::getInstance()->Email->smtp_server_port;
 
-                if (\XLite\Core\Config::getInstance()->Email->use_smtp_auth) {
+                if (Config::getInstance()->Email->use_smtp_auth) {
                     $this->mail->SMTPAuth = true;
-                    $this->mail->Username = \XLite\Core\Config::getInstance()->Email->smtp_username;
-                    $this->mail->Password = \XLite\Core\Config::getInstance()->Email->smtp_password;
+                    $this->mail->Username = Config::getInstance()->Email->smtp_username;
+                    $this->mail->Password = Config::getInstance()->Email->smtp_password;
                 }
-                if (in_array(\XLite\Core\Config::getInstance()->Email->smtp_security, array('ssl', 'tls'), true)) {
-                    $this->mail->SMTPSecure = \XLite\Core\Config::getInstance()->Email->smtp_security;
+                if (in_array(Config::getInstance()->Email->smtp_security, ['ssl',
+                    'tls'], true)) {
+                    $this->mail->SMTPSecure = Config::getInstance()->Email->smtp_security;
                 }
             }
 
@@ -718,6 +656,7 @@ class Mailer extends \XLite\View\AView
      *
      * @param string $template  Template path
      * @param string $interface Interface OPTIONAL
+     * @param bool   $inline
      *
      * @return string
      */
@@ -771,12 +710,13 @@ class Mailer extends \XLite\View\AView
     /**
      * Convert html to inline
      *
-     * @param  string   $html   Initial HTML
+     * @param  string $html Initial HTML
+     *
      * @return string
      */
     protected function convertToInline($html)
     {
-        if (!$html) {
+        if (!$html || !class_exists('DOMDocument')) {
             return $html;
         }
 
@@ -796,6 +736,7 @@ class Mailer extends \XLite\View\AView
      * Get CSS string from passed array of files
      *
      * @param  array $styles Style files
+     *
      * @return string
      */
     protected function getStylesAsCSSString($styles, $interface = null)
@@ -825,7 +766,8 @@ class Mailer extends \XLite\View\AView
     /**
      * Get style file path
      *
-     * @param string    $path   Path to style file
+     * @param string $path Path to style file
+     *
      * @return string
      */
     protected function getStyleFilePath($fileNode, $interface)
@@ -856,7 +798,8 @@ class Mailer extends \XLite\View\AView
     /**
      * Get style file content
      *
-     * @param string    $path   Path to style file
+     * @param string $path Path to style file
+     *
      * @return string
      */
     protected function getStyleFileContent($path, $interface)
@@ -869,15 +812,15 @@ class Mailer extends \XLite\View\AView
         ) {
             $lessRaw = \XLite\Core\LessParser::getInstance()
                 ->makeCSS(
-                    array(
-                        array(
-                            'file'          => $path,
-                            'original'      => $path,
-                            'less'          => true,
-                            'media'         => 'all',
-                            'interface'     => $interface
-                        )
-                    )
+                    [
+                        [
+                            'file'      => $path,
+                            'original'  => $path,
+                            'less'      => true,
+                            'media'     => 'all',
+                            'interface' => $interface,
+                        ],
+                    ]
                 );
             if ($lessRaw && isset($lessRaw['file'])) {
                 $result = \Includes\Utils\FileManager::read($lessRaw['file']);
@@ -938,7 +881,7 @@ class Mailer extends \XLite\View\AView
         $notification = $this->getNotification();
 
         if ($notification) {
-            switch (\XLite\Core\Layout::getInstance()->getMailInterface()) {
+            switch (\XLite\Core\Layout::getInstance()->getInnerInterface()) {
                 case \XLite::CUSTOMER_INTERFACE:
                     $result = $notification->getCustomerSubject();
                     break;
@@ -966,7 +909,7 @@ class Mailer extends \XLite\View\AView
         $notification = $this->getNotification();
 
         if ($notification) {
-            switch (\XLite\Core\Layout::getInstance()->getMailInterface()) {
+            switch (\XLite\Core\Layout::getInstance()->getInnerInterface()) {
                 case \XLite::CUSTOMER_INTERFACE:
                     $result = $notification->getCustomerText();
                     break;
@@ -984,13 +927,33 @@ class Mailer extends \XLite\View\AView
     }
 
     /**
+     * @return string
+     */
+    protected function buildNotificationContent()
+    {
+        $text = $this->getNotificationText();
+
+        $widget = clone $this;
+        $widget->setWidgetParams([
+            static::PARAM_TEMPLATE => sprintf('%s/body.twig', $this->dir),
+        ]);
+        $content = $widget->getContent();
+
+        if (mb_strpos($text, '%dynamic_message%') === false) {
+            return $text . $content;
+        }
+
+        return str_replace('%dynamic_message%', $content, $text);
+    }
+
+    /**
      * @return boolean
      */
     protected function isNotificationHeaderEnabled()
     {
         $result = true;
 
-        switch (\XLite\Core\Layout::getInstance()->getMailInterface()) {
+        switch (\XLite\Core\Layout::getInstance()->getInnerInterface()) {
             case \XLite::CUSTOMER_INTERFACE:
                 $result = null === $this->getNotification() || $this->getNotification()->getCustomerHeaderEnabled();
                 break;
@@ -1015,7 +978,7 @@ class Mailer extends \XLite\View\AView
     {
         $result = '';
 
-        switch (\XLite\Core\Layout::getInstance()->getMailInterface()) {
+        switch (\XLite\Core\Layout::getInstance()->getInnerInterface()) {
             case \XLite::CUSTOMER_INTERFACE:
                 $result = static::t('emailNotificationCustomerHeader');
                 break;
@@ -1038,7 +1001,7 @@ class Mailer extends \XLite\View\AView
     {
         $result = true;
 
-        switch (\XLite\Core\Layout::getInstance()->getMailInterface()) {
+        switch (\XLite\Core\Layout::getInstance()->getInnerInterface()) {
             case \XLite::CUSTOMER_INTERFACE:
                 $result = null === $this->getNotification() || $this->getNotification()->getCustomerGreetingEnabled();
                 break;
@@ -1059,7 +1022,16 @@ class Mailer extends \XLite\View\AView
      */
     protected function getNotificationGreeting()
     {
-        return static::t('emailNotificationGreeting');
+        switch (\XLite\Core\Layout::getInstance()->getInnerInterface()) {
+            case \XLite::CUSTOMER_INTERFACE:
+                return static::t('emailNotificationCustomerGreeting');
+
+            case \XLite::ADMIN_INTERFACE:
+                return static::t('emailNotificationAdminGreeting');
+
+            default:
+                return '';
+        }
     }
 
     /**
@@ -1069,7 +1041,7 @@ class Mailer extends \XLite\View\AView
     {
         $result = true;
 
-        switch (\XLite\Core\Layout::getInstance()->getMailInterface()) {
+        switch (\XLite\Core\Layout::getInstance()->getInnerInterface()) {
             case \XLite::CUSTOMER_INTERFACE:
                 $result = null === $this->getNotification() || $this->getNotification()->getCustomerSignatureEnabled();
                 break;
@@ -1094,7 +1066,7 @@ class Mailer extends \XLite\View\AView
     {
         $result = '';
 
-        switch (\XLite\Core\Layout::getInstance()->getMailInterface()) {
+        switch (\XLite\Core\Layout::getInstance()->getInnerInterface()) {
             case \XLite::CUSTOMER_INTERFACE:
                 $result = static::t('emailNotificationCustomerSignature');
                 break;
@@ -1108,5 +1080,54 @@ class Mailer extends \XLite\View\AView
         }
 
         return $result;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function hasCompanyAddress()
+    {
+        return $this->getCompanyAddressFirstLine() || $this->getCompanyAddressSecondLine();
+    }
+
+    /**
+     * @return string
+     */
+    protected function getCompanyAddressFirstLine()
+    {
+        return $this->executeCachedRuntime(function () {
+            $countryCode = Config::getInstance()->Company->location_country;
+
+            $country = ($country = Database::getRepo('XLite\Model\Country')->find($countryCode))
+                ? $country->getCountry()
+                : $countryCode;
+
+            return trim(sprintf(
+                '%s %s',
+                implode(', ', array_filter(array_map('trim', [
+                    Config::getInstance()->Company->location_address,
+                    Config::getInstance()->Company->location_city,
+                    Config::getInstance()->Company->location_state,
+                    Config::getInstance()->Company->location_zipcode,
+                ]), 'strlen')),
+                $country
+            ));
+        });
+    }
+
+    /**
+     * @return string
+     */
+    protected function getCompanyAddressSecondLine()
+    {
+        return $this->executeCachedRuntime(function () {
+            $phone = trim(Config::getInstance()->Company->company_phone);
+            $fax = trim(Config::getInstance()->Company->company_fax);
+
+            return implode(' ', array_filter([
+                strlen($phone) ? static::t('Phone') . ": $phone" : null,
+                strlen($fax) ? static::t('Fax') . ": $fax" : null,
+            ]));
+        });
     }
 }

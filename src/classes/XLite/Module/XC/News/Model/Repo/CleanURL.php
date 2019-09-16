@@ -13,6 +13,36 @@ namespace XLite\Module\XC\News\Model\Repo;
  */
 class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecorator
 {
+    const NEWS_URL_FORMAT_NO_EXT = 'domain/goalnews';
+    const NEWS_URL_FORMAT_EXT = 'domain/goalnews.html';
+
+    /**
+     * Returns 'news_clean_urls_format' option value
+     *
+     * @return string
+     */
+    public static function getNewsCleanUrlFormat()
+    {
+        $format = \Includes\Utils\ConfigParser::getOptions(array('clean_urls', 'news_clean_urls_format'));
+
+        return in_array($format, [
+            static::NEWS_URL_FORMAT_EXT,
+            static::NEWS_URL_FORMAT_NO_EXT
+        ])
+            ? $format
+            : static::NEWS_URL_FORMAT_NO_EXT;
+    }
+
+    /**
+     * Is use extension for news
+     *
+     * @return boolean
+     */
+    public static function isNewsUrlHasExt()
+    {
+        return static::getNewsCleanUrlFormat() === static::NEWS_URL_FORMAT_EXT;
+    }
+
     /**
      * Returns available entities types
      *
@@ -27,16 +57,6 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
     }
 
     /**
-     * Returns news message url regexp pattern
-     *
-     * @return string
-     */
-    protected function getPatternNewsMessage()
-    {
-        return $this->getCommonPattern() . '(\.' . static::CLEAN_URL_DEFAULT_EXTENSION . ')?';
-    }
-
-    /**
      * Post process clean URL
      *
      * @param string $url URL
@@ -44,9 +64,9 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
      *
      * @return string
      */
-    protected function postProcessURLNewsMessage($url, $entity)
+    protected function postProcessURLNewsMessage($url, $entity, $ignoreExtension = false)
     {
-        return $url . '.' . static::CLEAN_URL_DEFAULT_EXTENSION;
+        return $url . ($this->isNewsUrlHasExt() && !$ignoreExtension ? '.' . static::CLEAN_URL_DEFAULT_EXTENSION : '');
     }
 
     /**
@@ -62,11 +82,7 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
      */
     protected function parseURLNewsMessage($url, $last = '', $rest = '', $ext = '')
     {
-        $result = null;
-
-        if ($ext) {
-            $result = $this->findByURL('newsMessage', $url . $ext);
-        }
+        $result = $this->findByURL('newsMessage', $url . $ext);
 
         return $result;
     }
@@ -123,12 +139,13 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
      *
      * @param \XLite\Model\AEntity|string $entity Entity
      * @param array $params Params
+     * @param boolean                     $ignoreExtension Ignore default extension
      *
      * @return array
      */
-    protected function buildFakeURLNewsMessage($entity, $params)
+    protected function buildFakeURLNewsMessage($entity, $params, $ignoreExtension)
     {
-        $urlParts = [$this->postProcessURL(static::PLACEHOLDER, $entity)];
+        $urlParts = [$this->postProcessURL(static::PLACEHOLDER, $entity, $ignoreExtension)];
 
         return [$urlParts, $params];
     }

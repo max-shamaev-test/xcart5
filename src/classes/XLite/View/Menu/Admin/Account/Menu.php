@@ -100,18 +100,19 @@ class Menu extends \XLite\View\Menu\Admin\AAdmin
             ],
         ];
 
-        $purchasesCount = \XLite\Core\Database::getRepo('XLite\Model\Module')->getPurchasedModulesCount();
-        if ($purchasesCount) {
-
-            $result['my_purchases'] = [
-                static::ITEM_TITLE      => static::t('My purchases'),
-                static::ITEM_TARGET     => 'addons_list_purchased',
-                static::ITEM_LABEL      => $purchasesCount,
-                static::ITEM_LABEL_LINK => $this->buildURL('addons_list_purchased'),
-                static::ITEM_CLASS      => 'my-purchases',
-                static::ITEM_WEIGHT     => 250,
-            ];
-        }
+        // todo: re-implement with BUS
+        //$purchasesCount = \XLite\Core\Database::getRepo('XLite\Model\Module')->getPurchasedModulesCount();
+        //if ($purchasesCount) {
+        //
+        //    $result['my_purchases'] = [
+        //        static::ITEM_TITLE      => static::t('My purchases'),
+        //        static::ITEM_TARGET     => 'addons_list_purchased',
+        //        static::ITEM_LABEL      => $purchasesCount,
+        //        static::ITEM_LABEL_LINK => $this->buildURL('addons_list_purchased'),
+        //        static::ITEM_CLASS      => 'my-purchases',
+        //        static::ITEM_WEIGHT     => 250,
+        //    ];
+        //}
 
         return $result;
     }

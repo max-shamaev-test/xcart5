@@ -13,13 +13,4 @@ namespace XLite\View\Pager\Admin\Order;
  */
 abstract class AOrder extends \XLite\View\Pager\Admin\AAdmin
 {
-    /**
-     * Return number of items per page
-     *
-     * @return integer
-     */
-    protected function getItemsPerPageDefault()
-    {
-        return intval(\XLite\Core\Config::getInstance()->General->orders_per_page);
-    }
 }

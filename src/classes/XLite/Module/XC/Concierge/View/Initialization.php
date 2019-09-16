@@ -79,7 +79,7 @@ class Initialization extends \XLite\View\AView
         $controller = \XLite::getController();
 
         $pageMessage = new Page($controller->getConciergeCategory(), $controller->getConciergeTitle());
-        $pageMessage->setIntegrations(['All' => true, 'Intercom' => false]);
+        $pageMessage->setIntegrations($this->defineIntegrations());
         $pageMessageIntercom = clone $pageMessage;
         $pageMessageIntercom->setIntegrations(['All' => false, 'Intercom' => true]);
 
@@ -90,6 +90,21 @@ class Initialization extends \XLite\View\AView
         );
 
         return $t;
+    }
+
+    /**
+     * @return array
+     */
+    protected function defineIntegrations()
+    {
+        $list = ['All' => true, 'Intercom' => false, 'SnapEngage' => false, 'wootric' => false];
+
+        if (\XLite\Core\Auth::getInstance()->hasRootAccess()) {
+            $list['SnapEngage'] = true;
+            $list['wootric'] = true;
+        }
+
+        return $list;
     }
 
     /**

@@ -40,7 +40,7 @@ class ImageSettings extends \XLite\Model\Repo\ARepo
         array $parentAssoc = array()
     ) {
         $moduleName = \XLite\Core\Database::getInstance()->getFixturesLoadingOption('moduleName')
-            ?: 'default';
+            ?: \XLite\Core\Skin::SKIN_STANDARD;
 
         if (!isset($record['moduleName'])) {
             $record['moduleName'] = $moduleName;
@@ -62,7 +62,7 @@ class ImageSettings extends \XLite\Model\Repo\ARepo
             ->andWhere('i.moduleName = :moduleName')
             ->setParameter('moduleName', $moduleName);
 
-        if ($moduleName === 'default') {
+        if ($moduleName === \XLite\Core\Skin::SKIN_STANDARD) {
             $queryBuilder
                 ->orWhere('i.moduleName = :empty')
                 ->setParameter('empty', '');

@@ -11,8 +11,6 @@ namespace XLite\Module\CDev\Egoods\View\Button;
 
 /**
  * BlockAll
- *
- * @ListChild (list="page.tabs.after", zone="admin", weight="0")
  */
 class BlockAll extends \XLite\View\Button\Link
 {

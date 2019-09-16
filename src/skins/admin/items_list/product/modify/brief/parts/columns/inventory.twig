@@ -5,5 +5,5 @@
  #}
 
 <td>
-  <input type="text" class="inventory{% if not this.product.getInventoryEnabled() %} input-disabled{% endif %}" size="10" value="{{ this.product.getAmount() }}" name="{{ this.getNamePostedData('amount', this.product.getProductId()) }}" {% if not this.product.getInventoryEnabled() %} disabled="disabled" {% endif %} />
+  <input type="text" class="inventory" size="10" value="{{ this.product.getAmount() }}" name="{{ this.getNamePostedData('amount', this.product.getProductId()) }}" {% if not this.product.getInventoryEnabled() %} disabled="disabled" {% endif %} />
 </td>

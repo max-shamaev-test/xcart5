@@ -449,7 +449,7 @@ abstract class AStep extends \XLite\Logic\ARepoStep
     protected function formatStorageModel(\XLite\Model\Base\Storage $storage = null, $copyResources = null)
     {
         $result = '';
-        $copyResources = $copyResources ?: $this->generator->getOptions()->copyResources;
+        $copyResources = !is_null($copyResources) ? $copyResources : $this->generator->getOptions()->copyResources;
 
         if ($storage) {
 

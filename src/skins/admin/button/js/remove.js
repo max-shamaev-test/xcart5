@@ -55,6 +55,7 @@ CommonForm.elementControllers.push(
           jQuery(this).parents('tr').eq(0).remove();
           if (0 == list.find('tr.create-line').length && 0 == list.find('tbody.lines tr.line').length) {
             jQuery('table.list', list).addClass('list-no-items');
+            jQuery('.table-wrapper', list).addClass('empty');
             jQuery('.no-items', list).show();
             jQuery('.sticky-panel').not('.always-visible').css('display', 'none');
             jQuery('.additional-panel').addClass('hidden').hide();

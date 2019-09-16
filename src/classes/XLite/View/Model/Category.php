@@ -26,7 +26,7 @@ class Category extends \XLite\View\Model\AModel
             self::SCHEMA_TRUSTED  => true,
         ),
         'parent' => array(
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\Category',
+            self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\Select2\Category',
             self::SCHEMA_LABEL    => 'Parent category',
             self::SCHEMA_REQUIRED => true,
         ),
@@ -79,7 +79,6 @@ class Category extends \XLite\View\Model\AModel
         'meta_desc' => array(
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Textarea\Simple',
             self::SCHEMA_LABEL    => '',
-            \XLite\View\FormField\AFormField::PARAM_USE_COLON => false,
             self::SCHEMA_REQUIRED => true,
             self::SCHEMA_DEPENDENCY => array(
                 self::DEPENDENCY_SHOW => array (
@@ -155,6 +154,11 @@ class Category extends \XLite\View\Model\AModel
     {
         if ('meta_title' === $name) {
             $data[static::SCHEMA_PLACEHOLDER] = static::t('Default');
+        } else if ('enabled' === $name) {
+            $data[static::SCHEMA_HELP] = static::t(
+                'If the category is disabled, the system will return 404.',
+                ['categoryLink' => $this->getModelObject()->getFrontUrl(true)]
+            );
         }
 
         return parent::getFieldBySchema($name, $data);

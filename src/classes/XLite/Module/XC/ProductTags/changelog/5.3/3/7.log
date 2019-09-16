@@ -1,6 +1,0 @@
-Version 5.3.3.7
-
-Fixes (2)
-2018-07-25 - [Bug] Export of products with tags was working incorrectly. Fixed. #BUG-6522 https://bt.x-cart.com/view.php?id=49672 (Sergey Elmanov) #ProductTags
-2018-07-25 - [Bug] It is no longer possible to create tags with the same name. #BUG-6476 (Sergey Elmanov) #ProductTags
-

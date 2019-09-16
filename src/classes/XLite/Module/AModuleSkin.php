@@ -14,16 +14,6 @@ namespace XLite\Module;
 abstract class AModuleSkin extends AModule
 {
     /**
-     * The module is defined as skin module
-     *
-     * @return integer|null
-     */
-    public static function getModuleType()
-    {
-        return static::MODULE_TYPE_SKIN;
-    }
-
-    /**
      * Returns supported layout types
      *
      * @return array
@@ -39,16 +29,6 @@ abstract class AModuleSkin extends AModule
      * @return array
      */
     public static function getLayoutColors()
-    {
-        return array();
-    }
-
-    /**
-     * Return module dependencies
-     *
-     * @return array
-     */
-    final public static function getDependencies()
     {
         return array();
     }

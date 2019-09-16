@@ -104,6 +104,27 @@ function setCardType(type) {
     }
 }
 
+function setCardName() {
+    var ccName = jQuery('#cc_name');
+
+    if (ccName.length) {
+      var firstname = jQuery('#shippingaddress-firstname').val();
+      var lastname = jQuery('#shippingaddress-lastname').val();
+
+      if (!jQuery('#same_address').prop('checked')) {
+        firstname = jQuery('#billingaddress-firstname').val();
+        lastname = jQuery('#billingaddress-lastname').val();
+      }
+
+      if (!firstname && !lastname) {
+        firstname = jQuery('.address-field_firstname:last').text();
+        lastname = jQuery('.address-field_lastname:last').text();
+      }
+
+      ccName.val(firstname + ' ' + lastname);
+    }
+}
+
 function cardTypeHandlersSetter() {
     if (jQuery('.cc-form').length) {
         var numberField = jQuery('#cc_number');
@@ -113,6 +134,7 @@ function cardTypeHandlersSetter() {
         numberField.change(function () { setCardType(); });
         numberField.keyup(function () { setCardType(); });
         setCardType();
+        setCardName();
     }
 }
 

@@ -8,6 +8,12 @@
 
 namespace XLite\Model\Shipping\Processor;
 
+use XLite\Core\Database;
+
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
+use XLite\View\Pager\Admin\Module\Manage;
+
 /**
  * Shipping processor model
  */
@@ -25,14 +31,13 @@ abstract class AProcessor extends \XLite\Base\SuperClass
     protected $methods;
 
     /**
-     * Module processor cache object
-     * false                        - it is not initialized yet
-     * null                         - no payment processor
-     * \XLite\Model\Module class    - shipping processor assigned
+     * null   - it is not initialized yet
+     * false  - no module
+     * string - module id
      *
-     * @var boolean|null|\XLite\Model\Module
+     * @var boolean|null|string
      */
-    protected $moduleCache = false;
+    protected $moduleId;
 
     /**
      * Log of request/response pairs during communication with a shipping server
@@ -61,7 +66,16 @@ abstract class AProcessor extends \XLite\Base\SuperClass
      *
      * @return string
      */
-    abstract public function getProcessorName();
+    public function getProcessorName()
+    {
+        $carrier = Database::getRepo('XLite\Model\Shipping\Method')->findOnlineCarrier(
+            $this->getProcessorId()
+        );
+
+        return $carrier
+            ? $carrier->getName()
+            : '';
+    }
 
     /**
      * Define public constructor
@@ -78,10 +92,10 @@ abstract class AProcessor extends \XLite\Base\SuperClass
      */
     public function getSettingsTemplate()
     {
-        $module = $this->getModule();
+        list($author, $name) = Module::explodeModuleId($this->getModule());
 
-        return $module
-            ? sprintf('modules/%s/%s/settings.twig', $module->getAuthor(), $module->getName())
+        return $author && $name
+            ? sprintf('modules/%s/%s/settings.twig', $author, $name)
             : '';
     }
 
@@ -92,10 +106,10 @@ abstract class AProcessor extends \XLite\Base\SuperClass
      */
     public function getTestTemplate()
     {
-        $module = $this->getModule();
+        list($author, $name) = Module::explodeModuleId($this->getModule());
 
-        return $module
-            ? sprintf('modules/%s/%s/test.twig', $module->getAuthor(), $module->getName())
+        return $author && $name
+            ? sprintf('modules/%s/%s/test.twig', $author, $name)
             : '';
     }
 
@@ -146,17 +160,15 @@ abstract class AProcessor extends \XLite\Base\SuperClass
     /**
      * Get processor module
      *
-     * @return \XLite\Model\Module|null
+     * @return string|null|bool
      */
     public function getModule()
     {
-        if (false === $this->moduleCache) {
-            $this->moduleCache = preg_match('/XLite\\\Module\\\(\w+)\\\(\w+)\\\/S', get_called_class(), $match)
-                ? \XLite\Core\Database::getRepo('XLite\Model\Module')->findModuleByName($match[1] . '\\' . $match[2])
-                : null;
+        if (null === $this->moduleId) {
+            $this->moduleId = Module::getModuleIdByClassName(get_called_class()) ?: false;
         }
 
-        return $this->moduleCache;
+        return $this->moduleId;
     }
 
     /**
@@ -567,6 +579,25 @@ abstract class AProcessor extends \XLite\Base\SuperClass
     }
 
     /**
+     * This method must return params of the URL to the detailed tracking information about the package.
+     * Tracking number is provided.
+     *
+     * @param string $trackingNumber
+     *
+     * @return null|string
+     */
+    public function getTrackingURLParams($trackingNumber)
+    {
+        $params = $this->getTrackingInformationParams($trackingNumber);
+        $params = array_map(function($paramName, $paramValue) {
+            return "{$paramName}={$paramValue}";
+        }, array_keys($params), $params);
+
+
+        return implode('&', $params);
+    }
+
+    /**
      * This method must return the form method 'post' or 'get' value.
      *
      * @param string $trackingNumber
@@ -646,17 +677,6 @@ abstract class AProcessor extends \XLite\Base\SuperClass
     // {{{ Logging
 
     /**
-     * Returns an API communication log
-     * @deprecated use #getApiCommunicationMessage instead
-     *
-     * @return array
-     */
-    public function getApiCommunicationLog()
-    {
-        return $this->getApiCommunicationMessage();
-    }
-
-    /**
      * Returns an API communication message
      *
      * @return array
@@ -684,28 +704,6 @@ abstract class AProcessor extends \XLite\Base\SuperClass
     public function getError()
     {
         return $this->errorMsg;
-    }
-
-    /**
-     * Returns error message
-     * @deprecated Use #getError() instead
-     *
-     * @return string
-     */
-    public function getErrorMsg()
-    {
-        return $this->getError();
-    }
-
-    /**
-     * Write transaction log
-     * @deprecated
-     *
-     * @return void
-     */
-    public function logTransaction()
-    {
-        $this->flushErrorLog();
     }
 
     /**

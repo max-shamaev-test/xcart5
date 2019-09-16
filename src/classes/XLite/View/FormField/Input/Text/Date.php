@@ -16,8 +16,10 @@ class Date extends \XLite\View\FormField\Input\Text
     /**
      * Widget param names
      */
-    const PARAM_MIN = 'min';
-    const PARAM_MAX = 'max';
+    const PARAM_MIN       = 'min';
+    const PARAM_MAX       = 'max';
+    const PARAM_HIGH_YEAR = 'highYear';
+    const PARAM_LOW_YEAR  = 'lowYear';
 
     /**
      * Register files from common repository
@@ -26,22 +28,10 @@ class Date extends \XLite\View\FormField\Input\Text
      */
     public function getCommonFiles()
     {
-        $list = parent::getCommonFiles();
+        $list                        = parent::getCommonFiles();
         $list[static::RESOURCE_JS][] = 'js/jquery-ui-i18n.min.js';
-
-        return $list;
-    }
-
-    /**
-     * Register JS files
-     *
-     * @return array
-     */
-    public function getJSFiles()
-    {
-        $list = parent::getJSFiles();
-
-        $list[] = $this->getDir() . '/js/date.js';
+        $list[static::RESOURCE_JS][] = 'form_field/js/date.js';
+        $list[static::RESOURCE_CSS][] = 'form_field/css/date.less';
 
         return $list;
     }
@@ -69,10 +59,12 @@ class Date extends \XLite\View\FormField\Input\Text
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
-            self::PARAM_MIN => new \XLite\Model\WidgetParam\TypeInt('Minimum date', null),
-            self::PARAM_MAX => new \XLite\Model\WidgetParam\TypeInt('Maximum date', null),
-        );
+        $this->widgetParams += [
+            self::PARAM_MIN       => new \XLite\Model\WidgetParam\TypeInt('Minimum date', null),
+            self::PARAM_MAX       => new \XLite\Model\WidgetParam\TypeInt('Maximum date', null),
+            self::PARAM_HIGH_YEAR => new \XLite\Model\WidgetParam\TypeInt('The high year', date('Y', \XLite\Core\Converter::time()) - 1),
+            self::PARAM_LOW_YEAR  => new \XLite\Model\WidgetParam\TypeInt('The low year', 2035),
+        ];
     }
 
     /**
@@ -92,8 +84,8 @@ class Date extends \XLite\View\FormField\Input\Text
     }
 
     /**
-     * Check range 
-     * 
+     * Check range
+     *
      * @return boolean
      */
     protected function checkRange()
@@ -102,24 +94,24 @@ class Date extends \XLite\View\FormField\Input\Text
 
         if (!is_null($this->getParam(self::PARAM_MIN)) && $this->getValue() < $this->getParam(self::PARAM_MIN)) {
 
-            $result = false;
+            $result             = false;
             $this->errorMessage = \XLite\Core\Translation::lbl(
                 'The value of the X field must be greater than Y',
-                array(
+                [
                     'name' => $this->getLabel(),
                     'min'  => $this->formatDate($this->getParam(self::PARAM_MIN)),
-                )
+                ]
             );
 
         } elseif (!is_null($this->getParam(self::PARAM_MAX)) && $this->getValue() > $this->getParam(self::PARAM_MAX)) {
 
-            $result = false;
+            $result             = false;
             $this->errorMessage = \XLite\Core\Translation::lbl(
                 'The value of the X field must be less than Y',
-                array(
+                [
                     'name' => $this->getLabel(),
                     'max'  => $this->formatDate($this->getParam(self::PARAM_MAX)),
-                )
+                ]
             );
 
         }
@@ -134,7 +126,7 @@ class Date extends \XLite\View\FormField\Input\Text
      */
     protected function sanitize()
     {
-       return parent::sanitize() ?: 0;
+        return parent::sanitize() ?: 0;
     }
 
     /**
@@ -164,7 +156,7 @@ class Date extends \XLite\View\FormField\Input\Text
             $formats = \XLite\Core\Converter::getDateFormatsByStrftimeFormat(
                 \XLite\Core\Config::getInstance()->Units->date_format
             );
-            $format = $formats['phpFormat'];
+            $format  = $formats['phpFormat'];
 
             $result = date($format, $value);
         }
@@ -219,10 +211,12 @@ class Date extends \XLite\View\FormField\Input\Text
     {
         $data = parent::getCommentedData();
 
-        $currentFormats = \XLite\Core\Converter::getDateFormatsByStrftimeFormat();
+        $currentFormats     = \XLite\Core\Converter::getDateFormatsByStrftimeFormat();
         $data['dateFormat'] = $currentFormats['jsFormat'];
-        $data['firstDay'] = $this->getStartDay();
-        $data['locale']   = $this->getLocaleCode(\XLite\Core\Session::getInstance()->getLanguage()->getCode());
+        $data['firstDay']   = $this->getStartDay();
+        $data['locale']     = $this->getLocaleCode(\XLite\Core\Session::getInstance()->getLanguage()->getCode());
+        $data['highYear']   = $this->getParam(static::PARAM_HIGH_YEAR);
+        $data['lowYear']    = $this->getParam(static::PARAM_LOW_YEAR);
 
         return $data;
     }
@@ -234,9 +228,9 @@ class Date extends \XLite\View\FormField\Input\Text
      */
     protected function getLocaleCode($language)
     {
-        $locales = array(
+        $locales = [
             'zh_CN',
-        );
+        ];
 
         $locale = array_filter($locales, function ($item) use ($language) {
             return strpos($item, strtolower($language)) === 0;
@@ -279,5 +273,15 @@ class Date extends \XLite\View\FormField\Input\Text
     protected function getFieldTemplate()
     {
         return 'date.twig';
+    }
+
+    /**
+     * Get default placeholder
+     *
+     * @return string
+     */
+    protected function getDefaultPlaceholder()
+    {
+        return static::t('Click to select the date');
     }
 }

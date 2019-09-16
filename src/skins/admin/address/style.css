@@ -8,49 +8,6 @@
  */
 
 /* Address modify dialog */
-.address-dialog h2 {
-  color: #84b8df;
-  font-size: 28px;
-  padding-bottom: 25px;
-}
-
-.address-dialog h4 {
-  color: #336699;
-  font-size: 14px;
-  font-weight: normal;
-  padding-bottom: 10px;
-}
-
-.address-dialog .model-properties label {
-  font-size: 14px;
-  font-weight: normal;
-  color: #53769d;
-  padding-left: 28px;
-  vertical-align: middle;
-  background-position: left 5px;
-  background-repeat: no-repeat;
-  background-color: transparent;
-  display: block;
-  margin-bottom: 6px;
-}
-
-.address-dialog .model-properties ul li {
-  padding: 0 5px 6px 0;
-}
-
-.address-dialog input.name {
-  height: 17px;
-  border: 1px solid #ddd;
-}
-
-.address-dialog .model-properties ul.table.default-table {
-  min-width: 600px;
-}
-
-.address-dialog .model-form-buttons
-{
- padding-left: 266px;
-}
 
 td.address-text {
   width: 100%;
@@ -102,7 +59,7 @@ li.address-text-phone
 .address-text-comma-street,
 .address-text-comma-zipcode,
 .address-text-comma-country_code,
-.address-text-comma-phone,
+.address-text-comma-phone
 {
   display: none;
 }
@@ -148,10 +105,13 @@ div.address-box
   font-size: 14px;
 }
 
+.address-type {
+  white-space: nowrap;
+}
+
 img.address-type-icon
 {
-  display: block;
-  padding: 5px;
+  display: inline-block;
 }
 
 .address-form-label
@@ -165,24 +125,16 @@ img.address-type-icon
   padding-bottom: 5px;
 }
 
-button.delete-address
-{
-  border: 0;
-  vertical-align: middle;
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-position: left center;
-  background-image: url(../images/icon_trash.png);
-  height: 24px;
-  padding-left: 15px;
-  padding-right: 5px;
-  cursor: pointer;
+.address-dialog form {
+  width: 450px;
 }
 
-button.delete-address span
+.address-dialog form .table-label
 {
-  font-family: Helvetica,Arial,sans-serif;
-  font-size: 10px;
-  color: #666;
-  text-decoration: underline;
+  width: 150px;
+}
+
+.address-dialog form .table,
+.address-dialog form fieldset div {
+  margin-bottom: 0;
 }

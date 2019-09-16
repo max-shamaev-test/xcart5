@@ -77,6 +77,8 @@ class Page extends AMessage
             'host'        => $_SERVER['HTTP_HOST'],
             'EventSource' => 'Concierge',
             'admin_email' => $admin_email,
+            'Store License Type' => $this->getLicenseType(),
+            'Store Version' => \XLite::getInstance()->getVersion(),
         ];
     }
 

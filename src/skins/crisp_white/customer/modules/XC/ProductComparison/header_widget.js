@@ -41,6 +41,7 @@
   core.bind('updateProductComparison', function(event, data) {
     var indicator = $('.compare-indicator');
     var mobile_menu = $('.mobile_header-slidebar');
+    var account_icon_mobile_menu = $('#slidebar .icon-account');
     var link = $('.compare-indicator > a');
     var span = link.find('.counter');
     var old_count = parseInt(span.first().text());
@@ -60,8 +61,10 @@
     if (data.count > 0 && (data.count > old_count || isNaN(old_count) || indicator.hasClass('recently-updated'))) {
       indicator.addClass('recently-updated');
       mobile_menu.addClass('recently-updated');
+      account_icon_mobile_menu.addClass('recently-updated-icon');
     } else {
       indicator.removeClass('recently-updated');
+      account_icon_mobile_menu.removeClass('recently-updated-icon');
     }
 
     core.trigger('checkHeaderSettingsRecentlyUpdated');

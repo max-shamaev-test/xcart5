@@ -9,7 +9,7 @@
  */
 
 /*
- * Copyright (C) 2013 Jukka Svahn
+ * Copyright (C) 2018 Jukka Svahn
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -94,7 +94,7 @@ class Import extends Base
         $query = '';
 
         while (!feof($this->file)) {
-            $line = fgets($this->file, 4096);
+            $line = fgets($this->file);
             $trim = trim($line);
 
             if ($trim === '' || strpos($trim, '--') === 0 || strpos($trim, '/*') === 0) {

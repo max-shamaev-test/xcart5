@@ -8,8 +8,10 @@
 
 namespace XLite\Module\CDev\GoogleAnalytics\View;
 
+use Includes\Utils\Module\Manager;
+
 /**
- * Tabber link widget 
+ * Tabber link widget
  *
  * @ListChild (list="tabs.content", zone="admin")
  */
@@ -22,50 +24,29 @@ class TabberLink extends \XLite\View\AView
      */
     public static function getAllowedTargets()
     {
-        return array_merge(parent::getAllowedTargets(), array('orders_stats'));
+        return array_merge(parent::getAllowedTargets(), ['orders_stats']);
     }
 
-    /**
-     * Add widget specific CSS files
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-
-        $list[] = 'modules/CDev/GoogleAnalytics/tabs/style.css';
-
-        return $list;
-    }
-    
     /**
      * Check if the Google Analitics module is configured
-     * 
+     *
      * @return boolean
      */
     protected function isConfigured()
     {
-        return (bool)\XLite\Core\Config::getInstance()->CDev->GoogleAnalytics->ga_account;
+        return (bool) \XLite\Core\Config::getInstance()->CDev->GoogleAnalytics->ga_account;
     }
 
     /**
      * Defines the module link to configure
-     * 
+     *
      * @return string
      */
     protected function getModuleLink()
     {
-        return $this->buildURL(
-            'module', 
-            '',
-            array(
-                'moduleId' => \XLite\Core\Database::getRepo('XLite\Model\Module')
-                    ->findOneBy(array('name' => 'GoogleAnalytics', 'fromMarketplace' => false))->getModuleId(),
-            )
-        );
+        return Manager::getRegistry()->getModuleSettingsUrl('CDev', 'GoogleAnalytics');
     }
-    
+
     /**
      * Return widget default template
      *
@@ -75,5 +56,4 @@ class TabberLink extends \XLite\View\AView
     {
         return 'modules/CDev/GoogleAnalytics/tabs/link.twig';
     }
-
 }

@@ -62,3 +62,7 @@
 .icon-type-default:before {
   background-image: url(../images/files/text.svg) !important;
 }
+
+.icon-type-no:before {
+  background-image: url(../images/files/no-type.svg) !important;
+}

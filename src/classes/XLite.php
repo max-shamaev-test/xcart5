@@ -46,7 +46,7 @@ class XLite extends \XLite\Base
     /**
      * Core version
      */
-    const XC_VERSION = '5.3.6.0';
+    const XC_VERSION = '5.4.0.4';
 
     /**
      * Endpoints
@@ -147,13 +147,6 @@ class XLite extends \XLite\Base
      * @var \XLite\Model\Currency
      */
     protected $currentCurrency;
-
-    /**
-     * License runtime cache
-     *
-     * @var \XLite\Model\ModuleKey|null|false
-     */
-    protected static $license = null;
 
     /**
      * Check is admin interface
@@ -329,36 +322,11 @@ class XLite extends \XLite\Base
      *
      * @param boolean $force Flag: true - ignore runtime cache
      *
-     * @return \XLite\Model\ModuleKey
+     * @return array
      */
-    public static function getXCNLicense($force = false)
+    public static function getXCNLicense()
     {
-        if (!isset(static::$license) || $force) {
-
-            if ($force) {
-                static::$license = null;
-            }
-
-            // Get list of all registered X-Cart 5 license keys
-            $licenseKeys = \XLite\Core\Database::getRepo('XLite\Model\ModuleKey')
-                ->findBy(array('keyType' => \XLite\Model\ModuleKey::KEY_TYPE_XCN));
-
-            // Select only the license key with non empty 'XCN plan'
-            if ($licenseKeys) {
-                foreach ($licenseKeys as $key) {
-                    if (0 !== (int) $key->getXcnPlan()) {
-                        static::$license = $key;
-                        break;
-                    }
-                }
-            }
-
-            if (!isset(static::$license)) {
-                static::$license = false;
-            }
-        }
-
-        return static::$license ?: null;
+        return \XLite\Core\Marketplace::getInstance()->getCoreLicense();
     }
 
     /**
@@ -370,19 +338,32 @@ class XLite extends \XLite\Base
     {
         $license = static::getXCNLicense();
 
-        return $license ? $license->getKeyValue() : '';
+        return $license ? $license['keyValue'] : '';
     }
 
     /**
-     * Return X-Cart 5 license type of core
+     * Return if X-Cart 5 has license of the core
      *
-     * @return integer
+     * @return boolean
      */
-    public static function getXCNLicenseType()
+    public static function hasXCNLicenseKey()
     {
-        $license = static::getXCNLicense();
+        return (bool) static::getXCNLicense();
+    }
 
-        return $license ? (int) $license->getXcnPlan() : 0;
+    /**
+     * @return int
+     */
+    public static function getInstallationTimestamp()
+    {
+        $result = 0;
+        $installationData = \XLite\Core\Marketplace::getInstance()->getInstallationData();
+
+        if (!empty($installationData['installationData']['installationDate'])) {
+            $result = (int) $installationData['installationData']['installationDate'];
+        }
+
+        return $result;
     }
 
     /**
@@ -394,7 +375,7 @@ class XLite extends \XLite\Base
      */
     public static function getTrialPeriodLeft($returnDays = true)
     {
-        $startTime = \XLite\Core\Config::getInstance()->Version->timestamp;
+        $startTime = \XLite::getInstallationTimestamp();
         $endTime   = $startTime + 86400 * \XLite::TRIAL_PERIOD;
 
         return $returnDays
@@ -409,28 +390,26 @@ class XLite extends \XLite\Base
      */
     public static function isTrialPeriodExpired()
     {
-        return !static::getXCNLicense() && 0 >= static::getTrialPeriodLeft(false);
+        return !static::hasXCNLicenseKey() && 0 >= static::getTrialPeriodLeft(false);
     }
 
     /**
      * Return true if registered Free license
      *
-     * @param \XLite\Model\ModuleKey $license License key OPTIONAL
-     *
      * @return boolean
      */
-    public static function isFreeLicense($license = null)
+    public static function isFreeLicense()
     {
         $result = false;
-        $key = $license ?: static::getXCNLicense();
+        $key = static::getXCNLicense();
 
         if ($key) {
-            if (2 == $key->getXcnPlan()) {
+            if (2 === (int) ($key['xcnPlan'] ?? 0)) {
                 $result = true;
 
             } else {
-                $keyData = $key->getKeyData();
-                $result = isset($keyData['editionName']) && 'Free' == $keyData['editionName'];
+                $keyData = $key['keyData'];
+                $result = isset($keyData['editionName']) && 'Free' === $keyData['editionName'];
             }
         }
 
@@ -457,33 +436,18 @@ class XLite extends \XLite\Base
      */
     public static function getXCartURL($url = '', $useInstallationLng = true)
     {
-        $affiliateId = static::getAffiliateId();
-
-        if (empty($url)) {
-            $url = static::PRODUCER_SITE_URL;
-        }
-
-        $params = array();
-
-        if ($useInstallationLng
-            && static::getInstallationLng()
-        ) {
-            $params[] = 'sl=' . static::getInstallationLng();
-        }
-
+        $controller = '';
         if (static::isAdminZone() && static::getController()) {
-            $params[] = 'utm_source=XC5admin';
-            $params[] = 'utm_medium=' . static::getController()->getTarget();
-            $params[] = 'utm_campaign=XC5admin';
+            $controller = static::getController()->getTarget();
         }
 
-        if ($params) {
-            $url .= (strpos($url, '?') ? '&' : '?') . implode('&', $params);
-        }
+        $builder = \XCart\AffiliatedUrlBuilder::build(
+            static::getAffiliateId(),
+            $controller,
+            static::getInstallationLng()
+        );
 
-        return $affiliateId
-            ? 'https://www.x-cart.com/aff/?aff_id=' . $affiliateId . '&amp;url=' . urlencode($url)
-            : $url;
+        return $builder->getXCartURL($url, $useInstallationLng);
     }
 
     /**
@@ -606,16 +570,15 @@ class XLite extends \XLite\Base
      */
     public function initModules()
     {
-        static::checkUpgradeStatus();
+        //static::checkUpgradeStatus();
 
-        \Includes\Utils\ModulesManager::initModules();
+        \Includes\Utils\Module\Manager::initModules();
     }
 
     /**
      * Set up flag if upgrade is in progress.
      * Modules will not be disabled during initialization if this flag is set.
-     *
-     * @return void
+     * @deprecated
      */
     protected static function checkUpgradeStatus()
     {
@@ -628,21 +591,6 @@ class XLite extends \XLite\Base
             && in_array(\XLite\Core\Request::getInstance()->action, $actions)
         ) {
             define('XC_UPGRADE_IN_PROGRESS', true);
-        }
-    }
-
-    /**
-     * Update module registry
-     *
-     * @return void
-     */
-    public function updateModuleRegistry()
-    {
-        $calculatedHash = \XLite\Core\Database::getRepo('XLite\Model\Module')->calculateEnabledModulesRegistryHash();
-
-        if (\Includes\Utils\ModulesManager::getEnabledStructureHash() != $calculatedHash) {
-            \XLite\Core\Database::getRepo('XLite\Model\Module')->addEnabledModulesToRegistry();
-            \Includes\Utils\ModulesManager::saveEnabledStructureHash($calculatedHash);
         }
     }
 

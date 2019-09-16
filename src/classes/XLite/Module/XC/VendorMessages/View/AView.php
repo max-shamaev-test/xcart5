@@ -21,7 +21,7 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
     {
         $list = parent::getCSSFiles();
         if (\XLite::isAdminZone()) {
-            $list[] = 'modules/XC/VendorMessages/style.css';
+            $list[] = 'modules/XC/VendorMessages/style.less';
         }
 
         return $list;

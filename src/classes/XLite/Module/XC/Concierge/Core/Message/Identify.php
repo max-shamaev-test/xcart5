@@ -86,17 +86,12 @@ class Identify extends AMessage
             $result['name']      = $profile->getName();
             $result['createdAt'] = $profile->getAdded();
             $result['loggedIntoTrial'] = 'true';
+            $result['Concierge: First Login'] = date('Y-m-d\TH:i:s', $profile->getFirstLogin());
         }
 
         $config = $this->getConfig();
         if ($config) {
-            $company = [];
-
-            $company['id']        = $this->getCompanyId();
-            $company['name']      = $config->Company->company_name;
-            $company['createdAt'] = $config->Version->timestamp;
-
-            $result['company'] = $company;
+            $result['company'] = $config->Company->company_name;
         }
 
         $result['host'] = $_SERVER['HTTP_HOST'];

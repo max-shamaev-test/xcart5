@@ -20,7 +20,7 @@ jQuery(document).ready(
             btn.addClass('update-icon-disabled').prop('disabled', 'disabled');
 
           } else {
-            btn.removeClass('update-icon-disabled').removeProp('disabled');
+            btn.removeClass('update-icon-disabled').removeAttr('disabled');
           }
 
         } else {

@@ -8,25 +8,15 @@
 
 namespace XLite\Module\XC\FacebookMarketing\View;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
+
 /**
  * Google feed promo banner
  */
 class GoogleFeedBanner extends \XLite\View\AView
 {
     use \XLite\Core\Cache\ExecuteCachedTrait;
-
-    /**
-     * Register CSS files
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-        $list[] = 'modules/XC/FacebookMarketing/google_feed_banner/style.less';
-
-        return $list;
-    }
 
     /**
      * Return widget default template
@@ -43,25 +33,7 @@ class GoogleFeedBanner extends \XLite\View\AView
      */
     protected function getGoogleFeedPromoText()
     {
-        return static::t('Use the module Google Product Feed for advanced flexibility generating a data feed for Facebook based on the product attributes and variants from your store catalog');
-    }
-
-    /**
-     * @return \XLite\Model\Module
-     */
-    protected function getGoogleFeedModule()
-    {
-        return $this->executeCachedRuntime(function () {
-            $module = \XLite\Core\Database::getRepo('XLite\Model\Module')->findOneBy(
-                [
-                    'author' => 'XC',
-                    'name'   => 'GoogleFeed',
-                ],
-                [ 'fromMarketplace' => 'ASC' ]
-            );
-
-            return $module;
-        });
+        return static::t('Use the addon Google Product Feed for advanced flexibility generating a data feed for Facebook based on the product attributes and variants from your store catalog');
     }
 
     /**
@@ -69,9 +41,7 @@ class GoogleFeedBanner extends \XLite\View\AView
      */
     protected function isGoogleFeedEnabled()
     {
-        $module = $this->getGoogleFeedModule();
-
-        return $module && $module->getEnabled();
+        return Manager::getRegistry()->isModuleEnabled('XC', 'GoogleFeed');
     }
 
     /**
@@ -87,17 +57,9 @@ class GoogleFeedBanner extends \XLite\View\AView
      */
     protected function getGoogleFeedModuleLink()
     {
-        if ($this->isGoogleFeedEnabled()) {
-            $link = $this->buildURL('google_shopping_groups');
-        } else {
-            $module = $this->getGoogleFeedModule();
-
-            $link = $module->getFromMarketplace()
-                ? $module->getMarketplaceURL()
-                : $module->getInstalledURL();
-        }
-
-        return $link;
+        return $this->isGoogleFeedEnabled()
+            ? $this->buildURL('google_shopping_groups')
+            : Manager::getRegistry()->getModuleServiceURL('XC', 'GoogleFeed');
     }
 
     /**
@@ -105,8 +67,6 @@ class GoogleFeedBanner extends \XLite\View\AView
      */
     protected function getGoogleFeedLogoUrl()
     {
-        $module = $this->getGoogleFeedModule();
-
-        return $module ? $module->getPublicIconURL() : null;
+        return Module::getIconURL('XC', 'GoogleFeed');
     }
 }

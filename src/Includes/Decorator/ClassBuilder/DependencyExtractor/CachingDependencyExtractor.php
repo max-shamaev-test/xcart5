@@ -75,10 +75,9 @@ class CachingDependencyExtractor implements DependencyExtractorInterface
         if (!isset($this->cachedClassDecorators[$class])) {
             $metadataMtime = $this->getDecoratedClassMetadataMtime($class);
 
-            if (
-                (($decoratorCandidatesUnchanged = ($this->getDecoratorCandidatesMtime() < $metadataMtime))
-                 || $this->getClassDecoratorCandidatesMtime($class) < $metadataMtime)
-                && ($meta = $this->getDecoratedClassMetadata($class)) != null
+            if ((($decoratorCandidatesUnchanged = ($this->getDecoratorCandidatesMtime() < $metadataMtime))
+                    || $this->getClassDecoratorCandidatesMtime($class) < $metadataMtime)
+                && ($meta = $this->getDecoratedClassMetadata($class)) !== null
                 && (!$meta->getDecorators() || $this->allDecoratorsExist($meta->getDecorators()))
             ) {
                 if (!$decoratorCandidatesUnchanged) {
@@ -86,6 +85,7 @@ class CachingDependencyExtractor implements DependencyExtractorInterface
                 }
 
                 $this->cachedClassDecorators[$class] = $meta->getDecorators();
+
             } else {
                 $this->cachedClassDecorators[$class] = false;
             }
@@ -94,9 +94,14 @@ class CachingDependencyExtractor implements DependencyExtractorInterface
         return $this->cachedClassDecorators[$class] !== false ? $this->cachedClassDecorators[$class] : null;
     }
 
+    /**
+     * @param string[] $decorators
+     *
+     * @return bool
+     */
     private function allDecoratorsExist($decorators)
     {
-        if (!isset($this->flippedDecoratorCandidates)) {
+        if ($this->flippedDecoratorCandidates === null) {
             $this->flippedDecoratorCandidates = array_flip($this->decoratorExtractor->getDecoratorCandidates());
         }
 
@@ -118,7 +123,7 @@ class CachingDependencyExtractor implements DependencyExtractorInterface
 
     private function getDecoratorCandidatesMtime()
     {
-        if (!isset($this->decoratorCandidatesMaxMtime)) {
+        if ($this->decoratorCandidatesMaxMtime === null) {
             $mtimes = array_map('filemtime', $this->getDecoratorCandidates());
 
             $this->decoratorCandidatesMaxMtime = !empty($mtimes) ? max($mtimes) : 0;
@@ -129,6 +134,7 @@ class CachingDependencyExtractor implements DependencyExtractorInterface
 
     /**
      * @param $class
+     *
      * @return DecoratedClassMetadata
      */
     private function getDecoratedClassMetadata($class)
@@ -169,6 +175,7 @@ class CachingDependencyExtractor implements DependencyExtractorInterface
 
     /**
      * @param $class
+     *
      * @return string
      */
     private function getMetadataPathname($class)

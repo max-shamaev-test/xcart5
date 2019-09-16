@@ -13,6 +13,36 @@ namespace XLite\Module\CDev\SimpleCMS\Model\Repo;
  */
 class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecorator
 {
+    const STATIC_PAGE_URL_FORMAT_NO_EXT = 'domain/goalpage';
+    const STATIC_PAGE_URL_FORMAT_EXT = 'domain/goalpage.html';
+
+    /**
+     * Returns 'product_clean_urls_format' option value
+     *
+     * @return string
+     */
+    public static function getStaticPageCleanUrlFormat()
+    {
+        $format = \Includes\Utils\ConfigParser::getOptions(array('clean_urls', 'static_page_clean_urls_format'));
+
+        return in_array($format, [
+            static::STATIC_PAGE_URL_FORMAT_EXT,
+            static::STATIC_PAGE_URL_FORMAT_NO_EXT
+        ])
+            ? $format
+            : static::STATIC_PAGE_URL_FORMAT_NO_EXT;
+    }
+
+    /**
+     * Is use extension for categories
+     *
+     * @return boolean
+     */
+    public static function isStaticPageUrlHasExt()
+    {
+        return static::getStaticPageCleanUrlFormat() === static::STATIC_PAGE_URL_FORMAT_EXT;
+    }
+
     /**
      * Returns available entities types
      *
@@ -27,16 +57,6 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
     }
 
     /**
-     * Returns page url regexp pattern
-     *
-     * @return string
-     */
-    protected function getPatternPage()
-    {
-        return $this->getCommonPattern() . '(\.' . static::CLEAN_URL_DEFAULT_EXTENSION . ')?';
-    }
-
-    /**
      * Post process clean URL
      *
      * @param string $url URL
@@ -44,9 +64,9 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
      *
      * @return string
      */
-    protected function postProcessURLPage($url, $entity)
+    protected function postProcessURLPage($url, $entity, $ignoreExtension = false)
     {
-        return $url . '.' . static::CLEAN_URL_DEFAULT_EXTENSION;
+        return $url . ($this->isStaticPageUrlHasExt() && !$ignoreExtension ? '.' . static::CLEAN_URL_DEFAULT_EXTENSION : '');
     }
 
     /**
@@ -62,11 +82,7 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
      */
     protected function parseURLPage($url, $last = '', $rest = '', $ext = '')
     {
-        $result = null;
-
-        if ($ext) {
-            $result = $this->findByURL('page', $url . $ext);
-        }
+        $result = $this->findByURL('page', $url . $ext);
 
         return $result;
     }
@@ -123,12 +139,13 @@ class CleanURL extends \XLite\Model\Repo\CleanURL implements \XLite\Base\IDecora
      *
      * @param \XLite\Model\AEntity|string $entity Entity
      * @param array $params Params
+     * @param boolean                     $ignoreExtension Ignore default extension
      *
      * @return array
      */
-    protected function buildFakeURLPage($entity, $params)
+    protected function buildFakeURLPage($entity, $params, $ignoreExtension = false)
     {
-        $urlParts = [$this->postProcessURL(static::PLACEHOLDER, $entity)];
+        $urlParts = [$this->postProcessURL(static::PLACEHOLDER, $entity, $ignoreExtension)];
 
         return [$urlParts, $params];
     }

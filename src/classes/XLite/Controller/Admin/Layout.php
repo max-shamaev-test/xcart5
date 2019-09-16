@@ -8,6 +8,10 @@
 
 namespace XLite\Controller\Admin;
 
+use Xlite\Core\Request;
+use XLite\Core\Skin;
+use XLite\Rebuild\Connector;
+
 /**
  * Layout
  */
@@ -60,41 +64,11 @@ class Layout extends \XLite\Controller\Admin\AAdmin
      * Change template
      *
      * @return void
+     * @throws \Exception
      */
     protected function doActionChangeTemplate()
     {
-        \XLite\Core\Request::getInstance()->switch = $this->getSwitchData();
-
-        unset(\XLite\Core\Session::getInstance()->returnURL);
-        $controller = new \XLite\Controller\Admin\AddonsListInstalled(\XLite\Core\Request::getInstance()->getData());
-        $controller->init();
-
-        $controller->doActionSwitch();
-
-        unset(\XLite\Core\Session::getInstance()->returnURL);
-
-        $this->setReturnURL(
-            $this->buildURL('layout', '', ['moduleId' => \Xlite\Core\Request::getInstance()->template])
-        );
-    }
-
-    /**
-     * Return switch data
-     *
-     * @return array
-     */
-    protected function getSwitchData()
-    {
-        $result = [];
-        $template = \Xlite\Core\Request::getInstance()->template;
-        $moduleId = null;
-        $color = null;
-
-        if (\XLite\View\FormField\Select\Template::SKIN_STANDARD !== $template) {
-            list ($moduleId, $color) = (false !== strpos($template, '_'))
-                ? explode('_', $template)
-                : [$template, null];
-        }
+        list ($moduleId, $color) = $this->parseRequestParam(Request::getInstance()->template);
 
         if ($color) {
             \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
@@ -106,25 +80,26 @@ class Layout extends \XLite\Controller\Admin\AAdmin
             );
         }
 
-        $module = \XLite\Core\Database::getRepo('XLite\Model\Module')->getCurrentSkinModule();
-        // turn current skin module off
-        if ($module && $module->getModuleId() !== (int)$moduleId) {
-            $result[$module->getModuleId()] = [
-                'old' => true,
-                'new' => null
-            ];
+        if ($moduleId && $moduleId !== Skin::getInstance()->getCurrentSkinModuleId()) {
+            Connector::enableSkin($moduleId, $this->buildFullURL('layout'));
+        }
+    }
+
+    /**
+     * Return switch data
+     *
+     * @param $value
+     * @return array
+     */
+    protected function parseRequestParam($value)
+    {
+        if (Skin::SKIN_STANDARD !== $value) {
+            return (false !== strpos($value, '_'))
+                ? explode('_', $value)
+                : [$value, null];
         }
 
-        if (\XLite\View\FormField\Select\Template::SKIN_STANDARD !== $template
-            && (!$module || $module->getModuleId() !== (int)$moduleId)
-        ) {
-            $result[$moduleId] = [
-                'old' => false,
-                'new' => true
-            ];
-        }
-
-        return $result;
+        return [Skin::SKIN_STANDARD, 'Default'];
     }
 
     /**
@@ -134,8 +109,8 @@ class Layout extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionChangeLayout()
     {
-        $layoutType = \XLite\Core\Request::getInstance()->layout_type;
-        $layoutGroup = \XLite\Core\Request::getInstance()->layout_group ?: \XLite\Core\Layout::LAYOUT_GROUP_DEFAULT;
+        $layoutType = Request::getInstance()->layout_type;
+        $layoutGroup = Request::getInstance()->layout_group ?: \XLite\Core\Layout::LAYOUT_GROUP_DEFAULT;
 
         $availableLayoutTypes = \XLite\Core\Layout::getInstance()->getAvailableLayoutTypes();
         $groupAvailableTypes = isset($availableLayoutTypes[$layoutGroup])

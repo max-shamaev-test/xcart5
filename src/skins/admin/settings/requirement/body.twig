@@ -27,20 +27,22 @@
       </div>
     {% endif %}
   </td>
-  <td class="status">
-    {% if requirement.status %}
-      {% if requirement.skipped %}
-        <span class="skipped info-message">{{ t('Skipped') }}</span>
+  {% spaceless %}
+    <td class="status">
+      {% if requirement.status %}
+        {% if requirement.skipped %}
+          <span class="skipped info-message">{{ t('Skipped') }}</span>
+        {% else %}
+          <span class="passed success-message">{{ t('Passed') }}</span>
+        {% endif %}
       {% else %}
-        <span class="passed success-message">{{ t('Passed') }}</span>
+        <span class="failed error-message">{{ t('Failed') }}</span>
+        {% if requirement.error_description %}
+          {{ widget('XLite\\View\\Tooltip', id='install_requirement_error_'~name, text=requirement.error_description|raw, caption='', isImageTag='true', className='help-icon') }}
+        {% endif %}
       {% endif %}
-    {% else %}
-      <span class="failed error-message">{{ t('Failed') }}</span>
-      {% if requirement.error_description %}
-        {{ widget('XLite\\View\\Tooltip', id='install_requirement_error_'~name, text=requirement.error_description|raw, caption='', isImageTag='true', className='help-icon') }}
-      {% endif %}
-    {% endif %}
-  </td>
+    </td>
+  {% endspaceless %}
 </tr>
 {% if this.isAjax() %}
   </table>

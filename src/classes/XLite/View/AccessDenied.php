@@ -8,6 +8,8 @@
 
 namespace XLite\View;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * Access denied
  *
@@ -120,8 +122,9 @@ class AccessDenied extends \XLite\View\AView
      */
     protected function getContactLinkContent()
     {
-        if (\XLite\Core\Database::getRepo('XLite\Model\Module')->isModuleEnabled('CDev\ContactUs')) {
+        if (Manager::getRegistry()->isModuleEnabled('CDev', 'ContactUs')) {
             $location = $this->buildURL('contact_us');
+
         } else {
             $email = \XLite\Core\Mailer::getSiteAdministratorMail();
             $location = 'mailto:' . $email;

@@ -138,6 +138,10 @@ class AmazonCheckout extends \XLite\Controller\Customer\Checkout
                 $this->setReturnURL($this->buildURL('cart'));
             }
         }
+
+        if ($this->isAJAX()) {
+            $this->setHardRedirect(false);
+        }
     }
 
     /**

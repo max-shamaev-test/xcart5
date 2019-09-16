@@ -297,32 +297,6 @@ class VolumeDiscount extends \XLite\Model\Repo\ARepo
 
     /**
      * Get first discount suitable for specified subtotal
-     * @deprecated
-     *
-     * @param float                   $subtotal   Subtotal
-     * @param \XLite\Model\Membership $membership Membership object
-     *
-     * @return \XLite\Module\CDev\VolumeDiscounts\Model\VolumeDiscount
-     */
-    public function getFirstDiscountBySubtotal($subtotal, $membership)
-    {
-        $cnd = new \XLite\Core\CommonCell();
-        $cnd->{self::P_SUBTOTAL} = $subtotal;
-        $cnd->{self::P_MEMBERSHIP} = $membership ? $membership->getMembershipId() : null;
-        if ($membership) {
-            $cnd->{self::P_ORDER_BY_MEMBERSHIP} = array('membership.membership_id', 'DESC');
-        }
-        $cnd->{self::P_ORDER_BY_SUBTOTAL} = array('v.subtotalRangeBegin', 'ASC');
-
-        $discounts = $this->search($cnd);
-
-        return $discounts
-            ? array_shift($discounts)
-            : null;
-    }
-
-    /**
-     * Get first discount suitable for specified subtotal
      *
      * @param \XLite\Core\CommonCell $cnd Condition
      *

@@ -8,6 +8,8 @@
 
 namespace Includes\Decorator\Plugin\Templates;
 
+use Includes\Utils\Module\Manager;
+
 /**
  * ATemplates
  *
@@ -56,7 +58,7 @@ abstract class ATemplates extends \Includes\Decorator\Plugin\APlugin
      */
     protected function getAnnotatedTemplates()
     {
-        if (!isset(static::$annotatedTemplates)) {
+        if (static::$annotatedTemplates === null) {
             static::$annotatedTemplates = array();
             static::$inheritedTemplates = array();
 
@@ -72,8 +74,7 @@ abstract class ATemplates extends \Includes\Decorator\Plugin\APlugin
                     )
                 );
 
-                if (
-                    isset($data[static::TAG_LIST_CHILD])
+                if (isset($data[static::TAG_LIST_CHILD])
                     || isset($data[static::TAG_ADD_LIST_CHILD])
                     || isset($data[static::TAG_CLEAR_LIST_CHILDREN])
                 ) {
@@ -103,7 +104,7 @@ abstract class ATemplates extends \Includes\Decorator\Plugin\APlugin
     {
         return new \Includes\Utils\FileFilter(
             LC_DIR_SKINS,
-            \Includes\Utils\ModulesManager::getPathPatternForTemplates()
+            Manager::getPathPatternForTemplates(LC_DIR_SKINS)
         );
     }
 

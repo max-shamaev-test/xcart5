@@ -38,6 +38,16 @@ class NotificationAttachments extends \XLite\View\Model\Settings
     }
 
     /**
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        return array_merge(parent::getCSSFiles(), [
+            'admin/notifications/attachments.css'
+        ]);
+    }
+
+    /**
      * Check is symfony-polyfill is used instead of native mbstring
      */
     public function isMbstringWarningVisible()

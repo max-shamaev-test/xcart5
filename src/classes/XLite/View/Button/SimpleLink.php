@@ -42,6 +42,8 @@ class SimpleLink extends \XLite\View\Button\Link
             $result = parent::getLinkAttributes();
         }
 
+        $result['tabindex'] = '-1';
+
         return $result;
     }
 

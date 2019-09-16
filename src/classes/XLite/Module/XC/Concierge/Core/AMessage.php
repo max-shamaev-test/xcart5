@@ -73,4 +73,22 @@ abstract class AMessage
 
         return $result;
     }
+
+    /**
+     * @return string
+     */
+    protected function getLicenseType()
+    {
+        $licenseType  = 'Trial';
+        $license = \XLite::getXCNLicense();
+
+        if ($license
+            && ($keyData = $license['keyData'])
+            && !empty($keyData['editionName'])
+        ) {
+            $licenseType = $keyData['editionName'];
+        }
+
+        return $licenseType;
+    }
 }

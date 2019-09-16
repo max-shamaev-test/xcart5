@@ -2,17 +2,17 @@
  # module
  #}
 
-<img class="icon" src="{{ this.moduleParam.getPublicIconURL() }}" alt="{{ this.moduleParam.getModuleName() }}">
+<img class="icon" src="{{ this.module.marketplaceIcon }}" alt="{{ this.module.displayName }}">
 <div class="info">
-    <div class="name">{{ this.moduleParam.getModuleName() }}</div>
+    <div class="name">{{ this.module.displayName }}</div>
     <div class="author">
         <span class="author-label">{{ t('Author') }}:</span>
-        <span class="author-value"> {{ this.moduleParam.getAuthor() }}</span>
+        <span class="author-value"> {{ this.module.displayAuthor }}</span>
     </div>
-    {% if this.moduleParam.getEnabled() %}
-      {{ widget('XLite\\View\\Button\\Link', location=this.moduleParam.getSettingsForm(), label=t('Settings'), style='main-button settings-button') }}
-    {% endif %}
-    {% if not this.moduleParam.getEnabled() %}
-      {{ widget('XLite\\View\\Button\\Link', location=this.moduleParam.getInstalledURL(), label=t('View in list'), style='main-button settings-button') }}
+
+    {% if this.module.enabled %}
+      {{ widget('XLite\\View\\Button\\Link', location=this.getSettingsLink(this.module.id), label=t('Settings'), style='main-button settings-button') }}
+    {% else %}
+      {{ widget('XLite\\View\\Button\\Link', location=this.getModuleLink(this.module.id), label=t('View in list'), style='main-button settings-button') }}
     {% endif %}
 </div>

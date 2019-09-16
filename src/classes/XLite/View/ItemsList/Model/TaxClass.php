@@ -14,26 +14,6 @@ namespace XLite\View\ItemsList\Model;
 class TaxClass extends \XLite\View\ItemsList\Model\Table
 {
     /**
-     * Should itemsList be wrapped with form
-     *
-     * @return boolean
-     */
-    protected function wrapWithFormByDefault()
-    {
-        return true;
-    }
-
-    /**
-     * Get wrapper form target
-     *
-     * @return array
-     */
-    protected function getFormTarget()
-    {
-        return 'tax_classes';
-    }
-
-    /**
      * Get a list of CSS files required to display the widget properly
      *
      * @return array
@@ -146,7 +126,7 @@ class TaxClass extends \XLite\View\ItemsList\Model\Table
      */
     protected function getPanelClass()
     {
-        return 'XLite\View\StickyPanel\ItemsList\TaxClass';
+        return null;
     }
 
 

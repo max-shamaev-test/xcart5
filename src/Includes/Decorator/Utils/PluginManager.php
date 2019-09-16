@@ -73,7 +73,7 @@ abstract class PluginManager extends \Includes\Decorator\Utils\AUtils
      *
      * @return array
      */
-    protected static function getPlugins($hook = null)
+    public static function getPlugins($hook = null)
     {
         if (!isset(static::$plugins)) {
 

@@ -8,7 +8,6 @@
 
 namespace XLite\Console\Command\Helpers;
 
-
 trait ModuleTrait
 {
     private $moduleHelper;
@@ -23,9 +22,7 @@ trait ModuleTrait
     public function getModuleStateByName($name)
     {
         if (!$this->moduleHelper) {
-            $this->moduleHelper = new Module(
-                \XLite\Core\Database::getRepo('XLite\Model\Module')
-            );
+            $this->moduleHelper = new Module();
         }
 
         return $this->moduleHelper->getModuleStateByName($name);

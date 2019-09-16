@@ -4,7 +4,9 @@
 
 {% form '\\XLite\\Module\\CDev\\PINCodes\\View\\Form\\PinCodes' %}
 
-  {{ widget_list('product.pinCodes', product=this.getProduct()) }}
+  <ul class="table">
+    {{ widget_list('product.pinCodes', product=this.getProduct()) }}
+  </ul>
 
   {{ widget('\\XLite\\View\\StickyPanel\\ItemsListForm') }}
 

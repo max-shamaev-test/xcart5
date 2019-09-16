@@ -345,7 +345,8 @@ class Checkout extends \XLite\Controller\Customer\Cart
      */
     protected function markCartCalculate()
     {
-        return true;
+        $request = \XLite\Core\Request::getInstance();
+        return !($request->isAJAX() && $request->isGet() && isset($request->widget));
     }
 
     /**
@@ -872,6 +873,12 @@ class Checkout extends \XLite\Controller\Customer\Cart
 
         $this->updateProfile();
 
+        if (!isset($this->requestData['same_address'])
+            && isset(\XLite\Core\Session::getInstance()->same_address)
+        ) {
+            $this->requestData['same_address'] = \XLite\Core\Session::getInstance()->same_address;
+        }
+
         $this->updateShippingAddress();
 
         $this->updateBillingAddress();
@@ -1261,9 +1268,11 @@ class Checkout extends \XLite\Controller\Customer\Cart
             ->find(\XLite\Core\Request::getInstance()->methodId);
 
         if (!$pm) {
-            \XLite\Core\TopMessage::addError(
-                'No payment method selected'
-            );
+            if ($this->isPaymentNeeded()) {
+                \XLite\Core\TopMessage::addError(
+                    'No payment method selected'
+                );
+            }
 
         } else {
             $cart = $this->getCart();

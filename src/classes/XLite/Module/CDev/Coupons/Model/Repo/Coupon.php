@@ -54,7 +54,7 @@ class Coupon extends \XLite\Model\Repo\ARepo
     protected function defineFindDuplicatesQuery($code, \XLite\Module\CDev\Coupons\Model\Coupon $currentCoupon = null)
     {
         $queryBuilder = $this->createPureQueryBuilder('c')
-            ->andWhere('COLLATE(c.code, utf8_bin) = :code')
+            ->andWhere('COLLATE(c.code, ' . \XLite\Core\Database::getCharset() . '_bin) = :code')
             ->setParameter('code', $code);
 
         if ($currentCoupon) {
@@ -91,7 +91,7 @@ class Coupon extends \XLite\Model\Repo\ARepo
     protected function defineFindOneByCode($code)
     {
         $queryBuilder = $this->createQueryBuilder('c')
-            ->andWhere('COLLATE(c.code, utf8_bin) = :code')
+            ->andWhere('COLLATE(c.code, ' . \XLite\Core\Database::getCharset() . '_bin) = :code')
             ->setParameter('code', $code);
 
         return $queryBuilder;

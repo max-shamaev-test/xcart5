@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\MailChimp\Controller\Admin;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
 use \XLite\Module\XC\MailChimp\Core;
 
 /**
@@ -159,28 +161,11 @@ class MailchimpOptions extends \XLite\Controller\Admin\Module
     /**
      * Get current module ID
      *
-     * @return integer
+     * @return string
      */
     protected function getModuleID()
     {
-        if (!isset($this->moduleID)) {
-            $module = \XLite\Core\Database::getRepo('\XLite\Model\Module')->findOneBy(
-                array(
-                    'name'      => 'MailChimp',
-                    'author'    => 'XC',
-                    'installed' => 1,
-                    'enabled'   => 1
-                )
-            );
-
-            if ($module) {
-                \XLite\Core\Request::getInstance()->moduleId = $module->getModuleID();
-                $this->moduleID = $module->getModuleID();
-                $this->module = $module;
-            }
-        }
-
-        return $this->moduleID;
+        return Module::buildId('XC', 'MailChimp');
     }
 
     /**

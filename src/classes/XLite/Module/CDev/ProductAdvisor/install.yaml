@@ -54,7 +54,7 @@ XLite\Model\Config:
     category: CDev\ProductAdvisor
     type: XLite\View\FormField\Input\Text\Integer
     orderby: 80
-    value: 3
+    value: 4
     widgetParameters: { min: 0 }
     translations:
       - code: en
@@ -115,7 +115,7 @@ XLite\Model\Config:
     category: CDev\ProductAdvisor
     type: XLite\View\FormField\Input\Text\Integer
     orderby: 1080
-    value: 3
+    value: 4
     widgetParameters: { min: 0 }
     translations:
       - code: en
@@ -217,3 +217,4 @@ XLite\Model\LanguageLabel:
   - { name: 'In catalog only', translations: [{ code: en, label: 'In catalog only' }] }
   - { name: 'On catalog and product pages', translations: [{ code: en, label: 'On catalog and product pages' }] }
   - { name: 'Text links', translations: [{ code: en, label: 'Text links' }] }
+  - { name: 'Expected on X', translations: [{ code: en, label: 'Expected on <span>{{date}}</span>' }] }

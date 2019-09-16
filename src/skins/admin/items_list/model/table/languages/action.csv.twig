@@ -1,5 +1,5 @@
 {##
- # Default language for admin interface element cell
+ # Download file button
  #}
 
-{{ widget('XLite\\View\\Button\\GetCSV', jsCode='self.location=\'' ~ url('languages', 'getCSV', {'code': this.entity.getCode()}) ~ '\'') }}
+{{ widget('XLite\\View\\Button\\Link', {location: url('languages', 'getCSV', {'code': this.entity.getCode()}), style: 'download-file', label: '', 'icon-style': 'fa fa-download'}) }}

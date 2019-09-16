@@ -155,6 +155,33 @@ abstract class Operator extends \Includes\Utils\AUtils
     }
 
     /**
+     * Echo message
+     *
+     * @param string  $message    Text to display
+     * @param boolean $dummyFlush Output extra spaces or not OPTIONAL
+     * @param string  $jsOutput   Flag to quick output OPTIONAL
+     *
+     * @return void
+     */
+    public static function echoWithoutFlush($message, $dummyFlush = false, $jsOutput = null)
+    {
+        if ('cli' !== PHP_SAPI) {
+            // Send extra whitespace before flushing
+            if ($dummyFlush) {
+                static::pureEcho(str_repeat(' ', static::getDummyBufferLength()));
+            }
+
+            // Wrap message into the "<script>" tag
+            if (isset($jsOutput)) {
+                $message = static::getJSMessage($message, $jsOutput);
+            }
+        }
+
+        // Print message
+        static::pureEcho($message);
+    }
+
+    /**
      * Echoes the message if it is not in AJAX mode
      *
      * @param string $message Message
@@ -177,14 +204,14 @@ abstract class Operator extends \Includes\Utils\AUtils
      */
     public static function showMessage($message, $addNewline = true, $addJS = true)
     {
-        static::flush(
+        static::echoWithoutFlush(
             $message,
             true,
             $addJS ? 'document.write(\'' . $message . '\');' : null
         );
 
         if ($addNewline) {
-            static::flush(LC_EOL);
+            static::echoWithoutFlush(LC_EOL);
         }
     }
 
@@ -296,5 +323,29 @@ abstract class Operator extends \Includes\Utils\AUtils
     public static function getServiceHeader()
     {
         return '# <' . '?php if (!defined(\'LC_DS\')) { die(); } ?' . '>' . PHP_EOL . PHP_EOL;
+    }
+
+    /**
+     * @param int $length
+     *
+     * @return string
+     */
+    public static function generateHash($length = 64)
+    {
+        if ($length <= 0) {
+            return '';
+        }
+
+        if (function_exists('openssl_random_pseudo_bytes')) {
+            return mb_substr(bin2hex(openssl_random_pseudo_bytes(round($length/2))), 0, $length);
+        }
+
+        $result = md5(microtime(true) + mt_rand(0, 1000000));
+
+        while (mb_strlen($result) < $length) {
+            $result .= md5(microtime(true) + mt_rand(0, 1000000));
+        }
+
+        return mb_substr($result, 0, $length);
     }
 }

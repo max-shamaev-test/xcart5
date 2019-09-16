@@ -17,96 +17,6 @@ abstract class Main extends \XLite\Module\AModule
 {
     const PLATFORM_ID = 'A1PQFSSKP8TT2U';
 
-    /**
-     * Author name
-     *
-     * @return string
-     */
-    public static function getAuthorName()
-    {
-        return 'Amazon Payments';
-    }
-
-    /**
-     * Get module major version
-     *
-     * @return string
-     */
-    public static function getMajorVersion()
-    {
-        return '5.3';
-    }
-
-    /**
-     * Module version
-     *
-     * @return string
-     */
-    public static function getMinorVersion()
-    {
-        return '5';
-    }
-
-    /**
-     * Get module build number (4th number in the version)
-     *
-     * @return string
-     */
-    public static function getBuildVersion()
-    {
-        return '7';
-    }
-
-    /**
-     * Get minor core version which is required for the module activation
-     *
-     * @return string
-     */
-    public static function getMinorRequiredCoreVersion()
-    {
-        return '3';
-    }
-
-    /**
-     * Module name
-     *
-     * @return string
-     */
-    public static function getModuleName()
-    {
-        return 'Amazon Pay';
-    }
-
-    /**
-     * Module description
-     *
-     * @return string
-     */
-    public static function getDescription()
-    {
-        return 'This module enables Amazon Pay functionality';
-    }
-
-    /**
-     * The module is defined as the payment module
-     *
-     * @return integer|null
-     */
-    public static function getModuleType()
-    {
-        return static::MODULE_TYPE_PAYMENT;
-    }
-
-    /**
-     * Determines if we need to show settings form link
-     *
-     * @return boolean
-     */
-    public static function showSettingsForm()
-    {
-        return false;
-    }
-
     public static function log($message)
     {
         \XLite\Logger::logCustom('amazon_pa', $message);
@@ -152,18 +62,17 @@ abstract class Main extends \XLite\Module\AModule
 
             static::includeClient();
 
-            return new \PayWithAmazon\Client($clientConfig);
+            return new \AmazonPay\Client($clientConfig);
         }, [__CLASS__, __FUNCTION__]);
     }
 
     public static function includeClient()
     {
-        require_once LC_DIR_MODULES . 'Amazon' . LC_DS . 'PayWithAmazon' . LC_DS . 'lib' . LC_DS . 'PayWithAmazon' . LC_DS . 'Client.php';
+        require_once LC_DIR_MODULES . 'Amazon' . LC_DS . 'PayWithAmazon' . LC_DS . 'lib' . LC_DS . 'vendor' . LC_DS . 'amzn' . LC_DS . 'amazon-pay-sdk-php' . LC_DS . 'AmazonPay' . LC_DS . 'Client.php';
     }
 
     public static function includeIPNHandler()
     {
-        require_once LC_DIR_MODULES . 'Amazon' . LC_DS . 'PayWithAmazon' . LC_DS . 'lib' . LC_DS . 'PayWithAmazon' . LC_DS . 'IpnHandler.php';
+        require_once LC_DIR_MODULES . 'Amazon' . LC_DS . 'PayWithAmazon' . LC_DS . 'lib' . LC_DS . 'vendor' . LC_DS . 'amzn' . LC_DS . 'amazon-pay-sdk-php' . LC_DS . 'AmazonPay' . LC_DS . 'IpnHandler.php';
     }
-
 }

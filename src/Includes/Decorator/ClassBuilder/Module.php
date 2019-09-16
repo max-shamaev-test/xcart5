@@ -9,6 +9,7 @@
 namespace Includes\Decorator\ClassBuilder;
 
 use Includes\ClassPathResolverInterface;
+use Includes\Utils\Module\Manager;
 
 class Module implements ModuleInterface
 {
@@ -35,6 +36,8 @@ class Module implements ModuleInterface
 
     public function getPath()
     {
-        return $this->sourceClassPathResolver->getFullPath('XLite/Module/' . str_replace('\\', '/', $this->module));
+        return $this->sourceClassPathResolver->getFullPath(
+            \Includes\Utils\Module\Module::getRelativeSourcePath($this->module)
+        );
     }
 }

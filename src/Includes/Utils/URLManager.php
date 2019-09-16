@@ -263,4 +263,24 @@ abstract class URLManager extends \Includes\Utils\AUtils
     {
         return \Includes\Utils\ConfigParser::getOptions($option);
     }
+
+    /**
+     * @param string $url
+     * @param string $param URL parameter to be deleted from URL
+     *
+     * @return string
+     */
+    public static function getUrlWithoutParam($url, $param)
+    {
+        $urlParts = parse_url($url);
+        parse_str($urlParts['query'], $queryParams);
+
+        if (array_key_exists($param, $queryParams)) {
+            unset($queryParams[$param]);
+        }
+
+        $queryString = http_build_query($queryParams);
+
+        return (strlen($queryString) > 0) ? $urlParts['path'] . '?' . $queryString : $urlParts['path'];
+    }
 }

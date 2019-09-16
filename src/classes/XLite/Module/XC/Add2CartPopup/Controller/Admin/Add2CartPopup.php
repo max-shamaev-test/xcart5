@@ -8,6 +8,9 @@
 
 namespace XLite\Module\XC\Add2CartPopup\Controller\Admin;
 
+use Includes\Utils\Module\Manager;
+use Includes\Utils\Module\Module;
+
 /**
  * Add2CartPopup settings page controller
  */
@@ -30,11 +33,7 @@ class Add2CartPopup extends \XLite\Controller\Admin\AAdmin
      */
     public function getModuleId()
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Module')->findOneBy(array(
-            'author'            => 'XC',
-            'name'              => 'Add2CartPopup',
-            'fromMarketplace'   => false,
-        ))->getModuleID();
+        return Module::buildId('XC', 'Add2CartPopup');
     }
 
     /**
@@ -48,18 +47,18 @@ class Add2CartPopup extends \XLite\Controller\Admin\AAdmin
 
         $postedData = \XLite\Core\Request::getInstance()->getData();
 
-        $a2cpEnableForDropping = !empty($postedData['a2cp_enable_for_dropping']);
+        // $a2cpEnableForDropping = !empty($postedData['a2cp_enable_for_dropping']);
 
-        if ($a2cpEnableForDropping != \XLite\Core\Config::getInstance()->XC->Add2CartPopup->a2cp_enable_for_dropping) {
-            \XLite\Core\Database::getRepo('\XLite\Model\Config')->createOption(
-                array(
-                    'category' => 'XC\\Add2CartPopup',
-                    'name'     => 'a2cp_enable_for_dropping',
-                    'value'    => $a2cpEnableForDropping ? 'Y' : 'N',
-                )
-            );
-            $isUpdated = true;
-        }
+        // if ($a2cpEnableForDropping != \XLite\Core\Config::getInstance()->XC->Add2CartPopup->a2cp_enable_for_dropping) {
+        //     \XLite\Core\Database::getRepo('\XLite\Model\Config')->createOption(
+        //         array(
+        //             'category' => 'XC\\Add2CartPopup',
+        //             'name'     => 'a2cp_enable_for_dropping',
+        //             'value'    => $a2cpEnableForDropping ? 'Y' : 'N',
+        //         )
+        //     );
+        //     $isUpdated = true;
+        // }
 
         $options = array();
 

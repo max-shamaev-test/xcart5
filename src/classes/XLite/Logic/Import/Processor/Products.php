@@ -1634,13 +1634,11 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
                 // Try to get value from current product name
                 $value = $model->getName();
             }
-        } else {
-            $value = preg_replace('/\.html$/', '', $value);
-        }
 
-        /** @var \XLite\Model\Repo\CleanURL $repo */
-        $repo = \XLite\Core\Database::getRepo('XLite\Model\CleanURL');
-        $value = $repo->generateCleanURL($model, $value);
+            /** @var \XLite\Model\Repo\CleanURL $repo */
+            $repo = \XLite\Core\Database::getRepo('XLite\Model\CleanURL');
+            $value = $repo->generateCleanURL($model, $value);
+        }
 
         if (!\XLite\Core\Converter::isEmptyString($value)) {
             $this->updateCleanURL($model, $value);

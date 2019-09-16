@@ -76,6 +76,7 @@ abstract class APager extends \XLite\View\RequestHandler\ARequestHandler
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
+        $list[] = $this->getDir() . '/pager.less';
         $list[] = $this->getDir() . '/pager.css';
 
         if (!\XLite::isAdminZone()) {

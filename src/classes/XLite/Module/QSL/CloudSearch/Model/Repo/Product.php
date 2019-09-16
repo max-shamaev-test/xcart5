@@ -72,6 +72,24 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
     }
 
     /**
+     * Search result ids routine.
+     *
+     * @return \Doctrine\ORM\PersistentCollection|integer
+     */
+    protected function searchIds()
+    {
+        if ($this->isLoadProductsWithCloudSearch()) {
+            if (!isset($this->searchState['currentSearchCnd']->{Product::P_LIMIT})) {
+                $this->searchState['currentSearchCnd']->{Product::P_LIMIT} = [0, $this->searchCount()];
+            }
+
+            return $this->getCloudSearchProductIds();
+        }
+
+        return parent::searchIds();
+    }
+
+    /**
      * Prepare certain search condition
      *
      * @param QueryBuilder $queryBuilder Query builder to prepare

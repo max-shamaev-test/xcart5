@@ -8,7 +8,7 @@
  */
 
 core.bind('load', function (event) {
-  var listboxes = jQuery('.input-listbox > .listbox');
+  var listboxes = jQuery('.input-listbox .listbox');
 
   listboxes.each(function () {
     var from = $(this).find('.listbox-item.from select'),

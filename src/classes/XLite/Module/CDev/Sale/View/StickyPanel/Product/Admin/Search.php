@@ -27,7 +27,6 @@ abstract class Search extends \XLite\View\StickyPanel\Product\Admin\AAdmin imple
                 'label'         => '',
                 'style'         => 'always-enabled more-action icon-only hide-on-disable',
                 'icon-style'    => 'fa fa-percent',
-                'useCaretButton' => false,
                 'dropDirection' => 'dropup',
             ],
             'position' => 250,

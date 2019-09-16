@@ -38,6 +38,7 @@ class CodeMirror extends \XLite\View\FormField\Textarea\Simple
         ];
 
         $list[static::RESOURCE_JS][] = 'modules/XC/ThemeTweaker/form_field/codemirror.js';
+        $list[static::RESOURCE_JS][] = 'modules/XC/ThemeTweaker/codemirror/addon/display/placeholder.js';
 
         $mode = $this->getParam(static::PARAM_CODE_MODE);
 

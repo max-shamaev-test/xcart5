@@ -12,7 +12,7 @@ jQuery().ready(
     jQuery('div.product-class-text button').click(
       function () {
         jQuery('div.product-class-text').hide();
-        jQuery('div.product-class-select').attr('style', 'display:table');
+        jQuery('div.product-class-select-container').show();
         return false;
       }
     );

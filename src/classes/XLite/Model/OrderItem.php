@@ -114,6 +114,15 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
     protected $amount = 1;
 
     /**
+     * Item quantity
+     *
+     * @var integer
+     *
+     * @Column (type="integer")
+     */
+    protected $backorderedAmount = 0;
+
+    /**
      * Item order
      *
      * @var \XLite\Model\Order
@@ -321,6 +330,16 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
     }
 
     /**
+     * Get item product id if it exists
+     *
+     * @return int|null
+     */
+    public function getProductId()
+    {
+        return $this->isDeleted() ? null : $this->getObject()->getProductId();
+    }
+
+    /**
      * Save some fields from product
      *
      * @param \XLite\Model\Product $product Product to set OPTIONAL
@@ -395,6 +414,19 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
         }
 
         $this->amount = $amount;
+    }
+
+    /**
+     * Set Backordered Amount
+     *
+     * @param int $backorderedAmount
+     *
+     * @return $this
+     */
+    public function setBackorderedAmount($backorderedAmount)
+    {
+        $this->backorderedAmount = $backorderedAmount;
+        return $this;
     }
 
     /**
@@ -917,7 +949,7 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
             'item_id'     => $this->getItemId(),
             'key'         => $this->getKey(),
             'object_type' => static::PRODUCT_TYPE,
-            'object_id'   => $this->getProduct()->getId(),
+            'object_id'   => $this->getProductId(),
         );
     }
 
@@ -1097,6 +1129,16 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
     }
 
     /**
+     * Get item_id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->getItemId();
+    }
+
+    /**
      * Set name
      *
      * @param string $name
@@ -1185,6 +1227,16 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
     }
 
     /**
+     * Return BackorderedAmount
+     *
+     * @return int
+     */
+    public function getBackorderedAmount()
+    {
+        return $this->backorderedAmount;
+    }
+
+    /**
      * Get total
      *
      * @return float
@@ -1266,5 +1318,23 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
     public function getAttributeValues()
     {
         return $this->attributeValues;
+    }
+
+    /**
+     * Release backorder
+     */
+    public function releaseBackorder()
+    {
+        $this->setBackorderedAmount(0);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isBackordered()
+    {
+        return $this->getOrder()
+            && $this->getOrder()->isBackordered()
+            && $this->getBackorderedAmount();
     }
 }

@@ -176,7 +176,7 @@ class PackingSlip extends \XLite\View\AView
      *
      * @return array
      */
-    protected function getAddressSectionData(\XLite\Model\Address $address, $showEmpty = false)
+    protected function getAddressSectionData(\XLite\Model\Address $address = null, $showEmpty = false)
     {
         $data = parent::getAddressSectionData($address, $showEmpty);
         $result = array();

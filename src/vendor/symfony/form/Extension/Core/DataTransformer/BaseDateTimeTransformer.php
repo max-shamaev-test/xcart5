@@ -13,41 +13,29 @@ namespace Symfony\Component\Form\Extension\Core\DataTransformer;
 
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
-use Symfony\Component\Form\Exception\UnexpectedTypeException;
 
 abstract class BaseDateTimeTransformer implements DataTransformerInterface
 {
-    protected static $formats = array(
+    protected static $formats = [
         \IntlDateFormatter::NONE,
         \IntlDateFormatter::FULL,
         \IntlDateFormatter::LONG,
         \IntlDateFormatter::MEDIUM,
         \IntlDateFormatter::SHORT,
-    );
+    ];
 
     protected $inputTimezone;
 
     protected $outputTimezone;
 
     /**
-     * Constructor.
-     *
      * @param string $inputTimezone  The name of the input timezone
      * @param string $outputTimezone The name of the output timezone
      *
-     * @throws UnexpectedTypeException  if a timezone is not a string
      * @throws InvalidArgumentException if a timezone is not valid
      */
-    public function __construct($inputTimezone = null, $outputTimezone = null)
+    public function __construct(string $inputTimezone = null, string $outputTimezone = null)
     {
-        if (null !== $inputTimezone && !is_string($inputTimezone)) {
-            throw new UnexpectedTypeException($inputTimezone, 'string');
-        }
-
-        if (null !== $outputTimezone && !is_string($outputTimezone)) {
-            throw new UnexpectedTypeException($outputTimezone, 'string');
-        }
-
         $this->inputTimezone = $inputTimezone ?: date_default_timezone_get();
         $this->outputTimezone = $outputTimezone ?: date_default_timezone_get();
 
