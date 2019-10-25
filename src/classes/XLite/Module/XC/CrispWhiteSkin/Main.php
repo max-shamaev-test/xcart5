@@ -84,16 +84,6 @@ abstract class Main extends \XLite\Module\AModuleSkin
         return true;
     }
 
-    /**
-     * Check if skin supports preloaded images
-     *
-     * @return boolean
-     */
-    public static function isUsePreloadedImages()
-    {
-        return true;
-    }
-
     protected static function moveTemplatesInLists()
     {
         $templates = [

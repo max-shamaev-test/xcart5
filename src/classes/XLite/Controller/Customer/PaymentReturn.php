@@ -47,6 +47,20 @@ class PaymentReturn extends \XLite\Controller\Customer\ACheckoutReturn
     }
 
     /**
+     * @param $txn
+     * @param $urlParams
+     *
+     * @return string
+     */
+    protected function getCheckoutReturnURL(\XLite\Model\Payment\Transaction $txn, $urlParams)
+    {
+        return $this->getShopURL(
+            $this->buildURL('checkout', 'return', $urlParams),
+            \XLite\Core\Request::getInstance()->isHTTPS() || \XLite\Core\Config::getInstance()->Security->customer_security
+        );
+    }
+
+    /**
      * Process return
      *
      * @return void
@@ -75,10 +89,7 @@ class PaymentReturn extends \XLite\Controller\Customer\ACheckoutReturn
 
             \XLite\Core\Database::getEM()->flush();
 
-            $url = $this->getShopURL(
-                $this->buildURL('checkout', 'return', $urlParams),
-                \XLite\Core\Request::getInstance()->isHTTPS() || \XLite\Core\Config::getInstance()->Security->customer_security
-            );
+            $url = $this->getCheckoutReturnURL($txn, $urlParams);
 
             switch ($processor->getReturnType()) {
                 case \XLite\Model\Payment\Base\WebBased::RETURN_TYPE_HTML_REDIRECT:

@@ -157,7 +157,7 @@ class Request extends \XLite\Base\Singleton
 
         $this->nonFilteredData = array_replace_recursive($this->data, $this->prepare($data));
 
-        $this->data = $this->filterData($this->nonFilteredData);
+        $this->data = $this->normalizeRequestData($this->filterData($this->nonFilteredData));
     }
 
     /**
@@ -461,6 +461,14 @@ class Request extends \XLite\Base\Singleton
      */
     protected function normalizeRequestData($request)
     {
+        if (is_array($request)) {
+            array_walk_recursive($request, static function (&$item) {
+                $item = \XLite\Core\Converter::filterCurlyBrackets($item);
+            });
+        } else {
+            $request = \XLite\Core\Converter::filterCurlyBrackets($request);
+        }
+
         return $request;
     }
 
@@ -767,34 +775,25 @@ class Request extends \XLite\Base\Singleton
             'X-Cart Catalog Generator',
         ),
         'Google'        => array(
-            'Googlebot',
             'Mediapartners-Google',
-            'Googlebot-Mobile',
-            'Googlebot-Image',
-            'Adsbot-Google',
             'Google Page Speed Insights',
+            'Google-Adwords-Instant',
+        ),
+        'Yandex'         => array(
+            'YandexImages',
+            'YandexMetrika',
+            'YandexImageResizer',
+            'YandexVideoParser',
         ),
         'Yahoo'            => array(
             'Slurp',
             'YahooSeeker',
-        ),
-        'Microsoft'        => array(
-            'MSNBot',
-            'MSNBot-Media',
-            'MSNBot-NewsBlogs',
-            'MSNBot-Products',
-            'MSNBot-Academic',
-            'bingbot',
-            'adidxbot',
         ),
         'Ask'            => array(
             'Teoma',
         ),
         'Baidu'          => array(
             'baiduspider',
-        ),
-        'dotnetdotcom.org' => array(
-            'dotbot',
         ),
         'Qihoo' => array(
             'Qihoo',
@@ -811,14 +810,18 @@ class Request extends \XLite\Base\Singleton
         'NHN Corporation' => array(
             'Yeti',
         ),
-        'NetEase Inc' => array(
-           'YodaoBot',
-        ),
-        'MJ12bot' => array(
-           'MJ12bot',
-        ),
-        'AhrefsBot' => array(
-           'AhrefsBot',
+        'other' => array(
+            'special_archiver',
+            'SEOkicks',
+            'idmarch',
+            'Qwantify',
+            'TagVisit',
+            'FastCrawler',
+            'Pandalytics',
+            'Veooz',
+            'Mappy',
+            'Nmap Scripting Engine',
+            'linkfluence.com',
         ),
     );
 
@@ -861,6 +864,10 @@ class Request extends \XLite\Base\Singleton
     protected function detectBot()
     {
         $result = false;
+
+        if (false !== stristr($_SERVER['HTTP_USER_AGENT'], 'bot')) {
+            return true;
+        }
 
         foreach ($this->botSignatures as $name => $signatures) {
             foreach ($signatures as $signature) {

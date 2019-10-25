@@ -97,8 +97,6 @@ class MarketplaceShop
         );
     }
 
-    /** @noinspection MoreThanThreeArgumentsInspection */
-
     /**
      * @param string $xcProductId
      * @param string $returnUrl
@@ -121,6 +119,60 @@ class MarketplaceShop
         }
 
         $params    = $this->addIdToParamsIfNeeded('add_1', $xcProductId, $params, $ignoreId);
+        $params    = $this->prepareParams($params, $commonParams);
+        $httpQuery = $this->buildParamsHttpQuery($params);
+
+        return 'https://' . Constant::XB_ENDPOINT . '?' . $httpQuery;
+    }
+
+    /**
+     * @param string $prolongationId
+     * @param string $license
+     * @param string $returnUrl
+     * @param array  $params
+     * @param bool   $ignoreId
+     *
+     * @return string
+     */
+    public function getRenewalURL($prolongationId, $license, $returnUrl, array $params = [], $ignoreId = false)
+    {
+        $commonParams = [
+            'target'           => 'generate_invoice',
+            'action'           => 'buy',
+            'proxy_checkout'   => 1,
+            'inapp_return_url' => $returnUrl,
+            'add_1'            => $prolongationId,
+            'lickey_1'         => md5($license),
+        ];
+
+        $params    = $this->prepareParams($params, $commonParams);
+        $httpQuery = $this->buildParamsHttpQuery($params);
+
+        return 'https://' . Constant::XB_ENDPOINT . '?' . $httpQuery;
+    }
+
+    /**
+     * @param string $keys
+     * @param string $returnUrl
+     * @param array  $params
+     * @param bool   $ignoreId
+     *
+     * @return string
+     */
+    public function getRenewalAllURL($keys, $returnUrl, array $params = [], $ignoreId = false)
+    {
+        $commonParams = [
+            'target'           => 'generate_invoice',
+            'action'           => 'buy',
+            'proxy_checkout'   => 1,
+            'inapp_return_url' => $returnUrl
+        ];
+
+        foreach ($keys as $index => $key) {
+            $commonParams['add_' . ($index + 1)] = $key['prolongKey'];
+            $commonParams['lickey_' . ($index + 1)] = $key['keyValue'];
+        }
+
         $params    = $this->prepareParams($params, $commonParams);
         $httpQuery = $this->buildParamsHttpQuery($params);
 

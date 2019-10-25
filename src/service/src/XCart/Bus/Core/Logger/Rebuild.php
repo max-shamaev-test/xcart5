@@ -7,6 +7,9 @@
 namespace XCart\Bus\Core\Logger;
 
 use Monolog\Formatter\FormatterInterface;
+use Psr\Log\LoggerInterface;
+use Silex\Application;
+use XCart\Bus\Query\Data\ScenarioDataSource;
 use XCart\SilexAnnotations\Annotations\Service;
 
 /**
@@ -14,11 +17,29 @@ use XCart\SilexAnnotations\Annotations\Service;
  */
 class Rebuild extends ALogger
 {
+    private static $scenarioDataSource;
+
+    /**
+     * @param Application $app
+     *
+     * @return LoggerInterface
+     *
+     * @Service\Constructor
+     * @codeCoverageIgnore
+     */
+    public static function serviceConstructor(
+        Application $app
+    ) {
+        static::$scenarioDataSource = $app[ScenarioDataSource::class];
+
+        return parent::serviceConstructor($app);
+    }
+
     /**
      * @return FormatterInterface
      */
-    protected function getFormatter()
+    protected function getFormatter(): FormatterInterface
     {
-        return new RebuildFormatter();
+        return new RebuildFormatter(static::$scenarioDataSource);
     }
 }

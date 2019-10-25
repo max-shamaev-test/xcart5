@@ -14,14 +14,14 @@ class Height extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Field\AField
     {
         return [
             $name => [
-                'label'    => static::t('Height'),
-                'type'     => 'XLite\View\FormModel\Type\SymbolType',
-                'symbol'   => \XLite\Core\Config::getInstance()->Units->dim_symbol,
-                'pattern'  => [
+                'label'             => static::t('Height'),
+                'type'              => 'XLite\View\FormModel\Type\SymbolType',
+                'symbol'            => \XLite\Core\Config::getInstance()->Units->dim_symbol,
+                'inputmask_pattern' => [
                     'alias'      => 'decimal',
                     'rightAlign' => false,
                 ],
-                'position' => isset($options['position']) ? $options['position'] : 0,
+                'position'          => isset($options['position']) ? $options['position'] : 0,
             ],
         ];
     }

@@ -4,4 +4,4 @@
 
 require_once __DIR__ . '/composer/autoload_real.php';
 
-return ComposerAutoloaderInitXCart-SUS::getLoader();
+return ComposerAutoloaderInitXCartSUS::getLoader();

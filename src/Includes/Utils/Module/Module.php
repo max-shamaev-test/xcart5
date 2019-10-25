@@ -487,6 +487,14 @@ class Module extends PropertyBag
     }
 
     /**
+     * @return string
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
+    /**
      * @return bool
      */
     public function isSkin()

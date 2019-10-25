@@ -562,11 +562,14 @@ class Settings extends \XLite\Controller\Admin\AAdmin
         $explanation = '';
         switch ($code) {
             case 500:
-                $explanation .= ': Internal server error';
+                $explanation .= 'Internal server error';
+                break;
+            case 404:
+                $explanation .= 'Page not found';
                 break;
         }
 
-        return static::t('Error code explanation:'). $code . ' '. $explanation;
+        return static::t('Error code explanation:') . ' ' . $code . ' '. $explanation;
     }
 
     /**

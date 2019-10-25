@@ -83,10 +83,10 @@ class UpdateModulesList implements StepInterface
     {
         $transitions = $this->getTransitions($scriptState);
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'          => $scriptState->id,
                 'transitions' => $transitions,
             ]
         );
@@ -120,12 +120,16 @@ class UpdateModulesList implements StepInterface
 
         $remainTransitions = $state->remainTransitions;
 
-        $modulesList = $this->getActualModulesList($remainTransitions);
-        $result      = $this->executeUpdate($modulesList);
+        $modulesList    = $this->getActualModulesList($remainTransitions);
+        $integratedList = $this->getIntegratedModulesList();
+        $result         = $this->executeUpdate($modulesList, $integratedList);
+
+        $this->installedModulesDataSource->updateModulesData();
 
         $state->data = [
-            'cacheId' => $result['cacheId'],
-            'list'    => $modulesList,
+            'cacheId'        => $result['cacheId'],
+            'list'           => $modulesList,
+            'integratedList' => $integratedList,
         ];
 
         $state->finishedTransitions = $remainTransitions;
@@ -165,8 +169,16 @@ class UpdateModulesList implements StepInterface
                 continue;
             }
 
+            if ($module->id === 'CDev-Core') {
+                continue;
+            }
+
             if (!isset($result[$module->author])) {
                 $result[$module->author] = [];
+            }
+
+            if ($module->isSystem) {
+                $module->enabled = !$GLOBALS['config']->getOption('performance', 'ignore_system_modules');
             }
 
             $result[$module->author][$module->name] = $module->enabled;
@@ -193,37 +205,88 @@ class UpdateModulesList implements StepInterface
     }
 
     /**
-     * @param $list
+     * @return array
+     */
+    private function getIntegratedModulesList(): array
+    {
+        $result = [];
+
+        foreach ($this->installedModulesDataSource->getAll() as $module) {
+            /** @var Module $module */
+            if ($module->id === 'CDev-Core') {
+                continue;
+            }
+
+            if ($module->id === 'XC-Service') {
+                continue;
+            }
+
+            if ($module->integrated) {
+                if (!isset($result[$module->author])) {
+                    $result[$module->author] = [];
+                }
+
+                if ($module->isSystem) {
+                    $module->enabled = !$GLOBALS['config']->getOption('performance', 'ignore_system_modules');
+                    $result[$module->author][$module->name] = $module->enabled;
+                } else {
+                    $result[$module->author][$module->name] = true;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array $list
+     * @param array $integratedList
      *
      * @return array
      * @throws RebuildException
      */
-    private function executeUpdate($list): ?array
+    private function executeUpdate($list, $integratedList): ?array
     {
         try {
             $this->logger->debug(
-                sprintf('Send actual modules list'),
+                'Send actual modules list',
                 [
-                    'id'           => $this->rebuildId,
-                    'modules_list' => $list,
+                    'modules_list'    => $list,
+                    'integrated_list' => $integratedList,
                 ]
             );
 
             $response = $this->client->executeRebuildRequest(
                 ['rebuildId' => $this->rebuildId],
-                ['modules_list' => $list]
+                ['modules_list' => $list, 'integrated_list' => $integratedList]
             );
 
             if (isset($response['errors'])) {
+                $this->logger->critical(
+                    'Failed to update modules list',
+                    [
+                        'errors' => $response['errors'],
+                    ]
+                );
+
                 throw AbortException::fromUpdateModulesListStepUpdateError($response['errors']);
             }
 
             return $response;
 
         } catch (ParseException $e) {
+            $this->logger->critical(
+                sprintf('Failed to update modules list: %s', $e->getMessage()),
+                [
+                    'response' => $e->getResponse()->getBody(),
+                ]
+            );
+
             throw AbortException::fromUpdateModulesListStepWrongResponse($e);
 
         } catch (Exception $e) {
+            $this->logger->critical(sprintf('Failed to update modules list: %s', $e->getMessage()));
+
             throw new AbortException($e->getMessage(), $e->getCode(), $e);
         }
     }

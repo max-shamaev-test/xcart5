@@ -9,7 +9,10 @@
 namespace XCart\Bus\Rebuild\Executor\Step;
 
 use Psr\Log\LoggerInterface;
+use XCart\Bus\Domain\Module;
 use XCart\Bus\Exception\RebuildException;
+use XCart\Bus\Query\Context;
+use XCart\Bus\Query\Data\ModulesDataSource;
 use XCart\Bus\Rebuild\Executor\ScriptState;
 use XCart\Bus\Rebuild\Executor\Step\Execute\CheckPacks;
 use XCart\Bus\Rebuild\Executor\StepState;
@@ -18,22 +21,32 @@ use XCart\Bus\Rebuild\Scenario\ChangeUnitProcessor;
 abstract class ANote implements StepInterface
 {
     /**
-     * @var string
-     */
-    private $rebuildId;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
 
     /**
-     * @param LoggerInterface $logger
+     * @var Context
+     */
+    protected $context;
+
+    /**
+     * @var ModulesDataSource
+     */
+    private $modulesDataSource;
+
+    /**
+     * @param ModulesDataSource $modulesDataSource
+     * @param Context           $context
      */
     public function __construct(
+        ModulesDataSource $modulesDataSource,
+        Context $context,
         LoggerInterface $logger
     ) {
-        $this->logger = $logger;
+        $this->logger            = $logger;
+        $this->context           = $context;
+        $this->modulesDataSource = $modulesDataSource;
     }
 
     /**
@@ -58,10 +71,10 @@ abstract class ANote implements StepInterface
     {
         $transitions = $this->getTransitions($scriptState);
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'          => $scriptState->id,
                 'transitions' => $transitions,
             ]
         );
@@ -92,8 +105,6 @@ abstract class ANote implements StepInterface
      */
     public function execute(StepState $state, $action = self::ACTION_EXECUTE, array $params = []): StepState
     {
-        $this->rebuildId = $state->rebuildId;
-
         if ($action === self::ACTION_EXECUTE) {
             $state = $this->processTransitions($state);
 
@@ -126,6 +137,8 @@ abstract class ANote implements StepInterface
 
     /**
      * @param array $transition
+     *
+     * @throws RebuildException
      */
     abstract protected function reportNotes($state): void;
 
@@ -224,15 +237,30 @@ abstract class ANote implements StepInterface
         foreach ($remainTransitions as $transition) {
             $id = $transition['id'];
 
-            foreach ($transition['remain_notes'] as $noteId => $note) {
-                $this->logger->debug(
-                    sprintf('Get note for transition %s (%s)', $id, $note),
-                    [
-                        'id' => $this->rebuildId,
-                    ]
-                );
+            /** @var Module $module */
+            $module = $this->modulesDataSource->findOne($id);
 
-                $data[$id][] = file_get_contents($transition['pack_dir'] . $note);
+            foreach ($transition['remain_notes'] as $noteId => $note) {
+                $this->logger->debug(sprintf('Get note for transition %s (%s)', $id, $note));
+
+                try {
+                    $noteContent = file_get_contents($transition['pack_dir'] . $note);
+                } catch (Exception $exception) {
+                    $this->logger->critical(
+                        sprintf('File read error (%s): (%s)', $transition['pack_dir'] . $note, $exception->getMessage())
+                    );
+                }
+
+                if ($noteContent === false) {
+                    $this->logger->critical(sprintf('File read error (%s)', $transition['pack_dir'] . $note));
+                } else {
+                    if (empty($data[$id])) {
+                        $data[$id]['module'] = [$module->authorName, $module->moduleName];
+                    }
+
+                    $data[$id]['note'][] = $noteContent;
+                }
+
                 unset($transition['remain_notes']);
             }
 

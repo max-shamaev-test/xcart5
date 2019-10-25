@@ -38,11 +38,6 @@ class ReloadPage implements StepInterface
     private $logger;
 
     /**
-     * @var string
-     */
-    private $rebuildId;
-
-    /**
      * @param Application     $app
      * @param LoggerInterface $logger
      *
@@ -91,12 +86,7 @@ class ReloadPage implements StepInterface
      */
     public function initialize(ScriptState $scriptState, StepState $stepState = null): StepState
     {
-        $this->logger->debug(
-            __METHOD__,
-            [
-                'id' => $scriptState->id,
-            ]
-        );
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
 
         $state = new StepState([
             'id'                  => static::class,
@@ -124,27 +114,15 @@ class ReloadPage implements StepInterface
      */
     public function execute(StepState $state, $action = self::ACTION_EXECUTE, array $params = []): StepState
     {
-        $this->rebuildId = $state->rebuildId;
-
         if ($action === self::ACTION_EXECUTE) {
             $this->cacheProvider->flushAll();
 
-            $this->logger->debug(
-                'Request page reloading',
-                [
-                    'id' => $this->rebuildId,
-                ]
-            );
+            $this->logger->debug('Request page reloading');
 
             throw HoldException::fromReloadPageStepReload($state);
         }
 
-        $this->logger->debug(
-            sprintf('Page reloaded'),
-            [
-                'id' => $this->rebuildId,
-            ]
-        );
+        $this->logger->debug(sprintf('Page reloaded'));
 
         $state->state = StepState::STATE_FINISHED_SUCCESSFULLY;
 

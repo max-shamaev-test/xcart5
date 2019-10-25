@@ -191,7 +191,7 @@ class QuickData extends \XLite\Base\Singleton implements \Countable
             $data->setMembership($membership);
             $product->addQuickData($data);
         }
-        $data->setPrice($product->getQuickDataPrice());
+        $data->setPrice(\XLite::getInstance()->getCurrency()->roundValue($product->getQuickDataPrice()));
 
         return $data;
     }

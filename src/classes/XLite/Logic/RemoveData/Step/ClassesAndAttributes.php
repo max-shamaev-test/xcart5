@@ -54,6 +54,21 @@ class ClassesAndAttributes extends AStep
      */
     protected function processModel(\XLite\Model\AEntity $model)
     {
+        if ($model instanceof \XLite\Model\ProductClass) {
+            $em = \XLite\Core\Database::getEM();
+            $identityMap = $em->getUnitOfWork()->getIdentityMap();
+
+            if (isset($identityMap['XLite\Model\Product'])) {
+                foreach ($identityMap['XLite\Model\Product'] as $product) {
+                    if ($product->getProductClass()
+                        && $product->getProductClass()->getId() == $model->getId()
+                    ) {
+                        $product->setProductClass(null, false);
+                    }
+                }
+            }
+        }
+
         $model->getRepository()->delete($model, false);
     }
 

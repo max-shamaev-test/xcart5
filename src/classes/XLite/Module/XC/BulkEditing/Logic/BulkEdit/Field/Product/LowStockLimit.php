@@ -14,13 +14,13 @@ class LowStockLimit extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Field\AF
     {
         return [
             $name => [
-                'label'    => static::t('Low limit quantity'),
-                'type'     => 'XLite\View\FormModel\Type\PatternType',
-                'pattern'  => [
+                'label'             => static::t('Low limit quantity'),
+                'type'              => 'XLite\View\FormModel\Type\PatternType',
+                'inputmask_pattern' => [
                     'alias'      => 'integer',
                     'rightAlign' => false,
                 ],
-                'position' => isset($options['position']) ? $options['position'] : 0,
+                'position'          => isset($options['position']) ? $options['position'] : 0,
             ],
         ];
     }

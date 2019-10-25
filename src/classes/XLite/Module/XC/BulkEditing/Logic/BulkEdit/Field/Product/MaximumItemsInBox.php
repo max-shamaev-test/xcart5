@@ -14,13 +14,13 @@ class MaximumItemsInBox extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Fiel
     {
         return [
             $name => [
-                'label'    => static::t('Maximum items in box'),
-                'type'     => 'XLite\View\FormModel\Type\PatternType',
-                'pattern'  => [
+                'label'             => static::t('Maximum items in box'),
+                'type'              => 'XLite\View\FormModel\Type\PatternType',
+                'inputmask_pattern' => [
                     'alias'      => 'integer',
                     'rightAlign' => false,
                 ],
-                'position' => isset($options['position']) ? $options['position'] : 0,
+                'position'          => isset($options['position']) ? $options['position'] : 0,
             ],
         ];
     }

@@ -31,6 +31,8 @@ class CleanURL extends \XLite\Model\Repo\ARepo
     const PRODUCT_URL_FORMAT_NO_EXT = 'domain/goalproduct';
     const PRODUCT_URL_FORMAT_EXT = 'domain/goalproduct.html';
 
+    const PRODUCT_URL_CANONICAL_WITH_CATEGORY = 'domain/main_category_clean_url/product_clean_url';
+
     /**
      * Limit of iterations to generate clean URL
      */
@@ -660,7 +662,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
     protected function prepareParseURL($url, $last, $rest, $ext, $target, $params)
     {
         if ('product' === $target) {
-            if (!empty($last) && !$this->isUseCanonicalURL()) {
+            if (!empty($last)) {
                 $path = explode('/', $rest);
                 $path[] = $last;
 
@@ -823,7 +825,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
             $entity = $this->findCategoryByURL($categoryURL, $parent);
 
             if (empty($entity)) {
-                if (static::isCategoryUrlHasExt() && (!static::isCategoryUrlCanonical() || !$this->isUseCanonicalURL())) {
+                if (static::isCategoryUrlHasExt() && !static::isCategoryUrlCanonical()) {
                     $entity = $this->findCategoryByURL($categoryURL . '.' . static::CLEAN_URL_DEFAULT_EXTENSION, $parent);
                 }
 
@@ -873,12 +875,19 @@ class CleanURL extends \XLite\Model\Repo\ARepo
     {
         $queryBuilder = $this->defineFindEntityByURL('category', $url);
 
-        $queryBuilder->linkInner('c.category')
-            ->andWhere('category.parent = :parent')
-            ->setParameter('parent', $parent
-                ? $parent->getCategoryId()
-                : null)
-            ->orderBy('c.id', 'DESC');
+        if ($parent) {
+            $queryBuilder->linkInner('c.category')
+                ->andWhere('category.lpos > :parentLpos')
+                ->andWhere('category.rpos < :parentRpos')
+                ->setParameter('parentLpos', $parent->getLpos())
+                ->setParameter('parentRpos', $parent->getRpos())
+                ->orderBy('c.id', 'DESC');
+        } else {
+            $queryBuilder->linkInner('c.category')
+                ->andWhere('category.parent = :parent')
+                ->setParameter('parent', null)
+                ->orderBy('c.id', 'DESC');
+        }
 
         return $queryBuilder;
     }
@@ -944,16 +953,6 @@ class CleanURL extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * Returns 'use_canonical_urls_only' option value
-     *
-     * @return boolean
-     */
-    public function isUseCanonicalURL()
-    {
-        return (bool) \Includes\Utils\ConfigParser::getOptions(array('clean_urls', 'use_canonical_urls_only'));
-    }
-
-    /**
      * Returns 'category_clean_urls_format' option value
      *
      * @return string
@@ -970,6 +969,16 @@ class CleanURL extends \XLite\Model\Repo\ARepo
         ])
             ? $format
             : static::CATEGORY_URL_FORMAT_NON_CANONICAL_NO_EXT;
+    }
+
+    /**
+     * Returns 'use_canonical_urls_only' option value
+     *
+     * @return boolean
+     */
+    public function isUseCanonicalProductURLWithCategory()
+    {
+        return static::PRODUCT_URL_CANONICAL_WITH_CATEGORY === \Includes\Utils\ConfigParser::getOptions(array('clean_urls', 'canonical_product_clean_urls_format'));
     }
 
     /**
@@ -1036,17 +1045,6 @@ class CleanURL extends \XLite\Model\Repo\ARepo
     {
         $result = null;
 
-        if ($this->isUseCanonicalURL()) {
-            // Option use_canonical_urls_only is enabled: try to get canonical URL to redirect...
-
-            $tmp = \XLite\Core\Request::getInstance();
-
-            if ($this->isRedirectToCanonicalRequired($target, $tmp->url, $tmp->last, $tmp->rest, $tmp->ext)) {
-                list($target, $params) = $this->parseURL($tmp->url, $tmp->last, $tmp->rest, $tmp->ext);
-                $result = \XLite\Core\Converter::buildFullURL($target, '', $params);
-            }
-        }
-
         return $result;
     }
 
@@ -1081,20 +1079,18 @@ class CleanURL extends \XLite\Model\Repo\ARepo
 
             if (!empty($params['category_id'])) {
                 if ($repo->hasProduct($params['category_id'], $params['product_id'])) {
-                    if (!$this->isUseCanonicalURL()) {
-                        $categoryUrlParts = $this->getCategoryURLPath($params['category_id']);
+                    $categoryUrlParts = $this->getCategoryURLPath($params['category_id']);
 
-                        if ($this->isCategoryUrlHasExt()) {
-                            foreach ($categoryUrlParts as $k => $v) {
-                                $categoryUrlParts[$k] = str_replace('.' . static::CLEAN_URL_DEFAULT_EXTENSION, '', $v);
-                            }
+                    if ($this->isCategoryUrlHasExt()) {
+                        foreach ($categoryUrlParts as $k => $v) {
+                            $categoryUrlParts[$k] = str_replace('.' . static::CLEAN_URL_DEFAULT_EXTENSION, '', $v);
                         }
+                    }
 
-                        if ($categoryUrlParts) {
-                            $urlParts = array_merge($urlParts, $categoryUrlParts);
+                    if ($categoryUrlParts) {
+                        $urlParts = array_merge($urlParts, $categoryUrlParts);
 
-                            unset($params['category_id']);
-                        }
+                        unset($params['category_id']);
                     }
 
                 } else {
@@ -1129,6 +1125,41 @@ class CleanURL extends \XLite\Model\Repo\ARepo
         }
 
         return [$urlParts, $params];
+    }
+
+    /**
+     * Build canonical product URL
+     *
+     * @param array  $params Params
+     *
+     * @return array
+     */
+    public function buildURLProductCanonical($params)
+    {
+        list($urlParts, $params) = $this->buildURLProduct($params);
+
+        if ($this->isUseCanonicalProductURLWithCategory()) {
+            if ($product = \XLite\Core\Database::getRepo('XLite\Model\Product')->find($params['product_id'])) {
+                /** @var \XLite\Model\Product $product */
+                if ($categoryId = $product->getCategoryId()) {
+                    $categoryUrlParts = $this->getCategoryURLPath($categoryId);
+
+                    if ($categoryUrlParts && $this->isCategoryUrlHasExt()) {
+                        foreach ($categoryUrlParts as $k => $v) {
+                            $categoryUrlParts[$k] = str_replace('.' . static::CLEAN_URL_DEFAULT_EXTENSION, '', $v);
+                        }
+                    }
+
+                    if ($categoryUrlParts) {
+                        $urlParts = array_merge($urlParts, $categoryUrlParts);
+                    }
+                }
+            }
+        }
+
+        $result = implode('/', array_reverse($urlParts));
+
+        return $result;
     }
 
     /**

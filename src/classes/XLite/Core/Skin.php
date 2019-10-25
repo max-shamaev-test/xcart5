@@ -16,7 +16,6 @@ use XLite\Core\Cache\ExecuteCachedTrait;
  * Class Skin
  * @package XLite\Core
  *
- * @method isUsePreloadedImages
  * @method isUseCloudZoom
  * @method isUseLazyLoad
  */

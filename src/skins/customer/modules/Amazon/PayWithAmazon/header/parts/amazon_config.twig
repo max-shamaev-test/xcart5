@@ -22,7 +22,7 @@
       amazon.Login.setRegion('{{ amazonConfig.region }}');
       amazon.Login.setUseCookie(true);
 
-      {% if not this.isLogged() %}
+      {% if not this.isLogged() or (this.getTarget() == 'cart' and this.isAmazonReturn()) %}
       if (xliteConfig.target !== 'amazon_checkout') {
         amazon.Login.logout();
       }

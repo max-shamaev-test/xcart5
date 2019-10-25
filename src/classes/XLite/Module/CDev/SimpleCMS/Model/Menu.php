@@ -8,6 +8,7 @@
 
 namespace XLite\Module\CDev\SimpleCMS\Model;
 
+use Includes\Utils\Operator;
 use XLite\Core\Cache\ExecuteCachedTrait;
 
 /**
@@ -376,7 +377,8 @@ class Menu extends \XLite\Model\Base\I18n
      */
     public function setLink($link)
     {
-        $this->link = $link;
+        $this->link = Operator::purifyLink($link);
+
         return $this;
     }
 

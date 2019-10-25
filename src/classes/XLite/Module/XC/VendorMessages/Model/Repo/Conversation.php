@@ -107,8 +107,7 @@ class Conversation extends \XLite\Model\Repo\ARepo
                 case 'U':
                     $queryBuilder->linkInner("{$alias}.messages")
                         ->linkLeft('messages.readers', 'r0', \Doctrine\ORM\Query\Expr\Join::WITH, 'r0.reader = :reader')
-                        ->linkLeft('messages.readers', 'r1')
-                        ->andHaving('COUNT(DISTINCT(r1.id)) != COUNT(DISTINCT(r0.id)) OR COUNT(r1.id) = 0')
+                        ->andWhere('r0.id IS NULL')
                         ->setParameter('reader', \XLite\Core\Auth::getInstance()->getProfile());
                     break;
 

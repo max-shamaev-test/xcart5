@@ -15,6 +15,7 @@ use XCart\Marketplace\Parser\ParserException;
 use XCart\Marketplace\Request\AFileRequest;
 use XCart\Marketplace\Request\ARequest;
 use XCart\Marketplace\Request\Error;
+use XCart\Marketplace\Request\RequestException;
 use XCart\Marketplace\Transport\AHTTP;
 use XCart\Marketplace\Transport\Guzzle;
 use XCart\Marketplace\Transport\TransportException;
@@ -49,8 +50,6 @@ class Connector implements IConnector
 
     /**
      * @param array $config
-     *
-     * @throws Request\RequestException
      */
     public function __construct($config)
     {
@@ -63,7 +62,10 @@ class Connector implements IConnector
         $this->logger       = $config['logger'] ?? new NullLogger();
         $this->commonParams = $config['common_params'] ?? [];
 
-        $this->errorRequest = ARequest::getRequest(Error::class);
+        try {
+            $this->errorRequest = ARequest::getRequest(Error::class);
+        } catch (RequestException $exception) {
+        }
     }
 
     /**
@@ -76,7 +78,7 @@ class Connector implements IConnector
     public function getData($request)
     {
         if ($this->transport === null) {
-            $this->logger->emergency('Transport is not defined');
+            $this->logger->debug('Transport is not defined');
 
             return null;
         }
@@ -88,7 +90,7 @@ class Connector implements IConnector
         $this->lastResponse = $parsed;
 
         if (!$this->isDataValid($parsed, $request)) {
-            $this->logger->warning('Invalid data received', ['action' => $request->getAction(), 'data' => $parsed]);
+            $this->logger->critical('Invalid data received', ['action' => $request->getAction(), 'data' => $parsed]);
 
             return null;
         }
@@ -97,7 +99,7 @@ class Connector implements IConnector
             $error = $this->getParsedData($response['body'], $this->errorRequest);
             if ($this->isDataValid($error, $this->errorRequest)) {
                 $this->lastResponse = $error;
-                $this->logger->warning('Invalid data received', ['action' => $request->getAction(), 'data' => $parsed]);
+                $this->logger->critical('Invalid data received', ['action' => $request->getAction(), 'data' => $parsed]);
 
                 return null;
             }

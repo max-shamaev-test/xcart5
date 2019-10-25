@@ -372,7 +372,7 @@ class Orders extends \XLite\Logic\Export\Step\AStep
      */
     protected function getCustomerAnonymousColumnValue(array $dataset, $name, $i)
     {
-        return $dataset['model']->getOrigProfile() && $dataset['model']->getOrigProfile()->getOrder();
+        return $dataset['model']->getOrigProfile() && $dataset['model']->getOrigProfile()->getAnonymous();
     }
 
     /**

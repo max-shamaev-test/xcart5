@@ -135,7 +135,6 @@ XLite\Model\LanguageLabel:
   - { name: "Languages", translations: [{ code: en, label: "Languages" }] }
   - { name: "Help", translations: [{ code: en, label: "Help" }] }
   - { name: "Knowledge Base", translations: [{ code: en, label: "Knowledge Base" }] }
-  - { name: "Suggest an idea", translations: [{ code: en, label: "Suggest an idea" }] }
   - { name: "Report a bug", translations: [{ code: en, label: "Report a bug" }] }
   - { name: "Translations", translations: [{ code: en, label: "Translations" }] }
   - { name: "X-Cart News", translations: [{ code: en, label: "X-Cart News" }] }
@@ -255,7 +254,6 @@ XLite\Model\LanguageLabel:
   - { name: "This is a demo store with powerful X-Cart engine inside", translations: [{ code: en, label: "This is a demo store powered by X-Cart, using PHP5 templates technology and MySQL database." }] }
   - { name: "Price", translations: [{ code: en, label: "Price" }] }
   - { name: "Product name", translations: [{ code: en, label: "Product name" }] }
-  - { name: "Please, clarify your search request. Suggest your idea or contact us to get free quote for custom service", translations: [{ code: en, label: "Please let us know if you want to <a href=\"//ideas.x-cart.com/forums/229428-x-cart-5-ideas\" target=\"_blank\">suggest an idea</a> or <a href=\"//www.x-cart.com/custom-development.html\" target=\"_blank\">contact us</a> for a free quote for custom development service</a>" }] }
   - { name: "Please, clarify your search request or search in Marketplace", translations: [{ code: en, label: "Please clarify your search request or search in the <a href=\"{{marketplace}}\">Marketplace</a>" }] }
   - { name: "Select one", translations: [{ code: en, label: "Select one..." }] }
   - { name: "Other", translations: [{ code: en, label: "Other" }] }
@@ -622,9 +620,10 @@ XLite\Model\LanguageLabel:
   - { name: "City", translations: [{ code: en, label: "City" }] }
   - { name: "Clean URL", translations: [{ code: en, label: "Clean URL" }] }
   - { name: 'Enable clean URL', translations: [{ code: en, label: 'Enable clean URL' }] }
-  - { name: 'Error code explanation:', translations: [{ code: en, label: 'Error code explanation' }] }
+  - { name: 'Error code explanation:', translations: [{ code: en, label: 'Error code explanation:' }] }
+  - { name: 'Internal server error', translations: [{ code: en, label: 'Internal server error' }] }
   - { name: 'More information about clean urls in X-Cart is available in ', translations: [{ code: en, label: 'More information about clean urls in X-Cart is available in <a href="{{url}}" target="blank">{{url}}</a>' }] }
-  - { name: 'Clean_urls_error_message', translations: [{ code: en, label: 'We made a test request to <a href="{{url}}">{{url}}</a> URL and got the following result. <br>It means that your SEO-friendly URLs may not work properly after enabling.' }] }
+  - { name: 'Clean_urls_error_message', translations: [{ code: en, label: 'We made a test request to <a href="{{url}}">{{url}}</a> URL and got the following result (It means that your SEO-friendly URLs may not work properly after enabling).' }] }
   - { name: "Clean aggregation cache", translations: [{ code: en, label: "Clear aggregation cache" }] }
   - { name: "Clean widgets cache", translations: [{ code: en, label: "Clear widgets cache" }] }
   - { name: "CleanURL", translations: [{ code: en, label: "CleanURL" }] }
@@ -902,7 +901,7 @@ XLite\Model\LanguageLabel:
   - { name: "Manually defined shipping methods", translations: [{ code: en, label: "Manually defined shipping methods" }] }
   - { name: "Mark, the search engines you want to inform of the structure of your site using the site map", translations: [{ code: en, label: "Mark the search engines you want to inform of the structure of your site using the site map" }] }
   - { name: "Market price", translations: [{ code: en, label: "Market price" }] }
-  - { name: "Marketplace", translations: [{ code: en, label: "Marketplace" }] }
+  - { name: "Marketplace", translations: [{ code: en, label: "App Store" }] }
   - { name: 'Marketplace [check_addon_key]: the "{{url}}" URL requested', translations: [{ code: en, label: "Marketplace [check_addon_key]: the \"{{url}}\" URL requested" }] }
   - { name: 'Marketplace [check_for_updates]: the "{{url}}" URL requested', translations: [{ code: en, label: "Marketplace [check_for_updates]: the \"{{url}}\" URL requested" }] }
   - { name: "Marketplace [check_for_updates]: valid response received", translations: [{ code: en, label: "Marketplace [check_for_updates]: valid response received" }] }
@@ -1385,9 +1384,7 @@ XLite\Model\LanguageLabel:
   - { name: "Use a merchant account from your financial institution or choose a bundled payment solution to accept credit cards and other methods of payment on your website.", translations: [{ code: en, label: "Use a merchant account from your financial institution or choose a bundled payment solution to accept credit cards and other methods of payment on your website." }] }
   - { name: "Use a merchant account from your financial institution to accept online payments", translations: [{ code: en, label: "Use a merchant account from your financial institution to accept online payments" }] }
   - { name: "Use custom js", translations: [{ code: en, label: "Use custom js" }] }
-  - { name: "Use images lazy load preloaded", translations: [{ code: en, label: "Use blurred image placeholders for smart image loading" }] }
-  - { name: "Use images lazy load placeholder", translations: [{ code: en, label: "Use image background placeholders for smart image loading" }] }
-  - { name: "Use images lazy load help", translations: [{ code: en, label: "When enabled, pre-loaded low resolution images or single color background image placeholders are used to replace the actual full resolution images on the storefront before they are fully loaded." }] }
+  - { name: "Use lazy loading", translations: [{ code: en, label: "Use lazy loading" }] }
   - { name: "Use default logo", translations: [{ code: en, label: "Use default logo" }] }
   - { name: "Use dynamic image resizing", translations: [{ code: en, label: 'Use dynamic image resizing' }]}
   - { name: "Use dynamic image help", translations: [{ code: en, label: 'This setting determines what happens if X-Cart cannot find a previously generated resized version of an image it needs to display. If this setting is enabled, an appropriately sized version of the image is generated on the fly. If this setting is disabled, the original (non-resized) image is used.' }]}
@@ -1648,6 +1645,11 @@ XLite\Model\LanguageLabel:
   - { name: "Delete all files", translations: [{ code: en, label: "Delete all files" }] }
   - { name: "Before editing attributes specific for the chosen type you should save the changes", translations: [{ code: en, label: "Before editing attributes specific for the chosen type you should save the changes" }] }
   - { name: "Default value", translations: [{ code: en, label: "Default value" }] }
+  - { name: "Default attribute value", translations: [{ code: en, label: "Default attribute value" }] }
+  - { name: "Buyers can select an option", translations: [{ code: en, label: "Buyers can select an option" }] }
+  - { name: "No pre-defined value", translations: [{ code: en, label: "No pre-defined value" }] }
+  - { name: "Whether customers should be able to select an option they require when ordering the product, or the information is provided purely as part of product specification", translations: [{ code: en, label: "Whether customers should be able to select an option they require when ordering the product, or the information is provided purely as part of product specification. <br/>Default setting for new products. Does not change the configuration of products created previously." }] }
+  - { name: "This value will be added to new products or class assigns automatically", translations: [{ code: en, label: "This value will be added to new products or class assigns automatically" }] }
   - { name: "New value", translations: [{ code: en, label: "New value" }] }
   - { name: "New group", translations: [{ code: en, label: "New group" }] }
   - { name: "New Export", translations: [{ code: en, label: "New Export" }] }
@@ -2210,8 +2212,6 @@ XLite\Model\LanguageLabel:
   - { name: 'X expired shopping cart(s) have been successfully removed', translations: [{ code: en, label: '{{count}} expired shopping cart(s) have been successfully removed' }] }
   - { name: 'States information has been successfully deleted', translations: [{ code: en, label: 'States information has been successfully deleted' }] }
   - { name: 'Please select the states first', translations: [{ code: en, label: 'Please select the states first' }] }
-  - { name: 'Free license key for this email is already registered', translations: [{ code: en, label: 'Free license key for email <em>{{email}}</em> is already registered. Please use a different email or <a href="{{url}}">click here to get key value sent to this email address</a>' }] }
-  - { name: 'Information about free license key has been sent', translations: [{ code: en, label: 'Information about free license key has been sent to the email <em>{{email}}</em>' }] }
   - { name: 'Cart contains products with wrong quantity. Please correct this to proceed', translations: [{ code: en, label: '<p>Cart contains products with a wrong quantity. Please correct this to proceed</p>' }] }
   - { name: 'Cart contains products with wrong quantity', translations: [{ code: en, label: '<p>Cart contains products with a wrong quantity</p>' }] }
   - { name: 'Inventory tracking options', translations: [{ code: en, label: 'Inventory tracking options' }] }
@@ -2384,7 +2384,7 @@ XLite\Model\LanguageLabel:
   - { name: 'checkbox.firstlast.off', translations: [{ code: en, label: 'Last' }] }
   - { name: 'Cannot gather modules from the marketplace. Please try later.', translations: [{ code: en, label: "The Free license key cannot be activated as it is impossible to get information about the available addons from the Marketplace at the moment. Please try again later." }] }
   - { name: 'No promotion modules installed', translations: [{ code: en, label: 'No promotion modules installed' }] }
-  - { name: 'Sorting & Descriptions', translations: [{ code: en, label: 'Sorting & Descriptions' }] }
+  - { name: 'Names, descriptions & sorting', translations: [{ code: en, label: 'Names, descriptions & sorting' }] }
   - { name: 'Payment method is enabled', translations: [{ code: en, label: 'Payment method is enabled' }] }
   - { name: 'Payment method is disabled', translations: [{ code: en, label: 'Payment method is disabled' }] }
   - { name: 'You should confirm that you have created backup before upgrading the store.', translations: [{ code: en, label: 'You should confirm that you have created a backup before upgrading the store.' }] }
@@ -2506,7 +2506,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Low stock info', translations: [{ code: en, label: 'Low stock info' }] }
   - { name: 'Last year', translations: [{ code: en, label: 'Last year' }] }
   - { name: 'Security issue', translations: [{ code: en, label: 'Security issue' }] }
-  - { name: 'New modules', translations: [{ code: en, label: 'New modules' }] }
+  - { name: 'New modules', translations: [{ code: en, label: 'New addons' }] }
   - { name: 'View more addons in Marketplace', translations: [{ code: en, label: 'View more addons in Marketplace' }] }
   - { name: 'Upgrade access level has been successfully assigned to your license keys', translations: [{ code: en, label: 'Upgrade access level has been successfully assigned to your license keys' }] }
   - { name: 'Upgrade access level tooltip message', translations: [{ code: en, label: "<ul><li><b>Developer</b> level assumes the earliest access to upgrade, but the build can be unstable.</li><li><b>Merchant</b> level assumes the latest access to upgrade, but the build will be the most stable.</li></ul>" }] }
@@ -3187,8 +3187,8 @@ XLite\Model\LanguageLabel:
   - { name: 'php_gdlib.error_message_2', translations: [{ code: en, label: 'GDlib extension does not have the JPEG plugin.' }] }
 
   - { name: 'Phar extension', translations: [{ code: en, label: 'Phar extension' }] }
-  - { name: 'php_phar.error_message_1', translations: [{ code: en, label: 'Phar extension v.2.0.1 or later is required to get upgrades and install modules; otherwise, these features may not work properly.' }] }
-  - { name: 'php_phar.label_message', translations: [{ code: en, label: 'Phar extension is required for installation of external X-Cart addons and upgrades from the Marketplace.  Phar v.2.0.1 or later is recommended, otherwise this features may fail to work properly. Please contact your hosting provider''s support to have this parameter adjusted.' }] }
+  - { name: 'php_phar.error_message_1', translations: [{ code: en, label: 'Phar extension must be installed.' }] }
+  - { name: 'php_phar.label_message', translations: [{ code: en, label: 'Phar extension is required for installation of external X-Cart addons and upgrades from the Marketplace. Please contact your hosting provider''s support to have this parameter adjusted.' }] }
 
   - { name: 'HTTPS bouncers', translations: [{ code: en, label: 'HTTPS bouncers' }] }
   - { name: 'https_bouncer.error_message_1', translations: [{ code: en, label: 'libcurl extension is found but does not support secure protocols.' }] }
@@ -3251,7 +3251,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Image quality after resize', translations: [{ code: en, label: 'Image quality after resize' }] }
   - { name: 'Apply unsharp mask filter on resize', translations: [{ code: en, label: 'Apply unsharp mask filter on resize' }] }
 
-  - { name: 'attributes_popover_text', translations: [{ code: en, label: 'Clearing this field hides the option for this product only. To remove the attribute for all the products, use the <a href="{{link}}" target="_blank">"Classes&Attrubutes" page</a>.' }] }
+  - { name: 'attributes_popover_text', translations: [{ code: en, label: 'Clearing this field hides the option for this product only. To remove the attribute for all the products, use the <a href="{{link}}" target="_blank">"Classes & Attributes" page</a>.' }] }
   - { name: 'Apply attribute value changes for all the products', translations: [{ code: en, label: 'Apply attribute value changes for all the products' }] }
   - { name: 'Will be added globally', translations: [{ code: en, label: 'Will be added globally' }] }
   - { name: 'Will be added to the product class', translations: [{ code: en, label: 'Will be added to the product class' }] }
@@ -3485,7 +3485,8 @@ XLite\Model\LanguageLabel:
 
   - { name: 'Backordered', translations: [{ code: en, label: 'Backordered' }]}
   - { name: 'Backordered (qty: {{qty}})', translations: [{ code: en, label: 'Backordered (qty: {{qty}})' }]}
-  - { name: 'This order was placed at the same time as {{orders}}; as a result, some items were out of stock at the time of order placement.', translations: [{ code: en, label: 'This order was placed at the same time as {{orders}}; as a result, some items were out of stock at the time of order placement. <a href=“{{kb_link}}” target=“_blank”>Learn more</a>' }]}
+  - { name: 'This order was placed at the same time as {{orders}}; as a result, some items were out of stock at the time of order placement.', translations: [{ code: en, label: 'This order was placed at the same time as {{orders}}; as a result, some items were out of stock at the time of order placement. <a href="{{kb_link}}" target="_blank">Learn more</a>' }]}
+  - { name: 'Some items were out of stock at the time of order placement.', translations: [{ code: en, label: 'Some items were out of stock at the time of order placement. <a href="{{kb_link}}" target="_blank">Learn more</a>' }]}
   - { name: 'Discard', translations: [{ code: en, label: 'Discard' }]}
   - { name: 'The Backorder status will be reset for the items. The stock quantity of the backorder items will not change. Adjust it manually if necessary.', translations: [{ code: en, label: 'The Backorder status will be reset for the items. <br>The stock quantity of the backorder items will not change. Adjust it manually if necessary.' }]}
   - { name: 'Left in stock: {{quantity}}', translations: [{ code: en, label: 'Left in stock: {{quantity}}' }]}

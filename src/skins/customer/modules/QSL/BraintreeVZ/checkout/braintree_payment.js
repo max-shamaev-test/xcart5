@@ -55,6 +55,11 @@ var braintreePayment = {
     isButton: false,
 
     /**
+     * Flag indicating is it an anonymous customer
+     */
+    isAnonymous: false,
+
+    /**
      * PayPal button rendering attempts
      */
     paypalButtonRenderingAttempts: 0,
@@ -84,6 +89,11 @@ var braintreePayment = {
             this.log(this.nonceElement);
         }
     },
+
+    /**
+     * Credit card bin
+     */
+    bin: '',
 
     /**
      * Payment method nonce element
@@ -209,6 +219,7 @@ var braintreePayment = {
         }
 
         this.nonce = '';
+        this.bin = '';
 
         this.checkout.triggerError(message);
 
@@ -261,28 +272,6 @@ var braintreePayment = {
     },
 
     /**
-     * Add 3-D secure iframe callback
-     */
-    addFrameCallback: function addFrameCallback(error, iframe) {
-        if (error) {
-            return this.triggerError(error);
-        }
-
-        this.checkout.addFrameCallback(iframe);
-
-        this.isInProgress = false;
-    },
-
-    /**
-     * Remove 3-D secure iframe callback
-     */
-    removeFrameCallback: function removeFrameCallback() {
-        if ('function' == typeof this.checkout.removeFrameCallback) {
-            this.checkout.removeFrameCallback();
-        }
-    },
-
-    /**
      * Verify card via 3-D Secure
      */
     verifyCard: function verifyCard(options) {
@@ -290,14 +279,19 @@ var braintreePayment = {
             this.nonce = options.nonce;
         }
 
-        var options = {
+        var threeDSecureParameters = {
             amount: options.total,
             nonce: this.nonce,
-            addFrame: this.addFrameCallback.bind(this),
-            removeFrame: this.removeFrameCallback.bind(this)
+            bin: this.bin,
+            email: options.email,
+            billingAddress: options.billingAddress,
+            additionalInformation: options.additionalInformation,
+            onLookupComplete: function (data, next) {
+                next();
+            }
         };
 
-        this.secure3d.verifyCard(options, this.verifyCardCallback.bind(this));
+        this.secure3d.verifyCard(threeDSecureParameters, this.verifyCardCallback.bind(this));
     },
 
     /**
@@ -344,7 +338,10 @@ var braintreePayment = {
         this.checkout.createHostedFieldsCallback(instance);
 
         if (this.is3dSecure) {
-            braintree.threeDSecure.create({ client: this.client }, this.create3DSecureCallback.bind(this));
+            braintree.threeDSecure.create({
+                version: 2,
+                client: this.client
+            }, this.create3DSecureCallback.bind(this));
         } else {
             this.isInProgress = false;
             this.isInitialized = true;
@@ -399,7 +396,7 @@ var braintreePayment = {
 
         this.isInProgress = false;
 
-        if (!this.isButton) {
+        if (!this.isButton && !this.isAnonymous) {
 
             // Submit order
             jQuery(this.formElement).submit();
@@ -538,6 +535,7 @@ var braintreePayment = {
         }
 
         this.nonce = payload.nonce;
+        this.bin = payload.details.bin;
 
         this.checkout.tokenizeCallback(payload);
 
@@ -723,7 +721,6 @@ var braintreePayment = {
         }, // @param callback Callback function 
         triggerError: function triggerError(message) {}, // @param message Error message
         create3DSecureCallback: function create3DSecureCallback() {}, // @param instance 3-D Secure object instance
-        addFrameCallback: function addFrameCallback(iframe) {}, // @param iframe Iframe element
         verifyCardCallback: function verifyCardCallback(response) {}, // @param response Braintree response of card verification
         createHostedFieldsCallback: function createHostedFieldsCallback() {},
         createClientCallback: function createClientCallback() {},
@@ -737,7 +734,21 @@ var braintreePayment = {
         getPayPalData: function getPayPalData(callback) {
             callback();
         }, // @param callback Callback function
-        continuePayPal: function continuePayPal(details) {}, // @param details Some details from PayPal
+        continuePayPal: function continuePayPal(details) {
+            var params = this.getUrlParams({
+                target: 'checkout',
+                action: 'continue_paypal'
+            });
+
+            var url = URLHandler.buildURL(params);
+
+            var form = $('<form method="post" action="' + url + '"></form>');
+
+            $('<input>').attr('type', 'hidden').attr('name', 'nonce').val(braintreePayment.nonce).appendTo(form);
+            $('<input>').attr('type', 'hidden').attr('name', 'details').val(JSON.stringify(details)).appendTo(form);
+
+            form.appendTo('body').submit();
+        }, // @param details Some details from PayPal
         processShadows: function processShadows() {},
         isCurrent: function isCurrent() {
             return false;

@@ -254,25 +254,25 @@ class AllProductsFeedVariants extends \XLite\Module\XC\FacebookMarketing\Model\P
     }
 
     /**
-     * @param \XLite\Module\XC\ProductVariants\Model\ProductVariant $entity
+     * @param \XLite\Model\AEntity $entity
      * @param string $fieldName
      *
      * @return string
      */
     protected function getVariantDataPrice($entity, $fieldName)
     {
-        return $entity->getClearPrice() . ' ' . \XLite::getInstance()->getCurrency()->getCode();
+        return $this->getEntityDataPrice($entity, $fieldName);
     }
 
     /**
-     * @param \XLite\Module\XC\ProductVariants\Model\ProductVariant $entity
+     * @param \XLite\Model\AEntity $entity
      * @param string $fieldName
      *
      * @return string
      */
     protected function getVariantDataSalePrice($entity, $fieldName)
     {
-        return $entity->getNetPrice() . ' ' . \XLite::getInstance()->getCurrency()->getCode();
+        return $this->getEntityDataSalePrice($entity, $fieldName);
     }
 
     /**

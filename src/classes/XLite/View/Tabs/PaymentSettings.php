@@ -42,7 +42,7 @@ class PaymentSettings extends \XLite\View\Tabs\ATabs
             ],
             'payment_appearance' => [
                 'weight'   => 200,
-                'title'    => static::t('Sorting & Descriptions'),
+                'title'    => static::t('Names, descriptions & sorting'),
                 'widget'    => '\XLite\View\ItemsList\Model\Payment\Methods',
             ],
         ];

@@ -13,10 +13,12 @@ use Psr\Log\LoggerInterface;
 use XCart\Bus\Core\Annotations\RebuildStep;
 use XCart\Bus\Domain\Module;
 use XCart\Bus\Domain\ModuleInfoProvider;
+use XCart\Bus\Exception\Rebuild\AbortException;
 use XCart\Bus\Exception\RebuildException;
 use XCart\Bus\Query\Data\CoreConfigDataSource;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
 use XCart\Bus\Query\Data\MarketplaceModulesDataSource;
+use XCart\Bus\Query\Data\SetDataSource;
 use XCart\Bus\Query\Data\UploadedModulesDataSource;
 use XCart\Bus\Rebuild\Executor\ScriptState;
 use XCart\Bus\Rebuild\Executor\Step\StepInterface;
@@ -52,6 +54,11 @@ class UpdateDataSource implements StepInterface
     private $coreConfigDataSource;
 
     /**
+     * @var SetDataSource
+     */
+    private $setDataSource;
+
+    /**
      * @var ModuleInfoProvider
      */
     private $moduleInfoProvider;
@@ -62,15 +69,11 @@ class UpdateDataSource implements StepInterface
     private $logger;
 
     /**
-     * @var string
-     */
-    private $rebuildId;
-
-    /**
      * @param InstalledModulesDataSource   $installedModulesDataSource
      * @param MarketplaceModulesDataSource $marketplaceModulesDataSource
      * @param UploadedModulesDataSource    $uploadedModulesDataSource
      * @param CoreConfigDataSource         $coreConfigDataSource
+     * @param SetDataSource                $setDataSource
      * @param ModuleInfoProvider           $moduleInfoProvider
      * @param LoggerInterface              $logger
      */
@@ -79,6 +82,7 @@ class UpdateDataSource implements StepInterface
         MarketplaceModulesDataSource $marketplaceModulesDataSource,
         UploadedModulesDataSource $uploadedModulesDataSource,
         CoreConfigDataSource $coreConfigDataSource,
+        SetDataSource $setDataSource,
         ModuleInfoProvider $moduleInfoProvider,
         LoggerInterface $logger
     ) {
@@ -86,6 +90,7 @@ class UpdateDataSource implements StepInterface
         $this->marketplaceModulesDataSource = $marketplaceModulesDataSource;
         $this->uploadedModulesDataSource    = $uploadedModulesDataSource;
         $this->coreConfigDataSource         = $coreConfigDataSource;
+        $this->setDataSource                = $setDataSource;
         $this->moduleInfoProvider           = $moduleInfoProvider;
         $this->logger                       = $logger;
     }
@@ -110,10 +115,10 @@ class UpdateDataSource implements StepInterface
     {
         $transitions = $this->getTransitions($scriptState);
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'          => $scriptState->id,
                 'transitions' => $transitions,
             ]
         );
@@ -145,10 +150,14 @@ class UpdateDataSource implements StepInterface
      */
     public function execute(StepState $state, $action = self::ACTION_EXECUTE, array $params = []): StepState
     {
-        $this->rebuildId = $state->rebuildId;
-
         $this->processTransitions($state);
         $this->refreshInstalledModulesDataSource();
+
+        $this->coreConfigDataSource->dataDate  = 0;
+        $this->coreConfigDataSource->cacheDate = 0;
+
+        $this->marketplaceModulesDataSource->clear();
+        $this->setDataSource->clear();
 
         $state->finishedTransitions = $state->remainTransitions;
         $state->remainTransitions   = [];
@@ -218,6 +227,8 @@ class UpdateDataSource implements StepInterface
     {
         if ($state->remainTransitions) {
             foreach ($state->remainTransitions as $key => $transition) {
+                $this->logger->debug(sprintf('Update data: %s', $transition['id']));
+
                 /** @var Module $module */
                 $module     = $this->installedModulesDataSource->find($transition['id']);
                 $stateAfter = $transition['stateAfterTransition'];
@@ -227,13 +238,22 @@ class UpdateDataSource implements StepInterface
                     unset($stateAfter['installedDateUpdate']);
                 }
 
-                if ($module && $transition['id'] !== 'core') {
+                if (!empty($stateAfter['enabledDateUpdate'])) {
+                    $stateAfter['enabledDate'] = floor(time() / 60) * 60;
+                    unset($stateAfter['enabledDateUpdate']);
+                }
+
+                if ($module) {
                     $state->remainTransitions[$key]['previous_info'] = $module->toArray();
                     if (isset($stateAfter['installed']) && $stateAfter['installed'] === false) {
                         $this->installedModulesDataSource->removeOne($module->id);
 
                     } else {
                         $module = $this->updateModuleRecord($module, $stateAfter);
+                        if ($module->id === 'CDev-Core') {
+                            $this->coreConfigDataSource->version = $module->version;
+                        }
+
                         $this->installedModulesDataSource->saveOne($module);
                     }
 
@@ -245,23 +265,20 @@ class UpdateDataSource implements StepInterface
                             $module = $this->prepareInstalledModule($this->updateModuleRecord($module, $stateAfter));
                             $this->installedModulesDataSource->installModule($module);
                         } else {
-                            throw new RebuildException('Module ' . $transition['id'] . ' was not found in marketplace data source');
+                            $this->logger->critical(sprintf('Module %s was not found in marketplace data source', $transition['id']));
+
+                            throw AbortException::fromUpdateDataSourceStepMissingMarketplaceModule($transition['id']);
                         }
                     } else {
-                        throw new RebuildException('Module ' . $transition['id'] . ' was not found in data source');
+                        $this->logger->critical(sprintf('Module %s was not found in data source', $transition['id']));
+
+                        throw AbortException::fromUpdateDataSourceStepMissingModule($transition['id']);
                     }
                 }
 
                 if ($this->uploadedModulesDataSource->find($transition['id'])) {
                     $this->uploadedModulesDataSource->removeOne($transition['id']);
                 }
-
-                $this->logger->debug(
-                    sprintf('Data updated: %s', $transition['id']),
-                    [
-                        'id' => $this->rebuildId,
-                    ]
-                );
             }
 
             $this->coreConfigDataSource->saveOne(time(), 'dataDate');
@@ -273,10 +290,10 @@ class UpdateDataSource implements StepInterface
         $existent = $this->installedModulesDataSource->updateModulesData();
         $missing  = $this->installedModulesDataSource->removeMissedModules();
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'       => $this->rebuildId,
                 'existent' => $existent,
                 'missing'  => $missing,
             ]

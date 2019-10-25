@@ -102,7 +102,7 @@ class MarketplaceModulesDataSource extends AMarketplaceCachedDataSource
         }
 
         if ($version) {
-            $this->localCache[$key] = array_reduce($modules, function ($carry, $item) use ($version) {
+            $this->localCache[$key] = array_reduce($modules, static function ($carry, $item) use ($version) {
                 /** @var Module $carry */
                 /** @var Module $item */
                 return version_compare($version, $item->version, '=') ? $item : $carry;
@@ -111,7 +111,7 @@ class MarketplaceModulesDataSource extends AMarketplaceCachedDataSource
             return $this->localCache[$key];
         }
 
-        $this->localCache[$key] = array_reduce($modules, function ($carry, $item) {
+        $this->localCache[$key] = array_reduce($modules, static function ($carry, $item) {
             /** @var Module $carry */
             /** @var Module $item */
             if (!$carry) {
@@ -131,7 +131,16 @@ class MarketplaceModulesDataSource extends AMarketplaceCachedDataSource
      */
     public function getAll(): array
     {
-        return array_merge(parent::getAll(), $this->uploadedModulesDataSource->getAll());
+        $result = parent::getAll();
+
+        $uploadedModules = $this->uploadedModulesDataSource->getAll();
+        if ($uploadedModules) {
+            foreach ($uploadedModules as $id => $module) {
+                $result[$id][] = $module[0];
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -151,14 +160,14 @@ class MarketplaceModulesDataSource extends AMarketplaceCachedDataSource
 
         $modules = [];
         foreach ($this->client->getAllModules() as $id => $versions) {
-            $modules[$id] = array_map(function ($item) {
+            $modules[$id] = array_map(static function ($item) {
                 return new Module($item);
             }, $versions);
         }
 
         $cores = [];
         foreach ($this->client->getCores() as $id => $versions) {
-            $cores[$id] = array_map(function ($item) {
+            $cores[$id] = array_map(static function ($item) {
                 return new Module($item);
             }, $versions);
         }

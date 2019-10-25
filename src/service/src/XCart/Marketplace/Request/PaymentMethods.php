@@ -50,6 +50,11 @@ class PaymentMethods extends AAPIRequest
                     'flags'   => FILTER_REQUIRE_ARRAY,
                     'options' => ['regexp' => Constant::REGEXP_WORD],
                 ],
+                'exCountries'     => [
+                    'filter'  => FILTER_VALIDATE_REGEXP,
+                    'flags'   => FILTER_REQUIRE_ARRAY,
+                    'options' => ['regexp' => Constant::REGEXP_WORD],
+                ],
                 'translations'    => [
                     'flags'   => FILTER_REQUIRE_ARRAY,
                 ],

@@ -60,16 +60,6 @@ class Products extends AFeedStep
     // }}}
 
     /**
-     * Check if simplified clean url building applicable
-     *
-     * @return bool
-     */
-    public function isCleanUrlConditionApplicable()
-    {
-        return LC_USE_CLEAN_URLS && Database::getRepo('XLite\Model\CleanURL')->isUseCanonicalURL();
-    }
-
-    /**
      * @param \XLite\Model\Product $model
      * @return string
      */

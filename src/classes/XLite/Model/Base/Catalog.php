@@ -244,7 +244,15 @@ abstract class Catalog extends \XLite\Model\Base\I18n
      */
     public static function postprocessMetaDescription($description)
     {
-        return mb_substr(preg_replace('/\s+/', ' ', strip_tags(preg_replace('/(<(.+?)[\s]*\/?[\s]*>)/', '$1 ', $description))), 0, 512);
+        $description = preg_replace(
+            '/\s+/',
+            ' ',
+            \XLite\Core\Converter::filterCurlyBrackets(
+                strip_tags(preg_replace('/(<(.+?)[\s]*\/?[\s]*>)/', '$1 ', $description))
+            )
+        );
+
+        return mb_substr($description, 0, 512);
     }
 
     // }}}

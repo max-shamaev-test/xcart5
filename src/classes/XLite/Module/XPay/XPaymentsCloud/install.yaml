@@ -1,0 +1,22 @@
+# vim: set ts=2 sw=2 sts=2 et:
+#
+# Fixtures
+#
+# Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
+# See https://www.x-cart.com/license-agreement.html for license details.
+
+XLite\Model\Payment\Method:
+  - service_name: XPaymentsCloud
+    class: Module\XPay\XPaymentsCloud\Model\Payment\Processor\XPaymentsCloud
+    added: true
+    type: C
+    translations:
+      - code: en
+        name: X-Payments Cloud
+        title: Credit or Debit card by X-Payments
+    settings:
+      - name: account
+      - name: api_key
+      - name: secret_key
+      - name: widget_key
+      - name: quickaccess_key

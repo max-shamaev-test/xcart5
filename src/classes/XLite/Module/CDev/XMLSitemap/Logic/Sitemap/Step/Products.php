@@ -90,6 +90,6 @@ class Products extends \XLite\Module\CDev\XMLSitemap\Logic\Sitemap\Step\ASitemap
      */
     public static function isSitemapCleanUrlConditionApplicable()
     {
-        return LC_USE_CLEAN_URLS && Database::getRepo('XLite\Model\CleanURL')->isUseCanonicalURL();
+        return LC_USE_CLEAN_URLS;
     }
 }

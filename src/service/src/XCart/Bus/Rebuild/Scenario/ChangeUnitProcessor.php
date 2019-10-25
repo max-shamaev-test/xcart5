@@ -8,8 +8,10 @@
 
 namespace XCart\Bus\Rebuild\Scenario;
 
+use Exception;
+use Psr\Log\LoggerInterface;
+use Silex\Application;
 use XCart\Bus\Domain\Module;
-use XCart\Bus\Exception\ScenarioTransitionFailed;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
 use XCart\Bus\Query\Data\MarketplaceModulesDataSource;
 use XCart\Bus\Rebuild\Scenario\ChangeUnitBuildRule\ConflictResolver;
@@ -17,7 +19,7 @@ use XCart\Bus\Rebuild\Scenario\Transition\TransitionInterface;
 use XCart\SilexAnnotations\Annotations\Service;
 
 /**
- * @Service\Service()
+ * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild"})
  */
 class ChangeUnitProcessor
 {
@@ -44,9 +46,15 @@ class ChangeUnitProcessor
     private $scenarioBuilder;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param InstalledModulesDataSource   $installedModulesDataSource
      * @param MarketplaceModulesDataSource $marketplaceModulesDataSource
      * @param ScenarioBuilder              $scenarioBuilder
+     * @param LoggerInterface              $logger
      *
      * @return static
      *
@@ -54,22 +62,26 @@ class ChangeUnitProcessor
      * @codeCoverageIgnore
      */
     public static function serviceConstructor(
+        Application $app,
         InstalledModulesDataSource $installedModulesDataSource,
-        MarketplaceModulesDataSource $marketplaceModulesDataSource,
-        ScenarioBuilder $scenarioBuilder
+        ScenarioBuilder $scenarioBuilder,
+        LoggerInterface $logger
     ) {
+        // todo: use annotations
         return new self(
             $installedModulesDataSource,
             new TransitionBuilder(
                 [
-                    new ChangeUnitBuildRule\Enable($installedModulesDataSource),
-                    new ChangeUnitBuildRule\Install($installedModulesDataSource, $marketplaceModulesDataSource),
-                    new ChangeUnitBuildRule\Remove($installedModulesDataSource),
-                    new ChangeUnitBuildRule\Upgrade($installedModulesDataSource, $marketplaceModulesDataSource),
+                    $app[ChangeUnitBuildRule\Enable::class],
+                    $app[ChangeUnitBuildRule\Install::class],
+                    $app[ChangeUnitBuildRule\Remove::class],
+                    $app[ChangeUnitBuildRule\Upgrade::class],
                 ],
-                new ConflictResolver()
+                new ConflictResolver(),
+                $logger
             ),
-            $scenarioBuilder
+            $scenarioBuilder,
+            $logger
         );
     }
 
@@ -77,15 +89,18 @@ class ChangeUnitProcessor
      * @param InstalledModulesDataSource $installedModulesDataSource
      * @param TransitionBuilder          $transitionBuilder
      * @param ScenarioBuilder            $scenarioBuilder
+     * @param LoggerInterface            $logger
      */
     public function __construct(
         InstalledModulesDataSource $installedModulesDataSource,
         TransitionBuilder $transitionBuilder,
-        ScenarioBuilder $scenarioBuilder
+        ScenarioBuilder $scenarioBuilder,
+        LoggerInterface $logger
     ) {
         $this->installedModulesDataSource = $installedModulesDataSource;
         $this->transitionBuilder          = $transitionBuilder;
         $this->scenarioBuilder            = $scenarioBuilder;
+        $this->logger                     = $logger;
     }
 
     /**
@@ -94,7 +109,7 @@ class ChangeUnitProcessor
      *
      * @return array
      * @throws ScenarioRule\ScenarioRuleException
-     * @throws \Exception
+     * @throws Exception
      */
     public function process(array $scenario, array $changeUnits): array
     {
@@ -111,14 +126,21 @@ class ChangeUnitProcessor
 
         if (isset($scenario['changeUnits'])) {
             $changeUnits = $this->mergeChangeUnits(
-                $scenario['changeUnits'],
-                $changeUnits
+                $scenario['changeUnits'], $changeUnits
             );
         }
 
         $changeUnits = $this->indexChangeUnits($changeUnits);
 
         $transitions = $this->buildTransitionsFromChangeUnits($changeUnits);
+
+        $this->logger->debug(
+            'Process scenario',
+            [
+                'changeUnits' => $changeUnits,
+                'transitions' => array_map(static function ($transition) { is_object($transition) ? get_class($transition) : ''; } , $transitions),
+            ]
+        );
 
         foreach ($transitions as $id => $transition) {
             if ($transition === null) {
@@ -147,7 +169,7 @@ class ChangeUnitProcessor
      * @return array
      * @throws ScenarioRule\ScenarioRuleException
      */
-    protected function fillModulesTransitions(array $scenario, array $changeUnits): array
+    private function fillModulesTransitions(array $scenario, array $changeUnits): array
     {
         $transitions = $this->scenarioBuilder->getTransitions();
 
@@ -171,7 +193,7 @@ class ChangeUnitProcessor
      *
      * @return array
      */
-    protected function mergeChangeUnits(array $old, array $new)
+    private function mergeChangeUnits(array $old, array $new): array
     {
         $oldChangeUnits = $this->indexChangeUnits($old);
         $changeUnits    = $this->indexChangeUnits($new);
@@ -187,9 +209,9 @@ class ChangeUnitProcessor
      *
      * @return array
      */
-    protected function indexChangeUnits(array $units)
+    private function indexChangeUnits(array $units): array
     {
-        $ids = array_map(function ($unit) {
+        $ids = array_map(static function ($unit) {
             return $unit['id'];
         }, $units);
 
@@ -203,9 +225,9 @@ class ChangeUnitProcessor
      * @param array $changeUnits
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
-    protected function buildTransitionsFromChangeUnits($changeUnits): array
+    private function buildTransitionsFromChangeUnits($changeUnits): array
     {
         $transitions = [];
         foreach ($changeUnits as $changeUnit) {
@@ -220,7 +242,7 @@ class ChangeUnitProcessor
      *
      * @return array
      */
-    protected function convertTransitionIntoType(TransitionInterface $transition)
+    private function convertTransitionIntoType(TransitionInterface $transition): array
     {
         $info = $transition->getInfo();
         /** @var Module $module */

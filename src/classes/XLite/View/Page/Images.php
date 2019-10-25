@@ -45,9 +45,7 @@ class Images extends \XLite\View\AView
 
     protected function getLazyLoadOptionName()
     {
-        return \XLite\Core\Layout::getInstance()->isSkinAllowsPreloadedImages()
-            ? static::t('Use images lazy load preloaded')
-            : static::t('Use images lazy load placeholder');
+        return static::t('Use lazy loading');
     }
 
     /**

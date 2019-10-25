@@ -8,6 +8,7 @@
 
 namespace XCart\Bus\Domain\Storage;
 
+use Symfony\Component\Filesystem\Exception\IOException;
 use XCart\Bus\System\FilesystemInterface;
 use XCart\SilexAnnotations\Annotations\Service;
 
@@ -71,11 +72,16 @@ class PHPSerializer implements StorageInterface
      */
     public function write($data): bool
     {
-        if ($data) {
-            $this->filesystem->dumpFile($this->path, serialize((array) $data));
+        try {
+            if ($data) {
+                $this->filesystem->dumpFile($this->path, serialize((array) $data));
 
-        } else {
-            $this->filesystem->remove($this->path);
+            } else {
+                $this->filesystem->remove($this->path);
+            }
+        } catch (IOException $e) {
+            // todo: add logging (critical)
+            return false;
         }
 
         return true;

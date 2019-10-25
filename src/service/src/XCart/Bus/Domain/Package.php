@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use UnexpectedValueException;
 use XCart\Bus\Exception\PackageException;
 use XCart\Bus\System\Filesystem;
+use XCart\Bus\System\ResourceChecker;
 use XCart\SilexAnnotations\Annotations\Service;
 
 /**
@@ -67,8 +68,9 @@ class Package
         $this->rootDir            = $app['config']['root_dir'];
         $this->fileSystem         = $fileSystem;
         $this->moduleInfoProvider = $moduleInfoProvider;
-
-        $this->canCompress = \Phar::canCompress(\Phar::GZ);
+        $this->canCompress = ResourceChecker::PharIsInstalled()
+            ? \Phar::canCompress(\Phar::GZ)
+            : false;
     }
 
     /**
@@ -109,7 +111,7 @@ class Package
             throw PackageException::fromNonPharArchive();
 
         } catch (BadMethodCallException $e) {
-            throw PackageException::fromGenericError($e->getMessage());
+            throw PackageException::fromGenericError($e);
         }
     }
 
@@ -172,7 +174,7 @@ class Package
         try {
             $this->fileSystem->rename($file, $fullPath, true);
         } catch (FileException $e) {
-            throw PackageException::fromGenericError($e->getMessage());
+            throw PackageException::fromGenericError($e);
         }
 
         return $this->fromFile($fullPath);
@@ -211,9 +213,11 @@ class Package
 
         if (isset($moduleInfo['directories'])) {
             foreach ((array) $moduleInfo['directories'] as $directory) {
-                $result->append(new \RecursiveIteratorIterator(
-                    new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS)
-                ));
+                if (is_dir($directory)) {
+                    $result->append(new \RecursiveIteratorIterator(
+                        new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS)
+                    ));
+                }
             }
         }
 

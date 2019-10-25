@@ -13,6 +13,7 @@ use Silex\Application;
 use XCart\Bus\Core\Annotations\DataSourceFilter;
 use XCart\Bus\Editions\Core\EditionMessage;
 use XCart\Bus\Editions\Core\UninstallAvailDecider;
+use XCart\Bus\Helper\UrlBuilder;
 use XCart\Bus\Query\Data\CoreConfigDataSource;
 use XCart\Bus\Query\Data\Filter\AFilterGenerator;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
@@ -63,6 +64,11 @@ class ActionsGenerator extends AFilterGenerator
     private $marketplaceShopAdapter;
 
     /**
+     * @var UrlBuilder
+     */
+    private $urlBuilder;
+
+    /**
      * @var bool
      */
     private $developerMode;
@@ -75,6 +81,7 @@ class ActionsGenerator extends AFilterGenerator
      * @param EditionMessage             $editionMessage
      * @param UninstallAvailDecider      $uninstallAvailDecider
      * @param MarketplaceShopAdapter     $marketplaceShopAdapter
+     * @param UrlBuilder                 $urlBuilder
      * @param Application                $app
      */
     public function __construct(
@@ -85,6 +92,7 @@ class ActionsGenerator extends AFilterGenerator
         EditionMessage $editionMessage,
         UninstallAvailDecider $uninstallAvailDecider,
         MarketplaceShopAdapter $marketplaceShopAdapter,
+        UrlBuilder $urlBuilder,
         Application $app
     ) {
         $this->installedModulesDataSource = $installedModulesDataSource;
@@ -94,6 +102,7 @@ class ActionsGenerator extends AFilterGenerator
         $this->editionMessage             = $editionMessage;
         $this->uninstallAvailDecider      = $uninstallAvailDecider;
         $this->marketplaceShopAdapter     = $marketplaceShopAdapter;
+        $this->urlBuilder                 = $urlBuilder;
         $this->developerMode              = $app['config']['developer_mode'] ?? false;
     }
 
@@ -117,6 +126,7 @@ class ActionsGenerator extends AFilterGenerator
             $this->editionMessage,
             $this->uninstallAvailDecider,
             $this->marketplaceShopAdapter->get(),
+            $this->urlBuilder,
             $this->developerMode
         );
     }

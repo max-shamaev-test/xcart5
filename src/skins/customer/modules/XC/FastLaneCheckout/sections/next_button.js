@@ -62,8 +62,8 @@ define(
       },
       btnTitle: function() {
         return !this.ready
-            ? "Some of the required fields were not completed. Please check the form and try again"
-            : "Click to proceed to the next step";
+            ? core.t("Some of the required fields were not completed. Please check the form and try again")
+            : core.t("Click to proceed to the next step");
       }
     },
 

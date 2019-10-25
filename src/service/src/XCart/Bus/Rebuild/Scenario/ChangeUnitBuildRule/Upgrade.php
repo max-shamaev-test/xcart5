@@ -13,7 +13,11 @@ use XCart\Bus\Query\Data\MarketplaceModulesDataSource;
 use XCart\Bus\Rebuild\Scenario\Transition\DisableTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\TransitionInterface;
 use XCart\Bus\Rebuild\Scenario\Transition\UpgradeTransition;
+use XCart\SilexAnnotations\Annotations\Service;
 
+/**
+ * @Service\Service()
+ */
 class Upgrade implements ChangeUnitBuildRuleInterface
 {
     /**

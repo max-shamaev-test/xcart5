@@ -26,6 +26,7 @@ class TagType extends AObjectType
     {
         return [
             'fields' => [
+                'id'       => Type::string(),
                 'image'    => [
                     'type'        => $this->app[UrlType::class],
                     'description' => 'Tag Banner image URL',

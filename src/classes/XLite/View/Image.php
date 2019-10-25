@@ -16,19 +16,19 @@ class Image extends \XLite\View\AView
     /**
      * Widget arguments names
      */
-    const PARAM_IMAGE              = 'image';
-    const PARAM_ALT                = 'alt';
-    const PARAM_MAX_WIDTH          = 'maxWidth';
-    const PARAM_MAX_HEIGHT         = 'maxHeight';
-    const PARAM_SIZE_ID            = 'sizeId';
-    const PARAM_CENTER_IMAGE       = 'centerImage';
-    const PARAM_VERTICAL_ALIGN     = 'verticalAlign';
-    const PARAM_USE_CACHE          = 'useCache';
-    const PARAM_USE_DEFAULT_IMAGE  = 'useDefaultImage';
-    const PARAM_USE_BLURRED_BG     = 'useBlurBg';
-    const PARAM_IMAGE_SIZE_TYPE    = 'imageSizeType';
-    const PARAM_IS_BLUR_APPLICABLE = 'isBlurApplicable';
-    const PARAM_USE_TIMESTAMP      = 'useTimestamp';
+    const PARAM_IMAGE             = 'image';
+    const PARAM_ALT               = 'alt';
+    const PARAM_MAX_WIDTH         = 'maxWidth';
+    const PARAM_MAX_HEIGHT        = 'maxHeight';
+    const PARAM_SIZE_ID           = 'sizeId';
+    const PARAM_CENTER_IMAGE      = 'centerImage';
+    const PARAM_VERTICAL_ALIGN    = 'verticalAlign';
+    const PARAM_USE_CACHE         = 'useCache';
+    const PARAM_USE_DEFAULT_IMAGE = 'useDefaultImage';
+    const PARAM_IMAGE_SIZE_TYPE   = 'imageSizeType';
+    const PARAM_LAZY_LOAD         = 'lazyLoad';
+    const PARAM_USE_TIMESTAMP     = 'useTimestamp';
+    const PARAM_RESIZE_IMAGE      = 'resizeImage';
 
 
     /**
@@ -90,11 +90,6 @@ class Image extends \XLite\View\AView
     protected $useDefaultImage = false;
 
     /**
-     * @var string
-     */
-    protected $blurredImage = null;
-
-    /**
      * Set widget parameters
      *
      * @param array $params Widget parameters
@@ -145,7 +140,7 @@ class Image extends \XLite\View\AView
                 : $image->getFrontURL();
 
             if ($this->getParam(self::PARAM_USE_TIMESTAMP)) {
-                $url .=  '?' . time();
+                $url .= '?' . time();
             }
         }
 
@@ -182,9 +177,17 @@ class Image extends \XLite\View\AView
      */
     public function getProperties()
     {
-        $this->properties['data-max-width'] = max(0, $this->getParam(self::PARAM_MAX_WIDTH));
-        $this->properties['data-max-height'] = max(0, $this->getParam(self::PARAM_MAX_HEIGHT));
-        $this->properties['data-is-default-image'] = $this->useDefaultImage;
+        $this->properties['src'] = $this->getURL();
+        $this->properties['alt'] = $this->getAlt();
+        if ($this->getParam(self::PARAM_MAX_WIDTH)) {
+            $this->properties['data-max-width'] = max(0, $this->getParam(self::PARAM_MAX_WIDTH));
+        }
+        if ($this->getParam(self::PARAM_MAX_HEIGHT)) {
+            $this->properties['data-max-height'] = max(0, $this->getParam(self::PARAM_MAX_HEIGHT));
+        }
+        if ($this->useDefaultImage) {
+            $this->properties['data-is-default-image'] = $this->useDefaultImage;
+        }
 
         if (
             $this->getParam(self::PARAM_IMAGE)
@@ -198,12 +201,18 @@ class Image extends \XLite\View\AView
                 . ' ' . \XLite\Model\Base\Image::RETINA_RATIO . 'x';
         }
 
-        if ($this->getParam(static::PARAM_IS_BLUR_APPLICABLE) && $this->getBlurredImageData()) {
-            $backgroundStyle = " background: url({$this->getBlurredImageData()}); background-size: cover;";
+        if (
+            $this->getParam(static::PARAM_LAZY_LOAD)
+            && \XLite\Core\Layout::getInstance()->isLazyLoadEnabled()
+        ) {
+            $this->properties['data-src'] = $this->properties['src'];
+            unset($this->properties['src']);
+            $this->properties['class'] = ($this->properties['class'] ?? '') . ' lazyload ';
 
-            $this->properties['style'] = isset($this->properties['style'])
-                ? $this->properties['style'] . $backgroundStyle
-                : $backgroundStyle;
+            if (!empty($this->properties['srcset'])) {
+                $this->properties['data-srcset'] = $this->properties['srcset'];
+                unset($this->properties['srcset']);
+            }
         }
 
         return $this->properties;
@@ -261,18 +270,18 @@ class Image extends \XLite\View\AView
         parent::defineWidgetParams();
 
         $this->widgetParams += [
-            self::PARAM_IMAGE              => new \XLite\Model\WidgetParam\TypeObject('Image', null, false, '\XLite\Model\Base\Image'),
-            self::PARAM_ALT                => new \XLite\Model\WidgetParam\TypeString('Alt. text', '', false),
-            self::PARAM_MAX_WIDTH          => new \XLite\Model\WidgetParam\TypeInt('Max. width', 0),
-            self::PARAM_MAX_HEIGHT         => new \XLite\Model\WidgetParam\TypeInt('Max. height', 0),
-            self::PARAM_CENTER_IMAGE       => new \XLite\Model\WidgetParam\TypeCheckbox('Center the image after resizing', true),
-            self::PARAM_VERTICAL_ALIGN     => new \XLite\Model\WidgetParam\TypeString('Vertical align', self::VERTICAL_ALIGN_MIDDLE),
-            self::PARAM_USE_CACHE          => new \XLite\Model\WidgetParam\TypeBool('Use cache', 1),
-            self::PARAM_USE_DEFAULT_IMAGE  => new \XLite\Model\WidgetParam\TypeBool('Use default image', 1),
-            self::PARAM_USE_BLURRED_BG     => new \XLite\Model\WidgetParam\TypeBool('Use blurred background', 1),
-            self::PARAM_IMAGE_SIZE_TYPE    => new \XLite\Model\WidgetParam\TypeString('Imeage size type', ''),
-            self::PARAM_IS_BLUR_APPLICABLE => new \XLite\Model\WidgetParam\TypeBool('Is blur applicable', 0),
-            self::PARAM_USE_TIMESTAMP      => new \XLite\Model\WidgetParam\TypeBool('Use timestamp', 0),
+            self::PARAM_IMAGE             => new \XLite\Model\WidgetParam\TypeObject('Image', null, false, '\XLite\Model\Base\Image'),
+            self::PARAM_ALT               => new \XLite\Model\WidgetParam\TypeString('Alt. text', '', false),
+            self::PARAM_MAX_WIDTH         => new \XLite\Model\WidgetParam\TypeInt('Max. width', 0),
+            self::PARAM_MAX_HEIGHT        => new \XLite\Model\WidgetParam\TypeInt('Max. height', 0),
+            self::PARAM_CENTER_IMAGE      => new \XLite\Model\WidgetParam\TypeCheckbox('Center the image after resizing', true),
+            self::PARAM_VERTICAL_ALIGN    => new \XLite\Model\WidgetParam\TypeString('Vertical align', self::VERTICAL_ALIGN_MIDDLE),
+            self::PARAM_USE_CACHE         => new \XLite\Model\WidgetParam\TypeBool('Use cache', 1),
+            self::PARAM_USE_DEFAULT_IMAGE => new \XLite\Model\WidgetParam\TypeBool('Use default image', 1),
+            self::PARAM_IMAGE_SIZE_TYPE   => new \XLite\Model\WidgetParam\TypeString('Imeage size type', ''),
+            self::PARAM_LAZY_LOAD         => new \XLite\Model\WidgetParam\TypeBool('Lazy load', 0),
+            self::PARAM_USE_TIMESTAMP     => new \XLite\Model\WidgetParam\TypeBool('Use timestamp', 0),
+            self::PARAM_RESIZE_IMAGE      => new \XLite\Model\WidgetParam\TypeBool('Resize Image', 1),
         ];
     }
 
@@ -284,7 +293,7 @@ class Image extends \XLite\View\AView
     protected function checkImage()
     {
         return $this->getParam(self::PARAM_IMAGE)
-            && $this->getParam(self::PARAM_IMAGE)->isExists();
+               && $this->getParam(self::PARAM_IMAGE)->isExists();
     }
 
     /**
@@ -295,7 +304,7 @@ class Image extends \XLite\View\AView
     protected function checkDefaultImage()
     {
         return $this->getParam(self::PARAM_USE_DEFAULT_IMAGE)
-            && \XLite::getInstance()->getOptions(['images', 'default_image']);
+               && \XLite::getInstance()->getOptions(['images', 'default_image']);
     }
 
     /**
@@ -377,15 +386,17 @@ class Image extends \XLite\View\AView
      */
     protected function processImage()
     {
-        $maxw = max(0, $this->getParam(self::PARAM_MAX_WIDTH));
-        $maxh = max(0, $this->getParam(self::PARAM_MAX_HEIGHT));
+        if ($this->getParam(self::PARAM_RESIZE_IMAGE)) {
+            $maxw = max(0, $this->getParam(self::PARAM_MAX_WIDTH));
+            $maxh = max(0, $this->getParam(self::PARAM_MAX_HEIGHT));
 
-        list(
-            $this->properties['width'],
-            $this->properties['height'],
-            $this->resizedURL,
-            $this->retinaResizedURL
-            ) = $this->getParam(self::PARAM_IMAGE)->getResizedURL($maxw, $maxh);
+            list(
+                $this->properties['width'],
+                $this->properties['height'],
+                $this->resizedURL,
+                $this->retinaResizedURL
+                ) = $this->getParam(self::PARAM_IMAGE)->getResizedURL($maxw, $maxh);
+        }
 
         // Center the image vertically and horizontally
         if ($this->getParam(self::PARAM_CENTER_IMAGE)) {
@@ -411,33 +422,5 @@ class Image extends \XLite\View\AView
         if ($this->getParam(self::PARAM_CENTER_IMAGE)) {
             $this->setImageMargin();
         }
-    }
-
-    /**
-     * @return string
-     */
-    protected function getBlurredImageData()
-    {
-        if (!$this->blurredImage && $this->getParam(static::PARAM_USE_BLURRED_BG)) {
-            $this->blurredImage = $this->getParam(static::PARAM_IMAGE)
-                ? $this->getParam(static::PARAM_IMAGE)->getBlurredImageData(
-                    $this->getBlurredImageDimensions()['w'],
-                    $this->getBlurredImageDimensions()['h']
-                )
-                : null;
-        }
-
-        return $this->blurredImage;
-    }
-
-    /**
-     * @return array
-     */
-    protected function getBlurredImageDimensions()
-    {
-        return [
-            'w' => 10,
-            'h' => 10,
-        ];
     }
 }

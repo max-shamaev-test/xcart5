@@ -42,6 +42,18 @@ abstract class Main extends \XLite\Module\AModule
     }
 
     /**
+     * @return bool
+     */
+    public static function isSCAFlowNeed()
+    {
+        return ExecuteCached::executeCachedRuntime(function () {
+            $method = static::getMethod();
+
+            return in_array($method->getSetting('region'), ['EUR', 'GBP']);
+        }, [__CLASS__, __FUNCTION__]);
+    }
+
+    /**
      * @return \PayWithAmazon\Client
      */
     public static function getClient()

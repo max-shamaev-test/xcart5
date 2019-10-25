@@ -1577,7 +1577,7 @@ OUT;
      *
      * @return void
      */
-    protected static function checkRebuildBlock()
+    public static function checkRebuildBlock()
     {
         // To prevent multiple processes execution
         static::checkIfRebuildStarted();

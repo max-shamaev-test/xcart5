@@ -274,4 +274,16 @@ abstract class AConsole extends \XLite\Controller\AController
 
         return $path;
     }
+
+    /**
+     * Return cart instance
+     *
+     * @param null|boolean $doCalculate Flag: completely recalculate cart if true OPTIONAL
+     *
+     * @return \XLite\Model\Order
+     */
+    public function getCart($doCalculate = null)
+    {
+        return \XLite\Model\Cart::getInstance(null !== $doCalculate ? $doCalculate : $this->markCartCalculate());
+    }
 }

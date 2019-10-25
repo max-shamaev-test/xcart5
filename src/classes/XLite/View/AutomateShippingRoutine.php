@@ -8,6 +8,8 @@
 
 namespace XLite\View;
 
+use Includes\Utils\Module\Module;
+
 /**
  * Automate shipping routine page view
  */
@@ -59,23 +61,7 @@ class AutomateShippingRoutine extends \XLite\View\AView
      */
     protected function getShippingModulesLink()
     {
-        return $this->buildURL(
-            'addons_list_marketplace',
-            '',
-            array(
-                'tag'       => 'Shipping',
-                'vendor'    => '',
-                'price'     => '',
-                'substring' => '',
-            )
-        );
-    }
-
-    // {{{ Template methods
-
-    protected function getMarketplaceURL($module)
-    {
-        return $module->getMarketplaceURL();
+        return \XLite::getInstance()->getServiceURL('#/available-addons', null, ['tag' => 'Shipping']);
     }
 
     /**
@@ -85,27 +71,22 @@ class AutomateShippingRoutine extends \XLite\View\AView
      */
     protected function getShippingModules()
     {
-        //$repo = \XLite\Core\Database::getRepo('XLite\Model\Module');
+        $marketplaceModuleIds = [
+            'Qualiteam-ShippingEasy',
+            'ShipStation-Api',
+        ];
+        
+        $modules = \XLite\Core\Marketplace::getInstance()->getAutomateShippingRoutineModules($marketplaceModuleIds);
 
-        // todo: re-implement with BUS
-        $modules = array(
-            //$repo->findOneByModuleName('Qualiteam\\ShippingEasy', true)
-            //    ?: [
-            //        'name' => 'ShippingEasy',
-            //        'humanName' => 'ShippingEasy'
-            //    ],
-            //$repo->findOneByModuleName('ShipStation\\Api', true)
-            //    ?: [
-            //        'name' => 'Api',
-            //        'humanName' => 'ShipStation'
-            //    ],
-            [
-                'name' => 'ShipWorks',
-                'link' => 'http://www.shipworks.com/integrations/xcart/?source=si10049347',
-            ]
-        );
+        $modules[] = [
+            'name' => 'ShipWorks',
+            'moduleName' => 'ShipWorks',
+            'link' => 'http://www.shipworks.com/integrations/xcart/?source=si10049347',
+        ];
 
-        return array_filter($modules);
+        return array_filter($modules, function ($module) {
+            return isset($module['moduleName']) && isset($module['name']);
+        });
     }
 
     /**
@@ -116,20 +97,92 @@ class AutomateShippingRoutine extends \XLite\View\AView
      */
     public function getModuleName($module)
     {
-        return is_object($module)
-            ? $module->getModuleName()
-            : $module['humanName'];
+        return $module['moduleName'];
     }
 
     /**
-     * Check if real object
+     * @param $module
      *
-     * @param  mixed $module
+     * @return bool|string
+     */
+    protected function getModuleButtonLink($module)
+    {
+        if (isset($module['link'])) {
+            return $module['link'];
+        }
+
+        if (isset($module['id'])) {
+            if ($module['installed'] && $module['enabled']) {
+                if ($this->getSettingsForm($module)) {
+                    return $this->getSettingsForm($module);
+                }
+            } else {
+                return \Includes\Utils\Module\Manager::getRegistry()->getModuleServiceURL($module['author'], $module['name']);
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @param $module
+     *
      * @return string
      */
-    public function isModuleObject($module)
+    protected function getModuleButtonTitle($module)
     {
-        return is_object($module);
+        if (isset($module['link'])) {
+            return static::t('Install');
+        }
+
+        if (isset($module['id'])) {
+            if ($module['installed'] && $module['enabled']) {
+                if ($this->getSettingsForm($module)) {
+                    return static::t('Settings');
+                }
+            } else {
+                return static::t('Install');
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @param $module
+     *
+     * @return string
+     */
+    protected function getModuleButtonStyle($module)
+    {
+        $settingsButtonStyle = 'regular-button';
+        $installButtonStyle = 'regular-main-button';
+
+        if (isset($module['link'])) {
+            return $installButtonStyle;
+        }
+
+        if (isset($module['id'])) {
+            if ($module['installed'] && $module['enabled']) {
+                if ($this->getSettingsForm($module)) {
+                    return $settingsButtonStyle;
+                }
+            } else {
+                return $installButtonStyle;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @param $module
+     *
+     * @return bool
+     */
+    protected function isModuleAvailable($module)
+    {
+        return isset($module['id']) || isset($module['link']);
     }
 
     /**
@@ -245,20 +298,6 @@ class AutomateShippingRoutine extends \XLite\View\AView
     }
 
     /**
-     * Check if module has settings form
-     * 
-     * @param \XLite\Model\Module $module Module
-     * 
-     * @return boolean
-     */
-    protected function hasSetting($module)
-    {
-        return is_object($module)
-            ? $module->callModuleMethod('showSettingsForm')
-            : false;
-    }
-
-    /**
      * Get module logo
      * 
      * @param \XLite\Model\Module $module Module
@@ -267,13 +306,11 @@ class AutomateShippingRoutine extends \XLite\View\AView
      */
     protected function getImageURL($module)
     {
-        $name = is_object($module)
-            ? $module->getName()
-            : $module['name'];
+        $name = $module['name'];
         $path = sprintf('automate_shipping_routine/images/%s_logo.png', strtolower($name));
 
-        $modulePublicIcon = is_object($module)
-            ? $module->getPublicIconURL()
+        $modulePublicIcon = isset($module['icon'])
+            ? $module['icon']
             : '';
 
         return \XLite\Core\Layout::getInstance()->getResourceWebPath($path) ?: $modulePublicIcon;
@@ -288,8 +325,8 @@ class AutomateShippingRoutine extends \XLite\View\AView
      */
     protected function getSettingsForm($module)
     {
-        return is_object($module)
-            ? $module->getModuleInstalled()->getSettingsForm()
+        return isset($module['id'])
+            ? Module::callMainClassMethod($module['id'], 'getSettingsForm')
             : null;
     }
 
@@ -358,9 +395,7 @@ class AutomateShippingRoutine extends \XLite\View\AView
      */
     protected function getShippingModulePropertyValue($module, $type, $property)
     {
-        $name = is_object($module)
-            ? $module->getName()
-            : $module['name'];
+        $name = $module['name'];
 
         $dict = $this->getShippingModulePropertyDictionary();
         $moduleTypeDict = $dict[$name][$type];

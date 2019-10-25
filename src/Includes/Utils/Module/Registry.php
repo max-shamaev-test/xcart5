@@ -79,8 +79,9 @@ class Registry
      * Updates internal modules representation
      *
      * @param array $list
+     * @param array $integratedList
      */
-    public function updateModules(array $list)
+    public function updateModules(array $list, $integratedList)
     {
         foreach ($list as $author => $modules) {
             foreach ($modules as $name => $enabled) {
@@ -97,7 +98,7 @@ class Registry
             }
         }
 
-        $this->data = $this->mergeWith($list);
+        $this->data = $this->mergeWith($list, $integratedList);
         $this->calculateActiveSkin();
         $this->save();
     }
@@ -157,7 +158,7 @@ class Registry
         $moduleInfo['dependsOn']        = Module::convertId((array) $moduleInfo['dependsOn']);
         $moduleInfo['incompatibleWith'] = Module::convertId((array) $moduleInfo['incompatibleWith']);
 
-        $serviceFile     = Module::getSourcePath($moduleId) . '/service.yaml';
+        $serviceFile           = Module::getSourcePath($moduleId) . '/service.yaml';
         $moduleInfo['service'] = file_exists($serviceFile) ? $this->parser->parse(file_get_contents($serviceFile)) : [];
 
         return $moduleInfo;
@@ -335,8 +336,8 @@ class Registry
      */
     public function getServiceURL($path, array $params = [])
     {
-        return \XLite\Core\URLManager::getShopURL(
-            'service.php#/'
+        return \XLite::getInstance()->getServiceURL(
+            '#/'
             . $path
             . ($params ? ('?' . http_build_query($params)) : '')
         );
@@ -353,10 +354,10 @@ class Registry
         $module = $this->getModule($author, $name);
 
         $url = $module
-            ? 'service.php#/installed-addons?moduleId=' . $module->id
-            : 'service.php#/marketplace?moduleId=' . Module::buildId($author, $name);
+            ? '#/installed-addons?moduleId=' . $module->id
+            : '#/marketplace?moduleId=' . Module::buildId($author, $name);
 
-        return \XLite\Core\URLManager::getShopURL($url);
+        return \XLite::getInstance()->getServiceURL($url);
     }
 
     /**
@@ -433,10 +434,11 @@ class Registry
 
     /**
      * @param array $list
+     * @param array $integratedList
      *
      * @return array
      */
-    protected function mergeWith(array $list)
+    protected function mergeWith(array $list, $integratedList)
     {
         $result = [];
 
@@ -444,7 +446,9 @@ class Registry
             $result[$author] = [];
 
             foreach ($modules as $name => $enabled) {
-                $result[$author][$name] = $this->createModuleRecord($author, $name, $enabled);
+                $integrated = $integratedList[$author][$name] ?? false;
+
+                $result[$author][$name] = $this->createModuleRecord($author, $name, $enabled, $integrated);
             }
         }
 
@@ -458,7 +462,7 @@ class Registry
      *
      * @return Module
      */
-    protected function createModuleRecord($author, $name = null, $enabled = false)
+    protected function createModuleRecord($author, $name = null, $enabled = false, $integrated = false)
     {
         list($author, $name) = Module::explodeModuleId($author, $name);
 
@@ -466,6 +470,7 @@ class Registry
 
         $module = new Module([
             'enabled' => $enabled,
+            'yamlLoaded' => $integrated
         ]);
 
         if ($existing && $existing instanceof Module) {

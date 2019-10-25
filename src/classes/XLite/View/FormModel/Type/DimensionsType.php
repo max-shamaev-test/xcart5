@@ -38,7 +38,7 @@ class DimensionsType extends AType
     {
         $builder->add('length', 'XLite\View\FormModel\Type\PatternType', [
             'label' => false,
-            'pattern'    => [
+            'inputmask_pattern'    => [
                 'alias'          => 'decimal',
                 'rightAlign'     => false,
                 'digits'         => 2,
@@ -46,7 +46,7 @@ class DimensionsType extends AType
         ]);
         $builder->add('width', 'XLite\View\FormModel\Type\PatternType', [
             'label' => false,
-            'pattern'    => [
+            'inputmask_pattern'    => [
                 'alias'          => 'decimal',
                 'rightAlign'     => false,
                 'digits'         => 2,
@@ -54,7 +54,7 @@ class DimensionsType extends AType
         ]);
         $builder->add('height', 'XLite\View\FormModel\Type\PatternType', [
             'label' => false,
-            'pattern'    => [
+            'inputmask_pattern'    => [
                 'alias'          => 'decimal',
                 'rightAlign'     => false,
                 'digits'         => 2,

@@ -11,7 +11,11 @@ namespace XCart\Bus\Rebuild\Scenario\ChangeUnitBuildRule;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
 use XCart\Bus\Rebuild\Scenario\Transition\RemoveTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\TransitionInterface;
+use XCart\SilexAnnotations\Annotations\Service;
 
+/**
+ * @Service\Service()
+ */
 class Remove implements ChangeUnitBuildRuleInterface
 {
     /**

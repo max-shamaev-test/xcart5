@@ -11,43 +11,43 @@ namespace XCart\Bus\Rebuild\Scenario;
 class TransitionInfo
 {
     /**
-     * @var string
+     * @var string|null
      */
     private $reason;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $reasonHuman;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getReason()
+    public function getReason(): ?string
     {
         return $this->reason;
     }
 
     /**
-     * @param string $reason
+     * @param string|null $reason
      */
-    public function setReason($reason)
+    public function setReason($reason): void
     {
         $this->reason = $reason;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getReasonHuman()
+    public function getReasonHuman(): ?string
     {
         return $this->reasonHuman;
     }
 
     /**
-     * @param string $reasonHuman
+     * @param string|null $reasonHuman
      */
-    public function setReasonHuman($reasonHuman)
+    public function setReasonHuman($reasonHuman): void
     {
         $this->reasonHuman = $reasonHuman;
     }

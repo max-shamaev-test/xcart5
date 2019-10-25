@@ -139,6 +139,13 @@ class MutationType extends AObjectType
                     ],
                     'resolve' => $this->app[LicenseResolver::class . ':register'],
                 ],
+                'resendLicenseKey' => [
+                    'type'    => $this->app[LicenseStateType::class],
+                    'args'    => [
+                        'email' => Type::string(),
+                    ],
+                    'resolve' => $this->app[LicenseResolver::class . ':resendLicenseKey'],
+                ],
                 'setWave'            => [
                     'type'    => $this->app[WaveType::class],
                     'args'    => [

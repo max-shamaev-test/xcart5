@@ -279,6 +279,16 @@ class Cloned extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
         return $list;
     }
 
+    /**
+     * Checks if this itemslist is exportable through 'Export all' button
+     *
+     * @return boolean
+     */
+    protected function isExportable()
+    {
+        return true;
+    }
+
     // }}}
 
 }

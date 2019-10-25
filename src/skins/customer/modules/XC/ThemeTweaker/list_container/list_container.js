@@ -14,7 +14,7 @@ function ListContainer(element) {
     var self = this;
     var groups = $(this.base).children('.list-items-group');
 
-    var savedState = localStorage.getItem('layout-editor-mode');
+    var savedState = sessionStorage.getItem('layout-editor-mode');
 
   if (savedState === null) {
     savedState = true;

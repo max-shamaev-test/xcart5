@@ -141,7 +141,7 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
             'extensions'      => [
                 static::ITEM_TITLE    => static::t('My addons'),
                 static::ITEM_WIDGET   => 'XLite\View\Menu\Admin\LeftMenu\Extensions',
-                static::ITEM_LINK     => \XLite::getInstance()->getShopURL('service.php#/installed-addons'),
+                static::ITEM_LINK     => \XLite::getInstance()->getServiceURL('#/installed-addons'),
                 static::ITEM_ICON_SVG => 'images/fa-puzzle-piece.svg',
                 static::ITEM_WEIGHT   => 100,
                 static::ITEM_TARGET   => 'addons_list_installed',
@@ -255,7 +255,7 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
                     ],
                     'integrity_check'   => [
                         static::ITEM_TITLE  => static::t('Integrity check'),
-                        static::ITEM_LINK     => \XLite::getInstance()->getShopURL('service.php#/integrity-check'),
+                        static::ITEM_LINK     => \XLite::getInstance()->getServiceURL('#/integrity-check'),
                         static::ITEM_TARGET => 'integrity_check',
                         static::ITEM_WEIGHT => 400,
                     ],

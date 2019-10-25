@@ -500,7 +500,7 @@ class Checkout extends \XLite\Controller\Customer\Cart
         } elseif ($cart->getOpenTotal() > 0) {
             // Order still not payed
             $this->assignTransactionMessage();
-            $this->setReturnURL($this->buildURL('checkout'));
+            $this->setReturnURL($this->getOpenTotalReturnURL($cart));
 
         } else {
             // Order payed or pending
@@ -522,6 +522,16 @@ class Checkout extends \XLite\Controller\Customer\Cart
                 )
             );
         }
+    }
+
+    /**
+     * @param $cart
+     *
+     * @return string
+     */
+    protected function getOpenTotalReturnURL(\XLite\Model\Order $cart)
+    {
+        return $this->buildURL('checkout');
     }
 
     /**

@@ -69,7 +69,8 @@ class Product extends \XLite\Model\Repo\Product implements \XLite\Base\IDecorato
         $qb->andWhere($this->getMainAlias($qb) . '.facebookMarketingEnabled = :fbMarketingFlag')
             ->setParameter('fbMarketingFlag', true)
             ->setFirstResult($position)
-            ->setMaxResults(\XLite\Module\XC\FacebookMarketing\Core\EventListener\ProductFeedGeneration::CHUNK_LENGTH);
+            ->setMaxResults(\XLite\Module\XC\FacebookMarketing\Core\EventListener\ProductFeedGeneration::CHUNK_LENGTH)
+            ->orderBy($this->getMainAlias($qb) . '.product_id');
 
         return $qb;
     }

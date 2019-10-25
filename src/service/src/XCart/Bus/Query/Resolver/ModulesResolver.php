@@ -109,6 +109,7 @@ class ModulesResolver
         );
 
         if (!($context->mode & Context::ACCESS_MODE_WRITE)) {
+            $args['actions']         = true;
             $args['readOnlyActions'] = true;
 
         } else {
@@ -118,6 +119,11 @@ class ModulesResolver
         $args['purchaseUrl'] = true;
 
         $args = ['language' => $context->languageCode ?: 'en'] + $args;
+
+        if (isset($args['enabled']) && $args['enabled'] === 'recent') {
+            $args['enabled'] = 'enabled';
+            $sorters = ['enabledDate desc', 'moduleName asc'];
+        }
 
         $iterator = $this->modulesDataSource->filteredIterator($iterator, $args);
 
@@ -237,6 +243,10 @@ class ModulesResolver
          */
         foreach ($data as $key => $module) {
             foreach ((array) $module->dependsOn as $moduleId) {
+                if (!isset($data[$moduleId])) {
+                    continue;
+                }
+
                 $targetModule = $data[$moduleId];
                 if ($targetModule->scenarioState['enabled']) {
                     $module->dependsOn = array_diff($module->dependsOn, [$moduleId]);

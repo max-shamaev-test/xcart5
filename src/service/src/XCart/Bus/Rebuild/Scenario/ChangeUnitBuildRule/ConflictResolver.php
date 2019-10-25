@@ -20,10 +20,10 @@ class ConflictResolver
      */
     public function resolve(array $rules, array $transitions): array
     {
-        return array_filter($transitions, function ($ruleName) use ($rules, $transitions) {
+        return array_filter($transitions, static function ($ruleName) use ($rules, $transitions) {
             $rule = $rules[$ruleName];
 
             return $rule->isApplicableWithOthers($transitions);
-        }, \ARRAY_FILTER_USE_KEY);
+        }, ARRAY_FILTER_USE_KEY);
     }
 }

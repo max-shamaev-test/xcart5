@@ -28,11 +28,6 @@ class RebuildException extends \Exception
     private $description = '';
 
     /**
-     * @var array
-     */
-    private $prompts = [];
-
-    /**
      * @var StepState
      */
     private $stepState;
@@ -110,38 +105,6 @@ class RebuildException extends \Exception
     public function setDescription($description)
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getPrompts()
-    {
-        return $this->prompts;
-    }
-
-    /**
-     * @param array $prompts
-     *
-     * @return static
-     */
-    public function setPrompts($prompts)
-    {
-        $this->prompts = $prompts;
-
-        return $this;
-    }
-
-    /**
-     * @param string $prompt
-     *
-     * @return static
-     */
-    public function addPrompt($prompt)
-    {
-        $this->prompts[] = $prompt;
 
         return $this;
     }

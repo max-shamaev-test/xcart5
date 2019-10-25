@@ -15,8 +15,6 @@ use XCart\Bus\Rebuild\Executor\StepState;
 abstract class AUpgradeNote extends ANote
 {
     /**
-     * @todo: multi-language
-     *
      * @param array $transition
      *
      * @return array
@@ -37,8 +35,10 @@ abstract class AUpgradeNote extends ANote
             $notesDir = sprintf('classes/XLite/Module/%s/%s/hooks/upgrade/', $author, $name);
         }
 
-        return array_filter($transition['new_files'], static function ($file) use ($type, $transition, $notesDir) {
-            if (!preg_match('/^' . preg_quote($notesDir, '/') . '.*' . $type . '\.txt$/', $file)) {
+        $languageCode = $this->context->languageCode;
+
+        $noteFiles = array_filter($transition['new_files'], static function ($file) use ($type, $transition, $notesDir, $languageCode) {
+            if (!preg_match('/^' . preg_quote($notesDir, '/') . '.*' . $type . '(\.' . $languageCode . ')?' . '\.txt$/', $file)) {
                 return false;
             }
 
@@ -47,6 +47,13 @@ abstract class AUpgradeNote extends ANote
 
             return version_compare($version, $transition['version_after'], '<=')
                 && version_compare($version, $transition['version_before'], '>');
+        });
+
+        return array_filter($noteFiles, static function ($file) use ($type, $notesDir, $languageCode, $noteFiles) {
+            return !(
+                preg_match('/^' . preg_quote($notesDir, '/') . '.*' . $type . '\.txt$/', $file)
+                && in_array(str_replace($type . '.txt', $type . '.' . $languageCode . '.txt', $file), $noteFiles)
+            );
         });
     }
 

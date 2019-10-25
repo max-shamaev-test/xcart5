@@ -31,26 +31,6 @@ class OAuth extends \XLite\Base\Singleton
     }
 
     /**
-     * Get client secret API key (test)
-     * 
-     * @return string
-     */
-    public function getClientSecretTest()
-    {
-        return 'sk_test_ApnxtwauZlVNzmHWiZmShdBt';
-    }
-
-    /**
-     * Get client secret API key (live)
-     *
-     * @return string
-     */
-    public function getClientSecretLive()
-    {
-        return 'sk_live_NdFalMVVq6vmz61s25GmLT3Q';
-    }
-
-    /**
      * Get redirect URI
      *
      * @return string
@@ -118,7 +98,7 @@ class OAuth extends \XLite\Base\Singleton
      */
     protected function getHTTPRequester($path)
     {
-        return new \XLite\Core\HTTP\Request('https://connect.stripe.com/' . $path);
+        return new \XLite\Core\HTTP\Request('https://my.x-cart.com/proxy/stripe.php?path=' . $path);
     }
 
     /**
@@ -134,7 +114,7 @@ class OAuth extends \XLite\Base\Singleton
     {
         $request->verb = 'POST';
         $request->body = [
-            'client_secret' => $method->getProcessor()->getOAuthClientSecret($method),
+            'mode'          => $method->getSetting('mode'),
             'code'          => $code,
             'grant_type'    => 'authorization_code',
         ];
@@ -155,7 +135,7 @@ class OAuth extends \XLite\Base\Singleton
     {
         $request->verb = 'POST';
         $request->body = [
-            'client_secret' => $method->getProcessor()->getOAuthClientSecret($method),
+            'mode'          => $method->getSetting('mode'),
             'refresh_token' => $method->getSetting('refreshToken'),
             'grant_type'    => 'refresh_token',
         ];

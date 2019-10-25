@@ -66,7 +66,7 @@ class AttachmentHistoryPoint extends \XLite\Model\AEntity
      *
      * @var string
      *
-     * @Column (type="string")
+     * @Column (type="text")
      */
     protected $path = '';
 
@@ -75,10 +75,9 @@ class AttachmentHistoryPoint extends \XLite\Model\AEntity
      *
      * @var string
      *
-     * @Column (type="string")
+     * @Column (type="text")
      */
     protected $additionalDetails = '';
-
 
     // }}}
 

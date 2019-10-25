@@ -24,39 +24,39 @@ class RebuildStateType extends AObjectType
     {
         return [
             'fields' => [
-                'id'               => [
+                'id'                    => [
                     'type' => Type::id(),
                 ],
-                'type'             => [
+                'type'                  => [
                     'type' => Type::string(),
                 ],
-                'reason'           => [
+                'reason'                => [
                     'type' => Type::string(),
                 ],
-                'canRollback'      => [
+                'canRollback'           => [
                     'type' => Type::boolean(),
                 ],
-                'progressMax'      => [
+                'progressMax'           => [
                     'type'        => Type::int(),
                     'description' => 'Progress bar max value',
                 ],
-                'progressValue'    => [
+                'progressValue'         => [
                     'type'        => Type::int(),
                     'description' => 'Progress bar current value',
                 ],
-                'errorType'        => [
+                'errorType'             => [
                     'type'        => Type::string(),
                     'description' => 'Error type',
                 ],
-                'errorData'        => [
+                'errorData'             => [
                     'type'        => Type::string(),
                     'description' => 'Error data',
                 ],
-                'errorTitle'       => [
+                'errorTitle'            => [
                     'type'        => Type::string(),
                     'description' => 'General error message',
                 ],
-                'errorDescription' => [
+                'errorDescription'      => [
                     'type'        => Type::string(),
                     'description' => 'Detailed error description and steps to resolving the problem',
                 ],
@@ -64,21 +64,24 @@ class RebuildStateType extends AObjectType
                     'type'        => Type::listOf(Type::string()),
                     'description' => 'Prompts list',
                 ],
-                'state'            => [
+                'state'                 => [
                     'type'        => Type::string(),
                     'description' => 'Script state',
                 ],
-                'currentStepInfo'  => Type::listOf($this->app[RebuildStateInfo::class]),
-                'finishedStepInfo' => Type::listOf($this->app[RebuildStateInfo::class]),
-                'returnUrl'        => [
+                'currentStepInfo'       => Type::listOf($this->app[RebuildStateInfo::class]),
+                'finishedStepInfo'      => Type::listOf($this->app[RebuildStateInfo::class]),
+                'returnUrl'             => [
                     'type'        => Type::string(),
                     'description' => 'URL to redirect to after successful script execution',
                 ],
-                'failureReturnUrl' => [
+                'failureReturnUrl'      => [
                     'type'        => Type::string(),
                     'description' => 'URL to redirect to after unsuccessful script execution',
                 ],
-                'gaData'           => Type::listOf(Type::string()),
+                'gaData'                => Type::listOf(Type::string()),
+                'hasEnabledTransitions' => [
+                    'type' => Type::boolean(),
+                ],
             ],
         ];
     }

@@ -65,7 +65,7 @@ XLite\Model\Role:
 
 XLite\Module\CDev\SimpleCMS\Model\Page:
   - id: 1
-    cleanURLs: [{ cleanURL: terms-and-conditions.html }]
+    cleanURLs: [{ cleanURL: terms-and-conditions }]
     translations:
       - code: en
         name: 'Terms and conditions'
@@ -79,7 +79,7 @@ XLite\Module\CDev\SimpleCMS\Model\Page:
         name: '条款约定'
         teaser: '条款约定'
         body: '<p>内容描述</p><p>要替代该条款内的内容，请到&ldquo;内容-网页&ldquo;中进行设置，打开页面编辑并在这里编辑内容栏目。</p>'
-  - cleanURLs: [{ cleanURL: shipping.html }]
+  - cleanURLs: [{ cleanURL: shipping }]
     translations:
       - code: en
         name: 'Shipping'

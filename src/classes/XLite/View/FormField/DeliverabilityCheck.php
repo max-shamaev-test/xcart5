@@ -27,7 +27,7 @@ class DeliverabilityCheck extends \XLite\View\FormField\AFormField
      */
     public function getLink()
     {
-        return $this->buildFullURL('email_settings') . '#test-email';
+        return $this->buildFullURL('test_email');
     }
 
     protected function isVisible()

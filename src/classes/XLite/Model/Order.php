@@ -1509,6 +1509,9 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         $backstockCount = 0;
 
         foreach ($this->getItems() as $item) {
+            if ($item->isDeleted() || !$this->isInventoryEnabledForItem($item)) {
+                continue;
+            }
             \XLite\Core\Database::getEM()->transactional(function (EntityManager $em) use ($item, &$backstockCount) {
                 /* @var OrderItem $ite */
                 $product = $item->getProduct();
@@ -1526,6 +1529,9 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         }
 
         if ($backstockCount) {
+            \XLite\Core\Mailer::sendBackorderCreatedAdmin($this);
+            $this->setShippingStatus(\XLite\Model\Order\Status\Shipping::STATUS_NEW_BACKORDERED);
+            //Set oldShippingStatus to NBA
             $this->setShippingStatus(\XLite\Model\Order\Status\Shipping::STATUS_NEW_BACKORDERED);
             $this->assignBackorderCompetitors();
         }
@@ -1597,6 +1603,16 @@ class Order extends \XLite\Model\Base\SurchargeOwner
             = max($this->getProductAmountForItem($item) - $item->getAmount(), 0);
 
         return $this;
+    }
+
+    /**
+     * @param OrderItem $item
+     *
+     * @return boolean
+     */
+    protected function isInventoryEnabledForItem(OrderItem $item)
+    {
+        return $item->getProduct()->getInventoryEnabled();
     }
 
     /**

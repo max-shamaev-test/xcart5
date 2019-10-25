@@ -8,6 +8,7 @@
 
 namespace XCart\Bus\Query\Resolver;
 
+use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use XCart\Bus\Core\Annotations\Resolver;
 use XCart\Bus\Domain\Module;
@@ -94,18 +95,21 @@ class ScenarioResolver
      * @param ResolveInfo $info
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      *
      * @Resolver()
      */
     public function createScenario($value, $args, Context $context, ResolveInfo $info): array
     {
-        $scenario = $this->_createScenario($args);
+        $type      = $args['type'] ?? 'common';
+        $returnUrl = isset($args['returnUrl']) && $this->urlBuilder->isSelfURL($args['returnUrl']) ? $args['returnUrl'] : null;
+
+        $scenario = $this->scenarioDataSource->startEmptyScenario($type, $returnUrl);
 
         $result = $this->scenarioDataSource->saveOne($scenario);
 
         if ($result === false) {
-            throw new \Exception("Can't create scenario");
+            throw new Exception("Can't create scenario");
         }
 
         return $scenario;
@@ -118,7 +122,7 @@ class ScenarioResolver
      * @param ResolveInfo $info
      *
      * @return string
-     * @throws \Exception
+     * @throws Exception
      *
      * @Resolver()
      */
@@ -127,13 +131,13 @@ class ScenarioResolver
         $scenarioId = $args['scenarioId'] ?? null;
 
         if (!$scenarioId) {
-            throw new \Exception('No scenario id given');
+            throw new Exception('No scenario id given');
         }
 
         $result = $this->scenarioDataSource->removeOne($scenarioId);
 
         if ($result === false) {
-            throw new \Exception('No scenario found for id ' . $scenarioId);
+            throw new Exception('No scenario found for id ' . $scenarioId);
         }
 
         return $scenarioId;
@@ -146,18 +150,16 @@ class ScenarioResolver
      * @param ResolveInfo $info
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      *
      * @Resolver()
      */
     public function changeModulesState($value, $args, Context $context, ResolveInfo $info): array
     {
         $scenarioId = $args['scenarioId'] ?? null;
-
-        $scenario = $this->scenarioDataSource->find($scenarioId);
-
+        $scenario   = $this->scenarioDataSource->startScenario($scenarioId);
         if (!$scenario) {
-            throw new \Exception('No scenario found for id ' . ($scenarioId ?? '[empty]'));
+            throw new Exception('No scenario found for id ' . ($scenarioId ?? '[empty]'));
         }
 
         $newScenario = $this->changeUnitProcessor->process($scenario, $args['states'] ?? []);
@@ -174,7 +176,7 @@ class ScenarioResolver
      * @param ResolveInfo $info
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      *
      * @Resolver()
      */
@@ -182,8 +184,10 @@ class ScenarioResolver
     {
         $moduleId = $args['moduleId'];
 
-        $scenario = $this->_createScenario($args);
-        $scenario = $this->changeSkin($scenario, $moduleId);
+        $type      = $args['type'] ?? 'common';
+        $returnUrl = isset($args['returnUrl']) && $this->urlBuilder->isSelfURL($args['returnUrl']) ? $args['returnUrl'] : null;
+
+        $scenario = $this->changeSkin($this->scenarioDataSource->startEmptyScenario($type, $returnUrl), $moduleId);
 
         $this->scenarioDataSource->saveOne($scenario);
 
@@ -197,7 +201,7 @@ class ScenarioResolver
      * @param ResolveInfo $info
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      *
      * @Resolver()
      */
@@ -210,13 +214,12 @@ class ScenarioResolver
         $changeUnits = [];
         foreach ($unallowedModules as $module) {
             $changeUnits[] = [
-                'id' => $module->id,
-                'remove' => true
+                'id'     => $module->id,
+                'remove' => true,
             ];
         }
 
-        $scenario = $this->_createScenario([]);
-        $scenario = $this->changeUnitProcessor->process($scenario, $changeUnits);
+        $scenario = $this->changeUnitProcessor->process($this->scenarioDataSource->startEmptyScenario(), $changeUnits);
 
         $this->scenarioDataSource->saveOne($scenario);
 
@@ -248,7 +251,7 @@ class ScenarioResolver
      * @param string $moduleId
      *
      * @return array|null
-     * @throws \Exception
+     * @throws Exception
      */
     private function changeSkin($scenario, $moduleId): array
     {
@@ -300,34 +303,27 @@ class ScenarioResolver
         ]);
 
         if ($skins) {
-            return array_map(function ($module) {
+            $moduleIds = array_map(static function ($skin) {
+                return $skin['id'];
+            }, $skins);
+
+            $_skins = [];
+            foreach ($skins as $module) {
+                if (array_intersect($module->dependsOn, $moduleIds)) {
+                    array_unshift($_skins, $module);
+                } else {
+                    array_push($_skins, $module);
+                }
+            }
+
+            return array_map(static function ($module) {
                 return [
                     'id'     => $module['id'],
                     'enable' => false,
                 ];
-            }, $skins);
+            }, $_skins);
         }
 
         return [];
-    }
-
-    /**
-     * @param array $params
-     *
-     * @return array
-     */
-    private function _createScenario($params): array
-    {
-        $returnUrl = $params['returnUrl'] ?? null;
-
-        return [
-            'id'                 => uniqid('scenario', true),
-            'date'               => time(),
-            'updatedAt'          => 0,
-            'type'               => $params['type'] ?? 'common',
-            'modulesTransitions' => [],
-            'changeUnits'        => [],
-            'returnUrl'          => $this->urlBuilder->isSelfURL($returnUrl) ? $returnUrl : null,
-        ];
     }
 }

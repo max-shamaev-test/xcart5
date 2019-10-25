@@ -13,9 +13,12 @@ use FilesystemIterator;
 use Psr\Log\LoggerInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Symfony\Component\Filesystem\Exception\IOException;
 use XCart\Bus\Core\Annotations\RebuildStep;
 use XCart\Bus\Domain\Backup\BackupInterface;
 use XCart\Bus\Domain\ModuleInfoProvider;
+use XCart\Bus\Exception\Rebuild\AbortException;
+use XCart\Bus\Exception\RebuildException;
 use XCart\Bus\Rebuild\Executor\ScriptState;
 use XCart\Bus\Rebuild\Executor\Step\StepInterface;
 use XCart\Bus\Rebuild\Executor\StepState;
@@ -48,11 +51,6 @@ class RemoveModules implements StepInterface
      * @var LoggerInterface
      */
     private $logger;
-
-    /**
-     * @var string
-     */
-    private $rebuildId;
 
     /**
      * @param FilesystemInterface $filesystem
@@ -92,10 +90,10 @@ class RemoveModules implements StepInterface
     {
         $transitions = $this->getTransitions($scriptState);
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'          => $scriptState->id,
                 'transitions' => $transitions,
             ]
         );
@@ -121,11 +119,10 @@ class RemoveModules implements StepInterface
      * @param array     $params
      *
      * @return StepState
+     * @throws RebuildException
      */
     public function execute(StepState $state, $action = self::ACTION_EXECUTE, array $params = []): StepState
     {
-        $this->rebuildId = $state->rebuildId;
-
         $this->backup = $this->backup->load($state->rebuildId);
 
         $state = $this->processTransition($state);
@@ -190,6 +187,7 @@ class RemoveModules implements StepInterface
      * @param StepState $state
      *
      * @return StepState
+     * @throws RebuildException
      */
     private function processTransition(StepState $state): StepState
     {
@@ -224,21 +222,32 @@ class RemoveModules implements StepInterface
      * @param $transition
      *
      * @return array
+     * @throws RebuildException
      */
     private function removeByTransition($transition): array
     {
         $moduleInfo = $this->moduleInfoProvider->getModuleInfo($transition['id']);
         if ($moduleInfo && isset($moduleInfo['directories'])) {
-            $this->backup->addReplaceRecord($this->getIterator($moduleInfo['directories']));
-            $this->filesystem->remove($moduleInfo['directories']);
-
             $this->logger->debug(
-                sprintf('Remove dirs'),
+                'Remove directories',
                 [
-                    'id'       => $this->rebuildId,
-                    'modified' => $moduleInfo['directories'],
+                    'directories' => $moduleInfo['directories'],
                 ]
             );
+
+            $this->backup->addReplaceRecord($this->getIterator($moduleInfo['directories']));
+            try {
+                $this->filesystem->remove($moduleInfo['directories']);
+            } catch (IOException $exception) {
+                $this->logger->critical(
+                    sprintf('Remove directories failed: %s', $exception->getMessage()),
+                    [
+                        'modified' => $moduleInfo['directories'],
+                    ]
+                );
+
+                throw AbortException::fromRemoveModulesStepError($exception);
+            }
         }
 
         return $transition;
@@ -264,10 +273,12 @@ class RemoveModules implements StepInterface
     private function getIterator(array $directories): AppendIterator
     {
         return array_reduce($directories, static function ($result, $directory) {
-            /** @var AppendIterator $result */
-            $result->append(new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS)
-            ));
+            if (is_dir($directory)) {
+                /** @var AppendIterator $result */
+                $result->append(new RecursiveIteratorIterator(
+                    new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS)
+                ));
+            }
 
             return $result;
         }, new AppendIterator());

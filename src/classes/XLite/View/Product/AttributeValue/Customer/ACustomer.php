@@ -157,9 +157,7 @@ abstract class ACustomer extends \XLite\View\Product\AttributeValue\AAttributeVa
      */
     protected function getInputAttributes()
     {
-        return [
-            'v-model' => 'attrs[' . $this->getAttribute()->getId() . ']'
-        ];
+        return [];
     }
 
     /**

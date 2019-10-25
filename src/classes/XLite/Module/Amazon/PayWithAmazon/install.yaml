@@ -58,7 +58,7 @@ XLite\Model\LanguageLabel:
   - { name: 'Payment has been authorized successfully.', translations: [{ code: en, label: 'Payment has been authorized successfully.' }] }
   - { name: 'Payment has been declined.', translations: [{ code: en, label: 'Payment has been declined.' }] }
   - { name: 'Payment transaction is in progress...', translations: [{ code: en, label: 'Payment transaction is in progress...' }] }
-  - { name: 'There were problems with the payment method.', translations: [{ code: en, label: 'There were problems with the payment method.' }] }
+  - { name: 'That payment method was not accepted for this transaction. Please choose another.', translations: [{ code: en, label: 'That payment method was not accepted for this transaction. Please choose another.' }] }
   - { name: 'Amazon has rejected the authorisation.', translations: [{ code: en, label: 'Amazon has rejected the authorisation.' }] }
   - { name: 'Amazon could not process the transaction due to an internal processing error.', translations: [{ code: en, label: 'Amazon could not process the transaction due to an internal processing error.' }] }
   - { name: 'Amazon callback URL help', translations: [{ code: en, label: "To ensure that the status of payments in your store is updated automatically after Amazon processes the respective payment requests, you need to set up the endpoints.<br/><br/>Log in to Seller Central and select 'Integration Settings' from the Settings drop-down box.<br/>Click Edit under the 'Instant Notifications Settings' section and enter the Callback URL provided here into the 'Merchant URL' field." }] }
@@ -74,5 +74,7 @@ XLite\Model\LanguageLabel:
   - { name: 'This operation will capture funds from customer. Please confirm to proceed.', translations: [{ code: en, label: 'This operation will capture funds from customer. Please confirm to proceed.' }]}
   - { name: 'This operation will refund funds to customer. Please confirm to proceed.', translations: [{ code: en, label: 'This operation will refund funds to customer. Please confirm to proceed.' }]}
   - { name: 'Use existing Amazon account', translations: [{ code: en, label: 'Use existing Amazon account' }]}
-  - { name: 'Multi-Factor Authentication failed', translations: [{ code: en, label: 'Multi-Factor Authentication failed' }]}
-  - { name: 'Multi-Factor Authentication not completed', translations: [{ code: en, label: 'Multi-Factor Authentication not completed' }]}
+  - { name: 'Your payment could not be processed. Please try to place the order again using another payment method.', translations: [{ code: en, label: 'Your payment could not be processed. Please try to place the order again using another payment method.' }]}
+  - { name: 'Your payment could not be processed, please follow the instructions in the payment method box.', translations: [{ code: en, label: 'Your payment could not be processed, please follow the instructions in the payment method box.' }]}
+  - { name: 'Amazon Pay was not able to process your payment.', translations: [{ code: en, label: 'Amazon Pay was not able to process your payment.<br/> Please go to <a href="{{amazon_link}}" target="_blank">this page</a> and update the payment information for your order. Afterwards we will automatically request payment again from Amazon Pay and you will receive a confirmation email.' }]}
+  - { name: 'Please update your payment information', translations: [{ code: en, label: 'Please update your payment information' }]}

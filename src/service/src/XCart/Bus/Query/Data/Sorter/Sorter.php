@@ -64,9 +64,15 @@ class Sorter extends ArrayIterator
             $aField = $a->{$field} ?? null;
             $bField = $b->{$field} ?? null;
 
-            $comparisionResult = $direction === 'desc'
-                ? $this->compare($bField, $aField)
-                : $this->compare($aField, $bField);
+            if ($field === 'version') {
+                $comparisionResult = $direction === 'desc'
+                    ? version_compare($bField, $aField)
+                    : version_compare($aField, $bField);
+            } else {
+                $comparisionResult = $direction === 'desc'
+                    ? $this->compare($bField, $aField)
+                    : $this->compare($aField, $bField);
+            }
 
             if ($comparisionResult !== 0) {
                 return $comparisionResult;
@@ -99,7 +105,7 @@ class Sorter extends ArrayIterator
      */
     private function parseFields($fields): array
     {
-        return array_map(function ($item) {
+        return array_map(static function ($item) {
             $sorter = explode(' ', trim($item));
 
             return [

@@ -93,6 +93,7 @@ class QueryType extends AObjectType
                         'scenario'       => Type::id(),
                         'isSalesChannel' => Type::boolean(),
                         'isLanding'      => Type::boolean(),
+                        'includeIds'     => Type::listOf(Type::id()),
                     ],
                 ],
                 'module'                => [
@@ -125,7 +126,7 @@ class QueryType extends AObjectType
                 ],
                 'payment_methods'       => [
                     'type'    => Type::listOf($this->app[PaymentMethodType::class]),
-                    'args'        => [
+                    'args'    => [
                         'countryCode' => Type::string(),
                     ],
                     'resolve' => $this->app[PaymentMethodsResolver::class . ':getList'],
@@ -157,9 +158,12 @@ class QueryType extends AObjectType
                     'type'        => Type::listOf($this->app[UpgradeEntryType::class]),
                     'description' => 'Returns list of upgrade entries of specified type',
                     'args'        => [
-                        'type' => [
+                        'type'     => [
                             'type'        => Type::nonNull(Type::string()),
                             'description' => 'Upgrade type',
+                        ],
+                        'moduleId' => [
+                            'type' => Type::id(),
                         ],
                     ],
                     'resolve'     => $this->app[UpgradeResolver::class . ':resolveList'],
@@ -171,6 +175,10 @@ class QueryType extends AObjectType
                 'licenses'              => [
                     'type'    => Type::listOf($this->app[LicenseType::class]),
                     'resolve' => $this->app[LicenseResolver::class . ':getList'],
+                ],
+                'renewLicensesUrl'              => [
+                    'type'    => Type::string(),
+                    'resolve' => $this->app[LicenseResolver::class . ':getRenewLicensesUrl'],
                 ],
                 'trial'                 => [
                     'type'    => $this->app[TrialType::class],

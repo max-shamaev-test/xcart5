@@ -68,13 +68,6 @@ class Menu extends \XLite\View\Menu\Admin\AAdmin
                 static::ITEM_WEIGHT     => 400,
                 static::ITEM_BLANK_PAGE => true,
             ],
-            'suggest_idea'    => [
-                static::ITEM_TITLE      => static::t('Suggest an idea'),
-                static::ITEM_LINK       => 'https://ideas.x-cart.com/forums/229428-x-cart-5-ideas',
-                static::ITEM_CLASS      => 'suggest-idea external',
-                static::ITEM_WEIGHT     => 500,
-                static::ITEM_BLANK_PAGE => true,
-            ],
             'report_bug'      => [
                 static::ITEM_TITLE      => static::t('Report a bug'),
                 static::ITEM_LINK       => 'https://bt.x-cart.com/',

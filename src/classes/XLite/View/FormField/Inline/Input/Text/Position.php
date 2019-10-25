@@ -22,7 +22,7 @@ class Position extends \XLite\View\FormField\Inline\Base\Single
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'form_field/inline/input/text/position.css';
+        $list[] = 'form_field/inline/input/text/position.less';
 
         return $list;
     }

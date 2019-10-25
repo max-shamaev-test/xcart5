@@ -37,14 +37,21 @@ class PackageException extends RuntimeException
     }
 
     /**
-     * @param string $message
+     * @param \Exception $previous
      *
      * @return PackageException
      */
-    public static function fromGenericError($message): PackageException
+    public static function fromGenericError($previous): PackageException
     {
         $exception = new self('exception.addon-package.generic-error', self::ERR_GENERIC);
-        $exception->setParams([$message]);
+        $exception->setParams(
+            [
+                [
+                    $previous->getMessage(),
+                    method_exists($previous, 'getParams') ? $previous->getParams() : []
+                ]
+            ]
+        );
 
         return $exception;
     }

@@ -17,6 +17,7 @@ use XLite\Core\Mail\Common\LowLimitAdmin;
 use XLite\Core\Mail\Common\SafeMode;
 use XLite\Core\Mail\Common\TestEmail;
 use XLite\Core\Mail\Common\UpgradeSafeMode;
+use XLite\Core\Mail\Order\BackorderCreatedAdmin;
 use XLite\Core\Mail\Order\CanceledAdmin;
 use XLite\Core\Mail\Order\CanceledCustomer;
 use XLite\Core\Mail\Order\ChangedAdmin;
@@ -133,6 +134,7 @@ abstract class Registry
                     'order_processed'          => ProcessedAdmin::class,
                     'profile_created'          => ProfileCreatedAdmin::class,
                     'recover_password_request' => RecoverPasswordAdmin::class,
+                    'backorder_created'        => BackorderCreatedAdmin::class,
                 ],
         ];
     }

@@ -338,10 +338,19 @@ class Info extends \XLite\View\AView implements ProviderInterface
      */
     protected function getBackorderWarningText()
     {
-        return static::t('This order was placed at the same time as {{orders}}; as a result, some items were out of stock at the time of order placement.', [
-            'orders' => $this->getBackorderCompetitorsText(),
-            'kb_link' => 'https://kb.x-cart.com',
-        ]);
+        if ($backorderCompetitiorsText = $this->getBackorderCompetitorsText()) {
+            $warningText = static::t('This order was placed at the same time as {{orders}}; as a result, some items were out of stock at the time of order placement.', [
+                'orders' => $this->getBackorderCompetitorsText(),
+                'kb_link' => 'https://kb.x-cart.com/orders/understanding_x-cart_order_statuses.html',
+            ]);
+
+        } else {
+            $warningText = static::t('Some items were out of stock at the time of order placement.', [
+                'kb_link' => 'https://kb.x-cart.com/orders/understanding_x-cart_order_statuses.html',
+            ]);
+        }
+
+        return $warningText;
     }
 
     /**
@@ -350,7 +359,7 @@ class Info extends \XLite\View\AView implements ProviderInterface
     protected function getBackorderCompetitorsText()
     {
         return $this->getOrder()->getBackorderCompetitors()->isEmpty()
-            ? static::t('deleted')
+            ? ''
             : implode(', ', array_map(function (Order $order) {
                 return sprintf(
                     '<a href="%s">%s</a>',

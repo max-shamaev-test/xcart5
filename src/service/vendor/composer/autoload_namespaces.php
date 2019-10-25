@@ -8,7 +8,6 @@ $baseDir = dirname($vendorDir);
 return array(
     'Pimple' => array($vendorDir . '/pimple/pimple/src'),
     'PEAR' => array($vendorDir . '/pear/pear_exception'),
-    'Doctrine\\Common\\Lexer\\' => array($vendorDir . '/doctrine/lexer/lib'),
     'Console' => array($vendorDir . '/pear/console_getopt'),
     'Archive_Tar' => array($vendorDir . '/pear/archive_tar'),
     '' => array($vendorDir . '/pear/pear-core-minimal/src'),

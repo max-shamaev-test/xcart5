@@ -50,3 +50,7 @@
   text-decoration: underline;
   color: #0f8dd0;
 }
+
+.add-pin-codes-dialog .model-form-buttons {
+  padding-bottom: 0;
+}

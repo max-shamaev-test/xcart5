@@ -59,6 +59,7 @@ class Marketplace
 
             $data = $this->connector->getData($request);
             if ($data === null) {
+                // todo: check for logging
                 throw MarketplaceException::fromInvalidResponse(
                     $requestName,
                     $this->connector->getLastResponse()
@@ -68,7 +69,10 @@ class Marketplace
             return $data;
 
         } catch (RequestException $e) {
-            $this->logger->emergency('Wrong request name', ['exception' => $e]);
+            $this->logger->debug('Wrong request name', [
+                'requestName' => $requestName,
+                'message'     => $e->getMessage(),
+            ]);
         }
 
         return null;

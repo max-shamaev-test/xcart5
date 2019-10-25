@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\FacebookMarketing\Model\ProductFeed;
 
+use XLite\View\AView;
+
 /**
  * AllProductsFeed
  */
@@ -249,25 +251,25 @@ class AllProductsFeed implements \XLite\Module\XC\FacebookMarketing\Model\Produc
     }
 
     /**
-     * @param \XLite\Model\Product $entity
+     * @param \XLite\Model\AEntity $entity
      * @param string $fieldName
      *
      * @return string
      */
     protected function getEntityDataPrice($entity, $fieldName)
     {
-        return $entity->getClearPrice() . ' ' . \XLite::getInstance()->getCurrency()->getCode();
+        return $this->formatPrice($entity->getDisplayPrice()) . ' ' . \XLite::getInstance()->getCurrency()->getCode();
     }
 
     /**
-     * @param \XLite\Model\Product $entity
+     * @param \XLite\Model\AEntity $entity
      * @param string $fieldName
      *
      * @return string
      */
     protected function getEntityDataSalePrice($entity, $fieldName)
     {
-        return $entity->getNetPrice() . ' ' . \XLite::getInstance()->getCurrency()->getCode();
+        return '';
     }
 
     /**
@@ -333,5 +335,29 @@ class AllProductsFeed implements \XLite\Module\XC\FacebookMarketing\Model\Produc
     protected function getDefaultMpn($entity)
     {
         return $entity->getId();
+    }
+
+    /**
+     * @param      $value
+     * @param null $currency
+     *
+     * @return string
+     */
+    protected function formatPrice($value, $currency = null)
+    {
+        if (null === $currency) {
+            $currency = \XLite::getInstance()->getCurrency();
+        }
+
+        $parts = $currency->formatParts($value);
+
+        if (isset($parts['sign']) && '-' === $parts['sign']) {
+            $parts['sign'] = '− ';
+        }
+
+        unset($parts['suffix']);
+        unset($parts['prefix']);
+
+        return implode('', $parts);
     }
 }

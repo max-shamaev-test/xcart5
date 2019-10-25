@@ -162,7 +162,11 @@ define('Amazon/PayWithAmazon', ['js/jquery', 'Amazon/Config', 'ready'], function
       var ship_block = 'div.step-shipping-methods';
       this.blockElement('div.shipping-step', true);
 
-      jQuery.get('cart.php?target=checkout&widget=\\XLite\\View\\Checkout\\ShippingMethodsList&_=' + Math.random(), function (data) {
+      var shippingMethodsListUrl = 'cart.php?target=amazon_checkout&widget=\\XLite\\Module\\Amazon\\PayWithAmazon\\View\\Checkout\\AmazonShippingMethodsList&_=' + Math.random();
+      if (amazonConfig.orderReference) {
+        shippingMethodsListUrl += '&orderReference=' + this.orderReference;
+      }
+      jQuery.get(shippingMethodsListUrl, function (data) {
 
         jQuery(ship_block).html(jQuery(data).html());
         core.autoload(ShippingMethodsView);
@@ -327,29 +331,45 @@ define('Amazon/PayWithAmazon', ['js/jquery', 'Amazon/Config', 'ready'], function
       // prevent double submission
       this.placeOrderEnabled = false;
 
-      OffAmazonPayments.initConfirmationFlow(amazonConfig.sid, this.orderReference, function(confirmationFlow) {
-        // submit form
-        this.blockElement('body', true);
+      this.blockElement('body', true);
+      var co_form = this.assemblePaymentForm();
 
-        var co_form = jQuery('div.review-step form.place');
-        co_form.removeAttr('onsubmit');
-        co_form.attr('action', 'cart.php?target=amazon_checkout');
-        co_form.find("input[name='target']").val('amazon_checkout');
-        co_form.append('<input type="hidden" name="orderReference" value="' + this.orderReference + '" />');
-        if (amazonConfig.orderReference) {
-          co_form.append('<input type="hidden" name="isRetry" value="true" />');
-        }
+      if (amazonConfig.SCAFlow) {
+        OffAmazonPayments.initConfirmationFlow(amazonConfig.sid, this.orderReference, function(confirmationFlow) {
+          co_form[0].commonController.submitBackground(
+            function (XMLHttpRequest, textStatus, data, isValid) {
+              if (undefined !== data && '' !== data) {
+                data = JSON.parse(data);
+                if (undefined !== data.error) {
+                  confirmationFlow.error();
+                  return false;
+                }
+              }
 
-        co_form[0].commonController.enableBackgroundSubmit(
-          false,
-          function () {
-            confirmationFlow.success();
-          }.bind(this));
-        co_form.submit();
+              confirmationFlow.success();
+              return false;
+            }.bind(this));
 
-      }.bind(this));
+        }.bind(this));
 
-      return false;
+        return false;
+
+      } else {
+        return true;
+      }
+    },
+
+    assemblePaymentForm: function() {
+      var co_form = jQuery('div.review-step form.place');
+      co_form.removeAttr('onsubmit');
+      co_form.attr('action', 'cart.php?target=amazon_checkout');
+      co_form.find("input[name='target']").val('amazon_checkout');
+      co_form.append('<input type="hidden" name="orderReference" value="' + this.orderReference + '" />');
+      if (amazonConfig.orderReference) {
+        co_form.append('<input type="hidden" name="isRetry" value="true" />');
+      }
+
+      return co_form;
     },
 
     paymentSelected: false,

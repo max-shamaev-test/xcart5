@@ -223,24 +223,6 @@ class AttributeOption extends \XLite\View\ItemsList\Model\Table
     // }}}
 
     /**
-     * Return true if param value may contain anything
-     *
-     * @param string $name Param name
-     *
-     * @return boolean
-     */
-    protected function isParamTrusted($name)
-    {
-        $result = parent::isParamTrusted($name);
-
-        if (!$result && $name === 'name') {
-            $result = true;
-        }
-
-        return $result;
-    }
-
-    /**
      * Get URL common parameters
      *
      * @return array

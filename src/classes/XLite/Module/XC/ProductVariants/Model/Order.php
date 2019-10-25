@@ -130,4 +130,42 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
 
         return $result;
     }
+
+    /**
+     * @param \XLite\Model\OrderItem $item
+     *
+     * @return int
+     */
+    protected function calculateProductAmountForItem(\XLite\Model\OrderItem $item)
+    {
+        /** @var \XLite\Module\XC\ProductVariants\Model\OrderItem $item */
+        return $item->getVariant() && !$item->getVariant()->getDefaultAmount()
+            ? $item->getVariant()->getAmount()
+            : parent::calculateProductAmountForItem($item);
+    }
+
+    /**
+     * @param \XLite\Model\OrderItem $item
+     *
+     * @return string
+     */
+    protected function getProductKeyForItem(\XLite\Model\OrderItem $item)
+    {
+        /** @var \XLite\Module\XC\ProductVariants\Model\OrderItem $item */
+        return $item->getVariant() && !$item->getVariant()->getDefaultAmount()
+            ? $item->getVariant()->getVariantId()
+            : parent::getProductKeyForItem($item);
+    }
+
+    /**
+     * @param \XLite\Model\OrderItem $item
+     *
+     * @return boolean
+     */
+    protected function isInventoryEnabledForItem(\XLite\Model\OrderItem $item)
+    {
+        /** @var \XLite\Module\XC\ProductVariants\Model\OrderItem $item */
+        return $item->getVariant() && !$item->getVariant()->getDefaultAmount()
+            ?: parent::isInventoryEnabledForItem($item);
+    }
 }

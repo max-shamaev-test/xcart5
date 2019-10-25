@@ -56,7 +56,7 @@ class FileSelector extends \XLite\View\Button\APopupButton
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'file_selector/style.css';
+        $list[] = 'file_selector/style.less';
         // TODO: dynamic CSS inclusion
         $list[] = 'browse_server/style.css';
 

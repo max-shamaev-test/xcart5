@@ -35,7 +35,7 @@ class SelfRollbackScript extends AScript
      * @return ScriptState
      * @throws ScriptExecutionError
      */
-    public function initializeByState($id, ScriptState $parentScriptState)
+    public function initializeByState($id, ScriptState $parentScriptState): ScriptState
     {
         $transitions = $this->transitionFilter->sortDescending($parentScriptState->transitions);
 

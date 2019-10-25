@@ -1289,7 +1289,7 @@ class Order extends \XLite\Controller\Admin\AAdmin
         return array(
             'item_id'   => $item->getItemId(),
             'requestId' => \XLite\Core\Request::getInstance()->requestId,
-            'price'     => $item->getNetPrice(),
+            'price'     => $item->getItemPrice(),
             'max_qty'   => $maxAmount,
         );
     }

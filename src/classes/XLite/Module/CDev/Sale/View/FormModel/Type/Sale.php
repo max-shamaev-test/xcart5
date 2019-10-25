@@ -43,11 +43,11 @@ class Sale extends AType
     {
         $builder->add('type', 'Symfony\Component\Form\Extension\Core\Type\HiddenType');
         $builder->add('value', 'XLite\View\FormModel\Type\PatternType', [
-            'label' => false,
-            'pattern'    => [
-                'alias'          => 'xcdecimal',
-                'rightAlign'     => false,
-                'digits'         => 2,
+            'label'             => false,
+            'inputmask_pattern' => [
+                'alias'      => 'xcdecimal',
+                'rightAlign' => false,
+                'digits'     => 2,
             ],
         ]);
     }

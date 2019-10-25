@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitXCart-SUS
+class ComposerStaticInitXCartSUS
 {
     public static $classMap = array (
         'XCart\\SUS\\Config' => __DIR__ . '/../..' . '/sus_internals.php',
@@ -22,7 +22,7 @@ class ComposerStaticInitXCart-SUS
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->classMap = ComposerStaticInitXCart-SUS::$classMap;
+            $loader->classMap = ComposerStaticInitXCartSUS::$classMap;
 
         }, null, ClassLoader::class);
     }

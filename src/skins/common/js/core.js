@@ -440,7 +440,7 @@ window.core = {
       if (matches && matches[1]) {
           var headerData = JSON.parse(matches[1]);
 
-          if (headerData.name = 'xcart_form_id' && headerData.old === xliteConfig.form_id) {
+          if (headerData.name === 'xcart_form_id' && headerData.old === xliteConfig.form_id) {
               xliteConfig.form_id = headerData.value;
           }
       }
@@ -575,7 +575,7 @@ window.core = {
 
     type = type || core.getExtension(resource.url);
 
-    if (core.isLoadedResource(resource.url)) {
+    if (resource.url != "var/theme/custom.css" && core.isLoadedResource(resource.url)) {
       return;
     }
 
@@ -1133,7 +1133,7 @@ core.microhandlers.supressRun = function() {
 
   return _.bind(
     function() {
-      this.supressRunOnAdd = previous;
+      this.supressRunOnAdd = false;
     },
     this
   );

@@ -101,21 +101,21 @@ abstract class Payment extends \XLite\View\Checkout\Payment implements \XLite\Ba
         }
 
         $list[] = array(
-            'url'   => 'https://js.braintreegateway.com/web/3.34.0/js/client.min.js',
+            'url'   => 'https://js.braintreegateway.com/web/3.52.0/js/client.min.js',
         );
 
         $list[] = array(
-            'url'   => 'https://js.braintreegateway.com/web/3.34.0/js/hosted-fields.min.js',
+            'url'   => 'https://js.braintreegateway.com/web/3.52.0/js/hosted-fields.min.js',
         );
 
         if ('1' == $client->getSetting('isPayPal')) {
 
             $list[] = array(
-                'url'   => 'https://js.braintreegateway.com/web/3.34.0/js/paypal.min.js',
+                'url'   => 'https://js.braintreegateway.com/web/3.52.0/js/paypal.min.js',
             );
 
             $list[] = array(
-                'url'   => 'https://js.braintreegateway.com/web/3.34.0/js/paypal-checkout.min.js',
+                'url'   => 'https://js.braintreegateway.com/web/3.52.0/js/paypal-checkout.min.js',
             );
 
             $list[] = array(
@@ -126,7 +126,7 @@ abstract class Payment extends \XLite\View\Checkout\Payment implements \XLite\Ba
         if ('1' == $client->getSetting('is3dSecure')) {
 
             $list[] = array(
-                'url'   => 'https://js.braintreegateway.com/web/3.34.0/js/three-d-secure.min.js',
+                'url'   => 'https://js.braintreegateway.com/web/3.52.0/js/three-d-secure.min.js',
             );
         }
 

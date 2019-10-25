@@ -26,7 +26,7 @@ class Tag extends AFilter
         $item = $this->getInnerIterator()->current();
 
         return $this->data
-            ? in_array($this->data, $item->tags, true)
+            ? in_array($this->data, array_map(static function ($item) { return $item['id']; }, $item->tags), true)
             : true;
     }
 }

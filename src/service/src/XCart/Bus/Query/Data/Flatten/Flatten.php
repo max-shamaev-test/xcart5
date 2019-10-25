@@ -61,7 +61,7 @@ class Flatten extends IteratorIterator
 
         $this->rule = $rule;
 
-        [$system, $major, ,] = Module::explodeVersion($core->version);
+        [$system, $major] = Module::explodeVersion($core->version);
         $this->coreMajorVersion = $system . '.' . $major;
     }
 
@@ -167,6 +167,7 @@ class Flatten extends IteratorIterator
             'installed'     => self::getField('installed', $installed, null, false),
             'installedDate' => self::getField('installedDate', $installed, null, 0),
             'enabled'       => self::getField('enabled', $installed, null, false),
+            'enabledDate'   => self::getField('enabledDate', $installed, null, 0),
             'skinPreview'   => self::getField('skinPreview', $marketplace, $installed),
 
             'pageUrl'       => self::getField('pageURL', $marketplace),
@@ -177,7 +178,9 @@ class Flatten extends IteratorIterator
             'price'        => (float) self::getField('price', $marketplace, null, 0.0),
             'downloads'    => self::getField('downloads', $marketplace, null, 0),
             'rating'       => self::getField('rating', $marketplace, null, 0),
-            'tags'         => self::getField('tags', $marketplace, null, []),
+            'tags'         => array_map(static function ($item) {
+                return ['id' => $item, 'name' => $item];
+            }, self::getField('tags', $marketplace, null, [])),
             'translations' => self::getField('translations', $marketplace, null, []),
 
             'wave'         => self::getField('wave', $marketplace),
@@ -301,6 +304,11 @@ class Flatten extends IteratorIterator
      */
     private function getNextMajorOrCurrent($installed, $data): ?Module
     {
+        if (!$this->checkModuleCoreVersion($installed)) {
+            return $installed;
+        }
+
+        // todo: check if installed version is the last in major branch
         $next = array_reduce($data, function ($carry, $item) {
             /** @var Module $carry */
             /** @var Module $item */
@@ -332,6 +340,10 @@ class Flatten extends IteratorIterator
      */
     private function getNextMinorOrBuildOrCurrent($installed, $data): ?Module
     {
+        if (!$this->checkModuleCoreVersion($installed)) {
+            return $installed;
+        }
+
         $next = array_reduce($data, function ($carry, $item) {
             /** @var Module $carry */
             /** @var Module $item */
@@ -363,6 +375,10 @@ class Flatten extends IteratorIterator
      */
     private function getNextBuildOrCurrent($installed, $data): ?Module
     {
+        if (!$this->checkModuleCoreVersion($installed)) {
+            return $installed;
+        }
+
         $next = array_reduce($data, function ($carry, $item) {
             /** @var Module $carry */
             /** @var Module $item */
@@ -384,5 +400,17 @@ class Flatten extends IteratorIterator
         }, $installed);
 
         return $next && $next !== $installed ? $next : $this->getCurrentVersion($installed, $data);
+    }
+
+    /**
+     * @param Module $module
+     *
+     * @return bool
+     */
+    private function checkModuleCoreVersion(Module $module): bool
+    {
+        [$moduleCore, $moduleMajor] = Module::explodeVersion($module->version);
+
+        return $this->coreMajorVersion === $moduleCore . '.' . $moduleMajor;
     }
 }

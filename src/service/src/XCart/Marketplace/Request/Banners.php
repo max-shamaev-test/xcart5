@@ -59,7 +59,7 @@ class Banners extends AAPIRequest
     {
         return array_map(function ($item) {
             return [
-                'image'   => $item['banner_img'],
+                'image'   => preg_replace('/^https?:/', '', $item['banner_img']),
                 'module'  => $item['banner_module'],
                 'url'     => html_entity_decode($item['banner_url']),
                 'section' => $item['banner_section'],

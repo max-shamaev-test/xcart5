@@ -8,9 +8,9 @@
 
 namespace XCart\Bus\Exception;
 
-use XCart\Bus\Rebuild\Executor\StepState;
+use Exception;
 
-class ScriptExecutionError extends \Exception
+class ScriptExecutionError extends Exception
 {
     const REASON_FINISHED_ALREADY      = 1;
     const REASON_CANCELED              = 2;
@@ -26,7 +26,7 @@ class ScriptExecutionError extends \Exception
      *
      * @return static
      */
-    public static function fromUnknownScript($type)
+    public static function fromUnknownScript($type): ScriptExecutionError
     {
         return new static(sprintf('Unknown script "%s"', $type), self::REASON_UNKNOWN_SCRIPT);
     }
@@ -34,7 +34,7 @@ class ScriptExecutionError extends \Exception
     /**
      * @return static
      */
-    public static function fromNotOwnedProcess()
+    public static function fromNotOwnedProcess(): ScriptExecutionError
     {
         return new static('The process is owned by another user', self::REASON_OWNED_BY_ANOTHER_USER);
     }
@@ -42,7 +42,7 @@ class ScriptExecutionError extends \Exception
     /**
      * @return static
      */
-    public static function fromUnacceptableStateExecution()
+    public static function fromUnacceptableStateExecution(): ScriptExecutionError
     {
         return new static('This script state cannot be executed further', self::REASON_FINISHED_ALREADY);
     }
@@ -50,7 +50,7 @@ class ScriptExecutionError extends \Exception
     /**
      * @return static
      */
-    public static function fromFinishedProcess()
+    public static function fromFinishedProcess(): ScriptExecutionError
     {
         return new static('This script state cannot be executed further', self::REASON_FINISHED_ALREADY);
     }
@@ -58,7 +58,7 @@ class ScriptExecutionError extends \Exception
     /**
      * @return static
      */
-    public static function fromLockedState()
+    public static function fromLockedState(): ScriptExecutionError
     {
         return new static('Can\'t start redeploy because other process is in progress', self::REASON_OTHER_IN_PROGRESS);
     }
@@ -68,7 +68,7 @@ class ScriptExecutionError extends \Exception
      *
      * @return static
      */
-    public static function fromUnknownStep($index)
+    public static function fromUnknownStep($index): ScriptExecutionError
     {
         return new static(sprintf('Unknown step #%s', $index), self::REASON_UNKNOWN_STEP);
     }

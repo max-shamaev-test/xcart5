@@ -100,6 +100,18 @@
       </select>
     </td>
   </tr>
+  <tr>
+    <td class="setting-name">
+      <label for="settings_paypalShippingAddressOverride">{{ t('Override shipping address') }}</label>
+    </td>
+    <td>
+      <select id="settings_paypalShippingAddressOverride" name="settings[paypalShippingAddressOverride]">
+        <option value="1" {% if '1' == this.paymentMethod.getSetting('paypalShippingAddressOverride') %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
+        <option value="0" {% if '0' == this.paymentMethod.getSetting('paypalShippingAddressOverride') %} selected="selected" {% endif %}>{{ t('No') }}</option>
+      </select>
+      &nbsp;{{ widget('XLite\\View\\Tooltip', id='settings_paypalShippingAddressOverride_help', text=t('braintree_paypal_shipping_override_help')|raw, caption='', isImageTag='true', className='help-icon') }}
+    </td>
+  </tr>
 </table>
 
 <legend><h3>{{ t('Vault') }}</h3></legend>

@@ -13,23 +13,15 @@ use XCart\Bus\Rebuild\Executor\Step\StepInterface;
 
 interface ScriptInterface
 {
-    const PROMPT_ROLLBACK        = 'rollback';
-    const PROMPT_RESTART         = 'restart';
-    const PROMPT_IGNORE          = 'ignore';
-    const PROMPT_RETRY           = 'retry';
-    const PROMPT_CANCEL          = 'cancel';
-    const PROMPT_RELEASE         = 'release'; // [the hold]
-    const PROMPT_ADDITIONAL_INFO = 'additionalInfo';
+    /**
+     * @param array $steps
+     */
+    public function setSteps(array $steps): void;
 
     /**
-     * @param $steps
+     * @return StepInterface[]
      */
-    public function setSteps($steps);
-
-    /**
-     * @return array
-     */
-    public function getSteps();
+    public function getSteps(): array;
 
     /**
      * Initializes script execution and constructs the required script state
@@ -49,7 +41,7 @@ interface ScriptInterface
      *
      * @return ScriptState
      */
-    public function initializeByState($id, ScriptState $parentScriptState);
+    public function initializeByState($id, ScriptState $parentScriptState): ScriptState;
 
     /**
      * Checks if given script state is sufficient and consistent for this script
@@ -65,7 +57,7 @@ interface ScriptInterface
      *
      * @return bool
      */
-    public function isOwnerLocked();
+    public function isOwnerLocked(): bool;
 
     /**
      * Executes the script in given script state
@@ -76,7 +68,7 @@ interface ScriptInterface
      *
      * @return ScriptState
      */
-    public function execute(ScriptState $scriptState, $action = StepInterface::ACTION_EXECUTE, array $params = []);
+    public function execute(ScriptState $scriptState, $action = StepInterface::ACTION_EXECUTE, array $params = []): ScriptState;
 
     /**
      * Cancels the script in given script state

@@ -19,7 +19,7 @@ class CleanUrl extends \XLite\View\FormField\Input\Checkbox\OnOff
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/input/checkbox/clean_url.css';
+        $list[] = $this->getDir() . '/input/checkbox/clean_url.less';
 
         return $list;
     }

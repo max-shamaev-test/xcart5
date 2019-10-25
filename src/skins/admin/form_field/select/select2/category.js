@@ -90,7 +90,9 @@ CommonForm.elementControllers.push(
             return '<span class="searching">' + params['searching-lbl'] + '</span>';
           }
 
-          var parts = category.path.split('/');
+          var parts = category.path.split('/').map(function (item) {
+            return core.utils.escapeString(item);
+          });
 
           var markup = '';
           var additionalClass = '';
@@ -102,21 +104,25 @@ CommonForm.elementControllers.push(
           if (parts.length > 1) {
             markup += '<span class="path ' + additionalClass + '">' + parts.slice(0, -1).join(' / ') + ' / </span>';
           }
-          markup += '<span class="name ' + additionalClass + '">' + category.name + '</span>';
 
-          $(selectItem).data('name', category.name);
+          var name = core.utils.escapeString(category.name)
+          markup += '<span class="name ' + additionalClass + '">' + name + '</span>';
+
+          $(selectItem).data('name', name);
 
           if (category.enabled == undefined) {
             category.enabled = true;
           }
 
-          addDisabledCategoryTooltip(category.name, params['disabled-lbl'], $(selectItem), element, category.enabled);
+          addDisabledCategoryTooltip(name, params['disabled-lbl'], $(selectItem), element, category.enabled);
 
           return markup;
         },
         templateSelection: function (category, selectItem) {
           var path = category.path == undefined ? category.text : category.path;
-          var parts = path.split('/');
+          var parts = path.split('/').map(function (item) {
+            return core.utils.escapeString(item);
+          });
 
           var tooltipText = '<div class="path">';
           parts.forEach(function(part) {
@@ -134,7 +140,7 @@ CommonForm.elementControllers.push(
           });
           $(selectItem).attr('data-original-title', tooltipText);
 
-          var name = category.name ? category.name : parts.pop();
+          var name = category.name ? core.utils.escapeString(category.name) : parts.pop();
 
           if (category.enabled == undefined) {
             category.enabled = true;

@@ -47,30 +47,30 @@ class Info extends \XLite\View\FormModel\Product\Info implements \XLite\Base\IDe
                 'shipping' => [
                     'requires_shipping' => [
                         'fixed_shipping_freight' => [
-                            'label'       => static::t('Freight'),
-                            'help'        => static::t('This field can be used to set a fixed shipping fee for the product. Make sure the field value is a positive number (greater than zero).'),
-                            'type'        => 'XLite\View\FormModel\Type\SymbolType',
-                            'symbol'      => $currencySymbol,
-                            'pattern'     => [
-                                'alias'          => 'xcdecimal',
-                                'prefix'         => '',
-                                'rightAlign'     => false,
-                                'digits'         => $currency->getE(),
+                            'label'             => static::t('Freight'),
+                            'help'              => static::t('This field can be used to set a fixed shipping fee for the product. Make sure the field value is a positive number (greater than zero).'),
+                            'type'              => 'XLite\View\FormModel\Type\SymbolType',
+                            'symbol'            => $currencySymbol,
+                            'inputmask_pattern' => [
+                                'alias'      => 'xcdecimal',
+                                'prefix'     => '',
+                                'rightAlign' => false,
+                                'digits'     => $currency->getE(),
                             ],
-                            'constraints' => [
+                            'constraints'       => [
                                 'Symfony\Component\Validator\Constraints\GreaterThanOrEqual' => [
                                     'value'   => 0,
                                     'message' => static::t('Minimum value is X', ['value' => 0]),
                                 ],
                             ],
-                            'show_when'   => [
+                            'show_when'         => [
                                 '..' => [
                                     'requires_shipping' => true,
                                     'free_shipping'     => false,
                                     'ship_for_free'     => false,
                                 ],
                             ],
-                            'position'    => 200,
+                            'position'          => 200,
                         ],
                         'ship_for_free'          => [
                             'label'            => static::t('Free shipping'),

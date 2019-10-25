@@ -8,6 +8,7 @@
 
 namespace XCart\Bus\Client;
 
+use Exception;
 use Psr\Log\LoggerInterface;
 use Silex\Application;
 use XCart\Bus\Domain\Module;
@@ -31,6 +32,7 @@ use XCart\Marketplace\Request\GetTokenData;
 use XCart\Marketplace\Request\Notifications;
 use XCart\Marketplace\Request\OutdatedModule;
 use XCart\Marketplace\Request\PaymentMethods;
+use XCart\Marketplace\Request\ResendKey;
 use XCart\Marketplace\Request\Set;
 use XCart\Marketplace\Request\SetKeyWave;
 use XCart\Marketplace\Request\ShippingMethods;
@@ -77,7 +79,7 @@ class MarketplaceClient
     private $marketplace;
 
     /**
-     * @var \Exception|null
+     * @var Exception|null
      */
     private $lastError;
 
@@ -202,7 +204,7 @@ class MarketplaceClient
 
         return $this->getData(PaymentMethods::class, [
             'currentCoreVersion' => ['major' => $coreMajorVersion],
-            'shopCountryCode' => $counryCode,
+            'shopCountryCode'    => $counryCode,
         ]);
     }
 
@@ -251,7 +253,7 @@ class MarketplaceClient
         $data = [];
 
         foreach ($actions as $k => $actionData) {
-            if (!\is_array($actionData)) {
+            if (!is_array($actionData)) {
                 $data[$actionData] = [0];
             } else {
                 $data[$k] = $actionData;
@@ -261,7 +263,7 @@ class MarketplaceClient
         $result = $this->getData(Set::class, $data);
 
         if (!$result) {
-            return array_map(function () {
+            return array_map(static function () {
                 return [];
             }, $data);
         }
@@ -395,12 +397,12 @@ class MarketplaceClient
      * @param int|null $wave
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function registerLicenseKey($key, $wave = null): array
     {
         $data = [
-            Constant::FIELD_KEY         => trim($key),
+            Constant::FIELD_KEY         => $key,
             Constant::FIELD_DO_REGISTER => 1,
         ];
 
@@ -434,14 +436,40 @@ class MarketplaceClient
      * @param string $email
      *
      * @return array
+     * @throws Exception
      */
     public function registerFreeLicenseKey($key, $email): array
     {
-        return $this->getData(CheckAddonKey::class, [
-            Constant::FIELD_KEY         => trim($key),
+        $result = $this->getData(CheckAddonKey::class, [
+            Constant::FIELD_KEY         => $key,
             Constant::FIELD_EMAIL       => $email,
             Constant::FIELD_DO_REGISTER => 1,
         ]);
+
+        if ($this->getLastError()) {
+            throw $this->getLastError();
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string $email
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function resendLicenseKey($email): bool
+    {
+        $result = (bool) $this->getData(ResendKey::class, [
+            Constant::FIELD_EMAIL => $email,
+        ]);
+
+        if ($this->getLastError()) {
+            throw $this->getLastError();
+        }
+
+        return $result;
     }
 
     /**
@@ -471,7 +499,7 @@ class MarketplaceClient
     }
 
     /**
-     * @param string $email
+     * @param string   $email
      * @param Module[] $modules
      *
      * @return array
@@ -485,10 +513,10 @@ class MarketplaceClient
                 [$system, $major, $minor, $build] = Module::explodeVersion($version);
 
                 $modulesField[] = [
-                    'name' => $module->name,
+                    'name'   => $module->name,
                     'author' => $module->author,
-                    'major' => $system . '.' . $major,
-                    'minor' => $minor . ($build > 0 ? ('.' . $build) : '')
+                    'major'  => $system . '.' . $major,
+                    'minor'  => $minor . ($build > 0 ? ('.' . $build) : ''),
                 ];
             }
         }
@@ -504,57 +532,57 @@ class MarketplaceClient
     }
 
     /**
-     * @return \Exception|null
+     * @return Exception|null
      */
-    public function getLastError(): ?\Exception
+    public function getLastError(): ?Exception
     {
         return $this->lastError;
     }
 
     /**
-     * @param \Exception|null $lastError
+     * @param Exception|null $lastError
      */
-    public function setLastError(?\Exception $lastError): void
+    public function setLastError(?Exception $lastError): void
     {
         $this->lastError = $lastError;
     }
 
     /**
-     * @param string $request
+     * @param string $requestName
      * @param array  $params
      *
      * @return array
      */
-    private function getData($request, $params = []): array
+    private function getData($requestName, $params = []): array
     {
         $this->setLastError(null);
 
         if ($this->isMarketplaceLocked()) {
-            $this->logger->info('Marketplace is locked', [
-                'request' => $request,
+            $this->logger->warning('Marketplace is locked', [
+                'requestName' => $requestName,
             ]);
 
             return [];
         }
 
         try {
-            return (array) $this->getMarketplace()->getData($request, $params);
-        } catch (TransportException $exception) {
+            return (array) $this->getMarketplace()->getData($requestName, $params);
+        } catch (TransportException $e) {
             $this->lockMarketplace();
 
-            $this->setLastError($exception);
+            $this->setLastError($e);
 
-            $this->logger->info('Set marketplace lock', [
-                'request' => $request,
-                'code'    => $exception->getCode(),
-                'message' => $exception->getMessage(),
+            $this->logger->warning('Set marketplace lock', [
+                'request' => $requestName,
+                'code'    => $e->getCode(),
+                'message' => $e->getMessage(),
             ]);
 
-        } catch (MarketplaceException $exception) {
-            $this->setLastError($exception);
+        } catch (MarketplaceException $e) {
+            $this->setLastError($e);
 
-            if ($exception->getCode() !== 0) {
-                $this->logger->emergency($exception->getMessage(), $exception->getData());
+            if ($e->getCode() !== 0) {
+                $this->logger->critical($e->getMessage(), $e->getData()); // todo: check exception message and data
             }
         }
 

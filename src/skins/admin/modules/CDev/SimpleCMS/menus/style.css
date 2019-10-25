@@ -12,11 +12,7 @@
 }
 
 .items-list-table.menus table.list .cell.visibleFor > .cell {
-	width: 200px;
-}
-
-.items-list-table.menus table.list .cell.submenus > .cell {
-	width: 100px;
+	width: 165px;
 }
 
 .items-list-table.menus table.list tbody.lines .line .cell .entity-edit-link {

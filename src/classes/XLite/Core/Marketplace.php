@@ -165,6 +165,24 @@ class Marketplace extends \XLite\Base\Singleton
     }
 
     /**
+     * Check if cache was reset by service.php?/clear-cache
+     *
+     * @param $cell
+     * @param $serviceVar
+     *
+     * @return bool
+     */
+    protected function isServiceCacheReset($cell, $serviceVar)
+    {
+        $start = \XLite\Core\TmpVars::getInstance()->$cell;
+        $systemData = $this->getSystemData();
+
+        return isset($start)
+            && isset($systemData[$serviceVar])
+            && $start < $systemData[$serviceVar];
+    }
+
+    /**
      * @return array
      */
     public function getPaymentMethods(string $countryCode = '')
@@ -188,7 +206,7 @@ class Marketplace extends \XLite\Base\Singleton
         $ttl = $ttl ?? static::TTL_LONG;
 
         // Check if expired
-        if (!$this->checkTTL($cellTTL, $ttl)) {
+        if (!$this->checkTTL($cellTTL, $ttl) || $this->isServiceCacheReset($cellTTL, 'paymentMethodsCacheDate')) {
             if ($data = $this->getPaymentMethods($countryCode)) {
                 \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')->updatePaymentMethods($data, $countryCode);
                 $this->setTTLStart($cellTTL);
@@ -219,7 +237,7 @@ class Marketplace extends \XLite\Base\Singleton
         $ttl = $ttl ?? static::TTL_LONG;
 
         // Check if expired
-        if (!$this->checkTTL($cellTTL, $ttl)) {
+        if (!$this->checkTTL($cellTTL, $ttl) || $this->isServiceCacheReset($cellTTL, 'shippingMethodsCacheDate')) {
             if ($data = $this->getShippingMethods()) {
                 \XLite\Core\Database::getRepo('XLite\Model\Shipping\Method')->updateShippingMethods($data);
                 $this->setTTLStart($cellTTL);
@@ -311,9 +329,20 @@ class Marketplace extends \XLite\Base\Singleton
         return $result;
     }
 
-    public function hasUnallowedModules()
+    public function hasUnallowedModules($onlyEnabled = true)
     {
-        // todo: implement with BUS
+        $inactiveModules = $this->getInactiveContentData();
+
+        if (!$onlyEnabled) {
+            return 0 < count($inactiveModules);
+        }
+
+        foreach ($inactiveModules as $module) {
+            if (isset($module['enabled']) && true === $module['enabled']) {
+                return true;
+            }
+        }
+        
         return false;
     }
 
@@ -388,6 +417,31 @@ class Marketplace extends \XLite\Base\Singleton
         $criteria = [
             'tag'       => 'Accounting',
             'installed' => true,
+        ];
+
+        $systemData = $this->getSystemData();
+
+        $cacheKeyData = $criteria + [
+                'dataDate' => $systemData['dataDate'] ?? 0,
+            ];
+
+        return $this->performRequestWithCache($cacheKeyData, function () use ($criteria) {
+            return \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
+                \XLite\Core\Marketplace\QueryRegistry::getQuery('marketplace_modules', $criteria),
+                new \XLite\Core\Marketplace\Normalizer\MarketplaceModules()
+            ) ?: [];
+        });
+    }
+
+    /**
+     * @param $modules
+     *
+     * @return mixed
+     */
+    public function getAutomateShippingRoutineModules($modules)
+    {
+        $criteria = [
+            'includeIds' => $modules,
         ];
 
         $systemData = $this->getSystemData();

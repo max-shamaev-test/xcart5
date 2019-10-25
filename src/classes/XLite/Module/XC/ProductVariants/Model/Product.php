@@ -196,7 +196,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     public function getQuickDataMinPrice()
     {
         if ($this->hasVariants()) {
-            $price = $this->getClearPrice();
+            $price = $this->getNetPrice();
             foreach ($this->getVariants() as $variant) {
                 if ($variant->getQuickDataPrice() < $price) {
                     $price = $variant->getQuickDataPrice();
@@ -217,7 +217,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     public function getQuickDataMaxPrice()
     {
         if ($this->hasVariants()) {
-            $price = $this->getClearPrice();
+            $price = $this->getNetPrice();
             foreach ($this->getVariants() as $variant) {
                 if ($variant->getQuickDataPrice() > $price) {
                     $price = $variant->getQuickDataPrice();

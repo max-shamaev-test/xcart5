@@ -9,6 +9,8 @@
 namespace XLite\Module\CDev\PINCodes\View\Popup;
 
 
+use XLite\Module\CDev\PINCodes\Model\OrderItem;
+
 class BackstockStatusChangeNotification extends \XLite\View\Popup\BackstockStatusChangeNotification implements \XLite\Base\IDecorator
 {
     public function getCSSFiles()
@@ -16,5 +18,17 @@ class BackstockStatusChangeNotification extends \XLite\View\Popup\BackstockStatu
         return array_merge(parent::getCSSFiles(), [
             'modules/CDev/PINCodes/popup/backstock_status_change_notification/style.css',
         ]);
+    }
+
+    protected function hasMissingPinCodeItems()
+    {
+        foreach ($this->getOrder()->getItems() as $item) {
+            /* @var OrderItem $item */
+            if ($item->countMissingPinCodes()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

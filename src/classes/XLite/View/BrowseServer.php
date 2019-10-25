@@ -135,7 +135,7 @@ class BrowseServer extends \XLite\View\SimpleDialog
             $path = $file->getPathname();
             $type = $file->isDir() ? 'catalog' : 'file';
 
-            if ('.' !== substr($file->getBasename(), 0, 1)) {
+            if ('.' !== substr($file->getBasename(), 0, 1) && 'service' !== $file->getBasename()) {
                 $this->fsEntries[$type][$path] = array(
                     'type'      => $type,
                     'extension' => pathinfo($path, PATHINFO_EXTENSION),

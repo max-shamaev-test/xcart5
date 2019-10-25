@@ -41,7 +41,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     public function isNewProduct()
     {
-        $currentDate = static::getUserTime();
+        $currentDate = \XLite\Core\Converter::getDayEnd(static::getUserTime());
 
         $daysOffset = \XLite\Module\CDev\ProductAdvisor\Main::getNewArrivalsOffset();
 
@@ -58,13 +58,11 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     public function isUpcomingProduct()
     {
-        $currentDate = static::getUserTime();
-
         return \XLite\Core\Config::getInstance()->CDev
                && \XLite\Core\Config::getInstance()->CDev->ProductAdvisor
                && \XLite\Core\Config::getInstance()->CDev->ProductAdvisor->cs_enabled
                && $this->getArrivalDate()
-               && $this->getArrivalDate() > $currentDate;
+               && $this->getArrivalDate() > \XLite\Core\Converter::getDayEnd(static::getUserTime());
     }
 
     /**

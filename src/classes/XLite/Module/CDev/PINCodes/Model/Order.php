@@ -51,8 +51,7 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
             }
         }
 
-        if ($missingCount) {
-            \XLite\Core\Mailer::sendAcquirePinCodesFailedAdmin($this);
+        if ($missingCount && \XLite::isAdminZone()) {
             \XLite\Core\TopMessage::addError(
                 'Could not assign X PIN codes to order #Y.',
                 [
@@ -130,8 +129,7 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
                 }
             }
 
-            if ($missingCount) {
-                \XLite\Core\Mailer::sendAcquirePinCodesFailedAdmin($this);
+            if ($missingCount && \XLite::isAdminZone()) {
                 \XLite\Core\TopMessage::addError(
                     'Could not assign X PIN codes to order #Y.',
                     [

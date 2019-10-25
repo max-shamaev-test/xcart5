@@ -137,7 +137,6 @@ class CommonResources extends \XLite\View\AView
                 'js/core.popup.js',
                 'js/core.popup_button.js',
                 'js/core.form.js',
-                'js/lazy-load.js',
                 'js/loadCSS.min.js',
                 'js/cssrelpreload.min.js',
                 'js/onloadCSS.min.js',
@@ -152,6 +151,10 @@ class CommonResources extends \XLite\View\AView
                 ],
                 'js/core/amd.js',
                 'js/core/translate.js',
+                [
+                    'file'      => 'js/lazysizes.min.js',
+                    'no_minify' => true,
+                ],
                 'js/tooltip.js'
             ],
             static::RESOURCE_CSS => [
@@ -160,7 +163,6 @@ class CommonResources extends \XLite\View\AView
                 'css/jquery.mousewheel.css',
                 'css/validationEngine.jquery.css',
                 'css/font-awesome/font-awesome.min.css',
-                'css/lazy-load.css',
                 [
                     'file'   => 'css/common.less',
                     'media'  => 'screen',

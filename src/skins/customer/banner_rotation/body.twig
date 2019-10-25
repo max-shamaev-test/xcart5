@@ -2,7 +2,7 @@
  # Banner rotation widget template
  #}
 
-<div id="banner-rotation-widget" class="carousel slide banner-carousel lazy-load">
+<div id="banner-rotation-widget" class="carousel slide banner-carousel">
   {{ this.displayCommentedData(this.getCommentedData()) }}
 
   <!-- Indicators -->
@@ -17,7 +17,7 @@
   <div class="carousel-inner not-initialized" role="listbox">
     {% for image in this.getImages() %}
       <a {% if image.bannerRotationSlide.getFrontLink() %} href="{{ image.bannerRotationSlide.getFrontLink() }}"{% endif %} class="item">
-        <img {% if this.getBlurredImageData(image) %}style="background: url({{ this.getBlurredImageData(image) }}); background-size: cover" {% endif %} src="{{ image.getFrontURL() }}" alt="{{ image.getAlt() }}" >
+        {{ widget('\\XLite\\View\\Image', lazyLoad=true, image=image, alt=image.getAlt(), resizeImage=false, useCache=false) }}
       </a>
     {% endfor %}
   </div>

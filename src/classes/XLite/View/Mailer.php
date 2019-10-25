@@ -206,7 +206,7 @@ class Mailer extends \XLite\View\AView
      */
     public function setSubjectTemplate($template)
     {
-        $this->set('subjectTemplate', $template);
+        $this->subjectTemplate = $template;
     }
 
     /**
@@ -218,7 +218,7 @@ class Mailer extends \XLite\View\AView
      */
     public function setLayoutTemplate($template)
     {
-        $this->set('layoutTemplate', $template);
+        $this->layoutTemplate = $template;
     }
 
     /**

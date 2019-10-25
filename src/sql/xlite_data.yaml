@@ -31,7 +31,7 @@ XLite\Model\Config:
   - { name: company_identity, category: Company, type: separator, orderby: 35000, translations: [{ code: en, option_name: Identity }] }
   - { name: company_name, category: Company, type: text, orderby: 36000, translations: [{ code: en, option_name: 'Company name', option_comment: "Changing the value of this or any other fields on this page will not affect the signature in your store's email notifications. The signature for notifications can be edited on the <a href=\"admin.php?target=notification_common\">Header, greeting & signature</a> page." }] }
   - { name: company_website, category: Company, type: text, orderby: 37000, translations: [{ code: en, option_name: 'Company website' }] }
-  - { name: terms_url, category: General, type: text, orderby: 38000, value: 'terms-and-conditions.html', translations: [{ code: en, option_name: 'Terms and conditions relative URL' }] }
+  - { name: terms_url, category: General, type: text, orderby: 38000, value: 'terms-and-conditions', translations: [{ code: en, option_name: 'Terms and conditions relative URL' }] }
   - { name: customer_presentation, category: General, type: separator, orderby: 20000, translations: [{ code: en, option_name: 'Customer Zone settings' }] }
   - { name: customer_security, category: Security, type: checkbox, value: N, orderby: 100, translations: [{ code: en, option_name: 'Use HTTPS in the Customer Zone (for login, Checkout and profile pages)' }] }
   - { name: date_format, category: Units, type: 'XLite\View\FormField\Select\DateFormat', orderby: 66000, value: '%b %e, %Y', translations: [{ code: en, option_name: 'Date format' }] }
@@ -97,7 +97,7 @@ XLite\Model\Config:
   - { name: mail_from_manual, category: Email, type: \XLite\View\FormField\Input\Text\EmailFromManual, orderby: 10600, value: '', widgetParameters: { required: true }, }
   - { name: use_smtp, category: Email, type: \XLite\View\FormField\Input\Checkbox\UseSmtp, orderby: 11000, value: '', translations: [{ code: en, option_name: 'Use SMTP server' }] }
   - { name: use_smtp_auth, category: Email, type: XLite\View\FormField\Input\Checkbox\OnOff, orderby: 14000, value: '', translations: [{ code: en, option_name: 'Use authentication' }] }
-  - { name: version, category: Version, value: '5.4.0.4' }
+  - { name: version, category: Version, value: '5.4.0.6' }
   - { name: weight_symbol, category: Units, type: text, orderby: 62000, value: lbs, translations: [{ code: en, option_name: 'Weight symbol' }] }
   - { name: weight_unit, category: Units, type: 'XLite\View\FormField\Select\WeightUnit', orderby: 61000, value: lbs, translations: [{ code: en, option_name: 'Weight unit' }] }
   - { name: weight_trailing_zeroes, category: Units, type: checkbox, orderby: 62100, value: Y, translations: [{ code: en, option_name: 'Hide trailing zeros in fractional part' }] }
@@ -1706,6 +1706,26 @@ XLite\Model\Notification:
         description: 'This message is used to notify the administrator when the stock level of a product reaches the low stock limit as specified in the product details.'
         adminSubject: 'You are running out of %product_name%'
         adminText: '<h3 dir="ltr">Heads-up boss, </h3><p dir="ltr">I see that some of your products are about to run out of stock.&nbsp;</p><p dir="ltr">%dynamic_message%</p><p dir="ltr">According to our stats you&rsquo;ll sell the last item by %latest_sale_date%. So it&rsquo;s high time to replenish them. You are not going to sell fresh air, are you?</p>'
+
+  - templatesDirectory: backorder_created
+    position: 700
+    availableForAdmin: true
+    availableForCustomer: false
+    enabledForAdmin: true
+    enabledForCustomer: false
+    adminHeaderEnabled: true
+    adminGreetingEnabled: true
+    adminSignatureEnabled: true
+    customerHeaderEnabled: true
+    customerGreetingEnabled: true
+    customerSignatureEnabled: true
+    editable: true
+    translations:
+      - code: en
+        name: 'Backordered item in the order'
+        description: "This notification is sent to the administrator if one or more products in a customer's order are out of stock at the time of order placement."
+        adminSubject: 'A new backorder %backordered_item_names%'
+        adminText: '<p dir="ltr">A customer has just bought one or more items that are out of stock at the moment. It is time to replenish your supplies.&nbsp;</p><p dir="ltr"><a href="%order_link%">Check the order #%order_number%</a></p>'
 
   - templatesDirectory: order_changed
     position: 1400

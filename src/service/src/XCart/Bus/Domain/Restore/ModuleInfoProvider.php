@@ -105,6 +105,7 @@ class ModuleInfoProvider
         $module->installedDate            = time();
         $module->integrated               = $xcartModule->enabled;
         $module->enabled                  = $xcartModule->enabled;
+        $module->enabledDate              = floor(time() / 60) * 60;
         $module->skinPreview              = XCartModule::getSkinPreviewURL($xcartModule->author, $xcartModule->name);
         $module->service                  = $xcartModule->service;
 

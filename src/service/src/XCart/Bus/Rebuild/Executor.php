@@ -8,6 +8,7 @@
 
 namespace XCart\Bus\Rebuild;
 
+use Psr\Log\LoggerInterface;
 use XCart\Bus\Exception\ScriptExecutionError;
 use XCart\Bus\Rebuild\Executor\Script\ScriptInterface;
 use XCart\Bus\Rebuild\Executor\ScriptFactory;
@@ -16,7 +17,7 @@ use XCart\Bus\Rebuild\Executor\Step\StepInterface;
 use XCart\SilexAnnotations\Annotations\Service;
 
 /**
- * @Service\Service(arguments={"token"="x_cart.bus.user_token"})
+ * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild","token"="x_cart.bus.user_token"})
  */
 class Executor
 {
@@ -25,12 +26,17 @@ class Executor
     /**
      * @var ScriptFactory
      */
-    protected $scriptFactory;
+    private $scriptFactory;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * @var string
      */
-    protected $token;
+    private $token;
 
     /**
      * @param ScriptFactory $scriptFactory
@@ -38,9 +44,11 @@ class Executor
      */
     public function __construct(
         ScriptFactory $scriptFactory,
+        LoggerInterface $logger,
         $token
     ) {
         $this->scriptFactory = $scriptFactory;
+        $this->logger        = $logger;
         $this->token         = $token;
     }
 
@@ -51,12 +59,13 @@ class Executor
      * @param array  $scenario
      *
      * @return ScriptState
+     * @throws ScriptExecutionError
      */
-    public function initializeByScenario($type, array $scenario)
+    public function initializeByScenario($type, array $scenario): ScriptState
     {
         $script = $this->scriptFactory->createScript($type);
-        if ($script === null) {
-            return null;
+        if (!$script) {
+            throw ScriptExecutionError::fromUnknownScript($type);
         }
 
         $state = $script->initializeByTransitions($scenario['id'], $scenario['modulesTransitions']);
@@ -81,11 +90,16 @@ class Executor
      * @param ScriptState $state
      *
      * @return ScriptState
+     * @throws ScriptExecutionError
      */
-    public function initializeByState($type, ScriptState $state)
+    public function initializeByState($type, ScriptState $state): ScriptState
     {
         $script = $this->scriptFactory->createScript($type);
-        $state  = $script->initializeByState($state->id, $state);
+        if (!$script) {
+            throw ScriptExecutionError::fromUnknownScript($type);
+        }
+
+        $state = $script->initializeByState($state->id, $state);
 
         $state->touch($this->token);
 
@@ -106,15 +120,16 @@ class Executor
      * @return ScriptState
      * @throws ScriptExecutionError
      */
-    public function execute(ScriptState $state, $action, array $params = [])
+    public function execute(ScriptState $state, $action, array $params = []): ScriptState
     {
-        $script = $this->scriptFactory->createScript($state['type']);
-
+        $script = $this->scriptFactory->createScript($state->type);
         if (!$script) {
-            throw ScriptExecutionError::fromUnknownScript($state['type']);
+            throw ScriptExecutionError::fromUnknownScript($state->type);
         }
 
         if (!$this->canBeExecutedByCurrentUser($script, $state)) {
+            $this->logger->notice('The process is owned by another user');
+
             throw ScriptExecutionError::fromNotOwnedProcess();
         }
 
@@ -134,6 +149,15 @@ class Executor
             $state->touch($this->token);
 
         } else {
+            $this->logger->error('This script state cannot be executed further');
+            $this->logger->debug(
+                'This script state cannot be executed further',
+                [
+                    'state' => $state,
+                ]
+            );
+
+
             throw ScriptExecutionError::fromUnacceptableStateExecution();
         }
 
@@ -168,7 +192,7 @@ class Executor
      *
      * @return bool
      */
-    protected function canBeExecutedByCurrentUser(ScriptInterface $script, ScriptState $state)
+    protected function canBeExecutedByCurrentUser(ScriptInterface $script, ScriptState $state): bool
     {
         return !$script->isOwnerLocked()
             || $this->token === $state->token

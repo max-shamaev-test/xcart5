@@ -33,11 +33,6 @@ class EditionChange implements StepInterface
     private $logger;
 
     /**
-     * @var string
-     */
-    private $rebuildId;
-
-    /**
      * @param CoreConfigDataSource $coreConfigDataSource
      * @param LoggerInterface      $logger
      */
@@ -76,10 +71,10 @@ class EditionChange implements StepInterface
             'editionNameAfter'  => $editionNameAfter,
         ];
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'       => $scriptState->id,
                 'stepData' => $stepData,
             ]
         );
@@ -107,8 +102,6 @@ class EditionChange implements StepInterface
      */
     public function execute(StepState $state, $action = self::ACTION_EXECUTE, array $params = []): StepState
     {
-        $this->rebuildId = $state->rebuildId;
-
         if (!empty($state->data['editionNameAfter'])) {
             $this->coreConfigDataSource->currentEdition = $state->data['editionNameAfter'];
         }

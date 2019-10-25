@@ -14,7 +14,11 @@ use XCart\Bus\Rebuild\Scenario\Transition\EnableTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\InstallDisabledTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\InstallEnabledTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\TransitionInterface;
+use XCart\SilexAnnotations\Annotations\Service;
 
+/**
+ * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild"})
+ */
 class InstallNotInstalled extends DependencyRuleAbstract
 {
     /**
@@ -32,14 +36,15 @@ class InstallNotInstalled extends DependencyRuleAbstract
             $id = $this->getDependencyId($dependency);
 
             $installedDependency = $this->getInstalledModule($id);
-            if (!$installedDependency) {
+            $marketplaceDependency = $this->getMarketplaceModule($id);
+            if (!$installedDependency && $marketplaceDependency) {
                 if (($installedModule && $installedModule->enabled)
                     || $transition instanceof InstallEnabledTransition
                     || $transition instanceof EnableTransition
                 ) {
-                    $newTransition = new InstallEnabledTransition($id);
+                    $newTransition = new InstallEnabledTransition($id, $marketplaceDependency->version);
                 } else {
-                    $newTransition = new InstallDisabledTransition($id);
+                    $newTransition = new InstallDisabledTransition($id, $marketplaceDependency->version);
                 }
 
                 $this->fillTransitionInfo($newTransition);

@@ -100,11 +100,12 @@ class Manager
      * Updates internal modules list
      *
      * @param array $list
+     * @param array $integratedList
      */
-    public static function saveModulesToStorage($list)
+    public static function saveModulesToStorage($list, $integratedList = [])
     {
         unset($list['CDev']['Core']);
-        static::getRegistry()->updateModules($list);
+        static::getRegistry()->updateModules($list, $integratedList);
 
         FixturesManager::setFixtures(
             static::getRegistry()->getNonLoadedYamlFiles()

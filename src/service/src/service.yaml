@@ -5,21 +5,16 @@
 # Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
 # See https://www.x-cart.com/license-agreement.html for license details.
 
-Version: 5.4.0.3
+Version: 5.4.0.5
 
 Language: { code: 'en', name: 'English' }
 
 LanguageLabel:
   - { name: 'X-Cart online store builder', label: 'X-Cart online store builder' }
-  - { name: 'X-Cart shopping cart software', label: 'X-Cart shopping cart software' }
-  - { name: 'Maintenance area', label: 'Maintenance area' }
   - { name: Language, label: Language }
   - { name: app-footer, label: '© 2002 - {0} Powered by X-Cart. {1} {2}' }
   - { name: 'Admin area', label: 'Admin area' }
   - { name: Storefront, label: Storefront }
-  - { name: 'Please enter authcode', label: 'Please enter the store authcode' }
-  - { name: authcode-help, label: 'You can find your authcode on the server, also, you can {0}.' }
-  - { name: 'contact X-Cart support', label: 'contact X-Cart support' }
   - { name: 'Go to my', label: 'Go to my' }
   - { name: Modules, label: Modules }
   - { name: Search, label: Search }
@@ -28,9 +23,6 @@ LanguageLabel:
   - { name: 'Free & Paid', label: 'Free & Paid' }
   - { name: Free, label: Free }
   - { name: Paid, label: Paid }
-  - { name: 'All modules', label: 'All modules' }
-  - { name: 'Only enabled', label: 'Only enabled' }
-  - { name: 'Only disabled', label: 'Only disabled' }
   - { name: Newest, label: Newest }
   - { name: Alphabetically, label: Alphabetically }
   - { name: 'Most popular', label: 'Most popular' }
@@ -45,16 +37,11 @@ LanguageLabel:
   - { name: 'Terms of use', label: 'Terms of use' }
   - { name: 'Knowledge base', label: 'Knowledge base' }
   - { name: 'Developers docs', label: 'Developers docs' }
-  - { name: 'Suggest an idea', label: 'Suggest an idea' }
   - { name: 'Report a bug', label: 'Report a bug' }
   - { name: 'Contact us', label: 'Contact us' }
   - { name: 'Sign out', label: 'Sign out' }
   - { name: 'on', label: 'on' }
   - { name: 'off', label: 'off' }
-  - { name: 'Replace all modified files', label: '<b>Replace all the modified files</b> with the unmodified newer versions' }
-  - { name: 'Keep the modified files without replacing them', label: '<b>Keep the modified files</b> without replacing them with newer versions' }
-  - { name: 'Recommended. We have made backup', label: 'Recommended. Don''t worry, we have made a full backup of your store files.' }
-  - { name: 'Specify the files you wish to keep.', label: 'Specify the files you wish to keep.' }
   - { name: 'Upload addon description', label: 'Submit an addon package by clicking on the button below<br>The file should be a .tgz, .tar.gz or .tar archive.' }
   - { name: update_available, label: 'Version {0} is available. {1}' }
   - { name: update_module, label: 'Update module' }
@@ -91,6 +78,7 @@ LanguageLabel:
   - { name: activate_license_dialog.result.success.core, label: 'X-Cart license key has been successfully verified' }
   - { name: activate_license_dialog.result.success.module, label: 'License key has been successfully verified and activated for "{0}" module by "{1}" author.' }
   - { name: activate_license_dialog.result.invalid, label: 'License registration error: {2} ({1})' }
+  - { name: activate_license_dialog.result.empty_key, label: 'Please enter your license key' }
   - { name: module_action.upgrade_request, label: 'Request for upgrade' }
   - { name: module_action.pack_it, label: 'Pack it' }
   - { name: module_action.settings, label: Settings }
@@ -120,6 +108,7 @@ LanguageLabel:
   - { name: landing_section.show_all, label: 'Show all' }
   - { name: controls.activate_license_key, label: 'Activate license key' }
   - { name: controls.upload_addon, label: 'Upload addon' }
+  - { name: controls.upload_addon.phar-error, label: 'To upload addons, PHP''s Phar extension needs to be enabled on your server. Please contact your hosting provider' }
   - { name: controls.renew_license_key, label: 'Renew your access to new features' }
   - { name: controls.re-validate_license_key, label: 'Re-validate license keys' }
   - { name: header.addons_search_title, label: 'Search for "{0}"' }
@@ -157,6 +146,8 @@ LanguageLabel:
   - { name: rebuild.check_packs.state.warnings, label: 'Scanning files for external changes {0} / {1} (warnings: {2})' }
   - { name: rebuild.check_packs.state.finished, label: 'Files scanned for external changes {0} / {1}' }
   - { name: rebuild.check_packs.state.finished.warnings, label: 'Files scanned for external changes {0} / {1} (warnings: {2})' }
+  - { name: rebuild.check_fs.state, label: 'Check filesystem permissions {0} / {1}' }
+  - { name: rebuild.check_fs.state.finished, label: 'Filesystem permissions checked {0} / {1}' }
   - { name: rebuild.move_packs.state, label: 'Updating files & creating a codebase backup {0} / {1}' }
   - { name: rebuild.move_packs.state.finished, label: 'Files updated, codebase backup created {0} / {1}' }
   - { name: rebuild.hook.disable.state, label: 'Executing hooks ({2}) {0} / {1}' }
@@ -253,6 +244,7 @@ LanguageLabel:
   - { name: upgrade-details-page.backup-confirm, label: 'I''ve made a full backup of my files and database.' }
   - { name: upgrade-details-page.remove-confirm, label: 'I agree to remove all the disabled modules.' }
   - { name: upgrade-details-page.continue, label: 'Continue' }
+  - { name: upgrade-details-page.licenses.updated, label: 'License information has been updated' }
   - { name: upgrade.advanced_mode.warning.message, label: 'Please note that this mode is for developers only. Updating your addons separately from one another carries the risk of disrupting the whole upgrade process. You need to be sure what you are doing and be prepared to fix the code in case of incompatibility issues.' }
   - { name: upgrade.advanced_mode.select_all, label: 'Select all' }
   - { name: empty-upgrade.info, label: 'Your store is up to date' }
@@ -301,6 +293,7 @@ LanguageLabel:
   - { name: request-for-upgrade.warning, label: 'An error occurred while sending the request' }
   - { name: scenario-rule.exception.dependencies.core-version.core-upgrade-required, label: 'Module "{0}" can''t be enabled because its dependency "{1}" required new core version' }
   - { name: scenario-rule.exception.dependencies.core-version.module-upgrade-required, label: 'Module "{0}" can''t be enabled because its dependency "{1}" was not released for your core version' }
+  - { name: scenario-rule.exception.dependencies.core-version.non-existent-module, label: 'Module "{0}" can''t be enabled because its dependency "{1}" does not exist' }
   - { name: scenario-rule.exception.dependencies.force-disabled-when-incompatible, label: 'Can''t enable module "{0}" because its incompatible with module "{0}"' }
   - { name: scenario-rule.exception.dependencies.force-enabled-when-required, label: 'Can''t disable module "{0}" because its required by module "{1}"' }
   - { name: scenario-rule.exception.core-version.core-upgrade-required, label: 'Module "{0}" can''t be enabled because it required new core version' }
@@ -326,7 +319,66 @@ LanguageLabel:
   - { name: exception.addon-package.wrong-file-error, label: 'Wrong addon package format was uploaded' }
   - { name: exception.addon-package.generic-error, label: 'An error encountered during the package loading: {0}' }
   - { name: marketplace-page-heading, label: 'Available addons' }
-  - { name: file_modification_description, label: 'The system has detected some custom modifications have been implemented on your X-Cart installation by direct modification of the core/module files instead of by creating a module modifying the original functionality. How would you like to handle these modifications?' }
+  - { name: ongoing-processes.message, label: 'Hold on a moment, please. {0}' }
+  - { name: ongoing-processes.redeploy-link, label: 'Redeploy in progress' }
+  - { name: rebuild.modified-dialog.title, label: 'Some files have been modified' }
+  - { name: rebuild.modified-dialog.description, label: 'The system has detected some custom modifications have been implemented on your X-Cart installation by direct modification of the core/module files instead of by creating a module modifying the original functionality. How would you like to handle these modifications?' }
+  - { name: rebuild.modified-dialog.replace-all.label, label: '<b>Replace all the modified files</b> with the unmodified newer versions' }
+  - { name: rebuild.modified-dialog.replace-all.description, label: 'Recommended. Don''t worry, we have made a full backup of your store files.' }
+  - { name: rebuild.modified-dialog.keep-seleced.label, label: '<b>Keep the modified files</b> without replacing them with newer versions' }
+  - { name: rebuild.modified-dialog.keep-seleced.description, label: 'Specify the files you wish to keep.' }
+  - { name: demo.popup.title, label: 'This demo is limited' }
+  - { name: demo.popup.notice1, label: 'Changes you make do not affect demo storefront' }
+  - { name: demo.popup.notice2, label: 'Store settings cannot be adjusted' }
+  - { name: demo.popup.free-trial.notice, label: 'Start free trial to feel the full force of X-Cart.' }
+  - { name: demo.popup.free-trial.button, label: 'Start free trial' }
+  - { name: demo.popup.free-trial.decription, label: '30 days of any X-Cart edition for FREE. No risk, no credit card required.' }
+  - { name: demo.popup.continue.button, label: 'Continue with demo' }
+  - { name: rebuild.fs-errors-dialog.title, label: 'Permissions' }
+  - { name: rebuild.fs-errors-dialog.description, label: 'Not enough permissions to run the process. Make sure the following permissions are set (UNIX-like systems only).<br />Such permissions are required for a seamless automated installation or upgrade of X-Cart on your server. They do not take into account the specific configuration of your server or any security requirements. Once the process is completed, make sure you change the permissions to a more restrictive setting. <a target="_blank" href="https://kb.x-cart.com/en/setting_up_x-cart_5_environment/secure_configuration.html#why-x-cart-asks-for-666777-permissions">Read more</a>' }
+  - { name: rebuild.fs-errors-dialog.copy-label, label: 'Copy to clipboard' }
+  - { name: rebuild.fs-errors-dialog.copy-success, label: 'The text was copied to your clipboard' }
+  - { name: module_state_message.postponed_upgrade_available, label: 'Version {0} is available. {1}' }
+  - { name: module_state_message.postponed_upgrade_available.update_link, label: 'Update module' }
+  - { name: upgrade-details-title.postponed, label: 'Major Upgrades ({0})' }
+  - { name: upgrade-preview.changelog-message.postponed, label: 'Upgrade your store to enjoy new awesome features that are sure to bring more sales in the long run. {0}' }
+  - { name: changelog-dialog.title.postponed, label: 'Changelog of upgrade' }
+  - { name: rebuild.postponed-hooks-dialog.title, label: 'Pre-upgrade action required' }
+  - { name: rebuild.postponed-hooks-dialog.description, label: 'Some of the modules used by your store contain code that must be executed before the upgrade process begins. For the code to be executed successfully, the modules must be enabled. However, some of the modules containing such code are now disabled. This will prevent the pre-upgrade code from execution and is highly likely to cause problems, like a fatal error.<br /><br />Listed below are the modules that contain pre-upgrade code and are disabled. Here you can specify the modules for which you want the pre-upgrade code to be executed:' }
+  - { name: rebuild.postponed-hooks-dialog.note, label: 'Please note that we may not be held responsible for any upgrade problems caused by failure to execute the required pre-upgrade code.' }
+  - { name: rebuild.postponed-hooks-dialog.action.execute, label: 'Execute' }
+  - { name: rebuild.postponed-hooks-dialog.action.ignore, label: 'Do not execute' }
+  - { name: rebuild.check_postponed_hooks.state, label: 'Check postponed upgrade actions' }
+  - { name: rebuild.check_postponed_hooks.state.finished, label: 'Postponed upgrade actions checked' }
+  - { name: login-page.lock.title, label: 'Your account has been locked due to too many unsuccessful login attempts' }
+  - { name: login-page.lock.timer, label: 'Time left: {0}' }
+  - { name: login-page.header.x-cart, label: 'X-Cart shopping cart software' }
+  - { name: login-page.title, label: 'Admin area' }
+  - { name: login-page.input.auth-code.label, label: 'Please enter the store auth code' }
+  - { name: login-page.input.auth-code.placeholder, label: 'Auth code' }
+  - { name: login-page.button.login, label: 'Login' }
+  - { name: login-page.help, label: 'You can find your auth code on the server (xcart_folder/etc/config.php, auth_code). Also, you can {0}.' }
+  - { name: login-page.help.contact-us, label: 'Contact X-Cart support team' }
+  - { name: login-page.error.auth-code-invalid, label: 'Auth code invalid' }
+  - { name: login-page.error.auth-lock, label: 'Your account has been locked due to too many unsuccessful login attempts' }
+  - { name: login-page.error.unknown-error, label: 'Unknown error' }
+  - { name: modules-list-controls.installed.all, label: 'All modules' }
+  - { name: modules-list-controls.installed.enabled, label: 'Only enabled' }
+  - { name: modules-list-controls.installed.disabled, label: 'Only disabled' }
+  - { name: modules-list-controls.installed.recent, label: 'Recently enabled' }
+  - { name: activate_license.free-license.alreadey-registered, label: 'Free license key for email {0} is already registered. Please use a different email or {1}' }
+  - { name: activate_license.free-license.alreadey-registered.link, label: 'click here to get key value sent to this email address' }
+  - { name: activate_license.free-license.resend.succeess, label: 'Information about free license key has been sent to the email {0}' }
+  - { name: rebuild-success.message.enabled-present, label: 'Check out the {0} and set them up if needed.{1}And, please, do not close this page until you make sure your store works properly.' }
+  - { name: rebuild-success.message.enabled-present.link, label: 'installed addons' }
+  - { name: installed-module-actions.download.phar-error, label: 'To download addons, PHP''s Phar extension needs to be enabled on your server. Please contact your hosting provider.'}
+
   - { name: rollback_prompt_title, label: 'Cancel' }
-  - { name: retry_prompt_title, label: 'Retry' }
   - { name: release_prompt_title, label: 'Continue' }
+  - { name: retry_prompt_title, label: 'Retry' }
+
+  - { name: rebuild-dialog.action.rollback, label: 'Cancel' }
+  - { name: rebuild-dialog.action.release, label: 'Continue' }
+  - { name: rebuild-dialog.action.retry, label: 'Retry' }
+  - { name: rebuild-dialog.action.restore, label: 'Restore' }
+  - { name: rebuild-dialog.action.contact-us, label: 'Contact US' }

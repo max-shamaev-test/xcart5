@@ -45,24 +45,8 @@ class Initialization extends \XLite\View\AView
      */
     protected function getCookiePath()
     {
-        $result = null;
+        $path = \XLite::getInstance()->getOptions(array('host_details', 'web_dir')) ?: '/';
 
-        if (LC_USE_CLEAN_URLS
-            && (bool) \XLite::getInstance()->getOptions(['clean_urls', 'use_canonical_urls_only'])
-        ) {
-            // Get store URL
-            $url = \XLite\Core\Request::getInstance()->isHTTPS()
-                ? 'http://' . \XLite::getInstance()->getOptions(['host_details', 'http_host'])
-                : 'https://' . \XLite::getInstance()->getOptions(['host_details', 'https_host']);
-
-            $url .= \XLite::getInstance()->getOptions(['host_details', 'web_dir']);
-
-            $urlParts = parse_url($url);
-
-            // Result is path to store
-            $result = isset($urlParts['path']) ? $urlParts['path'] : '/';
-        }
-
-        return $result;
+        return $path;
     }
 }

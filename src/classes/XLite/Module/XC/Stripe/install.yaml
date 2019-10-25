@@ -31,7 +31,6 @@ XLite\Model\Payment\Method:
 XLite\Model\LanguageLabel:
   - { directives: { allowedModel: 'XLite\Model\LanguageLabelTranslation' } }
   - { name: 'X items ($)', translations: [{ code: 'en', label: '{{count}} items ({{total}})' }, { code: 'ru', label: '{{count}} товаров ({{total}})' }] }
-  - { name: 'Payment processed with errors. Please, try again or ask administrator', translations: [{ code: 'en', label: 'Token is empty' }, { code: 'ru', label: 'Токен пустой' }] }
   - { name: 'CVC verification: X', translations: [{ code: 'en', label: 'CVC verification: {{state}}' }, { code: 'ru', label: 'Проверка подлинности кредитной карты (CVC): {{state}}' }] }
   - { name: 'Address line verification: X', translations: [{ code: 'en', label: 'Address line verification: {{state}}' }, { code: 'ru', label: 'Проверка адреса: {{state}}' }] }
   - { name: 'Address zipcode verification: X', translations: [{ code: 'en', label: 'Address zipcode verification: {{state}}' }, { code: 'ru', label: 'Проверка почтового индекса: {{state}}' }] }

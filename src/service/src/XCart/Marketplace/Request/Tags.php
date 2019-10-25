@@ -77,13 +77,13 @@ class Tags extends AAPIRequest
             }
 
             return [
-                'image'        => $image,
+                'image'        => preg_replace('/^https?:/', '', $image),
                 'module'       => $item['tag_module_banner'],
                 'expires'      => $item['tag_banner_expiration_date'],
                 'url'          => $item['tag_banner_url'],
-                'name'         => $item['tag_name'],
+                'name'         => html_entity_decode($item['tag_name']),
                 'category'     => $item['category'],
-                'tarnslations' => $translations,
+                'translations' => $translations,
             ];
         }, $data);
     }

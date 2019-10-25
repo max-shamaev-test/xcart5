@@ -8,7 +8,7 @@
     <div class="item-container">
       <div class="item-image">
         {% if this.item.hasImage() %}
-          <img src="{{ this.item.getImageURL() }}" alt="{{ this.item.getName() }}">
+          <img src="{{ this.item.getImageRelativeURL() }}" alt="{{ this.item.getName() }}">
         {% endif %}
       </div>
       <div class="item-info">

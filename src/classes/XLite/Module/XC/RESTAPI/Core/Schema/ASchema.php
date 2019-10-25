@@ -14,30 +14,16 @@ namespace XLite\Module\XC\RESTAPI\Core\Schema;
 abstract class ASchema extends \XLite\Base
 {
     /**
-     * Config 
-     * 
-     * @var   \ArrayObject
-     */
-    protected $config;
-
-    /**
      * Schema code
      */
     const CODE = null;
 
     /**
-     * Check - schema is own this request or not
+     * Config
      *
-     * @param string $schema Schema
-     *
-     * @return boolean
+     * @var   \ArrayObject
      */
-    public static function isOwn($schema)
-    {
-        return trim(strtolower($schema)) == strtolower(static::CODE);
-    }
-
-    // {{{ Initialization
+    protected $config;
 
     /**
      * Constructor
@@ -52,15 +38,72 @@ abstract class ASchema extends \XLite\Base
         $this->config = new \ArrayObject($this->configure($request, $method), \ArrayObject::ARRAY_AS_PROPS);
     }
 
+    // {{{ Initialization
+
     /**
-     * Get config 
-     * 
+     * Check - schema is own this request or not
+     *
+     * @param string $schema Schema
+     *
+     * @return boolean
+     */
+    public static function isOwn($schema)
+    {
+        return trim(strtolower($schema)) == strtolower(static::CODE);
+    }
+
+    /**
+     * Get config
+     *
      * @return \ArrayObject
      */
     public function getConfig()
     {
         return $this->config;
     }
+
+    /**
+     * Check - valid or not schema
+     *
+     * @return boolean
+     */
+    public function isValid()
+    {
+        return (bool) $this->config->repository;
+    }
+
+    // }}}
+
+    // {{{ Comomn validation and access control
+
+    /**
+     * Check - request is forbidden or not
+     *
+     * @return boolean
+     */
+    public function isForbid()
+    {
+        return (bool) $this->config->repository;
+    }
+
+    /**
+     * Process
+     *
+     * @return array
+     */
+    public function process()
+    {
+        $method = 'process' . ucfirst($this->config->method) . 'RESTRequest';
+
+        return $this->config->repository->processRESTRequest(
+            $this->config->method,
+            $this->$method()
+        );
+    }
+
+    // }}}
+
+    // {{{ Process
 
     /**
      * Configure
@@ -73,10 +116,10 @@ abstract class ASchema extends \XLite\Base
     protected function configure(\XLite\Core\Request $request, $method)
     {
         $parts = explode('/', $this->getPath($request));
-        $one = isset($parts[1]);
+        $one   = isset($parts[1]);
         $class = $this->getEntityClass($parts[0]);
 
-        return array(
+        return [
             'shortMethod' => strtolower($method),
             'method'      => strtolower($method) . ($one ? 'One' : 'All'),
             'one'         => $one,
@@ -86,50 +129,7 @@ abstract class ASchema extends \XLite\Base
             'class'       => $class,
             'repository'  => $this->getRepository($class),
             'cnd'         => $this->getCndFromRequest($request),
-        );
-    }
-
-    // }}}
-
-    // {{{ Comomn validation and access control
-
-    /**
-     * Check - valid or not schema
-     * 
-     * @return boolean
-     */
-    public function isValid()
-    {
-        return (bool)$this->config->repository;
-    }
-
-    /**
-     * Check - request is forbidden or not
-     * 
-     * @return boolean
-     */
-    public function isForbid()
-    {
-        return (bool)$this->config->repository;
-    }
-
-    // }}}
-
-    // {{{ Process
-
-    /**
-     * Process 
-     * 
-     * @return array
-     */
-    public function process()
-    {
-        $method = 'process' . ucfirst($this->config->method) . 'RESTRequest';
-
-        return $this->config->repository->processRESTRequest(
-            $this->config->method,
-            $this->$method()
-        );
+        ];
     }
 
     // }}}
@@ -157,10 +157,10 @@ abstract class ASchema extends \XLite\Base
      */
     protected function processGetAllRESTRequest()
     {
-        $result = array();
+        $result = [];
 
         foreach ($this->findForGetAll() as $model) {
-            $model = is_array($model) ? $model[0] : $model;
+            $model    = is_array($model) ? $model[0] : $model;
             $result[] = $this->convertModelForGetAll($model);
         }
 
@@ -212,7 +212,7 @@ abstract class ASchema extends \XLite\Base
      */
     protected function processPostAllRESTRequest()
     {
-        $response = array();
+        $response = [];
 
         foreach ($this->getInput() as $id => $row) {
             list($checked, $data) = $this->prepareInput($row);
@@ -306,7 +306,7 @@ abstract class ASchema extends \XLite\Base
      */
     protected function processPutAllRESTRequest()
     {
-        $response = array();
+        $response = [];
 
         foreach ($this->getInput() as $id => $row) {
             list($checked, $data) = $this->prepareInput($row);
@@ -449,8 +449,8 @@ abstract class ASchema extends \XLite\Base
     // {{{ Common routines
 
     /**
-     * Detect entity class 
-     * 
+     * Detect entity class
+     *
      * @return string
      */
     abstract protected function detectEntityClass();
@@ -466,10 +466,10 @@ abstract class ASchema extends \XLite\Base
     abstract protected function convertModel($model = null, $withAssociations = true);
 
     /**
-     * Assemble repository posprocess method name 
-     * 
+     * Assemble repository posprocess method name
+     *
      * @param string $method Method name
-     *  
+     *
      * @return string
      */
     abstract protected function assembleRepoPosprocessMethodName($method);
@@ -506,11 +506,11 @@ abstract class ASchema extends \XLite\Base
     }
 
     /**
-     * Load data 
-     * 
+     * Load data
+     *
      * @param \XLite\Model\AEntity $entity Entity
      * @param array                $data   Data
-     *  
+     *
      * @return void
      */
     protected function loadData(\XLite\Model\AEntity $entity, array $data)
@@ -545,16 +545,8 @@ abstract class ASchema extends \XLite\Base
 
         $requestData = $this->config->request->getNonFilteredData();
 
-        if (!empty($requestData['model'])) {
-            if (is_string($requestData['model'])) {
-                $data = json_decode($requestData['model'], true);
-                if (!is_array($data)) {
-                    $data = null;
-                }
-
-            } elseif (is_array($requestData['model'])) {
-                $data = $requestData['model'];
-            }
+        if (!empty($requestData['model']) && is_array($requestData['model'])) {
+            $data = $requestData['model'];
 
         } else {
             $data = $requestData;
@@ -575,13 +567,13 @@ abstract class ASchema extends \XLite\Base
      */
     protected function getServiceInputKeys()
     {
-        return array('target', 'action', '_key', '_path', '_method', 'callback', '_schema');
+        return ['target', 'action', '_key', '_path', '_method', 'callback', '_schema'];
     }
 
     /**
      * Prepare input
      *
-     * @param array  $data   Data
+     * @param array $data Data
      *
      * @return array
      */
@@ -593,15 +585,15 @@ abstract class ASchema extends \XLite\Base
     }
 
     /**
-     * Prepare input for getOne 
-     * 
+     * Prepare input for getOne
+     *
      * @param array $data Data
-     *  
+     *
      * @return array
      */
     protected function prepareInputForGetOne(array $data)
     {
-        return array(true, $data);
+        return [true, $data];
     }
 
     /**
@@ -613,7 +605,7 @@ abstract class ASchema extends \XLite\Base
      */
     protected function prepareInputForGetAll(array $data)
     {
-        return array(true, $data);
+        return [true, $data];
     }
 
     /**
@@ -625,7 +617,7 @@ abstract class ASchema extends \XLite\Base
      */
     protected function prepareInputForPostOne(array $data)
     {
-        return array(true, $data);
+        return [true, $data];
     }
 
     /**
@@ -637,7 +629,7 @@ abstract class ASchema extends \XLite\Base
      */
     protected function prepareInputForPostAll(array $data)
     {
-        return array(true, $data);
+        return [true, $data];
     }
 
     /**
@@ -649,7 +641,7 @@ abstract class ASchema extends \XLite\Base
      */
     protected function prepareInputForPutOne(array $data)
     {
-        return array(true, $data);
+        return [true, $data];
     }
 
     /**
@@ -661,7 +653,7 @@ abstract class ASchema extends \XLite\Base
      */
     protected function prepareInputForPutAll(array $data)
     {
-        return array(true, $data);
+        return [true, $data];
     }
 
     /**
@@ -697,10 +689,10 @@ abstract class ASchema extends \XLite\Base
     abstract protected function getEntityClass($path);
 
     /**
-     * Get path 
+     * Get path
      *
      * @param \XLite\Core\Request $request Request
-     * 
+     *
      * @return string
      */
     protected function getPath(\XLite\Core\Request $request)
@@ -729,7 +721,7 @@ abstract class ASchema extends \XLite\Base
      */
     protected function getCndFromRequest(\XLite\Core\Request $request)
     {
-        return new \XLite\Core\CommonCell($request->_cnd ?: array());
+        return new \XLite\Core\CommonCell($request->_cnd ?: []);
     }
 
     // }}}

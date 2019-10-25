@@ -27,6 +27,9 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
         $this->assignEnabledCondition($qb);
         $this->assignGoogleFeedEnabledCondition($qb);
 
+        $alias = $qb->getRootAliases()[0];
+        $qb->orderBy($alias . '.product_id');
+
         return $qb;
     }
 

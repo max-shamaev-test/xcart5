@@ -1269,13 +1269,16 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
             $orig = $value;
 
             if (!$this->isColumnTagsAllowed($column)) {
-                $value = strip_tags($value);
+                $value = \XLite\Core\Converter::filterCurlyBrackets(strip_tags($value));
                 $wrnType = 'CMN-TAGS';
 
             } elseif (!$this->isColumnTrusted($column)) {
                 $value = \XLite\Core\HTMLPurifier::purify($value);
                 $wrnType = 'CMN-XSS';
                 $ignoreWarning = $this->isIgnoreXSSWarnings($column);
+
+            } else {
+                $value = \XLite\Core\Converter::filterCurlyBrackets($value);
             }
 
             if ($orig != $value && !$ignoreWarning) {

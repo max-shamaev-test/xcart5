@@ -82,7 +82,7 @@ class ModulesDataSource implements IDataSource
     public function getAll(): array
     {
         if (!$this->runtimeCache) {
-            $data = array_map(function ($item) {
+            $data = array_map(static function ($item) {
                 return [$item];
             }, $this->installedModules->getAll());
 
@@ -162,6 +162,10 @@ class ModulesDataSource implements IDataSource
     {
         $flattenArray = $this->getFlattenArray($version);
 
+        if (!isset($flattenArray[$id])) {
+            return null;
+        }
+
         $iterator = $this->filteredIterator(
             new ArrayIterator([$flattenArray[$id]]),
             ['language' => $this->context->languageCode ?: 'en'] + $filters
@@ -233,13 +237,12 @@ class ModulesDataSource implements IDataSource
     /**
      * @param array|Iterator $data
      * @param string         $rule
-     * @param string|Flatten $flattenClass
      *
      * @return Flatten
      */
-    public function flattenIterator($data, $rule = Flatten::RULE_LAST, $flattenClass = Flatten::class): Flatten
+    public function flattenIterator($data, $rule = Flatten::RULE_LAST): Flatten
     {
-        return new $flattenClass(
+        return new Flatten(
             $data instanceof Iterator ? $data : new ArrayIterator($data),
             $this->installedModules->find('CDev-Core'),
             $rule

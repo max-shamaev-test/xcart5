@@ -7,14 +7,6 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-.items-list.tags th.actions.left {
-  text-align: right;
-}
-
-.items-list.tags th.actions.left input {
-  margin-right: 14px;
-}
-
 .items-list.tags th.products,
 .items-list.tags td.products {
   text-align: right;

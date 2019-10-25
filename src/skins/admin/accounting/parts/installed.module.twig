@@ -2,12 +2,12 @@
  # module
  #}
 
-<img class="icon" src="{{ this.module.marketplaceIcon }}" alt="{{ this.module.displayName }}">
+<img class="icon" src="{{ this.module.icon }}" alt="{{ this.module.moduleName }}">
 <div class="info">
-    <div class="name">{{ this.module.displayName }}</div>
+    <div class="name">{{ this.module.moduleName }}</div>
     <div class="author">
         <span class="author-label">{{ t('Author') }}:</span>
-        <span class="author-value"> {{ this.module.displayAuthor }}</span>
+        <span class="author-value"> {{ this.module.authorName }}</span>
     </div>
 
     {% if this.module.enabled %}

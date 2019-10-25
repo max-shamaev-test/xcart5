@@ -6,24 +6,42 @@
 
 namespace XCart\Bus\Core\Logger;
 
+use XCart\Bus\Query\Data\ScenarioDataSource;
+
 class RebuildFormatter extends XCartFormatter
 {
     /**
+     * @var ScenarioDataSource
+     */
+    private $scenarioDataSource;
+
+    /**
+     * @param ScenarioDataSource $scenarioDataSource
+     */
+    public function __construct(
+        ScenarioDataSource $scenarioDataSource
+    ) {
+        parent::__construct();
+
+        $this->scenarioDataSource = $scenarioDataSource;
+    }
+
+    /**
      * Formats a log record.
      *
-     * @param  array $record A record to format
+     * @param array $record A record to format
      *
      * @return mixed The formatted record
      */
     public function format(array $record)
     {
-        $id = isset($record['context']['id']) ? $record['context']['id'] : 'unknown';
-        unset($record['context']['id']);
+        $id = $this->scenarioDataSource->getCurrentScenarioId() ?: 'unknown';
 
         $output = sprintf(
-            "%s\t[%s]\t%s",
+            "%s\t[%s]\t%s\t%s",
             $record['datetime']->format($this->dateFormat),
             $id,
+            $record['level_name'],
             $record['message']
         );
 

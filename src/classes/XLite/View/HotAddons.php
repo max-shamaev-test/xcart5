@@ -45,8 +45,8 @@ class HotAddons extends \XLite\View\IFrame
             'max_items'         => $this->getMaxItems()
         ]);
 
-        return \XLite::getInstance()->getShopURL(
-            'service.php#/iframe/hot-addons?' . $query
+        return \XLite::getInstance()->getServiceURL(
+            '#/iframe/hot-addons?' . $query
         );
     }
 

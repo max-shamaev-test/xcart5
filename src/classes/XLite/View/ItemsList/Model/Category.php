@@ -519,22 +519,4 @@ class Category extends \XLite\View\ItemsList\Model\Table
     {
         return 'c.pos';
     }
-
-    /**
-     * Return true if param value may contain anything
-     *
-     * @param string $name Param name
-     *
-     * @return boolean
-     */
-    protected function isParamTrusted($name)
-    {
-        $result = parent::isParamTrusted($name);
-
-        if (!$result && $name === 'name') {
-            $result = true;
-        }
-
-        return $result;
-    }
 }

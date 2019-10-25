@@ -86,10 +86,10 @@ abstract class AHook implements StepInterface
 
         $cacheId = $this->getCacheId($scriptState);
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'          => $scriptState->id,
                 'cacheId'     => $cacheId,
                 'transitions' => $transitions,
             ]
@@ -237,14 +237,20 @@ abstract class AHook implements StepInterface
             ];
         }
 
-        $this->logger->debug(
-            sprintf('Run hook: %s', $hook['file']),
-            [
-                'id' => $this->rebuildId,
-            ]
-        );
+        $this->logger->info(sprintf('Run hook: %s', $hook['file']));
 
-        $hook['state'] = $this->runHook($transition['pack_dir'] . $hook['file'], $hook['state'], $cacheId);
+        try {
+            $hook['state'] = $this->runHook($transition['pack_dir'] . $hook['file'], $hook['state'], $cacheId);
+        } catch (RebuildException $exception) {
+            $this->logger->critical(
+                sprintf('Run hook error: %s', $exception->getMessage()),
+                [
+                    'data' => $exception->getData(),
+                ]
+            );
+
+            throw $exception;
+        }
 
         if (!empty($hook['state']['finished'])) {
             $transition['finished_hooks'][$hookId] = $hook;
@@ -263,9 +269,7 @@ abstract class AHook implements StepInterface
      * @param string $cacheId
      *
      * @return array
-     * @throws AbortException
-     * @todo: rewrite throws
-     *
+     * @throws RebuildException
      */
     protected function runHook($file, array $state, $cacheId): array
     {
@@ -273,23 +277,18 @@ abstract class AHook implements StepInterface
             $response = $this->executeHook($file, $state, $cacheId);
 
         } catch (ParseException $e) {
-            throw (new AbortException($e->getMessage(), $e->getCode(), $e))
-                ->addData("File: {$file}<br> {$e->getMessage()}")
-                ->addData("Content: {$e->getResponse()->getBody()}");
+            throw AbortException::fromHookStepWrongResponseFormat($file, $e);
 
         } catch (Exception $e) {
-            throw (new AbortException($e->getMessage(), $e->getCode(), $e))
-                ->addData("File: {$file}<br> {$e->getMessage()}");
+            throw AbortException::fromHookStepWrongResponse($file, $e);
         }
 
         if (!$response) {
-            throw new AbortException('Empty response from X-Cart');
+            throw AbortException::fromHookStepEmptyResponse();
         }
 
         if (!empty($response['errors'])) {
-            $e = new AbortException('X-Cart failed to execute the hook ' . $file);
-            $e->setData($response['errors']);
-            throw $e;
+            throw AbortException::fromHookStepErrorResponse($file, $response['errors']);
         }
 
         $state                = $response['hookState'] ?? $state;

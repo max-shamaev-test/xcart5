@@ -6,24 +6,25 @@
 
 namespace XCart\Bus\Core\Logger;
 
-use Monolog\Formatter\NormalizerFormatter;
+use Monolog\Formatter\LineFormatter;
 
-class XCartFormatter extends NormalizerFormatter
+class XCartFormatter extends LineFormatter
 {
     /**
-     * @todo: to global scope
      * @var string
      */
-    private $runtimeId;
+    protected static $runtimeId;
 
     /**
      * @param string $dateFormat
      */
-    public function __construct($dateFormat = null)
+    public function __construct()
     {
-        parent::__construct($dateFormat);
+        parent::__construct("[%datetime%] %runtime_id% %channel%.%level_name%: %message%\n");
 
-        $this->runtimeId = hash('md4', uniqid('runtime', true));
+        if (empty(static::$runtimeId)) {
+            static::$runtimeId = hash('md4', uniqid('runtime', true));
+        }
     }
 
     /**
@@ -35,10 +36,11 @@ class XCartFormatter extends NormalizerFormatter
      */
     public function format(array $record)
     {
-        $output = $record['message'] . PHP_EOL;
+        $record['runtime_id'] = static::$runtimeId;
+
+        $output = parent::format($record);
 
         if ($record['context']) {
-            $output .= PHP_EOL;
             $output .= 'Context:' . PHP_EOL;
             foreach ((array) $record['context'] as $key => $value) {
                 $output .= $key . ' => ' . $this->convertToString($value) . PHP_EOL;
@@ -46,31 +48,13 @@ class XCartFormatter extends NormalizerFormatter
         }
 
         if ($record['extra']) {
-            $output .= PHP_EOL;
             $output .= 'Extra:' . PHP_EOL;
             foreach ((array) $record['extra'] as $key => $value) {
                 $output .= $key . ' => ' . $this->convertToString($value) . PHP_EOL;
             }
         }
 
-        $parts = [
-            'Time: ' . $record['datetime']->format($this->dateFormat),
-            'Channel: ' . $record['channel'] . '.' . $record['level_name'],
-            'Runtime id: ' . $this->runtimeId,
-            'Server API: ' . \PHP_SAPI . '; IP: ' . ($_SERVER['REMOTE_ADDR'] ?? 'n/a'),
-        ];
-
-        if ($_SERVER !== null) {
-            if (isset($_SERVER['REQUEST_METHOD'])) {
-                $parts[] = 'Request method: ' . $_SERVER['REQUEST_METHOD'];
-            }
-
-            if (isset($_SERVER['REQUEST_URI'])) {
-                $parts[] = 'URI: ' . $_SERVER['REQUEST_URI'];
-            }
-        }
-
-        return $output . PHP_EOL . implode(';' . PHP_EOL, $parts) . ';' . PHP_EOL . PHP_EOL;
+        return $output;
     }
 
     /**

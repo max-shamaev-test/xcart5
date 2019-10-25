@@ -38,7 +38,7 @@ class Attributes extends \XLite\View\AView
         $list[] = 'attributes/style.less';
         $list[] = 'form_field/inline/style.css';
         $list[] = 'form_field/inline/input/text/position/move.css';
-        $list[] = 'form_field/inline/input/text/position.css';
+        $list[] = 'form_field/inline/input/text/position.less';
         $list[] = 'form_field/form_field.css';
         $list[] = 'form_field/input/text/position.css';
         $list[] = 'items_list/items_list.css';

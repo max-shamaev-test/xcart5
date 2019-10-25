@@ -509,6 +509,16 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
     }
 
     /**
+     * Get item image relative URL
+     *
+     * @return string
+     */
+    public function getImageRelativeURL()
+    {
+        return \Includes\Utils\FileManager::getRelativePath($this->getImage()->getStoragePath(), LC_DIR_ROOT);
+    }
+
+    /**
      * Get item image
      *
      * @return \XLite\Model\Base\Image

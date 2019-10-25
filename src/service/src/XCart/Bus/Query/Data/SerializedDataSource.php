@@ -79,9 +79,9 @@ class SerializedDataSource implements IDataSource
         $id = $id ?: $this->buildItemId($value);
 
         if ($this->shouldAddIdToItemOnSave()) {
-            if (\is_array($value)) {
+            if (is_array($value)) {
                 $value = array_replace($value, [$this->getIdName() => $id]);
-            } elseif (\is_object($value)) {
+            } elseif (is_object($value)) {
                 $value->{$this->getIdName()} = $id;
             }
         }
@@ -143,7 +143,7 @@ class SerializedDataSource implements IDataSource
      */
     protected function buildItemId($item): string
     {
-        return \is_array($item)
+        return is_array($item)
             ? $item[$this->getIdName()]
             : $item->{$this->getIdName()};
     }

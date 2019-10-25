@@ -63,6 +63,25 @@ class Template extends \XLite\View\Model\AModel
         }
     }
 
+    /**
+     * Prepare request data by form fields (typecasting)
+     *
+     * @param array $requestData Request data
+     *
+     * @return array
+     */
+    protected function prepareRequestDataByFormFields($requestData)
+    {
+        $requestData = parent::prepareRequestDataByFormFields($requestData);
+
+        $rawData = \XLite\Core\Request::getInstance()->getPostData(false);
+        if (isset($rawData['body'])) {
+            $requestData['body'] = $rawData['body'];
+        }
+
+        return $requestData;
+    }
+
     protected function validateFields(array $data, $section)
     {
         if (isset($data[static::SECTION_PARAM_FIELDS]['body'])) {

@@ -175,7 +175,7 @@ class ModuleInfoProvider
 
         $moduleInfo = [
             'id'                       => $moduleId,
-            'version'                  => $moduleData['version'],
+            'version'                  => implode('.', Module::explodeVersion($moduleData['version'])),
             'type'                     => $moduleData['type'] ?? 'common',
             'author'                   => $author,
             'name'                     => $name,

@@ -17,7 +17,7 @@ class GraphQL extends ALogger
     /**
      * @return FormatterInterface
      */
-    protected function getFormatter()
+    protected function getFormatter(): FormatterInterface
     {
         return new XCartFormatter();
     }

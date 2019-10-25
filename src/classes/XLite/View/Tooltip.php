@@ -166,7 +166,7 @@ class Tooltip extends \XLite\View\AView
     protected function getImageCSSClass()
     {
         return $this->getParam(static::PARAM_IMAGE_CLASS)
-            ?: 'icon-tooltip';
+            ?: 'icon-tooltip fa fa-question-circle';
     }
 
     /**

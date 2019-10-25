@@ -89,4 +89,22 @@ class LanguageDataResolver
 
         return [];
     }
+
+    /**
+     * @param string $message
+     * @param array $params
+     *
+     * @return string
+     */
+    public static function getMessageWithReplacedParams($message, $params)
+    {
+        $keys = [];
+        $values = [];
+        foreach ($params as $k => $v) {
+            $keys[] = '{' . $k . '}';
+            $values[] = $v;
+        }
+
+        return str_replace($keys, $values, $message);
+    }
 }

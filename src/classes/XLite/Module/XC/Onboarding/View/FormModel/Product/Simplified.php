@@ -64,21 +64,21 @@ class Simplified extends \XLite\View\FormModel\AFormModel
         $currencySymbol = $currency->getCurrencySymbol(false);
 
         $schema = [
-            self::SECTION_DEFAULT  => [
-                'images'               => [
-                    'label'        => false,
-                    'type'         => 'XLite\View\FormModel\Type\UploaderType',
-                    'imageClass'   => 'XLite\Model\Image\Product\Image',
-                    'helpMessage'  => static::t('Click here to upload product image'),
-                    'files'        => $images,
-                    'multiple'     => false,
-                    'previewWidth' => 178,
+            self::SECTION_DEFAULT => [
+                'images'        => [
+                    'label'         => false,
+                    'type'          => 'XLite\View\FormModel\Type\UploaderType',
+                    'imageClass'    => 'XLite\Model\Image\Product\Image',
+                    'helpMessage'   => static::t('Click here to upload product image'),
+                    'files'         => $images,
+                    'multiple'      => false,
+                    'previewWidth'  => 178,
                     'previewHeight' => 178,
-                    'position'     => 100,
+                    'position'      => 100,
                 ],
-                'name'                 => [
+                'name'          => [
                     'label'       => false,
-                    'attr'         => [
+                    'attr'        => [
                         'placeholder' => static::t('Enter product name') . '*'
                     ],
                     'required'    => true,
@@ -94,32 +94,32 @@ class Simplified extends \XLite\View\FormModel\AFormModel
                     ],
                     'position'    => 200,
                 ],
-                'price'              => [
-                    'label'       => false,
-                    'attr'         => [
+                'price'         => [
+                    'label'             => false,
+                    'attr'              => [
                         'placeholder' => static::t('Price')
                     ],
-                    'type'        => 'XLite\View\FormModel\Type\SymbolType',
-                    'symbol'      => $currencySymbol,
-                    'pattern'     => [
+                    'type'              => 'XLite\View\FormModel\Type\SymbolType',
+                    'symbol'            => $currencySymbol,
+                    'inputmask_pattern' => [
                         'alias'      => 'xcdecimal',
                         'prefix'     => '',
                         'rightAlign' => false,
                         'digits'     => $currency->getE(),
                     ],
-                    'constraints' => [
+                    'constraints'       => [
                         'Symfony\Component\Validator\Constraints\GreaterThanOrEqual' => [
                             'value'   => 0,
                             'message' => static::t('Minimum value is X', ['value' => 0]),
                         ],
                     ],
-                    'position'    => 300,
+                    'position'          => 300,
                 ],
-                'other_options'      => [
-                    'label'       => false,
-                    'type'        => 'XLite\Module\XC\Onboarding\View\FormModel\Type\TemplateType',
-                    'template'    => 'modules/XC/Onboarding/form_model/product/other_options.twig',
-                    'position'    => 400
+                'other_options' => [
+                    'label'    => false,
+                    'type'     => 'XLite\Module\XC\Onboarding\View\FormModel\Type\TemplateType',
+                    'template' => 'modules/XC/Onboarding/form_model/product/other_options.twig',
+                    'position' => 400
                 ]
             ],
         ];

@@ -47,8 +47,9 @@ class EnableTransition extends TransitionAbstract
         return array_replace(
             $state,
             [
-                'integrated' => true,
-                'enabled'    => true,
+                'integrated'        => true,
+                'enabled'           => true,
+                'enabledDateUpdate' => true,
             ]
         );
     }

@@ -9,7 +9,6 @@
 namespace XCart\Bus\Rebuild\Executor;
 
 use XCart\Bus\Domain\PropertyBag;
-use XCart\Bus\Rebuild\Executor\Script\ScriptInterface;
 
 /**
  * @property string      $id                 State identifier (generally is equal to generating scenario id)
@@ -22,10 +21,8 @@ use XCart\Bus\Rebuild\Executor\Script\ScriptInterface;
  * @property string      $errorData          Additional error data
  * @property string      $errorTitle         General error message
  * @property string      $errorDescription   Detailed error description and steps to resolving the problem
- * @property array       $prompts            Possible prompted actions in case of error abort
  *
  * @property bool        $rollbackRequired   True if rollback is required to abort the script
- * @property array       $warnings           Rebuild warnings // @deprecated
  * @property int         $stepsCount         Steps count
  * @property int         $currentStep        Rebuild current step
  * @property string      $state              Script state
@@ -36,7 +33,6 @@ use XCart\Bus\Rebuild\Executor\Script\ScriptInterface;
  * @property StepState[] $completedSteps     Completed steps state
  * @property int         $lastModifiedTime   Script last modified timestamp
  * @property int         $initializedTime    Script initialized timestamp
- * @property string      $info               Info // @deprecated
  * @property int         $progressMax        Progress bar max value
  * @property int         $progressValue      Progress bar current value
  * @property ScriptState $parentState        Parent script state (used for rollback)
@@ -55,19 +51,9 @@ class ScriptState extends PropertyBag
     public const STATE_CANCELED              = 'canceled';
 
     /**
-     * @return static
-     */
-    public function clearPrompts()
-    {
-        $this->prompts = [];
-
-        return $this;
-    }
-
-    /**
      * @return int
      */
-    public function getNextStepIndex()
+    public function getNextStepIndex(): int
     {
         return $this->currentStep + 1;
     }
@@ -77,11 +63,10 @@ class ScriptState extends PropertyBag
      * @param string $type
      * @param array  $data
      * @param string $description
-     * @param array  $prompts
      *
      * @return static
      */
-    public function abort($title, $type = 'rebuild-dialog', array $data = [], $description = '', array $prompts = [])
+    public function abort($title, $type = 'rebuild-dialog', array $data = [], $description = '')
     {
         $this->state = static::STATE_ERROR_ABORTED;
 
@@ -89,13 +74,6 @@ class ScriptState extends PropertyBag
         $this->errorTitle       = $title;
         $this->errorDescription = $description;
         $this->errorData        = json_encode($data);
-
-        // @todo: try to avoid this dependency
-        $this->addPrompt(ScriptInterface::PROMPT_ROLLBACK);
-
-        foreach ($prompts as $prompt) {
-            $this->addPrompt($prompt);
-        }
 
         return $this;
     }
@@ -119,7 +97,7 @@ class ScriptState extends PropertyBag
      *
      * @return bool
      */
-    public function isExecutable()
+    public function isExecutable(): bool
     {
         $isCurrentStepOverlapped = $this->currentStep > $this->stepsCount;
 
@@ -135,7 +113,7 @@ class ScriptState extends PropertyBag
     /**
      * @param string $token
      */
-    public function touch($token)
+    public function touch($token): void
     {
         if (empty($this->initializedTime)) {
             $this->initializedTime = time();
@@ -169,9 +147,9 @@ class ScriptState extends PropertyBag
     /**
      * @param string $id
      *
-     * @return StepState
+     * @return StepState|null
      */
-    public function getCompletedStepState($id)
+    public function getCompletedStepState($id): ?StepState
     {
         /** @var StepState $stepState */
         foreach ((array) $this->completedSteps as $stepState) {
@@ -229,21 +207,5 @@ class ScriptState extends PropertyBag
 
         $this->currentStepInfo  = array_reverse($currentStepInfo);
         $this->finishedStepInfo = array_reverse($finishedStepInfo);
-    }
-
-    /**
-     * @param string $type
-     *
-     * @return static
-     */
-    private function addPrompt($type)
-    {
-        if (!isset($this->prompts)) {
-            $this->prompts = [];
-        }
-
-        $this->prompts[] = $type;
-
-        return $this;
     }
 }

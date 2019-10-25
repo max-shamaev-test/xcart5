@@ -10,6 +10,7 @@ namespace XCart\Bus\Helper;
 
 use Silex\Application;
 use XCart\SilexAnnotations\Annotations\Service;
+use const PHP_URL_HOST;
 
 /**
  * @Service\Service()
@@ -43,15 +44,7 @@ class UrlBuilder
     /**
      * @return string
      */
-    public function buildStorefrontUrl()
-    {
-        return $this->buildMainUrl();
-    }
-
-    /**
-     * @return string
-     */
-    public function buildAdminUrl()
+    public function buildAdminUrl(): string
     {
         return $this->buildMainUrl() . '/' . $this->adminScript;
     }
@@ -61,7 +54,7 @@ class UrlBuilder
      *
      * @return string
      */
-    public function buildServiceUrl($target = '')
+    public function buildServiceUrl($target = ''): string
     {
         $url = $this->buildMainUrl() . '/' . $this->endpoint . '#/';
 
@@ -77,9 +70,9 @@ class UrlBuilder
      *
      * @return string
      */
-    public function buildServiceMainUrl($target = '')
+    public function buildServiceMainUrl($target = ''): string
     {
-        $url = $this->buildMainUrl() . '/' . $this->endpoint . '/';
+        $url = $this->buildMainUrl() . '/' . $this->endpoint . '?/';
 
         if ($target) {
             $url = $url . '' . $target;
@@ -95,8 +88,8 @@ class UrlBuilder
      */
     public function isSelfURL($url): bool
     {
-        $host   = parse_url($url, \PHP_URL_HOST);
-        $domain = parse_url($this->app['config']['domain'], \PHP_URL_HOST);
+        $host   = parse_url($url, PHP_URL_HOST);
+        $domain = parse_url($this->app['config']['domain'], PHP_URL_HOST);
 
         return !$host || $host === $domain;
     }
@@ -104,7 +97,7 @@ class UrlBuilder
     /**
      * @return string
      */
-    protected function buildMainUrl()
+    protected function buildMainUrl(): string
     {
         $url = trim($this->app['config']['domain'], '/');
         $webDir = trim($this->app['config']['webdir'], '/');

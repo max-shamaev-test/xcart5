@@ -46,7 +46,7 @@ class XLite extends \XLite\Base
     /**
      * Core version
      */
-    const XC_VERSION = '5.4.0.4';
+    const XC_VERSION = '5.4.0.6';
 
     /**
      * Endpoints
@@ -539,6 +539,26 @@ class XLite extends \XLite\Base
     public function getShopURL($url = '', $isSecure = null, array $params = array())
     {
         return \XLite\Core\URLManager::getShopURL($url, $isSecure, $params);
+    }
+
+    /**
+     * @param string $path
+     * @param null   $isSecure
+     * @param array  $params
+     *
+     * @return string
+     */
+    public function getServiceURL($path = '', $isSecure = null, array $params = array())
+    {
+        if (!$path) {
+            $path = '#/';
+        }
+
+        if (strpos($path, '#') === 0) {
+            $path = 'service.php?locale=' . \XLite\Core\Session::getInstance()->getCurrentLanguage() . $path;
+        }
+
+        return \XLite\Core\URLManager::getShopURL($path, $isSecure, $params);
     }
 
     /**

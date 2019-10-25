@@ -7,6 +7,60 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
+function confirmPayment(stripe, paymentMethodId, paymentIntentId) {
+  jQuery.post(
+    'cart.php',
+    {
+      target: 'stripe',
+      action: 'confirm',
+      payment_method_id: paymentMethodId,
+      payment_intent_id: paymentIntentId,
+    },
+    function(data) {
+      handleServerResponse(stripe, data);
+    }
+  );
+}
+
+function handleServerResponse(stripe, response) {
+
+  if (response.requires_action) {
+    stripe.handleCardAction(
+      response.payment_intent_client_secret
+    ).then(function(result) {
+      if (result.error) {
+        submitStripeForm(response.stripe_id, result.error.message);
+      } else {
+        confirmPayment(stripe, null, result.paymentIntent.id);
+      }
+    });
+  } else {
+    submitStripeForm(response.stripe_id, response.error);
+  }
+}
+
+function submitStripeForm(stripe_id, error) {
+  jQuery('.stripe-box #id').val(stripe_id);
+  jQuery('.stripe-box #error').val(error);
+  jQuery('body').css('overflow', 'visible');
+  jQuery('form.place').submit();
+  unblockCheckout();
+}
+
+function blockCheckout() {
+  jQuery('.place-order')
+    .addClass('disabled')
+    .prop('disabled', true);
+  assignShadeOverlay(jQuery('#content'), true);
+}
+
+function unblockCheckout() {
+  jQuery('.place-order')
+    .removeClass('disabled')
+    .prop('disabled', false);
+  assignShadeOverlay(jQuery('#content'), false);
+}
+
 core.bind(
   'checkout.main.initialize',
   function() {
@@ -18,14 +72,15 @@ core.bind(
       function(event, data) {
         var box = jQuery('.stripe-box');
         if (box.length && typeof(window.StripeCheckout) != 'undefined' && !handler) {
+          var stripe = Stripe(box.data('key'));
 
           // Configure Stripe handler
           var options = {
             key:   box.data('key'),
+            locale: 'auto',
             token: function(token, args) {
-              jQuery('.stripe-box .token').val(token.id);
-              jQuery('body').css('overflow', 'visible');
-              jQuery('form.place').submit();
+              blockCheckout();
+              confirmPayment(stripe, token.id, null);
             },
             opened: function() {
               core.trigger('stripe.checkout.opened');
@@ -55,7 +110,7 @@ core.bind(
             );
 
             updateCartBinded = true;
-        };
+        }
       }
     );
 

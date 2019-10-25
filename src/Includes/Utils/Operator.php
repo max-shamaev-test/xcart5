@@ -348,4 +348,26 @@ abstract class Operator extends \Includes\Utils\AUtils
 
         return mb_substr($result, 0, $length);
     }
+
+    /**
+     * Purify link
+     *
+     * @param string $link String
+     *
+     * @return string
+     */
+    public static function purifyLink($link)
+    {
+        if (preg_match('/^{.*}$/', $link)) {
+            return $link;
+        }
+
+        $html = "<a href='{$link}'>";
+        $purifiedHtml = \XLite\Core\HTMLPurifier::purify($html);
+
+        preg_match('/<a href="(.*)">/', $purifiedHtml, $matches);
+        $purifiedLink = $matches[1];
+
+        return $purifiedLink;
+    }
 }

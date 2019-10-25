@@ -84,7 +84,7 @@ define('modules/XC/BulkEdit/form_model', ['js/vue/vue', 'form_model'], function 
           window.onbeforeunload = undefined;
         }
 
-        this.$options.methods.onSubmit.parent.call(this);
+        this.$options.methods.onSubmit.parent.call(this, event);
       }
     }
   });

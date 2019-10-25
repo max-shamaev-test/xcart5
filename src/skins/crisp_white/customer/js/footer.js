@@ -18,7 +18,23 @@ jQuery(function() {
     jQuery(this).removeClass('notransition');
   };
 
-  jQuery('.footer-menu').collapser();
+  var mobileWidth = 768;
+  var collapserAssigned = false;
+  var assignCollapser = function () {
+    var windowWidth = $(window).width();
+
+    if (!collapserAssigned && windowWidth < mobileWidth) {
+      jQuery('.footer-menu').collapser();
+      collapserAssigned = true;
+    }
+  }
+
+  assignCollapser();
+
+  $(window).resize(_.debounce(function () {
+    assignCollapser();
+  }, 200));
+
   jQuery('.form-control').floatingLabel();
   jQuery('textarea.form-control').keyup(heightFixer).keyup();
 

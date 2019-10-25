@@ -24,8 +24,10 @@ class InstallationData extends AObjectType
     {
         return [
             'fields' => [
-                'installationDate' => Type::int(),
-                'trialExpired'     => Type::boolean(),
+                'installationDate'        => Type::int(),
+                'trialExpired'            => Type::boolean(),
+                'backupMasterIsEnabled'   => Type::boolean(),
+                'backupMasterIsInstalled' => Type::boolean(),
             ],
         ];
     }

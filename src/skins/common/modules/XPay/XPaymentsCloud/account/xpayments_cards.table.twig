@@ -1,0 +1,47 @@
+{##
+ # X-Payments Saved cards table 
+ #}
+
+<div>
+
+  {% form '\\XLite\\Module\\XPay\\XPaymentsCloud\\View\\Form\\XpaymentsCards' %}
+
+  <table class="xpayments-cards">
+    <tr>
+      <th class="title-column">{{ t('Saved cards you can use for new orders.') }}</th>
+      <th class="remove-column"></th>
+    </tr>
+    {% for cc in this.customerProfile.getXpaymentsCards() %}
+      <tr>
+        <td class="title-column">
+
+          <div class="xpayments-card">
+            <div class="card-icon-container">
+              <span class="xpayments-card-type {{ cc.cssType }}"><img src="{{ asset('images/spacer.gif') }}" alt="{{ cc.type }}"/></span>
+            </div>
+            <div class="card-number">
+              {{ cc.cardNumber }}
+            </div>
+            <div class="card-expire">
+              {{ cc.expire }}
+            </div>
+          </div>
+
+          {% if not cc.isActive %}
+            <div class="clearfix"></div>
+            <div class="warning">
+              {{ t('This card is expired or cannot be used currently') }}
+            </div>
+          {% endif %}
+
+        </td>
+        <td class="remove-column">
+          <a class="btn regular-button" onclick="return confirm('{{ t('Delete this card?') }}');" href="{{ url('xpayments_cards', 'remove', {'card_id': cc.cardId}) }}">{{ t('Remove') }}</a>
+        </td>
+      </tr>  
+    {% endfor %}
+  </table>
+
+  {% endform %}
+
+</div>

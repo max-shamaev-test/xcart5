@@ -753,7 +753,8 @@ final class Requirements
 
                 if ($version) {
                     if ($this->isMariaDB($version)) {
-                        $version = explode('-', $version)[1];
+                        $versionParts = explode('-', $version);
+                        $version = (strtolower($versionParts[1]) == "mariadb") ? $versionParts[0] : $versionParts[1];
                         $minMysqlVersion = $this->getEnvironment('minMariadbVersion');
                         $rdbms = 'MariaDB';
                     }
@@ -835,25 +836,10 @@ final class Requirements
     private function getPhpPharChecker()
     {
         return function () {
-            $result  = false;
-            $version = '';
-
-            if (extension_loaded('Phar')) {
-                $result  = true;
-                $phpInfo = $this->getPhpInfo();
-
-                if (!empty($phpInfo['phar_ext_ver'])) {
-                    $version = trim($phpInfo['phar_ext_ver']);
-                    $result  = version_compare($version, '2.0.1') >= 0;
-                }
-            }
-
             return [
-                $result,
-                'error_message_1', // Phar extension v.2.0.1 or later required to get upgrades and install modules. Otherwise this features may not work properly.
-                [
-                    'version' => $version,
-                ],
+                extension_loaded('Phar'),
+                'error_message_1',
+                []
             ];
         };
     }
@@ -1514,7 +1500,7 @@ final class Requirements
      * @return boolean
      */
     private function isMariaDB($version) {
-        return strpos($version, 'MariaDB');
+        return strripos($version, 'MariaDB');
     }
 
     // }}}

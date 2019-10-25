@@ -94,6 +94,7 @@ class InstalledModulesDataSource extends SerializedDataSource
             $installationDate = time();
             foreach ($data as $module) {
                 $module->installedDate = $installationDate;
+                $module->enabledDate   = $installationDate;
             }
 
             $this->saveAll($data);
@@ -194,6 +195,7 @@ class InstalledModulesDataSource extends SerializedDataSource
 
                     $data[$moduleId]            = new Module($info);
                     $data[$moduleId]->installed = true;
+                    $data[$moduleId]->enabled   = false;
                 } else {
                     $data[$moduleId]->merge($info);
                 }

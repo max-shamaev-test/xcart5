@@ -55,6 +55,11 @@ class SystemDataResolver
     private $demoMode;
 
     /**
+     * @var bool
+     */
+    private $pharIsInstalled;
+
+    /**
      * @param Application                $app
      * @param InstalledModulesDataSource $installedModulesDataSource
      * @param CoreConfigDataSource       $coreConfigDataSource
@@ -80,6 +85,8 @@ class SystemDataResolver
             $marketplaceClient,
             $marketplaceShopAdapter,
             $dbInfo,
+            $app['config']['phar_is_installed'],
+            $app['config']['email'],
             $app['xc_config']['demo']['demo_mode'] ?? false
         );
     }
@@ -89,6 +96,8 @@ class SystemDataResolver
      * @param CoreConfigDataSource       $coreConfigDataSource
      * @param MarketplaceClient          $marketplaceClient
      * @param DBInfo                     $dbInfo
+     * @param boolean                    $pharIsInstalled
+     * @param string                     $email
      * @param boolean                    $demoMode
      */
     public function __construct(
@@ -97,6 +106,8 @@ class SystemDataResolver
         MarketplaceClient $marketplaceClient,
         MarketplaceShopAdapter $marketplaceShopAdapter,
         DBInfo $dbInfo,
+        $pharIsInstalled,
+        $email,
         $demoMode
     ) {
         $this->installedModulesDataSource = $installedModulesDataSource;
@@ -104,6 +115,8 @@ class SystemDataResolver
         $this->marketplaceClient          = $marketplaceClient;
         $this->marketplaceShopAdapter     = $marketplaceShopAdapter;
         $this->dbInfo                     = $dbInfo;
+        $this->pharIsInstalled            = $pharIsInstalled;
+        $this->email                      = $email;
         $this->demoMode                   = $demoMode;
     }
 
@@ -138,9 +151,15 @@ class SystemDataResolver
         $core             = $this->installedModulesDataSource->find('CDev-Core');
         $installationDate = $core ? $core['installedDate'] : 0;
 
+        $backupMaster            = $this->installedModulesDataSource->find('QSL-Backup');
+        $backupMasterIsEnabled   = $backupMaster ? $backupMaster['enabled'] : false;
+        $backupMasterIsInstalled = $backupMaster ? $backupMaster['installed'] : false;
+
         return [
-            'installationDate' => $installationDate,
-            'trialExpired'     => ($installationDate + 2592000 - time()) <= 0, /* 86400 * 30 */
+            'installationDate'        => $installationDate,
+            'trialExpired'            => ($installationDate + 2592000 - time()) <= 0, /* 86400 * 30 */
+            'backupMasterIsEnabled'   => $backupMasterIsEnabled,
+            'backupMasterIsInstalled' => $backupMasterIsInstalled,
         ];
     }
 
@@ -160,11 +179,14 @@ class SystemDataResolver
             $marketplaceLockExpiration = $this->coreConfigDataSource->find('marketplaceLockExpiration');
 
             return [
-                'cacheDate'       => $this->coreConfigDataSource->find('cacheDate') ?: 0,
-                'dataDate'        => $this->coreConfigDataSource->find('dataDate') ?: 0,
+                'cacheDate'       => $this->coreConfigDataSource->cacheDate ?: 0,
+                'dataDate'        => $this->coreConfigDataSource->dataDate ?: 0,
+                'authLock'        => $this->coreConfigDataSource->authLock ?: 0,
                 'wave'            => $this->coreConfigDataSource->wave,
                 'marketplaceLock' => $marketplaceLockExpiration && time() < (int) $marketplaceLockExpiration,
                 'purchaseUrl'     => $this->marketplaceShopAdapter->get()->getPurchaseURL(),
+                'pharIsInstalled' => $this->pharIsInstalled,
+                'email'           => $this->email,
                 'demoMode'        => $this->demoMode,
             ];
         });

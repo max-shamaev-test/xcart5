@@ -21,6 +21,7 @@ use XCart\Bus\Rebuild\Executor\Step\StepInterface;
 use XCart\Bus\Rebuild\Executor\StepState;
 use XCart\Bus\Rebuild\Scenario\ChangeUnitProcessor;
 use XCart\Bus\System\FilesystemInterface;
+use XCart\Bus\System\ResourceChecker;
 use XCart\Marketplace\RangeIterator;
 use XCart\SilexAnnotations\Annotations\Service;
 
@@ -50,11 +51,6 @@ class DownloadPacks implements StepInterface
      * @var LoggerInterface
      */
     private $logger;
-
-    /**
-     * @var string
-     */
-    private $rebuildId;
 
     /**
      * @var bool
@@ -109,7 +105,10 @@ class DownloadPacks implements StepInterface
         $this->filesystem        = $filesystem;
         $this->logger            = $logger;
 
-        $this->compressed = Phar::canCompress(Phar::GZ); // @todo: we use Archive_Tar, so may be we can avoid this check
+        $this->compressed = ResourceChecker::PharIsInstalled()
+            ? \Phar::canCompress(\Phar::GZ)
+            : false;
+
     }
 
     /**
@@ -134,10 +133,10 @@ class DownloadPacks implements StepInterface
 
         $transitions = $this->getTransitions($scriptState);
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'          => $scriptState->id,
                 'transitions' => $transitions,
             ]
         );
@@ -170,10 +169,9 @@ class DownloadPacks implements StepInterface
      */
     public function execute(StepState $state, $action = self::ACTION_EXECUTE, array $params = []): StepState
     {
-        $this->rebuildId = $state->rebuildId;
-
         if ($action === self::ACTION_EXECUTE || $action === self::ACTION_RETRY) {
             $state = $this->processTransition($state);
+
         } elseif ($action === self::ACTION_SKIP_STEP) {
             $state = $this->skipStep($state);
         }
@@ -328,12 +326,7 @@ class DownloadPacks implements StepInterface
         if ($this->filesystem->exists($transition['pack_path'])) {
             $transition['finished'] = true;
 
-            $this->logger->debug(
-                sprintf('Package already exists: %s', $transition['pack_path']),
-                [
-                    'id' => $this->rebuildId,
-                ]
-            );
+            $this->logger->notice(sprintf('Package already exists: %s', $transition['pack_path']));
 
             return $transition;
         }
@@ -360,12 +353,7 @@ class DownloadPacks implements StepInterface
 
             while ($this->hasTime() && $iterator->valid()) {
                 $state = $transition['state']['position'] . '/' . $transition['state']['total'];
-                $this->logger->debug(
-                    sprintf('Package downloading in progress: %s (%s)', $partPath, $state),
-                    [
-                        'id' => $this->rebuildId,
-                    ]
-                );
+                $this->logger->info(sprintf('Package downloading in progress: %s (%s)', $partPath, $state));
 
                 $data = $iterator->current();
                 $this->registerTick();
@@ -374,6 +362,8 @@ class DownloadPacks implements StepInterface
                 $transition['state'] = $iterator->getState();
             }
         } catch (MarketplaceException $e) {
+            $this->logger->critical(sprintf('Package download error: %s', $e->getMessage()));
+
             throw AbortException::fromDownloadStepWrongResponse($transition['id'], $e->getMessage());
         }
 
@@ -383,11 +373,15 @@ class DownloadPacks implements StepInterface
             if ($data = @json_decode($content, true)) {
                 $this->filesystem->remove($partPath);
 
+                $this->logger->critical(sprintf('Package download error: %s', $data['message']));
+
                 throw AbortException::fromDownloadStepWrongResponse($transition['id'], $data['message']);
             }
 
             if (empty($content)) {
                 $this->filesystem->remove($partPath);
+
+                $this->logger->critical(sprintf('Package download error: %s', 'Empty response'));
 
                 throw AbortException::fromDownloadStepEmptyResponse($transition['id']);
             }
@@ -396,12 +390,7 @@ class DownloadPacks implements StepInterface
             $transition['finished'] = true;
 
             $state = $transition['state']['position'] . '/' . $transition['state']['total'];
-            $this->logger->debug(
-                sprintf('Package downloaded successfully: %s (%s)', $transition['pack_path'], $state),
-                [
-                    'id' => $this->rebuildId,
-                ]
-            );
+            $this->logger->info(sprintf('Package downloaded successfully: %s (%s)', $transition['pack_path'], $state));
         }
 
         return $transition;

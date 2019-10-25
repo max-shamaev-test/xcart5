@@ -14,7 +14,11 @@ use XCart\Bus\Query\Data\MarketplaceModulesDataSource;
 use XCart\Bus\Rebuild\Scenario\Transition\InstallDisabledTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\InstallEnabledTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\TransitionInterface;
+use XCart\SilexAnnotations\Annotations\Service;
 
+/**
+ * @Service\Service()
+ */
 class Install implements ChangeUnitBuildRuleInterface
 {
     /**

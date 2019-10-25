@@ -8,6 +8,7 @@
 
 namespace XCart\Bus\Rebuild\Scenario\ScenarioRule\Dependencies;
 
+use Psr\Log\LoggerInterface;
 use XCart\Bus\Domain\Module;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
 use XCart\Bus\Query\Data\MarketplaceModulesDataSource;
@@ -29,15 +30,23 @@ abstract class DependencyRuleAbstract implements ScenarioRuleInterface
     protected $marketplaceModulesDataSource;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * @param InstalledModulesDataSource   $installedModulesDataSource
      * @param MarketplaceModulesDataSource $marketplaceModulesDataSource
+     * @param LoggerInterface              $logger
      */
     public function __construct(
         InstalledModulesDataSource $installedModulesDataSource,
-        MarketplaceModulesDataSource $marketplaceModulesDataSource
+        MarketplaceModulesDataSource $marketplaceModulesDataSource,
+        LoggerInterface $logger
     ) {
         $this->installedModulesDataSource   = $installedModulesDataSource;
         $this->marketplaceModulesDataSource = $marketplaceModulesDataSource;
+        $this->logger                       = $logger;
     }
 
     /**

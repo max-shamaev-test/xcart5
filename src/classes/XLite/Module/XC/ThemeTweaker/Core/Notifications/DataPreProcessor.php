@@ -34,6 +34,9 @@ class DataPreProcessor
             case 'failed_transaction':
                 $data = static::prepareFailedTransactionData($data);
                 break;
+            case 'backorder_created':
+                $data = static::prepareBackorderCreatedData($data);
+                break;
         }
 
         return $data;
@@ -94,6 +97,31 @@ class DataPreProcessor
                         ]),
                     ] + $data;
             }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return array
+     */
+    protected static function prepareBackorderCreatedData(array $data)
+    {
+        if (
+            !empty($data['order'])
+            && ($order = $data['order']) instanceof Order
+        ) {
+            $order = $data['order'];
+            \XLite\Core\Database::getEM()->detach($order);
+            $data['items'] = array_map(function (\XLite\Model\OrderItem $item) {
+                if (0 >= $item->getBackorderedAmount()) {
+                    $item->setBackorderedAmount(rand(1, $item->getAmount()));
+                }
+
+                return $item;
+            }, $order->getItems()->toArray());
         }
 
         return $data;

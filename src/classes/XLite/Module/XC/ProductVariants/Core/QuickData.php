@@ -26,11 +26,14 @@ class QuickData extends \XLite\Core\QuickData implements \XLite\Base\IDecorator
         $data = parent::updateData($product, $membership);
 
         if ($product->hasVariants()) {
-            $data->setMinPrice(min($data->getPrice(), $product->getQuickDataMinPrice()));
-            $data->setMaxPrice(max($data->getPrice(), $product->getQuickDataMaxPrice()));
+            $minPrice = min($data->getPrice(), $product->getQuickDataMinPrice());
+            $data->setMinPrice(\XLite::getInstance()->getCurrency()->roundValue($minPrice));
+
+            $maxPrice = max($data->getPrice(), $product->getQuickDataMaxPrice());
+            $data->setMaxPrice(\XLite::getInstance()->getCurrency()->roundValue($maxPrice));
         } else {
-            $data->setMinPrice($data->getPrice());
-            $data->setMaxPrice($data->getPrice());
+            $data->setMinPrice(\XLite::getInstance()->getCurrency()->roundValue($data->getPrice()));
+            $data->setMaxPrice(\XLite::getInstance()->getCurrency()->roundValue($data->getPrice()));
         }
 
         return $data;

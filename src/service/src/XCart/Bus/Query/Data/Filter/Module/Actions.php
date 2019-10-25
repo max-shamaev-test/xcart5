@@ -12,6 +12,7 @@ use Iterator;
 use XCart\Bus\Domain\Module;
 use XCart\Bus\Editions\Core\EditionMessage;
 use XCart\Bus\Editions\Core\UninstallAvailDecider;
+use XCart\Bus\Helper\UrlBuilder;
 use XCart\Bus\Query\Data\CoreConfigDataSource;
 use XCart\Bus\Query\Data\Filter\AModifier;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
@@ -58,6 +59,11 @@ class Actions extends AModifier
     private $marketplaceShop;
 
     /**
+     * @var UrlBuilder
+     */
+    private $urlBuilder;
+
+    /**
      * @var bool
      */
     private $developerMode;
@@ -93,6 +99,7 @@ class Actions extends AModifier
      * @param EditionMessage             $editionMessage
      * @param UninstallAvailDecider      $uninstallAvailDecider
      * @param MarketplaceShop            $marketplaceShop
+     * @param UrlBuilder                 $urlBuilder
      * @param bool                       $developerMode
      */
     public function __construct(
@@ -106,6 +113,7 @@ class Actions extends AModifier
         EditionMessage $editionMessage,
         UninstallAvailDecider $uninstallAvailDecider,
         MarketplaceShop $marketplaceShop,
+        UrlBuilder $urlBuilder,
         $developerMode
     ) {
         parent::__construct($iterator, $field, $data);
@@ -120,6 +128,7 @@ class Actions extends AModifier
         $this->editionMessage        = $editionMessage;
         $this->uninstallAvailDecider = $uninstallAvailDecider;
         $this->marketplaceShop       = $marketplaceShop;
+        $this->urlBuilder            = $urlBuilder;
         $this->developerMode         = $developerMode;
 
         $this->coreLicense       = $this->getLicense($core);
@@ -180,20 +189,22 @@ class Actions extends AModifier
         } elseif ($item['installed']) {
             $actions['install'] = false;
 
-            if ($this->getMajorVersion($item['installedVersion']) !== $this->coreMajorVersion
-                && $this->getMajorVersion($item['version']) !== $this->coreMajorVersion) {
+            if ($this->getMajorVersion($item['installedVersion']) !== $this->coreMajorVersion) {
                 $actions['switch'] = false;
-                if ($this->isUpgradeRequested($item)) {
-                    $messages[] = [
-                        'type'    => 'warning',
-                        'message' => 'module_state_message.core_restriction.upgrade_request.requested',
-                    ];
-                } else {
-                    $actions['upgradeRequest'] = true;
-                    $messages[]                = [
-                        'type'    => 'warning',
-                        'message' => 'module_state_message.core_restriction.upgrade_request',
-                    ];
+
+                if ($this->getMajorVersion($item['version']) !== $this->coreMajorVersion) {
+                    if ($this->isUpgradeRequested($item)) {
+                        $messages[] = [
+                            'type'    => 'warning',
+                            'message' => 'module_state_message.core_restriction.upgrade_request.requested',
+                        ];
+                    } else {
+                        $actions['upgradeRequest'] = true;
+                        $messages[]                = [
+                            'type'    => 'warning',
+                            'message' => 'module_state_message.core_restriction.upgrade_request',
+                        ];
+                    }
                 }
             } elseif ($item['minorRequiredCoreVersion'] > $this->coreMinorVersion) {
                 $actions['switch'] = false;
@@ -313,21 +324,32 @@ class Actions extends AModifier
             }
         }
 
-        if ($item['installed']) {
-            if ($item['version']) {
-                if ($this->getMajorVersion($item['version']) === $this->coreMajorVersion) {
+        if ($item->installed && $item->version) {
+            if ($this->getMajorVersion($item->installedVersion) === $this->coreMajorVersion) {
+                if ($this->getMajorVersion($item->version) === $this->coreMajorVersion) {
                     $messages[] = [
                         'type'    => 'success',
                         'message' => 'module_state_message.update_available',
                         'params'  => AlertType::prepareParams([
-                            'version' => $item['version'],
+                            'version' => $item->version,
                         ]),
                     ];
-                } elseif (version_compare($this->getMajorVersion($item['version']), $this->coreMajorVersion, '>')) {
+                } elseif (version_compare($this->getMajorVersion($item->version), $this->coreMajorVersion, '>')) {
                     $actions['switch'] = false;
                     $messages[]        = [
                         'type'    => 'warning',
                         'message' => 'The upgrade of the module is not released for your X-Cart version',
+                    ];
+                }
+            } elseif (Module::isPreviuosMajorVersion($item->installedVersion, $this->coreMajorVersion)) {
+                if ($this->getMajorVersion($item->version) === $this->coreMajorVersion) {
+                    $messages[] = [
+                        'type'    => 'warning',
+                        'message' => 'module_state_message.postponed_upgrade_available',
+                        'params'  => AlertType::prepareParams([
+                            'version'  => $item->version,
+                            'moduleId' => $item->id,
+                        ]),
                     ];
                 }
             }
@@ -359,6 +381,9 @@ class Actions extends AModifier
             $messages[] = [
                 'type'    => 'warning',
                 'message' => 'module_state_message.license_expired',
+                'params'  => AlertType::prepareParams([
+                    'renewUrl' => $this->marketplaceShop->getRenewalURL($license['keyData']['prolongKey'], $license['keyValue'], $this->urlBuilder->buildServiceMainUrl('afterPurchase')),
+                ]),
             ];
         }
 
@@ -423,10 +448,14 @@ class Actions extends AModifier
             /** @var Module $module */
             $module = $this->modulesDataSource->findOne($moduleId);
 
+            if (!$module) {
+                [$authorName, $moduleName] = Module::explodeModuleId($moduleId);
+            }
+
             return [
                 'id'         => $moduleId,
-                'authorName' => $module->authorName,
-                'moduleName' => $module->moduleName,
+                'authorName' => $module ? $module->authorName : $authorName,
+                'moduleName' => $module ? $module->moduleName : $moduleName,
             ];
         }, $modules);
     }

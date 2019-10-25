@@ -8,12 +8,14 @@
 
 namespace XCart\Bus\Rebuild\Executor\Step\Execute;
 
+use Doctrine\Common\Cache\CacheProvider;
 use Psr\Log\LoggerInterface;
 use Silex\Application;
 use Symfony\Component\Filesystem\Exception\IOException;
 use XCart\Bus\Core\Annotations\RebuildStep;
 use XCart\Bus\Domain\Backup\BackupInterface;
 use XCart\Bus\Exception\Rebuild\AbortException;
+use XCart\Bus\Exception\Rebuild\HoldException;
 use XCart\Bus\Exception\RebuildException;
 use XCart\Bus\Rebuild\Executor\ScriptState;
 use XCart\Bus\Rebuild\Executor\Step\StepInterface;
@@ -22,6 +24,7 @@ use XCart\Bus\Rebuild\Scenario\ChangeUnitProcessor;
 use XCart\Bus\System\FilesystemInterface;
 use XCart\Bus\System\ResourceChecker;
 use XCart\SilexAnnotations\Annotations\Service;
+use XCart\SilexAnnotations\AnnotationServiceProvider;
 
 /**
  * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild"})
@@ -51,14 +54,14 @@ class MovePacks implements StepInterface
     private $resourceChecker;
 
     /**
+     * @var CacheProvider
+     */
+    private $cacheProvider;
+
+    /**
      * @var LoggerInterface
      */
     private $logger;
-
-    /**
-     * @var string
-     */
-    private $rebuildId;
 
     private $removeSource = false;
 
@@ -88,6 +91,7 @@ class MovePacks implements StepInterface
             $filesystem,
             $backup,
             $resourceChecker,
+            $app[AnnotationServiceProvider::CACHE_SERVICE_NAME],
             $logger
         );
     }
@@ -97,6 +101,7 @@ class MovePacks implements StepInterface
      * @param FilesystemInterface $filesystem
      * @param BackupInterface     $backup
      * @param ResourceChecker     $resourceChecker
+     * @param CacheProvider       $cacheProvider
      * @param LoggerInterface     $logger
      */
     public function __construct(
@@ -104,13 +109,16 @@ class MovePacks implements StepInterface
         FilesystemInterface $filesystem,
         BackupInterface $backup,
         ResourceChecker $resourceChecker,
+        CacheProvider $cacheProvider,
         LoggerInterface $logger
     ) {
         $this->rootDir         = $rootDir;
         $this->filesystem      = $filesystem;
         $this->backup          = $backup;
         $this->resourceChecker = $resourceChecker;
+        $this->cacheProvider   = $cacheProvider;
         $this->logger          = $logger;
+        $this->cacheProvider   = $cacheProvider;
     }
 
     /**
@@ -144,10 +152,10 @@ class MovePacks implements StepInterface
             return $transition;
         }, $this->getTransitions($scriptState));
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'          => $scriptState->id,
                 'transitions' => $transitions,
             ]
         );
@@ -177,8 +185,7 @@ class MovePacks implements StepInterface
      */
     public function execute(StepState $state, $action = self::ACTION_EXECUTE, array $params = []): StepState
     {
-        $this->backup    = $this->backup->load($state->rebuildId);
-        $this->rebuildId = $state->rebuildId;
+        $this->backup = $this->backup->load($state->rebuildId);
 
         if ($action === self::ACTION_EXECUTE || $action === self::ACTION_RETRY) {
             $state = $this->processTransition($state);
@@ -312,6 +319,19 @@ class MovePacks implements StepInterface
         $state->finishedTransitions = $finishedTransitions;
         $state->progressValue       = $progressValue;
 
+        if ($id === 'XC-Service') {
+            $this->cacheProvider->flushAll();
+
+            $this->logger->debug(
+                'Request page reloading',
+                [
+                    'id' => $state->rebuildId,
+                ]
+            );
+
+            throw HoldException::fromReloadPageStepReload($state);
+        }
+
         return $state;
     }
 
@@ -374,24 +394,14 @@ class MovePacks implements StepInterface
             if ($transition['new_files']) {
                 foreach ($transition['new_files'] as $k => $file) {
                     if ($this->filesystem->exists($this->rootDir . $file)) {
-                        $this->logger->debug(
-                            sprintf('Update: %s', $file),
-                            [
-                                'id' => $this->rebuildId,
-                            ]
-                        );
+                        $this->logger->debug(sprintf('Update: %s', $file));
 
                         $this->backup->addReplaceRecord($file);
 
                         $files['updated'][] = $file;
 
                     } else {
-                        $this->logger->debug(
-                            sprintf('Create: %s', $file),
-                            [
-                                'id' => $this->rebuildId,
-                            ]
-                        );
+                        $this->logger->debug(sprintf('Create: %s', $file));
 
                         $this->backup->addCreateRecord($file);
 
@@ -410,7 +420,9 @@ class MovePacks implements StepInterface
                         break;
                     }
                 }
-            } elseif ($transition['remove_files']) {
+            }
+
+            if ($transition['remove_files'] && $this->resourceChecker->timeRemain() > 5000) {
                 foreach ($transition['remove_files'] as $k => $file) {
                     if ($this->filesystem->exists($this->rootDir . $file)) {
                         $this->backup->addReplaceRecord($file);
@@ -419,12 +431,7 @@ class MovePacks implements StepInterface
 
                         $files['removed'] = $file;
 
-                        $this->logger->debug(
-                            sprintf('Remove: %s', $file),
-                            [
-                                'id' => $this->rebuildId,
-                            ]
-                        );
+                        $this->logger->debug(sprintf('Remove: %s', $file));
                     }
 
                     unset($transition['remove_files'][$k]);
@@ -435,6 +442,8 @@ class MovePacks implements StepInterface
                 }
             }
         } catch (IOException $e) {
+            $this->logger->critical(sprintf('Updating files error: %s', $e->getMessage()));
+
             throw new AbortException($e->getMessage(), $e->getCode());
         }
 

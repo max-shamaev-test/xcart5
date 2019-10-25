@@ -10,7 +10,7 @@ use InvalidArgumentException;
  *
  * <b>== More information ==</b>
  *
- * For more detailed information on Transactions, see {@link http://www.braintreepayments.com/gateway/transaction-api http://www.braintreepaymentsolutions.com/gateway/transaction-api}
+ * For more detailed information on Transactions, see {@link https://developers.braintreepayments.com/reference/response/transaction/php https://developers.braintreepayments.com/reference/response/transaction/php}
  *
  * @package    Braintree
  * @category   Resources
@@ -40,7 +40,7 @@ class TransactionGateway
      * @ignore
      * @access private
      * @param array $attribs
-     * @return object
+     * @return Result\Successful|Result\Error
      */
     private function create($attribs)
     {
@@ -59,37 +59,6 @@ class TransactionGateway
     {
         $result = $this->create($attribs);
         return Util::returnObjectOrThrowException(__CLASS__, $result);
-    }
-    /**
-     *
-     * @deprecated since version 2.3.0
-     * @access public
-     * @param array $attribs
-     * @return object
-     */
-    public function createFromTransparentRedirect($queryString)
-    {
-        trigger_error("DEPRECATED: Please use TransparentRedirectRequest::confirm", E_USER_NOTICE);
-        $params = TransparentRedirect::parseAndValidateQueryString(
-                $queryString
-        );
-        return $this->_doCreate(
-                '/transactions/all/confirm_transparent_redirect_request',
-                ['id' => $params['id']]
-        );
-    }
-    /**
-     *
-     * @deprecated since version 2.3.0
-     * @access public
-     * @param none
-     * @return string
-     */
-    public function createTransactionUrl()
-    {
-        trigger_error("DEPRECATED: Please use TransparentRedirectRequest::url", E_USER_NOTICE);
-        return $this->_config->baseUrl() . $this->_config->merchantPath() .
-                '/transactions/all/create_via_transparent_redirect_request';
     }
 
     public static function cloneSignature()
@@ -119,6 +88,7 @@ class TransactionGateway
             'recurring',
             'serviceFeeAmount',
             'sharedPaymentMethodToken',
+            'sharedPaymentMethodNonce',
             'sharedCustomerId',
             'sharedShippingAddressId',
             'sharedBillingAddressId',
@@ -129,6 +99,9 @@ class TransactionGateway
             'transactionSource',
             'type',
             'venmoSdkPaymentMethodCode',
+            'shippingAmount',
+            'discountAmount',
+            'shipsFromPostalCode',
             ['riskData' =>
                 ['customerBrowser', 'customerIp', 'customer_browser', 'customer_ip']
             ],
@@ -158,7 +131,12 @@ class TransactionGateway
                 [
                     'eciFlag',
                     'cavv',
-                    'xid'],
+                    'xid',
+                    'threeDSecureVersion',
+                    'authenticationResponse',
+                    'directoryResponse',
+                    'cavvAlgorithm',
+                    'dsTransactionId'],
             ],
             ['options' =>
                 [
@@ -169,19 +147,20 @@ class TransactionGateway
                     'addBillingAddressToPaymentMethod',
                     'venmoSdkSession',
                     'storeShippingAddressInVault',
+                    'payeeId',
                     'payeeEmail',
                     'skipAdvancedFraudChecking',
                     'skipAvs',
                     'skipCvv',
-                    ['threeDSecure' =>
-                        ['required']
+                    ['creditCard' =>
+                        ['accountType']
                     ],
-                    # Included for backwards compatiblity. Remove in the next major version
-                    ['three_d_secure' =>
+                    ['threeDSecure' =>
                         ['required']
                     ],
                     ['paypal' =>
                         [
+                            'payeeId',
                             'payeeEmail',
                             'customField',
                             'description',
@@ -195,14 +174,18 @@ class TransactionGateway
                             'currencyAmount',
                             'currencyIsoCode'
                         ]
+                    ],
+                    ['venmo' =>
+                        [
+                            'profileId'
+                        ]
                     ]
                 ],
             ],
             ['customFields' => ['_anyKey_']],
             ['descriptor' => ['name', 'phone', 'url']],
-            ['paypalAccount' => ['payeeEmail']],
-            ['apple_pay_card' => ['number', 'cardholder_name', 'cryptogram', 'expiration_month', 'expiration_year']], #backwards compatibility
-            ['applePayCard' => ['number', 'cardholderName', 'cryptogram', 'expirationMonth', 'expirationYear']],
+            ['paypalAccount' => ['payeeId', 'payeeEmail', 'payerId', 'paymentId']],
+            ['applePayCard' => ['number', 'cardholderName', 'cryptogram', 'expirationMonth', 'expirationYear', 'eciIndicator']],
             ['industry' =>
                 ['industryType',
                     ['data' =>
@@ -215,10 +198,60 @@ class TransactionGateway
                             'lodgingCheckInDate',
                             'lodgingCheckOutDate',
                             'lodgingName',
-                            'roomRate'
+                            'roomRate',
+                            'roomTax',
+                            'passengerFirstName',
+                            'passengerLastName',
+                            'passengerMiddleInitial',
+                            'passengerTitle',
+                            'issuedDate',
+                            'travelAgencyName',
+                            'travelAgencyCode',
+                            'ticketNumber',
+                            'issuingCarrierCode',
+                            'customerCode',
+                            'fareAmount',
+                            'feeAmount',
+                            'taxAmount',
+                            'restrictedTicket',
+                            'noShow',
+                            'advancedDeposit',
+                            'fireSafe',
+                            'propertyPhone',
+                            ['legs' =>
+                                [
+                                    'conjunctionTicket',
+                                    'exchangeTicket',
+                                    'couponNumber',
+                                    'serviceClass',
+                                    'carrierCode',
+                                    'fareBasisCode',
+                                    'flightNumber',
+                                    'departureDate',
+                                    'departureAirportCode',
+                                    'departureTime',
+                                    'arrivalAirportCode',
+                                    'arrivalTime',
+                                    'stopoverPermitted',
+                                    'fareAmount',
+                                    'feeAmount',
+                                    'taxAmount',
+                                    'endorsementOrRestrictions'
+                                ]
+                            ],
+                            ['additionalCharges' =>
+                                [
+                                    'kind',
+                                    'amount'
+                                ]
+                            ]
                         ]
                     ]
                 ]
+            ],
+            ['lineItems' => ['quantity', 'name', 'description', 'kind', 'unitAmount', 'unitTaxAmount', 'totalAmount', 'discountAmount', 'taxAmount', 'unitOfMeasure', 'productCode', 'commodityCode', 'url']],
+            ['externalVault' =>
+                ['status' , 'previousNetworkTransactionId'],
             ]
         ];
     }
@@ -283,7 +316,7 @@ class TransactionGateway
     /**
      * new sale
      * @param array $attribs
-     * @return array
+     * @return Result\Successful|Result\Error
      */
     public function sale($attribs)
     {
@@ -308,7 +341,7 @@ class TransactionGateway
      *
      * If <b>query</b> is a string, the search will be a basic search.
      * If <b>query</b> is a hash, the search will be an advanced search.
-     * For more detailed information and examples, see {@link http://www.braintreepayments.com/gateway/transaction-api#searching http://www.braintreepaymentsolutions.com/gateway/transaction-api}
+     * For more detailed information and examples, see {@link https://developers.braintreepayments.com/reference/request/transaction/search/php https://developers.braintreepayments.com/reference/request/transaction/search/php}
      *
      * @param mixed $query search query
      * @param array $options options such as page number
@@ -333,7 +366,7 @@ class TransactionGateway
 
             return new ResourceCollection($response, $pager);
         } else {
-            throw new Exception\DownForMaintenance();
+            throw new Exception\Timeout();
         }
     }
 
@@ -353,7 +386,7 @@ class TransactionGateway
                 'transaction'
             );
         } else {
-            throw new Exception\DownForMaintenance();
+            throw new Exception\Timeout();
         }
     }
 
@@ -470,7 +503,7 @@ class TransactionGateway
      * @ignore
      * @param var $subPath
      * @param array $params
-     * @return mixed
+     * @return Result\Successful|Result\Error
      */
     public function _doCreate($subPath, $params)
     {
@@ -492,7 +525,11 @@ class TransactionGateway
                    'expected transaction id to be set'
                    );
         }
-        if (!preg_match('/^[0-9a-z]+$/', $id)) {
+        
+        // NEXT_MAJOR_VERSION - none of the other sdks validate the format
+        // of the ID. In the next major version, we can remove this check 
+        // and have the gateway return a 404 error instead
+        if (!preg_match('/^[0-9a-z_]+$/', $id)) {
             throw new InvalidArgumentException(
                     $id . ' is an invalid transaction id.'
                     );

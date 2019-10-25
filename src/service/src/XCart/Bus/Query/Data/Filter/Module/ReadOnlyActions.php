@@ -27,8 +27,10 @@ class ReadOnlyActions extends AModifier
         /** @var Module $item */
         $item = $this->getInnerIterator()->current();
 
-        $actions             = [];
-        $actions['settings'] = $item['enabled'] && $item['showSettingsForm'];
+        $actions                 = [];
+        $actions['settings']     = $item['enabled'] && $item['showSettingsForm'];
+        $actions['installDemo']  = $item->actions['install'] ?? false;
+        $actions['purchaseDemo'] = $item->actions['purchase'] ?? false;
 
         $item->actions = $actions;
 

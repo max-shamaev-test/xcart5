@@ -32,7 +32,7 @@ class TopMenuNode extends \XLite\View\AView
      */
     protected function getUrl()
     {
-        return \XLite::getInstance()->getShopURL('service.php#/marketplace');
+        return \XLite::getInstance()->getServiceURL('#/marketplace');
     }
 
     /**

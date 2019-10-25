@@ -410,31 +410,6 @@ class Settings extends \XLite\View\Model\AModel
     }
 
     /**
-     * Allow any content in config options
-     *
-     * @param string $name Option name
-     *
-     * @return boolean
-     */
-    protected function isParamTrusted($name)
-    {
-        $result = parent::isParamTrusted($name);
-
-        if (!$result) {
-            $options = $this->getEditableOptions();
-
-            foreach ($options as $option) {
-                if ($option->getName() == $name && $option->getCategory() == 'Company') {
-                    $result = true;
-                    break;
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    /**
      * Populate model object properties by the passed data
      *
      * @param array $data Data to set

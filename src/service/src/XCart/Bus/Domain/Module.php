@@ -34,6 +34,7 @@ namespace XCart\Bus\Domain;
  * @property int      $installedDate
  * @property bool     $integrated
  * @property bool     $enabled
+ * @property int      $enabledDate
  * @property string   $skinPreview
  * @property array    $service
  *
@@ -230,7 +231,7 @@ class Module extends PropertyBag
         $module->description              = $metadata['Description'];
         $module->minorRequiredCoreVersion = $metadata['MinCoreVersion'];
 
-        $module->dependsOn = array_map(function ($moduleId) {
+        $module->dependsOn = array_map(static function ($moduleId) {
             return Module::convertModuleId($moduleId);
         }, $metadata['Dependencies'] ?: []);
 
@@ -242,11 +243,25 @@ class Module extends PropertyBag
     }
 
     /**
+     * @param $version
+     * @param $comareVersion
+     *
+     * @return bool
+     */
+    public static function isPreviuosMajorVersion($version, $comareVersion): bool
+    {
+        [$system, $major, ,] = self::explodeVersion($version);
+        [$compareSystem, $compareMajor, ,] = self::explodeVersion($comareVersion);
+
+        return $system === $compareSystem && $compareMajor - $major === 1;
+    }
+
+    /**
      * @return array
      */
     public function toPackageMetadata(): array
     {
-        [$system, $major, $minor, $build] = self::explodeVersion($this->version ?? []);
+        [$system, $major, $minor, $build] = self::explodeVersion($this->version ?? '');
 
         return [
             'RevisionDate'   => time(),
@@ -260,7 +275,7 @@ class Module extends PropertyBag
             'IconLink'       => $this->icon,
             'Description'    => $this->description,
 
-            'Dependencies' => array_map(function ($moduleId) {
+            'Dependencies' => array_map(static function ($moduleId) {
                 return Module::convertModuleIdXCart($moduleId);
             }, $this->dependsOn ?? []),
 

@@ -54,6 +54,7 @@ class InstallEnabledTransition extends TransitionAbstract
                 'enabled'             => true,
                 'version'             => $this->getVersion(),
                 'installedDateUpdate' => true,
+                'enabledDateUpdate'   => true,
             ]
         );
     }

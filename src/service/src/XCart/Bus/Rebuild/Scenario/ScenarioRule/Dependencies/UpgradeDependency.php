@@ -12,7 +12,11 @@ use XCart\Bus\Rebuild\Scenario\ScenarioBuilder;
 use XCart\Bus\Rebuild\Scenario\ScenarioRule\ScenarioRuleException;
 use XCart\Bus\Rebuild\Scenario\Transition\TransitionInterface;
 use XCart\Bus\Rebuild\Scenario\Transition\UpgradeTransition;
+use XCart\SilexAnnotations\Annotations\Service;
 
+/**
+ * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild"})
+ */
 class UpgradeDependency extends DependencyRuleAbstract
 {
     /**

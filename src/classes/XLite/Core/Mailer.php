@@ -29,6 +29,7 @@ use XLite\Core\Mail\Order\ProcessedCustomer;
 use XLite\Core\Mail\Order\ShippedCustomer;
 use XLite\Core\Mail\Order\TrackingCustomer;
 use XLite\Core\Mail\Order\WfaCustomer;
+use XLite\Core\Mail\Order\BackorderCreatedAdmin;
 use XLite\Core\Mail\Profile\CreatedAdmin;
 use XLite\Core\Mail\Profile\CreatedCustomer;
 use XLite\Core\Mail\Profile\RecoverPasswordAdmin;
@@ -326,6 +327,14 @@ class Mailer extends \XLite\Base\Singleton
     public static function sendOrderCanceledCustomer(Order $order)
     {
         (new CanceledCustomer($order))->schedule();
+    }
+
+    /**
+     * @param Order $order Order model
+     */
+    public static function sendBackorderCreatedAdmin(Order $order)
+    {
+        (new BackorderCreatedAdmin($order))->schedule();
     }
 
     /**

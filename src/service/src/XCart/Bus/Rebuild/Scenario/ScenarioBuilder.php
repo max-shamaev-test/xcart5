@@ -8,18 +8,24 @@
 
 namespace XCart\Bus\Rebuild\Scenario;
 
+use GraphQL\Type\Definition\ResolveInfo;
+use Silex\Application;
+use Psr\Log\LoggerInterface;
 use XCart\Bus\Domain\Module;
 use XCart\Bus\Query\Data\CoreConfigDataSource;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
 use XCart\Bus\Query\Data\MarketplaceModulesDataSource;
+use XCart\Bus\Query\Resolver\LanguageDataResolver;
 use XCart\Bus\Rebuild\Scenario\ScenarioRule\ScenarioRuleException;
 use XCart\Bus\Rebuild\Scenario\ScenarioRule\ScenarioRuleInterface;
 use XCart\Bus\Rebuild\Scenario\Transition\EnableTransition;
+use XCart\Bus\Rebuild\Scenario\Transition\DisableTransition;
+use XCart\Bus\Rebuild\Scenario\Transition\RemoveTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\TransitionInterface;
 use XCart\SilexAnnotations\Annotations\Service;
 
 /**
- * @Service\Service()
+ * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild"})
  */
 class ScenarioBuilder
 {
@@ -39,9 +45,22 @@ class ScenarioBuilder
     private $installedModulesDataSource;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
+     * @var array
+     */
+    private $languageMessages;
+
+    /**
+     * @param Application                  $app
      * @param InstalledModulesDataSource   $installedModulesDataSource
      * @param MarketplaceModulesDataSource $marketplaceModulesDataSource
      * @param CoreConfigDataSource         $coreConfigDataSource
+     * @param LoggerInterface              $logger
+     * @param LanguageDataResolver         $languageDataResolver
      *
      * @return static
      *
@@ -49,75 +68,66 @@ class ScenarioBuilder
      * @codeCoverageIgnore
      */
     public static function serviceConstructor(
+        Application $app,
         InstalledModulesDataSource $installedModulesDataSource,
         MarketplaceModulesDataSource $marketplaceModulesDataSource,
-        CoreConfigDataSource $coreConfigDataSource
+        CoreConfigDataSource $coreConfigDataSource,
+        LoggerInterface $logger,
+        LanguageDataResolver $languageDataResolver
     ) {
+        // todo: use annotations
         return new self(
             [
-                new ScenarioRule\Dependencies\InstallNotInstalled(
-                    $installedModulesDataSource,
-                    $marketplaceModulesDataSource
-                ),
-                new ScenarioRule\Dependencies\UpgradeDependency(
-                    $installedModulesDataSource,
-                    $marketplaceModulesDataSource
-                ),
-                new ScenarioRule\Dependencies\CoreVersion(
-                    $installedModulesDataSource,
-                    $marketplaceModulesDataSource,
-                    $coreConfigDataSource
-                ),
-                new ScenarioRule\Dependencies\EnableNotEnabled(
-                    $installedModulesDataSource,
-                    $marketplaceModulesDataSource
-                ),
-                new ScenarioRule\Dependencies\ForceEnabledWhenRequired(
-                    $installedModulesDataSource,
-                    $marketplaceModulesDataSource
-                ),
-                new ScenarioRule\Dependencies\ForceDisabledWhenIncompatible(
-                    $installedModulesDataSource,
-                    $marketplaceModulesDataSource
-                ),
-                new ScenarioRule\Dependencies\ForceSystemDisabledIfIncompatible(
-                    $installedModulesDataSource,
-                    $marketplaceModulesDataSource
-                ),
-                new ScenarioRule\Dependencies\DisableNonRelatedSkins(
-                    $installedModulesDataSource,
-                    $marketplaceModulesDataSource
-                ),
-                new ScenarioRule\CoreVersion(
-                    $installedModulesDataSource,
-                    $marketplaceModulesDataSource,
-                    $coreConfigDataSource
-                ),
+                $app[ScenarioRule\Dependencies\InstallNotInstalled::class],
+                $app[ScenarioRule\Dependencies\UpgradeDependency::class],
+                $app[ScenarioRule\Dependencies\CoreVersion::class],
+                $app[ScenarioRule\Dependencies\EnableNotEnabled::class],
+                $app[ScenarioRule\Dependencies\ForceEnabledWhenRequired::class],
+                $app[ScenarioRule\Dependencies\ForceDisabledWhenIncompatible::class],
+                $app[ScenarioRule\Dependencies\ForceSystemDisabledIfIncompatible::class],
+                $app[ScenarioRule\Dependencies\DisableNonRelatedSkins::class],
+                $app[ScenarioRule\CoreVersion::class],
             ],
-            $installedModulesDataSource
+            $installedModulesDataSource,
+            $logger,
+            $languageDataResolver
         );
     }
 
     /**
      * @param ScenarioRuleInterface[]    $rules
      * @param InstalledModulesDataSource $installedModulesDataSource
+     * @param LoggerInterface            $logger
+     * @param LanguageDataResolver       $languageDataResolver
      */
-    public function __construct(array $rules, InstalledModulesDataSource $installedModulesDataSource)
-    {
+    public function __construct(
+        array $rules,
+        InstalledModulesDataSource $installedModulesDataSource,
+        LoggerInterface $logger,
+        LanguageDataResolver $languageDataResolver
+    ) {
         $this->rules                      = $rules;
         $this->installedModulesDataSource = $installedModulesDataSource;
+        $this->logger                     = $logger;
 
-        //$this->addSystemTransitions();
+        $messages = $languageDataResolver->getLanguageMessages(null, [], null, new ResolveInfo([]));
+        $this->languageMessages = [];
+        foreach ((array) $messages as $label) {
+            $this->languageMessages[$label['name']] = $label['label'];
+        }
     }
 
     /**
      * @param TransitionInterface $transition
      *
-     * @throws ScenarioRule\ScenarioRuleException
+     * @throws ScenarioRuleException
      */
     public function addTransition(TransitionInterface $transition): void
     {
-        if (isset($this->moduleTransitions[$transition->getModuleId()])) {
+        if (isset($this->moduleTransitions[$transition->getModuleId()])
+            && !(get_class($transition) === RemoveTransition::class
+                && get_class($this->moduleTransitions[$transition->getModuleId()]) === DisableTransition::class)
+        ) {
             $transition = $this->moduleTransitions[$transition->getModuleId()];
         }
 
@@ -125,6 +135,23 @@ class ScenarioBuilder
 
         foreach ($rules as $rule) {
             if ($rule->isApplicable($transition)) {
+                try {
+                    $rule->applyFilter($transition, $this);
+
+                } catch (ScenarioRuleException $exception) {
+                    if ($exception->getCode() === ScenarioRuleException::SOFT_EXCEPTION) {
+                        $this->logger->notice(
+                            LanguageDataResolver::getMessageWithReplacedParams(
+                                $this->languageMessages[$exception->getMessage()],
+                                $exception->getParams()
+                            )
+                        );
+                        return;
+                    }
+
+                    throw $exception;
+                }
+
                 $rule->applyTransform(
                     $transition,
                     $this
@@ -139,34 +166,10 @@ class ScenarioBuilder
 
     /**
      * @return TransitionInterface[]
-     *
-     * @throws ScenarioRuleException
      */
     public function getTransitions(): array
     {
-        $rules = $this->getRules();
-
-        return array_filter(
-            $this->moduleTransitions,
-            function ($transition) use ($rules) {
-                foreach ($rules as $name => $rule) {
-                    if ($rule->isApplicable($transition)) {
-                        try {
-                            $rule->applyFilter($transition, $this);
-
-                        } catch (ScenarioRuleException $exception) {
-                            if ($exception->getCode() === ScenarioRuleException::SOFT_EXCEPTION) {
-                                return false;
-                            }
-
-                            throw $exception;
-                        }
-                    }
-                }
-
-                return true;
-            }
-        );
+        return $this->moduleTransitions;
     }
 
     /**
@@ -242,7 +245,9 @@ class ScenarioBuilder
             }
 
             if (!isset($this->moduleTransitions[$systemModuleId])) {
-                $transition    = new EnableTransition($systemModuleId);
+                $transition = $GLOBALS['config']->getOption('performance', 'ignore_system_modules')
+                    ? new DisableTransition($systemModuleId)
+                    : new EnableTransition($systemModuleId);
                 $transitions[] = $this->fillSystemTransitionInfo($transition);
             }
         }

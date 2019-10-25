@@ -95,7 +95,7 @@ class Labels extends \XLite\Controller\Admin\AAdmin
         // Update 'enabled' and 'added' properties editable in the item list
         parent::doActionUpdateItemsList();
 
-        $requestData = \XLite\Core\Request::getInstance()->getNonFilteredData();
+        $requestData = \XLite\Core\Request::getInstance()->getPostData(false);
 
         $current = !empty($requestData['current']) ? $requestData['current'] : null;
 
@@ -149,7 +149,7 @@ class Labels extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionAdd()
     {
-        $requestData = \XLite\Core\Request::getInstance()->getNonFilteredData();
+        $requestData = \XLite\Core\Request::getInstance()->getPostData(false);
 
         $name  = substr($requestData['name'], 0, 255);
         $label = $requestData['label'];
@@ -208,7 +208,7 @@ class Labels extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionEdit()
     {
-        $requestData = \XLite\Core\Request::getInstance()->getNonFilteredData();
+        $requestData = \XLite\Core\Request::getInstance()->getPostData(false);
 
         $label   = $requestData['label'];
         $labelId = intval(\XLite\Core\Request::getInstance()->label_id);

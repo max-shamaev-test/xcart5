@@ -20,7 +20,11 @@
   }
 
   function addDisabledCategoryTooltip(optionText, tooltipLbl, element, rootSelect, enabled) {
-    var option = rootSelect.find('option:contains("' + optionText + '")');
+    var option = $(rootSelect[0].el)
+      .find('option')
+      .filter(function(index, element) {
+        return element.text.endsWith(optionText);
+      });
 
     if ((option.length > 0 && option.data('disabled')) || !enabled) {
       element
@@ -35,7 +39,11 @@
   function markInaccessibleOptions(elements, rootSelect) {
     elements.each(function() {
       var text = $(this).attr('title') || $(this).attr('data-original-title');
-      var option = rootSelect.find('option:contains("' + text + '")');
+      var option = $(rootSelect[0].el)
+        .find('option')
+        .filter(function(index, element) {
+          return element.text.endsWith(text);
+        });
 
       if (option.length > 0 && option.data('disabled')) {
         $(this).attr('data-disabled', true);
@@ -99,27 +107,33 @@
               return '<span class="searching">' + self.params.searchingLbl + '</span>';
             }
 
-            var parts = category.path.split('/');
+            var parts = category.path.split('/').map(function (item) {
+              return core.utils.escapeString(item);
+            });
 
             var markup = '';
             if (parts.length > 1) {
               markup += '<span class="path">' + parts.slice(0, -1).join(' / ') + ' / </span>';
             }
-            markup += '<span class="name">' + category.name + '</span>';
 
-            $(selectItem).data('name', category.name);
+            var name = core.utils.escapeString(category.name)
+            markup += '<span class="name">' + name + '</span>';
+
+            $(selectItem).data('name', name);
 
             if (category.enabled == undefined) {
               category.enabled = true;
             }
 
-            addDisabledCategoryTooltip(category.name, self.params.disabledLbl, $(selectItem), $(self), category.enabled);
+            addDisabledCategoryTooltip(name, self.params.disabledLbl, $(selectItem), $(self), category.enabled);
 
             return markup;
           },
           templateSelection: function (category, selectItem) {
             var path = category.path == undefined ? category.text : category.path;
-            var parts = path.split('/');
+            var parts = path.split('/').map(function (item) {
+              return core.utils.escapeString(item);
+            });
 
             var tooltipText = '<div class="path">';
             parts.forEach(function(part) {
@@ -136,7 +150,7 @@
               placement: 'auto bottom'
             });
 
-            var name = category.name ? category.name : parts.pop();
+            var name = category.name ? core.utils.escapeString(category.name) : parts.pop();
 
             if (category.enabled == undefined) {
               category.enabled = true;

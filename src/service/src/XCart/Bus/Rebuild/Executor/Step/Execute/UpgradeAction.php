@@ -84,10 +84,10 @@ class UpgradeAction implements StepInterface
 
         $cacheId = $this->getCacheId($scriptState);
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'          => $scriptState->id,
                 'cacheId'     => $cacheId,
                 'transitions' => $transitions,
             ]
@@ -180,14 +180,20 @@ class UpgradeAction implements StepInterface
      */
     protected function runUpgradeActoin($transition, $cacheId)
     {
-        $this->logger->debug(
-            sprintf('Run upgrade action: %s', $transition['id']),
-            [
-                'id' => $this->rebuildId,
-            ]
-        );
+        $this->logger->debug(sprintf('Run upgrade action: %s', $transition['id']));
 
-        $this->runAction($transition['id'], $cacheId);
+        try {
+            $this->runAction($transition['id'], $cacheId);
+        } catch (RebuildException $exception) {
+            $this->logger->critical(
+                sprintf('Upgrade action error: %s', $exception->getMessage()),
+                [
+                    'data' => $exception->getData(),
+                ]
+            );
+
+            throw $exception;
+        }
 
         return $transition;
     }
@@ -197,9 +203,7 @@ class UpgradeAction implements StepInterface
      * @param string $cacheId
      *
      * @return bool
-     * @throws AbortException
-     * @todo: rewrite throws
-     *
+     * @throws RebuildException
      */
     protected function runAction($transitionId, $cacheId): bool
     {
@@ -207,23 +211,18 @@ class UpgradeAction implements StepInterface
             $response = $this->executeAction($transitionId, $cacheId);
 
         } catch (ParseException $e) {
-            throw (new AbortException($e->getMessage(), $e->getCode(), $e))
-                ->addData("Transition: {$transitionId}<br> {$e->getMessage()}")
-                ->addData("Content: {$e->getResponse()->getBody()}");
+            throw AbortException::fromUpgradeActionStepWrongResponseFormat($file, $e);
 
         } catch (Exception $e) {
-            throw (new AbortException($e->getMessage(), $e->getCode(), $e))
-                ->addData("Transition: {$transitionId}<br> {$e->getMessage()}");
+            throw AbortException::fromUpgradeActionStepWrongResponse($file, $e);
         }
 
         if (!$response) {
-            throw new AbortException('Empty response from X-Cart');
+            throw AbortException::fromUpgradeActionStepEmptyResponse();
         }
 
         if (!empty($response['errors'])) {
-            $e = new AbortException('X-Cart failed to execute upgrade action: ' . $transitionId);
-            $e->setData($response['errors']);
-            throw $e;
+            throw AbortException::fromUpgradeActionStepErrorResponse($file, $response['errors']);
         }
 
         return true;
@@ -254,7 +253,7 @@ class UpgradeAction implements StepInterface
         $transitions = $scriptState->transitions;
 
         return array_filter($scriptState->transitions, static function ($transition) {
-            return $transition['transition'] === ChangeUnitProcessor::TRANSITION_UPGRADE;
+            return $transition['transition'] === ChangeUnitProcessor::TRANSITION_UPGRADE && $transition['stateAfterTransition']['enabled'];
         });
     }
 

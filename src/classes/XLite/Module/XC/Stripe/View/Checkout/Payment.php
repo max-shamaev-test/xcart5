@@ -26,9 +26,8 @@ abstract class Payment extends \XLite\View\Checkout\Payment implements \XLite\Ba
 
         if ($method && $method->isEnabled()) {
             $list[] = 'modules/XC/Stripe/payment.js';
-            $list[] = array(
-                'url' => 'https://checkout.stripe.com/checkout.js',
-            );
+            $list[] = ['url' => 'https://checkout.stripe.com/checkout.js'];
+            $list[] = ['url' => 'https://js.stripe.com/v3/'];
         }
 
         return $list;

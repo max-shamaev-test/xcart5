@@ -13,7 +13,9 @@ namespace XLite\Module\XC\Stripe\Model\Payment;
  */
 class Stripe extends \XLite\Model\Payment\Base\Online
 {
-    const API_VERSION = '2019-03-14';
+    const API_VERSION    = '2019-05-16';
+    const APP_NAME       = 'X-Cart Stripe plugin';
+    const APP_PARTNER_ID = 'pp_partner_DLMvmppc0YOIsZ';
 
     /**
      * Stripe library included flag
@@ -77,19 +79,9 @@ class Stripe extends \XLite\Model\Payment\Base\Online
     }
 
     /**
-     * @return string
-     */
-    public function getOAuthClientSecret(\XLite\Model\Payment\Method $method)
-    {
-        return $this->isTestMode($method)
-            ? \XLite\Module\XC\Stripe\Core\OAuth::getInstance()->getClientSecretTest()
-            : \XLite\Module\XC\Stripe\Core\OAuth::getInstance()->getClientSecretLive();
-    }
-
-    /**
      * Get allowed backend transactions
      *
-     * @return string Status code
+     * @return array Status codes
      */
     public function getAllowedTransactions()
     {
@@ -121,26 +113,6 @@ class Stripe extends \XLite\Model\Payment\Base\Online
     public function getInputTemplate()
     {
         return 'modules/XC/Stripe/payment.twig';
-    }
-
-    /**
-     * Get input errors
-     *
-     * @param array $data Input data
-     *
-     * @return array
-     */
-    public function getInputErrors(array $data)
-    {
-        $errors = parent::getInputErrors($data);
-
-        if (empty($data['token'])) {
-            $errors[] = \XLite\Core\Translation::lbl(
-                'Payment processed with errors. Please, try again or ask administrator'
-            );
-        }
-
-        return $errors;
     }
 
     /**
@@ -189,95 +161,111 @@ class Stripe extends \XLite\Model\Payment\Base\Online
      */
     protected function doInitialPayment()
     {
-        $this->includeStripeLibrary();
+        $result = static::COMPLETED;
+        $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_SUCCESS;
 
-        $note = '';
-
-        try {
-            $customer = \Stripe\Customer::create([
-                'description' => "Customer for {$this->transaction->getOrder()->getProfile()->getEmail()}",
-                'source'      => $this->request['token'],
-            ]);
-
-            $card = $customer->sources->data[0];
-
-            $order = $this->transaction->getOrder();
-
-            if (
-                $order
-                && $order->getProfile()
-                && $order->getProfile()->getBillingAddress()
-            ) {
-                $address = $order->getProfile()->getBillingAddress();
-
-                $data = array_filter(array_map('trim', [
-                    'address_city' => $address->getCity(),
-                    'address_country' => $address->getCountryCode(),
-                    'address_line1' => $address->getStreet(),
-                    'address_state' => $address->getStateName(),
-                    'address_zip' => $address->getZipcode(),
-                ]), 'strlen');
-
-                foreach ($data as $n => $v) {
-                    $card->{$n} = $v;
-                }
-
-                $card->save();
-            }
-
-            $payment = \Stripe\Charge::create([
-                'amount'      => $this->formatCurrency($this->transaction->getValue()),
-                'currency'    => $this->transaction->getCurrency()->getCode(),
-                'customer'    => $customer,
-                'capture'     => $this->isCapture(),
-                'description' => $this->getInvoiceDescription(),
-            ]);
-
-            $customer->delete();
-
-            $result = static::COMPLETED;
-            $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_SUCCESS;
-
-            $type = $this->getInitialTransactionType();
-            $backendTransaction = $this->registerBackendTransaction($type);
-            $backendTransaction->setDataCell('stripe_id', $payment->id);
-            $this->transaction->setType($type);
-            if (!empty($payment->balance_transaction)) {
-                $backendTransaction->setDataCell('stripe_b_txntid', $payment->balance_transaction);
-            }
-
-            if (!$this->checkResponse($payment, $note)) {
-                $result = static::FAILED;
-                $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_FAILED;
-            }
-
-            $backendTransaction->setStatus($backendTransactionStatus);
-            $backendTransaction->registerTransactionInOrderHistory('initial request');
-
-            $this->setDetail('stripe_id', $payment->id);
-
-            if (!empty($payment->source->cvc_check)) {
-                $note .= static::t('CVC verification: X', array('state' => $payment->source->cvc_check)) . PHP_EOL;
-            }
-
-            if (!empty($payment->source->address_line1_check)) {
-                $note .= static::t('Address line verification: X', array('state' => $payment->source->address_line1_check)) . PHP_EOL;
-            }
-
-            if (!empty($payment->source->address_zip_check)) {
-                $note .= static::t('Address zipcode verification: X', array('state' => $payment->source->address_zip_check)) . PHP_EOL;
-            }
-
-
-        } catch (\Exception $e) {
+        $type = $this->getInitialTransactionType();
+        $backendTransaction = $this->registerBackendTransaction($type);
+        $backendTransaction->setDataCell('stripe_id', $this->request['id']);
+        $this->transaction->setType($type);
+        $this->setDetail('stripe_id', $this->request['id']);
+        
+        if ($this->request['error']) {
             $result = static::FAILED;
-            \XLite\Core\TopMessage::addError($e->getMessage());
-            $note = $e->getMessage();
+            $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_FAILED;
+            $backendTransaction->setDataCell('error', $this->request['error']);
+            $this->transaction->setNote($this->request['error']);
+            $this->setDetail('Error', $this->request['error']);
         }
 
-        $this->transaction->setNote($note);
+        $backendTransaction->setStatus($backendTransactionStatus);
+        $backendTransaction->registerTransactionInOrderHistory('initial request');
 
         return $result;
+    }
+
+    /**
+     * Confirm payment
+     *
+     * @param \XLite\Model\Cart $cart
+     *
+     * @return string Status code
+     */
+    public function confirmPayment($cart)
+    {
+        $this->includeStripeLibrary();
+
+        $this->transaction = $cart->getFirstOpenPaymentTransaction();
+        $this->request = \XLite\Core\Request::getInstance();
+
+        try {
+            if ($this->request->payment_method_id) {
+                $intent = \Stripe\PaymentIntent::create([
+                    'amount'              => $this->formatCurrency($this->transaction->getValue()),
+                    'currency'            => $this->transaction->getCurrency()->getCode(),
+                    'confirmation_method' => 'manual',
+                    'capture_method'      => $this->isCapture() ? 'automatic' : 'manual',
+                    'confirm'             => true,
+                    'payment_method_data' => [
+                        'type' => 'card',
+                        'card' => ['token' => $this->request->payment_method_id],
+                    ],
+                ]);
+            }
+            if ($this->request->payment_intent_id) {
+                $intent = \Stripe\PaymentIntent::retrieve(
+                    $this->request->payment_intent_id
+                );
+                $intent->confirm();
+            }
+
+            $stripeResponce = $this->getPaymentResponse($intent);
+
+            echo json_encode($stripeResponce);
+        } catch (\Stripe\Error\Base $e) {
+            echo json_encode([
+                'error' => $e->getMessage(),
+                'stripe_id' => $e->getJsonBody()['error']['payment_intent']['id']
+            ]);
+        }
+
+        die;
+    }
+
+    /**
+     * Get payment response
+     *
+     * @param \Stripe\PaymentIntent $intent
+     *
+     * @return array response
+     */
+    protected function getPaymentResponse($intent) {
+        if ($intent->status == 'requires_action' &&
+            $intent->next_action->type == 'use_stripe_sdk') {
+
+            $responce = [
+                'requires_action' => true,
+                'payment_intent_client_secret' => $intent->client_secret
+            ];
+        } else if (in_array($intent->status, ['succeeded', 'requires_capture'])) {
+            $responce = [
+                "success" => true
+            ];
+
+            if (!$this->checkTotal($this->transaction->getCurrency()->convertIntegerToFloat($intent->amount))) {
+                $responce['error'] = "Total amount doesn't match.";
+            } elseif (!$this->checkCurrency(strtoupper($intent->currency))) {
+                $responce['error'] = "Currency code doesn't match.";
+            }
+        } else {
+            $responce = [
+                'error' => 'Invalid PaymentIntent status'
+            ];
+        }
+
+        $responce['stripe_id'] = $intent->id;
+
+        return $responce;
     }
 
     /**
@@ -326,33 +314,6 @@ class Stripe extends \XLite\Model\Payment\Base\Online
     }
 
     /**
-     * Check response 
-     * 
-     * @param object $payment Charge object
-     * @param string &$note   Note
-     *  
-     * @return boolean
-     */
-    protected function checkResponse($payment, &$note)
-    {
-        $result = $this->checkTotal($this->transaction->getCurrency()->convertIntegerToFloat($payment->amount))
-            && $this->checkCurrency(strtoupper($payment->currency));
-
-        if ($result && $payment->captured != $this->isCapture()) {
-            $result = false;
-            $note .= static::t(
-                'Requested transaction type: X; real transaction type: Y',
-                array(
-                    'actual' => $this->isCapture() ? 'capture' : 'authorization',
-                    'real'   => $payment->captured ? 'capture' : 'authorization',
-                )
-            );
-        }
-
-        return $result;
-    }
-
-    /**
      * Include Stripe library
      *
      * @return void
@@ -375,6 +336,14 @@ class Stripe extends \XLite\Model\Payment\Base\Online
             \Stripe\Stripe::setApiKey($key);
             \Stripe\Stripe::setApiVersion(static::API_VERSION);
 
+            $module = \Includes\Utils\Module\Manager::getRegistry()->getModule('XC', 'Stripe');
+            \Stripe\Stripe::setAppInfo(
+                static::APP_NAME,
+                $module->getVersion(),
+                'https://market.x-cart.com/addons/stripe-payment-module.html',
+                static::APP_PARTNER_ID
+            );
+
             $this->stripeLibIncluded = true;
         }
     }
@@ -395,18 +364,19 @@ class Stripe extends \XLite\Model\Payment\Base\Online
         $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_FAILED;
 
         try {
-            /** @var \Stripe\Charge $payment */
-            $payment = \Stripe\Charge::retrieve(
+            /** @var \Stripe\PaymentIntent $paymentIntent */
+            $paymentIntent = \Stripe\PaymentIntent::retrieve(
                 $transaction->getPaymentTransaction()->getDataCell('stripe_id')->getValue()
             );
-            $payment->capture();
+            $paymentIntent->capture();
 
-            if ($payment->captured) {
+            if ($paymentIntent->status == 'succeeded') {
                 $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_SUCCESS;
             }
 
-            if (!empty($payment->balance_transaction)) {
-                $transaction->setDataCell('stripe_b_txntid', $payment->balance_transaction);
+            if (!empty($paymentIntent->charges->data)) {
+                $charge = reset($paymentIntent->charges->data);
+                $transaction->setDataCell('stripe_b_txntid', $charge->balance_transaction);
             }
 
         } catch (\Exception $e) {
@@ -429,7 +399,44 @@ class Stripe extends \XLite\Model\Payment\Base\Online
      */
     protected function doVoid(\XLite\Model\Payment\BackendTransaction $transaction)
     {
-        return $this->doRefund($transaction, true);
+        $this->includeStripeLibrary();
+
+        $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_FAILED;
+
+        try {
+            /** @var \Stripe\PaymentIntent $paymentIntent */
+            $paymentIntent = \Stripe\PaymentIntent::retrieve(
+                $transaction->getPaymentTransaction()->getDataCell('stripe_id')->getValue()
+            );
+            $paymentIntent->cancel();
+
+            if ($paymentIntent->status == 'canceled') {
+                $charge = reset($paymentIntent->charges->data);
+                if ($charge && $charge->refunds->data) {
+                    $refundTransaction = reset($charge->refunds->data);
+
+                    if ($refundTransaction) {
+                        $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_SUCCESS;
+
+                        $transaction->setDataCell('stripe_date', $refundTransaction->created);
+                        if ($refundTransaction->balance_transaction) {
+                            $transaction->setDataCell('stripe_b_txntid', $refundTransaction->balance_transaction);
+                        }
+                    }
+                }
+
+                $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_SUCCESS;
+            }
+
+        } catch (\Exception $e) {
+            $transaction->setDataCell('errorMessage', $e->getMessage());
+            \XLite\Logger::getInstance()->log($e->getMessage(), LOG_ERR);
+            \XLite\Core\TopMessage::addError($e->getMessage());
+        }
+
+        $transaction->setStatus($backendTransactionStatus);
+
+        return \XLite\Model\Payment\BackendTransaction::STATUS_SUCCESS == $backendTransactionStatus;
     }
 
 
@@ -437,34 +444,41 @@ class Stripe extends \XLite\Model\Payment\Base\Online
      * Refund
      *
      * @param \XLite\Model\Payment\BackendTransaction $transaction Backend transaction
-     * @param boolean                                 $isDoVoid    Is void action OPTIONAL
      *
      * @return boolean
      */
-    protected function doRefundMulti(\XLite\Model\Payment\BackendTransaction $transaction, $isDoVoid = false)
+    protected function doRefundMulti(\XLite\Model\Payment\BackendTransaction $transaction)
     {
-        return $this->doRefund($transaction, $isDoVoid);
+        return $this->doRefund($transaction);
     }
 
     /**
      * Refund
      *
      * @param \XLite\Model\Payment\BackendTransaction $transaction Backend transaction
-     * @param boolean                                 $isDoVoid    Is void action OPTIONAL
      *
      * @return boolean
      */
-    protected function doRefund(\XLite\Model\Payment\BackendTransaction $transaction, $isDoVoid = false)
+    protected function doRefund(\XLite\Model\Payment\BackendTransaction $transaction)
     {
         $this->includeStripeLibrary();
 
         $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_FAILED;
 
         try {
-            /** @var \Stripe\Charge $payment */
-            $payment = \Stripe\Charge::retrieve(
+            /** @var \Stripe\PaymentIntent $paymentIntent */
+            $paymentIntent = \Stripe\PaymentIntent::retrieve(
                 $transaction->getPaymentTransaction()->getDataCell('stripe_id')->getValue()
             );
+
+            $payment = !empty($paymentIntent->charges->data)
+                ? reset($paymentIntent->charges->data)
+                : null;
+
+            if (!$payment) {
+                throw new \Exception('No charges found for payment intent ' . $paymentIntent->id);
+            }
+
             if ($transaction->getValue() != $transaction->getPaymentTransaction()->getValue()) {
                 $payment->refund(
                     array(

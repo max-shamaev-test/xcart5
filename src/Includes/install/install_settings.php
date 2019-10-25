@@ -15,7 +15,7 @@ if (!defined('XLITE_INSTALL_MODE')) {
 }
 
 // Current X-Cart version
-define('LC_VERSION', '5.4.0.4');
+define('LC_VERSION', '5.4.0.6');
 
 // Minimum PHP version supported
 define('LC_PHP_VERSION_MIN', '7.2.0');
@@ -207,8 +207,7 @@ if (XLITE_EDITION_LNG === 'ru') {
                 'IdealPayments',
                 'Stripe',
                 'SagePay',
-                'CanadaPost',
-                'PitneyBowes'
+                'CanadaPost'
             ),
             'Amazon' => array(
                 'PayWithAmazon'

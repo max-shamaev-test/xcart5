@@ -137,7 +137,7 @@ class Search extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
             'name'     => [
                 static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Name'),
                 static::COLUMN_MAIN    => true,
-                static::COLUMN_NO_WRAP => true,
+                static::COLUMN_NO_WRAP => false,
                 static::COLUMN_SORT    => static::SORT_BY_MODE_NAME,
                 static::COLUMN_ORDERBY => 200,
                 static::COLUMN_LINK    => 'product',

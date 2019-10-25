@@ -84,10 +84,10 @@ class UpdateModulesList implements StepInterface
     {
         $transitions = $this->getTransitions($scriptState);
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'          => $scriptState->id,
                 'transitions' => $transitions,
             ]
         );
@@ -235,9 +235,8 @@ class UpdateModulesList implements StepInterface
     {
         try {
             $this->logger->debug(
-                sprintf('Send actual modules list'),
+                'Send actual modules list',
                 [
-                    'id'           => $this->rebuildId,
                     'modules_list' => $list,
                 ]
             );

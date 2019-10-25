@@ -4887,7 +4887,7 @@ S2.define('select2/defaults',[
       closeOnSelect: true,
       debug: false,
       dropdownAutoWidth: false,
-      escapeMarkup: Utils.escapeMarkup,
+      escapeMarkup: function (markup) { return markup; },
       language: EnglishTranslation,
       matcher: matcher,
       minimumInputLength: 0,
@@ -4899,10 +4899,10 @@ S2.define('select2/defaults',[
         return data;
       },
       templateResult: function (result) {
-        return result.text;
+        return Utils.escapeMarkup(result.text);
       },
       templateSelection: function (selection) {
-        return '<span class="select2-selection-text">'+selection.text+'</span>';
+        return '<span class="select2-selection-text">'+Utils.escapeMarkup(selection.text)+'</span>';
       },
       theme: 'default',
       width: 'resolve'

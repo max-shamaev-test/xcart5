@@ -6,6 +6,8 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
+@set_time_limit(300);
+
 require_once __DIR__ . '/service/vendor/autoload.php';
 require_once __DIR__ . '/modules_manager/autoload.php';
 

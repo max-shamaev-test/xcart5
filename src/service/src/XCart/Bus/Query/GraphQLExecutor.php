@@ -9,6 +9,7 @@
 namespace XCart\Bus\Query;
 
 use GraphQL\Error\Error;
+use GraphQL\Executor\Promise\Promise;
 use GraphQL\GraphQL;
 use XCart\Bus\Controller\ErrorFormatter;
 use XCart\SilexAnnotations\Annotations\Service;
@@ -27,12 +28,12 @@ class GraphQLExecutor
      * @param $context
      * @param $operationName
      *
-     * @return array|\GraphQL\Executor\Promise\Promise
+     * @return array|Promise
      */
     public function executeQuery($schema, $query, $variables, $context, $operationName = null)
     {
         return GraphQL::executeQuery($schema, $query, null, $context, $variables, $operationName)
-            ->setErrorFormatter(function (Error $error) {
+            ->setErrorFormatter(static function (Error $error) {
                 return ErrorFormatter::createFromException($error, true);
             })
             ->toArray();

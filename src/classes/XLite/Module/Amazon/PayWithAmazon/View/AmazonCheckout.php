@@ -86,6 +86,14 @@ class AmazonCheckout extends \XLite\View\AView
     }
 
     /**
+     * @return bool
+     */
+    protected function isSCAFlowNeed()
+    {
+        return \XLite\Module\Amazon\PayWithAmazon\Main::isSCAFlowNeed();
+    }
+
+    /**
      * Return widget default template
      *
      * @return string

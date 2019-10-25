@@ -1412,4 +1412,9 @@ class Converter extends \XLite\Base\Singleton
             return preg_filter('/([0-9.]+).*/i', '$1', PHP_VERSION);
         }, 'canonicalPHPVersion');
     }
+
+    public static function filterCurlyBrackets($value)
+    {
+        return is_string($value) ? preg_replace(['/(?:\{|&#123;|&#x7b;)(\s*)(?:\{|&#123;|&#x7b;)/', '/(?:\}|&#125;|&#x7d;)(\s*)(?:\}|&#125;|&#x7d;)/'], [' $1 ', ' $1 '], $value) : $value;
+    }
 }

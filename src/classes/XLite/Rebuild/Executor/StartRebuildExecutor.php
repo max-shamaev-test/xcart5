@@ -22,7 +22,7 @@ class StartRebuildExecutor implements IRebuildExecutor
     public function execute($payloadData, $rebuildId)
     {
         if ($payloadData['modules_list']) {
-            Manager::saveModulesToStorage($payloadData['modules_list']);
+            Manager::saveModulesToStorage($payloadData['modules_list'], $payloadData['integrated_list'] ?? []);
         }
 
         CacheManager::setCacheRebuildMark();

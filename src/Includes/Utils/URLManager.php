@@ -273,7 +273,7 @@ abstract class URLManager extends \Includes\Utils\AUtils
     public static function getUrlWithoutParam($url, $param)
     {
         $urlParts = parse_url($url);
-        parse_str($urlParts['query'], $queryParams);
+        parse_str($urlParts['query'] ?? '', $queryParams);
 
         if (array_key_exists($param, $queryParams)) {
             unset($queryParams[$param]);

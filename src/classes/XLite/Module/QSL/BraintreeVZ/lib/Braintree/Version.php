@@ -10,9 +10,9 @@ class Version
     /**
      * class constants
      */
-    const MAJOR = 3;
-    const MINOR = 23;
-    const TINY = 1;
+    const MAJOR = 4;
+    const MINOR = 3;
+    const TINY = 0;
 
     /**
      * @ignore

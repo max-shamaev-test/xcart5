@@ -66,7 +66,7 @@ class Subscribers extends \XLite\View\ItemsList\Model\Table
      */
     public static function getAllowedTargets()
     {
-        return array_merge(parent::getAllowedTargets(), array('newsletter_subscribers'));
+        return array_merge(parent::getAllowedTargets(), ['newsletter_subscribers']);
     }
 
     /**
@@ -76,16 +76,17 @@ class Subscribers extends \XLite\View\ItemsList\Model\Table
      */
     protected function defineColumns()
     {
-        return array(
-            'email' => array(
-                static::COLUMN_NAME     => static::t('Email'),
-                static::COLUMN_CREATE_CLASS    => 'XLite\View\FormField\Inline\Input\Text\Email',
-            ),
-            'profile' => array(
-                static::COLUMN_NAME     => static::t('Profile'),
-                static::COLUMN_LINK    => 'profile',
-            ),
-        );
+        return [
+            'email'   => [
+                static::COLUMN_NAME         => static::t('Email'),
+                static::COLUMN_CREATE_CLASS => 'XLite\View\FormField\Inline\Input\Text\Email',
+                static::COLUMN_PARAMS       => ['required' => true],
+            ],
+            'profile' => [
+                static::COLUMN_NAME => static::t('Profile'),
+                static::COLUMN_LINK => 'profile',
+            ],
+        ];
     }
 
     /**
@@ -108,7 +109,7 @@ class Subscribers extends \XLite\View\ItemsList\Model\Table
      * Check if the column must be a link.
      * It is used if the column field is displayed via
      *
-     * @param array                $column Column
+     * @param array $column Column
      * @param \XLite\Model\AEntity $entity Entity
      *
      * @return boolean
@@ -141,7 +142,7 @@ class Subscribers extends \XLite\View\ItemsList\Model\Table
                 $url = $this->buildURL(
                     $column[static::COLUMN_LINK],
                     '',
-                    array('profile_id' => $subscriber->getProfile()->getProfileId())
+                    ['profile_id' => $subscriber->getProfile()->getProfileId()]
                 );
             } else {
                 $url = null;
@@ -208,11 +209,11 @@ class Subscribers extends \XLite\View\ItemsList\Model\Table
         if ($validated) {
             $exists = \XLite\Core\Database::getRepo('XLite\Module\XC\NewsletterSubscriptions\Model\Subscriber')
                 ->findOneByEmail($entity->getEmail());
-            if ($exists){
+            if ($exists) {
                 \XLite\Core\TopMessage::addWarning(
                     'Subscriber with email {{email}} already subscribed',
                     [
-                        'email'=> $entity->getEmail()
+                        'email' => $entity->getEmail()
                     ]
                 );
                 $validated = false;
@@ -239,9 +240,9 @@ class Subscribers extends \XLite\View\ItemsList\Model\Table
      */
     public function getSearchFormOptions()
     {
-        return array(
-            'target'    => 'newsletter_subscribers'
-        );
+        return [
+            'target' => 'newsletter_subscribers'
+        ];
     }
 
     /**
@@ -267,20 +268,20 @@ class Subscribers extends \XLite\View\ItemsList\Model\Table
     {
         return array_merge(
             parent::getSearchParams(),
-            array(
-                'emailOrLogin'    => array(
-                    'condition'         => new \XLite\Model\SearchCondition\Expression\TypeComposite(
-                        array(
+            [
+                'emailOrLogin' => [
+                    'condition' => new \XLite\Model\SearchCondition\Expression\TypeComposite(
+                        [
                             new \XLite\Model\SearchCondition\Expression\TypeLike('email'),
                             new \XLite\Model\SearchCondition\Expression\TypeLike('profile.login'),
-                        )
+                        ]
                     ),
-                    'widget'            => array(
-                        \XLite\View\SearchPanel\ASearchPanel::CONDITION_CLASS   => 'XLite\View\FormField\Input\Text',
-                        \XLite\View\FormField\Input\Text::PARAM_PLACEHOLDER     => static::t('Email or login'),
-                    ),
-                ),
-            )
+                    'widget'    => [
+                        \XLite\View\SearchPanel\ASearchPanel::CONDITION_CLASS => 'XLite\View\FormField\Input\Text',
+                        \XLite\View\FormField\Input\Text::PARAM_PLACEHOLDER   => static::t('Email or login'),
+                    ],
+                ],
+            ]
         );
     }
 }

@@ -57,7 +57,23 @@ class ScenarioRuleException extends \Exception
     {
         return new self(
             'scenario-rule.exception.dependencies.core-version.module-upgrade-required',
-            [$moduleId, $dependencyId]
+            [$moduleId, $dependencyId],
+            self::SOFT_EXCEPTION
+        );
+    }
+
+    /**
+     * @param string $moduleId
+     * @param string $dependencyId
+     *
+     * @return ScenarioRuleException
+     */
+    public static function fromDependenciesCoreVersionNonExistentModule($moduleId, $dependencyId): ScenarioRuleException
+    {
+        return new self(
+            'scenario-rule.exception.dependencies.core-version.non-existent-module',
+            [$moduleId, $dependencyId],
+            self::SOFT_EXCEPTION
         );
     }
 
@@ -112,7 +128,8 @@ class ScenarioRuleException extends \Exception
     {
         return new self(
             'scenario-rule.exception.core-version.module-upgrade-required',
-            [$moduleId]
+            [$moduleId],
+            self::SOFT_EXCEPTION
         );
     }
 

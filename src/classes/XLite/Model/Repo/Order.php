@@ -1400,6 +1400,8 @@ class Order extends \XLite\Model\Repo\ARepo
                 ->orderBy('INTVAL(o.orderNumber)', 'DESC');
         }
 
+        $qb->andWhere($e->gt('o.date', $e->literal($item->getOrder()->getDate() - (15*60))));
+
         return $qb;
     }
 
@@ -1412,9 +1414,14 @@ class Order extends \XLite\Model\Repo\ARepo
      */
     public function getBackorderCompetitorByItem(\XLite\Model\OrderItem $item)
     {
-        return $this->defineBackorderCompetitorsByOrderQB($item)
-            ->getQuery()
-            ->getSingleResult();
+        try {
+            return $this->defineBackorderCompetitorsByOrderQB($item)
+                ->getQuery()
+                ->getSingleResult();
+
+        } catch (\Doctrine\ORM\NoResultException $noResultException) {
+            return null;
+        }
     }
 
     /**

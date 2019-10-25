@@ -2,6 +2,12 @@
  # Messages list : empty
  #}
 
-{% include 'modules/XC/VendorMessages/items_list/messages/order/parts/recipients.twig' %}
+<div class="widget items-list widgetclass-{{ this.getWidgetClass() }} widgettarget-{{ this.getWidgetTarget() }} sessioncell-{{ this.getSessionCell() }}">
 
-{% include 'modules/XC/VendorMessages/items_list/messages/order/parts/create.twig' %}
+  {{ this.displayCommentedData(this.getItemsListParams()) }}
+
+  {% include 'modules/XC/VendorMessages/items_list/messages/order/parts/recipients.twig' %}
+
+  {% include 'modules/XC/VendorMessages/items_list/messages/order/parts/create.twig' %}
+
+</div>

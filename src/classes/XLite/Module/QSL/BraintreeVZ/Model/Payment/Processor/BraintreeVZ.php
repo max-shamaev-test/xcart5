@@ -11,7 +11,7 @@ namespace XLite\Module\QSL\BraintreeVZ\Model\Payment\Processor;
 /**
  * Braintree payments processor
  */
-class BraintreeVZ extends \XLite\Model\Payment\Base\WebBased
+class BraintreeVZ extends \XLite\Model\Payment\Base\CreditCard
 {
     /**
      * Get operation types
@@ -139,39 +139,17 @@ class BraintreeVZ extends \XLite\Model\Payment\Base\WebBased
     /**
      * Get allowed backend transactions
      *
-     * @return string Status code
+     * @return array
      */
     public function getAllowedTransactions()
     {
-        return array(
+        return [
             \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_CAPTURE,
             \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_VOID,
             \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_REFUND,
-        );
-    }
-
-    /**
-     * Get redirect form URL
-     *
-     * @return string
-     */
-    protected function getFormURL()
-    {
-        \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance()->processCheckout($this->transaction);
-
-        return $this->getReturnURL(null, true);
-    }
-
-    /**
-     * Get redirect form fields list
-     *
-     * @return array
-     */
-    protected function getFormFields()
-    {
-        return array(
-            'nonce' => \XLite\Core\Request::getInstance()->payment_method_nonce,
-        );
+            \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_REFUND_PART,
+            \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_REFUND_MULTI,
+        ];
     }
 
     /**
@@ -271,7 +249,8 @@ class BraintreeVZ extends \XLite\Model\Payment\Base\WebBased
     {
         $result = \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance()
             ->processRefund(
-                $transaction->getPaymentTransaction()
+                $transaction->getPaymentTransaction(),
+                $transaction->getValue()
             );
 
         if ($result) {
@@ -295,4 +274,49 @@ class BraintreeVZ extends \XLite\Model\Payment\Base\WebBased
 
         return $result;
     }
+
+    /**
+     * Do partial refund.
+     * Returns true on success or false on failure
+     *
+     * @param \XLite\Model\Payment\BackendTransaction $transaction
+     *
+     * @return bool
+     */
+    protected function doRefundPart(\XLite\Model\Payment\BackendTransaction $transaction)
+    {
+        return $this->doRefund($transaction);
+    }
+
+    /**
+     * Do multi refund.
+     * Returns true on success or false on failure
+     *
+     * @param \XLite\Model\Payment\BackendTransaction $transaction
+     *
+     * @return bool
+     */
+    protected function doRefundMulti(\XLite\Model\Payment\BackendTransaction $transaction)
+    {
+        return $this->doRefund($transaction);
+    }
+
+    /**
+     * Do initial payment
+     *
+     * @return string Status code
+     */
+    protected function doInitialpayment()
+    {
+        $result = static::FAILED;
+
+        $braintreeResult = \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance()->processCheckout($this->transaction);
+
+        if ($braintreeResult) {
+            $result = static::COMPLETED;
+        }
+
+        return $result;
+    }
+
 }

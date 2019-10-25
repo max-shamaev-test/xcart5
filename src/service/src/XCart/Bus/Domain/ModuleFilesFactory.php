@@ -15,6 +15,7 @@ use Iterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Silex\Application;
+use XCart\Bus\IntegrityCheck\CoreIteratorBuilder;
 use XCart\Bus\System\Filesystem;
 use XCart\SilexAnnotations\Annotations\Service;
 
@@ -41,13 +42,19 @@ class ModuleFilesFactory
     private $rootDir;
 
     /**
+     * @var CoreIteratorBuilder
+     */
+    private $coreIteratorBuilder;
+
+    /**
      * @var Filesystem
      */
     private $filesystem;
 
     /**
-     * @param Application $app
-     * @param Filesystem  $filesystem
+     * @param Application         $app
+     * @param CoreIteratorBuilder $coreIteratorBuilder
+     * @param Filesystem          $filesystem
      *
      * @return static
      * @Service\Constructor
@@ -55,23 +62,29 @@ class ModuleFilesFactory
      */
     public static function serviceConstructor(
         Application $app,
+        CoreIteratorBuilder $coreIteratorBuilder,
         Filesystem $filesystem
     ) {
         return new self(
             $app['config']['root_dir'],
+            $coreIteratorBuilder,
             $filesystem
         );
     }
 
     /**
-     * @param string $rootDir
+     * @param string              $rootDir
+     * @param CoreIteratorBuilder $coreIteratorBuilder
+     * @param Filesystem          $filesystem
      */
     public function __construct(
         $rootDir,
+        CoreIteratorBuilder $coreIteratorBuilder,
         Filesystem $filesystem
     ) {
-        $this->rootDir    = $rootDir;
-        $this->filesystem = $filesystem;
+        $this->rootDir             = $rootDir;
+        $this->coreIteratorBuilder = $coreIteratorBuilder;
+        $this->filesystem          = $filesystem;
     }
 
     /**
@@ -81,12 +94,18 @@ class ModuleFilesFactory
      */
     public function getModuleFilesIterator($moduleId, array $skins = []): array
     {
-        $result = new AppendIterator();
+        if ($moduleId === 'CDev-Core') {
+            $result = $this->coreIteratorBuilder->getIterator();
+        } else {
+            $result = new AppendIterator();
 
-        foreach ($this->getDirectories($moduleId, $skins) as $directory) {
-            $result->append(new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS)
-            ));
+            foreach ($this->getDirectories($moduleId, $skins) as $directory) {
+                if (is_dir($directory)) {
+                    $result->append(new RecursiveIteratorIterator(
+                        new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS)
+                    ));
+                }
+            }
         }
 
         return $this->getFilesStructure($result);
@@ -100,10 +119,6 @@ class ModuleFilesFactory
      */
     public function getDirectories($moduleId, array $skins = []): array
     {
-        if ($moduleId === 'CDev-Core') {
-            return [$this->rootDir];
-        }
-
         if ($moduleId === 'XC-Service') {
             return [$this->rootDir . '/service'];
         }

@@ -8,16 +8,11 @@
 
 namespace XCart\Bus\Rebuild\Executor\Step\Execute;
 
-use FilesystemIterator;
 use Psr\Log\LoggerInterface;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use Silex\Application;
-use XCart\Bus\Client\MarketplaceClient;
 use XCart\Bus\Core\Annotations\RebuildStep;
 use XCart\Bus\Domain\Module;
 use XCart\Bus\Domain\ModuleFilesFactory;
-use XCart\Bus\Exception\Rebuild\AbortException;
 use XCart\Bus\Exception\Rebuild\HoldException;
 use XCart\Bus\Exception\RebuildException;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
@@ -27,7 +22,6 @@ use XCart\Bus\Rebuild\Executor\ScriptState;
 use XCart\Bus\Rebuild\Executor\Step\StepInterface;
 use XCart\Bus\Rebuild\Executor\StepState;
 use XCart\Bus\Rebuild\Scenario\ChangeUnitProcessor;
-use XCart\Bus\System\FilesystemInterface;
 use XCart\SilexAnnotations\Annotations\Service;
 
 /**
@@ -43,11 +37,6 @@ class CheckPacks implements StepInterface
     private $rootDir;
 
     /**
-     * @var KnownHashesCacheDataSource
-     */
-    private $knownHashesCacheDataSource;
-
-    /**
      * @var InstalledModulesDataSource
      */
     private $installedModulesDataSource;
@@ -58,32 +47,14 @@ class CheckPacks implements StepInterface
     private $moduleFilesFactory;
 
     /**
-     * @var MarketplaceClient
-     */
-    private $marketplaceClient;
-
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
 
     /**
-     * @var string
-     */
-    private $rebuildId;
-
-    /**
      * @param Application                $app
-     * @param KnownHashesCacheDataSource $knownHashesCacheDataSource
      * @param InstalledModulesDataSource $installedModulesDataSource
      * @param ModuleFilesFactory         $moduleFilesFactory
-     * @param MarketplaceClient          $marketplaceClient
-     * @param FilesystemInterface        $filesystem
      * @param LoggerInterface            $logger
      *
      * @return static
@@ -93,48 +64,33 @@ class CheckPacks implements StepInterface
      */
     public static function serviceConstructor(
         Application $app,
-        KnownHashesCacheDataSource $knownHashesCacheDataSource,
         InstalledModulesDataSource $installedModulesDataSource,
         ModuleFilesFactory $moduleFilesFactory,
-        MarketplaceClient $marketplaceClient,
-        FilesystemInterface $filesystem,
         LoggerInterface $logger
     ) {
         return new self(
             $app['config']['root_dir'],
-            $knownHashesCacheDataSource,
             $installedModulesDataSource,
             $moduleFilesFactory,
-            $marketplaceClient,
-            $filesystem,
             $logger
         );
     }
 
     /**
      * @param string                     $rootDir
-     * @param KnownHashesCacheDataSource $knownHashesCacheDataSource
      * @param InstalledModulesDataSource $installedModulesDataSource
      * @param ModuleFilesFactory         $moduleFilesFactory
-     * @param MarketplaceClient          $marketplaceClient
-     * @param FilesystemInterface        $filesystem
      * @param LoggerInterface            $logger
      */
     public function __construct(
         $rootDir,
-        KnownHashesCacheDataSource $knownHashesCacheDataSource,
         InstalledModulesDataSource $installedModulesDataSource,
         ModuleFilesFactory $moduleFilesFactory,
-        MarketplaceClient $marketplaceClient,
-        FilesystemInterface $filesystem,
         LoggerInterface $logger
     ) {
         $this->rootDir                    = $rootDir;
-        $this->knownHashesCacheDataSource = $knownHashesCacheDataSource;
         $this->installedModulesDataSource = $installedModulesDataSource;
         $this->moduleFilesFactory         = $moduleFilesFactory;
-        $this->marketplaceClient          = $marketplaceClient;
-        $this->filesystem                 = $filesystem;
         $this->logger                     = $logger;
     }
 
@@ -160,10 +116,10 @@ class CheckPacks implements StepInterface
     {
         $transitions = $this->getTransitions($scriptState);
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'          => $scriptState->id,
                 'transitions' => $transitions,
             ]
         );
@@ -202,8 +158,7 @@ class CheckPacks implements StepInterface
      */
     public function execute(StepState $state, $action = self::ACTION_EXECUTE, array $params = []): StepState
     {
-        $this->rebuildId = $state->rebuildId;
-        $data            = $state->data;
+        $data = $state->data;
 
         switch ($action) {
             /** @noinspection PhpMissingBreakStatementInspection */
@@ -260,7 +215,7 @@ class CheckPacks implements StepInterface
      */
     private function getTransitions(ScriptState $scriptState): array
     {
-        $parentStepState = $scriptState->getCompletedStepState(UnpackPacks::class);
+        $parentStepState = $scriptState->getCompletedStepState(CheckFS::class);
         if ($parentStepState) {
             return array_map(static function ($transition) {
                 return [
@@ -269,6 +224,7 @@ class CheckPacks implements StepInterface
                     'version_before' => $transition['version_before'],
                     'version_after'  => $transition['version_after'],
                     'pack_dir'       => $transition['pack_dir'],
+                    'hashes'         => $transition['hashes'],
                 ];
             }, $parentStepState->finishedTransitions ?: []);
         }
@@ -351,12 +307,7 @@ class CheckPacks implements StepInterface
         $modified  = $data['modified'];
         $preserved = $data['preserved'];
 
-        $this->logger->debug(
-            sprintf('Check package: %s', $transition['pack_dir']),
-            [
-                'id' => $this->rebuildId,
-            ]
-        );
+        $this->logger->debug(sprintf('Check package: %s', $transition['pack_dir']));
 
         // main action
         [$modifiedForTransition, $preservedForTransition, $originalFiles, $newFiles]
@@ -366,18 +317,12 @@ class CheckPacks implements StepInterface
             $this->logger->debug(
                 sprintf('Package checked: %s', $transition['pack_dir']),
                 [
-                    'id'        => $this->rebuildId,
                     'modified'  => $modifiedForTransition,
                     'preserved' => $preservedForTransition,
                 ]
             );
         } else {
-            $this->logger->debug(
-                sprintf('Package checked: %s', $transition['pack_dir']),
-                [
-                    'id' => $this->rebuildId,
-                ]
-            );
+            $this->logger->debug(sprintf('Package checked: %s', $transition['pack_dir']));
         }
 
         // update state
@@ -434,18 +379,11 @@ class CheckPacks implements StepInterface
      */
     private function getFilesListsByTransition($transition): array
     {
-        $originalHashes = $transition['version_before']
-            ? $this->getOriginalHashes($transition['id'], $transition['version_before'])
-            : [];
+        $originalHashes = $transition['hashes']['original'] ?? [];
 
         [$modified, $preserved] = $this->getModifiedFiles($originalHashes);
 
-        $newHashes = $this->getNewHashes($transition['pack_dir']);
-
-        $this->knownHashesCacheDataSource->saveOne(
-            $newHashes,
-            md5($transition['id'] . '|' . $transition['version_after'])
-        );
+        $newHashes = $transition['hashes']['new'] ?? [];
 
         return [
             $modified,
@@ -453,33 +391,6 @@ class CheckPacks implements StepInterface
             array_keys($originalHashes),
             array_keys($newHashes),
         ];
-    }
-
-    /**
-     * @param string $id
-     * @param string $version
-     *
-     * @return array
-     * @throws RebuildException
-     */
-    private function getOriginalHashes($id, $version): array
-    {
-        $hashes = $this->knownHashesCacheDataSource->find(md5($id . '|' . $version));
-        if ($hashes) {
-            return $hashes;
-        }
-
-        $response = $this->marketplaceClient->getHashes($id, $version);
-
-        if (!is_array($response)) {
-            throw AbortException::fromCheckStepInvalidResponse($id);
-        }
-
-        if (!empty($response['error'])) {
-            throw AbortException::fromCheckStepWrongResponse($id, $response['message']);
-        }
-
-        return $response;
     }
 
     /**
@@ -517,54 +428,6 @@ class CheckPacks implements StepInterface
     }
 
     /**
-     * @param string $packageDir
-     *
-     * @return array
-     * @throws RebuildException
-     */
-    private function readHashesFromFile($packageDir): array
-    {
-        $path = $packageDir . '/.hash';
-
-        if (!$this->filesystem->exists($path)) {
-            return [];
-        }
-
-        if (!($data = @json_decode(file_get_contents($path), true))) {
-            throw AbortException::fromCheckStepWrongHashFile($path);
-        }
-
-        return $data;
-    }
-
-    /**
-     * @param string $packageDir
-     *
-     * @return array
-     * @throws RebuildException
-     */
-    private function getNewHashes($packageDir): array
-    {
-        $newHashes = $this->readHashesFromFile($packageDir);
-        if ($newHashes) {
-            return $newHashes;
-        }
-
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($packageDir, FilesystemIterator::SKIP_DOTS)
-        );
-
-        $result = [];
-        foreach ($iterator as $filePath => $fileInfo) {
-            $path = $this->filesystem->makePathRelative(dirname($filePath), $packageDir);
-
-            $result[($path === './' ? '' : $path) . basename($filePath)] = md5_file($filePath);
-        }
-
-        return $result;
-    }
-
-    /**
      * @param array[] $transitions
      *
      * @return array[]
@@ -588,7 +451,7 @@ class CheckPacks implements StepInterface
     private function filterFilesToUpdate($list): array
     {
         return array_filter($list, function ($item) {
-            return !$this->isPatternApplicable($item, ['robots.txt']);
+            return !$this->isPatternApplicable($item, ['robots.txt', '.hash']);
         });
     }
 
@@ -599,7 +462,7 @@ class CheckPacks implements StepInterface
      */
     private function ignoreOriginalFile($path): bool
     {
-        return $this->isPatternApplicable($path, ['var', 'files', 'images', 'sql', 'robots.txt']);
+        return $this->isPatternApplicable($path, ['var', 'files', 'images', 'sql', 'robots.txt', '.hash']);
     }
 
     /**

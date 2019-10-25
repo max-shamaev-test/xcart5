@@ -8,8 +8,6 @@
 
 namespace XLite\Module\XC\NewsletterSubscriptions\Module\XC\MailChimp\Controller;
 
-use XLite\Module\XC\MailChimp\Core;
-
 /**
  * NewsletterSubscriptions controller
  *
@@ -47,11 +45,13 @@ class NewsletterSubscriptions extends \XLite\Module\XC\NewsletterSubscriptions\C
         $profile = \XLite\Core\Auth::getInstance()->getProfile();
 
         $email = \XLite\Core\Request::getInstance()->newlettersubscription_email;
-        $tempProfile = $profile && $profile->getLogin() !== $email;
-        
-        if (!$profile || $tempProfile) {
+        $tempProfile = false;
+
+        if (!$profile || $profile->getLogin() !== $email) {
             $profile = $this->getNewProfileToSubscribe($email);
             $profile->create();
+            \XLite\Core\Database::getEM()->persist($profile);
+            $tempProfile = true;
         }
 
         \XLite\Module\XC\MailChimp\Core\MailChimp::processSubscriptionAll(

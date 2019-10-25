@@ -79,6 +79,10 @@ class Addons extends AAPIRequest
                 ];
             }
 
+            $tags = array_map(function($tag) {
+                return html_entity_decode($tag);
+            }, static::getElement($module, Constant::FIELD_TAGS));
+
             $result[$key][] = [
                 'id'                       => $key,
                 'version'                  => sprintf('%s.%s.%s.%s', $coreVersion, $majorVersion, $minorVersion, $buildVersion),
@@ -86,12 +90,12 @@ class Addons extends AAPIRequest
                 'name'                     => $name,
                 'authorName'               => static::getElement($module, Constant::FIELD_READABLE_AUTHOR),
                 'moduleName'               => static::getElement($module, Constant::FIELD_READABLE_NAME),
-                'description'              => static::getElement($module, Constant::FIELD_DESCRIPTION),
+                'description'              => html_entity_decode(static::getElement($module, Constant::FIELD_DESCRIPTION)),
                 'minorRequiredCoreVersion' => static::getElement($module, Constant::FIELD_MIN_CORE_VERSION),
                 'dependsOn'                => $dependsOn,
                 'isSystem'                 => (bool) static::getElement($module, Constant::FIELD_IS_SYSTEM),
-                'icon'                     => static::getElement($module, Constant::FIELD_ICON_URL),
-                'skinPreview'              => static::getElement($module, 'skin_list_image'),
+                'icon'                     => preg_replace('/^https?:/', '', static::getElement($module, Constant::FIELD_ICON_URL)),
+                'skinPreview'              => preg_replace('/^https?:/', '', static::getElement($module, 'skin_list_image')),
                 'pageURL'                  => static::getElement($module, Constant::FIELD_PAGE_URL),
                 'authorPageURL'            => static::getElement($module, Constant::FIELD_AUTHOR_PAGE_URL),
                 'authorEmail'              => static::getElement($module, Constant::FIELD_AUTHOR_EMAIL),
@@ -101,7 +105,7 @@ class Addons extends AAPIRequest
                 'downloads'                => static::getElement($module, Constant::FIELD_DOWNLOADS_COUNT),
                 'rating'                   => static::getElement($module, Constant::FIELD_RATING, Constant::FIELD_RATING_RATE),
                 'votes'                    => static::getElement($module, Constant::FIELD_RATING, Constant::FIELD_RATING_VOTES_COUNT),
-                'tags'                     => static::getElement($module, Constant::FIELD_TAGS),
+                'tags'                     => $tags,
                 'translations'             => $translations,
                 'editions'                 => (array) static::getElement($module, Constant::FIELD_EDITIONS),
                 'editionState'             => static::getElement($module, Constant::FIELD_EDITION_STATE),

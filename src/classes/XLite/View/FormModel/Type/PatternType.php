@@ -51,8 +51,8 @@ class PatternType extends AType
     {
         $resolver->setDefaults(
             [
-                'pattern'      => '',
-                'compound'     => false
+                'inputmask_pattern' => '',
+                'compound'          => false
             ]
         );
     }
@@ -64,8 +64,8 @@ class PatternType extends AType
      */
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
-        if ($options['pattern']) {
-            $pattern = !is_array($options['pattern']) ? ['mask' => $options['pattern']] : $options['pattern'];
+        if ($options['inputmask_pattern']) {
+            $inputmaskPattern = !is_array($options['inputmask_pattern']) ? ['mask' => $options['inputmask_pattern']] : $options['inputmask_pattern'];
 
             $view->vars = array_replace(
                 $view->vars,
@@ -73,8 +73,8 @@ class PatternType extends AType
                     'attr' => array_replace(
                         $view->vars['attr'],
                         [
-                            'v-xlite-pattern' => '',
-                            'pattern'         => json_encode($pattern),
+                            'v-xlite-pattern'   => '',
+                            'inputmask-pattern' => json_encode($inputmaskPattern),
                         ]
                     ),
                 ]

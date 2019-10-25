@@ -17,16 +17,16 @@ class Weight extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Field\AField
 
         return [
             $name => [
-                'label'    => static::t('Weight'),
-                'type'     => 'XLite\View\FormModel\Type\SymbolType',
-                'symbol'   => \XLite\Core\Config::getInstance()->Units->weight_symbol,
-                'pattern'  => [
+                'label'             => static::t('Weight'),
+                'type'              => 'XLite\View\FormModel\Type\SymbolType',
+                'symbol'            => \XLite\Core\Config::getInstance()->Units->weight_symbol,
+                'inputmask_pattern' => [
                     'alias'          => 'xcdecimal',
                     'digitsOptional' => false,
                     'rightAlign'     => false,
                     'digits'         => 4,
                 ],
-                'position' => isset($options['position']) ? $options['position'] : 0,
+                'position'          => isset($options['position']) ? $options['position'] : 0,
             ],
         ];
     }

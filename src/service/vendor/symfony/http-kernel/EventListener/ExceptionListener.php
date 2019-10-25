@@ -41,20 +41,29 @@ class ExceptionListener implements EventSubscriberInterface
         $this->debug = $debug;
     }
 
+    public function logKernelException(GetResponseForExceptionEvent $event)
+    {
+        $e = FlattenException::create($event->getException());
+
+        $this->logException($event->getException(), sprintf('Uncaught PHP Exception %s: "%s" at %s line %s', $e->getClass(), $e->getMessage(), $e->getFile(), $e->getLine()));
+    }
+
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
+        if (null === $this->controller) {
+            return;
+        }
+
         $exception = $event->getException();
-        $request = $event->getRequest();
+        $request = $this->duplicateRequest($exception, $event->getRequest());
         $eventDispatcher = \func_num_args() > 2 ? func_get_arg(2) : null;
-
-        $this->logException($exception, sprintf('Uncaught PHP Exception %s: "%s" at %s line %s', \get_class($exception), $exception->getMessage(), $exception->getFile(), $exception->getLine()));
-
-        $request = $this->duplicateRequest($exception, $request);
 
         try {
             $response = $event->getKernel()->handle($request, HttpKernelInterface::SUB_REQUEST, false);
         } catch (\Exception $e) {
-            $this->logException($e, sprintf('Exception thrown when handling an exception (%s: %s at %s line %s)', \get_class($e), $e->getMessage(), $e->getFile(), $e->getLine()));
+            $f = FlattenException::create($e);
+
+            $this->logException($e, sprintf('Exception thrown when handling an exception (%s: %s at %s line %s)', $f->getClass(), $f->getMessage(), $e->getFile(), $e->getLine()));
 
             $prev = $e;
             do {
@@ -84,7 +93,10 @@ class ExceptionListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::EXCEPTION => ['onKernelException', -128],
+            KernelEvents::EXCEPTION => [
+                ['logKernelException', 0],
+                ['onKernelException', -128],
+            ],
         ];
     }
 

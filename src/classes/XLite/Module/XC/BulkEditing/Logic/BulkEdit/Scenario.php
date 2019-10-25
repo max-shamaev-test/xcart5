@@ -275,10 +275,6 @@ class Scenario
                 'step'      => 'XLite\Module\XC\BulkEditing\Logic\BulkEdit\Step\Product',
                 'fields'    => [],
             ],
-            'product_global_attributes'    => [
-                'title'   => \XLite\Core\Translation::getInstance()->translate('Global attributes'),
-                'url'     => 'https://ideas.x-cart.com/forums/229428-x-cart-5-x/suggestions/15147627-bulk-products-editing-global-attributes',
-            ],
         ];
     }
 

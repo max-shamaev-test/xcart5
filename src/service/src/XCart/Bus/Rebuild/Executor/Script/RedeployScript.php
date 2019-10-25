@@ -17,6 +17,7 @@ use XCart\SilexAnnotations\Annotations\Service;
  * common steps order:
  * @see \XCart\Bus\Rebuild\Executor\Step\Execute\DownloadPacks
  * @see \XCart\Bus\Rebuild\Executor\Step\Execute\UnpackPacks
+ * @see \XCart\Bus\Rebuild\Executor\Step\Execute\CheckFS
  * @see \XCart\Bus\Rebuild\Executor\Step\Execute\CheckPacks
  * @see \XCart\Bus\Rebuild\Executor\Step\Execute\PreUpgradeNote
  * @see \XCart\Bus\Rebuild\Executor\Step\Execute\DisableHook

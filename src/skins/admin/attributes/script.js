@@ -164,5 +164,11 @@ jQuery().ready(
       }
     );
 
+    core.bind('popup.close', function (event, data) {
+      if (data.box && data.box.find('.attribute-type-C').length > 0 && jQuery('body').find(data.box).length > 0) {
+        data.box.dialog('destroy');
+        data.box.remove();
+      }
+    });
   }
 );

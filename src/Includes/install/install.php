@@ -1226,6 +1226,18 @@ function change_config(&$params)
         $patterns[] = '/^default = [a-z]{2}/';
         $replacements[] = 'default = ' . XLITE_EDITION_LNG;
 
+        $patterns[] = '/^product_clean_urls_format.*=.*/';
+        $replacements[] = 'product_clean_urls_format = ' . 'domain/goalproduct';
+
+        $patterns[] = '/^static_page_clean_urls_format.*=.*/';
+        $replacements[] = 'static_page_clean_urls_format = ' . 'domain/goalpage';
+
+        $patterns[] = '/^vendor_clean_urls_format.*=.*/';
+        $replacements[] = 'vendor_clean_urls_format = ' . 'domain/goalvendor';
+
+        $patterns[] = '/^news_clean_urls_format.*=.*/';
+        $replacements[] = 'news_clean_urls_format = ' . 'domain/goalnews';
+
         // escape every backslash and dollar sign with a backslash
         // to avoid using them as backreferences
         $replacements = array_map(function ($replacement) {

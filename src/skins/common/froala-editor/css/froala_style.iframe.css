@@ -9,6 +9,7 @@ html, body {
   height: initial !important;
   min-height: initial !important;
   overflow: auto;
+  min-width: unset;
 }
 
 body {

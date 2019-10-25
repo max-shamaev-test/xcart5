@@ -13,6 +13,7 @@ use Psr\Log\LoggerInterface;
 use XCart\Bus\Core\Annotations\RebuildStep;
 use XCart\Bus\Domain\Module;
 use XCart\Bus\Exception\RebuildException;
+use XCart\Bus\Query\Data\CoreConfigDataSource;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
 use XCart\Bus\Rebuild\Executor\ScriptState;
 use XCart\Bus\Rebuild\Executor\Step\Execute\UpdateDataSource as ExecuteUpdateDataSource;
@@ -33,25 +34,28 @@ class UpdateDataSource implements StepInterface
     private $installedModulesDataSource;
 
     /**
+     * @var CoreConfigDataSource
+     */
+    private $coreConfigDataSource;
+
+    /**
      * @var LoggerInterface
      */
     private $logger;
 
     /**
-     * @var string
-     */
-    private $rebuildId;
-
-    /**
      * @param InstalledModulesDataSource $installedModulesDataSource
+     * @param CoreConfigDataSource       $coreConfigDataSource
      * @param LoggerInterface            $logger
      */
     public function __construct(
         InstalledModulesDataSource $installedModulesDataSource,
+        CoreConfigDataSource $coreConfigDataSource,
         LoggerInterface $logger
     ) {
         $this->installedModulesDataSource = $installedModulesDataSource;
         $this->logger                     = $logger;
+        $this->coreConfigDataSource = $coreConfigDataSource;
     }
 
     /**
@@ -74,10 +78,10 @@ class UpdateDataSource implements StepInterface
     {
         $transitions = $this->getTransitions($scriptState);
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'          => $scriptState->id,
                 'transitions' => $transitions,
             ]
         );
@@ -109,8 +113,6 @@ class UpdateDataSource implements StepInterface
      */
     public function execute(StepState $state, $action = self::ACTION_EXECUTE, array $params = []): StepState
     {
-        $this->rebuildId = $state->rebuildId;
-
         $this->processTransitions($state);
 
         $state->finishedTransitions = $state->remainTransitions;
@@ -189,11 +191,15 @@ class UpdateDataSource implements StepInterface
                 $module     = $this->installedModulesDataSource->find($transition['id']);
                 $stateAfter = $transition['stateBeforeTransition'];
 
-                if ($module && $transition['id'] !== 'core') {
+                if ($module) {
                     if (isset($stateAfter['installed']) && $stateAfter['installed'] === false) {
                         $this->installedModulesDataSource->removeOne($module->id);
                     } else {
                         $module = $this->updateModuleRecord($module, $stateAfter);
+                        if ($module->id === 'CDev-Core') {
+                            $this->coreConfigDataSource->version = $module->version;
+                        }
+
                         $this->installedModulesDataSource->saveOne($module);
                     }
 
@@ -211,12 +217,7 @@ class UpdateDataSource implements StepInterface
                     }
                 }
 
-                $this->logger->debug(
-                    sprintf('Data updated: %s', $transition['id']),
-                    [
-                        'id' => $this->rebuildId,
-                    ]
-                );
+                $this->logger->debug(sprintf('Data updated: %s', $transition['id']));
             }
         }
     }

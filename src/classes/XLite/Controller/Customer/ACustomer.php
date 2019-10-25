@@ -257,6 +257,11 @@ abstract class ACustomer extends \XLite\Controller\AController
         } elseif ('main' === $target) {
             $canonicalURL = $this->$method();
 
+        } elseif ('product' === $target && LC_USE_CLEAN_URLS) {
+            $canonicalURL = $this->$method(
+                \XLite\Core\Database::getRepo('XLite\Model\CleanURL')->buildURLProductCanonical($params)
+            );
+
         } else {
             $canonicalURL = $this->$method(
                 \XLite\Core\Converter::buildURL($target, '', $params, null, true)
@@ -417,6 +422,7 @@ abstract class ACustomer extends \XLite\Controller\AController
      */
     public static function sendHeaders($additional = array())
     {
+        parent::sendHeaders($additional);
         $contentSecurityPolicy = \XLite::getInstance()->getOptions(array('other', 'content_security_policy'));
         if ($contentSecurityPolicy !== null && 'disabled' !== $contentSecurityPolicy) {
             header('Content-Security-Policy:' . $contentSecurityPolicy);

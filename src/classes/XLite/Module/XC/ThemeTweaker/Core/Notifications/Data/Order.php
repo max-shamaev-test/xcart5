@@ -77,6 +77,7 @@ class Order extends Provider
             'order_tracking_information',
             'failed_transaction',
             'order_waiting_for_approve',
+            'backorder_created',
         ];
     }
 

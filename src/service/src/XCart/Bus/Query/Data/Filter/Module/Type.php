@@ -9,6 +9,7 @@
 namespace XCart\Bus\Query\Data\Filter\Module;
 
 use XCart\Bus\Core\Annotations\DataSourceFilter;
+use XCart\Bus\Domain\Module;
 use XCart\Bus\Query\Data\Filter\AFilter;
 
 /**
@@ -26,6 +27,7 @@ class Type extends AFilter
      */
     public function accept()
     {
+        /** @var Module $item */
         $item = $this->getInnerIterator()->current();
 
         if (!$this->data) {
@@ -52,7 +54,7 @@ class Type extends AFilter
     }
 
     /**
-     * @param $item
+     * @param Module $item
      *
      * @return bool
      */
@@ -63,7 +65,7 @@ class Type extends AFilter
         }
 
         if (isset($item->tags)) {
-            return in_array(static::TAG_TEMPLATES, $item->tags, true);
+            return in_array(static::TAG_TEMPLATES, array_map(static function ($item) { return $item['id']; }, $item->tags), true);
         }
 
         return false;

@@ -13,4 +13,18 @@ namespace XLite\View\StickyPanel\Product\Admin;
  */
 class Cloned extends \XLite\View\StickyPanel\Product\Admin\AAdmin
 {
+    /**
+     * Define buttons widgets
+     *
+     * @return array
+     */
+    protected function defineButtons()
+    {
+        $list = parent::defineButtons();
+        $list['export'] = $this->getWidget(
+            array(),
+            'XLite\View\Button\ItemsExport\ClonedProducts'
+        );
+        return $list;
+    }
 }

@@ -231,10 +231,7 @@ class ListItem extends \XLite\View\AView implements DynamicWidgetInterface
                 $productCategories
                 && (
                     1 < count($productCategories)
-                    || (
-                        LC_USE_CLEAN_URLS
-                        && !(bool)\Includes\Utils\ConfigParser::getOptions(array('clean_urls', 'use_canonical_urls_only'))
-                    )
+                    || LC_USE_CLEAN_URLS
                 )
             ) {
                 foreach ($productCategories as $category) {

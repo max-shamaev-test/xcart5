@@ -70,6 +70,11 @@ class API
     private $demoMode;
 
     /**
+     * @var Schema
+     */
+    private $schema;
+
+    /**
      * @param Application          $app
      * @param TokenService         $tokenService
      * @param QueryType            $queryType
@@ -232,10 +237,14 @@ class API
      */
     private function buildSchema(): Schema
     {
-        return new Schema([
-            'query'    => $this->queryType,
-            'mutation' => $this->mutationType,
-        ]);
+        if (!$this->schema) {
+            $this->schema = new Schema([
+                'query'    => $this->queryType,
+                'mutation' => $this->mutationType,
+            ]);
+        }
+
+        return $this->schema;
     }
 
     /**

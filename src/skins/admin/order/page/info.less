@@ -267,6 +267,7 @@ div.actions .statuses {
 div.actions .status {
   .flex-display();
   .align-items(center);
+  position: relative;
 
   select.form-control {
     margin: @form-row-vertical-padding 0;
@@ -275,6 +276,11 @@ div.actions .status {
 
   .clear {
     display: none;
+  }
+
+  .info-status-warning {
+    position: absolute;
+    right: -1 * (@rhythmic-unit + 15);
   }
 }
 

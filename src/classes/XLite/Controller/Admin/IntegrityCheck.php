@@ -16,6 +16,6 @@ class IntegrityCheck extends \XLite\Controller\Admin\AAdmin
 {
     public function handleRequest()
     {
-        $this->redirect($this->getShopURL('service.php#/integrity-check'));
+        $this->redirect($this->getServiceUrl('#/integrity-check'));
     }
 }

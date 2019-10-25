@@ -38,7 +38,8 @@ GraphQL
                 class
                 type
                 orderby
-                countries 
+                countries
+                exCountries 
                 translations {
                     code
                     name
@@ -97,7 +98,9 @@ GraphQL
                     revisionDate
                     price
                     downloads
-                    tags
+                    tags {
+                        name
+                    }
                 }
             }
 GraphQL

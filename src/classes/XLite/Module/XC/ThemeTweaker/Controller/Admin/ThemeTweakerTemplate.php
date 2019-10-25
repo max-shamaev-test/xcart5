@@ -82,7 +82,7 @@ HTML;
     {
         $cacheDriver = \XLite\Core\Cache::getInstance()->getDriver();
         $provider = $this->getTemplateObjectProvider();
-        $rawData = Request::getInstance()->getNonFilteredData();
+        $rawData = Request::getInstance()->getPostData(false);
         $content = isset($rawData['content']) ? $rawData['content'] : null;
         $weight = \XLite\Core\Request::getInstance()->weight;
         $list = \XLite\Core\Request::getInstance()->list;

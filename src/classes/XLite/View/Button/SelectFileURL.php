@@ -54,7 +54,7 @@ class SelectFileURL extends \XLite\View\Button\APopupButton
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'file_selector/style.css';
+        $list[] = 'file_selector/style.less';
 
         return $list;
     }

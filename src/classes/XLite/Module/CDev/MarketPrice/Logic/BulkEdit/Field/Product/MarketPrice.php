@@ -20,23 +20,23 @@ class MarketPrice extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Field\AFie
 
         return [
             $name => [
-                'label'       => static::t('Market price'),
-                'type'        => 'XLite\View\FormModel\Type\SymbolType',
-                'symbol'      => $currencySymbol,
-                'pattern'     => [
-                    'alias'          => 'xcdecimal',
-                    'prefix'         => '',
-                    'rightAlign'     => false,
-                    'digits'         => $currency->getE(),
+                'label'             => static::t('Market price'),
+                'type'              => 'XLite\View\FormModel\Type\SymbolType',
+                'symbol'            => $currencySymbol,
+                'inputmask_pattern' => [
+                    'alias'      => 'xcdecimal',
+                    'prefix'     => '',
+                    'rightAlign' => false,
+                    'digits'     => $currency->getE(),
                 ],
-                'constraints' => [
+                'constraints'       => [
                     'Symfony\Component\Validator\Constraints\GreaterThanOrEqual' => [
                         'value'   => 0,
                         'message' => static::t('Minimum value is X', ['value' => 0]),
                     ],
                 ],
-                'input_grid'  => 'col-sm-2',
-                'position'    => isset($options['position']) ? $options['position'] : 0,
+                'input_grid'        => 'col-sm-2',
+                'position'          => isset($options['position']) ? $options['position'] : 0,
             ],
         ];
     }

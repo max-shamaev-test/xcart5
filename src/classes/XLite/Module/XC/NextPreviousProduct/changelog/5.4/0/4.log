@@ -1,0 +1,9 @@
+Version 5.4.0.4
+
+Improvements (1)
+2019-09-02 - [Change] Removed the setting "use_canonical_urls_only"; added a new setting "canonical_product_clean_urls_format" in etc/config.php which sets the format for the product canonical url. #XCN-9896 (Shevelov Alexander) #Core #XMLSitemap #NextPreviousProduct #GoogleFeed #YandexMarket
+
+Fixes (2)
+2019-09-03 - [Bug] The Next / Prev product links on the product page worked incorrectly. Fixed. #BUG-7746 https://bt.x-cart.com/view.php?id=50898 (Shevelov Alexander) #NextPreviousProduct
+2019-07-03 - [Bug] Fatal error when attempting to open a next/previous product with a disabled root category. Fixed. #BUG-7584 (Kirill Stadler) #NextPreviousProduct
+

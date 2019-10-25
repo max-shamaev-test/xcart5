@@ -37,12 +37,16 @@ class MethodStatus extends \XLite\View\Payment\MethodStatus implements \XLite\Ba
      */
     protected function isVisible()
     {
-        $result = parent::isVisible()
-            && $this->isBraintreePaymentMethod();
+        if ($this->isBraintreePaymentMethod()) {
 
-        if ($result && !static::$_visible) {
-            static::$_visible = true;
-            $result = false;
+            $result = true;
+            if (!static::$_visible) {
+                static::$_visible = true;
+                $result = false;
+            }
+
+        } else {
+            $result = parent::isVisible();
         }
 
         return $result;

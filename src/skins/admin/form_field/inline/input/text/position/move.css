@@ -9,7 +9,6 @@
 
 .inline-move .move {
   cursor: move;
-  margin: 0 4px;
   position: relative;
   color: #bec6d8;
   line-height: 1;

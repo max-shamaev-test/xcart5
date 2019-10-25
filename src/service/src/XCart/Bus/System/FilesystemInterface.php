@@ -139,4 +139,11 @@ interface FilesystemInterface
      * @param string $content  The content to append
      */
     public function appendToFile($filename, $content);
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public function getNearestExistingDirectory($path): string;
 }

@@ -1,7 +1,7 @@
 {
   "name": "",
   "config": {
-    "autoloader-suffix": "XCart-SUS",
+    "autoloader-suffix": "XCartSUS",
     "optimize-autoloader": true
   },
   "description": "",

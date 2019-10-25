@@ -36,7 +36,6 @@ use XCart\Bus\Query\Resolver\ModulesResolver;
 use XCart\Bus\Query\Resolver\RebuildResolver;
 use XCart\Bus\Rebuild\Executor;
 use XCart\Bus\Rebuild\Executor\RebuildLockManager;
-use XCart\Bus\Rebuild\Executor\Step\Execute\PostUpgradeHook;
 use XCart\Bus\Rebuild\Executor\Step\Execute\UpdateModulesList;
 use XCart\Bus\Rebuild\Executor\Step\Execute\UpdateScriptState;
 use XCart\Bus\Rebuild\Executor\Step\StepInterface;
@@ -248,6 +247,8 @@ class Rebuild
 
         $this->coreConfigDataSource->dataDate  = 0;
         $this->coreConfigDataSource->cacheDate = 0;
+        $this->coreConfigDataSource->shippingMethodsCacheDate = time();
+        $this->coreConfigDataSource->paymentMethodsCacheDate = time();
 
         $this->marketplaceModulesDataSource->clear();
         $this->setDataSource->clear();
@@ -274,10 +275,7 @@ class Rebuild
 
         $returnUrl = $request->get('returnUrl');
 
-        $scenario         = $this->changeUnitProcessor->process([], []);
-        $scenario['id']   = uniqid('scenario', true);
-        $scenario['type'] = 'common';
-        $scenario['date'] = time();
+        $scenario = $this->changeUnitProcessor->process($this->scenarioDataSource->startEmptyScenario(), []);
 
         if ($returnUrl && $this->urlBuilder->isSelfURL($returnUrl)) {
             $scenario['returnUrl'] = $returnUrl;
@@ -285,13 +283,19 @@ class Rebuild
 
         $this->scenarioDataSource->saveOne($scenario);
 
+        $authCode = $request->get('auth_code');
+        if ($authCode) {
+            $this->rebuildLockManager->clearAnySetRebuildFlags();
+            $this->scriptStateDataSource->clear();
+        }
+
         $args  = [
             'id'     => $scenario['id'],
             'reason' => 'redeploy',
         ];
         $state = $this->rebuildResolver->startRebuild(null, $args, null, new ResolveInfo([]));
 
-        return new RedirectResponse($this->xcartClient->getUpgradeFrontendURL() . 'rebuild/' . $state->id);
+        return new RedirectResponse($this->xcartClient->getUpgradeFrontendURL() . 'rebuild/' . $state->id . ($authCode ? '?scode=' . $authCode : ''));
     }
 
     /**
@@ -309,22 +313,28 @@ class Rebuild
     {
         // convert tmp.busInstalledModulesStorage.data to busInstalledModulesStorage.data
         $installedModules = $this->tmpInstalledModulesDataSource->getWrappedData();
-        $this->installedModulesDataSource->saveAll($installedModules);
-        $this->tmpInstalledModulesDataSource->clear();
+        if ($installedModules) {
+            $this->installedModulesDataSource->saveAll($installedModules);
+            $this->tmpInstalledModulesDataSource->clear();
+        }
 
         $modules = [];
         foreach ($request->get('modules') ?: [] as $moduleId => $version) {
             $modules[Module::convertModuleId($moduleId)] = $version;
         }
 
+        $modules['CDev-Core'] = $modules['Core'];
+        unset($modules['Core']);
+
+        $this->coreConfigDataSource->version = $modules['CDev-Core'];
+
         $serviceVersion = $modules['XC-Service'] ?? null;
 
         // add xc-service to marketplace modules by saveOne call
         $serviceModule = Module::generateServiceModule($serviceVersion);
         $this->marketplaceModulesDataSource->saveOne([$serviceModule], 'XC-Service');
-
-        $modules['CDev-Core'] = $modules['Core'];
-        unset($modules['Core']);
+        $coreModule = Module::generateCoreModule($modules['CDev-Core']);
+        $this->marketplaceModulesDataSource->saveOne([$coreModule], 'CDev-Core');
 
         $changeUnits = [];
         foreach ($modules as $id => $version) {
@@ -343,15 +353,12 @@ class Rebuild
                 $changeUnits[] = [
                     'id'      => $id,
                     'upgrade' => true,
-                    'version' => $version, // new version (must be present in marketplaceModulesDataSource)
+                    'version' => implode('.', Module::explodeVersion($version)), // new version (must be present in marketplaceModulesDataSource)
                 ];
             }
         }
 
-        $scenario         = $this->changeUnitProcessor->process([], $changeUnits);
-        $scenario['id']   = uniqid('scenario', true);
-        $scenario['type'] = 'upgrade';
-        $scenario['date'] = time();
+        $scenario = $this->changeUnitProcessor->process($this->scenarioDataSource->startEmptyScenario(), $changeUnits);
 
         $this->scenarioDataSource->saveOne($scenario);
 
@@ -416,11 +423,7 @@ class Rebuild
             ];
         }
 
-        $scenario = $this->changeUnitProcessor->process([], $changeUnits);
-
-        $scenario['id']   = uniqid('scenario', true);
-        $scenario['type'] = 'common';
-        $scenario['date'] = time();
+        $scenario = $this->changeUnitProcessor->process($this->scenarioDataSource->startEmptyScenario(), $changeUnits);
 
         $returnUrl = $request->get('returnUrl');
         if ($returnUrl && $this->urlBuilder->isSelfURL($returnUrl)) {
@@ -449,6 +452,67 @@ class Rebuild
      * @throws Exception
      *
      * @Router\Route(
+     *     @Router\Request(method="GET", uri="/changeModuleState"),
+     *     @Router\Before("XCart\Bus\Controller\Rebuild:authChecker")
+     * )
+     */
+    public function changeModuleStateAction(Request $request): Response
+    {
+        $this->rebuildLockManager->clearAnySetRebuildFlags();
+
+        $modulesDataJSON = $request->get('modules') ?: null;
+        $modulesData     = $modulesDataJSON ? json_decode($modulesDataJSON, true) : [];
+
+        $changeUnits = [];
+        foreach ($modulesData as $moduleData) {
+            if ($installedModule = $this->installedModulesDataSource->find($moduleData['id'])) {
+                $changeUnits[] = array_merge(
+                    [
+                        'id' => $installedModule->id,
+                    ],
+                    array_filter($moduleData, static function ($data) {
+                        return in_array($data, ['install', 'enable', 'remove']);
+                    }, ARRAY_FILTER_USE_KEY)
+                );
+
+            } else if ($module = $this->marketplaceModulesDataSource->findByVersion($moduleData['id'])) {
+                $changeUnits[] = array_merge(
+                    [
+                        'id'      => $module->id,
+                        'version' => $module->version,
+                    ],
+                    array_filter($moduleData, static function ($data) {
+                        return in_array($data, ['install', 'enable', 'remove']);
+                    }, ARRAY_FILTER_USE_KEY)
+                );
+            }
+        }
+
+        $scenario = $this->changeUnitProcessor->process($this->scenarioDataSource->startEmptyScenario(), $changeUnits);
+
+        $returnUrl = $request->get('returnUrl');
+        if ($returnUrl && $this->urlBuilder->isSelfURL($returnUrl)) {
+            $scenario['returnUrl'] = $returnUrl;
+        }
+
+        $this->scenarioDataSource->saveOne($scenario);
+
+        $args = [
+            'id' => $scenario['id'],
+        ];
+
+        $state = $this->rebuildResolver->startRebuild(null, $args, null, new ResolveInfo([]));
+
+        return new RedirectResponse($this->xcartClient->getUpgradeFrontendURL() . 'rebuild/' . $state->id);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return Response
+     * @throws Exception
+     *
+     * @Router\Route(
      *     @Router\Request(method="GET", uri="/rebuildToEdition"),
      *     @Router\Before("XCart\Bus\Controller\Auth:authChecker")
      * )
@@ -460,10 +524,8 @@ class Rebuild
 
         $changeUnits = $this->editionStorage->getChangeUnits($editionName);
 
-        $scenario                   = $this->changeUnitProcessor->process([], $changeUnits);
-        $scenario['id']             = uniqid('scenario', true);
-        $scenario['type']           = 'common';
-        $scenario['date']           = time();
+        $scenario = $this->changeUnitProcessor->process($this->scenarioDataSource->startEmptyScenario(), $changeUnits);
+
         $scenario['store_metadata'] = [
             'editionName' => $editionName,
         ];
@@ -509,10 +571,7 @@ class Rebuild
             ];
         }
 
-        $scenario         = $this->changeUnitProcessor->process([], $changeUnits);
-        $scenario['id']   = uniqid('scenario', true);
-        $scenario['type'] = 'common';
-        $scenario['date'] = time();
+        $scenario = $this->changeUnitProcessor->process($this->scenarioDataSource->startEmptyScenario(), $changeUnits);
 
         $this->scenarioDataSource->saveOne($scenario);
 
@@ -534,7 +593,7 @@ class Rebuild
     public function authChecker(Request $request): ?Response
     {
         $tokenData = $this->tokenService->decodeToken($request->cookies->get('bus_token'));
-        if (!$tokenData) {
+        if (!$tokenData || ($tokenData[TokenService::TOKEN_READ_ONLY] ?? false) === true) {
             $xc5Cookie = $request->cookies->get(
                 $this->xc5LoginService->getCookieName()
             );
@@ -545,8 +604,13 @@ class Rebuild
                 $shouldGenerateJWT = false;
             }
 
+            $authCode = $request->get('auth_code');
+            if ($authCode && $this->emergencyCodeService->checkAuthCode($authCode)) {
+                $shouldGenerateJWT = true;
+            }
+
             if (!$shouldGenerateJWT) {
-                return new Response(null, 401);
+                return new RedirectResponse('service.php');
             }
         }
 

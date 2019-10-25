@@ -20,6 +20,7 @@ use XCart\Bus\Query\Data\InstalledModulesDataSource;
 use XCart\Bus\Query\Data\ScenarioDataSource;
 use XCart\Bus\Query\Data\UploadedModulesDataSource;
 use XCart\Bus\Rebuild\Scenario\ChangeUnitProcessor;
+use XCart\Bus\System\ResourceChecker;
 use XCart\Bus\System\Uploader;
 use XCart\SilexAnnotations\Annotations\Router;
 use XCart\SilexAnnotations\Annotations\Service;
@@ -96,6 +97,13 @@ class Package
      */
     public function downloadAction(Request $request, $moduleId): Response
     {
+        if (!ResourceChecker::PharIsInstalled()) {
+            return new Response(
+                "To download modules, PHP's Phar extension needs to be enabled on your server. Please contact your hosting provider.",
+                405
+            );
+        }
+
         $module = $this->installedModulesDataSource->find($moduleId);
         if ($module) {
             $package = $this->package->fromModule($module);
@@ -125,6 +133,13 @@ class Package
      */
     public function uploadAction(Request $request): Response
     {
+        if (!ResourceChecker::PharIsInstalled()) {
+            return new Response(
+                "controls.upload_addon.phar-error",
+                405
+            );
+        }
+
         try {
             $this->uploader->processChunked($request);
         } catch (UploadException $e) {
@@ -213,7 +228,7 @@ class Package
 
             $this->scenarioDataSource->saveOne($scenario);
         } catch (\Exception $e) {
-            throw PackageException::fromGenericError($e->getMessage());
+            throw PackageException::fromGenericError($e);
         }
     }
 

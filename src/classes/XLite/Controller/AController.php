@@ -491,6 +491,18 @@ abstract class AController extends \XLite\Core\Handler
     }
 
     /**
+     * @param string $path
+     * @param null   $secure
+     * @param array  $params
+     *
+     * @return string
+     */
+    public function getServiceUrl($path = '', $secure = null, array $params = array())
+    {
+        return \XLite::getInstance()->getServiceURL($path, $secure, $params);
+    }
+
+    /**
      * Get the URL for storefront with assured accessibility
      *
      * @param boolean $shopStatus Shop status OPTIONAL
@@ -1891,7 +1903,8 @@ abstract class AController extends \XLite\Core\Handler
             AView::RESOURCE_CSS => CommonResources::getInstance()->getCommonLessFiles(),
         ], 100, \XLite::COMMON_INTERFACE, 'getCommonFiles');
 
-        if (\XLite\Core\Request::getInstance()->interface !== \XLite::CUSTOMER_INTERFACE) {
+        if (\XLite\Core\Request::getInstance()->interface !== \XLite::CUSTOMER_INTERFACE
+            && \XLite\Core\Layout::getInstance()->getInterface() !== \XLite::CUSTOMER_INTERFACE) {
             \XLite\Core\Layout::getInstance()->registerResources([
                 AView::RESOURCE_CSS => CommonResources::getInstance()->getCSSFiles()
             ], 10, null, 'getCSSFiles');
@@ -2042,7 +2055,7 @@ RES;
     {
         @set_time_limit(0);
         header('Content-type: ' . $contentType);
-        header('Content-disposition: attachment; filename=' . $filename);
+        header('Content-disposition: attachment; filename="' . $filename . '"');
     }
 
     /**
@@ -2197,6 +2210,10 @@ RES;
         }
 
         $language = \XLite\Core\Session::getInstance()->getLanguage();
+
+        if (\XLite\Core\Request::getInstance()->getLanguageCode() === static::getDefaultLanguage()) {
+            \XLite\Core\Session::getInstance()->setLanguage(static::getDefaultLanguage());
+        }
 
         return !(!$language->getDefaultAuth() && \XLite\Core\Request::getInstance()->getLanguageCode() != $language->getCode());
     }

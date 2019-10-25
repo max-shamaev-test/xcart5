@@ -11,7 +11,7 @@ XLite\Model\Product:
     price: 19.99
     weight: 0.7
     cleanURLs:
-      - { cleanURL: timberland-45th-anniversary.html }
+      - { cleanURL: timberland-45th-anniversary }
     amount: 1000
     images:
       - { fileName: shoes_2.jpg, mime: image/jpeg, size: 57153, path: shoes_2.jpg, width: 366, height: 440, hash: 4d895c21093a256f83ba47d639f0a5a2, orderby: 10 }
@@ -23,7 +23,7 @@ XLite\Model\Product:
     price: 49.99
     weight: 3
     cleanURLs:
-      - { cleanURL: red-black.html }
+      - { cleanURL: high-top-trainers-in-red-black-and-white }
     amount: 7
     images:
       - { fileName: shoes_6_2.jpg, mime: image/jpeg, size: 80257, path: shoes_6_2.jpg, width: 732, height: 880, hash: 72bedcc06b23823acb74845d09cfa054, orderby: 10 }
@@ -34,7 +34,7 @@ XLite\Model\Product:
     price: 19.99
     weight: 2.6
     cleanURLs:
-      - { cleanURL: star.html }
+      - { cleanURL: beige-sneakers }
     amount: 1000
     images:
       - { fileName: shoes_7.jpg, mime: image/jpeg, size: 94954, path: shoes_7.jpg, width: 732, height: 880, hash: d3c0481c7cc90a31f25b0bc1e37c902c, orderby: 10 }
@@ -45,7 +45,7 @@ XLite\Model\Product:
     price: 24.99
     weight: 1.3
     cleanURLs:
-      - { cleanURL: model-wearing-platforms.html }
+      - { cleanURL: platform-brogue-trim-leather-oxfords-in-white }
     amount: 75
     images:
       - { fileName: shoes_8.jpg, mime: image/jpeg, size: 133449, path: shoes_8.jpg, width: 732, height: 880, hash: ca24ff395d951c053a817d479ed6db19, orderby: 10 }
@@ -56,7 +56,7 @@ XLite\Model\Product:
     price: 19.99
     weight: 1.8
     cleanURLs:
-      - { cleanURL: man.html }
+      - { cleanURL: grey-knitted-trainers }
     amount: 6
     images:
       - { fileName: shoes_12.jpg, mime: image/jpeg, size: 106340, path: shoes_12.jpg, width: 732, height: 880, hash: b156f93a5c923dc2e6bfda4306ee3782, orderby: 10 }
@@ -67,7 +67,7 @@ XLite\Model\Product:
     price: 79.99
     weight: 2.9
     cleanURLs:
-      - { cleanURL: man-3.html }
+      - { cleanURL: lace-up-boots-in-light-brown }
     amount: 1000
     images:
       - { fileName: shoes_1_1.jpg, mime: image/jpeg, size: 143611, path: shoes_1_1.jpg, width: 732, height: 880, hash: 59a81275c25138dc8f99afb30b5267e6, orderby: 10 }
@@ -80,7 +80,7 @@ XLite\Model\Product:
     price: 29.99
     weight: 0.6
     cleanURLs:
-      - { cleanURL: t-shirt1.html }
+      - { cleanURL: boyfriend-t-shirt-with-chest-logo }
     amount: 100
     images:
       - { fileName: clo_1.jpg, mime: image/jpeg, size: 186966, path: clo_1.jpg, width: 732, height: 880, hash: 38da3aca8e486b7b1c35e91c733f8769, orderby: 10 }
@@ -91,7 +91,7 @@ XLite\Model\Product:
     price: 19.99
     weight: 1.8
     cleanURLs:
-      - { cleanURL: rose-keds.html }
+      - { cleanURL: pink-sneakers-with-white-soles }
     amount: 146
     images:
       - { fileName: shoes_16.jpg, mime: image/jpeg, size: 120497, path: shoes_16.jpg, width: 732, height: 880, hash: 0277483e750a1c9afee7623ee3a92048, orderby: 10 }
@@ -102,7 +102,7 @@ XLite\Model\Product:
     price: 19.99
     weight: 2.8
     cleanURLs:
-      - { cleanURL: white-1.html }
+      - { cleanURL: white-lace-up-mesh-trainers }
     amount: 218
     images:
       - { fileName: shoes_17.jpg, mime: image/jpeg, size: 38909, path: shoes_17.jpg, width: 732, height: 880, hash: 20264ed03a148092c598631ccbf5f36b, orderby: 10 }
@@ -113,7 +113,7 @@ XLite\Model\Product:
     price: 34.99
     weight: 1.1
     cleanURLs:
-      - { cleanURL: gold.html }
+      - { cleanURL: caged-cutout-sandals-in-gold }
     amount: 0
     images:
       - { fileName: shoes_10.jpg, mime: image/jpeg, size: 107727, path: shoes_10.jpg, width: 732, height: 880, hash: e36e1056b21d7c2057955dced353fdab, orderby: 10 }
@@ -124,7 +124,7 @@ XLite\Model\Product:
     price: 14.99
     weight: 0.9
     cleanURLs:
-      - { cleanURL: living-in-green.html }
+      - { cleanURL: green-flat-slingback-sandals }
     amount: 200
     images:
       - { fileName: shoes_18.jpg, mime: image/jpeg, size: 43838, path: shoes_18.jpg, width: 732, height: 880, hash: f6fe575d12d0702df99847a0c543323e, orderby: 10 }
@@ -135,7 +135,7 @@ XLite\Model\Product:
     price: 9.99
     weight: 2.9
     cleanURLs:
-      - { cleanURL: blue-lines.html }
+      - { cleanURL: waist-tie-dress-in-blue-and-white-stripe }
     amount: 1000
     images:
       - { fileName: clo_3.jpg, mime: image/jpeg, size: 152629, path: clo_3.jpg, width: 732, height: 880, hash: e781eaa9cb63cd714d1b11a7c6f21dd1, orderby: 10 }
@@ -146,7 +146,7 @@ XLite\Model\Product:
     price: 39.99
     weight: 2.8
     cleanURLs:
-      - { cleanURL: red-and-blond.html }
+      - { cleanURL: ultimate-t-shirt-with-crew-neck-in-red }
     amount: 6
     images:
       - { fileName: clo_4.jpg, mime: image/jpeg, size: 190460, path: clo_4.jpg, width: 732, height: 880, hash: 8af87c8410d6e9230d4df827c1a94361, orderby: 10 }
@@ -157,7 +157,7 @@ XLite\Model\Product:
     price: 29.99
     weight: 0.7
     cleanURLs:
-      - { cleanURL: dress.html }
+      - { cleanURL: multicolored-dress-with-balloon-sleeves }
     amount: 22
     images:
       - { fileName: clo_5.jpg, mime: image/jpeg, size: 199790, path: clo_5.jpg, width: 732, height: 880, hash: 56758e6725d61df67360ea76c79353e7, orderby: 10 }
@@ -168,7 +168,7 @@ XLite\Model\Product:
     price: 19.99
     weight: 1.8
     cleanURLs:
-      - { cleanURL: w1.html }
+      - { cleanURL: tall-pleated-midi-skirt-in-check }
     amount: 300
     images:
       - { fileName: clo_6.jpg, mime: image/jpeg, size: 155982, path: clo_6.jpg, width: 732, height: 880, hash: 6e877e727bfa8406d825067c1ba1d8b4, orderby: 10 }
@@ -179,7 +179,7 @@ XLite\Model\Product:
     price: 99
     weight: 1
     cleanURLs:
-      - { cleanURL: dress2.html }
+      - { cleanURL: sleeved-mini-dress-in-color-block }
     amount: 999
     images:
       - { fileName: clo_7_1.jpg, mime: image/jpeg, size: 111237, path: clo_7_1.jpg, width: 732, height: 880, hash: 0914437938e71b4d51e361a96d0a1d9f, orderby: 10 }
@@ -190,7 +190,7 @@ XLite\Model\Product:
     price: 49.99
     weight: 2.1
     cleanURLs:
-      - { cleanURL: man-t-shirt.html }
+      - { cleanURL: tall-slim-fit-t-shirt-in-white }
     amount: 1000
     images:
       - { fileName: clo_9.jpg, mime: image/jpeg, size: 99905, path: clo_9.jpg, width: 732, height: 880, hash: 4f463863a815b0afe56a06e22b112350, orderby: 10 }
@@ -202,7 +202,7 @@ XLite\Model\Product:
     price: 19.99
     weight: 0.5
     cleanURLs:
-      - { cleanURL: man-blue.html }
+      - { cleanURL: skinny-western-denim-jacket-in-light-blue-wash }
     amount: 1000
     images:
       - { fileName: clo_12.jpg, mime: image/jpeg, size: 195566, path: clo_12.jpg, width: 732, height: 880, hash: 8c7f212feb7187705f405034a3181f68, orderby: 10 }
@@ -213,7 +213,7 @@ XLite\Model\Product:
     price: 9.99
     weight: 3
     cleanURLs:
-      - { cleanURL: hoody.html }
+      - { cleanURL: oversized-hoodie-in-grey }
     amount: 12
     images:
       - { fileName: clo_13.jpg, mime: image/jpeg, size: 89063, path: clo_13.jpg, width: 732, height: 880, hash: f5e52b087200218a567351585759fa9b, orderby: 10 }
@@ -224,7 +224,7 @@ XLite\Model\Product:
     price: 9.99
     weight: 1.1
     cleanURLs:
-      - { cleanURL: man-black.html }
+      - { cleanURL: hooded-anorak-jacket-in-black }
     amount: 1000
     images:
       - { fileName: clo_14.jpg, mime: image/jpeg, size: 159307, path: clo_14.jpg, width: 732, height: 880, hash: c96c1e673b54122d8502bf1e26216cf2, orderby: 10 }
@@ -235,7 +235,7 @@ XLite\Model\Product:
     price: 29.99
     weight: 2.8
     cleanURLs:
-      - { cleanURL: bag-1.html }
+      - { cleanURL: leather-mini-tote-bag-with-rose-and-girl-print-in-red }
     amount: 200
     images:
       - { fileName: bag_1.jpg, mime: image/jpeg, size: 154680, path: bag_1.jpg, width: 732, height: 880, hash: 3dd31e4e2a731d50bace9356b552f456, orderby: 10 }
@@ -246,7 +246,7 @@ XLite\Model\Product:
     price: 19.99
     weight: 1.6
     cleanURLs:
-      - { cleanURL: watch.html }
+      - { cleanURL: mesh-strap-watch-in-gold }
     amount: 1000
     images:
       - { fileName: bag_2.jpg, mime: image/jpeg, size: 83551, path: bag_2.jpg, width: 732, height: 880, hash: e66ac046657b4e79839254bcc5abbcde, orderby: 10 }
@@ -257,7 +257,7 @@ XLite\Model\Product:
     price: 29.99
     weight: 1
     cleanURLs:
-      - { cleanURL: 3.html }
+      - { cleanURL: square-glasses-in-black-with-clear-lens }
     amount: 1000
     images:
       - { fileName: bag_3.jpg, mime: image/jpeg, size: 51531, path: bag_3.jpg, width: 732, height: 880, hash: 61a67ab6c7917d24bafd3a73429e34ee, orderby: 10 }
@@ -268,7 +268,7 @@ XLite\Model\Product:
     price: 14.99
     weight: 2.3
     cleanURLs:
-      - { cleanURL: jewerly.html }
+      - { cleanURL: chain-drop-earrings-in-gold-tone }
     amount: 1000
     images:
       - { fileName: bag_4.jpg, mime: image/jpeg, size: 72468, path: bag_4.jpg, width: 732, height: 880, hash: 8b9e13f61b5e97631c1466cddadbebad, orderby: 10 }
@@ -279,7 +279,7 @@ XLite\Model\Product:
     price: 19.99
     weight: 1.3
     cleanURLs:
-      - { cleanURL: cup.html }
+      - { cleanURL: rooster-mug-in-white }
     amount: 4
     images:
       - { fileName: bag_5.jpg, mime: image/jpeg, size: 75707, path: bag_5.jpg, width: 732, height: 880, hash: d3c7fe9a8bf498a2600021755e97d44a, orderby: 10 }
@@ -290,7 +290,7 @@ XLite\Model\Product:
     price: 12.99
     weight: 1.3
     cleanURLs:
-      - { cleanURL: braslet.html }
+      - { cleanURL: festival-braslet-pack-in-gold-tone }
     amount: 20
     images:
       - { fileName: bag_6.jpg, mime: image/jpeg, size: 89008, path: bag_6.jpg, width: 732, height: 880, hash: 6d9a5450e06a8bc447b8e9589344e792, orderby: 10 }
@@ -301,7 +301,7 @@ XLite\Model\Product:
     price: 69.99
     weight: 1.4
     cleanURLs:
-      - { cleanURL: samsung.html }
+      - { cleanURL: samsung-galaxy-s6-edge-plus-4g-lte-with-32gb-memory-cell-phone }
     amount: 10
     images:
       - { fileName: elec_1.jpg, mime: image/jpeg, size: 71237, path: elec_1.jpg, width: 732, height: 880, hash: 1c2a542342240c15ae76a8038f768800, orderby: 10 }
@@ -312,7 +312,7 @@ XLite\Model\Product:
     price: 850
     weight: 2.5
     cleanURLs:
-      - { cleanURL: apple.html }
+      - { cleanURL: apple-iphone-8-plus-64gb }
     amount: 50
     images:
       - { fileName: elec_2.jpg, mime: image/jpeg, size: 132698, path: elec_2.jpg, width: 732, height: 880, hash: 627da7514ffc664b11b5a4db98125a32, orderby: 10 }
@@ -323,7 +323,7 @@ XLite\Model\Product:
     price: 650
     weight: 1
     cleanURLs:
-      - { cleanURL: apple-2.html }
+      - { cleanURL: apple-iphone-x }
     amount: 1000
     images:
       - { fileName: elec_4.jpg, mime: image/jpeg, size: 125842, path: elec_4.jpg, width: 732, height: 880, hash: d6e5e893843013fd41c45a251508c854, orderby: 10 }
@@ -334,7 +334,7 @@ XLite\Model\Product:
     price: 399
     weight: 1.1
     cleanURLs:
-      - { cleanURL: apple-watch.html }
+      - { cleanURL: apple-watch-series-3-gps-38mm }
     amount: 999
     images:
       - { fileName: elec_5.jpg, mime: image/jpeg, size: 51859, path: elec_5.jpg, width: 732, height: 880, hash: 73bac33aaec377dea6b017731c89eb3a, orderby: 10 }
@@ -345,7 +345,7 @@ XLite\Model\Product:
     price: 299
     weight: 1.3
     cleanURLs:
-      - { cleanURL: google-home-mini.html }
+      - { cleanURL: google-home-mini }
     amount: 1000
     images:
       - { fileName: elec_6.jpg, mime: image/jpeg, size: 50433, path: elec_6.jpg, width: 732, height: 880, hash: ded7443afb41dfb3202adc60df70a27c, orderby: 10 }
@@ -359,7 +359,7 @@ XLite\Model\Product:
     price: 79.99
     weight: 1.2
     cleanURLs:
-      - { cleanURL: watch2.html }
+      - { cleanURL: fitness-tracker-smart-watch }
     amount: 10
     images:
       - { fileName: elec_10.jpg, mime: image/jpeg, size: 55079, path: elec_10.jpg, width: 732, height: 880, hash: 183494a6df7857e32cdfa138802333dc, orderby: 10 }
@@ -370,7 +370,7 @@ XLite\Model\Product:
     price: 49.99
     weight: 2.2
     cleanURLs:
-      - { cleanURL: watch-4.html }
+      - { cleanURL: bluetooth-smartwatch-with-touch-screen-and-fitness-tracker }
     amount: 999
     images:
       - { fileName: elec_12.jpg, mime: image/jpeg, size: 105637, path: elec_12.jpg, width: 732, height: 880, hash: 1b422844889512483104ced4a4f0feac, orderby: 10 }
@@ -381,7 +381,7 @@ XLite\Model\Product:
     price: 59.99
     weight: 2.7
     cleanURLs:
-      - { cleanURL: headphone.html }
+      - { cleanURL: aster-i39-headphones-with-microphone }
     amount: 1000
     images:
       - { fileName: elec_13.jpg, mime: image/jpeg, size: 37404, path: elec_13.jpg, width: 732, height: 880, hash: becdbe97f13c89a6ea3e56adfe9f76f2, orderby: 10 }
@@ -392,7 +392,7 @@ XLite\Model\Product:
     price: 299.99
     weight: 1.7
     cleanURLs:
-      - { cleanURL: headphones-2.html }
+      - { cleanURL: apple-airpods }
     amount: 999
     images:
       - { fileName: elec_14.jpg, mime: image/jpeg, size: 16200, path: elec_14.jpg, width: 732, height: 880, hash: 9c616e7c60724a9baab787633994fdcf, orderby: 10 }
@@ -403,7 +403,7 @@ XLite\Model\Product:
     price: 11.99
     weight: 2
     cleanURLs:
-      - { cleanURL: cocooil-baby-oil.html }
+      - { cleanURL: cocooil-body-oil }
     amount: 999
     images:
       - { fileName: beauty_1.jpg, mime: image/jpeg, size: 46495, path: beauty_1.jpg, width: 732, height: 880, hash: d4dbdee04da48c75c6e49baf76c195b5, orderby: 10 }
@@ -414,7 +414,7 @@ XLite\Model\Product:
     price: 139.99
     weight: 1.7
     cleanURLs:
-      - { cleanURL: maui-moisture.html }
+      - { cleanURL: maui-moisture }
     amount: 1000
     images:
       - { fileName: beauty_2.jpg, mime: image/jpeg, size: 102218, path: beauty_2.jpg, width: 732, height: 880, hash: fdc89da643f75c705a7221bd7ccf7e6a, orderby: 10 }
@@ -425,7 +425,7 @@ XLite\Model\Product:
     price: 49.99
     weight: 1.6
     cleanURLs:
-      - { cleanURL: barth-body-oil.html }
+      - { cleanURL: barth-body-oil }
     amount: 10
     images:
       - { fileName: beauty_3.jpg, mime: image/jpeg, size: 74344, path: beauty_3.jpg, width: 732, height: 880, hash: 9f948e63cba77a773abda02604bf12fc, orderby: 10 }
@@ -436,7 +436,7 @@ XLite\Model\Product:
     price: 34.99
     weight: 1
     cleanURLs:
-      - { cleanURL: spray.html }
+      - { cleanURL: facial-spray }
     amount: 1000
     images:
       - { fileName: beauty_4.jpg, mime: image/jpeg, size: 88194, path: beauty_4.jpg, width: 732, height: 880, hash: 157c4dc34f176835a72dd7ce2dfdb4c3, orderby: 10 }
@@ -447,7 +447,7 @@ XLite\Model\Product:
     price: 817.59
     weight: 1.8
     cleanURLs:
-      - { cleanURL: red-dior.html }
+      - { cleanURL: red-dior }
     amount: 6
     images:
       - { fileName: beauty_5.jpg, mime: image/jpeg, size: 50207, path: beauty_5.jpg, width: 732, height: 880, hash: 6fa1870d58aedfb8872a227d2beb3938, orderby: 10 }
@@ -459,7 +459,7 @@ XLite\Model\Product:
     price: 199.99
     weight: 2.1
     cleanURLs:
-      - { cleanURL: pink-unicorn-cosmetic-brushes.html }
+      - { cleanURL: pink-unicorn-makeup-brushes }
     amount: 1000
     images:
       - { fileName: beauty_7.jpg, mime: image/jpeg, size: 94563, path: beauty_7.jpg, width: 732, height: 880, hash: a950f0aee59a617bacad71d97bce43ab, orderby: 10 }
@@ -470,7 +470,7 @@ XLite\Model\Product:
     price: 19.99
     weight: 2.6
     cleanURLs:
-      - { cleanURL: perfect-snacks.html }
+      - { cleanURL: perfect-snacks }
     amount: 1000
     images:
       - { fileName: food_1.jpg, mime: image/jpeg, size: 167086, path: food_1.jpg, width: 732, height: 880, hash: 50cb16268b9f45112b94fa701baf7aa6, orderby: 10 }
@@ -482,7 +482,7 @@ XLite\Model\Product:
     price: 12
     weight: 1.7
     cleanURLs:
-      - { cleanURL: blue-and-green-matcha-lattes.html }
+      - { cleanURL: blue-and-green-matcha }
     amount: 1000
     images:
       - { fileName: food_15.jpg, mime: image/jpeg, size: 214478, path: food_15.jpg, width: 732, height: 880, hash: cfb4d7e98c6aeaff1f69ad3b586818e9, orderby: 10 }
@@ -495,7 +495,7 @@ XLite\Model\Product:
     price: 28
     weight: 1.4
     cleanURLs:
-      - { cleanURL: chia.html }
+      - { cleanURL: chia-seed }
     amount: 1000
     images:
       - { fileName: food_9.jpg, mime: image/jpeg, size: 190550, path: food_9.jpg, width: 732, height: 880, hash: 8e4a6f3a8911853df2b32713feecb3a2, orderby: 10 }
@@ -507,7 +507,7 @@ XLite\Model\Product:
     price: 83
     weight: 1.8
     cleanURLs:
-      - { cleanURL: probiotic.html }
+      - { cleanURL: probiotic-and-omega-3-6-9-supplement }
     amount: 1000
     images:
       - { fileName: food_11.jpg, mime: image/jpeg, size: 84336, path: food_11.jpg, width: 732, height: 880, hash: bb58add0a6b52cf55ec1783057c8d67f, orderby: 10 }
@@ -520,7 +520,7 @@ XLite\Model\Product:
     price: 25
     weight: 1.3
     cleanURLs:
-      - { cleanURL: tea.html }
+      - { cleanURL: tea-infused-sparkling-water }
     amount: 1000
     images:
       - { fileName: food_14.jpg, mime: image/jpeg, size: 68878, path: food_14.jpg, width: 732, height: 880, hash: 7a1cab839e0c15f55e7f3a5c0efdfa07, orderby: 10 }
@@ -531,7 +531,7 @@ XLite\Model\Product:
     price: 17
     weight: 1.8
     cleanURLs:
-      - { cleanURL: cinnamon.html }
+      - { cleanURL: cinnamon-sticks }
     amount: 1000
     images:
       - { fileName: food_16.jpg, mime: image/jpeg, size: 75917, path: food_16.jpg, width: 732, height: 880, hash: ac00bb8c6862b364f5a335e2c5e507ba, orderby: 10 }
@@ -545,7 +545,7 @@ XLite\Model\Product:
     price: 21
     weight: 2.8
     cleanURLs:
-      - { cleanURL: nut.html }
+      - { cleanURL: peanut-butter }
     amount: 1000
     images:
       - { fileName: food_21.jpg, mime: image/jpeg, size: 96778, path: food_21.jpg, width: 732, height: 880, hash: 2ba16018666cbf828a1e01f5cd99271d, orderby: 10 }
@@ -557,7 +557,7 @@ XLite\Model\Product:
     price: 16
     weight: 1.4
     cleanURLs:
-      - { cleanURL: sweet-water.html }
+      - { cleanURL: sweet-hazelnut-and-chocolate-natural-flavouring }
     amount: 12
     images:
       - { fileName: food_22.jpg, mime: image/jpeg, size: 157267, path: food_22.jpg, width: 732, height: 880, hash: 2e7fa17bbe4583c202bec4fc27f98679, orderby: 10 }
@@ -568,7 +568,7 @@ XLite\Model\Product:
     price: 22
     weight: 1.7
     cleanURLs:
-      - { cleanURL: dose-juice.html }
+      - { cleanURL: dose-juice }
     amount: 23
     images:
       - { fileName: food_24.jpg, mime: image/jpeg, size: 114214, path: food_24.jpg, width: 732, height: 880, hash: f63830487ca574357705e2430a915793, orderby: 10 }
@@ -994,15 +994,15 @@ XLite\Model\BannerRotationSlide:
   - enabled: true
     link: 'cart.php?target=category&category_id=8'
     position: 30
-    image: { path: 1_1food_big_1.jpg, mime: image/jpeg, width: 3840, height: 884, size: 325541, date: 1560757732 }
+    image: { path: 1_1food_big_1.jpg, mime: image/jpeg, width: 3840, height: 884, size: 122740, date: 1560757732 }
   - enabled: true
     link: 'cart.php?target=category&category_id=9'
     position: 40
-    image: { path: 9_electronic.jpeg, mime: image/jpeg, width: 3840, height: 884, size: 329263, date: 1560950874 }
+    image: { path: 1_4smart_big.jpg, mime: image/jpeg, width: 3840, height: 884, size: 122740, date: 1560950874 }
   - enabled: true
     link: 'cart.php?target=category&category_id=2'
     position: 20
-    image: { path: 1_5fashion_1.jpg, mime: image/jpeg`, width: 3840, height: 884, size: 800043, date: 1560865514 }
+    image: { path: 1_5fashion_1.jpg, mime: image/jpeg`, width: 3840, height: 884, size: 324727, date: 1560865514 }
 
 XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab:
   - global_tab:

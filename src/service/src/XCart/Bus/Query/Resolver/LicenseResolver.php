@@ -8,16 +8,19 @@
 
 namespace XCart\Bus\Query\Resolver;
 
+use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use XCart\Bus\Client\LicenseClient;
 use XCart\Bus\Core\Annotations\Resolver;
 use XCart\Bus\Domain\Module;
 use XCart\Bus\Exception\MarketplaceException;
+use XCart\Bus\Helper\UrlBuilder;
 use XCart\Bus\Query\Context;
 use XCart\Bus\Query\Data\CoreConfigDataSource;
 use XCart\Bus\Query\Data\Flatten\Flatten;
 use XCart\Bus\Query\Data\LicenseDataSource;
 use XCart\Bus\Query\Data\MarketplaceModulesDataSource;
+use XCart\Bus\Query\Data\MarketplaceShopAdapter;
 use XCart\Bus\Query\Data\ModulesDataSource;
 use XCart\Bus\Query\Data\ScenarioDataSource;
 use XCart\Bus\Query\Data\WavesDataSource;
@@ -82,6 +85,16 @@ class LicenseResolver
     private $modulesResolver;
 
     /**
+     * @var MarketplaceShopAdapter
+     */
+    private $marketplaceShopAdapter;
+
+    /**
+     * @var UrlBuilder
+     */
+    private $urlBuilder;
+
+    /**
      * @param LicenseDataSource            $licenseDataSource
      * @param LicenseClient                $licenseClient
      * @param CoreConfigDataSource         $coreConfigDataSource
@@ -92,6 +105,8 @@ class LicenseResolver
      * @param ChangeUnitProcessor          $changeUnitProcessor
      * @param RebuildResolver              $rebuildResolver
      * @param ModulesResolver              $modulesResolver
+     * @param MarketplaceShopAdapter       $marketplaceShopAdapter
+     * @param UrlBuilder                   $urlBuilder
      */
     public function __construct(
         LicenseDataSource $licenseDataSource,
@@ -103,7 +118,9 @@ class LicenseResolver
         ScenarioDataSource $scenarioDataSource,
         ChangeUnitProcessor $changeUnitProcessor,
         RebuildResolver $rebuildResolver,
-        ModulesResolver $modulesResolver
+        ModulesResolver $modulesResolver,
+        MarketplaceShopAdapter $marketplaceShopAdapter,
+        UrlBuilder $urlBuilder
     ) {
         $this->licenseDataSource            = $licenseDataSource;
         $this->licenseClient                = $licenseClient;
@@ -115,6 +132,8 @@ class LicenseResolver
         $this->rebuildResolver              = $rebuildResolver;
         $this->marketplaceModulesDataSource = $marketplaceModulesDataSource;
         $this->modulesResolver              = $modulesResolver;
+        $this->marketplaceShopAdapter       = $marketplaceShopAdapter;
+        $this->urlBuilder                   = $urlBuilder;
     }
 
     /** @noinspection MoreThanThreeArgumentsInspection */
@@ -174,7 +193,7 @@ class LicenseResolver
      * @param ResolveInfo $info
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      *
      * @Resolver()
      */
@@ -189,20 +208,30 @@ class LicenseResolver
         $key = [];
         try {
             if (!empty($args['key'])) {
-                $key = $this->registerLicense($args['key']);
+                $key = $this->registerLicense(trim($args['key']));
             } elseif (!empty($args['email'])) {
-                $key = $this->registerFreeLicense($args['email']);
+                $key = $this->registerFreeLicense(trim($args['email']));
             }
         } catch (MarketplaceException $exception) {
-            $result['alert'][] = [
-                'type'    => 'danger',
-                'message' => 'activate_license_dialog.result.invalid',
-                'params'  => AlertType::prepareParams([
-                    'action'  => $exception->getMessage(),
-                    'code'    => $exception->getCode(),
-                    'message' => $exception->getMessage(),
-                ]),
-            ];
+            if ((int) $exception->getCode() === 3090) {
+                $result['alert'][] = [
+                    'type'    => 'danger',
+                    'message' => 'activate_license.free-license.alreadey-registered',
+                    'params'  => AlertType::prepareParams([
+                        'email' => $args['email'],
+                    ]),
+                ];
+            } else {
+                $result['alert'][] = [
+                    'type'    => 'danger',
+                    'message' => 'activate_license_dialog.result.invalid',
+                    'params'  => AlertType::prepareParams([
+                        'action'  => $exception->getMessage(),
+                        'code'    => $exception->getCode(),
+                        'message' => $exception->getMessage(),
+                    ]),
+                ];
+            }
         }
 
         if ($key) {
@@ -217,7 +246,7 @@ class LicenseResolver
                     'message' => $exception->getMessage(),
                     'params'  => AlertType::prepareParams($exception->getParams()),
                 ];
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 $scenario          = null;
                 $result['alert'][] = [
                     'type'    => 'warning',
@@ -245,19 +274,100 @@ class LicenseResolver
                         'message' => 'activate_license_dialog.result.success.core',
                     ];
                 } else {
+                    /** @var Module $module */
+                    $module = $this->modulesDataSource->findOne(Module::buildModuleId($key['author'], $key['name']));
+
                     $result['alert'][] = [
                         'type'    => 'success',
                         'message' => 'activate_license_dialog.result.success.module',
                         'params'  => AlertType::prepareParams([
-                            'name'   => $key['name'],
-                            'author' => $key['author'],
+                            'name'   => $module->moduleName,
+                            'author' => $module->authorName,
                         ]),
                     ];
+
+                    if (!empty($key['keyData']['expDate'])
+                        && $key['keyData']['expDate'] < time()
+                    ) {
+                        $marketplaceShop = $this->marketplaceShopAdapter->get();
+
+                        $result['alert'][] = [
+                            'type'    => 'danger',
+                            'message' => 'module_state_message.license_expired',
+                            'params'  => AlertType::prepareParams([
+                                'renewUrl' => $marketplaceShop->getRenewalURL($key['keyData']['prolongKey'], $key['keyValue'], $this->urlBuilder->buildServiceMainUrl('afterPurchase')),
+                            ]),
+                        ];
+                    }
                 }
             }
         }
 
         return $result;
+    }
+
+    /**
+     * @param             $value
+     * @param             $args
+     * @param             $context
+     * @param ResolveInfo $info
+     *
+     * @return array
+     * @throws Exception
+     *
+     * @Resolver()
+     */
+    public function resendLicenseKey($value, $args, $context, ResolveInfo $info): array
+    {
+        $result = [];
+        $email  = $args['email'] ?? '';
+        if ($email) {
+            if ($this->licenseClient->resendLicenseKey($email)) {
+                $result['alert'][] = [
+                    'type'    => 'success',
+                    'message' => 'activate_license.free-license.resend.succeess',
+                    'params'  => AlertType::prepareParams([
+                        'email' => $email,
+                    ]),
+                ];
+
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param             $value
+     * @param             $args
+     * @param             $context
+     * @param ResolveInfo $info
+     *
+     * @return string
+     * @throws Exception
+     *
+     * @Resolver()
+     */
+    public function getRenewLicensesUrl($value, $args, $context, ResolveInfo $info): string
+    {
+        $expiredLicenses = [];
+        foreach ($this->licenseDataSource->getAll() as $license) {
+            $expiration = $license['keyData']['expDate'] ?? null;
+            if ($expiration && $expiration < time()) {
+                $expiredLicenses[] = [
+                    'keyValue'   => $license['keyValue'],
+                    'prolongKey' => $license['keyData']['prolongKey'],
+                ];
+            }
+        }
+
+        if ($expiredLicenses) {
+            $marketplaceShop = $this->marketplaceShopAdapter->get();
+
+            return $marketplaceShop->getRenewalAllURL($expiredLicenses, $this->urlBuilder->buildServiceMainUrl('afterPurchase'));
+        }
+
+        return '';
     }
 
     /**
@@ -285,6 +395,7 @@ class LicenseResolver
      *
      * @return array
      * @throws MarketplaceException
+     * @throws Exception
      */
     private function registerFreeLicense($email): array
     {
@@ -326,7 +437,7 @@ class LicenseResolver
      *
      * @return array|null
      * @throws ScenarioRuleException
-     * @throws \Exception
+     * @throws Exception
      */
     private function processKeyInfo($keyInfo): ?array
     {
@@ -354,7 +465,7 @@ class LicenseResolver
     /**
      * @return array|null
      * @throws ScenarioRuleException
-     * @throws \Exception
+     * @throws Exception
      */
     private function generateScenarioForFreeLicenseKey(): ?array
     {
@@ -379,10 +490,11 @@ class LicenseResolver
             return null;
         }
 
-        $scenario         = $this->changeUnitProcessor->process([], $changeUnits);
-        $scenario['id']   = uniqid('scenario', true);
-        $scenario['type'] = 'common';
-        $scenario['date'] = time();
+        $scenario = $this->changeUnitProcessor->process($this->scenarioDataSource->startEmptyScenario(), $changeUnits);
+
+        //$scenario['id']   = uniqid('scenario', true);
+        //$scenario['type'] = 'common';
+        //$scenario['date'] = time();
 
         $this->scenarioDataSource->saveOne($scenario);
 
@@ -394,7 +506,7 @@ class LicenseResolver
      *
      * @return array|null
      * @throws ScenarioRuleException
-     * @throws \Exception
+     * @throws Exception
      */
     private function generateScenarioForModuleKey($keyInfo): ?array
     {
@@ -412,7 +524,7 @@ class LicenseResolver
         }
 
         $resolverModule = $this->modulesResolver->getModule($module->id);
-        if (isset($resolverModule) && !empty($resolverModule['actions']['install'])) {
+        if (isset($resolverModule) && empty($resolverModule['actions']['install'])) {
             return null;
         }
 
@@ -424,10 +536,7 @@ class LicenseResolver
             ],
         ];
 
-        $scenario         = $this->changeUnitProcessor->process([], $changeUnits);
-        $scenario['id']   = uniqid('scenario', true);
-        $scenario['type'] = 'common';
-        $scenario['date'] = time();
+        $scenario = $this->changeUnitProcessor->process($this->scenarioDataSource->startEmptyScenario(), $changeUnits);
 
         $this->scenarioDataSource->saveOne($scenario);
 

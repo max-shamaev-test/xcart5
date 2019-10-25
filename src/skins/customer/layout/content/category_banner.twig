@@ -2,9 +2,9 @@
  # Category banner
  #}
 <div class="category-banner">
-    <div class="category-banner_image-wrapper lazy-load">
+    <div class="category-banner_image-wrapper">
         <div class="additional-wrapper">
-            {{ widget('\\XLite\\View\\BannerRotation\\Image', isBlurApplicable=true, image=this.category.banner, centerImage='1', alt=this.category.name) }}
+            {{ widget('\\XLite\\View\\Image', lazyLoad=true, image=this.category.banner, centerImage='1', alt=this.category.name) }}
         </div>
     </div>
 </div>

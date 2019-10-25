@@ -54,7 +54,7 @@ class UpgradeEntry
         $this->entry = $entry;
 
         $this->type       = $this->calculateType();
-        $this->canUpgrade = $this->entry->enabled || !$this->hasHooks();
+        $this->canUpgrade = $this->entry->enabled || !$this->hasHooks() || $this->type === 'major';
     }
 
     /**

@@ -9,6 +9,7 @@
 namespace XLite\Core;
 
 use Includes\Utils\FileManager;
+use XLite\Core\Lock\FileLock;
 
 /**
  * Layout manager
@@ -89,6 +90,13 @@ class Layout extends \XLite\Base\Singleton
      * @var string
      */
     protected $path;
+
+    /**
+     * Current skin web path
+     *
+     * @var string
+     */
+    protected $webPath;
 
     /**
      * Current interface
@@ -568,6 +576,16 @@ class Layout extends \XLite\Base\Singleton
     }
 
     /**
+     * Returns the layout web path
+     *
+     * @return string
+     */
+    public function getWebPath()
+    {
+        return $this->webPath;
+    }
+
+    /**
      * Return list of all skins
      *
      * @return array
@@ -885,16 +903,6 @@ class Layout extends \XLite\Base\Singleton
     public function isSkinAllowsLazyLoad()
     {
         return \Xlite\Core\Skin::getInstance()->isUseLazyLoad();
-    }
-
-    /**
-     * Check if image lazy loading is supported by skin
-     *
-     * @return bool|mixed
-     */
-    public function isSkinAllowsPreloadedImages()
-    {
-        return \Xlite\Core\Skin::getInstance()->isUsePreloadedImages();
     }
 
     // }}}
@@ -1452,6 +1460,21 @@ class Layout extends \XLite\Base\Singleton
             . LC_DS . $this->skin
             . ($this->locale && $this->locale != 'en' ? '_' . $this->locale : '')
             . LC_DS;
+
+        $this->setWebPath();
+    }
+
+    /**
+     * Set current skin web path
+     *
+     * @return void
+     */
+    protected function setWebPath()
+    {
+        $this->webPath = self::PATH_SKIN
+            . '/' . $this->skin
+            . ($this->locale && $this->locale != 'en' ? '_' . $this->locale : '')
+            . '/';
     }
 
     /**
@@ -1849,10 +1872,21 @@ class Layout extends \XLite\Base\Singleton
                     $lessGroup = array_merge(array($resource), $lessResources[$resource['original']]);
                 }
 
+                if (Request::getInstance()->isAJAX()) {
+                    if (FileLock::getInstance()->isRunning('cssMaking_' . $index)) {
+                        continue;
+                    }
+                    FileLock::getInstance()->setRunning('cssMaking_' . $index);
+                }
+
                 $resources[$index] = \XLite\Core\LessParser::getInstance()->makeCSS($lessGroup);
 
                 // Media type is derived from the parent resource
                 $resources[$index]['media'] = $resource['media'];
+
+                if (Request::getInstance()->isAJAX()) {
+                    FileLock::getInstance()->release('cssMaking_' . $index);
+                }
             }
         }
 

@@ -9,6 +9,7 @@
 use Doctrine\Common\Cache\FilesystemCache;
 use GraphQL\Type\Definition\ResolveInfo;
 use GuzzleHttp\Subscriber\Log\LogSubscriber;
+use Psr\Log\LoggerInterface;
 use Silex\Application;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,8 +28,11 @@ use XCart\SilexAnnotations\ServiceAnnotationService;
  *
  * @return Application
  */
-return function ($config) {
+return static function ($config) {
     $app = new Application();
+
+    ini_set('display_errors', 0);
+    ini_set('display_startup_errors', 0);
 
     $app['xc_config'] = $config;
 
@@ -38,11 +42,12 @@ return function ($config) {
     $config          = [
         'debug'                      => $config['log_details']['level'] === (string) \LOG_DEBUG,
         'developer_mode'             => (bool) $config['performance']['developer_mode'],
+        'ignore_system_modules'      => (bool) ($config['performance']['ignore_system_modules'] ?? false),
         'jwt_secret_key'             => $config['installer_details']['shared_secret_key'],
         'authcode_reference'         => $config['installer_details']['auth_code'],
         'service_authcode_reference' => $serviceAuthCode,
         'domain'                     => '://' . $config['host_details']['http_host'],
-        'webdir'                     => $config['host_details']['web_dir'],
+        'webdir'                     => rtrim($config['host_details']['web_dir'], '/'),
         'admin_script'               => $config['host_details']['admin_self'],
         'affiliate_id'               => $config['affiliate']['id'] ?? null,
         'installation_lng'           => $config['installation']['installation_lng'],
@@ -57,10 +62,19 @@ return function ($config) {
         'file_cache_dir'             => $rootDir . 'var/datacache/bus/',
         'module_packs_dir'           => $rootDir . 'var/packs/',
         'tmp_dir'                    => $rootDir . 'var/tmp/',
+        'phar_is_installed'          => ResourceChecker::PharIsInstalled(),
+        'email'                      => $_COOKIE['recent_login'] ?? '',
     ];
 
     $app['config'] = $config;
     $app['debug']  = $config['debug'];
+
+    if (isset($app['xc_config']['other']['trusted_proxies']) && $app['xc_config']['other']['trusted_proxies']) {
+        $trustedProxiesOption = str_replace(' ', '', $app['xc_config']['other']['trusted_proxies']);
+        $trustedProxies       = explode(',', $trustedProxiesOption);
+
+        Request::setTrustedProxies($trustedProxies, Request::HEADER_X_FORWARDED_ALL);
+    }
 
     $app->register(new AnnotationServiceProvider(), [
         AnnotationServiceProvider::NAME_CONVERTER_SERVICE_NAME => new FQCNNotation(),
@@ -74,7 +88,7 @@ return function ($config) {
             RebuildAnnotationService::class    => __DIR__ . '/XCart/Bus/Rebuild',
         ],
         ServiceAnnotationService::ARGUMENT_MAPPINGS            => [
-            \Psr\Log\LoggerInterface::class                   => 'monolog',
+            LoggerInterface::class                            => 'monolog',
             \XCart\Bus\System\FilesystemInterface::class      => \XCart\Bus\System\Filesystem::class,
             \XCart\Bus\System\FinderInterface::class          => \XCart\Bus\System\Finder::class,
             \XCart\Bus\Domain\Backup\BackupInterface::class   => \XCart\Bus\Domain\Backup\DirBackup::class,
@@ -89,7 +103,7 @@ return function ($config) {
     });
 
     $app['xCartClient.client-factory'] = $app->protect(function () use ($app) {
-        $config = $app['config'];
+        $config       = $app['config'];
         $guzzleClient = new \GuzzleHttp\Client([
             'defaults' => ['verify' => false],
             'base_url' => $config['domain'] . rtrim($config['webdir'], '/') . '/',
@@ -102,15 +116,29 @@ return function ($config) {
         return $guzzleClient;
     });
 
-    $app['guzzleLogSubscriber'] = function ($app) use ($config) {
-        return new LogSubscriber($app[\XCart\Bus\Core\Logger\Guzzle::class]);
+    $app['guzzleLogSubscriber'] = static function ($app) use ($config) {
+        return new LogSubscriber($app[\XCart\Bus\Core\Logger\Request::class]);
     };
 
-    $app['fileSystem'] = function ($app) {
+    $app['fileSystem'] = static function ($app) {
         return new Filesystem();
     };
 
-    $app->before(function (Request $request, Application $app) {
+    $app->before(static function (Request $request, Application $app) {
+        /** @var ResourceChecker $resourceChecker */
+        $resourceChecker = $app[ResourceChecker::class];
+        /** @var LoggerInterface $logger */
+        $logger = $app[\XCart\Bus\Core\Logger\Request::class];
+
+        // On 64-bit system we double the memory limit required.
+        if ($resourceChecker->setMemoryLimit($resourceChecker->getIntegerLength() === 8 ? '256M' : '128M')) {
+            $logger->debug('Set memory limit', ['memory_limit' => $resourceChecker->getMemoryLimit()]);
+        } else {
+            $logger->warning('Unable to set memory limit', ['memory_limit' => $resourceChecker->getMemoryLimit()]);
+        }
+    });
+
+    $app->before(static function (Request $request, Application $app) {
         $scheme = $request->getScheme() ?: 'http';
 
         $config = $app['config'];
@@ -121,18 +149,18 @@ return function ($config) {
         $app->offsetSet('config', $config);
     });
 
-    $app->before(function (Request $request, Application $app) {
+    $app->before(static function (Request $request, Application $app) {
         $app[ResourceChecker::class]->start();
     });
 
-    $app->before(function (Request $request) {
+    $app->before(static function (Request $request) {
         if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
             $data = json_decode($request->getContent(), true);
             $request->request->replace(is_array($data) ? $data : []);
         }
     });
 
-    $app->before(function (Request $request, Application $app) {
+    $app->before(static function (Request $request, Application $app) {
         $xc5Cookie = $request->cookies->get(
             $app['config']['xc_cookie_name']
         );
@@ -143,7 +171,7 @@ return function ($config) {
         $client->setAuthCookie($xc5Cookie);
     });
 
-    $app->before(function (Request $request, Application $app) {
+    $app->before(static function (Request $request, Application $app) {
         $app['x_cart.bus.user_token'] = $request->cookies->get('bus_token');
 
         $app['x_cart.bus.token_data'] = $app[\XCart\Bus\Auth\TokenService::class]->decodeToken(
@@ -151,28 +179,29 @@ return function ($config) {
         );
     });
 
-    $app->get('/', function (Request $request, Application $app) {
+    $app->get('/', static function (Request $request, Application $app) {
         $config = $app['config'];
 
         /** @var \XCart\Bus\Query\Data\InstalledModulesDataSource $installedModulesDataSource */
         $installedModulesDataSource = $app[\XCart\Bus\Query\Data\InstalledModulesDataSource::class];
         $service                    = $installedModulesDataSource->find('XC-Service');
 
-        $domain        = $config['domain'];
-        $webdir        = $config['webdir'];
-        $developerMode = $config['developer_mode'] ? 'true' : 'false';
-        $adminScript   = $config['admin_script'];
-        $resourcesPath = $webdir . '/service/static/';
-        $cssResource   = $resourcesPath . 'service.css?' . $service['version'];
-        $jsResource    = $resourcesPath . 'service.js?' . $service['version'];
-        $favicon       = $resourcesPath . 'favicon.ico';
-        $appicon       = $resourcesPath . 'icon192x192.png';
+        $domain              = $config['domain'];
+        $webdir              = $config['webdir'];
+        $developerMode       = $config['developer_mode'] ? 'true' : 'false';
+        $ignoreSystemModules = $config['ignore_system_modules'] ? 'true' : 'false';
+        $adminScript         = $config['admin_script'];
+        $resourcesPath       = $webdir . '/service/static/';
+        $cssResource         = $resourcesPath . 'service.css?' . $service['version'];
+        $jsResource          = $resourcesPath . 'service.js?' . $service['version'];
+        $favicon             = $resourcesPath . 'favicon.ico';
+        $appicon             = $resourcesPath . 'icon192x192.png';
 
         /** @var \XCart\Bus\Query\Resolver\LanguageDataResolver $languageResolver */
         $languageResolver = $app[\XCart\Bus\Query\Resolver\LanguageDataResolver::class];
 
         $languages    = $languageResolver->getLanguages(null, [], null, new ResolveInfo([]));
-        $languageCode = $request->cookies->get('locale', 'en');
+        $languageCode = $request->get('locale') ?: $request->cookies->get('locale', 'en');
         $languageCode = in_array($languageCode, $languages, true) ? $languageCode : 'en';
 
         $messages = $languageResolver->getLanguageMessages(null, ['code' => $languageCode], null, new ResolveInfo([]));
@@ -202,6 +231,7 @@ return function ($config) {
               webdir: "{$webdir}",
               adminScript: "{$adminScript}",
               developerMode: {$developerMode},
+              ignoreSystemModules: {$ignoreSystemModules},
               languages: ['{$languageCode}'],
               messages: {
                 {$languageCode}: {$languageMessages}

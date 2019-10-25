@@ -431,111 +431,109 @@ function attachTooltip(elm, content, forcePlacement, ttl) {
 }
 
 /**
- * Overlay registry
+ * Wait overlay
  */
-var waitOverlayRegistry = {};
 
 function assignWaitOverlay(elem) {
-  pattern = elem.prop('class');
-  if (!_.isUndefined(elem.get(0).waitOverlay) && elem.get(0).waitOverlay) {
-    unassignWaitOverlay(elem);
-  }
-
-  var div = jQuery('<div class="wait-block-overlay"><div class="wait-block"><div></div></div></div>');
-
-  div.css({
-    width: elem.outerWidth() + 'px',
-    height: elem.outerHeight() + 'px'
-  });
-
-  // We do not show the overlay if the element has zero width or height (the element is not visible)
-  if (0 !== elem.outerWidth() && 0 !== elem.outerHeight()) {
-    elem.prepend(div)
-  }
-  var leftOffset = elem.offset().left - div.offset().left;
-  var topOffset = elem.offset().top - div.offset().top;
-  div.css('margin-left', leftOffset + 'px');
-  div.css('margin-top', topOffset + 'px');
-
-  waitOverlayRegistry[pattern] = div;
-  elem.get(0).waitOverlay = div;
-
-  elem.trigger('assignOverlay', {widget: elem});
-
-  return div;
+  return createOverlay(elem, 'wait');
 }
 
 function unassignWaitOverlay(elem, force) {
-  pattern = elem.prop('class');
-  var overlay = null;
-  if (waitOverlayRegistry[pattern]) {
-    overlay = waitOverlayRegistry[pattern];
-
-  } else if (force) {
-    overlay = jQuery('.wait-block-overlay').eq(0);
-  }
-
-  if (overlay) {
-    overlay.remove();
-    if (elem.get(0)) {
-      elem.trigger('unassignOverlay', {widget: elem});
-      elem.get(0).waitOverlay = null;
-    }
-  }
+  return removeOverlay(elem, force);
 }
 
 /**
  * Shade overlay
  */
-var shadeOverlayRegistry = {};
 
 function assignShadeOverlay(elem) {
-  pattern = elem.prop('class');
-  if (!_.isUndefined(elem.get(0).shadeOverlay) && elem.get(0).shadeOverlay) {
-    unassignShadeOverlay(elem);
-  }
-
-  var div = jQuery('<div class="shade-block-overlay"></div>');
-
-  div.css({
-    width: elem.outerWidth() + 'px',
-    height: elem.outerHeight() + 'px'
-  });
-
-  // We do not show the overlay if the element has zero width or height (the element is not visible)
-  if (0 !== elem.outerWidth() && 0 !== elem.outerHeight()) {
-    elem.before(div)
-  }
-
-  var leftOffset = elem.offset().left - div.offset().left;
-  var topOffset = elem.offset().top - div.offset().top;
-  div.css('margin-left', leftOffset + 'px');
-  div.css('margin-top', topOffset + 'px');
-  shadeOverlayRegistry[pattern] = div;
-  elem.get(0).shadeOverlay = div;
-
-  elem.trigger('assignOverlay', {widget: elem});
-
-  return div;
+  return createOverlay(elem, 'shade');
 }
 
 function unassignShadeOverlay(elem, force) {
-  pattern = elem.prop('class');
-  var overlay = null;
-  if (shadeOverlayRegistry[pattern]) {
-    overlay = shadeOverlayRegistry[pattern];
+  return removeOverlay(elem, force);
+}
 
-  } else if (force) {
-    overlay = jQuery('.shade-block-overlay').eq(0);
-  }
+var overlayRegistry = {};
+var overlayAttr = 'data-overlay-id';
 
-  if (overlay) {
-    overlay.remove();
-    if (elem.get(0)) {
-      elem.trigger('unassignOverlay', {widget: elem});
-      elem.get(0).waitOverlay = null;
+function getOverlaySelector (elem) {
+  return elem.attr(overlayAttr) || generateOverlayId();
+}
+
+function generateOverlayId() {
+  do {
+    var pattern = 'overlay-' + Math.round(Math.random() * 1000000);
+    var isUnique = $('[' + overlayAttr + '=' + pattern + ']').length === 0;
+  } while (!isUnique);
+
+  return pattern;
+}
+
+function createOverlay(elem, type) {
+  type = type || 'wait';
+  var pattern = getOverlaySelector(elem);
+
+  $.each(elem, function() {
+    var elem = $(this);
+
+    if (!_.isUndefined(this.overlay) && this.overlay) {
+      unassignWaitOverlay(elem);
     }
-  }
+
+    var overlayElement = null;
+    if (type === 'wait') {
+      overlayElement = jQuery('<div class="wait-block-overlay"><div class="wait-block"><div></div></div></div>');
+    } else {
+      overlayElement = jQuery('<div class="shade-block-overlay"></div>');
+    }
+
+    overlayElement.css({
+      width: elem.outerWidth() + 'px',
+      height: elem.outerHeight() + 'px'
+    });
+
+    // We do not show the overlay if the element has zero width or height (the element is not visible)
+    if (0 !== elem.outerWidth() && 0 !== elem.outerHeight()) {
+      elem.prepend(overlayElement)
+    }
+
+    var leftOffset = elem.offset().left - overlayElement.offset().left;
+    var topOffset = elem.offset().top - overlayElement.offset().top;
+    overlayElement.css('margin-left', leftOffset + 'px');
+    overlayElement.css('margin-top', topOffset + 'px');
+
+    overlayElement.attr('id', pattern);
+    elem.attr(overlayAttr, pattern);
+    overlayRegistry[pattern] = overlayElement;
+    this.overlay = overlayElement;
+
+    elem.trigger('assignOverlay', {widget: elem, type: type});
+  });
+
+  return $('#' + pattern);
+}
+
+function removeOverlay(elem, force) {
+  var pattern = getOverlaySelector(elem);
+
+  $.each(elem, function() {
+    var elem = $(this);
+
+    var overlay = null;
+    if (pattern && typeof overlayRegistry[pattern] !== "undefined") {
+      overlay = overlayRegistry[pattern];
+    } else if (force) {
+      overlay = $('.wait-block-overlay, .shade-block-overlay');
+    }
+
+    if (overlay) {
+      overlay.remove();
+      elem.attr(overlayAttr, null);
+      elem.trigger('unassignOverlay', {widget: elem});
+      this.overlay = null;
+    }
+  });
 }
 
 function isBootstrapUse() {

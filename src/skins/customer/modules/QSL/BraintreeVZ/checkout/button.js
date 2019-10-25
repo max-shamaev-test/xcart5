@@ -89,25 +89,6 @@ core.bind('minicart.postprocess', function () {
         });
     };
 
-    /**
-     * Proceed to the checkout
-     */
-    braintreePayment.checkout.continuePayPal = function (details) {
-        var params = this.getUrlParams({
-            target: 'checkout',
-            action: 'continue_paypal'
-        });
-
-        var url = URLHandler.buildURL(params);
-
-        var form = $('<form method="post" action="' + url + '"></form>');
-
-        $('<input>').attr('type', 'hidden').attr('name', 'nonce').val(braintreePayment.nonce).appendTo(form);
-        $('<input>').attr('type', 'hidden').attr('name', 'details').val(JSON.stringify(details)).appendTo(form);
-
-        form.appendTo('body').submit();
-    };
-
     braintreePayment.init();
 
     // Workaround for proper displaying of PayPal button. Step2 - return initial values

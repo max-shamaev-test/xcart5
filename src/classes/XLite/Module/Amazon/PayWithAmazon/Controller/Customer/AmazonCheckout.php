@@ -122,25 +122,97 @@ class AmazonCheckout extends \XLite\Controller\Customer\Checkout
 
     protected function doPayment()
     {
+        $transaction = $this->getCart()->getFirstOpenPaymentTransaction();
+
         parent::doPayment();
 
-        if ($this->getCart()->isOpen()) {
-            $processor = Main::getProcessor();
-            if ($processor->invalidPaymentMethod && Auth::getInstance()->isLogged()) {
+        $processor = Main::getProcessor();
+        if ($transaction->isFailed() && !$processor->isSCAFlowNeed()) {
+            \XLite\Core\TopMessage::getInstance()->clear();
+            \XLite\Core\TopMessage::getInstance()->add(
+                $transaction->getNote(),
+                array(),
+                null,
+                \XLite\Core\TopMessage::ERROR
+            );
+
+            if ($processor->invalidPaymentMethod || $processor->hasAmazonConstraint) {
                 $this->setReturnURL(
                     $this->buildURL(
                         'amazon_checkout',
                         '',
-                        ['orderReference' => Request::getInstance()->orderReference]
+                        $processor->invalidPaymentMethod
+                            ? ['orderReference' => Request::getInstance()->orderReference]
+                            : []
                     )
                 );
             } else {
-                $this->setReturnURL($this->buildURL('cart'));
+                $this->setReturnURL($this->buildURL('cart', '', ['amazon_return' => 1]));
             }
         }
 
         if ($this->isAJAX()) {
             $this->setHardRedirect(false);
+
+            if ($processor->hasAmazonConstraint) {
+                \XLite\Core\TopMessage::getInstance()->clear();
+                \XLite\Core\TopMessage::getInstance()->add(
+                    $transaction->getNote(),
+                    array(),
+                    null,
+                    \XLite\Core\TopMessage::ERROR,
+                    false,
+                    false
+                );
+
+                $this->setHardRedirect(true);
+                $this->setReturnURL(
+                    $this->buildURL('amazon_checkout')
+                );
+            }
+        }
+    }
+
+    /**
+     * @param $cart
+     *
+     * @return string
+     */
+    protected function getOpenTotalReturnURL(\XLite\Model\Order $cart)
+    {
+        $params = [];
+
+        if (\XLite\Core\Request::getInstance()->orderReference) {
+            $params['orderReference'] = \XLite\Core\Request::getInstance()->orderReference;
+        }
+
+        $url = $this->buildURL('amazon_checkout', '', $params);
+
+        if (\XLite\Core\Request::getInstance()->redirect_to_cart) {
+            $url = $this->buildURL('cart', '', ['amazon_return' => 1]);
+        }
+
+        return $url;
+    }
+
+    /**
+     * Add top message about transaction results
+     *
+     * @return void
+     */
+    protected function assignTransactionMessage()
+    {
+        $txnNote = \XLite\Core\Request::getInstance()->txnNote
+            ? base64_decode(\XLite\Core\Request::getInstance()->txnNote)
+            : null;
+        $txnNoteType = \XLite\Core\Request::getInstance()->txnNoteType;
+
+        if ($txnNote && \XLite\Core\TopMessage::ERROR === $txnNoteType) {
+            $message = strip_tags($txnNote);
+            \XLite\Core\TopMessage::addError($message);
+
+        } else {
+            parent::assignTransactionMessage();
         }
     }
 

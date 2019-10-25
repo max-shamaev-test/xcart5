@@ -368,18 +368,6 @@ class Menu extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Return true if param value may contain anything
-     *
-     * @param string $name Param name
-     *
-     * @return boolean
-     */
-    protected function isParamTrusted($name)
-    {
-        return $name === 'link';
-    }
-
-    /**
      * Return name of the session cell identifier
      *
      * @return string

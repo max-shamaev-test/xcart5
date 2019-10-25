@@ -12,6 +12,11 @@ Parameters
 
 * **security.encoder.bcrypt.cost** (optional): Defines BCrypt password encoder cost. Defaults to 13.
 
+* **security.role_hierarchy**:(optional): Defines a map of roles including other roles.
+
+* **security.access_rules** (optional): Defines rules based on paths and roles.
+  See `Defining Access Rule <#defining-access-rules>`_.
+
 Services
 --------
 
@@ -34,8 +39,11 @@ Services
 
 * **security.user_checker**: Checks user flags after authentication.
 
-* **security.last_error**: Returns the last authentication errors when given a
-  Request object.
+* **security.last_error**: Returns the last authentication error message when
+  given a Request object.
+
+* **security.authentication_utils**: Returns the AuthenticationUtils service
+  allowing you to get last authentication exception or last username.
 
 * **security.encoder_factory**: Defines the encoding strategies for user
   passwords (uses ``security.default_encoder``).
@@ -90,7 +98,7 @@ Usage
 
 The Symfony Security component is powerful. To learn more about it, read the
 `Symfony Security documentation
-<http://symfony.com/doc/2.8/book/security.html>`_.
+<http://symfony.com/doc/current/security.html>`_.
 
 .. tip::
 
@@ -241,6 +249,10 @@ For the login form to work, create a controller like the following::
 The ``error`` and ``last_username`` variables contain the last authentication
 error and the last username entered by the user in case of an authentication
 error.
+
+If you want to have the last error message translated, you would need to use
+the ``security.authentication_utils`` service and retrieve
+the actual ``AuthenticationException`` instance.
 
 Create the associated template:
 
@@ -421,13 +433,15 @@ switch back to their primary account:
         <a href="?_switch_user=_exit"> exit</a> the switch.
     {% endif %}
     
-Sharing security context between multiple firewalls
+Sharing Security Context between multiple Firewalls
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By default, all the firewalls have a different **security context**. In case you
 need to share the same security context between multiple firewalls you can set
 the ``context`` setting for each firewall you want the context to be shared
 with.
+
+.. code-block:: php
 
     $app['security.firewalls'] = array(
         'login' => array(
@@ -495,8 +509,8 @@ Defining a custom User Provider
 Using an array of users is simple and useful when securing an admin section of
 a personal website, but you can override this default mechanism with you own.
 
-The ``users`` setting can be defined as a service that returns an instance of
-`UserProviderInterface
+The ``users`` setting can be defined as a service or a service id that returns
+an instance of `UserProviderInterface
 <http://api.symfony.com/master/Symfony/Component/Security/Core/User/UserProviderInterface.html>`_::
 
     'users' => function () use ($app) {

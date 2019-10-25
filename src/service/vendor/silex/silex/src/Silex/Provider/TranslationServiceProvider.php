@@ -15,7 +15,6 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\Formatter\MessageFormatter;
-use Symfony\Component\Translation\MessageSelector;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Loader\XliffFileLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -78,11 +77,7 @@ class TranslationServiceProvider implements ServiceProviderInterface, EventListe
         }
 
         $app['translator.message_selector'] = function () {
-            if (class_exists(MessageFormatter::class)) {  // BC layer
-                return new MessageFormatter();
-            }
-
-            return new MessageSelector();
+            return new MessageFormatter();
         };
 
         $app['translator.resources'] = function ($app) {

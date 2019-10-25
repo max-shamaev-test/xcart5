@@ -36,7 +36,7 @@
 .has-diff-saved-value .tooltip-inner {
   background-color: #fef0f0 !important;
   border-color: #eaccd1 !important;
-  margin-top: 0px;
+  margin-top: 0;
   color: #c55a59 !important;
 }
 
@@ -50,11 +50,6 @@
 {
   display: none;
 }
-/*
-.inline-field .view.editable span
-{
-  padding-left: 4px;
-}*/
 
 .edit-open-mark .inline-field.has-view .field,
 .inline-field.has-view.edit-open-mark .field
@@ -111,5 +106,10 @@
 }
 
 table.list .inline-field.editable .view {
+  margin: 0 (-@rhythmic-unit / 2);
+}
+
+table.list .inline-field.has-view > .not-editable.view {
+  padding: (@rhythmic-unit / 3) (@rhythmic-unit / 2);
   margin: 0 (-@rhythmic-unit / 2);
 }

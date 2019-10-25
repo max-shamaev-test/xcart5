@@ -20,7 +20,10 @@ abstract class AModuleSkin extends AModule
      */
     public static function getLayoutTypes()
     {
-        return \XLite\Core\Layout::getInstance()->getLayoutTypes();
+        return [
+            \XLite\Core\Layout::LAYOUT_GROUP_DEFAULT => \XLite\Core\Layout::getInstance()->getLayoutTypes(),
+            \XLite\Core\Layout::LAYOUT_GROUP_HOME    => \XLite\Core\Layout::getInstance()->getLayoutTypes(),
+        ];
     }
 
     /**
@@ -49,16 +52,6 @@ abstract class AModuleSkin extends AModule
      * @return boolean
      */
     public static function isUseLazyLoad()
-    {
-        return false;
-    }
-
-    /**
-     * Check if skin supports preloaded images
-     *
-     * @return boolean
-     */
-    public static function isUsePreloadedImages()
     {
         return false;
     }

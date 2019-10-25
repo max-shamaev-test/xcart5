@@ -145,13 +145,16 @@ class UpgradeTopBox extends \XLite\View\AView
         );
 
         foreach ($listToCheckInOrder as $type) {
-            if (!empty($entries[$type])) {
-                if (isset($entries[$type]['CDev-Core']) && $entries[$type]['CDev-Core']['type'] === $type) {
+            $entriesByType = $entries[$type] ?? [];
+            //if (!empty($entries[$type])) {
+                if ((isset($entriesByType['CDev-Core']) && $entriesByType['CDev-Core']['type'] === $type)
+                    || (isset($entries['self']['XC-Service']) && $entries['self']['XC-Service']['type'] === $type)
+                ) {
                     $result['core-types'][] = $type;
                 }
 
                 $entriesOfType = array_filter(
-                    $entries[$type],
+                    $entriesByType,
                     function ($entry) use ($withCore, $type) {
                         return $entry['type'] === $type && ($withCore || $entry['id'] !== 'CDev-Core');
                     }
@@ -164,7 +167,7 @@ class UpgradeTopBox extends \XLite\View\AView
                 $countOnlyThisType = count($entriesOfType) - $previousTypeCount;
                 $result[$type] = $countOnlyThisType;
                 $result['total'] += $countOnlyThisType;
-            }
+            //}
         }
 
         return $result;
@@ -245,6 +248,16 @@ class UpgradeTopBox extends \XLite\View\AView
      * @return boolean
      */
     protected function isCoreUpgradeAvailable()
+    {
+        return (boolean) $this->getCoreUpgradeTypes();
+    }
+
+    /**
+     * Check if there is a new core version
+     *
+     * @return boolean
+     */
+    protected function isSelfUpgradeAvailable()
     {
         return (boolean) $this->getCoreUpgradeTypes();
     }
@@ -348,11 +361,16 @@ class UpgradeTopBox extends \XLite\View\AView
             ? $this->getCountOfType('build', false)
             : $this->getCountOfType('total', false) - $this->getCountOfType('build', false);
 
-        if ($coreAvailable && $totalModulesCount) {
-            $result   = static::t('new core and X addons', ['count' => $totalModulesCount]);
+        $entries = $this->getUpgradeTypesEntries();
+
+        if ($entries['self']) {
+            $result = static::t('Marketplace');
+
+        } elseif ($coreAvailable && $totalModulesCount) {
+            $result = static::t('new core and X addons', ['count' => $totalModulesCount]);
 
         } elseif ($totalModulesCount) {
-            $result   = static::t('X addons', ['count' => $totalModulesCount]);
+            $result = static::t('X addons', ['count' => $totalModulesCount]);
 
         } else {
             $result = static::t('new core');
@@ -368,13 +386,13 @@ class UpgradeTopBox extends \XLite\View\AView
     {
         $entries = $this->getUpgradeTypesEntries();
         if ($entries['self']) {
-            return \XLite::getInstance()->getShopURL('service.php#/upgrade/');
+            return \XLite::getInstance()->getServiceURL('#/upgrade/');
         }
 
         $type = $this->isHotfixMode()
             ? 'build'
             : 'minor';
 
-        return \XLite::getInstance()->getShopURL('service.php#/upgrade-details/' . $type);
+        return \XLite::getInstance()->getServiceURL('#/upgrade-details/' . $type);
     }
 }

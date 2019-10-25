@@ -135,6 +135,7 @@ class IndexingEventListener implements EventSubscriber
     {
         return [
             'enabled',
+            'parent',
         ];
     }
 

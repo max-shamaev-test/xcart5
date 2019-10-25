@@ -412,7 +412,7 @@ popup.getPopupOptions = function(box)
     resizable:     false,
     width:         'auto',
     minWidth:      300,
-    minHeight:     200,
+    minHeight:     150,
 
     open:          _.bind(
       function(event, ui) {

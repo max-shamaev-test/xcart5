@@ -20,6 +20,8 @@ class FacebookPixel extends \XLite\Controller\Customer\ACustomer
      */
     protected function doActionInitiateCheckout()
     {
+        $this->set('silent', true);
+        $this->setSuppressOutput(true);
         Session::getInstance()->setPixelLastInitiatedCart(\XLite\Model\Cart::getInstance()->getOrderId());
     }
 

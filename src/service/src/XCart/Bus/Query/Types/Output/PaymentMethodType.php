@@ -52,6 +52,10 @@ class PaymentMethodType extends AObjectType
                     'type'        => Type::listOf(Type::string()), // @todo: country code type
                     'description' => 'Countries list',
                 ],
+                'exCountries'        => [
+                    'type'        => Type::listOf(Type::string()),
+                    'description' => 'Excluded countries list',
+                ],
                 'translations'     => [
                     'type'        => Type::listOf($this->app[PaymentTranslationType::class]),
                     'description' => 'Method name translations',

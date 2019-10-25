@@ -23,12 +23,14 @@ class OgMeta
      */
     public static function prepareOgMeta($data)
     {
-        return strip_tags(
+        $data = strip_tags(
             (string)$data,
             implode('', static::prepareAllowedOgMetaTags(
                 static::getAllowedOgMetaTags()
             ))
         );
+
+        return \XLite\Core\Converter::filterCurlyBrackets($data);
     }
 
     /**

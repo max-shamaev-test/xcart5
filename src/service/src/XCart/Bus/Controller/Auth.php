@@ -18,6 +18,7 @@ use XCart\Bus\Auth\EmergencyCodeService;
 use XCart\Bus\Auth\TokenService;
 use XCart\Bus\Auth\XC5LoginService;
 use XCart\Bus\Exception\XC5Unavailable;
+use XCart\Bus\Query\Data\CoreConfigDataSource;
 use XCart\SilexAnnotations\Annotations\Router;
 use XCart\SilexAnnotations\Annotations\Service;
 
@@ -28,6 +29,8 @@ use XCart\SilexAnnotations\Annotations\Service;
 class Auth
 {
     private const ADMIN_TTL = 43200;
+    private const LOGIN_ATTEMPTS = 5;
+    private const LOGIN_LOCK_TTL = 120;
 
     /**
      * @var TokenService
@@ -43,6 +46,11 @@ class Auth
      * @var XC5LoginService
      */
     private $xc5LoginService;
+
+    /**
+     * @var CoreConfigDataSource
+     */
+    private $coreConfigDataSource;
 
     /**
      * @var string
@@ -64,6 +72,7 @@ class Auth
      * @param TokenService         $tokenService
      * @param EmergencyCodeService $emergencyCodeService
      * @param XC5LoginService      $xc5LoginService
+     * @param CoreConfigDataSource $coreConfigDataSource
      *
      * @return static
      *
@@ -74,12 +83,14 @@ class Auth
         Application $app,
         TokenService $tokenService,
         EmergencyCodeService $emergencyCodeService,
-        XC5LoginService $xc5LoginService
+        XC5LoginService $xc5LoginService,
+        CoreConfigDataSource $coreConfigDataSource
     ) {
         return new self(
             $tokenService,
             $emergencyCodeService,
             $xc5LoginService,
+            $coreConfigDataSource,
             parse_url($app['config']['domain'], \PHP_URL_HOST),
             $app['config']['webdir'],
             (bool) $app['config']['debug']
@@ -90,6 +101,7 @@ class Auth
      * @param TokenService         $tokenService
      * @param EmergencyCodeService $emergencyCodeService
      * @param XC5LoginService      $xc5LoginService
+     * @param CoreConfigDataSource $coreConfigDataSource
      * @param string               $domain
      * @param string               $cookiePath
      * @param string               $debug
@@ -98,6 +110,7 @@ class Auth
         TokenService $tokenService,
         EmergencyCodeService $emergencyCodeService,
         XC5LoginService $xc5LoginService,
+        CoreConfigDataSource $coreConfigDataSource,
         $domain,
         $cookiePath,
         $debug
@@ -105,6 +118,7 @@ class Auth
         $this->tokenService         = $tokenService;
         $this->emergencyCodeService = $emergencyCodeService;
         $this->xc5LoginService      = $xc5LoginService;
+        $this->coreConfigDataSource = $coreConfigDataSource;
         $this->domain               = $domain;
         $this->cookiePath           = $cookiePath;
         $this->debug                = $debug;
@@ -123,15 +137,35 @@ class Auth
     {
         try {
             $authCode = $request->get('auth_code');
-
+            $unsetXidToken = false;
             $additionalTokenData = [];
 
             if ($authCode) {
-                $shouldGenerateJWT = $this->emergencyCodeService->checkAuthCode($authCode);
+                $shouldGenerateJWT = false;
 
-                if (!$shouldGenerateJWT && $this->emergencyCodeService->checkServiceCode(md5($authCode))) {
-                    $shouldGenerateJWT                                  = true;
-                    $additionalTokenData[TokenService::TOKEN_READ_ONLY] = true;
+                if ($this->coreConfigDataSource->authLock < time()) {
+                    if ($this->coreConfigDataSource->authAttempts > self::LOGIN_ATTEMPTS) {
+                        $this->coreConfigDataSource->authAttempts = 0;
+                    }
+
+                    $shouldGenerateJWT = $this->emergencyCodeService->checkAuthCode($authCode);
+
+                    if (!$shouldGenerateJWT && $this->emergencyCodeService->checkServiceCode(md5($authCode))) {
+                        $shouldGenerateJWT                                  = true;
+                        $additionalTokenData[TokenService::TOKEN_READ_ONLY] = true;
+                        $unsetXidToken                                      = true;
+                    }
+                }
+
+                if (!$shouldGenerateJWT) {
+                    $authAttempts = $this->coreConfigDataSource->authAttempts + 1;
+                    $this->coreConfigDataSource->authAttempts = $authAttempts;
+
+                    if ($authAttempts > self::LOGIN_ATTEMPTS) {
+                        $this->coreConfigDataSource->authLock = time() + self::LOGIN_LOCK_TTL;
+
+                        return new JsonResponse(['authLock' => $this->coreConfigDataSource->authLock], 423);
+                    }
                 }
             } else {
                 $xc5Cookie = $request->cookies->get(
@@ -152,6 +186,10 @@ class Auth
             }
 
             if ($shouldGenerateJWT) {
+
+                $this->coreConfigDataSource->authAttempts = 0;
+                $this->coreConfigDataSource->authLock = 0;
+
                 $response = $request->isMethod('GET')
                     ? new RedirectResponse('service.php')
                     : new JsonResponse(null, 200);
@@ -160,6 +198,19 @@ class Auth
                     $this->tokenService->generateToken($additionalTokenData)
                 );
                 $response->headers->setCookie($cookie);
+
+                $response->headers->setCookie(
+                    new Cookie('unset_xid',
+                        $unsetXidToken,
+                        0,
+                        $this->cookiePath ?: '/',
+                        $this->domain,
+                        false,
+                        false,
+                        false,
+                        'strict'
+                    )
+                );
 
                 return $response;
             }
@@ -216,8 +267,10 @@ class Auth
     public function touchCookie(Request $request, Response $response)
     {
         if ($response->getStatusCode() === 200) {
+            $unsetXid = $request->cookies->get('unset_xid');
+
             $xid = $request->cookies->get($this->xc5LoginService->getCookieName());
-            if ($xid) {
+            if ($xid && !$unsetXid) {
                 $response->headers->setCookie(
                     new Cookie($this->xc5LoginService->getCookieName(), $xid, time() + self::ADMIN_TTL, $this->cookiePath ?: '/', $this->domain)
                 );

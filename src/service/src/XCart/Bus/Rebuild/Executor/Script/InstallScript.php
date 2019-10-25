@@ -41,10 +41,10 @@ class InstallScript extends AScript
     {
         $transitions = $this->transitionFilter->sortAscending($transitions);
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'          => $id,
                 'transitions' => $transitions,
             ]
         );
@@ -62,8 +62,8 @@ class InstallScript extends AScript
         ]);
 
         $state->currentStep = $this->getNextStepIndex($state);
-        $step = $this->getStepInstance($state->currentStep);
-        $state->stepState = $step->initialize($state);
+        $step               = $this->getStepInstance($state->currentStep);
+        $state->stepState   = $step->initialize($state);
 
         $state->updateInfo();
 

@@ -16,7 +16,7 @@ class Connector
      */
     public static function getFrontendUrl(array $params = [])
     {
-        return \XLite::getInstance()->getShopURL('service.php', null, $params);
+        return \XLite::getInstance()->getServiceURL('#/', null, $params);
     }
 
     /**

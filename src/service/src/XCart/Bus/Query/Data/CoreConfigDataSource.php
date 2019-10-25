@@ -20,8 +20,12 @@ use XCart\SilexAnnotations\Annotations\Service;
  * @property array  $dbInfo
  * @property bool   $freshInstall
  * @property array  $requestForUpgrade
- * @property int    $dateDate
+ * @property int    $dataDate
  * @property int    $cacheDate
+ * @property int    $paymentMethodsCacheDate
+ * @property int    $shippingMethodsCacheDate
+ * @property int    $authLock
+ * @property int    $authAttempts
  *
  * @Service\Service()
  */

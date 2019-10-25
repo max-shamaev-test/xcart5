@@ -8,6 +8,7 @@
 
 namespace XCart\Bus\Rebuild\Executor\Script;
 
+use Exception;
 use Psr\Log\LoggerInterface;
 use XCart\Bus\Domain\Backup\BackupInterface;
 use XCart\Bus\Exception\Rebuild\HoldException;
@@ -72,7 +73,7 @@ class AScript implements ScriptInterface
     /**
      * @return StepInterface[]
      */
-    public function getSteps()
+    public function getSteps(): array
     {
         return $this->steps;
     }
@@ -80,7 +81,7 @@ class AScript implements ScriptInterface
     /**
      * @param StepInterface[] $steps
      */
-    public function setSteps($steps)
+    public function setSteps(array $steps): void
     {
         $this->steps = $steps;
     }
@@ -106,7 +107,7 @@ class AScript implements ScriptInterface
      *
      * @return ScriptState
      */
-    public function initializeByState($id, ScriptState $parentScriptState)
+    public function initializeByState($id, ScriptState $parentScriptState): ScriptState
     {
         return new ScriptState();
     }
@@ -126,7 +127,7 @@ class AScript implements ScriptInterface
     /**
      * @return bool
      */
-    public function isOwnerLocked()
+    public function isOwnerLocked(): bool
     {
         return true;
     }
@@ -140,16 +141,21 @@ class AScript implements ScriptInterface
      *
      * @return ScriptState
      */
-    public function execute(ScriptState $scriptState, $action = StepInterface::ACTION_EXECUTE, array $params = [])
+    public function execute(ScriptState $scriptState, $action = StepInterface::ACTION_EXECUTE, array $params = []): ScriptState
     {
-        // clear state
-        $scriptState->clearPrompts();
-
         // get step executor
         try {
             $step = $this->getStepInstance($scriptState->currentStep);
 
         } catch (ScriptExecutionError $e) {
+            $this->logger->critical(sprintf('Script execution error: %s', $e->getMessage()));
+            $this->logger->debug(
+                'Script execution error',
+                [
+                    'scriptState' => $scriptState,
+                ]
+            );
+
             return $scriptState->abort($e->getMessage());
         }
 
@@ -160,8 +166,11 @@ class AScript implements ScriptInterface
 
         // execute step
         try {
-            $stepState = $step->execute(clone $scriptState->stepState, $action, $params);
-
+            if ($scriptState->isStepCompleted(get_class($step))) {
+                $stepState = $scriptState->getCompletedStepState(get_class($step));
+            } else {
+                $stepState = $step->execute(clone $scriptState->stepState, $action, $params);
+            }
         } catch (RebuildException $e) {
             if ($e instanceof HoldException) {
                 $stepState              = $e->getStepState();
@@ -176,19 +185,16 @@ class AScript implements ScriptInterface
                 $e->getMessage(),
                 $e->getType(),
                 $e->getData(),
-                $e->getDescription(),
-                $e->getPrompts()
+                $e->getDescription()
             );
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $scriptState->abort($e->getMessage());
         }
 
         $completedProgress          = $scriptState->getCompletedStepsProgressMax();
         $scriptState->progressMax   = $completedProgress + $this->calculateRemainProgressMax($scriptState);
         $scriptState->progressValue = $completedProgress + $stepState->progressValue;
-
-        //$scriptState->currentStepInfo = $stepState->info;
 
         // update state
         if ($stepState->state === StepState::STATE_FINISHED_SUCCESSFULLY) {
@@ -197,13 +203,22 @@ class AScript implements ScriptInterface
                     $scriptState->completedSteps,
                     [$scriptState->currentStep => $stepState]
                 );
-                $scriptState->currentStep    = $this->getNextStepIndex($scriptState);
+
+                $scriptState->currentStep = $this->getNextStepIndex($scriptState);
 
                 // initialize next step
                 try {
                     $step = $this->getStepInstance($scriptState->currentStep);
 
                 } catch (ScriptExecutionError $e) {
+                    $this->logger->critical(sprintf('Script execution error: %s', $e->getMessage()));
+                    $this->logger->debug(
+                        sprintf('Script execution error'),
+                        [
+                            'scriptState' => $scriptState,
+                        ]
+                    );
+
                     return $scriptState->abort($e->getMessage());
                 }
 
@@ -277,7 +292,7 @@ class AScript implements ScriptInterface
      *
      * @return int|null
      */
-    protected function getNextStepIndex(ScriptState $state)
+    protected function getNextStepIndex(ScriptState $state): ?int
     {
         $index = $state->getNextStepIndex();
 
@@ -294,12 +309,12 @@ class AScript implements ScriptInterface
     }
 
     /**
-     * @param $index
+     * @param int $index
      *
      * @return StepInterface
      * @throws ScriptExecutionError
      */
-    protected function getStepInstance($index)
+    protected function getStepInstance($index): StepInterface
     {
         $steps = $this->getSteps();
         $step  = $steps[$index] ?? null;
@@ -312,18 +327,21 @@ class AScript implements ScriptInterface
     }
 
     /**
-     * @param ScriptState $state
+     * @param ScriptState $scriptState
      *
      * @return bool
      */
-    private function isNextStepAvailable(ScriptState $state)
+    private function isNextStepAvailable(ScriptState $scriptState): bool
     {
         try {
-            return $this->getStepInstance($this->getNextStepIndex($state)) !== null;
+            return $this->getStepInstance($this->getNextStepIndex($scriptState)) !== null;
 
         } catch (ScriptExecutionError $e) {
+            // this exception must not be reported, because we check availability only
             return false;
         }
+
+        return false;
     }
 
     /**
@@ -333,9 +351,9 @@ class AScript implements ScriptInterface
      *
      * @return bool
      */
-    private function canUnlock(ScriptState $state)
+    private function canUnlock(ScriptState $state): bool
     {
-        return \in_array($state->state, [
+        return in_array($state->state, [
             ScriptState::STATE_CANCELED,
             ScriptState::STATE_FINISHED_SUCCESSFULLY,
         ], true);

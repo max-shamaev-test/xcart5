@@ -26,22 +26,22 @@ class Info extends \XLite\View\FormModel\Product\Info implements \XLite\Base\IDe
                 'prices_and_inventory' => [
                     'price' => [
                         'market_price' => [
-                            'label'       => static::t('Market price'),
-                            'type'        => 'XLite\View\FormModel\Type\SymbolType',
-                            'symbol'      => $currencySymbol,
-                            'pattern'     => [
-                                'alias'          => 'xcdecimal',
-                                'prefix'         => '',
-                                'rightAlign'     => false,
-                                'digits'         => $currency->getE(),
+                            'label'             => static::t('Market price'),
+                            'type'              => 'XLite\View\FormModel\Type\SymbolType',
+                            'symbol'            => $currencySymbol,
+                            'inputmask_pattern' => [
+                                'alias'      => 'xcdecimal',
+                                'prefix'     => '',
+                                'rightAlign' => false,
+                                'digits'     => $currency->getE(),
                             ],
-                            'constraints' => [
+                            'constraints'       => [
                                 'Symfony\Component\Validator\Constraints\GreaterThanOrEqual' => [
                                     'value'   => 0,
                                     'message' => static::t('Minimum value is X', ['value' => 0])
                                 ]
                             ],
-                            'position'    => 200,
+                            'position'          => 200,
                         ]
                     ]
                 ]

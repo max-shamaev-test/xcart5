@@ -8,6 +8,7 @@
 
 namespace XCart\Bus\Controller;
 
+use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
@@ -158,7 +159,7 @@ class Restore
      * @param Request $request
      *
      * @return Response
-     * @throws \Exception
+     * @throws Exception
      * @Router\Route(
      *     @Router\Request(method="GET", uri="/restore/start"),
      * )
@@ -173,9 +174,9 @@ class Restore
         $this->licenseDataSource->clear();
 
         $licenseJSON = $request->get('license') ?: null;
-        $license = $licenseJSON ? json_decode($licenseJSON, true) : [];
+        $license     = $licenseJSON ? json_decode($licenseJSON, true) : [];
         if ($license) {
-             $this->licenseDataSource->saveOne($license);
+            $this->licenseDataSource->saveOne($license);
         }
 
         $this->setDataSource->clear();
@@ -211,11 +212,11 @@ class Restore
             ];
         }
 
-        $scenario = $this->changeUnitProcessor->process([], $changeUnits);
+        $scenario = $this->changeUnitProcessor->process($this->scenarioDataSource->startEmptyScenario(), $changeUnits);
 
-        $scenario['id']   = uniqid('scenario', true);
-        $scenario['type'] = 'common';
-        $scenario['date'] = time();
+        //$scenario['id']   = uniqid('scenario', true);
+        //$scenario['type'] = 'common';
+        //$scenario['date'] = time();
 
         $returnUrl = $request->get('returnUrl');
         if ($returnUrl) {
@@ -233,7 +234,7 @@ class Restore
      * @param Request $request
      *
      * @return Response
-     * @throws \Exception
+     * @throws Exception
      * @Router\Route(
      *     @Router\Request(method="GET", uri="/restore/rebuild"),
      * )
@@ -243,6 +244,10 @@ class Restore
         $id = $request->get('id');
 
         $state = $this->rebuildResolver->executeRebuild(null, ['id' => $id], null, new ResolveInfo([]));
+
+        if ($state->errorTitle) {
+            throw new Exception($state->errorTitle);
+        }
 
         if (isset($state->currentStepInfo[0])) {
             $service     = Yaml::parseFile($this->app['config']['root_dir'] . 'service/src/service.yaml');

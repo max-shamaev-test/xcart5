@@ -48,6 +48,7 @@ class Order extends AView implements DataSource
             'order_tracking_information',
             'failed_transaction',
             'order_waiting_for_approve',
+            'backorder_created',
         ];
     }
 

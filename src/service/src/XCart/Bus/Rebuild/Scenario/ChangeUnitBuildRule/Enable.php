@@ -13,7 +13,11 @@ use XCart\Bus\Query\Data\InstalledModulesDataSource;
 use XCart\Bus\Rebuild\Scenario\Transition\DisableTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\EnableTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\TransitionInterface;
+use XCart\SilexAnnotations\Annotations\Service;
 
+/**
+ * @Service\Service()
+ */
 class Enable implements ChangeUnitBuildRuleInterface
 {
     /**
@@ -24,8 +28,9 @@ class Enable implements ChangeUnitBuildRuleInterface
     /**
      * @param InstalledModulesDataSource $installedModulesDataSource
      */
-    public function __construct(InstalledModulesDataSource $installedModulesDataSource)
-    {
+    public function __construct(
+        InstalledModulesDataSource $installedModulesDataSource
+    ) {
         $this->installedModulesDataSource = $installedModulesDataSource;
     }
 

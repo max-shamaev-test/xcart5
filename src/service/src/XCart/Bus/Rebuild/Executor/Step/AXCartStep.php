@@ -8,6 +8,7 @@
 
 namespace XCart\Bus\Rebuild\Executor\Step;
 
+use Exception;
 use GuzzleHttp\Exception\ParseException;
 use Psr\Log\LoggerInterface;
 use XCart\Bus\Client\XCart;
@@ -76,10 +77,10 @@ abstract class AXCartStep implements StepInterface
 
         $cacheId = $this->getCacheId($scriptState);
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'          => $scriptState->id,
                 'cacheId'     => $cacheId,
                 'transitions' => $transitions,
             ]
@@ -113,7 +114,18 @@ abstract class AXCartStep implements StepInterface
     {
         $this->rebuildId = $state->rebuildId;
 
-        $state = $this->processTransition($state);
+        try {
+            $state = $this->processTransition($state);
+        } catch (RebuildException $exception) {
+            $this->logger->critical(
+                sprintf('Run XCart step error: %s', $exception->getMessage()),
+                [
+                    'data' => $exception->getData(),
+                ]
+            );
+
+            throw $exception;
+        }
 
         $state->state = !empty($state->remainTransitions)
             ? StepState::STATE_IN_PROGRESS
@@ -196,12 +208,7 @@ abstract class AXCartStep implements StepInterface
         $id                  = key($remainTransitions);
 
         try {
-            $this->logger->debug(
-                sprintf('Execute X-Cart step: %s', $transition),
-                [
-                    'id' => $this->rebuildId,
-                ]
-            );
+            $this->logger->debug(sprintf('Execute X-Cart step: %s', $transition));
 
             if (PHP_SAPI === 'cli') {
                 $result = $this->cliClient->executeRebuildStep(
@@ -218,6 +225,9 @@ abstract class AXCartStep implements StepInterface
             }
 
         } catch (ParseException $exception) {
+            throw AbortException::fromXCartStepWrongResponseFormat($exception);
+
+        } catch (Exception $exception) {
             throw AbortException::fromXCartStepWrongResponse($exception);
         }
 
@@ -226,10 +236,7 @@ abstract class AXCartStep implements StepInterface
         }
 
         if (isset($result['errors']) && $result['errors']) {
-            $exception = new RebuildException('X-Cart rebuild step failed');
-            $exception->setDescription("Step {$state->name} failed with the following errors:");
-            $exception->setData($result['errors']);
-            throw $exception;
+            throw AbortException::fromXCartStepErrorResponse($transition, $result['errors']);
         }
 
         if (isset($result['state']) && $result['state'] === 'finished') {
@@ -243,7 +250,15 @@ abstract class AXCartStep implements StepInterface
             $remainTransitions[$id] = $transition;
         }
 
+        // todo: check for 'warning' field present in response
         if (isset($result['warnings']) && $result['warnings']) {
+            $this->logger->warning(
+                'X-Cart step warnings',
+                [
+                    'warnings' => $result['warnings'],
+                ]
+            );
+
             $state->warnings = $result['warnings'];
         }
 

@@ -167,27 +167,6 @@ XLite\Model\LanguageLabel:
       - code: ru
         label: 'Следующие ПИН коды уже были проданы ранее: {{codes}}'
 
-XLite\Model\Notification:
-  - templatesDirectory: modules/CDev/PINCodes/acquire_pin_codes_failed
-    position: 700
-    availableForAdmin: true
-    availableForCustomer: false
-    enabledForAdmin: true
-    enabledForCustomer: false
-    adminHeaderEnabled: true
-    adminGreetingEnabled: true
-    adminSignatureEnabled: true
-    customerHeaderEnabled: true
-    customerGreetingEnabled: true
-    customerSignatureEnabled: true
-    editable: true
-    translations:
-      - code: en
-        name: 'Backordered item in the order (PIN codes module)'
-        description: 'This notification is sent to the administrator in the event of an error in the process of generating PIN codes for one or more items - as a result of which the PIN codes have not been generated.'
-        adminSubject: 'A new backorder %backordered_item_names%'
-        adminText: '<p dir="ltr">One of your customers has just bought products that are out-of-stock at the moment. It&rsquo;s time to replenish your supplies right now.&nbsp;</p><p dir="ltr"><a href="%order_link%">Check the order #%order_number%</a></p>'
-
 XLite\Model\Config:
   - name: esd_fullfilment
     category: CDev\PINCodes

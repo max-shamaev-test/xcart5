@@ -8,6 +8,7 @@
 
 namespace XCart\Bus\Client;
 
+use Exception;
 use XCart\SilexAnnotations\Annotations\Service;
 
 /**
@@ -35,7 +36,7 @@ class LicenseClient
      * @param int    $wave
      *
      * @return array|null
-     * @throws \Exception
+     * @throws Exception
      */
     public function registerLicenseKey($key, $wave = null): ?array
     {
@@ -48,12 +49,25 @@ class LicenseClient
      * @param string $email
      *
      * @return array|null
+     * @throws Exception
      */
     public function registerFreeLicenseKey($email): ?array
     {
         $result = $this->marketplaceClient->registerFreeLicenseKey(self::FREE_LICENSE, $email);
 
         return $result[self::FREE_LICENSE] ?? null;
+    }
+
+    /**
+     * @param string $key
+     * @param int    $wave
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function resendLicenseKey($email): bool
+    {
+        return $this->marketplaceClient->resendLicenseKey($email);
     }
 
     /**

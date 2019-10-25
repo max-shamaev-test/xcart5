@@ -10,10 +10,10 @@
 (function () {
 
   Vue.directive('xlitePattern', {
-    params: ['pattern'],
+    params: ['inputmask-pattern'],
     bind: function () {
-      var pattern = this.params.pattern;
-      Inputmask(JSON.parse(pattern)).mask(this.el);
+      var inputmaskPattern = this.params.inputmaskPattern;
+      Inputmask(JSON.parse(inputmaskPattern)).mask(this.el);
     }
   });
 

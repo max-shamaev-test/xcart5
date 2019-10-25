@@ -6,6 +6,7 @@
 
 namespace XCart\Bus\Core\Logger;
 
+use Exception;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\HandlerInterface;
@@ -20,7 +21,12 @@ abstract class ALogger
     /**
      * @var string
      */
-    protected $path;
+    private $path;
+
+    /**
+     * @var string
+     */
+    private $logLevel = LogLevel::INFO;
 
     /**
      * @param Application $app
@@ -34,6 +40,7 @@ abstract class ALogger
         Application $app
     ) {
         $self = new static($app['config']['log.path']);
+        $self->setLogLevel($app['debug'] ? LogLevel::DEBUG : LogLevel::INFO);
 
         /** @var Logger|LoggerInterface $log */
         $log = new $app['monolog.logger.class']($self->getName());
@@ -56,9 +63,33 @@ abstract class ALogger
     }
 
     /**
+     * @return string
+     */
+    public function getLogLevel(): string
+    {
+        return $this->logLevel;
+    }
+
+    /**
+     * @param string $logLevel
+     */
+    public function setLogLevel(string $logLevel): void
+    {
+        $this->logLevel = $logLevel;
+    }
+
+    /**
+     * @return FormatterInterface
+     */
+    protected function getFormatter(): FormatterInterface
+    {
+        return new LineFormatter();
+    }
+
+    /**
      * @return HandlerInterface[]
      */
-    protected function getHandlers()
+    private function getHandlers(): array
     {
         return [
             $this->getDefaultHandler(),
@@ -68,31 +99,23 @@ abstract class ALogger
     /**
      * @return PHPFileHandler
      */
-    protected function getDefaultHandler()
+    private function getDefaultHandler(): ?PHPFileHandler
     {
         try {
-            $handler = new PHPFileHandler($this->getFilePath(), $this->getLevel());
+            $handler = new PHPFileHandler($this->getFilePath(), $this->getLogLevel());
             $handler->setFormatter($this->getFormatter());
 
             return $handler;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
     }
 
     /**
-     * @return FormatterInterface
-     */
-    protected function getFormatter()
-    {
-        return new LineFormatter();
-    }
-
-    /**
      * @return string
      */
-    protected function getName()
+    private function getName(): string
     {
         $parts = explode('\\', static::class);
 
@@ -102,16 +125,8 @@ abstract class ALogger
     /**
      * @return string
      */
-    protected function getFilePath()
+    private function getFilePath(): string
     {
         return $this->path . date('/Y/m/') . $this->getName() . '.log.' . date('Y-m-d') . '.php';
-    }
-
-    /**
-     * @return string
-     */
-    protected function getLevel()
-    {
-        return LogLevel::DEBUG;
     }
 }

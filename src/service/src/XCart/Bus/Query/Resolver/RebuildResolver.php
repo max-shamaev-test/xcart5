@@ -8,20 +8,22 @@
 
 namespace XCart\Bus\Query\Resolver;
 
+use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
+use Psr\Log\LoggerInterface;
 use XCart\Bus\Core\Annotations\Resolver;
 use XCart\Bus\Domain\Module;
 use XCart\Bus\Exception\ScriptExecutionError;
-use XCart\Bus\Query\Context;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
 use XCart\Bus\Query\Data\ScenarioDataSource;
 use XCart\Bus\Query\Data\ScriptStateDataSource;
 use XCart\Bus\Rebuild\Executor;
 use XCart\Bus\Rebuild\Executor\ScriptState;
+use XCart\Bus\Rebuild\Scenario\ChangeUnitProcessor;
 use XCart\SilexAnnotations\Annotations\Service;
 
 /**
- * @Service\Service()
+ * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild"})
  */
 class RebuildResolver
 {
@@ -51,24 +53,32 @@ class RebuildResolver
     private $executor;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param InstalledModulesDataSource $installedModulesDataSource
      * @param ScriptStateDataSource      $scriptStateDataSource
      * @param ScenarioDataSource         $scenarioDataSource
      * @param SystemDataResolver         $systemDataResolver
      * @param Executor                   $executor
+     * @param LoggerInterface            $logger
      */
     public function __construct(
         InstalledModulesDataSource $installedModulesDataSource,
         ScriptStateDataSource $scriptStateDataSource,
         ScenarioDataSource $scenarioDataSource,
         SystemDataResolver $systemDataResolver,
-        Executor $executor
+        Executor $executor,
+        LoggerInterface $logger
     ) {
         $this->installedModulesDataSource = $installedModulesDataSource;
         $this->scriptStateDataSource      = $scriptStateDataSource;
         $this->scenarioDataSource         = $scenarioDataSource;
         $this->systemDataResolver         = $systemDataResolver;
         $this->executor                   = $executor;
+        $this->logger                     = $logger;
     }
 
     /**
@@ -81,11 +91,12 @@ class RebuildResolver
      *
      * @Resolver()
      */
-    public function find($value, $args, $context, ResolveInfo $info)
+    public function find($value, $args, $context, ResolveInfo $info): ScriptState
     {
         $state = $this->scriptStateDataSource->find($args['id']);
 
         $state['gaData'] = $this->getGAData($state);
+        $state['hasEnabledTransitions'] = $this->hasEnabledTransitions($state);
 
         return $state;
     }
@@ -93,25 +104,24 @@ class RebuildResolver
     /**
      * @param             $value
      * @param array       $args
-     * @param Context     $context
+     * @param             $context
      * @param ResolveInfo $info
      *
      * @return ScriptState
-     * @throws \Exception
+     * @throws Exception
      *
      * @Resolver()
      */
-    public function startRebuild($value, $args, $context, ResolveInfo $info)
+    public function startRebuild($value, $args, $context, ResolveInfo $info): ScriptState
     {
-        $scenario = $this->scenarioDataSource->find($args['id']);
+        $scenario = $this->scenarioDataSource->startScenario($args['id']);
         if (!$scenario) {
-            throw new \Exception("Couldn't find request scenario");
+            $this->logger->error('Starting rebuild is failed. Scenario is missing');
+
+            throw new Exception("Couldn't find request scenario");
         }
 
         $state = $this->executor->initializeByScenario($args['type'] ?? 'redeploy', $scenario);
-        if (!$state) {
-            throw new \Exception("Couldn't start the rebuild");
-        }
 
         if (isset($args['failureReturnUrl'])) {
             $state->failureReturnUrl = $args['failureReturnUrl'];
@@ -125,6 +135,7 @@ class RebuildResolver
         $this->scenarioDataSource->removeOne($args['id']);
 
         $state['gaData'] = $this->getGAData($state);
+        $state['hasEnabledTransitions'] = $this->hasEnabledTransitions($state);
 
         return $state;
     }
@@ -132,31 +143,25 @@ class RebuildResolver
     /**
      * @param             $value
      * @param array       $args
-     * @param Context     $context
+     * @param             $context
      * @param ResolveInfo $info
      *
      * @return ScriptState
-     * @throws \Exception
+     * @throws Exception
      *
      * @Resolver()
      */
-    public function startRollback($value, $args, $context, ResolveInfo $info)
+    public function startRollback($value, $args, $context, ResolveInfo $info): ScriptState
     {
-        $state = $this->scriptStateDataSource->find($args['id']);
-        if (!$state) {
-            throw new \Exception('Could not find request state');
-        }
-
-        $type = 'rollback';
-        if ($state->type === 'self-upgrade') {
-            $type = 'self-rollback';
-        }
+        $state = $this->getStateById($args['id']);
+        $type  = $state->type === 'self-upgrade' ? 'self-rollback' : 'rollback';
 
         $state = $this->executor->initializeByState($type, $state);
 
         $this->scriptStateDataSource->saveOne($state, $state->id);
 
         $state['gaData'] = $this->getGAData($state);
+        $state['hasEnabledTransitions'] = $this->hasEnabledTransitions($state);
 
         return $state;
     }
@@ -165,16 +170,16 @@ class RebuildResolver
      * unused
      *
      * @param             $value
-     * @param             $args
+     * @param array       $args
      * @param             $context
      * @param ResolveInfo $info
      *
      * @return ScriptState
-     * @throws \Exception
+     * @throws Exception
      *
      * @Resolver()
      */
-    public function cancelRebuild($value, $args, $context, ResolveInfo $info)
+    public function cancelRebuild($value, $args, $context, ResolveInfo $info): ScriptState
     {
         $state = $this->executor->cancel($this->getStateById($args['id']));
         $this->scriptStateDataSource->saveOne($state, $args['id']);
@@ -191,11 +196,11 @@ class RebuildResolver
      * @param ResolveInfo $info
      *
      * @return ScriptState
-     * @throws \Exception
+     * @throws Exception
      *
      * @Resolver()
      */
-    public function executeRebuild($value, $args, $context, ResolveInfo $info)
+    public function executeRebuild($value, $args, $context, ResolveInfo $info): ScriptState
     {
         $state = $this->getStateById($args['id']);
 
@@ -224,6 +229,7 @@ class RebuildResolver
         }
 
         $newState['gaData'] = $this->getGAData($newState);
+        $newState['hasEnabledTransitions'] = $this->hasEnabledTransitions($newState);
 
         return $newState;
     }
@@ -234,14 +240,14 @@ class RebuildResolver
      * @param             $context
      * @param ResolveInfo $info
      *
-     * @return array
-     * @throws \Exception
+     * @return ScriptState[]
+     * @throws Exception
      *
      * @Resolver()
      */
-    public function ongoingScripts($value, $args, $context, ResolveInfo $info)
+    public function ongoingScripts($value, $args, $context, ResolveInfo $info): array
     {
-        return array_map(function (ScriptState $state) {
+        return array_map(static function (ScriptState $state) {
             $state['progress'] = (float) $state->currentStep / $state->stepsCount;
 
             return $state;
@@ -252,13 +258,16 @@ class RebuildResolver
      * @param string $id
      *
      * @return ScriptState
-     * @throws \Exception
+     * @throws Exception
      */
     private function getStateById($id): ScriptState
     {
+        $this->scenarioDataSource->setCurrentScenarioId($id);
         $state = $this->scriptStateDataSource->find($id);
         if (!$state) {
-            throw new \Exception("Couldn't find state");
+            $this->logger->error('Script state is missing');
+
+            throw new Exception("Couldn't find state");
         }
 
         return $state;
@@ -285,11 +294,11 @@ class RebuildResolver
         }
 
         $category = 'addon-state-change';
-        $reason = '';
+        $reason   = '';
 
         if ($state->type === 'rollback' || $state->type === 'self-rollback') {
             $category = 'rollback';
-            $reason = 'addon-state-change';
+            $reason   = 'addon-state-change';
             if ($state->type === 'self-rollback') {
                 $reason = 'self-upgrade';
             } elseif ($state->reason === 'upgrade') {
@@ -316,5 +325,23 @@ class RebuildResolver
         }
 
         return $data;
+    }
+
+    /**
+     * @param ScriptState $state
+     *
+     * @return bool
+     */
+    private function hasEnabledTransitions($state): bool
+    {
+        foreach ((array) $state->transitions as $transition) {
+            if ($transition['transition'] === ChangeUnitProcessor::TRANSITION_ENABLE
+                || $transition['transition'] === ChangeUnitProcessor::TRANSITION_INSTALL_ENABLED
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

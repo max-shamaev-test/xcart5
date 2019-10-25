@@ -47,13 +47,13 @@ class Inventory extends \XLite\View\FormModel\Product\Inventory implements \XLit
         $position                = 100;
         $minimumPurchaseQuantity = [
             'membership_0' => [
-                'label'    => static::t('All customers'),
-                'type'     => 'XLite\View\FormModel\Type\PatternType',
-                'pattern'  => [
+                'label'             => static::t('All customers'),
+                'type'              => 'XLite\View\FormModel\Type\PatternType',
+                'inputmask_pattern' => [
                     'alias'      => 'integer',
                     'rightAlign' => false,
                 ],
-                'position' => $position,
+                'position'          => $position,
             ],
         ];
 
@@ -103,13 +103,13 @@ class Inventory extends \XLite\View\FormModel\Product\Inventory implements \XLit
             $position                      += 100;
             $key                           = 'membership_' . $membership->getMembershipId();
             $minimumPurchaseQuantity[$key] = [
-                'label'    => $membership->getName(),
-                'type'     => 'XLite\View\FormModel\Type\PatternType',
-                'pattern'  => [
+                'label'             => $membership->getName(),
+                'type'              => 'XLite\View\FormModel\Type\PatternType',
+                'inputmask_pattern' => [
                     'alias'      => 'integer',
                     'rightAlign' => false,
                 ],
-                'position' => $position,
+                'position'          => $position,
             ];
 
             $description = [];

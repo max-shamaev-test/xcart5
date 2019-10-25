@@ -8,11 +8,13 @@
 
 namespace XLite\Module\QSL\BraintreeVZ\Controller\Customer;
 
+use XLite\Core\Converter;
+
 /**
  * PayPal powered by Braintree module's controller for some AJAX 
  *
  */
-class Braintree extends \XLite\Controller\Customer\ACustomer
+class Braintree extends \XLite\Controller\Customer\Checkout
 {
     /**
      * Get Braintree JSON data
@@ -53,6 +55,7 @@ class Braintree extends \XLite\Controller\Customer\ACustomer
             'cvvSelector'        => '#braintree-cvv',
             'dateSelector'       => '#braintree-expiration-date',
             'isButton'           => $isButton,
+            'isAnonymous'        => $this->isAnonymous(),
             'paypalButtonStyle'  => array(
                 'size'  => 'responsive',
                 'color' => $client->getSetting('paypalButtonColor'),
@@ -72,9 +75,11 @@ class Braintree extends \XLite\Controller\Customer\ACustomer
      */
     protected function doActionGetCartTotal()
     {
-        $data = array(
-            'total'   => $this->getCart()->getTotal(),
-        );
+        $data = [
+            'total'   => Converter::preparePaypalPrice($this->getCart()->getTotal()),
+        ];
+
+        $data = array_merge($data, $this->get3dSecureParameters());
 
         $this->displayJSON($data);
         $this->setSuppressOutput(true);
@@ -90,10 +95,12 @@ class Braintree extends \XLite\Controller\Customer\ACustomer
     {
         $client = \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance();
 
-        $data = array(
-            'total' => $this->getCart()->getTotal(),
+        $data = [
+            'total' => Converter::preparePaypalPrice($this->getCart()->getTotal()),
             'nonce' => $client->getSavedCardNonce(\XLite\Core\Request::getInstance()->token),
-        );
+        ];
+
+        $data = array_merge($data, $this->get3dSecureParameters());
 
         $this->displayJSON($data);
         $this->setSuppressOutput(true);
@@ -113,7 +120,7 @@ class Braintree extends \XLite\Controller\Customer\ACustomer
 
         $data = array(
             'flow'     => 'checkout',
-            'amount'   => $this->getCart()->getTotal(),
+            'amount'   => Converter::preparePaypalPrice($this->getCart()->getTotal()),
             'currency' => \XLite::getInstance()->getCurrency()->getCode(),
             'locale'   => 'en_US',
         );
@@ -127,19 +134,63 @@ class Braintree extends \XLite\Controller\Customer\ACustomer
             && $address->getState()
         ) {
             $data['shippingAddressEditable'] = false;
-            $data['shippingAddressOverride'] = array(
-                'recipientName' => $address->getFirstname() . ' ' . $address->getLastname(),
-                'line1' => $address->getStreet(),
-                'city' => $address->getCity(),
-                'postalCode' => $address->getZipcode(),
-                'phone' => $address->getPhone(),
-                'countryCode' => $address->getCountry()->getCode(),
-                'state' => $client->getStateField($profile->getShippingAddress()),
-            );
+            $data['shippingAddressOverride'] = ('1' == $client->getSetting('paypalShippingAddressOverride'))
+                ? array(
+                    'recipientName' => $address->getFirstname() . ' ' . $address->getLastname(),
+                    'line1'         => $address->getStreet(),
+                    'city'          => $address->getCity(),
+                    'postalCode'    => $address->getZipcode(),
+                    'phone'         => $address->getPhone(),
+                    'countryCode'   => $address->getCountry()->getCode(),
+                    'state'         => $client->getStateField($profile->getShippingAddress()),
+                )
+                : false;
         }
 
         $this->displayJSON($data);
         $this->setSuppressOutput(true);
         $this->set('silent', true);
     }
+
+    /**
+     * @return array
+     */
+    protected function get3dSecureParameters()
+    {
+        $profile = $this->getCartProfile();
+        $shippingAddress = $profile->getShippingAddress();
+        $billingAddress = $profile->getBillingAddress();
+
+        $result = [
+            'email'                 => $profile->getLogin(),
+            'billingAddress'        => [
+                'givenName'         => $billingAddress->getFirstname(),
+                'surname'           => $billingAddress->getLastname(),
+                'phoneNumber'       => $billingAddress->getPhone(),
+                'streetAddress'     => $billingAddress->getStreet(),
+                'extendedAddress'   => '',
+                'locality'          => $billingAddress->getCity(),
+                'region'            => \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance()->getStateField($billingAddress),
+                'postalCode'        => $billingAddress->getZipcode(),
+                'countryCodeAlpha2' => strtoupper($billingAddress->getCountry()->getCode()),
+            ],
+            'additionalInformation' => [
+                'workPhoneNumber'   => '',
+                'shippingGivenName' => $shippingAddress->getFirstname(),
+                'shippingSurname'   => $shippingAddress->getLastname(),
+                'shippingPhone'     => $shippingAddress->getPhone(),
+                'shippingAddress'   => [
+                    'streetAddress'     => $shippingAddress->getStreet(),
+                    'extendedAddress'   => '',
+                    'locality'          => $shippingAddress->getCity(),
+                    'region'            => \XLite\Module\QSL\BraintreeVZ\Core\BraintreeClient::getInstance()->getStateField($shippingAddress),
+                    'postalCode'        => $shippingAddress->getZipcode(),
+                    'countryCodeAlpha2' => strtoupper($shippingAddress->getCountry()->getCode()),
+                ],
+            ],
+        ];
+
+        return $result;
+    }
+
 }

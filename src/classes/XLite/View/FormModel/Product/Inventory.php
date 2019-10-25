@@ -58,18 +58,18 @@ class Inventory extends \XLite\View\FormModel\AFormModel
                     'position' => 100,
                 ],
                 'quantity_in_stock'                 => [
-                    'label'     => static::t('Quantity in stock'),
-                    'type'      => 'XLite\View\FormModel\Type\PatternType',
-                    'pattern'   => [
+                    'label'             => static::t('Quantity in stock'),
+                    'type'              => 'XLite\View\FormModel\Type\PatternType',
+                    'inputmask_pattern' => [
                         'alias'      => 'integer',
                         'rightAlign' => false,
                     ],
-                    'show_when' => [
+                    'show_when'         => [
                         'default' => [
                             'inventory_tracking_status' => '1',
                         ],
                     ],
-                    'position'  => 200,
+                    'position'          => 200,
                 ],
                 'low_stock_warning_on_product_page' => [
                     'label'     => static::t('Show low stock warning on product page'),
@@ -92,18 +92,18 @@ class Inventory extends \XLite\View\FormModel\AFormModel
                     'position'  => 400,
                 ],
                 'low_stock_limit'                   => [
-                    'label'     => static::t('Low limit quantity'),
-                    'type'      => 'XLite\View\FormModel\Type\PatternType',
-                    'pattern'   => [
+                    'label'             => static::t('Low limit quantity'),
+                    'type'              => 'XLite\View\FormModel\Type\PatternType',
+                    'inputmask_pattern' => [
                         'alias'      => 'integer',
                         'rightAlign' => false,
                     ],
-                    'show_when' => [
+                    'show_when'         => [
                         'default' => [
                             'inventory_tracking_status' => '1',
                         ],
                     ],
-                    'position'  => 500,
+                    'position'          => 500,
                 ],
             ],
         ];

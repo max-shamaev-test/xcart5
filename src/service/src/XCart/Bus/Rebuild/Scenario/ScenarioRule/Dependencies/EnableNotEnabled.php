@@ -15,9 +15,11 @@ use XCart\Bus\Rebuild\Scenario\Transition\EnableTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\InstallEnabledTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\TransitionInterface;
 use XCart\Bus\Rebuild\Scenario\Transition\UpgradeTransition;
+use XCart\SilexAnnotations\Annotations\Service;
 
 /**
  * Enable required modules
+ * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild"})
  */
 class EnableNotEnabled extends DependencyRuleAbstract
 {

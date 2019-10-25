@@ -71,12 +71,12 @@ class HookFilter
         }
 
         return array_values(
-            array_filter($list, function ($file) use ($type, $hooksDir, $versionBefore, $versionAfter) {
+            array_filter($list, static function ($file) use ($type, $hooksDir, $versionBefore, $versionAfter) {
                 if (!preg_match('/' . preg_quote('/' . $type, '/') . '.*\.php$/', $file)) {
                     return false;
                 }
 
-                $version = str_replace(['/', '\\'], '.', \dirname(str_replace($hooksDir, '', $file)));
+                $version = str_replace(['/', '\\'], '.', dirname(str_replace($hooksDir, '', $file)));
 
                 return version_compare($version, $versionAfter, '<=')
                     && version_compare($version, $versionBefore, '>');
@@ -91,9 +91,9 @@ class HookFilter
      */
     public function sortAscending(array $list): array
     {
-        usort($list, function ($a, $b) {
-            $versionA = preg_replace('/.*(\d+\.\d+)\/(\d+(\.\d+)?)\/[^\/]+$/S', '$1.$2', $a);
-            $versionB = preg_replace('/.*(\d+\.\d+)\/(\d+(\.\d+)?)\/[^\/]+$/S', '$1.$2', $b);
+        usort($list, static function ($a, $b) {
+            $versionA = preg_replace('#.*(\d+\.\d+)/(\d+(\.\d+)?)/[^/]+$#S', '$1.$2', $a);
+            $versionB = preg_replace('#.*(\d+\.\d+)/(\d+(\.\d+)?)/[^/]+$#S', '$1.$2', $b);
 
             $result = version_compare($versionA, $versionB);
             if ($result === 0) {

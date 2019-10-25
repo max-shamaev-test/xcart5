@@ -8,19 +8,23 @@
 
 namespace XCart\Bus\Rebuild\Scenario\ScenarioRule\Dependencies;
 
+use Psr\Log\LoggerInterface;
 use XCart\Bus\Domain\Module;
 use XCart\Bus\Query\Data\CoreConfigDataSource;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
 use XCart\Bus\Query\Data\MarketplaceModulesDataSource;
 use XCart\Bus\Rebuild\Scenario\ScenarioBuilder;
 use XCart\Bus\Rebuild\Scenario\ScenarioRule\ScenarioRuleException;
+use XCart\Bus\Rebuild\Scenario\Transition\EnableTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\InstallDisabledTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\InstallEnabledTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\TransitionInterface;
 use XCart\Bus\Rebuild\Scenario\Transition\UpgradeTransition;
+use XCart\SilexAnnotations\Annotations\Service;
 
 /**
  * Check minRequiredCoreVersion
+ * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild"})
  */
 class CoreVersion extends DependencyRuleAbstract
 {
@@ -38,13 +42,15 @@ class CoreVersion extends DependencyRuleAbstract
      * @param InstalledModulesDataSource   $installedModulesDataSource
      * @param MarketplaceModulesDataSource $marketplaceModulesDataSource
      * @param CoreConfigDataSource         $coreConfigDataSource
+     * @param LoggerInterface              $logger
      */
     public function __construct(
         InstalledModulesDataSource $installedModulesDataSource,
         MarketplaceModulesDataSource $marketplaceModulesDataSource,
-        CoreConfigDataSource $coreConfigDataSource
+        CoreConfigDataSource $coreConfigDataSource,
+        LoggerInterface $logger
     ) {
-        parent::__construct($installedModulesDataSource, $marketplaceModulesDataSource);
+        parent::__construct($installedModulesDataSource, $marketplaceModulesDataSource, $logger);
 
         $this->coreConfigDataSource = $coreConfigDataSource;
     }
@@ -87,6 +93,10 @@ class CoreVersion extends DependencyRuleAbstract
                 if ($requiredMajorCoreVersion < $majorCoreVersionFormatted) {
                     throw ScenarioRuleException::fromDependenciesCoreVersionModuleUpgradeRequired($transition->getModuleId(), $id);
                 }
+            } else {
+                if ($transition instanceof EnableTransition || $transition instanceof InstallEnabledTransition) {
+                    throw ScenarioRuleException::fromDependenciesCoreVersionNonExistentModule($transition->getModuleId(), $id);
+                }
             }
         }
     }
@@ -105,9 +115,9 @@ class CoreVersion extends DependencyRuleAbstract
      * @param string          $id
      * @param ScenarioBuilder $scenarioBuilder
      *
-     * @return Module
+     * @return Module|null
      */
-    private function getDependencyModule($id, ScenarioBuilder $scenarioBuilder): Module
+    private function getDependencyModule($id, ScenarioBuilder $scenarioBuilder)
     {
         $transition = $scenarioBuilder->getTransition($id);
         if ($transition) {

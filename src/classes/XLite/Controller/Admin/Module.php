@@ -85,7 +85,8 @@ class Module extends \XLite\Controller\Admin\AAdmin
      */
     public function getTitle()
     {
-        list($author, $name) = \Includes\Utils\Module\Module::explodeModuleId($this->getModule());
+        $module = $this->getModule();
+        $name = Manager::getRegistry()->getModule($module)->moduleName;
 
         return static::t(
             'X module settings',

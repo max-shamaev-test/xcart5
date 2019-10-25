@@ -9,6 +9,7 @@
 namespace XCart\Bus\Rebuild\Executor\Step\Execute;
 
 use XCart\Bus\Core\Annotations\RebuildStep;
+use XCart\Bus\Domain\Module;
 use XCart\Bus\Rebuild\Executor\ScriptState;
 use XCart\Bus\Rebuild\Executor\Step\AUpgradeHook;
 use XCart\SilexAnnotations\Annotations\Service;
@@ -19,6 +20,35 @@ use XCart\SilexAnnotations\Annotations\Service;
  */
 class PostUpgradeHook extends AUpgradeHook
 {
+    /**
+     * @param ScriptState $scriptState
+     *
+     * @return array
+     */
+    protected function getTransitions(ScriptState $scriptState): array
+    {
+        $transitions = [];
+
+        $parentStepState = $scriptState->getCompletedStepState(CheckPostponedHooks::class);
+        if ($parentStepState) {
+            $executePostponedHooksModules = $parentStepState->data['executeModulesHooks'];
+
+            foreach (parent::getTransitions($scriptState) as $id => $transition) {
+                if (Module::isPreviuosMajorVersion($transition['version_before'], $transition['version_after'])
+                    && !in_array($transition['id'], $executePostponedHooksModules, true)
+                ) {
+                    continue;
+                }
+
+                $transitions[$id] = $transition;
+            }
+        } else {
+            $transitions = parent::getTransitions($scriptState);
+        }
+
+        return $transitions;
+    }
+
     /**
      * @return string
      */

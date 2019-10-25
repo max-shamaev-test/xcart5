@@ -53,7 +53,7 @@ class Marketplace extends \XLite\View\Menu\Admin\ANodeNotification
      */
     protected function getHeaderUrl()
     {
-        return \XLite::getInstance()->getShopURL('service.php#/marketplace');
+        return \XLite::getInstance()->getServiceURL('#/marketplace');
     }
 
     /**

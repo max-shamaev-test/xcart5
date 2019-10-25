@@ -53,10 +53,7 @@ class Checkbox extends \XLite\View\Product\AttributeValue\Customer\ACustomer
     {
         $attrValues = $this->getAttrValues();
 
-        $result = [
-            'v-bind:true-value' => $attrValues[1]->getId(),
-            'v-bind:false-value' => $attrValues[0]->getId(),
-        ];
+        $result = [];
 
         foreach ($attrValues[1]::getModifiers() as $field => $options) {
             $modifier = $attrValues[1]->getAbsoluteValue($field);

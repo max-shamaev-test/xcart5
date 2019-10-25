@@ -10,8 +10,8 @@ namespace XCart\Bus\Rebuild\Executor\Step\Execute;
 
 use Psr\Log\LoggerInterface;
 use XCart\Bus\Core\Annotations\RebuildStep;
+use XCart\Bus\Domain\Module;
 use XCart\Bus\Domain\ModuleInfoProvider;
-use XCart\Bus\Exception\RebuildException;
 use XCart\Bus\Helper\UrlBuilder;
 use XCart\Bus\Rebuild\Executor\ScriptState;
 use XCart\Bus\Rebuild\Executor\Step\StepInterface;
@@ -41,14 +41,10 @@ class UpdateScriptState implements StepInterface
     private $logger;
 
     /**
-     * @var string
-     */
-    private $rebuildId;
-
-    /**
-     * @param ModuleInfoProvider $moduleInfoProvider
-     * @param UrlBuilder         $urlBuilder
-     * @param LoggerInterface    $logger
+     * @param ModuleInfoProvider   $moduleInfoProvider
+     * @param CoreConfigDataSource $coreConfigDataSource
+     * @param UrlBuilder           $urlBuilder
+     * @param LoggerInterface      $logger
      *
      * @return static
      *
@@ -68,9 +64,10 @@ class UpdateScriptState implements StepInterface
     }
 
     /**
-     * @param ModuleInfoProvider $moduleInfoProvider
-     * @param UrlBuilder         $urlBuilder
-     * @param LoggerInterface    $logger
+     * @param ModuleInfoProvider   $moduleInfoProvider
+     * @param CoreConfigDataSource $coreConfigDataSource
+     * @param UrlBuilder           $urlBuilder
+     * @param LoggerInterface      $logger
      */
     public function __construct(
         ModuleInfoProvider $moduleInfoProvider,
@@ -104,10 +101,10 @@ class UpdateScriptState implements StepInterface
     {
         $transitions = $this->getTransitions($scriptState);
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'          => $scriptState->id,
                 'transitions' => $transitions,
             ]
         );
@@ -128,6 +125,16 @@ class UpdateScriptState implements StepInterface
                 $transitions[$id]['stateAfterTransition']['integrated'] = false;
                 $transitions[$id]['stateAfterTransition']['enabled']    = false;
             }
+
+            if ($transition['transition'] === ChangeUnitProcessor::TRANSITION_UPGRADE) {
+                if (($this->getMajorFormattedVersion($transition['stateBeforeTransition']['version'])
+                        !== $this->getMajorFormattedVersion($transition['stateAfterTransition']['version']))
+                    && !isset($transitions['CDev-Core'])
+                ) {
+                    $transitions[$id]['stateAfterTransition']['integrated'] = true;
+                    $transitions[$id]['stateAfterTransition']['enabled']    = true;
+                }
+            }
         }
 
         $scriptState->transitions = $transitions;
@@ -141,7 +148,6 @@ class UpdateScriptState implements StepInterface
         $this->logger->debug(
             sprintf('Update script transitions'),
             [
-                'id'          => $scriptState->id,
                 'transitions' => $transitions,
             ]
         );
@@ -167,13 +173,9 @@ class UpdateScriptState implements StepInterface
      * @param array     $params
      *
      * @return StepState
-     *
-     * @throws RebuildException
      */
     public function execute(StepState $state, $action = self::ACTION_EXECUTE, array $params = []): StepState
     {
-        $this->rebuildId = $state->rebuildId;
-
         $remainTransitions = $state->remainTransitions;
 
         $state->finishedTransitions = $remainTransitions;
@@ -248,5 +250,17 @@ class UpdateScriptState implements StepInterface
         }
 
         return '';
+    }
+
+    /**
+     * @param string $version
+     *
+     * @return string
+     */
+    private function getMajorFormattedVersion($version): string
+    {
+        [$system, $major, ,] = Module::explodeVersion($version);
+
+        return $system . '.' . $major;
     }
 }

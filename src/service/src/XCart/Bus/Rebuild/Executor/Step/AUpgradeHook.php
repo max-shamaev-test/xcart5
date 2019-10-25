@@ -70,9 +70,11 @@ abstract class AUpgradeHook extends AHook
                 $hooks = $this->getHooksListByTransition($transition);
                 if ($hooks) {
                     return [
-                        'id'           => $transition['id'],
-                        'remain_hooks' => $this->sortHooks($hooks),
-                        'pack_dir'     => $transition['pack_dir'],
+                        'id'             => $transition['id'],
+                        'version_before' => $transition['version_before'],
+                        'version_after'  => $transition['version_after'],
+                        'remain_hooks'   => $this->sortHooks($hooks),
+                        'pack_dir'       => $transition['pack_dir'],
                     ];
                 }
 

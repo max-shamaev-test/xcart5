@@ -76,11 +76,6 @@ class Logo extends \XLite\View\Image
         }, $cacheParams);
     }
 
-    protected function getBlurredImageData()
-    {
-        return null;
-    }
-
     /**
      * @inheritdoc
      */

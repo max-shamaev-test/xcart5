@@ -199,7 +199,7 @@ class HTMLPurifier extends \XLite\Base\Singleton
      */
     public static function purify($value)
     {
-        return static::getPurifier()->purify($value);
+        return \XLite\Core\Converter::filterCurlyBrackets(html_entity_decode(static::getPurifier()->purify($value)));
     }
 
     /**

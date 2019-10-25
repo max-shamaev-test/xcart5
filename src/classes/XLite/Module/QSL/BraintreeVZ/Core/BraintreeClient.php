@@ -55,6 +55,12 @@ class BraintreeClient extends \XLite\Base\Singleton
     const IS_DEBUG = true;
 
     /**
+     * Labels of 3D secure errors
+     */
+    const THREE_D_SECURE_ERROR = '3D secure failed';
+    const THREE_D_SECURE_BRAINTREE_ERROR = 'Gateway Rejected: three_d_secure';
+
+    /**
      * Fields of Braintree transaction theat should be saved
      */
     protected $transactionFields = array(
@@ -523,8 +529,10 @@ class BraintreeClient extends \XLite\Base\Singleton
             foreach ($this->transactionFields as $field => $title) {
 
                 if ($result->transaction->$field) {
-    
-                    $transaction->setBraintreeDataCell($field, $result->transaction->$field, $title);
+
+                    if (!$isSecondary || 'id' != $field) {
+                        $transaction->setBraintreeDataCell($field, $result->transaction->$field, $title);
+                    }
 
                     if (isset($this->codeHash[$field])) {
                 
@@ -558,7 +566,8 @@ class BraintreeClient extends \XLite\Base\Singleton
                     $isSaveCard = ('Y' == \XLite\Core\Request::getInstance()->save_card);
 
                     if (
-                        !$isSaveCard
+                        !$isSecondary
+                        && !$isSaveCard
                         && !empty($result->transaction->creditCard['token'])
                         && empty(\XLite\Core\Request::getInstance()->saved_card_token)
                     ) {
@@ -592,21 +601,30 @@ class BraintreeClient extends \XLite\Base\Singleton
             $errorList = array(''); // For empty line after "Failure reason"
 
             // Validation error(s)
-            foreach ($result->errors->deepAll() as $key => $error) {
+            $errors = $result->errors->deepAll();
 
-                $field = 'Error' . $key;
-                $value = $error->message;
-                $title = 'Error #' . $error->code . ' ' . $value;
+            if ($errors) {
+                foreach ($errors as $key => $error) {
 
-                $transaction->setBraintreeDataCell($field, $value, $title);
+                    $field = 'Error' . $key;
+                    $value = (self::THREE_D_SECURE_BRAINTREE_ERROR != $error->message) ? $error->message : self::THREE_D_SECURE_ERROR;
+                    $title = 'Error #' . $error->code . ' ' . $value;
 
-                static::processError($title);
+                    $transaction->setBraintreeDataCell($field, $value, $title);
 
-                $errorList[] = $title;
+                    static::processError($title);
+
+                    $errorList[] = $title;
+                }
+            } elseif ($result->message) {
+                $value = (self::THREE_D_SECURE_BRAINTREE_ERROR != $result->message) ? $result->message : self::THREE_D_SECURE_ERROR;
+                $errorList[] = $value;
+                static::processError($value);
             }
 
             if (!$isSecondary) {
                 $transaction->setDataCell('status', implode('<br />', $errorList), 'Failure reason', 'C');
+                $transaction->setNote(implode('<br />', $errorList));
             }
         }
 
@@ -649,7 +667,7 @@ class BraintreeClient extends \XLite\Base\Singleton
                     \XLite\Logger::getInstance()->logCustom(static::DEBUG_LOG_FILE, $logMessage);
                 }
 
-                $this->processResult($transaction, $result);
+                $result = $this->processResult($transaction, $result);
 
                 \XLite\Core\Session::getInstance()->braintree_paypal_nonce = '';
 
@@ -658,6 +676,8 @@ class BraintreeClient extends \XLite\Base\Singleton
                 static::processError($exception);
             }
         }
+
+        return $result;
     }
 
     /**
@@ -666,7 +686,7 @@ class BraintreeClient extends \XLite\Base\Singleton
      * @param \XLite\Model\Payment\Transaction $transaction Tranaction
      * @param float $amount Amount
      *
-     * @return string
+     * @return bool
      */
     public function processCapture(\XLite\Model\Payment\Transaction $transaction, $amount = null)
     {

@@ -20,14 +20,16 @@ use XLite\Module\Amazon\PayWithAmazon\Main;
 class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
 {
     public $invalidPaymentMethod = false;
+    public $hasAmazonConstraint = false;
 
     /**
      * @var array
      */
     protected static $declineReasons = [
-        'InvalidPaymentMethod' => 'There were problems with the payment method.',
-        'AmazonRejected'       => 'Amazon has rejected the authorisation.',
-        'ProcessingFailure'    => 'Amazon could not process the transaction due to an internal processing error.',
+        'InvalidPaymentMethod' => 'Your payment could not be processed, please follow the instructions in the payment method box.',
+        'AmazonRejected'       => 'Your payment could not be processed. Please try to place the order again using another payment method.',
+        'ProcessingFailure'    => 'Your order could not be processed due to a system error. Please try to place the order again.',
+        'TransactionTimedOut'  => 'Your payment could not be processed. Please try to place the order again using another payment method.',
     ];
 
     /**
@@ -65,6 +67,19 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
             BackendTransaction::TRAN_TYPE_REFUND,
             'amazonRefresh',
             'amazonRefundRefresh',
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getRedirectToCartReasons()
+    {
+        return [
+            'AmazonRejected',
+            'TransactionTimedOut',
+            'ProcessingFailure',
+            'MFA_Failure'
         ];
     }
 
@@ -194,10 +209,11 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
         $amount   = $this->transaction->getValue();
 
         $errorMessage = '';
+        $authorizationDetails = [];
 
         try {
             if (!$request->isRetry) {
-                $this->clientRequest(
+                $setOrderReferenceResult = $this->clientRequest(
                     'setOrderReferenceDetails',
                     [
                         'amazon_order_reference_id' => $orderReference,
@@ -206,16 +222,45 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
                         'seller_note'               => '',
                         'seller_order_id'           => $this->getTransactionId(),
                         'store_name'                => \XLite\Core\Config::getInstance()->Company->company_name,
+                        'custom_information'        => 'created by X-Cart, X-Cart, V' . Main::getVersion(),
                     ]
                 );
+
+                if (isset($setOrderReferenceResult['SetOrderReferenceDetailsResult']['OrderReferenceDetails']['Constraints'])
+                    && 'PaymentMethodNotAllowed' == $setOrderReferenceResult['SetOrderReferenceDetailsResult']['OrderReferenceDetails']['Constraints']['Constraint']['ConstraintID']
+                ) {
+                    $constraintId = $setOrderReferenceResult['SetOrderReferenceDetailsResult']['OrderReferenceDetails']['Constraints']['Constraint']['ConstraintID'];
+                    $this->hasAmazonConstraint = true;
+                    $this->transaction->setDataCell('AmazonConstraintId', $constraintId, 'AmazonConstraintId');
+                    $this->transaction->setDataCell('AmazonConstraintDescription', $setOrderReferenceResult['SetOrderReferenceDetailsResult']['OrderReferenceDetails']['Constraints']['Constraint']['Description'], 'AmazonConstraintDescription');
+
+                    switch ($constraintId) {
+                        case 'PaymentMethodNotAllowed':
+                            $exceptionMessage = static::t('The selected payment method is not available for this transaction. Please select another one or add a new payment method to the wallet widget.');
+                            break;
+                        case 'PaymentPlanNotSet':
+                            $exceptionMessage = static::t('No payment instrument has been selected for this order, please try to refresh the page or add a new payment instrument in the wallet widget.');
+                            break;
+                        case 'AmountNotSet':
+                            $exceptionMessage = static::t('The order failed due to a technical error, please select another payment method or contact our support.');
+                            break;
+                        default:
+                            $exceptionMessage = static::t('That payment method was not accepted for this transaction. Please choose another.');
+                    }
+
+                    throw new \Exception($exceptionMessage);
+                }
             }
 
+            $confirmOrderReferenceParams = [
+                'amazon_order_reference_id' => $orderReference,
+            ];
+            if ($this->isSCAFlowNeed()) {
+                $confirmOrderReferenceParams['success_url'] = $this->getReturnURL(null, true);
+            }
             $this->clientRequest(
                 'confirmOrderReference',
-                [
-                    'amazon_order_reference_id' => $orderReference,
-                    'success_url'               => $this->getReturnURL(null, true),
-                ]
+                $confirmOrderReferenceParams
             );
 
             $details = $this->clientRequest(
@@ -224,6 +269,25 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
                     'amazon_order_reference_id' => $orderReference,
                 ]
             );
+
+            if (!$this->isSCAFlowNeed()) {
+                $authorizationDetails = $this->authorizePayment($orderReference, $amount);
+            }
+
+            if ($this->isSCAFlowNeed()
+                && $request->isRetry
+                && $details
+            ) {
+                // Amazon do not allow to rewrite success_url
+                $returnTxnId = $details['GetOrderReferenceDetailsResult']['OrderReferenceDetails']['SellerOrderAttributes']['SellerOrderId'];
+                if ($this->getTransactionId() !== $returnTxnId) {
+                    /** @var \XLite\Model\Payment\Transaction $returnTxn */
+                    $returnTxn = \XLite\Core\Database::getRepo('XLite\Model\Payment\Transaction')->findOneByPublicTxnId($returnTxnId);
+                    if ($returnTxn) {
+                        $returnTxn->setDataCell('retry_txn_id', $this->getTransactionId(), null, \XLite\Model\Payment\TransactionData::ACCESS_CUSTOMER);
+                    }
+                }
+            }
 
             $controller = \XLite::getController();
             if ($details && $controller instanceof \XLite\Module\Amazon\PayWithAmazon\Controller\Customer\AmazonCheckout) {
@@ -234,19 +298,45 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
             }
 
         } catch (APIException $e) {
+            $this->hasAmazonConstraint = true;
             $errorMessage = $e->getMessage();
         } catch (\Exception $e) {
             $errorMessage = $e->getMessage();
         }
 
-        if ($errorMessage) {
-            $this->transaction->setNote($errorMessage);
-            $this->transaction->setDataCell('status', $errorMessage);
+        $resultStatus = static::FAILED;
+
+        if ($this->isSCAFlowNeed()) {
+            if ($errorMessage) {
+                $this->transaction->setNote($errorMessage);
+                $this->transaction->setDataCell('status', $errorMessage);
+
+                echo (json_encode(['error' => true]));
+            }
+
+            $this->transaction->setDataCell('amazonOrderReferenceId', $orderReference, null, \XLite\Model\Payment\TransactionData::ACCESS_CUSTOMER);
+
+            $resultStatus = static::PROLONGATION;
         }
 
-        $this->transaction->setDataCell('amazonOrderReferenceId', $orderReference, null, \XLite\Model\Payment\TransactionData::ACCESS_CUSTOMER);
+        if (!$this->isSCAFlowNeed() || $errorMessage) {
+            $transactionStatus = $this->processAuthorizationResult($this->transaction, $authorizationDetails, $errorMessage);
 
-        return static::PROLONGATION;
+            $resultStatus = static::FAILED;
+            switch ($transactionStatus) {
+                case \XLite\Model\Payment\Transaction::STATUS_FAILED:
+                    $resultStatus = static::FAILED;
+                    break;
+                case \XLite\Model\Payment\Transaction::STATUS_PENDING:
+                    $resultStatus = static::PENDING;
+                    break;
+                case \XLite\Model\Payment\Transaction::STATUS_SUCCESS:
+                    $resultStatus = static::COMPLETED;
+                    break;
+            }
+        }
+
+        return $resultStatus;
     }
 
     /**
@@ -261,64 +351,108 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
     {
         parent::processReturn($transaction);
 
-        $transactionStatus = $transaction::STATUS_FAILED;
+        if ($this->isSCAFlowNeed()) {
 
-        $request        = \XLite\Core\Request::getInstance();
-        $orderReference = $this->transaction->getDetail('amazonOrderReferenceId');
+            $request        = \XLite\Core\Request::getInstance();
+            $orderReference = $this->transaction->getDetail('amazonOrderReferenceId');
 
-        $transactionData = [
-            'amazonOrderReferenceId' => $orderReference,
+            $amount = $this->transaction->getValue();
+
+            $authorizationDetails = [];
+
+            $errorMessage = '';
+
+            try {
+                if ('Success' === $request->AuthenticationStatus) {
+                    $authorizationDetails = $this->authorizePayment($orderReference, $amount);
+
+                } elseif ('Failure' === $request->AuthenticationStatus) {
+                    $errorMessage = static::t("There was a problem with your payment. Your order hasn't been placed, and you haven't been charged.");
+                    $this->transaction->setDataCell('MFA_status', 'MFA_Failure');
+
+                } elseif ('Abandoned' === $request->AuthenticationStatus) {
+                    $errorMessage = static::t("Something's wrong with your payment method. To place your order, try another.");
+                    $this->transaction->setDataCell('MFA_status', 'MFA_Abandoned');
+                }
+
+            } catch (APIException $e) {
+                $this->hasAmazonConstraint = true;
+                $errorMessage = $e->getMessage();
+            } catch (\Exception $e) {
+                $errorMessage = $e->getMessage();
+            }
+
+            $this->processAuthorizationResult($transaction, $authorizationDetails, $errorMessage);
+        }
+    }
+
+    /**
+     * @param $orderReference
+     * @param $amount
+     *
+     * @return array|mixed
+     * @throws APIException
+     */
+    protected function authorizePayment($orderReference, $amount)
+    {
+        $authorizationData = [
+            'amazon_order_reference_id'  => $orderReference,
+            'authorization_amount'       => $amount,
+            'authorization_reference_id' => 'auth_' . $this->getTransactionId(),
+            'seller_authorization_note'  => '',
         ];
 
         if ($this->getSetting('capture_mode') === 'C') {
             $authorizationData['capture_now'] = true;
         }
 
-        $amount   = $this->transaction->getValue();
-
-        $authorizationDetails = [];
-
-        $errorMessage = '';
-
-        try {
-            if ('Success' === $request->AuthenticationStatus) {
-                $authorizationData = [
-                    'amazon_order_reference_id'  => $orderReference,
-                    'authorization_amount'       => $amount,
-                    'authorization_reference_id' => 'auth_' . $this->getTransactionId(),
-                    'seller_authorization_note'  => '',
-                ];
-
-                if ($this->getSetting('capture_mode') === 'C') {
-                    $authorizationData['capture_now'] = true;
-                }
-
-                $customerNotes = $this->getOrder()->getNotes();
-                if ($customerNotes && \XLite\View\FormField\Select\TestLiveMode::TEST === $this->getSetting('mode')) {
-                    $authorizationData['seller_authorization_note'] = $customerNotes;
-                }
-
-                if ($this->getSetting('sync_mode') === 'S') {
-                    $authorizationData['transaction_timeout'] = '0';
-                }
-
-                $response             = $this->clientRequest('authorize', $authorizationData);
-                $authorizationDetails = isset($response['AuthorizeResult']['AuthorizationDetails'])
-                    ? $response['AuthorizeResult']['AuthorizationDetails']
-                    : [];
-
-            } elseif ('Failure' === $request->AuthenticationStatus) {
-                $errorMessage = static::t('Multi-Factor Authentication failed');
-
-            } elseif ('Abandoned' === $request->AuthenticationStatus) {
-                $errorMessage = static::t('Multi-Factor Authentication not completed');
-            }
-
-        } catch (APIException $e) {
-            $errorMessage = $e->getMessage();
-        } catch (\Exception $e) {
-            $errorMessage = $e->getMessage();
+        $customerNotes = $this->getOrder()->getNotes();
+        if ($customerNotes && \XLite\View\FormField\Select\TestLiveMode::TEST === $this->getSetting('mode')) {
+            $authorizationData['seller_authorization_note'] = $customerNotes;
         }
+
+        if ($this->getSetting('sync_mode') === 'S') {
+            $authorizationData['transaction_timeout'] = '0';
+        }
+
+        $response             = $this->clientRequest('authorize', $authorizationData);
+        $authorizationDetails = isset($response['AuthorizeResult']['AuthorizationDetails'])
+            ? $response['AuthorizeResult']['AuthorizationDetails']
+            : [];
+
+        if ($authorizationDetails
+            && 'Closed' === $authorizationDetails['AuthorizationStatus']['State']
+            && $authorizationData['capture_now']
+        ) {
+            $this->clientRequest('closeOrderReference', ['amazon_order_reference_id' => $orderReference]);
+        }
+
+        if ($authorizationDetails
+            && 'Declined' === $authorizationDetails['AuthorizationStatus']['State']
+            && isset($authorizationDetails['AuthorizationStatus']['ReasonCode'])
+            && in_array($authorizationDetails['AuthorizationStatus']['ReasonCode'], ['TransactionTimedOut'])
+        ) {
+            $this->clientRequest('cancelOrderReference', ['amazon_order_reference_id' => $orderReference]);
+        }
+
+        return $authorizationDetails;
+    }
+
+    /**
+     * @param $transaction
+     * @param $authorizationDetails
+     * @param $errorMessage
+     *
+     * @return mixed
+     */
+    protected function processAuthorizationResult($transaction, $authorizationDetails, $errorMessage)
+    {
+        $orderReference = $this->transaction->getDetail('amazonOrderReferenceId');
+        $transactionStatus = $transaction::STATUS_FAILED;
+
+        $transactionData = [
+            'amazonOrderReferenceId' => $orderReference,
+        ];
 
         if ($authorizationDetails) {
             $authorizationStatus = $authorizationDetails['AuthorizationStatus']['State'];
@@ -331,7 +465,7 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
             $transactionData['authorizationReason']   = $authorizationReason;
             $transactionData['amazonAuthorizationId'] = $authorizationDetails['AmazonAuthorizationId'];
 
-            if ($authorizationReason === 'InvalidPaymentMethod' && $softDecline) {
+            if ($authorizationReason === 'InvalidPaymentMethod') {
                 $this->invalidPaymentMethod = true;
             }
 
@@ -377,6 +511,16 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
         }
 
         $this->saveFilteredData($transactionData);
+
+        return $transactionStatus;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSCAFlowNeed()
+    {
+        return \XLite\Module\Amazon\PayWithAmazon\Main::isSCAFlowNeed();
     }
 
     /**
@@ -489,6 +633,14 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
 
                 $result = true;
                 TopMessage::addInfo('Payment has been captured successfully.');
+
+                try {
+                    if ($orderReference = $paymentTransaction->getDetail('amazonOrderReferenceId')) {
+                        $this->clientRequest('closeOrderReference', ['amazon_order_reference_id' => $orderReference]);
+                    }
+                    
+                } catch (APIException $e) {
+                }
 
             } else {
                 $errorMessage = 'Status = ' . $status;
@@ -719,6 +871,14 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
                         $paymentTransaction->setDataCell('amazonCaptureId', $amazonCaptureId, 'AmazonCaptureId identifier');
                         $paymentTransaction->setDataCell('authorizationStatus', $status, 'Current status of the authorization');
 
+                        try {
+                            if ($orderReference = $paymentTransaction->getDetail('amazonOrderReferenceId')) {
+                                $this->clientRequest('closeOrderReference', ['amazon_order_reference_id' => $orderReference]);
+                            }
+
+                        } catch (APIException $e) {
+                        }
+
                         TopMessage::addInfo('Payment has been captured successfully.');
                         $result = true;
                     }
@@ -740,6 +900,20 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
                     $transaction->setStatus(Transaction::STATUS_SUCCESS);
 
                     $paymentTransaction->setDataCell('authorizationStatus', $status, 'Current status of the authorization');
+
+                    $reasonCode = $authorizationDetails['AuthorizationStatus']['ReasonCode'];
+                    if ('TransactionTimedOut' == $reasonCode) {
+                        try {
+                            if ($orderReference = $paymentTransaction->getDetail('amazonOrderReferenceId')) {
+                                $this->clientRequest('cancelOrderReference', ['amazon_order_reference_id' => $orderReference]);
+                            }
+
+                        } catch (APIException $e) {
+                        }
+
+                    } elseif ('InvalidPaymentMethod' == $reasonCode) {
+                        $this->sendUpdatePaymentInfoMail($paymentTransaction);
+                    }
 
                     TopMessage::addInfo('Payment has been declined.');
                     $result = true;
@@ -1033,6 +1207,21 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
                             $transaction->setDataCell('authorizationStatus', $status, 'Current status of the authorization');
 
                             $result = true;
+
+                            $reasonCode = $authorizationDetails['AuthorizationStatus']['ReasonCode'];
+                            if ('TransactionTimedOut' == $reasonCode) {
+                                try {
+                                    if ($orderReference = $transaction->getDetail('amazonOrderReferenceId')) {
+                                        $this->clientRequest('cancelOrderReference', ['amazon_order_reference_id' => $orderReference]);
+                                    }
+
+                                } catch (APIException $e) {
+                                }
+
+                            } elseif ('InvalidPaymentMethod' == $reasonCode) {
+                                $this->sendUpdatePaymentInfoMail($transaction);
+                            }
+
                             break;
                     }
                 }
@@ -1095,6 +1284,15 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
                             $transaction->setDataCell('authorizationStatus', $status, 'Current status of the authorization');
 
                             $result = true;
+
+                            try {
+                                if ($orderReference = $transaction->getDetail('amazonOrderReferenceId')) {
+                                    $this->clientRequest('closeOrderReference', ['amazon_order_reference_id' => $orderReference]);
+                                }
+
+                            } catch (APIException $e) {
+                            }
+
                             break;
                         case 'Declined':
                             if ($this->getSetting('capture_mode') === 'A') {
@@ -1109,6 +1307,45 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
                             } elseif ($saleTransaction) {
                                 $saleTransaction->setStatus(BackendTransaction::STATUS_FAILED);
                                 $historyTransaction = $saleTransaction;
+
+                                $reasonCode = $captureDetails['CaptureStatus']['ReasonCode'];
+                                if ('ProcessingFailure' == $reasonCode) {
+                                    $amazonAuthorizationId = null;
+                                    foreach ($transaction->getData() as $cell) {
+                                        if ($cell->getName() == 'amazonAuthorizationId') {
+                                            $amazonAuthorizationId = $cell->getValue();
+                                            break;
+                                        }
+                                    }
+                                    $orderReference = $transaction->getDetail('amazonOrderReferenceId');
+
+                                    if ($amazonAuthorizationId && $orderReference) {
+                                        try {
+                                            $response = $this->clientRequest(
+                                                'getAuthorizationDetails',
+                                                [
+                                                    'amazon_authorization_id' => $amazonAuthorizationId,
+                                                ]
+                                            );
+
+                                            $authorizationDetails = isset($response['GetAuthorizationDetailsResult']['AuthorizationDetails'])
+                                                ? $response['GetAuthorizationDetailsResult']['AuthorizationDetails']
+                                                : [];
+
+                                            if ($authorizationDetails) {
+                                                $authorizationReasonCode = $authorizationDetails['AuthorizationStatus']['ReasonCode'];
+                                                if ('TransactionTimedOut' == $authorizationReasonCode) {
+                                                    $this->clientRequest('cancelOrderReference', ['amazon_order_reference_id' => $orderReference]);
+
+                                                } elseif ('InvalidPaymentMethod' == $authorizationReasonCode) {
+                                                    $this->sendUpdatePaymentInfoMail($transaction);
+                                                }
+                                            }
+
+                                        } catch (APIException $e) {
+                                        }
+                                    }
+                                }
                             }
 
                             $transaction->setStatus(BackendTransaction::STATUS_FAILED);
@@ -1184,6 +1421,14 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
         }
     }
 
+    protected function sendUpdatePaymentInfoMail(Transaction $transaction)
+    {
+        $order = $transaction->getOrder();
+        $order->setIsNotificationsAllowedFlag(false);
+
+        \XLite\Core\Mailer::sendUpdateAmazonPaymentInfo($order);
+    }
+
     /**
      * Define saved into transaction data schema
      *
@@ -1200,6 +1445,28 @@ class PayWithAmazon extends \XLite\Model\Payment\Base\CreditCard
         $data['amazonCaptureId']        = 'AmazonCaptureId identifier';
 
         return $data;
+    }
+
+    /**
+     * @return \XLite\Model\Payment\Transaction|null
+     */
+    public function getReturnOwnerTransaction()
+    {
+        $txn = null;
+        $txnIdName = \XLite\Model\Payment\Base\Online::RETURN_TXN_ID;
+
+        if (!empty(\XLite\Core\Request::getInstance()->$txnIdName)) {
+            $txn = \XLite\Core\Database::getRepo('XLite\Model\Payment\Transaction')
+                ->findOneByPublicTxnId(\XLite\Core\Request::getInstance()->$txnIdName);
+        }
+
+        if ($txn) {
+            if ($retryTxnId = $txn->getDetail('retry_txn_id')) {
+                $txn = \XLite\Core\Database::getRepo('XLite\Model\Payment\Transaction')->findOneByPublicTxnId($retryTxnId) ?: $txn;
+            }
+        }
+
+        return $txn;
     }
 
     /**

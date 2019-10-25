@@ -90,7 +90,8 @@ define('themetweaker/layout_editor', ['js/vue/vue'], function (XLiteVue) {
       'action.save': function () {
         var params = {
           'preset': this.preset,
-          'changes': this.changeset
+          'changes': this.changeset,
+          'returnURL': window.location.href
         };
 
         for (var type in this.images) {

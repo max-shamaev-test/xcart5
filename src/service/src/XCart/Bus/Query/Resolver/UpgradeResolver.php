@@ -8,6 +8,7 @@
 
 namespace XCart\Bus\Query\Resolver;
 
+use Exception;
 use GraphQL\Type\Definition\ResolveInfo;
 use XCart\Bus\Client\MarketplaceClient;
 use XCart\Bus\Core\Annotations\Resolver;
@@ -81,6 +82,13 @@ class UpgradeResolver
     private $hookFilter;
 
     /**
+     * Runtime cache
+     *
+     * @var array
+     */
+    private $upgradeListByType = [];
+
+    /**
      * @param ChangeUnitProcessor          $changeUnitProcessor
      * @param ScenarioDataSource           $scenarioDataSource
      * @param ModulesDataSource            $modulesDataSource
@@ -123,7 +131,7 @@ class UpgradeResolver
      * @param ResolveInfo $info
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      *
      * @Resolver()
      */
@@ -131,7 +139,7 @@ class UpgradeResolver
     {
         $result = [];
 
-        $modules = $this->getUpgradeListByType($args['type']);
+        $modules = $this->getUpgradeListByType($args['type'], $args['moduleId'] ?? '');
 
         foreach ($modules as $module) {
             $result[] = $this->upgradeEntryFactory->buildEntry(
@@ -150,21 +158,21 @@ class UpgradeResolver
      * @param ResolveInfo $info
      *
      * @return int
-     * @throws \Exception
+     * @throws Exception
      *
      * @Resolver()
      */
     public function getUpgradeEntriesCount($value, $args, $context, ResolveInfo $info): int
     {
-        $modules = array_filter($this->getUpgradeListByType($args['type']), function ($item) {
+        $modules = array_filter($this->getUpgradeListByType($args['type']), static function ($item) {
             return $item['version'] !== null;
         });
 
-        $self = array_filter($this->getUpgradeListByType('self'), function ($item) {
+        $self = array_filter($this->getUpgradeListByType('self'), static function ($item) {
             return $item['version'] !== null;
         });
 
-        return \count($modules) + \count($self);
+        return count($modules) + count($self);
     }
 
     /**
@@ -174,7 +182,7 @@ class UpgradeResolver
      * @param ResolveInfo $info
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      *
      * @Resolver()
      */
@@ -186,13 +194,10 @@ class UpgradeResolver
 
         $ids = $args['ids'] ?? null;
 
-        if (\is_array($ids)) {
-            $list = array_filter(
-                $list,
-                function ($entry) use ($ids) {
-                    return \in_array($entry['id'], $ids, true);
-                }
-            );
+        if (is_array($ids)) {
+            $list = array_filter($list, static function ($entry) use ($ids) {
+                return in_array($entry['id'], $ids, true);
+            });
         }
 
         $changeUnits = array_map(function ($entry) {
@@ -215,7 +220,7 @@ class UpgradeResolver
      * @param ResolveInfo $info
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      *
      * @Resolver()
      */
@@ -236,7 +241,7 @@ class UpgradeResolver
             }
         }
 
-        uasort($result, function ($a, $b) {
+        uasort($result, static function ($a, $b) {
             return $a['weight'] < $b['weight'];
         });
 
@@ -259,7 +264,7 @@ class UpgradeResolver
      * @param ResolveInfo $info
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      *
      * @Resolver()
      */
@@ -275,7 +280,7 @@ class UpgradeResolver
             );
 
             if ($result) {
-                $requestForUpgrade = $this->coreConfigDataSource->requestForUpgrade;
+                $requestForUpgrade              = $this->coreConfigDataSource->requestForUpgrade;
                 $requestForUpgrade[$module->id] = time() + 86400;
 
                 $this->coreConfigDataSource->requestForUpgrade = $requestForUpgrade;
@@ -301,37 +306,52 @@ class UpgradeResolver
 
     /**
      * @param string $type
+     * @param string $id
      *
      * @return Module[]
      */
-    private function getUpgradeListByType($type): array
+    private function getUpgradeListByType($type, $id = ''): array
     {
+        if (empty($id) && isset($this->upgradeListByType[$type])) {
+            return $this->upgradeListByType[$type];
+        }
+
         $filters = ['installed' => true];
 
         /** @var Module[] $modules */
         $modules = array_filter(
-            $this->modulesDataSource->getSlice($type, $filters, ['revisionDate desc']),
-            function ($item) use ($type) {
+            $this->modulesDataSource->getSlice($type, $filters, ['version desc', 'revisionDate desc']),
+            static function ($item) use ($type) {
                 /** @var Module $item */
-                return $type === 'self'
-                    ? $item->id === 'XC-Service'
-                    : $item->id !== 'XC-Service' && $item->version !== null;
+                return ($type === 'self'
+                        ? $item->id === 'XC-Service'
+                        : $item->id !== 'XC-Service'
+                    )
+                    && $item->version !== null;
             }
         );
 
         if ($type === 'self') {
             $modules = array_filter(
                 $modules,
-                function ($item) {
+                static function ($item) {
                     /** @var Module $item */
                     return $item->id === 'XC-Service';
+                }
+            );
+        } elseif ($type === 'postponed' && $id) {
+            $modules = array_filter(
+                $modules,
+                static function ($item) use ($id) {
+                    /** @var Module $item */
+                    return $item->id === $id;
                 }
             );
         }
 
         $disabledModules = array_filter(
             $modules,
-            function ($item) {
+            static function ($item) {
                 /** @var Module $item */
                 return $item->enabled === false;
             }
@@ -351,6 +371,10 @@ class UpgradeResolver
             if (isset($modules[$moduleId])) {
                 $modules[$moduleId]->changelog = $changelogData;
             }
+        }
+
+        if (empty($id)) {
+            $this->upgradeListByType[$type] = $modules;
         }
 
         return $modules;
@@ -487,7 +511,10 @@ class UpgradeResolver
      */
     private function getChangeUnit($entry): array
     {
-        if ($entry['enabled'] || !$this->hasHooks($entry)) {
+        if ($entry['enabled']
+            || !$this->hasHooks($entry)
+            || Module::isPreviuosMajorVersion($entry['installedVersion'], $this->coreConfigDataSource->version)
+        ) {
             return [
                 'id'      => $entry['id'],
                 'upgrade' => true,

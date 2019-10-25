@@ -67,12 +67,14 @@
 }
 
 .keys-notice-form .buttons {
+  display: flex;
+  align-items: center;
   padding-top: 19px;
 }
 
 .keys-notice-form .or {
   display: inline-block;
-  margin: 0 15px;
+  margin: 0 12px;
   font-family: "Trebuchet MS", Helvetica, Jamrul, sans-serif;
   font-size: 13px;
   color: #cccccc;
@@ -147,7 +149,7 @@
 }
 
 .keys-notice-form .buttons .purchase {
-  margin-right: 5px;
+  margin-right: 12px;
 }
 
 .keys-notice-form .buttons a {

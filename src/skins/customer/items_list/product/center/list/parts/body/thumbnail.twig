@@ -9,9 +9,9 @@
   <div class="quick-look-cell-thumbnail">
     {{ widget_list('quick_look.thumbnail', type='nested', product=this.product) }}
     <a 
-      class="product-thumbnail lazy-load"
+      class="product-thumbnail"
       href="{{ this.getProductURL(this.categoryId) }}">
-      {{ widget('\\XLite\\View\\Image', isBlurApplicable=true, image=this.product.getImage(), maxWidth=this.getIconWidth(), maxHeight=this.getIconHeight(), alt=this.product.name, className='photo') }}
+      {{ widget('\\XLite\\View\\Image', lazyLoad=true, image=this.product.getImage(), maxWidth=this.getIconWidth(), maxHeight=this.getIconHeight(), alt=this.product.name, className='photo') }}
     </a>
   </div>
   </div>

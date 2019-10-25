@@ -57,7 +57,7 @@ class Shipping extends \XLite\View\FormField\Select\OrderStatus\AOrderStatus
     protected function getPopupWidget()
     {
         return $this->executeCachedRuntime(function () {
-            return $this->getWidget([], BackstockStatusChangeNotification::class);
+            return $this->getWidget(['order' => $this->getOrder()], BackstockStatusChangeNotification::class);
         });
     }
 

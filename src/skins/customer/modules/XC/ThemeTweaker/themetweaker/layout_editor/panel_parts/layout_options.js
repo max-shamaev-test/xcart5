@@ -57,7 +57,8 @@ define('themetweaker/layout_options', ['js/vue/vue'], function (XLiteVue) {
         this.$dispatch('blockPanel');
         var params = {
           'group': sender.group,
-          'type': value
+          'type': value,
+          'returnURL': window.location.href
         };
 
         params[xliteConfig.form_id_name] = xliteConfig.form_id;
@@ -77,7 +78,8 @@ define('themetweaker/layout_options', ['js/vue/vue'], function (XLiteVue) {
       'action.reset': function () {
         this.$dispatch('blockPanel');
         var params = {
-          'preset': this.preset
+          'preset': this.preset,
+          'returnURL': window.location.href
         };
 
         params[xliteConfig.form_id_name] = xliteConfig.form_id;

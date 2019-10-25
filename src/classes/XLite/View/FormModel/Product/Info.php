@@ -158,7 +158,7 @@ class Info extends \XLite\View\FormModel\AFormModel
 
         $schema = [
             self::SECTION_DEFAULT  => [
-                'name'                 => [
+                'name'               => [
                     'label'       => static::t('Product name'),
                     'required'    => true,
                     'constraints' => [
@@ -174,7 +174,7 @@ class Info extends \XLite\View\FormModel\AFormModel
                     ],
                     'position'    => 100,
                 ],
-                'sku'                  => [
+                'sku'                => [
                     'label'       => static::t('SKU'),
                     'constraints' => [
                         'XLite\Core\Validator\Constraints\MaxLength' => [
@@ -185,7 +185,7 @@ class Info extends \XLite\View\FormModel\AFormModel
                     ],
                     'position'    => 200,
                 ],
-                'images'               => [
+                'images'             => [
                     'label'      => static::t('Images'),
                     'type'       => 'XLite\View\FormModel\Type\UploaderType',
                     'imageClass' => 'XLite\Model\Image\Product\Image',
@@ -193,23 +193,23 @@ class Info extends \XLite\View\FormModel\AFormModel
                     'multiple'   => true,
                     'position'   => 300,
                 ],
-                'category'             => [
-                    'label'       => static::t('Category'),
-                    'type'        => 'XLite\View\FormModel\Type\ProductCategoryType',
-                    'multiple'    => true,
-                    'position'    => 400,
+                'category'           => [
+                    'label'    => static::t('Category'),
+                    'type'     => 'XLite\View\FormModel\Type\ProductCategoryType',
+                    'multiple' => true,
+                    'position' => 400,
                 ],
-                'description'          => [
+                'description'        => [
                     'label'    => static::t('Description'),
                     'type'     => 'XLite\View\FormModel\Type\TextareaAdvancedType',
                     'position' => 500,
                 ],
-                'full_description'     => [
+                'full_description'   => [
                     'label'    => static::t('Full description'),
                     'type'     => 'XLite\View\FormModel\Type\TextareaAdvancedType',
                     'position' => 600,
                 ],
-                'available_for_sale'   => [
+                'available_for_sale' => [
                     'label'    => static::t('Available for sale'),
                     'help'     => static::t('If the product is not available for sale, the system will return 404 response.'),
                     'type'     => 'XLite\View\FormModel\Type\SwitcherType',
@@ -222,9 +222,9 @@ class Info extends \XLite\View\FormModel\AFormModel
                     'promoId' => 'wholesale-prices-1',
                 ],
                 'arrival_date'       => [
-                    'label'    => static::t('Arrival date'),
-                    'type'     => 'XLite\View\FormModel\Type\DatepickerType',
-                    'position' => 350,
+                    'label'       => static::t('Arrival date'),
+                    'type'        => 'XLite\View\FormModel\Type\DatepickerType',
+                    'position'    => 350,
                     'constraints' => [
                         'XLite\Core\Validator\Constraints\Timestamp' => [
                             'message' => static::t('[field] year must be between 1970 and 2038', ['field' => static::t('Arrival date')])
@@ -232,30 +232,30 @@ class Info extends \XLite\View\FormModel\AFormModel
                     ],
                 ],
                 'memberships'        => [
-                    'label'             => static::t('Memberships'),
-                    'type'              => 'XLite\View\FormModel\Type\Select2Type',
-                    'multiple'          => true,
-                    'choices'           => array_flip($memberships),
-                    'position'          => 100,
+                    'label'    => static::t('Memberships'),
+                    'type'     => 'XLite\View\FormModel\Type\Select2Type',
+                    'multiple' => true,
+                    'choices'  => array_flip($memberships),
+                    'position' => 100,
                 ],
                 'tax_class'          => $taxClassSchema,
                 'price'              => [
-                    'label'       => static::t('Price'),
-                    'type'        => 'XLite\View\FormModel\Type\SymbolType',
-                    'symbol'      => $currencySymbol,
-                    'pattern'     => [
+                    'label'             => static::t('Price'),
+                    'type'              => 'XLite\View\FormModel\Type\SymbolType',
+                    'symbol'            => $currencySymbol,
+                    'inputmask_pattern' => [
                         'alias'      => 'xcdecimal',
                         'prefix'     => '',
                         'rightAlign' => false,
                         'digits'     => $currency->getE(),
                     ],
-                    'constraints' => [
+                    'constraints'       => [
                         'Symfony\Component\Validator\Constraints\GreaterThanOrEqual' => [
                             'value'   => 0,
                             'message' => static::t('Minimum value is X', ['value' => 0]),
                         ],
                     ],
-                    'position'    => 300,
+                    'position'          => 300,
                 ],
                 'inventory_tracking' => [
                     'label'       => static::t('Inventory tracking for this product is'),
@@ -267,20 +267,20 @@ class Info extends \XLite\View\FormModel\AFormModel
                             'position' => 100,
                         ],
                         'quantity'           => [
-                            'label'     => static::t('Quantity in stock'),
-                            'type'      => 'XLite\View\FormModel\Type\PatternType',
-                            'pattern'   => [
+                            'label'             => static::t('Quantity in stock'),
+                            'type'              => 'XLite\View\FormModel\Type\PatternType',
+                            'inputmask_pattern' => [
                                 'alias'      => 'integer',
                                 'rightAlign' => false,
                             ],
-                            'show_when' => [
+                            'show_when'         => [
                                 'prices_and_inventory' => [
                                     'inventory_tracking' => [
                                         'inventory_tracking' => '1',
                                     ],
                                 ],
                             ],
-                            'position'  => 200,
+                            'position'          => 200,
                         ],
                     ],
                     'position'    => 400,
@@ -288,16 +288,16 @@ class Info extends \XLite\View\FormModel\AFormModel
             ],
             'shipping'             => [
                 'weight'            => [
-                    'label'    => static::t('Weight'),
-                    'type'     => 'XLite\View\FormModel\Type\SymbolType',
-                    'symbol'   => Config::getInstance()->Units->weight_symbol,
-                    'pattern'  => [
+                    'label'             => static::t('Weight'),
+                    'type'              => 'XLite\View\FormModel\Type\SymbolType',
+                    'symbol'            => Config::getInstance()->Units->weight_symbol,
+                    'inputmask_pattern' => [
                         'alias'          => 'xcdecimal',
                         'digitsOptional' => false,
                         'rightAlign'     => false,
                         'digits'         => 4,
                     ],
-                    'position' => 100,
+                    'position'          => 100,
                 ],
                 'requires_shipping' => [
                     'label'    => static::t('Requires shipping'),
@@ -329,18 +329,18 @@ class Info extends \XLite\View\FormModel\AFormModel
                                     'position'  => 200,
                                 ],
                                 'items_in_box' => [
-                                    'label'            => static::t('Maximum items in box'),
-                                    'type'      => 'XLite\View\FormModel\Type\PatternType',
-                                    'pattern'   => [
+                                    'label'             => static::t('Maximum items in box'),
+                                    'type'              => 'XLite\View\FormModel\Type\PatternType',
+                                    'inputmask_pattern' => [
                                         'alias'      => 'integer',
                                         'rightAlign' => false,
                                     ],
-                                    'show_when' => [
+                                    'show_when'         => [
                                         '..' => [
                                             'separate_box' => 1,
                                         ],
                                     ],
-                                    'position'  => 300,
+                                    'position'          => 300,
                                 ],
                             ],
                             'show_when'        => [
@@ -355,14 +355,14 @@ class Info extends \XLite\View\FormModel\AFormModel
             ],
             'marketing'            => [
                 'meta_description_type' => [
-                    'label'             => static::t('Meta description'),
-                    'type'              => 'Symfony\Component\Form\Extension\Core\Type\ChoiceType',
-                    'choices'           => array_flip([
+                    'label'       => static::t('Meta description'),
+                    'type'        => 'Symfony\Component\Form\Extension\Core\Type\ChoiceType',
+                    'choices'     => array_flip([
                         'A' => (string)static::t('Autogenerated'),
                         'C' => (string)static::t('Custom'),
                     ]),
-                    'placeholder'       => false,
-                    'position'          => 100,
+                    'placeholder' => false,
+                    'position'    => 100,
                 ],
                 'meta_description'      => [
                     'label'              => ' ',

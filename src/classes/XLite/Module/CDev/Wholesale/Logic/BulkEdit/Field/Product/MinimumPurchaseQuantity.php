@@ -19,13 +19,13 @@ class MinimumPurchaseQuantity extends \XLite\Module\XC\BulkEditing\Logic\BulkEdi
             $name => array_replace(
                 $options,
                 [
-                    'label'    => isset($options['label']) ? $options['label'] : 0,
-                    'type'     => 'XLite\View\FormModel\Type\PatternType',
-                    'pattern'  => [
+                    'label'             => isset($options['label']) ? $options['label'] : 0,
+                    'type'              => 'XLite\View\FormModel\Type\PatternType',
+                    'inputmask_pattern' => [
                         'alias'      => 'integer',
                         'rightAlign' => false,
                     ],
-                    'position' => isset($options['position']) ? $options['position'] : 0,
+                    'position'          => isset($options['position']) ? $options['position'] : 0,
                 ]
             ),
         ];

@@ -8,6 +8,8 @@
 
 namespace XCart\Bus\Rebuild\Scenario;
 
+use Exception;
+use Psr\Log\LoggerInterface;
 use XCart\Bus\Rebuild\Scenario\ChangeUnitBuildRule\ChangeUnitBuildRuleInterface;
 use XCart\Bus\Rebuild\Scenario\ChangeUnitBuildRule\ConflictResolver;
 use XCart\Bus\Rebuild\Scenario\Transition\TransitionInterface;
@@ -25,13 +27,22 @@ class TransitionBuilder
     private $rules;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param array            $rules
      * @param ConflictResolver $conflictResolver
+     * @param LoggerInterface  $logger
      */
-    public function __construct(array $rules, ConflictResolver $conflictResolver)
-    {
+    public function __construct(
+        array $rules,
+        ConflictResolver $conflictResolver,
+        LoggerInterface $logger
+    ) {
         $this->rules = array_combine(
-            array_map(function ($rule) {
+            array_map(static function ($rule) {
                 /** @var ChangeUnitBuildRuleInterface $rule */
                 return $rule->getName();
             }, $rules),
@@ -39,13 +50,14 @@ class TransitionBuilder
         );
 
         $this->conflictResolver = $conflictResolver;
+        $this->logger           = $logger;
     }
 
     /**
      * @param array $changeUnit
      *
      * @return TransitionInterface|null
-     * @throws \Exception
+     * @throws Exception
      */
     public function build(array $changeUnit): ?TransitionInterface
     {
@@ -61,7 +73,15 @@ class TransitionBuilder
             $results = $this->conflictResolver->resolve($this->rules, $results);
 
             if (count($results) !== 1) {
-                throw new \Exception("Can't resolve conflicts in transitions");
+                $this->logger->critical(
+                    'Can\'t resolve conflicts in transitions',
+                    [
+                        'changeUnit' => $changeUnit,
+                        'results'    => $results,
+                    ]
+                );
+
+                throw new Exception("Can't resolve conflicts in transitions");
             }
         }
 

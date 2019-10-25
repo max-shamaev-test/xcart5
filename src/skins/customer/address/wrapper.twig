@@ -21,10 +21,10 @@
 
       <div class="address-icons">
         {% if this.address.getIsBilling() %}
-          <img src="{{ asset('images/icon_billing.png') }}" title="This address was used as a billing address during the recent purchase" class="address-type-icon" alt="" />
+          <img src="{{ asset('images/icon_billing.png') }}" title="{{ t('This address was used as a billing address during the recent purchase') }}" class="address-type-icon" alt="" />
         {% endif %}
         {% if this.address.getIsShipping() %}
-          <img src="{{ asset('images/icon_shipping.png') }}" title="This address was used as a shipping address during the recent purchase" class="address-type-icon" alt="" />
+          <img src="{{ asset('images/icon_shipping.png') }}" title="{{ t('This address was used as a shipping address during the recent purchase') }}" class="address-type-icon" alt="" />
         {% endif %}
       </div>
 

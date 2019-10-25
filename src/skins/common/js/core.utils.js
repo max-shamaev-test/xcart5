@@ -15,7 +15,35 @@ window.core.utils = {
 	 */
 	hash: function(value) {
 		return objectHash.MD5(value);
-	}
+	},
+
+  /**
+   * escape some html entities
+   * @see select2 Utils.escapeMarkup
+   * @param string str
+   * @returns string
+   */
+  escapeString: function (str) {
+    var replaceMap = {
+      '\\': '&#92;',
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      '\'': '&#39;',
+      '/': '&#47;'
+    };
+
+    // Do not try to escape the markup if it's not a string
+    if (typeof str !== 'string') {
+      return str;
+    }
+
+    return String(str).replace(/[&<>"'\/\\]/g, function (match) {
+      return replaceMap[match];
+    });
+  }
+
 };
 
 window.await = function (promises, callback) {

@@ -13,7 +13,8 @@ body{
 }
 
 .invoice-box {
-  width: 720px;
+  max-width: 1060px;
+  min-width: 700px;
   padding: 40px;
 }
 
@@ -83,3 +84,15 @@ body{
 .addresses p.email {
   word-break: break-word;
 }
+
+.invoice-box .items td.item td {
+  border: none;
+  padding: 0;
+
+  &.item-image {
+    width: 84px;
+    padding-right: 24px;
+    vert-align: middle;
+  }
+}
+

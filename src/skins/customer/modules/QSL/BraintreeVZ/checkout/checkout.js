@@ -14,6 +14,14 @@ core.bind('load', function () {
      */
     braintreePayment.checkout.triggerError = function (message) {
         core.trigger('message', { 'message': message, 'type': MESSAGE_ERROR });
+        if (braintreePayment.isFlc()) {
+            core.trigger('checkout.common.unblock');
+        } else {
+            CheckoutView.prototype.unshade();
+        }
+        braintreePayment.hostedFields.clear('number');
+        braintreePayment.hostedFields.clear('cvv');
+        braintreePayment.hostedFields.clear('expirationDate');
     };
 
     /**
@@ -106,22 +114,6 @@ core.bind('load', function () {
         core.get(url, function (response) {
             callback.bind(braintreePayment, response.responseJSON)();
         });
-    };
-
-    /**
-     * Add 3-D secure iframe callback
-     */
-    braintreePayment.checkout.addFrameCallback = function (iframe) {
-        var div = $('<div></div>').css('min-width', '400px').css('min-height', '400px').html(iframe);
-
-        popup.open(div);
-    };
-
-    /**
-     * Remove 3-D secure iframe callback
-     */
-    braintreePayment.checkout.removeFrameCallback = function (iframe) {
-        popup.close();
     };
 
     /**

@@ -14,9 +14,11 @@ use XCart\Bus\Rebuild\Scenario\ScenarioBuilder;
 use XCart\Bus\Rebuild\Scenario\ScenarioRule\ScenarioRuleException;
 use XCart\Bus\Rebuild\Scenario\Transition\DisableTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\TransitionInterface;
+use XCart\SilexAnnotations\Annotations\Service;
 
 /**
  * Check if module is cannot be enabled in incompatible module enabled
+ * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild"})
  */
 class ForceSystemDisabledIfIncompatible extends DependencyRuleAbstract
 {

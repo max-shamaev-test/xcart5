@@ -18,6 +18,11 @@ use XCart\SilexAnnotations\Annotations\Service;
 class ScenarioDataSource extends SerializedDataSource
 {
     /**
+     * @var string|null
+     */
+    private $currentScenarioId;
+
+    /**
      * @param Application      $app
      * @param StorageInterface $storage
      *
@@ -33,5 +38,56 @@ class ScenarioDataSource extends SerializedDataSource
         return new static(
             $storage->build($app['config']['cache_dir'], 'scenarioStorage')
         );
+    }
+
+    /**
+     * @param string $scenarioId
+     *
+     * @return array
+     */
+    public function startScenario($scenarioId): array
+    {
+        $this->setCurrentScenarioId($scenarioId);
+
+        return $this->find($scenarioId) ?? [];
+    }
+
+    /**
+     * @param string      $type
+     * @param string|null $returnUrl
+     *
+     * @return array
+     */
+    public function startEmptyScenario($type = 'common', $returnUrl = null): array
+    {
+        $scenarioId = uniqid('scenario', true);
+
+        $this->setCurrentScenarioId($scenarioId);
+
+        return [
+            'id'                 => $scenarioId,
+            'date'               => time(),
+            'updatedAt'          => 0,
+            'type'               => $type,
+            'modulesTransitions' => [],
+            'changeUnits'        => [],
+            'returnUrl'          => $returnUrl,
+        ];
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCurrentScenarioId(): ?string
+    {
+        return $this->currentScenarioId;
+    }
+
+    /**
+     * @param string|null $currentScenarioId
+     */
+    public function setCurrentScenarioId(?string $currentScenarioId): void
+    {
+        $this->currentScenarioId = $currentScenarioId;
     }
 }

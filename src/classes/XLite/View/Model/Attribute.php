@@ -8,6 +8,8 @@
 
 namespace XLite\View\Model;
 
+use XLite\View\FormField\Select\RadioButtonsList\Attribute\CheckboxAddToNew as CheckboxAddToNewRadioList;
+
 /**
  * Attribute view model
  */
@@ -35,24 +37,6 @@ class Attribute extends \XLite\View\Model\AModel
             self::SCHEMA_REQUIRED => false,
         ],
     ];
-
-    /**
-     * Return true if param value may contain anything
-     *
-     * @param string $name Param name
-     *
-     * @return boolean
-     */
-    protected function isParamTrusted($name)
-    {
-        $result = parent::isParamTrusted($name);
-
-        if (!$result && $name === 'name') {
-            $result = true;
-        }
-
-        return $result;
-    }
 
     /**
      * Return current model ID
@@ -156,11 +140,22 @@ class Attribute extends \XLite\View\Model\AModel
             if (
                 \XLite\Model\Attribute::TYPE_CHECKBOX == $this->getModelObject()->getType()
             ) {
+                $this->schemaDefault['isSelectable'] = [
+                    static::SCHEMA_CLASS                                    => '\XLite\View\FormField\Input\Checkbox\YesNo',
+                    static::SCHEMA_LABEL                                    => 'Buyers can select an option',
+                    \XLite\View\FormField\AFormField::PARAM_WRAPPER_CLASS => 'custom-field',
+                    \XLite\View\FormField\AFormField::PARAM_HELP            => 'Whether customers should be able to select an option they require when ordering the product, or the information is provided purely as part of product specification',
+                ];
                 $this->schemaDefault['addToNew'] = [
-                    self::SCHEMA_CLASS                                    => '\XLite\View\FormField\Select\CheckboxList\YesNo',
-                    self::SCHEMA_LABEL                                    => 'Default value',
-                    \XLite\View\FormField\AFormField::PARAM_HELP          => 'This value will be added to new products or class’s assigns automatically',
-                    \XLite\View\FormField\AFormField::PARAM_WRAPPER_CLASS => 'custom-field type-' . $this->getModelObject()->getType(),
+                    static::SCHEMA_CLASS                                    => '\XLite\View\FormField\Select\RadioButtonsList\Attribute\CheckboxAddToNew',
+                    static::SCHEMA_LABEL                                    => 'Default attribute value',
+                    static::SCHEMA_DEPENDENCY                               => [
+                        static::DEPENDENCY_SHOW => [
+                            'isSelectable' => [0],
+                        ],
+                    ],
+                    \XLite\View\FormField\AFormField::PARAM_HELP            => 'This value will be added to new products or class assigns automatically',
+                    \XLite\View\FormField\AFormField::PARAM_WRAPPER_CLASS   => 'custom-field type-' . $this->getModelObject()->getType(),
                 ];
             }
         }
@@ -180,11 +175,41 @@ class Attribute extends \XLite\View\Model\AModel
 
         if (!isset($data['addToNew'])) {
             $data['addToNew'] = [];
+
+        } elseif (\XLite\Model\Attribute::TYPE_CHECKBOX == $this->getModelObject()->getType()) {
+            if ($data['isSelectable']) {
+                $data['addToNew'] = [0,1];
+            } elseif ($data['addToNew'] === CheckboxAddToNewRadioList::NO_VALUE_OPTION) {
+                $data['addToNew'] = [];
+            } else {
+                $data['addToNew'] = [$data['addToNew']];
+            }
         }
 
         parent::setModelProperties($data);
 
         $this->getModelObject()->setProductClass($this->getProductClass());
+    }
+
+    /**
+     * Change model object value
+     *
+     * @param string $name Object value name
+     *
+     * @return mixed
+     */
+    protected function getModelObjectValue($name)
+    {
+        if (
+            \XLite\Model\Attribute::TYPE_CHECKBOX == $this->getModelObject()->getType()
+            && 'isSelectable' == $name
+        ) {
+            $value = parent::getModelObjectValue('addToNew');
+
+            return $value && count($value) === 2 ? 1 : 0;
+        }
+
+        return parent::getModelObjectValue($name);
     }
 
     /**

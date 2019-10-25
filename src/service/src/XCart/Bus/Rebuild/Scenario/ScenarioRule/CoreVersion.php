@@ -8,6 +8,7 @@
 
 namespace XCart\Bus\Rebuild\Scenario\ScenarioRule;
 
+use Psr\Log\LoggerInterface;
 use XCart\Bus\Domain\Module;
 use XCart\Bus\Query\Data\CoreConfigDataSource;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
@@ -19,9 +20,12 @@ use XCart\Bus\Rebuild\Scenario\Transition\InstallEnabledTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\RemoveTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\TransitionInterface;
 use XCart\Bus\Rebuild\Scenario\Transition\UpgradeTransition;
+use XCart\SilexAnnotations\Annotations\Service;
 
 /**
  * Check minRequiredCoreVersion
+ *
+ * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild"})
  */
 class CoreVersion extends RuleAbstract
 {
@@ -36,18 +40,26 @@ class CoreVersion extends RuleAbstract
     private $coreConfigDataSource;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param InstalledModulesDataSource   $installedModulesDataSource
      * @param MarketplaceModulesDataSource $marketplaceModulesDataSource
      * @param CoreConfigDataSource         $coreConfigDataSource
+     * @param LoggerInterface              $logger
      */
     public function __construct(
         InstalledModulesDataSource $installedModulesDataSource,
         MarketplaceModulesDataSource $marketplaceModulesDataSource,
-        CoreConfigDataSource $coreConfigDataSource
+        CoreConfigDataSource $coreConfigDataSource,
+        LoggerInterface $logger
     ) {
         parent::__construct($installedModulesDataSource, $marketplaceModulesDataSource);
 
         $this->coreConfigDataSource = $coreConfigDataSource;
+        $this->logger               = $logger;
     }
 
     /**
@@ -97,6 +109,8 @@ class CoreVersion extends RuleAbstract
         }
 
         if ($requiredMajorCoreVersion < $majorCoreVersionFormatted) {
+            $this->logger->warning(sprintf('Trying to magane outdated module: %s (%s), core (%s)', $id, $module->version, $coreVersion));
+
             throw ScenarioRuleException::fromCoreVersionModuleUpgradeRequired($id);
         }
     }

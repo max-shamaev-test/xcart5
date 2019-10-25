@@ -94,12 +94,6 @@ class InputDataMapper
             throw new IncorrectInputData();
         }
 
-        if ($isMultiple) {
-            $result = [
-                'model' => $result
-            ];
-        }
-
         return $result;
     }
 }

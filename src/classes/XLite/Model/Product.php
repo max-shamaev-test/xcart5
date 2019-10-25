@@ -662,7 +662,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     public function getQuickDataPrice()
     {
-        $price = $this->getClearPrice();
+        $price = $this->getNetPrice();
 
         foreach ($this->prepareAttributeValues() as $av) {
             if (is_object($av)) {
@@ -833,7 +833,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     public function availableInDate()
     {
         return !$this->getArrivalDate()
-            || static::getUserTime() > $this->getArrivalDate();
+            || \XLite\Core\Converter::getDayEnd(static::getUserTime()) > $this->getArrivalDate();
     }
 
     /**
@@ -1075,7 +1075,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     public function isOutOfStock()
     {
-        return !$this->getAmount();
+        return $this->getAmount() <= 0 && $this->inventoryEnabled();
     }
 
     /**
@@ -1452,12 +1452,14 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      * Set product class
      *
      * @param \XLite\Model\ProductClass $productClass Product class OPTIONAL
+     * @param boolean $preprocessChange Flag if use preprocessChangeProductClass() OPTIONAL
      *
      * @return \XLite\Model\Product
      */
-    public function setProductClass(\XLite\Model\ProductClass $productClass = null)
+    public function setProductClass(\XLite\Model\ProductClass $productClass = null, $preprocessChange = true)
     {
-        if ($this->productClass
+        if ($preprocessChange
+            && $this->productClass
             && (
                 !$productClass
                 || $productClass->getId() !== $this->productClass->getId()

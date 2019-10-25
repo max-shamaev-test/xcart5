@@ -19,7 +19,8 @@ class Simple extends AFilter
     {
         /** @var Module $item */
         $item = $this->getInnerIterator()->current();
+        $field = $this->field;
 
-        return isset($item->{$this->field}) && $item->{$this->field} === $this->data;
+        return isset($item->{$field}) && $item->{$field} === $this->data;
     }
 }

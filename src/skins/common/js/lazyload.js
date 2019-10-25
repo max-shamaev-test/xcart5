@@ -210,7 +210,7 @@ var LazyLoad = (function (doc) {
     };
     for (i = 0, len = pendingUrls.length; i < len; ++i) {
       url = pendingUrls[i];
-      if(cache[url] != null) {
+      if(cache[url] != null && url != "var/theme/custom.css") {
         // _finish here can cause unexpected behavior when cache[url] === false but
         // I won't figure out solution, since first issue on github :-)
         _finish();

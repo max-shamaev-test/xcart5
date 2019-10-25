@@ -105,14 +105,11 @@ class RESTAPIClient extends \GuzzleHttp\Client
 
     public function post($uri = null, array $options = [])
     {
-        $request = $this->createRequest('POST', $this->assembleAPIURI($uri), $options);
-
         if (isset($options['body']) && is_array($options['body'])) {
-            $postBody = $request->getBody();
-            $postBody->setField('model', json_encode($options['body']));
+            $options['body'] = http_build_query(['model' => $options['body']]);
         }
 
-        return $this->send($request);
+        return parent::post($this->assembleAPIURI($uri), $options);
     }
 
     public function options($uri = null, array $options = [])

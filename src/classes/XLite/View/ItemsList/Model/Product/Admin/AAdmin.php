@@ -57,4 +57,17 @@ abstract class AAdmin extends \XLite\View\ItemsList\Model\Product\AProduct
         return parent::checkACL()
             && \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage catalog');
     }
+
+    /**
+     * Get search condition for update all found actions
+     *
+     * @return \XLite\Core\CommonCell
+     */
+    public function getActionSearchCondition()
+    {
+        $cnd = $this->getSearchCondition();
+        unset($cnd->orderBy);
+
+        return $cnd;
+    }
 }

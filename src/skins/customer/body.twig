@@ -5,6 +5,7 @@
 <html lang="{{ this.currentLanguage.getCode() }}"{% for k, v in this.getHTMLAttributes() %} {{ k }}="{{ v }}"{% endfor %}>
   {{ widget('\\XLite\\View\\Header') }}
 <body {% if this.getBodyClass() %}class="{{ this.getBodyClass() }}"{% endif %}>
+{{ widget_list('body_top') }}
 <!--email_off-->
 {% do this.displayCommentedData(this.getCommonJSData()) %}
 {{ widget_list('body') }}

@@ -428,14 +428,7 @@ abstract class ErrorHandler
         }
     }
 
-    /**
-     * Exception handler
-     *
-     * @param \Exception|\Error $exception catched exception
-     *
-     * @return void
-     */
-    public static function handleException($exception)
+    public static function logException($exception)
     {
         try {
             if (class_exists('\XLite\Logger')) {
@@ -446,6 +439,18 @@ abstract class ErrorHandler
         }
 
         static::logInfo($exception->getMessage(), $exception->getCode(), $exception->getTraceAsString());
+    }
+
+    /**
+     * Exception handler
+     *
+     * @param \Exception|\Error $exception catched exception
+     *
+     * @return void
+     */
+    public static function handleException($exception)
+    {
+        static::logException($exception);
         static::showErrorPage($exception->getCode(), $exception->getMessage());
     }
 

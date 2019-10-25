@@ -42,11 +42,6 @@ class UnpackPacks implements StepInterface
      */
     private $logger;
 
-    /**
-     * @var string
-     */
-    private $rebuildId;
-
     private $removePackage = false;
 
     /**
@@ -108,10 +103,10 @@ class UnpackPacks implements StepInterface
     {
         $transitions = $this->getTransitions($scriptState);
 
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
         $this->logger->debug(
-            __METHOD__,
+            get_class($this) . ':' . __FUNCTION__,
             [
-                'id'          => $scriptState->id,
                 'transitions' => $transitions,
             ]
         );
@@ -141,8 +136,6 @@ class UnpackPacks implements StepInterface
      */
     public function execute(StepState $state, $action = self::ACTION_EXECUTE, array $params = []): StepState
     {
-        $this->rebuildId = $state->rebuildId;
-
         if ($action === self::ACTION_EXECUTE || $action === self::ACTION_RETRY) {
             $state = $this->processTransition($state);
 
@@ -324,44 +317,38 @@ class UnpackPacks implements StepInterface
         $path = $transition['pack_path'];
         $id   = $transition['id'];
 
-        if ($this->filesystem->exists($path)) {
-            $compressed = substr($path, -4) === '.tgz';
+        $this->logger->debug(sprintf('Extract package: %s', $path));
 
-            $archive = new \Archive_Tar($path, $compressed ? 'gz' : false);
+        if (!$this->filesystem->exists($path)) {
+            $this->logger->critical(sprintf('File (%s) not found', $path));
 
-            $packDir                = $this->packsDir . "{$id}.{$transition['version_after']}/";
-            $transition['pack_dir'] = $packDir;
-
-            $this->logger->debug(
-                sprintf('Extract package: %s', $path),
-                [
-                    'id' => $this->rebuildId,
-                ]
-            );
-
-            if ($this->filesystem->exists($packDir)) {
-                $this->filesystem->remove($packDir);
-            }
-            $this->filesystem->mkdir($packDir);
-
-            if (!$archive->extract($packDir, true)) {
-                throw AbortException::fromUnpackStepExtractionError($id, $path);
-            }
-
-            $this->logger->debug(
-                sprintf('Package extracted: %s', $packDir),
-                [
-                    'id' => $this->rebuildId,
-                ]
-            );
-
-            if ($this->removePackage) {
-                $this->filesystem->remove($path);
-            }
-
-            return $transition;
+            throw AbortException::fromUnpackStepMissingPackage($id, $path);
         }
 
-        throw AbortException::fromUnpackStepMissingPackage($id, $path);
+        $compressed = substr($path, -4) === '.tgz';
+
+        $archive = new \Archive_Tar($path, $compressed ? 'gz' : false);
+
+        $packDir                = $this->packsDir . "{$id}.{$transition['version_after']}/";
+        $transition['pack_dir'] = $packDir;
+
+        if ($this->filesystem->exists($packDir)) {
+            $this->filesystem->remove($packDir);
+        }
+        $this->filesystem->mkdir($packDir);
+
+        if (!$archive->extract($packDir, true)) {
+            $this->logger->critical(sprintf('Cannot extract (%s)', $path));
+
+            throw AbortException::fromUnpackStepExtractionError($id, $path);
+        }
+
+        $this->logger->debug(sprintf('Package extracted: %s', $packDir));
+
+        if ($this->removePackage) {
+            $this->filesystem->remove($path);
+        }
+
+        return $transition;
     }
 }

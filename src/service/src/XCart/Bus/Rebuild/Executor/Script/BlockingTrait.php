@@ -36,13 +36,9 @@ trait BlockingTrait
      * Unlocks the script
      *
      * @param ScriptState $state
-     *
-     * @return ScriptState
      */
-    public function unlockScript(ScriptState $state)
+    public function unlockScript(ScriptState $state): void
     {
         $this->lockManager->unsetRebuildStartedFlag($state->id);
-
-        return $state;
     }
 }

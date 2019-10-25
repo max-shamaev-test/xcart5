@@ -96,7 +96,7 @@ abstract class ThemeTweaker extends \XLite\Controller\Admin\AAdmin
             )
         );
 
-        $data = \XLite\Core\Request::getInstance()->getNonFilteredData();
+        $data = \XLite\Core\Request::getInstance()->getPostData(false);
         $this->saveCode($data['code']);
     }
 

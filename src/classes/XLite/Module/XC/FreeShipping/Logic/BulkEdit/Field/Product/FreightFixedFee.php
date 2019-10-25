@@ -20,22 +20,22 @@ class FreightFixedFee extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Field\
 
         return [
             $name => [
-                'label'       => static::t('Shipping freight'),
-                'type'        => 'XLite\View\FormModel\Type\SymbolType',
-                'symbol'      => $currencySymbol,
-                'pattern'     => [
-                    'alias'          => 'xcdecimal',
-                    'prefix'         => '',
-                    'rightAlign'     => false,
-                    'digits'         => $currency->getE(),
+                'label'             => static::t('Shipping freight'),
+                'type'              => 'XLite\View\FormModel\Type\SymbolType',
+                'symbol'            => $currencySymbol,
+                'inputmask_pattern' => [
+                    'alias'      => 'xcdecimal',
+                    'prefix'     => '',
+                    'rightAlign' => false,
+                    'digits'     => $currency->getE(),
                 ],
-                'constraints' => [
+                'constraints'       => [
                     'Symfony\Component\Validator\Constraints\GreaterThanOrEqual' => [
                         'value'   => 0,
                         'message' => static::t('Minimum value is X', ['value' => 0]),
                     ],
                 ],
-                'position'    => isset($options['position']) ? $options['position'] : 0,
+                'position'          => isset($options['position']) ? $options['position'] : 0,
             ],
         ];
     }

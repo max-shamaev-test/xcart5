@@ -32,6 +32,10 @@ body.target-amazon-checkout .checkout-block .steps .step {
   float: none;
 }
 
+.amazon-checkout-wrapper.amazon-retry .discount-coupons-panel li a {
+  display: none;
+}
+
 body.target-amazon-checkout .checkout-block .steps h3 {
   float: none;
 }

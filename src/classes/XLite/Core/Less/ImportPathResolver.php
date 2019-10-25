@@ -80,9 +80,11 @@ class ImportPathResolver
      */
     public function getParentPathAndUri($filePath, $entryDir)
     {
-        $filePath = realpath($filePath);
-        $entryDir = realpath($entryDir);
-        
+        if (LC_OS_IS_WIN) {
+            $filePath = realpath($filePath);
+            $entryDir = realpath($entryDir);
+        }
+
         if (@list($owner, $short) = $this->getResourceOwnerPathAndShortPath($filePath)) {
             if ($full = $this->getResourceFullParentPathByOwner($short, $owner)) {
                 return [

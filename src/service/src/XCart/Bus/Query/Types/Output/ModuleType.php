@@ -52,7 +52,7 @@ class ModuleType extends AObjectType
                 'price'            => Type::float(),
                 'downloads'        => Type::int(),
                 'rating'           => Type::float(),
-                'tags'             => Type::listOf(Type::string()),
+                'tags'             => Type::listOf($this->app[ModuleTagType::class]),
                 'salesChannelPos'  => Type::string(),
                 'isLanding'        => Type::boolean(),
                 'landingPosition'  => Type::string(),

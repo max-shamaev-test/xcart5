@@ -2,6 +2,10 @@
  # Head cell
  #}
 
+{% if column.columnSelector %}
+  <div>
+{% endif %}
+
 {% if column.headTemplate %}
   {{ widget(template=column.headTemplate, column=column) }}
 {% else %}
@@ -36,4 +40,8 @@
   <input type="checkbox"
          class="selectAll not-significant"
          autocomplete="off" />
+{% endif %}
+
+{% if column.columnSelector %}
+    </div>
 {% endif %}

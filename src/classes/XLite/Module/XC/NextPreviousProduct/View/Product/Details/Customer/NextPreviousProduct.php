@@ -208,7 +208,7 @@ class NextPreviousProduct extends \XLite\View\AView
         $cookieData = $this->getCookieData();
         $cookieKey = 'xc_np_product_' . $this->getProductId();
 
-        \XLite\Core\Request::getInstance()->setCookie($cookieKey, json_encode(array_merge($cookieData, $data)), time() + 30 * 60);
+        setcookie($cookieKey, json_encode(array_merge($cookieData, $data)), time() + 30 * 60);
     }
 
     /**
@@ -309,8 +309,7 @@ class NextPreviousProduct extends \XLite\View\AView
      */
     protected function isProductHasMultipleCategories($product)
     {
-        $result = LC_USE_CLEAN_URLS
-            && !(bool) \Includes\Utils\ConfigParser::getOptions(['clean_urls', 'use_canonical_urls_only']);
+        $result = LC_USE_CLEAN_URLS;
 
         if (!$result) {
             $result = 1 < count($product->getCategories());
@@ -387,15 +386,22 @@ class NextPreviousProduct extends \XLite\View\AView
             }
 
             $result = null;
+
+            $listClass = $cookieData['class'] ?? null;
+
+            if (!$listClass && $this->isDirectLink()) {
+                $listClass = '\XLite\View\ItemsList\Product\Customer\Category\Main';
+            }
+
             if (
-                isset($cookieData['class'])
-                && method_exists($cookieData['class'], 'getSearchSessionCellName')
+                $listClass
+                && method_exists($listClass, 'getSearchSessionCellName')
             ) {
                 $searchCondition = \XLite\Core\Session::getInstance()
-                    ->{$cookieData['class']::getSearchSessionCellName() . '_np'};
+                    ->{$listClass::getSearchSessionCellName() . '_np'};
                 $result          = hash(
                     'md4',
-                    $cookieData['class']
+                    $listClass
                     . print_r($searchCondition, true)
                 );
 
@@ -403,7 +409,7 @@ class NextPreviousProduct extends \XLite\View\AView
 
                 $conditionCellName                            = $result . '_conditionCell';
                 \XLite\Core\Session::getInstance()->{$result} = [
-                    'items_list'        => $cookieData['class'],
+                    'items_list'        => $listClass,
                     'conditionCellName' => $conditionCellName,
                 ];
 

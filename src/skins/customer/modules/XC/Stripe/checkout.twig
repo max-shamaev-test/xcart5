@@ -3,5 +3,6 @@
  #}
 
 <div class="stripe-box" {{ this.printTagAttributes(this.getDataAttributes())|raw }}>
-  <input type="hidden" name="payment[token]" value="" class="token" />
+  <input type="hidden" name="payment[id]" value="" id="id" />
+  <input type="hidden" name="payment[error]" value="" id="error" />
 </div>

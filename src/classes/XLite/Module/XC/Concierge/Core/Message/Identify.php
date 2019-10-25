@@ -87,6 +87,8 @@ class Identify extends AMessage
             $result['createdAt'] = $profile->getAdded();
             $result['loggedIntoTrial'] = 'true';
             $result['Concierge: First Login'] = date('Y-m-d\TH:i:s', $profile->getFirstLogin());
+            $result['Store License Type'] = $this->getLicenseType();
+            $result['Store Version'] = \XLite::getInstance()->getVersion();
         }
 
         $config = $this->getConfig();

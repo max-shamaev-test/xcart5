@@ -262,7 +262,7 @@ class ProductVariant extends \XLite\Model\AEntity
      */
     public function getQuickDataPrice()
     {
-        return $this->getClearPrice();
+        return $this->getNetPrice();
     }
 
     /**
@@ -757,7 +757,7 @@ class ProductVariant extends \XLite\Model\AEntity
      */
     public function setAmount($amount)
     {
-        $this->amount = $amount;
+        $this->amount = $this->correctAmount($amount);
         return $this;
     }
 
@@ -967,5 +967,17 @@ class ProductVariant extends \XLite\Model\AEntity
     public function getOrderItems()
     {
         return $this->orderItems;
+    }
+
+    /**
+     * Check and (if needed) correct amount value
+     *
+     * @param integer $amount Value to check
+     *
+     * @return integer
+     */
+    protected function correctAmount($amount)
+    {
+        return max(0, (int) $amount);
     }
 }

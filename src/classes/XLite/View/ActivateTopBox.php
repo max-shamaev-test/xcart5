@@ -63,6 +63,6 @@ class ActivateTopBox extends \XLite\View\AView
      */
     protected function getBusinessViewUrl()
     {
-        return \XLite::getInstance()->getShopURL('service.php#/business-view');
+        return \XLite::getInstance()->getServiceURL('#/business-view');
     }
 }

@@ -50,11 +50,6 @@ class RestoreFiles implements StepInterface
     private $logger;
 
     /**
-     * @var string
-     */
-    private $rebuildId;
-
-    /**
      * @param Application         $app
      * @param FilesystemInterface $filesystem
      * @param BackupInterface     $backup
@@ -127,12 +122,7 @@ class RestoreFiles implements StepInterface
      */
     public function initialize(ScriptState $scriptState, StepState $stepState = null): StepState
     {
-        $this->logger->debug(
-            __METHOD__,
-            [
-                'id' => $scriptState->id,
-            ]
-        );
+        $this->logger->info(get_class($this) . ':' . __FUNCTION__);
 
         $state = new StepState([
             'id'            => static::class,
@@ -156,8 +146,6 @@ class RestoreFiles implements StepInterface
      */
     public function execute(StepState $state, $action = self::ACTION_EXECUTE, array $params = []): StepState
     {
-        $this->rebuildId = $state->rebuildId;
-
         $backup  = $this->backup->load($state->rebuildId);
         $created = $backup->getCreated() ?: [];
 
@@ -209,12 +197,7 @@ class RestoreFiles implements StepInterface
     {
         try {
             foreach ($files as $file) {
-                $this->logger->debug(
-                    sprintf('Remove: %s', $file),
-                    [
-                        'id' => $this->rebuildId,
-                    ]
-                );
+                $this->logger->debug(sprintf('Remove: %s', $file));
 
                 if ($file) {
                     $this->filesystem->remove($this->rootDir . $file);
@@ -224,6 +207,14 @@ class RestoreFiles implements StepInterface
             return true;
 
         } catch (IOException $e) {
+            $this->logger->critical(
+                'Removing files error',
+                [
+                    'message' => $e->getMessage(),
+                    'files'   => $files,
+                ]
+            );
+
             return false;
         }
     }
@@ -240,12 +231,7 @@ class RestoreFiles implements StepInterface
         try {
             /** @var SplFileInfo $file */
             foreach ($files as $file => $path) {
-                $this->logger->debug(
-                    sprintf('Restore: %s', $file),
-                    [
-                        'id' => $this->rebuildId,
-                    ]
-                );
+                $this->logger->debug(sprintf('Restore: %s', $file));
 
                 $this->filesystem->copy(
                     $path,
@@ -257,6 +243,14 @@ class RestoreFiles implements StepInterface
             return true;
 
         } catch (IOException $e) {
+            $this->logger->critical(
+                'Restoring files error',
+                [
+                    'message' => $e->getMessage(),
+                    'files'   => $files,
+                ]
+            );
+
             return false;
         }
     }

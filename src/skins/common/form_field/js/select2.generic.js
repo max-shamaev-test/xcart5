@@ -44,9 +44,11 @@ define('form_field/select2-generic', [], function() {
 
         var term = $('.select2-search__field', element.parent()).val();
 
+        var text = core.utils.escapeString(state.text);
+
         return state.loading || !term
-          ? state.text
-          : state.text.replace(new RegExp('('+term+')([^/]*)$', 'i'), '<em>$1</em>$2');
+          ? text
+          : text.replace(new RegExp('('+term+')([^/]*)$', 'i'), '<em>$1</em>$2');
       },
       matcher: function (params, match) {
         if (params.term == null || $.trim(params.term) === '') {

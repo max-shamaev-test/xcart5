@@ -56,9 +56,9 @@ abstract class AMail implements IMail
     {
         switch (static::getInterface()) {
             case \XLite::CUSTOMER_INTERFACE:
-                return static::getNotification()->getEnabledForCustomer();
+                return static::getNotification() ? static::getNotification()->getEnabledForCustomer() : true;
             case \XLite::ADMIN_INTERFACE:
-                return static::getNotification()->getEnabledForAdmin();
+                return static::getNotification() ? static::getNotification()->getEnabledForAdmin() : true;
         }
 
         return true;

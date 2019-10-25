@@ -171,6 +171,9 @@ OrderItemsList.prototype.handlePopoverClose = function(event)
 OrderItemsList.prototype.handleHidePopover = function(event)
 {
   this.currentPopover = null;
+
+  //bootstrap popover bug workaround
+  $(event.target).data("bs.popover").inState.click = false;
 }
 
 OrderItemsList.prototype.handleBodyClick = function(event)

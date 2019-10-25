@@ -15,4 +15,17 @@ use XCart\SilexAnnotations\Annotations\Service;
  */
 class Filesystem extends \Symfony\Component\Filesystem\Filesystem implements FilesystemInterface
 {
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public function getNearestExistingDirectory($path, $stopPath = ''): string
+    {
+        do {
+            $path = dirname($path);
+        } while (!is_dir($path) && $path !== $stopPath);
+
+        return $path;
+    }
 }

@@ -39,6 +39,8 @@ class OldSystemAdapter
                 $response = $executor->execute($data, $this->getRebuildId());
                 $response['info'] = ob_get_contents();
             } catch (\Exception $e) {
+                \Includes\ErrorHandler::logException($e);
+
                 $response = [
                     'errors' => [
                         $e->getMessage(),

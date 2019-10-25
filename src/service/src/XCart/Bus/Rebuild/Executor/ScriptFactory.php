@@ -8,6 +8,7 @@
 
 namespace XCart\Bus\Rebuild\Executor;
 
+use Psr\Log\LoggerInterface;
 use Silex\Application;
 use XCart\Bus\Rebuild\Executor\Script\ScriptInterface;
 use XCart\Bus\Rebuild\Executor\Step\StepInterface;
@@ -34,28 +35,37 @@ class ScriptFactory
     private $app;
 
     /**
-     * @param Application $app
+     * @var LoggerInterface
      */
-    public function __construct(Application $app)
-    {
-        $this->app = $app;
+    private $logger;
+
+    /**
+     * @param Application     $app
+     * @param LoggerInterface $logger
+     */
+    public function __construct(
+        Application $app,
+        LoggerInterface $logger
+    ) {
+        $this->app    = $app;
+        $this->logger = $logger;
     }
 
     /**
-     * @param string                 $name
-     * @param string|ScriptInterface $script
+     * @param string $name
+     * @param string $script
      */
-    public function addScript($name, $script)
+    public function addScript($name, $script): void
     {
         $this->scripts[$name] = $script;
     }
 
     /**
-     * @param string        $scriptName
-     * @param StepInterface $step
-     * @param int           $weight
+     * @param string $scriptName
+     * @param string $step
+     * @param int    $weight
      */
-    public function addStep($scriptName, $step, $weight)
+    public function addStep($scriptName, $step, $weight): void
     {
         $this->steps[$scriptName][] = [
             'weight' => $weight,
@@ -68,7 +78,7 @@ class ScriptFactory
      *
      * @return ScriptInterface|null
      */
-    public function createScript($name)
+    public function createScript($name): ?ScriptInterface
     {
         $script = $this->getScript($name);
         if ($script) {
@@ -83,15 +93,17 @@ class ScriptFactory
     /**
      * @param string $name
      *
-     * @return null|ScriptInterface
+     * @return ScriptInterface|null
      */
-    private function getScript($name)
+    private function getScript($name): ?ScriptInterface
     {
         if (isset($this->scripts[$name])) {
             $script = $this->scripts[$name];
 
             return $this->app[$script] ?? new $script;
         }
+
+        $this->logger->error(sprintf('Script for type "%s" is missing', $type));
 
         return null;
     }
@@ -101,11 +113,11 @@ class ScriptFactory
      *
      * @return StepInterface[]
      */
-    private function getScriptSteps($name)
+    private function getScriptSteps($name): array
     {
         $steps = $this->steps[$name] ?? [];
 
-        usort($steps, function ($a, $b) {
+        usort($steps, static function ($a, $b) {
             $a = (int) $a['weight'];
             $b = (int) $b['weight'];
 

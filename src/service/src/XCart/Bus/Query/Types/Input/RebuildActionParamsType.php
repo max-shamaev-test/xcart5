@@ -31,13 +31,17 @@ class RebuildActionParamsType extends InputObjectType
         return [
             'name'   => 'RebuildActionParams',
             'fields' => [
-                'replaceModified' => [
+                'replaceModified'     => [
                     'type'        => Type::string(),
                     'description' => 'Choice about keeping or replacing the modified files. Accepts "all" or "selected" value.',
                 ],
-                'filesToKeep'     => [
+                'filesToKeep'         => [
                     'type'        => Type::listOf(Type::string()),
                     'description' => 'List of file paths to keep as modified during upgrade.',
+                ],
+                'executeModulesHooks' => [
+                    'type'        => Type::listOf(Type::string()),
+                    'description' => 'List of modules to execute posponed pre_upgrade and post_upgrade hooks',
                 ],
             ],
         ];

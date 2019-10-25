@@ -44,7 +44,7 @@ class LicensedGenerator extends AFilterGenerator
         $endTime          = $installationDate + 86400 * 30;
 
         if ($coreLicense) {
-            $this->currentEdition = $coreLicense['editionName'] ?? null;
+            $this->currentEdition = $coreLicense['keyData']['editionName'] ?? null;
         } elseif ($endTime <= time()) {
             $this->currentEdition = 'Trial';
         }

@@ -30,6 +30,10 @@ if (!defined('XLITE_INSTALL_MODE')) {
     \Includes\ErrorHandler::checkIsLCInstalled();
 }
 
+if (!defined('LC_DO_NOT_REBUILD_CACHE')) {
+    CacheManager::checkRebuildBlock();
+}
+
 // So called "developer" mode. Set it to "false" for production mode!
 define('LC_DEVELOPER_MODE', (bool) \Includes\Utils\ConfigParser::getOptions(array('performance', 'developer_mode')));
 
