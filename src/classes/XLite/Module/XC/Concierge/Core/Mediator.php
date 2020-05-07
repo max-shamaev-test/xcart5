@@ -168,7 +168,7 @@ class Mediator extends \XLite\Base\Singleton
             $auth = \XLite\Core\Auth::getInstance();
             $profile = $auth->getProfile();
             $config = \XLite\Core\Config::getInstance();
-            $result = new Identify($config->XC->Concierge->user_id, $auth->getConciergeCompanyId(), $profile, $config);
+            $result = new Identify($config->XC->Concierge->user_id, $profile, $config);
         }
         unset(\XLite\Core\Session::getInstance()->sessionImmediateCreated);
 

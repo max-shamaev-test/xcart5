@@ -8,6 +8,10 @@
 
 namespace XLite\Module\CDev\VolumeDiscounts\View\ItemsList;
 
+use XLite\View\FormField\Input\PriceOrPercent;
+use XLite\View\FormField\Select\AbsoluteOrPercent;
+use XLite\Module\CDev\VolumeDiscounts\Model\VolumeDiscount;
+
 /**
  * Volume discounts items list
  */
@@ -47,21 +51,22 @@ class VolumeDiscounts extends \XLite\View\ItemsList\Model\Table
     {
         return [
             'subtotalRangeBegin' => [
-                static::COLUMN_NAME         => \XLite\Core\Translation::lbl('Subtotal'),
-                static::COLUMN_CLASS        => 'XLite\Module\CDev\VolumeDiscounts\View\FormField\SubtotalRangeBegin',
-                static::COLUMN_CREATE_CLASS => 'XLite\Module\CDev\VolumeDiscounts\View\FormField\SubtotalRangeBegin',
-                static::COLUMN_ORDERBY      => 100,
+                static::COLUMN_NAME    => static::t('Subtotal'),
+                static::COLUMN_LINK    => 'volume_discount',
+                static::COLUMN_NO_WRAP => true,
+                static::COLUMN_ORDERBY => 100,
             ],
             'discount'           => [
                 static::COLUMN_NAME    => static::t('Discount'),
-                static::COLUMN_CLASS   => 'XLite\View\FormField\Inline\Input\PriceOrPercent',
+                static::COLUMN_ORDERBY => 200,
+            ],
+            'dateRangeBegin'     => [
+                static::COLUMN_NAME    => static::t('Active fromF'),
                 static::COLUMN_ORDERBY => 300,
             ],
-            'membership'         => [
-                static::COLUMN_NAME         => \XLite\Core\Translation::lbl('Membership'),
-                static::COLUMN_CLASS        => 'XLite\Module\CDev\VolumeDiscounts\View\FormField\Membership',
-                static::COLUMN_CREATE_CLASS => 'XLite\Module\CDev\VolumeDiscounts\View\FormField\Membership',
-                static::COLUMN_ORDERBY      => 400,
+            'dateRangeEnd'       => [
+                static::COLUMN_NAME    => static::t('Active tillF'),
+                static::COLUMN_ORDERBY => 400,
             ],
         ];
     }
@@ -77,13 +82,91 @@ class VolumeDiscounts extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
+     * Preprocess subtotalRangeBegin
+     *
+     * @param float          $subtotalRangeBegin
+     * @param array          $column
+     * @param VolumeDiscount $entity
+     *
+     * @return string
+     */
+    protected function preprocessSubtotalRangeBegin($subtotalRangeBegin, $column, $entity)
+    {
+        return static::t('from') . ' ' . $this->formatPriceValue($subtotalRangeBegin);
+    }
+
+    /**
+     * Preprocess discount
+     *
+     * @param array          $discount
+     * @param array          $column
+     * @param VolumeDiscount $entity
+     *
+     * @return string
+     */
+    protected function preprocessDiscount($discount, $column, $entity)
+    {
+        $discountValue = $discount[PriceOrPercent::PRICE_VALUE];
+        $discountType= $discount[PriceOrPercent::TYPE_VALUE];
+
+        return $discountType === AbsoluteOrPercent::TYPE_ABSOLUTE
+            ? $this->formatPriceValue($discountValue)
+            : $discountValue . AbsoluteOrPercent::getInstance()->getPercentTypeLabel();
+    }
+
+    /**
+     * Format price value
+     *
+     * @param float                                                   $price
+     *
+     * @return string
+     */
+    protected function formatPriceValue($price) {
+        return \XLite::getInstance()->getCurrency()->getPrefix() .
+            \XLite::getInstance()->getCurrency()->formatValue($price) .
+            \XLite::getInstance()->getCurrency()->getSuffix();
+    }
+
+    /**
+     * Preprocess dateRangeBegin
+     *
+     * @param int            $dateRangeBegin
+     * @param array          $column
+     * @param VolumeDiscount $entity
+     *
+     * @return string
+     */
+    protected function preprocessDateRangeBegin($dateRangeBegin, $column, $entity)
+    {
+        return $dateRangeBegin
+            ? $this->formatdate($dateRangeBegin)
+            : '-';
+    }
+
+    /**
+     * Preprocess dateRangeEnd
+     *
+     * @param int            $dateRangeEnd
+     * @param array          $column
+     * @param VolumeDiscount $entity
+     *
+     * @return string
+     */
+    protected function preprocessDateRangeEnd($dateRangeEnd, $column, $entity)
+    {
+        return $dateRangeEnd
+            ? $this->formatdate($dateRangeEnd)
+            : '-';
+    }
+
+    /**
      * Get create entity URL
      *
      * @return string
      */
     protected function getCreateURL()
     {
-        return \XLite\Core\Converter::buildURL('volume_discounts');
+        return \XLite\Core\Converter::buildURL('volume_discount');
     }
 
     /**
@@ -107,16 +190,6 @@ class VolumeDiscounts extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Mark list as switchable (enable / disable)
-     *
-     * @return boolean
-     */
-    protected function isSwitchable()
-    {
-        return false;
-    }
-
-    /**
      * Mark list as removable
      *
      * @return boolean
@@ -127,11 +200,11 @@ class VolumeDiscounts extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Inline creation mechanism position
+     * Creation button position
      *
      * @return integer
      */
-    protected function isInlineCreation()
+    protected function isCreation()
     {
         return static::CREATE_INLINE_TOP;
     }
@@ -154,94 +227,6 @@ class VolumeDiscounts extends \XLite\View\ItemsList\Model\Table
     protected function getContainerClass()
     {
         return parent::getContainerClass() . ' volume-discounts';
-    }
-
-    /**
-     * Post-validate new entity
-     *
-     * @param \XLite\Model\AEntity $entity Entity
-     *
-     * @return boolean
-     */
-    protected function prevalidateNewEntity(\XLite\Model\AEntity $entity)
-    {
-        $result = parent::prevalidateNewEntity($entity);
-        if ($result && $entity->getRepository()->findOneSimilarDiscount($entity)) {
-            $this->errorMessages[] = static::t('Could not add the discount because another discount already exists for the specified subtotal range and membership level');
-            $result = false;
-
-        } elseif ($this->prevalidateVolumeDiscount($entity)) {
-            $this->discountKeys[] = $entity->getFingerprint();
-
-        } else {
-            $result = false;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Pre-validate entities
-     *
-     * @return boolean
-     */
-    protected function prevalidateEntities()
-    {
-        $result = parent::prevalidateEntities();
-        if ($result && count(array_unique($this->discountKeys)) !== count($this->discountKeys)) {
-            $this->errorMessages[] = static::t('Could not update the discount because another discount already exists for the specified subtotal range and membership level');
-            $result = false;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Pre-validate entity
-     *
-     * @param \XLite\Model\AEntity $entity Entity
-     *
-     * @return boolean
-     */
-    protected function prevalidateEntity(\XLite\Model\AEntity $entity)
-    {
-        $result = parent::prevalidateEntity($entity);
-
-        if ($result && $this->prevalidateVolumeDiscount($entity)) {
-            $this->discountKeys[] = $entity->getFingerprint();
-
-        } else {
-            $result = false;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Pre-validate entity
-     *
-     * @param \XLite\Model\AEntity $entity Entity
-     *
-     * @return boolean
-     */
-    protected function prevalidateVolumeDiscount(\XLite\Model\AEntity $entity)
-    {
-        $result = true;
-
-        if (\XLite\Module\CDev\VolumeDiscounts\Model\VolumeDiscount::TYPE_PERCENT == $entity->getType()) {
-            if (100 < $entity->getValue()) {
-                $this->errorMessages[] = static::t('Percent discount value cannot exceed 100%');
-                $result = false;
-            }
-
-        } elseif (\XLite\Module\CDev\VolumeDiscounts\Model\VolumeDiscount::TYPE_ABSOLUTE == $entity->getType()) {
-            if (static::MAX_NUMERIC_VALUE < $entity->getValue()) {
-                $this->errorMessages[] = static::t('Too large value for absolute discount');
-                $result = false;
-            }
-        }
-
-        return $result;
     }
 
     // {{{ Data

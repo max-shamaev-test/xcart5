@@ -9,9 +9,6 @@ XLite\Model\Config:
   - name: write_key
     category: XC\Concierge
     value: 'FGzphKUhESFKsjwsdFVKjpB4V6NYZscy'
-  - name: company_id
-    category: XC\Concierge
-    value: ''
   - name: user_id
     category: XC\Concierge
     value: 'user1'

@@ -95,5 +95,35 @@ abstract class Order extends \XLite\Model\Repo\Order implements \XLite\Base\IDec
         return $qb;
 
     }
+
+    /**
+     * Search orders by profile WithEgoods
+     *
+     * @param \XLite\Core\CommonCell $cnd       Search condition
+     * @param boolean                $countOnly Count only OPTIONAL
+     *
+     * @return \Doctrine\ORM\PersistentCollection|integer
+     */
+    public function searchOrdersWithEgoods(\XLite\Core\CommonCell $cnd, $countOnly = false)
+    {
+        $queryBuilder = $this->createQueryBuilder('o');
+
+        if ($cnd->limit) {
+            $queryBuilder->setFirstResult($cnd->limit[0]);
+            $queryBuilder->setMaxResults($cnd->limit[1]);
+        }
+
+        if ($cnd->user) {
+            $queryBuilder->andWhere('o.orig_profile = :origProfile')
+                ->setParameter('origProfile', $cnd->user);
+        }
+
+        $queryBuilder->join('o.items', 'items')
+            ->innerJoin('items.privateAttachments', 'pa')
+            ->leftJoin('o.orig_profile', 'op')
+            ->groupBy('o.order_id');
+
+        return $countOnly ? count($queryBuilder->getResult()) : $queryBuilder->getResult();
+    }
 }
 

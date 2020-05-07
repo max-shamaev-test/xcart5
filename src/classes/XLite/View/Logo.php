@@ -94,6 +94,6 @@ class Logo extends \XLite\View\Image
 
     public function getAlt()
     {
-        return static::t('Home');
+        return $this->getLogoAlt();
     }
 }

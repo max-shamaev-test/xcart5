@@ -54,6 +54,7 @@ define('file_uploader', [
         defaultErrorMessage: null,
         realErrorMessage: null,
         showsMessages: true,
+        initialAlt: '',
         elementWidth: 0
       };
     },
@@ -139,8 +140,9 @@ define('file_uploader', [
         this.commonData.is_image = '1';
       }
 
-      if (xliteConfig.zone = "customer") {
+      if (xliteConfig.zone === "customer") {
         this.commonData.base = xliteConfig.admin_script;
+        this.commonData.interface = 'customer';
       }
 
       if (this.realErrorMessage) {
@@ -249,6 +251,9 @@ define('file_uploader', [
           if (multiple) {
             formData.append('index', i);
           }
+          if (0 === i && undefined !== this.alt) {
+            formData.append('alt', this.alt);
+          }
           this.doRequest(formData, this.viaUrlPopup.data('multiple'));
         }
       },
@@ -268,7 +273,7 @@ define('file_uploader', [
           var area = jQuery('textarea.urls', this.viaUrlPopup);
           var urls = area.val().split('\n');
 
-          urls.forEach(function (url) {
+          urls.forEach(function (url, index) {
             url = url.replace(/^:?\/\//, '');
 
             if (!/^https?:\/\//i.test(url)) {
@@ -276,6 +281,13 @@ define('file_uploader', [
             }
 
             formData.append('uploadedUrl', url);
+
+            if (0 === index && undefined !== self.alt) {
+              formData.append('alt', self.alt);
+            } else {
+              formData.delete('alt');
+            }
+
             self.doRequest(formData, true);
           });
 
@@ -289,6 +301,11 @@ define('file_uploader', [
             url = 'http://' + url;
           }
           formData.append('uploadedUrl', url);
+
+          if (undefined !== self.alt) {
+            formData.append('alt', self.alt);
+          }
+
           self.doRequest(formData, false);
         }
       },

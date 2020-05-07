@@ -234,7 +234,7 @@ ul.primary li span {
     .panel-group {
       width: 100vw;
       min-width: 320px;
-      margin-left: (-@rhythmic-unit);
+      margin-left: (-@grid-gutter-width / 2 + 1);
       border-bottom: 1px solid @color-border;
       margin-bottom: -1px;
 
@@ -507,7 +507,7 @@ ul.primary li span {
     .mm-title {
       text-align: left;
       font-size: 14px;
-      color: @color-text-light;
+      color: @slidebar-header-color;
       position: absolute;
       bottom: 0;
     }
@@ -1022,7 +1022,6 @@ html.mm-opening .mm-slideout {
     .flex-wrap(wrap);
     .flex-direction(column);
     -webkit-box-orient: vertical;
-    -moz-box-orient: vertical;
     width: 100%;
     max-width: 100%;
 
@@ -1048,10 +1047,6 @@ html.mm-opening .mm-slideout {
 }
 
 .ie11 .mm-opened + script + .mm-page .mobile_header ul.nav-pills {
-  -webkit-transition: all 0.4s ease-out;
-  -moz-transition: all 0.4s ease-out;
-  -ms-transition: all 0.4s ease-out;
-  -o-transition: all 0.4s ease-out;
   transition: all 0.4s ease-out;
 }
 
@@ -1125,7 +1120,7 @@ html.mm-opening .mm-slideout {
     height: 10px;
   }
   .mm-navbar .mm-prev:before {
-    border-color: @color-text-dark;
+    border-color: @slidebar-arrow-color;
   }
 }
 
@@ -1182,10 +1177,40 @@ html.mm-opening .mm-slideout {
   position: relative;
 }
 
+.skin-customer {
+  .ui-dialog {
+    &.ui-front {
+      position: absolute;
+    }
+
+    @media (max-width: 767px) {
+      &.ui-front {
+        min-width: 100%;
+      }
+    }
+  }
+}
+
+
 .ui-dialog.no-title .ui-dialog-title {
   display: none;
 }
 
 .mini-block-wait div {
   margin: 0;
+}
+
+/* via-url-popup */
+.via-url-popup {
+  div.checkbox, div.buttons {
+    margin-top: @rhythmic-unit;
+  }
+
+  .buttons {
+    text-align: center;
+
+    button {
+      min-width: 144px;
+    }
+  }
 }

@@ -66,8 +66,11 @@ class AttributeValueText extends \XLite\Logic\Import\Processor\AttributeValues\A
         }
 
         $attribute->setAttributeValue($product, $data);
+        \XLite\Core\Database::getEM()->flush($attribute);
+        $attributeValue = $attribute->getAttributeValue($product);
 
-        return null;
+
+        return $attributeValue;
     }
 
     /**

@@ -344,7 +344,7 @@ abstract class AResourcesContainer extends \XLite\View\Container
             }
 
         } catch (\Exception $e) {
-            \XLite\Logger::getInstance()->registerException($e);
+            //\XLite\Logger::getInstance()->registerException($e);
             $result = $content;
         }
 

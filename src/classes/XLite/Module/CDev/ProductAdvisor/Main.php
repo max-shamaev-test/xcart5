@@ -90,16 +90,6 @@ abstract class Main extends \XLite\Module\AModule
             $result[self::PA_MODULE_PRODUCT_LABEL_NEW] = \XLite\Core\Translation::getInstance()->translate('New!');
         }
 
-        if ($product->isUpcomingProduct()
-            && \XLite\Module\CDev\ProductAdvisor\View\FormField\Select\MarkProducts::isProductPageEnabled(
-                \XLite\Core\Config::getInstance()->CDev->ProductAdvisor->cs_mark_with_label
-            )
-        ) {
-            $result[self::PA_MODULE_PRODUCT_LABEL_SOON]
-                = \XLite\Core\Translation::getInstance()->translate('Coming soon');
-        }
-
-
         return $result;
     }
 

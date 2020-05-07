@@ -27,9 +27,10 @@ class TransitionInfoType extends AObjectType
             'description' => 'Module transition various info (reason, etc)',
             'fields'      => function () {
                 return [
-                    'moduleName'  => Type::string(),
-                    'reason'      => Type::string(),
-                    'humanReason' => Type::string(),
+                    'moduleName'    => Type::string(),
+                    'moduleLicense' => Type::boolean(),
+                    'reason'        => Type::string(),
+                    'humanReason'   => Type::string(),
                 ];
             },
         ];

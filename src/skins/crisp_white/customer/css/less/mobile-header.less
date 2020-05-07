@@ -70,9 +70,17 @@
     .mobile_header-logo {
       #logo, .company-logo {
         width: auto;
+        height: (@rhythmic-unit * 3);
         img {
           max-width: 100%;
+          max-height: (@rhythmic-unit * 2);
         }
+      }
+    }
+
+    @media(max-width: @screen-md-max) {
+      .mobile_header-logo .company-logo img {
+        padding-left: 10px;
       }
     }
 
@@ -121,10 +129,6 @@
         .buttons-row > * {
           width: 100%;
         }
-      }
-
-      .mobile_header-logo .company-logo img {
-        padding-left: 10px;
       }
     }
 

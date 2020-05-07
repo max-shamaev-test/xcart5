@@ -83,6 +83,6 @@ class AutomateShippingReturns extends \XLite\View\AView
      */
     public function getEnableLink()
     {
-        return Manager::getRegistry()->getModuleSettingsUrl('AutomatedShippingRefunds71LBS\SeventyOnePounds');
+        return Manager::getRegistry()->getModuleServiceURL('AutomatedShippingRefunds71LBS\SeventyOnePounds');
     }
 }

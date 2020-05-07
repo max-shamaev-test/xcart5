@@ -22,4 +22,14 @@ class NewsMessages extends \XLite\View\Pager\Customer\ACustomer
     {
         return intval(\XLite\Core\Config::getInstance()->XC->News->items_per_page);
     }
+
+    /**
+     * getPagerLabel
+     *
+     * @return label
+     */
+    protected function getPagerLabel()
+    {
+        return static::t('News');
+    }
 }

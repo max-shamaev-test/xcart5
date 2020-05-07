@@ -57,34 +57,31 @@ class Importer extends \XLite\Base
      *
      * @param array $options Options OPTIONAL
      */
-    public function __construct(array $options = array())
+    public function __construct(array $options = [])
     {
-        $this->options = array(
-            'step'             => isset($options['step']) ? (int)($options['step']) : 0,
-            'position'         => isset($options['position']) ? (int)($options['position']) : 0,
-            'charset'          => !empty($options['charset']) ? $options['charset'] : static::DEFAULT_CHARSET,
-            'delimiter'        => isset($options['delimiter']) ? $options['delimiter'] : ',',
-            'enclosure'        => isset($options['enclosure']) ? $options['enclosure'] : '"',
-            'files'            => isset($options['files']) ? $options['files'] : array(),
-            'linkedFiles'      => isset($options['linkedFiles']) ? $options['linkedFiles'] : array(),
-            'deltaFiles'       => isset($options['deltaFiles']) ? $options['deltaFiles'] : array(),
-            'clearImportDir'     => isset($options['clearImportDir']) ? $options['clearImportDir'] : false,
-            'ignoreFileChecking' => isset($options['ignoreFileChecking']) ? $options['ignoreFileChecking'] : false,
-            'dir'              => isset($options['dir']) ? $options['dir'] : static::getImportDir(),
-            'time'             => isset($options['time']) ? (int)($options['time']) : 0,
-            'columnsMetaData'  => isset($options['columnsMetaData']) ? $options['columnsMetaData'] : array(),
-            'errorsCount'      => isset($options['errorsCount']) ? $options['errorsCount'] : 0,
-            'warningsCount'    => isset($options['warningsCount']) ? $options['warningsCount'] : 0,
-            'rowsCount'        => isset($options['rowsCount']) ? $options['rowsCount'] : 0,
-            'warningsAccepted' => isset($options['warningsAccepted']) ? $options['warningsAccepted'] : false,
-            'target'           => isset($options['target']) ? $options['target'] : static::getDefaultTarget(),
-            'importMode'       => isset($options['importMode']) ? $options['importMode'] : \XLite\View\Import\Begin::MODE_UPDATE_AND_CREATE,
-            // 'calculateAllQuickData' => isset($options['calculateAllQuickData']) ? $options['calculateAllQuickData'] : false,
-        ) + $options;
+        $this->options = [
+                'step'               => isset($options['step']) ? (int) ($options['step']) : 0,
+                'position'           => isset($options['position']) ? (int) ($options['position']) : 0,
+                'charset'            => !empty($options['charset']) ? $options['charset'] : static::DEFAULT_CHARSET,
+                'delimiter'          => $options['delimiter'] ?? ',',
+                'enclosure'          => $options['enclosure'] ?? '"',
+                'files'              => $options['files'] ?? [],
+                'linkedFiles'        => $options['linkedFiles'] ?? [],
+                'deltaFiles'         => $options['deltaFiles'] ?? [],
+                'clearImportDir'     => $options['clearImportDir'] ?? false,
+                'ignoreFileChecking' => $options['ignoreFileChecking'] ?? false,
+                'dir'                => $options['dir'] ?? static::getImportDir(),
+                'time'               => isset($options['time']) ? (int) ($options['time']) : 0,
+                'columnsMetaData'    => $options['columnsMetaData'] ?? [],
+                'errorsCount'        => $options['errorsCount'] ?? 0,
+                'warningsCount'      => $options['warningsCount'] ?? 0,
+                'rowsCount'          => $options['rowsCount'] ?? 0,
+                'warningsAccepted'   => $options['warningsAccepted'] ?? false,
+                'target'             => $options['target'] ?? static::getDefaultTarget(),
+                'importMode'         => $options['importMode'] ?? \XLite\View\Import\Begin::MODE_UPDATE_AND_CREATE,
+            ] + $options;
 
-        static::$languageCode = isset($options['languageCode'])
-            ? $options['languageCode']
-            : \XLite\Core\Config::getInstance()->General->default_admin_language;
+        static::$languageCode = $options['languageCode'] ?? \XLite\Core\Config::getInstance()->General->default_admin_language;
 
         $this->options = new \ArrayObject($this->options, \ArrayObject::ARRAY_AS_PROPS);
 
@@ -139,10 +136,10 @@ class Importer extends \XLite\Base
         \XLite\Core\Database::getRepo('XLite\Model\TmpVar')->setVar(static::getImportUserBreakFlagVarName(), false);
         \XLite\Core\Database::getRepo('XLite\Model\TmpVar')->initializeEventState(
             static::getEventName(),
-            array('options' => $options)
+            ['options' => $options]
         );
         \XLite\Core\EventTask::import();
-        call_user_func(array('\XLite\Core\EventTask', static::getEventName()));
+        call_user_func(['\XLite\Core\EventTask', static::getEventName()]);
     }
 
     /**
@@ -202,7 +199,7 @@ class Importer extends \XLite\Base
      */
     public function getAvailableEntityKeys()
     {
-        $result = array();
+        $result = [];
 
         foreach ($this->getProcessors() as $processor) {
             $keys = $processor->getAvailableEntityKeys();
@@ -222,7 +219,7 @@ class Importer extends \XLite\Base
     public function finalize()
     {
         if (!isset($this->getOptions()->commonData)) {
-            $this->getOptions()->commonData = array();
+            $this->getOptions()->commonData = [];
         }
         $this->getOptions()->commonData['finalize'] = true;
     }
@@ -253,7 +250,9 @@ class Importer extends \XLite\Base
         }
 
         // Preprocess import data
-        $this->preprocessImport();
+        $rowsCount = $this->preprocessImport();
+
+        $this->getOptions()->rowsCount = $rowsCount;
 
         // Save import options if they were changed
         $record = \XLite\Core\Database::getRepo('XLite\Model\TmpVar')->getEventState('import');
@@ -262,7 +261,7 @@ class Importer extends \XLite\Base
         $record['options']['initialized'] = true;
         \XLite\Core\Database::getRepo('XLite\Model\TmpVar')->setEventState('import', $record);
 
-        \XLite\Core\Session::getInstance()->importedProductSkus = array();
+        \XLite\Core\Session::getInstance()->importedProductSkus = [];
     }
 
     /**
@@ -286,26 +285,40 @@ class Importer extends \XLite\Base
     /**
      * Preprocess import data.
      * Check size limit of CSV files and divide them on several small parts.
-     * Returns true if file was divided
+     * Returns total count or rows
      *
-     * @return boolean
+     * @return int
      */
     protected function preprocessImport()
     {
-        $newFiles = array();
+        $newFiles = [];
+
+        $totalRows = 0;
 
         foreach ($this->getProcessors() as $processor) {
             $files = $processor->getFiles(true);
+            $totalRowsAreCounted = false;
+
             foreach ($files as $file) {
                 $fileSize = $file->getSize();
                 $fileName = $file->getBasename();
 
                 if (false === strpos($fileName, static::PART_IDENTIFIER) && $fileSize > static::MAX_FILE_SIZE) {
-                    $newFiles[$file->getRealPath()] = $processor->divideCSVFile($file);
+                    $dividedFiles = $processor->divideCSVFile($file);
+                    $newFiles[$file->getRealPath()] = $dividedFiles;
+
+                    $totalRows += array_reduce($dividedFiles, static function ($carry, $item) {
+                        return $carry + $item['rowsCount'];
+                    }, 0);
 
                 } elseif (0 < $fileSize) {
                     // Add empty line at the end to avoid problems in some environments (see BUG-2636)
                     $this->correctLastNewline($file);
+
+                    if (!$totalRowsAreCounted) {
+                        $totalRows  += $processor->count();
+                        $totalRowsAreCounted = true;
+                    }
                 }
             }
         }
@@ -318,16 +331,16 @@ class Importer extends \XLite\Base
                     foreach ($dstFiles as $fileData) {
                         $moveTo = $dir . LC_DS . basename($fileData['file']);
                         \Includes\Utils\FileManager::move($fileData['file'], $moveTo);
-                        $this->options->deltaFiles[basename($moveTo)] = array(
+                        $this->options->deltaFiles[basename($moveTo)] = [
                             'delta' => $fileData['delta'],
                             'file'  => basename($srcFile),
-                        );
+                        ];
                     }
                 }
             }
         }
 
-        return !empty($newFiles);
+        return $totalRows;
     }
 
     /**
@@ -414,7 +427,7 @@ class Importer extends \XLite\Base
      *
      * @return boolean
      */
-    public function switchToNextStep(array $options = array())
+    public function switchToNextStep(array $options = [])
     {
         $result = false;
 
@@ -464,12 +477,12 @@ class Importer extends \XLite\Base
      */
     public static function getImportOptionsList()
     {
-        return array(
+        return [
             'ignoreFileChecking',
             'charset',
             'delimiter',
             'importMode',
-        );
+        ];
     }
 
     /**
@@ -479,12 +492,12 @@ class Importer extends \XLite\Base
      */
     public static function getCommonImportOptionsList()
     {
-        return array(
-            'commonData'       => array(),
-            'columnsMetaData'  => array(),
+        return [
+            'commonData'       => [],
+            'columnsMetaData'  => [],
             'warningsAccepted' => false,
             'target'           => 'import',
-        );
+        ];
     }
 
     /**
@@ -494,16 +507,14 @@ class Importer extends \XLite\Base
      *
      * @return array
      */
-    public static function assembleImportOptions(array $options = array())
+    public static function assembleImportOptions(array $options = [])
     {
-        $result = array();
+        $result = [];
 
         $importOptions = \XLite\Core\Config::getInstance()->Import;
 
         foreach (static::getImportOptionsList() as $key) {
-            $result[$key] = isset($options[$key])
-                ? $options[$key]
-                : ($importOptions ? $importOptions->$key : null);
+            $result[$key] = $options[$key] ?? $importOptions ? $importOptions->$key : null;
         }
 
         return $result;
@@ -516,14 +527,12 @@ class Importer extends \XLite\Base
      *
      * @return array
      */
-    public static function assembleCommonImportOptions(array $options = array())
+    public static function assembleCommonImportOptions(array $options = [])
     {
-        $result = array();
+        $result = [];
 
         foreach (static::getCommonImportOptionsList() as $key => $default) {
-            $result[$key] = isset($options[$key])
-                ? $options[$key]
-                : $default;
+            $result[$key] = $options[$key] ?? $default;
         }
 
         return $result;
@@ -542,7 +551,7 @@ class Importer extends \XLite\Base
     {
         $steps = $this->getSteps();
 
-        return isset($steps[$this->getOptions()->step]) ? $steps[$this->getOptions()->step] : null;
+        return $steps[$this->getOptions()->step] ?? null;
     }
 
     /**
@@ -593,13 +602,13 @@ class Importer extends \XLite\Base
      */
     protected function defineSteps()
     {
-        return array(
+        return [
             'XLite\Logic\Import\Step\Verification',
             'XLite\Logic\Import\Step\Import',
             'XLite\Logic\Import\Step\QuickData',
             'XLite\Logic\Import\Step\CategoriesStructure',
             'XLite\Logic\Import\Step\ImageResize',
-        );
+        ];
     }
 
     /**
@@ -614,7 +623,7 @@ class Importer extends \XLite\Base
             $this->steps[$i]->setDefaultWeight(($i + 1) * 100);
         }
 
-        usort($this->steps, array($this, 'sortSteps'));
+        usort($this->steps, [$this, 'sortSteps']);
 
         $this->steps = array_values($this->steps);
     }
@@ -645,7 +654,7 @@ class Importer extends \XLite\Base
      */
     public static function getProcessorList()
     {
-        return array(
+        return [
             'XLite\Logic\Import\Processor\Categories',
             'XLite\Logic\Import\Processor\Products',
             'XLite\Logic\Import\Processor\Attributes',
@@ -654,7 +663,7 @@ class Importer extends \XLite\Base
             'XLite\Logic\Import\Processor\AttributeValues\AttributeValueText',
             'XLite\Logic\Import\Processor\AttributeValues\AttributeValueHidden',
             'XLite\Logic\Import\Processor\Customers',
-        );
+        ];
     }
 
     /**
@@ -686,7 +695,7 @@ class Importer extends \XLite\Base
     public static function hasWarnings()
     {
         return 0 < \XLite\Core\Database::getRepo('XLite\Model\ImportLog')
-            ->countBy(array('type' => \XLite\Model\ImportLog::TYPE_WARNING));
+            ->countBy(['type' => \XLite\Model\ImportLog::TYPE_WARNING]);
     }
 
     /**
@@ -697,7 +706,7 @@ class Importer extends \XLite\Base
     public static function hasErrors()
     {
         return 0 < \XLite\Core\Database::getRepo('XLite\Model\ImportLog')
-            ->countBy(array('type' => \XLite\Model\ImportLog::TYPE_ERROR));
+            ->countBy(['type' => \XLite\Model\ImportLog::TYPE_ERROR]);
     }
 
     // }}}

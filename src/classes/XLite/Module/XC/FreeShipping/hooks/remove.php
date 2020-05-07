@@ -8,6 +8,12 @@
 
 return new \XLite\Rebuild\Hook(
     function () {
-        \XLite\Module\XC\FreeShipping\Main::removeFreeShippingMethods();
+        $shippingMethods = \XLite\Core\Database::getRepo(\XLite\Model\Shipping\Method::class)
+            ->findBy(['code' => ['FREESHIP', 'FIXEDFEE']]);
+        foreach ($shippingMethods as $method) {
+            \XLite\Core\Database::getEM()->remove($method);
+        }
+
+        \XLite\Core\Database::getEM()->flush();
     }
 );

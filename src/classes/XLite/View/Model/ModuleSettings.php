@@ -32,13 +32,6 @@ class ModuleSettings extends \XLite\View\Model\Settings
                     \XLite\View\Button\Link::PARAM_LOCATION => $this->buildURL('layout'),
                 )
             );
-        } else {
-            //$result['addons-list'] = new \XLite\View\Button\BackToModulesLink(
-            //    array(
-            //        \XLite\View\Button\BackToModulesLink::PARAM_MODULE_ID => \XLite\Core\Request::getInstance()->moduleId,
-            //        \XLite\View\Button\AButton::PARAM_STYLE => 'action addons-list-back-button',
-            //    )
-            //);
         }
 
         return $result;

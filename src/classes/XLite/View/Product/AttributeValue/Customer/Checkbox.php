@@ -56,7 +56,7 @@ class Checkbox extends \XLite\View\Product\AttributeValue\Customer\ACustomer
         $result = [];
 
         foreach ($attrValues[1]::getModifiers() as $field => $options) {
-            $modifier = $attrValues[1]->getAbsoluteValue($field);
+            $modifier = $this->getAbsoluteModifierValue($attrValues[1], $field);
             if (0 !== $modifier) {
                 $result['data-modifier-' . $field] = $modifier;
             }
@@ -113,7 +113,7 @@ class Checkbox extends \XLite\View\Product\AttributeValue\Customer\ACustomer
                 if (!isset($modifiers[$field])) {
                     $modifiers[$field] = 0;
                 }
-                $modifiers[$field] += (-1 + 2 * $k) * $value->getAbsoluteValue($field);
+                $modifiers[$field] += (-1 + 2 * $k) * $this->getAbsoluteModifierValue($value, $field);
             }
         }
 
@@ -129,6 +129,16 @@ class Checkbox extends \XLite\View\Product\AttributeValue\Customer\ACustomer
         return $modifiers
             ? ' <span>' . implode(', ', $modifiers) . '</span>'
             : '';
+    }
+
+    /**
+     * @param \XLite\Model\AttributeValue\Multiple $value
+     * @param $field
+     * @return float
+     */
+    protected function getAbsoluteModifierValue(\XLite\Model\AttributeValue\Multiple $value, $field)
+    {
+        return $value->getAbsoluteValue($field);
     }
 
     /**

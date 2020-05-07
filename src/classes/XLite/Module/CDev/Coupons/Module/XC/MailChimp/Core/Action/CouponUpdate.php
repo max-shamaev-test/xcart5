@@ -31,7 +31,7 @@ class CouponUpdate implements IMailChimpAction
     /**
      *
      */
-    public function execute()
+    public function execute(): void
     {
         $ecCore = MailChimpECommerce::getInstance();
 

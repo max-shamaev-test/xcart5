@@ -15,11 +15,13 @@ CommonForm.elementControllers.push(
       var field = jQuery(this);
       var input = field.find('input[type="text"]');
 
-      input.val(core.numberToString(input.val(), '.', '', input.data('e')));
+      if (!field.hasClass('no-sanitize')) {
+        input.val(core.numberToString(input.val(), '.', '', input.data('e')));
 
-      input.change(function () {
-        $(this).val(core.numberToString($(this).val(), '.', '', $(this).data('e')));
-      });
+        input.change(function () {
+          $(this).val(core.numberToString($(this).val(), '.', '', $(this).data('e')));
+        });
+      }
     }
   }
 );

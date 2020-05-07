@@ -15,6 +15,16 @@ abstract class PaymentMethod extends \XLite\Controller\Admin\PaymentMethod imple
 {
 
     /**
+     * Check visibility
+     *
+     * @return bool
+     */
+    protected function isVisible()
+    {
+        return parent::isVisible() && $this->getPaymentMethod();
+    }
+
+    /**
      * Run controller
      *
      * @return void
@@ -38,8 +48,15 @@ abstract class PaymentMethod extends \XLite\Controller\Admin\PaymentMethod imple
                     'Your Stripe account is no longer accessible. Please connect with Stripe once again.'
                 );
             }
+            if ($method->getProcessor() instanceOf \XLite\Module\XC\Stripe\Model\Payment\Stripe && $method->isSettingsConfigured() && !\XLite\Core\Config::getInstance()->Security->customer_security) {
+                \XLite\Core\TopMessage::addWarning(
+                    'The "Stripe" feature requires https to be properly set up for your store.',
+                    [
+                        'url' => \XLite\Core\Converter::buildURL('https_settings'),
+                    ]
+                );
+            }
         }
-
         parent::run();
     }
 
@@ -58,6 +75,16 @@ abstract class PaymentMethod extends \XLite\Controller\Admin\PaymentMethod imple
         parent::doActionUpdate();
 
         if ($method->getProcessor() instanceOf \XLite\Module\XC\Stripe\Model\Payment\Stripe) {
+
+            if ($method->isSettingsConfigured() && !\XLite\Core\Config::getInstance()->Security->customer_security) {
+                \XLite\Core\TopMessage::addWarning(
+                    'The "Stripe" feature requires https to be properly set up for your store.',
+                    [
+                        'url' => \XLite\Core\Converter::buildURL('https_settings'),
+                    ]
+                );
+            }
+
             $newTestValue = $method->getSetting('mode');
             $prefix = $method->getProcessor()->isTestMode($method) ? 'Test' : '';
             if ($newTestValue !== $oldTestValue && !$method->getSetting('accessToken' . $prefix)) {

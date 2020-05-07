@@ -44,8 +44,6 @@ ini_set('display_errors', LC_DEVELOPER_MODE);
 register_shutdown_function(array('\Includes\ErrorHandler', 'shutdown'));
 set_exception_handler(array('\Includes\ErrorHandler', 'handleException'));
 
-@umask(0000);
-
 require_once (LC_DIR_INCLUDES . 'prepend.php');
 
 Autoloader::registerClassCacheProductionAutoloader();

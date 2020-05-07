@@ -39,6 +39,11 @@ class TmpInstalledModulesDataSource extends SerializedDataSource
     public function getWrappedData()
     {
         return array_map(static function ($item) {
+            $item['canDisable'] = true;
+            if ($item['id'] === 'XC-MultiVendor') {
+                $item['canDisable'] = false;
+            }
+
             return new Module($item);
         }, $this->getAll());
     }

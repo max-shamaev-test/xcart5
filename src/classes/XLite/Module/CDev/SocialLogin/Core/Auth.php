@@ -13,6 +13,8 @@ namespace XLite\Module\CDev\SocialLogin\Core;
  */
 class Auth extends \XLite\Core\Auth implements \XLite\Base\IDecorator
 {
+    const RESULT_SOCIAL_LOGIN = 'CDev-SocialLogin-1';
+
     /**
      * Logs in user to cart
      *
@@ -29,7 +31,7 @@ class Auth extends \XLite\Core\Auth implements \XLite\Base\IDecorator
         );
 
         if ($profile && $profile->isSocialProfile()) {
-            $result = static::RESULT_ACCESS_DENIED;
+            $result = static::RESULT_SOCIAL_LOGIN;
         }
 
         return isset($result) ? $result : parent::login($login, $password, $secureHash);

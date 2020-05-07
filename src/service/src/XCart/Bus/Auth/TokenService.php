@@ -27,6 +27,11 @@ class TokenService
     private $privateKey;
 
     /**
+     * @var string
+     */
+    private $legacyPrivateKey;
+
+    /**
      * @param Application $app
      *
      * @return static
@@ -37,21 +42,21 @@ class TokenService
      */
     public static function serviceConstructor(Application $app)
     {
-        return new self($app['config']['jwt_secret_key']);
+        $legacyPrivateKey = $app['config']['jwt_secret_key_legacy'] ?? '';
+
+        return new self($app['config']['jwt_secret_key'], $legacyPrivateKey);
     }
 
     /**
      * @param string $privateKey
+     * @param string $legacyPrivateKey
      *
      * @throws InvalidArgumentException
      */
-    public function __construct($privateKey)
+    public function __construct($privateKey, $legacyPrivateKey = '')
     {
-        if (!$privateKey) {
-            throw new InvalidArgumentException('Provide not-empty private key');
-        }
-
         $this->privateKey = $privateKey;
+        $this->legacyPrivateKey = $legacyPrivateKey;
     }
 
     /**
@@ -83,11 +88,22 @@ class TokenService
     public function decodeToken($token): ?array
     {
         try {
-            return (array) JWT::decode($token, $this->privateKey, ['HS256']);
+            $result = (array) JWT::decode($token, $this->privateKey, ['HS256']);
 
         } catch (Exception $e) {
-            return null;
+            $result = null;
         }
+
+        if (!$result && $this->legacyPrivateKey) {
+            try {
+                $result = (array) JWT::decode($token, $this->legacyPrivateKey, ['HS256']);
+
+            } catch (Exception $e) {
+                $result = null;
+            }
+        }
+
+        return $result;
     }
 
     /**

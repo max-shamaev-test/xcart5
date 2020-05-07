@@ -15,6 +15,11 @@
         <div class="ca-package">
           {{ this.displayCommentedData(this.getParcelJSParams(parcel)) }}
           <div class="parcel-products">
+            {% if parcel.hasRemovedItems() and parcel.shipment.getLinks() %}
+              <div class="alert alert-warning">
+                {{ this.getRemovedItemsWarning(parcel.shipment.getPDFLinks()|first)|raw }}
+              </div>
+            {% endif %}
             {{ widget('XLite\\Module\\XC\\CanadaPost\\View\\ItemsList\\Model\\ParcelItem', name='parcel-items-' ~ parcel.getId(), parcelId=parcel.getId()) }}
           </div>
           <div class="parcel-settings clearfix">

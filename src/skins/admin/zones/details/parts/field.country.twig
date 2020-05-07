@@ -4,4 +4,9 @@
  # @ListChild (list="zones.zone.details", weight="100")
  #}
 
-{{ widget('\\XLite\\View\\FormField\\Listbox\\Country', fieldName='zone_countries', label='Countries', labelFrom='All countries', labelTo='Selected countries', value=this.zone.getZoneCountries(), wrapperClass='zone-countries') }}
+{{ widget('\\XLite\\View\\FormField\\Select\\Select2\\Countries',
+    fieldName='zone_countries',
+    label='Countries',
+    fullNames=true,
+    value=this.zone.getZoneCountries()
+) }}

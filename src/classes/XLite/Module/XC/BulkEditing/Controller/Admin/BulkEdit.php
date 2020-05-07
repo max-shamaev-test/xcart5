@@ -223,6 +223,7 @@ class BulkEdit extends \XLite\Controller\Admin\AAdmin
     protected function doActionCancel()
     {
         \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Generator::cancel();
+        \XLite\Core\TopMessage::addWarning('Bulk edit processing has been interrupted.');
     }
 
     /**

@@ -118,16 +118,22 @@ class Template extends \XLite\View\Model\AModel
      */
     public function getDefaultFieldValue($name)
     {
-        if ('template' === $name
-            && \XLite\Core\Request::getInstance()->template
-        ) {
-            $result = \XLite\Core\Request::getInstance()->template;
+        $request = \XLite\Core\Request::getInstance();
 
-        } else {
-            $result = parent::getDefaultFieldValue($name);
+        $value = null;
+
+        switch ($name) {
+            case 'template':
+                $value = $request->template;
+                break;
+
+            case 'body':
+                $rawData = $request->getPostData(false);
+                $value = $rawData['body'] ?? null;
+                break;
         }
 
-        return $result;
+        return $value ?: parent::getDefaultFieldValue($name);
     }
 
     /**

@@ -20,6 +20,14 @@ class Layout extends \XLite\Core\Layout implements \XLite\Base\IDecorator
 
     const THEME_TWEAKER_TEMPLATES_CACHE_KEY = 'theme_tweaker_templates';
 
+    const THEME_TWEAKER_INTERFACES = [
+        \XLite::CUSTOMER_INTERFACE,
+        \XLite::CONSOLE_INTERFACE,
+        \XLite::MAIL_INTERFACE,
+        \XLite::COMMON_INTERFACE,
+        \XLite::PDF_INTERFACE,
+    ];
+
     private $disabledTemplates;
 
     protected function getDisabledTemplates()
@@ -91,7 +99,9 @@ class Layout extends \XLite\Core\Layout implements \XLite\Base\IDecorator
         $pathSkin = '';
         $shortPath = '';
 
-        foreach ($this->getSkinPaths($this->getInterfaceByLocalPath($localPath)) as $path) {
+        $interfaceByPath = $this->getInterfaceByLocalPath($localPath);
+
+        foreach ($this->getSkinPaths($interfaceByPath) as $path) {
             if (strpos($localPath, $path['name']) === 0) {
                 $pathSkin = $path['name'];
                 $shortPath = substr($localPath, strpos($localPath, LC_DS, strlen($pathSkin)) + strlen(LC_DS));
@@ -103,7 +113,7 @@ class Layout extends \XLite\Core\Layout implements \XLite\Base\IDecorator
         $skin = $this->getTweakerSkinByInterface($interface);
 
         return ($shortPath && $pathSkin)
-            ? $this->getFullPathByShortPath($shortPath, $interface, $skin ?: $pathSkin, $this->locale)
+            ? $this->getFullPathByShortPath($shortPath, $interface ?? $interfaceByPath, $skin ?: $pathSkin, $this->locale)
             : '';
     }
 
@@ -128,16 +138,9 @@ class Layout extends \XLite\Core\Layout implements \XLite\Base\IDecorator
     {
         $result = null;
 
-        $interfaces = [
-            \XLite::CUSTOMER_INTERFACE,
-            \XLite::CONSOLE_INTERFACE,
-            \XLite::MAIL_INTERFACE,
-            \XLite::COMMON_INTERFACE,
-            \XLite::PDF_INTERFACE,
-        ];
-
-        foreach ($interfaces as $interface) {
-            foreach ($this->getSkinPaths($interface) as $path) {
+        foreach (static::THEME_TWEAKER_INTERFACES as $interface) {
+            $paths = $this->getSkinPaths($interface, false, false, true);
+            foreach ($paths as $path) {
                 if (strpos($localPath, $path['name']) === 0) {
 
                     $result = $interface;
@@ -153,14 +156,29 @@ class Layout extends \XLite\Core\Layout implements \XLite\Base\IDecorator
         return $result;
     }
 
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public function getInnerInterfaceByLocalPath(string $path)
+    {
+        preg_match('#' . self::THEME_TWEAKER_MAIL_INTERFACE . '/(.*)/#U', $path, $matches);
+        return $matches[1] ?? \XLite::CUSTOMER_INTERFACE;
+    }
+
     public function getTweakerSkinByInterface($interface)
     {
-        $skins = [
-            \XLite::CUSTOMER_INTERFACE => static::THEME_TWEAKER_CUSTOMER_INTERFACE,
-            \XLite::MAIL_INTERFACE     => static::THEME_TWEAKER_MAIL_INTERFACE,
-        ];
+        switch ($interface) {
+            case \XLite::CUSTOMER_INTERFACE:
+                return self::THEME_TWEAKER_CUSTOMER_INTERFACE;
 
-        return $skins[$interface];
+            case \XLite::MAIL_INTERFACE:
+                return self::THEME_TWEAKER_MAIL_INTERFACE . '/' . $this->getInnerInterface();
+
+            default:
+                return null;
+        }
     }
 
     protected function isResourceAvailableByPath($path)

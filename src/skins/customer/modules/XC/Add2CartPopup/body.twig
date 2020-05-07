@@ -5,7 +5,13 @@
 <div class="add2cart-popup">
 
   <div class="item-box">
-    {{ widget_list('add2cart_popup.item') }}
+    <div class="item-thumbnail">
+      {{ widget_list('add2cart_popup.item.thumbnail') }}
+    </div>
+
+    <div class="item-box-data">
+      {{ widget_list('add2cart_popup.item') }}
+    </div>
   </div>
 
   {{ widget_list('add2cart_popup.minicart') }}

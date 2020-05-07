@@ -8,56 +8,43 @@
 
 namespace XLite\Module\XC\MailChimp\Logic\DataMapper;
 
-
 class Cart
 {
     /**
-     * Get order data
-     *
-     * @param                    $mc_cid
-     * @param                    $mc_eid
-     * @param                    $mc_tc
-     * @param \XLite\Model\Cart  $object
-     * @param                    $customerExists
+     * @param string|null       $mc_cid
+     * @param string|null       $mc_tc
+     * @param \XLite\Model\Cart $object
      *
      * @return array
      */
-    public static function getDataByCart($mc_cid, $mc_eid, $mc_tc, \XLite\Model\Cart $object, $customerExists)
+    public static function getDataByCart($mc_cid, $mc_tc, \XLite\Model\Cart $object): array
     {
         \XLite\Core\Translation::setTmpTranslationCode(
             \XLite\Core\Config::getInstance()->General->default_language
         );
 
-        if ($object->getProfile()) {
-            $customerData = !$customerExists
-                ? Customer::getDataForOrder($mc_eid, $object->getProfile())
-                : [ 'id' => (string)$object->getProfile()->getProfileId()];
-        } else {
-            $customerData = [ 'id' => (string)$mc_eid];
-        }
+        $return = [
+            'id'             => (string) $object->getOrderId(),
+            'currency_code'  => $object->getCurrency()->getCode(),
+            'order_total'    => $object->getTotal(),
+            'tax_total'      => static::getTaxValue($object),
+            'shipping_total' => $object->getSurchargeSumByType(\XLite\Model\Base\Surcharge::TYPE_SHIPPING),
+            'lines'          => static::getLines($object),
 
-        $return = array(
-            'id'                    => (string)$object->getOrderId(),
-            'customer'              => $customerData,
-            'checkout_url'          => \XLite::getInstance()->getShopURL(
+            'checkout_url' => \XLite::getInstance()->getShopURL(
                 \XLite\Core\Converter::buildURL('cart'),
                 \XLite\Core\Config::getInstance()->Security->customer_security
             ),
-            'currency_code'         => $object->getCurrency()->getCode(),
-            'order_total'           => $object->getTotal(),
-            'tax_total'             => static::getTaxValue($object),
-            'shipping_total'        => $object->getSurchargeSumByType(\XLite\Model\Base\Surcharge::TYPE_SHIPPING),
-            'lines'                 => static::getLines($object),
-        );
+        ];
 
         if ($mc_cid) {
-            $return['campaign_id'] = (string)$mc_cid;
+            $return['campaign_id'] = (string) $mc_cid;
         }
 
         if ($mc_tc) {
-            $return['tracking_code'] = (string)$mc_tc;
+            $return['tracking_code'] = (string) $mc_tc;
         }
-        
+
         if ($object->getProfile()) {
             if ($object->getProfile()->getShippingAddress()) {
                 $return['shipping_address'] = Address::getData(
@@ -78,35 +65,29 @@ class Cart
     }
 
     /**
-     * Get tax value
-     *
      * @param \XLite\Model\Cart $object
      *
      * @return float
      */
-    protected static function getTaxValue(\XLite\Model\Cart $object)
+    protected static function getTaxValue(\XLite\Model\Cart $object): float
     {
         $total = 0;
-
-        /** @var \XLite\Model\Order\Surcharge $s */
-        foreach ($object->getSurchargesByType(\XLite\Model\Base\Surcharge::TYPE_TAX) as $s) {
-            $total += $s->getValue();
+        /** @var \XLite\Model\Order\Surcharge $surcharge */
+        foreach ($object->getSurchargesByType(\XLite\Model\Base\Surcharge::TYPE_TAX) as $surcharge) {
+            $total += $surcharge->getValue();
         }
 
-        return $total;
+        return (float) $total;
     }
 
     /**
-     * Get lines data
-     *
      * @param \XLite\Model\Cart $object
      *
      * @return array
      */
-    protected static function getLines(\XLite\Model\Cart $object)
+    protected static function getLines(\XLite\Model\Cart $object): array
     {
-        $lines = array();
-
+        $lines = [];
         /** @var \XLite\Model\OrderItem $item */
         foreach ($object->getItems() as $item) {
             $lines[] = Line::getDataByOrderItem($item);

@@ -13,7 +13,7 @@ use Includes\Utils\Module\Manager;
 /**
  * Payment configuration page
  */
-class Configuration extends \XLite\View\AView
+class Configuration extends \XLite\View\AView implements \XLite\Core\PreloadedLabels\ProviderInterface
 {
     /**
      * @var array
@@ -249,4 +249,18 @@ class Configuration extends \XLite\View\AView
     }
 
     // }}}
+
+    /**
+     * Array of labels in following format.
+     *
+     * 'label' => 'translation'
+     *
+     * @return mixed
+     */
+    public function getPreloadedLanguageLabels()
+    {
+        return [
+            'Are you sure you want to delete the selected payment method?' => static::t('Are you sure you want to delete the selected payment method?'),
+        ];
+    }
 }

@@ -41,8 +41,8 @@ class Image extends \XLite\View\AView
     /**
      * Default image (no image) dimensions
      */
-    const DEFAULT_IMAGE_WIDTH  = 300;
-    const DEFAULT_IMAGE_HEIGHT = 300;
+    const DEFAULT_IMAGE_WIDTH  = 120;
+    const DEFAULT_IMAGE_HEIGHT = 120;
 
     /**
      * Allowed properties names
@@ -380,6 +380,38 @@ class Image extends \XLite\View\AView
     }
 
     /**
+     * Fit image to first available size if available
+     *
+     * @return array
+     */
+    protected function fitImage()
+    {
+        $width = max(0, $this->getParam(self::PARAM_MAX_WIDTH));
+        $height = max(0, $this->getParam(self::PARAM_MAX_HEIGHT));
+        $image = $this->getParam(self::PARAM_IMAGE);
+        $sizes = $image ? \XLite\Logic\ImageResize\Generator::getModelImageSizes(get_class($image)) : [];
+
+        if ($sizes && $width && $height) {
+            $newmaxw = 0;
+            $newmaxh = 0;
+            foreach ($sizes as $name => $size) {
+                if ($width <= $size[0] && $height <= $size[1]) {
+                    if (($newmaxw >= $size[0] && $newmaxh >= $size[1]) || (!$newmaxw && !$newmaxh)) {
+                        $newmaxw = $size[0];
+                        $newmaxh = $size[1];
+                    }
+                }
+            }
+            if ($newmaxw && $newmaxh) {
+                $width  = $newmaxw;
+                $height = $newmaxh;
+            }
+        }
+
+        return [$width, $height];
+    }
+
+    /**
      * Preprocess image
      *
      * @return void
@@ -387,15 +419,18 @@ class Image extends \XLite\View\AView
     protected function processImage()
     {
         if ($this->getParam(self::PARAM_RESIZE_IMAGE)) {
-            $maxw = max(0, $this->getParam(self::PARAM_MAX_WIDTH));
-            $maxh = max(0, $this->getParam(self::PARAM_MAX_HEIGHT));
+
+            list(
+                $maxw,
+                $maxh
+                ) = $this->fitImage();
 
             list(
                 $this->properties['width'],
                 $this->properties['height'],
                 $this->resizedURL,
                 $this->retinaResizedURL
-                ) = $this->getParam(self::PARAM_IMAGE)->getResizedURL($maxw, $maxh);
+                ) = $this->getParam(self::PARAM_IMAGE)->getResizedURL($maxw, $maxh, $this->getParam(self::PARAM_MAX_WIDTH), $this->getParam(self::PARAM_MAX_HEIGHT));
         }
 
         // Center the image vertically and horizontally
@@ -411,11 +446,17 @@ class Image extends \XLite\View\AView
      */
     protected function processDefaultImage()
     {
+
+        list(
+            $maxw,
+            $maxh
+            ) = $this->fitImage();
+
         list($this->properties['width'], $this->properties['height']) = \XLite\Core\ImageOperator::getCroppedDimensions(
             static::DEFAULT_IMAGE_WIDTH,
             static::DEFAULT_IMAGE_HEIGHT,
-            max(0, $this->getParam(self::PARAM_MAX_WIDTH)),
-            max(0, $this->getParam(self::PARAM_MAX_HEIGHT))
+            $maxw,
+            $maxh
         );
 
         // Center the image vertically and horizontally

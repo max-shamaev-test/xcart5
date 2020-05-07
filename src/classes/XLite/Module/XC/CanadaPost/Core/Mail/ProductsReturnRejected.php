@@ -34,7 +34,7 @@ class ProductsReturnRejected extends \XLite\Core\Mail\AMail
             && $profile = $return->getOrder()->getProfile()
         ) {
             $this->setFrom(Mailer::getOrdersDepartmentMail());
-            $this->setTo($profile->getLogin());
+            $this->setTo(['email' => $profile->getLogin(), 'name' => $profile->getName(false)]);
             $this->setReplyTo(Mailer::getOrdersDepartmentMails());
             $this->tryToSetLanguageCode($profile->getLanguage());
 

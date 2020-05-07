@@ -13,7 +13,7 @@ function appendViewAll(element) {
   element.append('<div class="action-wrapper bottom-fade"><span class="bottom-fade-action view-all">'+buttonText+'</span></div>');
   element.find('.bottom-fade-action').click(function(event) {
     element.animate({
-      height: element.data('actual-height') + element.find('.action-wrapper').height() + 20
+      height: element.data('actual-height') + element.find('.action-wrapper').height() + 35
     }, 200, function(){
       element.removeClass('faded');
       element.find('.action-wrapper').remove();
@@ -96,8 +96,12 @@ jQuery().ready(
             });
             var maxSize = parseInt($(this).data('max-size'),10);
             if (maxSize > totalSize) {
+              jQuery('.import-box .sticky-panel').removeClass('form-do-not-change-activation');
+              jQuery('.import-box .sticky-panel').addClass('form-change-activation');
               jQuery('.import-box .submit').removeClass('disabled');
             } else {
+              jQuery('.import-box .sticky-panel').addClass('form-do-not-change-activation');
+              jQuery('.import-box .sticky-panel').removeClass('form-change-activation');
               jQuery('.import-box .submit').addClass('disabled');
               core.trigger('message', {
                 type: 'error',

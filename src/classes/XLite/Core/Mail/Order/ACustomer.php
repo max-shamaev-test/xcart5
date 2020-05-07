@@ -23,7 +23,7 @@ abstract class ACustomer extends \XLite\Core\Mail\Order\AOrder
         parent::__construct($order);
         $this->setFrom(Mailer::getOrdersDepartmentMail());
         $this->setReplyTo(Mailer::getOrdersDepartmentMails());
-        $this->setTo($order->getProfile()->getEmail());
+        $this->setTo(['email' => $order->getProfile()->getEmail(), 'name' => $order->getProfile()->getName(false)]);
         $this->tryToSetLanguageCode($order->getProfile()->getLanguage());
     }
 }

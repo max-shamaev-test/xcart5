@@ -13,13 +13,9 @@ div.add-to-compare.product {
 }
 
 div.add-to-compare.product div.compare-popup.visible div.compare-button {
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
   border-radius: 4px;
   border: solid 1px #bbc7d2;
   box-shadow: 2px 2px 3px #bbc7d2;
-  -moz-box-shadow: 2px 2px 3px #bbc7d2;
-  -webkit-box-shadow: 2px 2px 3px #bbc7d2;
   background-color: #fff;
 }
 

@@ -23,6 +23,13 @@ jQuery().ready(
             self.location = URLHandler.buildURL({ 'target': 'remove_data', 'remove_data_completed': 1 });
           }
         }
+      ).bind(
+        'cancel',
+        function() {
+          setTimeout(function() {
+            self.location = URLHandler.buildURL({ 'target': 'remove_data' });
+          }, 4000);
+        }
       );
 
     var height = 0;

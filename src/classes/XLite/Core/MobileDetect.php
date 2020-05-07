@@ -22,17 +22,6 @@ class MobileDetect extends \XLite\Base\Singleton
     public $detect;
 
     /**
-     * Function for those of you who wanted to use another library
-     * 
-     * @return void
-     */
-    protected static function requireLibrary()
-    {
-        // Include Mobile_Detect class here to avoid the Autoloader errors
-        require_once LC_DIR_LIB . 'Mobile_Detect.php';
-    }
-
-    /**
      * Method to access a singleton
      *
      * @return \Mobile_Detect
@@ -43,13 +32,24 @@ class MobileDetect extends \XLite\Base\Singleton
     }
 
     /**
+     * Check if the mobile device is a phone
+     *
+     * @return boolean
+     */
+    public static function isMobilePhone()
+    {
+        $instance = static::getInstance();
+
+        return $instance->isMobile() && !$instance->isTablet();
+    }
+
+    /**
      * Constructor
      *
      * @return void
      */
     protected function __construct()
     {
-        static::requireLibrary();
         $this->detect = new \Mobile_Detect;
     }
 }

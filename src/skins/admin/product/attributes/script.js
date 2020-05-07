@@ -118,12 +118,18 @@ jQuery().ready(
     );
 
     jQuery(document).click(
-      function () {
+      function (e) {
         jQuery('.modifiers.open').each(
           function () {
             changeModifiers(jQuery(this))
           }
         );
+
+        jQuery('.display-mode .value').each(
+          function () {
+            hideDisplayModeBlock(jQuery(this), e);
+          }
+        )
       }
     );
 
@@ -140,6 +146,10 @@ jQuery().ready(
 
     jQuery('select,input,textarea').bind('change keyup focusin',
       function () {
+        if ($(this).hasClass('display-mode-input')) {
+          return;
+        }
+
         var changed = this.initialValue != this.value;
         var el = jQuery(this);
         if (changed) {
@@ -165,8 +175,59 @@ jQuery().ready(
         }
       }
     );
+
+    jQuery('.display-mode-link').click(
+      function (e) {
+        e.preventDefault();
+        var $box = jQuery(this).closest('.display-mode');
+        $box.toggleClass('expanded');
+        $box.find('.value').toggle();
+      }
+    );
+
+    jQuery('.display-mode-variant').click(
+      function () {
+        var $radioButton = jQuery(this).find('.table-value input');
+
+        if ($radioButton.hasClass('clicked')) {
+          $radioButton.removeClass('clicked');
+          changeDisplayModeLink($(this));
+        } else {
+          $radioButton.trigger('click');
+        }
+      }
+    );
+
+    jQuery('.display-mode-variant input').click(
+      function () {
+        $(this).addClass('clicked');
+      }
+    );
   }
 );
+
+function changeDisplayModeLink($displayModeVariant) {
+  var label = $displayModeVariant
+    .find('label')
+    .html();
+  var $displayModeLink = $displayModeVariant
+    .closest('.title')
+    .find('.display-mode-link');
+
+  $displayModeLink.html(label);
+}
+
+function hideDisplayModeBlock($displayModeBlock, e) {
+  if (!$displayModeBlock.is(e.target)
+    && $displayModeBlock.has(e.target).length === 0
+    && !$displayModeBlock.siblings('.display-mode-link').is(e.target)
+  ) {
+    $displayModeBlock.hide();
+    $displayModeBlock
+      .closest('.display-mode')
+      .removeClass('expanded');
+  }
+}
 
 function changeModifiers(p) {
   var str = '';
@@ -211,28 +272,28 @@ function addAttribute(type, listId) {
 
   idx = idx + 1;
   var line = jQuery('.create-tpl').clone(true);
-  line
-    .show()
+  line.show()
     .removeClass('create-tpl')
     .addClass('create-line')
     .addClass('line')
-    .find('.attribute-value').each(
+    .find('.attribute-value, .display-mode').each(
       function () {
         if (!jQuery(this).hasClass('type-' + type.toLowerCase())) {
           jQuery(this).remove();
         }
       }
     );
-   line.find(':input').each(
-      function () {
-        if (this.id) {
-          this.id = this.id.replace(/-new-id/, '-n' + idx);
-        }
-        this.name = this.name.replace(/\[NEW_ID\]/, '[' + (-1 * idx) + ']');
-        this.value = this.value.replace(/NEW_LIST_ID/, listId);
-        this.value = this.value.replace(/NEW_TYPE/, type);
+
+  line.find(':input').each(
+    function () {
+      if (this.id) {
+        this.id = this.id.replace(/-new-id/, '-n' + idx);
       }
-    );
+      this.name = this.name.replace(/\[NEW_ID\]/, '[' + (-1 * idx) + ']');
+      this.value = this.value.replace(/NEW_LIST_ID/, listId);
+      this.value = this.value.replace(/NEW_TYPE/, type);
+    }
+  );
 
   box.append(line);
   line.parents('form').get(0).commonController.bindElements();

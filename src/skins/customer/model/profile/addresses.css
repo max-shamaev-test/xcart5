@@ -15,8 +15,6 @@
 {
   background: #fff url('../../images/blue_bg.png') repeat-x 0px -142px;
   border: #ccc 1px solid;
-  -moz-border-radius: 0.5em !important;
-  -webkit-border-radius: 0.5em !important;
   border-radius: 0.5em !important;
   padding: 8px;
   margin-top: 0px;

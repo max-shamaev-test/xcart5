@@ -8,19 +8,13 @@
  */
 
 .taxes-top-block {
-  display: table-row;
-}
-
-.taxes-top-block .taxes-top-block-left,
-.taxes-top-block .taxes-top-block-right {
-  display: table-cell;
-  vertical-align: top;
+  .flex-display();
 }
 
 .taxes-top-block .taxes-top-block-left {
+  .flex-grow(1);
   padding-right: 30px;
   min-width: 500px;
-  width: 100%;
 }
 
 .taxes-top-block .taxes-top-block-right {

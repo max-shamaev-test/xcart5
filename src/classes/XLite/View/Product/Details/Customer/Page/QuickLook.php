@@ -38,4 +38,19 @@ class QuickLook extends \XLite\View\Product\Details\Customer\Page\APage
     {
         return parent::getDir() . '/quick_look';
     }
+
+    /**
+     * Get a list of JavaScript files required to display the widget properly
+     *
+     * @return array
+     */
+    public function getJSFiles()
+    {
+        return array_merge(
+            parent::getJSFiles(),
+            [
+                'js/attributetoform.js'
+            ]
+        );
+    }
 }

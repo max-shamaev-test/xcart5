@@ -219,6 +219,7 @@ function isHardError($code)
             'php_memory_limit',
             'config_file',
             'file_permissions',
+            'frame_options'
         )
     );
 }
@@ -344,7 +345,7 @@ function doPrepareFixtures(&$params, $silentMode = false)
     $result = true;
 
     if (!$silentMode) {
-        echo '<div style="text-align: left; margin-bottom: 20px;">' . xtr('Preparing data for cache generation...');
+        echo '<div class="process-iframe-header">' . xtr('Preparing data for cache generation...');
     }
 
     $enabledModules = array();
@@ -454,7 +455,7 @@ function doUpdateConfig(&$params, $silentMode = false)
         }
 
     } elseif (!$silentMode) {
-        fatal_error(xtr('mysql_connection_error', array(':pdoerr', (!empty($pdoErrorMsg) ? ': ' . $pdoErrorMsg : ''))), 'pdo', @$pdoErrorMsg);
+        fatal_error(xtr('mysql_connection_error', array(':pdoerr' => (!empty($pdoErrorMsg) ? ': ' . $pdoErrorMsg : ''))), 'pdo', @$pdoErrorMsg);
     }
 
     return $configUpdated;
@@ -473,7 +474,7 @@ function doUpdateMainHtaccess(&$params, $silentMode = false)
     if (!empty($params['xlite_web_dir'])) {
 
         if (!$silentMode) {
-            echo '<br /><b>' . xtr('Updating .htaccess...') . '</b><br>';
+            echo '<div class="process-iframe-header">' . xtr('Updating .htaccess...') . '</div>';
         }
 
         $util = '\Includes\Utils\FileManager';
@@ -638,17 +639,17 @@ function doInstallDirs($silentMode = false)
     }
 
     if ($result && !empty($lcSettings['writable_directories'])) {
-        echo '<div class="section-title">' . xtr('Checking directories permissions...') . '</div>';
+        echo '<div class="iframe-div">' . xtr('Checking directories permissions...') . '</div>';
         chmod_others_directories($lcSettings['writable_directories']);
     }
 
     if (!empty($lcSettings['directories_to_create'])) {
-        echo '<div class="section-title">' . xtr('Creating directories...') . '</div>';
+        echo '<div class="iframe-div">' . xtr('Creating directories...') . '</div>';
         $result = create_dirs($lcSettings['directories_to_create']);
     }
 
     if ($result) {
-        echo '<div class="section-title">Creating directories process is finished</div>';
+        echo '<div class="iframe-div">Creating directories process is finished</div>';
     }
 
     if ($silentMode) {
@@ -768,7 +769,7 @@ function doFinishInstallation(&$params, $silentMode = false)
     // Update config settings
     update_config_settings($params);
 
-    \XLite\Core\Marketplace::getInstance()->setFreshInstall();
+    updateSystemDataStorage($params);
 
     // Save authcode for the further install runs
     $authcode = save_authcode($params);
@@ -822,13 +823,12 @@ function doFinishInstallation(&$params, $silentMode = false)
 
             $permsHTML =<<<OUT
 
-<div class="field-label">{$permsTitle}</div>
+<div>{$permsTitle}</div>
 
 <ul class="permissions-list">
 $perms
 </ul>
 
-<br />
 <div class="clipbrd">
   <input type="button" class="btn btn-default copy2clipboard" value="{$copyText}" />
   <div class="copy2clipboard-alert alert-success" style="display: none;"></div>
@@ -871,12 +871,9 @@ OUT;
   document.cookie = 'passed_steps=; expires=-1';
 </script>
 
-<br />
-<br />
-
 <?php echo $permsHTML; ?>
 
-<div class="field-label second-title"><?php echo xtr('X-Cart software has been successfully installed and is now available at the following URLs:'); ?></div>
+<div class="second-title"><?php echo xtr('X-Cart software has been successfully installed and is now available at the following URLs:'); ?></div>
 
 <p class="customer-link"><a href="cart.php" class="final-link" target="_blank"><?php echo xtr('Customer zone (front-end)'); ?></a></p>
 
@@ -1699,7 +1696,7 @@ function fatal_error_extended($txt, $errorCategory, $errorCode, $additionalNote 
 }
 
 /**
- * Display block 'Consider hosting your X-Cart with us...'
+ * Display block 'Create Online Store with X‑Cart...'
  *
  * @param boolean $hidden Flag: is block should be hidden (true) or visible (false)
  *
@@ -1722,16 +1719,16 @@ function x_display_help_block($hidden = true)
 
     <?php x_display_hosting_icon(); ?>
 
-    <div class="cloud-header"><?php echo xtr('Consider hosting your X-Cart with us'); ?></div>
-    <div class="cloud-text"><?php echo xtr('VPS hosting for X-Cart. No installation hassle. Fully customizable.'); ?></div>
+    <div class="cloud-header"><?php echo xtr('Create Online Store with X‑Cart!'); ?></div>
+    <div class="cloud-text"><?php echo xtr('No limitations or transaction fees, Open source code for easy customization, Great 24/7 support'); ?></div>
 
 <?php if ($hidden) { ?>
 
-    <a href="<?php echo $url; ?>" target="_blank"><?php echo xtr('Create an online store for free'); ?></a>
+    <a href="<?php echo $url; ?>" target="_blank"><?php echo xtr('Get first 30 days for FREE'); ?></a>
 
 <?php } else { ?>
 
-  <input type="button" id="create-online-store" class="btn btn-default btn-lg" value="<?php echo xtr('Create an online store for free'); ?>" onclick="javascript:window.open('<?php echo $url; ?>');" />
+  <input type="button" id="create-online-store" class="btn btn-default btn-lg" value="<?php echo xtr('Get first 30 days for FREE'); ?>" onclick="javascript:window.open('<?php echo $url; ?>');" />
 
 <?php } ?>
 
@@ -1897,6 +1894,8 @@ function generate_authcode()
  */
 function check_authcode(&$params)
 {
+    global $error;
+
     $authcode = get_authcode();
 
     // if authcode IS NULL, then this is probably the first install, skip
@@ -1906,8 +1905,8 @@ function check_authcode(&$params)
     }
 
     if (!isset($params['auth_code']) || trim($params['auth_code']) != $authcode) {
-        warning_error(xtr('Incorrect auth code! You cannot proceed with the installation.'), 'auth code');
-        exit();
+        fatal_error(xtr('Incorrect auth code! You cannot proceed with the installation.'), 'auth code', 'incorrect auth code');
+        $error = true;
     }
 }
 
@@ -1918,8 +1917,11 @@ function check_authcode(&$params)
  */
 function get_authcode()
 {
+    global $error;
+
     if (!$data = parse_config()) {
         fatal_error(xtr('Config file not found (:filename)', array(':filename' => constant('LC_CONFIG_FILE'))), 'file', 'config file not found');
+        $error = true;
     }
 
     return !empty($data['auth_code']) ? $data['auth_code'] : null;
@@ -1968,8 +1970,6 @@ function update_config_settings($params)
 
     $time = \XLite\Core\Converter::time();
 
-    $poweredBy = \XLite\View\PoweredBy::getPoweredByPhraseIndex();
-
     $serializedSiteEmail = serialize([$siteEmail]);
     $options = array(
         'Company::orders_department'  => $serializedSiteEmail,
@@ -1980,7 +1980,6 @@ function update_config_settings($params)
         'Company::start_year'         => date('Y', $time),
         'Version::timestamp'          => $time,
         'CleanURL::clean_url_flag'    => inst_http_request_clean_urls(),
-        'Internal::prnotice_index'    => $poweredBy,
     );
 
     if (!$options['CleanURL::clean_url_flag']) {
@@ -2009,6 +2008,24 @@ function update_config_settings($params)
     }
 
     \XLite\Core\Database::getEM()->flush();
+}
+
+/**
+ * Update system data storage
+ *
+ * @param array $params data
+ *
+ * @return void
+ */
+function updateSystemDataStorage($params)
+{
+    $systemData = \XLite\Core\Marketplace::getInstance()->getSystemData();
+
+    $systemData['adminEmail'] = $params['site_mail'] ?? $params['login'];
+    $systemData['freshInstall'] = true;
+    $systemData['shopCountryCode'] = \XLite\Core\Config::getInstance()->Company->location_country;
+
+    \XLite\Core\Marketplace::getInstance()->setSystemData($systemData);
 }
 
 /**
@@ -2115,11 +2132,10 @@ function getTimeZones($addBlank = false)
  *
  * @param string $fieldName
  * @param array  $fieldData
- * @param int    $clrNumber
  *
  * @return string
  */
-function displayFormElement($fieldName, $fieldData, $clrNumber)
+function displayFormElement($fieldName, $fieldData)
 {
     global $currentSection;
 
@@ -2201,16 +2217,20 @@ OUT;
         if (!empty($currentSection)) {
             $output .=<<<OUT
     <tr class="section-title section-{$currentSection}">
-        <td colspan="2"><span onclick="javascript: toggleSection('{$currentSection}');">{$sections[$currentSection]}</span></td>
+        <td><span onclick="javascript: toggleSection('{$currentSection}');">{$sections[$currentSection]}</span></td>
     </tr>
 OUT;
         }
     }
 
+    $notice = $fieldData["description"]
+        ? "<div class='field-notice'>{$fieldData['description']}</div>"
+        : "";
+
     $output .=<<<OUT
-    <tr class="color-{$clrNumber} {$sectionCSS}">
-        <td class="table-left-column"><div class="field-label">{$fieldData['title']}{$requiredField}</div><div class="field-notice">{$fieldData['description']}</div></td>
-        <td class="table-right-column">{$formElement}</td>
+    <tr class="{$sectionCSS}">
+        <td class="table-left-column"><div class="field-label">{$fieldData['title']}{$requiredField}</div></td>
+        <td class="table-right-column">{$formElement}{$notice}</td>
     </tr>
 OUT;
 
@@ -2299,24 +2319,17 @@ function module_check_cfg(&$params)
     $errorsFound = false;
     $warningsFound = false;
 
-    $sections = array(
+    $sections = [
         'A' => xtr('Environment checking'),
         'B' => xtr('Inspecting server configuration'),
-    );
+    ];
 
-    $steps = array(
-        /*1 => array(
-            'title'        => xtr('Environment'),
-            'error_msg'    => xtr('Environment checking failed'),
-            'section'      => 'A',
-            'requirements' => array(
-            )
-        ),*/
-        2 => array(
+    $steps = [
+        [
             'title'        => xtr('Critical dependencies'),
             'error_msg'    => xtr('Critical dependency failed'),
             'section'      => 'B',
-            'requirements' => array(
+            'requirements' => [
                 'php_version',
                 'php_memory_limit',
                 'doc_blocks_support',
@@ -2324,23 +2337,24 @@ function module_check_cfg(&$params)
                 'config_file',
                 'file_permissions',
                 'frame_options'
-            )
-        ),
-        3 => array(
+            ]
+        ],
+        [
             'title'        => xtr('Non-critical dependencies'),
             'error_msg'    => xtr('Non-critical dependency failed'),
             'section'      => 'B',
-            'requirements' => array(
+            'requirements' => [
                 'php_disabled_functions',
                 'php_file_uploads',
                 'php_upload_max_file_size',
                 'php_gdlib',
                 'php_phar',
                 'https_bouncer',
-                'xml_support'
-            )
-        )
-    );
+                'xml_support',
+                'loopback_request'
+            ]
+        ]
+    ];
 
     ob_start();
     require_once LC_DIR_ROOT . 'Includes/install/templates/step1_chkconfig.tpl.php';
@@ -2406,8 +2420,6 @@ function module_cfg_install_db(&$params)
     $pdoErrorMsg = '';
     $output = '';
 
-    $clrNumber = 1;
-
     $requirements = doCheckRequirements();
 
     // Remove report file if it was created on the previous step
@@ -2424,7 +2436,7 @@ function module_cfg_install_db(&$params)
         ),
         'mysqlbase'        => array(
             'title'       => xtr('MySQL database name'),
-            'description' => xtr('The name of the existing database to use (if the database does not exist on the server, you should create it to continue the installation).'),
+            'description' => xtr('Name of a new or existing database to use.'),
             'required'    => true,
         ),
         'mysqluser'        => array(
@@ -2503,6 +2515,11 @@ function module_cfg_install_db(&$params)
     // Initialize default values for parameters
     applySuggestedDefValues($paramFields);
 
+    if ($requirements['loopback_request']['status'] === false) {
+        unset($paramFields['demo']);
+        $params['demo'] = 'Y';
+    }
+
     $messageText = '';
 
     $displayConfigForm = false;
@@ -2545,8 +2562,7 @@ function module_cfg_install_db(&$params)
 
             $fieldData['value'] = (isset($params[$fieldName]) ? $params[$fieldName] : $fieldData['def_value']);
 
-            displayFormElement($fieldName, $fieldData, $clrNumber);
-            $clrNumber = ($clrNumber == 2) ? 1 : 2;
+            displayFormElement($fieldName, $fieldData);
         }
 
         $output = ob_get_contents();
@@ -2667,21 +2683,12 @@ function module_cfg_install_db(&$params)
 
                 } elseif (!$checkError) {
                     // Check if X-Cart tables is already exists
+                    $prefix = $params['mysqlprefix'] ?? get_db_tables_prefix();
+                    $res = dbFetchAll('SHOW TABLES LIKE \'' . $prefix . '%\'');
 
-                    $mystring = '';
-                    $first = true;
-
-                    $res = dbFetchAll('SHOW TABLES LIKE \'' . get_db_tables_prefix() . '%\'');
-
-                    if (is_array($res)) {
-
-                        foreach ($res as $row) {
-                            if (in_array(get_db_tables_prefix() . 'products', $row)) {
-                                warning_error(xtr('Installation Wizard has detected X-Cart tables'), 're-install');
-                                $checkWarning = true;
-                                break;
-                            }
-                        }
+                    if (is_array($res) && !empty($res)) {
+                        warning_error(xtr('Installation Wizard has detected X-Cart tables'), 're-install');
+                        $checkWarning = true;
                     }
                 }
 
@@ -2949,16 +2956,12 @@ setTimeout('isProcessComplete()', 1000);
 <div id="cache-rebuild-failed" class="cache-error" style="display: none;"><span><?php echo xtr('Oops!'); ?></span> <?php echo xtr('The current step of the cache rebuilding process is taking longer than expected. Check for possible problems <a href="https://kb.x-cart.com/pages/viewpage.action?pageId=7504578" target="_blank">here</a>.'); ?></div>
 
 <?php
-$params['auth_code'] = $params['auth_code'] ? $params['auth_code'] : save_authcode($params);
+$params['auth_code'] = !empty($params['auth_code']) ? $params['auth_code'] : save_authcode($params);
 ?>
 
-<iframe id="process_iframe" style="padding-top: 15px;" src="service.php?/install&<?php echo http_build_query(['modules' => $enabledModules, 'version' => LC_VERSION, 'auth_code' => $params['auth_code']]); ?>" width="100%" height="300" frameborder="0" marginheight="10" marginwidth="10"></iframe>
+<iframe id="process_iframe" src="service.php?/install&<?php echo http_build_query(['modules' => $enabledModules, 'version' => LC_VERSION, 'auth_code' => $params['auth_code']]); ?>" width="100%" height="300" frameborder="0" marginheight="10" marginwidth="10"></iframe>
 
-<br />
-<br />
-<br />
-
-<?php echo xtr('Building cache notice'); ?>
+<?php echo '<div class="building-cache-notice">' . xtr('Building cache notice') . '</div>'; ?>
 
 <script type="text/javascript">
 
@@ -2973,25 +2976,29 @@ $params['auth_code'] = $params['auth_code'] ? $params['auth_code'] : save_authco
         if (iframe.getElementById('finish')) {
             resetCacheWindowContent();
 
+        } else if (iframe.body.innerHTML) {
+            var finishedStepsCount = iframe.getElementsByClassName('finished-step-info').length;
+
+            if (currentStep !== finishedStepsCount) {
+                errCount = 0;
+                currentStep = finishedStepsCount;
+                resetCacheRebuildFailure();
+            }
+
+            if (errCount > 60) {
+                var currentStepInfo = iframe.querySelector('.in-progress-step-info div')
+                    ? iframe.querySelector('.in-progress-step-info div').innerHTML
+                    : '';
+                processCacheRebuildFailure(currentStepInfo);
+                isStopped = true;
+
+            } else {
+                errCount = errCount + 1;
+            }
+
+            setTimeout('isProcessComplete()', 1000);
+
         } else {
-
-            // var pattern = /^.*Deploying store \[step (\d+) of (\d+)\].*$/m;
-            // var matches = iframe.body.innerHTML.match(pattern);
-            //
-            // if (matches && currentStep !== matches[1]) {
-            //    errCount = 0;
-            //    currentStep = matches[1];
-            //    resetCacheRebuildFailure();
-            // }
-            //
-            // if (errCount > 60) {
-            //     processCacheRebuildFailure(matches);
-            //     isStopped = true;
-            //
-            // } else {
-            //     errCount = errCount + 1;
-            // }
-
             setTimeout('isProcessComplete()', 1000);
         }
     }
@@ -3023,7 +3030,7 @@ function module_install_dirs(&$params)
 {
     global $error, $lcSettings;
 
-    $result = doUpdateConfig($params, true) && doUpdateMainHtaccess($params);
+    $result = doUpdateConfig($params, false) && doUpdateMainHtaccess($params);
 
     if ($result) {
 
@@ -3102,18 +3109,11 @@ function module_cfg_create_admin(&$params)
         ),
     );
 
-    $clrNumber = 1;
-
 ?>
 
 <div>
 
-<div class="field-left">
-
-<?php echo xtr('E-mail and password that you provide on this screen will be used to create primary administrator profile. Use them as credentials to access the Administrator Zone of your online store.'); ?>
-
-<br />
-<br />
+<p class="text-left"><?php echo xtr('E-mail and password that you provide on this screen will be used to create primary administrator profile. Use them as credentials to access the Administrator Zone of your online store.'); ?></p>
 
 <table width="100%" border="0" cellpadding="10">
 
@@ -3121,21 +3121,12 @@ function module_cfg_create_admin(&$params)
 
 
     foreach ($paramFields as $fieldName => $fieldData) {
-        displayFormElement($fieldName, $fieldData, $clrNumber);
-        $clrNumber = ($clrNumber == 2) ? 1 : 2;
+        displayFormElement($fieldName, $fieldData);
     }
 
 ?>
 
 </table>
-
-</div>
-
-<div class="field-right">
-
-    <img class="keyhole-icon" src="<?php echo $skinsDir; ?>images/keyhole_icon.png" alt="" />
-
-</div>
 
 </div>
 

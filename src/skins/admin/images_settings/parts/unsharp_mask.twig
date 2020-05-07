@@ -5,5 +5,5 @@
  #}
 
 {% if this.isShowUnsharpOption() %}
-  {{ widget('\\XLite\\View\\FormField\\Input\\Checkbox\\OnOff', fieldName='unsharp_mask_filter_on_resize', value=this.getUnsharpMaskFilterOnResizeValue(), label='Apply unsharp mask filter on resize') }}
+  <li>{{ widget('\\XLite\\View\\FormField\\Input\\Checkbox\\OnOff', fieldName='unsharp_mask_filter_on_resize', value=this.getUnsharpMaskFilterOnResizeValue(), label='Apply unsharp mask filter on resize') }}</li>
 {% endif %}

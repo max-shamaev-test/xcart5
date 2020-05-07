@@ -5,12 +5,11 @@
  # @ListChild (list="import.completed.content.errors", weight="100")
  #}
 
-<h3>{{ this.getTitle() }}</h3>
+<p>{{ this.getTitle() }}</p>
 {% for file in this.getFiles() %}
   <div class="errors-wrapper faded initial">
     <ul class="errors">
       <li class="title">
-        <i class="icon-file-alt"></i> 
         {{ file.file }}
         {% if file.countW %}
           <span class="count-w">{{ file.countW }}</span>

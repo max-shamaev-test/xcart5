@@ -8,11 +8,29 @@
 
 namespace XLite\Controller\Admin;
 
+use Includes\Utils\Module\Manager;
+use XLite;
+use XLite\Core\Converter;
+use XLite\Core\Database;
+use XLite\Core\Request;
+use XLite\Core\TopMessage;
+use XLite\Model\Shipping\Method;
+
 /**
  * Shipping methods management page controller
  */
-class ShippingMethods extends \XLite\Controller\Admin\AAdmin
+class ShippingMethods extends AAdmin
 {
+    /**
+     * Define the actions with no secure token
+     *
+     * @return array
+     */
+    public static function defineFreeFormIdActions()
+    {
+        return array_merge(parent::defineFreeFormIdActions(), ['add']);
+    }
+
     /**
      * Return the current page title (for the content area)
      *
@@ -28,12 +46,12 @@ class ShippingMethods extends \XLite\Controller\Admin\AAdmin
     /**
      * Returns shipping method
      *
-     * @return null|\XLite\Model\Shipping\Method
+     * @return null|Method
      */
     public function getMethod()
     {
-        /** @var \XLite\Model\Repo\Shipping\Method $repo */
-        $repo = \XLite\Core\Database::getRepo('XLite\Model\Shipping\Method');
+        /** @var XLite\Model\Repo\Shipping\Method $repo */
+        $repo = Database::getRepo(Method::class);
 
         return $repo->findOnlineCarrier($this->getProcessorId());
     }
@@ -45,7 +63,7 @@ class ShippingMethods extends \XLite\Controller\Admin\AAdmin
      */
     public function getProcessorId()
     {
-        return \XLite\Core\Request::getInstance()->processor;
+        return Request::getInstance()->processor;
     }
 
     /**
@@ -60,6 +78,39 @@ class ShippingMethods extends \XLite\Controller\Admin\AAdmin
         return $processorId && $processorId !== 'offline'
             ? $processorId
             : '';
+    }
+
+    public function doActionAdd()
+    {
+        $request = Request::getInstance();
+        $id = $request->id;
+        $rebuildId = $request->rebuildId;
+
+        if ($rebuildId) {
+            TopMessage::addInfo('If anything crops up, just rollback or contact our support team - they know how to fix it right away.', [
+                'rollback_url' => XLite::getInstance()->getShopURL('service.php?/rollback', null, [
+                    'id' => $rebuildId
+                ])
+            ]);
+        }
+
+        $url = null;
+
+        /** @var Method $method */
+        $method = Database::getRepo(Method::class)
+            ->find($id);
+
+        if ($method !== null) {
+            $module = $method->getProcessorModule();
+
+
+            if (Manager::getRegistry()->isModuleEnabled($module)) {
+                $processor = $method->getProcessorObject();
+                $url = $processor ? $processor->getSettingsURL() : null;
+            }
+        }
+
+        $this->redirect($url ?: Converter::buildURL('shipping_methods'));
     }
 
     /**

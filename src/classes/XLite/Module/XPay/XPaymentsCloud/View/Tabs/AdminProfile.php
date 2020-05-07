@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XPay\XPaymentsCloud\View\Tabs;
 
+use XLite\Module\XPay\XPaymentsCloud\Main as XPaymentsCloud;
+
 /**
  * Profile dialog
  */
@@ -22,7 +24,9 @@ class AdminProfile extends \XLite\View\Tabs\AdminProfile implements \XLite\Base\
     {
         $list = parent::getAllowedTargets();
 
-        $list[] = 'xpayments_cards';
+        if (static::isXpaymentsEnabled()) {
+            $list[] = 'xpayments_cards';
+        }
 
         return $list;
     }
@@ -52,7 +56,10 @@ class AdminProfile extends \XLite\View\Tabs\AdminProfile implements \XLite\Base\
     {
         $tabs = parent::defineTabs();
 
-        if (!$this->getCustomerProfile()->getAnonymous()) {
+        if (
+            !$this->getCustomerProfile()->getAnonymous()
+            && static::isXpaymentsEnabled()
+        ) {
             $tabs['xpayments_cards'] = array(
                 'weight'   => 1100,
                 'title'    => static::t('Saved cards'),
@@ -72,8 +79,10 @@ class AdminProfile extends \XLite\View\Tabs\AdminProfile implements \XLite\Base\
     {
         $list = parent::getCommonFiles();
 
-        $list['css'][] = 'modules/XPay/XPaymentsCloud/account/cc_type_sprites.css';
-        $list['css'][] = 'modules/XPay/XPaymentsCloud/account/style.css';
+        if (static::isXpaymentsEnabled()) {
+            $list['css'][] = 'modules/XPay/XPaymentsCloud/account/cc_type_sprites.css';
+            $list['css'][] = 'modules/XPay/XPaymentsCloud/account/xpayments_cards.less';
+        }
 
         return $list;
     }
@@ -87,8 +96,22 @@ class AdminProfile extends \XLite\View\Tabs\AdminProfile implements \XLite\Base\
     {
         $list = parent::getCSSFiles();
 
-        $list[] = 'modules/XPay/XPaymentsCloud/account/style.css';
+        if (static::isXpaymentsEnabled()) {
+            $list[] = 'modules/XPay/XPaymentsCloud/account/xpayments_cards.admin.css';
+        }
 
         return $list;
     }
+
+    /**
+     * Check if X-Payment Cloud payment method is enabled
+     *
+     * @return bool
+     */
+    protected static function isXpaymentsEnabled()
+    {
+        return XPaymentsCloud::getPaymentMethod()
+            && XPaymentsCloud::getPaymentMethod()->isEnabled();
+    }
+
 }

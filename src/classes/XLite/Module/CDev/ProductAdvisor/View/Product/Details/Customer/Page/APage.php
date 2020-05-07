@@ -41,4 +41,15 @@ class APage extends \XLite\View\Product\Details\Customer\Page\APage implements \
             )
         ];
     }
+
+    /**
+     * @return bool
+     */
+    protected function isShowComingSoonLabel()
+    {
+        return $this->getProduct()->isUpcomingProduct()
+            && \XLite\Module\CDev\ProductAdvisor\View\FormField\Select\MarkProducts::isProductPageEnabled(
+                \XLite\Core\Config::getInstance()->CDev->ProductAdvisor->cs_mark_with_label
+            );
+    }
 }

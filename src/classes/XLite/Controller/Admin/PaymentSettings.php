@@ -216,6 +216,15 @@ class PaymentSettings extends \XLite\Controller\Admin\AAdmin
                 \XLite\Core\Database::getEM()->flush();
             }
 
+            if (\XLite\Core\Request::getInstance()->rebuildId) {
+                \XLite\Core\TopMessage::addInfo(
+                    'If anything crops up, just rollback or contact our support team - they know how to fix it right away.',
+                    [
+                        'rollback_url' => \XLite::getInstance()->getShopURL('service.php?/rollback', null, ['id' => \XLite\Core\Request::getInstance()->rebuildId])
+                    ]
+                );
+            }
+
             $this->setReturnURL($method->getConfigurationURL(true));
         }
     }

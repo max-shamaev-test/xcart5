@@ -90,7 +90,7 @@ class GlobalTab extends \XLite\Model\Product\GlobalTab implements \XLite\Base\ID
      */
     public function getLink()
     {
-        return $this->link;
+        return preg_replace('/[^a-z0-9-_]/i', '-', $this->link);
     }
 
     /**

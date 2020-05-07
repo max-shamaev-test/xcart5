@@ -27,7 +27,7 @@ core.microhandlers.add(
     }
 );
 
-define('form_model', ['js/vue/vue', 'form_model/sticky_panel'], function (XLiteVue, Panel) {
+define('form_model', ['js/vue/vue', 'js/jquery', 'form_model/sticky_panel'], function (XLiteVue, $, Panel) {
   var state = false;
 
   XLiteVue.component('xlite-form-model', {
@@ -47,6 +47,8 @@ define('form_model', ['js/vue/vue', 'form_model/sticky_panel'], function (XLiteV
       core.trigger('vue-form.ready', this.$el);
 
       new CommonForm(this.$el);
+
+      this.scrollToError();
     },
 
     directives: {
@@ -157,6 +159,17 @@ define('form_model', ['js/vue/vue', 'form_model/sticky_panel'], function (XLiteV
             self.blockSubmitButton();
           }
         })
+      },
+
+      scrollToError: function () {
+        var firstError = $('.form-row.has-error')
+        var timer = setInterval(function () {
+          if (window.pageYOffset !== 0) {
+            clearInterval(timer)
+          } else {
+            window.scrollTo(0, firstError.offset()['top']);
+          }
+        }, 1000)
       }
     },
 

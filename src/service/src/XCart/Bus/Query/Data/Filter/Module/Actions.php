@@ -89,6 +89,16 @@ class Actions extends AModifier
     private $time;
 
     /**
+     * @var bool
+     */
+    private $displayUpdateNotification;
+
+    /**
+     * @var bool
+     */
+    private $isCloud;
+
+    /**
      * @param Iterator                   $iterator
      * @param string                     $field
      * @param mixed                      $data
@@ -101,6 +111,8 @@ class Actions extends AModifier
      * @param MarketplaceShop            $marketplaceShop
      * @param UrlBuilder                 $urlBuilder
      * @param bool                       $developerMode
+     * @param bool                       $displayUpdateNotification
+     * @param bool                       $isCloud
      */
     public function __construct(
         Iterator $iterator,
@@ -114,22 +126,26 @@ class Actions extends AModifier
         UninstallAvailDecider $uninstallAvailDecider,
         MarketplaceShop $marketplaceShop,
         UrlBuilder $urlBuilder,
-        $developerMode
+        $developerMode,
+        $displayUpdateNotification,
+        $isCloud
     ) {
         parent::__construct($iterator, $field, $data);
 
         /** @var Module $core */
         $core = $installedModulesDataSource->find('CDev-Core');
 
-        $this->coreMajorVersion      = $this->getMajorVersion($core->version);
-        $this->coreMinorVersion      = $this->getMinorVersion($core->version);
-        $this->modulesDataSource     = $modulesDataSource;
-        $this->licenses              = $licenseDataSource->getAll();
-        $this->editionMessage        = $editionMessage;
-        $this->uninstallAvailDecider = $uninstallAvailDecider;
-        $this->marketplaceShop       = $marketplaceShop;
-        $this->urlBuilder            = $urlBuilder;
-        $this->developerMode         = $developerMode;
+        $this->coreMajorVersion          = $this->getMajorVersion($core->version);
+        $this->coreMinorVersion          = $this->getMinorVersion($core->version);
+        $this->modulesDataSource         = $modulesDataSource;
+        $this->licenses                  = $licenseDataSource->getAll();
+        $this->editionMessage            = $editionMessage;
+        $this->uninstallAvailDecider     = $uninstallAvailDecider;
+        $this->marketplaceShop           = $marketplaceShop;
+        $this->urlBuilder                = $urlBuilder;
+        $this->developerMode             = $developerMode;
+        $this->displayUpdateNotification = $displayUpdateNotification;
+        $this->isCloud                   = $isCloud;
 
         $this->coreLicense       = $this->getLicense($core);
         $this->requestForUpgrade = $coreConfigDataSource->requestForUpgrade;
@@ -253,11 +269,32 @@ class Actions extends AModifier
             $actions['switch']  = false;
             $actions['install'] = true;
 
-            if (empty($license) && $item['price'] > 0) {
+            $isPendingLicense = isset($license['keyType'])
+                ? $license['keyType'] === LicenseDataSource::KEY_TYPE_PENDING
+                : false;
+            $isEmptyLicense   = empty($license) || $isPendingLicense;
+
+            if ($isPendingLicense) {
+                $messages[] = [
+                    'type'    => 'warning',
+                    'message' => 'module_state_message.license_pending',
+                ];
+            }
+
+            if ($isEmptyLicense && $item['price'] > 0) {
                 $actions['purchase'] = true;
             }
 
-            if (version_compare($this->getMajorVersion($item['version']), $this->coreMajorVersion, '<')) {
+            if ($item['xcnPlan'] === -1) {
+                $actions['install']  = false;
+                $actions['purchase'] = false;
+                $messages[]          = [
+                    'type'    => 'warning',
+                    'message' => $this->isCloud
+                        ? 'module_state_message.edition.unavailable_in_all_cloud_editions'
+                        : 'module_state_message.edition.unavailable_in_all_standalone_editions',
+                ];
+            } elseif (version_compare($this->getMajorVersion($item['version']), $this->coreMajorVersion, '<')) {
                 $actions['install']  = false;
                 $actions['purchase'] = false;
 
@@ -295,14 +332,18 @@ class Actions extends AModifier
                         ]),
                     ];
                 }
-            } elseif (empty($license) && ($item['price'] > 0 || !$this->checkEdition($item))) { // todo: check license
+            } elseif ($isEmptyLicense && ($item['price'] > 0 || !$this->checkEdition($item))) { // todo: check license
                 $actions['install'] = false;
 
                 if (!$this->checkEdition($item)) {
                     $editions = array_map(function ($edition) {
                         [$id, $name] = explode('_', $edition);
 
-                        return [$this->marketplaceShop->getPurchaseURL($id), $name];
+                        $url = $this->isCloud
+                            ? $this->marketplaceShop->getBuyNowURL($id, $this->urlBuilder->buildServiceMainUrl('afterPurchase'))
+                            : $this->marketplaceShop->getPurchaseURL($id);
+
+                        return [$url, $name];
                     }, $item['editions']);
 
                     $messages[] = [
@@ -324,16 +365,36 @@ class Actions extends AModifier
             }
         }
 
+        if (
+            $item['enabled'] &&
+            !$item['scenarioState']['enabled'] &&
+            $item['scenarioState']['installed'] &&
+            $item['dependsOn']
+        ) {
+            $messages[] = [
+                'type'    => 'warning',
+                'message' => 'module_state_message.module_restriction.dependsOn',
+                'params'  => AlertType::prepareParams($this->prepareModulesList($item['dependsOn'])),
+            ];
+        }
+
         if ($item->installed && $item->version) {
             if ($this->getMajorVersion($item->installedVersion) === $this->coreMajorVersion) {
                 if ($this->getMajorVersion($item->version) === $this->coreMajorVersion) {
-                    $messages[] = [
-                        'type'    => 'success',
-                        'message' => 'module_state_message.update_available',
-                        'params'  => AlertType::prepareParams([
-                            'version' => $item->version,
-                        ]),
-                    ];
+                    if ($this->displayUpdateNotification) {
+                        $updateType = $this->getMinorVersion($item->version) > $this->getMinorVersion($item->installedVersion)
+                            ? 'minor'
+                            : 'build';
+
+                        $messages[] = [
+                            'type'    => 'success',
+                            'message' => 'module_state_message.update_available',
+                            'params'  => AlertType::prepareParams([
+                                'version' => $item->version,
+                                'type'    => $updateType,
+                            ]),
+                        ];
+                    }
                 } elseif (version_compare($this->getMajorVersion($item->version), $this->coreMajorVersion, '>')) {
                     $actions['switch'] = false;
                     $messages[]        = [

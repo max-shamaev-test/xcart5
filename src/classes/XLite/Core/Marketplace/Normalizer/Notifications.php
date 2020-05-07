@@ -8,7 +8,7 @@
 
 namespace XLite\Core\Marketplace\Normalizer;
 
-use \XCart\Marketplace\Constant;
+use XLite\Core\Marketplace\Constant;
 
 class Notifications extends \XLite\Core\Marketplace\Normalizer
 {
@@ -20,6 +20,7 @@ class Notifications extends \XLite\Core\Marketplace\Normalizer
         'description' => Constant::FIELD_NOTIFICATION_DESCRIPTION,
         'link'        => Constant::FIELD_NOTIFICATION_LINK,
         'date'        => Constant::FIELD_NOTIFICATION_DATE,
+        'pageParams'  => Constant::FIELD_NOTIFICATION_PAGE_PARAMS,
     ];
 
     /**

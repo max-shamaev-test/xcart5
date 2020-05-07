@@ -51,6 +51,14 @@ class Coupons extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_MAIN    => true,
                 static::COLUMN_ORDERBY  => 100,
             ),
+            'dateRangeBegin' => array(
+                static::COLUMN_NAME => static::t('Active from'),
+                static::COLUMN_ORDERBY  => 140,
+            ),
+            'dateRangeEnd' => array(
+                static::COLUMN_NAME => static::t('Active till'),
+                static::COLUMN_ORDERBY  => 150,
+            ),
             'comment' => array(
                 static::COLUMN_NAME    => static::t('Comment'),
                 static::COLUMN_NO_WRAP => true,
@@ -68,6 +76,11 @@ class Coupons extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_NAME => static::t('Uses count'),
                 static::COLUMN_TEMPLATE => 'modules/CDev/Coupons/coupons/list/uses_count.twig',
                 static::COLUMN_ORDERBY  => 500,
+            ),
+            'products_count' => array(
+                static::COLUMN_NAME => '',
+                static::COLUMN_TEMPLATE => 'modules/CDev/Coupons/coupons/list/products_count.twig',
+                static::COLUMN_ORDERBY  => 600,
             ),
         );
     }
@@ -298,6 +311,38 @@ class Coupons extends \XLite\View\ItemsList\Model\Table
         return $this->isInfinityUsesLeft($coupon)
             ? (chr(226) . chr(136) . chr(158))
             : max(0, $coupon->getUsesLimit() - $value);
+    }
+
+    /**
+     * Preprocess value for DateRangeBegin column
+     *
+     * @param mixed                                   $value  Value
+     * @param array                                   $column Column data
+     * @param \XLite\Module\CDev\Coupons\Model\Coupon $coupon Entity
+     *
+     * @return string
+     */
+    protected function preprocessDateRangeBegin($value, array $column, \XLite\Module\CDev\Coupons\Model\Coupon $coupon)
+    {
+        return 0 >= $value
+            ? '-'
+            : $this->formatDate($value);
+    }
+
+    /**
+     * Preprocess value for dateRangeEnd column
+     *
+     * @param mixed                                   $value  Value
+     * @param array                                   $column Column data
+     * @param \XLite\Module\CDev\Coupons\Model\Coupon $coupon Entity
+     *
+     * @return string
+     */
+    protected function preprocessDateRangeEnd($value, array $column, \XLite\Module\CDev\Coupons\Model\Coupon $coupon)
+    {
+        return 0 >= $value
+            ? '-'
+            : $this->formatDate($value);
     }
 
     // }}}

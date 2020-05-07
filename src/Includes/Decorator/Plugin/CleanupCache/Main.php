@@ -35,7 +35,8 @@ class Main extends \Includes\Decorator\Plugin\APlugin
         if (\Includes\Decorator\Utils\CacheManager::isCapsular()) {
             $currentKey = \Includes\Decorator\Utils\CacheManager::getKey();
             foreach (\Includes\Decorator\Utils\CacheManager::getCacheDirs(true) as $dir) {
-                $list = glob(rtrim($dir, LC_DS) . '.*');
+                $oldCacheList = glob(rtrim($dir, LC_DS) . '.old.*');
+                $list = array_diff(glob(rtrim($dir, LC_DS) . '.*'), $oldCacheList);
                 if ($list) {
                     foreach ($list as $subdir) {
                         list($main, $key) = explode('.', $subdir, 2);

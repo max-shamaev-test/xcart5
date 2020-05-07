@@ -30,5 +30,7 @@
     <label><input type="checkbox" name="copy-to-file" value="1" class="copy-to-file" checked="checked"/>{{ t('Copy to file system') }}</label>
     <div class="not-copy-to-file-warning alert alert-warning hidden">{{ t('Warning! The image cannot be resized to reduce capacity for better site performance.') }}</div>
   </div>
-  <button type="button" class="btn btn-default" @click.prevent="doUploadViaUrl">{{ t('Upload') }}</button>
+  <div class="model form buttons">
+    <button type="button" class="btn regular-button" @click.prevent="doUploadViaUrl">{{ t('Upload') }}</button>
+  </div>
 </div>

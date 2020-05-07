@@ -47,7 +47,7 @@ class UpdateAmazonPaymentInfo extends \XLite\Core\Mail\AMail
         $amazonLink = str_replace('{%domain%}', $domain, 'https://payments.amazon{%domain%}/jr/your-account/orders?language=en_GB');
 
         $this->setFrom(\XLite\Core\Mailer::getOrdersDepartmentMail());
-        $this->setTo($profile->getLogin());
+        $this->setTo(['email' => $profile->getLogin(), 'name' => $profile->getName(false)]);
         $this->setReplyTo(\XLite\Core\Mailer::getOrdersDepartmentMails());
 
         $this->populateVariables(

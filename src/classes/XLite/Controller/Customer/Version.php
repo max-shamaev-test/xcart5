@@ -25,8 +25,8 @@ class Version extends \XLite\Controller\Customer\ACustomer
         if (!$scode) {
             $this->display404();
         } else {
-            $url = \XLite::getInstance()->getServiceURL(
-                '#/version?scode=' . $scode
+            $url = \XLite::getInstance()->getShopURL(
+                'service.php#/version?scode=' . $scode
             );
             $this->setReturnURL($url);
         }

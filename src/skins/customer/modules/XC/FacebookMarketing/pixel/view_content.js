@@ -14,7 +14,27 @@ define('facebookPixel/viewContent', ['facebookPixel/event'], function (Event) {
     },
 
     registerView: function() {
-      this.sendEvent('ViewContent');
+      var contentData = core.getCommentedData(jQuery('.fb-pixel-content-data'));
+      if (contentData) {
+        jQuery.each(jQuery('.list-container .items-list-products'), function (index, el) {
+          _contentData = core.getCommentedData(el, 'fb_pixel_content_data');
+          if (_contentData) {
+            Object.assign(contentData.data, _contentData);
+            return false;
+          }
+        })
+      }
+
+      if (contentData && contentData.type) {
+        if ('category' === contentData.type) {
+          this.sendCustomEvent('ViewCategory', contentData.data);
+        } else {
+          this.sendEvent('ViewContent', contentData.data);
+        }
+
+      } else {
+        this.sendEvent('ViewContent');
+      }
     }
   });
 

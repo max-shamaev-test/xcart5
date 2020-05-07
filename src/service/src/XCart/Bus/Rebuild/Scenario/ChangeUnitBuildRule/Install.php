@@ -8,9 +8,8 @@
 
 namespace XCart\Bus\Rebuild\Scenario\ChangeUnitBuildRule;
 
-use XCart\Bus\Domain\Module;
-use XCart\Bus\Query\Data\InstalledModulesDataSource;
-use XCart\Bus\Query\Data\MarketplaceModulesDataSource;
+use XCart\Bus\Query\Data\Flatten\Flatten;
+use XCart\Bus\Query\Data\ModulesDataSource;
 use XCart\Bus\Rebuild\Scenario\Transition\InstallDisabledTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\InstallEnabledTransition;
 use XCart\Bus\Rebuild\Scenario\Transition\TransitionInterface;
@@ -22,25 +21,17 @@ use XCart\SilexAnnotations\Annotations\Service;
 class Install implements ChangeUnitBuildRuleInterface
 {
     /**
-     * @var InstalledModulesDataSource
+     * @var ModulesDataSource
      */
-    private $installedModulesDataSource;
+    private $modulesDataSource;
 
     /**
-     * @var MarketplaceModulesDataSource
-     */
-    private $marketplaceModulesDataSource;
-
-    /**
-     * @param InstalledModulesDataSource   $installedModulesDataSource
-     * @param MarketplaceModulesDataSource $marketplaceModulesDataSource
+     * @param ModulesDataSource $modulesDataSource
      */
     public function __construct(
-        InstalledModulesDataSource $installedModulesDataSource,
-        MarketplaceModulesDataSource $marketplaceModulesDataSource
+        ModulesDataSource $modulesDataSource
     ) {
-        $this->installedModulesDataSource   = $installedModulesDataSource;
-        $this->marketplaceModulesDataSource = $marketplaceModulesDataSource;
+        $this->modulesDataSource = $modulesDataSource;
     }
 
     /**
@@ -58,12 +49,16 @@ class Install implements ChangeUnitBuildRuleInterface
      */
     public function isApplicable(array $changeUnit): bool
     {
-        return isset($changeUnit['install'])
+        if (isset($changeUnit['install'])
             && $changeUnit['install'] === true
             && (!empty($changeUnit['version']) || !empty($changeUnit['installLatestVersion']))
-            && $this->marketplaceModulesDataSource->find($changeUnit['id'])
-            && !$this->installedModulesDataSource->find($changeUnit['id']);
+        ) {
+            $module = $this->modulesDataSource->findOne($changeUnit['id'], Flatten::RULE_LAST, ['canInstall' => true], $changeUnit['replaceData'] ?? []);
 
+            return $module && $module->installedVersion === null;
+        }
+
+        return false;
     }
 
     /**
@@ -89,9 +84,7 @@ class Install implements ChangeUnitBuildRuleInterface
             : true;
 
         if (!empty($changeUnit['installLatestVersion'])) {
-            /** @var Module[] $module */
-            $module = $this->marketplaceModulesDataSource->find($id);
-            $module = array_pop($module);
+            $module = $this->modulesDataSource->findOne($id, Flatten::RULE_LAST, ['canInstall' => true]);
 
             $changeUnit['version'] = $module->version;
         }

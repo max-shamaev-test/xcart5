@@ -80,19 +80,27 @@ class SelectFile extends \XLite\Controller\Admin\SelectFile implements \XLite\Ba
                 $attachment->setOrderby($attachmentsRepo->getMaxAttachmentOrderByForProduct($product) + 10);
             }
 
-            if (call_user_func_array([$attachment->getStorage(), $methodToLoad], $paramsToLoad)) {
-
+            if (call_user_func_array([$attachment->getStorage($methodToLoad), $methodToLoad], $paramsToLoad)) {
                 $found = false;
-                foreach ($attachment->getStorage()->getDuplicates() as $duplicate) {
-                    if (
-                        $duplicate instanceof \XLite\Module\CDev\FileAttachments\Model\Product\Attachment\Storage
-                        && $duplicate->getAttachment()->getProduct()->getProductId() == $product->getProductId()
-                    ) {
+                foreach ($product->getAttachments() as $attach) {
+                    if (\Includes\Utils\FileManager::getHash($attach->getStorage()->getStoragePath()) == \Includes\Utils\FileManager::getHash($attachment->getStorage()->getStoragePath())) {
                         $found = true;
+                        \Includes\Utils\FileManager::deleteFile($attachment->getStorage()->getStoragePath());
+                        $attachment->detach();
                         break;
                     }
                 }
-
+                if (!$found) {
+                    foreach ($attachment->getStorage()->getDuplicates() as $duplicate) {
+                        if (
+                            $duplicate instanceof \XLite\Module\CDev\FileAttachments\Model\Product\Attachment\Storage
+                            && $duplicate->getAttachment()->getProduct()->getProductId() == $product->getProductId()
+                        ) {
+                            $found = true;
+                            break;
+                        }
+                    }
+                }
                 if ($found) {
                     \XLite\Core\TopMessage::addError(
                         'The same file can not be assigned to one product'

@@ -20,8 +20,6 @@
 	background: #fff;
 	z-index: 99999;
 	min-height: 62px;
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
     color: #333;
 	height: 100%;
@@ -84,9 +82,7 @@
 .layout-editor-hidden-blocks {
 	margin-right: 20px;
 	margin-left: 35px;
-	-ms-flex-item-align: center;
-	    -ms-grid-row-align: center;
-	    align-self: center;
+  align-self: center;
 	vertical-align: middle;
 	line-height: 20px;
 }
@@ -110,11 +106,8 @@
 }
 
 .layout-editor-hidden-list {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-ms-flex-wrap: wrap;
-	    flex-wrap: wrap;
+  flex-wrap: wrap;
 	margin-left: 35px;
 	margin-top: 10px;
 }
@@ -255,7 +248,9 @@
 	background: white;
 }
 
-.layout-editor-layout-options .file-uploader div.alt {
+.layout-editor-layout-options .favicon-uploader .file-uploader div.alt,
+.layout-editor-layout-options .appleIcon-uploader .file-uploader div.alt
+{
 	display: none;
 }
 
@@ -269,6 +264,11 @@
 	left: calc(100% + 5px);
 }
 
+.layout-editor-layout-options .file-uploader .alt .dropdown-menu {
+	bottom: auto;
+	padding: 10px;
+}
+
 .layout-editor-layout-options .file-uploader .dropdown-menu:before {
 	content: ' ';
 	width: 0;
@@ -279,4 +279,14 @@
 	position: absolute;
 	left: -5px;
 	bottom: 10px;
+}
+
+.layout-editor-layout-options .file-uploader .alt .dropdown-menu:before {
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-bottom: 5px solid white;
+	border-top: none;
+	left: 5px;
+	bottom: auto;
+	top: -5px;
 }

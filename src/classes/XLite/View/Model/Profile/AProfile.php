@@ -47,9 +47,13 @@ abstract class AProfile extends \XLite\View\Model\AModel
      */
     public function getProfileId()
     {
-        return \XLite\Core\Auth::getInstance()->isOperatingAsUserMode()
-            ? \XLite\Core\Auth::getInstance()->getOperatingAs()
-            : $this->getRequestProfileId() ?: \XLite\Core\Session::getInstance()->profile_id;
+        $auth = \XLite\Core\Auth::getInstance();
+
+        if ($auth->isOperatingAsUserMode()) {
+            return $auth->getOperatingAs();
+        }
+
+        return $this->getRequestProfileId() ?: \XLite\Core\Session::getInstance()->profile_id;
     }
 
 

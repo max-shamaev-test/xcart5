@@ -14,7 +14,7 @@ use XLite\View\Mailer;
 
 abstract class AMail implements IMail
 {
-    private $to = null;
+    private $to = [];
     private $from = null;
     private $replyTo = [];
     private $languageCode;
@@ -80,9 +80,9 @@ abstract class AMail implements IMail
     {
         $variables = [
             'logo'              => sprintf(
-                '<a href="%s"><img src="%s" alt="%s" style="max-width:100%%;" width="100%%" /></a>',
+                '<a href="%s"><img src="%s" alt="%s" style="width: 100%%; max-width:330px; max-height=180px" /></a>',
                 \XLite::getInstance()->getShopURL(),
-                \XLite\Core\Layout::getInstance()->getLogo(),
+                \XLite\Core\Layout::getInstance()->getInvoiceLogo(),
                 \XLite\Core\Config::getInstance()->Company->company_name
             ),
             'company_link'      => sprintf(
@@ -101,6 +101,7 @@ abstract class AMail implements IMail
             'company_zipcode'   => \XLite\Core\Config::getInstance()->Company->location_zipcode,
             'dynamic_message' => static::t('Content of this notification based on the body.twig template'),
             'recipient_name'    => '',
+            'first_name'        => '',
         ];
 
         return $variables;
@@ -190,7 +191,7 @@ abstract class AMail implements IMail
     /**
      * Return To
      *
-     * @return string
+     * @return array
      */
     public function getTo()
     {
@@ -200,13 +201,30 @@ abstract class AMail implements IMail
     /**
      * Set To
      *
-     * @param string|array $to
+     * @param string|array $to allowed formats: 'test@test.com', ['test@test.com', 'test2@test.com'],
+     * ['email' => 'test@test.com'], []['email' => 'test@test.com'] if multiple (name OPTIONAL)
      *
      * @return $this
      */
     public function setTo($to)
     {
-        $this->to = is_array($to) ? implode(Mailer::MAIL_SEPARATOR, $to) : $to;
+        if (is_array($to)) {
+            if (isset($to['email'])) {
+                $this->to = [$to];
+            } else {
+                $emails = [];
+                foreach ($to as $email) {
+                    $emails[] = [
+                        'email' => $email['email'] ?? $email,
+                        'name'  => $email['name'] ?? null,
+                    ];
+                }
+                $this->to = $emails;
+            }
+        } else {
+            $this->to = [['email' => $to]];
+        }
+
         return $this;
     }
 

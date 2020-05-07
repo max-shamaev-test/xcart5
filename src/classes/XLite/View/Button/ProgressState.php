@@ -45,7 +45,7 @@ class ProgressState extends \XLite\View\Button\AButton
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = 'button/css/progress-state.css';
+        $list[] = 'button/css/progress-state.less';
 
         return $list;
     }

@@ -9,6 +9,7 @@
 namespace XLite\Controller\Admin;
 
 use XLite\Core\TopMessage;
+use XLite\Core\Database;
 
 /**
  * Product
@@ -120,6 +121,20 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
     }
 
     /**
+     * Get spages sections
+     *
+     * @return array
+     */
+    public function getSPages()
+    {
+        $list['global'] = static::t('Global');
+        $list['hidden'] = static::t('Hidden');
+        $list['custom'] = static::t('Custom');
+
+        return $list;
+    }
+
+    /**
      * Get pages templates
      *
      * @return array
@@ -150,14 +165,14 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
     public function getProduct()
     {
         $result = $this->productCache
-            ?: \XLite\Core\Database::getRepo('\XLite\Model\Product')->find($this->getProductId());
+            ?: Database::getRepo('\XLite\Model\Product')->find($this->getProductId());
 
         if (null === $result) {
             $result = new \XLite\Model\Product();
             
             if (
                 \XLite\Core\Request::getInstance()->category_id > 1 && 
-                ($category = \XLite\Core\Database::getRepo('XLite\Model\Category')->find(\XLite\Core\Request::getInstance()->category_id))
+                ($category = Database::getRepo('XLite\Model\Category')->find(\XLite\Core\Request::getInstance()->category_id))
             ) {
                 $result->addCategory($category);
             }
@@ -264,12 +279,12 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
             }
 
             if (isset($value['productClass'])) {
-                $value['productClass'] = \XLite\Core\Database::getRepo('\XLite\Model\ProductClass')
+                $value['productClass'] = Database::getRepo('\XLite\Model\ProductClass')
                     ->find($value['productClass']);
             }
 
             if (isset($value['taxClass'])) {
-                $value['taxClass'] = \XLite\Core\Database::getRepo('\XLite\Model\TaxClass')->find($value['taxClass']);
+                $value['taxClass'] = Database::getRepo('\XLite\Model\TaxClass')->find($value['taxClass']);
             }
 
         } elseif ('arrivalDate' === $field) {
@@ -279,10 +294,10 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
             $value = null;
 
         } elseif ('productClass' === $field) {
-            $value = \XLite\Core\Database::getRepo('\XLite\Model\ProductClass')->find($value);
+            $value = Database::getRepo('\XLite\Model\ProductClass')->find($value);
 
         } elseif ('taxClass' === $field) {
-            $value = \XLite\Core\Database::getRepo('\XLite\Model\TaxClass')->find($value);
+            $value = Database::getRepo('\XLite\Model\TaxClass')->find($value);
         }
 
         return $value;
@@ -308,8 +323,8 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
 
         if ($form->isValid()) {
             $dto->populateTo($product, $rawData[$this->formName]);
-            \XLite\Core\Database::getEM()->persist($product);
-            \XLite\Core\Database::getEM()->flush();
+            Database::getEM()->persist($product);
+            Database::getEM()->flush();
 
             $dto->afterPopulate($product, $rawData[$this->formName]);
             if (!$isPersistent) {
@@ -318,7 +333,7 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
             } else {
                 $dto->afterUpdate($product, $rawData[$this->formName]);
             }
-            \XLite\Core\Database::getEM()->flush();
+            Database::getEM()->flush();
 
         } else {
             $this->saveFormModelTmpData($rawData[$this->formName]);
@@ -397,7 +412,7 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
 
         if ($form->isValid()) {
             $dto->populateTo($this->getProduct());
-            \XLite\Core\Database::getEM()->flush();
+            Database::getEM()->flush();
         } else {
             \XLite\Core\Session::getInstance()->{$this->formModelDataSessionCellName} = $data[$this->formName];
         }
@@ -424,17 +439,22 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
      */
     protected function doActionUpdateAttributes()
     {
-        $name           = \XLite\Core\Request::getInstance()->name;
-        $attributeValue = \XLite\Core\Request::getInstance()->attributeValue;
-        $delete         = \XLite\Core\Request::getInstance()->delete;
-        $newValue       = \XLite\Core\Request::getInstance()->newValue;
-        $saveGlobally   = \XLite\Core\Request::getInstance()->save_mode;
+        Database::getEM()->clear();
+        $request = \XLite\Core\Request::getInstance();
+        $name           = $request->name;
+        $attributeValue = $request->attributeValue;
+        $delete         = $request->delete;
+        $newValue       = $request->newValue;
+        $saveGlobally   = $request->save_mode;
+        $displayMode    = $request->displayMode;
 
         // Initialize non-filtered request data
-        $nonFilteredData = \XLite\Core\Request::getInstance()->getNonFilteredData();
+        $nonFilteredData = $request->getNonFilteredData();
 
-        $repo      = \XLite\Core\Database::getRepo('\XLite\Model\Attribute');
-        $repoGroup = \XLite\Core\Database::getRepo('\XLite\Model\AttributeGroup');
+        $repo      = Database::getRepo(\XLite\Model\Attribute::class);
+        $repoGroup = Database::getRepo(\XLite\Model\AttributeGroup::class);
+
+        $product = $this->getProduct();
 
         if ($saveGlobally) {
             $oldValues = $this->getAttributeValues();
@@ -455,13 +475,21 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
             }
         }
 
+        $maxPosition = 0;
         if ($name) {
+            /** @var \XLite\Model\Attribute[] $attributes */
             $attributes = $repo->findByIds(array_keys($name));
 
             if ($attributes) {
                 foreach ($attributes as $a) {
-                    if ($name[$a->getId()]) {
-                        $a->setName($name[$a->getId()]);
+                    $id = $a->getId();
+                    if ($name[$id]) {
+                        $a->setName($name[$id]);
+                        $maxPosition = max($maxPosition, $a->getPosition($product));
+                    }
+                    if (isset($displayMode[$id])) {
+                        $prop = $a->getProperty($product);
+                        $prop->setDisplayMode($displayMode[$id]);
                     }
                 }
             }
@@ -481,10 +509,7 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
                         $value = $this->isAttributeValueAllowsTags($a)
                             ? $this->purifyValue($attributeValueNonFiltered[$a->getId()])
                             : $attributeValue[$a->getId()];
-                        $a->setAttributeValue(
-                            $this->getProduct(),
-                            $value
-                        );
+                        $a->setAttributeValue($product, $value);
                     }
                 }
             }
@@ -506,6 +531,14 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
                     $a = new \XLite\Model\Attribute();
                     $a->setName($data['name']);
                     $a->setType($data['type']);
+                    $a->setPosition([
+                        'product' => $product,
+                        'position' => ++$maxPosition
+                    ]);
+                    if ($data['type'] === \XLite\Model\Attribute::TYPE_SELECT) {
+                        $a->setDisplayMode($data['displayMode'], true);
+                    }
+
                     if (0 < $data['listId']) {
                         $group = $repoGroup->find($data['listId']);
                         if ($group) {
@@ -515,28 +548,28 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
 
                     } elseif (
                         -2 == $data['listId']
-                        && $this->getProduct()->getProductClass()
+                        && $product->getProductClass()
                     ) {
-                        $a->setProductClass($this->getProduct()->getProductClass());
+                        $a->setProductClass($product->getProductClass());
 
                     } elseif (-3 == $data['listId']) {
-                        $a->setProduct($this->getProduct());
-                        $this->getProduct()->addAttributes($a);
+                        $a->setProduct($product);
+                        $product->addAttributes($a);
                     }
 
-                    unset($data['name'], $data['type']);
+                    unset($data['name'], $data['type'], $data['displayMode']);
                     $repo->insert($a);
 
                     if ($this->isAttributeValueAllowsTags($a)) {
                         $data = $this->purifyValue($newValueNonFiltered[$k]);
                     }
 
-                    $a->setAttributeValue($this->getProduct(), $data);
+                    $a->setAttributeValue($product, $data);
                 }
             }
         }
 
-        $this->getProduct()->updateQuickData();
+        $product->updateQuickData();
 
         if ($saveGlobally) {
             $this->applyAttributeValuesChanges(
@@ -545,7 +578,7 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
             );
         }
 
-        \XLite\Core\Database::getEM()->flush();
+        Database::getEM()->flush();
         \XLite\Core\TopMessage::addInfo('Attributes have been updated successfully');
     }
 
@@ -597,7 +630,7 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
 
         foreach (\XLite\Model\Attribute::getTypes() as $type => $name) {
             $class = \XLite\Model\Attribute::getAttributeValueClass($type);
-            $result[$type] = \XLite\Core\Database::getRepo($class)->findCommonValues($this->getProduct());
+            $result[$type] = Database::getRepo($class)->findCommonValues($this->getProduct());
         }
 
         return $result;
@@ -623,9 +656,9 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
             $i = 0;
             do {
                 $processed = 0;
-                foreach (\XLite\Core\Database::getRepo('XLite\Model\Product')->findFrame($i, static::CHUNK_LENGTH) as $product) {
+                foreach (Database::getRepo('XLite\Model\Product')->findFrame($i, static::CHUNK_LENGTH) as $product) {
                     foreach ($diff as $attributeId => $changes) {
-                        $attribute = \XLite\Core\Database::getRepo('XLite\Model\Attribute')->find($attributeId);
+                        $attribute = Database::getRepo('XLite\Model\Attribute')->find($attributeId);
                         $attribute->applyChanges($product, $changes);
                     }
 
@@ -633,8 +666,8 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
                 }
 
                 if (0 < $processed) {
-                    \XLite\Core\Database::getEM()->flush();
-                    \XLite\Core\Database::getEM()->clear();
+                    Database::getEM()->flush();
+                    Database::getEM()->clear();
                 }
                 $i += $processed;
 
@@ -657,12 +690,12 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
             if ($name) {
                 $productClass = new \XLite\Model\ProductClass;
                 $productClass->setName($name);
-                \XLite\Core\Database::getRepo('\XLite\Model\ProductClass')->insert($productClass);
+                Database::getRepo('\XLite\Model\ProductClass')->insert($productClass);
                 $updateClass = true;
             }
 
         } else {
-            $productClass = \XLite\Core\Database::getRepo('\XLite\Model\ProductClass')->find(
+            $productClass = Database::getRepo('\XLite\Model\ProductClass')->find(
                 \XLite\Core\Request::getInstance()->productClass
             );
             $updateClass = true;
@@ -678,17 +711,17 @@ class Product extends \XLite\Controller\Admin\ACL\Catalog
             $this->getProduct()->setProductClass($productClass);
 
             if ($productClassChanged) {
-                \XLite\Core\Database::getRepo('\XLite\Model\Attribute')->generateAttributeValues(
+                Database::getRepo('\XLite\Model\Attribute')->generateAttributeValues(
                     $this->getProduct(),
                     true
                 );
-                \XLite\Core\Database::getRepo('\XLite\Model\AttributeProperty')->generateClassAttributeProperties(
+                Database::getRepo('\XLite\Model\AttributeProperty')->generateClassAttributeProperties(
                     $this->getProduct(),
                     $productClass
                 );
             }
 
-            \XLite\Core\Database::getEM()->flush();
+            Database::getEM()->flush();
             \XLite\Core\TopMessage::addInfo('Product class have been updated successfully');
 
         } else {

@@ -22,6 +22,9 @@
     {% endif %}
   </td>
   <td class="date">
-    <a href="{{ this.getConversationLink(conversation) }}">{{ this.prepareTime(conversation) }}</a>
+      <a href="{{ this.getConversationLink(conversation) }}">
+          <span class="date">{{ this.formatDate(this.prepareTime(conversation)) }}</span>
+          <span class="time">{{ this.formatDayTime(this.prepareTime(conversation)) }}</span>
+      </a>
   </td>
 </tr>

@@ -56,15 +56,17 @@ class CartPromo extends \XLite\View\AView
         /** @var \XLite\Module\CDev\VolumeDiscounts\Model\Repo\VolumeDiscount $repo */
         $repo = \XLite\Core\Database::getRepo('XLite\Module\CDev\VolumeDiscounts\Model\VolumeDiscount');
 
-        return $repo->getFirstDiscount($this->getCurrentDiscountCondition());
+        return $repo->getSuitableMaxDiscount(
+            $this->getDiscountCondition()
+        );
     }
 
     /**
-     * Returns current discount condition
+     * Returns discount condition
      *
      * @return \XLite\Core\CommonCell
      */
-    protected function getCurrentDiscountCondition()
+    protected function getDiscountCondition()
     {
         $cnd = new \XLite\Core\CommonCell();
 
@@ -76,6 +78,16 @@ class CartPromo extends \XLite\View\AView
         if ($membership) {
             $cnd->{\XLite\Module\CDev\VolumeDiscounts\Model\Repo\VolumeDiscount::P_MEMBERSHIP}
                 = $membership;
+        }
+
+        if ($profile && $profile->getShippingAddress()) {
+            $address = $profile->getShippingAddress()->toArray();
+            $zones = \XLite\Core\Database::getRepo('XLite\Model\Zone')
+                ->findApplicableZones($address);
+            if ($zones) {
+                $cnd->{\XLite\Module\CDev\VolumeDiscounts\Model\Repo\VolumeDiscount::P_ZONES}
+                    = $zones;
+            }
         }
 
         return $cnd;
@@ -91,33 +103,10 @@ class CartPromo extends \XLite\View\AView
         if (null === $this->nextDiscount) {
             /** @var \XLite\Module\CDev\VolumeDiscounts\Model\Repo\VolumeDiscount $repo */
             $repo = \XLite\Core\Database::getRepo('XLite\Module\CDev\VolumeDiscounts\Model\VolumeDiscount');
-            $this->nextDiscount = $repo->getNextDiscount($this->getNextDiscountCondition());
+            $this->nextDiscount = $repo->getNextDiscount($this->getDiscountCondition(true));
         }
 
         return $this->nextDiscount;
-    }
-
-    /**
-     * Returns next discount condition
-     *
-     * @return \XLite\Core\CommonCell
-     */
-    protected function getNextDiscountCondition()
-    {
-        $cnd = new \XLite\Core\CommonCell();
-
-        /** @var \XLite\Model\Cart $cart */
-        $cart = $this->getCart();
-        $cnd->{\XLite\Module\CDev\VolumeDiscounts\Model\Repo\VolumeDiscount::P_SUBTOTAL_ADV}
-            = $cart->getSubtotal();
-
-        /** @var \XLite\Model\Profile $profile */
-        $profile = $cart->getProfile();
-        $cnd->{\XLite\Module\CDev\VolumeDiscounts\Model\Repo\VolumeDiscount::P_MEMBERSHIP}
-            = $profile ? $profile->getMembership() : null;
-        /** @var \XLite\Module\CDev\VolumeDiscounts\Model\Repo\VolumeDiscount $repo */
-
-        return $cnd;
     }
 
     /**

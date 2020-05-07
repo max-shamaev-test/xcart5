@@ -16,6 +16,8 @@ use XCart\Bus\Domain\Module;
 use XCart\Bus\IntegrityCheck\IntegrityViolationProcessor;
 use XCart\Bus\Query\Context;
 use XCart\Bus\Query\Data\Flatten\Flatten;
+use XCart\Bus\Query\Data\IntegrityCheckDataDataSource;
+use XCart\Bus\Query\Data\IntegrityCheckModulesDataSource;
 use XCart\Bus\Query\Data\LicenseDataSource;
 use XCart\Bus\Query\Data\ModulesDataSource;
 use XCart\Bus\Query\Data\ScenarioDataSource;
@@ -47,26 +49,42 @@ class ModulesResolver
     private $licenseDataSource;
 
     /**
+     * @var IntegrityCheckModulesDataSource
+     */
+    private $integrityCheckModulesDataSource;
+
+    /**
+     * @var IntegrityCheckDataDataSource
+     */
+    private $integrityCheckDataDataSource;
+
+    /**
      * @var array
      */
     private $actualModules;
 
     /**
-     * @param ModulesDataSource           $modulesDataSource
-     * @param ScenarioDataSource          $scenarioDataSource
-     * @param LicenseDataSource           $licenseDataSource
-     * @param IntegrityViolationProcessor $integrityViolationProcessor
+     * @param ModulesDataSource               $modulesDataSource
+     * @param ScenarioDataSource              $scenarioDataSource
+     * @param LicenseDataSource               $licenseDataSource
+     * @param IntegrityViolationProcessor     $integrityViolationProcessor
+     * @param IntegrityCheckModulesDataSource $integrityCheckModulesDataSource
+     * @param IntegrityCheckDataDataSource    $integrityCheckDataDataSource
      */
     public function __construct(
         ModulesDataSource $modulesDataSource,
         ScenarioDataSource $scenarioDataSource,
         LicenseDataSource $licenseDataSource,
-        IntegrityViolationProcessor $integrityViolationProcessor
+        IntegrityViolationProcessor $integrityViolationProcessor,
+        IntegrityCheckModulesDataSource $integrityCheckModulesDataSource,
+        IntegrityCheckDataDataSource $integrityCheckDataDataSource
     ) {
-        $this->modulesDataSource           = $modulesDataSource;
-        $this->scenarioDataSource          = $scenarioDataSource;
-        $this->licenseDataSource           = $licenseDataSource;
-        $this->integrityViolationProcessor = $integrityViolationProcessor;
+        $this->modulesDataSource               = $modulesDataSource;
+        $this->scenarioDataSource              = $scenarioDataSource;
+        $this->licenseDataSource               = $licenseDataSource;
+        $this->integrityViolationProcessor     = $integrityViolationProcessor;
+        $this->integrityCheckModulesDataSource = $integrityCheckModulesDataSource;
+        $this->integrityCheckDataDataSource    = $integrityCheckDataDataSource;
     }
 
     /** @noinspection MoreThanThreeArgumentsInspection */
@@ -83,6 +101,9 @@ class ModulesResolver
      */
     public function resolvePage($value, $args, Context $context, ResolveInfo $info): array
     {
+        $integrityCheck = $args['integrityCheck'] ?? false;
+        unset($args['integrityCheck']);
+
         $version = $args['version'] ?? Flatten::RULE_LAST;
         unset($args['version']);
 
@@ -105,7 +126,7 @@ class ModulesResolver
 
         $args['excludeById'] = array_merge(
             $args['excludeById'] ?? [],
-            empty($args['licensed']) ? ['CDev-Core', 'XC-Service'] : []
+            ['CDev-Core', 'XC-Service']
         );
 
         if (!($context->mode & Context::ACCESS_MODE_WRITE)) {
@@ -132,8 +153,18 @@ class ModulesResolver
             $limit
         );
 
+        $modules = iterator_to_array($iterator);
+
+        if ($integrityCheck) {
+            $this->integrityCheckModulesDataSource->saveAll([
+                'count'   => \count($modules),
+                'modules' => $modules,
+            ]);
+            $this->integrityCheckDataDataSource->saveAll([]);
+        }
+
         return [
-            'count'   => \count(iterator_to_array($iterator)),
+            'count'   => \count($modules),
             'modules' => $result,
         ];
     }
@@ -189,6 +220,29 @@ class ModulesResolver
         return null;
     }
 
+    /** @noinspection MoreThanThreeArgumentsInspection */
+
+    /**
+     * @param             $value
+     * @param             $args
+     * @param             $context
+     * @param ResolveInfo $info
+     *
+     * @return array
+     *
+     * @Resolver()
+     */
+    public function getIntegrityCheckCache($value, $args, $context, ResolveInfo $info): array
+    {
+        $modulesPage = $this->integrityCheckModulesDataSource->getAll();
+        $data        = $this->integrityCheckDataDataSource->getAll();
+
+        return [
+            'modulesPage' => $modulesPage,
+            'data'        => $data
+        ];
+    }
+
     /**
      * @param Module      $value
      * @param             $args
@@ -208,7 +262,10 @@ class ModulesResolver
             [$start, $end] = $args['limit'];
         }
 
-        return $this->integrityViolationProcessor->getViolationsStructure($value, $start, $end);
+        $violationsStructure = $this->integrityViolationProcessor->getViolationsStructure($value, $start, $end);
+        $this->integrityCheckDataDataSource->appendEntries($violationsStructure, $value);
+
+        return $violationsStructure;
     }
 
     /**

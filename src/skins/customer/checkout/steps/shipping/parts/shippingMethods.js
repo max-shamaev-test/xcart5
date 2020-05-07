@@ -22,6 +22,8 @@ function ShippingMethodsView(base)
     .bind('local.loaded', _.bind(this.triggerChange, this));
 
   core.bind('updateCart', _.bind(this.handleUpdateCart, this))
+    .bind('lockCheckout', _.bind(this.shade, this))
+    .bind('unlockCheckout', _.bind(this.unshade, this))
     .bind('createShippingAddress', _.bind(this.handleCreateAddress, this))
     .bind('checkout.common.readyCheck', _.bind(this.handleCheckoutReadyCheck, this));
 
@@ -108,7 +110,7 @@ ShippingMethodsView.prototype.assignWaitOverlay = function(base)
 {
   ShippingMethodsView.superclass.assignWaitOverlay.apply(this, arguments);
 
-  assignShadeOverlay(jQuery('.step-payment-methods'), true);
+  assignShadeOverlay(jQuery('.step-payment-methods'));
 };
 
 ShippingMethodsView.prototype.unassignWaitOverlay = function(base)

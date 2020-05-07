@@ -24,7 +24,7 @@ use XCart\SilexAnnotations\Annotations\Service;
 
 /**
  * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild"})
- * @RebuildStep(script = "rollback", weight = "1000")
+ * @RebuildStep(script = "rollback", weight = "3000")
  * @RebuildStep(script = "self-rollback", weight = "1000")
  */
 class RestoreFiles implements StepInterface

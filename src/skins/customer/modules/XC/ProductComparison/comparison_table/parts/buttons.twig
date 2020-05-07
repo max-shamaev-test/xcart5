@@ -11,7 +11,7 @@
     {% endif %}
   </td>
   {% for product in this.getProducts() %}
-    <td>
+    <td  class="{{ product.getAdditionalClass() }}" >
       {{ this.getProductButtonWidget(product) }}
     </td>
   {% endfor %}

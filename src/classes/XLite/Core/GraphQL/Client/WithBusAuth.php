@@ -9,9 +9,10 @@
 namespace XLite\Core\GraphQL\Client;
 
 use GuzzleHttp\Cookie\CookieJar;
-use XLite\Core\GraphQL\Exception\UnableToAuthorize;
 use GuzzleHttp\Exception\TransferException;
-
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\TransferStats;
+use XLite\Core\GraphQL\Exception\UnableToAuthorize;
 
 /**
  * GraphQL client with BUS - like authentication
@@ -53,7 +54,12 @@ class WithBusAuth extends Simple
 
     protected function prepareOptions(array $options)
     {
-        $options['cookies'][static::BUS_TOKEN] = $this->getToken();
+        $options['cookies'] = \GuzzleHttp\Cookie\CookieJar::fromArray(
+            [
+                static::BUS_TOKEN => $this->getToken(),
+            ],
+            parse_url($this->authClient->getConfig('base_uri'), PHP_URL_HOST)
+        );
 
         return parent::prepareOptions($options);
     }
@@ -79,22 +85,28 @@ class WithBusAuth extends Simple
     private function retrieveToken()
     {
         try {
-            $request = $this->authClient->createRequest('POST', null, [
-                'body' => [
+            $jar = new \GuzzleHttp\Cookie\CookieJar();
+
+            $request = null;
+            $response = $this->authClient->post('', [
+                'form_params' => [
                     'auth_code' => $this->authCode,
                 ],
+                'cookies' => $jar,
+                'on_stats' => static function (TransferStats $stats) use (&$request) {
+                    $request = $stats->getRequest();
+                }
             ]);
-            $response = $this->authClient->send($request);
 
-            if ($response->getStatusCode() !== 200) {
+            if ($request && $response && $response->getStatusCode() !== 200) {
                 throw new \GuzzleHttp\Exception\BadResponseException(
                     "GraphQL authorization request failed: expected HTTP code \"200\" received \"{$response->getStatusCode()}\"",
-                    $this->authClient->createRequest('POST'),
+                    $request,
                     $response
                 );
             }
 
-            return $this->retrieveBusTokenFromResponse($request, $response);
+            return $this->retrieveBusTokenFromCookie($jar);
         } catch (TransferException $e) {
             throw new \XLite\Core\Exception(
                 $e->getMessage(),
@@ -105,19 +117,13 @@ class WithBusAuth extends Simple
     }
 
     /**
-     * Parse response for BUS token
-     *
-     * @param \GuzzleHttp\Message\RequestInterface  $request
-     * @param \GuzzleHttp\Message\ResponseInterface $response
+     * @param \GuzzleHttp\Cookie\CookieJar $jar
      *
      * @return mixed
      * @throws \XLite\Core\GraphQL\Exception\UnableToAuthorize
      */
-    private function retrieveBusTokenFromResponse($request, $response)
+    private function retrieveBusTokenFromCookie($jar)
     {
-        $jar = new CookieJar();
-        $jar->extractCookies($request, $response);
-
         /* @var \GuzzleHttp\Cookie\SetCookie $item */
         foreach ($jar->getIterator() as $item) {
             if ($item->getName() === static::BUS_TOKEN) {

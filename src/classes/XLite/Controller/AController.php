@@ -9,12 +9,10 @@
 namespace XLite\Controller;
 
 use Includes\Utils\Module\Manager;
-use Includes\Utils\Module\Module;
 use XLite\Core\Cache\ExecuteCachedTrait;
 use XLite\Core\DependencyInjection\ContainerAwareTrait;
 use XLite\View\AView;
 use XLite\View\CommonResources;
-use XLite\View\FormField\Select\ObjectNameInPageTitleOrder;
 
 /**
  * Abstract controller
@@ -70,7 +68,7 @@ abstract class AController extends \XLite\Core\Handler
     /**
      * params
      *
-     * @var string
+     * @var string[]
      */
     protected $params = array('target');
 
@@ -598,6 +596,8 @@ abstract class AController extends \XLite\Core\Handler
             $this->doRedirect();
 
         } elseif ($this->isAJAX()) {
+            $this->translateTopMessagesToHTTPHeaders();
+
             \XLite\Core\Event::getInstance()->display();
             \XLite\Core\Event::getInstance()->clear();
         }
@@ -1655,7 +1655,9 @@ abstract class AController extends \XLite\Core\Handler
     protected function doRedirect()
     {
         if ($this->isAJAX()) {
-            $this->translateTopMessagesToHTTPHeaders();
+            if (!$this->hardRedirect) {
+                $this->translateTopMessagesToHTTPHeaders();
+            }
             $this->assignAJAXResponseStatus();
         }
 
@@ -2211,11 +2213,22 @@ RES;
 
         $language = \XLite\Core\Session::getInstance()->getLanguage();
 
-        if (\XLite\Core\Request::getInstance()->getLanguageCode() === static::getDefaultLanguage()) {
-            \XLite\Core\Session::getInstance()->setLanguage(static::getDefaultLanguage());
+        $newLangCode = \XLite\Core\Request::getInstance()->getLanguageCode();
+        if (
+            $newLangCode &&
+            $newLangCode !== $language->getCode()
+        ) {
+            \XLite\Core\Session::getInstance()->setLanguage($newLangCode);
         }
 
-        return !(!$language->getDefaultAuth() && \XLite\Core\Request::getInstance()->getLanguageCode() != $language->getCode());
+        if ($newLangCode === \XLite\Core\Config::getInstance()->General->default_language) {
+            return false;
+        }
+
+        return !(
+            !$language->getDefaultAuth() &&
+            $newLangCode !== $language->getCode()
+        );
     }
 
     /**
@@ -2227,6 +2240,9 @@ RES;
     {
         $this->setHardRedirect();
         $this->assignAJAXResponseStatus();
+
+        header('Cache-Control: no-store, no-cache, must-revalidate');
+        header('Pragma: no-cache');
 
         $this->redirect($this->getShopURL($this->getURL()));
     }
@@ -2252,7 +2268,8 @@ RES;
      */
     protected function doActionChangeLanguage()
     {
-        $code = strval(\XLite\Core\Request::getInstance()->language);
+        $request = \XLite\Core\Request::getInstance();
+        $code = (string)$request->language;
 
         $referrerUrl = $this->getReferrerURL();
 
@@ -2260,11 +2277,17 @@ RES;
             $language = \XLite\Core\Database::getRepo('\XLite\Model\Language')->findOneByCode($code);
 
             if (isset($language) && $language->getEnabled()) {
-                $pattern = '#^[/]*(' . \XLite\Core\Session::getInstance()->getCurrentLanguage() . ')(?:/|$)#i';
+                $session = \XLite\Core\Session::getInstance();
+                $auth = \XLite\Core\Auth::getInstance();
 
-                \XLite\Core\Session::getInstance()->setLanguage($language->getCode());
-                if (\XLite\Core\Auth::getInstance()->isLogged()) {
-                    \XLite\Core\Auth::getInstance()->getProfile()->setLanguage($language->getCode());
+                $pattern = '#^[/]*(' . $session->getCurrentLanguage() . ')(?:/|$)#i';
+                $langCode = $language->getCode();
+
+                $session->setLanguage($langCode);
+                $request->setLanguageCode($langCode);
+
+                if ($auth->isLogged()) {
+                    $auth->getProfile()->setLanguage($langCode);
                     \XLite\Core\Database::getEM()->flush();
                 }
 
@@ -2274,8 +2297,8 @@ RES;
                     if (preg_match($pattern, $subReferrerUrl, $matches)) {
                         $referrerUrl = substr_replace(
                             $referrerUrl,
-                            $language->getDefaultAuth() ? '' : $language->getCode(),
-                            strlen(\Includes\Utils\URLManager::getCurrentShopURL()) + $matches[0],
+                            $language->getDefaultAuth() ? '' : $langCode,
+                            strlen(\Includes\Utils\URLManager::getCurrentShopURL()),
                             min($language->getDefaultAuth() ? 3 : 2, strlen($subReferrerUrl))
                         );
                     }

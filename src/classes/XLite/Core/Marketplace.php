@@ -8,7 +8,7 @@
 
 namespace XLite\Core;
 
-use XCart\Marketplace\Constant;
+use XLite\Core\Marketplace\Constant;
 use XCart\MarketplaceShop;
 use XLite\Core\Cache\ExecuteCached;
 
@@ -134,8 +134,8 @@ class Marketplace extends \XLite\Base\Singleton
     public function getSystemData()
     {
         if (!$this->systemData) {
-            $path = LC_DIR_FILES . 'service' . LC_DS . 'coreConfigStorage.data';
-            $content = \Includes\Utils\FileManager::read($path);
+            $path       = LC_DIR_FILES . 'service' . LC_DS . 'coreConfigStorage.data';
+            $content    = \Includes\Utils\FileManager::read($path);
             $systemData = @unserialize($content, ['allowed_classes' => false]);
 
             $this->systemData = $systemData ?: [];
@@ -156,30 +156,26 @@ class Marketplace extends \XLite\Base\Singleton
         \Includes\Utils\FileManager::write($path, $content);
     }
 
-    public function setFreshInstall()
+    /**
+     * @param string $email
+     */
+    public function setAdminEmail($email)
     {
-        $systemData = $this->getSystemData();
-        $systemData['freshInstall'] = true;
+        $systemData               = $this->getSystemData();
+        $systemData['adminEmail'] = $email;
 
         $this->setSystemData($systemData);
     }
 
     /**
-     * Check if cache was reset by service.php?/clear-cache
-     *
-     * @param $cell
-     * @param $serviceVar
-     *
-     * @return bool
+     * @param string $shopCountryCode
      */
-    protected function isServiceCacheReset($cell, $serviceVar)
+    public function setShopCountryCode($shopCountryCode)
     {
-        $start = \XLite\Core\TmpVars::getInstance()->$cell;
-        $systemData = $this->getSystemData();
+        $systemData                    = $this->getSystemData();
+        $systemData['shopCountryCode'] = $shopCountryCode;
 
-        return isset($start)
-            && isset($systemData[$serviceVar])
-            && $start < $systemData[$serviceVar];
+        $this->setSystemData($systemData);
     }
 
     /**
@@ -201,7 +197,7 @@ class Marketplace extends \XLite\Base\Singleton
     public function updatePaymentMethods($countryCode, $ttl = null)
     {
         $countryCode = $countryCode ?: \XLite\Core\Config::getInstance()->Company->location_country;
-        list($cellTTL,) = $this->getActionCacheVars(Constant::REQUEST_PAYMENT_METHODS . '-' . $countryCode . '-');
+        [$cellTTL,] = $this->getActionCacheVars(Constant::REQUEST_PAYMENT_METHODS . '-' . $countryCode . '-');
 
         $ttl = $ttl ?? static::TTL_LONG;
 
@@ -232,7 +228,7 @@ class Marketplace extends \XLite\Base\Singleton
      */
     public function updateShippingMethods($ttl = null)
     {
-        list($cellTTL,) = $this->getActionCacheVars(Constant::REQUEST_SHIPPING_METHODS);
+        [$cellTTL,] = $this->getActionCacheVars(Constant::REQUEST_SHIPPING_METHODS);
 
         $ttl = $ttl ?? static::TTL_LONG;
 
@@ -244,8 +240,6 @@ class Marketplace extends \XLite\Base\Singleton
             }
         }
     }
-
-    // {{{ "Get dataset" request
 
     /**
      * Get actions list for 'get_dataset' request
@@ -265,6 +259,8 @@ class Marketplace extends \XLite\Base\Singleton
         return array_map([$this, 'mapRequestNameToType'], array_keys($actions));
     }
 
+    // {{{ "Get dataset" request
+
     /**
      * Return true if action is active (non-empty and not expired)
      *
@@ -274,7 +270,7 @@ class Marketplace extends \XLite\Base\Singleton
      */
     public function isActionActive($action)
     {
-        list($cellTTL,) = $this->getActionCacheVars($action);
+        [$cellTTL,] = $this->getActionCacheVars($action);
 
         return !$this->checkTTL($cellTTL, $this->getActionTTL($action));
     }
@@ -287,8 +283,11 @@ class Marketplace extends \XLite\Base\Singleton
     public function getInstallationData()
     {
         try {
+            $systemData = $this->getSystemData();
+            $dataDate = $systemData['dataDate'] ?? 0;
+
             return $this->performRequestWithCache(
-                Constant::REQUEST_INSTALLATION_DATA,
+                [Constant::REQUEST_INSTALLATION_DATA, $dataDate],
                 function () {
                     $result = Marketplace\Retriever::getInstance()->retrieve(
                         Marketplace\QueryRegistry::getQuery('installation_data'),
@@ -315,9 +314,10 @@ class Marketplace extends \XLite\Base\Singleton
     public function getCoreLicense()
     {
         $systemData = $this->getSystemData();
+        $dataDate = $systemData['dataDate'] ?? 0;
 
         $result = $this->performRequestWithCache(
-            [Constant::REQUEST_CORE_LICENSE, $systemData['dataDate'] ?? 0],
+            [Constant::REQUEST_CORE_LICENSE, $dataDate],
             function () {
                 return Marketplace\Retriever::getInstance()->retrieve(
                     Marketplace\QueryRegistry::getQuery('core_license'),
@@ -342,7 +342,7 @@ class Marketplace extends \XLite\Base\Singleton
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -368,7 +368,7 @@ class Marketplace extends \XLite\Base\Singleton
     {
         return \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
             \XLite\Core\Marketplace\QueryRegistry::getMutation('setWave', [
-                'wave' => $wave
+                'wave' => $wave,
             ]),
             new \XLite\Core\Marketplace\Normalizer\Raw()
         ) ?: [];
@@ -383,9 +383,9 @@ class Marketplace extends \XLite\Base\Singleton
     {
         return \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
             \XLite\Core\Marketplace\QueryRegistry::getMutation('registerLicenseKey', [
-                'key' => $key
+                'key' => $key,
             ]),
-            new \XLite\Core\Marketplace\Normalizer\RegisterLicenseKey()
+            new \XLite\Core\Marketplace\Normalizer\Simple('registerLicenseKey')
         ) ?: [];
     }
 
@@ -407,6 +407,29 @@ class Marketplace extends \XLite\Base\Singleton
         );
     }
 
+    /**
+     * @return array
+     */
+    public function getMarketplaceModule($moduleId)
+    {
+        $systemData = $this->getSystemData();
+        $dataDate = $systemData['dataDate'] ?? 0;
+
+        $cacheKeyData = [
+            'moduleId' => $moduleId,
+            'dataDate' => $dataDate,
+        ];
+
+        return $this->performRequestWithCache($cacheKeyData, function () use ($moduleId) {
+            $result = \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
+                \XLite\Core\Marketplace\QueryRegistry::getQuery('marketplace_modules', ['includeIds' => [$moduleId]]),
+                new \XLite\Core\Marketplace\Normalizer\MarketplaceModules()
+            ) ?: [];
+
+            return $result[0] ?? [];
+        });
+    }
+
     // }}}
 
     /**
@@ -420,9 +443,10 @@ class Marketplace extends \XLite\Base\Singleton
         ];
 
         $systemData = $this->getSystemData();
+        $dataDate = $systemData['dataDate'] ?? 0;
 
         $cacheKeyData = $criteria + [
-                'dataDate' => $systemData['dataDate'] ?? 0,
+                'dataDate' => $dataDate,
             ];
 
         return $this->performRequestWithCache($cacheKeyData, function () use ($criteria) {
@@ -430,6 +454,35 @@ class Marketplace extends \XLite\Base\Singleton
                 \XLite\Core\Marketplace\QueryRegistry::getQuery('marketplace_modules', $criteria),
                 new \XLite\Core\Marketplace\Normalizer\MarketplaceModules()
             ) ?: [];
+        });
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasAvailableNotInstalledMarketingModules()
+    {
+        $criteria = [
+            'installed'      => false,
+            'canInstall'     => true,
+            'system'         => false,
+            'isSalesChannel' => true,
+        ];
+
+        $systemData = $this->getSystemData();
+        $dataDate = $systemData['dataDate'] ?? 0;
+
+        $cacheKeyData = $criteria + [
+                'dataDate' => $dataDate,
+            ];
+
+        return $this->performRequestWithCache($cacheKeyData, function () use ($criteria) {
+            $modules = \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
+                \XLite\Core\Marketplace\QueryRegistry::getQuery('marketplace_modules', $criteria),
+                new \XLite\Core\Marketplace\Normalizer\MarketplaceModules()
+            );
+
+            return !empty($modules);
         });
     }
 
@@ -445,9 +498,10 @@ class Marketplace extends \XLite\Base\Singleton
         ];
 
         $systemData = $this->getSystemData();
+        $dataDate = $systemData['dataDate'] ?? 0;
 
         $cacheKeyData = $criteria + [
-                'dataDate' => $systemData['dataDate'] ?? 0,
+                'dataDate' => $dataDate,
             ];
 
         return $this->performRequestWithCache($cacheKeyData, function () use ($criteria) {
@@ -509,10 +563,13 @@ class Marketplace extends \XLite\Base\Singleton
     public function getInactiveContentData()
     {
         $systemData = $this->getSystemData();
+        $dataDate = $systemData['dataDate'] ?? 0;
 
         $result = $this->performRequestWithCache(
             [Constant::REQUEST_OUTDATED_MODULE, $systemData['dataDate'] ?? 0],
-            function () {
+            static function () {
+                \XLite\Core\TmpVars::getInstance()->licenseWarningUpdateTimestamp = LC_START_TIME;
+
                 return Marketplace\Retriever::getInstance()->retrieve(
                     Marketplace\QueryRegistry::getQuery('inactive_content', ['licensed' => false]),
                     new Marketplace\Normalizer\MarketplaceModules()
@@ -521,6 +578,227 @@ class Marketplace extends \XLite\Base\Singleton
         );
 
         return $result ?: [];
+    }
+
+    /**
+     * @param bool $withCore
+     *
+     * @return array
+     * @todo: cache
+     */
+    public function getHashMap($withCore = true)
+    {
+        $entries = $this->getUpgradeTypesEntries();
+
+        $listToCheckInOrder = [
+            'build',
+            'minor',
+            'major',
+            'core', // Means 1 number changes, e.g. 5.x.x.x to 6.x.x.x
+        ];
+
+        $result = array_merge(
+            [
+                'total'      => 0,
+                'core-types' => [],
+            ],
+            array_fill_keys($listToCheckInOrder, 0)
+        );
+
+        foreach ($listToCheckInOrder as $type) {
+            $entriesByType = $entries[$type] ?? [];
+            if ((isset($entriesByType['CDev-Core']) && $entriesByType['CDev-Core']['type'] === $type)
+                || (isset($entries['self']['XC-Service']) && $entries['self']['XC-Service']['type'] === $type)
+            ) {
+                $result['core-types'][] = $type;
+            }
+
+            $entriesOfType = array_filter(
+                $entriesByType,
+                function ($entry) use ($withCore, $type) {
+                    return $entry['type'] === $type && ($withCore || $entry['id'] !== 'CDev-Core');
+                }
+            );
+
+            $previousTypeIndex = (int) $type - 1;
+            $previousTypeCount = isset($result[$previousTypeIndex])
+                ? $result[$previousTypeIndex]
+                : 0;
+            $countOnlyThisType = count($entriesOfType) - $previousTypeCount;
+            $result[$type]     = $countOnlyThisType;
+            $result['total']   += $countOnlyThisType;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function getUpgradeTypesEntries()
+    {
+        $systemData = $this->getSystemData();
+        $dataDate = $systemData['dataDate'] ?? 0;
+
+        return $this->performRequestWithCache(
+            ['getUpgradeTypesEntries', $dataDate],
+            function () {
+                $data = \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
+                    \XLite\Core\Marketplace\QueryRegistry::getQuery('upgrade_entries'),
+                    new \XLite\Core\Marketplace\Normalizer\Raw()
+                );
+
+                if (!$data) {
+                    return [];
+                }
+
+                foreach ($data as $key => $datum) {
+                    $datum      = $datum ?: [];
+                    $keys       = array_map(function ($type) {
+                        return $type['id'];
+                    }, $datum);
+                    $data[$key] = array_combine($keys, $datum);
+                }
+
+                return $data;
+            }
+        );
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isFraud()
+    {
+        $systemData = $this->getSystemData();
+
+        return $systemData[Constant::FIELD_IS_CONFIRMED] ?? false;
+    }
+
+    /**
+     * @return array
+     */
+    public function dropRebuild()
+    {
+        return \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
+            \XLite\Core\Marketplace\QueryRegistry::getMutation('dropRebuild'),
+            new \XLite\Core\Marketplace\Normalizer\Simple('dropRebuild')
+        ) ?: [];
+    }
+
+    /**
+     * @return array
+     */
+    public function clearCache()
+    {
+        $driver = \XLite\Core\Cache::getInstance()->getDriver();
+
+        $driver->delete(ExecuteCached::getCacheKey([Constant::REQUEST_CORE_LICENSE, 0]));
+        $driver->delete(ExecuteCached::getCacheKey([Constant::REQUEST_OUTDATED_MODULE, 0]));
+        $driver->delete(ExecuteCached::getCacheKey([Constant::REQUEST_INSTALLATION_DATA, 0]));
+        $driver->delete(ExecuteCached::getCacheKey(['getUpgradeTypesEntries', 0]));
+
+        return \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
+            \XLite\Core\Marketplace\QueryRegistry::getMutation('clearCache'),
+            new \XLite\Core\Marketplace\Normalizer\Simple('clearCache')
+        ) ?: [];
+    }
+
+    /**
+     * @param string $type
+     *
+     * @return array
+     */
+    public function createScenario($type = 'common')
+    {
+        return \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
+            \XLite\Core\Marketplace\QueryRegistry::getMutation('createScenario', [
+                'type' => $type,
+            ]),
+            new \XLite\Core\Marketplace\Normalizer\Simple('createScenario')
+        ) ?: [];
+    }
+
+    /**
+     * @param string $scenarioId
+     * @param array  $states
+     *
+     * @return array
+     */
+    public function changeModulesState($scenarioId, $states)
+    {
+        return \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
+            \XLite\Core\Marketplace\QueryRegistry::getRaw('changeModulesState', null, [
+                'scenarioId' => $scenarioId,
+                'states'     => $states,
+            ]),
+            new \XLite\Core\Marketplace\Normalizer\Simple('changeModulesState')
+        ) ?: [];
+    }
+
+    /**
+     * @param string $id
+     *
+     * @return array
+     */
+    public function getRebuildState($id)
+    {
+        return \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
+            \XLite\Core\Marketplace\QueryRegistry::getQuery('rebuildState', [
+                'id' => $id,
+            ]),
+            new \XLite\Core\Marketplace\Normalizer\Simple('rebuildState')
+        ) ?: [];
+    }
+
+    /**
+     * @param string $id
+     *
+     * @return array
+     */
+    public function startRebuild($id)
+    {
+        return \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
+            \XLite\Core\Marketplace\QueryRegistry::getMutation('startRebuild', [
+                'id' => $id,
+            ]),
+            new \XLite\Core\Marketplace\Normalizer\Simple('startRebuild')
+        ) ?: [];
+    }
+
+    /**
+     * @param string $id
+     * @param string $action
+     *
+     * @return array
+     */
+    public function executeRebuild($id, $action = 'execute')
+    {
+        return \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
+            \XLite\Core\Marketplace\QueryRegistry::getMutation('executeRebuild', [
+                'id'     => $id,
+                'action' => $action,
+            ]),
+            new \XLite\Core\Marketplace\Normalizer\Simple('executeRebuild')
+        ) ?: [];
+    }
+
+    /**
+     * Check if cache was reset by service.php?/clear-cache
+     *
+     * @param $cell
+     * @param $serviceVar
+     *
+     * @return bool
+     */
+    protected function isServiceCacheReset($cell, $serviceVar)
+    {
+        $start      = \XLite\Core\TmpVars::getInstance()->$cell;
+        $systemData = $this->getSystemData();
+
+        return isset($start)
+            && isset($systemData[$serviceVar])
+            && $start < $systemData[$serviceVar];
     }
 
     // {{{ "Get xc5 notifications" request
@@ -600,7 +878,7 @@ class Marketplace extends \XLite\Base\Singleton
         \XLite\Core\Lock\MarketplaceLocker::getInstance()->lock($requestName);
 
         if (!$this->isActionActive($requestName)) {
-            list(, $dataCell) = $this->getActionCacheVars($requestName);
+            [, $dataCell] = $this->getActionCacheVars($requestName);
             $result = \XLite\Core\TmpVars::getInstance()->$dataCell;
 
             $this->scheduleAction($requestName, []);
@@ -617,8 +895,8 @@ class Marketplace extends \XLite\Base\Singleton
     protected function getRequestTypeToNameAssociations()
     {
         return [
-            'banners'          => Constant::REQUEST_BANNERS,
-            'notifications'    => Constant::REQUEST_NOTIFICATIONS,
+            'banners'       => Constant::REQUEST_BANNERS,
+            'notifications' => Constant::REQUEST_NOTIFICATIONS,
         ];
     }
 
@@ -661,7 +939,6 @@ class Marketplace extends \XLite\Base\Singleton
             Constant::REQUEST_ADDONS,
             Constant::REQUEST_BANNERS,
             Constant::REQUEST_TAGS,
-            //    Constant::ACTION_GET_HOSTING_SCORE,
             Constant::REQUEST_LANDING,
             Constant::REQUEST_WAVES,
             Constant::INACTIVE_KEYS,
@@ -685,7 +962,6 @@ class Marketplace extends \XLite\Base\Singleton
             Constant::REQUEST_ADDONS           => static::TTL_LONG,
             Constant::REQUEST_BANNERS          => static::TTL_LONG,
             Constant::REQUEST_TAGS             => static::TTL_LONG,
-            //  Constant::ACTION_GET_HOSTING_SCORE     => static::TTL_LONG,
             Constant::REQUEST_LANDING          => static::TTL_LONG,
             Constant::REQUEST_WAVES            => static::TTL_LONG,
             Constant::REQUEST_NOTIFICATIONS    => static::TTL_SHORT,
@@ -734,7 +1010,7 @@ class Marketplace extends \XLite\Base\Singleton
      */
     protected function saveResultInCache($action, $result, $saveInTmpVars)
     {
-        list($cellTTL, $cellData) = $this->getActionCacheVars($action);
+        [$cellTTL, $cellData] = $this->getActionCacheVars($action);
 
         if ($saveInTmpVars) {
             // Save in DB (if needed)

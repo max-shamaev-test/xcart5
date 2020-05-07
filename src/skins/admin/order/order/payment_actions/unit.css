@@ -8,8 +8,6 @@
  */
 
 .orders button.payment-action-button {
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
   font-size: 12px;
   height: 26px;

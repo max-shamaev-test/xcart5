@@ -100,6 +100,13 @@ class MultiCurrency extends \XLite\Base
     protected static $selectedMultiCurrency = null;
 
     /**
+     * Enabled countries count
+     *
+     * @var int
+     */
+    protected static $enabledCountriesCount;
+
+    /**
      * Convert value by provided rate
      *
      * @param float   $value     Value
@@ -161,6 +168,21 @@ class MultiCurrency extends \XLite\Base
         }
 
         return static::$hasAvailableCountries;
+    }
+
+    /**
+     * Get enabled countries count
+     *
+     * @return int
+     */
+    public function getEnabledCountriesCount()
+    {
+        if (static::$enabledCountriesCount === null) {
+            static::$enabledCountriesCount = \XLite\Core\Database::getRepo('XLite\Module\XC\MultiCurrency\Model\ActiveCurrency')
+                ->getEnabledCountriesCount();
+        }
+
+        return static::$enabledCountriesCount;
     }
 
     /**
@@ -278,11 +300,12 @@ class MultiCurrency extends \XLite\Base
     public function getSelectedCurrency()
     {
         if (is_null(static::$selectedCurrency)) {
-            $selectedCurrency = \XLite\Core\Database::getRepo('XLite\Module\XC\MultiCurrency\Model\ActiveCurrency')
-                ->getCurrencyByCode($this->getSelectedCurrencyCode());
+            $repo = \XLite\Core\Database::getRepo('XLite\Module\XC\MultiCurrency\Model\ActiveCurrency');
+
+            $selectedCurrency = $repo->getCurrencyByCode($this->getSelectedCurrencyCode());
 
             if (!isset($selectedCurrency)) {
-                $selectedCurrency = $this->getDefaultCurrency();
+                $selectedCurrency = $repo->getDetectedCurrency();
                 $this->setSelectedCurrency($selectedCurrency);
             } else {
                 $selectedCurrency = $selectedCurrency->getCurrency();

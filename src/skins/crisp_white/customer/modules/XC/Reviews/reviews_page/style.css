@@ -111,7 +111,6 @@ div.reviews li.pending div.vote-bar span {
 div.reviews div.moderation {
   float: left;
   color: #9b9b9b;
-  -moz-border-radius: 15px;
   border-radius: 2px;
   padding: 2px 10px;
 }

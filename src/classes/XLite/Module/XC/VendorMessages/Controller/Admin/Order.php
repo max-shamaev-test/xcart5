@@ -27,6 +27,13 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
             ];
         }
 
+        if (\Includes\Utils\Module\Manager::getRegistry()->isModuleEnabled('XC', 'NotFinishedOrders')
+            && $this->getOrder()
+            && $this->getOrder()->isNotFinishedOrder()
+        ) {
+            unset($list['messages']);
+        }
+
         return $list;
     }
 

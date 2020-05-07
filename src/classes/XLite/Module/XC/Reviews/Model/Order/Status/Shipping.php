@@ -18,16 +18,25 @@ abstract class Shipping extends \XLite\Model\Order\Status\Shipping implements \X
      */
     public static function getStatusHandlers()
     {
-        $statuses = parent::getStatusHandlers();
+        $handlers = parent::getStatusHandlers();
 
-        foreach ($statuses as $old => $newStatuses) {
-            if (static::STATUS_DELIVERED !== $old) {
-                $delivered = isset($newStatuses[static::STATUS_DELIVERED]) ? $newStatuses[static::STATUS_DELIVERED] : array();
-                $newStatuses[static::STATUS_DELIVERED] = array_merge($delivered, array('reviewKey'));
-                $statuses[$old] = $newStatuses;
-            }
+        $statuses = [
+            static::STATUS_NEW,
+            static::STATUS_PROCESSING,
+            static::STATUS_SHIPPED,
+            static::STATUS_RETURNED,
+            static::STATUS_WAITING_FOR_APPROVE,
+            static::STATUS_WILL_NOT_DELIVER,
+            static::STATUS_NEW_BACKORDERED,
+        ];
+
+        $reviewsHandlers = [];
+        foreach ($statuses as $status) {
+            $reviewsHandlers[$status][static::STATUS_DELIVERED] = ['reviewKey'];
         }
 
-        return $statuses;
+        $handlers = array_merge_recursive($handlers, $reviewsHandlers);
+
+        return $handlers;
     }
 }

@@ -4,5 +4,5 @@
  # @ListChild (list="checkout.signin.form", weight="10")
  #}
 <tr><td class="email-field">
-  {{ widget('XLite\\View\\FormField\\Input\\Text\\Email', value=this.login, required='true', fieldName='login', placeholder=t('Email'), label=t('Email'), fieldOnly='true', fieldId='login-email') }}
+  {{ widget('XLite\\View\\FormField\\Input\\Text\\Email', value=this.login, required='true', fieldName='login', placeholder=t('Email', [], null, 'placeholder'), label=t('Email'), fieldOnly='true', fieldId='login-email') }}
 </td></tr>

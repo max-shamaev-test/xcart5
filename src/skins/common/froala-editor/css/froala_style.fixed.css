@@ -13,14 +13,10 @@
 }
 
 #main .fr-toolbar.fr-top {
-  -webkit-box-shadow: 1px 1px 3px rgba(0,0,0,.12), -1px 1px 3px rgba(0,0,0,.12), -1px 1px 2px rgba(0,0,0,.24), 1px 1px 2px rgba(0,0,0,.24);
-  -moz-box-shadow: 1px 1px 3px rgba(0,0,0,.12), -1px 1px 3px rgba(0,0,0,.12), -1px 1px 2px rgba(0,0,0,.24), 1px 1px 2px rgba(0,0,0,.24);
   box-shadow: 1px 1px 3px rgba(0,0,0,.12), -1px 1px 3px rgba(0,0,0,.12), -1px 1px 2px rgba(0,0,0,.24), 1px 1px 2px rgba(0,0,0,.24);
 }
 
 #main .fr-box:not(.fr-inline) .fr-wrapper {
-  -webkit-box-shadow: 1px 1px 3px rgba(0,0,0,.12), -1px 1px 3px rgba(0,0,0,.12), -1px 1px 2px rgba(0,0,0,.24), 1px 1px 2px rgba(0,0,0,.24);
-  -moz-box-shadow: 1px 1px 3px rgba(0,0,0,.12), -1px 1px 3px rgba(0,0,0,.12), -1px 1px 2px rgba(0,0,0,.24), 1px 1px 2px rgba(0,0,0,.24);
   box-shadow: 1px 1px 3px rgba(0,0,0,.12), -1px 1px 3px rgba(0,0,0,.12), -1px 1px 2px rgba(0,0,0,.24), 1px 1px 2px rgba(0,0,0,.24);
 }
 
@@ -36,12 +32,8 @@
   width: 100%;
   font-family: monospace;
   line-height: 1.25em;
-  -moz-tab-size: 2;
-    -o-tab-size: 2;
-       tab-size: 2;
-    -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-            box-sizing: border-box;
+  tab-size: 2;
+  box-sizing: border-box;
 }
 
 .fr-box:not(.fr-inline).fr-code-view textarea.fr-code,
@@ -63,7 +55,7 @@
 }
 
 .fr-box:not(.fr-code-view) textarea.fr-code {
-  display: none;
+  display: none!important;
 }
 
 table.fr-dashed-borders td, table.fr-dashed-borders th
@@ -104,12 +96,10 @@ table td.fr-thick, table th.fr-thick
 .fr-view hr
 {
   clear:both;
-  user-select:none;
-  -o-user-select:none;
-  -moz-user-select:none;
-  -khtml-user-select:none;
-  -webkit-user-select:none;
-  -ms-user-select:none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   page-break-after:always;
 }
 
@@ -222,8 +212,6 @@ span.fr-emoticon.fr-emoticon-img
 
 .fr-video>*
 {
-  -webkit-box-sizing:content-box;
-  -moz-box-sizing:content-box;
   box-sizing:content-box;
   max-width:100%;
   border:0;
@@ -263,10 +251,6 @@ span.fr-emoticon.fr-emoticon-img
 button.fr-rounded,input.fr-rounded,textarea.fr-rounded
 {
   border-radius:10px;
-  -moz-border-radius:10px;
-  -webkit-border-radius:10px;
-  -moz-background-clip:padding;
-  -webkit-background-clip:padding-box;
   background-clip:padding-box;
 }
 
@@ -331,18 +315,12 @@ img.fr-dii.fr-fir,img.fr-view.fr-dii.fr-fir
 img.fr-rounded,img.fr-view.fr-rounded
 {
   border-radius:100%;
-  -moz-border-radius:100%;
-  -webkit-border-radius:100%;
-  -moz-background-clip:padding;
-  -webkit-background-clip:padding-box;
   background-clip:padding-box;
 }
 
 img.fr-bordered,img.fr-view.fr-bordered
 {
   border:solid 10px #CCC;
-  -webkit-box-sizing:content-box;
-  -moz-box-sizing:content-box;
   box-sizing:content-box;
 }
 

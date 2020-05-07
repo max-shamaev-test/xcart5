@@ -195,7 +195,7 @@ output {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background: url(../../images/arrow_down.svg);
+    background: @input-bg url(../../images/arrow_down.svg);
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 14px 7px;
@@ -464,7 +464,7 @@ input[type="radio"] {
   appearance: none;
 
   border-radius: 50%;
-  border: 1px solid @color-dark-border;
+  border: 1px solid @input-contrast-border;
   background: @input-bg;
 }
 
@@ -473,7 +473,9 @@ input[type="radio"]:checked {
   background-size: 30%;
   border: none;
 }
-
+input[type="radio"]:focus {
+  box-shadow: 0 0 0 2px #66afe9;
+}
 // Fancy checkboxes
 input[type="checkbox"] {
   height: 20px;
@@ -484,7 +486,7 @@ input[type="checkbox"] {
   appearance: none;
 
   border-radius: @border-radius-base;
-  border: 1px solid @color-dark-border;
+  border: 1px solid @input-contrast-border;
   background: @input-bg;
 }
 
@@ -493,7 +495,9 @@ input[type="checkbox"]:checked {
   background-size: 50%;
   border: none;
 }
-
+input[type="checkbox"]:focus {
+  box-shadow: 0 0 0 2px #66afe9;
+}
 // Form control sizing
 //
 // Build on `.form-control` with modifier classes to decrease or increase the

@@ -69,7 +69,7 @@ class Settings extends \XLite\View\AView
      */
     protected function getPreviewImageURL()
     {
-        return Skin::getInstance()->getCurrentLayoutPreview();
+        return Skin::getInstance()->getCurrentLayoutPreview(\XLite\Core\Layout::LAYOUT_GROUP_HOME);
     }
 
     /**

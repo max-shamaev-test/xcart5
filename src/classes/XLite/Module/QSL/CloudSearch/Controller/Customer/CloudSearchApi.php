@@ -15,6 +15,7 @@ use XLite\Core\Request;
 use XLite\Model\Product;
 use XLite\Module\QSL\CloudSearch\Core\ServiceApiClient;
 use XLite\Module\QSL\CloudSearch\Core\StoreApi;
+use XLite\View\AView;
 
 /**
  * CloudSearch API controller
@@ -160,9 +161,10 @@ class CloudSearchApi extends \XLite\Controller\Customer\ACustomer
     {
         $prices = [];
 
-        /** @var Product $product */
+        $currency = $this->getCart()->getCurrency();
+
         foreach ($this->getProducts() as $product) {
-            $prices[$product->getProductId()] = $product->getDisplayPrice();
+            $prices[$product->getProductId()] = AView::formatPrice($product->getDisplayPrice(), $currency);
         }
 
         $this->printJSONAndExit($prices);

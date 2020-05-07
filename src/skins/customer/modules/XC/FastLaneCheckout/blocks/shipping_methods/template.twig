@@ -2,7 +2,7 @@
  # Shipping methods block
  #}
 <shipping-methods inline-template :deferred="{{ this.shouldReload() ? 'true' : 'false' }}">
-
+  <div class="shipping-methods-wrapper" v-bind:class="classes">
   {% if this.isShippingAvailable() %}
     {{ widget('\\XLite\\Module\\XC\\FastLaneCheckout\\View\\Blocks\\ShippingMethods\\Selector') }}
 
@@ -13,11 +13,12 @@
       {% else %}
         <p class="address-not-defined">{{ t('Enter the shipping address to see delivery methods available to you') }}</p>
       {% endif %}
+      <input type="hidden" name="methodId" value="" v-model="methodId" >
     </div>
   {% endif %}
 
   {{ widget_list('checkout_fastlane.blocks.shipping_methods.append') }}
-
+  </div>
   <script id="ShippingMethodsWidgetData">
     if ('undefined' === typeof(window.WidgetData)) { window.WidgetData = {}; }
     window.WidgetData["shipping-methods"] = {{ this.getWidgetData()|raw }};

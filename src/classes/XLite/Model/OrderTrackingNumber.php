@@ -126,6 +126,16 @@ class OrderTrackingNumber extends \XLite\Model\AEntity
     }
 
     /**
+     * Get creation date
+     *
+     * @return creationDate
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
      * Checks if the tracking number is changed
      *
      * @param string $value

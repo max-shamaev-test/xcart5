@@ -23,6 +23,13 @@ jQuery().ready(
             self.location = URLHandler.buildURL({ 'target': 'cache_management', 'quick_data_completed': 1 });
           }
         }
+      ).bind(
+        'cancel',
+        function() {
+          setTimeout(function() {
+            self.location = URLHandler.buildURL({ 'target': 'cache_management' });
+          }, 4000);
+        }
       );
 
     var height = 0;

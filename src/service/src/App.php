@@ -8,7 +8,6 @@
 
 use Doctrine\Common\Cache\FilesystemCache;
 use GraphQL\Type\Definition\ResolveInfo;
-use GuzzleHttp\Subscriber\Log\LogSubscriber;
 use Psr\Log\LoggerInterface;
 use Silex\Application;
 use Symfony\Component\Filesystem\Filesystem;
@@ -43,7 +42,8 @@ return static function ($config) {
         'debug'                      => $config['log_details']['level'] === (string) \LOG_DEBUG,
         'developer_mode'             => (bool) $config['performance']['developer_mode'],
         'ignore_system_modules'      => (bool) ($config['performance']['ignore_system_modules'] ?? false),
-        'jwt_secret_key'             => $config['installer_details']['shared_secret_key'],
+        'jwt_secret_key_legacy'      => $config['installer_details']['shared_secret_key'],
+        'jwt_secret_key'             => $config['installer_details']['auth_code'],
         'authcode_reference'         => $config['installer_details']['auth_code'],
         'service_authcode_reference' => $serviceAuthCode,
         'domain'                     => '://' . $config['host_details']['http_host'],
@@ -64,6 +64,7 @@ return static function ($config) {
         'tmp_dir'                    => $rootDir . 'var/tmp/',
         'phar_is_installed'          => ResourceChecker::PharIsInstalled(),
         'email'                      => $_COOKIE['recent_login'] ?? '',
+        'verify_certificate'         => (bool) $config['service']['verify_certificate'],
     ];
 
     $app['config'] = $config;
@@ -103,22 +104,30 @@ return static function ($config) {
     });
 
     $app['xCartClient.client-factory'] = $app->protect(function () use ($app) {
-        $config       = $app['config'];
-        $guzzleClient = new \GuzzleHttp\Client([
-            'defaults' => ['verify' => false],
-            'base_url' => $config['domain'] . rtrim($config['webdir'], '/') . '/',
-        ]);
+        $config = $app['config'];
 
-        $guzzleClient->getEmitter()->attach(
-            $app['guzzleLogSubscriber']
+        $handler = \GuzzleHttp\HandlerStack::create(
+            new \GuzzleHttp\Handler\CurlHandler([
+                'handle_factory' => new \GuzzleHttp\Handler\CurlFactory(0),
+            ])
         );
+
+        $handler->push(
+            \GuzzleHttp\Middleware::log(
+                $app[\XCart\Bus\Core\Logger\Request::class],
+                new \GuzzleHttp\MessageFormatter(),
+                $app['debug'] ? \Psr\Log\LogLevel::DEBUG : \Psr\Log\LogLevel::INFO
+            )
+        );
+
+        $guzzleClient = new \GuzzleHttp\Client([
+            'verify'   => $config['verify_certificate'],
+            'base_uri' => $config['domain'] . rtrim($config['webdir'], '/') . '/',
+            'handler'  => $handler,
+        ]);
 
         return $guzzleClient;
     });
-
-    $app['guzzleLogSubscriber'] = static function ($app) use ($config) {
-        return new LogSubscriber($app[\XCart\Bus\Core\Logger\Request::class]);
-    };
 
     $app['fileSystem'] = static function ($app) {
         return new Filesystem();

@@ -20,10 +20,6 @@ button.add2cart-popup {
   position: relative;
 }
 
-.add2cart-popup .item-box .item-thumbnail {
-  float: left;
-}
-
 .add2cart-popup .item-box {
   width: 520px;
   vertical-align: top;
@@ -138,7 +134,7 @@ button.add2cart-popup {
   display: none;
 }
 
-.add2cart-popup .products-list-box div.product.compare div.add-to-compare.products {
+.add2cart-popup .products-list-box div.product div.add-to-compare.products {
   display: none;
 }
 

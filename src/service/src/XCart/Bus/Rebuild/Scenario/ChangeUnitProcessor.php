@@ -132,13 +132,17 @@ class ChangeUnitProcessor
 
         $changeUnits = $this->indexChangeUnits($changeUnits);
 
+        $changeUnits = $this->sortChangeUnits($changeUnits);
+
         $transitions = $this->buildTransitionsFromChangeUnits($changeUnits);
 
         $this->logger->debug(
             'Process scenario',
             [
                 'changeUnits' => $changeUnits,
-                'transitions' => array_map(static function ($transition) { is_object($transition) ? get_class($transition) : ''; } , $transitions),
+                'transitions' => array_map(static function ($transition) {
+                    is_object($transition) ? get_class($transition) : '';
+                }, $transitions),
             ]
         );
 
@@ -259,5 +263,32 @@ class ChangeUnitProcessor
                 'humanReason' => $info ? $info->getReasonHuman() : '',
             ],
         ];
+    }
+
+    /**
+     * @param array $changeUnits
+     *
+     * @return array
+     */
+    private function sortChangeUnits($changeUnits): array
+    {
+        uasort($changeUnits, function ($a, $b) {
+            /** @var Module $am */
+            $am = $this->installedModulesDataSource->find($a['id']);
+            /** @var Module $bm */
+            $bm = $this->installedModulesDataSource->find($b['id']);
+
+            if (in_array($b['id'], $am->dependsOn ?? [], true)) {
+                return !empty($a['enable']) ? 1 : -1;
+            }
+
+            if (in_array($a['id'], $bm->dependsOn ?? [], true)) {
+                return !empty($b['enable']) ? -1 : 1;
+            }
+
+            return 0;
+        });
+
+        return $changeUnits;
     }
 }

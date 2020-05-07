@@ -15,12 +15,15 @@
        "isImage": "{{ this.isImage() }}",
        "hasFile": "{{ this.hasFile() }}",
        "error": "{{ this.getMessage() ? '1' : '' }}",
-       "defaultErrorMessage": "{{ t(this.getErrorMessageDefault()) }}",
-       "realErrorMessage": "{{ t(this.getMessage()) }}"}'>
+       "defaultErrorMessage": "{{ t(this.getErrorMessageDefault())|escape('js') }}",
+       "initialAlt":"{% if this.hasAlt() %}{{ this.getAlt()|escape('js') }}{% endif %}",
+       "realErrorMessage": "{{ t(this.getMessage())|escape('js') }}"}'>
+    {% if this.isRemovable() %}
       <input type="checkbox" name="{{ this.getName() }}[delete]" v-model="delete" value="1"
              class="input-delete"
              v-if="isRemovable"
              v-data='{ "delete": false }'/>
+    {% endif %}
     {% if this.isMultiple() %}
       <input type="hidden" name="{{ this.getName() }}[position]" v-model="position"
              value="{{ this.getPosition() }}"

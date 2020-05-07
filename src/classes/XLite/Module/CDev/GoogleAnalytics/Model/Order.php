@@ -51,12 +51,13 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
      * Get order fingerprint for event subsystem
      *
      * @param array $exclude Exclude kes OPTIONAL
+     * @param bool $init
      *
      * @return array
      */
-    public function getEventFingerprint(array $exclude = [])
+    public function getEventFingerprint(array $exclude = [], $init = false)
     {
-        $result = parent::getEventFingerprint($exclude);
+        $result = parent::getEventFingerprint($exclude, $init);
 
         if ($this->shouldRegisterChange()) {
             // Just for implementation without decoration of all excludeFingerprint implementations
@@ -134,9 +135,11 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
             return;
         }
 
-        BackendActionExecutor::execute(
-            new Action\FullPurchaseAdmin($this)
-        );
+        if ($this->shouldRegisterChange()) {
+            BackendActionExecutor::execute(
+                new Action\FullPurchaseAdmin($this)
+            );
+        }
     }
 
     /**
@@ -146,9 +149,11 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
      */
     protected function processRegisterGARefund()
     {
-        BackendActionExecutor::execute(
-            new Action\Refund($this)
-        );
+        if ($this->shouldRegisterChange()) {
+            BackendActionExecutor::execute(
+                new Action\Refund($this)
+            );
+        }
     }
 
     /**
@@ -163,17 +168,19 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
             return;
         }
 
-        BackendActionExecutor::execute(
-            new Action\Refund($this)
-        );
+        if ($this->shouldRegisterChange()) {
+            BackendActionExecutor::execute(
+                new Action\Refund($this)
+            );
+        }
     }
 
     /**
      * @return bool
      */
-    protected function shouldRegisterChange()
+    public function shouldRegisterChange()
     {
         return \XLite\Module\CDev\GoogleAnalytics\Main::isECommerceEnabled()
-        && !$this->isTemporary();
+            && !$this->isTemporary();
     }
 }

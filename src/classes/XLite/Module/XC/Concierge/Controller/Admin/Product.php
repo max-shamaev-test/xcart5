@@ -26,6 +26,17 @@ abstract class Product extends \XLite\Controller\Admin\Product implements \XLite
         $pages = $this->getPages();
         $page = $this->getPage();
 
-        return 'Product: ' . $pages[$page];
+        $spages = $this->getSPages();
+        $spage  = $this->spage;
+
+        $result = is_array($pages[$page]) ? $pages[$page]['title'] : $pages[$page];
+
+        if (isset($spages[$spage])) {
+            $result .= ': ' . $spages[$spage];
+        } elseif (isset($spage)) {
+            $result .= ': ' . $spage;
+        }
+
+        return 'Product: ' . $result;
     }
 }

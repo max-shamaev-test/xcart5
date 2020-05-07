@@ -40,14 +40,10 @@ class HotAddons extends \XLite\View\IFrame
      */
     protected function getSrc()
     {
-        $query = http_build_query([
+        return \XLite::getInstance()->getServiceURL('#/iframe/hot-addons', null, [
             'moduleInstallMode' => 'single',
             'max_items'         => $this->getMaxItems()
         ]);
-
-        return \XLite::getInstance()->getServiceURL(
-            '#/iframe/hot-addons?' . $query
-        );
     }
 
     protected function getMaxItems()

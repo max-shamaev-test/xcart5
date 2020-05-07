@@ -38,6 +38,16 @@ abstract class TransitionAbstract implements TransitionInterface
     }
 
     /**
+     * @param TransitionInterface $transition
+     *
+     * @return bool
+     */
+    public function canOverwrite(TransitionInterface $transition): bool
+    {
+        return false;
+    }
+
+    /**
      * @return string
      */
     public function getModuleId(): string

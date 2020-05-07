@@ -33,7 +33,10 @@ core.microhandlers.add(
   'input',
   '[name="login"]',
   function(event) {
-    this.focus();
+    var input = this;
+    jQuery(function () {
+      input.focus();
+    })
   }
 );
 

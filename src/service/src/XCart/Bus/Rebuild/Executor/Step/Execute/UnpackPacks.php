@@ -11,6 +11,7 @@ namespace XCart\Bus\Rebuild\Executor\Step\Execute;
 use Psr\Log\LoggerInterface;
 use Silex\Application;
 use XCart\Bus\Core\Annotations\RebuildStep;
+use XCart\Bus\Core\Archive\ArchiveFactory;
 use XCart\Bus\Exception\Rebuild\AbortException;
 use XCart\Bus\Exception\RebuildException;
 use XCart\Bus\Rebuild\Executor\ScriptState;
@@ -38,6 +39,11 @@ class UnpackPacks implements StepInterface
     private $filesystem;
 
     /**
+     * @var ArchiveFactory
+     */
+    private $archiveFactory;
+
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -47,6 +53,7 @@ class UnpackPacks implements StepInterface
     /**
      * @param Application         $app
      * @param FilesystemInterface $filesystem
+     * @param ArchiveFactory      $archiveFactory
      * @param LoggerInterface     $logger
      *
      * @return static
@@ -57,11 +64,13 @@ class UnpackPacks implements StepInterface
     public static function serviceConstructor(
         Application $app,
         FilesystemInterface $filesystem,
+        ArchiveFactory $archiveFactory,
         LoggerInterface $logger
     ) {
         return new self(
             $app['config']['module_packs_dir'],
             $filesystem,
+            $archiveFactory,
             $logger
         );
     }
@@ -69,16 +78,19 @@ class UnpackPacks implements StepInterface
     /**
      * @param string              $packsDir
      * @param FilesystemInterface $filesystem
+     * @param ArchiveFactory      $archiveFactory
      * @param LoggerInterface     $logger
      */
     public function __construct(
         $packsDir,
         FilesystemInterface $filesystem,
+        ArchiveFactory $archiveFactory,
         LoggerInterface $logger
     ) {
-        $this->packsDir   = $packsDir;
-        $this->filesystem = $filesystem;
-        $this->logger     = $logger;
+        $this->packsDir       = $packsDir;
+        $this->filesystem     = $filesystem;
+        $this->archiveFactory = $archiveFactory;
+        $this->logger         = $logger;
     }
 
     /**
@@ -325,10 +337,6 @@ class UnpackPacks implements StepInterface
             throw AbortException::fromUnpackStepMissingPackage($id, $path);
         }
 
-        $compressed = substr($path, -4) === '.tgz';
-
-        $archive = new \Archive_Tar($path, $compressed ? 'gz' : false);
-
         $packDir                = $this->packsDir . "{$id}.{$transition['version_after']}/";
         $transition['pack_dir'] = $packDir;
 
@@ -337,7 +345,7 @@ class UnpackPacks implements StepInterface
         }
         $this->filesystem->mkdir($packDir);
 
-        if (!$archive->extract($packDir, true)) {
+        if (!$this->archiveFactory->getUnpacker()->unpack($path, $packDir)) {
             $this->logger->critical(sprintf('Cannot extract (%s)', $path));
 
             throw AbortException::fromUnpackStepExtractionError($id, $path);

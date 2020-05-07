@@ -67,7 +67,7 @@ class Categories extends \XLite\Module\CDev\XMLSitemap\Logic\Sitemap\Step\ASitem
                 'loc' => $url,
                 'lastmod' => Converter::time(),
                 'changefreq' => Config::getInstance()->CDev->XMLSitemap->category_changefreq,
-                'priority' => $this->processPriority(Config::getInstance()->CDev->XMLSitemap->category_changefreq),
+                'priority' => $this->processPriority(Config::getInstance()->CDev->XMLSitemap->category_priority),
             ];
 
             if ($this->generator->hasAlternateLangUrls()) {

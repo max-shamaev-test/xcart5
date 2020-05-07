@@ -31,6 +31,9 @@ class Payable extends AFilter
 
             case 'free':
                 return $item->price === 0.0;
+
+            case 'sale':
+                return $item->onSale;
         }
 
         return true;

@@ -178,7 +178,7 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
      */
     public function getName()
     {
-        return $this->getObject() && $this->isOrderOpen() ? $this->getObject()->getName() : $this->name;
+        return $this->getObject() ? $this->getObject()->getName() : $this->name;
     }
 
     /**
@@ -517,7 +517,20 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
     {
         return \Includes\Utils\FileManager::getRelativePath($this->getImage()->getStoragePath(), LC_DIR_ROOT);
     }
+    /**
+     * Get item resized image relative URL
+     *
+     * @return string
+     */
+    public function getResizedImageRelativeURL($width, $height)
+    {
+        $img = $this->getImage();
+        $img->doResize($width, $height);
+        $imgName = $img->getpath();
+        $path = $img->getResizedPath("$width.$height", $imgName);
 
+        return \Includes\Utils\FileManager::getRelativePath($path, LC_DIR_ROOT);
+    }
     /**
      * Get item image
      *
@@ -526,6 +539,26 @@ class OrderItem extends \XLite\Model\Base\SurchargeOwner
     public function getImage()
     {
         return $this->getProduct()->getImage();
+    }
+
+    /**
+     * Get minicart image width
+     *
+     * @return string
+     */
+    public function getMiniCartImageWidth()
+    {
+        return 60;
+    }
+
+    /**
+     * Get minicart image height
+     *
+     * @return string
+     */
+    public function getMiniCartImageHeight()
+    {
+        return 60;
     }
 
     /**

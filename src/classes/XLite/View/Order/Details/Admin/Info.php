@@ -167,6 +167,16 @@ class Info extends \XLite\View\AView implements ProviderInterface
     }
 
     /**
+     * Check if need to show customer login
+     *
+     * @return bool
+     */
+    protected function isShowProfileLogin()
+    {
+        return true;
+    }
+
+    /**
      * Get order formatted subtotal
      *
      * @return string

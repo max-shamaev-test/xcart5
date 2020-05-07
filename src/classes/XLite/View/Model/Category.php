@@ -13,6 +13,12 @@ namespace XLite\View\Model;
  */
 class Category extends \XLite\View\Model\AModel
 {
+
+    /**
+     * @var bool
+     */
+    private $correctCategories = false;
+
     /**
      * Schema default
      *
@@ -28,6 +34,7 @@ class Category extends \XLite\View\Model\AModel
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\Select2\Category',
             self::SCHEMA_LABEL    => 'Parent category',
             self::SCHEMA_REQUIRED => true,
+            \XLite\View\FormField\Select\Select2\Category::PARAM_OBJECT_CLASS_NAME => 'XLite\Model\Category',
         ),
         'show_title' => array(
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\CategoryShowTitle',
@@ -229,10 +236,7 @@ class Category extends \XLite\View\Model\AModel
             }
 
             $model->setParent($parent);
-            $model->update();
-
-            // Update lpos, rpos, depth properties of categories tree
-            \XLite\Core\Database::getRepo('XLite\Model\Category')->correctCategoriesStructure();
+            $this->correctCategories = true;
         }
 
         if (!$model->isPersistent()) {
@@ -244,6 +248,20 @@ class Category extends \XLite\View\Model\AModel
                 $child->setPos($pos);
             }
         }
+    }
+
+    /**
+     * Correct categories structure after success saved
+     */
+    protected function postprocessSuccessActionUpdate()
+    {
+        if ($this->correctCategories) {
+            // Update lpos, rpos, depth properties of categories tree
+            \XLite\Core\Database::getRepo('XLite\Model\Category')->correctCategoriesStructure();
+            $this->correctCategories = false;
+        }
+
+        parent::postprocessSuccessActionUpdate();
     }
 
     /**

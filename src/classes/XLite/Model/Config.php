@@ -243,7 +243,7 @@ class Config extends \XLite\Model\Base\I18n
     /**
      * Get value
      *
-     * @return text 
+     * @return string
      */
     public function getValue()
     {
@@ -270,5 +270,22 @@ class Config extends \XLite\Model\Base\I18n
     public function getWidgetParameters()
     {
         return $this->widgetParameters;
+    }
+
+    /**
+     * Detach self
+     */
+    public function detach()
+    {
+        \XLite\Core\Database::getEM()->detach($this);
+
+        // prevents detach if not initialized
+        if (empty($this->translations) || !$this->translations->isInitialized()) {
+            return;
+        }
+
+        foreach ($this->getTranslations() as $translation) {
+            $translation->detach();
+        }
     }
 }

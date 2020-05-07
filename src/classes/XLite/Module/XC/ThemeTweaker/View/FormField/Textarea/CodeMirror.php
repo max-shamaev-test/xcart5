@@ -94,4 +94,18 @@ class CodeMirror extends \XLite\View\FormField\Textarea\Simple
 
         return $attributes;
     }
+
+    /**
+     * Return field template
+     *
+     * @return string
+     */
+    protected function getFieldTemplate()
+    {
+        if (\XLite::isAdminZone()) {
+            return '../modules/XC/ThemeTweaker/form_field/code_mirror/body.twig';
+        }
+
+        return parent::getFieldTemplate();
+    }
 }

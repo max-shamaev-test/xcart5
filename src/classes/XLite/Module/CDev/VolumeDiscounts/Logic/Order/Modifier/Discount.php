@@ -49,7 +49,7 @@ class Discount extends \XLite\Logic\Order\Modifier\Discount
     /**
      * Calculate
      *
-     * @return float
+     * @return \XLite\Model\Order\Surcharge
      */
     public function calculate()
     {
@@ -105,7 +105,9 @@ class Discount extends \XLite\Logic\Order\Modifier\Discount
         /** @var \XLite\Module\CDev\VolumeDiscounts\Model\Repo\VolumeDiscount $repo */
         $repo = \XLite\Core\Database::getRepo('XLite\Module\CDev\VolumeDiscounts\Model\VolumeDiscount');
 
-        return $repo->getFirstDiscount($this->getDiscountCondition());
+        return $repo->getSuitableMaxDiscount(
+            $this->getDiscountCondition()
+        );
     }
 
     /**
@@ -125,6 +127,16 @@ class Discount extends \XLite\Logic\Order\Modifier\Discount
         if ($membership) {
             $cnd->{\XLite\Module\CDev\VolumeDiscounts\Model\Repo\VolumeDiscount::P_MEMBERSHIP}
                 = $membership;
+        }
+
+        if ($profile && $profile->getShippingAddress()) {
+            $address = $profile->getShippingAddress()->toArray();
+            $zones = \XLite\Core\Database::getRepo('XLite\Model\Zone')
+                ->findApplicableZones($address);
+            if ($zones) {
+                $cnd->{\XLite\Module\CDev\VolumeDiscounts\Model\Repo\VolumeDiscount::P_ZONES}
+                    = $zones;
+            }
         }
 
         return $cnd;

@@ -192,7 +192,7 @@ abstract class AHook implements StepInterface
 
         $progressValue = $state->progressValue;
 
-        $cacheId = $state->data['cacheId'];
+        $cacheId = $state->data['cacheId'] ?? null;
 
         // main action
         $transition = $this->runTransitionHooks($transition, $cacheId);

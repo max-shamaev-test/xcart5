@@ -27,8 +27,6 @@
 }
 
 .invalid-inline-field input {
-  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
-  -moz-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
   box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
   border-color: #a94442;
 }
@@ -67,18 +65,9 @@
 }
 
 .inline-field.editable .view{
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: start;
-  -webkit-justify-content: flex-start;
-  -ms-flex-pack: start;
-          justify-content: flex-start;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
-          align-items: center;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .edit-mark .inline-field.editable .view .right-fade,
@@ -100,8 +89,6 @@
 .inline-field.editable .view {
   padding: (@rhythmic-unit / 3 - 1) (@rhythmic-unit / 2 - 1);
   border: 1px solid transparent;
-  -moz-border-radius: 2px;
-  -webkit-border-radius: 2px;
   border-radius: 2px;
 }
 

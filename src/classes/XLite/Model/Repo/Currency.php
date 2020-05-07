@@ -65,6 +65,7 @@ class Currency extends \XLite\Model\Repo\Base\I18n
     protected function defineAllSortedByNameQuery()
     {
         return $this->createQueryBuilder('c')
+            ->addSelect('translations')
             ->orderBy('translations.name');
     }
 

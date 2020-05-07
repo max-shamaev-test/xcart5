@@ -40,11 +40,8 @@ div.buttons button {
   }
 
   .attribute-type-C .type-C {
-    .table-label {
-      padding-top: 0;
-    }
-
     #addtonew {
+      margin-top: (@form-label-vertical-offset - @form-row-vertical-padding);
       margin-right: 20px;
       float: left;
 
@@ -62,8 +59,16 @@ div.buttons button {
     .applysortingglobally-value {
       margin: 0 !important;
     }
-    .type-S .table-label {
+  }
+
+  .attribute-type-S .type-S,
+  .attribute-type-H .type-H {
+    .table-label {
       display: none;
+    }
+
+    .input-internal-wrapper > .dialog-content {
+      width: 100%;
     }
   }
 

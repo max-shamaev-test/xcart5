@@ -18,7 +18,7 @@ use XCart\SilexAnnotations\Annotations\Service;
 
 /**
  * @Service\Service
- * @RebuildStep(script = "rollback", weight = "8000")
+ * @RebuildStep(script = "rollback", weight = "12000")
  * @RebuildStep(script = "self-rollback", weight = "4000")
  */
 class DownloadPacks implements StepInterface

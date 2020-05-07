@@ -57,6 +57,15 @@ class AttributeProperty extends \XLite\Model\AEntity
     protected $position = 0;
 
     /**
+     * Display mode
+     *
+     * @var string
+     *
+     * @Column (type="string", options={ "fixed": true }, length=1)
+     */
+    protected $displayMode = '';
+
+    /**
      * Get id
      *
      * @return integer 
@@ -130,5 +139,27 @@ class AttributeProperty extends \XLite\Model\AEntity
     public function getAttribute()
     {
         return $this->attribute;
+    }
+
+    /**
+     * Get display mode
+     *
+     * @return string
+     */
+    public function getDisplayMode()
+    {
+        return $this->displayMode;
+    }
+
+    /**
+     * Set display mode
+     *
+     * @return AttributeProperty
+     */
+    public function setDisplayMode($displayMode)
+    {
+        $this->displayMode = $displayMode;
+
+        return $this;
     }
 }

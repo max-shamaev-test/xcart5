@@ -18,11 +18,6 @@ class Identify extends AMessage
     protected $userId;
 
     /**
-     * @var string
-     */
-    protected $companyId;
-
-    /**
      * @var \XLite\Model\Profile
      */
     protected $profile;
@@ -36,16 +31,14 @@ class Identify extends AMessage
      * Identify constructor.
      *
      * @param string                 $userId
-     * @param string                 $companyId
      * @param \XLite\Model\Profile   $profile
      * @param \XLite\Core\CommonCell $config
      */
-    public function __construct($userId, $companyId, $profile, $config)
+    public function __construct($userId, $profile, $config)
     {
         $this->userId    = $userId;
         $this->profile   = $profile;
         $this->config    = $config;
-        $this->companyId = $companyId;
     }
 
     public function getType()
@@ -115,22 +108,6 @@ class Identify extends AMessage
     public function setUserId($userId)
     {
         $this->userId = $userId;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCompanyId()
-    {
-        return $this->companyId;
-    }
-
-    /**
-     * @param string $companyId
-     */
-    public function setCompanyId($companyId)
-    {
-        $this->companyId = $companyId;
     }
 
     /**

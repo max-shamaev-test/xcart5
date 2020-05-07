@@ -8,7 +8,6 @@
 
 namespace XLite\Module\XC\Onboarding\View\FormField\Select;
 
-
 class Currency extends \XLite\View\FormField\Select\Currency
 {
     protected function getOptionAttributes($value, $text)

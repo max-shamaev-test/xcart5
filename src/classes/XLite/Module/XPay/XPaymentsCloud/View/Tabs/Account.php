@@ -6,7 +6,9 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
  
- namespace XLite\Module\XPay\XPaymentsCloud\View\Tabs;
+namespace XLite\Module\XPay\XPaymentsCloud\View\Tabs;
+
+use XLite\Module\XPay\XPaymentsCloud\Main as XPaymentsCloud;
 
 /**
  * X-Payments Saved Cards tab
@@ -16,13 +18,15 @@ class Account extends \XLite\View\Tabs\Account implements \XLite\Base\IDecorator
     /**
      * Returns the list of targets where this widget is available
      *
-     * @return void
+     * @return array
      */
     public static function getAllowedTargets()
     {
         $list = parent::getAllowedTargets();
 
-        $list[] = 'xpayments_cards';
+        if (static::isXpaymentsEnabled()) {
+            $list[] = 'xpayments_cards';
+        }
 
         return $list;
     }
@@ -38,6 +42,7 @@ class Account extends \XLite\View\Tabs\Account implements \XLite\Base\IDecorator
 
         if (
             $this->getProfile()
+            && static::isXpaymentsEnabled()
         ) {
             $tabs['xpayments_cards'] = array(
                  'weight'   => 1200,
@@ -58,23 +63,23 @@ class Account extends \XLite\View\Tabs\Account implements \XLite\Base\IDecorator
     {
         $list = parent::getCommonFiles();
 
-        $list['css'][] = 'modules/XPay/XPaymentsCloud/account/cc_type_sprites.css';
-        $list['css'][] = 'modules/XPay/XPaymentsCloud/account/style.css';
+        if (static::isXpaymentsEnabled()) {
+            $list['css'][] = 'modules/XPay/XPaymentsCloud/account/cc_type_sprites.css';
+            $list['css'][] = 'modules/XPay/XPaymentsCloud/account/xpayments_cards.less';
+        }
 
         return $list;
     }
 
     /**
-     * Get a list of CSS files required to display the widget properly
+     * Check if X-Payment Cloud payment method is enabled
      *
-     * @return array
+     * @return bool
      */
-    public function getCSSFiles()
+    protected static function isXpaymentsEnabled()
     {
-        $list = parent::getCSSFiles();
-
-        $list[] = 'modules/XPay/XPaymentsCloud/account/style.css';
-
-        return $list;
+        return XPaymentsCloud::getPaymentMethod()
+            && XPaymentsCloud::getPaymentMethod()->isEnabled();
     }
+
 }

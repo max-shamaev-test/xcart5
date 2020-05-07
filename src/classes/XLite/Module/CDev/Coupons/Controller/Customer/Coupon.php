@@ -8,11 +8,14 @@
 
 namespace XLite\Module\CDev\Coupons\Controller\Customer;
 
+use XLite\Core\Lock\SynchronousTrait;
+
 /**
  * Coupon controller
  */
 class Coupon extends \XLite\Controller\Customer\ACustomer
 {
+    use SynchronousTrait;
 
     /**
      * Controller marks the cart calculation.
@@ -32,32 +35,35 @@ class Coupon extends \XLite\Controller\Customer\ACustomer
      */
     protected function doActionAdd()
     {
-        $code = (string) \XLite\Core\Request::getInstance()->code;
-        /** @var \XLite\Module\CDev\Coupons\Model\Coupon $coupon */
-        $coupon = \XLite\Core\Database::getRepo('XLite\Module\CDev\Coupons\Model\Coupon')
-            ->findOneByCode($code);
-
         $cart = $this->getCart();
 
-        if ($coupon) {
-            $error = $this->checkCompatibility($coupon, $cart);
-        } else {
-            $error = static::t(
-                'There is no such a coupon, please check the spelling: X',
-                array('code' => $code)
-            );
-        }
+        $this->synchronize(function () use ($cart) {
+            $code = (string) \XLite\Core\Request::getInstance()->code;
+            /** @var \XLite\Module\CDev\Coupons\Model\Coupon $coupon */
+            $coupon = \XLite\Core\Database::getRepo('XLite\Module\CDev\Coupons\Model\Coupon')
+                ->findOneByCode($code);
 
-        if ('' === $error) {
-            $cart->addCoupon($coupon);
-            \XLite\Core\Database::getEM()->flush();
+            if ($coupon) {
+                \XLite\Core\Database::getEM()->refresh($cart);
+                $error = $this->checkCompatibility($coupon, $cart);
+            } else {
+                $error = static::t(
+                    'There is no such a coupon, please check the spelling: X',
+                    ['code' => $code]
+                );
+            }
 
-            $this->updateCart();
-            \XLite\Core\TopMessage::addInfo('The coupon has been applied to your order');
+            if ('' === $error) {
+                $cart->addCoupon($coupon);
+                \XLite\Core\Database::getEM()->flush();
 
-        } elseif ($error) {
-            \XLite\Core\Event::invalidElement('code', $error);
-        }
+                $this->updateCart();
+                \XLite\Core\TopMessage::addInfo('The coupon has been applied to your order');
+
+            } elseif ($error) {
+                \XLite\Core\Event::invalidElement('code', $error);
+            }
+        }, $cart->getOrderId());
 
         $this->setPureAction();
     }

@@ -40,6 +40,11 @@ div.variants .items-list-table table.list .cell.attributeValue .variant-attribut
 
 div.variants .items-list-table table.list .cell.attributeValue .subfield .table-value {
   display: block;
+  margin-bottom: @rhythmic-unit;
+}
+
+div.variants .items-list-table table.list .cell.attributeValue .subfield .table-value:last-child {
+  margin-bottom: 0;
 }
 
 div.variants .items-list-table table.list .cell.price input,
@@ -52,6 +57,17 @@ div.variants .items-list-table table.list .cell.weight input {
 
 div.variants .items-list-table table.list .create .cell {
   vertical-align: top;
+}
+
+div.variants .items-list-table table.list .create .cell.image span.attribute-name {
+  display: block;
+  height: @input-height-base;
+  padding: @padding-base-vertical 0;
+  margin-bottom: @rhythmic-unit;
+}
+
+div.variants .items-list-table table.list .create .cell.image span.attribute-name:last-child {
+  margin-bottom: 0;
 }
 
 div.variants .items-list-table table.list .cell input::placeholder {
@@ -72,4 +88,18 @@ div.variants .items-list-table table.list .cell input::placeholder {
 
 div.variants .items-list-table table.list tbody td.main.attributeValue div .tooltip-main {
   margin-left: 0;
+}
+
+div.variants .items-list-table table.list {
+  thead th {
+    &.sale {
+      text-align: right;
+    }
+  }
+
+  tbody td {
+    &.sale {
+      text-align: right;
+    }
+  }
 }

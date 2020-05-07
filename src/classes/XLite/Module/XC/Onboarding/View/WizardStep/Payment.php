@@ -19,45 +19,9 @@ class Payment extends \XLite\Module\XC\Onboarding\View\AWizardStep
      */
     protected function getMoreSettingsLocation()
     {
-        return $this->buildURL('payment_settings');
-    }
-
-    /**
-     * @return \XLite\Model\Payment\Method|null
-     */
-    protected function getMethod()
-    {
-        return \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')->findOneBy([
-            'service_name' => 'PhoneOrdering'
+        return $this->buildURL('payment_settings', '', [
+            'show_add_payment_popup' => 1,
         ]);
-    }
-
-    /**
-     * @return int|null
-     */
-    protected function getOfflineMethodId()
-    {
-        return $this->getMethod()
-            ? $this->getMethod()->getMethodId()
-            : null;
-    }
-
-    /**
-     * @return string|null
-     */
-    protected function getOfflineMethodName()
-    {
-        return $this->getMethod()
-            ? $this->getMethod()->getName()
-            : null;
-    }
-
-    /**
-     * @return bool
-     */
-    protected function isOfflineMethodEnabled()
-    {
-        return $this->getMethod() && $this->getMethod()->isEnabled();
     }
 
     /**
@@ -66,5 +30,17 @@ class Payment extends \XLite\Module\XC\Onboarding\View\AWizardStep
     protected function getOnlineWidgets()
     {
         return [];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getOnlineWidgetsSorted()
+    {
+        $widgets = $this->getOnlineWidgets();
+
+        ksort($widgets);
+
+        return $widgets;
     }
 }

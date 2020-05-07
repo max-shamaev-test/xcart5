@@ -116,6 +116,7 @@ class Package extends \XLite\Base\Singleton
         // Generate packages from items which must be shipped in separate boxes
         $separatePackages = $this->getSeparatePackages($pendingItems, $limits, $errorMsg);
 
+        $restPackages = null;
         if (!$errorMsg) {
             // Generate packages from the rest items
             $restPackages = $this->packItems($pendingItems, $limits, $errorMsg);

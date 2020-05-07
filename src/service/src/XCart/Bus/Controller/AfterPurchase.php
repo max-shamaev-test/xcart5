@@ -65,6 +65,35 @@ class AfterPurchase
      */
     public function indexAction(Request $request): Response
     {
+        return $this->getAfterPurchaseResponse($request);
+    }
+
+    /**
+     * @param Request $request
+     * @param string $moduleAuthor
+     * @param string $moduleName
+     *
+     * @return Response
+     *
+     * @Router\Route(
+     *     @Router\Request(method="GET", uri="/afterPurchase/{moduleAuthor}/{moduleName}"),
+     *     @Router\Before("XCart\Bus\Controller\Auth:authChecker")
+     * )
+     */
+    public function purchaseButtonAction(Request $request, string $moduleAuthor, string $moduleName): Response
+    {
+        return $this->getAfterPurchaseResponse($request, $moduleAuthor, $moduleName);
+    }
+
+    /**
+     * @param Request $request
+     * @param string|null $moduleAuthor
+     * @param string|null $moduleName
+     *
+     * @return Response
+     */
+    private function getAfterPurchaseResponse(Request $request, $moduleAuthor = null, $moduleName = null): Response
+    {
         $response = new RedirectResponse(
             $this->urlBuilder->buildServiceUrl('my-purchases')
         );
@@ -72,7 +101,7 @@ class AfterPurchase
         try {
             $token = $request->get('token');
 
-            $this->processToken($token);
+            $this->processToken($token, $moduleAuthor, $moduleName);
         } catch (\Exception $e) {
         }
 
@@ -81,8 +110,10 @@ class AfterPurchase
 
     /**
      * @param string $token
+     * @param string|null $moduleAuthor
+     * @param string|null $moduleName
      */
-    private function processToken($token): void
+    private function processToken($token, $moduleAuthor, $moduleName): void
     {
         $tokenData = $this->marketplaceClient->getTokenData($token);
 
@@ -95,6 +126,8 @@ class AfterPurchase
 
                 foreach ($keysInfo as $info) {
                     if (LicenseDataSource::KEY_TYPE_CORE !== (int) $info['keyType']) {
+                        $this->licenseDataSource->removePending($info);
+
                         $licence = $this->licenseDataSource->findBy([
                             'author' => $info['author'],
                             'name'   => $info['name'],
@@ -112,6 +145,8 @@ class AfterPurchase
                     }
                 }
             }
+        } else {
+            $this->licenseDataSource->savePending($moduleAuthor, $moduleName);
         }
     }
 }

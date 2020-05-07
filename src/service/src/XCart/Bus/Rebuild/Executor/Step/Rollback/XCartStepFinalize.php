@@ -16,7 +16,7 @@ use XCart\SilexAnnotations\Annotations\Service;
 
 /**
  * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild"})
- * @RebuildStep(script = "rollback", weight = "6000")
+ * @RebuildStep(script = "rollback", weight = "10000")
  */
 class XCartStepFinalize extends AXCartStep
 {
@@ -27,7 +27,9 @@ class XCartStepFinalize extends AXCartStep
      */
     protected function getTransitions(ScriptState $scriptState): array
     {
-        if (!$scriptState->parentState->isStepCompleted(ExecuteXCartStep::class)) {
+        if (!$scriptState->parentState->isStepCompleted(ExecuteXCartStep::class)
+            && $scriptState->parentState->stepState->id !== ExecuteXCartStep::class
+        ) {
             return [];
         }
 

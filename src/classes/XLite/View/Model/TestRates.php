@@ -358,4 +358,14 @@ abstract class TestRates extends \XLite\View\Model\AModel
     {
         return null;
     }
+
+    /**
+     * Return class of button panel widget
+     *
+     * @return string
+     */
+    protected function getButtonPanelClass()
+    {
+        return 'XLite\View\StickyPanel\Model\TestRates';
+    }
 }

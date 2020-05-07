@@ -156,9 +156,9 @@ define('wizard/controller', ['js/vue/vue', 'wizard/store', 'wizard/tracking'], f
         $(this.$el).addClass('onboarding-wizard--initial');
         var height = $('#main').height();
         var width = $('#main').width();
-        height = height < 650 ? 650 : height;
+        height = height < 630 ? 630 : height;
         $(this.$el).height(height);
-        $(this.$el).width(width);
+        $(this.$el).css('max-width', width);
         $(this.$el).find('.onboarding-wizard--body').css('max-height', height);
         $(this.$el).removeClass('onboarding-wizard--initial');
       },
@@ -251,11 +251,11 @@ define('wizard/controller', ['js/vue/vue', 'wizard/store', 'wizard/tracking'], f
       isCurrentStep: function (name) {
         return this.currentStep === name;
       },
-
       accessCurrentProgress: function() {
         var step = jQuery.cookie('Wizard_currentProgress');
 
         if (step === 'add_product' && this.lastProduct) {
+          this.$dispatch('wizard.landmark.pass', 'product');
           return 'product_added';
         }
 
@@ -267,6 +267,10 @@ define('wizard/controller', ['js/vue/vue', 'wizard/store', 'wizard/tracking'], f
       },
       persistCurrentProgress: function(stepName) {
         jQuery.cookie('Wizard_currentProgress', stepName);
+      },
+      browseTools: function () {
+        this.$dispatch('wizard.tracking.event', 'link', 'Browse Top Trending Tools')
+        window.open('service.php#/marketplace')
       }
     }
   });

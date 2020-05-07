@@ -18,6 +18,8 @@ use XCart\Bus\Domain\Module;
 use XCart\Bus\Query\Data\ChangelogDataSource;
 use XCart\Bus\Query\Data\CoreConfigDataSource;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
+use XCart\Bus\Query\Data\IntegrityCheckDataDataSource;
+use XCart\Bus\Query\Data\IntegrityCheckModulesDataSource;
 use XCart\Bus\Query\Data\KnownHashesCacheDataSource;
 use XCart\Bus\Query\Data\LicenseDataSource;
 use XCart\Bus\Query\Data\MarketplaceModulesDataSource;
@@ -108,20 +110,32 @@ class Restore
     private $rebuildResolver;
 
     /**
-     * @param Application                  $app
-     * @param MarketplaceModulesDataSource $marketplaceModulesDataSource
-     * @param UploadedModulesDataSource    $uploadedModulesDataSource
-     * @param InstalledModulesDataSource   $installedModulesDataSource
-     * @param ScenarioDataSource           $scenarioDataSource
-     * @param ScriptStateDataSource        $scriptStateDataSource
-     * @param CoreConfigDataSource         $coreConfigDataSource
-     * @param SetDataSource                $setDataSource
-     * @param RebuildLockManager           $rebuildLockManager
-     * @param LicenseDataSource            $licenseDataSource
-     * @param ChangelogDataSource          $changelogDataSource
-     * @param KnownHashesCacheDataSource   $knownHashesCacheDataSource
-     * @param ChangeUnitProcessor          $changeUnitProcessor
-     * @param RebuildResolver              $rebuildResolver
+     * @var IntegrityCheckModulesDataSource
+     */
+    private $integrityCheckModulesDataSource;
+
+    /**
+     * @var IntegrityCheckDataDataSource
+     */
+    private $integrityCheckDataDataSource;
+
+    /**
+     * @param Application                     $app
+     * @param MarketplaceModulesDataSource    $marketplaceModulesDataSource
+     * @param UploadedModulesDataSource       $uploadedModulesDataSource
+     * @param InstalledModulesDataSource      $installedModulesDataSource
+     * @param ScenarioDataSource              $scenarioDataSource
+     * @param ScriptStateDataSource           $scriptStateDataSource
+     * @param CoreConfigDataSource            $coreConfigDataSource
+     * @param SetDataSource                   $setDataSource
+     * @param RebuildLockManager              $rebuildLockManager
+     * @param LicenseDataSource               $licenseDataSource
+     * @param ChangelogDataSource             $changelogDataSource
+     * @param KnownHashesCacheDataSource      $knownHashesCacheDataSource
+     * @param ChangeUnitProcessor             $changeUnitProcessor
+     * @param RebuildResolver                 $rebuildResolver
+     * @param IntegrityCheckModulesDataSource $integrityCheckModulesDataSource
+     * @param IntegrityCheckDataDataSource    $integrityCheckDataDataSource
      */
     public function __construct(
         Application $app,
@@ -137,22 +151,26 @@ class Restore
         ChangelogDataSource $changelogDataSource,
         KnownHashesCacheDataSource $knownHashesCacheDataSource,
         ChangeUnitProcessor $changeUnitProcessor,
-        RebuildResolver $rebuildResolver
+        RebuildResolver $rebuildResolver,
+        IntegrityCheckModulesDataSource $integrityCheckModulesDataSource,
+        IntegrityCheckDataDataSource $integrityCheckDataDataSource
     ) {
-        $this->app                          = $app;
-        $this->marketplaceModulesDataSource = $marketplaceModulesDataSource;
-        $this->uploadedModulesDataSource    = $uploadedModulesDataSource;
-        $this->installedModulesDataSource   = $installedModulesDataSource;
-        $this->scenarioDataSource           = $scenarioDataSource;
-        $this->scriptStateDataSource        = $scriptStateDataSource;
-        $this->rebuildLockManager           = $rebuildLockManager;
-        $this->coreConfigDataSource         = $coreConfigDataSource;
-        $this->setDataSource                = $setDataSource;
-        $this->licenseDataSource            = $licenseDataSource;
-        $this->changelogDataSource          = $changelogDataSource;
-        $this->knownHashesCacheDataSource   = $knownHashesCacheDataSource;
-        $this->changeUnitProcessor          = $changeUnitProcessor;
-        $this->rebuildResolver              = $rebuildResolver;
+        $this->app                             = $app;
+        $this->marketplaceModulesDataSource    = $marketplaceModulesDataSource;
+        $this->uploadedModulesDataSource       = $uploadedModulesDataSource;
+        $this->installedModulesDataSource      = $installedModulesDataSource;
+        $this->scenarioDataSource              = $scenarioDataSource;
+        $this->scriptStateDataSource           = $scriptStateDataSource;
+        $this->rebuildLockManager              = $rebuildLockManager;
+        $this->coreConfigDataSource            = $coreConfigDataSource;
+        $this->setDataSource                   = $setDataSource;
+        $this->licenseDataSource               = $licenseDataSource;
+        $this->changelogDataSource             = $changelogDataSource;
+        $this->knownHashesCacheDataSource      = $knownHashesCacheDataSource;
+        $this->changeUnitProcessor             = $changeUnitProcessor;
+        $this->rebuildResolver                 = $rebuildResolver;
+        $this->integrityCheckModulesDataSource = $integrityCheckModulesDataSource;
+        $this->integrityCheckDataDataSource    = $integrityCheckDataDataSource;
     }
 
     /**
@@ -167,6 +185,10 @@ class Restore
     public function startAction(Request $request): Response
     {
         $this->marketplaceModulesDataSource->clear();
+
+        $this->integrityCheckDataDataSource->clear();
+        $this->integrityCheckModulesDataSource->clear();
+
 
         $this->scenarioDataSource->clear();
         $this->scriptStateDataSource->clear();

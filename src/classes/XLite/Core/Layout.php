@@ -192,6 +192,54 @@ class Layout extends \XLite\Base\Singleton
     }
 
     /**
+     * Get logo alt
+     *
+     * @return string
+     */
+    public function getLogoAlt()
+    {
+        return static::t('Logo alt');
+    }
+
+    /**
+     * Get logo to invoice
+     *
+     * @return string
+     */
+    public function getInvoiceLogo()
+    {
+        $imageSizes = \XLite\Logic\ImageResize\Generator::defineImageSizes();
+        $invoiceLogoSizes = $imageSizes['XLite\Model\Image\Common\Logo']['Invoice'];
+        $partUrl = $this->getLogo();
+
+        $url = 'var/images/logo/' . implode('.', $invoiceLogoSizes) . '/' . $partUrl;
+        $path = LC_DIR_ROOT . $url;
+
+        if (!file_exists($path)) {
+            $logoImage = \XLite\Core\Database::getRepo('XLite\Model\Image\Common\Logo')->getLogo();
+            $logoImage->prepareSizes();
+        }
+
+        if (!file_exists($path)) {
+            return $this->getLogo();
+        }
+
+        switch ($this->currentInterface) {
+            case \XLite::PDF_INTERFACE:
+            case \XLite::MAIL_INTERFACE:
+                return $url;
+
+            default:
+                return URLManager::getShopURL(
+                    $url,
+                    null,
+                    [],
+                    URLManager::URL_OUTPUT_SHORT
+                );
+        }
+    }
+
+    /**
      * Get apple icon
      *
      * @return string
@@ -452,7 +500,7 @@ class Layout extends \XLite\Base\Singleton
     protected function removeFromList($data)
     {
         $repo = \XLite\Core\Database::getRepo('\XLite\Model\ViewList');
-        $repo->deleteInBatch($repo->findBy($data), false);
+        $repo->deleteInBatch($repo->findBy($data));
     }
 
     /**

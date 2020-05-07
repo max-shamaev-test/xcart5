@@ -12,33 +12,6 @@ class Helper
 {
     public static function convertArrayAddressToPBAddress($address)
     {
-        $country = isset($address['country']) ? $address['country'] : 'US';
-
-        $state = '';
-        if (isset($address['state']) && is_numeric($address['state'])) {
-            /** @var \XLite\Model\State $stateObject */
-            $stateObject = \XLite\Core\Database::getRepo('XLite\Model\State')->find($address['state']);
-            if ($stateObject) {
-                $state = 'US' === $country
-                    ? $stateObject->getCode()
-                    : $stateObject->getState();
-            }
-
-            //} elseif ('US' === $country && isset($address['state'])) {
-            //    $state = $address['state'];
-
-        } elseif (isset($address['custom_state'])) {
-            $state = $address['custom_state'];
-
-        } elseif (isset($address['state'])) {
-            $stateObject = \XLite\Core\Database::getRepo('XLite\Model\State')
-                ->findOneByCountryAndCode($country, $address['state']);
-            $state       = $stateObject ? $stateObject->getState() : '';
-        }
-
-        unset($address['state'], $address['custom_state']);
-        $address['state'] = $state;
-
         $result = [];
         foreach ($address as $field => $value) {
             switch ($field) {

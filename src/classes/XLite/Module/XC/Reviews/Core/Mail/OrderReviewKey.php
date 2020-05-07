@@ -39,7 +39,7 @@ class OrderReviewKey extends \XLite\Core\Mail\Order\AOrder
         $profile = $order->getProfile();
 
         $this->setFrom(Mailer::getOrdersDepartmentMail());
-        $this->setTo($profile->getLogin());
+        $this->setTo(['email' => $profile->getLogin(), 'name' => $profile->getName(false)]);
         $this->setReplyTo(Mailer::getOrdersDepartmentMails());
 
         $this->appendData([
@@ -57,7 +57,7 @@ class OrderReviewKey extends \XLite\Core\Mail\Order\AOrder
                             'product_id' => $product->getProductId(),
                             'rkey'       => $reviewKey->getKeyValue(),
                         ],
-                        \XLite::CUSTOMER_INTERFACE
+                        \XLite::getCustomerScript()
                     )
                 );
             },

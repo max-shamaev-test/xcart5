@@ -65,29 +65,13 @@
   flex: 0 1 100%;
 }
 
-.add-product-form .has-error input::-webkit-input-placeholder {
-  color: #a94442;
-  opacity: .7;
-}
-
-.add-product-form .has-error input::-moz-placeholder {
-  color: #a94442;
-  opacity: .7;
-}
-
-.add-product-form .has-error input:-moz-placeholder {
-  color: #a94442;
-  opacity: .7;
-}
-
-.add-product-form .has-error input:-ms-input-placeholder {
+.add-product-form .has-error input::placeholder {
   color: #a94442;
   opacity: .7;
 }
 
 .add-product-form div.file-uploader,
-.add-product-form div.file-uploader .preview,
-.add-product-form div.file-uploader a.link {
+.add-product-form div.file-uploader .preview {
   width: 180px;
   height: 180px;
 }
@@ -97,6 +81,7 @@
   font-size: 14px;
 }
 
+.add-product-form div.file-uploader a.link,
 .add-product-form div.file-uploader .preview {
   max-width: 178px;
   max-height: 178px;

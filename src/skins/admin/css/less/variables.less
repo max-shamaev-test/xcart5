@@ -68,10 +68,11 @@
 @form-value-input-width-very-small: 50px;
 @form-value-input-width: 245px;
 @form-value-input-width-large: 400px;
-@form-value-textarea-width: 500px;
+@form-value-textarea-width: 420px;
 @form-value-integer-width: 100px;
 @form-model-margin: 0;
-@help-block-margin-top: (@rhythmic-unit / 6);
+@help-block-margin-top: @form-row-vertical-padding;
+@help-block-max-width: 800px;
 @form-checkbox-margin: 0 (@rhythmic-unit / 2) 0 0;
 
 @table-border-color: @color-border-light;
@@ -198,12 +199,12 @@
 @font-size-large: 18px;
 @font-size-very-small: ceil((@font-size-base * 0.714));
 
-@font-size-h1: ceil((@font-size-base * 2.142)); // ~30px
-@font-size-h2: ceil((@font-size-base * 1.714)); // ~24px
-@font-size-h3: ceil((@font-size-base * 1.429)); // ~20px
-@font-size-h4: ceil((@font-size-base * 1.285)); // ~18px
+@font-size-h1: 30px;
+@font-size-h2: 24px;
+@font-size-h3: 20px;
+@font-size-h4: 18px;
 @font-size-h5: @font-size-base; // 14px
-@font-size-h6: ceil((@font-size-base * 0.85)); // ~12px
+@font-size-h6: 12px;
 
 @iconfont-size: 16px;
 
@@ -257,6 +258,7 @@
 @color-text-default: #808080;
 @color-text-dark: #141414;
 @color-light-blue: #eff8fe;
+@color-mid-blue: #cce5ff;
 
 @color-file-uploader-warning: @brand-warning;
 @color-button-hover-bg: @color-light-blue;

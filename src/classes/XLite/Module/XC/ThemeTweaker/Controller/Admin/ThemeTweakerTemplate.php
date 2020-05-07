@@ -61,12 +61,10 @@ class ThemeTweakerTemplate extends \XLite\Controller\Admin\AAdmin
             if (Request::getInstance()->isCreate) {
 
                 echo <<<HTML
-<script>window.opener.location.reload();window.close()</script>
+<script>window.opener.dispatchEvent(new Event('reload'));window.opener.location.reload();window.close()</script>
 HTML;
                 exit;
 
-            } else {
-                $this->setReturnUrl(\XLite\Core\Converter::buildURL('theme_tweaker_templates'));
             }
         }
     }
@@ -248,9 +246,29 @@ HTML;
                 [
                     'zone'   => \XLite\Model\ViewList::INTERFACE_CUSTOMER,
                     'weight' => $weight,
+                    'weight_override' => $weight,
+                    'override_mode' => \XLite\Model\ViewList::OVERRIDE_MOVE,
                 ]
             );
+
+            $this->removeListCache($list);
         }
+    }
+
+    /**
+     * Add list child record when new template is added via editor
+     *
+     * @param $list
+     */
+    protected function removeListCache($list)
+    {
+        \XLite\Core\Database::getRepo('\XLite\Model\ViewList')->deleteCacheByNameAndParams(
+            'class_list',
+            [
+                'list' => $list,
+                'zone' => \XLite\Model\ViewList::INTERFACE_CUSTOMER
+            ]
+        );
     }
 
 

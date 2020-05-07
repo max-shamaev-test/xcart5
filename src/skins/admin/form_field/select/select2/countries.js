@@ -11,6 +11,7 @@ CommonForm.elementControllers.push(
   {
     pattern: '.input-countries-select2 select',
     handler: function () {
+      const fullNames = $(this).data('fullNames') || false;
       $(this).select2({
         language: {
           noResults: function(){
@@ -21,7 +22,7 @@ CommonForm.elementControllers.push(
           return markup;
         },
         templateSelection: function (data) {
-          return data.id;
+          return fullNames ? data.text : data.id;
         }
       });
     }

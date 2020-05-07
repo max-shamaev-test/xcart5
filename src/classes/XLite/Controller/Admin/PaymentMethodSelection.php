@@ -8,13 +8,21 @@
 
 namespace XLite\Controller\Admin;
 
-use Includes\Utils\Module\Manager;
-
 /**
  * Payment method selection  controller
  */
 class PaymentMethodSelection extends \XLite\Controller\Admin\AAdmin
 {
+    /**
+     * Constructor
+     *
+     * @param array $params Constructor parameters
+     */
+    public function __construct(array $params = [])
+    {
+        parent::__construct($params);
+    }
+
     /**
      * Define the actions with no secure token
      *
@@ -22,17 +30,7 @@ class PaymentMethodSelection extends \XLite\Controller\Admin\AAdmin
      */
     public static function defineFreeFormIdActions()
     {
-        return array_merge(parent::defineFreeFormIdActions(), array('search'));
-    }
-
-    /**
-     * Constructor
-     *
-     * @param array $params Constructor parameters
-     */
-    public function __construct(array $params = array())
-    {
-        parent::__construct($params);
+        return array_merge(parent::defineFreeFormIdActions(), ['search']);
     }
 
     /**
@@ -70,6 +68,50 @@ class PaymentMethodSelection extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * Return true if 'Install' link should be displayed
+     *
+     * @param \XLite\Model\Payment\Method $method Payment method
+     *
+     * @return string
+     */
+    public function isDisplayInstallModuleLink(\XLite\Model\Payment\Method $method)
+    {
+        return $method->getModuleName()
+            && !$this->isModuleEnabled($method);
+    }
+
+    /**
+     * Return true if 'Install' button should be displayed
+     *
+     * @param \XLite\Model\Payment\Method $method Payment method
+     *
+     * @return string
+     * @deprecated
+     */
+    public function isDisplayInstallModuleButton(\XLite\Model\Payment\Method $method)
+    {
+        return false;
+    }
+
+    /**
+     * Returns URL to payment module
+     *
+     * @param \XLite\Model\Payment\Method $method Payment method
+     *
+     * @return string
+     */
+    public function getPaymentModuleURL(\XLite\Model\Payment\Method $method)
+    {
+        [$author, $name] = explode('_', $method->getModuleName());
+
+        return \XLite::getInstance()->getShopURL(
+            'service.php?/installModule',
+            null,
+            ['returnUrl' => urlencode($this->buildFullURL('payment_settings', 'add', ['id' => $method->getMethodId()])), 'moduleId' => \XCart\Bus\Domain\Module::buildModuleId($author, $name)]
+        );
+    }
+
+    /**
      * Return payment methods type which is provided to the widget
      *
      * @return string
@@ -94,20 +136,6 @@ class PaymentMethodSelection extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
-     * Return true if 'Install' link should be displayed
-     *
-     * @param \XLite\Model\Payment\Method $method Payment method
-     *
-     * @return string
-     */
-    public function isDisplayInstallModuleLink(\XLite\Model\Payment\Method $method)
-    {
-        return $method->getModuleName()
-            && !$this->isModuleEnabled($method)
-            && !$this->isDisplayInstallModuleButton($method);
-    }
-
-    /**
      * Return true if payment method's module is enabled
      *
      * @param \XLite\Model\Payment\Method $method Payment method model object
@@ -117,34 +145,5 @@ class PaymentMethodSelection extends \XLite\Controller\Admin\AAdmin
     protected function isModuleEnabled(\XLite\Model\Payment\Method $method)
     {
         return (bool) $method->getProcessor();
-    }
-
-    /**
-     * Return true if 'Install' button should be displayed
-     *
-     * @param \XLite\Model\Payment\Method $method Payment method
-     *
-     * @return string
-     */
-    public function isDisplayInstallModuleButton(\XLite\Model\Payment\Method $method)
-    {
-        $result = false;
-        // todo: get this info from BUS
-
-        return $result;
-    }
-
-    /**
-     * Returns URL to payment module
-     *
-     * @param \XLite\Model\Payment\Method $method Payment method
-     *
-     * @return string
-     */
-    public function getPaymentModuleURL(\XLite\Model\Payment\Method $method)
-    {
-        list($author, $name) = explode('_', $method->getModuleName());
-
-        return \Includes\Utils\Module\Manager::getRegistry()->getModuleServiceURL($author, $name);
     }
 }

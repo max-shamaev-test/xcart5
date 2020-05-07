@@ -312,8 +312,6 @@ class Review extends \XLite\Controller\Customer\ACustomer
 
         \XLite\Core\Database::getEM()->flush();
 
-        $this->updateNewReviewsUpdateTimestamp();
-
         $message = 'Thank your for sharing your opinion with us!';
 
         if (!$review->getReview()) {
@@ -344,7 +342,6 @@ class Review extends \XLite\Controller\Customer\ACustomer
         $review->map($data);
 
         if ($status === \XLite\Module\XC\Reviews\Model\Review::STATUS_PENDING) {
-            $this->updateNewReviewsUpdateTimestamp();
             $review->setIsNew(true);
         }
 
@@ -353,15 +350,5 @@ class Review extends \XLite\Controller\Customer\ACustomer
         \XLite\Core\TopMessage::addInfo(
             static::t('Your review has been updated. Thank your for sharing your opinion with us!')
         );
-    }
-
-    /**
-     * Update reviews update timestamp
-     *
-     * @return void
-     */
-    protected function updateNewReviewsUpdateTimestamp()
-    {
-        \XLite\Core\TmpVars::getInstance()->newReviewsUpdateTimestamp = LC_START_TIME;
     }
 }

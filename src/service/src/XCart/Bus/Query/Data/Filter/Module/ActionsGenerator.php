@@ -74,6 +74,16 @@ class ActionsGenerator extends AFilterGenerator
     private $developerMode;
 
     /**
+     * @var bool
+     */
+    private $displayUpdateNotification;
+
+    /**
+     * @var bool
+     */
+    private $isCloud;
+
+    /**
      * @param InstalledModulesDataSource $installedModulesDataSource
      * @param ModulesDataSource          $modulesDataSource
      * @param CoreConfigDataSource       $coreConfigDataSource
@@ -104,6 +114,8 @@ class ActionsGenerator extends AFilterGenerator
         $this->marketplaceShopAdapter     = $marketplaceShopAdapter;
         $this->urlBuilder                 = $urlBuilder;
         $this->developerMode              = $app['config']['developer_mode'] ?? false;
+        $this->displayUpdateNotification  = $app['xc_config']['service']['display_update_notification'] ?? false;
+        $this->isCloud                    = $app['xc_config']['service']['is_cloud'] ?? false;
     }
 
     /**
@@ -127,7 +139,9 @@ class ActionsGenerator extends AFilterGenerator
             $this->uninstallAvailDecider,
             $this->marketplaceShopAdapter->get(),
             $this->urlBuilder,
-            $this->developerMode
+            $this->developerMode,
+            $this->displayUpdateNotification,
+            $this->isCloud
         );
     }
 }

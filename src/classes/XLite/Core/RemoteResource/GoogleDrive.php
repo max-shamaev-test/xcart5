@@ -37,12 +37,14 @@ class GoogleDrive extends AURL
         $urlParts = parse_url($url);
 
         if ($urlParts['path'] === '/open') {
-
             return $urlParts['scheme'] . '://' . $urlParts['host'] . '/uc?export=download&' . $urlParts['query'];
         }
 
-        if (preg_match('/file\/d\/(\w+)\//', $urlParts['path'], $matches)) {
+        if ($urlParts['path'] === '/uc') {
+            return $urlParts['scheme'] . '://' . $urlParts['host'] . $urlParts['path'] . '?' . $urlParts['query']; //same as $url but parsed
+        }
 
+        if (preg_match('/file\/d\/([a-zA-Z0-9_-]+)\//', $urlParts['path'], $matches)) {
             return $urlParts['scheme'] . '://' . $urlParts['host'] . '/uc?export=download&id=' . $matches[1];
         }
 

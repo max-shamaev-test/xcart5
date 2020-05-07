@@ -15,10 +15,16 @@ namespace XLite\Module\CDev\Paypal\Module\XC\Onboarding\View\WizardStep;
  */
 class Payment extends \XLite\Module\XC\Onboarding\View\WizardStep\Payment implements \XLite\Base\IDecorator
 {
+    const PAYPAL_SORT = 10;
+
+    /**
+     * @return array
+     */
     protected function getOnlineWidgets()
     {
-        return array_merge(parent::getOnlineWidgets(), [
-            '\XLite\Module\CDev\Paypal\View\Onboarding\Payment',
-        ]);
+        $widgets = parent::getOnlineWidgets();
+        $widgets[self::PAYPAL_SORT] = \XLite\Module\CDev\Paypal\View\Onboarding\Payment::class;
+
+        return $widgets;
     }
 }

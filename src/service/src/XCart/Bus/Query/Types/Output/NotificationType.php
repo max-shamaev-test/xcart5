@@ -55,6 +55,10 @@ class NotificationType extends AObjectType
                     'type'        => Type::int(),
                     'description' => 'Date',
                 ],
+                'pageParams'  => [
+                    'type'        => $this->app[PageParamsType::class],
+                    'description' => 'Page parameters',
+                ],
             ],
         ];
     }

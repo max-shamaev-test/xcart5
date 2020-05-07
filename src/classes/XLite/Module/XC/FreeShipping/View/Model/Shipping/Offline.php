@@ -14,19 +14,6 @@ namespace XLite\Module\XC\FreeShipping\View\Model\Shipping;
 class Offline extends \XLite\View\Model\Shipping\Offline implements \XLite\Base\IDecorator
 {
     /**
-     * Return true if method is 'Freight fixed fee'
-     *
-     * @param \XLite\Model\Shipping\Method $method
-     *
-     * @return boolean
-     */
-    protected function isFixedFeeMethod(\XLite\Model\Shipping\Method $method)
-    {
-        return \XLite\Model\Shipping\Method::METHOD_TYPE_FIXED_FEE === $method->getCode()
-            && 'offline' === $method->getProcessor();
-    }
-
-    /**
      * Return list of form fields objects by schema
      *
      * @param array $schema Field descriptions
@@ -38,7 +25,7 @@ class Offline extends \XLite\View\Model\Shipping\Offline implements \XLite\Base\
         /** @var \XLite\Model\Shipping\Method $entity */
         $entity = $this->getModelObject();
 
-        if ($entity->getFree() || $this->isFixedFeeMethod($entity)) {
+        if ($entity->getFree() || $entity->isFixedFee()) {
             unset($schema['tableType'], $schema['shippingZone']);
         }
 

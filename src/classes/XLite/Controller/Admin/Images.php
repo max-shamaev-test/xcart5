@@ -27,6 +27,10 @@ class Images extends \XLite\Controller\Admin\AAdmin
      */
     public function getTitle()
     {
+        if ($this->isImageResizeNotFinished()) {
+            return static::t('Resizing images...');
+        }
+
         return static::t('Default image settings');
     }
 
@@ -81,6 +85,21 @@ class Images extends \XLite\Controller\Admin\AAdmin
 
         $list = new \XLite\View\ItemsList\Model\ImagesSettings();
         $list->processQuick();
+
+        $this->createResizedLogo();
+    }
+
+    /**
+     * Create resized image for logo
+     *
+     * @return void
+     */
+    public function createResizedLogo()
+    {
+        $logoImage = \XLite\Core\Database::getRepo('XLite\Model\Image\Common\Logo')->getLogo();
+        \XLite\Logic\ImageResize\Generator::clearImageSizesCache();
+        \Includes\Utils\FileManager::unlinkRecursive(LC_DIR_VAR . 'images/logo');
+        $logoImage->prepareSizes();
     }
 
     /**
@@ -179,6 +198,8 @@ class Images extends \XLite\Controller\Admin\AAdmin
         if (\XLite\Core\ImageOperator::getEngineType() === \XLite\Core\ImageOperator::ENGINE_SIMPLE) {
             \XLite\Core\TopMessage::addError("Image resizing requires libraries");
         } else {
+            \Includes\Utils\FileManager::unlinkRecursive(LC_DIR_VAR . 'images/category');
+            \Includes\Utils\FileManager::unlinkRecursive(LC_DIR_VAR . 'images/product');
             \XLite\Logic\ImageResize\Generator::run($this->assembleImageResizeOptions());
         }
     }
@@ -205,6 +226,7 @@ class Images extends \XLite\Controller\Admin\AAdmin
     protected function doActionImageResizeCancel()
     {
         \XLite\Logic\ImageResize\Generator::cancel();
+        \XLite\Core\TopMessage::addWarning('The generation of resized images has been stopped.');
     }
 
     /**

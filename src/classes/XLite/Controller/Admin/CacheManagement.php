@@ -199,6 +199,7 @@ class CacheManagement extends \XLite\Controller\Admin\Settings
     protected function doActionQuickDataCancel()
     {
         \XLite\Logic\QuickData\Generator::cancel();
+        \XLite\Core\TopMessage::addWarning('The calculation of quick data has been stopped.');
     }
 
     /**

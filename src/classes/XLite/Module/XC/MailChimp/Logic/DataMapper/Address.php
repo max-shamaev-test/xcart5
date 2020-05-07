@@ -8,7 +8,6 @@
 
 namespace XLite\Module\XC\MailChimp\Logic\DataMapper;
 
-
 class Address
 {
     /**
@@ -16,25 +15,24 @@ class Address
      *
      * @return array
      */
-    public static function getData(\XLite\Model\Address $address)
+    public static function getData(\XLite\Model\Address $address): array
     {
         $data = [
-            'address1'      => $address->getStreet(),
-            'city'          => $address->getCity(),
-            'phone'         => $address->getPhone(),
-            'postal_code'   => $address->getZipcode(),
+            'address1'    => $address->getStreet(),
+            'city'        => $address->getCity(),
+            'phone'       => $address->getPhone(),
+            'postal_code' => $address->getZipcode(),
         ];
-        
-        if ($address->getCountry()) {
 
-            $data['country']        = $address->getCountry()->getCountry();
-            $data['country_code']   = $address->getCountry()->getCode();
+        if ($address->getCountry()) {
+            $data['country']      = $address->getCountry()->getCountry();
+            $data['country_code'] = $address->getCountry()->getCode();
 
             if ($address->getState()) {
-                $data['province']       = $address->getState()->getState();
+                $data['province'] = $address->getState()->getState();
 
                 if ($address->getCountry()->hasStates()) {
-                    $data['province_code']  = $address->getState()->getCode();
+                    $data['province_code'] = $address->getState()->getCode();
                 }
             }
         }
@@ -47,12 +45,12 @@ class Address
      *
      * @return array
      */
-    public static function getDataWithNames(\XLite\Model\Address $address)
-    {  
+    public static function getDataWithNames(\XLite\Model\Address $address): array
+    {
         return [
             $address->getFirstname(),
             $address->getLastname(),
-            static::getData($address)
+            static::getData($address),
         ];
     }
 }

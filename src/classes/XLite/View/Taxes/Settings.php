@@ -102,6 +102,16 @@ abstract class Settings extends \XLite\View\AView
     }
 
     /**
+     * Show tax title field
+     *
+     * @return bool
+     */
+    protected function showTitleField()
+    {
+        return true;
+    }
+
+    /**
      * Get tax
      *
      * @return object

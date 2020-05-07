@@ -131,7 +131,12 @@ abstract class Autoloader
 
     protected static function registerClassDir()
     {
-        spl_autoload_register(array(get_called_class(), '__lc_autoload'));
+        spl_autoload_register([get_called_class(), '__lc_autoload']);
+    }
+
+    protected static function unregisterClassDir()
+    {
+        spl_autoload_unregister([get_called_class(), '__lc_autoload']);
     }
 
     public static function registerClassCacheProductionAutoloader()
@@ -223,6 +228,17 @@ abstract class Autoloader
         self::unregisterClassCacheAutoloader();
 
         self::registerClassDir();
+    }
+
+    /**
+     * Switch autoload directory from classes/ to var/run/classes/
+     */
+    public static function switchToCachedClassDir()
+    {
+        static::initializeClassesDir();
+        static::unregisterClassDir();
+        static::registerClassCacheProductionAutoloader();
+        static::reinitializeIfNeeded();
     }
 
     /**

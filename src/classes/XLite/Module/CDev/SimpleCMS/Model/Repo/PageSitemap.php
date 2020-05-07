@@ -44,8 +44,9 @@ class PageSitemap extends \XLite\Module\CDev\SimpleCMS\Model\Repo\Page implement
     protected function addCleanURLCondition(\XLite\Model\QueryBuilder\AQueryBuilder $qb)
     {
         if (\XLite\Module\CDev\SimpleCMS\Logic\Sitemap\Step\Page::isSitemapCleanUrlConditionApplicable()) {
+            $joinCnd = 'cu.id = (SELECT MAX(cu2.id) FROM XLite\Model\CleanURL cu2 WHERE cu2.page = ' . $qb->getMainAlias() . ')';
             $qb->addSelect('cu.cleanURL')
-                ->leftJoin('XLite\Model\CleanURL', 'cu', \Doctrine\ORM\Query\Expr\Join::WITH, 'cu.page = '.$qb->getMainAlias());
+                ->leftJoin('XLite\Model\CleanURL', 'cu', \Doctrine\ORM\Query\Expr\Join::WITH, $joinCnd);
         }
 
         return $qb;

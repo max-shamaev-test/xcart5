@@ -27,19 +27,6 @@ class Main extends \XLite\View\AView
     }
 
     /**
-     * Register CSS files
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-        $list[] = 'modules/XC/MailChimp/store_data/main/style.less';
-
-        return $list;
-    }
-
-    /**
      * Return widget default template
      *
      * @return string

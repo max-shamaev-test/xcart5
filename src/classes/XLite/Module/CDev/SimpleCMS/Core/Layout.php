@@ -25,6 +25,40 @@ class Layout extends \XLite\Core\Layout implements \XLite\Base\IDecorator
         return $url ?: parent::getLogo();
     }
 
+    /**
+     * Get logo alt
+     *
+     * @return string
+     */
+    public function getLogoAlt()
+    {
+        return \XLite\Core\Config::getInstance()->CDev->SimpleCMS->logo_alt
+            ?: parent::getLogoAlt();
+    }
+
+    /**
+     * Get logo to invoice
+     *
+     * @return string
+     */
+    public function getInvoiceLogo()
+    {
+        $partUrl = str_replace(LC_DS, '/', \XLite\Core\Config::getInstance()->CDev->SimpleCMS->logo);
+
+        if (!$partUrl) {
+            return parent::getInvoiceLogo();
+        }
+
+        $imageSizes = \XLite\Logic\ImageResize\Generator::defineImageSizes();
+        $invoiceLogoSizes = $imageSizes['XLite\Model\Image\Common\Logo']['Invoice'];
+
+        $url = "var/images/logo/" . implode('.', $invoiceLogoSizes) . '/' . $partUrl;
+        $path = LC_DIR_ROOT . $url;
+
+        return file_exists($path)
+            ? \XLite::getInstance()->getShopURL($url)
+            : parent::getInvoiceLogo();
+    }
 
     /**
      * Return favicon resource path

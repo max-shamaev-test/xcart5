@@ -8,7 +8,11 @@
 
 namespace XCart\Bus\Query\Types\Output;
 
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Silex\Application;
+use XCart\Bus\Query\Context;
+use XCart\Bus\Query\Resolver\ModulesResolver;
 use XCart\Bus\Query\Types\AObjectType;
 use XCart\SilexAnnotations\Annotations\Service;
 
@@ -17,6 +21,24 @@ use XCart\SilexAnnotations\Annotations\Service;
  */
 class InstallationData extends AObjectType
 {
+    /**
+     * @var ModulesResolver
+     */
+    private $modulesResolver;
+
+    /**
+     * @param Application     $app
+     * @param ModulesResolver $modulesResolver
+     */
+    public function __construct(
+        Application $app,
+        ModulesResolver $modulesResolver
+    ) {
+        parent::__construct($app);
+
+        $this->modulesResolver = $modulesResolver;
+    }
+
     /**
      * @return array
      */
@@ -28,6 +50,14 @@ class InstallationData extends AObjectType
                 'trialExpired'            => Type::boolean(),
                 'backupMasterIsEnabled'   => Type::boolean(),
                 'backupMasterIsInstalled' => Type::boolean(),
+                'purchasesCount'          => [
+                    'type'    => Type::int(),
+                    'resolve' => function ($value, $args, Context $context, ResolveInfo $info) {
+                        $purchased = $this->modulesResolver->resolvePage([], ['licensed' => true], $context, $info);
+
+                        return $purchased['count'];
+                    },
+                ],
             ],
         ];
     }

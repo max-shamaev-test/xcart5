@@ -53,7 +53,7 @@ class ModuleKey extends \XLite\Controller\Admin\AAdmin
         $result = \XLite\Core\Marketplace::getInstance()->registerLicense($key);
 
         if ($result['key'] && $result['action']) {
-            $this->setReturnURL(\XLite::getInstance()->getServiceURL('#/') . $result['action']);
+            $this->setReturnURL(\XLite::getInstance()->getServiceURL('#/' . $result['action']));
         } elseif ($result['alert']) {
             $alert = $result['alert'][0];
             $alertParams = $alert['params'] ? json_decode($alert['params']) : [];

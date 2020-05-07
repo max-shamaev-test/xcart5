@@ -45,7 +45,7 @@ foreach ($filesToInclude as $_file) {
         die('Fatal error: Couldn\'t find file ' . $includeFuncsFile);
     }
 
-    include_once $includeFuncsFile;
+    require_once $includeFuncsFile;
 }
 
 
@@ -158,7 +158,7 @@ if (isset($_GET['target']) && $_GET['target'] == 'install') {
     setTimeout('refresh()', 1000);
 </script>
 
-<body style="padding-top: 20px;">
+<body>
 
 <?php
 
@@ -376,23 +376,17 @@ function resetCacheWindowContent()
 	document.getElementById('process_iframe').contentWindow.document.write(content);
 }
 
-function processCacheRebuildFailure(stepData)
+function processCacheRebuildFailure(currentStepInfo)
 {
     document.getElementById('cache-rebuild-failed').style.display = '';
     document.getElementById('process_iframe').style.borderColor = '#c11600';
 
     if (!isStopped) {
-        var step = '';
-
-        if (stepData[1] && stepData[2]) {
-            step = stepData[1] + ' of ' + stepData[2]
-        }
-
-        ga('send', 'event', 'error', 'cache', 'cache deployment failed (' + step + ')');
+        ga('send', 'event', 'error', 'cache', 'cache deployment failed (' + currentStepInfo + ')');
     }
 }
 
-function resetCacheRebuildFailure(stepData)
+function resetCacheRebuildFailure()
 {
   document.getElementById('cache-rebuild-failed').style.display = 'none';
   document.getElementById('process_iframe').style.borderColor = 'black';
@@ -515,7 +509,6 @@ foreach ($rows as $row) {
   </div>
 
   <div class="install-help-box">
-    <img src="skins/admin/images/icon-install-help.svg" />
     <div>
       <?php echo xtr('Having trouble installing X-Cart? Check out our installation guide'); ?>
     </div>
@@ -551,12 +544,9 @@ if ($modules[$current]['auth_required']) {
 }
 
 // run module
-$res = $func($params);
+$res = $error ? false : $func($params);
 
 ?>
-
-<br />
-<br />
 
 <?php
 
@@ -580,7 +570,7 @@ if ($current < count($modules)) {
 
 ?>
 
-  <input type="hidden" name="params[<?php echo $key ?>]" value="<?php echo $val ?>" />
+  <input type="hidden" name="params[<?php echo $key ?>]" value="<?php echo htmlspecialchars($val) ?>" />
 
 <?php
 

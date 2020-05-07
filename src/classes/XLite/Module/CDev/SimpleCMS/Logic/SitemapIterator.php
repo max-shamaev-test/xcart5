@@ -93,11 +93,11 @@ class SitemapIterator extends \XLite\Module\CDev\XMLSitemap\Logic\SitemapIterato
                 $langUrl = $code . '/' . $langUrl;
                 $locale = Converter::langToLocale($code);
 
-                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . static::getShopURL($langUrl) . '"';
+                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . htmlspecialchars(static::getShopURL($langUrl)) . '"';
                 $result[$tag] = null;
             }
 
-            $tag = 'xhtml:link rel="alternate" hreflang="x-default" href="' . $url . '"';
+            $tag = 'xhtml:link rel="alternate" hreflang="x-default" href="' . htmlspecialchars($url) . '"';
             $result[$tag] = null;
 
         }

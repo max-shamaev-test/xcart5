@@ -8,31 +8,29 @@
 
 namespace XLite\Module\XC\MailChimp\Core\Action;
 
-
-use XLite\Module\XC\MailChimp\Core\MailChimp;
+use XLite\Model\Cart;
+use XLite\Module\XC\MailChimp\Core\Request\Cart as MailChimpCart;
+use XLite\Module\XC\MailChimp\Core\Request\Store as MailChimpStore;
 
 class CartUpdate implements IMailChimpAction
 {
     /**
-     * @var \XLite\Model\Cart
+     * @var Cart
      */
     private $cart;
 
     /**
-     * @inheritDoc
+     * @param Cart $cart
      */
-    public function __construct(\XLite\Model\Cart $cart)
+    public function __construct(Cart $cart)
     {
         $this->cart = $cart;
     }
 
-    /**
-     *
-     */
-    public function execute()
+    public function execute(): void
     {
         try {
-            MailChimp::getInstance()->createOrUpdateCart($this->cart);
+            MailChimpCart\UpdateOrCreate::scheduleAction($this->cart);
         } catch (\Exception $e) {
             \XLite\Logger::getInstance()->log($e->getMessage());
         }

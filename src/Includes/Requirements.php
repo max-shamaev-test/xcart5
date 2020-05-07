@@ -83,7 +83,7 @@ final class Requirements
             'configFileName'        => 'config.php',
             'defaultConfigFileName' => 'config.default.php',
 
-            'minPhpVersion'        => '7.2.0',
+            'minPhpVersion'        => '7.2.9',
             'maxPhpVersion'        => '',
             'forbiddenPhpVersions' => [],
 
@@ -347,6 +347,12 @@ final class Requirements
                 'state'   => self::STATE_UNCHECKED,
                 'level'   => self::LEVEL_CRITICAL,
                 'checker' => $this->getFrameOptionsChecker(),
+            ],
+            'loopback_request'       => [
+                'title'   => 'Loopback request',
+                'state'   => self::STATE_UNCHECKED,
+                'level'   => self::LEVEL_OPTIONAL,
+                'checker' => $this->getLoopbackRequestChecker(),
             ],
         ];
     }
@@ -753,8 +759,9 @@ final class Requirements
 
                 if ($version) {
                     if ($this->isMariaDB($version)) {
-                        $versionParts = explode('-', $version);
-                        $version = (strtolower($versionParts[1]) == "mariadb") ? $versionParts[0] : $versionParts[1];
+                        if (preg_match('/1\d\.\d+\.\d+/', $version, $matches)) {
+                            $version = $matches[0];
+                        }
                         $minMysqlVersion = $this->getEnvironment('minMariadbVersion');
                         $rdbms = 'MariaDB';
                     }
@@ -966,6 +973,71 @@ final class Requirements
                 [],
             ];
         };
+    }
+
+    /**
+     * @return \Closure
+     */
+    private function getLoopbackRequestChecker()
+    {
+        return function () {
+            $result = true;
+
+            if (
+                function_exists('curl_init')
+                && function_exists('curl_version')
+                && isset($_SERVER['HTTP_HOST'])
+                && 'cli' !== PHP_SAPI
+            ) {
+                $adminScript = \Includes\Utils\FileManager::isFileReadable($this->getAdminScript())
+                    ? $this->getAdminScript()
+                    : 'admin.php';
+
+                $customerScript = \Includes\Utils\FileManager::isFileReadable($this->getCustomerScript())
+                    ? $this->getCustomerScript()
+                    : 'cart.php';
+
+                $url = 'http' . (\Includes\Utils\URLManager::isHTTPS() ? 's' : '') . '://' . $_SERVER['HTTP_HOST']
+                    . (str_replace(['install.php', $customerScript, $adminScript], 'service.php', $_SERVER['PHP_SELF']));
+
+                $curl = curl_init();
+                curl_setopt_array($curl, array(
+                    CURLOPT_RETURNTRANSFER => 1,
+                    CURLOPT_URL => $url,
+                    CURLOPT_HEADER => 1,
+                    CURLOPT_SSL_VERIFYHOST => 0,
+                    CURLOPT_SSL_VERIFYPEER => 0
+                ));
+
+                $resp = curl_exec($curl);
+
+                $result = preg_match('/<div id=app><\/div>/i', $resp);
+
+                curl_close($curl);
+            }
+
+            return [
+                $result,
+                'error_message_1',
+                ['url' => 'https://www.x-cart.com/contact-us.htmlutm_source=XC5Install&amp;utm_medium=reqsFailure&amp;utm_campaign=XC5Install'],
+            ];
+        };
+    }
+
+    /**
+     * @return string
+     */
+    private function getAdminScript()
+    {
+        return \Includes\Utils\ConfigParser::getOptions(array('host_details', 'admin_self'));
+    }
+
+    /**
+     * @return string
+     */
+    private function getCustomerScript()
+    {
+        return \Includes\Utils\ConfigParser::getOptions(array('host_details', 'cart_self'));
     }
 
     // }}}

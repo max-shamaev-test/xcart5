@@ -115,13 +115,11 @@ class Settings extends \XLite\View\Model\AShippingSettings
 
             case 'userid':
             case 'server_url':
-            case 'package_size':
             case 'machinable':
             case 'use_cod_price':
             case 'use_rate_type':
             case 'container':
             case 'mail_type':
-            case 'container_intl':
             case 'commercial':
             case 'gxg':
             case 'autoenable_new_methods':
@@ -130,6 +128,15 @@ class Settings extends \XLite\View\Model\AShippingSettings
                         'dataProvider' => ['USPS'],
                     ],
                 ];
+                break;
+            case 'dimensions':
+                $value = $this->getModelObjectValue('dimensions');
+                foreach ($value as $dimension) {
+                    if ((int) $dimension === 0) {
+                        $cell[static::SCHEMA_COMMENT] = static::t('All dimensions must be greater than 0');
+                        break;
+                    }
+                }
                 break;
         }
 

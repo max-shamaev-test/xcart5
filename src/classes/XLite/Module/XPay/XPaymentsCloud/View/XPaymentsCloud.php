@@ -60,7 +60,7 @@ class XPaymentsCloud extends \XLite\View\AView
      */
     protected function getDefaultTemplate()
     {
-        return 'modules/XPay/XPaymentsCloud/secure3d.twig';
+        return 'modules/XPay/XPaymentsCloud/checkout/secure3d.twig';
     }
 
     /**
@@ -70,7 +70,12 @@ class XPaymentsCloud extends \XLite\View\AView
      */
     protected function get3DSecureURL()
     {
-        $data = \XLite\Core\Session::getInstance()->xpaymentsData;
+        $mode = \XLite\Core\Request::getInstance()->mode;
+        if ('CardSetup' == $mode) {
+            $data = \XLite\Core\Session::getInstance()->xpaymentsCardSetupData;
+        } else {
+            $data = \XLite\Core\Session::getInstance()->xpaymentsData;
+        }
 
         return $data && $data['redirectUrl']
             ? $data['redirectUrl']

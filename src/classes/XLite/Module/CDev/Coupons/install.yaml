@@ -30,7 +30,6 @@ XLite\Model\LanguageLabel:
   - { name: "Period end date must be later than period start date", translations: [{ code: en, label: "Period end date must be later than period start date" }] }
   - { name: "Minimum order subtotal must be less than maximum order subtotal", translations: [{ code: en, label: "Minimum order subtotal must be less than maximum order subtotal" }] }
   - { name: "Maximum order subtotal must be greater than minimum order subtotal", translations: [{ code: en, label: "Maximum order subtotal must be greater than minimum order subtotal" }] }
-  - { name: "The discount should be less than 100%", translations: [{ code: en, label: "Discount must be less than 100%" }] }
   - { name: "The coupon has been added", translations: [{ code: en, label: "Coupon added" }] }
   - { name: "The coupon has been updated", translations: [{ code: en, label: "Coupon updated" }] }
   - { name: "Limit number of uses", translations: [{ code: en, label: "Limit number of uses" }] }
@@ -64,3 +63,12 @@ XLite\Model\LanguageLabel:
   - { name: "Sorry, the coupon you entered is not valid for your membership level. Contact the administrator", translations: [{ code: en, label: "Sorry, the coupon you entered is not valid for your membership level. Contact the administrator" }] }
   - { name: 'The maximum number of uses per user', translations: [{ code: en, label: 'The maximum number of uses per user' }] }
   - { name: 'itemslist.admin.coupon.blank', translations: [{ code: en, label: '<p>There are currently no coupons. Information on the use of coupons is available <a target="_blank" href="https://kb.x-cart.com/en/seo_and_promotion/setting_up_discount_coupons.html">here</a>.</p>' },{ code: ru, label: '<p>В настоящее время купонов нет. Об использовании купонов можно прочесть <a target="_blank" href="https://kb.x-cart.ru/seo_and_promotion/setting_up_discount_coupons.html">здесь</a>.</p>' }] }
+  - { name: 'The selected date is outside the allowed date range', translations: [{ code: en, label: 'The selected date is outside the allowed date range' },{ code: ru, label: 'Выбранная дата находится вне допустимого диапазона значений' }] }
+
+  - { name: "Sorry, the coupon you entered cannot be applied to this delivery address", translations: [{ code: en, label: "Sorry, the coupon code you entered cannot be applied if shipping the order to the currently specified delivery address" },{ code: ru, label: "К сожалению, данный купон не может быть применен при доставке заказа на указанный адрес" }] }
+  - { name: "The discount is valid for the selected delivery area", translations: [{ code: en, label: "The discount is valid for the selected delivery area" },{ code: ru, label: "Данная скидка действует для следующей области доставки" }] }
+  - { name: "Address zones (coupons)", translations: [{ code: en, label: "Address zones" },{ code: ru, label: "Зоны доставки" }] }
+  - { name: "Products (X)", translations: [{ code: en, label: "Products ({{count}})" },{ code: ru, label: "Товары ({{count}})" }] }
+  - { name: "X product(s) added", translations: [{ code: en, label: "{{count}} product(s) added" },{ code: ru, label: "Добавлено товаров: {{count}}" }] }
+  - { name: "Valid only for specific products", translations: [{ code: en, label: "Valid only for specific products" },{ code: ru, label: "Действует только для определенных товаров" }] }
+  - { name: 'The "{{code}}" coupon does not exist', translations: [{ code: en, label: 'The "{{code}}" coupon does not exist' },{ code: ru, label: 'Купон "{{code}}" не найден' }] }

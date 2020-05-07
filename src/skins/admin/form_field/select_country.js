@@ -80,13 +80,16 @@ StateSelector.prototype.changeCountry = function (country) {
         $(this.stateInputBox).autocomplete({
           source: StatesList.getInstance().getStatesArray(country),
           minLength: 1
-        }).addClass('validate[required]')
-          .parents('.table-value:first')
-          .addClass('table-value-required')
-          .prev('.star')
-          .text('*')
-          .prev('.table-label')
-          .addClass('table-label-required');
+        });
+
+        if (this.countrySelectBox.hasClass('validate[required]')) {
+          $(this.stateInputBox)
+            .addClass('validate[required]')
+            .parents('.table-value:first')
+            .addClass('table-value-required')
+            .prev('.table-label')
+            .addClass('table-label-required');
+        }
       } else {
         this.removeOptions();
         this.addStates(StatesList.getInstance().getStates(country));
@@ -105,8 +108,6 @@ StateSelector.prototype.changeCountry = function (country) {
         .removeClass('validate[required]')
         .parents('.table-value:first')
         .removeClass('table-value-required')
-        .prev('.star')
-        .html('&nbsp;')
         .prev('.table-label')
         .removeClass('table-label-required');
     }

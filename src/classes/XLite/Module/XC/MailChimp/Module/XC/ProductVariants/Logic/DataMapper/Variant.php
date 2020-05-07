@@ -16,18 +16,18 @@ namespace XLite\Module\XC\MailChimp\Module\XC\ProductVariants\Logic\DataMapper;
 class Variant extends \XLite\Module\XC\MailChimp\Logic\DataMapper\Variant implements \XLite\Base\IDecorator
 {
     /**
-     * @param \XLite\Module\XC\ProductVariants\Model\ProductVariant $variant
+     * @param \XLite\Module\XC\MailChimp\Module\XC\ProductVariants\Model\ProductVariant|\XLite\Module\XC\ProductVariants\Model\ProductVariant $variant
      *
      * @return array
      */
-    public static function getVariantDataByProductVariant(\XLite\Module\XC\ProductVariants\Model\ProductVariant $variant)
+    public static function getVariantDataByProductVariant(\XLite\Module\XC\ProductVariants\Model\ProductVariant $variant): array
     {
         $imageUrl = $variant->getImage()
             ? $variant->getImage()->getFrontURL()
             : $variant->getProduct()->getImageURL();
 
         return [
-            'id'                    => strval($variant->getId()),
+            'id'                    => (string) $variant->getId(),
             'title'                 => $variant->getProduct()->getName(),
             'url'                   => $variant->getFrontURLForMailChimp(),
             'sku'                   => $variant->getDisplaySku(),

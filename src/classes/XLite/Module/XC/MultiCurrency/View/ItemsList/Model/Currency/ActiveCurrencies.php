@@ -24,6 +24,19 @@ class ActiveCurrencies extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
+     * Register JS files
+     *
+     * @return array
+     */
+    public function getJSFiles()
+    {
+        $list = parent::getJSFiles();
+        $list[] = 'modules/XC/MultiCurrency/controller.js';
+
+        return $list;
+    }
+
+    /**
      * Define columns structure
      *
      * @return array
@@ -53,12 +66,18 @@ class ActiveCurrencies extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_CLASS   => '\XLite\View\FormField\Inline\Input\Text',
                 static::COLUMN_NO_WRAP => true,
                 static::COLUMN_ORDERBY => 400,
+                static::COLUMN_PARAMS => [
+                    \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => \XLite\Core\Database::getRepo('XLite\Model\Currency')->getFieldInfo('prefix', 'length'),
+                ],
             ],
             'suffix'        => [
                 static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Suffix'),
                 static::COLUMN_CLASS   => '\XLite\View\FormField\Inline\Input\Text',
                 static::COLUMN_NO_WRAP => true,
                 static::COLUMN_ORDERBY => 500,
+                static::COLUMN_PARAMS => [
+                    \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => \XLite\Core\Database::getRepo('XLite\Model\Currency')->getFieldInfo('suffix', 'length'),
+                ],
             ],
             'rate'          => [
                 static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Rate'),

@@ -29,7 +29,6 @@ class TaxBannerAlert extends \XLite\View\ModuleBanner
     {
         $result = parent::getAllowedTargets();
         $result[] = 'tax_classes';
-        $result[] = 'sales_tax';
         $result[] = 'vat_tax';
         $result[] = 'canadian_taxes';
 

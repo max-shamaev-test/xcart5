@@ -28,6 +28,16 @@ abstract class AWizardStep extends \XLite\View\AView
     }
 
     /**
+     * Return Shop URL
+     *
+     * @return string
+     */
+    public function getShopURL()
+    {
+        return \XLite::getInstance()->getShopURL();
+    }
+
+    /**
      * Return widget default template
      *
      * @return string

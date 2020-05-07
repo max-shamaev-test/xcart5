@@ -95,7 +95,7 @@ class Price extends \XLite\View\Product\Details\Customer\Widget
             static::$listPrices[$id] = $this->getNetPrice($value);
         }
 
-        return static::$listPrices[$id];
+        return \XLite::getInstance()->getCurrency()->roundValue(static::$listPrices[$id]);
     }
 
     /**

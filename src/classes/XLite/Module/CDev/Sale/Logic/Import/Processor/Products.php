@@ -24,7 +24,10 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
     {
         $columns = parent::defineColumns();
 
-        $columns['sale'] = array();
+        $columns['sale'] = [];
+        $columns['saleDiscounts'] = [
+            static::COLUMN_IS_MULTIPLE => true,
+        ];
 
         return $columns;
     }
@@ -43,6 +46,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
         return parent::getMessages()
             + array(
                 'PRODUCT-SALE-FMT' => 'Wrong sale format',
+                'SALE-DISCOUNT-MISSING' => 'The "{{saleDiscount}}" discount does not exist',
             );
     }
 
@@ -56,10 +60,57 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
      */
     protected function verifySale($value, array $column)
     {
-        if (!$this->verifyValueAsEmpty($value) && !preg_match('/^\d+\.?\d*(%)?$/', $value)) {
+        if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsSale($value)) {
             $this->addWarning('PRODUCT-SALE-FMT', array('column' => $column, 'value' => $value));
         }
     }
+
+    /**
+     * Verify 'saleDiscounts' value
+     *
+     * @param mixed $value Value
+     * @param array $column Column info
+     */
+    protected function verifySaleDiscounts($value, array $column)
+    {
+        if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsNull($value)) {
+            foreach ($value as $saleDiscount) {
+                if (!$this->verifyValueAsEmpty($saleDiscount) && !$this->verifyValueAsSaleDiscount($saleDiscount)) {
+                    $this->addWarning('SALE-DISCOUNT-MISSING', ['column' => $column, 'saleDiscount' => $saleDiscount]);
+                }
+            }
+        }
+    }
+
+    /**
+     * Verify value as correct sale value
+     *
+     * @param string $value  Value
+     *
+     * @return boolean
+     */
+    protected function verifyValueAsSale($value)
+    {
+        return preg_match('/^\d+\.?\d*(%)?$/', $value)
+            && floatval($value) >= 0
+            && (
+                strpos($value, '%') === false
+                || floatval($value) < 100
+            );
+    }
+
+    /**
+     * Verify value as sale discount
+     *
+     * @param mixed @value Value
+     *
+     * @return boolean
+     */
+    protected function verifyValueAsSaleDiscount($value)
+    {
+        return !is_null(\XLite\Core\Database::getRepo('XLite\Module\CDev\Sale\Model\SaleDiscount')->findOneByName($value));
+    }
+
 
     // }}}
 
@@ -76,7 +127,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
      */
     protected function importSaleColumn(\XLite\Model\Product $model, $value, array $column)
     {
-        if ($value) {
+        if ($this->verifyValueAsSale($value)) {
             $model->setParticipateSale(true);
             $model->setSalePriceValue(floatval($value));
             $model->setDiscountType(
@@ -90,5 +141,47 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
         }
     }
 
+    /**
+     * Import 'saleDiscounts' value
+     *
+     * @param \XLite\Model\Product $model Product
+     * @param array $value Value
+     * @param array $column Column info
+     */
+    protected function importSaleDiscountsColumn(\XLite\Model\Product $model, $value, array $column)
+    {
+        $saleDiscountIds = [];
+        if ($value && is_array($value)) {
+            foreach ($value as $discountName) {
+                $saleDiscount = $this->normalizeValueAsSaleDiscount($discountName);
+
+                if ($saleDiscount) {
+                    $saleDiscountIds[] = $saleDiscount->getId();
+                }
+            }
+
+            $model->replaceSpecificProductSaleDiscounts($saleDiscountIds);
+        }
+    }
+
     // }}}
+
+    /**
+     * Normalize value as sale discount
+     *
+     * @param mixed @value Value
+     *
+     * @return \XLite\Module\CDev\Sale\Model\SaleDiscount
+     */
+    protected function normalizeValueAsSaleDiscount($value)
+    {
+        $result = null;
+
+        if ($value) {
+            $result = $saleDiscount = \XLite\Core\Database::getRepo('XLite\Module\CDev\Sale\Model\SaleDiscount')
+                ->findOneByName($value);
+        }
+
+        return $result;
+    }
 }

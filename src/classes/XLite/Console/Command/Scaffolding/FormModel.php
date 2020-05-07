@@ -42,6 +42,7 @@ class FormModel extends Command
     protected function prepareOptions(InputInterface $input)
     {
         $entityClass = $input->getArgument('entity');
+        $entityClass = preg_replace('/^\\\\/', '', $entityClass);
         $shortModelName = Utils::getClassShortName($entityClass);
 
         $target = $input->getOption('target')
@@ -61,7 +62,7 @@ class FormModel extends Command
             : 'admin/';
 
         $fieldsRaw = $input->getOption('fields') ?: '';
-        $fields = explode(',', $fieldsRaw);
+        $fields = $fieldsRaw ? explode(',', $fieldsRaw) : [];
 
         $resultFields = [];
 
@@ -103,32 +104,40 @@ class FormModel extends Command
         list($path, $formModelClass) = $this->createFormModelView($config, $io);
 
         if ($path) {
-            if (LC_DEVELOPER_MODE && class_exists($formModelClass, true)) {
-                new $formModelClass();
+            if (LC_DEVELOPER_MODE && !class_exists($formModelClass, true)) {
+                $io->error("Failed to generate FormModel view $path");
+            } else {
+                $io->note($path .' FormModel view is generated');
             }
-            $io->note($path .' FormModel view is generated');
         }
 
         list($path, $dtoClass) = $this->createDTO($config, $io);
 
         if ($path) {
-            if (LC_DEVELOPER_MODE && class_exists($dtoClass, true)) {
-                new $dtoClass();
+            if (LC_DEVELOPER_MODE && !class_exists($dtoClass, true)) {
+                $io->error("Failed to generate DTO class $path");
+            } else {
+                $io->note($path .' DTO class is generated');
             }
-            $io->note($path .' DTO class is generated');
         }
 
         list($path, $controllerClass) = $this->createController($config, $io, $dtoClass, $formModelClass);
 
         if ($path) {
-            if (LC_DEVELOPER_MODE && class_exists($controllerClass, true)) {
-                new $controllerClass();
+            if (LC_DEVELOPER_MODE && !class_exists($controllerClass, true)) {
+                $io->error("Failed to generate FormModel controller $path");
+            } else {
+                $io->note($path .' FormModel controller is generated');
             }
-            $io->note($path .' FormModel controller is generated');
         }
 
         if ($config['rebuildAfterwards']) {
             $this->rebuildViewLists($output);
+            \XLite\Core\Database::getCacheDriver()->deleteAll();
+            \XLite::getInstance()
+                ->getContainer()
+                ->get('widget_cache')
+                ->deleteAll();
         }
 
         $io->success('FormModel scaffolding complete');

@@ -204,9 +204,22 @@ class Registry
     public function getEnabledPaymentModules()
     {
         return $this->executeCachedRuntime(function () {
-            return array_filter($this->getModules(), function ($module) {
+            return array_filter($this->getModules(), static function ($module) {
                 /** @var Module $module */
                 return $module->isEnabled() && $module->isPayment();
+            });
+        });
+    }
+
+    /**
+     * @return array
+     */
+    public function getEnabledShippingModules()
+    {
+        return $this->executeCachedRuntime(function () {
+            return array_filter($this->getModules(), static function ($module) {
+                /** @var Module $module */
+                return $module->isEnabled() && $module->isShipping();
             });
         });
     }
@@ -353,11 +366,11 @@ class Registry
     {
         $module = $this->getModule($author, $name);
 
-        $url = $module
-            ? '#/installed-addons?moduleId=' . $module->id
-            : '#/marketplace?moduleId=' . Module::buildId($author, $name);
+        if ($module) {
+            return \XLite::getInstance()->getServiceURL('#/installed-addons', null, ['moduleId' => $module->id]);
+        }
 
-        return \XLite::getInstance()->getServiceURL($url);
+        return \XLite::getInstance()->getServiceURL('#/marketplace', null, ['moduleId' => Module::buildId($author, $name)]);
     }
 
     /**

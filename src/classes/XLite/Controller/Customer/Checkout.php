@@ -889,6 +889,10 @@ class Checkout extends \XLite\Controller\Customer\Cart
             $this->requestData['same_address'] = \XLite\Core\Session::getInstance()->same_address;
         }
 
+        if (!$this->getCart()->isShippable()) {
+            $this->requestData['same_address'] = false;
+        }
+
         $this->updateShippingAddress();
 
         $this->updateBillingAddress();

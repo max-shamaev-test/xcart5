@@ -10,26 +10,32 @@
 define('facebookPixel/search', ['facebookPixel/event'], function (Event) {
   FacebookPixelSearch = Event.extend({
     processReady: function() {
-      var searchTextInput = jQuery(".search-product-form input[name='substring']");
+      var o = this;
 
-      if (searchTextInput.length) {
-        if (searchTextInput.val()) {
-          this.registerSearchSubstring(searchTextInput.val());
+      core.bind(
+        'list.products.loaded',
+        function (event, widget) {
+          if (jQuery(widget.base).hasClass('products-search-result')) {
+            o.registerSearchEvent();
+          }
         }
+      );
 
-        jQuery(".search-product-form button[type='submit']").click(_.bind(function (event) {
-          this.registerSearchSubstring(searchTextInput.val());
-        }, this));
-      } else if (core.getURLParam('substring').length) {
-        this.registerSearchSubstring(core.getURLParam('substring'));
-      }
+      o.registerSearchEvent();
     },
 
-    registerSearchSubstring: function(substring) {
-      if (substring) {
-        this.sendEvent('Search', {
-          search_string: substring
-        });
+    registerSearchEvent: function() {
+      var contentData = null;
+      jQuery.each(jQuery('.list-container .items-list-products'), function(index, el) {
+        var _contentData = core.getCommentedData(el, 'fb_pixel_content_data');
+        if (_contentData && !_.isUndefined(_contentData.search_string)) {
+          contentData = Object.assign({'content_type': 'product'}, _contentData);
+          return false;
+        }
+      });
+
+      if (contentData) {
+        this.sendEvent('Search', contentData);
       } else {
         this.sendEvent('Search');
       }

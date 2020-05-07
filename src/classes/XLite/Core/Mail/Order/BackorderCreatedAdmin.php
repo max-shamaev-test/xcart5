@@ -10,6 +10,7 @@ namespace XLite\Core\Mail\Order;
 
 
 use XLite\Model\Order;
+use XLite\Model\Product;
 
 class BackorderCreatedAdmin extends \XLite\Core\Mail\Order\AAdmin
 {
@@ -29,6 +30,24 @@ class BackorderCreatedAdmin extends \XLite\Core\Mail\Order\AAdmin
     {
         parent::__construct($order);
 
+        $backorderData = self::getBackorderData($order);
+
+        $this->populateVariables([
+            'backordered_item_names' => implode(', ', $backorderData['items']),
+        ]);
+
+        $this->appendData([
+            'backorderedProducts'   => $backorderData['products'],
+            'product_url_processor' => [static::class, 'productUrlProcessor'],
+        ]);
+    }
+
+    /**
+     * @param Order $order
+     *
+     * @return array
+     */
+    public static function getBackorderData(Order $order) {
         $backorderedItems = [];
         $backorderedProducts = [];
 
@@ -39,13 +58,20 @@ class BackorderCreatedAdmin extends \XLite\Core\Mail\Order\AAdmin
             }
         }
 
-        $this->populateVariables([
-            'backordered_item_names' => implode(', ', $backorderedItems),
-        ]);
+        return ['items' => $backorderedItems, 'products' => $backorderedProducts];
+    }
 
-        $this->appendData([
-            'items'               => $order->getItems(),
-            'backorderedProducts' => $backorderedProducts,
-        ]);
+
+    /**
+     * @param Product $product
+     *
+     * @return string
+     */
+    public static function productUrlProcessor(Product $product)
+    {
+        return \XLite\Core\Converter::buildFullURL('product', '', [
+            'product_id' => $product->getProductId(),
+            'page'       => 'inventory'
+        ], \XLite::getAdminScript());
     }
 }

@@ -204,15 +204,16 @@ class ShippingEstimate extends \XLite\Controller\Customer\ACustomer
         if (null !== $methodId
             && $cart->getShippingId() != $methodId
         ) {
+            // get profile before cart manipulation
+            $profile = $this->getCartProfile();
+
             $cart->setLastShippingId($methodId);
             $cart->setShippingId($methodId);
 
-            $address = $this->getCartProfile()->getShippingAddress();
+            $address = $profile->getShippingAddress();
             if (!$address) {
                 // Default address
-                $profile = $this->getCartProfile();
                 $address = new \XLite\Model\Address;
-
                 $addr = $this->getAddress();
 
                 // Country

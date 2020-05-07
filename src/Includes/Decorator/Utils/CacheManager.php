@@ -9,6 +9,7 @@
 namespace Includes\Decorator\Utils;
 
 use Includes\Decorator\Plugin\Doctrine\Utils\SchemaMigrationManager;
+use Includes\Utils\FileManager;
 
 /**
  * Cache manager
@@ -195,7 +196,7 @@ abstract class CacheManager extends \Includes\Decorator\Utils\AUtils
 
         $message = strip_tags($message);
         $message = preg_replace('/(\s)+/', '\1', trim($message));
-        $pathPart = date('Y' . LC_DS . 'm');
+        $pathPart = date('Y') . LC_DS . date('m');
         $path = LC_DIR_LOG . $pathPart . LC_DS . 'decorator.log.' . date('Y-m-d') . '.php';
         if (!\Includes\Utils\FileManager::isExists($path)) {
             $message = '<' . '?php die(); ?' . '>' . PHP_EOL . $message;
@@ -541,7 +542,10 @@ OUT;
             // Rename directories
             $original = static::getCacheDirs(false);
             foreach (static::getCacheDirs(true) as $i => $tmpDir) {
-                \Includes\Utils\FileManager::unlinkRecursive($tmpDir);
+                if (!rename($tmpDir, rtrim($tmpDir, LC_DS) . '.old.' . static::constructFileKey(true))) {
+                    \Includes\Utils\FileManager::unlinkRecursive($tmpDir);
+                }
+
                 $originalDir = $original[$i];
                 rename($originalDir, $tmpDir);
             }
@@ -707,8 +711,8 @@ OUT;
         // Block software before move directories
         static::setRebuildBlockMark(static::LAST_STEP);
 
-        // Move datacache
-        static::clearOldDatacache();
+        // Move non file datacache
+        static::clearOldNonFileDatacache();
 
         // Set finalize timestamp
         \Includes\Decorator\Utils\CacheInfo::set('finalizeRebuild', time());
@@ -846,10 +850,12 @@ OUT;
      *
      * @return void
      */
-    protected static function clearOldDatacache()
+    protected static function clearOldNonFileDatacache()
     {
         $old = new \XLite\Core\Cache(null, ['original' => true]);
-        $old->flushAll();
+        if (!$old->getDriver() instanceof \XLite\Core\Cache\FilesystemCache) {
+            $old->flushAll();
+        }
     }
 
     // }}}
@@ -1380,7 +1386,11 @@ OUT;
      */
     public static function getTmpDir($original = false)
     {
-        return $original ? LC_DIR_TMP : static::buildCopsularDirname(LC_DIR_TMP);
+        $dir = $original ? LC_DIR_TMP : static::buildCopsularDirname(LC_DIR_TMP);
+
+        FileManager::touchDir($dir);
+
+        return $dir;
     }
 
     /**

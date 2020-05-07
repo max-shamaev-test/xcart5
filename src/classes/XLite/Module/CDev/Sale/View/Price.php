@@ -71,8 +71,7 @@ abstract class Price extends \XLite\View\Price implements \XLite\Base\IDecorator
      */
     protected function participateSale()
     {
-        return $this->getProduct()->getParticipateSale()
-            && $this->getListPrice() < $this->getOldPrice();
+        return $this->getListPrice() < $this->getOldPrice();
     }
 
     /**
@@ -94,7 +93,9 @@ abstract class Price extends \XLite\View\Price implements \XLite\Base\IDecorator
     {
         if (!isset($this->salePriceLabel)) {
             if ($this->participateSale()) {
-                $label = static::t('percent X off', array('percent' => $this->getSalePercent()));
+                $percent = sprintf(\XLite\Core\Config::getInstance()->Units->percent_format, $this->getSalePercent());
+
+                $label = static::t('percent X off', array('percent' => $percent));
                 $this->salePriceLabel = array(
                     'green sale-price' => $label,
                 );

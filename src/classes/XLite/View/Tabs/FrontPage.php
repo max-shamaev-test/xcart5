@@ -49,7 +49,7 @@ class FrontPage extends \XLite\View\Tabs\ATabs
     {
         $tabs = [];
 
-        if (Auth::getInstance()->isPermissionAllowed(Permission::ROOT_ACCESS)) {
+        if (Auth::getInstance()->isPermissionAllowed(Permission::ROOT_ACCESS) || Auth::getInstance()->isPermissionAllowed('manage front page')) {
             $tabs['front_page'] = [
                 'weight' => 100,
                 'title' => static::t('Front page'),

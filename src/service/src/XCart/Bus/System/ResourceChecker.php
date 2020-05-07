@@ -86,7 +86,7 @@ class ResourceChecker
      */
     private function getTime(): int
     {
-        return (microtime(true) * 10000);
+        return (int)(microtime(true) * 10000);
     }
 
     /**

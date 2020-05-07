@@ -74,7 +74,7 @@ CartItemsView.prototype.handleUpdateCart = function(event, data)
 {
   var intersect = _.intersection(
     _.keys(data),
-    ['items', 'total']
+    ['items', 'total', 'shippingTotal']
   );
 
   if (0 < intersect.length) {

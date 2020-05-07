@@ -16,19 +16,21 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'Model' . DIRECTORY_SEPARATOR . 'Pa
 
 class Client
 {
-    const SDK_VERSION = '0.1.0';
+    const SDK_VERSION = '0.2.0';
 
     private $account;
     private $secretKey;
     private $apiKey;
 
     /**
-     * @param $token
-     * @param $refId
-     * @param $customerId
-     * @param $cart
-     * @param $returnUrl
-     * @param $callbackUrl
+     * Call "pay" action
+     *
+     * @param string $token
+     * @param string $refId
+     * @param string $customerId
+     * @param array $cart
+     * @param string $returnUrl
+     * @param string $callbackUrl
      *
      * @param null $forceSaveCard (optional)
      * @param null $forceTransactionType (optional)
@@ -62,6 +64,49 @@ class Client
 
         $response = $request->send(
             'pay',
+            $params
+        );
+
+        if (empty($response->getPayment())) {
+            throw new ApiException('Invalid response');
+        }
+
+        return $response;
+    }
+
+    /**
+     * Call "tokenize_card" action
+     *
+     * @param string $token
+     * @param string $refId
+     * @param string $customerId
+     * @param array $cart
+     * @param string $returnUrl
+     * @param string $callbackUrl
+     * @param int $forceConfId (optional)
+     *
+     * @return Response
+     * @throws ApiException
+     */
+    public function doTokenizeCard($token, $refId, $customerId, $cart, $returnUrl, $callbackUrl, $forceConfId = 0)
+    {
+        $request = new Request($this->account, $this->apiKey, $this->secretKey);
+
+        $params = array(
+            'token'       => $token,
+            'refId'       => $refId,
+            'customerId'  => $customerId,
+            'cart'        => $cart,
+            'returnUrl'   => $returnUrl,
+            'callbackUrl' => $callbackUrl,
+        );
+
+        if ($forceConfId) {
+            $params['confId'] = $forceConfId;
+        }
+
+        $response = $request->send(
+            'tokenize_card',
             $params
         );
 
@@ -202,7 +247,37 @@ class Client
             'customer'
         );
 
-        if (is_null($response->customer_cards) || is_null($response->result)) {
+        if (is_null($response->cards)) {
+            throw new ApiException('Invalid response');
+        }
+
+        return $response;
+    }
+
+    /**
+     * Checks if card tokenization is possible (for any or particular customer) and other settings
+     *
+     * @param string $customerId Public Customer ID (optional)
+     *
+     * @return Response
+     *
+     * @throws ApiException
+     */
+    public function doGetTokenizationSettings($customerId = '')
+    {
+        $request = new Request($this->account, $this->apiKey, $this->secretKey);
+
+        $params = array(
+            'customerId' => $customerId,
+        );
+
+        $response = $request->send(
+            'get_tokenization_settings',
+            $params,
+            'customer'
+        );
+
+        if (is_null($response->tokenizationEnabled)) {
             throw new ApiException('Invalid response');
         }
 

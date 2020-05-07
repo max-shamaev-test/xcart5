@@ -249,6 +249,16 @@ abstract class AWholesalePrice extends \XLite\Model\AEntity
     }
 
     /**
+     * Get clear display Price
+     *
+     * @return float
+     */
+    public function getClearDisplayPrice()
+    {
+        return \XLite\Logic\Price::getInstance()->apply($this, 'getClearPrice', ['taxable'], 'display');
+    }
+
+    /**
      * Get "SAVE" value (percent difference)
      *
      * @return integer
@@ -280,6 +290,10 @@ abstract class AWholesalePrice extends \XLite\Model\AEntity
 
         if (is_null($price)) {
             $price = $this->getOwner()->getBasePrice();
+        }
+
+        if ($price == 0) {
+            return 0;
         }
 
         return max(0, (int)round(($price - $this->getClearPrice()) / $price * 100));

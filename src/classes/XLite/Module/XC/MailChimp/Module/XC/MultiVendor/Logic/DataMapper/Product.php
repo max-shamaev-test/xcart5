@@ -9,38 +9,34 @@
 namespace XLite\Module\XC\MailChimp\Module\XC\MultiVendor\Logic\DataMapper;
 
 /**
- * Class Product
- *
  * @Decorator\Depend ("XC\MultiVendor")
  */
 class Product extends \XLite\Module\XC\MailChimp\Logic\DataMapper\Product implements \XLite\Base\IDecorator
 {
     /**
-     * @param \XLite\Model\OrderItem $item
+     * @param \XLite\Model\OrderItem|\XLite\Module\XC\MultiVendor\Model\OrderItem $item
      *
      * @return array
      */
-    public static function getDataByOrderItem(\XLite\Model\OrderItem $item)
+    public static function getDataByOrderItem(\XLite\Model\OrderItem $item): array
     {
-        /** @var \XLite\Module\XC\MultiVendor\Model\OrderItem $item */
         $data = parent::getDataByOrderItem($item);
-        
+
         if ($item->getVendor()) {
             $data['vendor'] = $item->getVendor()->getVendorCompanyName()
                 ?: 'vendor';
         }
-        
+
         return $data;
     }
 
     /**
-     * @param \XLite\Model\Product $product
+     * @param \XLite\Model\Product|\XLite\Module\XC\MultiVendor\Model\Product $product
      *
      * @return array
      */
-    public static function getDataByProduct(\XLite\Model\Product $product)
+    public static function getDataByProduct(\XLite\Model\Product $product): array
     {
-        /** @var \XLite\Module\XC\MultiVendor\Model\Product $product */
         $data = parent::getDataByProduct($product);
 
         if ($product->getVendor()) {

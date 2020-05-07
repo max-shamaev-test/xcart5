@@ -24,6 +24,11 @@
   background: #4267B2;
 }
 
+.social-net-button.social-net-Apple a {
+  border-color: #000000;
+  background: #ffffff;
+}
+
 .social-net-button.social-net-Facebook .provider-name,
 .social-net-button.social-net-Google .provider-name {
   padding-left: 0;
@@ -40,6 +45,12 @@
   color: #6a6a6a;
 }
 
+.social-net-button.social-net-Apple .provider-name {
+  color: #000000;
+  border-left: none;
+  padding-left: 0;
+}
+
 .social-net-button .fa.fa-google-custom:before {
   content: ' ';
   width: 19px;
@@ -51,3 +62,6 @@
   top: 0;
 }
 
+.social-net-button .fa.fa-apple {
+  color: #000;
+}

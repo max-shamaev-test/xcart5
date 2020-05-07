@@ -95,7 +95,7 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
 
         if ($data && is_array($data)) {
             foreach ($data as $id => $row) {
-                if (!in_array($id, $toDelete)) {
+                if (!in_array($id, array_keys($toDelete))) {
                     $attachment = $repository->find($id);
 
                     if ($attachment) {
@@ -110,6 +110,7 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
 
         if (!empty($toDelete)) {
             $repository->deleteInBatchById($toDelete);
+            $changed = true;
         }
 
         if ($changed) {

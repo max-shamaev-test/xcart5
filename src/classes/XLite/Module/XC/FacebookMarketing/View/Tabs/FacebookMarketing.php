@@ -117,6 +117,41 @@ class FacebookMarketing extends \XLite\View\Tabs\ATabs
     }
 
     /**
+     * Return add to cart value percentage
+     *
+     * @return boolean
+     */
+    protected function getAddToCartValue()
+    {
+        return \XLite\Core\Config::getInstance()->XC->FacebookMarketing->add_to_cart_value;
+    }
+
+    /**
+     * Return add to cart value percentage
+     *
+     * @return boolean
+     */
+    protected function getViewContentValue()
+    {
+        return \XLite\Core\Config::getInstance()->XC->FacebookMarketing->view_content_value;
+    }
+
+    /**
+     * Return add to cart value percentage
+     *
+     * @return boolean
+     */
+    protected function getInitCheckoutValue()
+    {
+        return \XLite\Core\Config::getInstance()->XC->FacebookMarketing->init_checkout_value;
+    }
+
+    protected function isAdvancedMatchingEnabled()
+    {
+        return (bool) \XLite\Core\Config::getInstance()->XC->FacebookMarketing->advanced_matching;
+    }
+
+    /**
      * Check if should include out of stock products
      *
      * @return boolean

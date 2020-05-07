@@ -8,6 +8,7 @@
 
 namespace XCart\Bus\Controller;
 
+use Silex\Application;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,19 +33,9 @@ use XCart\SilexAnnotations\Annotations\Service;
 class Package
 {
     /**
-     * @var Uploader
+     * @var InstalledModulesDataSource
      */
-    private $uploader;
-
-    /**
-     * @var ChangeUnitProcessor
-     */
-    private $changeUnitProcessor;
-
-    /**
-     * @var ScenarioDataSource
-     */
-    private $scenarioDataSource;
+    private $installedModulesDataSource;
 
     /**
      * @var UploadedModulesDataSource
@@ -52,14 +43,60 @@ class Package
     private $uploadedModulesDataSource;
 
     /**
-     * @var InstalledModulesDataSource
-     */
-    private $installedModulesDataSource;
-
-    /**
      * @var DomainPackage
      */
     private $package;
+
+    /**
+     * @var ScenarioDataSource
+     */
+    private $scenarioDataSource;
+
+    /**
+     * @var ChangeUnitProcessor
+     */
+    private $changeUnitProcessor;
+
+    /**
+     * @var Uploader
+     */
+    private $uploader;
+
+    private $displayUpdateNotification;
+
+    /**
+     * @param Application                $app
+     * @param InstalledModulesDataSource $installedModulesDataSource
+     * @param UploadedModulesDataSource  $uploadedModulesDataSource
+     * @param DomainPackage              $package
+     * @param ScenarioDataSource         $scenarioDataSource
+     * @param ChangeUnitProcessor        $changeUnitProcessor
+     * @param Uploader                   $uploader
+     *
+     * @return static
+     *
+     * @Service\Constructor
+     * @codeCoverageIgnore
+     */
+    public static function serviceConstructor(
+        Application $app,
+        InstalledModulesDataSource $installedModulesDataSource,
+        UploadedModulesDataSource $uploadedModulesDataSource,
+        DomainPackage $package,
+        ScenarioDataSource $scenarioDataSource,
+        ChangeUnitProcessor $changeUnitProcessor,
+        Uploader $uploader
+    ) {
+        return new self(
+            $installedModulesDataSource,
+            $uploadedModulesDataSource,
+            $package,
+            $scenarioDataSource,
+            $changeUnitProcessor,
+            $uploader,
+            $app['xc_config']['service']['display_upload_addon'] ?? true
+        );
+    }
 
     /**
      * @param InstalledModulesDataSource $installedModulesDataSource
@@ -68,6 +105,7 @@ class Package
      * @param ScenarioDataSource         $scenarioDataSource
      * @param ChangeUnitProcessor        $changeUnitProcessor
      * @param Uploader                   $uploader
+     * @param bool                       $displayUpdateNotification
      */
     public function __construct(
         InstalledModulesDataSource $installedModulesDataSource,
@@ -75,14 +113,16 @@ class Package
         DomainPackage $package,
         ScenarioDataSource $scenarioDataSource,
         ChangeUnitProcessor $changeUnitProcessor,
-        Uploader $uploader
+        Uploader $uploader,
+        $displayUpdateNotification
     ) {
-        $this->package                    = $package;
         $this->installedModulesDataSource = $installedModulesDataSource;
         $this->uploadedModulesDataSource  = $uploadedModulesDataSource;
+        $this->package                    = $package;
         $this->scenarioDataSource         = $scenarioDataSource;
         $this->changeUnitProcessor        = $changeUnitProcessor;
         $this->uploader                   = $uploader;
+        $this->displayUpdateNotification  = $displayUpdateNotification;
     }
 
     /**
@@ -107,13 +147,16 @@ class Package
         $module = $this->installedModulesDataSource->find($moduleId);
         if ($module) {
             $package = $this->package->fromModule($module);
+            $path = $package->createPackage();
 
-            return (new BinaryFileResponse($package->createPackage()))
-                ->setContentDisposition(
-                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                    $package->getFileName()
-                )
-                ->deleteFileAfterSend(true);
+            if ($path) {
+                return (new BinaryFileResponse($path))
+                    ->setContentDisposition(
+                        ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                        $package->getFileName()
+                    )
+                    ->deleteFileAfterSend(true);
+            }
         }
 
         return new Response('We are sorry, but something went terribly wrong.', 404);
@@ -133,6 +176,10 @@ class Package
      */
     public function uploadAction(Request $request): Response
     {
+        if (!$this->displayUpdateNotification) {
+            return new Response(null, 403);
+        }
+
         if (!ResourceChecker::PharIsInstalled()) {
             return new Response(
                 "controls.upload_addon.phar-error",
@@ -187,6 +234,10 @@ class Package
      */
     public function finalizeAction(Request $request): Response
     {
+        if (!$this->displayUpdateNotification) {
+            return new Response(null, 403);
+        }
+
         try {
             $filePath = $this->uploader->finalizeUpload($request);
             // TODO: validate uploaded file
@@ -217,6 +268,7 @@ class Package
                 'id'      => $module->id,
                 'version' => $module->version,
                 'install' => true,
+                'replaceData' => ['price' => 0],
             ],
         ];
 

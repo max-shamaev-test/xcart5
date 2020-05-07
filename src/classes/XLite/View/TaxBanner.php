@@ -65,20 +65,24 @@ class TaxBanner extends \XLite\View\AView
     {
         $links   = [];
         $links[] = [
-            'title' => static::t('Setting up VAT / GST'),
-            'url'   => static::t('https://kb.x-cart.com/taxes/setting_up_vat_gst.html'),
-        ];
-        $links[] = [
-            'title' => static::t('Setting up sales tax'),
-            'url'   => static::t('https://kb.x-cart.com/taxes/setting_up_sales_tax.html'),
-        ];
-        $links[] = [
-            'title' => static::t('Setting up Canadian taxes'),
-            'url'   => static::t('https://kb.x-cart.com/taxes/setting_up_canadian_taxes.html'),
+            'title' => static::t('Setting up tax'),
+            'url'   => static::t('https://kb.x-cart.com/taxes/tax_guide.html'),
         ];
         $links[] = [
             'title' => static::t('Setting up tax classes'),
             'url'   => static::t('https://kb.x-cart.com/taxes/setting_up_tax_classes.html'),
+        ];
+        $links[] = [
+            'title' => static::t('Setting up European / UK Taxes'),
+            'url'   => static::t('https://kb.x-cart.com/taxes/UK_EU_taxes/'),
+        ];
+        $links[] = [
+            'title' => static::t('Setting up US Taxes'),
+            'url'   => static::t('https://kb.x-cart.com/taxes/us_taxes/'),
+        ];
+        $links[] = [
+            'title' => static::t('Setting up Canadian taxes'),
+            'url'   => static::t('https://kb.x-cart.com/taxes/canadian_taxes/'),
         ];
 
         return $links;

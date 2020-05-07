@@ -129,7 +129,7 @@ class Discount extends \XLite\Logic\Order\Modifier\Discount
     /**
      * Get used coupons
      *
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return \Doctrine\Common\Collections\ArrayCollection|\XLite\Module\CDev\Coupons\Model\UsedCoupon[]
      */
     protected function getUsedCoupons()
     {

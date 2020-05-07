@@ -17,9 +17,6 @@
 }
 
 .items-list.product_tabs .line.global-tab .cell.name .plain-value {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
   flex-flow: column-reverse;
 }

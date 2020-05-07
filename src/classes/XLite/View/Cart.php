@@ -102,7 +102,7 @@ class Cart extends \XLite\View\Dialog
     protected function getCartItemsGroups()
     {
         $group = array(
-            'items' => $this->getCart()->getItems(),
+            'items' => array_reverse($this->getCart()->getItems()->toArray()),
         );
 
         return array($group);

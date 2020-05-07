@@ -8,13 +8,6 @@
 
 namespace XCart\Bus\Client;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Cookie\CookieJar;
-use GuzzleHttp\Cookie\SetCookie;
-use GuzzleHttp\Message\ResponseInterface;
-use Silex\Application;
-use XCart\SilexAnnotations\Annotations\Service;
-
 interface XCartInterface
 {
     /**

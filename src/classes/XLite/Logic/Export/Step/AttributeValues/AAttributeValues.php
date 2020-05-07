@@ -65,6 +65,7 @@ abstract class AAttributeValues extends \XLite\Logic\Export\Step\Base\I18n
             'editable'          => [], // Specific field, used only for textarea attribute type
             'attributePosition' => [],
             'valuePosition'     => [],
+            'displayMode'       => [], // Specific field, used only for select attribute type
         ];
 
         return $columns;
@@ -144,6 +145,7 @@ abstract class AAttributeValues extends \XLite\Logic\Export\Step\Base\I18n
     protected function getAttributePositionExportedKey(AttributeValue\AAttributeValue $attributeValue)
     {
         return implode('.', [
+            'position',
             $attributeValue->getProduct()
                 ? $attributeValue->getProduct()->getProductId()
                 : 'none',
@@ -326,6 +328,20 @@ abstract class AAttributeValues extends \XLite\Logic\Export\Step\Base\I18n
         )
         ? 'Yes'
         : '';
+    }
+
+    /**
+     * Get column value for 'displayMode' column
+     *
+     * @param array   $dataset Dataset
+     * @param string  $name    Column name
+     * @param integer $i       Subcolumn index
+     *
+     * @return string
+     */
+    protected function getDisplayModeColumnValue(array $dataset, $name, $i)
+    {
+        return '';
     }
 
     // }}}

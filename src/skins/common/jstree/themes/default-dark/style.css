@@ -100,9 +100,6 @@
   cursor: pointer;
   position: absolute;
   left: 0;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 .jstree-contextmenu .jstree-anchor {

@@ -9,6 +9,10 @@
 
 namespace XLite\Module\XC\CustomerAttachments\View;
 
+use \XLite\Module\XC\CustomerAttachments\View\FormField\Input\Text\FileSizeInteger;
+use \XLite\Module\XC\CustomerAttachments\Core\CustomerAttachments;
+use \XLite\Core\Converter;
+
 /**
  * Attachment description widget
  */
@@ -31,13 +35,58 @@ class AttachmentDescription extends \XLite\View\AView
     }
 
     /**
+     * Return file size precision
+     *
+     * @return int
+     */
+    protected function getPrecision()
+    {
+        return FileSizeInteger::PARAM_VALUE_E;
+    }
+
+    /**
      * Get human readable allowed file size
      *
      * @return string
      */
     public function getAllowedSizeHumanReadable()
     {
-        return \XLite\Module\XC\CustomerAttachments\Core\CustomerAttachments::getAllowedSize() / \XLite\Core\Converter::MEGABYTE . 'MB';
+        $allowedSize = round(
+            CustomerAttachments::getAllowedSize() / Converter::MEGABYTE,
+            $this->getPrecision()
+        );
+
+        return "{$allowedSize} MB";
+    }
+
+    /**
+     * Get human readable POST size limit
+     *
+     * @return string
+     */
+    protected function getPostSizeLimitHumanReadable()
+    {
+        return Converter::convertShortSizeToHumanReadable(ini_get('post_max_size'));
+    }
+
+    /**
+     * Return POST size limit
+     *
+     * @return string
+     */
+    protected function getPostSizeLimit()
+    {
+        return Converter::convertShortSize(ini_get('post_max_size'));
+    }
+
+    /**
+     * Return max_file_uploads
+     *
+     * @return string
+     */
+    protected function getMaxFileUploads()
+    {
+        return ini_get('max_file_uploads');
     }
 
     /**
@@ -60,7 +109,7 @@ class AttachmentDescription extends \XLite\View\AView
     public function getAllowedQuantity()
     {
         return $this->getItem()
-            ? \XLite\Module\XC\CustomerAttachments\Core\CustomerAttachments::getAllowedQuantity($this->getItem())
+            ? CustomerAttachments::getAllowedQuantity($this->getItem())
             : \XLite\Core\Config::getInstance()->XC->CustomerAttachments->quantity;
     }
 

@@ -87,6 +87,11 @@ class CustomOpenGraph extends \XLite\View\FormField\Input\Text
                 $result = Database::getRepo('XLite\Module\CDev\SimpleCMS\Model\Page')->find($id);
                 break;
 
+            case 'sale_discount':
+                $id = Request::getInstance()->id;
+                $result = Database::getRepo('XLite\Module\CDev\Sale\Model\SaleDiscount')->find($id);
+                break;
+
             default:
                 $result = null;
         }

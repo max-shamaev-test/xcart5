@@ -132,11 +132,7 @@ class AbortException extends RebuildException
             $exception->getCode(),
             $exception
         ))
-            ->setDescription(
-                $exception->getMessage() .
-                '<br>Content:<br>' .
-                $exception->getResponse()->getBody()
-            );
+            ->setDescription(self::getExceptionDescription($exception));
     }
 
     /**
@@ -151,11 +147,7 @@ class AbortException extends RebuildException
             $exception->getCode(),
             $exception
         ))
-            ->setDescription(
-                $exception->getMessage() .
-                '<br>Content:<br>' .
-                $exception->getResponse()->getBody()
-            );
+            ->setDescription(self::getExceptionDescription($exception));
     }
 
     /**
@@ -170,11 +162,7 @@ class AbortException extends RebuildException
             $exception->getCode(),
             $exception
         ))
-            ->setDescription(
-                $exception->getMessage() .
-                '<br>Content:<br>' .
-                $exception->getResponse()->getBody()
-            );
+            ->setDescription(self::getExceptionDescription($exception));
     }
 
     /**
@@ -209,7 +197,7 @@ class AbortException extends RebuildException
         return (new self('X-Cart failed to execute the hook', $previous->getCode(), $previous))
             ->addData("File: {$file}")
             ->addData($previous->getMessage())
-            ->addData("Content: {$previous->getResponse()->getBody()}");
+            ->addData(self::getExceptionContent($previous));
     }
 
     /**
@@ -293,7 +281,7 @@ class AbortException extends RebuildException
         return (new self('X-Cart failed to execute the upgrade action ' . $moduleId, $previous->getCode(), $previous))
             ->addData("Module: {$moduleId}")
             ->addData($previous->getMessage())
-            ->addData("Content: {$previous->getResponse()->getBody()}");
+            ->addData(self::getExceptionContent($previous));
     }
 
     /**
@@ -327,5 +315,33 @@ class AbortException extends RebuildException
     {
         return (new self('X-Cart failed to execute the upgrade action ' . $moduleId))
             ->addData($errors);
+    }
+
+    /**
+     * @param Exception|ParseException $exception
+     *
+     * @return string
+     */
+    private static function getExceptionDescription($exception): string
+    {
+        $description = $exception->getMessage();
+        if ($exception->getResponse()) {
+            $description .= '<br>Content:<br>' .
+                $exception->getResponse()->getBody();
+        }
+
+        return $description;
+    }
+
+    /**
+     * @param ParseException $exception
+     *
+     * @return string
+     */
+    private static function getExceptionContent($exception): string
+    {
+        return $exception->getResponse()
+            ? "Content: {$exception->getResponse()->getBody()}"
+            : '';
     }
 }

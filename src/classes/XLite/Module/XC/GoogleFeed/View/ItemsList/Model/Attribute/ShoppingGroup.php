@@ -11,6 +11,7 @@ namespace XLite\Module\XC\GoogleFeed\View\ItemsList\Model\Attribute;
 use XLite\Core\Converter;
 use XLite\Core\Database;
 use XLite\Model\Attribute;
+use XLite\Module\XC\GoogleFeed\Model\SearchCondition\Expression\TypeSearchGroup;
 use XLite\View\ItemsList\SearchCaseProcessor;
 
 /**
@@ -33,7 +34,7 @@ class ShoppingGroup extends \XLite\View\ItemsList\Model\Table
     {
         return '\XLite\View\SearchPanel\SimpleSearchPanel';
     }
-    
+
     /**
      * Define repository name
      *
@@ -281,9 +282,10 @@ class ShoppingGroup extends \XLite\View\ItemsList\Model\Table
                     ),
                 ),
                 static::PARAM_GROUP    => array(
-                    'condition'     => new \XLite\Model\SearchCondition\Expression\TypeEquality('googleShoppingGroup'),
+                    'condition'     => new TypeSearchGroup('googleShoppingGroup'),
                     'widget'            => array(
-                        'nonSelected' => static::t('Any google group'),
+                        'nonSelected'   => static::t('Any google group'),
+                        'emptySelected' => true,
                         \XLite\View\SearchPanel\ASearchPanel::CONDITION_CLASS => 'XLite\Module\XC\GoogleFeed\View\FormField\Select\ShoppingGroup',
                         \XLite\View\FormField\AFormField::PARAM_FIELD_ONLY => true,
                     ),

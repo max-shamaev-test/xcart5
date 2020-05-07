@@ -92,11 +92,7 @@
 
 .xlite-translation-button.disabled {
     background: none;
-    -moz-opacity: .3;
-    -khtml-opacity: .3;
-    -webkit-opacity: .3;
     opacity: .3;
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(opacity=30)";
     filter: alpha(opacity=30);
 }
 
@@ -119,10 +115,7 @@
     border-radius: 3px;
     height: 34px;
     line-height: 14px;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
-    -moz-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
     box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
-    -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
     margin-bottom: 10px !important;
 }

@@ -26,6 +26,14 @@ jQuery().ready(
             self.location = URLHandler.buildURL({target:'bulk_edit',scenario:scenario,completed:1});
           }
         }
+      ).bind(
+        'cancel',
+        function() {
+          setTimeout(function() {
+            var scenario = $(this).closest('form').get(0).elements['scenario'].value;
+            self.location = URLHandler.buildURL({target:'bulk_edit',scenario:scenario});
+          }.bind(this), 4000);
+        }
       );
   }
 );

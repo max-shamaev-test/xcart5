@@ -10,7 +10,9 @@ namespace XCart\Marketplace\Transport;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Message\Response;
+use GuzzleHttp\Handler\CurlFactory;
+use GuzzleHttp\Handler\CurlHandler;
+use Psr\Http\Message\ResponseInterface;
 
 class Guzzle extends AHTTP
 {
@@ -26,9 +28,12 @@ class Guzzle extends AHTTP
     {
         parent::__construct($config);
 
-        $endPoint = $this->config[self::ENDPOINT];
+        $endPoint     = $this->config[self::ENDPOINT];
         $this->client = new Client([
             'base_uri' => $endPoint,
+            'handler'  => new CurlHandler([
+                'handle_factory' => new CurlFactory(0),
+            ]),
         ]);
     }
 
@@ -50,7 +55,7 @@ class Guzzle extends AHTTP
         ];
 
         if ($data && $verb !== 'GET') {
-            $params['body'] = $data;
+            $params['form_params'] = $data;
         }
 
         if ($ttl) {
@@ -60,7 +65,7 @@ class Guzzle extends AHTTP
         $method = strtolower($verb);
 
         try {
-            /** @var Response $response */
+            /** @var ResponseInterface $response */
             $response = $this->client->{$method}($url, $params);
 
             if ($response
@@ -87,10 +92,10 @@ class Guzzle extends AHTTP
     }
 
     /**
-     * @param Response $response
+     * @param ResponseInterface $response
      * @return array
      */
-    protected function processResponse(Response $response)
+    protected function processResponse(ResponseInterface $response)
     {
         $headers = [];
 

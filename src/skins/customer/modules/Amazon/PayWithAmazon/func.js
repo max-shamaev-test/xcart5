@@ -108,7 +108,6 @@ define('Amazon/PayWithAmazon', ['js/jquery', 'Amazon/Config', 'ready'], function
         sellerId: amazonConfig.sid,
         onOrderReferenceCreate: function (orderReference) {
           self.orderReference = orderReference.getAmazonOrderReferenceId();
-          self.initWalletWidget('walletWidgetDiv');
         },
         onAddressSelect: function (orderReference) {
           self.checkAddress()
@@ -281,6 +280,7 @@ define('Amazon/PayWithAmazon', ['js/jquery', 'Amazon/Config', 'ready'], function
       }
 
       this.initAddressBookWidget('addressBookWidgetDiv');
+      this.initWalletWidget('walletWidgetDiv');
     },
 
     refreshTotals: function (event) {

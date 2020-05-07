@@ -44,15 +44,16 @@ abstract class Discount extends \XLite\Logic\Order\Modifier\ADiscount
      * Distribute discount among the ordered products
      *
      * @param float  $discountTotal Discount value
+     * @param bool   $replace replace current value
      *
      * @return void
      */
-    public function distributeDiscount($discountTotal)
+    public function distributeDiscount($discountTotal, $replace = false)
     {
         // Get order items
         $orderItems = $this->getOrderItems();
 
-        $this->distributeDiscountAmongItems($discountTotal, $orderItems);
+        $this->distributeDiscountAmongItems($discountTotal, $orderItems, $replace);
     }
 
     /**
@@ -60,10 +61,11 @@ abstract class Discount extends \XLite\Logic\Order\Modifier\ADiscount
      *
      * @param float  $discountTotal Discount value
      * @param array  $orderItems    Items for distribution
+     * @param bool   $replace       replace current value
      *
      * @return void
      */
-    public function distributeDiscountAmongItems($discountTotal, $orderItems)
+    public function distributeDiscountAmongItems($discountTotal, $orderItems, $replace = false)
     {
         // Order currency
         $currency = $this->getOrder()->getCurrency();
@@ -85,7 +87,7 @@ abstract class Discount extends \XLite\Logic\Order\Modifier\ADiscount
                 : 0;
 
             // Set discounted subtotal for item
-            $item->setDiscountedSubtotal($item->getDiscountedSubtotal() - $discountValue);
+            $item->setDiscountedSubtotal(($replace ? $item->getSubtotal() : $item->getDiscountedSubtotal()) - $discountValue);
 
             // Update distributed discount value
             $distributedSum += $discountValue;

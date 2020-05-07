@@ -24,15 +24,6 @@ abstract class Main extends \XLite\View\Product\Details\Customer\Page\Main imple
 
         $list[] = $this->getProduct()->getOpenGraphMetaTags();
 
-        if (\XLite\Core\Config::getInstance()->CDev->GoSocial->gplus_use
-            && \XLite\Core\Config::getInstance()->CDev->GoSocial->gplus_page_id
-        ) {
-            $list[] = sprintf(
-                '<link href="https://plus.google.com/%s" rel="publisher" />',
-                \XLite\Core\Config::getInstance()->CDev->GoSocial->gplus_page_id
-            );
-        }
-
         return $list;
     }
 

@@ -295,7 +295,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
         $cacheKey = trim($cacheKey, '/');
 
         return array_key_exists($cacheKey, $this->categoriesCache)
-            || (array_key_exists('categoryByPathCache', $this->importer->getOptions())
+            || (property_exists($this->importer->getOptions(), 'categoryByPathCache')
                 && is_array($this->importer->getOptions()->categoryByPathCache)
                 && array_key_exists($cacheKey, $this->importer->getOptions()->categoryByPathCache));
     }
@@ -309,9 +309,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
             return $this->categoriesCache[$cacheKey];
         }
 
-        return array_key_exists($cacheKey, $this->importer->getOptions()->categoryByPathCache)
-            ? $this->importer->getOptions()->categoryByPathCache[$cacheKey]
-            : null;
+        return $this->importer->getOptions()->categoryByPathCache[$cacheKey] ?? null;
     }
 
     // {{{ Files
@@ -363,7 +361,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
     {
         if (null === $this->file
             || (is_object($this->file) && $this->file->eof())
-            || (is_object($this->file) && $this->file->key() == $this->countCache[$this->file->getPathname()])
+            || (is_object($this->file) && $this->file->key() === ($this->countCache[$this->file->getPathname()] ?? null))
         ) {
             $path = null;
             $found = false;
@@ -571,7 +569,6 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
                 }
             }
         }
-
         return $this->countCache;
     }
 
@@ -801,6 +798,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
                 $result[] = array(
                     'file' => $outputFile,
                     'delta' => $delta,
+                    'rowsCount' => $i,
                 );
 
                 $delta += $i;
@@ -1144,7 +1142,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
         $headers = $this->getColumnMetaData($column, 'headers');
 
         if ($this->isColumnRequired($column) && $this->isColumnValueEmpty($column, $value)) {
-            $this->addError('CMN-REQ', array('column' => key($headers)));
+            $this->addError('CMN-REQ', ['column' => $headers ? key($headers) : $column]);
 
         } else {
             if (!empty($column[static::COLUMN_VERIFICATOR])) {
@@ -1408,10 +1406,9 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
             if ($result) {
                 try {
                     if (!$model->isManaged()) {
-                        $model->getRepository()->insert($model);
+                        $model->getRepository()->insert($model, false);
                     } else {
                         \XLite\Core\Database::getEM()->persist($model);
-                        \XLite\Core\Database::getEM()->flush();
                     }
                 } catch (\Exception $e) {
                     \XLite\Logger::getInstance()->registerException($e);
@@ -1770,7 +1767,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
     public static function getMessages()
     {
         return array(
-            'CMN-REQ'                  => '',
+            'CMN-REQ'                  => 'Column "{{column}}" is required',
             'CMN-INVALID-ROW-LENGTH'   => 'The number of values in the row does not match the number of column headers for this CSV file',
             'CMN-TAGS'                 => 'Tags are not allowed in the column "{{column}}" and will be stripped',
             'CMN-XSS'                  => 'The value in the column "{{column}}" will be adjusted according to HTML specification to prevent potential XSS attack',
@@ -1891,7 +1888,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
             throw new \InvalidArgumentException('Log code is unknown');
 
         } else {
-            if (!empty($arguments['column'])) {
+            if (is_array($arguments['column']) && !empty($arguments['column'])) {
                 $arguments['header'] = $this->getColumnHeadersAsString($arguments['column']);
                 $arguments['column'] = $arguments['column'][static::COLUMN_NAME];
             }
@@ -2038,6 +2035,18 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
      *
      * @return boolean
      */
+    protected function verifyValueAsInteger($value)
+    {
+        return !(bool) preg_match('/[^0-9-]/S', trim($value));
+    }
+
+    /**
+     * Verify value as unsigned integer
+     *
+     * @param mixed @value Value
+     *
+     * @return boolean
+     */
     protected function verifyValueAsModifier($value)
     {
         return (bool) preg_match('/[+-]\d+/S', trim($value));
@@ -2077,7 +2086,7 @@ abstract class AProcessor extends \XLite\Base implements \SeekableIterator, \Cou
      */
     protected function verifyValueAsURL($value)
     {
-        return (bool) filter_var($value, FILTER_VALIDATE_URL);
+        return strpos($value, '//') === 0 || (bool) filter_var($value, FILTER_VALIDATE_URL);
     }
 
     /**

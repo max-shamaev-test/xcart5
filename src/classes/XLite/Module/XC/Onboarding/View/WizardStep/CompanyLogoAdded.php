@@ -15,6 +15,8 @@ use XLite\Module\XC\Onboarding\View\AWizardStep;
  */
 class CompanyLogoAdded extends AWizardStep
 {
+    const CHECK_NEW_LOGO  = 'checkNewLogo';
+
     /**
      * @return array
      */
@@ -23,5 +25,19 @@ class CompanyLogoAdded extends AWizardStep
         return array_merge(parent::getJSFiles(), [
             $this->getDir() . '/step.js',
         ]);
+    }
+
+    /**
+     * Return Shop URL
+     *
+     * @return string
+     */
+    protected function getURLForNewLogoChecking()
+    {
+        return \XLite::getInstance()->getShopURL(
+            '',
+            null,
+            [self::CHECK_NEW_LOGO => true]
+        );
     }
 }

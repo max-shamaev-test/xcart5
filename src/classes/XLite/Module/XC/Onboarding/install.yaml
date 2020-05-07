@@ -85,31 +85,31 @@ XLite\Model\LanguageLabel:
       - code: ru
         label: "Основные настройки магазина выполнены на {{X}}%"
 
-  - name: "Let’s setup your store"
+  - name: "Let’s set up your store"
     translations:
       - code: en
-        label: "Let’s setup your store."
+        label: "Let’s set up your store."
       - code: ru
         label: "Приступим к настройке магазина"
 
   - name: onboarding.intro.heading
     translations:
       - code: en
-        label: Congratulations! Your store has been installed.
+        label: Welcome to X-Cart!
       - code: ru
         label: "Поздравляем! Ваш магазин установлен."
 
   - name: onboarding.intro.text
     translations:
       - code: en
-        label: This wizard will help you to set it up step by step. Your progress will appear at the top.<br/>As soon as you hit 100%, you’re all set to accept the first order.
+        label: Let’s set up your online store in a few easy steps. Track your progress at the top.<br/>As soon as you hit 100%, you’re all set to accept the first order.
       - code: ru
         label: "Этот мастер настройки поможет пошагово выполнить основные настройки магазина.<br/>Пройдя его до конца, вы сможете принять свой первый заказ."
 
   - name: onboarding.intro.next_button
     translations:
       - code: en
-        label: Let's setup your store
+        label: Let's set up your store
       - code: ru
         label: "Приступить к настройке магазина"
 
@@ -250,22 +250,18 @@ XLite\Model\LanguageLabel:
       - code: ru
         label: "и тут сразу станет уютнее ;)"
 
-  - name: "Click here to upload your logo. Recommended 400x150px (PNG, JPG or SVG)"
+  - name: "Click here to upload your logo. Recommended 221x40px (PNG, JPG or SVG)"
     translations:
       - code: en
-        label: "<p>Click here to upload your logo. Recommended 400x150px (PNG, JPG, GIF)</p><button class='btn regular-button'>Choose image</button>"
-      - code: ru
-        label: "Нажмите сюда, чтобы загрузить логотип. Предпочтительно 400x150px (PNG, JPG, GIF)</p><button class='btn regular-button'>Выберите изображение</button>"
+        label: "<p>Click here to upload your logo. Recommended 221x40px (PNG, JPG, GIF)</p><button class='btn regular-button'>Upload & save new logo</button>"
 
 # /Company logo step
 
 # Company logo added step
-  - name: "Good job! You company logo is added"
+  - name: "Go to the next step"
     translations:
       - code: en
-        label: "Good job! You company logo is added"
-      - code: ru
-        label: "Готово! Логотип обновлен"
+        label: "Go to the next step"
 
   - name: "Here is the way it looks like on desktop & mobile devices. Do you like it?"
     translations:
@@ -273,6 +269,21 @@ XLite\Model\LanguageLabel:
         label: "Here is the way it looks like on desktop & mobile devices. Do you like it?"
       - code: ru
         label: "Вот как он будет выглядеть на экранах. Нравится?"
+
+  - name: "Open the storefront and check how it looks like on desktop."
+    translations:
+      - code: en
+        label: "<a href='{{shopUrl}}' target='_blank' >Open the storefront</a> and check how it looks like on desktop."
+
+  - name: "100% mobile-friendly eCommerce website templates, fully customizable, affordable, and open source."
+    translations:
+      - code: en
+        label: "100% mobile-friendly eCommerce website templates, fully customizable, affordable, and open source."
+
+  - name: "Visit the template store"
+    translations:
+      - code: en
+        label: "Visit the template store"
 
   - name: "Upload a new logo"
     translations:
@@ -429,19 +440,15 @@ XLite\Model\LanguageLabel:
       - code: ru
         label: "Настройки модуля"
 
-  - name: "or choose a shipping carrier to provide your customers with real-time quotes"
+  - name: "Here you can add a flat-rate shipping method"
     translations:
       - code: en
-        label: "Here you can choose a shipping carrier to provide your customers with real-time quotes"
-      - code: ru
-        label: "Выберите службу доставки для онлайн расчета стоимости доставки"
+        label: "Here you can add a flat-rate shipping method"
 
-  - name: "Advanced shipping options"
+  - name: "More shipping methods"
     translations:
       - code: en
-        label: "Advanced shipping options"
-      - code: ru
-        label: "Расширенные настройки доставки"
+        label: "More shipping methods"
 
   - name: "Create shipping rate"
     translations:
@@ -519,12 +526,10 @@ XLite\Model\LanguageLabel:
       - code: ru
         label: "Некоторые покупатели предпочитают оформить заказ по телефону - почему бы и нет?"
 
-  - name: "Set up offline & online payments"
+  - name: "View all payment methods"
     translations:
       - code: en
-        label: "Set up offline & online payments"
-      - code: ru
-        label: "Настроить другие методы оплаты"
+        label: "View all payment methods"
 
   - name: "Launch (Paypal Onboarding)"
     translations:
@@ -536,31 +541,22 @@ XLite\Model\LanguageLabel:
 # /Payment step
 
 # Payment done step
-  - name: "Excellent! Now you can get paid"
+  - name: "Excellent! Storefront is ready to get orders!"
     translations:
       - code: en
-        label: "Excellent! Now you can get paid"
-      - code: ru
-        label: "Ура! Теперь вы можете принимать платежи"
+        label: "Excellent! Storefront is ready to get orders!"
 
   - name: "Go on, make your first sale."
     translations:
       - code: en
-        label: "Time to check how it works for your customers. Open the <a href='{{url}}' target='_blank'>storefront</a> to place a test order."
+        label: "Time to check how it works for your customers. Open the storefront to place a test order."
       - code: ru
-        label: "Пора проверить, как все работает для покупателя. Перейдите к <a href='{{url}}' target='_blank'>витрине</a>, чтобы оформить тестовый заказ."
+        label: "Пора проверить, как все работает для покупателя. Перейдите к витрине, чтобы оформить тестовый заказ."
 
 # /Payment done step
 
 
 # Done step
-  - name: "Need help setting up your store?"
-    translations:
-      - code: en
-        label: "Need help setting up your store?"
-      - code: ru
-        label: "Нужна помощь с настройкой?"
-
   - name: "Contact our expert"
     translations:
       - code: en
@@ -623,6 +619,27 @@ XLite\Model\LanguageLabel:
         label: "Sales & Customer Service: {{phone}}"
       - code: ru
         label: "Позвоните нам: {{phone}}"
+
+  - name: 'Find your payment method'
+    translations:
+      - code: en
+        label: 'Find your payment method'
+
+  - name: 'We support 120+ payment gateways'
+    translations:
+      - code: en
+        label: 'We support 120+ payment gateways'
+
+  - name: 'What about adding some marketing magic to your sales process?'
+    translations:
+      - code: en
+        label: 'What about adding some marketing magic to your sales process?'
+
+  - name: 'Browse Top Trending Tools'
+    translations:
+      - code: en
+        label: 'Browse Top Trending Tools'
+
 # /Done step
 
   - { name: 'Could not save logo image', translations: [{ code: en, label: 'Could not save logo image' }]}

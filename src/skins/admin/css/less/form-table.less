@@ -82,6 +82,14 @@ form {
         }
       }
 
+      &.input .table-value .single-selector {
+        padding-top: (@rhythmic-unit / 2) - @form-row-vertical-padding;
+
+        li + li {
+          margin-top: @rhythmic-unit / 2;
+        }
+      }
+
       .input-internal-wrapper {
         .flex-display();
         .align-items(flex-start);
@@ -153,6 +161,7 @@ form {
 
     & > label {
       position: relative;
+      word-break: break-word;
     }
 
     & ~ .star {
@@ -177,7 +186,7 @@ form {
 
     .form-field-comment:not(.not-padded) {
       margin-top: @help-block-margin-top;
-      margin-bottom: -(@line-height-small-text + @help-block-margin-top);
+      margin-bottom: -(@line-height-base + @help-block-margin-top);
     }
   }
 

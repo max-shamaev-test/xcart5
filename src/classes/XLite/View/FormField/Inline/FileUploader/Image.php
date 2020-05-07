@@ -74,8 +74,8 @@ class Image extends \XLite\View\FormField\Inline\Base\Single
     {
         $list = parent::getFieldParams($field);
 
-        $list[\XLite\View\FormField\FileUploader\AFileUploader::PARAM_MAX_WIDTH] = 58;
-        $list[\XLite\View\FormField\FileUploader\AFileUploader::PARAM_MAX_HEIGHT] = 58;
+        $list[\XLite\View\FormField\FileUploader\AFileUploader::PARAM_MAX_WIDTH] = 60;
+        $list[\XLite\View\FormField\FileUploader\AFileUploader::PARAM_MAX_HEIGHT] = 60;
 
         return $list;
     }

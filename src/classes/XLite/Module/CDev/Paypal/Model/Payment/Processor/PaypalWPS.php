@@ -173,6 +173,24 @@ class PaypalWPS extends \XLite\Model\Payment\Base\WebBased
     }
 
     /**
+     * Update status of backend transaction related to an initial payment transaction
+     *
+     * @param \XLite\Model\Payment\Transaction $transaction Payment transaction
+     * @param string                           $status      Transaction status
+     *
+     * @return void
+     */
+    public function updateInitialBackendTransaction(\XLite\Model\Payment\Transaction $transaction, $status)
+    {
+        $backendTransaction = $transaction->getInitialBackendTransaction();
+
+        if (null !== $backendTransaction) {
+            $backendTransaction->setStatus($status);
+            $this->saveDataFromRequest($backendTransaction);
+        }
+    }
+
+    /**
      * Process callback
      *
      * @param Transaction $transaction Callback-owner transaction
@@ -187,8 +205,8 @@ class PaypalWPS extends \XLite\Model\Payment\Base\WebBased
         if (PaypalIPN::getInstance()->isCallbackIPN()) {
             PaypalIPN::getInstance()->tryProcessCallbackIPN($transaction, $this);
         } else if (!empty(Request::getInstance()->tx)) {
-            \XLite\Core\TmpVars::getInstance()->paypalPDTNotificationVisible = true;
-            \XLite\Core\TmpVars::getInstance()->paypalPDTNotificationUpdateTimestamp = LC_START_TIME;
+            \XLite\Core\TmpVars::getInstance()->CDevPaypalPDTNotificationVisible = true;
+            \XLite\Core\TmpVars::getInstance()->CDevPaypalPDTNotificationUpdateTimestamp = LC_START_TIME;
         }
 
         $this->saveDataFromRequest();

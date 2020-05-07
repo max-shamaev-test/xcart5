@@ -138,6 +138,10 @@ CartView.prototype.openShippingEstimator = function(event, elm)
       this.forceUpdateCartOnClose = true;
       jQuery('form.estimator, .estimate-methods form.method-change').submit(
         function() {
+          var valid = this.commonController.validate({silent: true})
+          if (valid) {
+            createOverlay($(this))
+          }
           core.bind('popup.close', _.once(function(){
             core.trigger('updateCart', {items:[]});
           }));

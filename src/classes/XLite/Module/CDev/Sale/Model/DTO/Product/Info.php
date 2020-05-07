@@ -34,6 +34,13 @@ class Info extends \XLite\Model\DTO\Product\Info implements \XLite\Base\IDecorat
                 ],
             ]
         );
+
+        $assignedDiscounts = [];
+        foreach ($object->getSaleDiscountProducts() as $saleDiscountProduct) {
+            $assignedDiscounts[] = $saleDiscountProduct->getSaleDiscount()->getId();
+        }
+
+        $this->prices_and_inventory->group_discounts = $assignedDiscounts;
     }
 
     /**
@@ -51,6 +58,15 @@ class Info extends \XLite\Model\DTO\Product\Info implements \XLite\Base\IDecorat
         $object->setDiscountType((string) $salePrice['type']);
         $object->setSalePriceValue((float) $salePrice['value']);
 
+        $this->assignProductSpecificSaleDiscounts($object);
+
         parent::populateTo($object, $rawData);
+    }
+
+    protected function assignProductSpecificSaleDiscounts($object)
+    {
+        $discountIds = $this->prices_and_inventory->group_discounts;
+
+        $object->replaceSpecificProductSaleDiscounts($discountIds);
     }
 }

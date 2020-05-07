@@ -388,16 +388,6 @@ class Message extends \XLite\Model\AEntity
     }
 
     /**
-     * Reset notifications cache
-     */
-    public function resetNotifications()
-    {
-        $ids = $this->getNotificationProfileIds();
-
-        \XLite\Core\Database::getRepo('XLite\Module\XC\VendorMessages\Model\Message')->resetMessagesUpdateTimestamp($ids);
-    }
-
-    /**
      * Get IDs list for notifications resetting
      *
      * @return integer[]
@@ -433,7 +423,7 @@ class Message extends \XLite\Model\AEntity
             $this->setType(static::MESSAGE_TYPE_DISPUTE_OPEN);
             $this->getConversation()->getOrder()->setIsOpenedDispute(true);
             if (!$this->getAuthor()->isAdmin()) {
-                \XLite\Core\TmpVars::getInstance()->vendorDisputesUpdateTimestamp = LC_START_TIME;
+                \XLite\Core\TmpVars::getInstance()->XCVendorMessagesDisputesUpdateTimestamp = LC_START_TIME;
             }
             $result = true;
         }

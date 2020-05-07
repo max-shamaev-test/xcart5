@@ -728,7 +728,7 @@ class OrderItem extends \XLite\View\ItemsList\Model\Table
         $result = parent::getLineAttributes($index, $entity);
 
         if ($entity) {
-            $result['data-clear-price'] = $entity->getPrice();
+            $result['data-clear-price'] = $entity->getProduct()->getDisplayPrice();
         }
 
         return $result;
@@ -957,7 +957,7 @@ class OrderItem extends \XLite\View\ItemsList\Model\Table
      */
     protected function getOriginalPrice(\XLite\Model\OrderItem $item)
     {
-        return $item->getPrice();
+        return $item->getProduct()->getDisplayPrice();
     }
 
     /**

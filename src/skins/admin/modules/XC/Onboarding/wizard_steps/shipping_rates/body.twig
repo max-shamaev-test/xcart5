@@ -10,7 +10,7 @@
       <h2 class="heading">{{ t("Set flat shipping rates for your store") }}</h2>
 
       <p class="text">
-        {{ t("or choose a shipping carrier to provide your customers with real-time quotes") }}
+        {{ t("Here you can add a flat-rate shipping method") }}
       </p>
 
       {% if this.getMethods() %}
@@ -49,7 +49,7 @@
 
       <div class="buttons">
         <div class="more-button">
-          {{ widget('\\XLite\\View\\Button\\Link', label='Advanced shipping options', location=this.getMoreSettingsLocation(), blank=1) }}
+          {{ widget('\\XLite\\View\\Button\\Link', label='More shipping methods', location=this.getMoreSettingsLocation(), blank=1) }}
         </div>
         <div class="next-step">
           {{ widget('\\XLite\\View\\Button\\Regular', label='Create shipping rate', style='regular-main-button', attributes={'@click': 'createMethod'}, jsCode="null;") }}

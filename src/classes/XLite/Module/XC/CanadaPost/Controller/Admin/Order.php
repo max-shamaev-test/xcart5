@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\CanadaPost\Controller\Admin;
 
+use XLite\Module\XC\CanadaPost\Model\Order\Parcel;
+
 /**
  * Order page controller (additional methods for "shipments" page)
  */
@@ -34,6 +36,54 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
         ) {
             // Create and save Canda Post parcels (first time only)
             $this->getOrder()->createCapostParcels();
+        }
+    }
+
+    /**
+     * doActionUpdate
+     *
+     * @return void
+     */
+    protected function doActionUpdate()
+    {
+        parent::doActionUpdate();
+
+        if ($this->getOrder()->isCapostShippingMethod()) {
+            $itemsChangesPatterns = [
+                'Added items',
+                'Changed items',
+                'Changed options',
+                'Removed items'
+            ];
+
+            $itemsChanges = array_intersect(
+                array_keys($this->getOrderChanges()),
+                $itemsChangesPatterns
+            );
+
+            if ($itemsChanges) {
+                $notProposedCapostParcels = $this->getCapostOrderParcels()->filter(function ($capostParcel) {
+                    return $capostParcel->getStatus() !== Parcel::STATUS_PROPOSED;
+                });
+
+                $this->getOrder()->createCapostParcels(true);
+
+                if (!$notProposedCapostParcels->isEmpty()) {
+                    \XLite\Core\TopMessage::addInfo(
+                        'As a result of your latest order edit, previously created shipments for the order were dropped. Transmitted shipments (if any) remained unchanged. Visit the page X to manage shipments.',
+                        [
+                            'shipmentsUrl' => $this->buildURL(
+                                'order',
+                                '',
+                                [
+                                    'order_number' => $this->getOrder()->getOrderNumber(),
+                                    'page' => self::PAGE_CAPOST_SHIPMENTS
+                                ]
+                            )
+                        ]
+                    );
+                }
+            }
         }
     }
     
@@ -284,6 +334,7 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
         $list = parent::getPages();
         
         if ($this->getOrder()
+            && $this->isShippingPageVisible()
             && $this->getOrder()->isCapostShippingMethod()
         ) {
             $list[static::PAGE_CAPOST_SHIPMENTS] = static::t('Shipments');
@@ -302,7 +353,8 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
         $list = parent::getPageTemplates();
         
         if (
-            $this->getOrder() 
+            $this->getOrder()
+            && $this->isShippingPageVisible()
             && $this->getOrder()->isCapostShippingMethod()
         ) {
             $list[static::PAGE_CAPOST_SHIPMENTS] = 'modules/XC/CanadaPost/shipments/page.twig';
@@ -376,6 +428,16 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
     {
         return \XLite\Core\Database::getRepo('XLite\Module\XC\CanadaPost\Model\Order\Parcel')
             ->find(\XLite\Core\Request::getInstance()->parcel_id);
+    }
+
+    /**
+     * Is shipping page visible
+     *
+     * @return bool
+     */
+    protected function isShippingPageVisible()
+    {
+        return true;
     }
 
     // }}}

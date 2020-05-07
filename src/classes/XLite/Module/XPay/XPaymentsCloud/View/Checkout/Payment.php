@@ -24,21 +24,21 @@ abstract class Payment extends \XLite\View\Checkout\Payment implements \XLite\Ba
     {
         $list = parent::getCSSFiles();
         if ($this->isXpaymentsMethodAvailable()) {
-            $list[] = 'modules/XPay/XPaymentsCloud/widget.css';
+            $list[] = 'modules/XPay/XPaymentsCloud/checkout/widget.css';
         }
         return $list;
     }
 
     /**
-     * Register files from common repository
+     * Get JS files
      *
      * @return array
      */
-    public function getCommonFiles()
+    public function getJSFiles()
     {
-        $list = parent::getCommonFiles();
+        $list = parent::getJSFiles();
         if ($this->isXpaymentsMethodAvailable()) {
-            $list[static::RESOURCE_JS][] = 'modules/XPay/XPaymentsCloud/widget.js';
+            $list[] = 'modules/XPay/XPaymentsCloud/checkout/widget.js';
         }
         return $list;
     }

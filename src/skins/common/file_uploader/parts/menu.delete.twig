@@ -7,14 +7,14 @@
 {% if this.hasFile() and this.isRemovable() %}
   <li role="presentation">
     <a role="menuitem" tabindex="-1" href="#" class="delete" @click.prevent="toggleDelete">
-      <i class="button-icon fa-trash-o"></i>
+      <i class="button-icon fa fa-trash-o"></i>
       <span>{{ t('Delete') }}</span>
     </a>
   </li>
   <li role="presentation" class="undelete">
     <a role="menuitem" tabindex="-1" href="#" class="delete" @click.prevent="toggleDelete">
       <div class="diagonal"></div>
-      <i class="button-icon fa-trash-o"></i>
+      <i class="button-icon fa fa-trash-o"></i>
       <span>{{ t('Undelete') }}</span>
     </a>
   </li>

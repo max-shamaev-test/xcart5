@@ -45,8 +45,6 @@ if (COPYRIGHT_EXISTS) {
 
 <input type="hidden" name="params[force_current]" value="<?php print get_step("check_cfg") ?>" />
 
-<br />
-
 <table align="center">
 
     <tr>
@@ -78,8 +76,6 @@ if (COPYRIGHT_EXISTS) {
     }
 
 ?>
-
-<br />
 
 <span class="checkbox-field">
 <input type="checkbox" id="agree" name="agree" onclick="javascript:setNextButtonDisabled(!this.checked);" />

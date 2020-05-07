@@ -14,11 +14,8 @@ if (!defined('XLITE_INSTALL_MODE')) {
     die('Incorrect call of the script. Stopping.');
 }
 
-// Current X-Cart version
-define('LC_VERSION', '5.4.0.6');
-
 // Minimum PHP version supported
-define('LC_PHP_VERSION_MIN', '7.2.0');
+define('LC_PHP_VERSION_MIN', '7.2.9');
 
 // Maximum PHP version supported (none if empty)
 define('LC_PHP_VERSION_MAX', '');
@@ -82,6 +79,7 @@ $lcSettings = array(
             'sql' . LC_DS . 'xlite_demo_ru.yaml',
             'sql' . LC_DS . 'xlite_demo_sale.yaml',
             'sql' . LC_DS . 'product_attributes.sql',
+            'sql' . LC_DS . 'product_tabs.sql',
             'sql' . LC_DS . 'xlite_demo_reviews.sql',
             'sql' . LC_DS . 'xlite_menu.yaml',
             'sql' . LC_DS . 'module.XC.Onboarding.yaml',
@@ -91,7 +89,7 @@ $lcSettings = array(
             'sql' . LC_DS . 'xlite_demo_featured.yaml',
             'sql' . LC_DS . 'xlite_demo_orders_en.yaml',
             'sql' . LC_DS . 'xlite_demo_sale.yaml',
-            'sql' . LC_DS . 'product_attributes.sql',
+            'sql' . LC_DS . 'product_tabs.sql',
             'sql' . LC_DS . 'xlite_demo_reviews.sql',
             'sql' . LC_DS . 'xlite_menu.yaml',
             'sql' . LC_DS . 'module.XC.Onboarding.yaml',
@@ -138,6 +136,7 @@ $lcSettings = array(
             'UPS',
             'Upselling',
             'FacebookMarketing',
+            'RESTAPI',
         ),
         'QSL' => array(
             'CloudSearch',
@@ -193,7 +192,6 @@ if (XLITE_EDITION_LNG === 'ru') {
         array(
             'CDev' => array(
                 // EN edition
-                'XPaymentsConnector',
                 'Quantum',
                 'AuthorizeNet',
                 'TwoCheckout',
@@ -214,7 +212,10 @@ if (XLITE_EDITION_LNG === 'ru') {
             ),
             'QSL' => array(
                 'AuthorizenetAcceptjs'
-            )
+            ),
+            'XPay' => [
+                'XPaymentsCloud'
+            ]
         )
     );
 } elseif (XLITE_EDITION_LNG === 'gb') {
@@ -227,7 +228,6 @@ if (XLITE_EDITION_LNG === 'ru') {
         array(
             'CDev' => array(
                 // UK edition
-                'XPaymentsConnector',
                 'Quantum',
                 'AuthorizeNet',
                 'TwoCheckout',
@@ -242,6 +242,9 @@ if (XLITE_EDITION_LNG === 'ru') {
                 'SagePay',
                 'GbTranslation',
             ),
+            'XPay' => [
+                'XPaymentsCloud'
+            ]
         )
     );
 }

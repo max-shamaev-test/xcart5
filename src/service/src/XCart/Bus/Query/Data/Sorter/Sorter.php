@@ -64,6 +64,14 @@ class Sorter extends ArrayIterator
             $aField = $a->{$field} ?? null;
             $bField = $b->{$field} ?? null;
 
+            if (preg_match('/(\w.*)\((.*)\)/', $direction, $matches)) {
+                [, $sorter, $arg] = $matches;
+
+                if ($sorter === 'list') {
+                    return $this->compareByList($bField, $aField, explode(',', $arg));
+                }
+            }
+
             if ($field === 'version') {
                 $comparisionResult = $direction === 'desc'
                     ? version_compare($bField, $aField)
@@ -96,6 +104,21 @@ class Sorter extends ArrayIterator
         }
 
         return ($a > $b) ? 1 : -1;
+    }
+
+    /**
+     * @param string $a
+     * @param string $b
+     * @param array  $array
+     *
+     * @return int
+     */
+    private function compareByList($a, $b, array $array): int
+    {
+        $keys  = array_flip($array);
+        $count = count($array);
+
+        return ($keys[strtolower($b)] ?? $count) <=> ($keys[strtolower($a)] ?? $count);
     }
 
     /**

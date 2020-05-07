@@ -23,11 +23,13 @@ class Config extends \XLite\Base\Singleton
     /**
      * Method to access a singleton
      *
+     * @param boolean $parent Is need only parent config
+     *
      * @return \XLite\Core\ConfigCell
      */
-    public static function getInstance()
+    public static function getInstance($parent = false)
     {
-        return parent::getInstance()->readConfig();
+        return parent::getInstance()->readConfig(false, $parent);
     }
 
     /**
@@ -41,16 +43,29 @@ class Config extends \XLite\Base\Singleton
     }
 
     /**
+     * Reset runtime cache
+     *
+     * @return void
+     */
+    public static function dropRuntimeCache()
+    {
+        $config = parent::getInstance();
+
+        $config->config = null;
+    }
+
+    /**
      * Read config options
      *
      * @param mixed $force Force OPTIONAL
+     * @param boolean $parent Is need parent config
      *
      * @return \XLite\Core\ConfigCell
      */
-    public function readConfig($force = false)
+    public function readConfig($force = false, $parent = false)
     {
         if (null === $this->config || $force) {
-            $config = $this->readFromDatabase($force);
+            $config = $this->readFromDatabase($force, $parent);
 
             $this->config = $this->postProcessConfig($config);
         }
@@ -65,7 +80,7 @@ class Config extends \XLite\Base\Singleton
      *
      * @return \XLite\Core\ConfigCell
      */
-    protected function readFromDatabase($force = false)
+    protected function readFromDatabase($force = false, $parent = false)
     {
         /** @var \XLite\Model\Repo\Config $repo */
         $repo = \XLite\Core\Database::getRepo('XLite\Model\Config');

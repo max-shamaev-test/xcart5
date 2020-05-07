@@ -11,12 +11,14 @@ namespace XCart\Bus\Rebuild\Executor\Step\Rollback;
 use XCart\Bus\Core\Annotations\RebuildStep;
 use XCart\Bus\Rebuild\Executor\ScriptState;
 use XCart\Bus\Rebuild\Executor\Step\AUpgradeHook;
+use XCart\Bus\Rebuild\Executor\Step\Execute\PreUpgradeHook;
+use XCart\Bus\Rebuild\Executor\Step\Execute\MovePacks;
 use XCart\Bus\Rebuild\Executor\StepState;
 use XCart\SilexAnnotations\Annotations\Service;
 
 /**
  * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild"})
- * @RebuildStep(script = "rollback", weight = "5000")
+ * @RebuildStep(script = "rollback", weight = "9000")
  */
 class PostRollbackHook extends AUpgradeHook
 {
@@ -69,7 +71,16 @@ class PostRollbackHook extends AUpgradeHook
      */
     protected function isParentStepCompleted(ScriptState $scriptState): bool
     {
-        return parent::isParentStepCompleted($scriptState->parentState);
+        $parentStepState = $scriptState->parentState->stepState;
+        $isStepInitialized = $parentStepState
+            && !empty($parentStepState->id)
+            && in_array($parentStepState->id, [PreUpgradeHook::class, MovePacks::class]);
+
+        return parent::isParentStepCompleted($scriptState->parentState)
+            && ($scriptState->parentState->isStepCompleted(PreUpgradeHook::class)
+                || $scriptState->parentState->isStepCompleted(MovePacks::class)
+                || $isStepInitialized
+            );
     }
 
     /**

@@ -61,6 +61,16 @@ class Layout extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * If it need to show free quote for design block
+     *
+     * @return bool
+     */
+    public function showFreeQuoteBlock()
+    {
+        return true;
+    }
+
+    /**
      * Change template
      *
      * @return void
@@ -82,6 +92,12 @@ class Layout extends \XLite\Controller\Admin\AAdmin
 
         if ($moduleId && $moduleId !== Skin::getInstance()->getCurrentSkinModuleId()) {
             Connector::enableSkin($moduleId, $this->buildFullURL('layout'));
+            \XLite\Core\TopMessage::addInfo(
+                'Please, re-generate the product catalog images to apply the new template settings.',
+                [
+                    'images_page_url' => $this->buildURL('images'),
+                ]
+            );
         }
     }
 

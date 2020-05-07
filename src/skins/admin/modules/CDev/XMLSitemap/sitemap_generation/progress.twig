@@ -2,13 +2,14 @@
  # Sitemap generation progress section
  #}
 
-<div class="sitemap-generation-box sitemap-generation-progress">
+<div class="sitemap-generation-box sitemap-generation-progress event-task-progress-page">
 
   <div class="content">
     {% form 'XLite\\Module\\CDev\\XMLSitemap\\View\\Form\\SitemapGeneration' with {formAction: 'sitemapGenerationCancel'} %}
-    <div class="subcontent">
-      {{ widget('XLite\\View\\EventTaskProgress', event=this.getEventName(), message=this.getProgressMessage() ) }}
+    <div class="subcontent clearfix">
+      {{ widget('XLite\\View\\EventTaskProgress', event=this.getEventName(), message=this.getProgressMessage(), showCancel=false ) }}
     </div>
+    {{ widget('XLite\\View\\StickyPanel\\EventProgress') }}
     {% endform %}
   </div>
 

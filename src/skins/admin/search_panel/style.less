@@ -44,7 +44,11 @@
     }
 
     & > li + li {
-      margin: (@rhythmic-unit / 2) 0;
+      margin: @rhythmic-unit 0;
+    }
+
+    & > li:last-child {
+      margin-bottom: auto;
     }
   }
 
@@ -143,6 +147,7 @@
 
 .target-order-list h1.title {
   display: inline-block;
+  margin-right: (@rhythmic-unit *2);
 
   ul.breadcrumb {
     margin-bottom: 0;
@@ -151,7 +156,8 @@
 
 .saved-filter-options {
   display: inline-block;
-  margin-left: (@rhythmic-unit * 2);
+  margin-bottom: (@rhythmic-unit);
+  line-height: (@rhythmic-unit * 1.5);
 
   .filter-option {
     display: inline;

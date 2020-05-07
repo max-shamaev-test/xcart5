@@ -124,8 +124,10 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
      */
     public function current()
     {
-        // Refreshes counter as well
-        set_time_limit(60);
+        if (!\XLite\Core\Request::getInstance()->isCLI()) {
+            // Refreshes counter as well
+            set_time_limit(60);
+        }
 
         $data = null;
 
@@ -293,11 +295,11 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
                 $langUrl = $code . '/' . $url;
                 $locale = \XLite\Core\Converter::langToLocale($code);
 
-                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . static::getShopURL($langUrl) . '"';
+                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . htmlspecialchars(static::getShopURL($langUrl)) . '"';
                 $result[$tag] = null;
             }
 
-            $tag = 'xhtml:link rel="alternate" hreflang="x-default" href="' . static::getShopURL($url) . '"';
+            $tag = 'xhtml:link rel="alternate" hreflang="x-default" href="' . htmlspecialchars(static::getShopURL($url)) . '"';
             $result[$tag] = null;
         }
 
@@ -333,11 +335,11 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
                 $langUrl = $code . '/' . $langUrl;
                 $locale = \XLite\Core\Converter::langToLocale($code);
 
-                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . static::getShopURL($langUrl) . '"';
+                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . htmlspecialchars(static::getShopURL($langUrl)) . '"';
                 $result[$tag] = null;
             }
 
-            $tag = 'xhtml:link rel="alternate" hreflang="x-default" href="' . $url . '"';
+            $tag = 'xhtml:link rel="alternate" hreflang="x-default" href="' . htmlspecialchars($url) . '"';
             $result[$tag] = null;
         }
 
@@ -373,11 +375,11 @@ class SitemapIterator extends \XLite\Base implements \SeekableIterator, \Countab
                 $langUrl = $code . '/' . $langUrl;
                 $locale = Converter::langToLocale($code);
 
-                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . static::getShopURL($langUrl) . '"';
+                $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . htmlspecialchars(static::getShopURL($langUrl)) . '"';
                 $result[$tag] = null;
             }
 
-            $tag = 'xhtml:link rel="alternate" hreflang="x-default" href="' . $url . '"';
+            $tag = 'xhtml:link rel="alternate" hreflang="x-default" href="' . htmlspecialchars($url) . '"';
             $result[$tag] = null;
         }
 

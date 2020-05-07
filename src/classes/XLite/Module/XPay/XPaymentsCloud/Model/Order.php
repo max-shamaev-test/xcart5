@@ -196,8 +196,7 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
 
             $this->xpaymentsCards = array();
 
-            $adminUrl = \XLite\Module\XPay\XPaymentsCloud\Core\ApiClient::getInstance()
-                ->getClient()->getAdminUrl();
+            $adminUrl = \XLite\Module\XPay\XPaymentsCloud\Main::getClient()->getAdminUrl();
 
             foreach ($transactions as $transaction) {
 

@@ -13,7 +13,7 @@
 
 .product-tags-list li {
   display: inline-block;
-  height: 26px;
+  min-height: 26px;
   background: #f2f2f2;
   color: #0ba2e8;
   margin: 0 10px 10px 0;

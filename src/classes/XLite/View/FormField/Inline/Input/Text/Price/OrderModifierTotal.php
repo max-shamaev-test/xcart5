@@ -100,39 +100,43 @@ class OrderModifierTotal extends \XLite\View\FormField\Inline\Input\Text\Price\A
     {
         $data = \XLite\Core\Request::getInstance()->getPostData();
 
-        $currency = $this->getEntity()->getOrder()->getCurrency();
-        $isPersistent = $this->getEntity()->isPersistent();
+        $entity = $this->getEntity();
+        $order = $entity->getOrder();
+        $modifier = $entity->getModifier();
 
-        if ($this->getEntity()->getModifier()
-            && !empty($data['auto']['surcharges'][$this->getEntity()->getCode()]['value'])
-        ) {
-            if (\XLite\Logic\Order\Modifier\Shipping::MODIFIER_CODE === $this->getEntity()->getCode()) {
+        $currency = $order->getCurrency();
+        $isPersistent = $entity->isPersistent();
+
+        if ($modifier && !empty($data['auto']['surcharges'][$entity->getCode()]['value'])) {
+            if (\XLite\Logic\Order\Modifier\Shipping::MODIFIER_CODE === $entity->getCode()) {
                 // Reset selected rate to avoid cache
-                $this->getEntity()->getModifier()->resetSelectedRate();
-                $this->getEntity()->getModifier()->setMode(\XLite\Logic\Order\Modifier\AModifier::MODE_CART);
+                $modifier->resetSelectedRate();
+                $modifier->setMode(\XLite\Logic\Order\Modifier\AModifier::MODE_CART);
             }
 
             // Calculate surcharge and get new surcharge object or array of surcharge objects
-            $surcharges = $this->getEntity()->getModifier()->canApply()
-                ? $this->getEntity()->getModifier()->calculate()
-                : array();
+            $surcharges = $modifier->canApply()
+                ? $modifier->calculate()
+                : [];
 
             if (!is_array($surcharges)) {
-                $surcharges = $surcharges ? array($surcharges) : array();
+                $surcharges = $surcharges ? [$surcharges] : [];
             }
 
             $value = 0;
 
+            $em = \XLite\Core\Database::getEM();
+
             foreach ($surcharges as $surcharge) {
                 if (is_object($surcharge)) {
 
-                    if ($surcharge->getCode() === $this->getEntity()->getCode()) {
+                    if ($surcharge->getCode() === $entity->getCode()) {
                         $value += $surcharge->getValue();
                     }
 
                     // Remove added surcharges if current entity exists in DB to avoid duplicates
-                    if ($isPersistent && !$this->getEntity()->getModifier()->isIgnoreDuplicates()) {
-                        \XLite\Core\Database::getEM()->remove($surcharge);
+                    if ($isPersistent && !$modifier->isIgnoreDuplicates()) {
+                        $em->remove($surcharge);
                         $surcharge->getOrder()->removeSurcharge($surcharge);
                     }
                 }
@@ -143,38 +147,38 @@ class OrderModifierTotal extends \XLite\View\FormField\Inline\Input\Text\Price\A
             $addSurcharge = true;
 
             // Search for current surcharge in order surcharges
-            foreach ($this->getEntity()->getOrder()->getSurcharges() as $s) {
-                if ($s->getCode() == $this->getEntity()->getCode()) {
+            foreach ($order->getSurcharges() as $s) {
+                if ($s->getCode() == $entity->getCode()) {
                     $addSurcharge = false;
                 }
             }
 
             if ($addSurcharge) {
                 // Surcharge is new for order - add this
-                $this->addOrderSurcharge($this->getEntity(), $value);
+                $this->addOrderSurcharge($entity, $value);
             }
         }
 
-        if (0 < $value && $this->getEntity()->getType() === \XLite\Model\Base\Surcharge::TYPE_DISCOUNT) {
-            $value = $value * -1;
+        if ($value > 0 && $entity->getType() === \XLite\Model\Base\Surcharge::TYPE_DISCOUNT) {
+            $value *= -1;
         }
 
-        $oldValue = $currency->roundValue($this->getEntity()->getValue());
+        $oldValue = $currency->roundValue($entity->getValue());
         $newValue = $currency->roundValue($value);
 
         if ($oldValue !== $newValue) {
             \XLite\Controller\Admin\Order::setOrderChanges(
                 $this->getParam(static::PARAM_FIELD_NAME),
                 static::formatPrice(abs($value), $currency, true),
-                static::formatPrice(abs($this->getEntity()->getValue()), $currency, true)
+                static::formatPrice(abs($entity->getValue()), $currency, true)
             );
         }
 
-        if ($this->getEntity()->getType() === \XLite\Model\Base\Surcharge::TYPE_DISCOUNT) {
-            $this->getEntity()->getModifier()->distributeDiscount($value * -1);
+        if ($entity->getType() === \XLite\Model\Base\Surcharge::TYPE_DISCOUNT) {
+            $modifier->distributeDiscount($value * -1, true);
         }
 
-        $this->getEntity()->setValue($value);
+        $entity->setValue($value);
     }
 
     /**

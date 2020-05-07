@@ -8,7 +8,6 @@
 
 namespace XLite\Module\XC\Onboarding\View\FormField\Select;
 
-
 class WeightUnit extends \XLite\View\FormField\Select\WeightUnit
 {
     protected function setCommonAttributes(array $attrs)

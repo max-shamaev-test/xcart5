@@ -8,7 +8,6 @@
 
 namespace XLite\Module\XC\Onboarding\View\WizardStep;
 
-
 /**
  * TaxRates
  */

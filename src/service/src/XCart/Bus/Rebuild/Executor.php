@@ -103,10 +103,6 @@ class Executor
 
         $state->touch($this->token);
 
-        if (!empty($scenario['returnUrl'])) {
-            $state->returnUrl = $scenario['returnUrl'];
-        }
-
         return $state;
     }
 

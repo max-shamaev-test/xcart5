@@ -82,6 +82,9 @@ class RebuildStateType extends AObjectType
                 'hasEnabledTransitions' => [
                     'type' => Type::boolean(),
                 ],
+                'modulesWithSettings' => [
+                    'type' => Type::listOf(Type::listOf(Type::string())),
+                ],
             ],
         ];
     }

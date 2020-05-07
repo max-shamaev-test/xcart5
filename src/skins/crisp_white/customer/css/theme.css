@@ -238,12 +238,6 @@ ol li
 .buttons-box
 {
   box-shadow: 1px 1px 5px silver;
-  -webkit-box-shadow: 1px 1px 5px silver;
-  -moz-box-shadow: 1px 1px 5px silver;
-  /* Commented due to a problem in IE: IE crops drop-down submenus in the main menu */
-  /*
-  filter: progid:DXImageTransform.Microsoft.Shadow(color='silver', Direction= 135, Strength=3);
-  */
 }
 
 /**
@@ -620,8 +614,7 @@ form .floatable-box.float-box {
 {
   padding: 0;
   list-style: none;
-  vertical-align: top;
-  display: -moz-inline-stack;   /* FF2 supports this instead of "inline-block" */
+  vertical-align: top;   /* FF2 supports this instead of "inline-block" */
   display: inline-block;
   border-style: solid;          /* Weird but FF requires this in order to display "inline-blocks" properly */
   border-color: transparent;    /* Hide the border in all browsers but IE6 */

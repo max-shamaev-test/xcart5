@@ -18,7 +18,7 @@ class Coupon extends \XLite\Controller\Admin\AAdmin
      *
      * @var   array
      */
-    protected $param = array('target', 'id');
+    protected $params = array('target', 'id', 'page');
 
     /**
      * Coupon id
@@ -53,6 +53,47 @@ class Coupon extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * Get pages sections
+     *
+     * @return array
+     */
+    public function getPages()
+    {
+        $list = parent::getPages();
+        $list['info'] = static::t('Info');
+
+        if ($this->getCoupon()
+            && $this->getCoupon()->isPersistent()
+            && $this->getCoupon()->getSpecificProducts()
+        ) {
+            $list['products']  = static::t('Products');
+        }
+
+        return $list;
+    }
+
+    /**
+     * Get pages templates
+     *
+     * @return array
+     */
+    protected function getPageTemplates()
+    {
+        $list = parent::getPageTemplates();
+        $list['info']    = 'modules/CDev/Coupons/coupon/info.twig';
+        $list['default'] = 'modules/CDev/Coupons/coupon/info.twig';
+
+        if ($this->getCoupon()
+            && $this->getCoupon()->isPersistent()
+            && $this->getCoupon()->getSpecificProducts()
+        ) {
+            $list['products'] = 'modules/CDev/Coupons/coupon/products.twig';
+        }
+
+        return $list;
+    }
+
+    /**
      * Update coupon
      *
      * @return void
@@ -62,14 +103,77 @@ class Coupon extends \XLite\Controller\Admin\AAdmin
         $this->getModelForm()->performAction('modify');
 
         if ($this->getModelForm()->isValid()) {
-            $this->setReturnURL(
-                \XLite\Core\Converter::buildURL(
-                    'promotions',
-                    '',
-                    array('page' => \XLite\Controller\Admin\Promotions::PAGE_COUPONS)
-                )
-            );
+            if ($this->getCoupon()->getSpecificProducts()) {
+                $this->setReturnURL(
+                    $this->buildURL(
+                        'coupon',
+                        '',
+                        ['id' => $this->getCouponId()]
+                    )
+                );
+            } else {
+                $this->setReturnURL(
+                    \XLite\Core\Converter::buildURL(
+                        'promotions',
+                        '',
+                        ['page' => \XLite\Controller\Admin\Promotions::PAGE_COUPONS]
+                    )
+                );
+            }
         }
+    }
+
+    public function doActionAddProducts()
+    {
+        $productIds = \XLite\Core\Request::getInstance()->select;
+
+        if (is_array($productIds)) {
+            $products = \XLite\Core\Database::getRepo('\XLite\Model\Product')
+                ->findByIds($productIds);
+
+            $assignedProductIds = $this->getCoupon()->getApplicableProductIds();
+
+            $count = 0;
+            if ($products) {
+                foreach ($products as $product) {
+                    /** @var \XLite\Model\Product $product */
+                    if (!in_array($product->getProductId(), $assignedProductIds)) {
+                        $couponProduct = new \XLite\Module\CDev\Coupons\Model\CouponProduct();
+                        $couponProduct->setProduct($product);
+                        $couponProduct->setCoupon($this->getCoupon());
+
+                        $count++;
+                        \XLite\Core\Database::getEM()->persist($couponProduct);
+                    }
+                }
+            }
+
+            if ($count > 0) {
+                \XLite\Core\TopMessage::addInfo('X product(s) added', ['count' => $count]);
+            }
+
+            \XLite\Core\Database::getEM()->flush();
+        }
+
+        $this->setReturnURL(
+            $this->buildURL(
+                'coupon',
+                '',
+                array(
+                    'page' => 'products',
+                    'id'   => $this->getCouponId(),
+                )
+            )
+        );
+        $this->setHardRedirect(true);
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getCouponId()
+    {
+        return $this->getCoupon() ? $this->getCoupon()->getId() : null;
     }
 
     /**

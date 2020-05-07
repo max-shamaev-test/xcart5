@@ -342,10 +342,27 @@ class ActiveCurrency extends \XLite\Model\Repo\ARepo
         $return = $this->createPureQueryBuilder('ac')
             ->innerJoin('ac.currency', 'c')
             ->andWhere('c.code = :currency_code')
+            ->andWhere('ac.enabled = :enabled')
+            ->setParameter('enabled', true)
             ->setParameter('currency_code', $code)
             ->getSingleResult();
 
         return $return;
+    }
+
+    /**
+     * Get active countries count
+     *
+     * @return int
+     */
+    public function getEnabledCountriesCount()
+    {
+        return (int)\XLite\Core\Database::getRepo('\XLite\Model\Country')
+            ->createPureQueryBuilder('c')
+            ->select('COUNT (DISTINCT c.code)')
+            ->andWhere('c.enabled = :enabled')
+            ->setParameter('enabled', true)
+            ->getSingleScalarResult();
     }
 
     /**
@@ -381,13 +398,7 @@ class ActiveCurrency extends \XLite\Model\Repo\ARepo
      */
     public function hasEnabledCountries()
     {
-        $count = \XLite\Core\Database::getRepo('\XLite\Model\Country')->createPureQueryBuilder('c')
-            ->select('COUNT (DISTINCT c.code)')
-            ->andWhere('c.enabled = :enabled')
-            ->setParameter('enabled', true)
-            ->getSingleScalarResult();
-
-        return $count > 0;
+        return $this->getEnabledCountriesCount() > 0;
     }
 
     /**
@@ -479,10 +490,18 @@ class ActiveCurrency extends \XLite\Model\Repo\ARepo
      */
     public function getDefaultCurrency()
     {
-        $defaultCurrency = \XLite\Core\Database::getRepo('XLite\Model\Currency')
+        return \XLite\Core\Database::getRepo('XLite\Model\Currency')
             ->find(\XLite\Core\Config::getInstance()->General->shop_currency);
+    }
 
-        return $defaultCurrency;
+    /**
+     * Get default currency
+     *
+     * @return \XLite\Model\Currency
+     */
+    public function getDetectedCurrency()
+    {
+        return $this->getDefaultCurrency();
     }
 
     /**

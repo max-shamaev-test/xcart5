@@ -502,11 +502,17 @@ HEAD;
             }
 
             if (is_array($value)) {
-                foreach ($value as $entry) {
-                    $string .= '<' . $tag . '>' . htmlspecialchars($entry) . '</' . $tag . '>';
+                $string .= '<' . $tag . '>';
+                foreach ($value as $subtag => $entry) {
+                    $string .= '<' . $subtag . '>' . htmlspecialchars($entry) . '</' . $subtag . '>';
                 }
+                $string .= '</' . $tag . '>';
             } else {
-                $string .= '<' . $tag . '>' . htmlspecialchars($value) . '</' . $tag . '>';
+                if ($tag == 'g:additional_image_link') {
+                    $string .= '<' . $tag . '>' . $value . '</' . $tag . '>';
+                } else {
+                    $string .= '<' . $tag . '>' . htmlspecialchars($value) . '</' . $tag . '>';
+                }
             }
         }
 

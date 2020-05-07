@@ -1,17 +1,17 @@
 [
     {
         "name": "doctrine/annotations",
-        "version": "v1.6.1",
-        "version_normalized": "1.6.1.0",
+        "version": "v1.8.0",
+        "version_normalized": "1.8.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/doctrine/annotations.git",
-            "reference": "53120e0eb10355388d6ccbe462f1fea34ddadb24"
+            "reference": "904dca4eb10715b92569fbcd79e201d5c349b6bc"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/doctrine/annotations/zipball/53120e0eb10355388d6ccbe462f1fea34ddadb24",
-            "reference": "53120e0eb10355388d6ccbe462f1fea34ddadb24",
+            "url": "https://api.github.com/repos/doctrine/annotations/zipball/904dca4eb10715b92569fbcd79e201d5c349b6bc",
+            "reference": "904dca4eb10715b92569fbcd79e201d5c349b6bc",
             "shasum": ""
         },
         "require": {
@@ -20,13 +20,13 @@
         },
         "require-dev": {
             "doctrine/cache": "1.*",
-            "phpunit/phpunit": "^6.4"
+            "phpunit/phpunit": "^7.5"
         },
-        "time": "2019-03-25T19:12:02+00:00",
+        "time": "2019-10-01T18:55:10+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.6.x-dev"
+                "dev-master": "1.7.x-dev"
             }
         },
         "installation-source": "dist",
@@ -41,16 +41,16 @@
         ],
         "authors": [
             {
+                "name": "Guilherme Blanco",
+                "email": "guilhermeblanco@gmail.com"
+            },
+            {
                 "name": "Roman Borschel",
                 "email": "roman@code-factory.org"
             },
             {
                 "name": "Benjamin Eberlei",
                 "email": "kontakt@beberlei.de"
-            },
-            {
-                "name": "Guilherme Blanco",
-                "email": "guilhermeblanco@gmail.com"
             },
             {
                 "name": "Jonathan Wage",
@@ -253,35 +253,49 @@
     },
     {
         "name": "guzzlehttp/guzzle",
-        "version": "5.3.3",
-        "version_normalized": "5.3.3.0",
+        "version": "6.5.0",
+        "version_normalized": "6.5.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/guzzle/guzzle.git",
-            "reference": "93bbdb30d59be6cd9839495306c65f2907370eb9"
+            "reference": "dbc2bc3a293ed6b1ae08a3651e2bfd213d19b6a5"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/guzzle/guzzle/zipball/93bbdb30d59be6cd9839495306c65f2907370eb9",
-            "reference": "93bbdb30d59be6cd9839495306c65f2907370eb9",
+            "url": "https://api.github.com/repos/guzzle/guzzle/zipball/dbc2bc3a293ed6b1ae08a3651e2bfd213d19b6a5",
+            "reference": "dbc2bc3a293ed6b1ae08a3651e2bfd213d19b6a5",
             "shasum": ""
         },
         "require": {
-            "guzzlehttp/ringphp": "^1.1",
-            "php": ">=5.4.0",
-            "react/promise": "^2.2"
+            "ext-json": "*",
+            "guzzlehttp/promises": "^1.0",
+            "guzzlehttp/psr7": "^1.6.1",
+            "php": ">=5.5"
         },
         "require-dev": {
             "ext-curl": "*",
-            "phpunit/phpunit": "^4.0"
+            "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.4 || ^7.0",
+            "psr/log": "^1.1"
         },
-        "time": "2018-07-31T13:33:10+00:00",
+        "suggest": {
+            "ext-intl": "Required for Internationalized Domain Name (IDN) support",
+            "psr/log": "Required for using the Log middleware"
+        },
+        "time": "2019-12-07T18:20:45+00:00",
         "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "6.5-dev"
+            }
+        },
         "installation-source": "dist",
         "autoload": {
             "psr-4": {
                 "GuzzleHttp\\": "src/"
-            }
+            },
+            "files": [
+                "src/functions_include.php"
+            ]
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
@@ -294,7 +308,7 @@
                 "homepage": "https://github.com/mtdowling"
             }
         ],
-        "description": "Guzzle is a PHP HTTP client library and framework for building RESTful web service clients",
+        "description": "Guzzle is a PHP HTTP client library",
         "homepage": "http://guzzlephp.org/",
         "keywords": [
             "client",
@@ -307,40 +321,41 @@
         ]
     },
     {
-        "name": "guzzlehttp/log-subscriber",
-        "version": "1.0.1",
-        "version_normalized": "1.0.1.0",
+        "name": "guzzlehttp/promises",
+        "version": "v1.3.1",
+        "version_normalized": "1.3.1.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/guzzle/log-subscriber.git",
-            "reference": "99c3c0004165db721d8ef7bbef60c996210e538a"
+            "url": "https://github.com/guzzle/promises.git",
+            "reference": "a59da6cf61d80060647ff4d3eb2c03a2bc694646"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/guzzle/log-subscriber/zipball/99c3c0004165db721d8ef7bbef60c996210e538a",
-            "reference": "99c3c0004165db721d8ef7bbef60c996210e538a",
+            "url": "https://api.github.com/repos/guzzle/promises/zipball/a59da6cf61d80060647ff4d3eb2c03a2bc694646",
+            "reference": "a59da6cf61d80060647ff4d3eb2c03a2bc694646",
             "shasum": ""
         },
         "require": {
-            "guzzlehttp/guzzle": "~4.0 | ~5.0",
-            "php": ">=5.4.0",
-            "psr/log": "~1.0"
+            "php": ">=5.5.0"
         },
         "require-dev": {
-            "phpunit/phpunit": "~4.0"
+            "phpunit/phpunit": "^4.0"
         },
-        "time": "2014-10-13T03:31:43+00:00",
+        "time": "2016-12-20T10:07:11+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.0-dev"
+                "dev-master": "1.4-dev"
             }
         },
         "installation-source": "dist",
         "autoload": {
             "psr-4": {
-                "GuzzleHttp\\Subscriber\\Log\\": "src/"
-            }
+                "GuzzleHttp\\Promise\\": "src/"
+            },
+            "files": [
+                "src/functions_include.php"
+            ]
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
@@ -353,12 +368,82 @@
                 "homepage": "https://github.com/mtdowling"
             }
         ],
-        "description": "Logs HTTP requests and responses as they are sent over the wire (Guzzle 4+)",
-        "homepage": "http://guzzlephp.org/",
+        "description": "Guzzle promises library",
         "keywords": [
-            "Guzzle",
-            "log",
-            "plugin"
+            "promise"
+        ]
+    },
+    {
+        "name": "guzzlehttp/psr7",
+        "version": "1.6.1",
+        "version_normalized": "1.6.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/guzzle/psr7.git",
+            "reference": "239400de7a173fe9901b9ac7c06497751f00727a"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/guzzle/psr7/zipball/239400de7a173fe9901b9ac7c06497751f00727a",
+            "reference": "239400de7a173fe9901b9ac7c06497751f00727a",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4.0",
+            "psr/http-message": "~1.0",
+            "ralouphie/getallheaders": "^2.0.5 || ^3.0.0"
+        },
+        "provide": {
+            "psr/http-message-implementation": "1.0"
+        },
+        "require-dev": {
+            "ext-zlib": "*",
+            "phpunit/phpunit": "~4.8.36 || ^5.7.27 || ^6.5.8"
+        },
+        "suggest": {
+            "zendframework/zend-httphandlerrunner": "Emit PSR-7 responses"
+        },
+        "time": "2019-07-01T23:21:34+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.6-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "GuzzleHttp\\Psr7\\": "src/"
+            },
+            "files": [
+                "src/functions_include.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Michael Dowling",
+                "email": "mtdowling@gmail.com",
+                "homepage": "https://github.com/mtdowling"
+            },
+            {
+                "name": "Tobias Schultze",
+                "homepage": "https://github.com/Tobion"
+            }
+        ],
+        "description": "PSR-7 message implementation that also provides common utility methods",
+        "keywords": [
+            "http",
+            "message",
+            "psr-7",
+            "request",
+            "response",
+            "stream",
+            "uri",
+            "url"
         ]
     },
     {
@@ -918,6 +1003,58 @@
         ]
     },
     {
+        "name": "psr/http-message",
+        "version": "1.0.1",
+        "version_normalized": "1.0.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/php-fig/http-message.git",
+            "reference": "f6561bf28d520154e4b0ec72be95418abe6d9363"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/php-fig/http-message/zipball/f6561bf28d520154e4b0ec72be95418abe6d9363",
+            "reference": "f6561bf28d520154e4b0ec72be95418abe6d9363",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2016-08-06T14:39:51+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Psr\\Http\\Message\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "PHP-FIG",
+                "homepage": "http://www.php-fig.org/"
+            }
+        ],
+        "description": "Common interface for HTTP messages",
+        "homepage": "https://github.com/php-fig/http-message",
+        "keywords": [
+            "http",
+            "http-message",
+            "psr",
+            "psr-7",
+            "request",
+            "response"
+        ]
+    },
+    {
         "name": "psr/log",
         "version": "1.1.0",
         "version_normalized": "1.1.0.0",
@@ -965,6 +1102,48 @@
             "psr",
             "psr-3"
         ]
+    },
+    {
+        "name": "ralouphie/getallheaders",
+        "version": "3.0.3",
+        "version_normalized": "3.0.3.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/ralouphie/getallheaders.git",
+            "reference": "120b605dfeb996808c31b6477290a714d356e822"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/ralouphie/getallheaders/zipball/120b605dfeb996808c31b6477290a714d356e822",
+            "reference": "120b605dfeb996808c31b6477290a714d356e822",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6"
+        },
+        "require-dev": {
+            "php-coveralls/php-coveralls": "^2.1",
+            "phpunit/phpunit": "^5 || ^6.5"
+        },
+        "time": "2019-03-08T08:55:37+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "src/getallheaders.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Ralph Khattar",
+                "email": "ralph.khattar@gmail.com"
+            }
+        ],
+        "description": "A polyfill for getallheaders."
     },
     {
         "name": "react/promise",

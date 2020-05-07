@@ -10,6 +10,8 @@
 @import "bootstrap-changes.less";
 @import "bootstrap-responsive.less";
 
+@rhythmic-unit: 20px;
+
 html {
   -webkit-font-smoothing: subpixel-antialiased;
 }
@@ -742,7 +744,6 @@ html.mm-opening .mm-slideout {
     .flex-wrap(wrap);
     .flex-direction(column);
     -webkit-box-orient: vertical;
-    -moz-box-orient: vertical;
     width: 100%;
     max-width: 100%;
 
@@ -774,10 +775,6 @@ html.mm-opening .mm-slideout {
 }
 
 .ie11 .mm-opened + script + .mm-page .mobile_header ul.nav-pills {
-  -webkit-transition: all 0.4s ease-out;
-  -moz-transition: all 0.4s ease-out;
-  -ms-transition: all 0.4s ease-out;
-  -o-transition: all 0.4s ease-out;
   transition: all 0.4s ease-out;
 }
 
@@ -849,13 +846,8 @@ html.mm-opening .mm-slideout {
 .ui-dialog .ui-dialog-titlebar {
   padding: 0;
   margin: 0;
-  -moz-border-radius: 0;
-  -webkit-border-top: 0;
-  border-radius: 0;
   border: 0 none;
   background: #fff none;
-  -moz-border-radius: 3px 3px 0 0;
-  -webkit-border-radius: 3px 3px 0 0;
   border-radius: 3px 3px 0 0;
 }
 
@@ -899,8 +891,6 @@ html.mm-opening .mm-slideout {
 
 .ui-dialog.no-title .ui-dialog-content {
   padding-top: 40px;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
 }
 

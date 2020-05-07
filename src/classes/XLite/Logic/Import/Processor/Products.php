@@ -391,7 +391,7 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
         if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsNull($value)) {
             foreach ($value as $image) {
                 if (!$this->verifyValueAsEmpty($image) && $this->verifyValueAsURL($image) && !$this->verifyValueAsFile($image)) {
-                    $this->addWarning('PRODUCT-IMG-URL-LOAD-FAILED', ['column' => $column, 'value' => $value]);
+                    $this->addWarning('PRODUCT-IMG-URL-LOAD-FAILED', ['column' => $column, 'value' => $image]);
                 } elseif (!$this->verifyValueAsEmpty($image) && !$this->verifyValueAsNull($image) && !$this->verifyValueAsFile($image)) {
                     $this->addWarning('GLOBAL-IMAGE-FMT', ['column' => $column, 'value' => $image]);
                 }
@@ -502,7 +502,7 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
             }
 
             foreach ($value as $inCategoryOrder) {
-                if (!$this->verifyValueAsUinteger($inCategoryOrder)) {
+                if (!$this->verifyValueAsInteger($inCategoryOrder)) {
                     $this->addError('PRODUCT-IN-CAT-POSITION-FMT', ['column' => $column, 'value' => $inCategoryOrder]);
                 }
             }
@@ -1426,9 +1426,9 @@ class Products extends \XLite\Logic\Import\Processor\AProcessor
     {
         $result = false;
 
-        if (preg_match('/(.+)=(default)?(\/)?((w|\$)(([+-]?\d+\.?\d*)(%)?))?(\/)?((w|\$)(([+-]?\d+\.?\d*)(%)?))?/iSs', $valueString, $m)) {
+        if (preg_match('/(.+)==(default)?(\/)?((w|\$)(([+-]?\d+\.?\d*)(%)?))?(\/)?((w|\$)(([+-]?\d+\.?\d*)(%)?))?/iSs', $valueString, $m)) {
             $result = [];
-            $result['value'] = $m[1];
+            $result['value'] = !isset($m[2]) ? $valueString : $m[1];
             if (isset($m[2]) && 'default' === $m[2]) {
                 $result['default'] = true;
             }

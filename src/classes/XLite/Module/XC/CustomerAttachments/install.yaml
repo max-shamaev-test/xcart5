@@ -8,7 +8,7 @@
 XLite\Model\Config:
   - name: quantity
     category: XC\CustomerAttachments
-    type: \XLite\View\FormField\Input\Text\Integer
+    type: \XLite\Module\XC\CustomerAttachments\View\FormField\Input\Text\FileCountInteger
     widgetParameters: { min: 0 }
     value: 10
     translations:
@@ -40,6 +40,7 @@ XLite\Model\Config:
 XLite\Model\LanguageLabel:
  - { name: 'Enter file extensions separated by comma; for example, "jpg,txt,svg"', translations: [{ code: en, label: 'Enter file extensions separated by comma; for example, "jpg,txt,svg"' }, { code: ru, label: 'Введите расширения файлов, разделяя запятой; например, "jpg,txt,svg"' }] }
  - { name: "Web server max upload file size limit is X", translations: [{ code: en, label: "Web server max upload file size limit is {{size}}" }, { code: ru, label: "Максимальный размер загружаемого файла, разрешенный Вашим веб-сервером - {{size}}" }] }
+ - { name: "Web server max number of files limit is X", translations: [{ code: en, label: "Web server max number of files limit is {{count}}" }] }
  - { name: "You can attach X more file(s)", translations: [{ code: en, label: "You can attach {{quantity}} more file(s)" }, { code: ru, label: "Вы можете добавить еще {{quantity}} файл(ов)" }] }
  - { name: "You can attach X file(s)", translations: [{ code: en, label: 'You can attach <span class="files-count">{{quantity}}</span> file(s)' }, { code: ru, label: 'Вы можете добавить <span class="files-count">{{quantity}}</span> файл(ов)' }] }
  - { name: "Max allowed file size is X", translations: [{ code: en, label: "Max allowed file size is {{size}}" }, { code: ru, label: "Максимально допустимый размер файла - {{size}}" }] }
@@ -54,6 +55,7 @@ XLite\Model\LanguageLabel:
  - { name: "Unsupported file extension", translations: [{ code: en, label: "Unsupported file extension" }, { code: ru, label: "Неподдерживаемый тип файла" }] }
  - { name: "Cannot attach the file. The number of attached files may not exceed X", translations: [{ code: en, label: "Cannot attach the file. The number of attached files may not exceed {{quantity}}" }, { code: ru, label: "Количество файлов не может превышать {{quantity}}" }] }
  - { name: "Cannot attach the file. The maximum attached file size may not exceed X MB", translations: [{ code: en, label: "Cannot attach the file. The maximum attached file size may not exceed {{size}} MB" }, { code: ru, label: "Максимальный размер файла не должен превышать {{size}} МБ" }] }
+ - { name: "Cannot attach the files. Total size of attached files may not exceed X MB", translations: [{ code: en, label: "Cannot attach the files. Total size of attached files may not exceed {{postSizeLimit}} MB" }] }
  - { name: "File attachments are not allowed for this product", translations: [{ code: en, label: "File attachments are not allowed for this product" }, { code: ru, label: "Привязка файлов к этому товару недоступна" }] }
  - { name: "File uploads forbidden by web server", translations: [{ code: en, label: "File uploads forbidden by web server" }, { code: ru, label: "Загрузка файлов запрещена веб-сервером" }] }
  - { name: "Attachment X is deleted", translations: [{ code: en, label: "Attachment {{filename}} is deleted" }, {code: ru, label: 'Присоединенный файл {{filename}} удален' }] }
@@ -63,4 +65,7 @@ XLite\Model\LanguageLabel:
  - { name: "You have to attach file", translations: [{ code: en, label: "You must attach a file" }, { code: ru, label: "Вам необходимо присоединить файл" }] }
  - { name: "Attach file", translations: [{ code: en, label: "Attach file" }, { code: ru, label: "Присоединить файл" }] }
  - { name: "Some files haven`t been attached", translations: [{ code: en, label: "Some files have not been attached" }, { code: ru, label: "Некоторые файлы не были загружены" }] }
+ - { name: "The maximum size of the uploaded file is limited by the following parameters in your server settings: X and Y", translations: [{ code: en, label: "The maximum size of the uploaded file is limited by the following parameters in your server settings: <ul class='custom-disc'><li><b>post_max_size = {{post_max_size}}</b> - the max total size of the attached files per once and Y</li><li><b>upload_max_filesize = {{upload_max_filesize}}</b> - the max size of each uploaded file</li></ul>" }] }
+ - { name: "The total size of the attached files should not exceed X per once", translations: [{ code: en, label: "The total size of the attached files should not exceed {{post_max_size}} per once" }] }
+
 

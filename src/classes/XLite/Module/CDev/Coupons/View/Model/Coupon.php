@@ -61,12 +61,14 @@ class Coupon extends \XLite\View\Model\AModel
             \XLite\View\FormField\Input\Text\FloatInput::PARAM_MIN => 0,
             \XLite\View\FormField\Input\Text\FloatInput::PARAM_ALLOW_EMPTY => false,
             self::SCHEMA_HELP     => 'Minimum order subtotal the coupon can be applied to',
+            \XLite\View\FormField\Input\Text\FloatInput::PARAM_MAX_LENGTH => 10,
         ),
         'totalRangeEnd' => array(
             self::SCHEMA_CLASS    => 'XLite\Module\CDev\Coupons\View\FormField\Total',
             self::SCHEMA_LABEL    => 'Subtotal range (end)',
             \XLite\View\FormField\Input\Text\FloatInput::PARAM_MIN => 0,
             \XLite\View\FormField\Input\Text\FloatInput::PARAM_ALLOW_EMPTY => false,
+            \XLite\View\FormField\Input\Text\FloatInput::PARAM_MAX_LENGTH => 10,
             self::SCHEMA_HELP     => 'Maximum order subtotal the coupon can be applied to',
         ),
         'usesLimitCheck' => array(
@@ -100,21 +102,40 @@ class Coupon extends \XLite\View\Model\AModel
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Checkbox\Simple',
             self::SCHEMA_LABEL    => 'Coupon cannot be combined with other coupons',
         ),
+        'specificProducts' => array(
+            self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Checkbox\YesNo',
+            self::SCHEMA_LABEL    => 'Valid only for specific products',
+        ),
         'categories' => array(
             self::SCHEMA_CLASS                                                       => 'XLite\View\FormField\Select\Select2\Category',
             \XLite\View\FormField\Select\Select2\Category::PARAM_MULTIPLE            => true,
             self::SCHEMA_LABEL                                                       => 'Categories',
             self::SCHEMA_HELP                                                        => 'If you want the coupon discount to be applied only to products from specific categories, specify these categories here.',
+            self::SCHEMA_DEPENDENCY => array(
+                self::DEPENDENCY_HIDE => array(
+                    'specificProducts' => true,
+                ),
+            ),
         ),
         'productClasses' => array(
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\ProductClasses',
             self::SCHEMA_LABEL    => 'Product classes',
             self::SCHEMA_HELP     => 'Coupon discount can be limited to these product classes',
+            self::SCHEMA_DEPENDENCY => array(
+                self::DEPENDENCY_HIDE => array(
+                    'specificProducts' => true,
+                ),
+            ),
         ),
         'memberships' => array(
             self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\Memberships',
             self::SCHEMA_LABEL    => 'Memberships',
             self::SCHEMA_HELP     => 'Coupon discount can be limited to customers with these membership levels',
+        ),
+        'zones' => array(
+            self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\Zones',
+            self::SCHEMA_LABEL    => 'Address zones (coupons)',
+            self::SCHEMA_HELP     => 'The discount is valid for the selected delivery area',
         ),
     );
 
@@ -185,9 +206,12 @@ class Coupon extends \XLite\View\Model\AModel
     {
         $productClasses = isset($data['productClasses']) ? $data['productClasses'] : null;
         $memberships = isset($data['memberships']) ? $data['memberships'] : null;
+        $zones = isset($data['zones']) ? $data['zones'] : null;
         $categories = isset($data['categories']) ? $data['categories'] : null;
 
-        unset($data['productClasses'], $data['memberships'], $data['categories']);
+        $isSpecificProducts = $data['specificProducts'] ?? null;
+
+        unset($data['productClasses'], $data['memberships'], $data['categories'], $data['zones']);
 
         if (!empty($data['dateRangeEnd'])) {
             $data['dateRangeEnd'] = mktime(
@@ -218,7 +242,7 @@ class Coupon extends \XLite\View\Model\AModel
         }
         $entity->clearProductClasses();
 
-        if (is_array($productClasses)) {
+        if (false === $isSpecificProducts && is_array($productClasses)) {
             foreach ($productClasses as $id) {
                 $class = \XLite\Core\Database::getRepo('XLite\Model\ProductClass')->find($id);
                 if ($class) {
@@ -244,13 +268,29 @@ class Coupon extends \XLite\View\Model\AModel
             }
         }
 
+        // Zones
+        foreach ($entity->getZones() as $zone) {
+            $zone->getCoupons()->removeElement($entity);
+        }
+        $entity->clearZones();
+
+        if (is_array($zones)) {
+            foreach ($zones as $id) {
+                $m = \XLite\Core\Database::getRepo('XLite\Model\Zone')->find($id);
+                if ($m) {
+                    $entity->addZones($m);
+                    $m->addCoupons($entity);
+                }
+            }
+        }
+
         // Categories
         foreach ($entity->getCategories() as $c) {
             $c->getCoupons()->removeElement($entity);
         }
         $entity->clearCategories();
 
-        if (is_array($categories)) {
+        if (false === $isSpecificProducts && is_array($categories)) {
             foreach ($categories as $id) {
                 $c = \XLite\Core\Database::getRepo('XLite\Model\Category')->find($id);
                 if ($c) {
@@ -258,6 +298,14 @@ class Coupon extends \XLite\View\Model\AModel
                     $c->addCoupons($entity);
                 }
             }
+        }
+
+        if (false === $isSpecificProducts) {
+            /** @var \XLite\Model\AEntity $cp */
+            foreach ($entity->getCouponProducts() as $cp) {
+                \XLite\Core\Database::getRepo('XLite\Module\CDev\Coupons\Model\CouponProduct')->delete($cp, false);
+            }
+            $entity->getCouponProducts()->clear();
         }
     }
 
@@ -272,6 +320,10 @@ class Coupon extends \XLite\View\Model\AModel
 
         foreach ($coupon->getMemberships() as $membership) {
             $membership->getCoupons()->removeElement($coupon);
+        }
+
+        foreach ($coupon->getZones() as $zone) {
+            $zone->getCoupons()->removeElement($coupon);
         }
 
         foreach ($coupon->getProductClasses() as $productClass) {
@@ -320,9 +372,9 @@ class Coupon extends \XLite\View\Model\AModel
         if (!$this->errorMessages
             && isset($cell['type'], $cell['value'])
             && '%' === $cell['type']->getValue()
-            && 100 < (int) $cell['value']->getValue()
+            && 100 < $cell['value']->getValue()
         ) {
-            $this->addErrorMessage('value', 'The discount should be less than 100%', $data);
+            $this->addErrorMessage('value', 'Discount cannot be more than 100%', $data);
         }
     }
 

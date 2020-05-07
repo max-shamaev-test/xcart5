@@ -313,11 +313,11 @@ class ProductVariant extends \XLite\View\ItemsList\Model\Table
     /**
      * @inheritdoc
      */
-    protected function undoCreatedEntity($entity)
+    protected function undoCreatedEntity($entity, $validated = false)
     {
         $product = $entity->getProduct() ?: $this->getProduct();
 
-        if ($product) {
+        if ($product && !$validated) {
             $product->getVariantsCollection()->removeElement($entity);
         }
 

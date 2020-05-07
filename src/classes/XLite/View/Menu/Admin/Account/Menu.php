@@ -93,19 +93,18 @@ class Menu extends \XLite\View\Menu\Admin\AAdmin
             ],
         ];
 
-        // todo: re-implement with BUS
-        //$purchasesCount = \XLite\Core\Database::getRepo('XLite\Model\Module')->getPurchasedModulesCount();
-        //if ($purchasesCount) {
-        //
-        //    $result['my_purchases'] = [
-        //        static::ITEM_TITLE      => static::t('My purchases'),
-        //        static::ITEM_TARGET     => 'addons_list_purchased',
-        //        static::ITEM_LABEL      => $purchasesCount,
-        //        static::ITEM_LABEL_LINK => $this->buildURL('addons_list_purchased'),
-        //        static::ITEM_CLASS      => 'my-purchases',
-        //        static::ITEM_WEIGHT     => 250,
-        //    ];
-        //}
+        $installationData = \XLite\Core\Marketplace::getInstance()->getInstallationData();
+
+        $purchasesCount = $installationData['purchasesCount'] ?? 0;
+        if ($purchasesCount) {
+            $result['my_purchases'] = [
+                static::ITEM_TITLE      => static::t('My purchases'),
+                static::ITEM_LABEL      => $purchasesCount,
+                static::ITEM_LABEL_LINK => \XLite::getInstance()->getServiceURL('#/my-purchases'),
+                static::ITEM_CLASS      => 'my-purchases',
+                static::ITEM_WEIGHT     => 250,
+            ];
+        }
 
         return $result;
     }

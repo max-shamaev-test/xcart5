@@ -109,7 +109,7 @@ abstract class AStep extends \XLite\Logic\ARepoStep
     protected function getItems($reset = false)
     {
         if (!isset($this->items) || $reset) {
-            $this->items = $this->getRepository()->getResizeIterator($this->position, $this->generator->getOptions()->allItems ?: null);
+            $this->items = $this->getRepository()->getResizeIterator($this->position, $this->generator->getOptions()->allItems ?? null);
             $this->items->rewind();
         }
 

@@ -152,6 +152,40 @@ ItemsList.prototype.listeners.languages = function(handler)
     }
   );
 
+  var unavailableCountries = core.getCommentedData(
+    $('.items-list.languages'),
+    'unavailableCountries'
+  );
+
+  var renewCountriesList = function () {
+    setTimeout(function () {
+      $('.input-countries-select2 select option:not(:disabled, :selected)').filter(function () {
+        return unavailableCountries.indexOf($(this).val()) >= 0;
+      }).attr('disabled', true);
+      $('.input-countries-select2 select option:disabled').filter(function () {
+        return unavailableCountries.indexOf($(this).val()) === -1;
+      }).attr('disabled', false);
+
+      $('.input-countries-select2 select').each(function () {
+        $(this).select2($(this).data('select2').options.options);
+      });
+    });
+  };
+
+  $('.input-countries-select2 select').each(function () {
+    this.oldCountries = $(this).val();
+  });
+
+  $('.input-countries-select2 select').change(function () {
+    var removed = $(this.oldCountries).not($(this).val()).get();
+    var added = $($(this).val()).not(this.oldCountries).get();
+
+    unavailableCountries = $.merge($(unavailableCountries).not(removed), added).get();
+    renewCountriesList();
+    this.oldCountries = $(this).val();
+  });
+
   hideLanguageSwitcher(lastDefaultCustomer);
   hideLanguageSwitcher(lastDefaultAdmin);
+  renewCountriesList();
 }

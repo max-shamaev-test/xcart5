@@ -49,18 +49,21 @@ class GlobalTabs extends \XLite\Logic\Export\Step\Base\I18n
     protected function defineColumns()
     {
         $columns = [
-            'enabled'   => [],
-            'position'  => [],
-            'service_name'  => [
+            'enabled'      => [],
+            'position'     => [],
+            'service_name' => [
                 static::COLUMN_GETTER => 'getServiceNameColumnValue'
+            ],
+            'link'         => [
+                static::COLUMN_GETTER => 'getLinkColumnValue'
             ],
         ];
 
         $columns += $this->assignI18nColumns([
-            'name' => [
+            'name'       => [
                 static::COLUMN_GETTER => 'getNameColumnValue'
             ],
-            'content' => [
+            'content'    => [
                 static::COLUMN_GETTER => 'getContentColumnValue'
             ],
             'brief_info' => [
@@ -121,6 +124,20 @@ class GlobalTabs extends \XLite\Logic\Export\Step\Base\I18n
     protected function getServiceNameColumnValue(array $dataset, $name, $i)
     {
         return $dataset['model']->getServiceName();
+    }
+
+    /**
+     * Get column value for tabs
+     *
+     * @param array   $dataset Dataset
+     * @param string  $name    Column name
+     * @param integer $i       Subcolumn index
+     *
+     * @return integer
+     */
+    protected function getLinkColumnValue(array $dataset, $name, $i)
+    {
+        return $dataset['model']->getLink();
     }
 
     /**

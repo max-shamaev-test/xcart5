@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XPay\XPaymentsCloud\Model\Payment;
 
+use \XLite\Module\XPay\XPaymentsCloud\Main as XPaymentsCloud;
+
 /**
  * Payment method
  */
@@ -22,10 +24,10 @@ class Method extends \XLite\Model\Payment\Method implements \XLite\Base\IDecorat
     {
         return (
             $this->isLegacyXpaymentsMethod()
-            && $this->getXpaymentsPaymentMethod()
+            && XPaymentsCloud::getPaymentMethod()
             && $this->getFromMarketplace()
         )
-            ? $this->getXpaymentsPaymentMethod()->getMethodId()
+            ? XPaymentsCloud::getPaymentMethod()->getMethodId()
             : parent::getMethodId();
     }
 
@@ -39,7 +41,7 @@ class Method extends \XLite\Model\Payment\Method implements \XLite\Base\IDecorat
         $result = parent::getAdded();
 
         if ($this->isLegacyXpaymentsMethod()) {
-            if ($this->getXpaymentsPaymentMethod()->getAdded()) {
+            if (XPaymentsCloud::getPaymentMethod()->getAdded()) {
                 $result = true;
             } else {
                 $result = false;
@@ -58,17 +60,6 @@ class Method extends \XLite\Model\Payment\Method implements \XLite\Base\IDecorat
     {
         return false !== strpos($this->getServiceName(), 'XPayments.Allowed')
             || false !== strpos($this->getServiceName(), 'SavedCard');
-    }
-
-    /**
-    * Returns X-Payments Cloud payment method
-    *
-    * @return \XLite\Model\Payment\Method
-    */
-    protected function getXpaymentsPaymentMethod()
-    {
-        return \XLite\Core\Database::getRepo('\XLite\Model\Payment\Method')
-            ->findOneBy(['service_name' => 'XPaymentsCloud']);
     }
 
 }

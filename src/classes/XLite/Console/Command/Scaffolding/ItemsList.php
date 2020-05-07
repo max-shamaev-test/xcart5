@@ -228,10 +228,11 @@ class ItemsList extends Command
         list($path, $controllerClass) = $this->createController($config, $io);
 
         if ($path) {
-            if (LC_DEVELOPER_MODE && class_exists($controllerClass, true)) {
-                new $controllerClass();
+            if (LC_DEVELOPER_MODE && !class_exists($controllerClass)) {
+                $io->error("Failed to generate itemsList controller $path");
+            } else {
+                $io->note($path .' itemsList controller is generated');
             }
-            $io->note($path .' itemsList controller is generated');
         }
 
         if ($config['canEdit'] || ($config['canCreate'] && !$config['inlineCreation'])) {
@@ -242,20 +243,22 @@ class ItemsList extends Command
         list($path, $viewClass) = $this->createViewModel($config, $io);
 
         if ($path) {
-            if (LC_DEVELOPER_MODE && class_exists($viewClass, true)) {
-                new $viewClass();
+            if (LC_DEVELOPER_MODE && !class_exists($viewClass)) {
+                $io->error("Failed to generate itemsList view $path");
+            } else {
+                $io->note($path .' itemsList view is generated');
             }
-            $io->note($path .' itemsList view is generated');
         }
 
         if ($config['leftMenuPath']) {
             list($path, $leftMenuClass) = $this->createLeftMenuClass($config, $io);
 
             if ($path) {
-                if (LC_DEVELOPER_MODE && class_exists($leftMenuClass, true)) {
-                    new $leftMenuClass();
+                if (LC_DEVELOPER_MODE && !class_exists($leftMenuClass)) {
+                    $io->error("Failed to generate left menu decorator $path");
+                } else {
+                    $io->note($path .' left menu decorator is generated');
                 }
-                $io->note($path .' left menu decorator is generated');
             }
         }
 

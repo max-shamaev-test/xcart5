@@ -251,11 +251,7 @@ ul.language-labels .edit:hover,
 .language-labels textarea.non-editable:focus {
   border: none;
   border-radius: 0;
-  -moz-border-radius: 0;
-  -webkit-border-radius: 0;
   resize: none;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
   box-shadow: none;
   background-color: #f5f5f5;
 }
@@ -646,11 +642,8 @@ ul.languages-list li {
 
 ul.languages-list li span,
 ul.languages-list li a {
-  display: -webkit-flex;
   display: flex;
-  -webkit-align-items: center;
   align-items: center;
-  -webkit-justify-content: space-around;
   justify-content: space-around;
 }
 
@@ -838,6 +831,11 @@ ul.languages-list li span.active {
   font-style: italic;
 }
 
+.items-list.languages table.list tbody.lines tr.line td.name div.cell {
+  .align-items(center);
+  .flex-direction(row);
+}
+
 .items-list.languages .cell.defaultCustomer .cell .field,
 .items-list.languages .cell.defaultAdmin .cell .field {
   text-align: center;
@@ -910,7 +908,6 @@ form.searchpanel-label-main .search-conditions li.actions button[type="submit"] 
 
 .items-list-table.languages table.list tbody.lines tr{
   height: 56px;
-  border-bottom: @border-base solid @table-border-color;
 }
 
 .items-list.labels table tr.line.just-added,

@@ -47,6 +47,9 @@
       background-color: @items-list-head-bg;
 
       th {
+        padding-top: (@items-list-head-height - @rhythmic-unit) / 2;
+        padding-bottom: (@items-list-head-height - @rhythmic-unit) / 2;
+
         height: @items-list-head-height;
         color: @items-list-color;
         white-space: nowrap;
@@ -62,6 +65,7 @@
           font-weight: @font-regular;
           color: @items-list-head-subcolor;
           font-size: @font-size-small;
+          height: @rhythmic-unit;
         }
       }
     }
@@ -138,8 +142,6 @@
 
 .items-list-table table.list tbody.lines td.actions div.default-value-checkbox {
   border-radius: 10px;
-  -moz-border-radius: 10px;
-  -webkit-border-radius: 10px;
   border: 1px solid transparent;
   cursor: pointer;
 }
@@ -342,6 +344,10 @@
   font-size: 16px;
   width: @iconfont-width;
   text-align: center;
+}
+
+.items-list-table .selector .fa:not(.fa-angle-down):not(.fa-star) {
+  width: @radio-checkbox-height;
 }
 
 .items-list-table .tooltip-main .fa {

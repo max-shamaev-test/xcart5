@@ -18,18 +18,19 @@ class QuickData extends \XLite\Core\QuickData implements \XLite\Base\IDecorator
      *
      * @param \XLite\Model\Product $product    Product
      * @param mixed                $membership Membership
+     * @param mixed                $zone       Zone
      *
      * @return \XLite\Model\QuickData
      */
-    public function updateData(\XLite\Model\Product $product, $membership)
+    public function updateDataWithZone(\XLite\Model\Product $product, $membership, $zone)
     {
-        $data = parent::updateData($product, $membership);
+        $data = parent::updateDataWithZone($product, $membership, $zone);
 
         if ($product->hasVariants()) {
-            $minPrice = min($data->getPrice(), $product->getQuickDataMinPrice());
+            $minPrice = min($data->getPrice(), $this->getQuickDataMinPrice($product, $membership, $zone));
             $data->setMinPrice(\XLite::getInstance()->getCurrency()->roundValue($minPrice));
 
-            $maxPrice = max($data->getPrice(), $product->getQuickDataMaxPrice());
+            $maxPrice = max($data->getPrice(), $this->getQuickDataMaxPrice($product, $membership, $zone));
             $data->setMaxPrice(\XLite::getInstance()->getCurrency()->roundValue($maxPrice));
         } else {
             $data->setMinPrice(\XLite::getInstance()->getCurrency()->roundValue($data->getPrice()));
@@ -37,5 +38,27 @@ class QuickData extends \XLite\Core\QuickData implements \XLite\Base\IDecorator
         }
 
         return $data;
+    }
+
+    /**
+     * @param \XLite\Model\Product $product
+     * @param $membership
+     * @param $zone
+     * @return float
+     */
+    protected function getQuickDataMinPrice(\XLite\Model\Product $product, $membership, $zone)
+    {
+        return $product->getQuickDataMinPrice();
+    }
+
+    /**
+     * @param \XLite\Model\Product $product
+     * @param $membership
+     * @param $zone
+     * @return float
+     */
+    protected function getQuickDataMaxPrice(\XLite\Model\Product $product, $membership, $zone)
+    {
+        return $product->getQuickDataMaxPrice();
     }
 }

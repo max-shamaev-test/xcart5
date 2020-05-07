@@ -23,16 +23,11 @@ class ProductList extends \XLite\Controller\Admin\ProductList implements \XLite\
     {
         $select = \XLite\Core\Request::getInstance()->select;
         if ($select && is_array($select)) {
-            \XLite\Core\Database::getRepo('\XLite\Model\Product')->updateInBatchById($this->getUpdateInfo());
+            $this->cancelSaleByIds(array_keys($this->getSelected()));
             \XLite\Core\TopMessage::addInfo('Products information has been successfully updated');
 
         } elseif ($ids = $this->getActionProductsIds()) {
-            $qb = \XLite\Core\Database::getRepo('XLite\Model\Product')->createQueryBuilder();
-            $alias = $qb->getMainAlias();
-            $qb->update('\XLite\Model\Product', $alias)
-                ->set("{$alias}.participateSale", $qb->expr()->literal(false))
-                ->andWhere($qb->expr()->in("{$alias}.product_id", $ids))
-                ->execute();
+            $this->cancelSaleByIds($ids);
             \XLite\Core\TopMessage::addInfo('Products information has been successfully updated');
 
         } else {
@@ -41,15 +36,17 @@ class ProductList extends \XLite\Controller\Admin\ProductList implements \XLite\
     }
 
     /**
-     * Defines the update information
-     * 
-     * @return array
+     * Cancel sale for provided product ids
+     *
+     * @param $ids
      */
-    protected function getUpdateInfo()
+    protected function cancelSaleByIds($ids)
     {
-        return array_fill_keys(
-            array_keys($this->getSelected()), 
-            array('participateSale' => false)
-        );
+        $qb = \XLite\Core\Database::getRepo('XLite\Model\Product')->createQueryBuilder();
+        $alias = $qb->getMainAlias();
+        $qb->update('\XLite\Model\Product', $alias)
+            ->set("{$alias}.participateSale", $qb->expr()->literal(false))
+            ->andWhere($qb->expr()->in("{$alias}.product_id", $ids))
+            ->execute();
     }
 }

@@ -339,6 +339,11 @@ class Module extends PropertyBag
 
                                             if (preg_match($pattern, $schema[0], $matches)) {
                                                 $columns[$table][$col['name']] = $matches[1];
+                                                if (!empty($deps)) {
+                                                    foreach ($deps as $dep) {
+                                                        $dependencies[$dep][$table][$col['name']] = $matches[1];
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -508,6 +513,14 @@ class Module extends PropertyBag
     public function isPayment()
     {
         return $this->type === 'payment';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShipping()
+    {
+        return $this->type === 'shipping';
     }
 
     /**

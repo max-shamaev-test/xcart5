@@ -27,11 +27,10 @@ index cart.php;
 charset UTF-8;
 
 location ^~ /src/classes {
-    deny all;
-}
-
-location ^~ /src/etc {
-    deny all;
+    location ~* \.(png|svg) {
+        try_files $uri =404;
+    }
+    return 403;
 }
 
 location ^~ /src/files {
@@ -51,23 +50,11 @@ location ^~ /src/images {
     return 403;
 }
 
-location ^~ /src/Includes {
-    deny all;
-}
-
-location ^~ /src/lib {
-    deny all;
-}
-
 location ^~ /src/skins {
     location ~* \.(tpl|twig|php|pl|conf) {
       deny all;
     }
     try_files $uri =404;
-}
-
-location ^~ /src/sql {
-    deny all;
 }
 
 location ^~ /src/var {
@@ -77,15 +64,11 @@ location ^~ /src/var {
     return 403;
 }
 
-location ^~ /src/vendor {
+location ~ /src/(vendor|sql|lib|etc|Includes)/ {
     deny all;
 }
 
-location ^~ /src/var/export {
-    deny all;
-}
-
-location ^~ /src/var/import {
+location ~ /src/var/(export|import)/ {
     deny all;
 }
 
@@ -152,11 +135,10 @@ server {
     charset UTF-8;
 
     location ^~ /classes {
-        deny all;
-    }
-
-    location ^~ /etc {
-        deny all;
+        location ~* \.(png|svg) {
+            try_files $uri =404;
+        }
+        return 403;
     }
 
     location ^~ /files {
@@ -176,23 +158,11 @@ server {
         return 403;
     }
 
-    location ^~ /Includes {
-        deny all;
-    }
-
-    location ^~ /lib {
-        deny all;
-    }
-
     location ^~ /skins {
         location ~* \.(tpl|twig|php|pl|conf) {
           deny all;
         }
         try_files $uri =404;
-    }
-
-    location ^~ /sql {
-        deny all;
     }
 
     location ^~ /var {
@@ -202,15 +172,11 @@ server {
         return 403;
     }
 
-    location ^~ /vendor {
+    location ~ /(vendor|sql|lib|etc|Includes)/ {
         deny all;
     }
 
-    location ^~ /var/export {
-        deny all;
-    }
-
-    location ^~ /var/import {
+    location ~ /var/(export|import)/ {
         deny all;
     }
 

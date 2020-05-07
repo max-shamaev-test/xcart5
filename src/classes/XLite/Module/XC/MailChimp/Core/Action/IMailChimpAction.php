@@ -13,5 +13,5 @@ interface IMailChimpAction
     /**
      * Execute action
      */
-    public function execute();
+    public function execute(): void;
 }

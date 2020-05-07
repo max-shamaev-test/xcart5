@@ -39,24 +39,33 @@ class WholesalePrices extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_CLASS   => 'XLite\Module\CDev\Wholesale\View\FormField\QuantityRangeBegin',
                 static::COLUMN_ORDERBY => 100,
             ],
-            'price'              => [
-                static::COLUMN_CLASS   => '\XLite\Module\CDev\Wholesale\View\FormField\Inline\Input\WholesalePriceOrPercent',
-                static::COLUMN_ORDERBY => 200,
-            ],
             'membership'         => [
                 static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Membership'),
                 static::COLUMN_CLASS   => 'XLite\Module\CDev\Wholesale\View\FormField\Membership',
+                static::COLUMN_ORDERBY => 200,
+            ],
+            'price'              => [
+                static::COLUMN_CLASS   => '\XLite\Module\CDev\Wholesale\View\FormField\Inline\Input\WholesalePriceOrPercent',
                 static::COLUMN_ORDERBY => 300,
             ],
             'resultPrice'              => [
-                static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Price'),
-                static::COLUMN_ORDERBY => 400,
+                static::COLUMN_NAME      => \XLite\Core\Translation::lbl('Price'),
+                static::COLUMN_SUBHEADER => static::t('Basic price') . ': ' . $this->formatPrice($this->getDefaultPriceValue()),
+                static::COLUMN_ORDERBY   => 400,
             ],
             'save'              => [
                 static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Saving'),
                 static::COLUMN_ORDERBY => 500,
             ],
         ];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getColspanHeaders()
+    {
+        return ['resultPrice' => ['price']];
     }
 
     /**
@@ -74,30 +83,12 @@ class WholesalePrices extends \XLite\View\ItemsList\Model\Table
      */
     protected function getSaveColumnValue($entity)
     {
-        if ($entity->getOwner()) {
+        if ($entity->getOwner() && $entity->getOwnerPrice()) {
             return static::formatPriceHTML($entity->getOwnerPrice() - $entity->getClearPrice())
                 . " (" . round(100 - ($entity->getClearPrice() / $entity->getOwnerPrice() * 100), 2) . "%)";
         }
 
         return '';
-    }
-
-    /**
-     * getRightActions
-     *
-     * @return array
-     */
-    protected function getRightActions()
-    {
-        $list = parent::getRightActions();
-
-        foreach ($list as $k => $v) {
-            if ('items_list/model/table/parts/remove.twig' == $v) {
-                $list[$k] = 'modules/CDev/Wholesale/pricing/parts/remove.twig';
-            }
-        }
-
-        return $list;
     }
 
     /**
@@ -171,6 +162,16 @@ class WholesalePrices extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
+     * isEmptyListTemplateVisible
+     *
+     * @return boolean
+     */
+    protected function isEmptyListTemplateVisible()
+    {
+        return false;
+    }
+
+    /**
      * Get list name suffixes
      *
      * @return array
@@ -202,18 +203,6 @@ class WholesalePrices extends \XLite\View\ItemsList\Model\Table
         return $entity;
     }
 
-    /**
-     * Return true if entity is removable
-     *
-     * @param \XLite\Module\CDev\Wholesale\Model\WholesalePrice $entity Wholesale price object
-     *
-     * @return boolean
-     */
-    protected function isRemovableEntity($entity)
-    {
-        return !$entity->isDefaultPrice();
-    }
-
     // {{{ Data
 
     /**
@@ -242,42 +231,9 @@ class WholesalePrices extends \XLite\View\ItemsList\Model\Table
      *
      * @return mixed
      */
-    protected function getDefaultPrice()
+    protected function getDefaultPriceValue()
     {
-        $class = '\\' . $this->defineRepositoryName();
-        $result = new $class;
-        $result->setPrice($this->getProduct()->getBasePrice());
-
-        return $result;
-    }
-
-    /**
-     * Get page data
-     *
-     * @return array
-     */
-    protected function getPageData()
-    {
-        $result = parent::getPageData();
-
-        if (\XLite\Core\Request::getInstance()->isGet()) {
-            $result = array_merge(
-                [$this->getDefaultPrice()],
-                $result
-            );
-        }
-
-        return $result;
-    }
-
-    /**
-     * Check if there are any results to display in list
-     *
-     * @return boolean
-     */
-    protected function hasResults()
-    {
-        return true;
+        return $this->getProduct()->getBasePrice();
     }
 
     // }}}

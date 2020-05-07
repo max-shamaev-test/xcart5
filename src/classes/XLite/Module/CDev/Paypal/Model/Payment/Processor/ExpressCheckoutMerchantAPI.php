@@ -64,6 +64,8 @@ class ExpressCheckoutMerchantAPI extends \XLite\Module\CDev\Paypal\Model\Payment
     public function isConfigured(\XLite\Model\Payment\Method $method)
     {
         return \XLite\Model\Payment\Base\Processor::isConfigured($method)
+            && (!$this->getAllowedMerchantCountries()
+                || in_array(\XLite\Core\Config::getInstance()->Company->location_country, $this->getAllowedMerchantCountries(), true))
             && $this->api->isConfigured();
     }
 

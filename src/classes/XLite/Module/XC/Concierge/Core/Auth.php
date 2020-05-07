@@ -33,10 +33,6 @@ abstract class Auth extends \XLite\Core\Auth implements \XLite\Base\IDecorator
 
         Mediator::getInstance()->initOptions();
         if (is_object($result) && $result instanceof \XLite\Model\Profile) {
-            //$config = \XLite\Core\Config::getInstance();
-            //Mediator::getInstance()->addMessage(
-            //    new Identify($this->getConciergeUserId(), $this->getConciergeCompanyId(), $result, $config)
-            //);
             Mediator::getInstance()->addMessage(new Track('Logged In'));
 
         } else {
@@ -78,27 +74,6 @@ abstract class Auth extends \XLite\Core\Auth implements \XLite\Base\IDecorator
     }
 
     /**
-     * @return string
-     * @throws \Exception
-     */
-    public function getConciergeCompanyId()
-    {
-        $companyId = \XLite\Core\Config::getInstance()->XC->Concierge->company_id;
-        if (!$companyId) {
-            $companyId = $this->generateConciergeCompanyId();
-            \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
-                [
-                    'category' => 'XC\Concierge',
-                    'name'     => 'company_id',
-                    'value'    => $companyId,
-                ]
-            );
-        }
-
-        return $companyId;
-    }
-
-    /**
      * @return string|null
      */
     protected function getExternalConciergeUserId()
@@ -121,18 +96,5 @@ abstract class Auth extends \XLite\Core\Auth implements \XLite\Base\IDecorator
         $profile = $this->getProfile();
 
         return $profile->getLogin();
-    }
-
-    /**
-     * @return string
-     */
-    protected function generateConciergeCompanyId()
-    {
-        $authCode = \Includes\Utils\ConfigParser::getOptions(['installer_details', 'auth_code']);
-        $secretKey = \Includes\Utils\ConfigParser::getOptions(['installer_details', 'shared_secret_key']);
-
-        return $authCode
-            ? md5($authCode . $secretKey . \LC_START_TIME)
-            : md5(\LC_START_TIME);
     }
 }

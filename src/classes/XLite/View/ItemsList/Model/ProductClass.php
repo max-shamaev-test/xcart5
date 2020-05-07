@@ -78,16 +78,6 @@ class ProductClass extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Get create entity URL
-     *
-     * @return string
-     */
-    protected function getCreateURL()
-    {
-        return \XLite\Core\Converter::buildUrl('product_class');
-    }
-
-    /**
      * Get create button label
      *
      * @return string

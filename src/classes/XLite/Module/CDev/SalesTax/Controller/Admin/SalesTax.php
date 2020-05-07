@@ -54,24 +54,23 @@ class SalesTax extends \XLite\Controller\Admin\AAdmin
 
         $this->updateTaxSettings($tax);
 
-        $optionNames = array(
+        $optionNames = [
             'ignore_memberships',
             'addressType',
             'taxableBase',
-        );
+        ];
 
+        $optionsData = [];
+        $request = \XLite\Core\Request::getInstance();
         foreach ($optionNames as $optionName) {
-            $optionValue = !empty(\XLite\Core\Request::getInstance()->$optionName)
-                ? \XLite\Core\Request::getInstance()->$optionName
-                : 'N';
-
-            $optionData = array(
+            $optionsData[] = [
                 'name'     => $optionName,
                 'category' => 'CDev\\SalesTax',
-                'value'    => $optionValue,
-            );
-            \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption($optionData);
+                'value'    => $request->$optionName ?: 'N',
+            ];
+
         }
+        \XLite\Core\Database::getRepo('XLite\Model\Config')->createOptions($optionsData);
 
         $list = new \XLite\Module\CDev\SalesTax\View\ItemsList\Model\Rate;
         $list->processQuick();
@@ -80,7 +79,7 @@ class SalesTax extends \XLite\Controller\Admin\AAdmin
         $list2->processQuick();
 
         $rates = \XLite\Core\Database::getRepo('XLite\Module\CDev\SalesTax\Model\Tax\Rate')
-            ->findBy(array('tax' => null));
+            ->findBy(['tax' => null]);
 
         foreach ($rates as $rate) {
             $tax->addRates($rate);
@@ -140,44 +139,6 @@ class SalesTax extends \XLite\Controller\Admin\AAdmin
         } else {
             \XLite\Core\TopMessage::addInfo('Tax has been disabled successfully');
         }
-    }
-
-    /**
-     * Expand common settings section
-     *
-     * @return void
-     */
-    protected function doActionExpand()
-    {
-        $this->toggleCommonSettingsDisplayMode(true);
-    }
-
-    /**
-     * Collapse common settings section
-     *
-     * @return void
-     */
-    protected function doActionCollapse()
-    {
-        $this->toggleCommonSettingsDisplayMode(false);
-    }
-
-    /**
-     * Update common settings section visibility mode
-     *
-     * @param boolean $value Visibility mode: true - section is expanded; false - collapsed
-     *
-     * @return void
-     */
-    protected function toggleCommonSettingsDisplayMode($value)
-    {
-        $optionData = array(
-            'name'     => 'common_settings_expanded',
-            'category' => 'CDev\\SalesTax',
-            'value'    => $value,
-        );
-
-        \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption($optionData);
     }
 
     /**

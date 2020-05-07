@@ -10,6 +10,11 @@
 function PopupButtonAddPaymentMethod()
 {
   PopupButtonAddPaymentMethod.superclass.constructor.apply(this, arguments);
+
+  const params = jQuery.getQueryParameters();
+  if (params.show_add_payment_popup) {
+    jQuery('button.add-online-method-button').click();
+  }
 }
 
 // New POPUP button widget extends POPUP button class
@@ -37,6 +42,14 @@ decorate(
       }
 
       jQuery('.ui-widget-overlay').css('height', jQuery(document).height());
+    });
+
+    jQuery(function () {
+      var isChrome = /Chrome\//.test(navigator.userAgent);
+
+      if (isChrome) {
+        jQuery('.chosen-search input').attr('autocomplete', 'disable');
+      }
     });
 
     core.autoload(TableItemsListQueue);

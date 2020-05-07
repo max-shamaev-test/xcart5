@@ -235,7 +235,7 @@ class Method extends \XLite\Model\Repo\Base\I18n
                 /** @var Module $module */
                 return $module->author . '_' . $module->name;
             },
-            Manager::getRegistry()->getEnabledPaymentModules()
+            array_merge(Manager::getRegistry()->getEnabledPaymentModules(),Manager::getRegistry()->getEnabledShippingModules())
         );
 
         $enabledModules[] = '';
@@ -543,8 +543,8 @@ class Method extends \XLite\Model\Repo\Base\I18n
     public function updatePaymentMethods($data, $countryCode = '')
     {
         if (!empty($data) && is_array($data)) {
-
-            $methods = array();
+            $methods = [];
+            $methodsFromMarketplace = [];
 
             // Get all payment methods list as an array
             $tmpMethods = $this->createQueryBuilder('m')
@@ -563,19 +563,21 @@ class Method extends \XLite\Model\Repo\Base\I18n
 
                 if (!empty($extMethod['service_name'])) {
 
+                    unset($extMethod['enabled'], $extMethod['added']);
                     $data[$i] = $extMethod;
+                    $methodsFromMarketplace[] = $extMethod['service_name'];
 
                     if (isset($methods[$extMethod['service_name']])) {
 
                         // Method already exists in the database
 
                         if (!$methods[$extMethod['service_name']]['fromMarketplace']) {
-                            $data[$i] = array(
+                            $data[$i] = [
                                 'service_name' => $extMethod['service_name'],
-                                'countries'    => !empty($extMethod['countries']) ? $extMethod['countries'] : array(),
-                                'exCountries'  => !empty($extMethod['exCountries']) ? $extMethod['exCountries'] : array(),
+                                'countries'    => !empty($extMethod['countries']) ? $extMethod['countries'] : [],
+                                'exCountries'  => !empty($extMethod['exCountries']) ? $extMethod['exCountries'] : [],
                                 'orderby'      => !empty($extMethod['orderby']) ? $extMethod['orderby'] : 0,
-                            );
+                            ];
                         }
 
                     } else {
@@ -601,8 +603,10 @@ class Method extends \XLite\Model\Repo\Base\I18n
                 }
             }
 
+            $this->removeIrrelevantPaymentMethods($methodsFromMarketplace);
+
             // Save data as temporary yaml file
-            $yaml = \Symfony\Component\Yaml\Yaml::dump(array('XLite\\Model\\Payment\\Method' => $data));
+            $yaml = \Symfony\Component\Yaml\Yaml::dump(['XLite\\Model\\Payment\\Method' => $data]);
 
             $yamlFile = LC_DIR_TMP . 'pm.yaml';
 
@@ -610,6 +614,35 @@ class Method extends \XLite\Model\Repo\Base\I18n
 
             // Update database from yaml file
             \XLite\Core\Database::getInstance()->loadFixturesFromYaml($yamlFile);
+        }
+    }
+
+    /**
+     * Remove irrelevant payment methods
+     *
+     * @param array $methodsFromMarketplace
+     *
+     * @return void
+     */
+    protected function removeIrrelevantPaymentMethods($methodsFromMarketplace)
+    {
+        $notInstalledPaymentsMethods = $this->getQueryBuilder()
+            ->select('m.service_name')
+            ->from($this->_entityName, 'm')
+            ->where('m.fromMarketplace = 1')
+            ->getArrayResult();
+
+        $irrelevantPaymentMethods = array_filter($notInstalledPaymentsMethods, function($method) use($methodsFromMarketplace) {
+            return !in_array($method['service_name'], $methodsFromMarketplace);
+        });
+
+        foreach ($irrelevantPaymentMethods as $methodToRemove) {
+            $this->getQueryBuilder()
+                ->delete($this->_entityName, 'm')
+                ->where('m.fromMarketplace = 1')
+                ->andWhere('m.service_name = :serviceName')
+                ->setParameter('serviceName', $methodToRemove['service_name'])
+                ->execute();
         }
     }
 

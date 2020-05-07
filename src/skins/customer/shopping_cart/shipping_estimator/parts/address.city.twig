@@ -6,6 +6,6 @@
 
 {% if this.hasField('city') %}
   <li class="city">
-    {{ widget('\\XLite\\View\\FormField\\Input\\Text', fieldName='destination_city', value=this.getCity(), label=t('City'), required='true') }}
+    {{ widget('\\XLite\\View\\FormField\\Input\\Text', fieldName='destination_city', value=this.getCity(), label=t('City'), required=this.isFieldRequired('city')) }}
   </li>
 {% endif %}

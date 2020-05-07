@@ -424,6 +424,7 @@ class Cart extends \XLite\Model\Order
         }
 
         $this->getRepository()->markAsOrder($this->getOrderId());
+        $this->setJustClosed(true);
     }
 
     /**

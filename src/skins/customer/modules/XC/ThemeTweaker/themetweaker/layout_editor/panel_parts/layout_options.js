@@ -97,11 +97,28 @@ define('themetweaker/layout_options', ['js/vue/vue'], function (XLiteVue) {
           .fail(_.bind(this.onResetFail, this));
       },
       'form-model-prop-updated': function(path, value, sender) {
+        var updateData = {};
         if (typeof(sender.temp_id) !== 'undefined') {
-          this.updateImage(sender.basePath, {
-            temp_id: sender.temp_id
-          });
+          updateData.temp_id = sender.temp_id;
+
+          if (typeof(sender.alt) !== 'undefined') {
+            updateData.alt = sender.alt;
+          }
         }
+        if (typeof(sender.delete) !== 'undefined') {
+          updateData.is_delete = sender.delete;
+        }
+        if (typeof(sender.alt) !== 'undefined'
+          && sender.alt !== sender.initialAlt
+        ) {
+          updateData.alt = sender.alt;
+        }
+
+        if (_.isEqual(updateData, {is_delete: false})) {
+          updateData = null;
+        }
+
+        this.updateImage(sender.basePath, updateData);
       },
     },
 

@@ -27,8 +27,10 @@ class ChangeCurrencyGeolocation extends \XLite\Module\XC\MultiCurrency\Controlle
             )
         );
 
-        $changeCountry = isset($country)
-            && $country->getEnabled();
+        $currentLocation = \XLite\Module\XC\Geolocation\Logic\Geolocation::getInstance()->getLocation(new \XLite\Module\XC\Geolocation\Logic\GeoInput\IpAddress);
+
+        $changeCountry = isset($country) && $country->getEnabled()
+            && (!isset($currentLocation['country']) || $currentLocation['country'] !== $country->getCode());
 
         if ($changeCountry) {
             $address = $this->getCart() && $this->getCart()->getProfile() && $this->getCart()->getProfile()->getShippingAddress()

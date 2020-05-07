@@ -144,6 +144,7 @@ class Initialization extends \XLite\View\AView
             'ready'       => true,
             'context'     => $this->getMediator()->getOptions(),
             'admin_email' => $adminProfile ? $adminProfile->getLogin() : '',
+            'email'       => \XLite\Core\Config::getInstance()->XC->Concierge->user_id,
         ];
     }
 }

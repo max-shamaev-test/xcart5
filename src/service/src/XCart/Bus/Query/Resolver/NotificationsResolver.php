@@ -26,6 +26,11 @@ class NotificationsResolver
     private $notificationsDataSource;
 
     /**
+     * @var array
+     */
+    private $filter = [];
+
+    /**
      * @param NotificationsDataSource $notificationsDataSource
      */
     public function __construct(NotificationsDataSource $notificationsDataSource)
@@ -48,9 +53,27 @@ class NotificationsResolver
     public function getList($value, $args, $context, ResolveInfo $info)
     {
         $this->notificationsDataSource->loadDeferred();
+        $this->filter = $args;
 
         return new Deferred(function () {
-            return $this->notificationsDataSource->getAll();
+            $notifications = $this->notificationsDataSource->getAll();
+
+            if (!$this->filter) {
+                return $notifications;
+            }
+
+            return array_filter($notifications, function ($notification) {
+                if (!empty($this->filter['type']) && $notification['type'] !== $this->filter['type']) {
+                    return false;
+                }
+
+                $target = $notification['pageParams']['target'] ?? '';
+                $page   = $notification['pageParams']['page'] ?? '';
+
+                return
+                    (empty($target) || $target === ($this->filter['target'] ?? ''))
+                    & (empty($page) || $page === ($this->filter['page'] ?? ''));
+            });
         });
     }
 }

@@ -17,7 +17,6 @@ abstract class ASocialButton extends \XLite\View\AView
 {
     const BUTTON_CLASS_FACEBOOK = 'facebook';
     const BUTTON_CLASS_TWITTER = 'twitter';
-    const BUTTON_CLASS_GOOGLEPLUS = 'gplus';
     const BUTTON_CLASS_PINTEREST = 'pinterest';
 
     /**

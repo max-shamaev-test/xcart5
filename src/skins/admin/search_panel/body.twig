@@ -16,17 +16,19 @@
     {{ this.displayCommentedData(this.getSearchPanelParams()) }}
 
     <div class="search-conditions">
-      <ul class="inline-table">
-        {% for name, conditionWidget in this.getConditions() %}
-          <li class="{{ name }}-condition">{{ conditionWidget.display() }}</li>
-        {% endfor %}
-        <li class="actions">
-          {% for name, action in this.getActions() %}
-            {{ action.display() }}
+      {% block search_conditions_line %}
+        <ul class="inline-table">
+          {% for name, conditionWidget in this.getConditions() %}
+            <li class="{{ name }}-condition">{{ conditionWidget.display() }}</li>
           {% endfor %}
-        </li>
-        {{ widget_list('conditions', type='nested') }}
-      </ul>
+          <li class="actions">
+            {% for name, action in this.getActions() %}
+              {{ action.display() }}
+            {% endfor %}
+          </li>
+          {{ widget_list('conditions', type='nested') }}
+        </ul>
+      {% endblock search_conditions_line %}
     </div>
 
     {% if this.getHiddenConditions() %}

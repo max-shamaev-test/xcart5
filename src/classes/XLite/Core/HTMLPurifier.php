@@ -28,8 +28,6 @@ class HTMLPurifier extends \XLite\Base\Singleton
     public static function getPurifier($force = false)
     {
         if ($force || !isset(static::$purifier)) {
-            //require_once LC_DIR_LIB . 'htmlpurifier/library/HTMLPurifier.auto.php';
-            require_once LC_DIR_LIB . 'htmlpurifier/library/HTMLPurifier.safe-includes.php';
             $config = \HTMLPurifier_Config::createDefault();
             $config->set('Cache.SerializerPath', LC_DIR_DATACACHE);
             // Set some HTML5 properties

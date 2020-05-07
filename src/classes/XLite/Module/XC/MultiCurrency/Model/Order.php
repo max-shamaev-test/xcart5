@@ -36,17 +36,11 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
     protected $selectedMultiCurrencyRate = 1.0;
 
     /**
-     * Since Doctrine lifecycle callbacks do not allow to modify associations, we've added this method
-     *
-     * @param string $type Type of current operation
-     *
      * @return void
      */
-    public function prepareEntityBeforeCommit($type)
+    public function updateOrder()
     {
-        if (
-            static::ACTION_UPDATE == $type
-            && !isset($this->selectedMultiCurrency)
+        if (!isset($this->selectedMultiCurrency)
             && (
                 !$this->getProfile()
                 || !Auth::getInstance()->getProfile()
@@ -58,7 +52,7 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
             );
         }
 
-        parent::prepareEntityBeforeCommit($type);
+        parent::updateOrder();
     }
 
     /**

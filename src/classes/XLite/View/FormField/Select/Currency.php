@@ -19,56 +19,23 @@ class Currency extends \XLite\View\FormField\Select\Regular
     const PARAM_USE_CODE_AS_KEY = 'useCodeAsKey';
 
     /**
-     * getDefaultOptions
-     *
-     * @return array
-     */
-    protected function getDefaultOptions()
-    {
-        $list = array();
-
-        foreach (\XLite\Core\Database::getRepo('XLite\Model\Currency')->findAllSortedByName() as $currency) {
-            $list[$currency->getCurrencyId()] = $this->getOptionName($currency);
-        }
-
-        asort($list);
-
-        return $list;
-    }
-
-    /**
      * Get options list
      *
      * @return array
      */
     protected function getOptions()
     {
-        $list = array();
+        $list = [];
 
-        if ($this->getParam(self::PARAM_USE_CODE_AS_KEY)) {
-            foreach (\XLite\Core\Database::getRepo('XLite\Model\Currency')->findAllSortedByName() as $currency) {
-                $list[$currency->getCode()] = $this->getOptionName($currency);
-            }
+        foreach (\XLite\Core\Database::getRepo('XLite\Model\Currency')->findAllSortedByName() as $currency) {
+            $key = $this->getParam(self::PARAM_USE_CODE_AS_KEY)
+                ? $currency->getCode()
+                : $currency->getCurrencyId();
 
-            asort($list);
-
-        } else {
-            $list = parent::getOptions();
+            $list[$key] = sprintf('%s - %s', $currency->getCode(), $currency->getName());
         }
 
         return $list;
-    }
-
-    /**
-     * Returns option name
-     *
-     * @param \XLite\Model\Currency $currency Currency
-     *
-     * @return string
-     */
-    protected function getOptionName($currency)
-    {
-        return sprintf('%s - %s', $currency->getCode(), $currency->getName());
     }
 
     /**
@@ -80,8 +47,8 @@ class Currency extends \XLite\View\FormField\Select\Regular
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             self::PARAM_USE_CODE_AS_KEY => new \XLite\Model\WidgetParam\TypeBool('Use currency codes as keys', false),
-        );
+        ];
     }
 }

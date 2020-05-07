@@ -62,7 +62,7 @@
     'addProductToCart',
     function() {
       if (!this.base.hasClass('product-quicklook')) {
-        flyToCart(this.base.find('form.product-details'));
+        flyToCart(this.base);
       }
       return arguments.callee.previousMethod.apply(this, arguments);
     }

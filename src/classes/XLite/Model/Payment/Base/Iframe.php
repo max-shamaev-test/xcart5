@@ -28,6 +28,16 @@ abstract class Iframe extends \XLite\Model\Payment\Base\CreditCard
     abstract protected function getIframeData();
 
     /**
+     * Get iframe additional attributes
+     *
+     * @return array
+     */
+    protected function getIframeAdditionalAttributes()
+    {
+        return [];
+    }
+
+    /**
      * Get return request owner transaction or null
      *
      * @return \XLite\Model\Payment\Transaction|void
@@ -85,6 +95,7 @@ abstract class Iframe extends \XLite\Model\Payment\Base\CreditCard
                 'width'  => $width,
                 'height' => $height,
                 'src'    => is_array($data) ? $this->assembleFormIframe($data) : $this->assembleURLIframe($data),
+                'additional_attributes' => $this->getIframeAdditionalAttributes(),
             );
 
             $status = static::SEPARATE;
@@ -92,7 +103,7 @@ abstract class Iframe extends \XLite\Model\Payment\Base\CreditCard
         } else {
             $this->setDetail(
                 'iframe_data_error',
-                'Payment processor \'' . get_called_class() . '\' did not assemble service data successfull.'
+                'Payment processor \'' . get_called_class() . '\' did not assemble service data successfully.'
             );
             $status = static::FAILED;
             $this->transaction->setNote('Payment is failed');

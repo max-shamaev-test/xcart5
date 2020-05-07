@@ -49,8 +49,14 @@ class Enable implements ChangeUnitBuildRuleInterface
      */
     public function isApplicable(array $changeUnit): bool
     {
-        return isset($changeUnit['enable'])
-            && $this->installedModulesDataSource->find($changeUnit['id']);
+        if (isset($changeUnit['enable'])) {
+            /** @var Module $module */
+            $module = $this->installedModulesDataSource->find($changeUnit['id']);
+
+            return $module && ($changeUnit['enable'] || $module->canDisable);
+        }
+
+        return false;
     }
 
     /**

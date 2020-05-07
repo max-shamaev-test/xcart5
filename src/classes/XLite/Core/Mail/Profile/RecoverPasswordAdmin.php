@@ -55,6 +55,6 @@ class RecoverPasswordAdmin extends AProfile
         ]);
         $this->setFrom(\XLite\Core\Mailer::getUsersDepartmentMail());
         $this->setReplyTo(\XLite\Core\Mailer::getUsersDepartmentMails());
-        $this->setTo($profile->getLogin());
+        $this->setTo(['email' => $profile->getLogin(), 'name' => $profile->getName(false)]);
     }
 }

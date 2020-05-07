@@ -10,27 +10,23 @@ XLite\Model\Payment\Method:
     class: Module\CDev\TwoCheckout\Model\Payment\Processor\TwoCheckout
     type: C
     orderby: -10500
-    countries: [AI, AW, BB, BZ, BM, BQ, CA, KY, CR, CW, DM, DO, SV, GD, GT, HT, HN, MQ, MX, MS, PA, KN, LC, PM, VC, TC, US, VG, VI, AS, AG, BS, GP, JM, NI, PR, TT, UM, AX, AL, AD, AM, AT, AZ, BY, BE, BA, BV, BG, HR, CZ, DK, EE, FI, FR, TF, DE, GI, GR, GG, HU, IS, IE, IM, IT, JE, LV, LI, LT, LU, MK, MT, MD, MC, ME, NL, NO, PL, PT, RO, RU, SM, RS, SK, SI, ES, SJ, SE, CH, UA, GB, VA, FO, GF, GE, GL, KZ, MF, TR, AU, BD, BT, IO, CN, CX, CC, CK, PF, GU, HM, HK, IN, ID, JP, KI, KR, LA, MO, MY, MH, FM, MN, NR, NP, NZ, NU, NF, PK, PW, PG, PH, PN, WS, SG, SB, LK, TW, TH, TK, TO, TV, VN, WF, BN, KH, FJ, MV, NC, MP, TL, VU, AO, BH, BF, BI, CV, CF, TD, KM, CG, CD, CY, DJ, EG, GQ, ER, ET, GM, IL, JO, KE, XK, KW, KG, LB, LS, LR, MG, MW, MR, MU, YT, MA, NE, NG, OM, PS, ST, SA, SL, SO, GS, ZA, TG, AE, UZ, EH, ZM, ZW, AF, DZ, BJ, BW, CM, GA, GH, GN, GW, ML, MZ, NA, QA, RE, RW, SN, SC, SZ, TJ, TZ, TN, TM, UG, YE, XA, AR, BR, CL, CO, EC, FK, GY, PY, PE, SH, SR, UY, BO, VE, SX]
-    translations:
-      - code: en
-        name: 2Checkout.com
-    settings:
-      - name: account
-      - name: secret
-      - name: language
-        value: en
-      - name: mode
-        value: test
-      - name: prefix
-        value: xcart
-      - name: currency
-        value: USD
+    countries: [AD, AE, AF, AG, AI, AL, AM, AO, AR, AS, AT, AU, AW, AZ, BA, BB, BD, BE, BF, BG, BH, BI, BJ, BM, BN, BO, BQ, BR, BS, BT, BV, BW, BY, BZ, CA, CC, CD, CF, CH, CK, CL, CM, CN, CO, CR, CV, CW, CX, CY, CZ, DE, DJ, DK, DM, DO, DZ, EC, EE, EG, EH, ER, ES, ET, FI, FJ, FK, FM, FO, FR, GA, GB, GD, GE, GF, GG, GH, GI, GL, GM, GN, GP, GQ, GR, GS, GT, GU, GW, GY, HK, HM, HN, HR, HT, HU, ID, IE, IL, IM, IN, IO, IS, IT, JE, JM, JO, JP, KE, KG, KH, KI, KM, KN, KR, KW, KY, KZ, LA, LB, LC, LI, LK, LR, LS, LT, LU, LV, MA, MC, MD, ME, MF, MG, MH, MK, ML, MN, MO, MP, MQ, MR, MS, MT, MU, MV, MW, MX, MY, MZ, NA, NC, NE, NF, NG, NI, NL, 'NO', NP, NR, NU, NZ, OM, PA, PE, PF, PG, PH, PK, PL, PM, PN, PR, PS, PT, PW, PY, QA, RE, RO, RS, RU, RW, SA, SB, SC, SE, SG, SH, SI, SJ, SK, SL, SM, SN, SO, SR, ST, SV, SX, SZ, TC, TD, TF, TG, TH, TJ, TK, TL, TM, TN, TO, TR, TT, TV, TW, TZ, UA, UG, UM, US, UY, UZ, VA, VC, VE, VG, VI, VN, VU, WF, WS, XA, XK, YE, YT, ZA, ZM, ZW]
+    translations: [{ code: en, name: 2Checkout.com }]
+    settings: [{ name: account }, { name: secret }, { name: language, value: en }, { name: mode, value: test }, { name: prefix, value: xcart }, { name: currency, value: USD }]
 XLite\Model\LanguageLabel:
-  - { name: "2Checkout.com account number", translations: [{ code: en, label: "2Checkout.com account number" }] }
-  - { name: "Order prefix", translations: [{ code: en, label: "Order prefix" }] }
-  - { name: "Pricing currency", translations: [{ code: en, label: "Pricing currency" }] }
-  - { name: "To set up the integration you should follow ", translations: [{ code: en, label: "To set up the integration, go to the " }] }
-  - { name: "\"Site management\"", translations: [{ code: en, label: "\"Site management\"" }] }
-  - { name: " page and make sure that:", translations: [{ code: en, label: " page on the 2Checkout site and make sure of the following:" }] }
-  - { name: "The \"Pricing currency\" value must be exactly the same as on it.", translations: [{ code: en, label: "The \"Pricing currency\" value here in X-Cart must be exactly the same as on 2Checkout's Site management page." }] }
-  - { name: "The \"Approved URL\" value must be exact as this", translations: [{ code: en, label: "The \"Approved URL\" value on 2Checkout's Site management page must be set to this" }] }
+  - name: '2Checkout.com account number'
+    translations: [{ code: en, label: '2Checkout.com account number' }]
+  - name: 'Order prefix'
+    translations: [{ code: en, label: 'Order prefix' }]
+  - name: 'Pricing currency'
+    translations: [{ code: en, label: 'Pricing currency' }]
+  - name: 'To set up the integration you should follow '
+    translations: [{ code: en, label: 'To set up the integration, go to the ' }]
+  - name: '"Site management"'
+    translations: [{ code: en, label: '"Site management"' }]
+  - name: ' page and make sure that:'
+    translations: [{ code: en, label: ' page on the 2Checkout site and make sure of the following:' }]
+  - name: 'The "Pricing currency" value must be exactly the same as on it.'
+    translations: [{ code: en, label: 'The "Pricing currency" value here in X-Cart must be exactly the same as on 2Checkout''s Site management page.' }]
+  - name: 'The "Approved URL" value must be exact as this'
+    translations: [{ code: en, label: 'The "Approved URL" value on 2Checkout''s Site management page must be set to this' }]

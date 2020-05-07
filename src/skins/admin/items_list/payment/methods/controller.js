@@ -32,6 +32,10 @@ ItemsListPayment.prototype.addListeners = function ()
   {
     event.stopImmediatePropagation();
 
+    if (!confirm(core.t('Are you sure you want to delete the selected payment method?'))) {
+      return false;
+    }
+
     core.trigger(
       'payment.methods.remove',
       {
@@ -113,7 +117,7 @@ core.bind(
         data.line.remove();
       }
 
-      if (jQuery('[data-module-name="' + moduleName + '"] .line-row', data.base).length === 0) {
+      if (moduleName && jQuery('[data-module-name="' + moduleName + '"] .line-row', data.base).length === 0) {
         jQuery('[data-module-name="' + moduleName + '"]', data.base).remove();
       }
     }

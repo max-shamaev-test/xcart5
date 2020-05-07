@@ -3,24 +3,19 @@
  #}
 
 <div
-  class="onboarding-wizard-step step-{{ this.getStepIndex() }}"
-  v-show="isCurrentStep('{{ this.getStepIndex() }}')"
-  :transition="stepTransition">
+        class="onboarding-wizard-step step-{{ this.getStepIndex() }}"
+        v-show="isCurrentStep('{{ this.getStepIndex() }}')"
+        :transition="stepTransition">
   <xlite-wizard-step-company-logo-added inline-template>
     <div class="step-contents">
-      <h2 class="heading">{{ t('Good job! You company logo is added') }}</h2>
-      <p class="text">{{ t('Here is the way it looks like on desktop & mobile devices. Do you like it?') }}</p>
+      <h2 class="heading">{{ t('Go to the next step') }}</h2>
+      <p class="text">{{ t('Open the storefront and check how it looks like on desktop.', {'shopUrl':this.getURLForNewLogoChecking()})|raw }}</p>
       {{ widget('XLite\\View\\Button\\SimpleLink', label=t("Upload a new logo"), attributes={'@click': 'reuploadLogo'}, jsCode="null;") }}
-      <div class="logo-showcase">
-        <div class="logo-image-wrapper">
-          <img src="{{ asset('modules/XC/Onboarding/images/logo-showcase.png') }}">
-          <div class="logo-desktop-placeholder" v-if="logoUrl">
-            <img :src="logoUrl">
-          </div>
-          <div class="logo-mobile-placeholder" v-if="logoUrl">
-            <img :src="logoUrl">
-          </div>
-        </div>
+      <div class="advertise">
+        <img src="{{ asset('modules/XC/Onboarding/images/logo-advertise.png') }}">
+        <p class="text">{{ t('100% mobile-friendly eCommerce website templates, fully customizable, affordable, and open source.')|raw }}
+          {{ widget('XLite\\View\\Button\\SimpleLink', label=t("Visit the template store"), attributes={'@click': 'visitTemplateStore'}, jsCode="null;") }}
+        </p>
       </div>
       <div class="buttons">
         {{ widget('XLite\\View\\Button\\Regular', label=t("Save and go to the next step"), style='regular-main-button', attributes={'@click': 'save'}, jsCode="null;") }}

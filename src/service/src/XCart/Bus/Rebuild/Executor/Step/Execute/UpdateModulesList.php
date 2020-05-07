@@ -127,7 +127,7 @@ class UpdateModulesList implements StepInterface
         $this->installedModulesDataSource->updateModulesData();
 
         $state->data = [
-            'cacheId'        => $result['cacheId'],
+            'cacheId'        => $result['cacheId'] ?? null,
             'list'           => $modulesList,
             'integratedList' => $integratedList,
         ];

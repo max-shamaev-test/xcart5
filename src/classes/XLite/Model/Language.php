@@ -93,6 +93,15 @@ class Language extends \XLite\Model\Base\I18n
     protected $module;
 
     /**
+     * Countries
+     *
+     * @var \XLite\Model\Country[]
+     *
+     * @OneToMany (targetEntity="XLite\Model\Country", mappedBy="language")
+     */
+    protected $countries;
+
+    /**
      * Get module
      *
      * @return string
@@ -237,6 +246,7 @@ class Language extends \XLite\Model\Base\I18n
     public function setCode($code)
     {
         $this->code = $code;
+
         return $this;
     }
 
@@ -259,6 +269,7 @@ class Language extends \XLite\Model\Base\I18n
     public function setCode3($code3)
     {
         $this->code3 = $code3;
+
         return $this;
     }
 
@@ -281,6 +292,7 @@ class Language extends \XLite\Model\Base\I18n
     public function setR2l($r2l)
     {
         $this->r2l = $r2l;
+
         return $this;
     }
 
@@ -303,6 +315,7 @@ class Language extends \XLite\Model\Base\I18n
     public function setAdded($added)
     {
         $this->added = $added;
+
         return $this;
     }
 
@@ -325,6 +338,7 @@ class Language extends \XLite\Model\Base\I18n
     public function setEnabled($enabled)
     {
         $this->enabled = (boolean)$enabled;
+
         return $this;
     }
 
@@ -347,6 +361,7 @@ class Language extends \XLite\Model\Base\I18n
     public function setModule($module)
     {
         $this->module = $module;
+
         return $this;
     }
 
@@ -358,5 +373,33 @@ class Language extends \XLite\Model\Base\I18n
     public function getModule()
     {
         return $this->module;
+    }
+
+    /**
+     * Set Countries
+     *
+     * @param \XLite\Model\Country[] $countries
+     *
+     * @return $this
+     */
+    public function setCountries($countries)
+    {
+        foreach ($countries as $country) {
+            $country->setLanguage($this);
+        }
+
+        $this->countries = $countries;
+
+        return $this;
+    }
+
+    /**
+     * Get countries
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getCountries()
+    {
+        return $this->countries;
     }
 }

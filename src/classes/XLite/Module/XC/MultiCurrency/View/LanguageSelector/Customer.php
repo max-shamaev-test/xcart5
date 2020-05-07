@@ -59,6 +59,16 @@ class Customer extends \XLite\View\LanguageSelector\Customer implements \XLite\B
     }
 
     /**
+     * Get enabled countries count
+     *
+     * @return int
+     */
+    protected function getEnabledCountriesCount()
+    {
+        return MultiCurrency::getInstance()->getEnabledCountriesCount();
+    }
+
+    /**
      * Check if there is more than one active currency
      *
      * @return boolean
@@ -102,6 +112,28 @@ class Customer extends \XLite\View\LanguageSelector\Customer implements \XLite\B
         if (is_array($countries) && !empty($countries)) {
             foreach($countries as $country) {
                 $return[$country->getCode()] = $country->getActiveCurrency()->getCode();
+            }
+        }
+
+        return $return;
+    }
+
+    /**
+     * Get the list of countries and assigned currencies
+     *
+     * @return array
+     */
+    protected function getCountriesByLanguage()
+    {
+        $return = array();
+
+        /** @var \XLite\Model\Language[] $languages */
+        $languages = \XLite\Core\Database::getRepo('XLite\Model\Language')->findActiveLanguages();
+        foreach ($languages as $language) {
+            /** @var \XLite\Model\Country $country */
+            foreach ($language->getCountries() as $country) {
+
+                $return[$country->getCode()] = $language->getCode();
             }
         }
 

@@ -44,9 +44,9 @@ class CommonScripts extends \XLite\Base
                         'coming_soon',
                         'new_arrivals',
                         'bestsellers',
-                        'product',
                     ]
                 ],
+                'modules/XC/FacebookMarketing/pixel/product.js'            => [],
                 'modules/XC/FacebookMarketing/pixel/add_to_cart.js'        => [],
                 'modules/XC/FacebookMarketing/pixel/initiate_checkout.js'  => [
                     static::TARGETS_IN => [
@@ -71,7 +71,7 @@ class CommonScripts extends \XLite\Base
     {
         $list = [];
 
-        if (\XLite\Module\XC\FacebookMarketing\Main::isPixelEnabled() && !\XLite::isAdminZone()) {
+        if (!\XLite::getController()->isAJAX() && \XLite\Module\XC\FacebookMarketing\Main::isPixelEnabled() && !\XLite::isAdminZone()) {
             $target = \XLite::getController()->getTarget();
 
             foreach ($this->defineFacebookPixelScripts() as $script => $targets) {

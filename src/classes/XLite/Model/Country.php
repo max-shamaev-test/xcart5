@@ -89,6 +89,16 @@ class Country extends \XLite\Model\Base\I18n
     protected $currency;
 
     /**
+     * Language
+     *
+     * @var \XLite\Model\Language
+     *
+     * @ManyToOne (targetEntity="XLite\Model\Language", inversedBy="countries")
+     * @JoinColumn (name="lng_id", referencedColumnName="lng_id", onDelete="CASCADE")
+     */
+    protected $language;
+
+    /**
      * Constructor
      *
      * @param array $data Entity properties OPTIONAL
@@ -178,6 +188,7 @@ class Country extends \XLite\Model\Base\I18n
     public function setCode($code)
     {
         $this->code = $code;
+
         return $this;
     }
 
@@ -200,6 +211,7 @@ class Country extends \XLite\Model\Base\I18n
     public function setId($id)
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -222,6 +234,7 @@ class Country extends \XLite\Model\Base\I18n
     public function setCode3($code3)
     {
         $this->code3 = $code3;
+
         return $this;
     }
 
@@ -244,6 +257,7 @@ class Country extends \XLite\Model\Base\I18n
     public function setEnabled($enabled)
     {
         $this->enabled = (boolean)$enabled;
+
         return $this;
     }
 
@@ -266,6 +280,7 @@ class Country extends \XLite\Model\Base\I18n
     public function addStates(\XLite\Model\State $states)
     {
         $this->states[] = $states;
+
         return $this;
     }
 
@@ -288,6 +303,7 @@ class Country extends \XLite\Model\Base\I18n
     public function addRegions(\XLite\Model\Region $regions)
     {
         $this->regions[] = $regions;
+
         return $this;
     }
 
@@ -310,6 +326,7 @@ class Country extends \XLite\Model\Base\I18n
     public function setCurrency(\XLite\Model\Currency $currency = null)
     {
         $this->currency = $currency;
+
         return $this;
     }
 
@@ -321,5 +338,28 @@ class Country extends \XLite\Model\Base\I18n
     public function getCurrency()
     {
         return $this->currency;
+    }
+
+    /**
+     * Set language
+     *
+     * @param \XLite\Model\Language $lng
+     * @return Country
+     */
+    public function setLanguage(\XLite\Model\Language $lng)
+    {
+        $this->language = $lng;
+
+        return $this;
+    }
+
+    /**
+     * Get language
+     *
+     * @return \XLite\Model\Language $lng
+     */
+    public function getLanguage()
+    {
+        return $this->language;
     }
 }

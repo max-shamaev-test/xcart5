@@ -103,7 +103,7 @@ class ScriptFactory
             return $this->app[$script] ?? new $script;
         }
 
-        $this->logger->error(sprintf('Script for type "%s" is missing', $type));
+        $this->logger->error(sprintf('Script for type "%s" is missing', $name));
 
         return null;
     }

@@ -47,7 +47,7 @@ class Add2CartPopup extends \XLite\Base\Singleton
     {
         return !\XLite::isAdminZone()
             && !in_array(\XLite\Core\Request::getInstance()->target, static::getAdd2CartPopupExcludedTargets())
-            && !\XLite\Core\MobileDetect::getInstance()->isMobilePhone();
+            && !\XLite\Core\MobileDetect::isMobilePhone();
     }
 
     /**

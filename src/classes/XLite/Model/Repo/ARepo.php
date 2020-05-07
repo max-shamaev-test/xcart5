@@ -308,6 +308,28 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
     }
 
     /**
+     * Delete cache by cell name and params
+     *
+     * @param string $name Cell name
+     * @param array  $params
+     *
+     * @return void
+     */
+    public function deleteCacheByNameAndParams($name, $params)
+    {
+        $cell = $this->getCacheCells($name);
+
+        if ($cell) {
+            $cellHash = $this->getCellHash($name, $cell, $params);
+            foreach (\XLite\Model\Repo\ARepo::getCacheDriver()->getIds() as $id) {
+                if (0 === strpos($id, $cellHash)) {
+                    \XLite\Model\Repo\ARepo::getCacheDriver()->delete($id);
+                }
+            }
+        }
+    }
+
+    /**
      * Assign default orderBy
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder
@@ -1007,7 +1029,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
      */
     public function loadFixtures(array $data, \XLite\Model\AEntity $parent = null, array $parentAssoc = array())
     {
-        list($regular, $assocs) = $this->getEntityProperties();
+        [$regular, $assocs] = $this->getEntityProperties();
         foreach ($data as $record) {
             $this->loadFixture($record, $regular, $assocs, $parent, $parentAssoc);
         }
@@ -1032,13 +1054,17 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
         array $parentAssoc = array()
     ) {
         if (!$regular || !$assocs) {
-            list($regular, $assocs) = $this->getEntityProperties();
+            [$regular, $assocs] = $this->getEntityProperties();
         }
 
         // Strongly insert entity
         $insert = \XLite\Core\Database::getInstance()->getFixturesLoadingOption('insert');
         $ignoreIMbak = static::$ignoreIM;
         static::$ignoreIM = true;
+        if ($parent != null && $parent instanceof \XLite\Model\Payment\Method) {
+            $record['payment_method'] = $parent->getMethodId();
+        }
+
         $entity = $insert ? null : $this->findOneByRecord($record, $parent);
         static::$ignoreIM = $ignoreIMbak;
         if (!$entity && !$insert && $parent && $parentAssoc && $parentAssoc['getter'] && !$parentAssoc['many']) {
@@ -1094,7 +1120,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
     public function loadRawFixture(\XLite\Model\AEntity $entity, array $record, array $regular = array(), array $assocs = array())
     {
         if (!$regular || !$assocs) {
-            list($regular, $assocs) = $this->getEntityProperties();
+            [$regular, $assocs] = $this->getEntityProperties();
         }
 
         if (!\XLite\Core\Database::getEM()->contains($entity)) {
@@ -1209,7 +1235,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
     {
         $result = 0;
 
-        list($regular, $assocs) = $this->getEntityProperties();
+        [$regular, $assocs] = $this->getEntityProperties();
         foreach ($data as $record) {
             $result += $this->unloadFixture($record, $regular, $assocs, $parent, $parentAssoc);
         }
@@ -1239,7 +1265,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
         $result = 0;
 
         if (!$regular || !$assocs) {
-            list(, $assocs) = $this->getEntityProperties();
+            [, $assocs] = $this->getEntityProperties();
         }
 
         $entity = $this->findOneByRecord($record, $parent);
@@ -1372,7 +1398,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
         if (!is_array($cacheCells)) {
             $cacheCells = $this->defineCacheCells();
 
-            list($cacheCells, $relations) = $this->postprocessCacheCells($cacheCells);
+            [$cacheCells, $relations] = $this->postprocessCacheCells($cacheCells);
 
             \XLite\Model\Repo\ARepo::getCacheDriver()->save($key, $cacheCells, \XLite\Core\Cache::getDefaultCacheTtl());
 
@@ -1433,7 +1459,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
                 : false;
 
             // Set cell hash generator method name
-            if (static::CACHE_CUSTOM_KEY === $this->cacheCells[$name][static::KEY_TYPE_CACHE_CELL]) {
+            if ($this->cacheCells[$name][static::KEY_TYPE_CACHE_CELL] ?? null === static::CACHE_CUSTOM_KEY) {
                 $cell[static::GENERATOR_CACHE_CELL] = $this->getCacheHashGeneratorName($name);
             }
 
@@ -1740,7 +1766,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
         $identifiers = array();
         $found = false;
 
-        list(, , $classIdentifiers) = $this->getEntityProperties();
+        [, , $classIdentifiers] = $this->getEntityProperties();
         if ($classIdentifiers) {
             $found = true;
             foreach ($classIdentifiers as $ident) {
@@ -1808,7 +1834,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
     protected function assembleRegularFieldsFromRecord(array $record, array $regular = array())
     {
         if (!$regular) {
-            list($regular, ) = $this->getEntityProperties();
+            [$regular, ] = $this->getEntityProperties();
         }
 
         return array_intersect_key($record, $regular);
@@ -1825,7 +1851,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
     protected function assembleAssociationsFromRecord(array $record, array $assocs = array())
     {
         if (!$assocs) {
-            list(, $assocs) = $this->getEntityProperties();
+            [, $assocs] = $this->getEntityProperties();
         }
 
         $record = array_intersect_key($record, $assocs);
@@ -1931,9 +1957,9 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
         $sort = null;
 
         if (count($value) === 1) {
-            list($sort) = $value;
+            [$sort] = $value;
         } elseif (count($value) === 2) {
-            list($sort, $order) = $value;
+            [$sort, $order] = $value;
         }
 
         if (!$sort && $this->defaultOrderBy) {
@@ -2676,7 +2702,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
 
         $orderByCnds = [];
         foreach ($value as $orderByCnd) {
-            list($sort, $order) = $this->getSortOrderValue($orderByCnd);
+            [$sort, $order] = $this->getSortOrderValue($orderByCnd);
 
             if (!$sort || !$order) {
                 continue;
@@ -2690,7 +2716,7 @@ abstract class ARepo extends \Doctrine\ORM\EntityRepository
                 ->resetDQLPart('orderBy');
 
             foreach ($orderByCnds as $orderByCnd) {
-                list($sort, $order) = $orderByCnd;
+                [$sort, $order] = $orderByCnd;
                 $queryBuilder
                     ->addOrderBy($sort, $order);
             }

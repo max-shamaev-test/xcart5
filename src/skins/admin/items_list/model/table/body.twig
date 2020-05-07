@@ -10,9 +10,11 @@
         <thead>
         <tr>
           {% for column in this.getColumns() %}
-            <th class="{{ this.getHeadClass(column) }}">
-              {% include 'items_list/model/table/parts/head.cell.twig' %}
-            </th>
+            {% if not this.isNoColumnHead(column) %}
+              <th {% if this.getColumnHeadColspan(column) > 1 %}colspan="{{ this.getColumnHeadColspan(column) }}"{% endif %} class="{{ this.getHeadClass(column) }}">
+                {% include 'items_list/model/table/parts/head.cell.twig' %}
+              </th>
+            {% endif %}
           {% endfor %}
         </tr>
         </thead>

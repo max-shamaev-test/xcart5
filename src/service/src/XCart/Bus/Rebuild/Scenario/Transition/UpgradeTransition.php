@@ -21,6 +21,17 @@ class UpgradeTransition extends TransitionAbstract
     }
 
     /**
+     * @param TransitionInterface $transition
+     *
+     * @return bool
+     */
+    public function canOverwrite(TransitionInterface $transition): bool
+    {
+        return $transition instanceof EnableTransition
+            || $transition instanceof DisableTransition;
+    }
+
+    /**
      * @param array $state
      *
      * @return array
@@ -33,7 +44,6 @@ class UpgradeTransition extends TransitionAbstract
                 'upgraded'            => true,
                 'installed'           => true,
                 'version'             => $this->getVersion(),
-                'installedDateUpdate' => true,
             ]
         );
     }

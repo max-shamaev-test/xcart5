@@ -94,7 +94,7 @@ namespace PreUpgradeHook {
                 'canDisable'               => $module->canDisable(),
                 'icon'                     => '', // $module->getIconURL(),//   'skins/admin/images/core_image.png',
                 'installed'                => $module->getInstalled(),
-                'installedDate'            => $module->getDate(),
+                'installedDate'            => $module->getDate() ?: \XLite\Core\Config::getInstance()->Version->timestamp,
                 'integrated'               => $module->getYamlLoaded(),
                 'enabled'                  => $module->getEnabled(),
             ];

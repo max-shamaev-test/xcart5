@@ -5,12 +5,12 @@
 # Copyright (c) 2011-present Qualiteam software Ltd. All rights reserved.
 # See https://www.x-cart.com/license-agreement.html for license details.
 
-version: 5.4.0.5
+version: 5.4.1.3
 type: skin
 authorName: 'X-Cart team'
 moduleName: 'Crisp White skin'
 description: 'Light and clean skin developed in minimalist style and combining flat and material design will make your store look clean and modern.'
-minorRequiredCoreVersion: 0
+minorRequiredCoreVersion: 1
 dependsOn: {  }
 incompatibleWith: {  }
 skins:

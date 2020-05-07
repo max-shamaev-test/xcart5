@@ -63,11 +63,8 @@
   vertical-align: middle;
 }
 
-.items-list-table.wholesale-prices table.list .view {
-  &.not-editable {
-    padding: 0 (@rhythmic-unit / 2);
-  }
-
+.items-list-table.wholesale-prices table.list .inline-field.has-view > .view {
+  &.not-editable,
   &.editable {
     margin: 0;
   }
@@ -77,11 +74,6 @@
 .items-list-table.wholesale-prices table.list tbody td.price .field .table-value {
   display: inline-block;
   vertical-align: middle;
-}
-
-.items-list-table .list-header .button-container {
-  display: inline-block;
-  float: left;
 }
 
 .list-header .wholesale-prices-list-note {
@@ -101,18 +93,6 @@
 .items-list-table.wholesale-prices .text-grey {
   color: @color-tip;
   margin-right: 3px;
-}
-
-.wholesale-prices-membership-note {
-  float: left;
-  font-size: 12px;
-  color: @color-tip;
-  line-height: 48px;
-  margin-left: 15px;
-}
-
-.items-list-table.wholesale-prices .button-container {
-  margin-bottom: 24px;
 }
 
 .items-list-table.wholesale-prices .resultPrice {

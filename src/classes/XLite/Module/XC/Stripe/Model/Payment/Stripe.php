@@ -57,6 +57,19 @@ class Stripe extends \XLite\Model\Payment\Base\Online
     }
 
     /**
+     * Check - payment method connected to Stripe or not
+     *
+     * @param \XLite\Model\Payment\Method $method Payment method
+     *
+     * @return boolean
+     */
+    public function isSettingsConfigured(\XLite\Model\Payment\Method $method)
+    {
+        return ($method->getSetting('accessToken') && $method->getSetting('publishKey'))
+            || ($method->getSetting('accessTokenTest') && $method->getSetting('publishKeyTest'));
+    }
+
+    /**
      * Check - payment method is configured or not
      *
      * @param \XLite\Model\Payment\Method $method Payment method
@@ -65,8 +78,8 @@ class Stripe extends \XLite\Model\Payment\Base\Online
      */
     public function isConfigured(\XLite\Model\Payment\Method $method)
     {
-        return ($method->getSetting('accessToken') && $method->getSetting('publishKey'))
-            || ($method->getSetting('accessTokenTest') && $method->getSetting('publishKeyTest'));
+        return $this->isSettingsConfigured($method)
+            && \XLite\Core\Config::getInstance()->Security->customer_security;
     }
 
     /**
@@ -176,6 +189,10 @@ class Stripe extends \XLite\Model\Payment\Base\Online
             $backendTransaction->setDataCell('error', $this->request['error']);
             $this->transaction->setNote($this->request['error']);
             $this->setDetail('Error', $this->request['error']);
+
+            static::log('Error: ' . __FUNCTION__ . $this->request['error']);
+        } else {
+            static::log('Success: ' . __FUNCTION__);
         }
 
         $backendTransaction->setStatus($backendTransactionStatus);
@@ -210,6 +227,8 @@ class Stripe extends \XLite\Model\Payment\Base\Online
                         'type' => 'card',
                         'card' => ['token' => $this->request->payment_method_id],
                     ],
+                    'description' => static::t('Payment transaction ID') . ': ' . $this->transaction->getPublicId(),
+                    'metadata'    => ['txnId' => $this->transaction->getPublicTxnId()]
                 ]);
             }
             if ($this->request->payment_intent_id) {
@@ -221,11 +240,23 @@ class Stripe extends \XLite\Model\Payment\Base\Online
 
             $stripeResponce = $this->getPaymentResponse($intent);
 
+            static::log([
+                'message'   => 'Success: ' . __FUNCTION__,
+                'request'   => $this->request->getPostDataWithArrayValues(),
+                'response'  => $stripeResponce
+            ]);
+
             echo json_encode($stripeResponce);
         } catch (\Stripe\Error\Base $e) {
+            static::log([
+                'message'          => 'Error: ' . __FUNCTION__,
+                'request'          => $this->request->getPostDataWithArrayValues(),
+                'exceptionMessage' => $e->getMessage()
+            ]);
+
             echo json_encode([
                 'error' => $e->getMessage(),
-                'stripe_id' => $e->getJsonBody()['error']['payment_intent']['id']
+                'stripe_id' => $e->getJsonBody()['error']['payment_intent']['id'] ?? 0
             ]);
         }
 
@@ -372,6 +403,13 @@ class Stripe extends \XLite\Model\Payment\Base\Online
 
             if ($paymentIntent->status == 'succeeded') {
                 $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_SUCCESS;
+
+                static::log([
+                    'message' => 'Success: ' . __FUNCTION__,
+                    'id'      => $paymentIntent->id,
+                    'amount'  => $paymentIntent->amount,
+                    'status'  => $paymentIntent->status
+                ]);
             }
 
             if (!empty($paymentIntent->charges->data)) {
@@ -381,7 +419,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
 
         } catch (\Exception $e) {
             $transaction->setDataCell('errorMessage', $e->getMessage());
-            \XLite\Logger::getInstance()->log($e->getMessage(), LOG_ERR);
+            static::log(__FUNCTION__ . ' failed: ' . $e->getMessage());
             \XLite\Core\TopMessage::addError($e->getMessage());
         }
 
@@ -426,15 +464,25 @@ class Stripe extends \XLite\Model\Payment\Base\Online
                 }
 
                 $backendTransactionStatus = \XLite\Model\Payment\BackendTransaction::STATUS_SUCCESS;
+
+                static::log([
+                    'message' => 'Success: ' . __FUNCTION__,
+                    'id'      => $paymentIntent->id,
+                    'amount'  => $paymentIntent->amount,
+                    'status'  => $paymentIntent->status
+                ]);
             }
 
         } catch (\Exception $e) {
             $transaction->setDataCell('errorMessage', $e->getMessage());
-            \XLite\Logger::getInstance()->log($e->getMessage(), LOG_ERR);
+            static::log(__FUNCTION__ . ' failed: ' . $e->getMessage());
             \XLite\Core\TopMessage::addError($e->getMessage());
         }
 
+        $paymentTransaction = $transaction->getPaymentTransaction();
+
         $transaction->setStatus($backendTransactionStatus);
+        $paymentTransaction->setStatus(\XLite\Model\Payment\Transaction::STATUS_VOID);
 
         return \XLite\Model\Payment\BackendTransaction::STATUS_SUCCESS == $backendTransactionStatus;
     }
@@ -485,6 +533,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
                         'amount' => $this->formatCurrency($transaction->getValue()),
                     )
                 );
+                /** @var \Stripe\Refund $refundTransaction */
                 $refundTransaction = null;
 
                 if ($payment->refunds) {
@@ -515,11 +564,18 @@ class Stripe extends \XLite\Model\Payment\Base\Online
                 if ($refundTransaction->balance_transaction) {
                     $transaction->setDataCell('stripe_b_txntid', $refundTransaction->balance_transaction);
                 }
+
+                static::log([
+                    'message'             => 'Success: ' . __FUNCTION__,
+                    'id'                  => $refundTransaction->id,
+                    'amount'              => $refundTransaction->amount,
+                    'balance_transaction' => $refundTransaction->balance_transaction
+                ]);
             }
 
         } catch (\Exception $e) {
             $transaction->setDataCell('errorMessage', $e->getMessage());
-            \XLite\Logger::getInstance()->log($e->getMessage(), LOG_ERR);
+            static::log(__FUNCTION__ . ' failed: ' . $e->getMessage());
             \XLite\Core\TopMessage::addError($e->getMessage());
         }
 
@@ -594,8 +650,17 @@ class Stripe extends \XLite\Model\Payment\Base\Online
             try {
                 $event = \Stripe\Event::retrieve($eventId);
                 if ($event) {
-                    $transaction = \XLite\Core\Database::getRepo('XLite\Model\Payment\Transaction')
-                        ->findOneByCell('stripe_id', $event->data->object->id);
+                    if (isset($event->data->object->metadata->txnId)) {
+                        $transaction = \XLite\Core\Database::getRepo('XLite\Model\Payment\Transaction')
+                            ->findOneBy(['publicTxnId' => $event->data->object->metadata->txnId]);
+                    } else {
+                        $pi_id = $event->data->object->object === 'charge'
+                            ? $event->data->object->payment_intent
+                            : $event->data->object->id;
+                        $transaction = \XLite\Core\Database::getRepo('XLite\Model\Payment\Transaction')
+                            ->findOneByCell('stripe_id', $pi_id);
+                    }
+
                     if ($transaction) {
                         $this->eventId = $eventId;
                     }
@@ -692,15 +757,12 @@ class Stripe extends \XLite\Model\Payment\Base\Online
                 $name = 'processEvent' . \XLite\Core\Converter::convertToCamelCase(str_replace('.', '_', $event->type));
                 if (method_exists($this, $name)) {
                     // $name assembled from 'processEvent' + event type
-                    $this->$name($event);
+                    $this->$name($event, $transaction);
                     \XLite\Core\Database::getEM()->flush();
                 }
 
-                \XLite\Logger::getInstance()->logCustom(
-                    'stripe',
-                    'Event handled: ' . $event->type . ' # ' . $this->eventId . PHP_EOL
-                    . 'Processed: ' . (method_exists($this, $name) ? 'Yes' : 'No')
-                );
+                static::log('Event handled: ' . $event->type . ' # ' . $this->eventId . PHP_EOL
+                    . 'Processed: ' . (method_exists($this, $name) ? 'Yes' : 'No'));
             }
 
         } catch (\Exception $e) {
@@ -711,10 +773,11 @@ class Stripe extends \XLite\Model\Payment\Base\Online
      * Process event charge.refunded
      *
      * @param \Stripe_Event $event Event
+     * @param \XLite\Model\Payment\Transaction $transaction Callback-owner transaction
      *
      * @return void
      */
-    protected function processEventChargeRefunded($event)
+    protected function processEventChargeRefunded($event, $transaction)
     {
         $refundTransaction = $this->getRefundObject($event);
 
@@ -750,10 +813,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
             $this->transaction->setType(\XLite\Model\Payment\BackendTransaction::TRAN_TYPE_REFUND);
             $this->transaction->setStatus(\XLite\Model\Payment\Transaction::STATUS_SUCCESS);
         } else{
-            \XLite\Logger::getInstance()->logCustom(
-                'stripe',
-                'Duplicate charge.refunded event # ' . $event->id
-            );
+            static::log('Duplicate charge.refunded event # ' . $event->id);
         }
     }
 
@@ -761,10 +821,11 @@ class Stripe extends \XLite\Model\Payment\Base\Online
      * Process event charge.captured 
      * 
      * @param \Stripe_Event $event Event
+     * @param \XLite\Model\Payment\Transaction $transaction Callback-owner transaction
      *  
      * @return void
      */
-    protected function processEventChargeCaptured($event)
+    protected function processEventChargeCaptured($event, $transaction)
     {
         $refundTransaction = $this->getRefundObject($event);
 
@@ -801,10 +862,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
             $backendTransaction->registerTransactionInOrderHistory('callback');
 
         } else {
-            \XLite\Logger::getInstance()->logCustom(
-                'stripe',
-                'Duplicate charge.captured event # ' . $event->id
-            );
+            static::log('Duplicate charge.captured event # ' . $event->id);
         }
     }
 
@@ -812,25 +870,26 @@ class Stripe extends \XLite\Model\Payment\Base\Online
      * Process event charge.captured
      *
      * @param \Stripe_Event $event Event
+     * @param \XLite\Model\Payment\Transaction $transaction Callback-owner transaction
      *
      * @return void
      */
-    protected function processEventChargeSucceeded($event)
+    protected function processEventChargeSucceeded($event, $transaction)
     {
         $type = $event->data->object->captured
             ? \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_SALE
             : \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_AUTH;
 
-        $backendTransaction = $this->getBackendTransactionByChargeId($event->data->object->id);
+        $backendTransaction = $this->transaction->getInitialBackendTransaction();
 
         if (!$backendTransaction) {
             $backendTransaction = $this->registerBackendTransaction($type);
         }
 
         if ($backendTransaction->getDataCell('event_id') !== $event->id) {
-
+            $transaction->setStatus(\XLite\Model\Payment\Transaction::STATUS_SUCCESS);
             $backendTransaction->setStatus(\XLite\Model\Payment\BackendTransaction::STATUS_SUCCESS);
-            $backendTransaction->setDataCell('stripe_id', $event->data->object->id);
+            $backendTransaction->setDataCell('stripe_id', $event->data->object->payment_intent);
             $backendTransaction->setDataCell('event_id', $event->id);
 
             if (!empty($event->data->object->balance_transaction)) {
@@ -839,10 +898,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
 
             $backendTransaction->registerTransactionInOrderHistory('callback');
         } else {
-            \XLite\Logger::getInstance()->logCustom(
-                'stripe',
-                'Duplicate charge.succeeded event # ' . $event->id
-            );
+            static::log('Duplicate charge.succeeded event # ' . $event->id);
         }
     }
 
@@ -850,10 +906,11 @@ class Stripe extends \XLite\Model\Payment\Base\Online
      * Process event charge.captured
      *
      * @param \Stripe_Event $event Event
+     * @param \XLite\Model\Payment\Transaction $transaction Callback-owner transaction
      *
      * @return void
      */
-    protected function processEventChargePending($event)
+    protected function processEventChargePending($event, $transaction)
     {
         $pending = \XLite\Model\Payment\Transaction::STATUS_PENDING;
 
@@ -861,7 +918,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
             ? \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_SALE
             : \XLite\Model\Payment\BackendTransaction::TRAN_TYPE_AUTH;
 
-        $backendTransaction = $this->getBackendTransactionByChargeId($event->data->object->id);
+        $backendTransaction = $this->transaction->getInitialBackendTransaction();
 
         if (!$backendTransaction) {
             $backendTransaction = $this->registerBackendTransaction($type);
@@ -871,7 +928,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
 
             $backendTransaction = $this->registerBackendTransaction($type);
             $backendTransaction->setStatus($pending);
-            $backendTransaction->setDataCell('stripe_id', $event->data->object->id);
+            $backendTransaction->setDataCell('stripe_id', $event->data->object->payment_intent);
             $backendTransaction->setDataCell('event_id', $event->id);
 
             if (!empty($event->data->object->balance_transaction)) {
@@ -882,10 +939,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
 
             $this->transaction->setStatus($pending);
         } else {
-            \XLite\Logger::getInstance()->logCustom(
-                'stripe',
-                'Duplicate charge.pending event # ' . $event->id
-            );
+            static::log('Duplicate charge.pending event # ' . $event->id);
         }
     }
 
@@ -893,10 +947,11 @@ class Stripe extends \XLite\Model\Payment\Base\Online
      * Process event charge.captured
      *
      * @param \Stripe_Event $event Event
+     * @param \XLite\Model\Payment\Transaction $transaction Callback-owner transaction
      *
      * @return void
      */
-    protected function processEventChargeFailed($event)
+    protected function processEventChargeFailed($event, $transaction)
     {
         $failed = \XLite\Model\Payment\Transaction::STATUS_FAILED;
 
@@ -912,7 +967,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
 
             if (null !== $backendTransaction && $backendTransaction->getDataCell('event_id') !== $event->id) {
                 $backendTransaction->setStatus($failed);
-                $backendTransaction->setDataCell('stripe_id', $event->data->object->id);
+                $backendTransaction->setDataCell('stripe_id', $event->data->object->payment_intent);
                 $backendTransaction->setDataCell('event_id', $event->id);
 
                 if (!empty($event->data->object->balance_transaction)) {
@@ -921,10 +976,7 @@ class Stripe extends \XLite\Model\Payment\Base\Online
 
                 $backendTransaction->registerTransactionInOrderHistory('callback');
             } else {
-                \XLite\Logger::getInstance()->logCustom(
-                    'stripe',
-                    'Duplicate charge.failed event # ' . $event->id
-                );
+                static::log('Duplicate charge.failed event # ' . $event->id);
             }
         }
     }
@@ -982,6 +1034,21 @@ class Stripe extends \XLite\Model\Payment\Base\Online
         $id = $event ? $event->id : null;
 
         return ($id && preg_match('/^evt_/Ss', $id)) ? $id : null;
+    }
+
+    /**
+     * Logging the data under Stripe
+     * Available if developer_mode is on in the config file
+     *
+     * @param mixed $data Log data
+     *
+     * @return void
+     */
+    protected static function log($data)
+    {
+        if (LC_DEVELOPER_MODE) {
+            \XLite\Logger::logCustom('Stripe', $data);
+        }
     }
 
     // }}}

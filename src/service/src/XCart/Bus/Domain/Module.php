@@ -44,6 +44,7 @@ namespace XCart\Bus\Domain;
  * @property string   $authorEmail
  * @property int      $revisionDate
  * @property float    $price
+ * @property float    $origPrice
  * @property string   $currency
  * @property int      $downloads
  * @property int      $rating
@@ -74,8 +75,10 @@ namespace XCart\Bus\Domain;
  * @property array    $messages
  * @property string   $edition    From license
  * @property int      $expiration License expiration
+ * @property bool     $onSale
  *
  * @property array    $integrityViolations
+ * @property array    $integrityViolationsCache
  * @property string   $changelog
  */
 class Module extends PropertyBag
@@ -86,6 +89,30 @@ class Module extends PropertyBag
     public function __construct(array $data = null)
     {
         $common = [];
+
+        if (isset($data['dependsOn'])) {
+            $data['dependsOn'] = array_map(function ($item) {
+                if (is_string($item)) {
+                    return static::convertModuleId($item);
+                }
+
+                $item['id'] = static::convertModuleId($item['id']);
+
+                return $item;
+            }, $data['dependsOn']);
+        }
+
+        if (isset($data['incompatibleWith'])) {
+            $data['incompatibleWith'] = array_map(function ($item) {
+                if (is_string($item)) {
+                    return static::convertModuleId($item);
+                }
+
+                $item['id'] = static::convertModuleId($item['id']);
+
+                return $item;
+            }, $data['incompatibleWith']);
+        }
 
         parent::__construct(array_replace($common, $data ?? []));
     }

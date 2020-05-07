@@ -51,8 +51,15 @@ class Translation extends \XLite\Model\Repo\ARepo
     {
         $result = array();
 
+        $activeLanguagesCodes = [];
+        foreach (\XLite\Core\Database::getRepo('XLite\Model\Language')->findActiveLanguages() as $language) {
+            $activeLanguagesCodes[] = $language->code;
+        }
+        
         foreach ($this->defineGetUsedLanguageCodesQuery()->getResult() as $row) {
-            $result[] = $row['code'];
+            if (in_array($row['code'], $activeLanguagesCodes)) {
+                $result[] = $row['code'];
+            }
         }
 
         return $result;

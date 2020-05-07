@@ -70,14 +70,7 @@
 
 .usps-pitney-bowes-promo {
   border: 1px solid #CFDFEA;
-
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
   align-items: center;
 
   margin-bottom: 20px;

@@ -63,63 +63,60 @@ jQuery(document).ready(
       'loginPopupForm',
       'form.login-form',
       function(event) {
-        if (jQuery(this).parents('.popup-window-entry').length) {
+        this.commonController.enableBackgroundSubmit();
+        var form = this.commonController.$form;
+        var lockoutBase = form.find('.login-form');
 
-          this.commonController.enableBackgroundSubmit();
-          var form = this.commonController.$form;
-          var lockoutBase = form.find('.login-form');
-
-          core.bind(
-              'login.lockout',
-              function(event, data) {
-                lockoutBase.addClass('locked-out');
-                lockoutBase.data('time-left', data.time);
-                initiateTimer(lockoutBase);
-              }
-          );
-
-          initiateTimer(lockoutBase);
-
-          form.find('a.forgot').click(
-            function(event) {
-              loadDialogByLink(
-                event.currentTarget,
-                URLHandler.buildURL({
-                  'target':  'recover_password',
-                  'widget':  '\\XLite\\View\\RecoverPassword',
-                  'popup':   1,
-                  'fromURL': (self.location + ''),
-                  'email':   form.find('#login').val() ? form.find('#login').val() : ''
-                }),
-                {width: 'auto'},
-                null,
-                this
-              );
-
-              return false;
+        core.bind(
+            'login.lockout',
+            function(event, data) {
+              lockoutBase.addClass('locked-out');
+              lockoutBase.data('time-left', data.time);
+              initiateTimer(lockoutBase);
             }
-          );
+        );
 
-          var f = this.commonController.getErrorPlace;
-          this.commonController.getErrorPlace = function()
-          {
-            if (!this.errorPlace) {
-              var box = f.apply(this);
-              box
-                .remove()
-                .insertBefore(this.$form.find('button[type="submit"]').eq(0));
-            }
+        initiateTimer(lockoutBase);
 
-            return this.errorPlace;
+        form.find('a.forgot').click(
+          function(event) {
+            loadDialogByLink(
+              event.currentTarget,
+              URLHandler.buildURL({
+                'target':  'recover_password',
+                'widget':  '\\XLite\\View\\RecoverPassword',
+                'popup':   1,
+                'fromURL': (self.location + ''),
+                'email':   form.find('#login').val() ? form.find('#login').val() : ''
+              }),
+              {width: 'auto'},
+              null,
+              this
+            );
+
+            return false;
+          }
+        );
+
+        var f = this.commonController.getErrorPlace;
+        this.commonController.getErrorPlace = function()
+        {
+          if (!this.errorPlace) {
+            var box = f.apply(this);
+            box
+              .remove()
+              .insertBefore(this.$form.find('button[type="submit"]').eq(0));
           }
 
-          core.bind(
-            'recoverPasswordSent',
-            function() {
-              popup.close();
-            }
-          );
+          return this.errorPlace;
         }
+
+        core.bind(
+          'recoverPasswordSent',
+          function() {
+            popup.close();
+          }
+        );
       }
     );
 

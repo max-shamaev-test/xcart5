@@ -69,6 +69,7 @@ class Constant
     const ACTION_GET_TOKEN_DATA        = 'get_token_data';
     const ACTION_INSTALLATION_DATA     = 'get_installation_data';
     const ACTION_CORE_LICENSE          = 'get_core_license';
+    const ACTION_GET_SECTIONS          = 'get_sections';
 
     /**
      * Config fields
@@ -105,6 +106,7 @@ class Constant
     const FIELD_KEY_TYPE                    = 'keyType';
     const FIELD_MODULE                      = 'module';
     const FIELD_MODULES                     = 'modules';
+    const FIELD_INFO                        = 'info';
     const FIELD_AUTHOR                      = 'author';
     const FIELD_KEY                         = 'key';
     const FIELD_KEYS                        = 'keys';
@@ -120,6 +122,7 @@ class Constant
     const FIELD_MODULE_ID                   = 'moduleId';
     const FIELD_DESCRIPTION                 = 'description';
     const FIELD_PRICE                       = 'price';
+    const FIELD_ORIG_PRICE                  = 'orig_price';
     const FIELD_CURRENCY                    = 'currency';
     const FIELD_ICON_URL                    = 'iconURL';
     const FIELD_PAGE_URL                    = 'pageURL';
@@ -194,13 +197,25 @@ class Constant
     const FIELD_NOTIFICATION_DESCRIPTION = 'description';
     const FIELD_NOTIFICATION_LINK        = 'link';
     const FIELD_NOTIFICATION_DATE        = 'date';
+    const FIELD_NOTIFICATION_PAGE_PARAMS = 'pageParams';
+
+    const FIELD_SECTION_TYPE         = 'type';
+    const FIELD_SECTION_POS          = 'position';
+    const FIELD_SECTION_TAG          = 'tag';
+    const FIELD_SECTION_IMAGE        = 'imageURL';
+    const FIELD_SECTION_ADDON        = 'addon';
+    const FIELD_SECTION_BANNER       = 'bannerURL';
+    const FIELD_SECTION_HTML         = 'html';
+    const FIELD_SECTION_CSS          = 'css';
+    const FIELD_SECTION_TRANSLATIONS = 'translations';
+    const FIELD_SECTION_ADDONS       = 'addons';
 
     const INACTIVE_KEYS = 'inactiveMPKeys';
 
     /**
      * Marketplace API version
      */
-    const MP_API_VERSION      = '2.3';
+    const MP_API_VERSION      = '2.5';
     const XC_FREE_LICENSE_KEY = 'XC5-FREE-LICENSE';
 
     /**
@@ -212,6 +227,7 @@ class Constant
     const REGEXP_HASH     = '/\w{32}/';
     const REGEXP_CURRENCY = '/[A-Z]{1,3}/';
     const REGEXP_CLASS    = '/[\w\\\\]+/';
+    const REGEXP_TEXT     = '/([^<>]+)/';
 
     /**
      * Error codes

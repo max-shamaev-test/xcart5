@@ -8,20 +8,20 @@
 XLite\Model\ImageSettings:
   - model: XLite\Model\Image\Category\Image
     code: Default
-    width: 100
+    width: 120
     height: 120
   - model: XLite\Model\Image\Product\Image
     code: LGThumbnailGrid
-    width: 262
-    height: 280
+    width: 240
+    height: 240
   - model: XLite\Model\Image\Product\Image
     code: LGThumbnailList
-    width: 262
-    height: 280
+    width: 240
+    height: 240
   - model: XLite\Model\Image\Product\Image
     code: Default
     width: 366
-    height: 440
+    height: 366
   - model: XLite\Model\Image\Common\Logo
     code: Default
     width: 221

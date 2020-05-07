@@ -23,6 +23,13 @@ jQuery().ready(
                   self.location = URLHandler.buildURL({ 'target': 'mailchimp_store_data', 'process_completed': 1 });
                 }
               }
+          ).bind(
+              'cancel',
+              function() {
+                setTimeout(function() {
+                  self.location = URLHandler.buildURL({ 'target': 'mailchimp_store_data'});
+                }, 4000);
+              }
           );
     }
 );

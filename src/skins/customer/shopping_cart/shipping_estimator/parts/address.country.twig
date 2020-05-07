@@ -6,6 +6,6 @@
 
 {% if this.hasField('country_code') %}
   <li class="country">
-    {{ widget('\\XLite\\View\\FormField\\Select\\Country', fieldName='destination_country', value=this.getCountryCode(), stateSelectorId='destination-state', stateInputId='destination-custom-state', label=t('Country'), required='true') }}
+    {{ widget('\\XLite\\View\\FormField\\Select\\Country', fieldName='destination_country', value=this.getCountryCode(), stateSelectorId='destination-state', stateInputId='destination-custom-state', label=t('Country'), required=this.isFieldRequired('country_code')) }}
   </li>
 {% endif %}

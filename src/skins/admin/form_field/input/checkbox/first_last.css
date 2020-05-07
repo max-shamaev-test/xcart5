@@ -84,10 +84,10 @@ div.first-last-switch {
 .first-last-switch input[type=checkbox] + label {
   cursor: pointer;
   outline: none;
-  user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+  user-select: none;
   text-align: left;
   position: relative;
   white-space: nowrap;

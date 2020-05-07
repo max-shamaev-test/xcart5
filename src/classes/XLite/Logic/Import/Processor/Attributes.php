@@ -71,35 +71,36 @@ class Attributes extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function defineColumns()
     {
-        return array(
-            'position'        => array(),
-            'name'            => array(
+        return [
+            'position'    => [],
+            'name'        => [
                 static::COLUMN_IS_KEY          => true,
                 static::COLUMN_IS_MULTILINGUAL => true,
                 static::COLUMN_LENGTH          => 255,
-            ),
-            'product'         => array(
-                static::COLUMN_IS_KEY          => true,
-            ),
-            'class'    => array(
+            ],
+            'product'     => [
+                static::COLUMN_IS_KEY => true,
+            ],
+            'class'       => [
                 static::COLUMN_IS_KEY          => true,
                 static::COLUMN_IS_MULTILINGUAL => true,
                 static::COLUMN_PROPERTY        => 'productClass',
                 static::COLUMN_LENGTH          => 255,
-            ),
-            'group'  => array(
+            ],
+            'group'       => [
                 static::COLUMN_IS_KEY          => true,
                 static::COLUMN_IS_MULTILINGUAL => true,
                 static::COLUMN_PROPERTY        => 'attributeGroup',
                 static::COLUMN_LENGTH          => 255,
-            ),
-            'options'         => array(
+            ],
+            'options'     => [
                 static::COLUMN_IS_MULTILINGUAL => true,
                 static::COLUMN_IS_MULTIPLE     => true,
                 static::COLUMN_LENGTH          => 255,
-            ),
-            'type'            => array(),
-        );
+            ],
+            'type'        => [],
+            'displayMode' => [],
+        ];
     }
 
     // }}}
@@ -114,13 +115,15 @@ class Attributes extends \XLite\Logic\Import\Processor\AProcessor
     public static function getMessages()
     {
         return parent::getMessages()
-            + array(
-                'ATTR-PRODUCT-FMT'  => 'The product with "{{value}}" SKU does not exist',
-                'ATTR-POSITION-FMT' => 'Wrong position format',
-                'ATTR-GROUP-FMT'    => 'The "{{value}}" group is not created',
-                'ATTR-TYPE-FMT'     => 'Wrong type format',
-                'ATTR-NAME-FMT'     => 'The name is empty',
-            );
+            + [
+                'ATTR-PRODUCT-FMT'    => 'The product with "{{value}}" SKU does not exist',
+                'ATTR-POSITION-FMT'   => 'Wrong position format',
+                'ATTR-GROUP-FMT'      => 'The "{{value}}" group is not created',
+                'ATTR-TYPE-FMT'       => 'Wrong type format',
+                'ATTR-MODE-S-FMT'     => 'Wrong display mode format for selector',
+                'ATTR-MODE-NOT-S-FMT' => 'Wrong display mode format for not selector',
+                'ATTR-NAME-FMT'       => 'The name is empty',
+            ];
     }
 
     /**
@@ -131,9 +134,9 @@ class Attributes extends \XLite\Logic\Import\Processor\AProcessor
     public static function getErrorTexts()
     {
         return parent::getErrorTexts()
-            + array(
+            + [
                 'ATTR-GROUP-FMT'    => 'New attribute group will be created',
-            );
+            ];
     }
 
     /**
@@ -157,7 +160,7 @@ class Attributes extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyPosition($value, array $column)
     {
         if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsUinteger($value)) {
-            $this->addWarning('ATTR-POSITION-FMT', array('column' => $column, 'value' => $value));
+            $this->addWarning('ATTR-POSITION-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -172,9 +175,30 @@ class Attributes extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyType($value, array $column)
     {
         if ($this->verifyValueAsEmpty($value) || !\XLite\Model\Attribute::getTypes($value)) {
-            $this->addError('ATTR-TYPE-FMT', array('column' => $column, 'value' => $value));
+            $this->addError('ATTR-TYPE-FMT', ['column' => $column, 'value' => $value]);
         }
     }
+
+    /**
+     * Verify 'displayMode' value
+     *
+     * @param mixed $value  Value
+     * @param array $column Column info
+     *
+     * @return void
+     */
+    protected function verifyDisplayMode($value, array $column)
+    {
+        if ($this->currentRowData['type'] === \XLite\Model\Attribute::TYPE_SELECT) {
+            $availableDisplayModes = \XLite\Model\Attribute::getDisplayModes();
+            if (!isset($availableDisplayModes[$value])) {
+                $this->addError('ATTR-MODE-S-FMT', ['column' => $column, 'value' => $value]);
+            }
+        } elseif (!$this->verifyValueAsEmpty($value)) {
+            $this->addError('ATTR-MODE-NOT-S-FMT', ['column' => $column, 'value' => $value]);
+        }
+    }
+
 
     /**
      * Verify 'group' value
@@ -191,7 +215,7 @@ class Attributes extends \XLite\Logic\Import\Processor\AProcessor
             !$this->verifyValueAsEmpty($value)
             && 0 == \XLite\Core\Database::getRepo('XLite\Model\AttributeGroup')->findOneByName($value, true)
         ) {
-            $this->addWarning('ATTR-GROUP-FMT', array('column' => $column, 'value' => $value));
+            $this->addWarning('ATTR-GROUP-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -207,7 +231,7 @@ class Attributes extends \XLite\Logic\Import\Processor\AProcessor
     {
         $value = $this->getDefLangValue($value);
         if ($this->verifyValueAsEmpty($value)) {
-            $this->addError('ATTR-NAME-FMT', array('column' => $column, 'value' => $value));
+            $this->addError('ATTR-NAME-FMT', ['column' => $column, 'value' => $value]);
         }
         $this->currentAttrName = $value;
     }
@@ -224,7 +248,7 @@ class Attributes extends \XLite\Logic\Import\Processor\AProcessor
     {
         $value = $this->getDefLangValue($value);
         if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsProductClass($value)) {
-            $this->addWarning('GLOBAL-PRODUCT-CLASS-FMT', array('column' => $column, 'value' => $value));
+            $this->addWarning('GLOBAL-PRODUCT-CLASS-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -239,7 +263,7 @@ class Attributes extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyProduct($value, array $column)
     {
         if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsProduct($value)) {
-            $this->addWarning('ATTR-PRODUCT-FMT', array('column' => $column, 'value' => $value, 'name' => $this->currentAttrName));
+            $this->addWarning('ATTR-PRODUCT-FMT', ['column' => $column, 'value' => $value, 'name' => $this->currentAttrName]);
         }
     }
 

@@ -11,7 +11,7 @@
   var checkAuthType = function (authType) {
     if ('email' == authType) {
       jQuery('.section_api')
-        .hide()
+        .css('display', 'none')
         .removeClass('section-visible');
       jQuery('#email')
         .prop('disabled', false)
@@ -21,7 +21,7 @@
 
     } else {
       jQuery('.section_api')
-        .show()
+        .css('display', 'flex')
         .addClass('section-visible');
       jQuery('#email')
         .prop('disabled', true)

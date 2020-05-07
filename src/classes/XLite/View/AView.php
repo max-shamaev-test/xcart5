@@ -834,7 +834,7 @@ abstract class AView extends \XLite\Core\Handler
     protected function getCommonFiles()
     {
         return [
-            static::RESOURCE_JS  => [],
+            static::RESOURCE_JS  => static::getVueLibraries(),
             static::RESOURCE_CSS => [],
         ];
     }
@@ -1996,6 +1996,16 @@ abstract class AView extends \XLite\Core\Handler
     }
 
     /**
+     * Get logo alt
+     *
+     * @return string
+     */
+    public function getLogoAlt()
+    {
+        return \XLite\Core\Layout::getInstance()->getLogoAlt();
+    }
+
+    /**
      * Get apple icon
      *
      * @return string
@@ -2022,7 +2032,7 @@ abstract class AView extends \XLite\Core\Handler
      */
     public function getInvoiceLogo()
     {
-        return $this->getLogo();
+        return \XLite\Core\Layout::getInstance()->getInvoiceLogo();
     }
 
     /**

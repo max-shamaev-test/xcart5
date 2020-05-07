@@ -36,7 +36,7 @@ class SearchBox extends \XLite\View\FormField\Input\Text
      */
     protected function getDefaultPlaceholder()
     {
-        return static::t('Search items...(customer header search form)');
+        return static::t('Search items...(customer header search form)', [], null, 'placeholder');
     }
 
     /**

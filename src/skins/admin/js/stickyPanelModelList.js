@@ -24,8 +24,7 @@ StickyPanelModelList.autoload = function()
   );
 };
 
-// Process widget (initial catch widget)
-StickyPanelModelList.prototype.reposition = function(isResize)
+StickyPanelModelList.prototype.reposition = function()
 {
   StickyPanel.prototype.reposition.apply(this, arguments);
 
@@ -78,7 +77,7 @@ core.microhandlers.add(
     var sticky = jQuery('.sticky-panel');
     if (jQuery(this).css('display') == 'none') {
       // We show the sticky panel when the no-items element is hidden (the list contains some elements)
-      sticky.css({display : '', position: 'relative'});
+      sticky.css({display : ''});
     } else if (!sticky.hasClass('always-visible')) {
       // We hide the sticky panel and move it into the initial state
       // You can add "always-visible" CSS class to the sticky panel if you need to show it anyway

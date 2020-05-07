@@ -34,7 +34,8 @@
 					maxHeight=this.getImageMaxHeight(),
 					isImage=true,
 					fieldName='logo',
-					isViaUrlAllowed=true
+					hasAlt=true,
+					isViaUrlAllowed=false
 				) }}
 				<span class="option-label">{{ t('logo uploader') }}</span>
 			</div>
@@ -45,7 +46,8 @@
 					maxHeight=this.getImageMaxHeight(),
 					isImage=true,
 					fieldName='favicon',
-					isViaUrlAllowed=true
+					hasAlt=false,
+					isViaUrlAllowed=false
 				) }}
 				<span class="option-label">{{ t('favicon uploader') }}</span>
 			</div>
@@ -56,7 +58,8 @@
 					maxHeight=this.getImageMaxHeight(),
 					isImage=true,
 					fieldName='appleIcon',
-					isViaUrlAllowed=true
+					hasAlt=false,
+					isViaUrlAllowed=false
 				) }}
 				<span class="option-label">{{ t('app icon uploader') }}</span>
 			</div>

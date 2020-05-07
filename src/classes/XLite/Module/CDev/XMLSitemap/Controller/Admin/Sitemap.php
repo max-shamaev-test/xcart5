@@ -109,6 +109,7 @@ class Sitemap extends \XLite\Controller\Admin\AAdmin
     protected function doActionSitemapGenerationCancel()
     {
         Generator::cancel();
+        TopMessage::addWarning('Sitemap generation has been stopped.');
 
         $this->setReturnURL(
             $this->buildURL('sitemap')

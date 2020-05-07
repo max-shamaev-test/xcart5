@@ -162,6 +162,8 @@ class Login extends \XLite\Controller\Customer\ACustomer
     protected function performLogin()
     {
         $data = \XLite\Core\Request::getInstance()->getData();
+        $data['password'] = \XLite\Core\Request::getInstance()->getNonFilteredData()['password'] ?? null;
+
         $token = empty($data[self::SECURE_TOKEN]) ? null : $data[self::SECURE_TOKEN];
 
         $this->foundProfile = \XLite\Core\Database::getRepo('XLite\Model\Profile')->findByLogin($data['login']);

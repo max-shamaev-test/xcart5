@@ -143,13 +143,15 @@ abstract class AAdmin extends \XLite\Controller\AController
             $this->redirect($this->buildURL('login'));
 
         } elseif ($this->isForceChangePassword()
-            && $this->getTarget() !== 'force_change_password'
+            && !in_array($this->getTarget(), ['force_change_password', 'login'], true)
         ) {
             $this->redirect($this->buildURL('force_change_password'));
         } else {
             if (isset(\XLite\Core\Request::getInstance()->no_https)) {
                 \XLite\Core\Session::getInstance()->no_https = true;
             }
+
+            $this->disableUnallowedModules();
 
             parent::handleRequest();
         }
@@ -184,7 +186,12 @@ abstract class AAdmin extends \XLite\Controller\AController
             //    $classes[] = 'upgrade-box-visible';
             //}
 
-            if (!empty($_COOKIE['XCAdminLeftMenuCompressed'])) {
+            if (!isset($_COOKIE['XCAdminLeftMenuCompressed'])
+                || (
+                    isset($_COOKIE['XCAdminLeftMenuCompressed'])
+                    && $_COOKIE['XCAdminLeftMenuCompressed']
+                )
+            ) {
                 $classes[] = 'left-menu-compressed';
             }
         }
@@ -282,6 +289,45 @@ abstract class AAdmin extends \XLite\Controller\AController
         } else {
             $this->redirect($this->buildURL('login'));
         }
+    }
+
+    /**
+     * Disable unallowed modules routine
+     *
+     * @return void
+     */
+    protected function disableUnallowedModules()
+    {
+        if ($this->isAJAX()) {
+            return;
+        }
+
+        if ($this->getTarget() === 'keys_notice'
+            && $this->getAction() === 'recheck'
+        ) {
+            \XLite\Core\Session::getInstance()->shouldDisableUnallowedModules = false;
+
+        } elseif (!\XLite\Core\Session::getInstance()->shouldDisableUnallowedModules) {
+            \XLite\Core\Session::getInstance()->shouldDisableUnallowedModules = true;
+
+        } elseif (\XLite\Core\Session::getInstance()->fraudWarningDisplayed) {
+            \XLite\Core\Session::getInstance()->fraudWarningDisplayed = null;
+            \XLite\Core\Session::getInstance()->shouldDisableUnallowedModules = null;
+
+            if (!$this->isIgnoreUnallowedModules()) {
+                $this->redirect($this->getShopURL('service.php?/disableUnallowedModules'));
+            }
+        }
+    }
+
+    /**
+     * Return true if unallowed modules should be ignored on current page
+     *
+     * @return boolean
+     */
+    protected function isIgnoreUnallowedModules()
+    {
+        return false;
     }
 
     /**

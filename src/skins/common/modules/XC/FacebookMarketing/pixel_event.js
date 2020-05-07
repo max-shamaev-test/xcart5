@@ -37,6 +37,10 @@ define('facebookPixel/event', ['facebookPixel/core'], function (Core) {
       Core.instance.registerEvent('track', name, data);
     },
 
+    sendCustomEvent: function(name, data) {
+      Core.instance.registerEvent('trackCustom', name, data);
+    },
+
     retrieveCartData: function (callback) {
       Core.instance.retrieveCartData(callback);
     }

@@ -22,19 +22,29 @@ class Attribute extends \XLite\View\Model\AModel
      */
     protected $schemaDefault = [
         'name'            => [
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Input\Text',
+            self::SCHEMA_CLASS    => \XLite\View\FormField\Input\Text::class,
             self::SCHEMA_LABEL    => 'Attribute',
             self::SCHEMA_REQUIRED => true,
         ],
         'attribute_group' => [
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\AttributeGroups',
+            self::SCHEMA_CLASS    => \XLite\View\FormField\Select\AttributeGroups::class,
             self::SCHEMA_LABEL    => 'Attribute group',
             self::SCHEMA_REQUIRED => false,
         ],
         'type'            => [
-            self::SCHEMA_CLASS    => 'XLite\View\FormField\Select\AttributeTypes',
+            self::SCHEMA_CLASS    => \XLite\View\FormField\Select\AttributeTypes::class,
             self::SCHEMA_LABEL    => 'Type',
             self::SCHEMA_REQUIRED => false,
+        ],
+        'displayMode'            => [
+            self::SCHEMA_CLASS    => \XLite\View\FormField\Select\AttributeDisplayMode::class,
+            self::SCHEMA_LABEL    => 'Display as',
+            self::SCHEMA_REQUIRED => false,
+            self::SCHEMA_DEPENDENCY => [
+                self::DEPENDENCY_SHOW => [
+                    'type' => \XLite\Model\Attribute::TYPE_SELECT,
+                ],
+            ],
         ],
     ];
 

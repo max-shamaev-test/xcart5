@@ -21,20 +21,9 @@
       var defaultDate = $el.val();
       var locale = this.params.locale;
 
-      var formatDefaultLocaleDate = function (format, date) {
-          var formattedDate = $.datepicker.formatDate( format, new Date(date), {
-              dayNamesShort: $.datepicker.regional[''].dayNamesShort,
-              dayNames: $.datepicker.regional[''].dayNames,
-              monthNamesShort: $.datepicker.regional[''].monthNamesShort,
-              monthNames: $.datepicker.regional[''].monthNames
-          });
-
-          return formattedDate;
-      };
-
       var changeHiddenValue = function ($el) {
-          $($el).siblings('.datepicker-value-input')
-              .val(formatDefaultLocaleDate($($el).datepicker('option', 'dateFormat'), $($el).datepicker('getDate')));
+        var selectedDate = $.datepicker.formatDate($($el).datepicker('option', 'dateFormat'), $($el).datepicker('getDate'), $.datepicker.regional['']);
+        $($el).siblings('.datepicker-value-input').val(selectedDate);
       };
 
       $.datepicker.setDefaults($.datepicker.regional['']);
@@ -42,7 +31,7 @@
         $.datepicker.setDefaults($.datepicker.regional[locale]);
 
         if (defaultDate !== undefined && defaultDate !== '') {
-            defaultDate = $.datepicker.formatDate(format, new Date(defaultDate));
+          defaultDate = $.datepicker.parseDate(format, defaultDate, $.datepicker.regional['']);
         }
       }
 

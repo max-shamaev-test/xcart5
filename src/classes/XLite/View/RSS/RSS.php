@@ -16,7 +16,7 @@ class RSS extends \XLite\View\Dialog
     /**
      * Max count of feeds
      */
-    const MAX_COUNT  = 3;
+    const MAX_COUNT  = 1;
 
     /**
      * Feeds
@@ -34,19 +34,6 @@ class RSS extends \XLite\View\Dialog
     {
         $list = parent::getCSSFiles();
         $list[] = $this->getDir() . '/style.less';
-
-        return $list;
-    }
-
-    /**
-     * Add widget specific JS file
-     *
-     * @return array
-     */
-    public function getJSFiles()
-    {
-        $list = parent::getJSFiles();
-        $list[] = $this->getDir() . '/controller.js';
 
         return $list;
     }

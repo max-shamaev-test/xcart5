@@ -180,7 +180,7 @@ class GlobalTab extends \XLite\Model\Repo\Product\GlobalTab implements \XLite\Ba
     public function generateTabLink(\XLite\Module\XC\CustomProductTabs\Model\Product\CustomGlobalTab $tab)
     {
         $result = $link = preg_replace(
-            '/[^a-z0-9-_:.]/i',
+            '/[^a-z0-9-_]/i',
             '',
             str_replace(
                 ' ',

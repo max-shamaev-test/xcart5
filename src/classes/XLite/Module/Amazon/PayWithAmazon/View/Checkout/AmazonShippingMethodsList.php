@@ -25,4 +25,9 @@ class AmazonShippingMethodsList extends \XLite\View\Checkout\ShippingMethodsList
 
         return $list;
     }
+
+    protected function getDefaultTemplate()
+    {
+        return 'modules/Amazon/PayWithAmazon/checkout/steps/shipping/parts/shippingMethodsList.twig';
+    }
 }

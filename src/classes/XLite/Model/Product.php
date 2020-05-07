@@ -9,6 +9,7 @@
 namespace XLite\Model;
 
 use XLite\Core\Cache\ExecuteCachedTrait;
+use XLite\Core\Converter;
 use XLite\Core\Model\EntityVersion\EntityVersionInterface;
 use XLite\Core\Model\EntityVersion\EntityVersionTrait;
 use XLite\Model\Product\ProductStockAvailabilityPolicy;
@@ -460,6 +461,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
         $this->cloneEntityCategories($newProduct);
         $this->cloneEntityAttributes($newProduct);
         $this->cloneEntityImages($newProduct);
+        $this->cloneEntityMemberships($newProduct);
 
         $newProduct->update();
 
@@ -575,6 +577,20 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     }
 
     /**
+     * Clone entity (memberships)
+     *
+     * @param \XLite\Model\Product $newProduct New product
+     *
+     * @return void
+     */
+    protected function cloneEntityMemberships(\XLite\Model\Product $newProduct)
+    {
+        foreach ($this->getMemberships() as $membership) {
+            $newProduct->addMemberships($membership);
+        }
+    }
+
+    /**
      * Constructor
      *
      * @param array $data Entity properties OPTIONAL
@@ -662,7 +678,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     public function getQuickDataPrice()
     {
-        $price = $this->getNetPrice();
+        $price = $this->getClearPrice();
 
         foreach ($this->prepareAttributeValues() as $av) {
             if (is_object($av)) {
@@ -1025,7 +1041,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     protected function correctAmount($amount)
     {
-        return max(0, (int) $amount);
+        return Converter::toUnsigned32BitInt($amount);
     }
 
     /**
@@ -1075,7 +1091,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     public function isOutOfStock()
     {
-        return $this->getAmount() <= 0 && $this->inventoryEnabled();
+        return $this->getAmount() <= 0 && $this->getInventoryEnabled();
     }
 
     /**
@@ -1170,16 +1186,6 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
         $data['adminURL'] = \XLite\Core\Converter::buildFullURL('product', '', $params, \XLite::getAdminScript(), false);
 
         return $data;
-    }
-
-    /**
-     * Update low stock update timestamp
-     *
-     * @return void
-     */
-    protected function updateLowStockUpdateTimestamp()
-    {
-        \XLite\Core\TmpVars::getInstance()->lowStockUpdateTimestamp = LC_START_TIME;
     }
 
     // }}}
@@ -1430,7 +1436,6 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
             && $this->isInventoryChanged()
         ) {
             $this->sendLowLimitNotification();
-            $this->updateLowStockUpdateTimestamp();
         }
     }
 
@@ -1913,7 +1918,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     public function setPrice($price)
     {
-        $this->price = $price;
+        $this->price = Converter::toUnsigned32BitFloat($price);
         return $this;
     }
 
@@ -1947,7 +1952,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     public function setWeight($weight)
     {
-        $this->weight = (float) $weight;
+        $this->weight = Converter::toUnsigned32BitFloat($weight);
         return $this;
     }
 
@@ -1981,7 +1986,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     public function setBoxWidth($boxWidth)
     {
-        $this->boxWidth = $boxWidth;
+        $this->boxWidth = Converter::toUnsigned32BitFloat($boxWidth);
         return $this;
     }
 
@@ -2003,7 +2008,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     public function setBoxLength($boxLength)
     {
-        $this->boxLength = $boxLength;
+        $this->boxLength = Converter::toUnsigned32BitFloat($boxLength);
         return $this;
     }
 
@@ -2025,7 +2030,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     public function setBoxHeight($boxHeight)
     {
-        $this->boxHeight = $boxHeight;
+        $this->boxHeight = Converter::toUnsigned32BitFloat($boxHeight);
         return $this;
     }
 
@@ -2047,7 +2052,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     public function setItemsPerBox($itemsPerBox)
     {
-        $this->itemsPerBox = $itemsPerBox;
+        $this->itemsPerBox = Converter::toUnsigned32BitInt($itemsPerBox);
         return $this;
     }
 

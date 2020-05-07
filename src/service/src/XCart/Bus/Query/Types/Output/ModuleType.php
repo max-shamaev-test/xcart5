@@ -50,6 +50,8 @@ class ModuleType extends AObjectType
                 'authorEmail'      => Type::string(),
                 'revisionDate'     => Type::string(),
                 'price'            => Type::float(),
+                'origPrice'        => Type::float(),
+                'onSale'           => Type::boolean(),
                 'downloads'        => Type::int(),
                 'rating'           => Type::float(),
                 'tags'             => Type::listOf($this->app[ModuleTagType::class]),
@@ -60,6 +62,7 @@ class ModuleType extends AObjectType
                 'scenarioState'    => $this->app[ModuleStateType::class],
                 'purchaseUrl'      => Type::string(),
                 'license'          => Type::string(),
+                'hasLicense'       => Type::boolean(),
                 'messages'         => Type::listOf($this->app[AlertType::class]),
                 'wave'             => Type::string(),
                 'edition'          => Type::string(),
@@ -67,14 +70,16 @@ class ModuleType extends AObjectType
                 'expiration'       => Type::string(),
                 'xbProductId'      => Type::string(),
 
-                'integrityViolations' => [
+                'integrityViolations'      => [
                     'type'    => $this->app[ModuleIntegrityViolationsType::class],
                     'args'    => [
                         'limit' => Type::listOf(Type::int()),
                     ],
                     'resolve' => $this->app[ModulesResolver::class . ':getIntegrityViolations'],
                 ],
-                'changelog'           => Type::listOf(Type::string()),
+                'integrityViolationsCache' => $this->app[ModuleIntegrityViolationsType::class],
+                'changelog'                => Type::listOf(Type::string()),
+                'type'                => Type::string(),
             ],
         ];
     }

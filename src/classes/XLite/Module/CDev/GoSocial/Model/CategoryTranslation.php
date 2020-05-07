@@ -16,7 +16,7 @@ class CategoryTranslation extends \XLite\Model\CategoryTranslation implements \X
      *
      * @var string
      *
-     * @Column (type="text")
+     * @Column (type="text", nullable=true)
      */
     protected $ogMeta = '';
 

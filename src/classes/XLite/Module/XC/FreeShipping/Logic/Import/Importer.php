@@ -22,6 +22,7 @@ class Importer extends \XLite\Logic\Import\Importer implements \XLite\Base\IDeco
     public function isDisplayFreeShippingUpdateNotice()
     {
         return Config::getInstance()->XC->FreeShipping->display_update_import_info
+            && $this->getOptions()->offsetExists('displayFreeShippingUpdateNotification')
             && $this->getOptions()->offsetGet('displayFreeShippingUpdateNotification');
     }
 }

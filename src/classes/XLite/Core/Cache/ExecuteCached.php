@@ -113,7 +113,7 @@ class ExecuteCached
         $driver   = \XLite\Core\Cache::getInstance()->getDriver();
         $cacheKey = static::getCacheKey($cacheKeyParts);
 
-        if ($driver->contains($cacheKey)) {
+        if (!$force && $driver->contains($cacheKey)) {
             return $driver->fetch($cacheKey);
         }
 

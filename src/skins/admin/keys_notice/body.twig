@@ -26,7 +26,7 @@
 
   {% else %}
 
-  {% if this.isFraudStatusConfirmed() %}
+  {% if this.hasUnallowedEnabledModules() and this.isFraudStatusConfirmed() %}
     <div class="alert alert-warning">{{ t('Unallowed modules will be disabled automatically on the next visit any page in the administrator interface.')|raw }}</div>
   {% endif %}
 

@@ -337,7 +337,10 @@ class Products extends \XLite\Logic\Export\Step\Base\I18n
         $result = array();
 
         foreach ($dataset['model']->getImages() as $image) {
-            $result[] = $this->formatImageModel($image);
+            $value = $this->formatImageModel($image);
+            if ($value) {
+                $result[] = $value;
+            }
         }
 
         return $result;
@@ -710,7 +713,7 @@ class Products extends \XLite\Logic\Export\Step\Base\I18n
                         }
                     }
 
-                    $result[] = $value->asString() . ($modifiers ? '=' . implode('/', $modifiers)  : '');
+                    $result[] = $value->asString() . ($modifiers ? '==' . implode('/', $modifiers)  : '');
                 }
             }
         }

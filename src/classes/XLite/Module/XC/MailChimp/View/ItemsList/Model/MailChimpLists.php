@@ -52,6 +52,7 @@ class MailChimpLists extends \XLite\View\ItemsList\Model\Table
             ),
             'date_created'  => array (
                 static::COLUMN_NAME     => \XLite\Core\Translation::lbl('Date'),
+                static::COLUMN_TEMPLATE => 'modules/XC/MailChimp/mailchimp_lists/cell.date.twig',
                 static::COLUMN_ORDERBY  => 300,
             ),
             'list_rating'   => array (
@@ -166,6 +167,18 @@ class MailChimpLists extends \XLite\View\ItemsList\Model\Table
     protected function getRadioName()
     {
         return 'default_list';
+    }
+
+    /**
+     * Format mailchimp time to timestamp
+     *
+     * @param $string
+     *
+     * @return false|int
+     */
+    protected function formatMailChimpTime($time)
+    {
+        return strtotime($time);
     }
 
     /**

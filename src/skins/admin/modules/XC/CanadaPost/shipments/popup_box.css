@@ -25,10 +25,6 @@
   width: 41px;
   height: 41px;
   outline: none;
-  -moz-border-radius-bottomright: 11px;
-  -moz-border-radius-topright: 11px;
-  -webkit-border-bottom-right-radius: 11px;
-  -webkit-border-top-right-radius: 11px;
   border-bottom-right-radius: 11px;
   border-top-right-radius: 11px;
 }
@@ -36,8 +32,6 @@
 .blockMsg .block-container {
   margin-right: 31px;
   border-style: none;
-  -moz-border-radius: 11px;
-  -webkit-border-radius: 11px;
   border-radius: 11px;
   padding: 10px;
 }
@@ -47,8 +41,6 @@
   padding-top: 30px;
   background: white;
   overflow: auto;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
   border-radius: 4px;
 }
 
@@ -110,10 +102,6 @@
 }
 
 .edit-attribute span {
-  -moz-top-left-border-radius: 3px;
-  -moz-bottom-left-border-radius: 3px;
-  -webkit-top-left-border-radius: 3px;
-  -webkit-bottom-left-border-radius: 3px;
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
   padding-left: 10px;

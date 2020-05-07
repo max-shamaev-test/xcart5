@@ -10,6 +10,7 @@ namespace XCart\Bus\Query\Data;
 
 use ArrayIterator;
 use Iterator;
+use XCart\Bus\Domain\Module;
 use XCart\Bus\Exception\NotImplemented;
 use XCart\Bus\Query\Context;
 use XCart\Bus\Query\Data\Filter\FilterLocator;
@@ -155,15 +156,20 @@ class ModulesDataSource implements IDataSource
      * @param string $id
      * @param string $version
      * @param array  $filters
+     * @param array  $replaceData
      *
-     * @return mixed
+     * @return Module
      */
-    public function findOne($id, $version = Flatten::RULE_LAST, array $filters = [])
+    public function findOne($id, $version = Flatten::RULE_LAST, array $filters = [], array $replaceData = [])
     {
         $flattenArray = $this->getFlattenArray($version);
 
         if (!isset($flattenArray[$id])) {
             return null;
+        }
+
+        foreach ($replaceData as $key => $param) {
+            $flattenArray[$id][$key] = $param;
         }
 
         $iterator = $this->filteredIterator(
@@ -184,7 +190,7 @@ class ModulesDataSource implements IDataSource
      * @param array  $sorters
      * @param array  $limit
      *
-     * @return array
+     * @return Module[]
      */
     public function getSlice(
         $version = Flatten::RULE_LAST,
@@ -223,7 +229,7 @@ class ModulesDataSource implements IDataSource
     /**
      * @param string $rule
      *
-     * @return array
+     * @return Module[]
      */
     public function getFlattenArray($rule = Flatten::RULE_LAST): array
     {

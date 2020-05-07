@@ -22,7 +22,7 @@ class Generator extends \XLite\Logic\ImageResize\Generator implements \XLite\Bas
     public static function defineImageSizes()
     {
         $result = parent::defineImageSizes();
-        $result[static::MODEL_PRODUCT]['RecentlyViewedThumbnail'] = [100, 120];
+        $result[static::MODEL_PRODUCT]['RecentlyViewedThumbnail'] = [120, 120];
 
         return $result;
     }

@@ -23,4 +23,14 @@ class MethodSetting extends \XLite\Model\Repo\ARepo
      * @var string
      */
     protected $type = self::TYPE_SECONDARY;
+
+    /**
+     * Alternative record identifiers
+     *
+     * @
+     * var array
+     */
+    protected $alternativeIdentifier = [
+        ['name', 'payment_method'],
+    ];
 }

@@ -114,7 +114,7 @@ function setTop(elm, y)
     }
 }
 
-function showDetails(code, showCloudBox)
+function showDetails(code, isHardError)
 {
     if (code == "" && document.getElementById('test_passed_icon')) {
         document.getElementById('test_passed_icon').style.display = '';
@@ -125,14 +125,19 @@ function showDetails(code, showCloudBox)
     failedCodes.push(code);
 
     var headerElement = document.getElementById('headerElement');
+    var statusReportElement = document.getElementById('status-report');
     var detailsElement;
 
-    if (showCloudBox) {
+    if (isHardError) {
         detailsElement = document.getElementById('status-report-detailsElement');
         document.getElementById('detailsElement').innerHTML = '';
+        statusReportElement.classList.remove('warning');
+        statusReportElement.classList.add('danger');
     } else {
         detailsElement = document.getElementById('detailsElement');
         document.getElementById('status-report-detailsElement').innerHTML = '';
+        statusReportElement.classList.remove('danger');
+        statusReportElement.classList.add('warning');
     }
 
     var hiddenElementHeader  = document.getElementById(code + '-error-title');
@@ -143,7 +148,7 @@ function showDetails(code, showCloudBox)
 
     detailsElement.innerHTML = hiddenElementDetails ? hiddenElementDetails.innerHTML : '';
     headerElement.innerHTML = hiddenElementHeader ? hiddenElementHeader.innerHTML : '';
-    document.getElementById('suppose-cloud').style.display = showCloudBox ? '' : 'none';
+    document.getElementById('suppose-cloud').style.display = isHardError ? '' : 'none';
 
     // failedElement.style.textDecoration = '';
     failedElement.className = 'status-failed-link-active';

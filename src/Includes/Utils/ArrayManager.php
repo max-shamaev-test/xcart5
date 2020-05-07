@@ -420,4 +420,18 @@ abstract class ArrayManager extends \Includes\Utils\AUtils
 
         return $result;
     }
+
+    /**
+     * Get md5 hash from array
+     *
+     * @param array $array
+     * @return string
+     */
+    public static function md5(array $array)
+    {
+        array_multisort($array);
+
+        return md5(serialize($array));
+    }
+
 }

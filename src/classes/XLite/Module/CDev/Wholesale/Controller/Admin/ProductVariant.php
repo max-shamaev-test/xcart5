@@ -70,4 +70,13 @@ class ProductVariant extends \XLite\Module\XC\ProductVariants\Controller\Admin\P
         \XLite\Core\Database::getRepo('XLite\Module\CDev\Wholesale\Model\ProductVariantWholesalePrice')
             ->correctQuantityRangeEnd($this->getProductVariant());
     }
+
+
+    /**
+     * @return boolean
+     */
+    public function isWarningMessageEnabled()
+    {
+        return false;
+    }
 }

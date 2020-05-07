@@ -42,7 +42,7 @@ class Address extends \XLite\View\Model\AModel
      */
     public function getAddressSchema()
     {
-        $result = array();
+        $result = [];
 
         $addressId = $this->getAddressId();
 
@@ -50,20 +50,25 @@ class Address extends \XLite\View\Model\AModel
             $result[$addressId . '_' . $key] = $data;
         }
 
+        /** @var \XLite\Model\AddressField[] $fields */
         $fields = \XLite\Core\Database::getRepo('XLite\Model\AddressField')
             ->search(new \XLite\Core\CommonCell(array('enabled' => true)));
 
-        foreach ($fields as $field) {
+        $maxLength = \XLite\Core\Database::getRepo('XLite\Model\AddressFieldValue')
+            ->getFieldInfo('value', 'length');
 
-            $result[$addressId . '_' . $field->getServiceName()] = array(
+        foreach ($fields as $field) {
+            $serviceName = $field->getServiceName();
+            $result["{$addressId}_{$serviceName}"] = [
                 static::SCHEMA_CLASS    => $field->getSchemaClass(),
                 static::SCHEMA_LABEL    => $field->getName(),
                 static::SCHEMA_REQUIRED => $field->getRequired(),
-                static::SCHEMA_MODEL_ATTRIBUTES => array(
-                    \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => \XLite\Core\Database::getRepo('XLite\Model\AddressFieldValue')->getFieldInfo('value', 'length'),
-                ),
-                \XLite\View\FormField\AFormField::PARAM_WRAPPER_CLASS => 'address-' . $field->getServiceName(),
-            );
+                static::SCHEMA_MODEL_ATTRIBUTES => [
+                    \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => $maxLength,
+                ],
+                \XLite\View\FormField\AFormField::PARAM_ID => strtolower("field_{$addressId}_{$serviceName}"),
+                \XLite\View\FormField\AFormField::PARAM_WRAPPER_CLASS => "address-$serviceName",
+            ];
         }
 
         return $this->getFilteredSchemaFields($result);

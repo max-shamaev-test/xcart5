@@ -8,10 +8,9 @@
 
 namespace XLite\Module\XC\Onboarding\Model\DTO\Product;
 
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use XLite\Core\Request;
-use XLite\Core\Translation;
-use XLite\Model\DTO\Base\CommonCell;
+use XLite\Core\Converter;
+use XLite\Core\Operator;
 use XLite\Module\XC\Onboarding\Core\WizardState;
 
 class Info extends \XLite\Model\DTO\Product\Info implements \XLite\Base\IDecorator
@@ -55,6 +54,9 @@ class Info extends \XLite\Model\DTO\Product\Info implements \XLite\Base\IDecorat
 
             if (!empty($data['prefilled_form'])) {
                 WizardState::getInstance()->setLastAddedProductId($object->getProductId());
+
+                $onboardingUrl = Converter::buildURL('onboarding_wizard');
+                Operator::redirect($onboardingUrl);
             }
         }
     }

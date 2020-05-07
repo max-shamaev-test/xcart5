@@ -26,6 +26,13 @@ class QuickData extends \XLite\Base\Singleton implements \Countable
     protected $memberships;
 
     /**
+     * Zones
+     *
+     * @var array
+     */
+    protected $zones;
+
+    /**
      * Update quick data
      *
      * @return void
@@ -179,42 +186,84 @@ class QuickData extends \XLite\Base\Singleton implements \Countable
      * @param \XLite\Model\Product $product    Product
      * @param mixed                $membership Membership
      *
-     * @return \XLite\Model\QuickData
+     * @return array
      */
     public function updateData(\XLite\Model\Product $product, $membership)
     {
-        $data = $this->getProductQuickData($product, $membership);
+        $data = [];
+
+        foreach ($this->getZones() as $zone) {
+            if (is_null($zone) || \XLite\Core\Database::getEM()->contains($zone)) {
+                $data[] = $this->updateDataWithZone($product, $membership, $zone);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get memberships
+     *
+     * @param \XLite\Model\Product $product    Product
+     * @param mixed                $membership Membership
+     * @param mixed                $zone       Zone
+     *
+     * @return \XLite\Model\QuickData
+     */
+    protected function updateDataWithZone(\XLite\Model\Product $product, $membership, $zone)
+    {
+        $data = $this->getProductQuickData($product, $membership, $zone);
 
         if (!$data) {
             $data = new \XLite\Model\QuickData;
             $data->setProduct($product);
             $data->setMembership($membership);
+            $data->setZone($zone);
             $product->addQuickData($data);
         }
-        $data->setPrice(\XLite::getInstance()->getCurrency()->roundValue($product->getQuickDataPrice()));
+
+        $data->setPrice(\XLite::getInstance()->getCurrency()->roundValue($this->getQuickDataPrice($product, $membership, $zone)));
 
         return $data;
     }
 
     /**
      * @param \XLite\Model\Product $product
+     * @param $membership
+     * @param $zone
+     * @return float
+     */
+    protected function getQuickDataPrice(\XLite\Model\Product $product, $membership, $zone)
+    {
+        return $product->getQuickDataPrice();
+    }
+
+    /**
+     * @param \XLite\Model\Product $product
      * @param                      $membership
+     * @param                      $zone
      *
      * @return \XLite\Model\QuickData|null
      */
-    protected function getProductQuickData(\XLite\Model\Product $product, $membership)
+    protected function getProductQuickData(\XLite\Model\Product $product, $membership, $zone)
     {
         $quickData = $product->getQuickData() ?: array();
 
         $data = null;
 
         foreach ($quickData as $qd) {
-            if (($qd->getMembership()
+            $isMembershipEqual = ($qd->getMembership()
                     && $membership
                     && $qd->getMembership()->getMembershipId() == $membership->getMembershipId()
                 )
-                || (!$qd->getMembership() && !$membership)
-            ) {
+                || (!$qd->getMembership() && !$membership);
+            $isZoneEqual = ($qd->getZone()
+                    && $zone
+                    && $qd->getZone()->getZoneId() == $zone->getZoneId()
+                )
+                || (!$qd->getZone() && !$zone);
+
+            if ($isMembershipEqual && $isZoneEqual) {
                 $data = $qd;
                 break;
             }
@@ -250,5 +299,67 @@ class QuickData extends \XLite\Base\Singleton implements \Countable
         }
 
         return $this->memberships;
+    }
+
+    /**
+     * @return array
+     */
+    public function getZones()
+    {
+        if (!isset($this->zones)) {
+            $this->zones = $this->defineZones();
+        }
+
+        return $this->zones;
+    }
+
+    /**
+     * @return array
+     */
+    protected function defineZones()
+    {
+        $zones = [];
+        $zones[-1] = null;
+
+        return $zones;
+    }
+
+    /**
+     * @param \XLite\Model\Profile $profile
+     * @return mixed|null
+     */
+    public function getQuickDataZoneForProfile(\XLite\Model\Profile $profile)
+    {
+        $address = null;
+        $qdZone = null;
+
+        $qdZones = $this->getZones();
+        if (count($qdZones) > 1 || !array_key_exists(-1, $qdZones)) {
+            $addressObj = $profile->getShippingAddress();
+
+            if (!$addressObj) {
+                $addressObj = $profile->getBillingAddress();
+            }
+
+            if ($addressObj) {
+                $address = $addressObj->toArray();
+            }
+
+            if (!$address) {
+                $address = \XLite\Model\Shipping::getDefaultAddress();
+            }
+
+            $zones = $address ? \XLite\Core\Database::getRepo('XLite\Model\Zone')->findApplicableZones($address) : [];
+            $qdZoneIds = array_keys($qdZones);
+
+            foreach ($zones as $zone) {
+                if (in_array($zone->getZoneId(), $qdZoneIds)) {
+                    $qdZone = $zone;
+                    break;
+                }
+            }
+        }
+
+        return $qdZone;
     }
 }

@@ -21,6 +21,9 @@
           {% if not this.getPersonalOnly() %}
             <span class="changed-label">{{ t("The name will be changed globally") }}</span>
           {% endif %}
+          {% if a.entity.getType() is same as(constant('XLite\\Model\\Attribute::TYPE_SELECT')) %}
+            {% include 'product/attributes/parts/display_mode.twig' %}
+          {% endif %}
         </div>
         {{ a.value.display() }}
         {{ widget_list('product.attributes.actions', item=a, itemId=id) }}

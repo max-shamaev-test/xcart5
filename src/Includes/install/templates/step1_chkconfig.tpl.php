@@ -26,13 +26,10 @@ $reqsNotes = array();
 
 // Go through steps list...
 foreach ($steps as $stepData) {
-
-    // Index for colouring table rows
-    $colorNumber = '1';
-
 ?>
 
     <div class="section-title"><?php echo $stepData['title']; ?></div>
+    <div class="section-requirements">
 
 <?php
 
@@ -46,7 +43,7 @@ foreach ($steps as $stepData) {
 
 ?>
 
-    <div class="list-row color-<?php echo $colorNumber; ?>">
+    <div class="list-row">
         <div class="field-left"><?php echo $reqData['title']; ?> ... <?php echo $reqData['value']; ?></div>
         <div class="field-right">
 <?php
@@ -73,8 +70,6 @@ foreach ($steps as $stepData) {
 
 <?php
 
-        $colorNumber = ('2' === $colorNumber) ? '1' : '2';
-
         if ($reqName === 'file_permissions') {
             $labelText = $reqData['description'];
         } else {
@@ -97,7 +92,9 @@ foreach ($steps as $stepData) {
         }
 
     } // foreach ($stepData['requirements']...
-
+?>
+    </div>
+<?php
 } // foreach ($steps...
 
 ?>
@@ -109,7 +106,7 @@ foreach ($steps as $stepData) {
 
 <div id="headerElement"></div>
 
-<div id="status-report" class="status-report-box" style="display: none;">
+<div id="status-report" class="status-report-box <?= $errorsFound ? 'danger' : 'warning'?> " style="display: none;">
 
     <div id="status-report-detailsElement"></div>
 
@@ -119,10 +116,13 @@ foreach ($steps as $stepData) {
         <?php echo xtr('requirements_failed_text'); ?>
     </div>
 
-    <input id="re-check-button" name="try_again" type="button" class="btn btn-default" value="<?php echo xtr('Re-check'); ?>" onclick="javascript:document.ifrm.go_back.value='2'; document.ifrm.current.value='2'; ga('send', 'event', 'button', 'click', 'try'); document.ifrm.submit();" />
+    <div class="buttons">
 
-    <input type="button" class="btn btn-warning" value="<?php echo xtr('Send a report'); ?>" onclick="javascript: document.getElementById('report-layer').style.display = 'block'; ga('send', 'event', 'button', 'click', 'send report popup');" />
+        <input id="re-check-button" name="try_again" type="button" class="btn btn-lg" value="<?php echo xtr('Re-check'); ?>" onclick="javascript:document.ifrm.go_back.value='2'; document.ifrm.current.value='2'; ga('send', 'event', 'button', 'click', 'try'); document.ifrm.submit();" />
 
+        <input type="button" class="btn btn-lg btn-warning" value="<?php echo xtr('Send a report'); ?>" onclick="javascript: document.getElementById('report-layer').style.display = 'block'; ga('send', 'event', 'button', 'click', 'send report popup');" />
+
+    </div>
 </div>
 
 <?php

@@ -8,7 +8,6 @@
 
 namespace XLite\Module\XC\Onboarding\View\FormField\Select;
 
-
 class Country extends \XLite\View\FormField\Select\Country
 {
     protected function getOptionAttributes($value, $text)
@@ -18,16 +17,9 @@ class Country extends \XLite\View\FormField\Select\Country
         /** @var \XLite\Model\Country $country */
         if (
             $value
-            && $country = \XLite\Core\Database::getRepo('XLite\Model\Country')->find($value)
+            && $country = $this->getCountry($value)
         ) {
-            /** @var \XLite\Model\CountryTranslation $translation */
-            $translation = $country->getTranslation('en', true);
-
-            if ($translation) {
-                $attributes['data-name'] = $translation->getCountry();
-            } else {
-                $attributes['data-name'] = $country->getCountry();
-            }
+            $attributes['data-name'] = $country->getCountry();
 
             if ($country->getCurrency()) {
                 $attributes['data-currency'] = $country->getCurrency()->getCurrencyId();
@@ -39,8 +31,27 @@ class Country extends \XLite\View\FormField\Select\Country
         return $attributes;
     }
 
+    /**
+     * @return array
+     */
     protected function getNonMetricCountries()
     {
         return ['US', 'GB', 'MM', 'LR', 'PW', 'FM', 'WS', 'MH'];
+    }
+
+    /**
+     * @param $code
+     *
+     * @return \XLite\Model\Country|null
+     */
+    protected function getCountry($code)
+    {
+        foreach ($this->getCountries() as $country) {
+            if ($country->getCode() === $code) {
+                return $country;
+            }
+        }
+
+        return null;
     }
 }

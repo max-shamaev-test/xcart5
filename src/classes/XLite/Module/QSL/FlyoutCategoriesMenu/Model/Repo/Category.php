@@ -33,18 +33,22 @@ abstract class Category extends \XLite\Model\Repo\Category implements \XLite\Bas
         $queryBuilder = parent::getCategoriesAsDTOQueryBuilder();
 
         if ($this->isShowProductNum()) {
-            $queryBuilder->addSelect('COUNT(DISTINCT categoryProducts) as productsCount')
-                ->linkLeft('c.categoryProducts', 'categoryProducts')
-                ->linkLeft(
+            $queryBuilder->addSelect('COUNT(DISTINCT categoryProductsProduct.product_id) as productsCount')
+                ->linkLeft('c.categoryProducts', 'categoryProducts');
+            if ('directLink' === \XLite\Core\Config::getInstance()->General->show_out_of_stock_products || 'searchOnly' === \XLite\Core\Config::getInstance()->General->show_out_of_stock_products) {
+                $queryBuilder->linkLeft(
                     'categoryProducts.product',
                     'categoryProductsProduct',
                     'WITH',
-                    'categoryProductsProduct.enabled = :enabled'
-                )
-                ->setParameter('enabled', true);
-
-            if ('directLink' === \XLite\Core\Config::getInstance()->General->show_out_of_stock_products || 'searchOnly' === \XLite\Core\Config::getInstance()->General->show_out_of_stock_products) {
-                $queryBuilder->andWhere('(categoryProductsProduct.inventoryEnabled = false OR categoryProductsProduct.amount > 0 OR categoryProductsProduct.product_id IS NULL)');
+                    'categoryProductsProduct.enabled = :enabled and (categoryProductsProduct.inventoryEnabled = false OR categoryProductsProduct.amount > 0)')
+                    ->setParameter('enabled', true);
+            } else {
+                $queryBuilder->linkLeft(
+                    'categoryProducts.product',
+                    'categoryProductsProduct',
+                    'WITH',
+                    'categoryProductsProduct.enabled = :enabled')
+                    ->setParameter('enabled', true);
             }
 
             $this->addProductMembershipCondition($queryBuilder, 'categoryProductsProduct');

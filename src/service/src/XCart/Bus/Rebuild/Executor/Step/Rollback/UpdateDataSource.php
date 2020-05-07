@@ -15,6 +15,8 @@ use XCart\Bus\Domain\Module;
 use XCart\Bus\Exception\RebuildException;
 use XCart\Bus\Query\Data\CoreConfigDataSource;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
+use XCart\Bus\Query\Data\MarketplaceModulesDataSource;
+use XCart\Bus\Query\Data\SetDataSource;
 use XCart\Bus\Rebuild\Executor\ScriptState;
 use XCart\Bus\Rebuild\Executor\Step\Execute\UpdateDataSource as ExecuteUpdateDataSource;
 use XCart\Bus\Rebuild\Executor\Step\StepInterface;
@@ -23,7 +25,7 @@ use XCart\SilexAnnotations\Annotations\Service;
 
 /**
  * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild"})
- * @RebuildStep(script = "rollback", weight = "4000")
+ * @RebuildStep(script = "rollback", weight = "6000")
  * @RebuildStep(script = "self-rollback", weight = "2000")
  */
 class UpdateDataSource implements StepInterface
@@ -32,6 +34,16 @@ class UpdateDataSource implements StepInterface
      * @var InstalledModulesDataSource
      */
     private $installedModulesDataSource;
+
+    /**
+     * @var MarketplaceModulesDataSource
+     */
+    private $marketplaceModulesDataSource;
+
+    /**
+     * @var SetDataSource
+     */
+    private $setDataSource;
 
     /**
      * @var CoreConfigDataSource
@@ -44,18 +56,24 @@ class UpdateDataSource implements StepInterface
     private $logger;
 
     /**
-     * @param InstalledModulesDataSource $installedModulesDataSource
-     * @param CoreConfigDataSource       $coreConfigDataSource
-     * @param LoggerInterface            $logger
+     * @param InstalledModulesDataSource   $installedModulesDataSource
+     * @param MarketplaceModulesDataSource $marketplaceModulesDataSource
+     * @param SetDataSource                $setDataSource
+     * @param CoreConfigDataSource         $coreConfigDataSource
+     * @param LoggerInterface              $logger
      */
     public function __construct(
         InstalledModulesDataSource $installedModulesDataSource,
+        MarketplaceModulesDataSource $marketplaceModulesDataSource,
+        SetDataSource $setDataSource,
         CoreConfigDataSource $coreConfigDataSource,
         LoggerInterface $logger
     ) {
-        $this->installedModulesDataSource = $installedModulesDataSource;
-        $this->logger                     = $logger;
-        $this->coreConfigDataSource = $coreConfigDataSource;
+        $this->installedModulesDataSource   = $installedModulesDataSource;
+        $this->marketplaceModulesDataSource = $marketplaceModulesDataSource;
+        $this->setDataSource                = $setDataSource;
+        $this->logger                       = $logger;
+        $this->coreConfigDataSource         = $coreConfigDataSource;
     }
 
     /**
@@ -114,6 +132,12 @@ class UpdateDataSource implements StepInterface
     public function execute(StepState $state, $action = self::ACTION_EXECUTE, array $params = []): StepState
     {
         $this->processTransitions($state);
+
+        $this->coreConfigDataSource->dataDate  = 0;
+        $this->coreConfigDataSource->cacheDate = 0;
+
+        $this->marketplaceModulesDataSource->clear();
+        $this->setDataSource->clear();
 
         $state->finishedTransitions = $state->remainTransitions;
         $state->remainTransitions   = [];

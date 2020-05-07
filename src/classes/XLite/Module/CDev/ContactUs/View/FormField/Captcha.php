@@ -44,14 +44,4 @@ class Captcha extends \XLite\View\FormField\AFormField
     {
         return 'modules/CDev/ContactUs/contact_us/fields/field.captcha.twig';
     }
-
-    /**
-     * Return captcha
-     *
-     * @return string
-     */
-    public function getCaptcha()
-    {
-        return \XLite\Module\CDev\ContactUs\Core\ReCaptcha::getInstance()->getWidget();
-    }
 }

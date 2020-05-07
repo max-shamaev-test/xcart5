@@ -54,12 +54,28 @@ class ProductFeedGenerator extends \XLite\Base\Singleton
             foreach ($this->getIterator($i * $chunkLength) as $data) {
                 if (!empty($data[0])) {
                     $model = $data[0];
-                    $extractor = new ProductFeedDataExtractor($this->getProductFeed());
-                    $extractor->extractEntityData($model);
 
-                    ProductFeedDataWriter::getInstance()->writeFeedData($extractor);
+                    $this->processModel($model);
                 }
             }
+        }
+    }
+
+    /**
+     * Process product for feed
+     *
+     * @param \XLite\Model\AEntity $model
+     */
+    protected function processModel(\XLite\Model\AEntity $model)
+    {
+        $shouldSkipEntity = 'N' === \XLite\Core\Config::getInstance()->XC->FacebookMarketing->include_out_of_stock
+            && $model->isOutOfStock();
+
+        if (!$shouldSkipEntity) {
+            $extractor = new ProductFeedDataExtractor($this->getProductFeed());
+            $extractor->extractEntityData($model);
+
+            ProductFeedDataWriter::getInstance()->writeFeedData($extractor);
         }
     }
 

@@ -67,12 +67,12 @@ class SymbolType extends AType
                         return $originalValue;
                     },
                     function ($submittedValue) use ($options) {
-                        if (isset($options['pattern']['groupSeparator'])) {
-                            $submittedValue = str_replace($options['pattern']['groupSeparator'], '', $submittedValue);
+                        if (isset($options['inputmask_pattern']['groupSeparator'])) {
+                            $submittedValue = str_replace($options['inputmask_pattern']['groupSeparator'], '', $submittedValue);
                         }
 
-                        if (isset($options['pattern']['radixPoint'])) {
-                            $submittedValue = str_replace($options['pattern']['radixPoint'], '.', $submittedValue);
+                        if (isset($options['inputmask_pattern']['radixPoint'])) {
+                            $submittedValue = str_replace($options['inputmask_pattern']['radixPoint'], '.', $submittedValue);
                         }
 
                         return $submittedValue;

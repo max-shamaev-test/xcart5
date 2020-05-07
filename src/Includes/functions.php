@@ -245,7 +245,6 @@ function copyFile($from, $to, $mode = 0666)
             \Includes\Utils\FileManager::mkdirRecursive(dirname($to));
             $result = @copy($from, $to);
         }
-        @umask(0000);
         $result = $result && @chmod($to, $mode);
     }
 
@@ -274,12 +273,10 @@ function copyRecursive($from, $to, $mode = 0666, $dir_mode = 0777)
 
     if (@is_file($from)) {
         @copy($from, $to);
-        @umask(0000);
         @chmod($to, $mode);
 
     } elseif (@is_dir($from)) {
         if (!@file_exists($to)) {
-            @umask(0000);
             $attempts = 5;
             while (!@mkdir($to, $dir_mode)) {
                 \Includes\Utils\FileManager::unlinkRecursive($to);
@@ -536,9 +533,8 @@ function func_lock($lockname, $ttl = 15, $cycle_limit = 0)
 
     $lockDir = $options["decorator_details"]["lockDir"];
     // remove last '/'
-    if ($lockDir{strlen($lockDir) - 1} == '/') {
-        $lockDir = substr($lockDir, 0, strlen($lockDir)-1);
-    }
+    $lockDir = rtrim($lockDir, '/');
+
     if (!is_dir($lockDir)) {
         \Includes\Utils\FileManager::mkdirRecursive($lockDir);
     }
@@ -562,8 +558,9 @@ function func_lock($lockname, $ttl = 15, $cycle_limit = 0)
         }
 
         $fp = @fopen($fname, "r");
-        if (!$fp)
+        if (!$fp) {
             return false;
+        }
 
         $tmp = @fread($fp, 43);
         fclose($fp);
@@ -571,8 +568,9 @@ function func_lock($lockname, $ttl = 15, $cycle_limit = 0)
         $file_id = substr($tmp, 0, 32);
         $file_time = (int) substr($tmp, 32);
 
-        if ($file_id == $id)
+        if ($file_id == $id) {
             break;
+        }
 
         if ($ttl > 0 && time() > $file_time+$ttl) {
             @unlink($fname);
@@ -599,9 +597,8 @@ function func_unlock($lockname) {
 
     $lockDir = $options["decorator_details"]["lockDir"];
     // remove last '/'
-    if ($lockDir{strlen($lockDir)-1} == '/') {
-        $lockDir = substr($lockDir, 0, strlen($lockDir)-1);
-    }
+    $lockDir = rtrim($lockDir, '/');
+
     if (!is_dir($lockDir)) {
         \Includes\Utils\FileManager::mkdirRecursive($lockDir);
     }
@@ -644,9 +641,8 @@ function func_is_locked($lockname, $ttl = 15) {
 
     $lockDir = $options["decorator_details"]["lockDir"];
     // remove last '/'
-    if ($lockDir{strlen($lockDir)-1} == '/') {
-        $lockDir = substr($lockDir, 0, strlen($lockDir)-1);
-    }
+    $lockDir = rtrim($lockDir, '/');
+
     $fname = $lockDir."/".$lockname.".lock";
     if (!file_exists($fname)) {
         if (!file_exists($fname)) {
@@ -684,8 +680,11 @@ function func_parse_csv($line, $delimiter, $q, &$error) {
     $field = "";
     $error = "";
     for ($i=0; $i<=strlen($line); $i++) {
-        if ($i==strlen($line)) $char = "EOL";
-        else $char = $line{$i};
+        if ($i==strlen($line)) {
+            $char = "EOL";
+        } else {
+            $char = $line[$i];
+        }
         if ($state == "outside") {
             if ($char == $q) {
                 $state = "inside";

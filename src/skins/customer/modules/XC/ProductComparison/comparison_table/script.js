@@ -11,11 +11,16 @@ jQuery(document).ready(
   function() {
     jQuery('button.add2cart').click(
       function() {
-        // Form AJAX-based submit
-        var form = this.form;
-
-        if (form) {
+        var product = $(this).closest('form');
+        var forceOptions = $(product).parent().is('.need-choose-options');
+        if (forceOptions) {
+          openQuickLook(product);
+        }else{
+          // Form AJAX-based submit
+          var form = this.form;
+          if (form) {
           form.commonController.submitBackground()
+          }
         }
       }
     );
@@ -107,30 +112,23 @@ jQuery(document).ready(
     headerFixed.addClass('sticky');
 
     var $window = jQuery(window);
+    var headerFixedTop = headerFixed.offset().top;
+
     $window.scroll(
       function() {
         var pageHeaderHeight = getPageHeaderHeight();
-        var offset = $window.scrollTop() - getHeaderFixedTop() - 1;
+        var position = $window.scrollTop() + pageHeaderHeight;
 
-        var fixedPosition = -pageHeaderHeight < offset;
-        var position = Math.ceil((fixedPosition ? offset + pageHeaderHeight : 0) + headerHeight);
-        headerFixed.toggleClass('fixed', fixedPosition);
-
-        headerFixed.css('top', position);
+        if (position - headerHeight > headerFixedTop) {
+          headerFixed.css('top', position - headerFixedTop - 1);
+          headerFixed.addClass('fixed');
+        } else if (position < headerFixedTop) {
+          headerFixed.css('top', headerHeight);
+          headerFixed.removeClass('fixed');
+        }
       }
     );
     $window.scroll();
-
-    jQuery('body').mousewheel(function (event) {
-      var realEvent = event.originalEvent || event;
-      // remove default behavior
-      realEvent.preventDefault();
-
-      //scroll without smoothing
-      var wheelDelta = -0.65 * realEvent.deltaY;
-      var currentScrollPosition = window.pageYOffset;
-      window.scrollTo(0, currentScrollPosition - wheelDelta);
-    });
 
     function getPageHeaderHeight() {
       var header;
@@ -160,6 +158,48 @@ jQuery(document).ready(
       headerFixed.addClass('sticky');
 
       return result
+    }
+
+    function openQuickLook(elem) {
+      focusOnFirstOption();
+      bindProductDetailed();
+
+      return !popup.load(
+        URLHandler.buildURL(openQuickLookParams(elem)),
+        function () {
+          jQuery('.formError').hide();
+         },
+         50000
+       );
+    };
+
+    function openQuickLookParams(elem) {
+      var product_id = $(elem).find('input[name=product_id]').val();
+
+      return {
+        target:      'quick_look',
+        action:      '',
+        product_id:  product_id,
+        only_center: 1
+      }
+    }
+
+    function focusOnFirstOption() {
+      core.bind('afterPopupPlace', function(event, data){
+        if (popup.currentPopup.box.hasClass('ctrl-customer-quicklook')) {
+          var option = popup.currentPopup.box.find('.editable-attributes select, input').filter(':visible').first();
+          option.focus();
+         }
+      });
+    };
+
+    function bindProductDetailed(){
+      core.bind(
+        'afterPopupPlace',
+        function() {
+          new ProductDetailsController(jQuery('.ui-dialog div.product-quicklook'));
+        }
+      );
     }
   }
 );

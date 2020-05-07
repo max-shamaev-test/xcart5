@@ -65,7 +65,7 @@ class SaleSelected extends \XLite\Controller\Admin\AAdmin
     protected function getActionProductsIds()
     {
         $cnd = \XLite\Controller\Admin\ProductList::getInstance()->getItemsList()
-            ->getSearchCaseProcessor()->getSearchCase();
+            ->getActionSearchCondition();
         $ids = \XLite\Core\Database::getRepo('XLite\Model\Product')
             ->search($cnd, \XLite\Model\Repo\ARepo::SEARCH_MODE_IDS);
         $ids = is_array($ids) ? array_unique(array_filter($ids)) : [];

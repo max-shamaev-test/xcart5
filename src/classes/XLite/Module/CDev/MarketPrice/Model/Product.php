@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\MarketPrice\Model;
 
+use XLite\Core\Converter;
+
 /**
  * Product 
  */
@@ -30,7 +32,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     public function setMarketPrice($marketPrice)
     {
-        $this->marketPrice = (float) $marketPrice;
+        $this->marketPrice = Converter::toUnsigned32BitFloat($marketPrice);
         return $this;
     }
 

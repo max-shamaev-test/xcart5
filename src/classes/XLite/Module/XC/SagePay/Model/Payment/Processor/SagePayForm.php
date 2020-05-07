@@ -344,6 +344,8 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
             $fields['DeliveryState'] = $shippingAddress->getState()->getCode();
         }
 
+        $this->cropFieldsValues($fields);
+
         return $fields;
     }
 
@@ -434,5 +436,31 @@ class SagePayForm extends \XLite\Model\Payment\Base\WebBased
         $pad = $blocksize - (strlen($text) % $blocksize);
 
         return $text . str_repeat(chr($pad), $pad);
+    }
+
+    protected function cropFieldsValues(&$fields) {
+        $lengths2fields = [
+            'VendorTxCode' => 40,
+            'VendorEMail' => 255,
+            'CustomerName' => 100,
+            'CustomerEMail' => 255,
+            'FailureURL' => 2000,
+            'SuccessURL' => 2000,
+            'BillingSurname' => 20,
+            'BillingFirstnames' => 20,
+            'BillingAddress1' => 100,
+            'BillingCity' => 40,
+            'DeliverySurname' => 20,
+            'DeliveryFirstnames' => 20,
+            'DeliveryAddress1' => 100,
+            'DeliveryCity' => 40,
+            'BillingPostCode' => 10,
+        ];
+
+        foreach ($lengths2fields as $fieldName => $length) {
+            if (!empty($fields[$fieldName]) && strlen($fields[$fieldName]) > $length) {
+                $fields[$fieldName] = substr($fields[$fieldName],0, $length);
+            }
+        }
     }
 }

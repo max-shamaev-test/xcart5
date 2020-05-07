@@ -442,6 +442,22 @@ XLite\Model\Shipping\Method:
     translations:
       - code: en
         name: "UPS Worldwide Express PlusSM"
+  - processor: ups
+    carrier: ups
+    code: 'EXPSAV'
+    enabled: 1
+    position: 280
+    translations:
+      - code: en
+        name: "UPS Express Saver"
+  - processor: ups
+    carrier: ups
+    code: 'WSAV'
+    enabled: 1
+    position: 290
+    translations:
+      - code: en
+        name: "UPS Worldwide Saver"
 
 XLite\Model\Payment\Method:
   - service_name: COD_UPS

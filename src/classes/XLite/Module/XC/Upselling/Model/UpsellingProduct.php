@@ -17,6 +17,7 @@ namespace XLite\Module\XC\Upselling\Model;
  *          @Index (name="parent_product_index", columns={"parent_product_id"}),
  *      }
  * )
+ * @HasLifecycleCallbacks
  */
 class UpsellingProduct extends \XLite\Model\AEntity
 {

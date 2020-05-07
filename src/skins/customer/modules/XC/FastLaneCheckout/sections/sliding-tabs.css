@@ -8,10 +8,6 @@
  */
 
 .slide-left {
-  -webkit-transition: left 0.5s ease;
-  -moz-transition: left 0.5s ease;
-  -ms-transition: left 0.5s ease;
-  -o-transition: left 0.5s ease;
   transition: left 0.5s ease;
   position: relative;
   overflow: hidden;
@@ -24,10 +20,6 @@
     left:-100%;
 }
 .slide-right {
-  -webkit-transition: left 0.5s ease;
-  -moz-transition: left 0.5s ease;
-  -ms-transition: left 0.5s ease;
-  -o-transition: left 0.5s ease;
   transition: left 0.5s ease;
   position: relative;
   overflow: hidden;

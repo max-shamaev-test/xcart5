@@ -29,8 +29,8 @@ class FrontPage extends \XLite\Controller\Admin\Category
 
     public function checkACL()
     {
-        return Auth::getInstance()->isPermissionAllowed(Permission::ROOT_ACCESS)
-            && parent::checkACL();
+        return (Auth::getInstance()->isPermissionAllowed(Permission::ROOT_ACCESS)
+                && parent::checkACL()) || Auth::getInstance()->isPermissionAllowed('manage front page');
     }
 
     /**

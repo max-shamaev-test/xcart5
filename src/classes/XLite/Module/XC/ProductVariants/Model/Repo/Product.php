@@ -168,6 +168,16 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
     }
 
     /**
+     * @param \XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder
+     */
+    protected function definePriceRangeDQL(\XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder)
+    {
+        $queryBuilder->leftJoin('p.variants', 'pvp', 'WITH', 'pvp.defaultPrice = 0')
+            ->addSelect('IF(MIN(pvp.price) > p.price OR MIN(pvp.price) is null, p.price, MIN(pvp.price)) as min_price')
+            ->addSelect('IF(MAX(pvp.price) < p.price OR MAX(pvp.price) is null, p.price, MAX(pvp.price)) as max_price');
+    }
+
+    /**
      * Prepare certain search condition
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
@@ -184,6 +194,14 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
                 $sort = $this->getCalculatedFieldAlias($queryBuilder, 'minPrice');
 
                 $queryBuilder->addOrderBy($sort, $order);
+                $queryBuilder->addOrderBy('qdMinPrice.maxPrice', $order);
+
+            } elseif ('p.clear_price_range' === $sort) {
+                $this->definePriceRangeDQL($queryBuilder);
+
+                $queryBuilder->addOrderBy('min_price', $order);
+                $queryBuilder->addOrderBy('max_price', $order);
+
             } else {
                 parent::prepareCndOrderBy($queryBuilder, $value);
             }

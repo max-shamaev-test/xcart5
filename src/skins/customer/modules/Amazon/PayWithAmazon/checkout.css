@@ -59,16 +59,8 @@ body > .wait-block-overlay {
 }
 
 .amazon-checkout-wrapper {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
   flex-direction: column;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  -ms-grid-row-align: center;
   align-items: center;}
 
 #addressBookWidgetDiv {
@@ -118,23 +110,15 @@ body > .wait-block-overlay {
   .amazon-checkout-wrapper {
     -ms-flex-pack: distribute;
     justify-content: space-around;
-    -webkit-box-orient: horizontal;
-    -webkit-box-direction: normal;
-    -ms-flex-direction: row;
     flex-direction: row;
-    -webkit-box-align: start;
-    -ms-flex-align: start;
-    -ms-grid-row-align: flex-start;
     align-items: flex-start;  }
 
   .amazon-widgets {
-    -ms-flex-preferred-size: 40%;
     flex-basis: 40%;
     margin-top: 28px;
   }
 
   .xcart-widgets {
-    -ms-flex-preferred-size: 40%;
     flex-basis: 40%;
   }
 }

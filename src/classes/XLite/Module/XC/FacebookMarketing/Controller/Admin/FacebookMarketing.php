@@ -121,6 +121,21 @@ class FacebookMarketing extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * Cancel
+     *
+     * @return void
+     */
+    protected function doActionProductFeedGenerationCancel()
+    {
+        ProductFeedGenerator::cancel();
+        TopMessage::addWarning('Product feed generation has been stopped');
+
+        $this->setReturnURL(
+            $this->buildURL('facebook_marketing')
+        );
+    }
+
+    /**
      * Update Facebook Marketing settings
      */
     protected function doActionUpdateSettings()
@@ -131,6 +146,50 @@ class FacebookMarketing extends \XLite\Controller\Admin\AAdmin
                 'category' => 'XC\FacebookMarketing',
                 'name'     => 'pixel_id',
                 'value'    => $pixelId,
+            ]);
+
+            \XLite\Core\TopMessage::addInfo('Data have been saved successfully');
+        }
+
+        if (isset(\XLite\Core\Request::getInstance()->add_to_cart_value)) {
+            $addToCartValue = \XLite\Core\Request::getInstance()->add_to_cart_value;
+            \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption([
+                'category' => 'XC\FacebookMarketing',
+                'name'     => 'add_to_cart_value',
+                'value'    => $addToCartValue,
+            ]);
+
+            \XLite\Core\TopMessage::addInfo('Data have been saved successfully');
+        }
+
+        if (isset(\XLite\Core\Request::getInstance()->view_content_value)) {
+            $viewContentValue = \XLite\Core\Request::getInstance()->view_content_value;
+            \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption([
+                'category' => 'XC\FacebookMarketing',
+                'name'     => 'view_content_value',
+                'value'    => $viewContentValue,
+            ]);
+
+            \XLite\Core\TopMessage::addInfo('Data have been saved successfully');
+        }
+
+        if (isset(\XLite\Core\Request::getInstance()->init_checkout_value)) {
+            $initCheckoutValue = \XLite\Core\Request::getInstance()->init_checkout_value;
+            \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption([
+                'category' => 'XC\FacebookMarketing',
+                'name'     => 'init_checkout_value',
+                'value'    => $initCheckoutValue,
+            ]);
+
+            \XLite\Core\TopMessage::addInfo('Data have been saved successfully');
+        }
+
+        if (isset(\XLite\Core\Request::getInstance()->advanced_matching)) {
+            $advancedMatching = \XLite\Core\Request::getInstance()->advanced_matching;
+            \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption([
+                'category' => 'XC\FacebookMarketing',
+                'name'     => 'advanced_matching',
+                'value'    => $advancedMatching,
             ]);
 
             \XLite\Core\TopMessage::addInfo('Data have been saved successfully');

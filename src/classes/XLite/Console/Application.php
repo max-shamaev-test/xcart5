@@ -50,6 +50,14 @@ class Application extends Console\Application
         $defaultCommands[] = new Command\Scaffolding\Page();
         $defaultCommands[] = new Command\Scaffolding\Module();
 
+        $defaultCommands[] = new Command\InAppMarketplace\Rebuild();
+        $defaultCommands[] = new Command\InAppMarketplace\ModulesList();
+        $defaultCommands[] = new Command\InAppMarketplace\SetState();
+        $defaultCommands[] = new Command\InAppMarketplace\ApplyState();
+        $defaultCommands[] = new Command\InAppMarketplace\RegisterLicense();
+        $defaultCommands[] = new Command\InAppMarketplace\CheckForUpgrade();
+        $defaultCommands[] = new Command\InAppMarketplace\Upgrade();
+
         return $defaultCommands;
     }
 }

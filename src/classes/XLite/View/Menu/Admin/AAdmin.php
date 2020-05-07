@@ -71,6 +71,7 @@ abstract class AAdmin extends \XLite\View\Menu\AMenu
         ),
         'shipping_methods' => array(
             'shipping_rates',
+            'shipping_test',
             'origin_address',
             'automate_shipping_refunds',
             'automate_shipping_routine',
@@ -118,6 +119,10 @@ abstract class AAdmin extends \XLite\View\Menu\AMenu
         ),
     );
 
+    protected $relatedExtraTargets = [
+        ['volume_discount', 'promotions', [], ['page' => 'volume_discounts']]
+    ];
+
     /**
      * Selected item
      *
@@ -159,6 +164,82 @@ abstract class AAdmin extends \XLite\View\Menu\AMenu
      * @return string
      */
     abstract protected function getDefaultWidget();
+
+    /**
+     * Add related target for selected menu item
+     *
+     * @param string $target
+     * @param string $destTarget
+     * @param array $extra
+     * @param array $destExtra
+     * @return $this
+     */
+    public function addRelatedTarget(string $target, string $destTarget, array $extra = [], array $destExtra = [])
+    {
+        $this->relatedExtraTargets[] = [
+            $target,
+            $destTarget,
+            $extra,
+            $destExtra
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Get target weight
+     *
+     * @param string $currentTarget
+     * @param string $target
+     * @param array $extra
+     * @return mixed
+     */
+    public function getTargetWeight(string $currentTarget, string $target, array $extra = [])
+    {
+        $weights = [0];
+        $request = \XLite\Core\Request::getInstance();
+
+        // find in related targets
+        $relatedTargets = $this->getRelatedTargets($target);
+
+        if (in_array($currentTarget, $relatedTargets, true)) {
+            $weight = 1;
+
+            foreach ($extra as $key => $value) {
+                if ($request->$key !== $value) {
+                    $weight = 0;
+                    continue;
+                }
+
+                $weight++;
+            }
+
+            $weights[] = $weight;
+        }
+
+        // find related targets with extra
+        foreach ($this->relatedExtraTargets as [$relatedTarget, $originTarget, $relatedExtra, $originExtra]) {
+            if (
+                $currentTarget !== $relatedTarget
+                || $target !== $originTarget
+                || array_diff($extra, $originExtra)
+            ) {
+                continue;
+            }
+
+            $weights[] = 1;
+
+            foreach ($relatedExtra as $key => $value) {
+                if ($request->$key !== $value) {
+                    continue 2;
+                }
+            }
+
+            $weights[] = count($relatedExtra);
+        }
+
+        return max($weights);
+    }
 
     /**
      * Returns the list of related targets
@@ -226,7 +307,7 @@ abstract class AAdmin extends \XLite\View\Menu\AMenu
                             $result = true;
                             break;
                         }
-                        
+
                     }
 
                     if ($result) {

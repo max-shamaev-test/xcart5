@@ -66,7 +66,7 @@ class Labels extends \XLite\View\ItemsList\Model\Table
     /**
      * Get wrapper form target
      *
-     * @return array
+     * @return string
      */
     protected function getFormTarget()
     {

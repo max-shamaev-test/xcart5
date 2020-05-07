@@ -83,8 +83,17 @@ abstract class Settings extends \XLite\View\Model\Settings implements \XLite\Bas
      */
     protected function setModelProperties(array $data)
     {
-
         if ('logo_favicon' === $this->getTarget()) {
+            if (isset($data['logo']['alt'])) {
+                \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption(
+                    [
+                        'category' => 'CDev\SimpleCMS',
+                        'name'     => 'logo_alt',
+                        'value'    => $data['logo']['alt'],
+                    ]
+                );
+            }
+
             foreach ($this->formFields as $section) {
                 foreach ($section[static::SECTION_PARAM_FIELDS] as $k => $v) {
                     if (in_array($v->getName(), static::$logoFaviconFields, true)) {
@@ -105,6 +114,7 @@ abstract class Settings extends \XLite\View\Model\Settings implements \XLite\Bas
                 || !empty(\XLite\Core\Request::getInstance()->useDefaultImage['logo'])
             )
         ) {
+            \XLite\Core\Config::updateInstance();
             $logoImage = \XLite\Core\Database::getRepo('XLite\Model\Image\Common\Logo')->getLogo();
             $logoImage->prepareSizes(true);
         }
@@ -210,18 +220,16 @@ abstract class Settings extends \XLite\View\Model\Settings implements \XLite\Bas
                 \Includes\Utils\FileManager::deleteFile($currentFile);
             }
 
-            // Move uploaded file to destination directory
-            $file = $temporaryFile->cloneEntity();
-            \XLite\Core\Database::getEM()->remove($temporaryFile);
-            \XLite\Core\Database::getEM()->flush();
-
-            $pathFrom = $file->getStoragePath();
+            $pathFrom = $temporaryFile->getStoragePath();
             $pathTo = $dir . ('favicon' === $imageType ? static::FAVICON : $realName);
 
             $fileIsMoved = \Includes\Utils\FileManager::move($pathFrom, $pathTo, true);
             if ($fileIsMoved) {
                 \Includes\Utils\FileManager::chmod($pathTo, 0644);
             }
+
+            \XLite\Core\Database::getEM()->remove($temporaryFile);
+            \XLite\Core\Database::getEM()->flush();
 
             $optionValue = static::getLogoFaviconSubDir() . ('favicon' === $imageType ? static::FAVICON : $realName);
         }

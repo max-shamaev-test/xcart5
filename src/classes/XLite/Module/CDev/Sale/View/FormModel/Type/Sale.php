@@ -22,6 +22,14 @@ class Sale extends AType
     }
 
     /**
+     * @return array
+     */
+    public static function getJSFiles()
+    {
+        return ['modules/CDev/Sale/js/sale_price.js'];
+    }
+
+    /**
      * @param OptionsResolver $resolver
      *
      * @throws \Symfony\Component\OptionsResolver\Exception\AccessException
@@ -48,6 +56,7 @@ class Sale extends AType
                 'alias'      => 'xcdecimal',
                 'rightAlign' => false,
                 'digits'     => 2,
+                'allowMinus' => false,
             ],
         ]);
     }

@@ -20,7 +20,7 @@ function backupNotificationTexts540()
     );
     $qb->innerJoin("$alias.owner", 'owner');
 
-    $handle = fopen(LC_DIR_TMP . 'notifications_backup_pre_540.csv', 'w');
+    $handle = fopen(LC_DIR_VAR . 'notifications_backup_pre_540.csv', 'w');
 
     fputcsv($handle, [
         'templatesDirectory',

@@ -177,9 +177,6 @@
         height: 84px;
         background: url(cvv2_hints.png) 0 0 no-repeat;
         background-size: 100% auto;
-        -webkit-background-size: 100% auto;
-        -o-background-size: 100% auto;
-        -moz-background-size: 100% auto;
     }
     .cardCVV2.amex .popover-content,
     .cardCVV2.AmericanExpress .popover-content {
@@ -218,9 +215,7 @@
             display: block;
             width: @icon-width;
             height: @icon-height;
-            zoom: @icon-scale;
-            -moz-transform: scale(@icon-scale);
-            -moz-transform-origin: 0 0 0;
+            transform: scale(@icon-scale);
         }
 
         #card_type {

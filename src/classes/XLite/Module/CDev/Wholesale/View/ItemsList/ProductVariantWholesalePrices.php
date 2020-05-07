@@ -74,11 +74,11 @@ class ProductVariantWholesalePrices extends \XLite\Module\CDev\Wholesale\View\It
      *
      * @return mixed
      */
-    protected function getDefaultPrice()
+    protected function getDefaultPriceValue()
     {
-        $result = parent::getDefaultPrice();
+        $result = parent::getDefaultPriceValue();
         if ('product_variant' == $this->getTarget()) {
-            $result->setPrice($this->getProductVariant()->getClearPrice());
+            $result = $this->getProductVariant()->getClearPrice();
         }
 
         return $result;

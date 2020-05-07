@@ -256,12 +256,12 @@ class Skin extends \XLite\Base\Singleton
      *
      * @return string
      */
-    public function getCurrentLayoutPreview()
+    public function getCurrentLayoutPreview($group = null)
     {
         return $this->getSkinPreview(
             $this->getCurrentSkinModule(),
             $this->getSkinColorId(),
-            Layout::getInstance()->getLayoutType()
+            Layout::getInstance()->getLayoutType($group)
         );
     }
 

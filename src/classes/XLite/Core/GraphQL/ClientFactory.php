@@ -22,7 +22,7 @@ class ClientFactory
     public static function create($endpoint)
     {
         return new Client\Simple(
-            new \GuzzleHttp\Client(['base_url' => $endpoint]),
+            new \GuzzleHttp\Client(['base_uri' => $endpoint] + static::getGuzzleClientDefaults()),
             new ResponseBuilder()
         );
     }
@@ -37,10 +37,22 @@ class ClientFactory
     public static function createWithBusAuth($endpoint, $authEndpoint, $authCode)
     {
         return new Client\WithBusAuth(
-            new \GuzzleHttp\Client(['base_url' => $endpoint]),
+            new \GuzzleHttp\Client(['base_uri' => $endpoint] + static::getGuzzleClientDefaults()),
             new ResponseBuilder(),
-            new \GuzzleHttp\Client(['base_url' => $authEndpoint]),
+            new \GuzzleHttp\Client(['base_uri' => $authEndpoint] + static::getGuzzleClientDefaults()),
             $authCode
         );
+    }
+
+    protected static function getGuzzleClientDefaults()
+    {
+        return [
+            'verify'  => (bool) \Includes\Utils\ConfigParser::getOptions(['service', 'verify_certificate']),
+            'handler' => \GuzzleHttp\HandlerStack::create(
+                new \GuzzleHttp\Handler\CurlHandler([
+                    'handle_factory' => new \GuzzleHttp\Handler\CurlFactory(0),
+                ])
+            ),
+        ];
     }
 }

@@ -8,67 +8,57 @@
 
 namespace XLite\Module\XC\MailChimp\Logic\DataMapper;
 
-use XLite\Module\XC\MailChimp\Core\MailChimpECommerce;
-
 class Order
 {
     /**
      * Get order data
      *
-     * @param                    $mc_cid
-     * @param                    $mc_eid
-     * @param \XLite\Model\Order $order
+     * @param string             $mc_cid
+     * @param string             $mc_tc
+     * @param \XLite\Model\Order $object
      *
      * @return array
      */
-    public static function getDataByOrder($mc_cid, $mc_eid, $mc_tc, \XLite\Model\Order $order, $customerExists)
+    public static function getDataByOrder($mc_cid, $mc_tc, \XLite\Model\Order $object)
     {
         \XLite\Core\Translation::setTmpTranslationCode(
             \XLite\Core\Config::getInstance()->General->default_language
         );
 
-        $customerData = [ 'id' => (string)$mc_eid];
+        $return = [
+            'id'             => (string) $object->getOrderNumber(),
+            'currency_code'  => $object->getCurrency()->getCode(),
+            'order_total'    => $object->getTotal(),
+            'tax_total'      => static::getTaxValue($object),
+            'shipping_total' => $object->getSurchargeSumByType(\XLite\Model\Base\Surcharge::TYPE_SHIPPING),
+            'lines'          => static::getLines($object),
 
-        if ($order->getProfile()) {
-            $customerData = !$customerExists
-                ? Customer::getDataForOrder($mc_eid, $order->getProfile())
-                : [ 'id' => (string)$order->getProfile()->getProfileId()];
-        }
+            'landing_site'         => static::getLandingSite(),
+            'financial_status'     => static::mapFinancialStatus($object),
+            'fulfillment_status'   => static::mapFulfillmentStatus($object),
+            'order_date'           => $object->getDate(),
+            'processed_at_foreign' => date('c', $object->getDate()),
+            'updated_at_foreign'   => date('c', $object->getLastRenewDate()),
+        ];
 
-        $return = array(
-            'id'                    => (string)$order->getOrderNumber(),
-            'customer'              => $customerData,
-            'landing_site'          => static::getLandingSite($order),
-            'financial_status'      => static::mapFinancialStatus($order),
-            'fulfillment_status'    => static::mapFulfillmentStatus($order),
-            'currency_code'         => $order->getCurrency()->getCode(),
-            'order_total'           => $order->getTotal(),
-            'tax_total'             => static::getTaxValue($order),
-            'shipping_total'        => $order->getSurchargeSumByType(\XLite\Model\Base\Surcharge::TYPE_SHIPPING),
-            'order_date'            => $order->getDate(),
-            'processed_at_foreign'  => date('c', $order->getDate()),
-            'updated_at_foreign'    => date('c', $order->getLastRenewDate()),
-            'lines'                 => static::getLines($order),
-        );
-        
         if ($mc_tc) {
-            $return['tracking_code'] = (string)$mc_tc;
+            $return['tracking_code'] = (string) $mc_tc;
         }
-        
+
         if ($mc_cid) {
             $return['campaign_id'] = $mc_cid;
         }
-        
-        if ($order->getProfile()) {
-            if ($order->getProfile()->getShippingAddress()) {
+
+        if ($object->getProfile()) {
+            if ($object->getProfile()->getShippingAddress()) {
                 $return['shipping_address'] = Address::getData(
-                    $order->getProfile()->getShippingAddress()
+                    $object->getProfile()->getShippingAddress()
                 );
             }
 
-            if ($order->getProfile()->getBillingAddress()) {
+            if ($object->getProfile()->getBillingAddress()) {
                 $return['billing_address'] = Address::getData(
-                    $order->getProfile()->getBillingAddress()
+                    $object->getProfile()->getBillingAddress()
                 );
             }
         }
@@ -78,26 +68,28 @@ class Order
         return $return;
     }
 
-    public static function mapDataForChange(\XLite\Model\Order $order)
+    public static function getUpdateDataByOrder(\XLite\Model\Order $order)
     {
         \XLite\Core\Translation::setTmpTranslationCode(
             \XLite\Core\Config::getInstance()->General->default_language
         );
 
-        $return = array(
-            'id'                    => (string)$order->getOrderNumber(),
-            'landing_site'          => static::getLandingSite($order),
-            'financial_status'      => static::mapFinancialStatus($order),
-            'fulfillment_status'    => static::mapFulfillmentStatus($order),
-            'currency_code'         => $order->getCurrency()->getCode(),
-            'order_total'           => $order->getTotal(),
-            'tax_total'             => static::getTaxValue($order),
-            'shipping_total'        => $order->getSurchargeSumByType(\XLite\Model\Base\Surcharge::TYPE_SHIPPING),
-            'order_date'            => $order->getDate(),
-            'processed_at_foreign'  => date('c', $order->getDate()),
-            'updated_at_foreign'    => date('c', $order->getLastRenewDate()),
-            'lines'                 => static::getLines($order),
-        );
+        $return = [
+            'id' => (string) $order->getOrderNumber(),
+
+            'currency_code'  => $order->getCurrency()->getCode(),
+            'order_total'    => $order->getTotal(),
+            'tax_total'      => static::getTaxValue($order),
+            'shipping_total' => $order->getSurchargeSumByType(\XLite\Model\Base\Surcharge::TYPE_SHIPPING),
+            'lines'          => static::getLines($order),
+
+            'landing_site'         => static::getLandingSite(),
+            'financial_status'     => static::mapFinancialStatus($order),
+            'fulfillment_status'   => static::mapFulfillmentStatus($order),
+            'order_date'           => $order->getDate(),
+            'processed_at_foreign' => date('c', $order->getDate()),
+            'updated_at_foreign'   => date('c', $order->getLastRenewDate()),
+        ];
 
         if ($order->getProfile()) {
             if ($order->getProfile()->getShippingAddress()) {
@@ -119,35 +111,31 @@ class Order
     }
 
     /**
-     * Get tax value
-     *
      * @param \XLite\Model\Order $order
      *
      * @return float
      */
-    protected static function getTaxValue(\XLite\Model\Order $order)
+    protected static function getTaxValue(\XLite\Model\Order $order): float
     {
         $total = 0;
-
-        /** @var \XLite\Model\Order\Surcharge $s */
-        foreach ($order->getSurchargesByType(\XLite\Model\Base\Surcharge::TYPE_TAX) as $s) {
-            $total += $s->getValue();
+        /** @var \XLite\Model\Order\Surcharge $surcharge */
+        foreach ($order->getSurchargesByType(\XLite\Model\Base\Surcharge::TYPE_TAX) as $surcharge) {
+            $total += $surcharge->getValue();
         }
 
-        return $total;
+        return (float) $total;
     }
 
     /**
      * Get lines data
-     * 
+     *
      * @param \XLite\Model\Order $order
      *
      * @return array
      */
-    protected static function getLines(\XLite\Model\Order $order)
+    protected static function getLines(\XLite\Model\Order $order): array
     {
-        $lines = array();
-
+        $lines = [];
         /** @var \XLite\Model\OrderItem $item */
         foreach ($order->getItems() as $item) {
             $lines[] = Line::getDataByOrderItem($item);
@@ -157,33 +145,39 @@ class Order
     }
 
     /**
-     * @param \XLite\Model\Order $order
-     *
      * @return string
      */
-    protected static function getLandingSite(\XLite\Model\Order $order)
+    protected static function getLandingSite(): string
     {
-        /** @var \XLite\Module\XC\MailChimp\Core\Request $request */
+        /** @var \XLite\Core\Request|\XLite\Module\XC\MailChimp\Core\Request $request */
         $request = \XLite\Core\Request::getInstance();
 
-        return $request->getLandingSiteForMailchimp()
-            ?: '';
+        return $request->getLandingSiteForMailchimp();
     }
 
     /**
      * @param \XLite\Model\Order $order
      *
      * @return string
+     * @see http://developer.mailchimp.com/documentation/mailchimp/guides/getting-started-with-ecommerce/#order-status-notifications
      */
-    protected static function mapFinancialStatus(\XLite\Model\Order $order)
+    protected static function mapFinancialStatus(\XLite\Model\Order $order): string
     {
-        $map = MailChimpECommerce::getInstance()->mapForOrderNotifications();
+        $map = [
+            \XLite\Model\Order\Status\Payment::STATUS_PAID       => 'paid',
+            \XLite\Model\Order\Status\Payment::STATUS_PART_PAID  => 'paid',
+            \XLite\Model\Order\Status\Payment::STATUS_AUTHORIZED => 'pending',
+            \XLite\Model\Order\Status\Payment::STATUS_QUEUED     => 'pending',
+            \XLite\Model\Order\Status\Payment::STATUS_REFUNDED   => 'refunded',
+            \XLite\Model\Order\Status\Payment::STATUS_CANCELED   => 'cancelled',
+            \XLite\Model\Order\Status\Payment::STATUS_DECLINED   => 'cancelled',
+        ];
 
         $result = 'unknown';
-        $code = $order->getPaymentStatusCode();
 
-        if ($code && isset($map['financial'][$code])) {
-            $result = $map['financial'][$code];
+        $code = $order->getPaymentStatusCode();
+        if ($code && isset($map[$code])) {
+            $result = $map[$code];
         }
 
         return $result;
@@ -193,16 +187,19 @@ class Order
      * @param \XLite\Model\Order $order
      *
      * @return string
+     * @see http://developer.mailchimp.com/documentation/mailchimp/guides/getting-started-with-ecommerce/#order-status-notifications
      */
-    protected static function mapFulfillmentStatus(\XLite\Model\Order $order)
+    protected static function mapFulfillmentStatus(\XLite\Model\Order $order): string
     {
-        $map = MailChimpECommerce::getInstance()->mapForOrderNotifications();
+        $map = [
+            \XLite\Model\Order\Status\Shipping::STATUS_SHIPPED => 'shipped',
+        ];
 
         $result = 'unknown';
-        $code = $order->getShippingStatusCode();
 
-        if ($code && isset($map['fulfillment'][$code])) {
-            $result = $map['fulfillment'][$code];
+        $code = $order->getShippingStatusCode();
+        if ($code && isset($map[$code])) {
+            $result = $map[$code];
         }
 
         return $result;

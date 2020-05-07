@@ -101,11 +101,6 @@ class WizardState extends \XLite\Base\Singleton
                 'name'     => 'Company info',
                 'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\CompanyInfo',
             ],
-//            'tax_rates'          => [
-//                'progress' => 60,
-//                'name'     => 'Company info success',
-//                'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\TaxRates',
-//            ],
             'shipping'           => [
                 'progress' => 70,
                 'name'     => 'Shipping type',
@@ -126,11 +121,6 @@ class WizardState extends \XLite\Base\Singleton
                 'name'     => 'Payment',
                 'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\Payment',
             ],
-//            'payment_done'     => [
-//                'progress' => 95,
-//                'name'     => 'Payment success',
-//                'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\PaymentDone',
-//            ],
             'done'     => [
                 'progress' => 100,
                 'name'     => 'Wizard completed',

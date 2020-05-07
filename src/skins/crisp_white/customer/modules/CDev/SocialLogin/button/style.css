@@ -29,6 +29,11 @@
   color: #4084f3;
 }
 
+.social-net-button.social-net-Apple a {
+  border-color: #000000;
+  color: #000000;
+}
+
 .social-net-button .fa.fa-google-custom {
   width: 24px;
   height: 22px;

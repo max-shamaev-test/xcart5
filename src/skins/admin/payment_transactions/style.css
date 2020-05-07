@@ -60,17 +60,8 @@
 
 .items-list.payment-transactions .list-header {
     max-width: 1180px;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
     display: flex;
-    -webkit-box-pack: flex-end;
-    -webkit-justify-content: flex-end;
-    -ms-flex-pack: flex-end;
     justify-content: flex-end;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    -ms-flex-align: center;
     align-items: center;
 }
 .items-list.payment-transactions table.list tbody.lines tr.failed-transaction td{
@@ -78,20 +69,11 @@
 }
 
 .items-list.payment-transactions table.list tbody.lines .cell.status .cell{
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
   align-items: center;
 }
 
 .items-list.payment-transactions table.list tbody.lines .cell.status .details{
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
   margin-left: 10px;
 }

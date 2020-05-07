@@ -12,19 +12,21 @@ function ValueRangeWidget() {
   jQuery('div.value-range').not('.assigned').each(
     function() {
       var min_value = jQuery(this).find('.min-value');
-      var min_default = parseFloat(min_value.attr('placeholder'));
+      var min_default = Math.floor(parseFloat(min_value.attr('placeholder')));
       var max_value = jQuery(this).find('.max-value');
-      var max_default = parseFloat(max_value.attr('placeholder'));
+      var max_default = Math.ceil(parseFloat(max_value.attr('placeholder')));
       var select = jQuery(this);
       select.addClass('assigned');
       var slider = jQuery('<div></div>').appendTo(select).slider({
         range: true,
-        step: max_default - min_default < 10 ? Math.floor((max_default - min_default) / 10) : 1,
+        step: max_default === min_default
+          ? 0
+          : getStepValue(max_default - min_default),
         min: min_default,
         max: max_default,
         values: [
-            min_value.val() ? min_value.val() : min_default,
-            max_value.val() ? max_value.val() : max_default
+          min_value.val() ? min_value.val() : min_default,
+          max_value.val() ? max_value.val() : max_default
         ],
         slide: function( event, ui ) {
           min_value.val(min_default < ui.values[0] ? ui.values[0] : '').change();
@@ -61,4 +63,14 @@ function ValueRangeWidget() {
   );
 }
 
+function getStepValue(diff) {
+  for (var i = diff; i >= 1; i--) {
+    if (diff % i == 0) {
+      a = i;
+      b = diff / i;
+    }
+    if (b > 20) break;
+  }
+  return a;
+}
 core.autoload(ValueRangeWidget);

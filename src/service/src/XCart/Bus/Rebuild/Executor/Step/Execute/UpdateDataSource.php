@@ -153,7 +153,7 @@ class UpdateDataSource implements StepInterface
         $this->processTransitions($state);
         $this->refreshInstalledModulesDataSource();
 
-        $this->coreConfigDataSource->dataDate  = 0;
+        $this->coreConfigDataSource->dataDate  = time();
         $this->coreConfigDataSource->cacheDate = 0;
 
         $this->marketplaceModulesDataSource->clear();

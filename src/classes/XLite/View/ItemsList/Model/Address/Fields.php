@@ -84,7 +84,10 @@ class Fields extends \XLite\View\ItemsList\Model\Table
             'name' => array(
                 static::COLUMN_NAME     => static::t('Name'),
                 static::COLUMN_CLASS    => 'XLite\View\FormField\Inline\Input\Text',
-                static::COLUMN_PARAMS   => array('required' => true),
+                static::COLUMN_PARAMS   => [
+                    'required' => true,
+                    \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 30,
+                ],
                 static::COLUMN_ORDERBY  => 100,
             ),
             'serviceName' => array(

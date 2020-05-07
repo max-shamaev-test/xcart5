@@ -383,6 +383,16 @@ class FileUploader extends \XLite\View\AView
     }
 
     /**
+     * Return alt
+     *
+     * @return string
+     */
+    protected function getAlt()
+    {
+        return $this->getParam(static::PARAM_IS_IMAGE) && method_exists($this->getObject(), 'getAlt') ? $this->getObject()->getAlt() : '';
+    }
+
+    /**
      * Check widget has alt or not
      *
      * @return boolean

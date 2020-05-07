@@ -169,11 +169,13 @@ class ViewList extends \XLite\Model\Repo\ARepo
             ->andWhere('v.list_id NOT IN (SELECT DISTINCT vll.list_id FROM XLite\Model\ViewList vll WHERE IDENTITY(vll.parent) IS NOT NULL AND (vll.preset NOT LIKE :preset OR vll.override_mode = :disable_preset_mode))')
             ->andWhere('v.version IS NULL')
             ->andWhere('v.override_mode IN (:modes)')
+            ->andWhere('v.deleted = :deleted')
             ->orderBy('ORD', 'asc')
             ->setParameter('empty', '')
             ->setParameter('list', explode(',', $list))
             ->setParameter('preset', $this->getCurrentPreset())
             ->setParameter('modes', $this->getDisplayableModes())
+            ->setParameter('deleted', false)
             ->setParameter('disable_preset_mode', \XLite\Model\ViewList::OVERRIDE_DISABLE_PRESET);
 
         return $qb;
@@ -307,39 +309,6 @@ class ViewList extends \XLite\Model\Repo\ARepo
     }
 
     /**
-     * Find overridden view list items
-     *
-     * @return array
-     */
-    public function findOverriddenData()
-    {
-        $qb = $this->defineOverriddenQueryBuilder();
-        $alias = $qb->getMainAlias();
-
-        $properties = [
-            'list_override',
-            'weight_override',
-            'override_mode',
-            'list',
-            'child',
-            'tpl',
-            'zone',
-            'weight',
-            'preset'
-        ];
-
-        $qb->select("v.list_id");
-
-        foreach ($properties as $property) {
-            $qb->addSelect("{$alias}.{$property}");
-        }
-
-        $qb->addSelect('IDENTITY(v.parent)');
-
-        return $qb->getArrayResult();
-    }
-
-    /**
      * Define overridden query builder
      *
      * @return \XLite\Model\QueryBuilder\AQueryBuilder
@@ -373,6 +342,32 @@ class ViewList extends \XLite\Model\Repo\ARepo
             'zone'   => $other->getZone(),
             'weight' => $other->getWeight(),
             'preset' => $other->getPreset()
+        ];
+
+        return $this->findEqualByData($conditions, $versioned);
+    }
+
+    /**
+     * Find first entity equal to $other
+     *
+     * @param \XLite\Model\ViewList $other     Other entity
+     * @param boolean               $versioned Add `version is not null` condition
+     *
+     * @return \XLite\Model\ViewList|null
+     */
+    public function findEqualParent(\XLite\Model\ViewList $other, $versioned = false)
+    {
+        if (!$other) {
+            return null;
+        }
+
+        $conditions = [
+            'list'          => $other->getList(),
+            'child'         => $other->getChild(),
+            'tpl'           => $other->getTpl(),
+            'zone'          => $other->getZone(),
+            'parent'        => null,
+            'override_mode' => \XLite\Model\ViewList::OVERRIDE_OFF,
         ];
 
         return $this->findEqualByData($conditions, $versioned);

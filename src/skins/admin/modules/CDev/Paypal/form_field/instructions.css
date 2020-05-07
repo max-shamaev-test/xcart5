@@ -12,9 +12,6 @@
 }
 
 .settings ul.table li.instructions {
-  -webkit-flex-wrap: wrap;
-  -moz-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
   flex-wrap: wrap;
 }
 

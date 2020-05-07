@@ -44,4 +44,51 @@ class Pixel extends \XLite\View\AView
     {
         return \XLite\Core\Config::getInstance()->XC->FacebookMarketing->pixel_id;
     }
+
+    /**
+     * @return array|bool
+     */
+    protected function getAdvancedMatchingData()
+    {
+        $matchingData = [];
+
+        if (\XLite\Module\XC\FacebookMarketing\Main::isAdvancedMatchingEnabled()) {
+            $profile = \XLite\Core\Auth::getInstance()->getProfile();
+
+            if (!$profile) {
+                $cart = \XLite::getController()->getCart();
+                $profile = $cart ? $cart->getProfile() : null;
+            }
+
+            if ($profile) {
+                if ($profile->getLogin()) {
+                    $matchingData['em'] = strtolower($profile->getLogin());
+                }
+
+                if ($address = $profile->getBillingAddress()) {
+                    if ($address->getFirstname()) {
+                        $matchingData['fn'] = mb_strtolower($address->getFirstname());
+                    }
+                    if ($address->getLastname()) {
+                        $matchingData['ln'] = mb_strtolower($address->getLastname());
+                    }
+                    if ($address->getPhone()) {
+                        $matchingData['ph'] = mb_strtolower($address->getPhone());
+                    }
+                }
+            }
+        }
+
+        return $matchingData ? json_encode($matchingData) : false;
+    }
+
+    /**
+     * Check cookies consent
+     *
+     * @return string
+     */
+    protected function isConsentRevoked()
+    {
+        return false;
+    }
 }

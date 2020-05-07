@@ -108,11 +108,6 @@ abstract class Cart extends \XLite\Model\Cart implements \XLite\Base\IDecorator
      */
     public function processNotFinishedOrder($placeMode = false)
     {
-        if ($placeMode && $this->getNotFinishedOrder()) {
-            // Do not create NFO on place order action if current cart already has NFO
-            return $this;
-        }
-
         if (!$placeMode) {
             $this->removeUnnecessaryTransaction();
         }

@@ -25,6 +25,7 @@ class CheckoutPayment extends \XLite\Controller\Customer\CheckoutPayment impleme
         if (
             $this->getCart()->getPaymentMethod()
             && $this->getCart()->getPaymentMethod()->getProcessor() instanceof XPaymentsCloud
+            || $this->isXpaymentsCardSetup()
         ) {
             $result = '';
         } else {
@@ -32,5 +33,33 @@ class CheckoutPayment extends \XLite\Controller\Customer\CheckoutPayment impleme
         }
 
         return $result;
+    }
+
+    /**
+     * We need to override this check to make sure Card Setup will work
+     * (even if cart is empty)
+     *
+     * @return boolean
+     */
+    public function isCheckoutAvailable()
+    {
+        if ($this->isXpaymentsCardSetup()) {
+            $controllerCheckout = new \XLite\Controller\Customer\Checkout();
+            $result = $controllerCheckout->isCheckoutAvailable();
+        } else {
+            $result = parent::isCheckoutAvailable();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check if page is used for Card Setup
+     *
+     * @return bool
+     */
+    protected function isXpaymentsCardSetup()
+    {
+        return ('CardSetup' == \XLite\Core\Request::getInstance()->mode);
     }
 }

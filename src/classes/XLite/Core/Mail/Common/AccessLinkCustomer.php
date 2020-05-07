@@ -26,12 +26,19 @@ class AccessLinkCustomer extends \XLite\Core\Mail\AMail
         return 'access_link';
     }
 
+    protected static function defineVariables()
+    {
+        return [
+                'first_name' => static::t('Joe'),
+            ] + parent::defineVariables();
+    }
+
     public function __construct(Profile $profile, AccessControlCell $acc)
     {
         parent::__construct();
 
         $this->setFrom(Mailer::getSiteAdministratorMail());
-        $this->setTo($profile->getLogin());
+        $this->setTo(['email' => $profile->getLogin(), 'name' => $profile->getName(false)]);
         $this->setReplyTo(Mailer::getSiteAdministratorMails());
         $this->tryToSetLanguageCode($profile->getLanguage());
 
@@ -49,6 +56,9 @@ class AccessLinkCustomer extends \XLite\Core\Mail\AMail
             'access_link' => $link,
             'profile' => $profile,
             'recipient_name' => $profile->getName(),
+        ]);
+        $this->populateVariables([
+            'first_name' => $profile->getName(true, true),
         ]);
     }
 }

@@ -9,8 +9,6 @@
 
 .admin-welcome {
   max-width: 1000px;
-  -moz-border-radius: 8px;
-  -webkit-border-radius: 8px;
   border-radius: 8px;
   border: 1px solid #CFDFEA;
   background-color: #F9FCFF;
@@ -21,13 +19,7 @@
 .admin-welcome.root {
   position: relative;
   background: #f8fcff;
-  background: -moz-linear-gradient(top,  rgba(248,252,255,1) 0%, rgba(232,245,255,1) 100%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(248,252,255,1)), color-stop(100%,rgba(232,245,255,1)));
-  background: -webkit-linear-gradient(top,  rgba(248,252,255,1) 0%,rgba(232,245,255,1) 100%);
-  background: -o-linear-gradient(top,  rgba(248,252,255,1) 0%,rgba(232,245,255,1) 100%);
-  background: -ms-linear-gradient(top,  rgba(248,252,255,1) 0%,rgba(232,245,255,1) 100%);
   background: linear-gradient(to bottom,  rgba(248,252,255,1) 0%,rgba(232,245,255,1) 100%);
-  -ms-filter: "progid:DXImageTransform.Microsoft.gradient( startColorstr='#f8fcff', endColorstr='#e8f5ff',GradientType=0 )";
 }
 
 .admin-welcome.root .inner-box {

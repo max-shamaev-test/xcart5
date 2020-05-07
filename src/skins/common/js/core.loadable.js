@@ -21,6 +21,12 @@ function ALoadable(base)
     if (this.listenToHash && (!jQuery.isEmptyObject(hash.get()))) {
       jQuery(document).ready(_.bind(this.loadByHash, this));
     }
+
+    if (this.replaceState) {
+      window.addEventListener( "popstate", function ( event ) {
+        window.location.reload(true);
+      });
+    }
   }
 }
 
@@ -131,7 +137,7 @@ ALoadable.prototype.doReplaceState = function(params) {
     }
   });
 
-  var url = window.location.pathname+ '?';
+  var url = window.location.pathname;
   var queryString = '';
   params = array_merge(origParams, params || {});
 
@@ -139,9 +145,12 @@ ALoadable.prototype.doReplaceState = function(params) {
     queryString += '&' + key + '=' + value;
   });
 
+  if (queryString) {
+    url += '?';
+  }
   url += queryString.substring(1);
 
-  window.history.replaceState(params, 'Filter', url);
+  window.history.pushState(params, 'Filter', url);
 };
 
 // Load widget
@@ -527,7 +536,7 @@ ALoadable.prototype.assignWaitOverlay = function(base)
 // Unshade widget
 ALoadable.prototype.unshade = function()
 {
-  if (!this.base || !this.isShowModalScreen) {
+  if (!this.base || !this.isShowModalScreen || this.isLoading) {
     return false;
   }
 

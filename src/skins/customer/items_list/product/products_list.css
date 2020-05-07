@@ -126,8 +126,6 @@ ul.products-sidebar li .clearfix {
   position: absolute;
   left: 50%;
   top: 50%;
-  -webkit-transform: translate(-50%,-50%);
-  -ms-transform: translate(-50%,-50%);
   transform: translate(-50%,-50%);
   z-index: 100;
   background: transparent;
@@ -168,8 +166,6 @@ ul.products-sidebar li .clearfix {
   width: 26px;
   height: 26px;
   border: 0px none;
-  -moz-border-radius: 0px;
-  -webkit-border-radius: 0px;
   border-radius: 0px;
   outline: none;
   box-shadow: none;
@@ -198,8 +194,6 @@ ul.products-sidebar li .clearfix {
   height: 26px;
   cursor: default;
   border: none;
-  -moz-border-radius: 0px;
-  -webkit-border-radius: 0px;
   border-radius: 0px;
   outline: none;
 }

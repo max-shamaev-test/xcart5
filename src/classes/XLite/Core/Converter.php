@@ -23,6 +23,9 @@ class Converter extends \XLite\Base\Singleton
     const MEGABYTE = 1048576;
     const KILOBYTE = 1024;
 
+    const MAX_INT_32 = 2147483647;
+    const MAX_FLOAT_32 = 2.15e+9;
+
     /**
      * Cache driver
      *
@@ -1415,6 +1418,40 @@ class Converter extends \XLite\Base\Singleton
 
     public static function filterCurlyBrackets($value)
     {
-        return is_string($value) ? preg_replace(['/(?:\{|&#123;|&#x7b;)(\s*)(?:\{|&#123;|&#x7b;)/', '/(?:\}|&#125;|&#x7d;)(\s*)(?:\}|&#125;|&#x7d;)/'], [' $1 ', ' $1 '], $value) : $value;
+        return is_string($value) ? preg_replace(['/(?:\{|&#123;|&#x7b;)(?:\{|&#123;|&#x7b;)/', '/(?:\}|&#125;|&#x7d;)(?:\}|&#125;|&#x7d;)/'], [' $1 ', ' $1 '], $value) : $value;
+    }
+
+    /**
+     * Returns unsigned 32bit int
+     *
+     * @param $value
+     * @return int
+     */
+    public static function toUnsigned32BitInt($value)
+    {
+        $value = (int)$value;
+
+        if ($value < 0) {
+            return 0;
+        }
+
+        return $value > self::MAX_INT_32 ? self::MAX_INT_32 : $value;
+    }
+
+    /**
+     * Returns unsigned 32bit int
+     *
+     * @param $value
+     * @return float
+     */
+    public static function toUnsigned32BitFloat($value)
+    {
+        $value = (float)$value;
+
+        if ($value < 0) {
+            return 0;
+        }
+
+        return $value > self::MAX_FLOAT_32 ? self::MAX_FLOAT_32 : $value;
     }
 }

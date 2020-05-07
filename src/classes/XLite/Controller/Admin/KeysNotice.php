@@ -8,11 +8,8 @@
 
 namespace XLite\Controller\Admin;
 
-use XCart\Marketplace\Constant;
-
 /**
  * License keys notice page controller
- * @deprecated move logic to BUS
  */
 class KeysNotice extends \XLite\Controller\Admin\AAdmin
 {
@@ -23,17 +20,7 @@ class KeysNotice extends \XLite\Controller\Admin\AAdmin
      */
     protected function doActionRecheck()
     {
-        // todo: reimplement with BUS
-        // Clear cahche of some marketplace actions
-        //\XLite\Core\Marketplace::getInstance()->clearActionCache(
-        //    array(
-        //        Constant::REQUEST_UPDATES,
-        //        Constant::REQUEST_CHECK_ADDON_KEY,
-        //        Constant::INACTIVE_KEYS,
-        //    )
-        //);
-        //
-        //\XLite\Core\Marketplace::getInstance()->getAddonsList(0);
+        \XLite\Core\Marketplace::getInstance()->clearCache();
 
         $returnUrl = \XLite\Core\Request::getInstance()->returnUrl ?: $this->buildURL('main');
 

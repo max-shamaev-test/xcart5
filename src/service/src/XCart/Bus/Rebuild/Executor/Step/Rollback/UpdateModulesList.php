@@ -25,7 +25,7 @@ use XCart\SilexAnnotations\Annotations\Service;
 
 /**
  * @Service\Service
- * @RebuildStep(script = "rollback", weight = "2000")
+ * @RebuildStep(script = "rollback", weight = "4000")
  */
 class UpdateModulesList implements StepInterface
 {
@@ -205,6 +205,8 @@ class UpdateModulesList implements StepInterface
                 || $transition['stateBeforeTransition']['installed'] !== false
             ) {
                 $result[$author][$name] = $transition['stateBeforeTransition']['enabled'] ?? false;
+            } else {
+                $result[$author][$name] = false;
             }
         }
 
@@ -218,7 +220,9 @@ class UpdateModulesList implements StepInterface
                 $result[$module->author] = [];
             }
 
-            $result[$module->author][$module->name] = $module->enabled;
+            if (!isset($result[$module->author][$module->name])) {
+                $result[$module->author][$module->name] = $module->enabled;
+            }
         }
 
         return $result;

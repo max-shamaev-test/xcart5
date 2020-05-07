@@ -4,9 +4,20 @@
     <div class="bar">
       <div class="landmarks">
         {% for step in this.getLandmarks() %}
-          <div class="landmark landmark-{{ step.index }}" :class="{{ 'landmarkClass.' ~ step.index }}" @click="goToStep('{{ step.index }}')" tabindex="-1">
+          <div v-if="'{{ step.index }}' === 'product' && isCurrentStep('intro')"
+               class="landmark landmark-{{ step.index }}"
+               :class="{{ 'landmarkClass.' ~ step.index }}"
+               tabindex="-1">
             {{ svg(step.image)|raw }}
-            <span class="landmark-text" v-if="isCurrentStep('intro')" transition="fade-in-out">{{ t(step.name) }}</span>
+            {{ widget('XLite\\View\\Button\\SimpleLink', label=t(step.name), attributes={'@click': 'goToNextStep', 'transition': 'fade-in-out'}, jsCode="null;", style="landmark-text") }}
+          </div>
+          <div v-else
+               class="landmark landmark-{{ step.index }}"
+               :class="{{ 'landmarkClass.' ~ step.index }}"
+               @click="goToStep('{{ step.index }}')"
+               tabindex="-1">
+            {{ svg(step.image)|raw }}
+            <span v-if="isCurrentStep('intro')" transition="fade-in-out" class="landmark-text">{{ t(step.name) }}</span>
           </div>
         {% endfor %}
       </div>

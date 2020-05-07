@@ -71,6 +71,10 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
                 static::COLUMN_IS_MULTIROW => true,
                 static::COLUMN_LENGTH      => 255,
             ],
+            static::VARIANT_PREFIX . 'defaultValue' => [
+                static::COLUMN_IS_MULTIROW => true,
+                static::COLUMN_LENGTH      => 255,
+            ],
         ];
 
         $columns += [
@@ -166,7 +170,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
 
         if (is_array($value)) {
             foreach ($value as $name => $attribute) {
-                if ($this->isVariantValues($attribute)) {
+                if ($this->isAttributeRowMultiline($attribute) && $this->isVariantValues($attribute)) {
                     foreach ($attribute as $offset => $line) {
                         foreach ($line as $val) {
                             if (empty($val)) {
@@ -239,6 +243,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
         if (is_array($value)) {
             $processed = [];
             foreach ($value as $id => $sku) {
+                $this->rowStartIndex = $id;
                 if (!empty($sku)) {
                     if (array_search($sku, $processed) !== false) {
                         $this->addError('VARIANT-SKU-FMT', [
@@ -556,9 +561,9 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
 
         parent::importAttributesColumn($model, $value, $column);
 
-        if ($this->multAttributes) {
-            Database::getEM()->flush();
+        Database::getEM()->flush();
 
+        if ($this->multAttributes) {
             $variantsAttributes = [];
             foreach ($this->multAttributes as $id => $values) {
                 if ($this->isVariantValues($values)) {
@@ -638,6 +643,8 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
             }
 
             $model->assignDefaultVariant();
+        } else {
+            $model->checkVariants();
         }
     }
 
@@ -703,6 +710,20 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
         foreach ($this->variants as $rowIndex => $variant) {
             $variant->setAmount($this->normalizeValueAsUinteger(isset($value[$rowIndex]) ? $value[$rowIndex] : 0));
             $variant->setDefaultAmount(!isset($value[$rowIndex]));
+        }
+    }
+
+    /**
+     * Import 'variantdefaultValue' value
+     *
+     * @param \XLite\Model\Product $model Product
+     * @param mixed $value Value
+     * @param array $column Column info
+     */
+    protected function importVariantdefaultValueColumn(\XLite\Model\Product $model, $value, array $column)
+    {
+        foreach ($this->variants as $rowIndex => $variant) {
+            $variant->setDefaultValue($this->normalizeValueAsUinteger(isset($value[$rowIndex]) ? 1 : 0));
         }
     }
 

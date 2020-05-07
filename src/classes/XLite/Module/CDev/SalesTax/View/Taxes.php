@@ -14,6 +14,18 @@ namespace XLite\Module\CDev\SalesTax\View;
 class Taxes extends \XLite\View\Taxes\Settings
 {
     /**
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        $list = parent::getCSSFiles();
+
+        $list[] = 'modules/CDev/SalesTax/style.css';
+
+        return $list;
+    }
+
+    /**
      * @return string
      */
     protected function getItemsTemplate()
@@ -79,17 +91,5 @@ class Taxes extends \XLite\View\Taxes\Settings
         }
 
         return $result;
-    }
-
-    /**
-     * Return true if common tax settings should be displayed as expanded section
-     *
-     * @return boolean
-     */
-    protected function isCommonOptionsExpanded()
-    {
-        $value = \XLite\Core\Config::getInstance()->CDev->SalesTax->common_settings_expanded;
-
-        return !is_null($value) ? $value : true;
     }
 }

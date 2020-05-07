@@ -14,7 +14,13 @@ define('facebookPixel/initiateCheckout', ['facebookPixel/event'], function (Even
     },
 
     registerInitiateCheckout: function () {
-      this.sendEvent('InitiateCheckout');
+      var data = core.getCommentedData(jQuery('.fb-pixel-init-checkout-data'));
+
+      if (data) {
+        this.sendEvent('InitiateCheckout', data);
+      } else {
+        this.sendEvent('InitiateCheckout');
+      }
       this.sentCheckoutInitiated();
     },
 

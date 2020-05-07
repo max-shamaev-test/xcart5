@@ -9,22 +9,23 @@
 namespace XLite\Module\XC\MailChimp\Module\XC\ProductVariants\Logic\DataMapper;
 
 /**
- * Class Product
- *
  * @Decorator\Depend ("XC\ProductVariants")
  */
 class Line extends \XLite\Module\XC\MailChimp\Logic\DataMapper\Line implements \XLite\Base\IDecorator
 {
     /**
-     * @inheritDoc
+     * @param \XLite\Model\OrderItem $item
+     *
+     * @return array
      */
     public static function getDataByOrderItem(\XLite\Model\OrderItem $item)
     {
-        /** @var \XLite\Module\XC\ProductVariants\Model\OrderItem $item */
+        /** @var \XLite\Model\OrderItem|\XLite\Module\XC\ProductVariants\Model\OrderItem $item */
         $result = parent::getDataByOrderItem($item);
 
-        if ($item->getVariant())
-        $result['product_variant_id'] = strval($item->getVariant()->getId());
+        if ($item->getVariant()) {
+            $result['product_variant_id'] = (string) $item->getVariant()->getId();
+        }
 
         return $result;
     }

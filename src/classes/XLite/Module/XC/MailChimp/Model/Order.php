@@ -10,6 +10,7 @@ namespace XLite\Module\XC\MailChimp\Model;
 
 use XLite\Module\XC\MailChimp\Core;
 use XLite\Module\XC\MailChimp\Core\MailChimp;
+use XLite\Module\XC\MailChimp\Main;
 
 class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
 {
@@ -34,9 +35,8 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
     {
         $changed = parent::checkStatuses();
 
-        if (
-            $changed
-            && \XLite\Module\XC\MailChimp\Core\MailChimp::hasAPIKey()
+        if ($changed
+            && Main::isMailChimpECommerceConfigured()
         ) {
             MailChimp::getInstance()->updateOrder($this);
         }

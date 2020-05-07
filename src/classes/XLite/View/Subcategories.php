@@ -8,6 +8,8 @@
 
 namespace XLite\View;
 
+use Doctrine\Common\Collections\ArrayCollection;
+
 /**
  * Subcategories list
  *
@@ -237,11 +239,11 @@ class Subcategories extends \XLite\View\Dialog
     /**
      * Return subcategories
      *
-     * @return array
+     * @return ArrayCollection
      */
     protected function getSubcategories()
     {
-        return $this->getCategory() ? $this->getCategory()->getSubcategories() : array();
+        return $this->getCategory() ? $this->getCategory()->getSubcategories() : new ArrayCollection();
     }
 
     /**

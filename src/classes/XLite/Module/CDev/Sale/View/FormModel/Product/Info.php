@@ -32,6 +32,12 @@ class Info extends \XLite\View\FormModel\Product\Info implements \XLite\Base\IDe
     {
         $schema = parent::defineFields();
 
+        $saleDiscounts = [];
+        foreach (\XLite\Core\Database::getRepo('XLite\Module\CDev\Sale\Model\SaleDiscount')->findAllProductSpecific() as $saleDiscount) {
+            /** @var \XLite\Module\CDev\Sale\Model\SaleDiscount $saleDiscount */
+            $saleDiscounts[$saleDiscount->getId()] = $saleDiscount->getName();
+        }
+
         $schema = static::compose(
             $schema,
             [
@@ -57,6 +63,21 @@ class Info extends \XLite\View\FormModel\Product\Info implements \XLite\Base\IDe
                 ],
             ]
         );
+
+        $schema['prices_and_inventory']['group_discounts'] =    [
+            'label'    => static::t('Global discounts'),
+            'type'     => 'XLite\View\FormModel\Type\Select2Type',
+            'multiple' => true,
+            'choices'  => array_flip($saleDiscounts),
+            'position' => 320,
+            'show_when'        => [
+                'prices_and_inventory' => [
+                    'price' => [
+                        'participate_sale' => false,
+                    ]
+                ],
+            ],
+        ];
 
         return $schema;
     }

@@ -53,6 +53,8 @@ core.bind([
     //fastlane
     $('.checkout_fastlane_section-buttons form.place .checkout_fastlane_section-place_order').show();
   }
+
+  $(window).trigger('resize');
 });
 
 core.bind('checkout.common.state.nonready', function (state) {

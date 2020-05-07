@@ -9,15 +9,15 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-ul.social-login{
-  display: block;
+.ui-widget-content .social-net-button a{
+  width:100%;
 }
 
 .social-net-button a {
   text-decoration: none;
   display: block;
   border-radius: 2px;
-  width: 100%;
+  width: 185px;
   height: 100%;
   padding: 0;
   border: 1px solid;
@@ -25,11 +25,11 @@ ul.social-login{
   text-align: center;
 }
 
-ul.social-login li.social-net-button {
+#content ul.social-login li.social-net-button {
   background: none;
   padding: 0;
   display: block;
-  margin: 0;
+  margin: 0 10px;
   width: 100%;
 }
 

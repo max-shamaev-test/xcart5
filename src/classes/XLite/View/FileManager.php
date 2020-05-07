@@ -124,7 +124,7 @@ class FileManager extends \XLite\View\AView
         $dir = new \DirectoryIterator($path);
 
         foreach ($dir as $entry) {
-            if (!$entry->isDot()) {
+            if (!$entry->isDot() && ($entry->isFile() || ($entry->isReadable() && $entry->isExecutable()))) {
                 $result[] = static::prepareEntry($entry->getPathname(), $recursive);
             }
         }
@@ -159,7 +159,7 @@ class FileManager extends \XLite\View\AView
                 $dir = new \DirectoryIterator($path);
 
                 foreach ($dir as $entry) {
-                    if (!$entry->isDot()) {
+                    if (!$entry->isDot() && ($entry->isFile() || ($entry->isReadable() && $entry->isExecutable()))) {
                         $result['children'][] = self::prepareEntry($entry->getPathname(), $recursive);
                     }
                 }

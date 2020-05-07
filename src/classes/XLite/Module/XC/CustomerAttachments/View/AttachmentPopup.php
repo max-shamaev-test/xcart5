@@ -44,6 +44,20 @@ class AttachmentPopup extends \XLite\View\AView
     }
 
     /**
+     * Register JS files
+     *
+     * @return array
+     */
+    public function getJSFiles()
+    {
+        $list = parent::getJSFiles();
+
+        $list[] = 'modules/XC/CustomerAttachments/popup_script.js';
+
+        return $list;
+    }
+
+    /**
      * Return widget default template
      *
      * @return string

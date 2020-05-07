@@ -34,9 +34,9 @@ class Secure extends \XLite\View\FormField\Input\Base\StringInput
     protected function getPasswordDifficultyLabels()
     {
         return [
-            'Weak password' => static::t('Weak'),
-            'Good password' => static::t('Good'),
-            'Strong password' => static::t('Strong'),
+            'Weak password' => static::t('Weak password'),
+            'Good password' => static::t('Good password'),
+            'Strong password' => static::t('Strong password'),
         ];
     }
 }

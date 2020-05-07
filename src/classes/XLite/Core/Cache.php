@@ -9,7 +9,6 @@
 namespace XLite\Core;
 
 use Doctrine\Common\Cache\CacheProvider;
-use Doctrine\Common\Cache\PredisCache;
 use Doctrine\Common\Cache\RedisCache;
 use XLite\Core\Cache\FilesystemCache;
 
@@ -55,8 +54,8 @@ class Cache extends \XLite\Base
                 return !empty($this->options['servers']);
             },
 
-            'apc' => function () {
-                return function_exists('apc_cache_info');
+            'apcu' => function () {
+                return function_exists('apcu_cache_info');
             },
 
             'xcache' => function () {
@@ -87,7 +86,7 @@ class Cache extends \XLite\Base
     {
         return [
             'redis'     => 'buildRedisDriver',
-            'apc'       => 'buildAPCDriver',
+            'apcu'      => 'buildAPCuDriver',
             'xcache'    => 'buildXcacheDriver',
             'memcached' => 'buildMemcachedDriver',
             'memcache'  => 'buildMemcacheDriver',
@@ -348,13 +347,13 @@ class Cache extends \XLite\Base
     // {{{ Builders
 
     /**
-     * Build APC driver
+     * Build APCu driver
      *
      * @return  \Doctrine\Common\Cache\CacheProvider
      */
-    protected function buildAPCDriver()
+    protected function buildAPCuDriver()
     {
-        return new \Doctrine\Common\Cache\ApcCache;
+        return new \Doctrine\Common\Cache\ApcuCache;
     }
 
     /**
@@ -432,40 +431,41 @@ class Cache extends \XLite\Base
         $servers = explode(';', $this->options['servers']) ?: ['localhost'];
         $row = $servers[0];
 
-        if (class_exists('\Redis')) {
-            try {
-                $redis = new \Redis();
+        if (!class_exists('\Redis')) {
+            \XLite\Logger::getInstance()->logPostponed('Failure connecting with Redis: Class \Redis not found', LOG_WARNING);
 
-                $row = trim($row);
-                $tmp = explode(':', $row, 2);
-                if ('unix' == $tmp[0]) {
-                    $result = $redis->connect($tmp[1], self::REDIS_DEFAULT_PORT, self::DRIVER_CONNECTION_TIMEOUT);
-                } elseif (isset($tmp[1])) {
-                    $result = $redis->connect($tmp[0], $tmp[1], self::DRIVER_CONNECTION_TIMEOUT);
-                } else {
-                    $result = $redis->connect($tmp[0], self::REDIS_DEFAULT_PORT, self::DRIVER_CONNECTION_TIMEOUT);
-                }
-
-                if (!$result) {
-                    throw new \RedisException('Unknown error');
-                }
-
-                $driver = new RedisCache();
-                $driver->setRedis($redis);
-                return $driver;
-            } catch (\RedisException $e) {
-                \XLite\Logger::getInstance()->logPostponed(
-                    sprintf(
-                        'Failure connecting with Redis: %s',
-                        $e->getMessage()
-                    ),
-                    LOG_WARNING
-                );
-                return null;
-            }
+            return null;
         }
 
-        return new PredisCache(new \Predis\Client($row));
+        try {
+            $redis = new \Redis();
+
+            $tmp = explode(':', trim($row), 2);
+            if ($tmp[0] === 'unix') {
+                $result = $redis->connect($tmp[1], self::REDIS_DEFAULT_PORT, self::DRIVER_CONNECTION_TIMEOUT);
+            } elseif (isset($tmp[1])) {
+                $result = $redis->connect($tmp[0], $tmp[1], self::DRIVER_CONNECTION_TIMEOUT);
+            } else {
+                $result = $redis->connect($tmp[0], self::REDIS_DEFAULT_PORT, self::DRIVER_CONNECTION_TIMEOUT);
+            }
+
+            if (!$result) {
+                throw new \RedisException('Unknown error');
+            }
+
+            $driver = new RedisCache();
+            $driver->setRedis($redis);
+            return $driver;
+        } catch (\RedisException $e) {
+            \XLite\Logger::getInstance()->logPostponed(
+                sprintf(
+                    'Failure connecting with Redis: %s',
+                    $e->getMessage()
+                ),
+                LOG_WARNING
+            );
+            return null;
+        }
     }
 
     /**

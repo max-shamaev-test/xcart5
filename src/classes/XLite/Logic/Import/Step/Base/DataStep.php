@@ -31,7 +31,12 @@ abstract class DataStep extends \XLite\Logic\Import\Step\AStep
         parent::__construct($importer, $index);
 
         if ($this->importer->getOptions()->rowsCount === 0) {
-            $this->importer->getOptions()->rowsCount = $this->count();
+            $result = 0;
+            foreach ($this->importer->getProcessors() as $processor) {
+                $result += $processor->count();
+            }
+            
+            $this->importer->getOptions()->rowsCount = $result;
         }
     }
 
@@ -90,12 +95,7 @@ abstract class DataStep extends \XLite\Logic\Import\Step\AStep
      */
     public function count()
     {
-        $result = 0;
-        foreach ($this->importer->getProcessors() as $processor) {
-            $result += $processor->count();
-        }
-
-        return $result;
+        return $this->importer->getOptions()->rowsCount;
     }
 
     // }}}

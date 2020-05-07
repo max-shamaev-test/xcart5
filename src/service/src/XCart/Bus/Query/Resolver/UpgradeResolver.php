@@ -316,7 +316,10 @@ class UpgradeResolver
             return $this->upgradeListByType[$type];
         }
 
-        $filters = ['installed' => true];
+        $filters = [
+            'installed' => true,
+            'actions' => true
+        ];
 
         /** @var Module[] $modules */
         $modules = array_filter(

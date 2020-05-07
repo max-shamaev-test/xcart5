@@ -5,5 +5,5 @@
  #}
 
 {% if this.isDisplayLazyLoad() %}
-  {{ widget('\\XLite\\View\\FormField\\Input\\Checkbox\\OnOff', fieldName='use_lazy_load', value=this.getLazyLoadValue(), label=this.getLazyLoadOptionName()) }}
+  <li>{{ widget('\\XLite\\View\\FormField\\Input\\Checkbox\\OnOff', fieldName='use_lazy_load', value=this.getLazyLoadValue(), label=this.getLazyLoadOptionName()) }}</li>
 {% endif %}

@@ -98,16 +98,17 @@ class Minicart extends \XLite\View\SideBarBox
     }
 
     /**
-     * Return up to 3 items from cart
+     * Return up to 3 last items from cart
      *
      * @return array
      */
     protected function getItemsList()
     {
-        return array_slice(
-            $this->getCart()->getItems()->toArray(),
-            0,
-            min(self::ITEMS_TO_DISPLAY, $this->getCart()->countItems())
+        return array_reverse(
+            array_slice(
+                $this->getCart()->getItems()->toArray(),
+                -self::ITEMS_TO_DISPLAY
+            )
         );
     }
 

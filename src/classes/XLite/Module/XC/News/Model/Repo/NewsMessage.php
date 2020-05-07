@@ -174,8 +174,9 @@ class NewsMessage extends \XLite\Model\Repo\Base\I18n
     protected function addCleanURLCondition(\XLite\Model\QueryBuilder\AQueryBuilder $qb)
     {
         if (\XLite\Module\CDev\SimpleCMS\Logic\Sitemap\Step\Page::isSitemapCleanUrlConditionApplicable()) {
+            $joinCnd = 'cu.id = (SELECT MAX(cu2.id) FROM XLite\Model\CleanURL cu2 WHERE cu2.newsMessage = ' . $qb->getMainAlias() . ')';
             $qb->addSelect('cu.cleanURL')
-                ->leftJoin('XLite\Model\CleanURL', 'cu', \Doctrine\ORM\Query\Expr\Join::WITH, 'cu.newsMessage = '.$qb->getMainAlias());
+                ->linkLeft('XLite\Model\CleanURL', 'cu', \Doctrine\ORM\Query\Expr\Join::WITH, $joinCnd);
         }
 
         return $qb;

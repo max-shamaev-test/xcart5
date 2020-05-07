@@ -22,7 +22,7 @@ abstract class LeftMenu extends \XLite\View\Menu\Admin\LeftMenu implements \XLit
     {
         parent::__construct($params);
 
-        $this->relatedTargets['google_feed'][] = 'google_feed';
+        $this->addRelatedTarget('google_feed', 'google_shopping_groups');
     }
 
     /**

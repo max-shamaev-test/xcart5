@@ -49,7 +49,7 @@ class News extends \XLite\Module\CDev\XMLSitemap\Logic\Sitemap\Step\ASitemapStep
             if (isset($item['cleanURL']) && static::isSitemapCleanUrlConditionApplicable()) {
                 $_url = $item['cleanURL'];
             } else {
-                $_url = Converter::buildURL('news_message', '', ['id' => $id], \XLite::getCustomerScript(), false, true);
+                $_url = Converter::buildURL('news_message', '', ['id' => $id], \XLite::getCustomerScript(), true);
             }
             $url = \XLite::getInstance()->getShopURL($_url);
 
@@ -70,11 +70,11 @@ class News extends \XLite\Module\CDev\XMLSitemap\Logic\Sitemap\Step\ASitemapStep
                     $langUrl = $code . '/' . $langUrl;
                     $locale = Converter::langToLocale($code);
 
-                    $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . URLManager::getShopURL($langUrl) . '"';
+                    $tag = 'xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . htmlspecialchars(URLManager::getShopURL($langUrl)) . '"';
                     $result[$tag] = null;
                 }
 
-                $tag = 'xhtml:link rel="alternate" hreflang="x-default" href="' . $url . '"';
+                $tag = 'xhtml:link rel="alternate" hreflang="x-default" href="' . htmlspecialchars($url) . '"';
                 $result[$tag] = null;
 
             }

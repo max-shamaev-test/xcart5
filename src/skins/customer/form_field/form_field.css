@@ -38,8 +38,6 @@ label.single-option-select {
 /* Multiselect */
 .chosen-container-active.chosen-with-drop .chosen-single
 {
-  -moz-border-radius: 6px;
-  -webkit-border-radius: 6px;
   border-radius: 6px;
   border: 1px solid #81a4c1;
   background: #fff none;
@@ -50,8 +48,6 @@ label.single-option-select {
 
 .chosen-container-single .chosen-single
 {
-  -moz-border-radius: 6px;
-  -webkit-border-radius: 6px;
   border-radius: 6px;
   background: #fff none;
   padding-top: 5px;
@@ -59,8 +55,6 @@ label.single-option-select {
 }
 
 .chosen-container-multi .chosen-choices {
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
   background: #fff none;
   padding-top: 2px;

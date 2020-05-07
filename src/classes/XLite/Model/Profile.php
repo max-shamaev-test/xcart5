@@ -377,7 +377,6 @@ class Profile extends \XLite\Model\AEntity
      */
     public function setPendingMembership(\XLite\Model\Membership $pendingMembership = null)
     {
-        \XLite\Core\TmpVars::getInstance()->pendingMembershipsUpdateTimestamp = LC_START_TIME;
         $this->pending_membership = $pendingMembership;
     }
 
@@ -404,15 +403,43 @@ class Profile extends \XLite\Model\AEntity
     /**
      * Get name
      *
+     * @param boolean $useDefault Administrator|Customer if missing OPTIONAL
+     * @param boolean $shortName FirstName only OPTIONAL
+     *
      * @return string
      */
-    public function getName($useDefault = true)
+    public function getName($useDefault = true, $shortName = false)
     {
         $address = $this->getBillingAddress() ?: $this->getShippingAddress();
 
-        return $address && ($address->getFirstname() || $address->getLastname())
-            ? trim($address->getFirstname() . ' ' . $address->getLastname())
-            : ($useDefault ? $this->getDefaultName() : '');
+        if ($address) {
+            if ($shortName && $address->getFirstname()) {
+                return trim($address->getFirstname());
+            } elseif ($address->getFirstname() || $address->getLastname()) {
+                return trim($address->getFirstname() . ' ' . $address->getLastname());
+            }
+        }
+
+        return $this->getNameFromDefaultAddress() ? $this->getNameFromDefaultAddress() : ($useDefault ? $this->getDefaultName() : '');
+    }
+
+    /**
+     * Get default name from address
+     *
+     * @return string
+     */
+    public function getNameFromDefaultAddress()
+    {
+        if (count($this->getAddresses())) {
+            foreach ($this->getAddresses() as $address) {
+                $result = trim($address->getFirstname() . ' ' . $address->getLastname());
+                break;
+            }
+        } else {
+            $result = false;
+        }
+
+        return $result;
     }
 
     /**

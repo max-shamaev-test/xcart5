@@ -160,7 +160,7 @@ class OrderHistory extends \XLite\Base\Singleton
             $textRaw,
             $this->getOrderChangeAmountData(
                 $orderId,
-                $item['item']->getProduct()->getName(),
+                ($item['item'] ? $item['item']->getName() : 'Unknown'),
                 $item['amount'],
                 $item['delta']
             )

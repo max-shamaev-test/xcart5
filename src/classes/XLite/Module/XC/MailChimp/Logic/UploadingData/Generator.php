@@ -10,6 +10,7 @@ namespace XLite\Module\XC\MailChimp\Logic\UploadingData;
 
 use XLite\Module\XC\MailChimp\Core\MailChimp;
 use XLite\Module\XC\MailChimp\Core\MailChimpECommerce;
+use XLite\Module\XC\MailChimp\Core\Request\Store as MailChimpStore;
 
 /**
  * Generator
@@ -72,7 +73,7 @@ class Generator extends \XLite\Logic\AGenerator
             : [];
 
         foreach ($lists as $listId => $value) {
-            $storeId = MailChimp::getInstance()->getStoreId($listId);
+            $storeId = MailChimpStore\Get::getStoreIdByDB($listId);
             MailChimpECommerce::getInstance()->updateStoreAndReference($listId, $value);
 
             if (!isset($options['stores'])) {

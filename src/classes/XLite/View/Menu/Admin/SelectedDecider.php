@@ -87,6 +87,8 @@ class SelectedDecider implements \Serializable
             $items = $this->items;
         }
 
+        $request = \XLite\Core\Request::getInstance();
+
         foreach ($items as $index => $item) {
             if (isset($item[AAdmin::ITEM_CHILDREN])
                 && is_array($item[AAdmin::ITEM_CHILDREN])
@@ -95,25 +97,9 @@ class SelectedDecider implements \Serializable
                 $this->findAndSetSelectedItem($target, $item[AAdmin::ITEM_CHILDREN]);
             }
 
-            if (isset($item[AAdmin::ITEM_TARGET])
-                && in_array($target, $this->controller->getRelatedTargets($item[AAdmin::ITEM_TARGET]))
-            ) {
-                $selected = true;
-                $weight = 1;
-
-                if (isset($item[AAdmin::ITEM_EXTRA])
-                    && $item[AAdmin::ITEM_EXTRA]
-                    && is_array($item[AAdmin::ITEM_EXTRA])
-                ) {
-                    foreach ($item[AAdmin::ITEM_EXTRA] as $k => $v) {
-                        if (\XLite\Core\Request::getInstance()->$k == $v) {
-                            $weight++;
-                        } else {
-                            $selected = false;
-                            break;
-                        }
-                    }
-                }
+            if (isset($item[AAdmin::ITEM_TARGET])) {
+                $weight = $this->controller->getTargetWeight($target, $item[AAdmin::ITEM_TARGET], $item[AAdmin::ITEM_EXTRA] ?? []);
+                $selected = $weight > 0;
 
                 if ($selected
                     && (empty($this->selectedItem)

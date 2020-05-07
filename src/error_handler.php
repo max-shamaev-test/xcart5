@@ -9,6 +9,8 @@
 define('LC_ERR_TAG_MSG',   '@MSG@');
 define('LC_ERR_TAG_ERROR', '@ERROR@');
 define('LC_ERR_TAG_CODE',  '@CODE@');
+define('LC_CURRENT_YEAR', '@CURRENT_YEAR@');
+define('LC_CURRENT_VERSION', '@VERSION@');
 
 define('LC_ERROR_PAGE_MESSAGE', 'ERROR: "' . LC_ERR_TAG_ERROR . '" (' . LC_ERR_TAG_CODE . ') - ' . LC_ERR_TAG_MSG . LC_EOL);
 
@@ -26,16 +28,33 @@ function showErrorPage($code, $message, $page = LC_ERROR_PAGE_MESSAGE, $prefix =
     header('Content-Type: text/html; charset=utf-8', true, $http_code);
 
     $page = str_replace(
-        array(LC_ERR_TAG_MSG, LC_ERR_TAG_ERROR, LC_ERR_TAG_CODE),
-        array($message, str_replace($prefix, '', $code), defined($code) ? constant($code) : 'N/A'),
+        [
+            LC_ERR_TAG_MSG,
+            LC_ERR_TAG_ERROR,
+            LC_ERR_TAG_CODE,
+            LC_CURRENT_YEAR,
+            LC_CURRENT_VERSION
+        ],
+        [
+            $message,
+            str_replace($prefix, '', $code),
+            defined($code) ? constant($code) : 'N/A',
+            date('Y'),
+            LC_VERSION
+        ],
         $page
     );
 
-    echo '<script>document.addEventListener("DOMContentLoaded", function(event) {document.body.innerHTML=' . json_encode($page) . ';});</script>';
+    if (PHP_SAPI === 'cli') {
+        echo $page;
+    } else {
+        echo '<script>document.addEventListener("DOMContentLoaded", function(event) {document.body.innerHTML=' . json_encode($page) . ';});</script>';
+    }
+
     exit (intval($code) ? $code : 1);
 }
 
 // Check PHP version before any other operations
-if (!defined('LC_DO_NOT_CHECK_PHP_VERSION') && version_compare(PHP_VERSION, '5.4.0', '<')) {
-    showErrorPage('ERROR_UNSUPPORTED_PHP_VERSION', 'Min allowed PHP version is 5.4.0');
+if (!defined('LC_DO_NOT_CHECK_PHP_VERSION') && PHP_VERSION_ID < 70209) {
+    showErrorPage('ERROR_UNSUPPORTED_PHP_VERSION', 'Min allowed PHP version is 7.2.9');
 }

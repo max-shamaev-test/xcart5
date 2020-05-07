@@ -30,8 +30,23 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
 
         $columns['wholesalePrices'] = [];
         $columns['minimumPurchaseQuantity'] = [];
+        $columns['applySaleToWholesale'] = [];
 
         return $columns;
+    }
+
+    /**
+     * Get column value for 'applySaleToWholesale' column
+     *
+     * @param array   $dataset Dataset
+     * @param string  $name    Column name
+     * @param integer $i       Subcolumn index
+     *
+     * @return array
+     */
+    protected function getApplySaleToWholesaleColumnValue(array $dataset, $name, $i)
+    {
+        return $this->getColumnValueByName($dataset['model'], 'applySaleToWholesale');
     }
 
     /**

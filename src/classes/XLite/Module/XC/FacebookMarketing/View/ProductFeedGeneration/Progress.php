@@ -14,19 +14,6 @@ class Progress extends \XLite\View\AView
     use \XLite\View\EventTaskProgressProviderTrait;
 
     /**
-     * Register CSS files
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-        $list[] = 'modules/XC/FacebookMarketing/product_feed_generation/style.css';
-
-        return $list;
-    }
-
-    /**
      * Register JS files
      *
      * @return array

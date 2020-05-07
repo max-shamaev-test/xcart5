@@ -27,8 +27,6 @@ div.tab-content .tab-content {
   background: #f3f3f4;
   margin-right: -25px;
   margin-left: -25px;
-  -webkit-box-shadow: inset 0 5px 5px -5px rgba(0,0,0,0.75);
-  -moz-box-shadow: inset 0 5px 5px -5px rgba(0,0,0,0.75);
   box-shadow: inset 0 5px 5px -5px rgba(0,0,0,0.75);
 }
 
@@ -73,8 +71,6 @@ div.attribute-group ul.data {
 }
 
 div.dialog-block ul.data {
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
   box-shadow: none;
   margin-left: -9px;
 }
@@ -91,10 +87,15 @@ ul.data {
   }
 
   & > li .attribute-value,
-  & > li .actions,
-  & > li .attribute-name {
+  & > li .actions {
     float: left;
     display: inline-block;
+  }
+
+  & > li .attribute-name {
+    display: flex;
+    flex-flow: column;
+    float: left;
   }
 
   & > li .actions {
@@ -115,11 +116,83 @@ ul.data {
     width: 245px;
     min-height: 46px;
     padding-top: 2px;
+
+    & > .display-mode {
+      @display-mode-link-margin-bottom: 3px;
+      padding: 0 @padding-base-horizontal;
+      display: none;
+
+      &.expanded {
+        margin-bottom: (3 * @rhythmic-unit + @display-mode-link-margin-bottom);
+      }
+
+      .title {
+        font-size: 12px;
+        line-height: @line-height-small;
+        color: @color-text-default;
+
+        & > div {
+          display: inline;
+          position: relative;
+
+          a {
+            border-bottom: 1px dashed;
+
+            &:hover, &:focus {
+              text-decoration: none;
+            }
+          }
+
+          .value {
+            display: none;
+            border: solid @border-base @color-border;
+            border-radius: @border-radius-base;
+            position: absolute;
+            left: 0;
+            top: (@line-height-small + @display-mode-link-margin-bottom);
+            width: 110px;
+            background-color: #fff;
+            z-index: 1;
+
+            .display-mode-variant {
+              display: flex;
+              flex-flow: row-reverse;
+              align-items: center;
+              justify-content: flex-end;
+              height: (@rhythmic-unit * 3 / 2 - @border-base);
+              cursor: pointer;
+
+              &:hover {
+                background: @color-light-blue;
+              }
+
+              .table-label {
+                width: auto;
+                padding-right: @padding-base-horizontal;
+
+                label {
+                  cursor: pointer;
+                }
+              }
+
+              .table-value {
+                margin: 0;
+                padding: 0 0 0 @padding-base-horizontal;
+              }
+
+              .clear {
+                display: none;
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   & > li .attribute-name .inline-field.editable .view {
     margin: 0;
-    padding: 7px 8px;
+    padding: @padding-base-vertical @padding-base-horizontal;
   }
 
   & > li .attribute-name .inline-field.editable .view span {
@@ -320,14 +393,7 @@ ul.data li .attribute-value .multiple-options {
       bottom: -9px;
       left: 50%;
       margin-left: -8px;
-      -webkit-transform: rotate(45deg);
-      -khtml-transform: rotate(45deg);
-      -moz-transform: rotate(45deg);
-      -ms-transform: rotate(45deg);
-      -o-transform: rotate(45deg);
       transform: rotate(45deg);
-      -moz-box-shadow: 2px 2px 4px 0 #bbc7d2;
-      -webkit-box-shadow: 2px 2px 4px 0 #bbc7d2;
       box-shadow: 2px 2px 4px 0 #bbc7d2;
     }
 
@@ -353,7 +419,8 @@ ul.data li .attribute-value ul.values > li:first-child,
 ul.data li .attribute-value .single-option,
 ul.data li .attribute-value.multiple .multiple-options,
 ul.data li .attribute-value.multiple li:hover .combobox-select,
-ul.data li:hover .attribute-value label.inline-checkbox {
+ul.data li:hover .attribute-value label.inline-checkbox,
+ul.data li:hover .attribute-name .display-mode {
   display: block;
 }
 
@@ -442,8 +509,6 @@ form .sticky-panel .box {
 }
 
 form.changed.view-changes select#save-mode:focus {
-  -moz-box-shadow: 0 0 5px 1px rgba(174, 14, 214, 0.5);
-  -webkit-box-shadow: 0 0 5px 1px rgba(174, 14, 214, 0.5);
   box-shadow: 0 0 5px 1px rgba(174, 14, 214, 0.5);
 }
 

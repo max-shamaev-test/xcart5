@@ -59,14 +59,6 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: Common options
-  - name: package_size
-    category: CDev\USPS
-    type: XLite\Module\CDev\USPS\View\FormField\Select\PackageSize
-    value: REGULAR
-    orderby: 205
-    translations:
-      - code: en
-        option_name: Package Size (length + girth, inches)
   - name: dimensions
     category: CDev\USPS
     type: serialized
@@ -75,6 +67,7 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: Package dimensions (inches)
+        option_comment: If dimensions are not provided, Web Tools will assume package is regular in size and all dimensions are less than or equal to 12 inches.
   - name: girth
     category: CDev\USPS
     type: XLite\View\FormField\Input\Text\FloatInput
@@ -83,7 +76,7 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: Girth
-        option_comment: Required for large size and if the container is non-rectangular or variable
+        option_comment: If Girth is provided with a non-zero value, the package will be considered "NONRECTANGULAR"
   - name: max_weight
     category: CDev\USPS
     type: XLite\View\FormField\Input\Text\FloatInput
@@ -173,14 +166,6 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: Mail type
-  - name: container_intl
-    category: CDev\USPS
-    type: XLite\Module\CDev\USPS\View\FormField\Select\ContainerIntl
-    value: RECTANGULAR
-    orderby: 420
-    translations:
-      - code: en
-        option_name: Container
   - name: commercial
     category: CDev\USPS
     type: XLite\View\FormField\Input\Checkbox\OnOffWithoutOffLabel
@@ -437,3 +422,4 @@ XLite\Model\LanguageLabel:
   - { name: 'Unable to get merchant info', translations: [{ code: en, label: 'Unable to get merchant info' }]}
   - { name: 'Update date', translations: [{ code: en, label: 'Update date' }]}
   - { name: 'Update tracking info', translations: [{ code: en, label: 'Update tracking info' }]}
+  - { name: 'All dimensions must be greater than 0', translations: [{ code: en, label: 'All dimensions must be greater than 0' }]}

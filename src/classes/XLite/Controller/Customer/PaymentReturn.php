@@ -110,12 +110,14 @@ class PaymentReturn extends \XLite\Controller\Customer\ACheckoutReturn
 
         } else {
             // Log error
-            \XLite\Logger::getInstance()->log(
-                'Requested payment return page with undefined payment transaction' . PHP_EOL
-                . 'IP address: ' . $_SERVER['REMOTE_ADDR'] . PHP_EOL
-                . 'Data: ' . var_export(\XLite\Core\Request::getInstance()->getData(), true),
-                LOG_ERR
-            );
+            if (!\XLite\Core\Request::getInstance()->isBot()) {
+                \XLite\Logger::getInstance()->log(
+                    'Requested payment return page with undefined payment transaction' . PHP_EOL
+                    . 'IP address: ' . $_SERVER['REMOTE_ADDR'] . PHP_EOL
+                    . 'Data: ' . var_export(\XLite\Core\Request::getInstance()->getData(), true),
+                    LOG_ERR
+                );
+            }
 
             // Add top message
             \XLite\Core\TopMessage::addWarning('Unknown payment. If you see this message after returning from the payment page, please contact the store administrator for information about the status of your payment.');

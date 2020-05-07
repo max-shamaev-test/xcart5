@@ -51,14 +51,14 @@ function blockCheckout() {
   jQuery('.place-order')
     .addClass('disabled')
     .prop('disabled', true);
-  assignShadeOverlay(jQuery('#content'), true);
+  assignShadeOverlay(jQuery('#content'));
 }
 
 function unblockCheckout() {
   jQuery('.place-order')
     .removeClass('disabled')
     .prop('disabled', false);
-  assignShadeOverlay(jQuery('#content'), false);
+  assignShadeOverlay(jQuery('#content'));
 }
 
 core.bind(

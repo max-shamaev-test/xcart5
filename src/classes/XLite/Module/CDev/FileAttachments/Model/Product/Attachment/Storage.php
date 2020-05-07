@@ -112,14 +112,9 @@ HTACCESS;
         $attachment->setStorage($newStorage);
         $newStorage->setAttachment($attachment);
 
-        $newStorage->setPath('');
-
-        if (static::STORAGE_URL == $this->getStorageType()) {
-            $newStorage->loadFromURL(parent::getURL(), true);
-
-        } else {
+        if (static::STORAGE_URL !== $this->getStorageType()) {
             // Clone local image (will be created new file with unique name)
-            $newStorage->loadFromLocalFile($this->getStoragePath(), null, true);
+            $newStorage->loadFromLocalFile($this->getStoragePath(), null, false);
         }
 
         return $newStorage;

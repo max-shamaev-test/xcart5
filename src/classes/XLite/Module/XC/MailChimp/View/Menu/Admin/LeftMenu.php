@@ -24,6 +24,7 @@ abstract class LeftMenu extends \XLite\View\Menu\Admin\LeftMenu implements \XLit
 
         $this->relatedTargets['profile_list'][] = 'mailchimp_subscriptions';
 
+        $this->relatedTargets['mailchimp_lists'][] = 'mailchimp_options';
         $this->relatedTargets['mailchimp_lists'][] = 'mailchimp_list_segments';
         $this->relatedTargets['mailchimp_lists'][] = 'mailchimp_segment';
         $this->relatedTargets['mailchimp_lists'][] = 'mailchimp_list_groups';

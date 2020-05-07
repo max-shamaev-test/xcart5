@@ -8,8 +8,6 @@
  */
 
 * {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 
@@ -91,18 +89,9 @@
 }
 
 .packing-slip-box table.address ul.addresses{
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: start;
-  -webkit-justify-content: flex-start;
-  -ms-flex-pack: start;
-          justify-content: flex-start;
-  -webkit-box-align: start;
-  -webkit-align-items: flex-start;
-  -ms-flex-align: start;
-          align-items: flex-start;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
 
 .packing-slip-box table.address ul.addresses li.address:not(:last-of-type){
@@ -315,14 +304,14 @@
 }
 
 ul.address-section li.address-field .address-title,
-  ul.address-section li.address-field .address-comma
+ul.address-section li.address-field .address-comma,
+ul.address-section li.address-field.field-additional .address-title
 {
   display: none;
 }
 
 ul.address-section li.address-field.address-phone .address-title,
-  ul.address-section li.address-field.address-type .address-title,
-  ul.address-section li.address-field.field-additional .address-title
+  ul.address-section li.address-field.address-type .address-title
 {
   display: inline;
 }

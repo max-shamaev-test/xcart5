@@ -38,14 +38,14 @@ class Shipping extends \XLite\Logic\Order\Modifier\AShipping
      * Runtime cache
      * @var array
      */
-    protected $rates;
+    protected $rates = [];
 
     /**
      * @inheritdoc
      */
     public function initialize(\XLite\Model\Order $order, \XLite\DataSet\Collection\OrderModifier $list)
     {
-        $this->rates = null;
+        $this->rates = [];
         parent::initialize($order, $list);
     }
 
@@ -68,7 +68,7 @@ class Shipping extends \XLite\Logic\Order\Modifier\AShipping
     public function calculate()
     {
         $surcharge = null;
-        $cost = 0;
+        $cost = null;
 
         if ($this->isShippable()) {
             if (!$this->isCart() || !$this->order->isIgnoreLongCalculations()) {
@@ -76,14 +76,19 @@ class Shipping extends \XLite\Logic\Order\Modifier\AShipping
 
                 if (null !== $rate) {
                     $cost = $this->getOrder()->getCurrency()->roundValue($rate->getTotalRate());
+                } else {
+                    $this->resetOrderSurcharges();
                 }
             } else {
                 $cost = $this->getOrder()->getSurchargesSubtotal(\XLite\Model\Base\Surcharge::TYPE_SHIPPING);
             }
 
-            $surcharge = $this->addOrderSurcharge($this->code, (float) $cost, false, true);
+            if ($cost !== null) {
+                $surcharge = $this->addOrderSurcharge($this->code, (float) $cost, false, true);
+            }
+        }
 
-        } else {
+        if (!$surcharge) {
             $this->resetOrderSurcharges();
         }
 
@@ -117,15 +122,16 @@ class Shipping extends \XLite\Logic\Order\Modifier\AShipping
 
     /**
      * Get shipping rates
-     * todo: add checking if rates should be recalculated else get rates from cache
      *
      * @return array(\XLite\Model\Shipping\Rate)
      */
     public function getRates()
     {
-        if (!isset($this->rates) || \XLite\Core\Request::getInstance()->isAJAX()) {
+        $hash = \XLite\Model\Shipping::getInstance()->getHash($this);
+
+        if (!isset($this->rates[$hash])) {
             if ($this->isCart()) {
-                $this->rates = $this->calculateRates();
+                $this->rates[$hash] = $this->calculateRates();
             } else {
                 $restored = $this->restoreRates();
                 $rates = array_merge($restored, array_filter(
@@ -141,11 +147,11 @@ class Shipping extends \XLite\Logic\Order\Modifier\AShipping
                     }
                 ));
 
-                $this->rates = $rates;
+                $this->rates[$hash] = $rates;
             }
         }
 
-        return $this->rates;
+        return $this->rates[$hash];
     }
 
     /**
@@ -176,7 +182,7 @@ class Shipping extends \XLite\Logic\Order\Modifier\AShipping
      */
     protected function calculateRates()
     {
-        $rates = array();
+        $rates = [];
 
         if ($this->isShippable()) {
             $rates = $this->retrieveRates();
@@ -264,28 +270,16 @@ class Shipping extends \XLite\Logic\Order\Modifier\AShipping
      */
     public function getSelectedRate()
     {
-        if ($this->order instanceof \XLite\Model\Cart
-            && !$this->order->getShippingId()
-            && $this->order->getProfile()
-            && $this->order->getLastShippingId()
-        ) {
-            // Remember last shipping id
-            $this->order->setShippingId($this->order->getLastShippingId());
-        }
+        $selectedRate = null;
+        $shippingId = (int)$this->order->getShippingId();
 
         // Get shipping rates
-        $rates = $this->getRates();
+        $rates = $shippingId > 0 ? $this->getRates() : [];
 
-        $selectedRate = null;
-
-        if (!empty($rates) && 0 < (int) $this->order->getShippingId()) {
-            // Set selected rate from the rates list if shipping_id is already assigned
-
-            foreach ($rates as $rate) {
-                if ($this->order->getShippingId() == $rate->getMethodId()) {
-                    $selectedRate = $rate;
-                    break;
-                }
+        foreach ($rates as $rate) {
+            if ($shippingId === (int)$rate->getMethodId()) {
+                $selectedRate = $rate;
+                break;
             }
         }
 
@@ -303,11 +297,10 @@ class Shipping extends \XLite\Logic\Order\Modifier\AShipping
      */
     public function setSelectedRate(\XLite\Model\Shipping\Rate $rate = null)
     {
-
         $this->selectedRate = $rate;
-        $newShippingId = $rate ? $rate->getMethodId() : 0;
+        $newShippingId = $rate ? (int)$rate->getMethodId() : 0;
 
-        if ($this->order->getShippingId() != $newShippingId) {
+        if ((int)$this->order->getShippingId() !== $newShippingId) {
             $this->order->setShippingId($newShippingId);
             \XLite\Core\Database::getEM()->flush();
         }
@@ -332,9 +325,18 @@ class Shipping extends \XLite\Logic\Order\Modifier\AShipping
     {
         $result = null;
 
-        $rate = $this->getSelectedRate();
-        if (null !== $rate) {
-            $result = $rate->getMethod();
+        if (!$this->isCart()
+            && $this->order->getShippingId()
+        ) {
+            /** @var \XLite\Model\Shipping\Method $result */
+            $result = \XLite\Core\Database::getRepo('XLite\Model\Shipping\Method')->find($this->order->getShippingId());
+        }
+
+        if (!$result) {
+            $rate = $this->getSelectedRate();
+            if (null !== $rate) {
+                $result = $rate->getMethod();
+            }
         }
 
         return $result;

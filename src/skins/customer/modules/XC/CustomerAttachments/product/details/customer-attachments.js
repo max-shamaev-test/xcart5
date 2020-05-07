@@ -16,11 +16,32 @@ jQuery(function () {
 
     if (0 < files.length) {
       var formData = new FormData();
+      var totalSize = 0;
+      var MB = 1048576;
+
       for (var i = 0; i < files.length; i++) {
+        if (i >= maxFileUploads) {
+          formData.append('max_file_uploads_warning', true);
+          break;
+        }
+
         var file = files[i];
+        totalSize += file.size;
 
         // Add the file to the request.
         formData.append('customer_attachments[]', file, file.name);
+      }
+
+      if (postSizeLimit < totalSize) {
+        var postSizeLimitMB = postSizeLimit / MB;
+        var errorMessage = core.t(
+          'Cannot attach the files. Total size of attached files may not exceed X MB',
+          {postSizeLimit: parseFloat(postSizeLimitMB.toPrecision(precision))}
+        );
+
+        core.trigger('message', {type: 'error', message: errorMessage});
+
+        return false;
       }
 
       var xhr = new XMLHttpRequest();

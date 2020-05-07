@@ -103,7 +103,7 @@ class Shipping extends \XLite\Logic\Order\Modifier\Shipping implements \XLite\Ba
             if (0 < $fixedFee) {
                 // There are items with fixed fee, remove all methods except 'Freight fixed fee'
                 foreach ($rates as $k => $rate) {
-                    if (!$this->isFixedFeeMethod($rate->getMethod())) {
+                    if (!$rate->getMethod()->isFixedFee()) {
                         unset($rates[$k]);
                     }
                 }
@@ -111,7 +111,7 @@ class Shipping extends \XLite\Logic\Order\Modifier\Shipping implements \XLite\Ba
             } else {
                 // There are no items with fixed fee, remove method 'Freight fixed fee'
                 foreach ($rates as $k => $rate) {
-                    if ($this->isFixedFeeMethod($rate->getMethod())) {
+                    if ($rate->getMethod()->isFixedFee()) {
                         unset($rates[$k]);
                     }
                 }
@@ -142,7 +142,7 @@ class Shipping extends \XLite\Logic\Order\Modifier\Shipping implements \XLite\Ba
 
             } elseif (0 < $fixedFee) {
 
-                if (0 < $itemsCount && $this->isFixedFeeMethod($rate->getMethod())) {
+                if (0 < $itemsCount && $rate->getMethod()->isFixedFee()) {
                     // Unset 'Freight fixed fee' method if there are other methods
                     $doUnset = true;
 
@@ -150,7 +150,7 @@ class Shipping extends \XLite\Logic\Order\Modifier\Shipping implements \XLite\Ba
                     $rates[$k]->setFreightRate($fixedFee);
                 }
 
-            } elseif ($this->isFixedFeeMethod($rate->getMethod())) {
+            } elseif ($rate->getMethod()->isFixedFee()) {
                 $doUnset = true;
             }
 
@@ -199,25 +199,13 @@ class Shipping extends \XLite\Logic\Order\Modifier\Shipping implements \XLite\Ba
                 && !$item->getObject()->getFreeShip()
                 && !$item->getObject()->isShipForFree()
                 && 0 < $item->getObject()->getFreightFixedFee()
+                && !$this->isAppliedFreeShippingCoupon($item)
             ) {
                 $result += $item->getObject()->getFreightFixedFee() * $item->getAmount();
             }
         }
 
         return $result;
-    }
-
-    /**
-     * Return true if shipping method is 'Freight fixed fee'
-     *
-     * @param \XLite\Model\Shipping\Method $method Shipping method
-     *
-     * @return boolean
-     */
-    protected function isFixedFeeMethod($method)
-    {
-        return \XLite\Model\Shipping\Method::METHOD_TYPE_FIXED_FEE == $method->getCode()
-            && 'offline' == $method->getProcessor();
     }
 
     /**
@@ -251,5 +239,16 @@ class Shipping extends \XLite\Logic\Order\Modifier\Shipping implements \XLite\Ba
         }
 
         return $result;
+    }
+
+    /**
+     * Returns false by default
+     *
+     * @param \XLite\Model\OrderItem $item Order item model
+     *
+     * @return boolean
+     */
+    protected function isAppliedFreeShippingCoupon($item) {
+        return false;
     }
 }

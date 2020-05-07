@@ -69,8 +69,19 @@ class Product extends \XLite\Controller\Admin\Product implements \XLite\Base\IDe
         $list = new \XLite\Module\CDev\Wholesale\View\ItemsList\WholesalePrices();
         $list->processQuick();
 
+        \XLite\Core\QuickData::getInstance()->updateProductDataInternal($this->getProduct());
+        \XLite\Core\Database::getEM()->flush();
+
         // Additional correction to re-define end of subtotal range for each discount
         \XLite\Core\Database::getRepo('XLite\Module\CDev\Wholesale\Model\WholesalePrice')
             ->correctQuantityRangeEnd($this->getProduct());
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isWarningMessageEnabled()
+    {
+        return false;
     }
 }

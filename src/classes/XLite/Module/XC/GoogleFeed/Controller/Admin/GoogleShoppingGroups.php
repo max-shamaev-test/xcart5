@@ -98,7 +98,7 @@ class GoogleShoppingGroups extends \XLite\Controller\Admin\AAdmin
      */
     protected function getActionIds()
     {
-        $cnd = $this->getItemsList()->getSearchCaseProcessor()->getSearchCase();
+        $cnd = $this->getItemsList()->getActionSearchCondition();
         $ids = \XLite\Core\Database::getRepo('XLite\Model\Attribute')
             ->search($cnd, \XLite\Model\Repo\ARepo::SEARCH_MODE_IDS);
         $ids = is_array($ids) ? array_unique(array_filter($ids)) : [];

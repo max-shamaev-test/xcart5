@@ -29,4 +29,14 @@ abstract class Main extends \XLite\Module\AModule
     {
         return (bool) \XLite\Core\Config::getInstance()->XC->FacebookMarketing->pixel_id;
     }
+
+    /**
+     * Check if Facebook Pixel Advanced Matching enabled
+     *
+     * @return bool
+     */
+    public static function isAdvancedMatchingEnabled()
+    {
+        return static::isPixelEnabled() && (bool) \XLite\Core\Config::getInstance()->XC->FacebookMarketing->advanced_matching;
+    }
 }

@@ -46,7 +46,7 @@ class PurchaseUrl extends AModifier
         $xbProductId       = $item->xbProductId;
         $item->purchaseUrl = $marketplaceShop->getBuyNowURL(
             $xbProductId,
-            $this->urlBuilder->buildServiceMainUrl('afterPurchase')
+            $this->urlBuilder->buildServiceMainUrl("afterPurchase/{$item->author}/{$item->name}")
         );
 
         if (empty($item->purchaseUrl)) {

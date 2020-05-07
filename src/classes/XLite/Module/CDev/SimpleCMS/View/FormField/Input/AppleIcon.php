@@ -13,4 +13,10 @@ namespace XLite\Module\CDev\SimpleCMS\View\FormField\Input;
  */
 class AppleIcon extends \XLite\Module\CDev\SimpleCMS\View\FormField\Input\AImage
 {
+    /**
+     * @return boolean
+     */
+    protected function isViaUrlAllowed() {
+        return false;
+    }
 }

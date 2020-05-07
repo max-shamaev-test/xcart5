@@ -3,6 +3,7 @@
  #}
 
 {% if this.getSeparatorPosition() == 'before' %}
+<hr class="or-separator" />
 <div class="or-separator">
   <span class="or-separator-text">{{ this.getSeparatorText() }}</span>
 </div>
@@ -14,7 +15,7 @@
   </div>
 {% endif %}
 
-<div class="social-login-container">
+<div class="social-login-container inline-in-checkout">
   <ul class="social-login">
     <li class="social-net-element social-net-{{ this.getButtonStyle() }} social-net-Amazon">
       <div id="loginWithAmazonDiv_{{ this.getButtonStyle() }}_{{ this.getHash() }}" data-size="large"></div>
@@ -29,6 +30,7 @@
 {% endif %}
 
 {% if this.getSeparatorPosition() == 'after' %}
+<hr class="or-separator" />
 <div class="or-separator">
   <span class="or-separator-text">{{ this.getSeparatorText() }}</span>
 </div>

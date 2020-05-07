@@ -8,7 +8,8 @@
 
 namespace XLite\Module\XC\MailChimp\Model;
 
-use \XLite\Module\XC\MailChimp\Core;
+use XLite\Module\XC\MailChimp\Core;
+use XLite\Module\XC\MailChimp\Core\Request\Segment;
 
 /**
  * MailChimp mail list
@@ -299,11 +300,7 @@ class MailChimpSegment extends \XLite\Model\AEntity
         \XLite\Core\Database::getEM()->flush();
 
         try {
-            Core\MailChimp::getInstance()->addToSegment(
-                $this->getList()->getId(),
-                $this->getId(),
-                array($profile->getLogin())
-            );
+            Segment\AddTo::scheduleAction($this->getList()->getId(), $this->getId(), [$profile->getLogin()]);
         } catch (Core\MailChimpException $e) {
             \XLite\Core\TopMessage::addError($e->getMessage());
         }

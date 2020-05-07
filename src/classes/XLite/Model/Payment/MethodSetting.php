@@ -13,8 +13,8 @@ namespace XLite\Model\Payment;
  *
  * @Entity
  * @Table (name="payment_method_settings",
- *      indexes={
- *          @Index (name="mn", columns={"method_id","name"})
+ *      uniqueConstraints={
+ *          @UniqueConstraint (name="mn", columns={"method_id","name"})
  *      }
  * )
  */

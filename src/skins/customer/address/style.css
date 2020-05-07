@@ -180,8 +180,6 @@ li.address-text-phone ul.address-text li.address-text-value
 }
 
 div.address-box {
-  -moz-border-radius: 10px;
-  -webkit-border-radius: 10px;
   border-radius: 10px;
   border-style: solid;
   border-width: 1px;

@@ -9,7 +9,6 @@
 namespace XLite\Rebuild;
 
 use Includes\Utils\FileManager;
-use XLite;
 use XLite\Core\Config;
 use XLite\Core\Database;
 
@@ -28,7 +27,7 @@ class HookContext
 
     public function createConfigOption($params)
     {
-        return $this->getRepo(XLite\Model\Config::class)->createOption($params);
+        return $this->getRepo(\XLite\Model\Config::class)->createOption($params);
     }
 
     public function getConfig()
@@ -38,7 +37,7 @@ class HookContext
 
     public function getSystemOptions($category, $option)
     {
-        return XLite::getInstance()->getOptions([$category, $option]);
+        return \XLite::getInstance()->getOptions([$category, $option]);
     }
 
     public function getEM()

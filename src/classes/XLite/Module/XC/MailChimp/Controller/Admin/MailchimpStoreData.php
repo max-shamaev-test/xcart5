@@ -136,6 +136,7 @@ class MailchimpStoreData extends \XLite\Controller\Admin\AAdmin
     protected function doActionCancel()
     {
         UploadingData\Generator::cancel();
+        \XLite\Core\TopMessage::addWarning('Uploading data has been stopped.');
 
         $this->setReturnURL($this->buildURL('mailchimp_store_data'));
     }

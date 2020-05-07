@@ -33,7 +33,7 @@ charset = "utf8"
 [cache]
 ; default cache ttl in seconds, 604800 - 1 week
 default_cache_ttl = 604800
-; Type of cache used. Can take auto, redis, memcache, memcached, apc, xcache, file values.
+; Type of cache used. Can take auto, redis, memcache, memcached, apcu, xcache, file values.
 type=file
 ; Cache namespace
 namespace=XLite
@@ -135,7 +135,7 @@ category_clean_urls_format = "domain/parent/goalcategory/"
 ;
 ; Changing this setting will not affect existing url's
 ; and requires to re-deploy your store
-product_clean_urls_format = "domain/goalproduct.html"
+product_clean_urls_format = "domain/goalproduct"
 
 ; Static page Clean URL’s format
 ; possible values:
@@ -144,7 +144,16 @@ product_clean_urls_format = "domain/goalproduct.html"
 ;
 ; Changing this setting will not affect existing url's
 ; and requires to re-deploy your store
-static_page_clean_urls_format = "domain/goalpage.html"
+static_page_clean_urls_format = "domain/goalpage"
+
+; Sale discount page Clean URL’s format
+; possible values:
+; domain/goaldiscount
+; domain/goaldiscount.html
+;
+; Changing this setting will not affect existing url's
+; and requires to re-deploy your store
+sale_discount_clean_urls_format = "domain/goaldiscount"
 
 ; Vendor Clean URL’s format
 ; possible values:
@@ -153,7 +162,7 @@ static_page_clean_urls_format = "domain/goalpage.html"
 ;
 ; Changing this setting will not affect existing url's
 ; and requires to re-deploy your store
-vendor_clean_urls_format = "domain/goalvendor.html"
+vendor_clean_urls_format = "domain/goalvendor"
 
 ; News Clean URL’s format
 ; possible values:
@@ -162,7 +171,7 @@ vendor_clean_urls_format = "domain/goalvendor.html"
 ;
 ; Changing this setting will not affect existing url's
 ; and requires to re-deploy your store
-news_clean_urls_format = "domain/goalnews.html"
+news_clean_urls_format = "domain/goalnews"
 
 [clean_urls_aliases]
 ; to define your own alias add line below as:
@@ -258,6 +267,21 @@ url = "http://my.x-cart.com/index.php?q=api"
 upgrade_step_time_limit = 240
 banner_url = "http://my.x-cart.com/xcinfo"
 editions_url = "http://my.x-cart.com/sites/default/files/editions.yaml"
+
+;
+; Service tool
+;
+[service]
+verify_certificate = On
+
+; Tar executable path
+; for example:
+; tar_path = "C:\\Program Files\\Tar\\tar.exe"   (in Windows)
+; tar_path = "/usr/bin/tar" (in Unix/Linux )
+; You should consult with your hosting provider to find where Tar is installed
+; If you leave it empty then PATH everonment will be used to find tar executable.
+;
+tar_path =
 
 ;
 ; Language options
@@ -461,6 +485,9 @@ backgroundJobsSchedulingEnabled = false
 ; Consume jobs via js runner
 jsRunnerForOnlineEnabled = true
 
+[shipping_list]
+; Maximum number of shipping options to be shown as a radio button list on the order creation page. If the number of available options exceeds this value, the options will be shown in a drop-down box.
+display_selector_cutoff = 8
 
 ; WARNING: Do not change the line below
 ; */ ?>

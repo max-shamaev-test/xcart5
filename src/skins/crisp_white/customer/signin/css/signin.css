@@ -63,5 +63,7 @@
   position: relative;
   border-radius: 5px;
   width: 100%;
-  float: left;
+  float: none;
+  display:flex;
+  flex-wrap: wrap;
 }

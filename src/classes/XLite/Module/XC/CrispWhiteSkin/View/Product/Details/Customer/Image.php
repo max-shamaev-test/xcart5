@@ -39,6 +39,19 @@ class Image extends \XLite\View\Product\Details\Customer\Image implements \XLite
     }
 
     /**
+     * Register JS files
+     *
+     * @return array
+     */
+    public function getJSFiles()
+    {
+        $list = parent::getJSFiles();
+        $list[] = 'js/add_to_cart.js';
+
+        return $list;
+    }
+
+    /**
      * Get zoom layer width
      *
      * @return integer

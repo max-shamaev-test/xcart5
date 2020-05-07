@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Repo;
 
+use Includes\Utils\ArrayManager;
+
 /**
  * Zone repository
  *
@@ -48,6 +50,8 @@ class Zone extends \XLite\Model\Repo\ARepo
         ['zone_name'],
         ['is_default'],
     ];
+
+    private $addressCache = [];
 
     // {{{ defineCacheCells
 
@@ -175,6 +179,12 @@ class Zone extends \XLite\Model\Repo\ARepo
      */
     public function findApplicableZones($address)
     {
+        $hash = ArrayManager::md5($address);
+
+        if (isset($this->addressCache[$hash])) {
+            return $this->addressCache[$hash];
+        }
+
         if (is_numeric($address['state']) &&
             \XLite\Core\Database::getRepo('XLite\Model\State')->getCountByCountryAndStateId($address['country'], $address['state']) !== '0') {
             $address['state'] = \XLite\Core\Database::getRepo('XLite\Model\State')->getCodeById($address['state']);
@@ -208,6 +218,8 @@ class Zone extends \XLite\Model\Repo\ARepo
         foreach ($applicableZones as $zone) {
             $result[] = $zone['zone'];
         }
+
+        $this->addressCache[$hash] = $result;
 
         return $result;
     }

@@ -146,6 +146,9 @@ define('wizard/progress', ['js/vue/vue'], function (XLiteVue) {
           }, 700);
         }
       },
+      goToNextStep: function(index) {
+        this.$dispatch('wizard.step.requestNext');
+      },
       canSwitchToStep: function(index) {
         if (typeof(this.landmarks[index]) === 'undefined') {
           return false;

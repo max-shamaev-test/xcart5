@@ -25,7 +25,8 @@ class ProductPageCollection extends \XLite\View\ProductPageCollection implements
         return array_merge(
             parent::defineWidgetsCollection(),
             [
-                '\XLite\Module\CDev\Wholesale\View\ProductPrice',
+                'XLite\Module\CDev\Wholesale\View\ProductPrice',
+                'XLite\View\Product\Details\Customer\EditableAttributes',
             ]
         );
     }

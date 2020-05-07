@@ -330,11 +330,9 @@
 				$self.append(cancelButton);
 			}*/
 
-    	closeButton = $('<button type="button" class="close-button"></button>')
+			closeButton = $('<button type="button" class="close-button"></button>')
 				.button();
-
-      $self.append(closeButton);
-
+			$self.append(closeButton);
 
 			bindEvents();
 		}
@@ -366,10 +364,9 @@
 				if (cancelButton) {
 					cancelButton.click(handlers.onCancel);
 				}*/
-
-        if (closeButton) {
-          closeButton.click(handlers.onApply);
-        }
+				if (closeButton) {
+					closeButton.click(handlers.onApply);
+				}
 			}
 		}
 
@@ -439,7 +436,7 @@
 					.append(presetsMenu.getElement())
 					.append(calendar.getElement())
 				)
-        .append(buttonPanel.getElement())
+				.append(buttonPanel.getElement())
 				// .append($('<div class="ui-helper-clearfix"></div>')
 				// .append(buttonPanel.getElement())
 				.hide();
@@ -489,9 +486,10 @@
 			$(window).resize(function() { isOpen ? autoFit() : autoFitNeeded = true; });
 		}
 
-		function formatRangeForDisplay(range) {
-			var dateFormat = options.dateFormat;
-			return $.datepicker.formatDate(dateFormat, range.start) + options.rangeSplitter + $.datepicker.formatDate(dateFormat, range.end);
+		function formatRangeForDisplay(range, forHidden) {
+			var dateFormat = options.dateFormat,
+				enFormat = $.datepicker.regional['en'];
+			return $.datepicker.formatDate(dateFormat, range.start, forHidden ? enFormat : []) + options.rangeSplitter + $.datepicker.formatDate(dateFormat, range.end, forHidden ? enFormat : []);
 		}
 
 		// formats a date range as JSON
@@ -503,14 +501,18 @@
 			return JSON.stringify(formattedRange);
 		}
 
-		// parses a date range in JSON format
+		// parses a date range in EN format (hidden input for different languages)
 		function parseRange(text) {
-			var dateFormat = options.altFormat,
+			var dateFormat = options.dateFormat,
 				range = null;
 			if (text) {
 				try {
-					range = JSON.parse(text, function(key, value) {
-						return key ? $.datepicker.parseDate(dateFormat, value) : value;
+					range = [];
+					text.split(options.rangeSplitter).forEach(function (value) {
+						var key = 'start';
+						if (range.hasOwnProperty('start'))
+							key = 'end';
+						range[key] = $.datepicker.parseDate(dateFormat, value, $.datepicker.regional['en']);
 					});
 				} catch (e) {
 				}
@@ -522,6 +524,7 @@
 			var range = getRange();
 			if (range) {
 				triggerButton.setLabel(formatRangeForDisplay(range));
+				$originalElement.val(formatRangeForDisplay(range)).change();
 				calendar.setRange(range);
 			} else {
 				calendar.reset();
@@ -539,6 +542,7 @@
 			value && calendar.setRange(range);
 			triggerButton.setLabel(formatRangeForDisplay(range));
 			$originalElement.val(formatRangeForDisplay(range)).change();
+			$originalElement.siblings('.daterange-value-input').val(formatRangeForDisplay(range, true));
 			if (options.onChange) {
 				options.onChange();
 			}
@@ -546,12 +550,13 @@
 		}
 
 		function getRange() {
-			return parseRange($originalElement.val());
+			return parseRange($originalElement.siblings('.daterange-value-input').val());
 		}
 
 		function clearRange(event) {
 			triggerButton.reset();
 			calendar.reset();
+			$originalElement.siblings('.daterange-value-input').val('');
 			if (options.onClear) {
 				options.onClear();
 			}
@@ -661,13 +666,13 @@
 			if (options.onOpen) {
 				options.onOpen();
 			}
-      $originalElement.addClass("focus");
+			$originalElement.addClass("focus");
 			instance._trigger('open', event, {instance: instance});
 		}
 
 		function close(event) {
 			if (isOpen) {
-        setRange(null, event);
+				setRange(null, event);
 				$container.hide();
 				$mask.hide();
 				triggerButton.getElement().removeClass(classname + '-active');
@@ -676,7 +681,7 @@
 			if (options.onClose) {
 				options.onClose();
 			}
-      $originalElement.removeClass("focus");
+			$originalElement.removeClass("focus");
 			instance._trigger('close', event, {instance: instance});
 		}
 

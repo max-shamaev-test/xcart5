@@ -238,11 +238,7 @@ span.three-dots div {
   border: 1px solid #d7e1e8;
   background: #fff;
   box-shadow: 1px 1px 5px silver;
-  -webkit-box-shadow: 1px 1px 5px silver;
-  -moz-box-shadow: 1px 1px 5px silver;
   padding: 16px 18px;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
   z-index: 9999;
 }

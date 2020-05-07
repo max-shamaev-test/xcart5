@@ -55,6 +55,10 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: Show the default menu along with the custom one
+  - name: logo_alt
+    category: 'CDev\SimpleCMS'
+    type: hidden
+    value: ''
 
 XLite\Model\Role\Permission:
   - { code: manage custom pages, section: Content, translations: [{ code: en, name: Manage custom pages }] }
@@ -125,3 +129,4 @@ XLite\Model\LanguageLabel:
   - { name: "itemslist.admin.menu.blank", translations: [{ code: en, label: "<p>There are no menus in the store. Header and footer menus provide customers with useful navigation. They can contain any link or label, and can be nested. Generally, the primary menu is shown on the top of the page, and the footer menu is on the bottom of the page.</p>" }, { code: ru, label: "<p>Меню не заполнены. Меню - удобный инструмент навигации для ваших клиентов. Элементы меню могут содержать любой текст или ссылку, а также могут иметь подменю. Обычно, есть главное меню (оно расположено в вернхней части страницы) и нижнее меню (отображаемое в подвале страницы).</p>" }] }
 
   - { name: 'Show default menu along with the custom one', translations: [{ code: en, label: 'Show default menu along with the custom one' }]}
+  - { name: 'Current logo sizes: XхY px', translations: [{ code: 'en', label: 'Current logo sizes: {{X}}х{{Y}} px' }] }

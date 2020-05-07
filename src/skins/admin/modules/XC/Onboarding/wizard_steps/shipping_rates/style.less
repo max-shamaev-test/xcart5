@@ -15,16 +15,14 @@
   }
 
   .my-shipping {
-    height: 40px;
-    margin: 40px auto;
+    padding: (@rhythmic-unit / 6) 0;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
 
     & > .method-label {
-      font-size: 16px;
-      margin: 0 15px 0 0;
+      margin-right: @rhythmic-unit / 2;
       text-align: right;
       width: 150px;
 
@@ -35,28 +33,21 @@
 
       .input-display {
         margin: 0;
-        padding: 5px 8px 5px 9px;
+        background-color: rgba(252, 235, 176, 0.3);
+        border-radius: @border-radius-base;
+        padding: (@rhythmic-unit / 3 - 1) (@rhythmic-unit / 2 - 1);
         border: 1px solid transparent;
-        border-radius: 4px;
 
         &:hover {
           cursor: pointer;
-          background-color: #faf5dd;
-          border-color: #e0dabc;
+          background-color: #fcebb0;
           overflow: hidden;
         }
       }
     }
 
-    & > .zones {
-      select {
-        font-size: 16px;
-        font-weight: bold;
-      }
-    }
-
     & > .flat-rate {
-      margin: 0 28px 0 15px;
+      margin-left: (@rhythmic-unit / 2);
       width: 122px;
 
       input[type=text] {

@@ -10,8 +10,6 @@
 .promo-block {
   padding: 10px 15px;
   border: 1px solid #b0d4e5;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
   display: table;
 }
@@ -53,13 +51,15 @@
   .rounded(@border-radius-base);
   background-color:@color-light-blue;
   border: 1px solid @brand-info;
-  padding: @rhythmic-unit (@rhythmic-unit / 2);
+  padding: (@rhythmic-unit / 2);
   margin-bottom: @rhythmic-unit;
 
+  & + .promo-banner {
+    margin-top: (-@rhythmic-unit / 2);
+  }
+
   .promo-banner-logo {
-    width: @rhythmic-unit * 8;
-    min-width: @rhythmic-unit * 8;
-    padding: 0 (@rhythmic-unit / 2);
+    max-width: 30%;
     margin-right: (@rhythmic-unit / 2);
     .flex-display();
     .align-items(center);
@@ -84,5 +84,36 @@
         margin-left: @rhythmic-unit;
       }
     }
+  }
+
+  .promo-banner-close {
+    width: (@rhythmic-unit / 2);
+    height: (@rhythmic-unit / 2);
+    display: flex;
+    cursor: pointer;
+
+    svg {
+      height: 100%;
+    }
+  }
+}
+
+.tips-columns {
+  display: table-row;
+
+  .left-column,
+  .right-column {
+    display: table-cell;
+    vertical-align: top;
+  }
+
+  .left-column {
+    padding-right: @rhythmic-unit * 2;
+    min-width: 500px;
+    width: 100%;
+  }
+
+  .right-column {
+    min-width: 360px;
   }
 }

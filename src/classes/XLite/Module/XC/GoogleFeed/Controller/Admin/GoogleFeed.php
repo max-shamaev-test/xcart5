@@ -115,6 +115,7 @@ class GoogleFeed extends \XLite\Controller\Admin\AAdmin
     protected function doActionFeedGenerationCancel()
     {
         Generator::cancel();
+        TopMessage::addWarning('Feed generation has been stopped.');
 
         $this->setReturnURL(
             $this->buildURL('google_feed')

@@ -11,6 +11,7 @@
       <span class="adding-label global-all">{{ t("Will be added globally") }}</span>
       <span class="adding-label global-class">{{ t("Will be added to the product class") }}</span>
     {% endif %}
+    {% include 'product/attributes/parts/display_mode.twig' %}
   </div>
   {% for w in this.getDefaultWidgets() %}
     {{ w.display() }}

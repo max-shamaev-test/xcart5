@@ -102,7 +102,8 @@ class ScenarioRuleException extends \Exception
     {
         return new self(
             'scenario-rule.exception.dependencies.force-enabled-when-required',
-            [$moduleId, $requiredById]
+            [$moduleId, $requiredById],
+            self::SOFT_EXCEPTION
         );
     }
 

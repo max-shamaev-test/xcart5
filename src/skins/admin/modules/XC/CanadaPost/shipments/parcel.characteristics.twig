@@ -31,9 +31,9 @@
   <tr>
     <td>{{ t('Dimensions (cm)') }}:<br />({{ t('Length') }} x {{ t('Width') }} x {{ t('Height') }})</td>
     <td class="parcel-dimensions">
-      {{ widget('\\XLite\\Module\\XC\\CanadaPost\\View\\FormField\\Input\\Text\\Dimension', fieldName='parcelsData[' ~ parcel.getId() ~ '][boxLength]', fieldOnly='true', value=parcel.getBoxLength()) }}
-      {{ widget('\\XLite\\Module\\XC\\CanadaPost\\View\\FormField\\Input\\Text\\Dimension', fieldName='parcelsData[' ~ parcel.getId() ~ '][boxWidth]', fieldOnly='true', value=parcel.getBoxWidth()) }}
-      {{ widget('\\XLite\\Module\\XC\\CanadaPost\\View\\FormField\\Input\\Text\\Dimension', fieldName='parcelsData[' ~ parcel.getId() ~ '][boxHeight]', fieldOnly='true', value=parcel.getBoxHeight()) }}
+      {{ widget('\\XLite\\Module\\XC\\CanadaPost\\View\\FormField\\Input\\Text\\Dimension', fieldName='parcelsData[' ~ parcel.getId() ~ '][boxLengthInCm]', fieldOnly='true', value=parcel.getBoxLengthInCm()) }}
+      {{ widget('\\XLite\\Module\\XC\\CanadaPost\\View\\FormField\\Input\\Text\\Dimension', fieldName='parcelsData[' ~ parcel.getId() ~ '][boxWidthInCm]', fieldOnly='true', value=parcel.getBoxWidthInCm()) }}
+      {{ widget('\\XLite\\Module\\XC\\CanadaPost\\View\\FormField\\Input\\Text\\Dimension', fieldName='parcelsData[' ~ parcel.getId() ~ '][boxHeightInCm]', fieldOnly='true', value=parcel.getBoxHeightInCm()) }}
     </td>
   </tr>
 

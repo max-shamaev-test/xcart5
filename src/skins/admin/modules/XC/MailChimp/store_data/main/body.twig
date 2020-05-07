@@ -7,14 +7,18 @@
 </div>
 <div class="store-data-box">
   {% form '\\XLite\\View\\Form' with {formTarget: 'mailchimp_store_data', formAction: 'updateStores'} %}
-    {% for list in this.getLists() %}
-      {{ widget('\\XLite\\View\\FormField\\Input\\Checkbox', {
-        'label':      list.getName(),
-        'fieldId':    'lists[' ~ list.getId() ~ ']',
-        'fieldName':  'lists[' ~ list.getId() ~ ']',
-        'isChecked':    this.isChecked(list) 
-      }) }}
-    {% endfor %}
+    <ul class="table">
+      {% for list in this.getLists() %}
+        <li>
+          {{ widget('\\XLite\\View\\FormField\\Input\\Checkbox', {
+            'label':      list.getName(),
+            'fieldId':    'lists[' ~ list.getId() ~ ']',
+            'fieldName':  'lists[' ~ list.getId() ~ ']',
+            'isChecked':    this.isChecked(list)
+          }) }}
+        </li>
+      {% endfor %}
+    </ul>
 
     {{ widget('\\XLite\\Module\\XC\\MailChimp\\View\\StickyPanel\\StoreData') }}
   {% endform %}

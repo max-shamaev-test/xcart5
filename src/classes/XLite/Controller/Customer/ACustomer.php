@@ -485,7 +485,7 @@ abstract class ACustomer extends \XLite\Controller\AController
     protected function closeStorefront()
     {
         \Includes\ErrorHandler::fireError(
-            'Storefront is closed',
+            '',
             \Includes\ErrorHandler::ERROR_CLOSED
         );
     }
@@ -520,8 +520,10 @@ abstract class ACustomer extends \XLite\Controller\AController
     protected function updateCart($silent = false)
     {
         $cart = $this->getCart();
-        \XLite\Core\Database::getEM()->transactional(function(EntityManager $em) use (&$cart) {
-            if ($this->markCartCalculate()) {
+        $updated = $cart->updateEmptyShippingID();
+
+        \XLite\Core\Database::getEM()->transactional(function(EntityManager $em) use (&$cart, $updated) {
+            if ($updated || $this->markCartCalculate()) {
                 if ($cart->isManaged()) {
                     $em->lock($cart, \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE);
                 }
@@ -532,8 +534,6 @@ abstract class ACustomer extends \XLite\Controller\AController
         if (!$silent) {
             $this->assembleEvent();
         }
-
-        $this->initialCartFingerprint = $cart->getEventFingerprint($this->getCartFingerprintExclude());
     }
 
     /**
@@ -543,9 +543,10 @@ abstract class ACustomer extends \XLite\Controller\AController
      */
     protected function assembleEvent()
     {
+        $currentFingerprint = $this->getCart()->getEventFingerprint($this->getCartFingerprintExclude());
         $diff = $this->getCartFingerprintDifference(
             $this->initialCartFingerprint,
-            $this->getCart()->getEventFingerprint($this->getCartFingerprintExclude())
+            $currentFingerprint
         );
 
         if ($diff) {
@@ -1132,5 +1133,21 @@ abstract class ACustomer extends \XLite\Controller\AController
                 $this->updateCart();
             }
         }
+    }
+
+    /**
+     * Mark controller run thread as access denied
+     *
+     * @return void
+     */
+    protected function markAsAccessDenied()
+    {
+        \XLite\Core\Request::getInstance()->fromURL = $this->buildURL(
+            $this->getTarget(),
+            $this->getAction(),
+            \XLite\Core\Request::getInstance()->getData()
+        );
+
+        parent::markAsAccessDenied();
     }
 }

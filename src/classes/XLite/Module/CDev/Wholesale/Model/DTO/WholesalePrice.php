@@ -15,7 +15,7 @@ class WholesalePrice extends \XLite\Model\DTO\Base\CommonCell
 {
     public function init(AWholesalePrice $entity)
     {
-        $this['displayPrice'] = $entity->getDisplayPrice();
+        $this['displayPrice'] = $entity->getClearDisplayPrice();
         $this['quantityRangeBegin'] = $entity->getQuantityRangeBegin();
         $this['quantityRangeEnd'] = $entity->getQuantityRangeEnd();
         $this['savePriceValue'] = $entity->getSavePriceValue();

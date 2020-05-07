@@ -80,12 +80,13 @@ abstract class SuperClass
      * @param string $name      Label name
      * @param array  $arguments Substitution arguments OPTIONAL
      * @param string $code      Language code OPTIONAL
+     * @param string $type      Label type, can be used in \XLite\Core\ITranslationProcessor
      *
      * @return string
      */
-    protected static function t($name, array $arguments = array(), $code = null)
+    protected static function t($name, array $arguments = array(), $code = null, $type = null)
     {
-        return \XLite\Core\Translation::lbl($name, $arguments, $code);
+        return \XLite\Core\Translation::lbl($name, $arguments, $code, $type);
     }
 
     /**

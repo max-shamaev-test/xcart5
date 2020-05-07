@@ -19,7 +19,7 @@ class Done extends \XLite\Module\XC\Onboarding\View\AWizardStep
      */
     protected function getPhoneNumber()
     {
-        return '+7 (499) 608-8900';
+        return '1-800-657-7957';
     }
 
     /**

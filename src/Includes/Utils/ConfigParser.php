@@ -39,6 +39,7 @@ abstract class ConfigParser extends \Includes\Utils\AUtils
      * @var array
      */
     protected static $configFiles = array(
+        'config.dev.php',
         'config.php',
         'config.personal.php',
         'config.local.php',

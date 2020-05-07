@@ -13,11 +13,16 @@
 
 div.import-box {
   min-width: 900px;
-  display: inline-block;
   max-width: 1200px;
 
   .buttons {
     padding: @rhythmic-unit 0;
+  }
+
+  &.import-progress {
+    min-width: auto;
+    display: block;
+    max-width: none;
   }
 
   &.import-begin {
@@ -48,38 +53,17 @@ div.import-box {
 /**
  * Import (progress)
  */
-div.import-box.import-progress .subcontent {
-  padding: 20px 0;
-  padding-bottom: 12px;
-}
 
 .ui-dialog div.import-box.import-progress .subcontent {
   padding: 20px 20px;
   padding-bottom: 12px;
 }
 
-div.import-box.import-progress div.content {
-  width: 650px;
-}
-
 /**
  * Import (completed)
  */
-div.import-box.import-completed .subcontent {
-  padding-bottom: 20px;
-  color: #44769d;
-}
-
-.import-page div.import-box .header h2 {
-  display: inline;
-  width: auto;
-  padding: 0;
-  font-size: 22px;
-  float: left;
-  color: #333;
-  margin: 10px 0 20px 0;
-  line-height: normal;
-  max-width: 845px;
+.import-page div.import-box .header h3 {
+  margin-top: 0;
 }
 
 div.import-box .header h2.completed {
@@ -93,23 +77,8 @@ div.import-box .header h2.completed {
   padding: 8px 30px 10px 30px;
 }
 
-div.import-box.import-completed .header h2:last-child {
-  border: none;
-}
-
-div.import-completed ul.messages li {
-  padding: 15px 20px 2px 10px;
-  font-size: 18px;
-}
-
-div.import-completed ul.messages li i {
-  font-size: 19px;
-  color: #4b932b;
-}
-
 div.import-completed ul.messages li span {
-  font-size: 18px;
-  color: #cdcdcd;
+  color: @color-tip;
 }
 
 div.import-completed div.empty {
@@ -140,38 +109,30 @@ div.import-completed .empty .message .comment li {
 .import-box .subcontent ul.errors span.count-w,
 .import-box .subcontent ul.errors span.count-e {
   float: right;
-  -moz-border-radius: 10px;
-  -webkit-border-radius: 10px;
-  border-radius: 10px;
-  background-color: #c09853;
-  padding: 2px 11px;
-  color: #fff;
-  font-size: 12px;
-  margin-left: 10px;
+  border-radius: @border-radius-base;
+  background-color: @brand-warning;
+  padding: 0 (@rhythmic-unit / 2);
+  margin-left: (@rhythmic-unit / 2);
 }
 
 .import-box .subcontent ul.errors span.count-e {
-  background-color: #a94442;
-}
-
-div.import-box.import-failed .header h2 {
-  color: #a94442;
-  padding-left: 1px;
-}
-
-.import-failed .subcontent h3 {
-  margin-left: 0;
+  background-color: @brand-danger;
 }
 
 .import-box .subcontent .errors-wrapper {
-  border: 1px solid #d6d6d6;
-  margin-top: 19px;
-  margin-bottom: 18px;
+  margin-top: @rhythmic-unit;
+  margin-bottom: (@rhythmic-unit / 4) + @rhythmic-unit;
+  border-bottom-left-radius: @border-radius-base;
+  border-bottom-right-radius: @border-radius-base;
 }
 
-.import-box .subcontent ul.errors li {
-  border-top: 1px solid #d6d6d6;
-  padding: 12px 15px 11px;
+.import-box .subcontent ul.errors {
+  margin-top: 5px;
+  border-top: 1px solid @color-border-light;
+  border-right: 1px solid @color-border-light;
+  border-left: 1px solid @color-border-light;
+  border-top-left-radius: @border-radius-base;
+  border-top-right-radius: @border-radius-base;
 }
 
 .import-box .subcontent ul.errors li div {
@@ -185,27 +146,32 @@ div.import-box.import-failed .header h2 {
 }
 
 .import-box .subcontent ul.errors li div.message hr {
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-top: (@rhythmic-unit / 2) - 1;
+  margin-bottom: (@rhythmic-unit / 2) - 1;
 }
 
 .import-box .subcontent ul.errors li div.text {
   width: 230px;
   float: right;
   text-align: right;
-  color: #c09853;
+  color: @brand-primary;
 }
 
 .import-box .subcontent ul.errors li.type-E div.text {
   color: #a94442;
 }
 
+.import-box .subcontent ul.errors li {
+  padding: 0 (@rhythmic-unit / 2) ((@rhythmic-unit / 4) - 1) (@rhythmic-unit / 2);
+  margin-bottom: @rhythmic-unit / 4;
+  border-bottom: 1px solid @color-border-light;
+}
+
 .import-box .subcontent ul.errors li.title {
-  border: none;
-  padding: 17px 19px 12px;
-  font-size: 17px;
-  color: #658aaa;
-  background: #f2f2f2;
+  background: @items-list-head-bg;
+  padding: (@rhythmic-unit - 6) (@rhythmic-unit / 2) (@rhythmic-unit - 6) (@rhythmic-unit / 2);
+  margin: 0 0 5px 0;
+  border-bottom: 1px solid @color-border-light;
 }
 
 .import-box .subcontent ul.errors li.title i {
@@ -214,15 +180,8 @@ div.import-box.import-failed .header h2 {
   margin-right: 3px;
 }
 
-.import-box .subcontent div.much-errors {
-  font-size: 18px;
-  color: #a94442;
-  margin-bottom: 7px;
-}
-
 .import-failed .subcontent p {
-  font-size: 14px;
-  line-height: 20px;
+  margin-top: 0;
 }
 
 .import-completed .subcontent .import-completed-warnings {
@@ -265,49 +224,51 @@ div.import-box.import-failed .header h2 {
 }
 
 .import-box .subcontent .errors-wrapper.faded.initial {
-  max-height: 250px;
+  max-height: 270px;
 }
 
 .action-wrapper {
   position: absolute;
   bottom: 0;
-  height: 50px;
   width: 100%;
 
   display: flex;
   justify-content: center;
-  align-items: flex-end;
-  padding-bottom: 7px;
+  align-items: center;
+
+  background: @items-list-head-bg;
+
+  padding: (@rhythmic-unit - 1) (@rhythmic-unit / 2) ((@rhythmic-unit / 2) - 1) (@rhythmic-unit / 2);
+  margin-top: -1px;
+  margin-bottom: -1px;
+  border: 1px solid @color-border-light;
+  border-bottom-left-radius: @border-radius-base;
+  border-bottom-right-radius: @border-radius-base;
 }
 
 .action-wrapper.bottom-fade {
-  background: rgba(237, 237, 237, 0);
-  background: -moz-linear-gradient(top, rgba(237, 237, 237, 0) 0%, rgba(249, 249, 249, 1) 67%, rgba(255, 255, 255, 1) 100%);
-  background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(237, 237, 237, 0)), color-stop(67%, rgba(249, 249, 249, 1)), color-stop(100%, rgba(255, 255, 255, 1)));
-  background: -webkit-linear-gradient(top, rgba(237, 237, 237, 0) 0%, rgba(249, 249, 249, 1) 67%, rgba(255, 255, 255, 1) 100%);
-  background: -o-linear-gradient(top, rgba(237, 237, 237, 0) 0%, rgba(249, 249, 249, 1) 67%, rgba(255, 255, 255, 1) 100%);
-  background: -ms-linear-gradient(top, rgba(237, 237, 237, 0) 0%, rgba(249, 249, 249, 1) 67%, rgba(255, 255, 255, 1) 100%);
-  background: linear-gradient(to bottom, rgba(237, 237, 237, 0) 0%, rgba(249, 249, 249, 1) 67%, rgba(255, 255, 255, 1) 100%);
-  -ms-filter: "progid:DXImageTransform.Microsoft.gradient( startColorstr='#ededed', endColorstr='#ffffff', GradientType=0 )";
+  background: @items-list-head-bg;
+  background: linear-gradient(0deg, @items-list-head-bg 0%, @body-bg 100%);
 }
 
 .import-box .subcontent .download-errors {
   text-align: center;
-  margin-bottom: 18px;
 }
 
 .action-wrapper .bottom-fade-action,
 .import-box .subcontent .download-errors a {
+  display: inline-block;
   cursor: pointer;
-  font-size: 13px;
   text-decoration: none;
   border-bottom: 1px dashed;
-  color: #1a509a;
+  margin-bottom: -1px;
+  color: @text-color;
 }
 
 .action-wrapper .bottom-fade-action:hover,
 .import-box .subcontent .download-errors a:hover {
-  color: #0f9dcc;
+  border: none;
+  margin-bottom: 0;
 }
 
 .alert.alert-danger ul {

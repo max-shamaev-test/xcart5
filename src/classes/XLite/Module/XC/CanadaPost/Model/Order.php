@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\CanadaPost\Model;
 
+use XLite\Module\XC\CanadaPost\Model\Order\Parcel;
+
 /**
  * Class represents an order
  */
@@ -99,20 +101,142 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
     // }}}
 
     /**
-     * Delete all Canada Post parcels
+     * Return transmitted parcels
+     *
+     * @return array
+     */
+    protected function getTransmittedParcels()
+    {
+        return $this->getCapostParcels()->filter(function ($capostParcel) {
+            return $capostParcel->getStatus() === Parcel::STATUS_TRANSMITED;
+        });
+    }
+
+    /**
+     * Return not transmitted parcels
+     *
+     * @return array
+     */
+    protected function getNotTransmittedParcels()
+    {
+        return $this->getCapostParcels()->filter(function ($capostParcel) {
+            return $capostParcel->getStatus() !== Parcel::STATUS_TRANSMITED;
+        });
+    }
+
+    /**
+     * Remove not transmitted parcels
      *
      * @return void
      */
-    public function removeAllCapostParcels()
+    protected function removeNotTransmittedCapostParcels()
     {
         $repo = \XLite\Core\Database::getRepo('XLite\Module\XC\CanadaPost\Model\Order\Parcel');
-        $repo->deleteInBatch($this->getCapostParcels());
+
+        $repo->deleteInBatch($this->getNotTransmittedParcels()->toArray());
+    }
+
+    /**
+     * Remove irrelevant parcel items
+     *
+     * @param array $packages
+     *
+     * @return array
+     */
+    protected function removeIrrelevantParcelItems()
+    {
+        foreach ($this->getTransmittedParcels() as $transmittedParcel) {
+            $transmittedParcel->removeIrrelevantParcelItems();
+        }
+    }
+
+    /**
+     * Set items
+     *
+     * @param array $items
+     *
+     * @return \XLite\Model\OrderItem
+     */
+    public function setItems($items)
+    {
+        $this->items = $items;
+
+        return $this;
+    }
+
+
+    /**
+     * Remove transmitted items from modifier and return result
+     *
+     * @param \XLite\Model\Order\Modifier $modifier
+     *
+     * @return array
+     */
+    protected function getModifierWithoutTransmittedItems($modifier)
+    {
+        $transmittedItems = array_reduce(
+            $this->getTransmittedParcels()->toArray(),
+            function ($items, $parcel) {
+                return array_merge($items, $parcel->getItems()->toArray());
+            },
+            []
+        );
+
+        $items = $modifier->getOrder()->getItems()->toArray();
+
+        foreach ($items as $key => $item) {
+            foreach ($transmittedItems as $transmittedItem) {
+                if ($transmittedItem->getOrderItem()->getId() === $item->getId()) {
+                    $newAmount = $item->getAmount() - $transmittedItem->getAmount();
+
+                    if ($newAmount <= 0) {
+                        unset($items[$key]);
+                    } else {
+                        if (!$item->getCopyOfAmount()) {
+                            $item->setCopyOfAmount();
+                        }
+                        $item->setAmount($newAmount);
+                    }
+                }
+            }
+        }
+
+        $modifier->getOrder()->setItems($items);
+
+        return $modifier;
+    }
+
+    /**
+     * Restore order items counts
+     *
+     * @return void
+     */
+    protected function restoreOrderItemsCounts()
+    {
+        foreach ($this->getItems() as $item) {
+            if ($item->getCopyOfAmount()) {
+                $item->setAmount($item->getCopyOfAmount());
+            }
+        }
+    }
+
+    /**
+     * Return max parcel number
+     *
+     * @return integer
+     */
+    protected function getMaxParcelNumber() {
+        $result = 0;
+
+        foreach ($this->getCapostParcels() as $parcel) {
+            $result = max($result, $parcel->getNumber());
+        }
+
+        return $result;
     }
 
     /**
      * Calculated and create Canada Post parcels for the order
-     *
-     * @param boolean $replace Flag - replace order's parcels or not
      *
      * @return void
      */
@@ -120,26 +244,39 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
     {
         $modifier = $this->getModifier(\XLite\Model\Base\Surcharge::TYPE_SHIPPING, 'SHIPPING');
 
+        $capostConfig = \XLite\Core\Config::getInstance()->XC->CanadaPost;
+
+        $maxParcelNumber = 0;
+        if ($replace) {
+            $this->removeNotTransmittedCapostParcels();
+            $this->removeIrrelevantParcelItems();
+            $modifier = $this->getModifierWithoutTransmittedItems($modifier);
+
+            if (!$this->getCapostParcels()->isEmpty()) {
+                $maxParcelNumber = $this->getMaxParcelNumber();
+            }
+        }
+
         $rawPackages = ($modifier && $modifier->getMethod() && $modifier->getMethod()->getProcessorObject())
             ? $modifier->getMethod()->getProcessorObject()->getPackages($modifier)
-            : array();
+            : [];
 
-        $capostConfig = \XLite\Core\Config::getInstance()->XC->CanadaPost;
-        
         if ($replace) {
-            // Remove order's parcels
-            $this->removeAllCapostParcels();
+            $this->restoreOrderItemsCounts();
         }
 
         if (!empty($rawPackages)
             && is_array($rawPackages)
         ) {
             foreach ($rawPackages as $packageIdx => $package) {
+                if (!$package['items']) {
+                    continue;
+                }
                 $parcel = new \XLite\Module\XC\CanadaPost\Model\Order\Parcel();
 
                 $parcel->setOrder($this);
                 
-                $parcel->setNumber($packageIdx + 1);
+                $parcel->setNumber($packageIdx + 1 + $maxParcelNumber);
                 $parcel->setQuoteType($capostConfig->quote_type);
                 
                 // Set parcel box dimensions and weight

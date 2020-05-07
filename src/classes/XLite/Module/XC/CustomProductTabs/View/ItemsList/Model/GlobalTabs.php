@@ -192,19 +192,25 @@ class GlobalTabs extends \XLite\View\ItemsList\Model\Table
             return static::t('Tab displaying comments about the product. Added by the addons VK/GoSocial/Disqus', [
                 'modules' => implode(', ', array_filter(array_map(function (GlobalTabProvider $provider) {
                     $code = $provider->getCode();
-                    //$repo = Database::getRepo('XLite\Model\Module');
 
-                    //if ($module = $repo->findOneByModuleName($code)) {
-                        return sprintf(
-                            '<a href="%s">%s</a>',
-                            \Includes\Utils\Module\Manager::getRegistry()->getModuleServiceURL($code),
-                            //$module->isInstalled() ? $module->getInstalledURL(): $module->getMarketplaceURL(),
-                            //$module->getName()
-                            $code // @todo: get uninstalled module info
-                        );
-                    //}
+                    $moduleName = $code;
 
-                    //return null;
+                    $module = \Includes\Utils\Module\Manager::getRegistry()->getModule($code);
+                    if ($module) {
+                        $moduleName = $module->moduleName;
+                    } else {
+                        $marketplaceModule = \XLite\Core\Marketplace::getInstance()->getMarketplaceModule($code);
+                        if ($marketplaceModule) {
+                            $moduleName = $marketplaceModule['moduleName'];
+                        }
+                    }
+
+                    return sprintf(
+                        '<a href="%s">%s</a>',
+                        \Includes\Utils\Module\Manager::getRegistry()->getModuleServiceURL($code),
+                        $moduleName
+                    );
+
                 }, $model->getProviders()->toArray())))
             ]);
         }

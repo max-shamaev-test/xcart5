@@ -35,7 +35,7 @@
   }
 
   .contacts {
-    margin-top: 42px;
+    margin-top: (@rhythmic-unit * 4);
     display: flex;
     flex-direction: column;
 
@@ -43,7 +43,6 @@
       display: flex;
       flex-direction: row;
       justify-content: center;
-      margin-top: 10px;
 
       .separator {
         margin: 0 8px;
@@ -53,9 +52,50 @@
         border: none;
       }
     }
+
+    .text {
+      font-size: 12px;
+      margin: 0;
+    }
   }
 
-  .buttons {
-    margin: 17px auto 3px;
+  .action-buttons {
+    margin-top: 28px;
+
+    .btn + .btn {
+      margin-left: 22px;
+    }
+  }
+
+  .heading {
+    margin-bottom: 10px;
+  }
+
+  .advertise {
+    max-width: 680px;
+    padding: @rhythmic-unit / 2;
+    background: @color-light-blue;
+    border: 1px solid @color-mid-blue;
+    border-radius: @border-radius-base;
+    margin: @rhythmic-unit * 2 auto;
+    width: 632px;
+
+    img {
+      float: left;
+      margin-right: @rhythmic-unit / 2;
+    }
+
+    p {
+      text-align: left;
+      margin: @rhythmic-unit / 2 0;
+
+      a {
+        cursor: pointer;
+      }
+
+      a:hover {
+        text-decoration: none;
+      }
+    }
   }
 }

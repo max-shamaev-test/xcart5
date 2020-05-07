@@ -11,7 +11,7 @@ namespace XLite\Module\XC\GoogleFeed\Logic\Feed\Step;
 /**
  * Products step
  *
- * @Decorator\Depend({"XC\SystemFields", "XC\ProductVariants", "XC\GoogleFeed"})
+ * @Decorator\Depend({"XC\SystemFields", "XC\ProductVariants"})
  */
 class ProductVariantsUpcIsbn extends \XLite\Module\XC\GoogleFeed\Logic\Feed\Step\Products implements \XLite\Base\IDecorator
 {

@@ -181,7 +181,7 @@ class PB extends \XLite\Model\Shipping\Processor\AProcessor
             $rates = $this->getDataFromCache($cacheKey);
         }
 
-        if (!$rates) {
+        if ($rates === null) {
             try {
                 $requestFactory            = Main::getRequestFactory();
                 $ratesRequest              = $requestFactory->createRatesRequest(null);
@@ -202,6 +202,7 @@ class PB extends \XLite\Model\Shipping\Processor\AProcessor
                 Main::log($e->getMessage());
 
             } catch (RequestException $e) {
+                $this->saveDataInCache($cacheKey, []);
                 $this->setError($e->getMessage());
                 Main::log($e->getMessage());
             }

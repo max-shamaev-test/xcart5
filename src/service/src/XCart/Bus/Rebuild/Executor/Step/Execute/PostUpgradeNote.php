@@ -14,7 +14,7 @@ use XCart\SilexAnnotations\Annotations\Service;
 
 /**
  * @Service\Service(arguments={"logger"="XCart\Bus\Core\Logger\Rebuild"})
- * @RebuildStep(script = "redeploy", weight = "20000")
+ * @RebuildStep(script = "redeploy", weight = "21000")
  */
 class PostUpgradeNote extends AUpgradeNote
 {

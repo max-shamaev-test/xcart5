@@ -260,6 +260,13 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     protected $recent = true;
 
     /**
+     * @var string
+     *
+     * @Column (type="string", length=255, nullable=true)
+     */
+    protected $stockStatus = '';
+
+    /**
      * 'Add item' error code
      *
      * @var string
@@ -390,6 +397,29 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     public function setTemporary($temporary)
     {
         $this->temporary = $temporary;
+    }
+
+    /**
+     * Flag if cart become order in current runtime
+     *
+     * @var bool
+     */
+    protected $justClosed = false;
+
+    /**
+     * @return bool
+     */
+    public function isJustClosed()
+    {
+        return $this->justClosed;
+    }
+
+    /**
+     * @param bool $justClosed
+     */
+    protected function setJustClosed($justClosed)
+    {
+        $this->justClosed = $justClosed;
     }
 
     /**
@@ -797,6 +827,22 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     }
 
     /**
+     * @return string|null
+     */
+    public function getStockStatus()
+    {
+        return $this->stockStatus;
+    }
+
+    /**
+     * @param string|null $stockStatus
+     */
+    public function setStockStatus($stockStatus)
+    {
+        $this->stockStatus = $stockStatus;
+    }
+
+    /**
      * Assign order number for cloned entity
      *
      * @param \XLite\Model\Order $newOrder
@@ -1125,6 +1171,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
             $address->setStreet($config->origin_address);
             $address->setCity($config->origin_city);
             $address->setCountryCode($config->origin_country);
+            $address->setName($config->company_name);
 
             if ($config->origin_state) {
                 $address->setStateId($config->origin_state);
@@ -1238,11 +1285,16 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     protected function getFingerprintByShippingTotal()
     {
+        /** @var \XLite\Logic\Order\Modifier\Shipping $shippingModifier */
         $shippingModifier = $this->getModifier(\XLite\Model\Base\Surcharge::TYPE_SHIPPING, 'SHIPPING');
 
-        return $shippingModifier && $shippingModifier->getSelectedRate()
-            ? (float) $shippingModifier->getSelectedRate()->getTotalRate()
-            : (float) 0;
+        if (!$shippingModifier) {
+            return 0;
+        }
+
+        $rate = $shippingModifier->getSelectedRate();
+
+        return $rate ? (float)$rate->getTotalRate() : 0;
     }
 
     /**
@@ -1262,11 +1314,16 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     protected function getFingerprintByShippingMethodId()
     {
+        /** @var \XLite\Logic\Order\Modifier\Shipping $shippingModifier */
         $shippingModifier = $this->getModifier(\XLite\Model\Base\Surcharge::TYPE_SHIPPING, 'SHIPPING');
 
-        return $shippingModifier && $shippingModifier->getSelectedRate()
-            ? $shippingModifier->getSelectedRate()->getMethod()->getMethodId()
-            : 0;
+        if (!$shippingModifier) {
+            return 0;
+        }
+
+        $rate = $shippingModifier->getSelectedRate();
+
+        return $rate ? $rate->getMethod()->getMethodId() : 0;
     }
 
     /**
@@ -1288,11 +1345,15 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     protected function getFingerprintByShippingMethodsHash()
     {
+        /** @var \XLite\Logic\Order\Modifier\Shipping $shippingModifier */
         $shippingModifier = $this->getModifier(\XLite\Model\Base\Surcharge::TYPE_SHIPPING, 'SHIPPING');
-        $shippingMethodsHash = array();
+        $shippingMethodsHash = [];
         if ($shippingModifier) {
-            foreach ($shippingModifier->getRates() as $rate) {
-                $shippingMethodsHash[] = $rate->getMethod()->getMethodId() . ':' . $rate->getTotalRate();
+            $rates = $shippingModifier->getRates();
+            foreach ($rates as $rate) {
+                $methodId = $rate->getMethod()->getMethodId();
+                $totalRate = $rate->getTotalRate();
+                $shippingMethodsHash[] = "$methodId:$totalRate";
             }
         }
 
@@ -1486,6 +1547,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         if (false === $incStock) {
             $this->processBackorderedItems();
             $this->decreaseInventory();
+            $this->setStockStatus('reduced');
         }
 
         // Register 'Place order' event in the order history
@@ -1508,7 +1570,9 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     {
         $backstockCount = 0;
 
-        foreach ($this->getItems() as $item) {
+        $items = $this->getItems();
+
+        foreach ($items as $item) {
             if ($item->isDeleted() || !$this->isInventoryEnabledForItem($item)) {
                 continue;
             }
@@ -1737,18 +1801,17 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     public function getPaymentMethods()
     {
-        if (0 < $this->getOpenTotal()) {
-            $list = \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')
-                ->findAllActive();
+        if (0 >= $this->getOpenTotal()) {
+            return [];
+        }
 
-            foreach ($list as $i => $method) {
-                if (!$method->isEnabled() || !$method->getProcessor()->isApplicable($this, $method)) {
-                    unset($list[$i]);
-                }
+        $list = \XLite\Core\Database::getRepo('XLite\Model\Payment\Method')
+            ->findAllActive();
+
+        foreach ($list as $i => $method) {
+            if (!$method->isEnabled() || !$method->getProcessor()->isApplicable($this, $method)) {
+                unset($list[$i]);
             }
-
-        } else {
-            $list = array();
         }
 
         if (\XLite\Core\Auth::getInstance()->isOperatingAsUserMode()) {
@@ -2308,18 +2371,20 @@ class Order extends \XLite\Model\Base\SurchargeOwner
      */
     public function renewShippingMethod()
     {
+        $this->updateEmptyShippingID();
+
         /** @var \XLite\Logic\Order\Modifier\Shipping $modifier */
         $modifier = $this->getModifier(\XLite\Model\Base\Surcharge::TYPE_SHIPPING, 'SHIPPING');
-        if ($modifier) {
-            $this->setShippingId(0);
-            if (null === $modifier->getSelectedRate()) {
-                $method = $this->getFirstShippingMethod();
-                if ($method) {
-                    $methodId = $method->getMethodId();
+        if ($modifier && $modifier->getSelectedRate() === null) {
+            $method = $this->getFirstShippingMethod();
 
-                    $this->setLastShippingId($methodId);
-                    $this->setShippingId($methodId);
-                }
+            if ($method) {
+                $methodId = $method->getMethodId();
+
+                $this->setLastShippingId($methodId);
+                $this->setShippingId($methodId);
+            } else {
+                $this->setShippingId(0);
             }
         }
     }
@@ -2858,6 +2923,7 @@ class Order extends \XLite\Model\Base\SurchargeOwner
         $this->setTotal($subtotal);
     }
 
+
     /**
      * Finalize items calculation
      *
@@ -3187,20 +3253,33 @@ class Order extends \XLite\Model\Base\SurchargeOwner
 
         $incStock = $property ? $property->getIncStock() : null;
         if ($incStock !== null) {
-            $property = \XLite\Core\Database::getRepo('XLite\Model\Order\Status\Property')->findOneBy(
-                array(
-                    'paymentStatus'  => $this->oldPaymentStatus,
-                    'shippingStatus' => $this->oldShippingStatus,
-                )
-            );
-            $oldIncStock = $property ? $property->getIncStock() : null;
+            $stokStatus = $this->getStockStatus();
 
-            if (!is_null($oldIncStock) && $incStock !== $oldIncStock) {
+            $oldIncStock = null;
+            if ($stokStatus === 'increased') {
+                $oldIncStock = true;
+            } elseif ($stokStatus === 'reduced') {
+                $oldIncStock = false;
+            }
+
+            if ($oldIncStock === null) {
+                $property    = \XLite\Core\Database::getRepo('XLite\Model\Order\Status\Property')->findOneBy(
+                    [
+                        'paymentStatus'  => $this->oldPaymentStatus,
+                        'shippingStatus' => $this->oldShippingStatus,
+                    ]
+                );
+                $oldIncStock = $property ? $property->getIncStock() : null;
+            }
+
+            if ($oldIncStock !== null && $incStock !== $oldIncStock) {
                 if ($incStock) {
                     $this->processIncrease();
+                    $this->setStockStatus('increased');
 
                 } else {
                     $this->processDecrease();
+                    $this->setStockStatus('reduced');
                 }
             }
         }
@@ -3812,11 +3891,14 @@ class Order extends \XLite\Model\Base\SurchargeOwner
             } elseif ($sums['refunded'] > 0) {
                 $result = \XLite\Model\Order\Status\Payment::STATUS_REFUNDED;
             }
+        }
 
+        $lastTransaction = $this->getPaymentTransactions()->last();
+        if ($lastTransaction && $lastTransaction->isVoid()) {
+            $result = \XLite\Model\Order\Status\Payment::STATUS_CANCELED;
         }
 
         if (\XLite\Model\Order\Status\Payment::STATUS_QUEUED === $result) {
-            $lastTransaction = $this->getPaymentTransactions()->last();
             if ($lastTransaction) {
                 if ($lastTransaction->isFailed() || $lastTransaction->isVoid()) {
                     $result = \XLite\Model\Order\Status\Payment::STATUS_DECLINED;
@@ -4605,5 +4687,20 @@ class Order extends \XLite\Model\Base\SurchargeOwner
     {
         return $this->getPaidTotal() > 0
             && $this->getOpenTotal() >= 0;
+    }
+
+    /**
+     * Remember last shipping id
+     *
+     * @return bool
+     */
+    public function updateEmptyShippingID()
+    {
+        if (!$this->getShippingId() && $this->getProfile() && $this->getLastShippingId()) {
+            $this->setShippingId($this->getLastShippingId());
+            return true;
+        }
+
+        return false;
     }
 }

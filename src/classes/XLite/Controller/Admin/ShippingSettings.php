@@ -14,6 +14,11 @@ namespace XLite\Controller\Admin;
 class ShippingSettings extends \XLite\Controller\Admin\AAdmin
 {
     /**
+     * @var array
+     */
+    protected $options;
+
+    /**
      * Define the actions with no secure token
      *
      * @return array
@@ -47,8 +52,26 @@ class ShippingSettings extends \XLite\Controller\Admin\AAdmin
      */
     public function getOptions()
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Config')
+        if ($this->options !== null) {
+            return $this->options;
+        }
+
+        $options = \XLite\Core\Database::getRepo('XLite\Model\Config')
             ->findByCategoryAndVisible($this->getOptionsCategory());
+
+        $disabledFields = [];
+        $addressFields = \XLite\Core\Database::getRepo('XLite\Model\AddressField')->findAll();
+        foreach ($addressFields as $field) {
+            if (!$field->getEnabled()) {
+                $disabledFields[] = \XLite\Model\Address::getDefaultFieldName($field->getServiceName());
+            }
+        }
+
+        $this->options = array_filter($options, static function($option) use ($disabledFields) {
+            return !in_array($option->getName(), $disabledFields, true);
+        });
+
+        return $this->options;
     }
 
     /**

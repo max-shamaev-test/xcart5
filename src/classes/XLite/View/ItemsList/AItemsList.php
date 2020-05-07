@@ -23,6 +23,7 @@ abstract class AItemsList extends \XLite\View\Container
      */
     const PARAM_SORT_BY    = 'sortBy';
     const PARAM_SORT_ORDER = 'sortOrder';
+    const PARAM_AJAX_ITEMS_PER_PAGE = 'itemsPerPage';
 
     /**
      * SQL orderby directions
@@ -880,7 +881,7 @@ abstract class AItemsList extends \XLite\View\Container
                 $preprocessed = $condition->getValue();
             }
 
-            if (!$preprocessed || !is_string($preprocessed)) {
+            if (!$preprocessed || !(is_string($preprocessed) || is_array($preprocessed))) {
                 continue;
             }
 
@@ -900,6 +901,7 @@ abstract class AItemsList extends \XLite\View\Container
         return array(
             static::PARAM_AJAX_WIDGET => get_class($this),
             static::PARAM_AJAX_TARGET => \XLite\Core\Request::getInstance()->target,
+            static::PARAM_AJAX_ITEMS_PER_PAGE => $this->getPager()->getWidgetParams('itemsPerPage')->value
         );
     }
 

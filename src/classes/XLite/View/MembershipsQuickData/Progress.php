@@ -23,19 +23,6 @@ class Progress extends \XLite\View\AView
     }
 
     /**
-     * Register CSS files
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/style.css';
-
-        return $list;
-    }
-
-    /**
      * Register JS files
      *
      * @return array

@@ -153,10 +153,10 @@ div.single-progress-mark {
 #themeTweaker_wrapper .themeTweaker-onoffswitch input[type=checkbox] + label {
   cursor: pointer;
   outline: none;
-  user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+  user-select: none;
   text-align: left;
   position: relative;
 }
@@ -344,7 +344,6 @@ div.single-progress-mark {
 .themeTweaker_tree.jstree-default .jstree-disabled > .jstree-icon {
   opacity: 1;
   filter: none;
-  -webkit-filter: none;
 }
 
 .themeTweaker_tree.jstree-default .jstree-icon.jstree-themeicon:after {

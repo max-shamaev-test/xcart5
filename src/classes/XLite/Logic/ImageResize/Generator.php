@@ -42,28 +42,28 @@ class Generator extends \XLite\Logic\AGenerator
     {
         return [
             static::MODEL_PRODUCT  => [
-                'XXSThumbnail'     => [40, 40],
-                'XSThumbnail2'     => [58, 58], // Items list (admin area)
+                'XXSThumbnail'     => [60, 60],
+                'XSThumbnail2'     => [60, 60], // Items list (admin area)
                 'XSThumbnail'      => [60, 60], // Product thumbnail in the list of detailed images (details page)
-                'SMThumbnail'      => [80, 80], // Product thumbnail on the cart items list
-                'MDThumbnail'      => [122, 122],
-                'CommonThumbnail'  => [110, 110], // Products list thumbnail (mainly for sidebar lists)
+                'SMThumbnail'      => [60, 60], // Product thumbnail on the cart items list
+                'MDThumbnail'      => [120, 120],
+                'CommonThumbnail'  => [120, 120], // Products list thumbnail (mainly for sidebar lists)
                 'SBSmallThumbnail' => [160, 160], // Sidebar products list small thumbnail
-                'SBBigThumbnail'   => [160, 160], // Sidebar products list big thumbnail
+                'SBBigThumbnail'   => [240, 240], // Sidebar products list big thumbnail
                 'LGThumbnailList'  => [160, 160], // Center products list thumbnail
                 'LGThumbnailGrid'  => [160, 160], // Center products grid thumbnail
                 'Default'          => [300, 300], // Product thumbnail on the details page
-                'LGDefault'        => [600, 600], // Product detailed image on the details page
             ],
             static::MODEL_CATEGORY => [
-                'XXSThumbnail' => [40, 40],
-                'XSThumbnail2' => [58, 58],
-                'MDThumbnail'  => [122, 122],
-                'LGThumbnail'  => [160, 160],
-                'Default'      => [160, 160], // Category thumbnail
+                'XXSThumbnail' => [60, 60],
+                'XSThumbnail'  => [60, 60],
+                'MDThumbnail'  => [120, 120],
+                'LGThumbnail'  => [240, 240],
+                'Default'      => [240, 240], // Category thumbnail
             ],
             static::MODEL_LOGO => [
-                'Default' => [0, 0],
+                'Default' => [221, 40],
+                'Invoice' => [330, 180]
             ],
         ];
     }
@@ -197,6 +197,14 @@ class Generator extends \XLite\Logic\AGenerator
         }
 
         return $result;
+    }
+
+    /**
+     * @return void
+     */
+    public static function clearImageSizesCache()
+    {
+        static::$imageSizesCache = null;
     }
 
     // {{{ Steps

@@ -22,7 +22,8 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
     {
         $columns = parent::defineColumns();
 
-        $columns['sale'] = array();
+        $columns['sale'] = [];
+        $columns['saleDiscounts'] = [];
 
         return $columns;
     }
@@ -44,6 +45,29 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
             $result = $this->getColumnValueByName($dataset['model'], 'salePriceValue');
             if (\XLite\Model\Product::SALE_DISCOUNT_TYPE_PERCENT == $dataset['model']->getDiscountType()) {
                 $result .= '%';
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get column value for 'saleDiscounts' column
+     *
+     * @param array   $dataset Dataset
+     * @param string  $name    Column name
+     * @param integer $i       Subcolumn index
+     *
+     * @return array
+     */
+    protected function getSaleDiscountsColumnValue(array $dataset, $name, $i)
+    {
+        $result = [];
+
+        if (!$dataset['model']->getParticipateSale()) {
+            /** @var \XLite\Module\CDev\Sale\Model\SaleDiscountProduct $saleDiscountProduct */
+            foreach ($dataset['model']->getSaleDiscountProducts() as $saleDiscountProduct) {
+                $result[] = $saleDiscountProduct->getSaleDiscount()->getName();
             }
         }
 

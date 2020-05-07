@@ -1184,7 +1184,7 @@ XML;
 
         foreach (array('length', 'width', 'height') as $v) {
             $dimensions[$v] = static::adjustFloatValue(
-                $parcel->{'getBox' . \XLite\Core\Converter::convertToCamelCase($v)}(), 1, 0.1, 999.9
+                $parcel->{'getBox' . \XLite\Core\Converter::convertToCamelCase($v) . 'InCm'}(), 1, 0.1, 999.9
             );
         }
 

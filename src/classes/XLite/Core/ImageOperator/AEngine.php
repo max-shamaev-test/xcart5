@@ -34,6 +34,15 @@ abstract class AEngine extends \XLite\Base\Singleton
     abstract public function resize($width, $height);
 
     /**
+     * Resize
+     *
+     * @param array $sizes
+     *
+     * @return array
+     */
+    abstract public function resizeBulk($sizes);
+
+    /**
      * Rotate
      *
      * @param float $degree

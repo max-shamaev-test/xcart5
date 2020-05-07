@@ -99,6 +99,16 @@ class KeysNotice extends \XLite\View\ModulesManager\AModulesManager
     }
 
     /**
+     * Check if there are unallowed and enabled modules
+     *
+     * @return bool
+     */
+    protected function hasUnallowedEnabledModules()
+    {
+        return \XLite\Core\Marketplace::getInstance()->hasUnallowedModules();
+    }
+
+    /**
      * Get list of unallowed modules
      *
      * @return array
@@ -294,12 +304,11 @@ class KeysNotice extends \XLite\View\ModulesManager\AModulesManager
     {
         $result = false;
 
-        //$flags = \XLite\Core\Marketplace::getInstance()->checkForUpdates();
-        //
-        //if (!empty($flags[\XCart\Marketplace\Constant::FIELD_IS_CONFIRMED])) {
-        //    $result = true;
-        //    \XLite\Core\Session::getInstance()->fraudWarningDisplayed = true;
-        //}
+        if (\XLite\Core\Marketplace::getInstance()->isFraud()) {
+            $result = true;
+            \XLite\Core\Session::getInstance()->fraudWarningDisplayed = true;
+            \XLite\Core\Session::getInstance()->shouldDisableUnallowedModules = true;
+        }
 
         return $result;
     }
@@ -369,9 +378,7 @@ class KeysNotice extends \XLite\View\ModulesManager\AModulesManager
 
             if ($license) {
                 $keyData = $license['keyData'];
-                $xbProductId = !empty($keyData['xbProductId'])
-                    ? $keyData['xbProductId']
-                    : \XLite\Core\Database::getRepo('XLite\Model\Module')->getEditionIdByName($keyData['editionName']);
+                $xbProductId = $keyData['xbProductId'];
                 $xbProductId = (int) $xbProductId;
 
                 $result['title'] = 'X-Cart ' . $keyData['editionName'];

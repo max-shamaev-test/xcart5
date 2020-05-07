@@ -8,6 +8,7 @@
 
 namespace XLite\Controller\Admin;
 
+use Includes\Requirements;
 use XLite\Rebuild\Connector;
 
 /**
@@ -93,7 +94,7 @@ class Login extends \XLite\Controller\Admin\AAdmin
     {
         $profile = \XLite\Core\Auth::getInstance()->loginAdministrator(
             \XLite\Core\Request::getInstance()->login,
-            \XLite\Core\Request::getInstance()->password
+            \XLite\Core\Request::getInstance()->getNonFilteredData()['password'] ?? null
         );
 
         if (
@@ -114,6 +115,12 @@ class Login extends \XLite\Controller\Admin\AAdmin
         } else {
             if (!\XLite::hasXCNLicenseKey()) {
                 \XLite\Core\Session::getInstance()->set(\XLite::SHOW_TRIAL_NOTICE, true);
+            }
+
+            $requirementWidget = new \XLite\View\Requirement();
+            $requirement = $requirementWidget->getRequirementResult('loopback_request');
+            if ($requirement['state'] !== Requirements::STATE_SUCCESS) {
+                \XLite\Core\TopMessage::getInstance()->addError('loopback_request.error_message_1', ['url' => \XLite::getXCartURL('https://www.x-cart.com/contact-us.html')]);
             }
 
             if (isset(\XLite\Core\Session::getInstance()->lastWorkingURL)) {

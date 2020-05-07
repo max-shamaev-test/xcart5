@@ -306,3 +306,18 @@ input[type="button"] {
     width: 100%;
   }
 }
+.add-coupon{
+  &:not(.disabled):focus {
+    border-color: @btn-hover-color;
+    outline: none;
+    &, span {
+      color: @btn-hover-color;
+    }
+  }
+}
+.address-dialog .form-buttons .submit:focus{
+  border-color: @btn-hover-color;
+  &, span {
+    color: @btn-hover-color;
+  }
+}

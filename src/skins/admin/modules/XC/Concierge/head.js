@@ -26,6 +26,7 @@ ConciergeController.prototype.runMethod = function (type, args) {
     args[args.length - 1].context.timezone = this.timezone;
 
     args[args.length - 2].admin_email = concierge.admin_email;
+    args[args.length - 2].email = concierge.email;
   }
 
   return args

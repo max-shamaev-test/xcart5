@@ -22,6 +22,13 @@ CommonForm.elementControllers.push(
         });
       };
 
+      field.bind(
+        'saveEmptyFieldInline',
+        function(event) {
+          this.getViewValueElements().html('&nbsp;');
+        }
+      );
+
       // Save field into view
       this.saveField = function () {
         var value = this.getFieldFormattedValue();

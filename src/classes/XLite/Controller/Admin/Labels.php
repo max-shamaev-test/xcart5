@@ -50,14 +50,11 @@ class Labels extends \XLite\Controller\Admin\AAdmin
      */
     public function getReturnURL()
     {
-        if (\XLite\Core\Request::getInstance()->action) {
-            $data = [];
-            if (\XLite\Core\Request::getInstance()->code) {
-                $data['code'] = \XLite\Core\Request::getInstance()->code;
-            }
-
-            $url = $this->buildURL('labels', '', $data);
-
+        $request = \XLite\Core\Request::getInstance();
+        if ($request->action && $request->code) {
+            $url = $this->buildURL('labels', '', [
+                'code' => $request->code
+            ]);
         } else {
             $url = parent::getReturnURL();
         }

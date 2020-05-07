@@ -125,8 +125,7 @@ class ScenarioBuilder
     public function addTransition(TransitionInterface $transition): void
     {
         if (isset($this->moduleTransitions[$transition->getModuleId()])
-            && !(get_class($transition) === RemoveTransition::class
-                && get_class($this->moduleTransitions[$transition->getModuleId()]) === DisableTransition::class)
+            && !$transition->canOverwrite($this->moduleTransitions[$transition->getModuleId()])
         ) {
             $transition = $this->moduleTransitions[$transition->getModuleId()];
         }
@@ -140,9 +139,10 @@ class ScenarioBuilder
 
                 } catch (ScenarioRuleException $exception) {
                     if ($exception->getCode() === ScenarioRuleException::SOFT_EXCEPTION) {
+                        $message = $exception->getMessage();
                         $this->logger->notice(
                             LanguageDataResolver::getMessageWithReplacedParams(
-                                $this->languageMessages[$exception->getMessage()],
+                                $this->languageMessages[$message] ?? $message,
                                 $exception->getParams()
                             )
                         );
@@ -204,6 +204,14 @@ class ScenarioBuilder
     public function getRules(): array
     {
         return $this->rules;
+    }
+
+    /**
+     * @param $rules ScenarioRuleInterface[]
+     */
+    public function setRules($rules): void
+    {
+        $this->rules = $rules;
     }
 
     /**

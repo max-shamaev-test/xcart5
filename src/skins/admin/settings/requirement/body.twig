@@ -6,9 +6,9 @@
 {% set name = this.getName() %}
 
 {% if this.isAjax() %}
-  <table class="block">
+  <ul class="block">
 {% endif %}
-<tr class="requirement-line real-content {% if this.isOdd() %}dialog-box{% else %}highlight{% endif %}">
+<li class="requirement-line real-content {% if this.isOdd() %}dialog-box{% else %}highlight{% endif %}">
   {{ this.displayCommentedData({
     'reloadParams' : {
       'name' : name,
@@ -16,7 +16,7 @@
     }
   }) }}
 
-  <td class="name">
+  <div class="table-column name">
     {{ requirement.title }}
     {% if not requirement.status %}
       <div class="description">
@@ -26,9 +26,9 @@
         {{ requirement.kb_description|raw }}
       </div>
     {% endif %}
-  </td>
+  </div>
   {% spaceless %}
-    <td class="status">
+    <div class="table-column status">
       {% if requirement.status %}
         {% if requirement.skipped %}
           <span class="skipped info-message">{{ t('Skipped') }}</span>
@@ -41,9 +41,9 @@
           {{ widget('XLite\\View\\Tooltip', id='install_requirement_error_'~name, text=requirement.error_description|raw, caption='', isImageTag='true', className='help-icon') }}
         {% endif %}
       {% endif %}
-    </td>
+    </div>
   {% endspaceless %}
-</tr>
+</li>
 {% if this.isAjax() %}
-  </table>
+  </ul>
 {% endif %}

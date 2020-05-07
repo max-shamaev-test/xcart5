@@ -66,9 +66,7 @@ define('googleAnalytics/core', [], function() {
 
     sendPageView: function() {
       core.trigger('ga-pageview-sending');
-
       ga('send', 'pageview');
-
       core.trigger('ga-pageview-sent');
     },
 

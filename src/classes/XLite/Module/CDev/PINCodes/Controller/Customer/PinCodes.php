@@ -15,6 +15,27 @@ namespace XLite\Module\CDev\PINCodes\Controller\Customer;
 class PinCodes extends \XLite\Controller\Customer\ACustomer
 {
     /**
+     * Check if current page is accessible
+     *
+     * @return boolean
+     */
+    protected function checkAccess()
+    {
+        if ($this->isLogged()) {
+            $cnd = new \XLite\Core\CommonCell;
+            $cnd->user = \XLite\Core\Auth::getInstance()->getProfile();
+
+            $count = \XLite\Core\Database::getRepo('XLite\Model\Order')->searchWithPinCodes($cnd, true);
+
+            if (!$count) {
+                return false;
+            }
+        }
+
+        return parent::checkAccess();
+    }
+
+    /**
      * Define current location for breadcrumbs
      *
      * @return string
@@ -53,7 +74,9 @@ class PinCodes extends \XLite\Controller\Customer\ACustomer
      */
     public function getTitle()
     {
-        return static::t('PIN codes');
+        return $this->checkAccess()
+            ? static::t('PIN codes')
+            : null;
     }
 
     /**

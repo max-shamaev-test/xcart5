@@ -74,6 +74,11 @@ class MarketplaceClient
     private $logger;
 
     /**
+     * @var bool
+     */
+    private $isCloud;
+
+    /**
      * @var Marketplace
      */
     private $marketplace;
@@ -102,6 +107,8 @@ class MarketplaceClient
         $this->coreConfigDataSource       = $coreConfigDataSource;
         $this->licenseDataSource          = $licenseDataSource;
         $this->logger                     = $logger;
+
+        $this->isCloud = $app['xc_config']['service']['is_cloud'] ?? false;
     }
 
     /**
@@ -136,10 +143,34 @@ class MarketplaceClient
      */
     public function getAllModules(): array
     {
-        return $this->getData(Addons::class, [
+        $params = [
             'modules' => serialize($this->installedModulesDataSource->getInstalledVersions()),
             'lng'     => implode(',', $this->installedModulesDataSource->getLanguages()),
+        ];
+
+        $core                 = $this->installedModulesDataSource->find('CDev-Core');
+        $installationDate     = $core ? $core['installedDate'] : 0;
+        $trialPeriodIsExpired = ($installationDate + $this->installedModulesDataSource::TRIAL_PERIOD - time()) <= 0;
+
+        $coreLicense = $this->licenseDataSource->findBy([
+            'author' => 'CDev',
+            'name'   => 'Core',
         ]);
+
+        if (!$coreLicense && !$trialPeriodIsExpired) {
+            $params['trial'] = 1;
+        }
+
+        if ($this->coreConfigDataSource->adminEmail) {
+            $params['email'] = $this->coreConfigDataSource->adminEmail;
+        }
+
+        $licenseKeys = $this->getModuleLicenseKeys();
+        if ($licenseKeys) {
+            $params['keys'] = $licenseKeys;
+        }
+
+        return $this->getData(Addons::class, $params);
     }
 
     /**
@@ -485,6 +516,24 @@ class MarketplaceClient
     }
 
     /**
+     * @param Module $module
+     *
+     * @return array
+     */
+    public function getModuleInfo(Module $module): array
+    {
+        $moduleId = $this->getModuleId(
+            $module->author,
+            $module->name,
+            $module->version
+        );
+
+        return $this->getData(Marketplace\Request\AddonInfo::class, [
+            Constant::FIELD_MODULE_ID => $moduleId,
+        ]);
+    }
+
+    /**
      * @param array  $keys
      * @param string $wave
      *
@@ -548,6 +597,26 @@ class MarketplaceClient
     }
 
     /**
+     * Get sections for main page
+     *
+     * @return array
+     */
+    public function getSections()
+    {
+        return $this->getData(Marketplace\Request\Sections::class);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMarketplaceLocked(): bool
+    {
+        $expiration = $this->coreConfigDataSource->find('marketplaceLockExpiration');
+
+        return $expiration && time() < (int) $expiration;
+    }
+
+    /**
      * @param string $requestName
      * @param array  $params
      *
@@ -587,16 +656,6 @@ class MarketplaceClient
         }
 
         return [];
-    }
-
-    /**
-     * @return bool
-     */
-    private function isMarketplaceLocked(): bool
-    {
-        $expiration = $this->coreConfigDataSource->find('marketplaceLockExpiration');
-
-        return $expiration && time() < (int) $expiration;
     }
 
     private function lockMarketplace(): void
@@ -664,6 +723,16 @@ class MarketplaceClient
 
         $commonParams[Constant::FIELD_INSTALLATION_LNG] = $xcConfig['installation']['installation_lng'];
 
+        $commonParams[Constant::FIELD_SHOP_COUNTRY_CODE] = $this->coreConfigDataSource->shopCountryCode ?? 'US';
+
+        if (isset($config['affiliate_id'])) {
+            $commonParams[Constant::FIELD_AFFILIATE_ID] = $config['affiliate_id'];
+        }
+
+        if ($this->isCloud) {
+            $commonParams['cloud'] = 1;
+        }
+
         return [
             'endpoint'      => $xcConfig['marketplace']['url'],
             'logger'        => $this->logger,
@@ -687,5 +756,23 @@ class MarketplaceClient
             : ($core . '.' . $major . '.' . $minor . '.' . $build);
 
         return md5("{$author}.{$name}.{$version}");
+    }
+
+    /**
+     * @return array
+     */
+    private function getModuleLicenseKeys()
+    {
+        $result = [];
+
+        foreach ($this->licenseDataSource->getAll() as $licenseKey) {
+            if ('CDev' === $licenseKey['author'] && 'Core' === $licenseKey['name']) {
+                continue;
+            }
+
+            $result[] = $licenseKey['keyValue'];
+        }
+
+        return $result;
     }
 }

@@ -177,6 +177,16 @@ abstract class APager extends \XLite\View\RequestHandler\ARequestHandler
     }
 
     /**
+     * getPagerLabel
+     *
+     * @return label
+     */
+    protected function getPagerLabel()
+    {
+        return static::t('Products');
+    }
+
+    /**
      * Return widget default template
      *
      * @return string

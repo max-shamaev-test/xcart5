@@ -10,6 +10,11 @@
 @import (reference) "../../css/initialize";
 
 .clean-url-row {
+
+  .form-horizontal &.form-group {
+    margin: 0;
+  }
+
   .clean-url-result {
     .saved {
       color: @text-color;
@@ -21,16 +26,22 @@
 
     .tooltip-main {
       .tooltip-caption {
-        color: inherit;
         font-size: inherit;
+        border-bottom: 1px dashed;
       }
     }
   }
 
-  .form-marketing-clean-url-autogenerate > .input-widget > .checkbox {
-    min-height: unset;
-    padding: 0;
-    margin: 0;
-    .flex-display();
+  .form-marketing-clean-url-autogenerate {
+    padding: 0 !important;
+    margin-bottom: @rhythmic-unit;
+
+    > .input-widget > .checkbox {
+      .flex-display();
+
+      min-height: unset;
+      padding: 0;
+      margin: 0;
+    }
   }
 }

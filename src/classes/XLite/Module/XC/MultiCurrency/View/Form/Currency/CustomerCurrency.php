@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\MultiCurrency\View\Form\Currency;
 
+use XLite\Module\XC\MultiCurrency\Core\MultiCurrency;
+
 /**
  * Currency management page form
  */
@@ -31,5 +33,17 @@ class CustomerCurrency extends \XLite\View\Form\AForm
     protected function getDefaultAction()
     {
         return 'update';
+    }
+
+    protected function getCommonFormParams()
+    {
+        $params = parent::getCommonFormParams();
+        $multiCurrency = MultiCurrency::getInstance();
+
+        if ($multiCurrency->getEnabledCountriesCount() === 1) {
+            $params['country_code'] = $multiCurrency->getSelectedCountry()->getCode();
+        }
+
+        return $params;
     }
 }

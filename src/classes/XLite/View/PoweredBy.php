@@ -25,14 +25,10 @@ class PoweredBy extends \XLite\View\AView
      *
      * @var array
      */
-    protected static $phrases = array(
-        'en' => array(
-            '[Powered by X-Cart]',
-        ),
-        'ru' => array(
-            '[Создан на базе интернет магазина X-Cart]',
-        ),
-    );
+    protected static $phrases = [
+        'en' => '[Powered by X-Cart]',
+        'ru' => '[Создан на базе интернет магазина X-Cart]',
+    ];
 
     /**
      * Site urls
@@ -106,68 +102,9 @@ class PoweredBy extends \XLite\View\AView
      */
     protected function getPhrase()
     {
-        $phrase = static::PHRASE;
-
         $installationLng = \XLite::getInstallationLng();
-        $currentPhrases = $installationLng && isset(static::$phrases[$installationLng])
-            ? static::$phrases[$installationLng]
-            : static::$phrases['en'];
 
-        if (isset($currentPhrases)
-            && is_array($currentPhrases)
-            && 0 < count($currentPhrases)
-        ) {
-            if (!isset(\XLite\Core\Config::getInstance()->Internal->prnotice_index)
-                || !isset($currentPhrases[\XLite\Core\Config::getInstance()->Internal->prnotice_index])
-            ) {
-                $index = mt_rand(0, count($currentPhrases) - 1);
-
-                \XLite\Core\Database::getRepo('\XLite\Model\Config')->createOption(
-                    array(
-                        'category' => 'Internal',
-                        'name'     => 'prnotice_index',
-                        'value'    => $index
-                    )
-                );
-
-            } else {
-                $index = intval(\XLite\Core\Config::getInstance()->Internal->prnotice_index);
-            }
-
-            $tmp = $currentPhrases[$index];
-
-            if (is_string($tmp)
-                && 0 < strlen(trim($tmp))
-            ) {
-                $phrase = $tmp;
-            }
-        }
-
-        return $phrase;
-    }
-
-    /**
-     * Returns "powered by" phrase index
-     *
-     * @return int
-     */
-    public static function getPoweredByPhraseIndex()
-    {
-        $phrase = static::PHRASE;
-
-        $installationLng = \XLite::getInstallationLng();
-        $currentPhrases = $installationLng && isset(static::$phrases[$installationLng])
-            ? static::$phrases[$installationLng]
-            : static::$phrases['en'];
-
-        if (isset($currentPhrases)
-            && is_array($currentPhrases)
-            && 0 < count($currentPhrases)
-        ) {
-            return mt_rand(0, count($currentPhrases) - 1);
-        } else {
-            return 0;
-        }
+        return static::$phrases[$installationLng] ?? static::$phrases['en'] ?? self::PHRASE;
     }
 
     /**
@@ -177,8 +114,8 @@ class PoweredBy extends \XLite\View\AView
      */
     protected function getCompanyYear()
     {
-        $currentYear = intval(\XLite\Core\Converter::formatDate(\XLite\Core\Converter::time(), '%Y'));
-        $startYear = \XLite::isAdminZone() ? 2002 : intval(\XLite\Core\Config::getInstance()->Company->start_year);
+        $currentYear = (int)\XLite\Core\Converter::formatDate(\XLite\Core\Converter::time(), '%Y');
+        $startYear = \XLite::isAdminZone() ? 2002 : (int)\XLite\Core\Config::getInstance()->Company->start_year;
 
         return $startYear && $startYear < $currentYear
             ? $startYear . ' - ' . $currentYear

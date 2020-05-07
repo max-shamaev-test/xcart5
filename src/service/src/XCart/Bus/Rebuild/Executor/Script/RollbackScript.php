@@ -15,10 +15,14 @@ use XCart\SilexAnnotations\Annotations\Service;
 
 /**
  * common steps order
+ * @see \XCart\Bus\Rebuild\Executor\Step\Rollback\DisableHook
+ * @see \XCart\Bus\Rebuild\Executor\Step\Rollback\RemoveHook
  * @see \XCart\Bus\Rebuild\Executor\Step\Rollback\RestoreFiles
  * @see \XCart\Bus\Rebuild\Executor\Step\Rollback\UpdateModulesList
  * @see \XCart\Bus\Rebuild\Executor\Step\Rollback\XCartStep
  * @see \XCart\Bus\Rebuild\Executor\Step\Rollback\UpdateDataSource
+ * @see \XCart\Bus\Rebuild\Executor\Step\Rollback\InstallHook
+ * @see \XCart\Bus\Rebuild\Executor\Step\Rollback\EnableHook
  * @see \XCart\Bus\Rebuild\Executor\Step\Rollback\PostRollbackHook
  * @see \XCart\Bus\Rebuild\Executor\Step\Rollback\XCartStepFinalize
  * @see \XCart\Bus\Rebuild\Executor\Step\Rollback\UnpackPacks
@@ -55,7 +59,7 @@ class RollbackScript extends AScript
             'completedSteps'   => [],
             'errors'           => [],
             'parentState'      => $parentScriptState,
-            'returnUrl'        => $parentScriptState->returnUrl,
+            'returnUrl'        => '',
             'failureReturnUrl' => $parentScriptState->failureReturnUrl,
             'storeMetadata'    => $parentScriptState->storeMetadata,
         ]);

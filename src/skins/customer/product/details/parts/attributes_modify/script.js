@@ -40,6 +40,10 @@ function getAttributeValuesParams(product)
     textAttrCache[jQuery(elem).data('attribute-id')] = jQuery(elem).val();
   });
 
+  jQuery("ul.attribute-values input.blocks-input", jQuery(base).last()).each(function(index, elem) {
+    activeAttributeValues += jQuery(elem).data('attribute-id') + '_' + jQuery(elem).val() + ',';
+  });
+
   return {
     attribute_values: activeAttributeValues
   };
@@ -72,6 +76,7 @@ function bindAttributeValuesTriggers()
     var productId = jQuery('input[name="product_id"]', obj).val();
 
     jQuery("ul.attribute-values input[type='checkbox']").unbind('change').bind('change', function (e) {handler(productId)});
+    jQuery("ul.attribute-values input.blocks-input").unbind('change').bind('change', function (e) {handler(productId)});
     jQuery("ul.attribute-values select").unbind('change').bind('change', function (e) {handler(productId)});
 
     jQuery("ul.attribute-values textarea").each(function(index, elem) {
@@ -82,6 +87,57 @@ function bindAttributeValuesTriggers()
   }
 }
 
+function BlocksSelector()
+{
+  jQuery('.product-details-info').on(
+    'click',
+    '.block-value:not(.selected)',
+    function () {
+      var $blockValue = jQuery(this);
+      var blockValueId = $blockValue.data('value');
+      var blockValueName = $blockValue.find('.block-value-name').html();
+      var blockValueModifiers = $blockValue.data('modifiers');
+      var blocksName = $blockValue.data('name');
+
+      var $blocksSelector = $blockValue.closest('.blocks-selector');
+      var $blocksTitle = $blocksSelector.find('.blocks-title');
+      var $blocksInput = $blocksSelector.find('.blocks-input');
+
+      $blocksTitle.removeClass('not-selected');
+      $blocksInput.val(blockValueId).change();
+      $blocksTitle.find('.attr-value-name').html(blockValueName);
+      $blocksTitle.find('.attr-value-modifiers').html(blockValueModifiers);
+
+      unselectAllBlocks(blocksName);
+      $blockValue.addClass('selected');
+    }
+  );
+
+  var timeout;
+  var $tooltip;
+
+  jQuery('.product-details-info').on({
+    mouseenter: function () {
+      $tooltip = jQuery(this).find('.unavailable-tooltip');
+      timeout = setTimeout(function () {
+        $tooltip.show(100);
+      }, 250);
+    },
+    mouseleave: function () {
+      clearTimeout(timeout);
+      if ($tooltip !== undefined) {
+        $tooltip.hide(100);
+      }
+    }
+  }, '.block-value.unavailable');
+}
+
+function unselectAllBlocks(blocksName) {
+  jQuery(`.block-value[data-name="${blocksName}"]`).removeClass('selected');
+}
+
+core.autoload(BlocksSelector);
+core.bind('block.product.details.postprocess', BlocksSelector);
 core.registerWidgetsParamsGetter('update-product-page', getAttributeValuesParams);
 core.registerWidgetsTriggers('update-product-page', getAttributeValuesTriggers);
 core.registerTriggersBind('update-product-page', bindAttributeValuesTriggers);

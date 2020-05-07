@@ -133,16 +133,6 @@ class AttributeGroup extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Get create entity URL
-     *
-     * @return string
-     */
-    protected function getCreateURL()
-    {
-        return \XLite\Core\Converter::buildUrl('attribute_group');
-    }
-
-    /**
      * Get create button label
      *
      * @return string

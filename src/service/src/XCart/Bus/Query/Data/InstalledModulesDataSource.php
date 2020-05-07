@@ -30,6 +30,11 @@ class InstalledModulesDataSource extends SerializedDataSource
     private $coreConfigDataSource;
 
     /**
+     * Trial period (30 days)
+     */
+    const TRIAL_PERIOD = 2592000;
+
+    /**
      * @param Application          $app
      * @param ModuleInfoProvider   $moduleInfoProvider
      * @param CoreConfigDataSource $coreConfigDataSource

@@ -22,7 +22,6 @@
   background-color: #f1f1f1 !important;
   width: 253px;
   margin: 0 auto !important;
-  -webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s !important;
   transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s !important;
 }
 
@@ -82,8 +81,6 @@
 
 .or-line .or {
   background-color: #bbb;
-  -webkit-border-radius: 16px;
-  -moz-border-radius: 16px;
   border-radius: 16px;
   width: 31px;
   height: 31px;

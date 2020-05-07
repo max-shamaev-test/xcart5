@@ -62,7 +62,7 @@ define('wizard/steps/add-product', ['js/vue/vue'], function (XLiteVue) {
       'form.submit.skip': function() {
         this.$dispatch('wizard.tracking.event', 'link', '(skip)');
         if (this.demoCatalog === false || this.demoRemovalSkip === true) {
-          this.$dispatch('wizard.step.switch', 'company_logo', true);
+          this.$dispatch('wizard.step.switch', 'shipping', true);
         } else {
           this.$dispatch('wizard.step.requestNext');
         }
@@ -72,7 +72,7 @@ define('wizard/steps/add-product', ['js/vue/vue'], function (XLiteVue) {
         this.$dispatch('wizard.tracking.event', 'form');
 
         if (this.demoRemovalSkip === true) {
-          this.$dispatch('wizard.step.switch', 'company_logo', true);
+          this.$dispatch('wizard.step.switch', 'shipping', true);
         } else {
           this.$dispatch('wizard.step.requestNext');
         }

@@ -119,6 +119,8 @@ class MiniWizardStatus extends \XLite\View\AView
     {
         $checks = [
             'product'          => \XLite::getController()->getTarget() === 'product',
+            'product_list'     => \XLite::getController()->getTarget() === 'product_list',
+            'order_list'       => \XLite::getController()->getTarget() === 'order_list',
             'store_info'       =>
                 \XLite::getController()->getTarget() === 'settings'
                 && Request::getInstance()->page === 'Company',
@@ -152,7 +154,7 @@ class MiniWizardStatus extends \XLite\View\AView
     {
         return $this->getCurrentProgress() > 0
             ? static::t('X% Wizard completion', ['X' => $this->getCurrentProgress()])
-            : static::t('Let’s setup your store');
+            : static::t('Let’s set up your store');
     }
 
     /**

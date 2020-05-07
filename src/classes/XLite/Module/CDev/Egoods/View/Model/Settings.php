@@ -27,29 +27,37 @@ class Settings extends \XLite\View\Model\Settings implements \XLite\Base\IDecora
         switch ($option->getName()) {
             case 'amazon_access':
                 $cell[static::SCHEMA_REQUIRED] = true;
-                $cell[static::SCHEMA_DEPENDENCY] = array(
-                    static::DEPENDENCY_SHOW => array(
-                        'enable_signed_urls' => array(true),
-                    ),
-                );
+                $cell[static::SCHEMA_DEPENDENCY] = [
+                    static::DEPENDENCY_SHOW => [
+                        'enable_signed_urls' => [true],
+                    ],
+                ];
                 break;
 
             case 'amazon_secret':
                 $cell[static::SCHEMA_REQUIRED] = true;
-                $cell[static::SCHEMA_DEPENDENCY] = array(
-                    static::DEPENDENCY_SHOW => array(
-                        'enable_signed_urls' => array(true),
-                    ),
-                );
+                $cell[static::SCHEMA_DEPENDENCY] = [
+                    static::DEPENDENCY_SHOW => [
+                        'enable_signed_urls' => [true],
+                    ],
+                ];
                 break;
 
             case 'bucket':
                 $cell[static::SCHEMA_REQUIRED] = true;
-                $cell[static::SCHEMA_DEPENDENCY] = array(
-                    static::DEPENDENCY_SHOW => array(
-                        'enable_signed_urls' => array(true),
-                    ),
-                );
+                $cell[static::SCHEMA_DEPENDENCY] = [
+                    static::DEPENDENCY_SHOW => [
+                        'enable_signed_urls' => [true],
+                    ],
+                ];
+                break;
+
+            case 'bucket_region':
+                $cell[static::SCHEMA_DEPENDENCY] = [
+                    static::DEPENDENCY_SHOW => [
+                        'enable_signed_urls' => [true],
+                    ],
+                ];
                 break;
         }
 

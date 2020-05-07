@@ -13,9 +13,11 @@ use GraphQL\Type\Definition\ResolveInfo;
 use Silex\Application;
 use XCart\Bus\Client\MarketplaceClient;
 use XCart\Bus\Core\Annotations\Resolver;
+use XCart\Bus\Domain\Module;
 use XCart\Bus\Query\Data\CoreConfigDataSource;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
 use XCart\Bus\Query\Data\MarketplaceShopAdapter;
+use XCart\Bus\Query\Data\ModulesDataSource;
 use XCart\Bus\System\DBInfo;
 use XCart\SilexAnnotations\Annotations\Service;
 
@@ -35,6 +37,11 @@ class SystemDataResolver
     private $coreConfigDataSource;
 
     /**
+     * @var ModulesDataSource
+     */
+    private $modulesDataSource;
+
+    /**
      * @var MarketplaceClient
      */
     private $marketplaceClient;
@@ -52,18 +59,37 @@ class SystemDataResolver
     /**
      * @var bool
      */
+    private $pharIsInstalled;
+
+    /**
+     * @var string
+     */
+    private $email;
+
+    /**
+     * @var bool
+     */
     private $demoMode;
 
     /**
      * @var bool
      */
-    private $pharIsInstalled;
+    private $isCloud;
+
+    /**
+     * @var bool
+     */
+    private $displayUploadAddon;
+
+    private $displayUpdateNotification;
 
     /**
      * @param Application                $app
      * @param InstalledModulesDataSource $installedModulesDataSource
      * @param CoreConfigDataSource       $coreConfigDataSource
+     * @param ModulesDataSource          $modulesDataSource
      * @param MarketplaceClient          $marketplaceClient
+     * @param MarketplaceShopAdapter     $marketplaceShopAdapter
      * @param DBInfo                     $dbInfo
      *
      * @return SystemDataResolver
@@ -75,6 +101,7 @@ class SystemDataResolver
         Application $app,
         InstalledModulesDataSource $installedModulesDataSource,
         CoreConfigDataSource $coreConfigDataSource,
+        ModulesDataSource $modulesDataSource,
         MarketplaceClient $marketplaceClient,
         MarketplaceShopAdapter $marketplaceShopAdapter,
         DBInfo $dbInfo
@@ -82,42 +109,59 @@ class SystemDataResolver
         return new self(
             $installedModulesDataSource,
             $coreConfigDataSource,
+            $modulesDataSource,
             $marketplaceClient,
             $marketplaceShopAdapter,
             $dbInfo,
             $app['config']['phar_is_installed'],
             $app['config']['email'],
-            $app['xc_config']['demo']['demo_mode'] ?? false
+            $app['xc_config']['demo']['demo_mode'] ?? false,
+            $app['xc_config']['service']['is_cloud'] ?? false,
+            $app['xc_config']['service']['display_upload_addon'] ?? true,
+            $app['xc_config']['service']['display_update_notification'] ?? true
         );
     }
 
     /**
      * @param InstalledModulesDataSource $installedModulesDataSource
      * @param CoreConfigDataSource       $coreConfigDataSource
+     * @param ModulesDataSource          $modulesDataSource
      * @param MarketplaceClient          $marketplaceClient
+     * @param MarketplaceShopAdapter     $marketplaceShopAdapter
      * @param DBInfo                     $dbInfo
      * @param boolean                    $pharIsInstalled
      * @param string                     $email
      * @param boolean                    $demoMode
+     * @param boolean                    $isCloud
+     * @param boolean                    $displayUploadAddon
+     * @param                            $displayUpdateNotification
      */
     public function __construct(
         InstalledModulesDataSource $installedModulesDataSource,
         CoreConfigDataSource $coreConfigDataSource,
+        ModulesDataSource $modulesDataSource,
         MarketplaceClient $marketplaceClient,
         MarketplaceShopAdapter $marketplaceShopAdapter,
         DBInfo $dbInfo,
         $pharIsInstalled,
         $email,
-        $demoMode
+        $demoMode,
+        $isCloud,
+        $displayUploadAddon,
+        $displayUpdateNotification
     ) {
         $this->installedModulesDataSource = $installedModulesDataSource;
         $this->coreConfigDataSource       = $coreConfigDataSource;
+        $this->modulesDataSource          = $modulesDataSource;
         $this->marketplaceClient          = $marketplaceClient;
         $this->marketplaceShopAdapter     = $marketplaceShopAdapter;
         $this->dbInfo                     = $dbInfo;
         $this->pharIsInstalled            = $pharIsInstalled;
         $this->email                      = $email;
         $this->demoMode                   = $demoMode;
+        $this->isCloud                    = $isCloud;
+        $this->displayUploadAddon         = $displayUploadAddon;
+        $this->displayUpdateNotification  = $displayUpdateNotification;
     }
 
     /**
@@ -157,7 +201,7 @@ class SystemDataResolver
 
         return [
             'installationDate'        => $installationDate,
-            'trialExpired'            => ($installationDate + 2592000 - time()) <= 0, /* 86400 * 30 */
+            'trialExpired'            => ($installationDate + $this->installedModulesDataSource::TRIAL_PERIOD - time()) <= 0,
             'backupMasterIsEnabled'   => $backupMasterIsEnabled,
             'backupMasterIsInstalled' => $backupMasterIsInstalled,
         ];
@@ -179,15 +223,18 @@ class SystemDataResolver
             $marketplaceLockExpiration = $this->coreConfigDataSource->find('marketplaceLockExpiration');
 
             return [
-                'cacheDate'       => $this->coreConfigDataSource->cacheDate ?: 0,
-                'dataDate'        => $this->coreConfigDataSource->dataDate ?: 0,
-                'authLock'        => $this->coreConfigDataSource->authLock ?: 0,
-                'wave'            => $this->coreConfigDataSource->wave,
-                'marketplaceLock' => $marketplaceLockExpiration && time() < (int) $marketplaceLockExpiration,
-                'purchaseUrl'     => $this->marketplaceShopAdapter->get()->getPurchaseURL(),
-                'pharIsInstalled' => $this->pharIsInstalled,
-                'email'           => $this->email,
-                'demoMode'        => $this->demoMode,
+                'cacheDate'                 => $this->coreConfigDataSource->cacheDate ?: 0,
+                'dataDate'                  => $this->coreConfigDataSource->dataDate ?: 0,
+                'authLock'                  => $this->coreConfigDataSource->authLock ?: 0,
+                'wave'                      => $this->coreConfigDataSource->wave,
+                'marketplaceLock'           => $marketplaceLockExpiration && time() < (int) $marketplaceLockExpiration,
+                'purchaseUrl'               => $this->marketplaceShopAdapter->get()->getPurchaseURL(),
+                'pharIsInstalled'           => $this->pharIsInstalled,
+                'email'                     => $this->email,
+                'demoMode'                  => $this->demoMode,
+                'isCloud'                   => $this->isCloud,
+                'displayUploadAddon'        => $this->displayUploadAddon,
+                'displayUpdateNotification' => $this->displayUpdateNotification,
             ];
         });
     }
@@ -215,5 +262,35 @@ class SystemDataResolver
                 'marketplaceLock' => $marketplaceLockExpiration && time() < (int) $marketplaceLockExpiration,
             ];
         });
+    }
+
+    /**
+     * @param             $value
+     * @param             $args
+     * @param             $context
+     * @param ResolveInfo $info
+     *
+     * @return array
+     *
+     * @Resolver()
+     */
+    public function resolveSkinData($value, $args, $context, ResolveInfo $info): array
+    {
+        $skin = null;
+
+        /** @var Module $module */
+        foreach ($this->installedModulesDataSource->getAll() as $module) {
+            if ($module->type === 'skin' && $module->enabled) {
+                //find last
+                $skin = $module;
+            }
+        }
+
+        $skinData = $skin ? $this->modulesDataSource->findOne($skin->id) : null;
+
+        return [
+            'name'      => $skin ? $skin->moduleName : 'Standard',
+            'marketUrl' => $skinData ? $skinData->pageUrl : null,
+        ];
     }
 }

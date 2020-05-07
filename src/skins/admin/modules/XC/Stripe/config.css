@@ -44,8 +44,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  -o-text-overflow: ellipsis;
-  -ms-text-overflow: ellipsis;
 }
 
 .stripe .webhook .url .copy-link {
@@ -96,8 +94,6 @@
   width: 26px;
   height: 26px;
   line-height: 26px;
-  -moz-border-radius: 19px;
-  -webkit-border-radius: 19px;
   border-radius: 19px;
   text-align: center;
   vertical-align: middle;
@@ -148,11 +144,7 @@
   background-color: #fff3cb;
   border: 0px none;
   box-shadow: none;
-  -moz-box-shadow: none;
-  -webkit-box-shadow: none;
   border-radius: 3px;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
   color: #222;
   font-size: 11px;
   min-width: 50px;

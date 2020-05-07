@@ -26,6 +26,7 @@ class ConfigParser
      * @var array
      */
     private $files = [
+        'config.dev.php',
         'config.php',
         'config.personal.php',
         'config.local.php',

@@ -57,8 +57,9 @@ class Conversation extends \XLite\Controller\Customer\ACustomer
      */
     public function getTitle()
     {
-        return $this->getConversation()
-            ? $this->getConversation()->getName()
+        $conversation = $this->getConversation();
+        return $conversation && $conversation->checkAccess()
+            ? $conversation->getName()
             : parent::getTitle();
     }
 

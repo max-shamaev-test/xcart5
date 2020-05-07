@@ -8,6 +8,7 @@
 
 namespace XLite\View;
 
+use Includes\Utils\Module\Manager;
 use XLite\Core\Cache\ExecuteCachedTrait;
 use XLite\Core\Config;
 use XLite\Core\Database;
@@ -24,11 +25,6 @@ class Mailer extends \XLite\View\AView
     use ExecuteCachedTrait;
 
     const CRLF = "\r\n";
-
-    /**
-     * Mail separator symbol
-     */
-    const MAIL_SEPARATOR = ',';
 
     const ATTACHMENT_ENCODING = 'base64';
 
@@ -163,7 +159,7 @@ class Mailer extends \XLite\View\AView
      */
     public function set($name, $value)
     {
-        if (in_array($name, ['to', 'from'], true)) {
+        if (in_array($name, ['from'], true)) {
             $value = $this->prepareAddress($value);
         }
 
@@ -577,10 +573,10 @@ class Mailer extends \XLite\View\AView
         $this->mail->clearAttachments();
         $this->mail->clearCustomHeaders();
 
-        $emails = explode(static::MAIL_SEPARATOR, $this->get('to'));
-
-        foreach ($emails as $email) {
-            $this->mail->addAddress($email);
+        foreach ($this->get('to') as $email) {
+            $value = $this->prepareAddress($email['email']);
+            $name = !empty($email['name']) ? $this->prepareAddress($email['name']) : $value;
+            $this->mail->addAddress($value, $name);
         }
 
         $this->mail->Subject = $this->get('subject');
@@ -1098,19 +1094,32 @@ class Mailer extends \XLite\View\AView
         return $this->executeCachedRuntime(function () {
             $countryCode = Config::getInstance()->Company->location_country;
 
-            $country = ($country = Database::getRepo('XLite\Model\Country')->find($countryCode))
+            $country = Database::getRepo('XLite\Model\Country')->find($countryCode);
+            $countryName = $country
                 ? $country->getCountry()
                 : $countryCode;
+
+            $state = Config::getInstance()->Company->location_custom_state;
+            if ($country instanceof \XLite\Model\Country
+                && $country->hasStates()
+                && Config::getInstance()->Company->location_state
+            ) {
+                if ($state = Database::getRepo('XLite\Model\State')->find((int) Config::getInstance()->Company->location_state)) {
+                    $state = $state->getState();
+                } else {
+                    $state = '';
+                }
+            }
 
             return trim(sprintf(
                 '%s %s',
                 implode(', ', array_filter(array_map('trim', [
                     Config::getInstance()->Company->location_address,
                     Config::getInstance()->Company->location_city,
-                    Config::getInstance()->Company->location_state,
+                    $state,
                     Config::getInstance()->Company->location_zipcode,
                 ]), 'strlen')),
-                $country
+                $countryName
             ));
         });
     }
@@ -1129,5 +1138,51 @@ class Mailer extends \XLite\View\AView
                 strlen($fax) ? static::t('Fax') . ": $fax" : null,
             ]));
         });
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isNotificationTipEnabled()
+    {
+        return
+            \XLite\Core\Layout::getInstance()->getInnerInterface() === \XLite::ADMIN_INTERFACE
+            && $this->get('dir') === 'order_created'
+            && !$this->isGoogleAdsConfigured()
+        ;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getNotificationTip()
+    {
+        if (!Manager::getRegistry()->isModuleEnabled('Kliken','GoogleAds')) {
+            $url = Manager::getRegistry()->getModuleServiceURL('Kliken','GoogleAds');
+        } else {
+            $url = \XLite::getInstance()->getShopURL(\XLite\Core\Converter::buildURL('kga_settings', '', [], \XLite::getAdminScript()));
+        }
+
+        return static::t('emailNotificationTipGoogleADS', ['url' => $url]);
+    }
+
+
+    /**
+     * Check module Kliken-GoogleAds is configured
+     * @return bool
+     */
+    protected function isGoogleAdsConfigured()
+    {
+        $class = '\\XLite\\Module\\Kliken\\GoogleAds\\Logic\\Helper';
+
+        if (!class_exists($class) || !Manager::getRegistry()->isModuleEnabled('Kliken','GoogleAds')) {
+            return false;
+        }
+
+        try {
+            return $class::hasAccountInfo();
+        } catch (\Exception $e) {
+           return false;
+        }
     }
 }

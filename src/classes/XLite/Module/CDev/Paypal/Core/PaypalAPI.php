@@ -122,8 +122,20 @@ class PaypalAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
                 $product = $item->getProduct();
                 $result['L_PAYMENTREQUEST_0_NAME' . $index] = $product->getName();
 
-                if ($product->getSku()) {
-                    $result['L_PAYMENTREQUEST_0_NUMBER' . $index] = $product->getSku();
+                if ($item->getSku()) {
+                    $result['L_PAYMENTREQUEST_0_NUMBER' . $index] = $item->getSku();
+                }
+
+                $attributesValues = [];
+                foreach ($item->getAttributeValues() as $k => $value) {
+                    $attrValue = $value->getValue();
+                    if ($value) {
+                        $attributesValues[] = $value->getActualName() . ': ' . $attrValue;
+                    }
+                }
+
+                if ($attributesValues) {
+                    $result['L_PAYMENTREQUEST_0_DESC' . $index] = implode(', ', $attributesValues);
                 }
 
                 $qty = $item->getAmount();

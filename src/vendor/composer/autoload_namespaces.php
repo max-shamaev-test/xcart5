@@ -12,7 +12,9 @@ return array(
     'Sabberworm\\CSS' => array($vendorDir . '/sabberworm/php-css-parser/lib'),
     'Rah\\Danpu\\' => array($vendorDir . '/rah/danpu/src'),
     'OAuth2' => array($vendorDir . '/adoy/oauth2/src'),
-    'Less' => array($vendorDir . '/oyejorge/less.php/lib'),
+    'Less' => array($vendorDir . '/wikimedia/less.php/lib'),
+    'HTMLPurifier' => array($vendorDir . '/ezyang/htmlpurifier/library'),
     'Doctrine\\Common\\Lexer\\' => array($vendorDir . '/doctrine/lexer/lib'),
     'Doctrine\\Common\\Collections\\' => array($vendorDir . '/doctrine/collections/lib'),
+    'Detection' => array($vendorDir . '/mobiledetect/mobiledetectlib/namespaced'),
 );

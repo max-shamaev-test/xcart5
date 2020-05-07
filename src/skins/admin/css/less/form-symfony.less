@@ -27,7 +27,12 @@
 
     .help-block {
       margin-top: @help-block-margin-top;
-      margin-bottom: -(@line-height-small-text + @help-block-margin-top);
+      margin-bottom: -(@line-height-base + @help-block-margin-top);
+
+      .text-wrapper {
+        display: inline-block;
+        max-width: @help-block-max-width;
+      }
     }
 
     &:last-child {
@@ -75,7 +80,6 @@
 
     .help-block {
       .flex(1 100%);
-      margin-right: 25px;
     }
   }
 

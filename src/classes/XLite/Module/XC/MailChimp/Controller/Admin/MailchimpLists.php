@@ -8,7 +8,7 @@
 
 namespace XLite\Module\XC\MailChimp\Controller\Admin;
 
-use \XLite\Module\XC\MailChimp\Core;
+use XLite\Module\XC\MailChimp\Core;
 
 /**
  * MailChimp mail lists
@@ -32,11 +32,7 @@ class MailchimpLists extends \XLite\Controller\Admin\AAdmin
      */
     protected function doNoAction()
     {
-        try {
-            Core\MailChimp::getInstance()->updateMailChimpLists();
-        } catch (Core\MailChimpException $e) {
-            \XLite\Core\TopMessage::addError($e->getMessage());
-        }
+        Core\MailChimp::getInstance()->updateMailChimpLists();
     }
 
     /**

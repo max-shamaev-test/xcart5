@@ -171,6 +171,15 @@ class Coupon extends \XLite\Model\AEntity
     protected $singleUse = false;
 
     /**
+     * Flag: Coupon is used for specific products or not
+     *
+     * @var boolean
+     *
+     * @Column (type="boolean")
+     */
+    protected $specificProducts = false;
+
+    /**
      * Product classes
      *
      * @var   \Doctrine\Common\Collections\ArrayCollection
@@ -195,6 +204,28 @@ class Coupon extends \XLite\Model\AEntity
      * )
      */
     protected $memberships;
+
+    /**
+     * Zones
+     *
+     * @var   \Doctrine\Common\Collections\ArrayCollection
+     *
+     * @ManyToMany (targetEntity="XLite\Model\Zone", inversedBy="coupons")
+     * @JoinTable (name="zone_coupons",
+     *      joinColumns={@JoinColumn (name="coupon_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@JoinColumn (name="zone_id", referencedColumnName="zone_id", onDelete="CASCADE")}
+     * )
+     */
+    protected $zones;
+
+    /**
+     * Coupon products
+     *
+     * @var   \Doctrine\Common\Collections\ArrayCollection
+     *
+     * @OneToMany (targetEntity="XLite\Module\CDev\Coupons\Model\CouponProduct", mappedBy="coupon")
+     */
+    protected $couponProducts;
 
     /**
      * Used coupons
@@ -229,6 +260,8 @@ class Coupon extends \XLite\Model\AEntity
     {
         $this->productClasses = new \Doctrine\Common\Collections\ArrayCollection();
         $this->memberships    = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->zones    = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->couponProducts    = new \Doctrine\Common\Collections\ArrayCollection();
         $this->usedCoupons    = new \Doctrine\Common\Collections\ArrayCollection();
         $this->categories     = new \Doctrine\Common\Collections\ArrayCollection();
 
@@ -381,6 +414,11 @@ class Coupon extends \XLite\Model\AEntity
             }
         }
 
+        if ($result && $this->getSpecificProducts()) {
+            // Check product
+            $result = in_array($product->getProductId(), $this->getApplicableProductIds());
+        }
+
         return $result;
     }
 
@@ -415,7 +453,9 @@ class Coupon extends \XLite\Model\AEntity
             $this->checkMembership($order);
             $this->checkCategory($order);
             $this->checkProductClass($order);
+            $this->checkProducts($order);
             $this->checkOrderTotal($order);
+            $this->checkZone($order);
         }
 
         return true;
@@ -480,26 +520,12 @@ class Coupon extends \XLite\Model\AEntity
             return;
         }
 
-        $this->profilesUsesCount();
-
         $profileUsesCount = null;
 
         if (array_key_exists($profile->getLogin(), static::$runtimeCacheForUsedCouponsCount)) {
             $profileUsesCount = static::$runtimeCacheForUsedCouponsCount[$profile->getLogin()];
         } else {
-            $profileUsesCount = $this->getUsedCoupons()->filter(
-                function($usedCoupon) use ($profile) {
-                    $orderProfileIdentificator = $usedCoupon->getOrder()->getProfile()
-                        ? $usedCoupon->getOrder()->getProfile()->getLogin()
-                        : null;
-
-                    $currentProfileIdentificator = $profile->getLogin();
-
-                    return $orderProfileIdentificator
-                        && $currentProfileIdentificator
-                        && $orderProfileIdentificator === $currentProfileIdentificator;
-                }
-            )->count();
+            $profileUsesCount = $this->calculatePerUserUsage($profile);
 
             static::$runtimeCacheForUsedCouponsCount[$profile->getLogin()] = $profileUsesCount;
         }
@@ -514,6 +540,29 @@ class Coupon extends \XLite\Model\AEntity
                 'Sorry, the coupon use limit has been reached'
             );
         }
+    }
+
+    /**
+     * @param \XLite\Model\Profile $profile
+     *
+     * @return int
+     */
+    protected function calculatePerUserUsage(\XLite\Model\Profile $profile)
+    {
+        return $this->getUsedCoupons()->filter(
+            function($usedCoupon) use ($profile) {
+                /** @var \XLite\Module\CDev\Coupons\Model\UsedCoupon $usedCoupon */
+                $orderProfileIdentificator = $usedCoupon->getOrder()->getProfile()
+                    ? $usedCoupon->getOrder()->getProfile()->getLogin()
+                    : null;
+
+                $currentProfileIdentificator = $profile->getLogin();
+
+                return $orderProfileIdentificator
+                    && $currentProfileIdentificator
+                    && $orderProfileIdentificator === $currentProfileIdentificator;
+            }
+        )->count();
     }
 
     // }}}
@@ -616,25 +665,59 @@ class Coupon extends \XLite\Model\AEntity
         if (!$rangeBeginValid && !$rangeEndValid) {
             $this->throwCompatibilityException(
                 static::ERROR_TOTAL,
-                'To use the coupon, your order subtotal must be between X and Y',
-                array(
+                $this->getBetweenSubtotalExceptionText(),
+                [
                     'min' => $currency->formatValue($rangeBegin),
                     'max' => $currency->formatValue($rangeEnd),
-                )
+                ]
             );
         } elseif (!$rangeBeginValid) {
             $this->throwCompatibilityException(
                 static::ERROR_TOTAL,
-                'To use the coupon, your order subtotal must be at least X',
-                array('min' => $currency->formatValue($rangeBegin))
+                $this->getLeastSubtotalExceptionText(),
+                [
+                    'min' => $currency->formatValue($rangeBegin)
+                ]
             );
         } elseif (!$rangeEndValid) {
             $this->throwCompatibilityException(
                 static::ERROR_TOTAL,
-                'To use the coupon, your order subtotal must not exceed Y',
-                array('max' => $currency->formatValue($rangeEnd))
+                $this->getExceedSubtotalExceptionText($order),
+                [
+                    'max' => $currency->formatValue($rangeEnd)
+                ]
             );
         }
+    }
+
+    /**
+     * Return text of exception
+     *
+     * @return void
+     */
+    protected function getBetweenSubtotalExceptionText()
+    {
+        return 'To use the coupon, your order subtotal must be between X and Y';
+    }
+
+    /**
+     * Return text of exception
+     *
+     * @return void
+     */
+    protected function getLeastSubtotalExceptionText()
+    {
+        return 'To use the coupon, your order subtotal must be at least X';
+    }
+
+    /**
+     * Return text of exception
+     *
+     * @return void
+     */
+    protected function getExceedSubtotalExceptionText()
+    {
+        return 'To use the coupon, your order subtotal must not exceed Y';
     }
 
     // }}}
@@ -680,6 +763,42 @@ class Coupon extends \XLite\Model\AEntity
 
     // }}}
 
+    // {{{ Products
+
+    /**
+     * Check coupon products
+     *
+     * @param \XLite\Model\Order $order Order
+     *
+     * @throws \XLite\Module\CDev\Coupons\Core\CompatibilityException
+     *
+     * @return void
+     */
+    protected function checkProducts(\XLite\Model\Order $order)
+    {
+        if ($this->getSpecificProducts()) {
+            $applicableProductIds = $this->getApplicableProductIds();
+
+            $found = false;
+
+            foreach ($order->getItems() as $item) {
+                if (in_array($item->getProduct()->getProductId(), $applicableProductIds)) {
+                    $found = true;
+                    break;
+                }
+            }
+
+            if (!$found) {
+                $this->throwCompatibilityException(
+                    '',
+                    'Sorry, the coupon you entered cannot be applied to the items in your cart'
+                );
+            }
+        }
+    }
+
+    // }}}
+
     // {{{ Membership
 
     /**
@@ -694,13 +813,59 @@ class Coupon extends \XLite\Model\AEntity
     protected function checkMembership(\XLite\Model\Order $order)
     {
         if ($this->getMemberships()->count()
-            && $order->getProfile()
-            && !$this->getMemberships()->contains($order->getProfile()->getMembership())
+            && (!$order->getProfile()
+                || !$this->getMemberships()->contains($order->getProfile()->getMembership())
+            )
         ) {
             $this->throwCompatibilityException(
                 '',
                 'Sorry, the coupon you entered is not valid for your membership level. Contact the administrator'
             );
+        }
+    }
+
+    // }}}
+
+    // {{{ Zone
+
+    /**
+     * Check coupon zone
+     *
+     * @param \XLite\Model\Order $order Order
+     *
+     * @throws \XLite\Module\CDev\Coupons\Core\CompatibilityException
+     *
+     * @return void
+     */
+    protected function checkZone(\XLite\Model\Order $order)
+    {
+        $profile = $order->getProfile();
+        $shippingAddress = $profile ? $profile->getShippingAddress() : null;
+
+        if (!$shippingAddress) {
+            $shippingAddress = \XLite\Model\Address::createDefaultShippingAddress();
+        }
+
+        if ($shippingAddress && !$this->getZones()->isEmpty()) {
+            $applicableZones = \XLite\Core\Database::getRepo('XLite\Model\Zone')->findApplicableZones($shippingAddress->toArray());
+            $couponZoneIds = array_map(function($zone) {
+                return $zone->getZoneId();
+            }, $this->getZones()->toArray());
+
+            $isApplicable = false;
+            foreach ($applicableZones as $zone) {
+                if (in_array($zone->getZoneId(), $couponZoneIds)) {
+                    $isApplicable = true;
+                    break;
+                }
+            }
+
+            if (!$isApplicable) {
+                $this->throwCompatibilityException(
+                    '',
+                    'Sorry, the coupon you entered cannot be applied to this delivery address'
+                );
+            }
         }
     }
 
@@ -761,7 +926,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -783,7 +948,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get code
      *
-     * @return string 
+     * @return string
      */
     public function getCode()
     {
@@ -805,7 +970,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get enabled
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getEnabled()
     {
@@ -827,7 +992,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get value
      *
-     * @return decimal 
+     * @return decimal
      */
     public function getValue()
     {
@@ -849,7 +1014,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get type
      *
-     * @return string 
+     * @return string
      */
     public function getType()
     {
@@ -871,7 +1036,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get comment
      *
-     * @return string 
+     * @return string
      */
     public function getComment()
     {
@@ -893,7 +1058,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get uses
      *
-     * @return integer 
+     * @return integer
      */
     public function getUses()
     {
@@ -915,7 +1080,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get dateRangeBegin
      *
-     * @return integer 
+     * @return integer
      */
     public function getDateRangeBegin()
     {
@@ -937,7 +1102,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get dateRangeEnd
      *
-     * @return integer 
+     * @return integer
      */
     public function getDateRangeEnd()
     {
@@ -959,7 +1124,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get totalRangeBegin
      *
-     * @return decimal 
+     * @return decimal
      */
     public function getTotalRangeBegin()
     {
@@ -981,7 +1146,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get totalRangeEnd
      *
-     * @return decimal 
+     * @return decimal
      */
     public function getTotalRangeEnd()
     {
@@ -1003,7 +1168,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get usesLimit
      *
-     * @return integer 
+     * @return integer
      */
     public function getUsesLimit()
     {
@@ -1025,7 +1190,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get usesLimitPerUser
      *
-     * @return integer 
+     * @return integer
      */
     public function getUsesLimitPerUser()
     {
@@ -1047,11 +1212,33 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get singleUse
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getSingleUse()
     {
         return $this->singleUse;
+    }
+
+    /**
+     * Set specificProducts
+     *
+     * @param boolean $specificProducts
+     * @return Coupon
+     */
+    public function setSpecificProducts($specificProducts)
+    {
+        $this->specificProducts = $specificProducts;
+        return $this;
+    }
+
+    /**
+     * Get specificProducts
+     *
+     * @return boolean
+     */
+    public function getSpecificProducts()
+    {
+        return $this->specificProducts;
     }
 
     /**
@@ -1069,7 +1256,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get productClasses
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getProductClasses()
     {
@@ -1101,11 +1288,49 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get memberships
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getMemberships()
     {
         return $this->memberships;
+    }
+
+    /**
+     * Add coupon products
+     *
+     * @param \XLite\Module\CDev\Coupons\Model\CouponProduct $couponProduct
+     * @return Coupon
+     */
+    public function addCouponProducts(\XLite\Module\CDev\Coupons\Model\CouponProduct $couponProduct)
+    {
+        $this->couponProducts[] = $couponProduct;
+        return $this;
+    }
+
+    /**
+     * Get product ids if coupon is specificProducts
+     *
+     * @return array
+     */
+    public function getApplicableProductIds()
+    {
+        $ids = [];
+        if ($this->isPersistent() && $this->getSpecificProducts()) {
+            $ids = \XLite\Core\Database::getRepo('XLite\Module\CDev\Coupons\Model\CouponProduct')
+                ->getCouponProductIds($this->getId());
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Get coupon products
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getCouponProducts()
+    {
+        return $this->couponProducts;
     }
 
     /**
@@ -1115,6 +1340,38 @@ class Coupon extends \XLite\Model\AEntity
     {
         foreach ($this->getMemberships()->getKeys() as $key) {
             $this->getMemberships()->remove($key);
+        }
+    }
+
+    /**
+     * Add zones
+     *
+     * @param \XLite\Model\Zone $zone
+     * @return Coupon
+     */
+    public function addZones(\XLite\Model\Zone $zone)
+    {
+        $this->zones[] = $zone;
+        return $this;
+    }
+
+    /**
+     * Get zones
+     *
+     * @return \Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getZones()
+    {
+        return $this->zones;
+    }
+
+    /**
+     * Clear zones
+     */
+    public function clearZones()
+    {
+        foreach ($this->getZones()->getKeys() as $key) {
+            $this->getZones()->remove($key);
         }
     }
 
@@ -1133,7 +1390,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get usedCoupons
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection|\XLite\Module\CDev\Coupons\Model\UsedCoupon[]
      */
     public function getUsedCoupons()
     {
@@ -1155,7 +1412,7 @@ class Coupon extends \XLite\Model\AEntity
     /**
      * Get categories
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getCategories()
     {

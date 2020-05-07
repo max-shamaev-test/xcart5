@@ -116,6 +116,18 @@ class AttributeValueSelect extends \XLite\Model\Repo\AttributeValue\Multiple
     }
 
     /**
+     * Find attribute value which will be considered as a default if attribute has not specific default value
+     *
+     * @param array $data Data to search: array('product' => ..., 'attribute' => ...)
+     *
+     * @return \XLite\Model\AttributeValue\AAttributeValue
+     */
+    public function findDefaultAttributeValue($data)
+    {
+        return $this->findOneBy($data, ['position' => 'ASC']);
+    }
+
+    /**
      * Define export iterator query builder
      *
      * @param integer $position Position

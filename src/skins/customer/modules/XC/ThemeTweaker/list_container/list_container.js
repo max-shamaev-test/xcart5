@@ -10,6 +10,7 @@
 function ListContainer(element) {
   this.base = $(element);
   this.instances = [];
+  this.weightStep = 10;
 
     var self = this;
     var groups = $(this.base).children('.list-items-group');
@@ -135,16 +136,43 @@ ListContainer.prototype.onUpdate = function (event) {
 };
 
 ListContainer.prototype.calculateWeight = function (element) {
-    var prev = parseInt($(element).prev().data('weight')) || 0;
-    var next = parseInt($(element).next().data('weight')) || (prev + 2);
+  var prev = parseInt($(element).prev().data('weight')) || 0;
+  var next = parseInt($(element).next().data('weight')) || 0;
+  var weight;
 
-  var weight = Math.ceil(
-    (next + prev) / 2
-  );
+  if (next) {
+    weight = Math.ceil((next + prev) / 2);
+  } else {
+    weight = prev + this.weightStep
+  }
 
   $(element).data('weight', weight);
 
+  this.recalculateWeightsRecursive(element);
+
   return weight;
+};
+
+ListContainer.prototype.recalculateWeightsRecursive = function (element) {
+  const weight = $(element).data('weight');
+  const $next = $(element).next();
+
+  if ($next.length && weight >= $next.data('weight')) {
+    const newPosition = weight + this.weightStep;
+
+    $next.data('weight', newPosition);
+
+    core.trigger(
+      'layout.rearranged',
+      {
+        id: $next.data('id'),
+        list: $next.data('list'),
+        position: newPosition
+      }
+    );
+
+    this.recalculateWeightsRecursive($next);
+  }
 };
 
 ListContainer.prototype.onRemove = function (event) {

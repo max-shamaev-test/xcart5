@@ -168,8 +168,9 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
     {
         parent::processSucceed();
 
-        foreach ($this->getUsedCoupons() as $usedCoupons) {
-            $usedCoupons->markAsUsed();
+        /** @var \XLite\Module\CDev\Coupons\Model\UsedCoupon $usedCoupon */
+        foreach ($this->getUsedCoupons() as $usedCoupon) {
+            $usedCoupon->markAsUsed();
         }
     }
 
@@ -182,8 +183,9 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
     {
         parent::processUncheckout();
 
-        foreach ($this->getUsedCoupons() as $usedCoupons) {
-            $usedCoupons->unmarkAsUsed();
+        /** @var \XLite\Module\CDev\Coupons\Model\UsedCoupon $usedCoupon */
+        foreach ($this->getUsedCoupons() as $usedCoupon) {
+            $usedCoupon->unmarkAsUsed();
         }
     }
 
@@ -204,7 +206,7 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
     /**
      * Get usedCoupons
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection|\XLite\Module\CDev\Coupons\Model\UsedCoupon[]
      */
     public function getUsedCoupons()
     {
@@ -216,7 +218,7 @@ abstract class Order extends \XLite\Model\Order implements \XLite\Base\IDecorato
      *
      * @param \XLite\Module\CDev\Coupons\Model\Coupon $coupon Coupon
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return \XLite\Model\OrderItem[]
      */
     public function getValidItemsByCoupon(\XLite\Module\CDev\Coupons\Model\Coupon $coupon)
     {

@@ -115,6 +115,61 @@ class GD extends \XLite\Core\ImageOperator\AEngine
         return $result;
     }
 
+    /**
+     * Resize bulk
+     *
+     * @param array $sizes
+     *
+     * @return array
+     */
+    public function resizeBulk($sizes)
+    {
+        $result = [];
+
+        if ($this->resource) {
+            $image = $this->getImage();
+            $resource = $this->resource;
+
+            foreach ($sizes as $key => $size) {
+                $newResource = imagecreatetruecolor($size['width'], $size['height']);
+
+                imagealphablending($newResource, false);
+                imagesavealpha($newResource, true);
+
+                $transparent = imagecolorallocatealpha($newResource, 255, 255, 255, 127);
+                imagefilledrectangle($newResource, 0, 0, $size['width'], $size['height'], $transparent);
+
+                $result = imagecopyresampled(
+                    $newResource,
+                    $resource,
+                    0,
+                    0,
+                    0,
+                    0,
+                    $size['width'],
+                    $size['height'],
+                    $image->getWidth(),
+                    $image->getHeight()
+                );
+
+                if ($result) {
+                    $tmpResource = $this->postProcessResource($newResource);
+                    $tmpImage = clone $this->getImage();
+                    $this->updateImageFromResource(null, $tmpResource, $tmpImage);
+
+                    $sizes[$key]['tmp'] = $tmpImage;
+                    imagedestroy($tmpResource);
+                }
+            }
+
+            $result = $sizes;
+
+            imagedestroy($resource);
+        }
+
+        return $result;
+    }
+
     public function rotate($degree)
     {
         $result = false;
@@ -200,12 +255,12 @@ class GD extends \XLite\Core\ImageOperator\AEngine
         return $resource;
     }
 
-    protected function updateImageFromResource($quality = null)
+    protected function updateImageFromResource($quality = null, $resource = null, $image = null)
     {
-        $quality = !is_null($quality) ? $quality : $this->getQuality();
+        $quality  = $quality ?: $this->getQuality();
+        $resource = $resource ?: $this->resource;
+        $image    = $image ?: $this->getImage();
 
-        $image = $this->getImage();
-        $resource = $this->resource;
         $func = 'image' . static::getGDImageType($image->getType());
 
         if ($resource && function_exists($func)) {

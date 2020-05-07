@@ -8,50 +8,42 @@
  */
 
 core.bind('load', function (event) {
-  setTimeout(function () {
-    var statesListbox = $('#zone-states-listbox-select-from').get(0);
+  const $countries = $('#zone-countries');
+  const $states = $('#zone-states');
+  const $statesOptions = $states.find('option');
 
-    if (statesListbox) {
-      var hiddenOptions = $('<div></div>').css({display: 'none'});
-      statesListbox.showForCountries = function (countries) {
-        if (countries && countries.length) {
-          $(this).add(hiddenOptions).find('option').each(function () {
-            var match = false;
-            var value = $(this).val();
+  const matchCountry = function($option, countryCodes) {
+    let match = false;
+    const value = $option.val();
 
-            countries.forEach(function (v) {
-              if (value.startsWith(v + '_')) {
-                match = true;
-              }
-            });
+    countryCodes.forEach(function (code) {
+      if (value.startsWith(code + '_')) {
+        match = true;
+        return true;
+      }
+    });
 
-            if (match) {
-              $(this).appendTo(statesListbox);
-            } else {
-              $(this).appendTo(hiddenOptions);
-            }
-          })
-        } else {
-          $(this).add(hiddenOptions).find('option').appendTo(statesListbox);
+    return match;
+  };
+
+  const updateStateList = function() {
+    const countryCodes = $countries.val(); //array
+
+    $states.html('');
+    if (countryCodes.length) {
+      $statesOptions.each(function () {
+        const $option = $(this);
+        if (matchCountry($option, countryCodes)) {
+          $states.append(this);
         }
-
-        var options = $(this).find('option').sort(function(a, b) { return $(a).text() > $(b).text() ? 1 : -1; });
-        $(statesListbox).append(options);
-      };
-
-      $('input[name="states_for_countries"][type=checkbox]').change(function () {
-        var countryCodes = [];
-
-        $('#zone-countries-listbox-select-to').find('option').each(function () {
-          countryCodes.push($(this).val());
-        });
-
-        if ($(this).is(':checked')) {
-          statesListbox.showForCountries(countryCodes);
-        } else {
-          statesListbox.showForCountries();
-        }
-      }).change();
+      });
     }
-  }, 0);
+
+    $states.change();
+  };
+
+  if ($countries.length) {
+    $countries.change(updateStateList);
+    updateStateList();
+  }
 });

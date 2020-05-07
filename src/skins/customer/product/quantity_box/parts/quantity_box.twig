@@ -5,7 +5,9 @@
  #}
 
 <input
-  type="text"
+  type="number"
+  min="1"
+  pattern="\d*"
   value="{{ this.getBoxValue() }}"
   class="{{ this.getClass() }}"
   id="{{ this.getBoxId() }}"

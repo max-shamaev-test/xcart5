@@ -72,8 +72,12 @@ class Users extends \XLite\Logic\Export\Step\AStep
             'status'          => array(),
             'referer'         => array(),
             'language'        => array(),
-            'shippingAddress' => array(),
-            'billingAddress'  => array(),
+            'shippingAddress' => array(
+                static::COLUMN_MULTIPLE  => true,
+            ),
+            'billingAddress'  => array(
+                static::COLUMN_MULTIPLE  => true,
+            ),
             'membership'      => array(),
         );
 

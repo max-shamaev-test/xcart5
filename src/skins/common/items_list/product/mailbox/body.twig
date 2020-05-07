@@ -5,9 +5,9 @@
 <div class="products-mail-box">
   {% for product in this.getProducts() %}
     {% if this.getUrlProcessor() %}
-      {{ widget('\\XLite\\View\\Product\\MailBox', product=product, productUrlProcessor=this.getUrlProcessor()) }}
+      {{ widget(this.getProductWidget(), product=product, productUrlProcessor=this.getUrlProcessor()) }}
     {% else %}
-      {{ widget('\\XLite\\View\\Product\\MailBox', product=product) }}
+      {{ widget(this.getProductWidget(), product=product) }}
     {% endif %}
   {% endfor %}
 </div>

@@ -8,7 +8,6 @@
 
 namespace XLite\Module\XC\MailChimp\Logic\DataMapper;
 
-
 class Customer
 {
     /**
@@ -17,15 +16,15 @@ class Customer
     protected static $orderTotalsByProfile = [];
 
     /**
-     * @param                      $mc_eid
+     * @param string               $mc_eid
      * @param \XLite\Model\Profile $profile
      *
      * @return array
      */
-    public static function getData($mc_eid, \XLite\Model\Profile $profile)
+    public static function getData($mc_eid, \XLite\Model\Profile $profile): array
     {
         $data = [
-            'id'            => strval($profile->getProfileId() ?: $mc_eid),
+            'id'            => (string) ($profile->getProfileId() ?: $mc_eid),
             'email_address' => $profile->getLogin(),
             'opt_in_status' => false,
             'orders_count'  => $profile->getOrdersCount(),
@@ -35,30 +34,28 @@ class Customer
         $profileAddress = $profile->getBillingAddress() ?: $profile->getShippingAddress();
 
         if ($profileAddress) {
-            list($firstName, $lastName, $addressData) = Address::getDataWithNames(
-                $profileAddress
-            );
-
-            $data['first_name'] = $firstName;
-            $data['last_name'] = $lastName;
-            $data['address'] = $addressData;
+            [$data['first_name'], $data['last_name'], $data['address']] = Address::getDataWithNames($profileAddress);
         }
 
         return $data;
     }
 
     /**
-     * @param                      $mc_eid
+     * @param string               $mc_eid
      * @param \XLite\Model\Profile $profile
+     * @param bool                 $customerExists
      *
      * @return array
      */
-    public static function getDataForOrder($mc_eid, \XLite\Model\Profile $profile)
+    public static function getDataForOrder($mc_eid, $profile, $customerExists): array
     {
-        return [
-                'email_address' => $profile->getEmail(),
-            ]
-            + static::getData($mc_eid, $profile);
+        if ($profile) {
+            return !$customerExists
+                ? (['email_address' => $profile->getEmail()] + static::getData($mc_eid, $profile))
+                : ['id' => (string) $profile->getProfileId()];
+        }
+
+        return ['id' => (string) $mc_eid];
     }
 
     /**
@@ -73,9 +70,9 @@ class Customer
         $profileId = $profile->getProfileId();
 
         if (!isset(static::$orderTotalsByProfile[$profileId])) {
-            $cnd = new \XLite\Core\CommonCell();
+            $cnd          = new \XLite\Core\CommonCell();
             $cnd->profile = $profile;
-            $orders = \XLite\Core\Database::getRepo('XLite\Model\Order')->search($cnd);
+            $orders       = \XLite\Core\Database::getRepo('XLite\Model\Order')->search($cnd);
 
             if ($orders) {
                 static::$orderTotalsByProfile[$profileId] = array_reduce(

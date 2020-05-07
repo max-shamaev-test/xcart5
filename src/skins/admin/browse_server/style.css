@@ -32,8 +32,6 @@
 
 .file-system-entries {
   border: solid 1px #e1e1e1;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
   border-radius: 5px;
   background-color: #ffffff;
   padding: 10px;

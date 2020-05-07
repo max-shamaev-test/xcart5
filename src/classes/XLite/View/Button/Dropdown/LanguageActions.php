@@ -27,7 +27,7 @@ class LanguageActions extends \XLite\View\Button\Dropdown\ADropdown
                     'disabled' => false,
                     'label'    => 'Find language in marketplace',
                     'style'    => 'action link always-enabled',
-                    'location' => $this->buildURL('addons_list_marketplace', '', array('tag' => 'Translation')),
+                    'location' => \XLite::getInstance()->getServiceURL('#/available-addons', null, ['tag' => 'Translation']),
                 ],
                 'position' => 100,
             ],

@@ -11,25 +11,26 @@ namespace XLite\Module\XC\MailChimp\Module\XC\ProductVariants\Logic\DataMapper;
 use XLite\Module\XC\MailChimp\Logic\DataMapper\Variant;
 
 /**
- * Class Product
- *
  * @Decorator\Depend ("XC\ProductVariants")
  */
 class Product extends \XLite\Module\XC\MailChimp\Logic\DataMapper\Product implements \XLite\Base\IDecorator
 {
     /**
-     * @param \XLite\Module\XC\ProductVariants\Model\Product $product
+     * @param \XLite\Model\Product|\XLite\Module\XC\ProductVariants\Model\Product $product
+     *
+     * @return array
      */
-    protected static function getVariantsByProductData(\XLite\Model\Product $product)
+    protected static function getVariantsByProductData(\XLite\Model\Product $product): array
     {
         if (!$product->hasVariants()) {
             return parent::getVariantsByProductData($product);
         }
-        
+
         $result = [];
 
         /** @var \XLite\Module\XC\ProductVariants\Model\ProductVariant $variant */
         foreach ($product->getVariants() as $variant) {
+            /** @see \XLite\Module\XC\MailChimp\Module\XC\ProductVariants\Logic\DataMapper\Variant::getVariantDataByProductVariant() */
             $result[] = Variant::getVariantDataByProductVariant($variant);
         }
 
@@ -37,9 +38,11 @@ class Product extends \XLite\Module\XC\MailChimp\Logic\DataMapper\Product implem
     }
 
     /**
-     * @param \XLite\Module\XC\ProductVariants\Model\OrderItem $item
+     * @param \XLite\Model\OrderItem|\XLite\Module\XC\ProductVariants\Model\OrderItem $item
+     *
+     * @return array
      */
-    protected static function getVariantsByOrderItemData(\XLite\Model\OrderItem $item)
+    protected static function getVariantsByOrderItemData(\XLite\Model\OrderItem $item): array
     {
         if (!$item->getObject()) {
             return parent::getVariantsByOrderItemData($item);
@@ -47,5 +50,4 @@ class Product extends \XLite\Module\XC\MailChimp\Logic\DataMapper\Product implem
 
         return static::getVariantsByProductData($item->getObject());
     }
-
 }

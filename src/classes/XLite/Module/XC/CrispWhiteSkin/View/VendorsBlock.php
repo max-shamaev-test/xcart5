@@ -24,6 +24,7 @@ abstract class VendorsBlock extends \XLite\Module\XC\MultiVendor\View\VendorsBlo
     {
         return [
             'order_list',
+            'order',
             'address_book',
             'mailchimp_subscriptions',
             'profile',

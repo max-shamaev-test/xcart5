@@ -36,7 +36,7 @@ class LanguageLabel extends \XLite\Model\Base\I18n
      *
      * @var string
      *
-     * @Column (type="string", length=255, options={"collation":"utf8_bin"})
+     * @Column (type="string", length=255)
      */
     protected $name;
 

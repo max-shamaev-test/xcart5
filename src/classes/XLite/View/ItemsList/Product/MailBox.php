@@ -8,14 +8,15 @@
 
 namespace XLite\View\ItemsList\Product;
 
-
 use XLite\Model\WidgetParam\TypeCollection;
 use XLite\Model\WidgetParam\TypeObject;
+use XLite\Model\WidgetParam\TypeString;
 use XLite\View\Product\MailBox as MailBoxItem;
 
 class MailBox extends \XLite\View\AView
 {
-    const PARAM_PRODUCTS = 'products';
+    const PARAM_PRODUCTS       = 'products';
+    const PARAM_PRODUCT_WIDGET = 'productWidget';
 
     protected function getDefaultTemplate()
     {
@@ -37,6 +38,7 @@ class MailBox extends \XLite\View\AView
 
         $this->widgetParams += [
             static::PARAM_PRODUCTS                   => new TypeCollection('Products', []),
+            static::PARAM_PRODUCT_WIDGET             => new TypeString('Product widget', '\XLite\View\Product\MailBox'),
             MailBoxItem::PARAM_PRODUCT_URL_PROCESSOR => new TypeObject('Product url processor', null),
         ];
     }
@@ -47,6 +49,14 @@ class MailBox extends \XLite\View\AView
     protected function getProducts()
     {
         return $this->getParam(static::PARAM_PRODUCTS);
+    }
+
+    /**
+     * @return array
+     */
+    protected function getProductWidget()
+    {
+        return $this->getParam(static::PARAM_PRODUCT_WIDGET);
     }
 
     /**

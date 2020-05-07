@@ -22,6 +22,7 @@ class AttributeProperty extends \XLite\Model\Repo\ARepo
             $prop->setProduct($product);
             $prop->setAttribute($attribute);
             $prop->setPosition($attribute->getPosition());
+            $prop->setDisplayMode($attribute->getDisplayMode());
         }
     }
 }

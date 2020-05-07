@@ -27,13 +27,26 @@ abstract class AImage extends \XLite\View\FormField\Input\AInput
     /**
      * Return the image URL value
      *
-     * @return string
+     * @return \XLite\Model\Image\Common\Logo
      */
-     protected function getImage() {
-         $func = 'get' . $this->getClassName();
-         $image = $this->$func();
+     protected function getImage()
+     {
+         $image = null;
 
-         return \XLite\Model\Repo\Image\Common\Logo::getFakeImageObject($image);
+         $func = 'get' . $this->getClassName();
+         $logoRepo = \XLite\Core\Database::getRepo('XLite\Model\Image\Common\Logo');
+         if (method_exists($logoRepo, $func)) {
+             $image = $logoRepo->$func();
+         }
+
+         return $image;
+     }
+
+    /**
+     * @return boolean
+     */
+     protected function isViaUrlAllowed() {
+         return true;
      }
 
 

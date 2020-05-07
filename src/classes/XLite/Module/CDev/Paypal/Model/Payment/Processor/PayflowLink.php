@@ -72,4 +72,16 @@ class PayflowLink extends \XLite\Module\CDev\Paypal\Model\Payment\Processor\APay
             )
         );
     }
+
+    /**
+     * Get iframe additional attributes
+     *
+     * @return array
+     */
+    protected function getIframeAdditionalAttributes()
+    {
+        return [
+            'sandbox' => 'allow-top-navigation allow-scripts allow-forms allow-same-origin',
+        ];
+    }
 }

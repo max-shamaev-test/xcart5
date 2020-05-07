@@ -26,7 +26,7 @@ class Attribute extends \XLite\View\ItemsList\Model\Table
     protected function defineColumns()
     {
         return array(
-            'name' => array(
+            'name' => [
                 static::COLUMN_NAME      => $this->getAttributeGroup()
                     ? $this->getAttributeGroup()->getName()
                     : \XLite\Core\Translation::lbl('No group'),
@@ -38,17 +38,39 @@ class Attribute extends \XLite\View\ItemsList\Model\Table
                         )
                     )
                     : null,
-                static::COLUMN_CLASS     => 'XLite\View\FormField\Inline\Input\Text',
-                static::COLUMN_PARAMS    => array('required' => true),
+                static::COLUMN_CLASS     => \XLite\View\FormField\Inline\Input\Text::class,
+                static::COLUMN_PARAMS    => ['required' => true],
                 static::COLUMN_NO_WRAP   => true,
                 static::COLUMN_ORDERBY   => 100,
                 static::COLUMN_LINK      => 'attribute',
-            ),
-            'type' => array(
+            ],
+            'type' => [
                 static::COLUMN_TEMPLATE => 'attributes/parts/type.twig',
                 static::COLUMN_ORDERBY  => 200,
-            ),
+            ],
+            'displayMode' =>[
+                static::COLUMN_NAME      => static::t('Display as'),
+                static::COLUMN_HEAD_HELP => static::t('This option applies only to attributes with multiple values'),
+                static::COLUMN_CLASS    => \XLite\View\FormField\Inline\Select\AttributeDisplayMode::class,
+                static::COLUMN_ORDERBY  => 300,
+            ],
         );
+    }
+
+    /**
+     * @param array                                       $column
+     * @param \XLite\Model\Attribute|\XLite\Model\AEntity $entity
+     *
+     * @return boolean
+     */
+    protected function isClassColumnVisible(array $column, \XLite\Model\AEntity $entity)
+    {
+        $result = parent::isClassColumnVisible($column, $entity);
+        if ($column[self::COLUMN_CODE] === 'displayMode') {
+            $result = $entity->getType() === \XLite\Model\Attribute::TYPE_SELECT;
+        }
+
+        return $result;
     }
 
     /**

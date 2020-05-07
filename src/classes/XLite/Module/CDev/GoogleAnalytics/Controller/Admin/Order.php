@@ -20,7 +20,7 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
      */
     protected function doActionUpdate()
     {
-        if ($this->shouldRegisterChange()) {
+        if ($this->getOrder()->shouldRegisterChange()) {
             $old = $this->collectData($this->getOrder());
 
             $needRegisterChanges = $this->getOrder()->getPaymentStatusCode() === Status\Payment::STATUS_PAID
@@ -192,14 +192,5 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
         }
 
         return $changes;
-    }
-
-    /**
-     * @return bool
-     */
-    protected function shouldRegisterChange()
-    {
-        return \XLite\Module\CDev\GoogleAnalytics\Main::isECommerceEnabled()
-        && !$this->getOrder()->isTemporary();
     }
 }

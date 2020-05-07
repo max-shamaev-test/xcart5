@@ -127,6 +127,10 @@ class Storage extends \XLite\Controller\Admin\AAdmin
             } else {
                 $this->readStorageDefault($storage);
             }
+        } elseif (
+            $this->isStorageURL($storage)
+        ) {
+            $this->readStorageByURL($storage);
         } else {
             $this->readStorageDefault($storage);
         }
@@ -149,6 +153,27 @@ class Storage extends \XLite\Controller\Admin\AAdmin
                 !\Includes\Environment::isNginx()
                 || strpos($storage->getStoragePath(), LC_DIR_FILES) === 0
             );
+    }
+
+    /**
+     * Check if storage can be returned as URL
+     *
+     * @param \XLite\Model\Base\Storage $storage
+     *
+     * @return bool
+     */
+    protected function isStorageURL(\XLite\Model\Base\Storage $storage)
+    {
+        return $storage->getStorageType() == \XLite\Model\Base\Storage::STORAGE_URL;
+
+    }
+
+    /**
+     * @param \XLite\Model\Base\Storage $storage
+     */
+    protected function readStorageByURL(\XLite\Model\Base\Storage $storage)
+    {
+        header("Location: ".$storage->getStoragePath());
     }
 
     /**

@@ -59,10 +59,9 @@ class KnownHashesRetriever extends CachedRetriever
                     $module->installedVersion
                 );
 
-                if (!empty($hashes['error'])) {
-                    $message = $hashes['message'] ?? '';
-
-                    throw new KnownHashesException($hashes['error'], $message);
+                $lastError = $this->marketplaceClient->getLastError();
+                if ($lastError) {
+                    throw new KnownHashesException($lastError->getCode(), $lastError->getMessage());
                 }
 
                 return $hashes;

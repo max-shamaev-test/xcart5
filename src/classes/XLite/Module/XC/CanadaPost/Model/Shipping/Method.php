@@ -23,8 +23,7 @@ class Method extends \XLite\Model\Shipping\Method implements \XLite\Base\IDecora
     {
         $name = parent::getName();
 
-        if ('capost' == $this->getProcessor() && !(\XLite::isAdminZone() && \XLite::getController() instanceof \XLite\Controller\Admin\ShippingMethods)) {
-
+        if ('capost' == $this->getProcessor() && !(\XLite::isAdminZone() || \XLite::getController() instanceof \XLite\Controller\Admin\ShippingMethods)) {
             $name = 'Canada Post ' . $name;
         }
 

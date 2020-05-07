@@ -302,4 +302,21 @@ class OnlineMethods extends \XLite\View\ItemsList\Model\Table
             )
         );
     }
+
+    public function getServiceToolPaymentMethodsURL()
+    {
+        $searchRequestParams = $this->getSearchRequestParams();
+
+        return \XLite::getInstance()->getServiceURL('#/available-addons', null, ['tag' => 'Payment processing', 'search' => $searchRequestParams['name']]);
+    }
+
+    /**
+     * URL of the X-Cart company's Contact Us page
+     *
+     * @return string
+     */
+    protected function getContactUsURL()
+    {
+        return \XLite\Core\Marketplace::getContactUsURL();
+    }
 }

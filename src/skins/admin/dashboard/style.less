@@ -112,10 +112,6 @@ div.tabs .primary .active span {
 }
 
 ul.primary li a, ul.primary li span {
-  -moz-border-radius-topleft: 12px;
-  -moz-border-radius-topright: 12px;
-  -webkit-border-top-left-radius: 12px;
-  -webkit-border-top-right-radius: 12px;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
 }
@@ -166,8 +162,6 @@ div.tabs .primary a, div.tabs .primary span {
   width: 100%;
   padding: 0 10px;
   display: inline-block;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
   line-height: 34px;
 }
@@ -220,6 +214,10 @@ div.tabs .primary a, div.tabs .primary span {
 .target-main .table-pager .left .last
 {
   display: none;
+}
+
+.target-main .items-list.products table.list thead th.sku .table-header {
+  font-size: @font-size-h3;
 }
 
 .target-main .items-list.orders table.list tbody.lines tr.line td.profile div.cell {

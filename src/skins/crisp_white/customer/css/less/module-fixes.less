@@ -14,10 +14,18 @@
  * CDev\Coupons
  */
 
-.coupons form {
-    .floating-label;
-}
 
+.coupons .add-coupon form {
+    .floating-label;
+
+    @media (max-width: @screen-md-max) {
+        .flex-direction(column);
+        button {
+            margin: 20px 0 0;
+            width: 100%;
+        }
+    }
+}
 /**
  * XC\Reviews
  */

@@ -304,9 +304,13 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
      */
     protected function getFroalaAppendConfiguration()
     {
-        return [
-            'htmlAllowedAttrs' => ['allowfullscreen']
-        ];
+        $htmlAllowedAttrs = ['allowfullscreen'];
+
+        if (\XLite\Core\Auth::getInstance()->isAdmin()) {
+            $htmlAllowedAttrs = array_merge($htmlAllowedAttrs, ['onclick', 'onload', 'onchange', 'onscroll']);
+        }
+
+        return ['htmlAllowedAttrs' => $htmlAllowedAttrs];
     }
 
     /**
@@ -376,9 +380,11 @@ class Advanced extends \XLite\View\FormField\Textarea\Advanced implements \XLite
 
         // Customer LESS files parsing
         $lessParser->setInterface('default');
+        \XLite\Core\Layout::getInstance()->setCustomerSkin();
 
         $lessParser->setHttp('http');
         $style = $lessParser->makeCSS($customerLESS);
+        \XLite\Core\Layout::getInstance()->setAdminSkin();
 
         if ($style && isset($style['url'])) {
             return $style['url'];

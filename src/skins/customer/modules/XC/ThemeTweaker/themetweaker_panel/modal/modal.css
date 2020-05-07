@@ -140,6 +140,5 @@ a.themetweaker-modal-button span {
 
 .modal-enter .themetweaker-modal-container,
 .modal-leave .themetweaker-modal-container {
-	-webkit-transform: scale(1.1);
 	transform: scale(1.1);
 }

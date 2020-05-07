@@ -62,29 +62,47 @@ class RecoverPassword extends \XLite\Controller\Customer\ACustomer
      */
     protected function doActionRecoverPassword()
     {
-        if ($this->requestRecoverPassword($this->get('email'))) {
-            \XLite\Core\TopMessage::addInfo(
-                'The confirmation URL link was mailed to email',
-                array('email' => $this->get('email'))
-            );
+        $email = $this->get('email');
 
-            if ($this->isAJAX()) {
-                \XLite\Core\Event::recoverPasswordSent(array('email' => $this->get('email')));
-                $this->setSilenceClose();
-
-            } else {
-                $this->setReturnURL($this->buildURL());
-            }
+        if ($this->requestRecoverPassword($email)) {
+            $this->requestRecoverPasswordSuccess($email);
 
         } else {
-            $this->setReturnURL($this->buildURL('recover_password'));
-
-            if (!$this->isAJAX()) {
-                \XLite\Core\TopMessage::addError('There is no user with specified email address');
-            }
-
-            \XLite\Core\Event::invalidElement('email', static::t('There is no user with specified email address'));
+            $this->requestRecoverPasswordFailed($email);
         }
+    }
+
+    /**
+     * @param string $email
+     */
+    protected function requestRecoverPasswordSuccess($email)
+    {
+        \XLite\Core\TopMessage::addInfo(
+            'The confirmation URL link was mailed to email',
+            array('email' => $email)
+        );
+
+        if ($this->isAJAX()) {
+            \XLite\Core\Event::recoverPasswordSent(array('email' => $email));
+            $this->setSilenceClose();
+
+        } else {
+            $this->setReturnURL($this->buildURL());
+        }
+    }
+
+    /**
+     * @param string $email
+     */
+    protected function requestRecoverPasswordFailed($email)
+    {
+        $this->setReturnURL($this->buildURL('recover_password'));
+
+        if (!$this->isAJAX()) {
+            \XLite\Core\TopMessage::addError('There is no user with specified email address');
+        }
+
+        \XLite\Core\Event::invalidElement('email', static::t('There is no user with specified email address'));
     }
 
     /**
@@ -232,5 +250,15 @@ class RecoverPassword extends \XLite\Controller\Customer\ACustomer
         }
 
         return $result;
+    }
+
+    /**
+     * Redirect if user already logged
+     */
+    protected function doNoAction()
+    {
+        if (\XLite\Core\Auth::getInstance()->isLogged()) {
+            $this->redirect($this->buildURL());
+        }
     }
 }

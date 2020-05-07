@@ -152,6 +152,18 @@ class ImageOperator extends \XLite\Base\SuperClass
     }
 
     /**
+     * Resize by multiple sizes
+     *
+     * @param array $sizes
+     *
+     * @return array origin sizes array with temporary file objects
+     */
+    public function resizeBulk($sizes)
+    {
+        return static::getEngine()->resizeBulk($sizes);
+    }
+
+    /**
      * @param float $degree
      *
      * @return bool

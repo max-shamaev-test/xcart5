@@ -73,6 +73,10 @@
   cursor: pointer;
 }
 
+.parcel-dimensions .table-value {
+  display: inline-block;
+}
+
 .parcel-dimensions .table-value + .table-value {
   padding-left: 10px;
 }
@@ -90,7 +94,7 @@
   font-style: italic;
 }
 
-.inline-options .table-value .input-checkbox {
+.inline-options .table-value .input-internal-wrapper {
   display: inline-block;
   position: relative;
   padding: 0;

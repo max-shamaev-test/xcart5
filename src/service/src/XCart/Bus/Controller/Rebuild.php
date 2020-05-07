@@ -27,6 +27,7 @@ use XCart\Bus\Query\Context;
 use XCart\Bus\Query\Data\CoreConfigDataSource;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
 use XCart\Bus\Query\Data\MarketplaceModulesDataSource;
+use XCart\Bus\Query\Data\ModulesDataSource;
 use XCart\Bus\Query\Data\ScenarioDataSource;
 use XCart\Bus\Query\Data\ScriptStateDataSource;
 use XCart\Bus\Query\Data\SetDataSource;
@@ -130,6 +131,11 @@ class Rebuild
     private $marketplaceModulesDataSource;
 
     /**
+     * @var ModulesDataSource
+     */
+    private $modulesDataSource;
+
+    /**
      * @var SetDataSource
      */
     private $setDataSource;
@@ -176,6 +182,7 @@ class Rebuild
      * @param TmpInstalledModulesDataSource $tmpInstalledModulesDataSource
      * @param CoreConfigDataSource          $coreConfigDataSource
      * @param MarketplaceModulesDataSource  $marketplaceModulesDataSource
+     * @param ModulesDataSource             $modulesDataSource
      * @param SetDataSource                 $setDataSource
      * @param RebuildLockManager            $rebuildLockManager
      * @param UrlBuilder                    $urlBuilder
@@ -199,6 +206,7 @@ class Rebuild
         TmpInstalledModulesDataSource $tmpInstalledModulesDataSource,
         CoreConfigDataSource $coreConfigDataSource,
         MarketplaceModulesDataSource $marketplaceModulesDataSource,
+        ModulesDataSource $modulesDataSource,
         SetDataSource $setDataSource,
         RebuildLockManager $rebuildLockManager,
         UrlBuilder $urlBuilder,
@@ -221,6 +229,7 @@ class Rebuild
         $this->tmpInstalledModulesDataSource = $tmpInstalledModulesDataSource;
         $this->coreConfigDataSource          = $coreConfigDataSource;
         $this->marketplaceModulesDataSource  = $marketplaceModulesDataSource;
+        $this->modulesDataSource             = $modulesDataSource;
         $this->setDataSource                 = $setDataSource;
         $this->rebuildLockManager            = $rebuildLockManager;
         $this->urlBuilder                    = $urlBuilder;
@@ -245,10 +254,12 @@ class Rebuild
             return new Response('', 404);
         }
 
-        $this->coreConfigDataSource->dataDate  = 0;
-        $this->coreConfigDataSource->cacheDate = 0;
-        $this->coreConfigDataSource->shippingMethodsCacheDate = time();
-        $this->coreConfigDataSource->paymentMethodsCacheDate = time();
+        $time = time();
+
+        $this->coreConfigDataSource->dataDate                 = $time;
+        $this->coreConfigDataSource->cacheDate                = $time;
+        $this->coreConfigDataSource->shippingMethodsCacheDate = $time;
+        $this->coreConfigDataSource->paymentMethodsCacheDate  = $time;
 
         $this->marketplaceModulesDataSource->clear();
         $this->setDataSource->clear();
@@ -305,6 +316,32 @@ class Rebuild
      * @throws Exception
      *
      * @Router\Route(
+     *     @Router\Request(method="GET", uri="/rollback"),
+     *     @Router\Before("XCart\Bus\Controller\Rebuild:authChecker")
+     * )
+     */
+    public function rollbackAction(Request $request): Response
+    {
+        if ($this->demoMode) {
+            return new Response('', 404);
+        }
+
+        $args = [
+            'id' => $request->get('id'),
+        ];
+
+        $state = $this->rebuildResolver->startRollback(null, $args, null, new ResolveInfo([]));
+
+        return new RedirectResponse($this->xcartClient->getUpgradeFrontendURL() . 'rebuild/' . $state->id);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return Response
+     * @throws Exception
+     *
+     * @Router\Route(
      *     @Router\Request(method="GET", uri="/upgrade53"),
      *     @Router\Before("XCart\Bus\Controller\Rebuild:authCodeChecker")
      * )
@@ -320,6 +357,10 @@ class Rebuild
 
         $modules = [];
         foreach ($request->get('modules') ?: [] as $moduleId => $version) {
+            if (!in_array($version, ['disable', 'remove'], true)) {
+                $version = implode('.', Module::explodeVersion($version));
+            }
+
             $modules[Module::convertModuleId($moduleId)] = $version;
         }
 
@@ -398,6 +439,15 @@ class Rebuild
         $this->rebuildLockManager->clearAnySetRebuildFlags();
 
         $coreVersion = $request->get('version') ?: null;
+        if ($coreVersion === '5.x') {
+            $xliteContent = file_get_contents($this->app['config']['root_dir'] . 'classes/XLite.php');
+            if (preg_match('/const XC_VERSION = \'([\d.]+)\'/', $xliteContent, $matches)) {
+                $coreVersion = $matches[1];
+            } else {
+                $coreVersion = '5.4.0.0';
+            }
+        }
+
         $service     = Yaml::parseFile($this->app['config']['root_dir'] . 'service/src/service.yaml');
 
         $this->installedModulesDataSource->clear();
@@ -513,8 +563,68 @@ class Rebuild
      * @throws Exception
      *
      * @Router\Route(
+     *     @Router\Request(method="GET", uri="/installPaymentMethod"),
+     *     @Router\Request(method="GET", uri="/installModule"),
+     *     @Router\Before("XCart\Bus\Controller\Rebuild:authChecker")
+     * )
+     */
+    public function installModuleAction(Request $request): Response
+    {
+        $this->rebuildLockManager->clearAnySetRebuildFlags();
+
+        $moduleId = $request->get('moduleId') ?: null;
+
+        $changeUnits = [];
+
+        $module = $this->modulesResolver->getModule($moduleId);
+
+        if ($module && $module->installed && $module->actions['switch']) {
+            $changeUnits[] = [
+                'id'     => $module->id,
+                'enable' => true,
+            ];
+
+        } elseif ($module && !$module->installed && $module->actions['install']) {
+            $changeUnits[] = [
+                'id'      => $module->id,
+                'version' => $module->version,
+                'install' => true,
+                'enable'  => true,
+            ];
+        }
+
+        $scenario = $this->changeUnitProcessor->process($this->scenarioDataSource->startEmptyScenario(), $changeUnits);
+
+        if (isset($scenario['modulesTransitions'][$moduleId])) {
+            $returnUrl = $request->get('returnUrl');
+            if ($returnUrl && $this->urlBuilder->isSelfURL($returnUrl)) {
+                $scenario['returnUrl'] = $returnUrl . '&rebuildId=' . $scenario['id'];
+            }
+
+            $this->scenarioDataSource->saveOne($scenario);
+
+            $args = [
+                'id' => $scenario['id'],
+            ];
+
+            $state = $this->rebuildResolver->startRebuild(null, $args, null, new ResolveInfo([]));
+
+            return new RedirectResponse($this->xcartClient->getUpgradeFrontendURL() . 'rebuild/' . $state->id);
+
+        }
+
+        return new RedirectResponse($this->xcartClient->getUpgradeFrontendURL() . '?moduleId=' . $moduleId);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return Response
+     * @throws Exception
+     *
+     * @Router\Route(
      *     @Router\Request(method="GET", uri="/rebuildToEdition"),
-     *     @Router\Before("XCart\Bus\Controller\Auth:authChecker")
+     *     @Router\Before("XCart\Bus\Controller\Rebuild:authChecker")
      * )
      */
     public function rebuildToEditionAction(Request $request): Response
@@ -568,6 +678,51 @@ class Rebuild
             $changeUnits[] = [
                 'id'     => $module->id,
                 'remove' => true,
+            ];
+        }
+
+        $scenario = $this->changeUnitProcessor->process($this->scenarioDataSource->startEmptyScenario(), $changeUnits);
+
+        $this->scenarioDataSource->saveOne($scenario);
+
+        $args = [
+            'id'     => $scenario['id'],
+            'reason' => 'module-state',
+        ];
+
+        $state = $this->rebuildResolver->startRebuild(null, $args, null, new ResolveInfo([]));
+
+        return new RedirectResponse($this->xcartClient->getUpgradeFrontendURL() . 'rebuild/' . $state->id);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return Response
+     * @throws Exception
+     *
+     * @Router\Route(
+     *     @Router\Request(method="GET", uri="/disableUnallowedModules"),
+     *     @Router\Before("XCart\Bus\Controller\Rebuild:authChecker")
+     * )
+     */
+    public function disableUnallowedModules(Request $request): Response
+    {
+        $unallowedModulesPage = $this->modulesResolver->resolvePage(
+            [],
+            ['licensed' => false, 'enabled' => true],
+            $this->context,
+            new ResolveInfo([])
+        );
+
+        /** @var Module[] $unallowedModules */
+        $unallowedModules = $unallowedModulesPage['modules'] ?? [];
+
+        $changeUnits = [];
+        foreach ($unallowedModules as $module) {
+            $changeUnits[] = [
+                'id'     => $module->id,
+                'enable' => false,
             ];
         }
 

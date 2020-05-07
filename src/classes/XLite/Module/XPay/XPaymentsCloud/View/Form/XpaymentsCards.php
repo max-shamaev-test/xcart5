@@ -40,7 +40,9 @@ class XpaymentsCards extends \XLite\View\Form\AForm
      */
     protected function getCustomerProfileId()
     {
-        $profileId = \XLite\Core\Request::getInstance()->profile_id;
+        if (\XLite::isAdminZone()) {
+            $profileId = \XLite\Core\Request::getInstance()->profile_id;
+        }
         if (empty($profileId)) {
             $profileId = \XLite\Core\Auth::getInstance()->getProfile()->getProfileId();
         }
@@ -54,12 +56,12 @@ class XpaymentsCards extends \XLite\View\Form\AForm
      */
     protected function getDefaultParams()
     {
-        $params = array();
+        $params = [
+            'card_id' => 0,
+        ];
 
         if (\XLite::isAdminZone()) {
-            $params = array(
-                'profile_id' => $this->getCustomerProfileId()
-            );    
+            $params['profile_id'] = $this->getCustomerProfileId();
         };
 
         return $params;

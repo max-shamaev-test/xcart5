@@ -7,6 +7,10 @@
 {% for countryCode, currencyCode in this.getCountriesByCurrency() %}
   currenciesByCountry['{{ countryCode }}'] = '{{ currencyCode }}';
 {% endfor %}
+  var languagesByCountry = [];
+{% for countryCode, languageCode in this.getCountriesByLanguage() %}
+  languagesByCountry['{{ countryCode }}'] = '{{ languageCode }}';
+{% endfor %}
 </script>
 
 <li class="language_label">{{ t('Language') }}</li>

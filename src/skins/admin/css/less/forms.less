@@ -69,6 +69,10 @@
   }
 }
 
+.field-errors {
+  font-size: @font-size-small;
+}
+
 input[type="radio"],
 input[type="checkbox"] {
   margin: @form-checkbox-margin;
@@ -144,7 +148,6 @@ label {
   margin-top: (@rhythmic-unit / 2);
   margin-bottom: (@rhythmic-unit / 2);
   font-size: @font-size-small;
-  line-height: @line-height-small-text;
   color: @color-tip;
 
   &.not-padded {
@@ -157,9 +160,12 @@ label {
   font-size: @font-size-small;
   clear: both;
   max-width: 500px;
-  line-height: @line-height-small-text;
   color: @color-tip;
   vertical-align: middle;
+}
+
+.redirect-to-cart-comment {
+  padding-top: (@rhythmic-unit / 2);
 }
 
 .radio input[type="radio"],
@@ -230,6 +236,10 @@ input.validation-error:focus,
 textarea.validation-error:focus,
 select.validation-error:focus {
   border-color: @color-error;
+}
+
+.input-field-wrapper .inline-error {
+  padding-left: 10px;
 }
 
 .inline-error {
@@ -335,10 +345,7 @@ table.form {
 
 /* Fade */
 .right-fade {
-  background: -moz-linear-gradient(left, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
-  background: -webkit-linear-gradient(left, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
   background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
-  -ms-filter: "progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=1 )";
 
   display: block;
   position: absolute;

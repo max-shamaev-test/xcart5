@@ -91,5 +91,26 @@ return array(
             'bold_italic' => $distFontDir . 'DejaVuSerif-BoldItalic',
             'italic' => $distFontDir . 'DejaVuSerif-Italic',
             'normal' => $distFontDir . 'DejaVuSerif'
+        ),
+    'noto sans tc' =>
+        array(
+            'normal' => $distFontDir . 'NotoSansTC-Regular',
+            'bold' => $distFontDir . 'NotoSansTC-Bold',
+            'italic' => $distFontDir . 'NotoSansTC-Regular',
+            'bold_italic' => $distFontDir . 'NotoSansTC-Bold'
+        ),
+    'noto sans kr' =>
+        array(
+            'normal' => $distFontDir . 'NotoSansKR-Regular',
+            'bold' => $distFontDir . 'NotoSansKR-Bold',
+            'italic' => $distFontDir . 'NotoSansKR-Regular',
+            'bold_italic' => $distFontDir . 'NotoSansKR-Bold'
+        ),
+    'noto sans jp' =>
+        array(
+            'normal' => $distFontDir . 'NotoSansJP-Regular',
+            'bold' => $distFontDir . 'NotoSansJP-Bold',
+            'italic' => $distFontDir . 'NotoSansJP-Regular',
+            'bold_italic' => $distFontDir . 'NotoSansJP-Bold'
         )
 );

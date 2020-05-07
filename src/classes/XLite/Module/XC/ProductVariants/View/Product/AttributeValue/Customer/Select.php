@@ -31,7 +31,8 @@ abstract class Select extends \XLite\View\Product\AttributeValue\Customer\Select
                     [$value->getAttribute()->getId() => $value->getId()]
                 );
                 $isSelectedAlready = isset($selectedIds[$value->getAttribute()->getId()])
-                                     && $selectedIds[$value->getAttribute()->getId()] === $value->getId();
+                    && $selectedIds[$value->getAttribute()->getId()] === $value->getId()
+                    && $this->getAttributeDisplayMode() === \XLite\Model\Attribute::SELECT_BOX_MODE;
 
                 if (!$product->getVariantByAnyAttributeValuesIds($variantAttributeIds) && !$isSelectedAlready) {
                     $value->setVariantAvailable(false);
@@ -51,9 +52,7 @@ abstract class Select extends \XLite\View\Product\AttributeValue\Customer\Select
      */
     protected function getOptionTemplate()
     {
-        $product = $this->getProduct();
-        if ($product->mustHaveVariants()) {
-
+        if ($this->getProduct()->mustHaveVariants()) {
             return 'modules/XC/ProductVariants/product/attribute_value/select/option.twig';
         }
 

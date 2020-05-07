@@ -7,7 +7,7 @@
 
 XLite\Model\Config:
   - { name: ignore_memberships, category: 'CDev\SalesTax', type: checkbox, value: 'Y', orderby: 150, translations: [{ code: en, option_name: 'Use the same tax rates for all user membership levels' }] }
-  - { name: addressType, category: 'CDev\SalesTax', type: \XLite\Module\CDev\SalesTax\View\FormField\AddressType, value: billing, orderby: 160, translations: [{ code: en, option_name: 'Address for sales tax calculation' }] }
+  - { name: addressType, category: 'CDev\SalesTax', type: \XLite\Module\CDev\SalesTax\View\FormField\AddressType, value: shipping, orderby: 160, translations: [{ code: en, option_name: 'Address for sales tax calculation' }] }
   - { name: taxableBase, category: 'CDev\SalesTax', type: \XLite\Module\CDev\SalesTax\View\FormField\TaxableBase, value: 'DST+SH', orderby: 170, translations: [{ code: en, option_name: 'Taxable base' }] }
 
 XLite\Model\Order\Modifier:

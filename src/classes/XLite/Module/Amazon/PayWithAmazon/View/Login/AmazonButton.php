@@ -14,7 +14,7 @@ use XLite\Module\Amazon\PayWithAmazon\Core\AmazonAuthProvider;
  * Amazon sign-in button
  *
  * @Decorator\Depend ("CDev\SocialLogin")
- * @ListChild (list="social.login.buttons", zone="customer", weight="20")
+ * @ListChild (list="social.login.buttons", zone="customer", weight="30")
  */
 class AmazonButton extends \XLite\Module\CDev\SocialLogin\View\AButton
 {

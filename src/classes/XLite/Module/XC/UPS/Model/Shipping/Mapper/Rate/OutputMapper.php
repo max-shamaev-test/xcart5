@@ -42,7 +42,7 @@ class OutputMapper extends Shipping\Mapper\AMapper
         ),
         '02' => array(
             'US' => '2DA',
-            'CA' => 'WEXDSM',
+            'CA' => 'EXDSM',
             'PR' => '2DA',
         ),
         '03' => array(
@@ -52,7 +52,7 @@ class OutputMapper extends Shipping\Mapper\AMapper
         '07' => array(
             'US' => 'WEXPSM',
             'EU' => 'EXP',
-            'CA' => 'EXP',
+            'CA' => 'WEXP',
             'PL' => 'EXP',
             'PR' => 'WEXPSM',
             'MX' => 'EXP',
@@ -80,7 +80,7 @@ class OutputMapper extends Shipping\Mapper\AMapper
         ),
         '13' => array(
             'US' => 'NDAS',
-            'CA' => 'SAVSM',
+            'CA' => 'EXPSAV',
         ),
         '14' => array(
             'US' => 'NDAEAMSM',
@@ -90,7 +90,7 @@ class OutputMapper extends Shipping\Mapper\AMapper
         '54' => array(
             'US' => 'WEXPPSM',
             'EU' => 'WEXPPSM',
-            'PL' => 'WEXPPSM',
+            'PL' => 'EXPP',
             'PR' => 'WEXPPSM',
             'MX' => 'EXPP',
             'OTHER_ORIGINS' => 'WEXPPSM',
@@ -99,12 +99,12 @@ class OutputMapper extends Shipping\Mapper\AMapper
             'US' => '2DAAM',
         ),
         '65' => array(
-            'US' => 'SAV',
-            'EU' => 'SAV',
-            'PL' => 'SAV',
-            'PR' => 'SAV',
-            'MX' => 'SAV',
-            'OTHER_ORIGINS' => 'SAV',
+            'US' => 'WSAV',
+            'EU' => 'WSAV',
+            'PL' => 'EXPSAV',
+            'PR' => 'WSAV',
+            'MX' => 'WSAV',
+            'OTHER_ORIGINS' => 'WSAV',
         ),
         '82' => array(
             'PL' => 'TSTD',
@@ -138,11 +138,15 @@ class OutputMapper extends Shipping\Mapper\AMapper
      *
      * @return string|null
      */
-    protected static function getShippingServiceCode($serviceCode, $sourceOriginCode)
+    protected function getShippingServiceCode($serviceCode, $sourceOriginCode)
     {
-        return isset(static::$upsServices[$serviceCode][$sourceOriginCode])
-            ? static::$upsServices[$serviceCode][$sourceOriginCode]
-            : null;
+        if (isset(static::$upsServices[$serviceCode][$sourceOriginCode])) {
+            return static::$upsServices[$serviceCode][$sourceOriginCode];
+        } elseif (static::$upsServices[$serviceCode]['OTHER_ORIGINS']) {
+            return static::$upsServices[$serviceCode]['OTHER_ORIGINS'];
+        }
+
+        return null;
     }
 
     /**

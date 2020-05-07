@@ -27,26 +27,4 @@ class Main extends \XLite\View\Model\Profile\Main implements \XLite\Base\IDecora
 
         return parent::getFormFieldsForSectionMain();
     }
-
-    /**
-     * Return list of the "Button" widgets
-     *
-     * @return array
-     */
-    protected function getFormButtons()
-    {
-        $result = parent::getFormButtons();
-
-        $params = array(
-            'text_before' => static::t('Or register with'),
-            'buttonStyle' => 'button',
-        );
-
-        $widget = $this->getWidget($params, 'XLite\Module\Amazon\PayWithAmazon\View\Login\Widget');
-        if ($widget->isVisible()) {
-            $result['social-login'] = $widget;
-        }
-
-        return $result;
-    }
 }

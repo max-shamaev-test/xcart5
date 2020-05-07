@@ -44,7 +44,7 @@ class Main extends \Includes\Decorator\Plugin\Doctrine\Plugin\APlugin
     {
         chdir(\LC_DIR_MODULES);
 
-        return glob('{*/*}', GLOB_BRACE);
+        return glob('*/*');
     }
 
     public function getModuleData($module)

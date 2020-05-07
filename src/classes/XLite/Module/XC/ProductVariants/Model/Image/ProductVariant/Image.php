@@ -22,7 +22,7 @@ class Image extends \XLite\Model\Base\Image
      * @var \XLite\Module\XC\ProductVariants\Model\ProductVariant
      *
      * @OneToOne   (targetEntity="XLite\Module\XC\ProductVariants\Model\ProductVariant", inversedBy="image")
-     * @JoinColumn (name="product_variant_id", referencedColumnName="id")
+     * @JoinColumn (name="product_variant_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $product_variant;
 

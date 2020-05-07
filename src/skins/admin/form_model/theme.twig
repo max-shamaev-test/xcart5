@@ -29,7 +29,9 @@
           <span class="help-block
                 {%- if (not compound or force_error|default(false)) and not valid %} hide{% endif -%}"
               {% if v_validators|length > 0 %} v-bind:class="{{ '{' }}'hide': {{ v_validator }}.invalid {{ '}' }}" {% endif %}
-          >{{ description|raw }}</span>
+          >
+            <span class="text-wrapper">{{ description|raw }}</span>
+          </span>
         {% endif %}
 
         {{- form_errors(form) -}}
@@ -89,9 +91,9 @@
 
 {% block form_errors -%}
   {% if not form.parent %}
-    {% if errors|length > 0 -%}
+    {% if errors|length > 0 or v_validators|length > 0 -%}
       <div class="alert alert-danger">
-        <ul class="list-unstyled">
+        <ul class="list-unstyled field-errors">
           {%- for error in errors -%}
             <li v-xlite-backend-validator="{{ v_model }}">{{ error.message }}</li>
           {%- endfor -%}
@@ -99,14 +101,14 @@
       </div>
     {% endif %}
   {% else %}
-    {% if errors|length > 0 %}
+    {% if errors|length > 0 or v_validators|length >0 %}
       <div class="help-block">
-        <ul class="list-unstyled">
+        <ul class="list-unstyled field-errors">
           {%- for error in errors -%}
             <li v-xlite-backend-validator="{{ v_model }}">{{ error.message }}</li>
           {%- endfor -%}
           {%- for validator in v_validators -%}
-            <li v-if="{{ validator }}" v-text="{{ validator }}"></li>
+            <li v-if="{{ validator }} && ( {{ v_form }}.submitted || {{ v_validator }}.dirty )" v-text="{{ validator }}"></li>
           {%- endfor -%}
         </ul>
       </div>
@@ -227,8 +229,8 @@
 {% block datepicker_widget -%}
   <div class="input-group">
     <span class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
-    <input type="hidden" class="datepicker-value-input" name="{{ full_name }}" value="{{ value }}">
     {{- block('form_widget_simple') -}}
+    <input type="hidden" class="datepicker-value-input" name="{{ full_name }}" value="{{ value }}">
   </div>
 {%- endblock datepicker_widget %}
 

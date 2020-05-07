@@ -21,11 +21,11 @@
 
       <div class="fields">
         <div class="country">
-          {{ widget('\\XLite\\Module\\XC\\Onboarding\\View\\FormField\\Select\\Country', attributes={'v-model': 'country'}, label='Country', value=this.getCountry(), fieldId='location-country', stateSelectorId='address-state-select', stateInputId='address-custom-state') }}
+          {{ widget('XLite\\Module\\XC\\Onboarding\\View\\FormField\\Select\\Country', attributes={'v-model': 'country'}, label='Country', value=this.getCountry(), fieldId='location-country', stateSelectorId='address-state-select', stateInputId='address-custom-state') }}
           <div class="example"></div>
         </div>
         <div class="currency">
-          {{ widget('\\XLite\\Module\\XC\\Onboarding\\View\\FormField\\Select\\Currency', attributes={'v-model': 'currency'}, label='Currency', value=this.getCurrency(), fieldId='location-currency') }}
+          {{ widget('XLite\\Module\\XC\\Onboarding\\View\\FormField\\Select\\Currency', attributes={'v-model': 'currency'}, label='Currency', value=this.getCurrency(), fieldId='location-currency') }}
           <div class="example">
             {% spaceless %}
               {{ t('Ex.') }}
@@ -36,7 +36,7 @@
           </div>
         </div>
         <div class="weight-unit">
-          {{ widget('\\XLite\\Module\\XC\\Onboarding\\View\\FormField\\Select\\WeightUnit', attributes={'v-model': 'weight_unit'}, label='Weight', value=this.getWeightUnit(), fieldId='location-weight_unit') }}
+          {{ widget('XLite\\Module\\XC\\Onboarding\\View\\FormField\\Select\\WeightUnit', attributes={'v-model': 'weight_unit'}, label='Weight', value=this.getWeightUnit(), fieldId='location-weight_unit') }}
           <div class="example">
             {% spaceless %}
               {{ t('Ex.') }}
@@ -49,10 +49,10 @@
 
       <div class="buttons">
         <div class="more-button">
-          {{ widget('\\XLite\\View\\Button\\Link', label='More localisation settings', location=this.getMoreSettingsLocation(), blank=1) }}
+          {{ widget('XLite\\View\\Button\\Link', label='More localisation settings', location=this.getMoreSettingsLocation(), blank=1) }}
         </div>
         <div class="next-step">
-          {{ widget('\\XLite\\View\\Button\\Regular', label='Proceed to the next step', style='regular-main-button', attributes={'@click': 'updateAddress'}, jsCode="null;") }}
+          {{ widget('XLite\\View\\Button\\Regular', label='Save and go to the next step', style='regular-main-button', attributes={'@click': 'updateAddress'}, jsCode="null;") }}
         </div>
       </div>
     </div>

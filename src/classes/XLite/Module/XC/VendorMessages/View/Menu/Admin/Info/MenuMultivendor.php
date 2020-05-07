@@ -19,20 +19,6 @@ class MenuMultivendor extends \XLite\View\Menu\Admin\Info\Menu implements \XLite
     /**
      * @inheritdoc
      */
-    protected function defineItems()
-    {
-        $list = parent::defineItems();
-        $list['disputes'] = [
-            static::ITEM_WEIGHT => 1100,
-            static::ITEM_WIDGET => 'XLite\Module\XC\VendorMessages\View\Menu\Admin\Info\Disputes',
-        ];
-
-        return $list;
-    }
-
-    /**
-     * @inheritdoc
-     */
     protected function getAllowedInfoItems()
     {
         $list = parent::getAllowedInfoItems();

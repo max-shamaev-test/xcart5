@@ -72,10 +72,11 @@ abstract class AURL implements IURL
         }
 
         if (strpos($contentLength, ',') !== false) {
-            list(, $contentLength) = explode(',', $contentLength);
+            $contentArray = explode(',', $contentLength);
+            return (int) end($contentArray) > 0;
+        } else {
+            return (int) $contentLength > 0;
         }
-
-        return (int) $contentLength > 0;
     }
 
     /**

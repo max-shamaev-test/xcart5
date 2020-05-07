@@ -78,7 +78,9 @@ class CustomerAttachments extends \XLite\Base\SuperClass
                 }
             }
 
-            if (count($result) == count($_FILES[static::FILES_KEY]['name'])) {
+            if (count($result) == count($_FILES[static::FILES_KEY]['name'])
+                && \XLite\Core\Request::getInstance()->max_file_uploads_warning !== 'true'
+            ) {
                 \XLite\Core\TopMessage::addInfo(static::t('The files have been attached successfully'));
             } else {
                 \XLite\Core\TopMessage::addWarning(static::t('Some files haven`t been attached'));

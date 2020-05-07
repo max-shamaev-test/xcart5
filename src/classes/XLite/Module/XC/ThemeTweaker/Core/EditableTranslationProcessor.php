@@ -10,26 +10,10 @@ namespace XLite\Module\XC\ThemeTweaker\Core;
 
 use XLite\Core\ITranslationProcessor;
 
-class EditableTranslationProcessor implements ITranslationProcessor {
+class EditableTranslationProcessor implements ITranslationProcessor
+{
 
     protected $requestLabels = [];
-
-    /**
-     * Register label to runtime storage of currently displayed labels.
-     *
-     * @param $translation
-     * @param $name
-     * @param $arguments
-     * @param $code
-     */
-    protected function registerDisplayedLabel($translation, $name, $arguments, $code) {
-        $this->requestLabels[$name] = [
-            'translation' => (string) $translation,
-            'name' => (string) $name,
-            'arguments' => $arguments,
-            'code' => $code
-        ];
-    }
 
     /**
      * Returns all registered labels of this request
@@ -44,15 +28,20 @@ class EditableTranslationProcessor implements ITranslationProcessor {
     /**
      * Performs postprocessing on the given translation string
      *
-     * @param $translation
-     * @param $name
-     * @param $arguments
-     * @param $code
+     * @param        $translation
+     * @param        $name
+     * @param        $arguments
+     * @param        $code
+     * @param string $type Label type, can be used in \XLite\Core\ITranslationProcessor
      *
      * @return string
      */
-    public function postprocess($translation, $name, $arguments, $code)
+    public function postprocess($translation, $name, $arguments, $code, $type)
     {
+        if (!$this->isEditable($translation, $name, $arguments, $code, $type)) {
+            return $translation;
+        }
+
         $label = "<span class='xlite-translation-label disabled' data-xlite-label-name='$name' data-xlite-label-code='$code'>$translation</span>";
 
         $result = new \Twig_Markup($label, 'UTF-8');
@@ -68,6 +57,7 @@ class EditableTranslationProcessor implements ITranslationProcessor {
      * @param $string
      * @param $keys
      * @param $values
+     *
      * @return string
      */
     public function replaceVariables($string, $keys, $values)
@@ -77,5 +67,45 @@ class EditableTranslationProcessor implements ITranslationProcessor {
         }
 
         return str_replace($keys, $values, $string);
+    }
+
+    /**
+     * Register label to runtime storage of currently displayed labels.
+     *
+     * @param $translation
+     * @param $name
+     * @param $arguments
+     * @param $code
+     */
+    protected function registerDisplayedLabel($translation, $name, $arguments, $code)
+    {
+        $this->requestLabels[$name] = [
+            'translation' => (string) $translation,
+            'name'        => (string) $name,
+            'arguments'   => $arguments,
+            'code'        => $code,
+        ];
+    }
+
+    /**
+     * @param        $translation
+     * @param        $name
+     * @param        $arguments
+     * @param        $code
+     * @param string $type Label type, can be used in \XLite\Core\ITranslationProcessor
+     *
+     * @return bool
+     */
+    protected function isEditable($translation, $name, $arguments, $code, $type)
+    {
+        return !in_array($type, $this->getNonEditableTypes(), true);
+    }
+
+    /**
+     * @return array
+     */
+    protected function getNonEditableTypes()
+    {
+        return ['placeholder'];
     }
 }

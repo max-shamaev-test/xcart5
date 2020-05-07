@@ -21,6 +21,7 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
     const P_FILTER    = 'filter';
     const P_IN_STOCK  = 'inStock';
     const P_QUICK_DATA_MEMBERSHIP = 'QuickDataMembership';
+    const P_QUICK_DATA_ZONE = 'QuickDataZone';
 
     /**
      * Allowable search modes
@@ -245,6 +246,24 @@ abstract class Product extends \XLite\Model\Repo\Product implements \XLite\Base\
                 ->setParameter('membership', $value);
         } else {
             $queryBuilder->andWhere('qdm.membership IS NULL');
+        }
+    }
+
+    /**
+     * Prepare quick data zone search condition
+     *
+     * @param \XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder Query builder to prepare
+     * @param array                                   $value        Condition data
+     *
+     * @return void
+     */
+    protected function prepareCndQuickDataZone(\XLite\Model\QueryBuilder\AQueryBuilder $queryBuilder, $value)
+    {
+        if ($value) {
+            $queryBuilder->andWhere('qdm.zone = :zone')
+                ->setParameter('zone', $value);
+        } else {
+            $queryBuilder->andWhere('qdm.zone IS NULL');
         }
     }
 }

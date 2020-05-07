@@ -16,14 +16,6 @@ use XCart\Marketplace\Validator\Callback;
 class CoreHash extends AAPIRequest
 {
     /**
-     * @return int
-     */
-    public static function getTransportTTL(): int
-    {
-        return ITransport::TTL_LONG;
-    }
-
-    /**
      * @return string
      */
     public function getAction(): ?string

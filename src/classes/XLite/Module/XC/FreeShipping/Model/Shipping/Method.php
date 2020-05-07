@@ -49,4 +49,15 @@ class Method extends \XLite\Model\Shipping\Method implements \XLite\Base\IDecora
     {
         return $this->free;
     }
+
+    /**
+     * Return true if method is 'Freight fixed fee'
+     *
+     * @return boolean
+     */
+    public function isFixedFee()
+    {
+        return self::METHOD_TYPE_FIXED_FEE === $this->getCode()
+            && 'offline' === $this->getProcessor();
+    }
 }

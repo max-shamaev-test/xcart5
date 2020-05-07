@@ -91,8 +91,8 @@ abstract class AFileUploader extends \XLite\View\FormField\AFormField
 
         $this->widgetParams += array(
             static::PARAM_MULTIPLE           => new \XLite\Model\WidgetParam\TypeBool('Multiple', false),
-            static::PARAM_MAX_WIDTH          => new \XLite\Model\WidgetParam\TypeInt('Max. width', 122),
-            static::PARAM_MAX_HEIGHT         => new \XLite\Model\WidgetParam\TypeInt('Max. height', 122),
+            static::PARAM_MAX_WIDTH          => new \XLite\Model\WidgetParam\TypeInt('Max. width', 120),
+            static::PARAM_MAX_HEIGHT         => new \XLite\Model\WidgetParam\TypeInt('Max. height', 120),
             static::PARAM_IS_VIA_URL_ALLOWED => new \XLite\Model\WidgetParam\TypeInt('Is ViaUrl allowed', true),
             static::PARAM_IS_REMOVABLE       => new \XLite\Model\WidgetParam\TypeBool('Is removable', true),
             static::PARAM_HELP_MESSAGE       => new \XLite\Model\WidgetParam\TypeString('Help message', true),

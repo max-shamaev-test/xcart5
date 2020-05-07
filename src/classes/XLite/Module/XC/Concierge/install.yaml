@@ -14,14 +14,6 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: Write key
-  - name: company_id
-    category: XC\Concierge
-    type: hidden
-    value: ''
-    orderby: 200
-    translations:
-      - code: en
-        option_name: Company Id
   - name: user_id
     category: XC\Concierge
     type: hidden

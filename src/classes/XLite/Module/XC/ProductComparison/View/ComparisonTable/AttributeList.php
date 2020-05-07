@@ -99,6 +99,7 @@ class AttributeList extends \XLite\Module\XC\ProductComparison\View\ComparisonTa
 
         $cnd->attributeGroup = $this->getAttributeGroup();
         $cnd->product = null;
+        $cnd->type = array(\XLite\Model\Attribute::TYPE_CHECKBOX,\XLite\Model\Attribute::TYPE_SELECT,\XLite\Model\Attribute::TYPE_TEXT);
         if (!$this->getAttributeGroup()) {
             $cnd->productClass = $this->getProductClasses() ?: null;
         }

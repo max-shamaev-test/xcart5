@@ -9,6 +9,7 @@
 namespace XLite\View;
 
 use Includes\Requirements;
+use XLite\Core\Cache\ExecuteCached;
 
 /**
  * Requirements
@@ -79,14 +80,24 @@ class Requirement extends \XLite\View\AView
 
         $name = $this->getName();
         if (!$requirement && $name) {
-            $requirements = new Requirements();
             $requirement = $this->processRequirement(
-                $requirements->getSingleResult($name),
+                $this->getRequirementResult($name, true),
                 $name
             );
+
+            ExecuteCached::setCache(['Requirement', $name], $requirement);
         }
 
         return $requirement;
+    }
+
+    public function getRequirementResult($name, $force = false)
+    {
+        return ExecuteCached::executeCached(static function () use ($name) {
+            $requirements = new Requirements();
+
+            return $requirements->getSingleResult($name);
+        }, ['requirement', $name], 0, $force);
     }
 
     public function getName()
@@ -131,6 +142,6 @@ class Requirement extends \XLite\View\AView
     {
         $value = static::t($name, array_filter($requirement['data'], 'is_scalar'));
 
-        return $name === $value ? '' : $value;
+        return $name === $value->translate() ? '' : $value;
     }
 }

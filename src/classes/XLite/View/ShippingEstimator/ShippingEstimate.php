@@ -259,4 +259,20 @@ class ShippingEstimate extends \XLite\View\AView
     {
         return (boolean) $this->getModifier()->getRates();
     }
+
+    /**
+     * Check field is required
+     *
+     * @param $fieldName
+     * @return bool
+     */
+    public function isFieldRequired($fieldName)
+    {
+        $field = \XLite\Core\Database::getRepo('XLite\Model\AddressField')->findOneBy([
+            'serviceName' => $fieldName,
+            'enabled' => true,
+        ]);
+
+        return $field && $field->getRequired();
+    }
 }

@@ -321,10 +321,17 @@ class Main extends \XLite\View\Model\Profile\AProfile
      */
     protected function performActionCreate()
     {
-        // FIXME: Uncomment this after the "register" funcion of "\XLite\Core\Auth" class will be refactored
-        // return !$this->checkPassword() ?: \XLite\Core\Auth::getInstance()->register($this->getModelObject());
+        $result = false;
 
-        return $this->checkPassword() ? parent::performActionCreate() : false;
+        if ($this->checkPassword()) {
+            $result = parent::performActionCreate();
+        }
+
+        if ($result) {
+            \XLite\Core\TmpVars::getInstance()->pendingMembershipsUpdateTimestamp = LC_START_TIME;
+        }
+
+        return $result;
     }
 
     /**

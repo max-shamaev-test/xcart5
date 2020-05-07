@@ -8,6 +8,8 @@
 
 namespace XLite\Model;
 
+use Includes\Utils\ArrayManager;
+
 /**
  * Common shipping method
  */
@@ -137,7 +139,17 @@ class Shipping extends \XLite\Base\Singleton
      */
     public function getRates(\XLite\Logic\Order\Modifier\Shipping $modifier)
     {
-        $rates = array();
+        $ratesArray = [];
+
+        $address = $this->getDestinationAddress($modifier);
+
+        /** @var \XLite\Model\Country $shippingCountry */
+        $shippingCountry = \XLite\Core\Database::getRepo('XLite\Model\Country')
+            ->findOneByCode($address['country'] ?? '');
+
+        if (!$shippingCountry || !$shippingCountry->getEnabled()) {
+            return $rates;
+        }
 
         foreach (static::$registeredProcessors as $processor) {
             if (!$this->isProcessorEnabled($processor, $modifier)) {
@@ -148,12 +160,14 @@ class Shipping extends \XLite\Base\Singleton
                 static::setIgnoreLongCalculationsMode(true);
             }
             // Get rates from processors
-            $rates = array_merge($rates, $this->getProcessorRates($processor, $modifier));
+            $ratesArray[] = $this->getProcessorRates($processor, $modifier);
 
             if ($processor->hasError()) {
                 $processor->flushErrorLog();
             }
         }
+
+        $rates = array_merge(...$ratesArray);
 
         $rates = $this->applyMarkups($modifier, $rates);
 
@@ -397,5 +411,31 @@ class Shipping extends \XLite\Base\Singleton
         \XLite\Core\Session::getInstance()->savedRatesValues = $savedRatesValues;
 
         return $rates;
+    }
+
+    /**
+     * @param \XLite\Logic\Order\Modifier\Shipping $modifier
+     * @return array
+     */
+    protected function getHashData(\XLite\Logic\Order\Modifier\Shipping $modifier)
+    {
+        return [
+            'destAddress' => $this->getDestinationAddress($modifier),
+            'weight' => $modifier->getWeight(),
+            'countItems' => $modifier->countItems(),
+            'subtotal' => $modifier->getSubtotal(),
+            'discountedSubtotal' => $modifier->getDiscountedSubtotal(),
+        ];
+    }
+
+    /**
+     * Get hash of shipping modifier
+     *
+     * @param \XLite\Logic\Order\Modifier\Shipping $modifier
+     * @return string
+     */
+    public function getHash(\XLite\Logic\Order\Modifier\Shipping $modifier)
+    {
+        return ArrayManager::md5($this->getHashData($modifier));
     }
 }

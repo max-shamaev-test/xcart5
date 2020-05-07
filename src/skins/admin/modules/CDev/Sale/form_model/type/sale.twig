@@ -8,8 +8,8 @@
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
-                <li><a href="" v-on:click.prevent="{{ v_model }}.type='sale_percent'">%</a></li>
-                <li><a href="" v-on:click.prevent="{{ v_model }}.type='sale_price'">{{ this.xlite.currency.getCurrencySymbol() }}</a></li>
+                <li><a href="" v-on:click.prevent="checkSale({{ v_model }}, 'sale_percent')">%</a></li>
+                <li><a href="" v-on:click.prevent="checkSale({{ v_model }}, 'sale_price')">{{ this.xlite.currency.getCurrencySymbol() }}</a></li>
             </ul>
         </div>
         {{ form_widget(form.type) }}

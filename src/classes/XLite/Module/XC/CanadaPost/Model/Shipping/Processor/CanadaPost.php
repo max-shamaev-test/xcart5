@@ -137,11 +137,11 @@ class CanadaPost extends \XLite\Model\Shipping\Processor\AProcessor
      */
     protected function postProcessInputData(array $inputData)
     {
-        $commonData = isset($inputData['commonData']) ? $inputData['commonData'] : array();
+        $commonData = $inputData['commonData'] ?? [];
         unset($inputData['commonData']);
 
-        $dstAddress = $commonData['dstAddress'];
-        if ($dstAddress['country'] === 'PR') {
+        $dstAddress = $commonData['dstAddress'] ?? [];
+        if (!empty($dstAddress['country']) && $dstAddress['country'] === 'PR') {
             $dstAddress['country'] = 'US';
             $dstAddress['state'] = 'PR';
             $commonData['dstAddress'] = $dstAddress;
@@ -256,9 +256,23 @@ class CanadaPost extends \XLite\Model\Shipping\Processor\AProcessor
             \XLite\Core\Config::getInstance()->Units->weight_unit
         );
 
-        $limits['length'] = $config->length;
-        $limits['width']  = $config->width;
-        $limits['height'] = $config->height;
+        $limits['length'] = \XLite\Core\Converter::convertDimensionUnits(
+            $config->length,
+            'cm',
+            \XLite\Core\Config::getInstance()->Units->dim_unit
+        );
+
+        $limits['width'] = \XLite\Core\Converter::convertDimensionUnits(
+            $config->width,
+            'cm',
+            \XLite\Core\Config::getInstance()->Units->dim_unit
+        );
+
+        $limits['height'] = \XLite\Core\Converter::convertDimensionUnits(
+            $config->height,
+            'cm',
+            \XLite\Core\Config::getInstance()->Units->dim_unit
+        );
 
         return $limits;
     }
@@ -345,7 +359,7 @@ class CanadaPost extends \XLite\Model\Shipping\Processor\AProcessor
                 foreach ($response['services'] as $service) {
                     $rate = new \XLite\Model\Shipping\Rate();
 
-                    $method = $this->getMethodByCode($service['service_code']);
+                    $method = $this->getMethodByCode($service['service_code'], self::STATE_ALL);
 
                     if (null === $method) {
                         // Unknown method received: add this to the database with disabled status
@@ -482,9 +496,21 @@ OUT;
         $dimensions = '';
 
         if (!empty($data['box'])) {
-            $length = $data['box']['length'];
-            $width  = $data['box']['width'];
-            $height = $data['box']['height'];
+            $length = \XLite\Core\Converter::convertDimensionUnits(
+                $data['box']['length'],
+                \XLite\Core\Config::getInstance()->Units->dim_unit,
+                'cm'
+            );
+            $width  = \XLite\Core\Converter::convertDimensionUnits(
+                $data['box']['width'],
+                \XLite\Core\Config::getInstance()->Units->dim_unit,
+                'cm'
+            );
+            $height = \XLite\Core\Converter::convertDimensionUnits(
+                $data['box']['height'],
+                \XLite\Core\Config::getInstance()->Units->dim_unit,
+                'cm'
+            );
 
         } elseif ($config->length && $config->width && $config->height) {
             $length = $config->length;

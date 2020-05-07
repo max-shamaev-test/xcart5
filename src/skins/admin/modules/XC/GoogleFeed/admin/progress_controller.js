@@ -23,6 +23,13 @@ jQuery().ready(
             self.location = URLHandler.buildURL({ 'target': 'google_feed', 'generation_completed': 1 });
           }
         }
+      ).bind(
+        'cancel',
+        function() {
+          setTimeout(function() {
+            self.location = URLHandler.buildURL({ 'target': 'google_feed' });
+          }, 4000);
+        }
       );
 
     var height = 0;

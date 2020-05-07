@@ -61,6 +61,16 @@ class QuickData extends \XLite\Model\AEntity
     protected $membership;
 
     /**
+     * Zone (relation)
+     *
+     * @var \XLite\Model\Zone
+     *
+     * @ManyToOne  (targetEntity="XLite\Model\Zone")
+     * @JoinColumn (name="zone_id", referencedColumnName="zone_id", onDelete="CASCADE")
+     */
+    protected $zone;
+
+    /**
      * Get id
      *
      * @return integer 
@@ -134,5 +144,27 @@ class QuickData extends \XLite\Model\AEntity
     public function getMembership()
     {
         return $this->membership;
+    }
+
+    /**
+     * Set zone
+     *
+     * @param \XLite\Model\Zone $zone
+     * @return QuickData
+     */
+    public function setZone(\XLite\Model\Zone $zone = null)
+    {
+        $this->zone = $zone;
+        return $this;
+    }
+
+    /**
+     * Get zone
+     *
+     * @return \XLite\Model\Zone
+     */
+    public function getZone()
+    {
+        return $this->zone;
     }
 }

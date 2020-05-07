@@ -113,7 +113,9 @@ OrderItemsList.prototype.handlePopoverSelectChange = function(event)
   var original = box.find('.edit-options-dialog select[name="' + event.currentTarget.name + '"]').get(0);
   original.selectedIndex = event.currentTarget.selectedIndex;
   jQuery(original.options).removeAttr('selected');
-  jQuery(original.options[event.currentTarget.selectedIndex]).prop('selected', 'selected');
+  jQuery(original.options[event.currentTarget.selectedIndex])
+    .prop('selected', 'selected')
+    .attr('selected', 'selected');
 
   core.trigger('order.itemAttributes.changed', { line: box.parents('tr').eq(0) });
 }
@@ -551,16 +553,6 @@ OrderItemsList.prototype.updateLinePriceLocal = function(line)
   if (isNaN(price)) {
     price = 0;
   }
-
-  line.find('td.name .edit-options-dialog .attribute-values [data-init-selected="1"]').each(
-      function () {
-          var elm = jQuery(this);
-          if (elm.data('modifier-price')) {
-              var modifier = parseFloat(elm.data('modifier-price'));
-              price -= modifier;
-          }
-      }
-  );
 
   line.find('td.name .edit-options-dialog .attribute-values select').each(
     function() {

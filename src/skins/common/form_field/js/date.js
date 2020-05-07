@@ -21,18 +21,9 @@ CommonElement.prototype.handlers.push(
       var locale = options.locale
       var defaultDate = this.$element.val()
 
-      var formatDefaultLocaleDate = function (format, date) {
-        return $.datepicker.formatDate(format, new Date(date), {
-          dayNamesShort: $.datepicker.regional[''].dayNamesShort,
-          dayNames: $.datepicker.regional[''].dayNames,
-          monthNamesShort: $.datepicker.regional[''].monthNamesShort,
-          monthNames: $.datepicker.regional[''].monthNames
-        })
-      }
-
       var changeHiddenValue = function ($el) {
-        $($el).siblings('.datepicker-value-input')
-          .val(formatDefaultLocaleDate($($el).datepicker('option', 'dateFormat'), $($el).datepicker('getDate')))
+        var selectedDate = $.datepicker.formatDate($($el).datepicker('option', 'dateFormat'), $($el).datepicker('getDate'), $.datepicker.regional['']);
+        $($el).siblings('.datepicker-value-input').val(selectedDate);
       }
 
       $.datepicker.setDefaults($.datepicker.regional[''])
@@ -40,13 +31,12 @@ CommonElement.prototype.handlers.push(
         $.datepicker.setDefaults($.datepicker.regional[locale])
 
         if (defaultDate !== undefined && defaultDate !== '') {
-          defaultDate = $.datepicker.formatDate(options.dateFormat, new Date(defaultDate))
-          this.$element.val(defaultDate)
+          defaultDate = $.datepicker.parseDate(options.dateFormat, defaultDate, $.datepicker.regional['']);
         }
       }
 
       var yearRange = (typeof options.highYear !== 'undefined' && typeof options.lowYear !== 'undefined')
-        ? options.highYear + ':' + options.lowYear
+        ? options.lowYear + ':' + options.highYear
         : 'c-10:c+10'
 
       this.$element
@@ -55,6 +45,7 @@ CommonElement.prototype.handlers.push(
         })
         .datepicker({
           dateFormat: options.dateFormat,
+          defaultDate: defaultDate,
           firstDay: options.firstDay,
           yearRange: yearRange,
           beforeShow: datePickerPostprocess,
@@ -63,7 +54,10 @@ CommonElement.prototype.handlers.push(
             changeHiddenValue(this)
             jQuery(this).change()
           }
-        })
+        });
+
+      this.$element.datepicker('setDate', defaultDate);
+      this.$element.datepicker('refresh');
     }
   }
 )

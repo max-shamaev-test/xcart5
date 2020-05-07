@@ -842,6 +842,10 @@ CommonElement.prototype.bindElement = function(elm)
     .keyup(debounced)
     .bind('paste', debounced);
 
+  if (this.$element.parents('.instant-control-readiness').length > 0) {
+    this.$element.keyup(_.debounce(_.bind(this.handleKeyUpControlReadiness, this), 100))
+  }
+
   this.triggerVent('bind');
 };
 
@@ -1425,7 +1429,7 @@ CommonElement.prototype.isChanged = function(onlyVisible)
 
   if ((!(onlyVisible && !this.isVisible()) && this.isSignificantInput()) || this.isAffectChange()) {
     if (
-      (isElement(this.element, 'input') && -1 != jQuery.inArray(this.element.type, ['text', 'password', 'hidden', 'file']))
+      (isElement(this.element, 'input') && -1 != jQuery.inArray(this.element.type, ['text', 'number', 'password', 'hidden', 'file']))
       || isElement(this.element, 'select')
       || isElement(this.element, 'textarea')
     ) {
@@ -1515,7 +1519,7 @@ CommonElement.prototype.getCanonicalValue = function()
   var result = null;
 
   if (
-    (isElement(this.element, 'input') && -1 != jQuery.inArray(this.element.type, ['text', 'password', 'hidden', 'file']))
+    (isElement(this.element, 'input') && -1 != jQuery.inArray(this.element.type, ['text', 'number', 'password', 'hidden', 'file']))
     || isElement(this.element, 'select')
     || isElement(this.element, 'textarea')
   ) {
@@ -1763,6 +1767,15 @@ CommonElement.prototype.handleKeyUp = function(event)
 {
   if (this.isSignificantInput()) {
     jQuery(this.element.form).change();
+  }
+};
+
+CommonElement.prototype.handleKeyUpControlReadiness = function(event)
+{
+  var controlReadiness = this.element.form && this.element.form.commonController.controlReadiness;
+
+  if (controlReadiness) {
+    this.element.form.commonController.processReadiness();
   }
 };
 

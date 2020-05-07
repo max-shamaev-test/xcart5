@@ -15,13 +15,13 @@ use XLite\Model\WidgetParam;
 /**
  * Top selling products list (for dashboard page)
  */
-class TopSellers extends \XLite\View\ItemsList\Model\Product\Admin\LowInventoryBlock
+class TopSellers extends \XLite\View\ItemsList\Model\Product\Admin\Search
 {
     /**
      * Widget parameter name
      */
-    const PARAM_PERIOD = 'period';
-    const PARAM_AVAILABILITY  = 'availability';
+    const PARAM_PERIOD         = 'period';
+    const PARAM_AVAILABILITY   = 'availability';
     const PARAM_PRODUCTS_LIMIT = 'products_limit';
 
     /**
@@ -55,7 +55,7 @@ class TopSellers extends \XLite\View\ItemsList\Model\Product\Admin\LowInventoryB
     public static function getAllowedAvailability()
     {
         return [
-            \XLite\Controller\Admin\TopSellers::AVAILABILITY_ALL => 'All',
+            \XLite\Controller\Admin\TopSellers::AVAILABILITY_ALL            => 'All',
             \XLite\Controller\Admin\TopSellers::AVAILABILITY_AVAILABLE_ONLY => 'Only available',
         ];
     }
@@ -71,23 +71,21 @@ class TopSellers extends \XLite\View\ItemsList\Model\Product\Admin\LowInventoryB
     }
 
     /**
-     * Hide 'More...' link
+     * Extract product info from order item
+     * It is used in the collection cycle for self::getData method
      *
-     * @return string
+     * @param array $item Item
+     *
+     * @return \XLite\Model\Product
+     * @see \XLite\View\ItemsList\Model\Product\Admin\TopSellers::getData
+     *
      */
-    public function getMoreLink()
+    public function extractProductData($item)
     {
-        return null;
-    }
+        $product = $item[0] instanceof Model\Product ? $item[0] : $item[0]->getProduct();
+        $product->setSold($item['cnt']);
 
-    /**
-     * Hide 'More...' link
-     *
-     * @return string
-     */
-    public function getMoreLinkTitle()
-    {
-        return null;
+        return $product;
     }
 
     /**
@@ -101,7 +99,7 @@ class TopSellers extends \XLite\View\ItemsList\Model\Product\Admin\LowInventoryB
 
         $this->widgetParams += [
             static::PARAM_PERIOD         => new WidgetParam\TypeString('Period', self::P_PERIOD_LIFETIME),
-            static::PARAM_AVAILABILITY => new \XLite\Model\WidgetParam\TypeString(
+            static::PARAM_AVAILABILITY   => new \XLite\Model\WidgetParam\TypeString(
                 'Availability', \XLite\Controller\Admin\TopSellers::AVAILABILITY_ALL
             ),
             static::PARAM_PRODUCTS_LIMIT => new WidgetParam\TypeInt('Number of products', 5),
@@ -124,18 +122,52 @@ class TopSellers extends \XLite\View\ItemsList\Model\Product\Admin\LowInventoryB
         $columns = parent::defineColumns();
 
         $columns['sold'] = [
-            static::COLUMN_NAME  => Core\Translation::lbl('Sold'),
-            static::COLUMN_ORDERBY  => 10000,
+            static::COLUMN_NAME    => Core\Translation::lbl('Sold'),
+            static::COLUMN_ORDERBY => 10000,
         ];
 
         // Remove redundant columns
         foreach ($columns as $k => $v) {
             if (!in_array($k, $allowedColumns, true)) {
                 unset($columns[$k]);
+            } else {
+                $columns[$k][static::COLUMN_SORT] = null;
             }
         }
 
+        if (isset($columns['sku'])) {
+            $columns['sku'][static::COLUMN_NAME] = Core\Translation::lbl('Bestsellers');
+        }
+
         return $columns;
+    }
+    
+    /**
+     * @return array
+     */
+    protected function getColspanHeaders()
+    {
+        return ['sku' => ['name']];
+    }
+
+    /**
+     * Get search panel widget class
+     *
+     * @return string
+     */
+    protected function getSearchPanelClass()
+    {
+        return null;
+    }
+
+    /**
+     * Should itemsList be wrapped with form
+     *
+     * @return boolean
+     */
+    protected function wrapWithFormByDefault()
+    {
+        return false;
     }
 
     /**
@@ -157,12 +189,121 @@ class TopSellers extends \XLite\View\ItemsList\Model\Product\Admin\LowInventoryB
     {
         $cnd = new Core\CommonCell();
 
-        $cnd->date = [$this->getStartDate(), 0];
+        $cnd->date         = [$this->getStartDate(), 0];
         $cnd->availability = $this->getAvailability();
 
         $cnd->limit = $this->getParam(self::PARAM_PRODUCTS_LIMIT);
 
         return $cnd;
+    }
+
+    /**
+     * Do not need the create button with this list
+     *
+     * @return string
+     */
+    protected function getCreateURL()
+    {
+        return null;
+    }
+
+    /**
+     * Return title
+     *
+     * @return string
+     */
+    protected function getHead()
+    {
+        return null;
+    }
+
+    /**
+     * Build entity page URL
+     *
+     * @param \XLite\Model\AEntity $entity Entity
+     * @param array                $column Column data
+     *
+     * @return string
+     */
+    protected function buildEntityURL(\XLite\Model\AEntity $entity, array $column)
+    {
+        return \XLite\Core\Converter::buildURL(
+            $column[static::COLUMN_LINK],
+            '',
+            [
+                $entity->getUniqueIdentifierName() => $entity->getUniqueIdentifier(),
+                'page'                             => 'inventory',
+            ]
+        );
+    }
+
+    /**
+     * Hide left actions
+     *
+     * @return array
+     */
+    protected function getLeftActions()
+    {
+        return [];
+    }
+
+    /**
+     * Hide left actions
+     *
+     * @return array
+     */
+    protected function getRightActions()
+    {
+        return [];
+    }
+
+    /**
+     * Hide panel
+     *
+     * @return null
+     */
+    protected function getPanelClass()
+    {
+        return null;
+    }
+
+    /**
+     * Mark all items as non-removable
+     *
+     * @return boolean
+     */
+    protected function isRemoved()
+    {
+        return false;
+    }
+
+    /**
+     * Get pager class
+     *
+     * @return string
+     */
+    protected function getPagerClass()
+    {
+        return 'XLite\View\Pager\Admin\Model\SinglePageWithMorePager';
+    }
+
+    protected function getPagerParams()
+    {
+        $params = parent::getPagerParams();
+
+        $params[\XLite\View\Pager\APager::PARAM_MAX_ITEMS_COUNT] = 5;
+
+        return $params;
+    }
+
+    /**
+     * Description for blank items list
+     *
+     * @return string
+     */
+    protected function getBlankItemsListDescription()
+    {
+        return static::t('itemslist.admin.product.blank');
     }
 
     /**
@@ -216,7 +357,7 @@ class TopSellers extends \XLite\View\ItemsList\Model\Product\Admin\LowInventoryB
      */
     protected function getData(Core\CommonCell $cnd, $countOnly = false)
     {
-        list($start,) = $cnd->date;
+        [$start,] = $cnd->date;
 
         if (0 === (int) $start) {
             $data = Core\Database::getRepo('XLite\Model\Product')
@@ -232,24 +373,6 @@ class TopSellers extends \XLite\View\ItemsList\Model\Product\Admin\LowInventoryB
             ? $data
             // $data is a collection and we must extract product data from it
             : array_map([$this, 'extractProductData'], $data);
-    }
-
-    /**
-     * Extract product info from order item
-     * It is used in the collection cycle for self::getData method
-     *
-     * @see \XLite\View\ItemsList\Model\Product\Admin\TopSellers::getData
-     *
-     * @param array $item Item
-     *
-     * @return \XLite\Model\Product
-     */
-    public function extractProductData($item)
-    {
-        $product = $item[0] instanceof Model\Product ? $item[0] : $item[0]->getProduct();
-        $product->setSold($item['cnt']);
-
-        return $product;
     }
 
     /**

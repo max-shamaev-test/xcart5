@@ -385,6 +385,8 @@ class Settings extends \XLite\View\Model\AModel
      */
     protected function performActionUpdate()
     {
+        \XLite\Core\Config::dropRuntimeCache();
+
         return true;
     }
 
@@ -476,6 +478,22 @@ class Settings extends \XLite\View\Model\AModel
                         'orderby'  => $option->getOrderby(),
                     )
                 );
+
+                if ($option->getCategory() === 'Company') {
+                    if ($option->getName() === 'site_administrator') {
+                        $adminEmails = unserialize($option->getNewValue());
+
+                        if (is_array($adminEmails) && $adminEmails) {
+                            \XLite\Core\Marketplace::getInstance()->setAdminEmail(
+                                reset($adminEmails)
+                            );
+                        }
+                    } elseif ($option->getName() === 'location_country') {
+                        \XLite\Core\Marketplace::getInstance()->setShopCountryCode(
+                            $option->getNewValue()
+                        );
+                    }
+                }
             }
         }
     }

@@ -10,6 +10,7 @@ namespace Includes\Decorator\Plugin\Templates\Plugin\ViewLists;
 
 use Includes\Annotations\Parser\AnnotationParserFactory;
 use Includes\ClassPathResolver;
+use Includes\Decorator\ClassBuilder\ClassBuilderFactory;
 use Includes\Decorator\Utils\Operator;
 use Includes\Reflection\StaticReflectorFactory;
 use Includes\Utils\Module\Manager;
@@ -47,6 +48,20 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
      * @var array
      */
     protected $annotatedPHPCLasses;
+
+    /**
+     * Runtime cached path for view classes dir
+     *
+     * @var string
+     */
+    protected $viewClassesDir;
+
+    /**
+     * Path for temporary build classes
+     *
+     * @var
+     */
+    protected $tempClassesDir;
 
     /**
      * Execute certain hook handler
@@ -124,7 +139,7 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
         if ($this->annotatedPHPCLasses === null) {
             $this->annotatedPHPCLasses = [];
 
-            $classPathResolver = new ClassPathResolver(Operator::getClassesDir());
+            $classPathResolver = new ClassPathResolver($this->getViewClassesDir());
             $reflectorFactory  = new StaticReflectorFactory($classPathResolver);
 
             foreach ($this->getViewClasses() as $pathname) {
@@ -163,7 +178,7 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
      */
     protected function getViewClasses()
     {
-        $classes = Operator::getClassesDir();
+        $classes = $this->getViewClassesDir();
 
         $viewDirs = array_merge(
             [$classes . 'XLite/View'],
@@ -187,13 +202,86 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
     }
 
     /**
+     * Create temporary cache for view classes with dependencies
+     * Only for not rebuild mode
+     */
+    protected function buildTempClasses()
+    {
+        if ($this->tempClassesDir !== null || self::getStep() !== null) {
+            return;
+        }
+
+        $this->tempClassesDir = $this->getViewClassesDir();
+        \Includes\Autoloader::switchToOriginalClassDir();
+        $modules = Manager::getRegistry()->getEnabledModuleIds();
+
+        $classBuilder = (new ClassBuilderFactory())->create(
+            LC_DIR_CLASSES,
+            $this->tempClassesDir,
+            $modules
+        );
+
+        $fileIterator = new \Includes\Utils\FileFilter(
+            LC_DIR_CLASSES,
+            Manager::getPathPatternForPHP(LC_DIR_CLASSES)
+        );
+
+        foreach ($fileIterator->getIterator() as $file) {
+            $classBuilder->buildPathname((string) $file);
+        }
+    }
+
+    /**
+     * Remove temporary view classes cache if exist
+     */
+    protected function removeTempClasses()
+    {
+        if ($this->tempClassesDir === null || self::getStep() !== null) {
+            return;
+        }
+
+        $deleteDir = substr($this->tempClassesDir, 0, strlen('classes' . LC_DS) * -1);
+        \Includes\Autoloader::switchToCachedClassDir();
+        \Includes\Utils\FileManager::unlinkRecursive($deleteDir);
+        $this->tempClassesDir = null;
+    }
+
+    /**
+     * Get path for view classes dir
+     * @return string
+     */
+    protected function getViewClassesDir()
+    {
+        if (self::getStep() !== null) {
+            return Operator::getClassesDir();
+        }
+
+        if ($this->viewClassesDir === null) {
+            $dir = rtrim(LC_DIR_COMPILE, LC_DS);
+            $this->viewClassesDir = $dir . '.' . md5(time()) . LC_DS . 'classes' . LC_DS;
+        }
+
+        return $this->viewClassesDir;
+    }
+
+    /**
      * Return all "ListChild" tags defined in PHP classes
      *
      * @return array
      */
     protected function getListChildTagsFromPHP()
     {
-        return $this->getAllListChildTagAttributes($this->getAnnotatedPHPCLasses());
+        try {
+            $this->buildTempClasses();
+            $classes = $this->getAnnotatedPHPCLasses();
+            $listTags = $this->getAllListChildTagAttributes($classes);
+            $this->removeTempClasses();
+        } catch (\Exception $exception) {
+            $this->removeTempClasses();
+            throw $exception;
+        }
+
+        return $listTags;
     }
 
     /**
@@ -217,23 +305,23 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
     {
         $result = [];
 
-        Manager::initModules();
+        \XLite::getInstance()->initModules();
 
         $skins         = [];
         $hasSubstSkins = false;
 
-        foreach (Layout::getInstance()->getSkinsAll() as $interface => $path) {
-            $skins[$interface] = Layout::getInstance()->getSkins($interface);
+        $layout = Layout::getInstance();
 
+        foreach ($layout->getSkinsAll() as $interface => $path) {
             if (\XLite::MAIL_INTERFACE === $interface || \XLite::PDF_INTERFACE === $interface) {
                 $skins[$interface] = [];
-                foreach (Layout::getInstance()->getSkins($interface) as $skin) {
+                foreach ($layout->getSkins($interface) as $skin) {
                     foreach ([\XLite::ADMIN_INTERFACE, \XLite::COMMON_INTERFACE, \XLite::CUSTOMER_INTERFACE] as $innerInterface) {
                         $skins[$interface][] = $skin . LC_DS . $innerInterface;
                     }
                 }
             } else {
-                $skins[$interface] = Layout::getInstance()->getSkins($interface);
+                $skins[$interface] = $layout->getSkins($interface);
             }
 
             if (!$hasSubstSkins) {
@@ -329,6 +417,7 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
     protected function processTagsQuery(array $tags)
     {
         $result = [];
+        $add = [];
 
         foreach ($tags as $step) {
             if (isset($step[static::TAG_CLEAR_LIST_CHILDREN])) {
@@ -340,11 +429,11 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
             }
 
             if (isset($step[static::TAG_ADD_LIST_CHILD])) {
-                $result = array_merge($result, $step[static::TAG_ADD_LIST_CHILD]);
+                $add[] = $step[static::TAG_ADD_LIST_CHILD];
             }
         }
 
-        return $result;
+        return array_merge($result, ...$add);
     }
 
     /**

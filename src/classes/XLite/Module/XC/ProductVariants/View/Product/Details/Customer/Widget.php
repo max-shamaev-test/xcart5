@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XC\ProductVariants\View\Product\Details\Customer;
 
+use XLite\Core\Cache\ExecuteCached;
+
 /**
  * Product widget
  */
@@ -49,7 +51,7 @@ abstract class Widget extends \XLite\View\Product\Details\Customer\Widget implem
     {
         return $this->getProductVariant()
             ? $this->getProductVariant()->isOutOfStock()
-            : ($this->getProduct()->mustHaveVariants() ? !$this->showPlaceholderOption() : parent::isOutOfStock());
+            : ($this->getProduct()->mustHaveVariants() ? $this->allOptionsSelected() : parent::isOutOfStock());
     }
 
     /**
@@ -62,6 +64,32 @@ abstract class Widget extends \XLite\View\Product\Details\Customer\Widget implem
         return $this->getProductVariant()
             ? $this->getProductVariant()->isAllStockInCart()
             : parent::isAllStockInCart();
+    }
+
+    /**
+     * @return boolean
+     */
+    private function allOptionsSelected()
+    {
+        $attributesData = \XLite\Core\Request::getInstance()->attribute_values;
+
+        return ExecuteCached::executeCached(
+            static function () use ($attributesData) {
+                $attributes = explode(',', $attributesData);
+
+                foreach ($attributes as $attribute) {
+                    if ($attribute) {
+                        [$id, $value] = explode('_', $attribute);
+                        if ($value === 'null' || $value === '') {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            },
+            ['allOptionsSelected', $attributesData]
+        );
     }
 
     /**
@@ -82,7 +110,7 @@ abstract class Widget extends \XLite\View\Product\Details\Customer\Widget implem
     }
 
     /**
-     * Check - 'out of stock' label is visible or not
+     * Check product availability for sale
      *
      * @return boolean
      */
@@ -90,6 +118,6 @@ abstract class Widget extends \XLite\View\Product\Details\Customer\Widget implem
     {
         return $this->getProductVariant()
             ? $this->getProductVariant()->isAvailable()
-            : ($this->getProduct()->mustHaveVariants() ? $this->showPlaceholderOption() : parent::isProductAvailableForSale());
+            : ($this->getProduct()->mustHaveVariants() ? !$this->allOptionsSelected() : parent::isProductAvailableForSale());
     }
 }

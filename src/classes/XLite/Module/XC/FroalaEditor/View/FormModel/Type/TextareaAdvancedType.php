@@ -46,7 +46,6 @@ class TextareaAdvancedType extends \XLite\View\FormModel\Type\TextareaAdvancedTy
                 [
                     'attributes' => [
                         'v-model' => $view->vars['v_model'],
-                        'id'      => '',
                     ],
                     'value'      => $view->vars['value'],
                 ]

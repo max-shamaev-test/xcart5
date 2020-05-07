@@ -8,11 +8,15 @@
 
 namespace XLite\Model\Shipping\Processor;
 
+use XLite\Core\Cache\ExecuteCachedTrait;
+
 /**
  * Shipping processor model
  */
 class Offline extends \XLite\Model\Shipping\Processor\AProcessor
 {
+    use ExecuteCachedTrait;
+
     /**
      * Default base rate
      */
@@ -69,12 +73,15 @@ class Offline extends \XLite\Model\Shipping\Processor\AProcessor
      */
     public function getRates($modifier, $ignoreCache = false)
     {
-        $rates = array();
+        $rates = [];
 
         if ($modifier instanceof \XLite\Logic\Order\Modifier\Shipping) {
             // Find markups for all enabled offline shipping methods
-            $markups = \XLite\Core\Database::getRepo('XLite\Model\Shipping\Markup')
-                ->findMarkupsByProcessor($this->getProcessorId(), $modifier);
+            $processorId = $this->getProcessorId();
+            $markups = $this->executeCachedRuntime(static function() use ($processorId, $modifier) {
+                return \XLite\Core\Database::getRepo('XLite\Model\Shipping\Markup')
+                    ->findMarkupsByProcessor($processorId, $modifier);
+            }, [$processorId, $modifier]);
 
             if (!empty($markups)) {
                 // Create shipping rates list

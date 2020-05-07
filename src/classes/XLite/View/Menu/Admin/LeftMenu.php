@@ -400,6 +400,7 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
                     'front_page' => [
                         static::ITEM_TITLE      => static::t('Front page'),
                         static::ITEM_TARGET     => 'front_page',
+                        static::ITEM_PERMISSION => 'manage front page',
                         static::ITEM_WEIGHT     => 100,
                     ],
                 ],
@@ -415,7 +416,7 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
             ],
         ];
 
-        $items['catalog'][static::ITEM_CHILDREN]['banner_rotation'] = [
+        $items['content'][static::ITEM_CHILDREN]['banner_rotation'] = [
             static::ITEM_TITLE      => static::t('Banner rotation'),
             static::ITEM_WIDGET     => 'XLite\View\Menu\Admin\LeftMenu\BannerRotation',
             static::ITEM_TARGET     => 'banner_rotation',
@@ -500,8 +501,8 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
         //$flags = \XLite\Core\Marketplace::getInstance()->checkForUpdates();
         $flags = null;
         if (is_array($flags)
-            && (!empty($flags[\XCart\Marketplace\Constant::FIELD_ARE_UPDATES_AVAILABLE])
-                || !empty($flags[\XCart\Marketplace\Constant::FIELD_IS_UPGRADE_AVAILABLE])
+            && (!empty($flags[\XLite\Core\Marketplace\Constant::FIELD_ARE_UPDATES_AVAILABLE])
+                || !empty($flags[\XLite\Core\Marketplace\Constant::FIELD_IS_UPGRADE_AVAILABLE])
             )
         ) {
             $offsetTop += 25;
@@ -513,8 +514,13 @@ class LeftMenu extends \XLite\View\Menu\Admin\AAdmin
             'data-offset-top' => $offsetTop,
         ];
 
-        if (!empty($_COOKIE['XCAdminLeftMenuCompressed'])) {
-            $attributes['class'] = ['compressed'];
+        if (!isset($_COOKIE['XCAdminLeftMenuCompressed'])
+            || (
+                isset($_COOKIE['XCAdminLeftMenuCompressed'])
+                && $_COOKIE['XCAdminLeftMenuCompressed']
+            )
+        ) {
+            $attributes['class'] = ['pre-compressed'];
         }
 
         return $attributes;

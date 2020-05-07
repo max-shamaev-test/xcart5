@@ -14,24 +14,6 @@ namespace XLite\Module\XC\FreeShipping;
 abstract class Main extends \XLite\Module\AModule
 {
     /**
-     * Remove service free shipping modules
-     */
-    public static function removeFreeShippingMethods()
-    {
-        $shippingMethods = \XLite\Core\Database::getRepo('XLite\Model\Shipping\Method')->findBy(['code' => 'FREESHIP', 'free' => true]);
-        foreach ($shippingMethods as $method) {
-            \XLite\Core\Database::getEM()->remove($method);
-        }
-
-        $shippingMethods = \XLite\Core\Database::getRepo('XLite\Model\Shipping\Method')->findBy(['code' => 'FIXEDFEE']);
-        foreach ($shippingMethods as $method) {
-            \XLite\Core\Database::getEM()->remove($method);
-        }
-
-        \XLite\Core\Database::getEM()->flush();
-    }
-
-    /**
      * Switch service free shipping modules
      *
      * @param bool $enabled enabled

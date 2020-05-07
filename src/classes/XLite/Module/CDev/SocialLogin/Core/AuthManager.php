@@ -43,6 +43,7 @@ class AuthManager extends \XLite\Base
         return array(
             '\XLite\Module\CDev\SocialLogin\Core\FacebookAuthProvider',
             '\XLite\Module\CDev\SocialLogin\Core\GoogleAuthProvider',
+            '\XLite\Module\CDev\SocialLogin\Core\AppleAuthProvider'
         );
     }
 }

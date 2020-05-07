@@ -6,7 +6,9 @@
   {{ t('Coupon discount') }}:
   {{ widget_list('order.base.totals.modifier.name', surcharge=this.surcharge, sType=this.surcharge.code, order=this.order) }}
 </div>
+{% if this.isOrderEditable() %}
 <div class="value"><a href="#" class="add">{{ t('Add coupon') }}</a></div>
+{% endif %}
 </li>
 
 {% if this.isOrderEditable() %}
@@ -40,14 +42,16 @@
   </div>
 </li>
 
-{% for coupon in this.getUsedCoupons() %}
+{% for coupon in this.getUsedCouponsData() %}
 <li class="coupon-row">
   <div class="code hidden">{{ coupon.code }}</div>
-  <div class="code">{{ coupon.getPublicName() }}:</div>
+  <div class="code">{{ coupon.publicName }}:</div>
   <div class="cost">{{ this.formatPriceHTML(coupon.value, this.order.currency)|raw }}</div>
-  <div class="recalc">
-    <a href="#" class="remove" title="{{ t('Remove') }}"><i class="fa fa-trash-o"></i></a>
-    <input type="hidden" name="removeCoupons[{{ this.getCouponCodeHash(coupon) }}]" value="" />
-  </div>
+  {% if this.isOrderEditable() %}
+    <div class="recalc">
+      <a href="#" class="remove" title="{{ t('Remove') }}"><i class="fa fa-trash-o"></i></a>
+      <input type="hidden" name="removeCoupons[{{ coupon.couponCodeHash }}]" value="" />
+    </div>
+  {% endif %}
 </li>
 {% endfor %}

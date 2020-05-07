@@ -32,6 +32,14 @@ class AdminMain extends \XLite\View\Model\Profile\AdminMain implements \XLite\Ba
                 \XLite\Module\CDev\SocialLogin\View\FormField\ProfileImage::PARAM_URL      => $profile->getPictureUrl(),
             );
         }
+
+        if ($profile && $profile->isSocialProfile()) {
+            $this->mainSchema['socialLoginProvider'] = array(
+                self::SCHEMA_CLASS    => '\XLite\View\FormField\Label',
+                self::SCHEMA_LABEL    => 'Provider',
+                self::SCHEMA_REQUIRED => false,
+            );
+        }
     }
     /**
      * Return fields list by the corresponding schema
@@ -43,6 +51,7 @@ class AdminMain extends \XLite\View\Model\Profile\AdminMain implements \XLite\Ba
         if ($this->getModelObject()->isSocialProfile()) {
             unset($this->mainSchema['password']);
             unset($this->mainSchema['password_conf']);
+            unset($this->accessSchema['forceChangePassword']);
         }
 
         return parent::getFormFieldsForSectionMain();

@@ -14,17 +14,30 @@ function RequirementView(base)
 {
   this.callSupermethod('constructor', arguments);
   this.widgetParams = core.getCommentedData(base, 'reloadParams');
-
-  this.load();
 }
 
 extend(RequirementView, ALoadable);
 
-RequirementView.autoload = function(){
-  var lines = jQuery('.requirement-line');
+RequirementView.batchSize = 1;
 
-  lines.each(function(index, elem){
-    new RequirementView(elem);
+RequirementView.autoload = function() {
+  jQuery('.critical-requirements-table, .non-critical-requirements-table').each(function(i, table) {
+    const lines = jQuery(table).find('.requirement-line');
+    let promise = $.when();
+    let batch = [];
+
+    lines.each(function(index, elem) {
+      const view = new RequirementView(elem);
+      view.shade();
+
+      batch.push(() => view.load());
+
+      if (batch.length === RequirementView.batchSize || index === lines.length - 1) {
+        const currentBatch = batch;
+        promise = promise.then(() => Promise.all(currentBatch.map(task => task())));
+        batch = [];
+      }
+    });
   });
 };
 

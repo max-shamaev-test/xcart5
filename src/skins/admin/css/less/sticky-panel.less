@@ -8,7 +8,9 @@
  */
 
 .sticky-panel {
-  position: relative;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
   margin-top: (@rhythmic-unit * 2);
   padding: 0;
   overflow: visible;
@@ -21,7 +23,7 @@
   overflow: visible;
   border-top: @border-base solid @color-border;
   z-index: 100;
-  height: (@rhythmic-unit * 8 / 3);
+  height: @rhythmic-unit * 3;
 
   display: flex;
   align-items: center;
@@ -67,6 +69,7 @@
   }
 
   .ui-dialog & {
+    position: relative;
     width: auto;
     margin-left: 0;
     margin-top: @rhythmic-unit;

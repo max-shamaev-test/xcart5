@@ -158,7 +158,7 @@ class Session extends \XLite\Model\AEntity
     {
         if ($this->getExpiry() - static::getMaxTTL() < \XLite\Core\Converter::time() - static::EXPIRATION_UPDATE_PERIOD) {
             $ttl = \XLite\Core\Session::getTTL();
-            $this->setExpiry(0 < $ttl ? $ttl : \XLite\Core\Converter::time() + static::getMaxTTL());
+            $this->setExpiry(\XLite\Core\Converter::time() + ($ttl > 0 ? $ttl : static::getMaxTTL()));
 
             return true;
         }

@@ -19,6 +19,35 @@ use Includes\Utils\URLManager;
 class TemporaryFile extends \XLite\Model\Base\Image
 {
     /**
+     * Alternative image text
+     *
+     * @var string
+     */
+    protected $alt = '';
+
+    /**
+     * Set alt
+     *
+     * @param string $alt
+     * @return TemporaryFile
+     */
+    public function setAlt($alt)
+    {
+        $this->alt = $alt;
+        return $this;
+    }
+
+    /**
+     * Get alt
+     *
+     * @return string
+     */
+    public function getAlt()
+    {
+        return $this->alt;
+    }
+
+    /**
      * Check - file is image or not
      *
      * @return boolean

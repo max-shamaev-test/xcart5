@@ -23,8 +23,6 @@
 @subhead-padding: 26px;
 
 body * {
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
 .invoice-box {
@@ -378,6 +376,7 @@ body * {
     td.qty,
     td.total {
       text-align: right;
+      white-space: nowrap;
     }
     td.total {
       padding-right: 0;
@@ -392,9 +391,6 @@ body * {
         font-size: 14px;
       }
       .item-container {
-        display: -webkit-flex;
-        display: -moz-flex;
-        display: -ms-flex;
         display: flex;
         align-items: center;
 

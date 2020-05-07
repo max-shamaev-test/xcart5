@@ -215,7 +215,7 @@ abstract class Profile extends \XLite\Model\Profile implements \XLite\Base\IDeco
     /**
      * Get mail_chimp_lists
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection|\XLite\Module\XC\MailChimp\Model\MailChimpList[]
      */
     public function getMailChimpLists()
     {

@@ -22,9 +22,10 @@ class FirstClassMailType extends \XLite\View\FormField\Select\Regular
     {
         return array(
             'LETTER'          => 'Letter',
-            'FLAT'            => 'Flat',
+            'LARGE ENVELOPE'  => 'Large Envelope',
             'PARCEL'          => 'Parcel',
             'POSTCARD'        => 'Postcard',
+            'LARGE POSTCARD'  => 'Large Postcard',
             'PACKAGE SERVICE' => 'Package service',
         );
     }

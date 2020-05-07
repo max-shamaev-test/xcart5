@@ -14,6 +14,20 @@ namespace XLite\Module\CDev\Wholesale\Controller\Customer;
 class ChangeAttributeValues extends \XLite\Controller\Customer\ChangeAttributeValues implements \XLite\Base\IDecorator
 {
     /**
+     * Get product
+     *
+     * @return \XLite\Model\Product
+     */
+    public function getProduct()
+    {
+        $product = parent::getProduct();
+        $product->setWholesaleQuantity($this->getItem()->getAmount());
+
+        return $product;
+    }
+
+
+    /**
      * Show message about wrong product amount
      *
      * @param \XLite\Model\OrderItem $item Order item

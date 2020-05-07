@@ -34,6 +34,18 @@ class Select extends \XLite\View\Product\AttributeValue\Customer\ACustomer
     }
 
     /**
+     * Return attribute display mode
+     *
+     * @return string|null
+     */
+    protected function getAttributeDisplayMode()
+    {
+        return $this->getAttribute()
+            ? $this->getAttribute()->getDisplayMode()
+            : null;
+    }
+
+    /**
      * @return boolean
      */
     protected function showPlaceholderOption()
@@ -119,7 +131,7 @@ class Select extends \XLite\View\Product\AttributeValue\Customer\ACustomer
     {
         $result = [];
         foreach ($value::getModifiers() as $field => $options) {
-            $modifier = $value->getAbsoluteValue($field);
+            $modifier = $this->getAbsoluteModifierValue($value, $field);
             if (0.0 !== $modifier) {
                 $result[] = \XLite\Model\AttributeValue\AttributeValueSelect::formatModifier($modifier, $field);
             }
@@ -128,6 +140,16 @@ class Select extends \XLite\View\Product\AttributeValue\Customer\ACustomer
         return $result
             ? ' (' . implode(', ', $result) . ')'
             : '';
+    }
+
+    /**
+     * @param \XLite\Model\AttributeValue\Multiple $value
+     * @param $field
+     * @return float
+     */
+    protected function getAbsoluteModifierValue(\XLite\Model\AttributeValue\Multiple $value, $field)
+    {
+        return $value->getAbsoluteValue($field);
     }
 
     /**
@@ -149,7 +171,7 @@ class Select extends \XLite\View\Product\AttributeValue\Customer\ACustomer
         }
 
         foreach ($value::getModifiers() as $field => $options) {
-            $modifier = $value->getAbsoluteValue($field);
+            $modifier = $this->getAbsoluteModifierValue($value, $field);
             if (0 !== $modifier) {
                 $result['data-modifier-' . $field] = $modifier;
             }
@@ -186,6 +208,18 @@ class Select extends \XLite\View\Product\AttributeValue\Customer\ACustomer
      */
     protected function getOptionTemplate()
     {
-        return 'product/attribute_value/select/option.twig';
+        return $this->getDir() . '/option.twig';
+    }
+
+    /**
+     * Return widget template
+     *
+     * @return string
+     */
+    protected function getTemplate()
+    {
+        return \XLite\Core\Layout::getInstance()->getInterface() === \XLite::CUSTOMER_INTERFACE
+            ? $this->getDir() . '/selectbox.twig'
+            : parent::getTemplate();
     }
 }

@@ -25,4 +25,40 @@ class Simple extends \XLite\Core\ImageOperator\AEngine
     {
         return false;
     }
+
+    /**
+     * Resize bulk
+     *
+     * @param array $sizes
+     *
+     * @return array
+     */
+    public function resizeBulk($sizes)
+    {
+        return [];
+    }
+
+    /**
+     * Rotate
+     *
+     * @param integer $degree Degree
+     *
+     * @return boolean
+     */
+    public function rotate($degree)
+    {
+        return false;
+    }
+
+    /**
+     * Mirror
+     *
+     * @param boolean $horizontal type of mirroring
+     *
+     * @return boolean
+     */
+    public function mirror($horizontal = true)
+    {
+        return false;
+    }
 }

@@ -204,6 +204,16 @@ class Search extends \XLite\View\ItemsList\Model\Product\Admin\AAdmin
     }
 
     /**
+     * Get container class
+     *
+     * @return string
+     */
+    protected function getContainerClass()
+    {
+        return parent::getContainerClass() . ' products-admin-search';
+    }
+
+    /**
      * Get panel class
      *
      * @return string|\XLite\View\Base\FormStickyPanel

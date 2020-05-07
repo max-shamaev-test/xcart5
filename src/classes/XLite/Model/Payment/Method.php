@@ -485,6 +485,8 @@ class Method extends \XLite\Model\Base\I18n
             $this->setEnabled(false);
         }
 
+        $this->setFromMarketplace(!$added);
+
         return $this;
     }
 

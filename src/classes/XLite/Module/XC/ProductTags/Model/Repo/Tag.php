@@ -193,6 +193,10 @@ class Tag extends \XLite\Model\Repo\Base\I18n
                 continue;
             }
 
+            if (mb_strpos($tag, '_') === 0) {
+                $tag = mb_substr($tag, 1);
+            }
+
             $newTag = $this->createTagByName($tag);
 
             if ($newTag) {

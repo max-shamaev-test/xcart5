@@ -8,7 +8,6 @@
 
 namespace XLite\Core\Marketplace\Normalizer;
 
-
 class InstallationData extends \XLite\Core\Marketplace\Normalizer
 {
     /**
@@ -18,6 +17,6 @@ class InstallationData extends \XLite\Core\Marketplace\Normalizer
      */
     public function normalize($response)
     {
-        return $response;
+        return isset($response['installationData']) ? $response['installationData'] : [];
     }
 }

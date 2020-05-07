@@ -8,7 +8,7 @@
 
 namespace XLite\Core\Marketplace\Normalizer;
 
-use \XCart\Marketplace\Constant;
+use XLite\Core\Marketplace\Constant;
 
 class Banners extends \XLite\Core\Marketplace\Normalizer
 {

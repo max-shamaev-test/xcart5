@@ -36,6 +36,8 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
             static::COLUMN_IS_MULTIPLE => true,
         ];
 
+        $columns['applySaleToWholesale'] = [];
+
         return $columns;
     }
 
@@ -50,6 +52,7 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
             + [
                 'WHOLESALE-DUPLICATE-ERR' => 'Tier with same quantity range and membership already defined.',
                 'MIN-PURCHASE-QTY-FMT'    => 'Wrong minimum purchase quantity format',
+                'APPLY-SALE-TO-WHOLESALE-FMT' => 'Wrong "Apply sale to wholesale" format',
             ];
     }
 
@@ -142,6 +145,21 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
         }
     }
 
+    /**
+     * Verify 'applySaleToWholesale' value
+     *
+     * @param mixed $value  Value
+     * @param array $column Column info
+     *
+     * @return void
+     */
+    protected function verifyApplySaleToWholesale($value, array $column)
+    {
+        if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsBoolean($value)) {
+            $this->addWarning('APPLY-SALE-TO-WHOLESALE-FMT', ['column' => $column, 'value' => $value]);
+        }
+    }
+
     // }}}
 
     // {{{ Import
@@ -224,5 +242,18 @@ abstract class Products extends \XLite\Logic\Import\Processor\Products implement
         }
     }
 
+    /**
+     * Import 'applySaleToWholesale' attribute
+     *
+     * @param \XLite\Model\Product $model  Product
+     * @param mixed                $value  Value
+     * @param array                $column Column info
+     *
+     * @return void
+     */
+    protected function importApplySaleToWholesaleColumn(\XLite\Model\Product $model, $value, array $column)
+    {
+        $model->setApplySaleToWholesale($this->normalizeValueAsBoolean($value));
+    }
     // }}}
 }

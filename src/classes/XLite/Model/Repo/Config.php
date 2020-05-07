@@ -8,6 +8,8 @@
 
 namespace XLite\Model\Repo;
 
+use XLite\Core\ConfigCell;
+
 /**
  * DB-based configuration registry
  *
@@ -19,6 +21,8 @@ namespace XLite\Model\Repo;
  */
 class Config extends \XLite\Model\Repo\Base\I18n
 {
+    public const CACHE_KEY = 'all';
+
     /**
      * Repository type
      *
@@ -195,17 +199,41 @@ class Config extends \XLite\Model\Repo\Base\I18n
         $data = null;
 
         if (!$force) {
-            $data = $this->getFromCache('all');
+            $data = $this->getFromCache(static::CACHE_KEY);
         }
 
         if (null === $data) {
             $data = $this->defineAllOptionsQuery()->getResult();
             $data = $this->detachList($data);
             $data = $this->processOptions($data);
-            $this->saveToCache($data, 'all');
+            $this->saveToCache($data, static::CACHE_KEY);
         }
 
         return $data;
+    }
+
+    /**
+     * Update option in cache without update all cache
+     *
+     * @param \XLite\Model\Config $option
+     * @return void
+     */
+    public function updateOptionInCache(\XLite\Model\Config $option)
+    {
+        /** @var ConfigCell $data */
+        $data = $this->getFromCache(static::CACHE_KEY);
+
+        if ($data === null) {
+            return;
+        }
+
+        $optionData = $this->detachList([$option]);
+        $optionData = $this->processOptions($optionData);
+        $data = $this->mergeOptions($data, $optionData);
+
+        $this->saveToCache($data, static::CACHE_KEY);
+
+        \XLite\Core\Config::dropRuntimeCache();
     }
 
     /**
@@ -306,6 +334,7 @@ class Config extends \XLite\Model\Repo\Base\I18n
      * Create new option / Update option value
      *
      * @param array $data Option data in the following format
+     * @param bool $silent if true cache is not updated
      *
      * @return void
      * @throws \Exception
@@ -352,7 +381,7 @@ class Config extends \XLite\Model\Repo\Base\I18n
 
         if (!$silent) {
             \XLite\Core\Database::getEM()->flush();
-            \XLite\Core\Config::updateInstance();
+            $this->updateOptionInCache($option);
         }
     }
 
@@ -369,6 +398,28 @@ class Config extends \XLite\Model\Repo\Base\I18n
 
         \XLite\Core\Database::getEM()->flush();
         \XLite\Core\Config::updateInstance();
+    }
+
+    /**
+     * Recursive merge two options data
+     *
+     * @param ConfigCell $targetOptions
+     * @param ConfigCell $mergeOptions
+     * @return ConfigCell
+     */
+    public function mergeOptions(ConfigCell $targetOptions, ConfigCell $mergeOptions)
+    {
+        foreach ($mergeOptions as $key => $value) {
+            if ($value instanceof ConfigCell && $targetOptions->$key instanceof ConfigCell) {
+                $mergedValue = $this->mergeOptions($targetOptions->$key, $value);
+            } else {
+                $mergedValue = $value;
+            }
+
+            $targetOptions->$key = $mergedValue;
+        }
+
+        return $targetOptions;
     }
 
     /**

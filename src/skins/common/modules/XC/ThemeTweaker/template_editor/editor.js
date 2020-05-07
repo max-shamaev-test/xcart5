@@ -14,6 +14,10 @@ jQuery(document).ready(
     var innerInterface = jQuery('.themeTweaker_tree').data('inner-interface');
     var templateNavigator = new TemplateNavigator('.themeTweaker_tree');
 
+    jQuery(window).on('reload', function () {
+      assignShadeOverlay(treeView.container)
+    });
+
     jQuery('#themeTweaker_wrapper').resizable(
       {
         resize: function (event, ui) {
@@ -27,14 +31,12 @@ jQuery(document).ready(
 
     tree.on('select_node.jstree', function (event, data) {
       if (!treeView.preventEdit) {
-        URLHandler.baseURLPart = 'admin.php';
         var url = URLHandler.buildURL({
           target: 'theme_tweaker_template',
           template: data.node.data.templatePath,
           interface: interface,
           innerInterface: innerInterface
         });
-        URLHandler.baseURLPart = 'cart.php';
 
         var wnd = window.open(url, 'TTEditor', 'width=1050px,height=550px,menubar=no,toolbar=no,location=no,directories=no,status=no');
         wnd.focus();

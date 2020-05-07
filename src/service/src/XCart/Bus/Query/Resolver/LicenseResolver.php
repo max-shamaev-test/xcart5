@@ -23,6 +23,7 @@ use XCart\Bus\Query\Data\MarketplaceModulesDataSource;
 use XCart\Bus\Query\Data\MarketplaceShopAdapter;
 use XCart\Bus\Query\Data\ModulesDataSource;
 use XCart\Bus\Query\Data\ScenarioDataSource;
+use XCart\Bus\Query\Data\SetDataSource;
 use XCart\Bus\Query\Data\WavesDataSource;
 use XCart\Bus\Query\Types\Output\AlertType;
 use XCart\Bus\Rebuild\Scenario\ChangeUnitProcessor;
@@ -70,6 +71,11 @@ class LicenseResolver
     private $scenarioDataSource;
 
     /**
+     * @var SetDataSource
+     */
+    private $setDataSource;
+
+    /**
      * @var ChangeUnitProcessor
      */
     private $changeUnitProcessor;
@@ -102,6 +108,7 @@ class LicenseResolver
      * @param ModulesDataSource            $modulesDataSource
      * @param MarketplaceModulesDataSource $marketplaceModulesDataSource
      * @param ScenarioDataSource           $scenarioDataSource
+     * @param SetDataSource                $setDataSource
      * @param ChangeUnitProcessor          $changeUnitProcessor
      * @param RebuildResolver              $rebuildResolver
      * @param ModulesResolver              $modulesResolver
@@ -116,6 +123,7 @@ class LicenseResolver
         ModulesDataSource $modulesDataSource,
         MarketplaceModulesDataSource $marketplaceModulesDataSource,
         ScenarioDataSource $scenarioDataSource,
+        SetDataSource $setDataSource,
         ChangeUnitProcessor $changeUnitProcessor,
         RebuildResolver $rebuildResolver,
         ModulesResolver $modulesResolver,
@@ -128,6 +136,7 @@ class LicenseResolver
         $this->wavesDataSource              = $wavesDataSource;
         $this->modulesDataSource            = $modulesDataSource;
         $this->scenarioDataSource           = $scenarioDataSource;
+        $this->setDataSource = $setDataSource;
         $this->changeUnitProcessor          = $changeUnitProcessor;
         $this->rebuildResolver              = $rebuildResolver;
         $this->marketplaceModulesDataSource = $marketplaceModulesDataSource;
@@ -182,6 +191,30 @@ class LicenseResolver
         ]);
 
         return $license ?: null;
+    }
+
+
+    /** @noinspection MoreThanThreeArgumentsInspection */
+
+    /**
+     * @param             $value
+     * @param array       $args
+     * @param Context     $context
+     * @param ResolveInfo $info
+     *
+     * @return string|null
+     *
+     * @Resolver()
+     */
+    public function getCoreLicenseEdition($value, $args, Context $context, ResolveInfo $info):? string
+    {
+        $license = $this->licenseDataSource->findBy([
+            'author' => 'CDev',
+            'name'   => 'Core',
+            'active' => true,
+        ]);
+
+        return $license['keyData']['editionName'] ?? null;
     }
 
     /** @noinspection MoreThanThreeArgumentsInspection */
@@ -371,6 +404,32 @@ class LicenseResolver
     }
 
     /**
+     * @param             $value
+     * @param             $args
+     * @param             $context
+     * @param ResolveInfo $info
+     *
+     * @return string
+     * @throws Exception
+     *
+     * @Resolver()
+     */
+    public function clearCache($value, $args, $context, ResolveInfo $info): string
+    {
+        $time = time();
+
+        $this->coreConfigDataSource->dataDate                 = 0;
+        $this->coreConfigDataSource->cacheDate                = 0;
+        $this->coreConfigDataSource->shippingMethodsCacheDate = $time;
+        $this->coreConfigDataSource->paymentMethodsCacheDate  = $time;
+
+        $this->marketplaceModulesDataSource->clear();
+        $this->setDataSource->clear();
+
+        return true;
+    }
+
+    /**
      * @param string $licenseKey
      *
      * @return array
@@ -446,6 +505,7 @@ class LicenseResolver
         }
 
         $this->marketplaceModulesDataSource->clear();
+        $this->licenseDataSource->removePending($keyInfo);
 
         if ($this->licenseDataSource->isCoreKey($keyInfo)) {
             $this->licenseDataSource->saveOne($keyInfo);

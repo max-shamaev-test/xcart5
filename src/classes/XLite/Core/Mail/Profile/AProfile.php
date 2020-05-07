@@ -17,6 +17,7 @@ abstract class AProfile extends \XLite\Core\Mail\AMail
     {
         return [
                 'customer_email' => 'recipient@example.com',
+                'first_name'     => static::t('Joe'),
             ] + parent::defineVariables();
     }
 
@@ -32,7 +33,7 @@ abstract class AProfile extends \XLite\Core\Mail\AMail
                 'name'    => $profile->getName(false),
             ]);
         } else {
-            $this->setTo($profile->getLogin());
+            $this->setTo(['email' => $profile->getLogin(), 'name' => $profile->getName(false)]);
             $this->setReplyTo(Mailer::getSiteAdministratorMails());
             $this->tryToSetLanguageCode($profile->getLanguage());
         }
@@ -41,6 +42,7 @@ abstract class AProfile extends \XLite\Core\Mail\AMail
         $this->populateVariables([
             'customer_email' => $profile->getLogin(),
             'recipient_name' => $profile->getName(),
+            'first_name'     => $profile->getName(true, true),
         ]);
     }
 }

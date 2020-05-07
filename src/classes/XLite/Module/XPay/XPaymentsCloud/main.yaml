@@ -1,4 +1,4 @@
-version: 5.4.0.1
+version: 5.4.0.2
 type: payment
 authorName: 'X-Cart Payments team'
 moduleName: 'X-Payments Cloud connector'

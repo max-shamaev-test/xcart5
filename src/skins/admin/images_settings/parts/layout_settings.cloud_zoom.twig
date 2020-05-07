@@ -5,5 +5,5 @@
  #}
 
 {% if this.isCloudZoomAllowed() %}
-  {{ widget('XLite\\View\\FormField\\Input\\Checkbox\\OnOff', label='Cloud Zoom', fieldName='cloud_zoom', value=this.getCloudZoomEnabled()) }}
+  <li>{{ widget('XLite\\View\\FormField\\Input\\Checkbox\\OnOff', label='Cloud Zoom', fieldName='cloud_zoom', value=this.getCloudZoomEnabled()) }}</li>
 {% endif %}

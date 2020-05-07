@@ -19,4 +19,4 @@ XLite\Model\Notification:
         name: 'Variant low limit warning'
         description: 'This message is used to notify the administrator when the stock level of a product variant reaches the low stock limit as specified in the product details.'
         adminSubject: 'You are running out of %product_name%'
-        adminText: '<h3 dir="ltr">Heads up, boss!</h3><p dir="ltr">I see that some of your product variants are about to run out of stock.</p><p dir="ltr">%dynamic_message%</p><p dir="ltr">It&rsquo;s high time to replenish your supplies. You are not going to sell fresh air, are you?</p>'
+        adminText: '<h3 dir="ltr">Heads up!</h3><p dir="ltr">I see that some of your product variants are about to run out of stock.</p><p dir="ltr">%dynamic_message%</p><p dir="ltr">It&rsquo;s high time to replenish your supplies. You are not going to sell fresh air, are you?</p>'

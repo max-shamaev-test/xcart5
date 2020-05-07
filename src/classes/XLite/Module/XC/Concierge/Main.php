@@ -73,11 +73,6 @@ abstract class Main extends \XLite\Module\AModule
                     ],
                     [
                         'category' => 'XC\Concierge',
-                        'name'     => 'company_id',
-                        'value'    => '',
-                    ],
-                    [
-                        'category' => 'XC\Concierge',
                         'name'     => 'user_id',
                         'value'    => $rootAdminEmail,
                     ],

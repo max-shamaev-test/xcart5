@@ -272,6 +272,19 @@ class Tab extends \XLite\View\ItemsList\Model\Table
         return $this->buildURL('global_tabs');
     }
 
+    /**
+     * Get URL common parameters
+     *
+     * @return array
+     */
+    protected function getCommonParams()
+    {
+        $this->commonParams = parent::getCommonParams();
+        $this->commonParams['product_id'] = $this->getProductId();
+
+        return $this->commonParams;
+    }
+
     // {{{ Search
 
     /**

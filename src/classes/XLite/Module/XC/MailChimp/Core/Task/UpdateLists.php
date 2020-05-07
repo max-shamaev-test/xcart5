@@ -65,6 +65,6 @@ class UpdateLists extends \XLite\Core\Task\Base\Periodic
         // 'updateInterval' has 'never' state with value 0
 
         return MailChimp::hasAPIKey()
-            && intval(\XLite\Core\Config::getInstance()->XC->MailChimp->updateInterval) > 0;
+            && ((int) \XLite\Core\Config::getInstance()->XC->MailChimp->updateInterval) > 0;
     }
 }

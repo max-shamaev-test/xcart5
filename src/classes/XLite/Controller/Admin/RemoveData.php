@@ -82,6 +82,7 @@ class RemoveData extends \XLite\Controller\Admin\AAdmin
     protected function doActionRemoveDataCancel()
     {
         \XLite\Logic\RemoveData\Generator::cancel();
+        \XLite\Core\TopMessage::addWarning('Data removal has been stopped.');
     }
 
     /**

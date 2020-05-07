@@ -145,12 +145,13 @@ class SocialLogin extends \XLite\Controller\Customer\ACustomer
             if (!$profile) {
                 $profile = new \XLite\Model\Profile();
                 $profile->setLogin($login);
-                $profile->create();
+                if ($profile->create()) {
+                    \XLite\Core\Mailer::sendProfileCreated($profile);
+                }
 
-            } elseif ($profile->isAdmin()) {
+            } else {
                 $profile = null;
             }
-
         }
 
         if ($profile) {

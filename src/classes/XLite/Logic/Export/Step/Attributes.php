@@ -36,20 +36,19 @@ class Attributes extends \XLite\Logic\Export\Step\Base\I18n
      */
     protected function defineColumns()
     {
-        $columns = array(
-            'position'     => array(),
-            'type'         => array(),
-            'product'      => array(),
-        );
+        $columns = [
+            'position'     => [],
+            'type'         => [],
+            'displayMode'  => [],
+            'product'      => [],
+        ];
 
-        $columns += $this->assignI18nColumns(
-            array(
-                'name'    => array(),
-                'class'   => array(static::COLUMN_GETTER => 'getClassColumnValue'),
-                'group'   => array(static::COLUMN_GETTER => 'getGroupColumnValue'),
-                'options' => array(static::COLUMN_GETTER => 'getOptionsColumnValue'),
-            )
-        );
+        $columns += $this->assignI18nColumns([
+            'name'    => [],
+            'class'   => [static::COLUMN_GETTER => 'getClassColumnValue'],
+            'group'   => [static::COLUMN_GETTER => 'getGroupColumnValue'],
+            'options' => [static::COLUMN_GETTER => 'getOptionsColumnValue'],
+        ]);
 
         return $columns;
     }
@@ -84,6 +83,20 @@ class Attributes extends \XLite\Logic\Export\Step\Base\I18n
     protected function getTypeColumnValue(array $dataset, $name, $i)
     {
         return $this->getColumnValueByName($dataset['model'], 'type');
+    }
+
+    /**
+     * Get column value for 'displayMode' column
+     *
+     * @param array   $dataset Dataset
+     * @param string  $name    Column name
+     * @param integer $i       Subcolumn index
+     *
+     * @return string
+     */
+    protected function getDisplayModeColumnValue(array $dataset, $name, $i)
+    {
+        return $this->getColumnValueByName($dataset['model'], 'displayMode');
     }
 
     /**
@@ -133,7 +146,7 @@ class Attributes extends \XLite\Logic\Export\Step\Base\I18n
      */
     protected function getOptionsColumnValue(array $dataset, $name, $i)
     {
-        $result = array();
+        $result = [];
 
         foreach ($dataset['model']->getAttributeOptions() as $option) {
             $result[] = $option->getTranslation(substr($name, -2))->getName();

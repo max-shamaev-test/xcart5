@@ -17,7 +17,6 @@ button.add2cart-popup {
 }
 
 .add2cart-popup .item-box .item-thumbnail {
-  float: left;
   margin-right: 40px;
 }
 
@@ -107,6 +106,6 @@ button.add2cart-popup {
   display: none;
 }
 
-.add2cart-popup .products-list-box div.product.compare div.add-to-compare.products {
+.add2cart-popup .products-list-box div.product div.add-to-compare.products {
   display: none;
 }

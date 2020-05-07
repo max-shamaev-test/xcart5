@@ -181,7 +181,7 @@ class Tab extends \XLite\Model\Base\I18n implements \XLite\Model\Product\IProduc
      */
     public function getLink()
     {
-        return $this->link;
+        return preg_replace('/[^a-z0-9-_]/i', '-', $this->link);
     }
 
     /**

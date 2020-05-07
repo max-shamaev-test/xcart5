@@ -19,3 +19,5 @@ XLite\Model\LanguageLabel:
   - { name: 'Sign in with', translations: [{ code: ru, label: 'Войти через' }]}
   - { name: 'https://kb.x-cart.com/en/modules/social_login/setting_up_google_login_for_your_store.html', translations: [{ code: ru, label: 'https://kb.x-cart.ru/modules/social_login/setting_up_google_login_for_your_store.html' }]}
   - { name: 'https://kb.x-cart.com/en/modules/social_login/setting_up_facebook_login_for_your_store.html', translations: [{ code: ru, label: 'https://kb.x-cart.ru/modules/social_login/setting_up_facebook_login_for_your_store.html' }]}
+  - { name: 'Sorry, the password reset option is not available for this user account', translations: [{ code: ru, label: 'К сожалению, сброс пароля для данной учетной записи невозможен.' }]}
+  - { name: 'Invalid login or password. Please sign in with X', translations: [{ code: ru, label: "Неверный логин или пароль. <br/><span class=\"common-text\">Пожалуйста, войдите на сайт, используя аккаунт {{provider}}</span>" }] }

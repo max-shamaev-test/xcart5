@@ -37,9 +37,6 @@ class DuplicateRule implements RuleInterface
         $possible = $this->getPossibleDuplicateRecords();
 
         if ($possible) {
-            $withEntities = array_filter($possible, function ($item) {
-                return $item->getEntity();
-            });
             $message = Translation::lbl(
                 'There are duplicate clean URL records'
             );
@@ -52,7 +49,7 @@ class DuplicateRule implements RuleInterface
                     $link = $this->repo->buildEditURL($v->getEntity());
                     $type = $v->getEntity()->getEntityName();
                     return "<a href='{$link}' target='_blank'>{$type}</a> {$cleanUrl} (id={$id})";
-                }, $withEntities)
+                }, $possible)
             );
         }
 
@@ -67,6 +64,16 @@ class DuplicateRule implements RuleInterface
         $qb = $this->repo->createPureQueryBuilder('c');
         $qb->andWhere('c.cleanURL IN (SELECT dup.cleanURL FROM \XLite\Model\CleanURL dup GROUP BY dup.cleanURL HAVING COUNT(dup.id) > 1)');
 
-        return $qb->getQuery()->getResult();
+        $result = [];
+        foreach ($qb->getQuery()->getResult() as $item) {
+            $url = $item->getCleanURL();
+            $entity = $item->getEntity();
+
+            if ($entity && !$this->repo->isURLUnique($url, $entity)) {
+                $result[] = $item;
+            }
+        }
+
+        return $result;
     }
 }

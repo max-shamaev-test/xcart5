@@ -8,6 +8,12 @@
 
 namespace XLite\Rebuild;
 
+use Includes\Utils\Module\Manager;
+use XCart\Bus\Domain\Module;
+use XCart\Bus\Domain\Restore\ModuleInfoProvider;
+use XLite\Core\Skin;
+use XLite\Logger;
+
 class Connector
 {
     /**
@@ -44,6 +50,28 @@ class Connector
             new \XLite\Core\Marketplace\Normalizer\Raw()
         ) ?: [];
 
+        $currentSkinId    = Skin::getInstance()->getCurrentSkinModuleId();
+        $info             = new ModuleInfoProvider(Manager::getRegistry());
+        $isRequired       = false;
+        $required_modules = array_filter($info->getInstalledModules(), function ($module) use ($currentSkinId) {
+            /** @var Module $module */
+            if ($module->enabled) {
+                foreach ((array) $module->dependsOn as $dependency) {
+                    if ((is_array($dependency) && $dependency['id'] === $currentSkinId) ||
+                        (is_string($dependency) && Module::convertModuleId($dependency) === $currentSkinId)) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        });
+
+        foreach ($required_modules as $module) {
+            \XLite\Core\TopMessage::addError('Cannot be disabled. The template is required by: {{moduleName}}', ['moduleName' => '<a href="' . \XLite::getInstance()->getServiceURL('#/installed-addons', null, ['moduleId' => $module->id]) . '" target="_blank">' . $module->id . '</a>']);
+            $isRequired = true;
+        }
+
         if (!empty($scenario['changeSkinState']['id'])) {
             $rebuildState = \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
                 \XLite\Core\Marketplace\QueryRegistry::getMutation('startRebuild', [
@@ -60,7 +88,8 @@ class Connector
                 return;
             }
         }
-
-        \XLite\Core\TopMessage::addError(\XLite\Core\Translation::lbl('Unable to connect to maintenance system'));
+        if (!$isRequired) {
+            \XLite\Core\TopMessage::addError(\XLite\Core\Translation::lbl('Unable to connect to maintenance system'));
+        }
     }
 }

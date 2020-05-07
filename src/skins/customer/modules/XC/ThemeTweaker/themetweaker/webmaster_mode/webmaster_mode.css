@@ -19,8 +19,6 @@
 }
 
 .webmaster-mode-section {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
   height: 100%;
 }
@@ -38,8 +36,6 @@
   background-color: #f6f6f6;
   padding-top: 10px;
   padding-left: 10px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
   height: 100%;
   overflow: auto;
@@ -299,7 +295,6 @@
 .themeTweaker_tree.jstree-default .jstree-disabled > .jstree-icon {
   opacity: 1;
   filter: none;
-  -webkit-filter: none;
 }
 
 .themeTweaker_tree.jstree-default .jstree-icon.jstree-themeicon:after {

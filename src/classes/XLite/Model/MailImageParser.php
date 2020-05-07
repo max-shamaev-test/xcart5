@@ -65,43 +65,32 @@ class MailImageParser extends \XLite\Core\FlexyCompiler
      */
     public function postprocess()
     {
-        $this->images = array();
-
+        $name = '';
+        $this->images = [];
         $this->counter = 1;
 
         // find images, e.g. background=..., src=..., style="...url('...')"
-        for ($i = 0; count($this->tokens) > $i; $i++) {
-
-            $token = $this->tokens[$i];
-
-            if ('attribute' == $token['type']) {
-
+        foreach ($this->tokens as $key => $token) {
+            if ($token['type'] === 'attribute') {
                 $name = strtolower($token['name']);
+            } elseif ($token['type'] === 'attribute-value') {
+                $val = $this->getTokenText($key);
 
-            } elseif ('attribute-value' == $token['type']) {
+                if ($name === 'style') {
+                    // find url(<...>) or url ('<...>')
+                    preg_match_all('/url\([\'" ]?([^ "\'()]+)[\'" ]?\)/', $val, $matches);
+                    list(, $urls) = $matches;
 
-                $val = $this->getTokenText($i);
-
-                if ('style' == $name) {
-
-                    $pos = strpos($val, 'url(');
-
-                    if (false !== $pos) {
-
-                        $this->substImage(
-                            $pos + 5 + $token['start'],
-                            strpos($val, ')') + $token['start'] - 1
-                        );
-
+                    foreach ($urls as $url) {
+                        $start = $token['start'] + strpos($val, $url);
+                        $end = $start + strlen($url);
+                        $this->substImage($start, $end);
                     }
-
-                } elseif ('background' == $name || 'src' == $name) {
-
+                } elseif ($name === 'background' || $name === 'src') {
                     $this->substImage($token['start'], $token['end']);
                 }
 
                 $name = '';
-
             } else {
                 $name = '';
             }
@@ -120,7 +109,7 @@ class MailImageParser extends \XLite\Core\FlexyCompiler
      */
     public function substImage($start, $end)
     {
-        $img = substr($this->source, $start, $end-$start);
+        $img = substr($this->source, $start, $end - $start);
 
         if (strcasecmp(substr($img, 0, 2), '//') === 0) {
             $img = 'http:' . $img;

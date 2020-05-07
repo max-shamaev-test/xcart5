@@ -39,21 +39,15 @@
   }
 
   @media (max-width: @screen-xs-max) {
-    display: -webkit-box;
     display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
     flex-direction: column;
-    -webkit-box-align: start;
     align-items: flex-start;
 
     .form-wrapper {
-      -webkit-box-ordinal-group: 3;
       order: 2;
     }
 
     .company-info {
-      -webkit-box-ordinal-group: 2;
       order: 1;
       margin-bottom: @rhythmic-unit;
     }
@@ -97,14 +91,8 @@
 
       li.input-text-email,
       li.input-text {
-        display: -webkit-box;
-        display: -ms-flexbox;
         display: flex;
-        -webkit-box-align: center;
-        -ms-flex-align: center;
         align-items: center;
-        -webkit-box-pack: start;
-        -ms-flex-pack: start;
         justify-content: flex-start;
 
         width: 100%;
@@ -167,4 +155,8 @@
       display: none;
     }
   }
+}
+
+.grecaptcha-badge {
+  visibility: hidden;
 }

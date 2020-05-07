@@ -34,8 +34,6 @@ class Container extends \XLite\View\FormField\Select\Regular
             'LG FLAT RATE BOX'             => 'LG flat rate box',
             'REGIONALRATEBOXA'             => 'Regional rate boxA',
             'REGIONALRATEBOXB'             => 'Regional rate boxB',
-            'RECTANGULAR'                  => 'Rectangular',
-            'NONRECTANGULAR'               => 'Non-rectangular',
         );
     }
 }

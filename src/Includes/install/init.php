@@ -27,8 +27,6 @@ ini_set('display_startup_errors', true);
 
 @set_time_limit(300);
 
-umask(0);
-
 require_once __DIR__ . '/../../top.inc.php';
 
 require_once constant('LC_DIR_ROOT') . 'Includes/install/install_settings.php';

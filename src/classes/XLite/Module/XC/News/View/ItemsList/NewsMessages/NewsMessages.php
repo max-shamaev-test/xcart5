@@ -54,7 +54,7 @@ class NewsMessages extends \XLite\Module\XC\News\View\ItemsList\NewsMessages\ANe
             $key = date('mY', $model->getDate());
             if (!isset($result[$key])) {
                 $result[$key] = array(
-                    'title' => date('F, Y', $model->getDate()),
+                    'title' => \XLite\Core\Converter::formatDate($model->getDate(), "%b, %G"),
                     'list' => array(),
                 );
             }

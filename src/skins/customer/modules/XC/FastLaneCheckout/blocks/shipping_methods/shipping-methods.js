@@ -74,7 +74,7 @@ define(
       isValid: {
         cache: false,
         get: function() {
-          return this.methodId !== null;
+          return this.methodId;
         }
       }
     },

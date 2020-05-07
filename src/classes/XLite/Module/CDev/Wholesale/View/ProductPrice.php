@@ -80,13 +80,13 @@ class ProductPrice extends \XLite\View\Product\Details\Customer\Widget
     protected function prepareWholesalePrices($wholesalePrices)
     {
         $result = [];
+        $product = $this->getProduct();
+
         $minQty = $this->getProduct()->getMinQuantity(
             $this->getCart()->getProfile()
                 ? $this->getCart()->getProfile()->getMembership()
                 : null
         );
-
-        $attributesShift = \XLite\Logic\AttributeSurcharge::modifyMoney(0, $this->getProduct(), '', [], '');
 
         if (
             $wholesalePrices
@@ -94,7 +94,12 @@ class ProductPrice extends \XLite\View\Product\Details\Customer\Widget
             && $minQty < $wholesalePrices[0]->getQuantityRangeBegin()
         ) {
             $zeroTier = new \XLite\Module\CDev\Wholesale\Model\DTO\WholesalePrice();
-            $zeroTier['displayPrice'] = $wholesalePrices[0]->getOwner()->getBasePrice() + $attributesShift;
+
+            $wholesaleQuantity = $product->getWholesaleQuantity();
+            $product->setWholesaleQuantity($minQty);
+            $zeroTier['displayPrice'] = $wholesalePrices[0]->getOwner()->getDisplayPrice();
+            $product->setWholesaleQuantity($wholesaleQuantity);
+
             $zeroTier['quantityRangeBegin'] = $minQty;
             $zeroTier['quantityRangeEnd'] = $wholesalePrices[0]->getQuantityRangeBegin() - 1;
             $result[] = $zeroTier;
@@ -103,6 +108,11 @@ class ProductPrice extends \XLite\View\Product\Details\Customer\Widget
         foreach ($wholesalePrices as $wholesalePrice) {
             $tier = new \XLite\Module\CDev\Wholesale\Model\DTO\WholesalePrice();
             $tier->init($wholesalePrice);
+
+            $wholesaleQuantity = $product->getWholesaleQuantity();
+            $product->setWholesaleQuantity($tier['quantityRangeBegin']);
+            $attributesShift = \XLite\Logic\AttributeSurcharge::modifyMoney(0, $this->getProduct(), '', [], '');
+            $product->setWholesaleQuantity($wholesaleQuantity);
 
             $tier['displayPrice'] += $attributesShift;
 

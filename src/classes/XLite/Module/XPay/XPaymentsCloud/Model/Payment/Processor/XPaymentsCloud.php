@@ -24,13 +24,21 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
      */
     const SIMPLE_3D_SECURE_MODE = false;
 
-    /*
+    /**
      * Allowed secondary actions status values for transactions
      */
     const ACTION_ALLOWED = 'Yes';
     const ACTION_PART = 'Yes, partial';
     const ACTION_MULTI = 'Yes, multiple';
     const ACTION_NOTALLOWED = 'No';
+
+    /**
+     * List of transaction types used for managing fraud
+     */
+    protected $fraudTransactionTypes = [
+        BackendTransaction::TRAN_TYPE_ACCEPT,
+        BackendTransaction::TRAN_TYPE_DECLINE,
+    ];
 
     /**
      * Get allowed backend transactions
@@ -74,9 +82,7 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
 
             $payment = $response->getPayment();
             $status = $payment->status;
-            $note = $payment->message;
-
-            $this->processXpaymentsFraudCheckData($this->transaction, $payment);
+            $note = $response->message ?: $payment->message;
 
             if (!is_null($response->redirectUrl)) {
                 // Should redirect to continue payment
@@ -110,15 +116,11 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
             $result = static::FAILED;
             $note = $exception->getMessage();
             $this->transaction->setDataCell('xpaymentsMessage', $note, 'Message');
-            $this->log('Error: ' . $note);
-            $message = $exception->getPublicMessage();
-            if (!$message) {
-                $message = 'Failed to process the payment!';
-            }
-            \XLite\Core\TopMessage::addError($message);
+
+            $this->handleApiException($exception, 'Failed to process the payment!');
         }
 
-        $this->transaction->setNote($note);
+        $this->transaction->setNote(substr($note, 0, 255));
 
         return $result;
    }
@@ -402,36 +404,39 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
      *
      * @return bool
      */
-    private function doSecondary($action, BackendTransaction $transaction)
+    protected function doSecondary($action, BackendTransaction $transaction)
     {
-        $result = false;
-
         $paymentTransaction = $transaction->getPaymentTransaction();
 
         $api = $this->initClient();
 
         try {
             $methodName = 'do' . ucfirst($action);
+            /** @var \XPaymentsCloud\Response $response */
             $response = $api->$methodName(
                 $paymentTransaction->getXpaymentsId(),
                 $transaction->getValue()
             );
 
+            $payment = $response->getPayment();
             $status = $response->result;
+            $note = $response->message ?: $payment->message;
 
             if ($status) {
-                $payment = $response->getPayment();
                 $result = true;
 
-                if (BackendTransaction::TRAN_TYPE_DECLINE == $action) {
-                    $this->registerBackendTransaction($paymentTransaction, $payment);
+                if (in_array($action, $this->fraudTransactionTypes)) {
+                    $this->setFraudCheckData($paymentTransaction, $payment);
+                    if (BackendTransaction::TRAN_TYPE_DECLINE == $action) {
+                        // Register refund/void that should've happened after decline
+                        $this->registerBackendTransaction($paymentTransaction, $payment);
+                    }
                 }
 
                 $transaction->setStatus(BackendTransaction::STATUS_SUCCESS);
-                $this->processXpaymentsFraudCheckData($paymentTransaction, $payment);
-                \XLite\Core\TopMessage::addInfo($payment->message);
+                \XLite\Core\TopMessage::addInfo($note);
             } else {
-                throw new ApiException($response->message ?: 'Operation failed');
+                throw new ApiException($note ?: 'Operation failed');
             }
 
         } catch (ApiException $exception) {
@@ -453,7 +458,7 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
      *
      * @return string
      */
-    private function getTransactionDataCellName($title, $prefix = '')
+    protected function getTransactionDataCellName($title, $prefix = '')
     {
         return $prefix . \XLite\Core\Converter::convertToCamelCase(
             preg_replace('/[^a-z0-9_-]+/i', '_', $title)
@@ -466,10 +471,10 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
      * @param \XLite\Model\Payment\Transaction $transaction
      * @param \XPaymentsCloud\Model\Payment $payment
      */
-    private function setTransactionDataCells(Transaction $transaction, XpPayment $payment)
+    protected function setTransactionDataCells(Transaction $transaction, XpPayment $payment)
     {
         $transaction->setXpaymentsId($payment->xpid);
-        $transaction->setDataCell('xpaymentsMessage', $payment->message, 'Message');
+        $transaction->setDataCell('xpaymentsMessage', $payment->lastTransaction->message, 'Message');
 
         $actions = [
             'capture' => 'Capture',
@@ -591,7 +596,7 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
     /*
      * Load X-Payments Cloud SDK
      */
-    private function loadApi()
+    protected function loadApi()
     {
         require_once LC_DIR_MODULES . 'XPay' . LC_DS . 'XPaymentsCloud' . LC_DS . 'lib' . LC_DS . 'XPaymentsCloud' . LC_DS . 'Client.php';
     }
@@ -621,7 +626,7 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
      */
     public function getInputTemplate()
     {
-        return 'modules/XPay/XPaymentsCloud/widget.twig';
+        return 'modules/XPay/XPaymentsCloud/checkout/widget.twig';
     }
 
     /**
@@ -673,7 +678,7 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
     {
         parent::processCallback($transaction);
 
-        if ($this->transaction->isXpayments()) {
+        if ($transaction->isXpayments()) {
             $api = $this->initClient();
 
             try {
@@ -684,8 +689,6 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
 
             $payment = $response->getPayment();
 
-            $this->processXpaymentsFraudCheckData($this->transaction, $payment);
-
             if (0 !== strcmp($transaction->getXpaymentsId(), $payment->xpid)) {
                 // This is a rebill
                 $parentTransaction = $transaction;
@@ -695,6 +698,8 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
                     $transaction = $this->createChildTransaction($parentTransaction, $payment);
                 }
             }
+
+            $this->setFraudCheckData($transaction, $payment);
 
             $this->registerBackendTransaction($transaction, $payment);
 
@@ -712,23 +717,22 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
     {
         parent::processReturn($transaction);
 
+        // Clear 3-D Secure data from session
         if (!empty(Session::getInstance()->xpaymentsData)) {
             unset(Session::getInstance()->xpaymentsData);
         }
 
-        if ($this->transaction->isXpayments()) {
+        if ($transaction->isXpayments()) {
 
             $api = $this->initClient();
 
             try {
                 $response = $api->doContinue(
-                    $this->transaction->getXpaymentsId()
+                    $transaction->getXpaymentsId()
                 );
 
                 $payment = $response->getPayment();
-                $note = $payment->message;
-
-                $this->processXpaymentsFraudCheckData($this->transaction, $payment);
+                $note = $response->message ?: $payment->message;
 
                 $result = $this->processPaymentFinish($transaction, $payment);
 
@@ -736,14 +740,13 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
             } catch (\XPaymentsCloud\ApiException $exception) {
                 $result = static::FAILED;
                 $note = $exception->getMessage();
-                $this->transaction->setDataCell('xpaymentsMessage', $note, 'Message');
-                // Add note to log, but exact error shouldn't be shown to customer
-                $this->log('Error: ' . $note);
-                TopMessage::addError('Failed to process the payment!');
+                $transaction->setDataCell('xpaymentsMessage', $note, 'Message');
+
+                $this->handleApiException($exception, 'Failed to process the payment!');
             }
 
-            $this->transaction->setNote($note);
-            $this->transaction->setStatus($result);
+            $transaction->setNote($note);
+            $transaction->setStatus($result);
         } else {
             // Invalid non-XP transaction
             TopMessage::addError('Transaction was lost!');
@@ -758,9 +761,11 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
      *
      * @return string
      */
-    private function processPaymentFinish(Transaction $transaction, XpPayment $payment)
+    protected function processPaymentFinish(Transaction $transaction, XpPayment $payment)
     {
         $this->setTransactionDataCells($transaction, $payment);
+
+        $this->setFraudCheckData($transaction, $payment);
 
         if ($payment->initialTransactionId) {
             $transaction->setPublicId($payment->initialTransactionId . ' (' . $transaction->getPublicId() . ')');
@@ -792,6 +797,104 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
     }
 
     /**
+     * Process Card Setup request
+     *
+     * @param string $token
+     * @param \XLite\Model\Profile $profile
+     * @param \XLite\Model\Address $address
+     * @param string $returnUrl
+     *
+     * @return \XPaymentsCloud\Response
+     */
+    public function processCardSetup($token, \XLite\Model\Profile $profile, \XLite\Model\Address $address, $returnUrl)
+    {
+        $response = null;
+        // Uses external client call because regular method will work only during checkout
+        $client = \XLite\Module\XPay\XPaymentsCloud\Main::getClient();
+
+        try {
+            $response = $client->doTokenizeCard(
+                $token,
+                'Card Setup',
+                $profile->getXpaymentsCustomerId(),
+                $this->prepareCardSetupCart($profile, $address),
+                $returnUrl,
+                ''
+            );
+
+            if (is_null($response->redirectUrl)) {
+                // 3-D Secure is not enabled, so we can finalize
+                $this->processCardSetupFinalize($response->getPayment(), $profile);
+            }
+
+        } catch (\XPaymentsCloud\ApiException $exception) {
+            $this->handleApiException($exception, 'Card setup has been failed!');
+        }
+
+        return $response;
+    }
+
+    /**
+     * Continue Card Setup request after 3-D Secure
+     *
+     * @param string $xpid
+     * @param \XLite\Model\Profile $profile
+     *
+     */
+    public function processContinueCardSetup($xpid, \XLite\Model\Profile $profile)
+    {
+        // Uses external client call because regular method will work only during checkout
+        $client = \XLite\Module\XPay\XPaymentsCloud\Main::getClient();
+
+        try {
+            $response = $client->doContinue($xpid);
+            $this->processCardSetupFinalize($response->getPayment(), $profile);
+
+        } catch (\XPaymentsCloud\ApiException $exception) {
+            $this->handleApiException($exception, 'Card setup has been failed!');
+        }
+
+    }
+
+    /**
+     * Common actions to be executed after Card Setup
+     *
+     * @param XpPayment $payment
+     * @param \XLite\Model\Profile $profile
+     *
+     * @throws ApiException
+     */
+    protected function processCardSetupFinalize(XpPayment $payment, \XLite\Model\Profile $profile)
+    {
+        if (!empty($payment->card->saved)) {
+            TopMessage::addInfo('Card has been successfully saved');
+            if ($payment->customerId) {
+                $profile->setXpaymentsCustomerId($payment->customerId);
+                \XLite\Core\Database::getEM()->flush();
+            }
+        } else {
+            throw new \XPaymentsCloud\ApiException($payment->message);
+        }
+    }
+
+    /**
+     * Logs complete error message and show public message in front-end
+     *
+     * @param ApiException $exception
+     * @param $defaultMessage
+     */
+    protected function handleApiException(\XPaymentsCloud\ApiException $exception, $defaultMessage)
+    {
+        $this->log('Error: ' . $exception->getMessage());
+        $message = $exception->getPublicMessage();
+        if (!$message) {
+            $message = $defaultMessage;
+        }
+        TopMessage::addError($message);
+    }
+
+
+    /**
      * Prepare X-Payments Customer Id
      *
      * @return string
@@ -800,6 +903,56 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
     {
         $profile = $this->transaction->getOrigProfile();
         return $profile->getXpaymentsCustomerId();
+    }
+
+    /**
+     * Returns merchant (order department) email
+     *
+     * @return string
+     */
+    public function getMerchantEmail()
+    {
+        // Try modern serialized emails or fallback to plain string
+        $emails = @unserialize(\XLite\Core\Config::getInstance()->Company->orders_department);
+        $merchantEmail = (is_array($emails) && !empty($emails))
+            ? array_shift($emails)
+            : \XLite\Core\Config::getInstance()->Company->orders_department;
+
+        return $merchantEmail;
+    }
+
+    /**
+     * Returns login string to be used in cart data
+     *
+     * @param \XLite\Model\Profile $profile
+     *
+     * @return string
+     */
+    public function getLoginForCart($profile)
+    {
+        return $profile->getLogin() . ' (User ID #' . $profile->getProfileId() . ')';
+    }
+
+    /**
+     * Prepares cart to be used for Card Setup feature
+     *
+     * @param \XLite\Model\Profile $profile
+     * @param \XLite\Model\Address $address
+     *
+     * @return array
+     */
+    public function prepareCardSetupCart($profile, $address)
+    {
+        $email = $profile->getLogin();
+
+        $result = [
+            'login' => $this->getLoginForCart($profile),
+            'currency' => \XLite::getInstance()->getCurrency()->getCode(),
+            'billingAddress' => $this->prepareAddress($address, $email),
+            'merchantEmail' => $this->getMerchantEmail(),
+        ];
+
+        return $result;
     }
 
     /**
@@ -822,14 +975,8 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
             $description = $this->getInvoiceDescription();
         }
 
-        // Try modern serialized emails or fallback to plain string
-        $emails = @unserialize(\XLite\Core\Config::getInstance()->Company->orders_department);
-        $merchantEmail = (is_array($emails) && !empty($emails))
-            ? array_shift($emails)
-            : \XLite\Core\Config::getInstance()->Company->orders_department;
-
         $result = array(
-            'login'                => $profile->getLogin() . ' (User ID #' . $profile->getProfileId() . ')',
+            'login'                => $this->getLoginForCart($profile),
             'items'                => array(),
             'currency'             => \XLite::getInstance()->getCurrency()->getCode(),
             'shippingCost'         => 0.00,
@@ -837,28 +984,26 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
             'discount'             => 0.00,
             'totalCost'            => 0.00,
             'description'          => $description,
-            'merchantEmail'        => $merchantEmail,
+            'merchantEmail'        => $this->getMerchantEmail(),
 
         );
 
-        if (
-            $profile->getBillingAddress()
-            && $profile->getShippingAddress()
-        ) {
+        $billing = $profile->getBillingAddress();
+        $shipping = $profile->getShippingAddress();
+        $email = $profile->getLogin();
 
-            $result['billingAddress'] = $this->prepareAddress($profile);
-            $result['shippingAddress'] = $this->prepareAddress($profile, 'shipping');
+        if ($billing && $shipping) {
 
-        } elseif (
-            $profile->getBillingAddress()
-            && !$profile->getShippingAddress()
-        ) {
+            $result['billingAddress'] = $this->prepareAddress($billing, $email);
+            $result['shippingAddress'] = $this->prepareAddress($shipping, $email);
 
-            $result['billingAddress'] = $result['shippingAddress'] = $this->prepareAddress($profile);
+        } elseif ($billing) {
+
+            $result['billingAddress'] = $result['shippingAddress'] = $this->prepareAddress($billing, $email);
 
         } else {
 
-            $result['billingAddress'] = $result['shippingAddress'] = $this->prepareAddress($profile, 'shipping');
+            $result['billingAddress'] = $result['shippingAddress'] = $this->prepareAddress($shipping, $email);
         }
 
         // Set items
@@ -908,7 +1053,7 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
      *
      * @return array
      */
-    protected function prepareAddress(\XLite\Model\Profile $profile, $type = 'billing')
+    protected function prepareAddress(\XLite\Model\Address $address, $email)
     {
         $result = array();
 
@@ -927,21 +1072,19 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
 
         $repo = \XLite\Core\Database::getRepo('\XLite\Model\AddressField');
 
-        $type = $type . 'Address';
-
         foreach ($addressFields as $field => $defValue) {
 
             $method = 'address' == $field ? 'street' : $field;
-            $address = $profile->$type;
 
             if (
                 $address
                 && ($repo->findOneBy(array('serviceName' => $method)) || method_exists($address, 'get' . $method))
                 && $address->$method
             ) {
-                $result[$field] = is_object($profile->$type->$method)
-                    ? $profile->$type->$method->getCode()
-                    : $profile->$type->$method;
+                $result[$field] = $address->$method;
+                if (is_object($result[$field])) {
+                    $result[$field] = $result[$field]->getCode();
+                }
             }
 
             if (empty($result[$field])) {
@@ -949,7 +1092,7 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
             }
         }
 
-        $result['email'] = $profile->getLogin();
+        $result['email'] = $email;
 
         return $result;
     }
@@ -1111,7 +1254,7 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
             if (0.01 <= $value) {
                 $backendTransaction->setValue($value);
             }
-            $backendTransaction->setDataCell('xpaymentsMessage', $payment->message);
+            $backendTransaction->setDataCell('xpaymentsMessage', $payment->lastTransaction->message, 'Message');
             $backendTransaction->registerTransactionInOrderHistory('callback');
         }
     }
@@ -1183,9 +1326,9 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
      *
      * @param $message
      */
-    private function log($message)
+    protected function log($message)
     {
-        \XLite\Logger::getInstance()->logCustom('XPaymentsCloud', $message);
+        \XLite\Module\XPay\XPaymentsCloud\Main::log($message);
     }
 
     /**
@@ -1213,14 +1356,14 @@ HTML;
     }
 
     /**
-     * Process Fraud Check data
+     * Parse fraud check results and set corresponding XpaymentsFraudCheckData
      *
      * @param Transaction $transaction
      * @param XpPayment $payment
      *
      * @return void
      */
-    protected function processXpaymentsFraudCheckData(Transaction $transaction, XpPayment $payment)
+    protected function setFraudCheckData(Transaction $transaction, XpPayment $payment)
     {
         if (!$payment->fraudCheck) {
             return;

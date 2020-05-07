@@ -217,4 +217,14 @@ class RecoverPassword extends \XLite\Controller\Admin\AAdmin
 
         return $result;
     }
+
+    /**
+     * Redirect if user already logged
+     */
+    protected function doNoAction()
+    {
+        if (\XLite\Core\Auth::getInstance()->isLogged()) {
+            $this->redirect($this->buildURL());
+        }
+    }
 }

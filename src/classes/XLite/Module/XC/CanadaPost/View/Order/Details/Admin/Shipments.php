@@ -249,4 +249,23 @@ class Shipments extends \XLite\View\AView
             || $parcel->getNotifyOnShipment()
         );
     }
+
+    /**
+     * Return text
+     *
+     * @param \XLite\Module\XC\CanadaPost\Model\Order\Parcel\Shipment\Link $link
+     *
+     * @return string
+     */
+    protected function getRemovedItemsWarning($link)
+    {
+        return static::t(
+            'Some of the items in the parcel were removed. To view all the items, including the removed ones, see the document.',
+            [
+                'docUrl' => $link->getUrl(),
+                'docTitle' => $link->getLinkTitle()
+            ]
+        );
+    }
+
 }

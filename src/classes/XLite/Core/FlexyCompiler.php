@@ -923,15 +923,7 @@ class FlexyCompiler extends \XLite\Base\Singleton
 
     function removeBraces($str)
     {
-        if (substr($str, 0, 1) == '{') {
-            $str = substr($str, 1);
-        }
-
-        if ($str{strlen($str) - 1} == '}') {
-            $str = substr($str, 0, strlen($str) - 1);
-        }
-
-        return $str;
+        return rtrim(ltrim($str, '{'), '}');
     }
 
     protected function getXliteFormIDText()

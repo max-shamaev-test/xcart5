@@ -101,6 +101,7 @@ class ComingSoon extends \XLite\Module\CDev\ProductAdvisor\View\AComingSoon
         ];
 
         $this->widgetParams[self::PARAM_WIDGET_TYPE]->setValue(self::WIDGET_TYPE_SIDEBAR);
+        $this->widgetParams[self::PARAM_DISPLAY_MODE]->setValue(self::DISPLAY_MODE_GRID);
 
         unset(
             $this->widgetParams[self::PARAM_SHOW_DISPLAY_MODE_SELECTOR],

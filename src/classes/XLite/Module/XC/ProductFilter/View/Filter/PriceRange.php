@@ -43,8 +43,18 @@ class PriceRange extends \XLite\Module\XC\ProductFilter\View\Filter\AFilter
         $itemList = new \XLite\Module\XC\ProductFilter\View\ItemsList\Product\Customer\Category\CategoryFilter;
 
         $cnd = $itemList->getSearchCondition();
-        $profile = \XLite\Core\Auth::getInstance()->getProfile();
+
+        $cart = \XLite::getController()->getCart(false);
+        $profile = $cart->getProfile()
+            ?: \XLite\Core\Auth::getInstance()->getProfile();
+
+        $qdZone = null;
+        if ($profile) {
+            $qdZone = \XLite\Core\QuickData::getInstance()->getQuickDataZoneForProfile($profile);
+        }
+
         $cnd->{\XLite\Model\Repo\Product::P_QUICK_DATA_MEMBERSHIP} = $profile ? $profile->getMembership() : null;
+        $cnd->{\XLite\Model\Repo\Product::P_QUICK_DATA_ZONE} = $qdZone;
         $cnd->{\XLite\Model\Repo\Product::P_SCALAR_SELECT} = 'MIN(qdm.price)';
         $cnd->filter = null;
 
@@ -79,8 +89,18 @@ class PriceRange extends \XLite\Module\XC\ProductFilter\View\Filter\AFilter
         $itemList = new \XLite\Module\XC\ProductFilter\View\ItemsList\Product\Customer\Category\CategoryFilter;
 
         $cnd = $itemList->getSearchCondition();
-        $profile = \XLite\Core\Auth::getInstance()->getProfile();
+
+        $cart = \XLite::getController()->getCart(false);
+        $profile = $cart->getProfile()
+            ?: \XLite\Core\Auth::getInstance()->getProfile();
+
+        $qdZone = null;
+        if ($profile) {
+            $qdZone = \XLite\Core\QuickData::getInstance()->getQuickDataZoneForProfile($profile);
+        }
+
         $cnd->{\XLite\Model\Repo\Product::P_QUICK_DATA_MEMBERSHIP} = $profile ? $profile->getMembership() : null;
+        $cnd->{\XLite\Model\Repo\Product::P_QUICK_DATA_ZONE} = $qdZone;
         $cnd->{\XLite\Model\Repo\Product::P_SCALAR_SELECT} = 'MAX(qdm.price)';
         $cnd->filter = null;
 

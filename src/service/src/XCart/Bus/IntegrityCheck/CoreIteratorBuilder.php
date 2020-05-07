@@ -14,7 +14,6 @@ use XCart\Bus\System\Filesystem;
 use XCart\SilexAnnotations\Annotations\Service;
 
 /**
- * Class IntegrityViolationProcessor
  * @Service\Service()
  */
 class CoreIteratorBuilder
@@ -48,8 +47,6 @@ class CoreIteratorBuilder
     }
 
     /**
-     * IntegrityViolationProcessor constructor.
-     *
      * @param string     $rootDir
      * @param Filesystem $filesystem
      */
@@ -105,8 +102,9 @@ class CoreIteratorBuilder
                 'etc' . DIRECTORY_SEPARATOR . 'config.local.php',
                 'etc' . DIRECTORY_SEPARATOR . 'config.personal.php',
                 'etc' . DIRECTORY_SEPARATOR . 'config.php',
+                'etc' . DIRECTORY_SEPARATOR . 'config.dev.php',
                 'classes' . DIRECTORY_SEPARATOR . 'XLite' . DIRECTORY_SEPARATOR . 'Module',
-                'service' . DIRECTORY_SEPARATOR . 'spa',
+                'service',
                 'public',
                 'composer.json',
                 'composer.lock',

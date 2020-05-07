@@ -23,50 +23,22 @@
             text-decoration: none;
         }
     }
-
-    .logo-showcase {
-      margin-top: 20px;
-    }
-
-    .logo-image-wrapper {
-        display: inline-block;
-        width: 780px;
-        height: 240px;
-        position: relative;
+    .advertise {
+        max-width: 680px;
+        padding: @rhythmic-unit / 2;
+        background: @color-light-blue;
+        border:1px solid @color-mid-blue;
+        border-radius: @border-radius-base;
+        margin: @rhythmic-unit * 2 auto;
 
         img {
-            max-width: 100%;
-            max-height: 100%;
+            float:left;
+        }
+
+        p {
+            text-align: left;
+            margin: @rhythmic-unit / 2 0;
         }
     }
 
-    .logo-desktop-placeholder, .logo-mobile-placeholder {
-        position: absolute;
-        background: white;
-        text-align: left;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-
-        img {
-            max-width: 100%;
-            max-height: 100%;
-        }
-    }
-
-    .logo-desktop-placeholder {
-        min-width: 104px;
-        max-width: 350px;
-        height: 60px;
-        left: 53px;
-        top: 100px;
-    }
-
-    .logo-mobile-placeholder {
-        min-width: 53px;
-        max-width: 150px;
-        height: 30px;
-        left: 450px;
-        top: 100px;
-    }
 }

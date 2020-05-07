@@ -37,8 +37,6 @@ div.combobox-select i {
 
 .ui-autocomplete {
   border: 1px solid #999999;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
   background: #fff;
   font-family: Helvetica,Arial,sans-serif;
@@ -48,8 +46,6 @@ div.combobox-select i {
 
 .ui-autocomplete.ui-menu .ui-menu-item a {
   border: none;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
   background: #fff;
   text-align: left;

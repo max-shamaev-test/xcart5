@@ -31,4 +31,18 @@ class Info extends \XLite\View\FormModel\Product\Info implements \XLite\Base\IDe
             ]
         );
     }
+
+    protected function defineFields()
+    {
+        $schema = parent::defineFields();
+
+        $schema['prices_and_inventory']['applySaleToWholesale'] = [
+            'label'     => static::t('Apply product-specific discount to wholesale price'),
+            'type'      => 'XLite\View\FormModel\Type\SwitcherType',
+            'position'  => 300,
+            'help'      => static::t('This option will apply if the "Sale" parameter is set as a percentage.'),
+        ];
+
+        return $schema;
+    }
 }

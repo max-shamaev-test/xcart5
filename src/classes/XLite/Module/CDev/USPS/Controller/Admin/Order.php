@@ -61,7 +61,7 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
         $modifier = $order ? $order->getModifier(\XLite\Model\Base\Surcharge::TYPE_SHIPPING, 'SHIPPING') : null;
         $method   = $modifier ? $modifier->getMethod() : null;
 
-        return $method && $method->getCarrier() === 'pb_usps';
+        return $method && $method->getCarrier() === 'pb_usps' && $this->isLocalShipping($order);
     }
 
     protected function doActionUspsCreateShipment()
@@ -380,5 +380,21 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
             $this->getOrder()->getTrackingNumbers()->removeElement($trackingNumber);
             \XLite\Core\Database::getEM()->remove($trackingNumber);
         }
+    }
+
+    /**
+     * Check the shipping inside the country
+     *
+     * @param \XLite\Model\Order $order
+     * @return bool
+     */
+    protected function isLocalShipping(\XLite\Model\Order $order)
+    {
+        $profile = $order->getProfile();
+
+        $dstAddr = $profile->getShippingAddress()->getCountryCode();
+        $srcAddr = $order->getSourceAddress()->getCountryCode();
+
+        return $dstAddr === $srcAddr;
     }
 }

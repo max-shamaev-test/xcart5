@@ -9,7 +9,7 @@
       <div class="box gateways">
         <div class="list-header">
           <span class="payment-type-title">{{ t('Online methods') }}</span>
-          {{ widget('XLite\\View\\Button\\Payment\\AddMethod', paymentType=constant('XLite\\Model\\Payment\\Method::TYPE_ALLINONE'), style='add-method top-button-add-method') }}
+          {{ widget('XLite\\View\\Button\\Payment\\AddMethod', paymentType=constant('XLite\\Model\\Payment\\Method::TYPE_ALLINONE'), style='add-method top-button-add-method add-online-method-button') }}
         </div>
         <div class="content">
           {% if this.hasAddedGateways() %}

@@ -10,10 +10,12 @@ namespace XLite\Module\XC\GoogleFeed\View\FormField\Select;
 
 
 use XLite\Module\XC\GoogleFeed\Model\Attribute;
+use XLite\Module\XC\GoogleFeed\Model\SearchCondition\Expression\TypeSearchGroup;
 
 class ShoppingGroup extends \XLite\View\FormField\Select\Regular
 {
     const PARAM_NON_SELECTED_LABEL = 'nonSelected';
+    const PARAM_EMPTY_SELECTED_LABEL = 'emptySelected';
 
     /**
      * @inheritdoc
@@ -35,7 +37,11 @@ class ShoppingGroup extends \XLite\View\FormField\Select\Regular
      */
     protected function getOptions()
     {
-        return array_merge(['' => $this->getNonSelectedLabel()], parent::getOptions());
+        $options = ['' => $this->getNonSelectedLabel()];
+        if ($this->getParam(static::PARAM_EMPTY_SELECTED_LABEL)) {
+            $options[TypeSearchGroup::EMPTY_VALUE] = static::t('No group');
+        }
+        return array_merge($options, parent::getOptions());
     }
 
     /**
@@ -65,6 +71,7 @@ class ShoppingGroup extends \XLite\View\FormField\Select\Regular
 
         $this->widgetParams += [
             static::PARAM_NON_SELECTED_LABEL => new \XLite\Model\WidgetParam\TypeString('Non selected label option', $this->getDefaultNonSelectedLabel()),
+            static::PARAM_EMPTY_SELECTED_LABEL => new \XLite\Model\WidgetParam\TypeString('Empty selected label option', false),
         ];
     }
 }

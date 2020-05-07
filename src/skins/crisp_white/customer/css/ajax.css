@@ -14,8 +14,7 @@
   padding: 0px;
   background-color: #fff;
   background-color: rgba(255, 255, 255, 0.80);
-  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff00, endColorstr=#ffffff00)";
-  z-index: 10;
+  z-index: 101;
 }
 
 .shade-block-overlay {
@@ -25,6 +24,5 @@
   padding: 0px;
   background-color: #fff;
   background-color: rgba(255, 255, 255, 0.80);
-  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff00, endColorstr=#ffffff00)";
   z-index: 10;
 }

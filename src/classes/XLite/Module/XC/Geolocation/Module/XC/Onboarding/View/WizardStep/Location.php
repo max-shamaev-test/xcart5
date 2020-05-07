@@ -54,6 +54,6 @@ class Location extends \XLite\Module\XC\Onboarding\View\WizardStep\Location impl
             new \XLite\Module\XC\Geolocation\Logic\GeoInput\IpAddress
         );
 
-        return $location['country'];
+        return $location['country'] ?? '';
     }
 }

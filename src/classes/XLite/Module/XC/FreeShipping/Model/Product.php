@@ -9,6 +9,8 @@
 
 namespace XLite\Module\XC\FreeShipping\Model;
 
+use XLite\Core\Converter;
+
 /**
  * Decorate product model
  */
@@ -97,7 +99,7 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
      */
     public function setFreightFixedFee($freightFixedFee)
     {
-        $this->freightFixedFee = (float) $freightFixedFee;
+        $this->freightFixedFee = Converter::toUnsigned32BitFloat($freightFixedFee);
         return $this;
     }
 

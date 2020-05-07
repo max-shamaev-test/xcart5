@@ -21,7 +21,7 @@ class AdminMain extends \XLite\View\Model\Profile\AdminMain implements \XLite\Ba
      */
     protected function getFormFieldsForSectionMain()
     {
-        if ($this->getModelObject()->isSocialProfile()) {
+        if ($this->getModelObject()->isSocialProfile() && $this->getModelObject()->getSocialLoginProvider() === 'Amazon') {
             unset($this->mainSchema['password'], $this->mainSchema['password_conf']);
         }
 

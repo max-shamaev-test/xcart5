@@ -21,7 +21,7 @@ var getRealItemsCount = function (itemsListBlock) {
 decorate(
     'StickyPanelModelList',
     'reposition',
-    function (selector) {
+    function () {
       arguments.callee.previousMethod.apply(this, arguments);
 
 

@@ -196,7 +196,6 @@ class AutomateShippingRoutine extends \XLite\View\AView
             'common' => array(
                 'labels'    => static::t('Print Shipping labels'),
                 'trial'     => static::t('FREE trial'),
-                'refunds'   => static::t('Refunds'),
             ),
             'integrations' => array(
                 'ebay'      => static::t('eBay'),
@@ -300,7 +299,7 @@ class AutomateShippingRoutine extends \XLite\View\AView
     /**
      * Get module logo
      * 
-     * @param \XLite\Model\Module $module Module
+     * @param array $module Module
      * 
      * @return boolean
      */
@@ -319,7 +318,7 @@ class AutomateShippingRoutine extends \XLite\View\AView
     /**
      * Check if module has settings form
      * 
-     * @param \XLite\Model\Module $module Module
+     * @param array $module Module
      * 
      * @return boolean
      */
@@ -388,7 +387,7 @@ class AutomateShippingRoutine extends \XLite\View\AView
     /**
      * Get shipping module property value
      * 
-     * @param \XLite\Model\Module $module Module
+     * @param array $module Module
      * @param string $property Property key
      * 
      * @return string

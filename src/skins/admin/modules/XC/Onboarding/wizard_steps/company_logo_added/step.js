@@ -9,41 +9,40 @@
 
 define('wizard/steps/company-logo-added', ['js/vue/vue'], function (XLiteVue) {
   XLiteVue.component('xlite-wizard-step-company-logo-added', {
-    ready: function() {
-      this.$form = $(this.$el).find('.logo-upload-form');
+    ready: function () {
+      this.$form = $(this.$el).find('.logo-upload-form')
     },
 
-    computed: {
-    },
+    computed: {},
 
     vuex: {
       getters: {
-        logoUrl: function(state) {
-          return state.logo;
+        logoUrl: function (state) {
+          return state.logo
         },
         logoParams: function (state) {
-          return state.logoParams;
+          return state.logoParams
         }
       },
       actions: {
-        updateLogo: function(state, url) {
-          state.dispatch('UPDATE_LOGO', url);
+        updateLogo: function (state, url) {
+          state.dispatch('UPDATE_LOGO', url)
         },
-        updateLogoFormParams: function(state, params) {
-          state.dispatch('UPDATE_LOGO_PARAMS', params);
+        updateLogoFormParams: function (state, params) {
+          state.dispatch('UPDATE_LOGO_PARAMS', params)
         }
       }
     },
 
     methods: {
-      save: function() {
+      save: function () {
         if (!this.logoParams) {
-          console.log('Something wrong happened');
-          this.$dispatch('wizard.step.requestNext');
-          this.$dispatch('wizard.landmark.pass', 'company');
+          console.log('Something wrong happened')
+          this.$dispatch('wizard.step.requestNext')
+          this.$dispatch('wizard.landmark.pass', 'company')
         }
 
-        this.$dispatch('blockBody');
+        this.$dispatch('blockBody')
 
         core.post(
           {
@@ -57,35 +56,40 @@ define('wizard/steps/company-logo-added', ['js/vue/vue'], function (XLiteVue) {
             rpc: true
           })
           .done(_.bind(this.onUploadSuccess, this))
-          .fail(_.bind(this.onUploadFail, this));
+          .fail(_.bind(this.onUploadFail, this))
       },
 
-      onUploadSuccess: function(data) {
+      onUploadSuccess: function (data) {
         if (data.logo) {
-          this.updateLogo(data.logo);
+          this.updateLogo(data.logo)
         }
-        this.$dispatch('wizard.tracking.event', 'form');
-        this.$dispatch('wizard.step.requestNext');
-        this.$dispatch('wizard.landmark.pass', 'company');
-        this.$dispatch('unblockBody');
+        this.$dispatch('wizard.tracking.event', 'form')
+        this.$dispatch('wizard.step.requestNext')
+        this.$dispatch('wizard.landmark.pass', 'company')
+        this.$dispatch('unblockBody')
       },
 
-      onUploadFail: function() {
-        this.$dispatch('unblockBody');
+      onUploadFail: function () {
+        this.$dispatch('unblockBody')
       },
 
-      goToNextStep: function() {
-        this.$dispatch('wizard.tracking.event', 'link', '(skipped)');
-        this.$dispatch('wizard.step.requestNext');
+      goToNextStep: function () {
+        this.$dispatch('wizard.tracking.event', 'link', '(skipped)')
+        this.$dispatch('wizard.step.requestNext')
       },
 
-      reuploadLogo: function() {
-        this.$dispatch('wizard.step.requestPrevious');
+      reuploadLogo: function () {
+        this.$dispatch('wizard.step.requestPrevious')
       },
 
-      openLayoutEditorVideo: function() {
-        console.error('not implemented yey');
+      openLayoutEditorVideo: function () {
+        console.error('not implemented yey')
+      },
+
+      visitTemplateStore: function () {
+        this.$dispatch('wizard.tracking.event', 'link', 'Visit the template store')
+        window.open('service.php#/templates')
       }
     }
-  });
-});
+  })
+})

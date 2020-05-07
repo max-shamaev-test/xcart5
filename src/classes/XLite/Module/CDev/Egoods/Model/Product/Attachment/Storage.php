@@ -119,7 +119,7 @@ abstract class Storage extends \XLite\Module\CDev\FileAttachments\Model\Product\
      */
     public function canBeSigned()
     {
-        return Config::getInstance()->CDev->Egoods->enable_signed_urls && preg_match('/\/\/s3.*?amazonaws\.com/', $this->getPath());
+        return Config::getInstance()->CDev->Egoods->enable_signed_urls && preg_match('/\/\/.*?s3.*?amazonaws\.com/', $this->getPath());
     }
 
     /**
@@ -129,7 +129,7 @@ abstract class Storage extends \XLite\Module\CDev\FileAttachments\Model\Product\
     public function getSignedUrl()
     {
         if ($this->canBeSigned()) {
-            preg_match('/\/\/s3.*?amazonaws\.com\/.*?\/(.*)/', $this->getPath(), $matches);
+            preg_match('/\/\/.*?s3.*?amazonaws\.com\/(.*)/', $this->getPath(), $matches);
             return AmazonS3::getInstance()->getPresignedUrl($matches[1]);
         }
 

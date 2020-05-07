@@ -60,6 +60,8 @@ $translation = array (
   'https_bouncer.error_message_2' => 'libcurl extension not found.',
   'https_bouncer.error_message_1' => 'libcurl extension is found but does not support secure protocols.',
   'xml_support.error_message_1' => 'XML/Expat and DOM extensions are required for some modules.',
+  'loopback_request.label_message' => 'My Addons (service.php) is not available, please <a href="https://www.x-cart.com/contact-us.htmlutm_source=XC5Install&amp;utm_medium=reqsFailure&amp;utm_campaign=XC5Install">contact us</a>',
+  'loopback_request.error_message_1' => 'My Addons (service.php) is not available, please <a href="https://www.x-cart.com/contact-us.htmlutm_source=XC5Install&amp;utm_medium=reqsFailure&amp;utm_campaign=XC5Install">contact us</a>',
   'config_writing_error' => 'Cannot open configuration file \':configfile\' for writing. This unexpected error has cancelled the installation. To install the software, please correct the problem and start the installation again.',
   'mysql_connection_error' => 'Cannot connect to MySQL server:pdoerr.<br />This unexpected error has cancelled the installation. To install the software, please correct the problem and start the installation again.',
   'doDropDatabaseTables() failed' => 'doDropDatabaseTables() failed',
@@ -86,7 +88,7 @@ Should you decide to re-install X-Cart, remember to rename  file ":newname" back
 To ensure safety of your X-Cart installation, file "install.php" has been renamed to ":newname".<br />
 Should you decide to re-install X-Cart, remember to rename file ":newname" back to "install.php"
 ',
-  'script_cannot_be_renamed_text' => '<span style="color: red;"><b>WARNING!</b> The install.php script could not be renamed! To ensure safety of your X-Cart installation and prevent unauthorized use of this script, rename or delete the script manually.</span>',
+  'script_cannot_be_renamed_text' => '<span style="color: #a94461;"><b>WARNING!</b> The install.php script could not be renamed! To ensure safety of your X-Cart installation and prevent unauthorized use of this script, rename or delete the script manually.</span>',
   'correct_permissions_text' => 'Before you start using your X-Cart shopping system, please set the following secure file permissions:',
   'congratulations_text' => '
 Congratulations!
@@ -165,7 +167,7 @@ X-Cart Installation Wizard
   'MySQL server socket' => 'MySQL server socket',
   'If your database server is used a non-standard socket, specify it (e.g. /tmp/mysql-5.1.34.sock).' => 'If your database server uses a non-standard socket, specify it here (e.g. /tmp/mysql-5.1.34.sock).',
   'MySQL database name' => 'MySQL database name',
-  'The name of the existing database to use (if the database does not exist on the server, you should create it to continue the installation).' => 'Name of an existing database to use (if the database does not exist on the server, the installation script will try to create it).',
+  'Name of a new or existing database to use.' => 'Name of a new or existing database to use.',
   'MySQL username' => 'MySQL username',
   'MySQL username. The user must have full access to the database specified above.' => 'MySQL username. The user must have unrestricted access to the database specified above.',
   'MySQL password' => 'MySQL password',
@@ -279,9 +281,9 @@ X-Cart Installation Wizard
   'Strong' => 'Strong',
   'Uploading dump.sql into database...' => 'Uploading SQL dump into database...',
   'Redirecting to the next step...' => 'Redirecting to the next step...',
-  'Create an online store for free' => 'Create an online store for free',
-  'Consider hosting your X-Cart with us' => 'Consider hosting your X-Cart with us',
-  'VPS hosting for X-Cart. No installation hassle. Fully customizable.' => 'VPS hosting for X-Cart. No installation hassle.<br />Fully customizable.',
+  'Get first 30 days for FREE' => 'Get first 30 days for FREE',
+  'Create Online Store with X‑Cart!' => 'Create Online Store with X‑Cart!',
+  'No limitations or transaction fees, Open source code for easy customization, Great 24/7 support' => 'No limitations or transaction fees, Open source code for easy customization, Great 24/7 support',
   'Having trouble installing X-Cart? Check out our installation guide' => 'Having trouble installing X-Cart?<br />Check out our <a href="https://kb.x-cart.com/en/general_setup/installation_guide.html" target="_blank">installation guide</a>',
   'X-Cart can track and store user actions to improve the UI/UX and merchant experience. You can stop user action tracking at any time by removing the Concierge module.' => 'X-Cart can track and store user actions to improve the UI/UX and merchant experience. You can stop user action tracking at any time by removing the Concierge module.',
   'config_file.error_message_1' => 'Config file does not exist and cannot be copied from the default config file. It is required for the installation.<br /><br />Please, follow these steps: <br /><br />1. Go to directory :configPath<br />2. Copy <i>:defaultConfigFileName</i> to <i>:configFileName</i><br />3. Set writeable permissions on <i>:configFileName</i><br /><br />Then try again.',

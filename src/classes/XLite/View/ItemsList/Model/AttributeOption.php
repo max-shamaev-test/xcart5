@@ -60,16 +60,6 @@ class AttributeOption extends \XLite\View\ItemsList\Model\Table
     }
 
     /**
-     * Get create entity URL
-     *
-     * @return string
-     */
-    protected function getCreateURL()
-    {
-        return \XLite\Core\Converter::buildURL('attribute_option');
-    }
-
-    /**
      * Get create button label
      *
      * @return string

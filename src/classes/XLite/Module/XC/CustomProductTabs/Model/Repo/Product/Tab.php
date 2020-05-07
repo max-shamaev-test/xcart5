@@ -56,7 +56,7 @@ class Tab extends \XLite\Model\Repo\Base\I18n
     public function generateTabLink(\XLite\Module\XC\CustomProductTabs\Model\Product\Tab $tab)
     {
         $result = $link = preg_replace(
-            '/[^a-z0-9-_:.]/i',
+            '/[^a-z0-9-_]/i',
             '',
             str_replace(
                 ' ',

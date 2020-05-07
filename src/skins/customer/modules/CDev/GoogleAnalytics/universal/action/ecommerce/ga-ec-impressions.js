@@ -21,13 +21,23 @@ define('googleAnalytics/eCommerceCoreEvent', ['googleAnalytics/eCommerceCoreEven
 
     registerAllImpressionsInitial: function (event, data) {
       var self = this;
+      var length = 0;
 
       _.each(
           this.getActions('impression'),
           function (action, index) {
-            self.addImpression(action.data);
+            if (self.addImpression(action.data)) {
+              length += JSON.stringify(action.data).length;
+            }
+            if (length > 6000) {
+              ga('send', 'pageview');
+              length = 0;
+            }
           }
       );
+      if (length) {
+        ga('send', 'pageview');
+      }
     },
 
     registerAllImpressionsInList: function (event, widget) {

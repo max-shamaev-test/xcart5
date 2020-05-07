@@ -8,6 +8,8 @@
 
 namespace XLite\Core\Lock;
 
+use Includes\Decorator\Utils\CacheManager;
+
 trait SynchronousTrait
 {
     /**
@@ -36,7 +38,7 @@ trait SynchronousTrait
      */
     public function synchronize (callable $func, $key)
     {
-        $fileName = LC_DIR_TMP . $key . '.lock';
+        $fileName = CacheManager::getTmpDir() . $key . '.lock';
 
         if (!$fp = fopen($fileName, 'wb')) {
             if ($fp = fopen($fileName, 'xb')) {

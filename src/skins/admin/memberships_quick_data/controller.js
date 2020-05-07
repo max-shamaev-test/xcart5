@@ -23,6 +23,13 @@ jQuery().ready(
             self.location = URLHandler.buildURL({ 'target': 'memberships', 'calculation_completed': 1 });
           }
         }
+      ).bind(
+        'cancel',
+        function() {
+          setTimeout(function() {
+            self.location = URLHandler.buildURL({ 'target': 'memberships' });
+          }, 4000);
+        }
       );
   }
 );

@@ -92,16 +92,16 @@ XLite\Model\Config:
   - { name: time_format, category: Units, type: 'XLite\View\FormField\Select\TimeFormat', orderby: 67000, value: '%H:%M', translations: [{ code: en, option_name: 'Time format' }] }
   - { name: time_zone, category: Units, type: 'XLite\View\FormField\Select\TimeZone', orderby: 68000, translations: [{ code: en, option_name: 'Time zone' }] }
   - { name: users_department, category: Company, type: 'XLite\View\FormField\Select\MultipleEmails', orderby: 47000, value:  'a:1:{i:0;s:17:"admin@example.com";}', translations: [{ code: en, option_name: 'Customer relations e-mails', option_comment: 'The first email in this field (the one marked dark blue) will be used as the "Reply-To:" address for password reset messages.<br/><br/>All addresses in this field will be used as the "TO:" address for notifications about user profile related events (creation of a new user profile, deletion of a user profile, etc).' }] }
-  - { name: users_per_page, category: General, type: 'XLite\View\FormField\Input\Text\Integer', orderby: 42000, value: '30', widgetParameters: { min: 1 }, translations: [{ code: en, option_name: 'Users per page' }] }
   - { name: mail_from_type, category: Email, type: XLite\View\FormField\Select\EmailFrom, orderby: 10500, value: 'contact', translations: [{ code: en, option_name: 'Email to use for the FROM field', option_comment: 'Please do not confuse this with Reply-to. Reply-to addresses for your emails will be selected from the Contact information section automatically according to the type of email message.' }] }
   - { name: mail_from_manual, category: Email, type: \XLite\View\FormField\Input\Text\EmailFromManual, orderby: 10600, value: '', widgetParameters: { required: true }, }
   - { name: use_smtp, category: Email, type: \XLite\View\FormField\Input\Checkbox\UseSmtp, orderby: 11000, value: '', translations: [{ code: en, option_name: 'Use SMTP server' }] }
   - { name: use_smtp_auth, category: Email, type: XLite\View\FormField\Input\Checkbox\OnOff, orderby: 14000, value: '', translations: [{ code: en, option_name: 'Use authentication' }] }
-  - { name: version, category: Version, value: '5.4.0.6' }
+  - { name: version, category: Version, value: '5.4.1.4' }
   - { name: weight_symbol, category: Units, type: text, orderby: 62000, value: lbs, translations: [{ code: en, option_name: 'Weight symbol' }] }
   - { name: weight_unit, category: Units, type: 'XLite\View\FormField\Select\WeightUnit', orderby: 61000, value: lbs, translations: [{ code: en, option_name: 'Weight unit' }] }
   - { name: weight_trailing_zeroes, category: Units, type: checkbox, orderby: 62100, value: Y, translations: [{ code: en, option_name: 'Hide trailing zeros in fractional part' }] }
   - { name: weight_format, category: Units, type: 'XLite\View\FormField\Select\FloatFormat', orderby: 62200, value: '|.', translations: [{ code: en, option_name: 'Weight format' }] }
+  - { name: percent_format, category: Units, type: 'XLite\View\FormField\Select\PercentFormat', orderby: 62300, value: '%s%%', translations: [{ code: en, option_name: 'Percent format' }] }
   - { name: dim_symbol, category: Units, type: text, orderby: 62500, value: in, translations: [{ code: en, option_name: 'Dimensional symbol' }] }
   - { name: dim_unit, category: Units, type: 'XLite\View\FormField\Select\DimUnit', orderby: 62300, value: in, translations: [{ code: en, option_name: 'Dimensional unit' }] }
   - { name: curl_sep, category: Environment, type: separator, orderby: 10000, translations: [{ code: en, option_name: 'Curl options' }] }
@@ -197,7 +197,6 @@ XLite\Model\Config:
   - { name: allow_membership_request, category: General, type: checkbox, orderby: 39900, value: N, translations: [{ code: en, option_name: 'Allow customers to sign up for membership' }] }
   - { name: upgrade_wave_sep, category: Environment, type: separator, orderby: 20000, translations: [{ code: en, option_name: 'Upgrade options' }] }
   - { name: upgrade_wave, category: Environment, type: 'XLite\View\FormField\Select\UpgradeWave', orderby: 21000, value: '', translations: [{ code: en, option_name: 'Upgrade access level' }] }
-  - { name: quick_data_rebuilding, category: CacheManagement, type: checkbox, orderby: 10000, value: N, translations: [{ code: en, option_name: 'Perform quick data calculation during store re-deployment', option_comment: 'Calculated quick data enhances your store''s performance by allowing quick product sorting. If you want quick data to be calculated along with store re-deployment, make sure this setting is enabled before running the "Re-deploy the store" tool. Keep the setting disabled if you want to do the re-deployment without the calculation of quick data.' }] }
   - name: fields_settings_section
     category: Email
     type: separator
@@ -241,6 +240,10 @@ XLite\Model\Config:
     category: 'Company'
     type: XLite\View\FormField\DeliverabilityCheck
     orderby: 49400
+  - name: livechat_ad
+    category: 'Company'
+    type: XLite\View\FormField\LiveChatAd
+    orderby: 49300
 
 XLite\Model\Category:
   - { category_id: 1, show_title: false, translations: [{ code: en, name: 'Catalog' }] }
@@ -714,6 +717,7 @@ XLite\Model\Country:
     code3: CAN
     code: CA
     currency: { currency_id: 124 }
+    language: { code: en }
     states:
       - { state: Alberta, code: AB }
       - { state: British Columbia, code: BC }
@@ -738,6 +742,7 @@ XLite\Model\Country:
     code3: CHN
     code: CN
     currency: { currency_id: 156 }
+    language: { code: zh }
     states:
       - { state: Anhui, code: '34' }
       - { state: Beijing, code: '11' }
@@ -809,7 +814,7 @@ XLite\Model\Country:
   - { translations: [{ code: en, country: Gabon }], id: 266, code3: GAB, code: GA, currency: { currency_id: 950 } }
   - { translations: [{ code: en, country: Gambia }], id: 270, code3: GMB, code: GM, currency: { currency_id: 270 } }
   - { translations: [{ code: en, country: Georgia }], id: 268, code3: GEO, code: GE, currency: { currency_id: 981 } }
-  - { translations: [{ code: en, country: Germany }], id: 276, code3: DEU, code: DE, currency: { currency_id: 978 }, eu_member: true }
+  - { translations: [{ code: en, country: Germany }], id: 276, code3: DEU, code: DE, currency: { currency_id: 978 }, language: { code: de }, eu_member: true }
   - { translations: [{ code: en, country: Ghana }], id: 288, code3: GHA, code: GH, currency: { currency_id: 936 } }
   - { translations: [{ code: en, country: Gibraltar }], id: 292, code3: GIB, code: GI, currency: { currency_id: 292 } }
   - { translations: [{ code: en, country: Greece }], id: 300, code3: GRC, code: GR, currency: { currency_id: 978 }, eu_member: true }
@@ -1078,7 +1083,7 @@ XLite\Model\Country:
   - { translations: [{ code: en, country: Qatar }], id: 634, code3: QAT, code: QA, currency: { currency_id: 634 } }
   - { translations: [{ code: en, country: Réunion }], id: 638, code3: REU, code: RE, currency: { currency_id: 978 } }
   - { translations: [{ code: en, country: Romania }], id: 642, code3: ROU, code: RO, currency: { currency_id: 946 }, eu_member: true }
-  - { translations: [{ code: en, country: Russian Federation }], id: 643, code3: RUS, code: RU, currency: { currency_id: 643 } }
+  - { translations: [{ code: en, country: Russian Federation }], id: 643, code3: RUS, code: RU, currency: { currency_id: 643 }, language: { code: ru } }
   - { translations: [{ code: en, country: Rwanda }], id: 646, code3: RWA, code: RW, currency: { currency_id: 646 } }
   - { translations: [{ code: en, country: Saint Barthélemy }], id: 652, code3: BLM, code: BL, currency: { currency_id: 978 } }
   - { translations: [{ code: en, country: 'Saint Helena, Ascension and Tristan da Cunha' }], id: 654, code3: SHN, code: SH, currency: { currency_id: 654 } }
@@ -1218,6 +1223,7 @@ XLite\Model\Country:
     code3: GBR
     code: GB
     currency: { currency_id: 826 }
+    language: { code: gb }
     eu_member: true
     regions:
       - { code: 'GB-ENG', weight: 100 }
@@ -1462,6 +1468,7 @@ XLite\Model\Country:
     code3: USA
     code: US
     currency: { currency_id: 840 }
+    language: { code: en }
     states:
       - { state: Alabama, code: AL }
       - { state: Alaska, code: AK }
@@ -1542,6 +1549,7 @@ XLite\Model\Role:
   - { translations: [{ code: en, name: Administrator }, { code: ru, name: Administrator }], permissions: [ { code: root access, section: All, translations: [{ code: en, name: Root access }] } ] }
 XLite\Model\Role\Permission:
   - { code: manage catalog, section: Catalog, translations: [{ code: en, name: Manage catalog }] }
+  - { code: manage front page, section: Content, translations: [{ code: en, name: Manage front page }] }
   - { code: manage users, section: Users, translations: [{ code: en, name: Manage users }] }
   - { code: manage admins, section: Users, translations: [{ code: en, name: Manage administrators }] }
   - { code: manage orders, section: Sales, translations: [{ code: en, name: Manage orders }] }
@@ -1705,7 +1713,7 @@ XLite\Model\Notification:
         name: 'Low limit warning'
         description: 'This message is used to notify the administrator when the stock level of a product reaches the low stock limit as specified in the product details.'
         adminSubject: 'You are running out of %product_name%'
-        adminText: '<h3 dir="ltr">Heads-up boss, </h3><p dir="ltr">I see that some of your products are about to run out of stock.&nbsp;</p><p dir="ltr">%dynamic_message%</p><p dir="ltr">According to our stats you&rsquo;ll sell the last item by %latest_sale_date%. So it&rsquo;s high time to replenish them. You are not going to sell fresh air, are you?</p>'
+        adminText: '<h3 dir="ltr">Heads-up, </h3><p dir="ltr">I see that some of your products are about to run out of stock.&nbsp;</p><p dir="ltr">%dynamic_message%</p><p dir="ltr">According to our stats you&rsquo;ll sell the last item by %latest_sale_date%. So it&rsquo;s high time to replenish them. You are not going to sell fresh air, are you?</p>'
 
   - templatesDirectory: backorder_created
     position: 700
@@ -1789,7 +1797,7 @@ XLite\Model\Notification:
         name: 'Order created'
         description: 'This notification is sent when a new order is created.'
         adminSubject: 'You’ve got a new order #%order_number% for %order_total%'
-        adminText: '<p dir="ltr">Your wallet is going to get heavier very soon. Go ahead, show your customer you care and process the order ASAP.</p>'
+        adminText: '<p dir="ltr">There’s a new order for you. Go ahead, show your customer you care and process the order ASAP.</p>'
         customerSubject: 'Order #%order_number% is received'
         customerText: '<p dir="ltr">Thank you for shopping with us!&nbsp;</p><p dir="ltr">This is just a quick note to let you know that we&rsquo;ve received your order and we will process it as soon as we can. We will keep you updated on the status of your order.&nbsp;</p>'
 
@@ -1833,9 +1841,9 @@ XLite\Model\Notification:
         name: 'Order processed'
         description: 'This notification is sent when an order gets the status Paid.'
         adminSubject: 'Order #%order_number% is paid'
-        adminText: '<p dir="ltr">Your wallet has got a little heavier. Way to go!</p>'
+        adminText: '<p dir="ltr">Your order has been processed. Way to go!</p>'
         customerSubject: 'Order #%order_number% is paid (yay!)'
-        customerText: '<h2 dir="ltr">Your order was paid successfully, %recipient_name%!</h2><h3 dir="ltr">And we are just as excited as you are</h3><p dir="ltr"><br>Take a look below for all the confirmation details you&rsquo;ll need. We will be back in a moment to let you know that your item is on its way, unless you decide to pick it up yourself.&nbsp;</p>'
+        customerText: '<h2 dir="ltr">%recipient_name%, your order has been paid successfully.</h2><h3 dir="ltr">And we are just as excited as you are</h3><p dir="ltr"><br>Take a look below for all the confirmation details you&rsquo;ll need.</p>'
 
   - templatesDirectory: order_shipped
     position: 1900

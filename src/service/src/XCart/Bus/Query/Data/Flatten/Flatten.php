@@ -176,6 +176,7 @@ class Flatten extends IteratorIterator
 
             'revisionDate' => self::getField('revisionDate', $marketplace, null, 0),
             'price'        => (float) self::getField('price', $marketplace, null, 0.0),
+            'origPrice'    => (float) self::getField('origPrice', $marketplace, null, 0.0),
             'downloads'    => self::getField('downloads', $marketplace, null, 0),
             'rating'       => self::getField('rating', $marketplace, null, 0),
             'tags'         => array_map(static function ($item) {
@@ -186,6 +187,7 @@ class Flatten extends IteratorIterator
             'wave'         => self::getField('wave', $marketplace),
             'editions'     => self::getField('editions', $marketplace),
             'editionState' => self::getField('editionState', $marketplace),
+            'xcnPlan'      => self::getField('xcnPlan', $marketplace),
 
             'actions'       => [],
             'scenarioState' => [
@@ -200,11 +202,14 @@ class Flatten extends IteratorIterator
             'salesChannelPos' => self::getField('salesChannelPos', $marketplace, $installed, -1),
             'isLanding'       => self::getField('isLanding', $marketplace, $installed, false),
             'hash'            => self::getField('hash', $marketplace, null, []),
+            'hasLicense'      => self::getField('hasLicense', $marketplace, null, '')
         ];
 
         $moduleData['landingPosition'] = $moduleData['isLanding']
             ? self::getField('landingPosition', $marketplace, $installed, 1000000)
             : 1000000;
+
+        $moduleData['onSale'] = 0 < $moduleData['price'] && $moduleData['price'] < $moduleData['origPrice'];
 
         return new Module($moduleData);
     }

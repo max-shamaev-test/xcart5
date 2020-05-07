@@ -52,12 +52,6 @@
   margin-top: 0;
 }
 
-@media (min-width: 992px) and (max-width: 1020px) {
-  #main > .flex-container > div {
-    margin-left: 20px;
-  }
-}
-
 @media (max-width: 991px) {
   .search-product-form td ul.search-including-options li {
     padding: 5px 0;
@@ -102,11 +96,7 @@
 
 @media (min-width: 768px) {
   .search-form .search-form-main-part td.submit-button {
-    display: -webkit-flex !important;
-    display: -moz-flex !important;
-    display: -ms-flex !important;
     display: flex !important;
-    -webkit-justify-content: center;
     justify-content: center;
   }
 

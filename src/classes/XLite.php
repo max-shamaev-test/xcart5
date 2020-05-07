@@ -46,7 +46,7 @@ class XLite extends \XLite\Base
     /**
      * Core version
      */
-    const XC_VERSION = '5.4.0.6';
+    const XC_VERSION = '5.4.1.4';
 
     /**
      * Endpoints
@@ -359,8 +359,8 @@ class XLite extends \XLite\Base
         $result = 0;
         $installationData = \XLite\Core\Marketplace::getInstance()->getInstallationData();
 
-        if (!empty($installationData['installationData']['installationDate'])) {
-            $result = (int) $installationData['installationData']['installationDate'];
+        if (!empty($installationData['installationDate'])) {
+            $result = (int) $installationData['installationDate'];
         }
 
         return $result;
@@ -555,7 +555,7 @@ class XLite extends \XLite\Base
         }
 
         if (strpos($path, '#') === 0) {
-            $path = 'service.php?locale=' . \XLite\Core\Session::getInstance()->getCurrentLanguage() . $path;
+            $path = 'service.php?locale=' . \XLite\Core\Session::getInstance()->getCurrentLanguage() . $path . '?';
         }
 
         return \XLite\Core\URLManager::getShopURL($path, $isSecure, $params);
@@ -773,13 +773,6 @@ class XLite extends \XLite\Base
                 // Get target
                 $result = static::getTargetByCleanURL();
 
-                // Get canonical redirect URL
-                $canonicalURL = \XLite\Core\Database::getRepo('XLite\Model\CleanURL')->getRedirectCanonicalURL($result);
-
-                if ($canonicalURL && !\XLite\Core\Request::getInstance()->isAJAX()) {
-                    // Redirect
-                    \XLite\Core\Operator::redirect($canonicalURL);
-                }
             } else {
                 $result = static::TARGET_404;
             }
@@ -802,37 +795,27 @@ class XLite extends \XLite\Base
             $redirectUrl = \XLite\Core\Database::getRepo('XLite\Model\CleanURL')->buildURL($target, $params);
             $redirectUrl = strtok($redirectUrl,'?');
             $web_dir = rtrim(\XLite::getInstance()->getOptions(array('host_details', 'web_dir')), '/');
-            $selfURI = strtok(\Includes\Utils\URLManager::getSelfURI(),'?');
+            $selfURI = substr(strtok(\Includes\Utils\URLManager::getSelfURI(),'?'), strlen($web_dir) + 1);
 
             if (LC_USE_CLEAN_URLS && \XLite\Core\Router::getInstance()->isUseLanguageUrls()) {
                 $language = \XLite\Core\Session::getInstance()->getLanguage();
-                if (!$language->getDefaultAuth()) {
-                    $noLangRedirectUrl = $redirectUrl;
-                    $redirectUrl = $language->getCode() . '/' . $redirectUrl;
-                }
+
+                $selfURI = strpos($selfURI, $language->getCode() . '/') === 0
+                    ? substr($selfURI, 3)
+                    : $selfURI;
             }
 
-            if (($web_dir . '/' . $redirectUrl) !== $selfURI && !\XLite\Core\Request::getInstance()->isAJAX()) {
-                // If there is not-default language selected
-                // but url doesn't contains it, so we should redirect to url with that language
-                $isRedirectToLanguageNeeded = isset($noLangRedirectUrl)
-                    && ($web_dir . '/' . $noLangRedirectUrl) === $selfURI;
-                $code = $isRedirectToLanguageNeeded
-                    ? 302
-                    : 301;
+            if ($redirectUrl !== $selfURI && !\XLite\Core\Request::getInstance()->isAJAX()) {
+                $ttl = 86400;
+                $expiresTime = gmdate('D, d M Y H:i:s', time() + $ttl) . ' GMT';
 
-                if (!$isRedirectToLanguageNeeded) {
-                    $ttl = 86400;
-                    $expiresTime = gmdate('D, d M Y H:i:s', time() + $ttl) . ' GMT';
-
-                    header("Cache-Control: max-age=$ttl, must-revalidate");
-                    header("Expires: $expiresTime");
-                }
+                header("Cache-Control: max-age=$ttl, must-revalidate");
+                header("Expires: $expiresTime");
 
                 \XLite\Core\Operator::redirect(
                     \XLite\Core\URLManager::getShopURL($redirectUrl),
                     false,
-                    $code
+                    301
                 );
             }
         }

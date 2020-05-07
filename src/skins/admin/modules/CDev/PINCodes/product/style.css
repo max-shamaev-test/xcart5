@@ -25,7 +25,7 @@
 }
 
 .items-list-table.pincodes th.createDate {
-  text-align: right;
+  text-align: left;
 }
 
 .items-list-table.pincodes table.list tbody tr td.createDate .view {

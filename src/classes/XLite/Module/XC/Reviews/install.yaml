@@ -209,7 +209,7 @@ XLite\Model\Notification:
         name: 'Request to review purchased products - (Product Reviews module)'
         description: 'This message is used to invite customers to leave feedback on the products they have purchased.'
         customerSubject: 'Order #%order_number%: Please, review'
-        customerText: '<p>Thank you for purchasing our products!</p><p>%dynamic_message%</p><p>We hope you love them. And if you really do, please take a minute to review your order to let others know that we care about delivering the best quality.</p>'
+        customerText: '<p>Thank you for purchasing our products!</p><p>We hope you love them. And if you really do, please take a minute to review your order to let others know that we care about delivering the best quality.</p><p>%dynamic_message%</p>'
       - code: ru
         name: "Приглашение оставить отзыв на купленные товары - (модуль Product Reviews)"
         description: "Данное сообщение используется для отправки покупателю приглашения оставить отзыв о купленных им товарах."

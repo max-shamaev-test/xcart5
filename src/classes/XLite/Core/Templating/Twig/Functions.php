@@ -76,9 +76,9 @@ class Functions
         }
     }
 
-    public function t($name, array $arguments = [], $code = null)
+    public function t($name, array $arguments = [], $code = null, $type = null)
     {
-        return Translation::lbl($name, $arguments, $code);
+        return Translation::lbl($name, $arguments, $code, $type);
     }
 
     public function svg(Twig_Environment $env, $context, $path, $interface = null)

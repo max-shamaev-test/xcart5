@@ -188,7 +188,7 @@ class AScript implements ScriptInterface
                 $e->getDescription()
             );
 
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return $scriptState->abort($e->getMessage());
         }
 

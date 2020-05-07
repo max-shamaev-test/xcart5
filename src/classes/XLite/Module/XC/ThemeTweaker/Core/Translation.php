@@ -8,8 +8,6 @@
 
 namespace XLite\Module\XC\ThemeTweaker\Core;
 
-use XLite\Core\TranslationDriver\Db;
-
 /**
  * Request
  */
@@ -53,15 +51,16 @@ class Translation extends \XLite\Core\Translation implements \XLite\Base\IDecora
      * @param string $name      Label name
      * @param array  $arguments Substitute arguments OPTIONAL
      * @param string $code      Language code OPTIONAL
+     * @param string $type      Label type, can be used in \XLite\Core\ITranslationProcessor
      *
      * @return string
      */
-    public function translate($name, array $arguments = array(), $code = null)
+    public function translate($name, array $arguments = [], $code = null, $type = null)
     {
         // Don't process the same thing twice
         return $name instanceof \Twig_Markup
             ? $name
-            : parent::translate($name, $arguments, $code);
+            : parent::translate($name, $arguments, $code, $type);
     }
 
     /**

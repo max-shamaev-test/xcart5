@@ -262,7 +262,7 @@ class ProductVariant extends \XLite\Model\AEntity
      */
     public function getQuickDataPrice()
     {
-        return $this->getNetPrice();
+        return $this->getClearPrice();
     }
 
     /**
@@ -599,7 +599,6 @@ class ProductVariant extends \XLite\Model\AEntity
     {
         if ($this->isLowLimitReached() && $this->isShouldSend()) {
             $this->sendLowLimitNotification();
-            $this->updateLowStockUpdateTimestamp();
         }
     }
 
@@ -685,14 +684,6 @@ class ProductVariant extends \XLite\Model\AEntity
         $hashForUrl = sprintf('#data-%d-amount', $this->getId());
 
         return $fullUrl . $hashForUrl;
-    }
-
-    /**
-     * Update low stock update timestamp
-     */
-    protected function updateLowStockUpdateTimestamp()
-    {
-        \XLite\Core\TmpVars::getInstance()->lowStockUpdateTimestamp = LC_START_TIME;
     }
 
     /**

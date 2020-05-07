@@ -59,7 +59,7 @@ class Licensed extends AFilter
         }
 
         if (((int) $module->price) === 0 && empty($module->editions)) {
-            return false;
+            return $module->xcnPlan === -1;
         }
 
         if ($this->edition && $module->editions && $module->editionState === 2) {

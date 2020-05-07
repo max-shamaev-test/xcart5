@@ -138,6 +138,8 @@ class Import extends \XLite\Core\EventListener\Base\Countable
 
         $this->record['options'] = $step->getOptions()->getArrayCopy();
 
+        \XLite\Core\Database::getEM()->flush();
+
         parent::finishStep();
     }
 

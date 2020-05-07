@@ -337,11 +337,11 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
     /**
      * Returns the "low inventory products" amount
      *
-     * @return integer
+     * @return int
      */
     public function getLowInventoryProductsAmount()
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\Product')
+        return (int) \XLite\Core\Database::getRepo('XLite\Model\Product')
             ->search($this->defineLowInventoryProductsAmountCnd(), true);
     }
 
@@ -1097,10 +1097,22 @@ class Product extends \XLite\Model\Repo\Base\I18n implements \XLite\Base\IREST
      */
     protected function getCalculatedPriceJoinConditions()
     {
-        $profile = \XLite\Core\Auth::getInstance()->getProfile();
+        $controller = \XLite::getController();
+        $profile = null;
+
+        if ($controller instanceof \XLite\Controller\Customer\ACustomer) {
+            $profile = $controller->getCart(false)->getProfile()
+                ?: \XLite\Core\Auth::getInstance()->getProfile();
+        }
+
+        $qdZone = null;
+        if ($profile) {
+            $qdZone = \XLite\Core\QuickData::getInstance()->getQuickDataZoneForProfile($profile);
+        }
 
         return [
             'membership' => $profile && $profile->getMembership() ? $profile->getMembership() : null,
+            'zone' => $qdZone,
         ];
     }
 

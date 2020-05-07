@@ -67,7 +67,6 @@ class GlobalTabs extends \XLite\Logic\Import\Processor\AProcessor
     {
         return [
             'name'         => [
-                static::COLUMN_IS_KEY          => true,
                 static::COLUMN_IS_MULTILINGUAL => true,
             ],
             'content'      => [
@@ -81,6 +80,9 @@ class GlobalTabs extends \XLite\Logic\Import\Processor\AProcessor
             'enabled'      => [],
             'position'     => [],
             'service_name' => [],
+            'link'         => [
+                static::COLUMN_IS_KEY          => true,
+            ],
             'vname'        => [
                 static::COLUMN_IS_MULTICOLUMN  => true,
                 static::COLUMN_HEADER_DETECTOR => true,
@@ -113,19 +115,21 @@ class GlobalTabs extends \XLite\Logic\Import\Processor\AProcessor
     {
         $qb = $this->getRepository()->createQueryBuilder('gt');
 
-        if (empty($data['service_name'])) {
-            $qb->linkInner('gt.custom_tab', 'ct')
-                ->linkInner('ct.translations', 'ctt')
-                ->andWhere('ctt.name = :name')
-                ->setParameter('name', $data['name'][\XLite\Logic\Import\Importer::getLanguageCode()]);
+        if (!empty($data['link'])) {
+            $qb->andWhere('gt.link = :link')
+                ->setParameter('link', $data['link']);
 
             return $qb->getSingleResult();
-        } else {
+        }
+
+        if (!empty($data['service_name'])) {
             $qb->andWhere('gt.service_name = :service_name')
                 ->setParameter('service_name', $data['service_name']);
 
             return $qb->getSingleResult();
         }
+        
+        return null;
     }
 
     /**
@@ -155,11 +159,46 @@ class GlobalTabs extends \XLite\Logic\Import\Processor\AProcessor
             if (!empty($data['brief_info'])) {
                 $this->updateModelTranslations($customTab, $data['brief_info'], 'brief_info');
             }
+
+            $customTab->assignLink();
         } else {
             $globalTab->setServiceName($data['service_name']);
         }
 
         return $globalTab;
+    }
+
+    /**
+     * Update model
+     *
+     * @param \XLite\Model\AEntity $model Model
+     * @param array                $data  Data
+     *
+     * @return boolean
+     */
+    protected function updateModel(\XLite\Model\AEntity $model, array $data)
+    {
+//        unset($data['link']);
+
+        return parent::updateModel($model, $data);
+    }
+
+    /**
+     * Import data
+     *
+     * @param array $data Row set Data
+     *
+     * @return boolean
+     */
+    protected function importData(array $data)
+    {
+        $result = parent::importData($data);
+
+        if ($result) {
+            \XLite\Core\Database::getEM()->flush();
+        }
+
+        return $result;
     }
 
     // {{{ Verification
@@ -325,6 +364,17 @@ class GlobalTabs extends \XLite\Logic\Import\Processor\AProcessor
     protected function importServiceNameColumn(GlobalTab $tab, $value, array $column)
     {
         $tab->setServiceName(trim($value) ?: null);
+    }
+
+    /**
+     * Import column value
+     *
+     * @param GlobalTab $tab    Order
+     * @param array    $value  Value
+     * @param array     $column Column info
+     */
+    protected function importLinkColumn(GlobalTab $tab, $value, array $column)
+    {
     }
 
     // }}}

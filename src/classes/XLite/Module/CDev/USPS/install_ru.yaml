@@ -49,6 +49,7 @@ XLite\Model\Config:
     translations:
       - code: ru
         option_name: Размеры упаковки (в дюймах)
+        option_comment: If dimensions are not provided, Web Tools will assume package is regular in size and all dimensions are less than or equal to 12 inches.
   - name: girth
     category: CDev\USPS
     translations:
@@ -77,11 +78,6 @@ XLite\Model\Config:
     translations:
       - code: ru
         option_name: Тара
-  - name: package_size
-    category: CDev\USPS
-    translations:
-      - code: ru
-        option_name: Размеры упаковки (длина+обхват, в дюймах)
   - name: first_class_mail_type
     category: CDev\USPS
     translations:
@@ -113,11 +109,6 @@ XLite\Model\Config:
     translations:
       - code: ru
         option_name: Тип почтового отправления
-  - name: container_intl
-    category: CDev\USPS
-    translations:
-      - code: ru
-        option_name: Тара
   - name: commercial
     category: CDev\USPS
     translations:
@@ -220,3 +211,4 @@ XLite\Model\LanguageLabel:
   - { name: 'Shipping label sender signature', translations: [{ code: ru, label: 'Shipping label sender signature' }] }
   - { name: 'Adds the sender’s signature and the date on CN22 and CP72 shipping labels. Enter the signature as a string. The Sender’s signature date is automatically populated.', translations: [{ code: ru, label: 'Adds the sender’s signature and the date on CN22 and CP72 shipping labels. Enter the signature as a string. The Sender’s signature date is automatically populated.' }] }
   - { name: 'Create shipment', translations: [{ code: ru, label: 'Create shipment' }] }
+  - { name: 'All dimensions must be greater than 0', translations: [{ code: en, label: 'All dimensions must be greater than 0' }]}

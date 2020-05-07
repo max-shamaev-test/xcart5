@@ -287,7 +287,15 @@ OrderInfoForm.prototype.updateTotalElement = function(value, name)
 
 OrderInfoForm.prototype.updateModifierElement = function(value, code)
 {
-  var pattern = '.totals .order-modifier.ctrl-auto .surcharge-' + code.replace(/\./g, '\\.');
+  var escapeSelector = ( function() {
+    var selectorEscape = /([!"#$%&'()*+,./:;<=>?@[\]^`{|}~])/g;
+    return function( selector ) {
+      return selector.replace( selectorEscape, "\\$1" );
+    };
+  } )();
+
+  var pattern = '.totals .order-modifier.ctrl-auto .surcharge-' + escapeSelector(code);
+
   var box = jQuery(pattern).eq(0);
 
   if (box.length) {

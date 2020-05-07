@@ -36,7 +36,7 @@ abstract class ARequest implements IRequest
      */
     public static function getTransportTTL(): int
     {
-        return ITransport::TTL_DEFAULT;
+        return ITransport::TTL_LONG;
     }
 
     /**

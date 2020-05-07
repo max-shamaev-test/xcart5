@@ -20,7 +20,7 @@ class ActiveCurrencyGeolocation extends \XLite\Module\XC\MultiCurrency\Model\Rep
      *
      * @return \XLite\Model\Currency
      */
-    public function getDefaultCurrency()
+    public function getDetectedCurrency()
     {
         $data = \XLite\Module\XC\Geolocation\Logic\Geolocation::getInstance()->getLocation(new \XLite\Module\XC\Geolocation\Logic\GeoInput\IpAddress());
 
@@ -29,9 +29,9 @@ class ActiveCurrencyGeolocation extends \XLite\Module\XC\MultiCurrency\Model\Rep
             $country = \XLite\Core\Database::getRepo('XLite\Model\Country')->find($data['country']);
 
             if ($country) {
-                if ($country->getActiveCurrency()) {
+                if ($country->getActiveCurrency() && $country->getActiveCurrency()->getEnabled()) {
                     $defaultCurrencyId = $country->getActiveCurrency()->getCurrency()->getCurrencyId();
-                } elseif ($country->getCurrency() && $country->getCurrency()->isActiveMultiCurrency()) {
+                } elseif ($country->getCurrency() && $country->getCurrency()->isActiveMultiCurrency() && $country->getCurrency()->getActiveCurrency()->getEnabled()) {
                     $defaultCurrencyId = $country->getCurrency()->getCurrencyId();
                 }
             }

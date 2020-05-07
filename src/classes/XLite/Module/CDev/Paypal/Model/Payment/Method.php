@@ -102,7 +102,7 @@ class Method extends \XLite\Model\Payment\Method implements \XLite\Base\IDecorat
             $result = !$this->getProcessor()->isPaypalAdvancedEnabled();
         }
 
-        if (Paypal\Main::PP_METHOD_PC == $this->getServiceName()) {
+        if ($result && Paypal\Main::PP_METHOD_PC == $this->getServiceName()) {
             $result = Paypal\Main::isExpressCheckoutEnabled() && $this->getSetting('enabled');
         }
 

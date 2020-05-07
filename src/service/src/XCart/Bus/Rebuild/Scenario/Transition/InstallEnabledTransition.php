@@ -13,6 +13,16 @@ use XCart\Bus\Rebuild\Scenario\ChangeUnitProcessor;
 class InstallEnabledTransition extends TransitionAbstract
 {
     /**
+     * @param TransitionInterface $transition
+     *
+     * @return bool
+     */
+    public function canOverwrite(TransitionInterface $transition): bool
+    {
+        return $transition instanceof InstallDisabledTransition;
+    }
+
+    /**
      * @return string
      */
     public function getType(): string

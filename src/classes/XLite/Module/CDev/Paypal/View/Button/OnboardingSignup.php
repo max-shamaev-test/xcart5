@@ -43,4 +43,14 @@ class OnboardingSignup extends \XLite\Module\CDev\Paypal\View\Button\SignUp
 
         return $api->getSignUpUrl($returnUrl);
     }
+
+    /**
+     * Get button css class
+     *
+     * @return string
+     */
+    protected function getClass()
+    {
+        return 'btn regular-button';
+    }
 }

@@ -35,7 +35,7 @@ XLite\Model\Config:
     category: CDev\ProductAdvisor
     type: XLite\View\FormField\Input\Text\Integer
     orderby: 40
-    value: 30
+    value: 72
     widgetParameters: { min: 0 }
     translations:
       - code: en
@@ -59,7 +59,7 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Maximum number of products to display in "New arrivals" block'
-        option_comment: 'Defines the maximum number of products that can be displayed in the "New arrivals" block. Specify a non-zero value; otherwise, 3 products will be displayed by default. If the specified value is less than the total amount of products on complete new arrivals list, that value will be used instead. Drupal block settings can override this option (when the DrupalConnector module is enabled).'
+        option_comment: 'Defines the maximum number of products that can be displayed in the "New arrivals" block. Specify a non-zero value; otherwise, 3 products will be displayed by default. If the specified value is less than the total amount of products on complete new arrivals list, that value will be used instead.'
   - name: na_from_current_category
     category: CDev\ProductAdvisor
     type: checkbox
@@ -68,7 +68,6 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Show new products only from category being viewed by customer'
-        option_comment: 'Drupal block settings can override this option (when the DrupalConnector module is enabled).'
 
   - name: sep_product_advisor_cs
     category: CDev\ProductAdvisor
@@ -89,19 +88,11 @@ XLite\Model\Config:
     category: CDev\ProductAdvisor
     type: 'XLite\Module\CDev\ProductAdvisor\View\FormField\Select\MarkProducts'
     orderby: 1020
-    value: C
+    value: CP
     translations:
       - code: en
         option_name: 'Label upcoming products'
         option_comment: ''
-  - name: cs_display_date
-    category: CDev\ProductAdvisor
-    type: checkbox
-    orderby: 1030
-    value: Y
-    translations:
-      - code: en
-        option_name: 'Show arrival date on product details pages'
   - name: cs_from_current_category
     category: CDev\ProductAdvisor
     type: checkbox
@@ -110,7 +101,6 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Show "coming soon" products only from category being viewed by customer'
-        option_comment: 'Drupal block settings can override this option (when the DrupalConnector module is enabled).'
   - name: cs_max_count_in_block
     category: CDev\ProductAdvisor
     type: XLite\View\FormField\Input\Text\Integer
@@ -120,7 +110,7 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Maximum number of products to display in "Coming soon" block'
-        option_comment: 'Defines a maximum number of products that can be displayed in the "Coming soon" block. Specify a non-zero value; otherwise, 3 products will be displayed by default. Drupal block settings can override this option (when the DrupalConnector module is enabled).'
+        option_comment: 'Defines a maximum number of products that can be displayed in the "Coming soon" block. Specify a non-zero value; otherwise, 3 products will be displayed by default.'
   - name: sep_product_advisor_rv
     category: CDev\ProductAdvisor
     type: separator
@@ -145,7 +135,7 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Maximum number of products to display in "Recently viewed" block'
-        option_comment: 'Defines the maximum amount of products that can be displayed in the "Recently viewed" block. Leave 0 for no limit. Drupal block settings can override this option (when the DrupalConnector module is enabled).'
+        option_comment: 'Defines the maximum amount of products that can be displayed in the "Recently viewed" block. Leave 0 for no limit.'
   - name: sep_product_advisor_cbb
     category: CDev\ProductAdvisor
     type: separator
@@ -170,7 +160,7 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Maximum number of products to display in block'
-        option_comment: 'Defines the maximum number of products that can be displayed in the "Customers who bought this product also bought" block. Specify a non-zero value; otherwise, 3 products will be displayed by default. Drupal block settings can override this option (when the DrupalConnector module is enabled).'
+        option_comment: 'Defines the maximum number of products that can be displayed in the "Customers who bought this product also bought" block. Specify a non-zero value; otherwise, 3 products will be displayed by default.'
   - name: sep_product_advisor_cvb
     category: CDev\ProductAdvisor
     type: separator
@@ -195,7 +185,7 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Maximum number of products to display in block'
-        option_comment: 'Defines the maximum number of products that can be displayed in the "Customers who viewed this product bought" block. Specify a non-zero value; otherwise, 3 products will be displayed by default. Drupal block settings can override this option (when the DrupalConnector module is enabled).'
+        option_comment: 'Defines the maximum number of products that can be displayed in the "Customers who viewed this product bought" block. Specify a non-zero value; otherwise, 3 products will be displayed by default.'
 
 XLite\Model\LanguageLabel:
   - { name: "All newest products", translations: [{ code: en, label: "All newest products" }] }

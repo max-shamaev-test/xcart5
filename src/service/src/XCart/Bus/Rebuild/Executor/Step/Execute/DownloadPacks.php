@@ -8,11 +8,11 @@
 
 namespace XCart\Bus\Rebuild\Executor\Step\Execute;
 
-use Phar;
 use Psr\Log\LoggerInterface;
 use Silex\Application;
 use XCart\Bus\Client\MarketplaceClient;
 use XCart\Bus\Core\Annotations\RebuildStep;
+use XCart\Bus\Core\Archive\ArchiveFactory;
 use XCart\Bus\Exception\MarketplaceException;
 use XCart\Bus\Exception\Rebuild\AbortException;
 use XCart\Bus\Exception\RebuildException;
@@ -21,7 +21,6 @@ use XCart\Bus\Rebuild\Executor\Step\StepInterface;
 use XCart\Bus\Rebuild\Executor\StepState;
 use XCart\Bus\Rebuild\Scenario\ChangeUnitProcessor;
 use XCart\Bus\System\FilesystemInterface;
-use XCart\Bus\System\ResourceChecker;
 use XCart\Marketplace\RangeIterator;
 use XCart\SilexAnnotations\Annotations\Service;
 
@@ -53,9 +52,9 @@ class DownloadPacks implements StepInterface
     private $logger;
 
     /**
-     * @var bool
+     * @var ArchiveFactory
      */
-    private $compressed;
+    private $archiveFactory;
 
     private $downloadStartTime;
 
@@ -67,6 +66,7 @@ class DownloadPacks implements StepInterface
      * @param Application         $app
      * @param MarketplaceClient   $marketplaceClient
      * @param FilesystemInterface $filesystem
+     * @param ArchiveFactory      $archiveFactory
      * @param LoggerInterface     $logger
      *
      * @return static
@@ -78,12 +78,14 @@ class DownloadPacks implements StepInterface
         Application $app,
         MarketplaceClient $marketplaceClient,
         FilesystemInterface $filesystem,
+        ArchiveFactory $archiveFactory,
         LoggerInterface $logger
     ) {
         return new self(
             $app['config']['module_packs_dir'],
             $marketplaceClient,
             $filesystem,
+            $archiveFactory,
             $logger
         );
     }
@@ -92,23 +94,21 @@ class DownloadPacks implements StepInterface
      * @param string              $packsDir
      * @param MarketplaceClient   $marketplaceClient
      * @param FilesystemInterface $filesystem
+     * @param ArchiveFactory      $archiveFactory
      * @param LoggerInterface     $logger
      */
     public function __construct(
         $packsDir,
         MarketplaceClient $marketplaceClient,
         FilesystemInterface $filesystem,
+        ArchiveFactory $archiveFactory,
         LoggerInterface $logger
     ) {
         $this->packsDir          = $packsDir;
         $this->marketplaceClient = $marketplaceClient;
         $this->filesystem        = $filesystem;
         $this->logger            = $logger;
-
-        $this->compressed = ResourceChecker::PharIsInstalled()
-            ? \Phar::canCompress(\Phar::GZ)
-            : false;
-
+        $this->archiveFactory    = $archiveFactory;
     }
 
     /**
@@ -316,20 +316,25 @@ class DownloadPacks implements StepInterface
      */
     private function downloadByTransition($transition): array
     {
-        if (empty($transition['pack_path'])) {
-            $transition['pack_path'] = "{$this->packsDir}{$transition['id']}." .
-                "{$transition['version_after']}." .
-                ($this->compressed ? 'tgz' : 'tar');
-        }
+        $packPathWithoutExtension = "{$this->packsDir}{$transition['id']}.{$transition['version_after']}";
 
         // pack already downloaded
-        if ($this->filesystem->exists($transition['pack_path'])) {
-            $transition['finished'] = true;
+        foreach ($this->archiveFactory->getUnpacker()->getAvailableExtensions() as $ext) {
+            $packPath = "{$packPathWithoutExtension}{$ext}";
+            if ($this->filesystem->exists($packPath)) {
+                $transition['pack_path'] = $packPath;
+                $transition['finished'] = true;
 
-            $this->logger->notice(sprintf('Package already exists: %s', $transition['pack_path']));
+                $this->logger->notice(sprintf('Package already exists: %s', $transition['pack_path']));
 
-            return $transition;
+                return $transition;
+            }
         }
+
+        $extension = $this->archiveFactory->getUnpacker()->canCompress()
+            ? 'tgz'
+            : 'tar';
+        $transition['pack_path'] = "{$packPathWithoutExtension}.{$extension}";
 
         $partPath = $transition['pack_path'] . '.part';
 
@@ -348,18 +353,21 @@ class DownloadPacks implements StepInterface
             );
 
             if ($iterator->valid()) {
-                $transition['state'] = $iterator->getState();
+                $transition['state'] = $iterator->getState() ?? [];
             }
 
             while ($this->hasTime() && $iterator->valid()) {
-                $state = $transition['state']['position'] . '/' . $transition['state']['total'];
+                $state = $transition['state']
+                    ? $transition['state']['position'] . '/' . $transition['state']['total']
+                    : '';
+
                 $this->logger->info(sprintf('Package downloading in progress: %s (%s)', $partPath, $state));
 
                 $data = $iterator->current();
                 $this->registerTick();
                 $this->filesystem->appendToFile($partPath, $data);
                 $iterator->next();
-                $transition['state'] = $iterator->getState();
+                $transition['state'] = $iterator->getState() ?? [];
             }
         } catch (MarketplaceException $e) {
             $this->logger->critical(sprintf('Package download error: %s', $e->getMessage()));
@@ -389,7 +397,10 @@ class DownloadPacks implements StepInterface
             $this->filesystem->rename($partPath, $transition['pack_path']);
             $transition['finished'] = true;
 
-            $state = $transition['state']['position'] . '/' . $transition['state']['total'];
+            $state = $transition['state']
+                ? $transition['state']['position'] . '/' . $transition['state']['total']
+                : '';
+
             $this->logger->info(sprintf('Package downloaded successfully: %s (%s)', $transition['pack_path'], $state));
         }
 
@@ -433,7 +444,7 @@ class DownloadPacks implements StepInterface
             $id,
             $version,
             $state,
-            $this->compressed
+            $this->archiveFactory->getUnpacker()->canCompress()
         );
     }
 }

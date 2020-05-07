@@ -14,6 +14,16 @@ namespace XLite\Module\CDev\Egoods\Controller\Customer;
 class OrderedFiles extends \XLite\Controller\Customer\ACustomer
 {
     /**
+     * Check if current page is accessible
+     *
+     * @return boolean
+     */
+    protected function checkAccess()
+    {
+        return $this->orderWithEgoodsExists() && parent::checkAccess();
+    }
+
+    /**
      * Define current location for breadcrumbs
      *
      * @return string
@@ -52,7 +62,9 @@ class OrderedFiles extends \XLite\Controller\Customer\ACustomer
      */
     public function getTitle()
     {
-        return static::t('Ordered files');
+        return $this->checkAccess()
+            ? static::t('Ordered files')
+            : null;
     }
 
     /**
@@ -73,5 +85,23 @@ class OrderedFiles extends \XLite\Controller\Customer\ACustomer
     public function getOrdersWithFiles()
     {
         return \XLite\Core\Database::getRepo('\XLite\Model\Order')->findAllOrdersWithEgoods($this->getProfile(), false);
+    }
+
+    /**
+     * Checks if there is an order for the profile
+     *
+     * @return boolean
+     */
+    public function orderWithEgoodsExists()
+    {
+        $cnd = new \XLite\Core\CommonCell;
+        $cnd->user = $this->getProfile();
+        $cnd->limit = [0, 1];
+
+        if (\XLite\Core\Database::getRepo('XLite\Model\Order')->searchOrdersWithEgoods($cnd, true) > 0) {
+            return true;
+        }
+
+        return false;
     }
 }

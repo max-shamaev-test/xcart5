@@ -76,7 +76,9 @@ abstract class Price extends \XLite\View\Price implements \XLite\Base\IDecorator
             }
 
             if (0 < $percent) {
-                $this->marketPriceLabel['green market-price'] = $percent . '% ' . static::t('less');
+                $this->marketPriceLabel['green market-price'] =
+                    sprintf(\XLite\Core\Config::getInstance()->Units->percent_format, $percent)
+                    . ' ' . static::t('less');
             }
 
             \XLite\Module\CDev\MarketPrice\Core\Labels::addLabel($this->getProduct(), $this->marketPriceLabel);

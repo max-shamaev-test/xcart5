@@ -46,9 +46,6 @@
   background: transparent url(../images/progress.gif) repeat-x left top;
   width: 100%;
   animation: none;
-  -moz-animation: none;
-  -o-animation: none;
-  -webkit-animation: none;
 }
 
 .wait-block-overlay {
@@ -58,7 +55,6 @@
   padding: 0px;
   background-color: #fff;
   background-color: rgba(255, 255, 255, 0.80);
-  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff00, endColorstr=#ffffff00)";
   z-index: 10;
 }
 
@@ -69,6 +65,5 @@
   padding: 0px;
   background-color: #fff;
   background-color: rgba(255, 255, 255, 0.80);
-  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff00, endColorstr=#ffffff00)";
   z-index: 10;
 }

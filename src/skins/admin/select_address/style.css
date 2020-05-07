@@ -25,8 +25,6 @@
   width: 300px;
   float: left;
   border: 1px solid #dfdfdf;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
   border-radius: 5px;
   padding: 20px;
   margin: 0px;
@@ -38,8 +36,6 @@
 
 .select-address ul.addresses > li.selected {
   border-color: #c5d9e5;
-  -moz-box-shadow: 0px 0px 3px 1px rgba(177, 220, 246, 0.5);
-  -webkit-box-shadow: 0px 0px 3px 1px rgba(177, 220, 246, 0.5);
   box-shadow: 0px 0px 3px 1px rgba(177, 220, 246, 0.5);
 }
 

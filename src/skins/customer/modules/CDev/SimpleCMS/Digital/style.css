@@ -11,8 +11,6 @@
     background: #222222 url(sideblock_bg.gif) 0 0 repeat-x;
     border: 0 none;
     box-shadow: 1px 1px 5px #000;
-    -webkit-border-radius: 0;
-    -moz-border-radius: 0;
     border-radius: 0;
     top: 50px;
 }
@@ -53,8 +51,6 @@
     text-transform: uppercase;
 }
 .top-main-menu > li > span.primary-title:hover {
-    background-image: -webkit-linear-gradient(top, #494949 0%, #383838 100%);
     background-image: linear-gradient(to bottom, #494949 0%, #383838 100%);
     background-repeat: repeat-x;
-    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff494949', endColorstr='#ff383838', GradientType=0)";
 }

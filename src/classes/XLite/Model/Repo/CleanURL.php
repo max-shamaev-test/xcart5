@@ -153,7 +153,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     public function getCommonSeparator()
     {
-        return \Includes\Utils\ConfigParser::getOptions(array('clean_urls', 'default_separator'));
+        return \Includes\Utils\ConfigParser::getOptions(['clean_urls', 'default_separator']);
     }
 
     // }}}
@@ -187,7 +187,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     protected function isCommonCapitalizeWords()
     {
-        return \Includes\Utils\ConfigParser::getOptions(array('clean_urls', 'capitalize_words'));
+        return \Includes\Utils\ConfigParser::getOptions(['clean_urls', 'capitalize_words']);
     }
 
     // }}}
@@ -276,7 +276,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     public function isUseUnicode()
     {
-        return \Includes\Utils\ConfigParser::getOptions(array('clean_urls', 'use_unicode'));
+        return \Includes\Utils\ConfigParser::getOptions(['clean_urls', 'use_unicode']);
     }
 
     // }}}
@@ -564,7 +564,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
     public function parseURL($url, $last = '', $rest = '', $ext = '')
     {
         $target = null;
-        $params = array();
+        $params = [];
 
         foreach (static::getEntityTypes() as $model => $entityType) {
             $method = $entityType
@@ -573,10 +573,10 @@ class CleanURL extends \XLite\Model\Repo\ARepo
 
             $result = method_exists($this, $method)
                 ? $this->{$method}($url, $last, $rest, $ext)
-                : array();
+                : [];
 
             if ($result) {
-                list($target, $params) = $result;
+                [$target, $params] = $result;
                 break;
             }
         }
@@ -585,7 +585,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
             $result = $this->parseURLConfig($url, $last, $rest, $ext);
 
             if ($result) {
-                list($target, $params) = $result;
+                [$target, $params] = $result;
             }
         }
 
@@ -597,7 +597,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     public static function getConfigCleanUrlAliases()
     {
-        return (array) \Includes\Utils\ConfigParser::getOptions(array('clean_urls_aliases'));
+        return (array) \Includes\Utils\ConfigParser::getOptions(['clean_urls_aliases']);
     }
 
     /**
@@ -666,7 +666,9 @@ class CleanURL extends \XLite\Model\Repo\ARepo
                 $path = explode('/', $rest);
                 $path[] = $last;
 
-                $entity = $this->findCategoryByPath($path);
+                $entity = static::isCategoryUrlCanonical()
+                    ? $this->findEntityByURL('category', $last)
+                    : $this->findCategoryByPath($path);
 
                 if ($entity && $entity->hasProduct($params['product_id'])) {
                     $params['category_id'] = $entity->getCategoryId();
@@ -736,7 +738,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
                     $target = 'category';
                     $params[$entity->getUniqueIdentifierName()] = $entity->getUniqueIdentifier();
 
-                    $result = array($target, $params);
+                    $result = [$target, $params];
                 }
             }
         }
@@ -755,7 +757,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
     protected function findByURL($entityType, $url)
     {
         $target = null;
-        $params = array();
+        $params = [];
 
         $entity = $this->findEntityByURL($entityType, $url);
 
@@ -765,7 +767,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
         }
 
         return $target
-            ? array($target, $params)
+            ? [$target, $params]
             : null;
     }
 
@@ -875,19 +877,12 @@ class CleanURL extends \XLite\Model\Repo\ARepo
     {
         $queryBuilder = $this->defineFindEntityByURL('category', $url);
 
-        if ($parent) {
-            $queryBuilder->linkInner('c.category')
-                ->andWhere('category.lpos > :parentLpos')
-                ->andWhere('category.rpos < :parentRpos')
-                ->setParameter('parentLpos', $parent->getLpos())
-                ->setParameter('parentRpos', $parent->getRpos())
-                ->orderBy('c.id', 'DESC');
-        } else {
-            $queryBuilder->linkInner('c.category')
-                ->andWhere('category.parent = :parent')
-                ->setParameter('parent', null)
-                ->orderBy('c.id', 'DESC');
-        }
+        $queryBuilder->linkInner('c.category')
+            ->andWhere('category.parent = :parent')
+            ->setParameter('parent', $parent
+                ? $parent->getCategoryId()
+                : null)
+            ->orderBy('c.id', 'DESC');
 
         return $queryBuilder;
     }
@@ -904,7 +899,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      *
      * @return string
      */
-    public function buildURL($target = '', array $params = array())
+    public function buildURL($target = '', array $params = [])
     {
         $result = null;
 
@@ -918,13 +913,13 @@ class CleanURL extends \XLite\Model\Repo\ARepo
 
         $data = method_exists($this, $method)
             ? $this->{$method}($params)
-            : array();
+            : [];
 
         if ($data) {
-            list($urlParts, $params) = $data;
+            [$urlParts, $params] = $data;
 
             if ($urlParts) {
-                list($urlParts, $params) = $this->prepareBuildURL($target, $params, $urlParts);
+                [$urlParts, $params] = $this->prepareBuildURL($target, $params, $urlParts);
             }
 
             if ($urlParts) {
@@ -959,7 +954,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     public static function getCategoryCleanUrlFormat()
     {
-        $format = \Includes\Utils\ConfigParser::getOptions(array('clean_urls', 'category_clean_urls_format'));
+        $format = \Includes\Utils\ConfigParser::getOptions(['clean_urls', 'category_clean_urls_format']);
 
         return in_array($format, [
             static::CATEGORY_URL_FORMAT_NON_CANONICAL_NO_EXT,
@@ -978,7 +973,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     public function isUseCanonicalProductURLWithCategory()
     {
-        return static::PRODUCT_URL_CANONICAL_WITH_CATEGORY === \Includes\Utils\ConfigParser::getOptions(array('clean_urls', 'canonical_product_clean_urls_format'));
+        return static::PRODUCT_URL_CANONICAL_WITH_CATEGORY === \Includes\Utils\ConfigParser::getOptions(['clean_urls', 'canonical_product_clean_urls_format']);
     }
 
     /**
@@ -1014,7 +1009,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     public static function getProductCleanUrlFormat()
     {
-        $format = \Includes\Utils\ConfigParser::getOptions(array('clean_urls', 'product_clean_urls_format'));
+        $format = \Includes\Utils\ConfigParser::getOptions(['clean_urls', 'product_clean_urls_format']);
 
         return in_array($format, [
             static::PRODUCT_URL_FORMAT_EXT,
@@ -1032,34 +1027,6 @@ class CleanURL extends \XLite\Model\Repo\ARepo
     public static function isProductUrlHasExt()
     {
         return static::getProductCleanUrlFormat() === static::PRODUCT_URL_FORMAT_EXT;
-    }
-
-    /**
-     * Analyze current target and request params and get a canonical redirect URL or null if redirect is not needed
-     *
-     * @param string $target
-     *
-     * @return string
-     */
-    public function getRedirectCanonicalURL($target)
-    {
-        $result = null;
-
-        return $result;
-    }
-
-    /**
-     * Check if redirect to canonical url required
-     *
-     * @param string $target
-     * @param string $url
-     * @param string $last
-     * @param string $rest
-     * @param string $ext
-     * @return bool
-     */
-    protected function isRedirectToCanonicalRequired($target, $url, $last, $rest, $ext) {
-        return 'product' === $target && !empty($last);
     }
 
     /**
@@ -1113,7 +1080,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     protected function buildURLProduct($params)
     {
-        $urlParts = array();
+        $urlParts = [];
 
         if (!empty($params['product_id'])) {
             /** @var \XLite\Model\Product $product */
@@ -1136,7 +1103,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     public function buildURLProductCanonical($params)
     {
-        list($urlParts, $params) = $this->buildURLProduct($params);
+        [$urlParts, $params] = $this->buildURLProduct($params);
 
         if ($this->isUseCanonicalProductURLWithCategory()) {
             if ($product = \XLite\Core\Database::getRepo('XLite\Model\Product')->find($params['product_id'])) {
@@ -1171,7 +1138,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     protected function buildURLCategory($params)
     {
-        $urlParts = array();
+        $urlParts = [];
 
         $id = isset($params['category_id'])
             ? $params['category_id']
@@ -1202,38 +1169,33 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     protected function getCategoryURLPath($categoryId)
     {
-        $categoriesDTO = \XLite\Core\Database::getRepo('XLite\Model\Category')->getAllCategoriesAsDTO();
-        $tmpCategoryId = $categoryId;
-        $rootCategoryId = \XLite\Core\Database::getRepo('XLite\Model\Category')->getRootCategoryId();
+        $category = \XLite\Core\Database::getRepo('XLite\Model\Category')->getCategory($categoryId);
 
-        $result = [];
-        while ($tmpCategoryId !== $rootCategoryId) {
-            if (!isset($categoriesDTO[$tmpCategoryId])) {
-                $result[] = null;
-                break;
-            }
-            $category = $categoriesDTO[$tmpCategoryId];
-
-            $result[] = $category['cleanURL'];
-            $tmpCategoryId = (int) $category['parent_id'];
+        if (!$category) {
+            return null;
         }
-        $result = array_reverse($result);
 
-        if (!empty($result)) {
-            if (static::isCategoryUrlCanonical()) {
-                $result = [array_pop($result)];
-            } elseif (static::isCategoryUrlHasExt()) {
-                $url = array_pop($result);
-                foreach ($result as $k => $v) {
-                    $result[$k] = str_replace('.' . static::CLEAN_URL_DEFAULT_EXTENSION, '', $v);
+        if (static::isCategoryUrlCanonical()) {
+            return [$category->getCleanURL()];
+        } else {
+            $result = [];
+            $hasExt = static::isCategoryUrlHasExt();
+
+            $categories = $category->getPath();
+            $lastIndex = count($categories) - 1;
+            for ($i = $lastIndex; $i >= 0; $i--) {
+                $cleanUrl = $categories[$i]->getCleanURL();
+                if ($cleanUrl) {
+                    $result[] = $hasExt && $i !== $lastIndex
+                        ? str_replace('.' . static::CLEAN_URL_DEFAULT_EXTENSION, '', $cleanUrl)
+                        : $cleanUrl;
+                } else {
+                    return null;
                 }
-                $result[] = $url;
             }
-        }
 
-        return in_array(null, $result)
-            ? null
-            : array_reverse($result);
+            return $result;
+        }
     }
 
     // }}}
@@ -1249,7 +1211,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      *
      * @return string
      */
-    public function buildFakeURL($entity, array $params = array(), $ignoreExtension = false)
+    public function buildFakeURL($entity, array $params = [], $ignoreExtension = false)
     {
         $result = '';
 
@@ -1261,11 +1223,11 @@ class CleanURL extends \XLite\Model\Repo\ARepo
 
         $data = method_exists($this, $method)
             ? $this->{$method}($entity, $params, $ignoreExtension)
-            : array();
+            : [];
 
         if ($data) {
-            list($urlParts, $params) = $data;
-            list($urlParts, $params) = $this->prepareBuildURL($entityType, $params, $urlParts);
+            [$urlParts, $params] = $data;
+            [$urlParts, $params] = $this->prepareBuildURL($entityType, $params, $urlParts);
 
             if ($urlParts) {
                 unset($params['target']);
@@ -1295,7 +1257,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     protected function buildFakeURLProduct($entity, $params, $ignoreExtension = false)
     {
-        $urlParts = array($this->postProcessURL(static::PLACEHOLDER, $entity, $ignoreExtension));
+        $urlParts = [$this->postProcessURL(static::PLACEHOLDER, $entity, $ignoreExtension)];
 
         /** @var \XLite\Model\Product $entity */
 //        if (is_object($entity) && $entity->getCategoryId()) {
@@ -1316,7 +1278,7 @@ class CleanURL extends \XLite\Model\Repo\ARepo
      */
     protected function buildFakeURLCategory($entity, $params, $ignoreExtension = false)
     {
-        $urlParts = array($this->postProcessURL(static::PLACEHOLDER, $entity, $ignoreExtension));
+        $urlParts = [$this->postProcessURL(static::PLACEHOLDER, $entity, $ignoreExtension)];
 
         /** @var \XLite\Model\Category $entity */
         if (is_object($entity) && $entity->getParentId() && !static::isCategoryUrlCanonical()) {
@@ -1349,13 +1311,13 @@ class CleanURL extends \XLite\Model\Repo\ARepo
 
         $data = method_exists($this, $method)
             ? $this->{$method}($entity)
-            : array(
+            : [
                 \XLite\Core\Converter::convertFromCamelCase($entityType),
-                array($entity->getUniqueIdentifierName() => $entity->getUniqueIdentifier())
-            );
+                [$entity->getUniqueIdentifierName() => $entity->getUniqueIdentifier()]
+            ];
 
         if ($data) {
-            list($target, $params) = $data;
+            [$target, $params] = $data;
 
             if ($target) {
                 $result = \XLite\Core\Converter::buildURL($target, '', $params);

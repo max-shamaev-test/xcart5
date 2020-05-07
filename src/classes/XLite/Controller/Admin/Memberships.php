@@ -116,6 +116,7 @@ class Memberships extends \XLite\Controller\Admin\AAdmin
     protected function doActionCalculationCancel()
     {
         Generator::cancel();
+        \XLite\Core\TopMessage::addWarning('The calculation of quick data has been stopped.');
     }
 
     /**

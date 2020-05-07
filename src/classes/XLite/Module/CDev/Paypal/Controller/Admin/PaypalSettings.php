@@ -101,7 +101,7 @@ class PaypalSettings extends \XLite\Controller\Admin\AAdmin
         if ($this->getPaymentMethod()
             && $this->getPaymentMethod()->getProcessor() instanceof PaypalWPS
         ) {
-            \XLite\Core\TmpVars::getInstance()->paypalPDTNotificationVisible = false;
+            \XLite\Core\TmpVars::getInstance()->CDevPaypalPDTNotificationVisible = false;
         }
 
         $request = \XLite\Core\Request::getInstance();

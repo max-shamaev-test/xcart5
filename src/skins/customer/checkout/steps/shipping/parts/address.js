@@ -151,6 +151,8 @@ CheckoutAddressView.prototype.unmarkCreateProfile = function(widget)
 
 CheckoutAddressView.prototype.handleFormSubmit = function()
 {
+  core.trigger('unlockCheckout');
+
   this.createProfileError = false;
 
   this.triggerVent('submitted', this);
@@ -362,6 +364,8 @@ CheckoutAddressView.prototype.saveForm = function(saveState)
   var onlyGuestAgree = this.SAVE_ONLY_GUEST_AGREE === saveState;
 
   if ((form.commonController.isChanged() || this.isNeedRecheck()) && !form.isBgSubmitting) {
+    core.trigger('lockCheckout');
+
     var same_address = jQuery(form).find('#same_address').get(0);
     if (!onlyEmail && !onlyGuestAgree && form.validate(true)) {
 

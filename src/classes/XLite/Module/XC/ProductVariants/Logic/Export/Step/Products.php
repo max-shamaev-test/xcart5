@@ -61,6 +61,7 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
                 static::VARIANT_PREFIX . 'Weight'   => [static::COLUMN_MULTIPLE => true],
                 static::VARIANT_PREFIX . 'Image'    => [static::COLUMN_MULTIPLE => true],
                 static::VARIANT_PREFIX . 'ImageAlt' => [static::COLUMN_MULTIPLE => true],
+                static::VARIANT_PREFIX . 'defaultValue' => [static::COLUMN_MULTIPLE => true],
             ];
         }
 
@@ -165,6 +166,21 @@ abstract class Products extends \XLite\Logic\Export\Step\Products implements \XL
         return empty($dataset['variant']) || $this->getColumnValueByName($dataset['variant'], 'defaultWeight')
             ? ''
             : $this->getColumnValueByName($dataset['variant'], 'weight');
+    }
+
+    /**
+     * Get column value for 'variantDefaultValue' column
+     *
+     * @param array $dataset Dataset
+     * @param string $name Column name
+     *
+     * @return string
+     */
+    protected function getVariantdefaultValueColumnValue(array $dataset, $name)
+    {
+        return empty($dataset['variant']) || !$this->getColumnValueByName($dataset['variant'], 'defaultValue')
+            ? ''
+            : $this->getColumnValueByName($dataset['variant'], 'defaultValue');
     }
 
     /**

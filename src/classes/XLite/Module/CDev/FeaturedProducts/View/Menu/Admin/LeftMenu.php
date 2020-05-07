@@ -17,7 +17,7 @@ class LeftMenu extends \XLite\View\Menu\Admin\LeftMenu implements \XLite\Base\ID
     {
         $items = parent::defineItems();
 
-        if (!Auth::getInstance()->isPermissionAllowed(Permission::ROOT_ACCESS)) {
+        if (!Auth::getInstance()->isPermissionAllowed(Permission::ROOT_ACCESS) && !Auth::getInstance()->isPermissionAllowed('manage front page')) {
             $items['content'][static::ITEM_CHILDREN]['featured_products'] = [
                 static::ITEM_TITLE      => static::t('Featured products'),
                 static::ITEM_TARGET     => 'featured_products',

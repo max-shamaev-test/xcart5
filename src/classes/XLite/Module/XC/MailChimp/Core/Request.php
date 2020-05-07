@@ -15,19 +15,20 @@ use Includes\Utils\URLManager;
  */
 abstract class Request extends \XLite\Core\Request implements \XLite\Base\IDecorator
 {
-    const MAILCHIMP_CAMPAIGN_ID     = 'mc_cid';
-    const MAILCHIMP_USER_ID         = 'mc_eid';
-    const MAILCHIMP_TRACKING_CODE   = 'mc_tc';
+    const MAILCHIMP_CAMPAIGN_ID   = 'mc_cid';
+    const MAILCHIMP_USER_ID       = 'mc_eid';
+    const MAILCHIMP_TRACKING_CODE = 'mc_tc';
 
-    const MAILCHIMP_LANDING_SITE    = 'xc_mailchimp_landing_site';
+    const MAILCHIMP_LANDING_SITE = 'xc_mailchimp_landing_site';
 
     /**
      * @return string
      */
-    public function getLandingSiteForMailchimp()
+    public function getLandingSiteForMailchimp(): string
     {
         $data = $this->getData();
-        return isset($data[static::MAILCHIMP_LANDING_SITE])
+
+        return !empty($data[static::MAILCHIMP_LANDING_SITE])
             ? $data[static::MAILCHIMP_LANDING_SITE]
             : '';
     }
@@ -39,12 +40,9 @@ abstract class Request extends \XLite\Core\Request implements \XLite\Base\IDecor
      *
      * @return void
      */
-    public function mapRequest(array $data = array())
+    public function mapRequest(array $data = [])
     {
-        if (
-            isset(\XLite\Core\Config::getInstance()->XC)
-            && isset(\XLite\Core\Config::getInstance()->XC->MailChimp)
-            && isset(\XLite\Core\Config::getInstance()->XC->MailChimp->analytics360enabled)
+        if (isset(\XLite\Core\Config::getInstance()->XC->MailChimp->analytics360enabled)
             && \XLite\Core\Config::getInstance()->XC->MailChimp->analytics360enabled
         ) {
             $this->processECommerce360Data();
@@ -60,7 +58,7 @@ abstract class Request extends \XLite\Core\Request implements \XLite\Base\IDecor
         $data = $this->getGetData(true);
 
         $mcId      = $this->getCheckedParam(self::MAILCHIMP_CAMPAIGN_ID, $data);
-        $utmSource  = $this->getCheckedParam('utm_source', $data);
+        $utmSource = $this->getCheckedParam('utm_source', $data);
 
         if ($mcId || $utmSource) {
             $this->setCookie(
@@ -103,14 +101,13 @@ abstract class Request extends \XLite\Core\Request implements \XLite\Base\IDecor
     }
 
     /**
-     * @param $name
+     * @param string $name
+     * @param array  $data
      *
-     * @return null
+     * @return string|null
      */
-    protected function getCheckedParam($name, $data)
+    protected function getCheckedParam($name, $data): ?string
     {
-        return isset($data[$name]) && !empty($data[$name])
-            ? $data[$name]
-            : null;
+        return !empty($data[$name]) ? $data[$name] : null;
     }
 }

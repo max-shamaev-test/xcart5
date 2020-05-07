@@ -96,6 +96,12 @@ XLite\Model\LanguageLabel:
         label: 'Global tab "{{value}}" not found'
       - code: ru
         label: 'Глобальная вкладка товара "{{value}}" не найдена'
+  - name: 'Duplicated link'
+    translations:
+      - code: en
+        label: 'Field "link" value "{{value}}" is already being used for the global tab "{{globalTab}}"'
+      - code: ru
+        label: 'Значение поля "link" - "{{value}}" - уже используется для глобальной вкладки "{{globalTab}}"'
   - name: 'Global tab label'
     translations:
       - code: en
@@ -120,4 +126,9 @@ XLite\Model\LanguageLabel:
         label: "Tab displaying comments about the product. Added by the addons {{modules}}"
       - code: ru
         label: "Вкладка для отображения комментариев о товаре. Добавляется модулями {{modules}}"
-
+  - name: 'The product with SKU "{{value}}" does not exist. The tab "{{tab_name}}" will not be imported'
+    translations:
+      - code: en
+        label: 'The product with SKU "{{value}}" does not exist. The tab "{{tab_name}}" will not be imported'
+      - code: ru
+        label: 'Товар с артикулом "{{value}}" не найден. Вкладка "{{tab_name}}" не будет импортирована.'

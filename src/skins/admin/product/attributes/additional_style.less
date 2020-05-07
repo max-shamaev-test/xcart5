@@ -12,9 +12,9 @@
   .changed-label {
     display: inline-block;
     font-size: 12px;
-    margin-left: 7px;
-    line-height: 12px;
+    line-height: @line-height-small;
     min-width: 250px;
+    color: @color-text-default;
   }
 
   .changed-label {
@@ -31,8 +31,9 @@
       height: 45px;
       padding-bottom: 0;
     }
-    .changed-label {
-      margin-left: 15px;
+    .changed-label,
+    .adding-label {
+      margin-left: @padding-base-horizontal;
     }
   }
 

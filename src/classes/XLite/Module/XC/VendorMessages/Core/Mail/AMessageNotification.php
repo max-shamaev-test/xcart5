@@ -37,8 +37,8 @@ abstract class AMessageNotification extends \XLite\Core\Mail\AMail
     {
         parent::__construct();
 
-        $this->setFrom(Mailer::getSiteAdministratorMail());
-        $this->setTo($recipient ? $recipient->getLogin() : Mailer::getSiteAdministratorMail());
+        $this->setFrom(Mailer::getOrdersDepartmentMail());
+        $this->setTo($recipient ? $recipient->getLogin() : Mailer::getOrdersDepartmentMail());
         $this->tryToSetLanguageCode(
             $recipient
                 ? $recipient->getLanguage()
@@ -55,6 +55,7 @@ abstract class AMessageNotification extends \XLite\Core\Mail\AMail
         );
 
         $this->populateVariables([
+            'first_name'        => $recipient ? $recipient->getName(true, true) : static::t('na_admin'),
             'message'           => $message->getPublicBody(),
             'conversation_link' => sprintf(
                 '<a href="%s">%s</a>',

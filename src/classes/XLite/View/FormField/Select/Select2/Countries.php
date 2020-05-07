@@ -17,6 +17,14 @@ class Countries extends \XLite\View\FormField\Select\Multiple
     const PARAM_ALL               = 'all';
     const PARAM_STATE_SELECTOR_ID = 'stateSelectorId';
     const PARAM_STATE_INPUT_ID    = 'stateInputId';
+    const PARAM_FULL_NAMES        = 'fullNames';
+
+    /**
+     * Show full names of countries
+     *
+     * @var bool
+     */
+    protected $fullNames = false;
 
     /**
      * Register files from common repository
@@ -46,6 +54,10 @@ class Countries extends \XLite\View\FormField\Select\Multiple
     {
         if (!empty($params[static::PARAM_ALL])) {
             $this->onlyEnabled = false;
+        }
+
+        if (!empty($params[static::PARAM_FULL_NAMES])) {
+            $this->onlyEnabled = (bool)$params[static::PARAM_FULL_NAMES];
         }
 
         parent::__construct($params);
@@ -98,6 +110,7 @@ class Countries extends \XLite\View\FormField\Select\Multiple
 
         $this->widgetParams += [
             static::PARAM_ALL               => new \XLite\Model\WidgetParam\TypeBool('All', false),
+            static::PARAM_FULL_NAMES        => new \XLite\Model\WidgetParam\TypeBool('Full names', false),
             static::PARAM_STATE_SELECTOR_ID => new \XLite\Model\WidgetParam\TypeString('State select ID', null),
             static::PARAM_STATE_INPUT_ID    => new \XLite\Model\WidgetParam\TypeString('State input ID', null),
         ];
@@ -131,5 +144,18 @@ class Countries extends \XLite\View\FormField\Select\Multiple
     protected function getValueContainerClass()
     {
         return parent::getValueContainerClass() . ' input-countries-select2';
+    }
+
+    /**
+     * @return array
+     */
+    protected function getAttributes()
+    {
+        $attrs =  parent::getAttributes();
+
+        if ($this->fullNames) {
+            $attrs['data-full-names'] = 'true';
+        }
+        return $attrs;
     }
 }

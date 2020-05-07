@@ -8,19 +8,21 @@
 
 namespace XLite\Core;
 
-interface ITranslationProcessor {
+interface ITranslationProcessor
+{
 
     /**
      * Performs postprocessing on the given translation string
      *
-     * @param $translation
-     * @param $name
-     * @param $arguments
-     * @param $code
+     * @param        $translation
+     * @param        $name
+     * @param        $arguments
+     * @param        $code
+     * @param string $type Label type, can be used in \XLite\Core\ITranslationProcessor
      *
      * @return string
      */
-    public function postprocess($translation, $name, $arguments, $code);
+    public function postprocess($translation, $name, $arguments, $code, $type);
 
     /**
      * Performs variable replacement on string with keys of {{var}} format
@@ -28,6 +30,7 @@ interface ITranslationProcessor {
      * @param $string
      * @param $keys
      * @param $values
+     *
      * @return string
      */
     public function replaceVariables($string, $keys, $values);

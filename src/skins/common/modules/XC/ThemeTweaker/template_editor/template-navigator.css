@@ -11,6 +11,8 @@
     display: block;
     z-index: 999999;
     -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     user-select: none;
 }
 

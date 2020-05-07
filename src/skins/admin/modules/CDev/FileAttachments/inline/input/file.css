@@ -9,8 +9,6 @@
 
 .inline-field.inline-text-file {
   position: relative;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
 }
 
@@ -23,7 +21,9 @@
   background-size: 25px;
   background-repeat: no-repeat;
   background-position: 50%;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
+  flex: none;
+}
+
+.inline-field .input-field-wrapper.input-checkbox-freepaid {
+  vertical-align: middle;
 }

@@ -251,7 +251,8 @@ class ProductsReturnItem extends \XLite\View\ItemsList\Model\Table
      */
     protected function preprocessName($name, array $column, \XLite\Module\XC\CanadaPost\Model\ProductsReturn\Item $item)
     {
-        if (!$item->getOrderItem()->getObject()->isDeleted()) {
+        $object = $item->getOrderItem()->getObject();
+        if ($object && !$object->isDeleted()) {
             $name = '<a href="' . $item->getOrderItem()->getObject()->getURL() . '">' . $name . '</a>';
         }
 

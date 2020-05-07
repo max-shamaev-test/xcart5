@@ -15,6 +15,19 @@ namespace XLite\Module\CDev\Wholesale\Model;
  */
 class ProductVariant extends \XLite\Module\XC\ProductVariants\Model\ProductVariant implements \XLite\Base\IDecorator
 {
+    /**
+     * Is current selected variant has Tier 1 Wholesale price
+     * @return bool
+     */
+    public function isFirstWholesaleTier()
+    {
+        $wholesaleprices = \XLite\Core\Database::getRepo('XLite\Module\CDev\Wholesale\Model\ProductVariantWholesalePrice')->getWholesalePrices(
+            $this,
+            $this->getProduct()->getCurrentMembership()
+        );
+
+        return empty($wholesaleprices) || $wholesaleprices[0]->getQuantityRangeBegin() > $this->getProduct()->getWholesaleQuantity();
+    }
 
     /**
      * Get minimum product quantity available to customer to purchase

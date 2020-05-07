@@ -599,7 +599,7 @@ class MailChimpList extends \XLite\Model\AEntity
     /**
      * Get segments
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection|\XLite\Module\XC\MailChimp\Model\MailChimpSegment[]
      */
     public function getSegments()
     {

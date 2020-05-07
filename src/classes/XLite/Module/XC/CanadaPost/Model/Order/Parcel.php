@@ -307,6 +307,15 @@ class Parcel extends \XLite\Model\AEntity
     // }}}
 
     /**
+     * Non-delivery handling type (the "Return at Sender’s Expense", "Return to Sender", "Abandon" options)
+     *
+     * @var boolean
+     *
+     * @Column (type="boolean")
+     */
+    protected $hasRemovedItems = false;
+
+    /**
      * Canada Post API calls errors
      *
      * @var null|array
@@ -1236,7 +1245,7 @@ class Parcel extends \XLite\Model\AEntity
     /**
      * Set boxWeight
      *
-     * @param decimal $boxWeight
+     * @param float $boxWeight
      * @return Parcel
      */
     public function setBoxWeight($boxWeight)
@@ -1248,7 +1257,7 @@ class Parcel extends \XLite\Model\AEntity
     /**
      * Get boxWeight
      *
-     * @return decimal 
+     * @return float
      */
     public function getBoxWeight()
     {
@@ -1258,7 +1267,7 @@ class Parcel extends \XLite\Model\AEntity
     /**
      * Set boxWidth
      *
-     * @param decimal $boxWidth
+     * @param float $boxWidth
      * @return Parcel
      */
     public function setBoxWidth($boxWidth)
@@ -1270,7 +1279,7 @@ class Parcel extends \XLite\Model\AEntity
     /**
      * Get boxWidth
      *
-     * @return decimal 
+     * @return float
      */
     public function getBoxWidth()
     {
@@ -1280,7 +1289,7 @@ class Parcel extends \XLite\Model\AEntity
     /**
      * Set boxLength
      *
-     * @param decimal $boxLength
+     * @param float $boxLength
      * @return Parcel
      */
     public function setBoxLength($boxLength)
@@ -1292,7 +1301,7 @@ class Parcel extends \XLite\Model\AEntity
     /**
      * Get boxLength
      *
-     * @return decimal 
+     * @return float
      */
     public function getBoxLength()
     {
@@ -1300,9 +1309,101 @@ class Parcel extends \XLite\Model\AEntity
     }
 
     /**
+     * Get box length in cm
+     *
+     * @return float
+     */
+    public function getBoxLengthInCm()
+    {
+        return $this->getValueInCm($this->getBoxLength());
+    }
+
+    /**
+     * Get box width in cm
+     *
+     * @return float
+     */
+    public function getBoxWidthInCm()
+    {
+        return $this->getValueInCm($this->getBoxWidth());
+    }
+
+    /**
+     * Get box height in cm
+     *
+     * @return float
+     */
+    public function getBoxHeightInCm()
+    {
+        return $this->getValueInCm($this->getBoxHeight());
+    }
+
+    /**
+     * Set boxHeight in cm
+     *
+     * @param float $boxHeight
+     */
+    public function setBoxHeightInCm($boxHeight)
+    {
+        $this->setBoxHeight($this->convertValueFromCm($boxHeight));
+    }
+
+    /**
+     * Set boxWidth in cm
+     *
+     * @param float $boxWidth
+     */
+    public function setBoxWidthInCm($boxWidth)
+    {
+        $this->setBoxWidth($this->convertValueFromCm($boxWidth));
+    }
+
+    /**
+     * Set boxLength in cm
+     *
+     * @param float $boxLength
+     */
+    public function setBoxLengthInCm($boxLength)
+    {
+        $this->setBoxLength($this->convertValueFromCm($boxLength));
+    }
+
+    /**
+     * Get some value in cm
+     *
+     * @param float $value
+     *
+     * @return float
+     */
+    protected function getValueInCm($value)
+    {
+        return \XLite\Core\Converter::convertDimensionUnits(
+            $value,
+            \XLite\Core\Config::getInstance()->Units->dim_unit,
+            'cm'
+        );
+    }
+
+    /**
+     * Convert cm value to system units
+     *
+     * @param float $value
+     *
+     * @return float
+     */
+    protected function convertValueFromCm($value)
+    {
+        return \XLite\Core\Converter::convertDimensionUnits(
+            $value,
+            'cm',
+            \XLite\Core\Config::getInstance()->Units->dim_unit
+        );
+    }
+
+    /**
      * Set boxHeight
      *
-     * @param decimal $boxHeight
+     * @param float $boxHeight
      * @return Parcel
      */
     public function setBoxHeight($boxHeight)
@@ -1635,5 +1736,30 @@ class Parcel extends \XLite\Model\AEntity
     public function getShipment()
     {
         return $this->shipment;
+    }
+
+    /**
+     * Remove parcel items whose orderItem has been removed
+     *
+     * @return void
+     */
+    public function removeIrrelevantParcelItems()
+    {
+        foreach ($this->getItems() as $item) {
+            if (!$item->getOrderItem()) {
+                $this->hasRemovedItems = true;
+                \XLite\Core\Database::getRepo('XLite\Module\XC\CanadaPost\Model\Order\Parcel\Item')->deleteById($item->getId());
+            }
+        }
+    }
+
+    /**
+     * Return true if parcel has removed items
+     *
+     * @return boolean
+     */
+    public function hasRemovedItems()
+    {
+        return $this->hasRemovedItems;
     }
 }

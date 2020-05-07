@@ -8,6 +8,7 @@
 
 namespace XCart\Bus\Rebuild\Scenario\ChangeUnitBuildRule;
 
+use XCart\Bus\Domain\Module;
 use XCart\Bus\Query\Data\InstalledModulesDataSource;
 use XCart\Bus\Query\Data\MarketplaceModulesDataSource;
 use XCart\Bus\Rebuild\Scenario\Transition\DisableTransition;
@@ -58,10 +59,18 @@ class Upgrade implements ChangeUnitBuildRuleInterface
      */
     public function isApplicable(array $changeUnit): bool
     {
-        return (!empty($changeUnit['upgrade']) || !empty($changeUnit['install']))
+        if ((!empty($changeUnit['upgrade']) || !empty($changeUnit['install']))
             && !empty($changeUnit['version'])
-            && $this->installedModulesDataSource->find($changeUnit['id'])
-            && $this->marketplaceModulesDataSource->findByVersion($changeUnit['id'], $changeUnit['version']);
+        ) {
+            /** @var Module $installedModule */
+            $installedModule = $this->installedModulesDataSource->find($changeUnit['id']);
+
+            if ($installedModule && version_compare($installedModule->version, $changeUnit['version'], '<')) {
+                return (bool) $this->marketplaceModulesDataSource->findByVersion($changeUnit['id'], $changeUnit['version']);
+            }
+        }
+
+        return false;
     }
 
     /**

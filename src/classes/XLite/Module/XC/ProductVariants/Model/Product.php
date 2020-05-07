@@ -189,6 +189,28 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     }
 
     /**
+     * Get selected product variant
+     *
+     * @return mixed
+     */
+
+    public function getSelectedVariant()
+    {
+        $result = [];
+        $attributeValues = $this->getAttrValues();
+
+        foreach ($attributeValues as $attributeId => $valueId) {
+            if (is_scalar($valueId)) {
+                $result[(int)$attributeId] = (int)$valueId;
+            } elseif ($valueId instanceof \XLite\Model\AttributeValue\AAttributeValue) {
+                $result[$valueId->getAttribute()->getId()] = $valueId->getId();
+            }
+        }
+
+        return $this->getVariantByAnyAttributeValuesIds($result);
+    }
+
+    /**
      * Get quick minimal data price
      *
      * @return float
@@ -196,8 +218,11 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     public function getQuickDataMinPrice()
     {
         if ($this->hasVariants()) {
-            $price = $this->getNetPrice();
-            foreach ($this->getVariants() as $variant) {
+            $variants = $this->getVariants();
+            $price = $variants->first()
+                ? $variants->first()->getQuickDataPrice()
+                : $this->getClearPrice();
+            foreach ($variants as $variant) {
                 if ($variant->getQuickDataPrice() < $price) {
                     $price = $variant->getQuickDataPrice();
                 }
@@ -217,8 +242,11 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     public function getQuickDataMaxPrice()
     {
         if ($this->hasVariants()) {
-            $price = $this->getNetPrice();
-            foreach ($this->getVariants() as $variant) {
+            $variants = $this->getVariants();
+            $price = $variants->first()
+                ? $variants->first()->getQuickDataPrice()
+                : $this->getClearPrice();
+            foreach ($variants as $variant) {
                 if ($variant->getQuickDataPrice() > $price) {
                     $price = $variant->getQuickDataPrice();
                 }

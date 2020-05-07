@@ -24,21 +24,27 @@ class AllProductsVariants extends \XLite\Module\XC\FacebookMarketing\Logic\Produ
      */
     protected function processModel(\XLite\Model\AEntity $model)
     {
-        $shouldSkipEntity = 'N' === \XLite\Core\Config::getInstance()->XC->FacebookMarketing->include_out_of_stock
-            && $model->isOutOfStock();
+        if ($model->hasVariants()) {
+            $isProductOutOfStock = $model->getAmount() <= 0 && $model->getInventoryEnabled();
 
-        if (!$shouldSkipEntity) {
-            if ($model->hasVariants()) {
-                foreach ($model->getVariants() as $variant) {
+            foreach ($model->getVariants() as $variant) {
+                $isVariantOutOfStock = $variant->getDefaultAmount()
+                    ? $isProductOutOfStock
+                    : $variant->getAmount() <= 0;
+
+                $shouldSkipEntity = 'N' === \XLite\Core\Config::getInstance()->XC->FacebookMarketing->include_out_of_stock
+                    && $isVariantOutOfStock;
+
+                if (!$shouldSkipEntity) {
                     $extractor = new ProductFeedDataExtractor($this->getProductFeed());
                     $extractor->extractEntityData($variant);
 
                     ProductFeedDataWriter::getInstance()->writeFeedData($extractor);
                 }
-
-            } else {
-                parent::processModel($model);
             }
+
+        } else {
+            parent::processModel($model);
         }
     }
 }

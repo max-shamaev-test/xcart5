@@ -32,9 +32,9 @@ class Stock extends \XLite\View\Product\Details\Customer\Stock implements \XLite
      */
     protected function getAvailableAmount()
     {
-        return $this->getProductVariant()
+        return $this->getProductVariant() && $this->getAttributeValues()
             ? $this->getProductVariant()->getAvailableAmount()
-            : parent::getAvailableAmount();
+            : $this->getProduct()->getAmount();
     }
 
     /**
@@ -78,7 +78,11 @@ class Stock extends \XLite\View\Product\Details\Customer\Stock implements \XLite
                 $result = !$variant->isOutOfStock();
             }
         } elseif ($this->getProduct()->mustHaveVariants()) {
-            $result = false;
+            if (\XLite\Core\Config::getInstance()->General->force_choose_product_options) {
+                $result = true;
+            } else {
+                $result = false;
+            }
         }
 
         return $result;

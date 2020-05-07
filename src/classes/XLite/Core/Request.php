@@ -217,7 +217,7 @@ class Request extends \XLite\Base\Singleton
             preg_match($pattern, $name, $matches);
 
             if (count($matches) > 3) {
-                list($full, $name, $index, $subname) = $matches;
+                [$full, $name, $index, $subname] = $matches;
                 $output[$name][$index][$subname] = $value;
 
             } else {
@@ -883,91 +883,35 @@ class Request extends \XLite\Base\Singleton
 
     // }}}
 
-    // {{{ Browser detection
-
-    /**
-     * Browscap cache
-     *
-     * @var \stdClass|array
-     */
-    protected $browscap;
-
-    /**
-     * Get browser data
-     *
-     * @param boolean $override Override cache OPTIONAL
-     *
-     * @return \stdClass|array
-     */
-    public function getBrowserData($override = false)
-    {
-        if ((null === $this->browscap || $override)
-            && !$this->isCLI()
-            && !empty($_SERVER['HTTP_USER_AGENT'])
-        ) {
-            $this->browscap = $this->getBrowscapClient()->getBrowser($_SERVER['HTTP_USER_AGENT']);
-        }
-
-        return $this->browscap;
-    }
-
-    /**
-     * Get browscap client
-     *
-     * @return \phpbrowscap\Browscap
-     */
-    protected function getBrowscapClient()
-    {
-        require_once (LC_DIR_LIB . 'Browscap.php');
-
-        $cacheDir = LC_DIR_DATA . 'browscap';
-        if (!file_exists($cacheDir)) {
-            \Includes\Utils\FileManager::mkdirRecursive($cacheDir);
-            \Includes\Utils\FileManager::copy(
-                $this->getBrowsCapPath(),
-                $cacheDir . LC_DS . 'browscap.ini'
-            );
-        }
-
-        return new \phpbrowscap\Browscap($cacheDir);
-    }
-
-    /**
-     * Get browsCap file path
-     *
-     * @return string
-     */
-    protected function getBrowsCapPath()
-    {
-        return LC_DIR_LIB . 'browscap.ini';
-    }
-
-    // }}}
-
     /**
      * Returns customer ip
+     * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For
      *
      * @return string
      */
     public function getClientIp()
     {
-        if (isset($_SERVER['REMOTE_ADDR'])) {
-            $ipAddress = $_SERVER['REMOTE_ADDR'];
+        if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+            $ipAddress = $_SERVER['HTTP_CF_CONNECTING_IP'];
         } elseif (isset($_SERVER['HTTP_CLIENT_IP'])) {
             $ipAddress = $_SERVER['HTTP_CLIENT_IP'];
-        } else if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        } elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else if (isset($_SERVER['HTTP_X_FORWARDED'])) {
+        } elseif (isset($_SERVER['HTTP_X_FORWARDED'])) {
             $ipAddress = $_SERVER['HTTP_X_FORWARDED'];
-        } else if (isset($_SERVER['HTTP_FORWARDED_FOR'])) {
+        } elseif (isset($_SERVER['HTTP_FORWARDED_FOR'])) {
             $ipAddress = $_SERVER['HTTP_FORWARDED_FOR'];
-        } else if (isset($_SERVER['HTTP_FORWARDED'])) {
+        } elseif (isset($_SERVER['HTTP_FORWARDED'])) {
             $ipAddress = $_SERVER['HTTP_FORWARDED'];
+        } elseif (isset($_SERVER['REMOTE_ADDR'])) {
+            $ipAddress = $_SERVER['REMOTE_ADDR'];
         } else {
             $ipAddress = 'UNKNOWN';
         }
 
-        return $ipAddress;
+        $ipAddress = explode(',', $ipAddress);
+
+        return trim(reset($ipAddress));
     }
 
     /**
@@ -980,7 +924,7 @@ class Request extends \XLite\Base\Singleton
         $result = false;
 
         // Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; NP06; rv:11.0) like Gecko
-        $ua = htmlentities($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES, 'UTF-8');
+        $ua = htmlentities($this->getClientUserAgent(), ENT_QUOTES, 'UTF-8');
         if (preg_match('~MSIE|Internet Explorer~i', $ua) || preg_match('~Trident/7\.0;(?:.*) rv:11\.0~i', $ua)) {
             $result = true;
         }

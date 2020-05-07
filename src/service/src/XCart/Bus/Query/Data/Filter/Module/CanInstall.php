@@ -79,8 +79,10 @@ class CanInstall extends AFilter
         }
 
         $license = $this->getLicense($item);
+        $isEmptyLicense = empty($license)
+            || (isset($license['keyType']) && $license['keyType'] === LicenseDataSource::KEY_TYPE_PENDING);
 
-        return !(empty($license) && $item->price > 0);
+        return !($isEmptyLicense && $item->price > 0);
     }
 
     /**

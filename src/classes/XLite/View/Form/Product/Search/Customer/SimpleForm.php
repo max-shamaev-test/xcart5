@@ -32,7 +32,7 @@ class SimpleForm extends \XLite\View\Form\Product\Search\Customer\Main
     protected function getDefaultParams()
     {
         return parent::getDefaultParams() + array(
-            \XLite\View\ItemsList\Product\Customer\Search::PARAM_INCLUDING => \XLite\Model\Repo\Product::INCLUDING_ANY,
+            \XLite\View\ItemsList\Product\Customer\Search::PARAM_INCLUDING => \XLite\Model\Repo\Product::INCLUDING_ALL,
         );
     }
 }

@@ -8,6 +8,9 @@
 
 namespace XLite\Model;
 
+use XLite\Core\Database;
+use XLite\Core\Cache\ExecuteCachedTrait;
+
 /**
  * Attribute
  *
@@ -16,6 +19,8 @@ namespace XLite\Model;
  */
 class Attribute extends \XLite\Model\Base\I18n
 {
+    use ExecuteCachedTrait;
+
     /*
      * Attribute types
      */
@@ -35,6 +40,12 @@ class Attribute extends \XLite\Model\Base\I18n
      * Attribute delimiter
      */
     const DELIMITER = ', ';
+
+    /*
+     * Display modes
+     */
+    const SELECT_BOX_MODE = 'S';
+    const BlOCKS_MODE     = 'B';
 
     /**
      * ID
@@ -112,6 +123,15 @@ class Attribute extends \XLite\Model\Base\I18n
      * @Column (type="string", options={ "fixed": true }, length=1)
      */
     protected $type = self::TYPE_SELECT;
+
+    /**
+     * Display mode
+     *
+     * @var string
+     *
+     * @Column (type="string", options={ "fixed": true }, length=1)
+     */
+    protected $displayMode = self::SELECT_BOX_MODE;
 
     /**
      * Add to new products or class’s assigns automatically
@@ -241,7 +261,7 @@ class Attribute extends \XLite\Model\Base\I18n
         $cnd = new \XLite\Core\CommonCell;
         $cnd->attribute = $this;
 
-        return \XLite\Core\Database::getRepo(static::getAttributeValueClass($this->getType()))
+        return Database::getRepo(static::getAttributeValueClass($this->getType()))
             ->search($cnd);
     }
 
@@ -255,7 +275,7 @@ class Attribute extends \XLite\Model\Base\I18n
         $cnd = new \XLite\Core\CommonCell;
         $cnd->attribute = $this;
 
-        return \XLite\Core\Database::getRepo(static::getAttributeValueClass($this->getType()))
+        return Database::getRepo(static::getAttributeValueClass($this->getType()))
             ->search($cnd, true);
     }
 
@@ -328,10 +348,10 @@ class Attribute extends \XLite\Model\Base\I18n
                 && $this->getId()
             ) {
                 foreach ($this->getAttributeOptions() as $option) {
-                    \XLite\Core\Database::getEM()->remove($option);
+                    Database::getEM()->remove($option);
                 }
                 foreach ($this->getAttributeValues() as $value) {
-                    \XLite\Core\Database::getEM()->remove($value);
+                    Database::getEM()->remove($value);
                 }
             }
             $this->type = $type;
@@ -339,27 +359,47 @@ class Attribute extends \XLite\Model\Base\I18n
     }
 
     /**
-     * Return property
+     * Return product property (return new property if property does not exist)
      *
      * @param \XLite\Model\Product $product Product OPTIONAL
      *
      * @return \XLite\Model\AttributeProperty
      */
-    protected function getProperty($product)
+    public function getProperty($product)
     {
-        $result = \XLite\Core\Database::getRepo('XLite\Model\AttributeProperty')->findOneBy(
-            array(
-                'attribute' => $this,
-                'product'   => $product,
-            )
-        );
+        $result = null;
+
+        /** @var \XLite\Model\AttributeProperty $prop */
+        if ($this->getAttributeProperties()) {
+            foreach ($this->getAttributeProperties() as $prop) {
+                if ($prop->getProduct()->getId() === $product->getId()) {
+                    $result = $prop;
+                    break;
+                }
+            }
+        }
 
         if (!$result) {
-            $result = new \XLite\Model\AttributeProperty();
-            $result->setAttribute($this);
-            $result->setProduct($product);
-            $this->addAttributeProperty($result);
+            $result = $this->getNewProperty($product);
         }
+
+        return $result;
+    }
+
+    /**
+     * Return new product property
+     *
+     * @param \XLite\Model\Product $product Product OPTIONAL
+     *
+     * @return \XLite\Model\AttributeProperty
+     */
+    protected function getNewProperty($product)
+    {
+        $result = new \XLite\Model\AttributeProperty();
+        $result->setAttribute($this);
+        $result->setProduct($product);
+        $this->addAttributeProperty($result);
+        Database::getEM()->persist($result);
 
         return $result;
     }
@@ -396,7 +436,6 @@ class Attribute extends \XLite\Model\Base\I18n
         if (is_array($value)) {
             $property = $this->getProperty($value['product']);
             $property->setPosition($value['position']);
-            \XLite\Core\Database::getEM()->persist($property);
 
         } else {
             $this->position = $value;
@@ -421,7 +460,7 @@ class Attribute extends \XLite\Model\Base\I18n
             }
 
         } elseif (static::TYPE_SELECT === $this->getType()) {
-            $attributeOptions = \XLite\Core\Database::getRepo('XLite\Model\AttributeOption')->findBy(
+            $attributeOptions = Database::getRepo(\XLite\Model\AttributeOption::class)->findBy(
                 array(
                     'attribute' => $this,
                     'addToNew'  => true,
@@ -443,7 +482,7 @@ class Attribute extends \XLite\Model\Base\I18n
                 $av->setValue('');
             }
         } elseif (static::TYPE_HIDDEN === $this->getType()) {
-            $attributeOption = \XLite\Core\Database::getRepo('XLite\Model\AttributeOption')->findOneBy(
+            $attributeOption = Database::getRepo(\XLite\Model\AttributeOption::class)->findOneBy(
                 array(
                     'attribute' => $this,
                     'addToNew'  => true,
@@ -483,7 +522,7 @@ class Attribute extends \XLite\Model\Base\I18n
             )
         ) {
             $class = static::getAttributeValueClass($this->getType());
-            $repo = \XLite\Core\Database::getRepo($class);
+            $repo = Database::getRepo($class);
 
             switch ($this->getType()) {
                 case static::TYPE_TEXT:
@@ -555,7 +594,7 @@ class Attribute extends \XLite\Model\Base\I18n
 
                                 } else {
                                     $av->setAttributeOption(
-                                        \XLite\Core\Database::getRepo('XLite\Model\AttributeOption')->find($uniq)
+                                        Database::getRepo(\XLite\Model\AttributeOption::class)->find($uniq)
                                     );
                                 }
                                 $repo->update($av, $data);
@@ -566,7 +605,7 @@ class Attribute extends \XLite\Model\Base\I18n
 
                 default:
             }
-            \XLite\Core\Database::getEM()->flush();
+            Database::getEM()->flush();
         }
     }
 
@@ -580,7 +619,7 @@ class Attribute extends \XLite\Model\Base\I18n
      */
     public function setAttributeValue(\XLite\Model\Product $product, $data)
     {
-        $repo = \XLite\Core\Database::getRepo(
+        $repo = Database::getRepo(
             static::getAttributeValueClass($this->getType())
         );
 
@@ -598,7 +637,7 @@ class Attribute extends \XLite\Model\Base\I18n
      */
     public function getAttributeValue(\XLite\Model\Product $product, $asString = false)
     {
-        $repo = \XLite\Core\Database::getRepo(static::getAttributeValueClass($this->getType()));
+        $repo = Database::getRepo(static::getAttributeValueClass($this->getType()));
 
         if (in_array($this->getType(), [static::TYPE_SELECT, static::TYPE_CHECKBOX, static::TYPE_HIDDEN])) {
             $attributeValue = $repo->findBy(
@@ -643,7 +682,7 @@ class Attribute extends \XLite\Model\Base\I18n
      */
     public function getDefaultAttributeValue(\XLite\Model\Product $product)
     {
-        $repo = \XLite\Core\Database::getRepo(static::getAttributeValueClass($this->getType()));
+        $repo = Database::getRepo(static::getAttributeValueClass($this->getType()));
 
         $attributeValue = $repo->findOneBy(array('product' => $product, 'attribute' => $this, 'defaultValue' => true));
         if (!$attributeValue) {
@@ -662,7 +701,7 @@ class Attribute extends \XLite\Model\Base\I18n
      */
     public function isMultiple(\XLite\Model\Product $product)
     {
-        $repo = \XLite\Core\Database::getRepo(static::getAttributeValueClass($this->getType()));
+        $repo = Database::getRepo(static::getAttributeValueClass($this->getType()));
 
         return (!$this->getProduct() || $this->getProduct()->getId() == $product->getId())
             && (!$this->getProductClass()
@@ -697,7 +736,7 @@ class Attribute extends \XLite\Model\Base\I18n
         $attributeValue = new $class();
         $attributeValue->setProduct($product);
         $attributeValue->setAttribute($this);
-        \XLite\Core\Database::getEM()->persist($attributeValue);
+        Database::getEM()->persist($attributeValue);
 
         return $attributeValue;
     }
@@ -715,7 +754,7 @@ class Attribute extends \XLite\Model\Base\I18n
         $attributeOption->setAttribute($this);
         $attributeOption->setName($value);
 
-        \XLite\Core\Database::getEM()->persist($attributeOption);
+        Database::getEM()->persist($attributeOption);
 
         return $attributeOption;
     }
@@ -767,7 +806,7 @@ class Attribute extends \XLite\Model\Base\I18n
             $value = trim($value);
             if (strlen($value) > 0 && is_int($id)) {
                 if (!isset($data['deleteValue'][$id])) {
-                    list($avId) = $this->setAttributeValueSelectItem($repo, $product, $data, $id, $value);
+                    [$avId] = $this->setAttributeValueSelectItem($repo, $product, $data, $id, $value);
                     $ids[$avId] = $avId;
                 }
 
@@ -815,7 +854,7 @@ class Attribute extends \XLite\Model\Base\I18n
         }
 
         if (!$attributeOption) {
-            $attributeOption = \XLite\Core\Database::getRepo('XLite\Model\AttributeOption')
+            $attributeOption = Database::getRepo(\XLite\Model\AttributeOption::class)
                 ->findOneByNameAndAttribute($value, $this);
         }
 
@@ -862,7 +901,7 @@ class Attribute extends \XLite\Model\Base\I18n
                 }
             }
 
-            \XLite\Core\Database::getEM()->flush();
+            Database::getEM()->flush();
             $result = array(
                 $attributeValue->getId(),
                 $attributeValue,
@@ -993,7 +1032,7 @@ class Attribute extends \XLite\Model\Base\I18n
             )
         );
 
-        $attributeOption = \XLite\Core\Database::getRepo('XLite\Model\AttributeOption')
+        $attributeOption = Database::getRepo(\XLite\Model\AttributeOption::class)
             ->findOneByNameAndAttribute($value, $this);
 
         if (!$attributeOption) {
@@ -1008,7 +1047,7 @@ class Attribute extends \XLite\Model\Base\I18n
         if ($attributeValue) {
             $attributeValue->setAttributeOption($attributeOption);
 
-            \XLite\Core\Database::getEM()->flush();
+            Database::getEM()->flush();
         }
 
         return $attributeValue;
@@ -1105,6 +1144,87 @@ class Attribute extends \XLite\Model\Base\I18n
     }
 
     /**
+     * Get display mode
+     *
+     * @param \XLite\Model\Product $product Product OPTIONAL
+     * @return string
+     */
+    public function getDisplayMode($product = null)
+    {
+        $productId = $product
+            ? $product->getId()
+            : \XLite\Core\Request::getInstance()->product_id;
+
+        return $this->executeCachedRuntime(
+            function () use ($productId) {
+                if ($productId) {
+                    /** @var \XLite\Model\AttributeProperty $prop */
+                    $prop = Database::getRepo(\XLite\Model\AttributeProperty::class)->findOneBy([
+                        'product' => Database::getRepo(\XLite\Model\Product::class)->find($productId),
+                        'attribute'  => $this,
+                    ]);
+
+                    if ($prop && $prop->getDisplayMode()) {
+                        return $prop->getDisplayMode();
+                    }
+                }
+
+                return $this->displayMode;
+            },
+            ['displayMode', $this->getId(), $productId]
+        );
+    }
+
+    /**
+     * Set display mode
+     *
+     * @param string $value
+     * @param boolean $isNew New attribute flag OPTIONAL
+     *
+     * @return Attribute
+     */
+    public function setDisplayMode($value, $isNew = false)
+    {
+        if ($this->displayMode !== $value
+            && (!\XLite\Core\Request::getInstance()->product_id
+                || $isNew)
+        ) {
+            foreach ($this->getAttributeProperties() as $prop) {
+                $prop->setDisplayMode($value);
+            }
+        }
+
+        $this->displayMode = $value;
+
+        return $this;
+    }
+
+    /**
+     * Return display modes
+     *
+     * @return array
+     */
+    public static function getDisplayModes()
+    {
+        return [
+            static::SELECT_BOX_MODE => static::t('Selectbox'),
+            static::BlOCKS_MODE     => static::t('Blocks'),
+        ];
+    }
+
+    /**
+     * Return display mode name
+     *
+     * @return string
+     */
+    public function getDisplayModeName()
+    {
+        $displayModes = self::getDisplayModes();
+
+        return $displayModes[$this->displayMode] ?? '';
+    }
+
+    /**
      * Set productClass
      *
      * @param \XLite\Model\ProductClass $productClass
@@ -1193,14 +1313,14 @@ class Attribute extends \XLite\Model\Base\I18n
     }
 
     /**
-     * Add attribute_properties
+     * Add attribute property
      *
-     * @param \XLite\Model\AttributeProperty $attributeProperties
+     * @param \XLite\Model\AttributeProperty $attributeProperty
      * @return Attribute
      */
-    public function addAttributeProperties(\XLite\Model\AttributeProperty $attributeProperties)
+    public function addAttributeProperty(\XLite\Model\AttributeProperty $attributeProperty)
     {
-        $this->attribute_properties[] = $attributeProperties;
+        $this->attribute_properties[] = $attributeProperty;
         return $this;
     }
 

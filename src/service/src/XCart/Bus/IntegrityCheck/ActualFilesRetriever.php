@@ -35,9 +35,15 @@ class ActualFilesRetriever
     private $coreIteratorBuilder;
 
     /**
-     * @param Application         $app
-     * @param Package             $package
-     * @param CoreIteratorBuilder $coreIteratorBuilder
+     * @var ServiceToolIteratorBuilder
+     */
+    private $serviceToolIteratorBuilder;
+
+    /**
+     * @param Application                $app
+     * @param Package                    $package
+     * @param CoreIteratorBuilder        $coreIteratorBuilder
+     * @param ServiceToolIteratorBuilder $serviceToolIteratorBuilder
      *
      * @return ActualFilesRetriever
      *
@@ -47,28 +53,33 @@ class ActualFilesRetriever
     public static function serviceConstructor(
         Application $app,
         DomainPackage $package,
-        CoreIteratorBuilder $coreIteratorBuilder
+        CoreIteratorBuilder $coreIteratorBuilder,
+        ServiceToolIteratorBuilder $serviceToolIteratorBuilder
     ): ActualFilesRetriever {
         return new self(
             $app['config']['root_dir'],
             $package,
-            $coreIteratorBuilder
+            $coreIteratorBuilder,
+            $serviceToolIteratorBuilder
         );
     }
 
     /**
-     * @param                     $rootDir
-     * @param DomainPackage       $package
-     * @param CoreIteratorBuilder $coreIteratorBuilder
+     * @param                            $rootDir
+     * @param DomainPackage              $package
+     * @param CoreIteratorBuilder        $coreIteratorBuilder
+     * @param ServiceToolIteratorBuilder $serviceToolIteratorBuilder
      */
     public function __construct(
         $rootDir,
         DomainPackage $package,
-        CoreIteratorBuilder $coreIteratorBuilder
+        CoreIteratorBuilder $coreIteratorBuilder,
+        ServiceToolIteratorBuilder $serviceToolIteratorBuilder
     ) {
-        $this->rootDir             = $rootDir;
-        $this->package             = $package;
-        $this->coreIteratorBuilder = $coreIteratorBuilder;
+        $this->rootDir                    = $rootDir;
+        $this->package                    = $package;
+        $this->coreIteratorBuilder        = $coreIteratorBuilder;
+        $this->serviceToolIteratorBuilder = $serviceToolIteratorBuilder;
     }
 
     /**
@@ -82,6 +93,26 @@ class ActualFilesRetriever
             $iterator = $this->coreIteratorBuilder->getIterator();
 
             $result = [];
+
+            foreach ($iterator as $absolutePath => $item) {
+                /** @var \SplFileInfo $item */
+                $prefix = $this->rootDir;
+
+                if (0 === strpos($absolutePath, $prefix)) {
+                    $absolutePath = substr($absolutePath, strlen($prefix));
+                }
+                $result[$absolutePath] = $item->getPathname();
+            }
+
+            return $result;
+        }
+
+        if (!empty($module->id) && $module->id === 'XC-Service') {
+            $iterator = $this->serviceToolIteratorBuilder->getIterator();
+
+            $result = [
+                'service.php' => $this->rootDir . '/service.php',
+            ];
 
             foreach ($iterator as $absolutePath => $item) {
                 /** @var \SplFileInfo $item */

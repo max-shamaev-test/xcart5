@@ -45,7 +45,7 @@ class Item extends \XLite\Model\AEntity
 	 * @var \XLite\Model\OrderItem 
 	 *
 	 * @ManyToOne  (targetEntity="XLite\Model\OrderItem", inversedBy="capostParcelItems")
-	 * @JoinColumn (name="orderItemId", referencedColumnName="item_id", onDelete="CASCADE")
+	 * @JoinColumn (name="orderItemId", referencedColumnName="item_id",  onDelete="SET NULL")
 	 */
 	protected $orderItem;
 

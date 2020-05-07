@@ -12,7 +12,7 @@
 
     <ul class="table">
       {% for item in this.getViewList('images_settings') %}
-        <li>{{ item.display() }}</li>
+        {{ item.display() }}
       {% endfor %}
     </ul>
 

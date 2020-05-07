@@ -101,7 +101,8 @@ class TopCategoriesSlidebar extends \XLite\View\SideBarBox
                 ? \XLite\Core\Session::getInstance()->getLanguage()->getCode()
                 : '',
             \XLite\Core\Database::getRepo('XLite\Model\Category')->getVersion(),
-            LC_USE_CLEAN_URLS
+            LC_USE_CLEAN_URLS,
+            'topCategoriesSlidebar'
         );
 
         $auth = \XLite\Core\Auth::getInstance();

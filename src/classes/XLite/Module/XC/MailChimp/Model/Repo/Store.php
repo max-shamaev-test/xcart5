@@ -20,28 +20,4 @@ namespace XLite\Module\XC\MailChimp\Model\Repo;
  */
 class Store extends \XLite\Model\Repo\ARepo
 {
-    /**
-     * @return \XLite\Module\XC\MailChimp\Model\Store
-     */
-    public function getDefaultStore()
-    {
-        $store = $this->findOneBy([
-            'main'  => true,
-        ]);
-        
-        if (!$store) {
-            $store = $this->findOneBy([]);
-        }
-
-        return $store;   
-    }
-
-    public function findStoreByListId($listId)
-    {
-        $qb = $this->createQueryBuilder();
-        $qb->andWhere('s.list = :list');
-        $qb->setParameter('list', $listId);
-
-        return $qb->getSingleResult();
-    }
 }

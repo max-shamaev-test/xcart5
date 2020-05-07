@@ -71,7 +71,6 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
                 static::COLUMN_IS_REQUIRED => true,
             ],
             'name'         => [
-                static::COLUMN_IS_KEY          => true,
                 static::COLUMN_IS_MULTILINGUAL => true,
                 static::COLUMN_IS_REQUIRED     => true,
             ],
@@ -87,6 +86,9 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
             'position'     => [],
             'alias'        => [],
             'service_name' => [],
+            'link'         => [
+                static::COLUMN_IS_KEY          => true,
+            ],
             'global_tab'   => [
                 static::COLUMN_IS_MULTICOLUMN  => true,
                 static::COLUMN_HEADER_DETECTOR => true,
@@ -105,7 +107,7 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function detectGlobalTabHeader(array $column, array $row)
     {
-        return $this->detectHeaderByPattern('(alias|name_[a-z]+|service_name)', $row);
+        return $this->detectHeaderByPattern('(alias|link|service_name)', $row);
     }
 
     /**
@@ -125,15 +127,26 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
                 ->setParameter(
                     'globalTab',
                     empty($data['service_name'])
-                        ? $this->getGlobalTabByNames($data['name'])
+                        ? $this->getGlobalTabByLink($data['link'])
                         : $this->getGlobalTabByServiceName($data['service_name'])
                 )
                 ->setParameter('sku', $data['product']);
 
             return $qb->getSingleResult();
-        }
+        } else {
+            if (!$data['link']) {
+                return null;
+            }
 
-        return parent::detectModel($data);
+            $qb = $this->getRepository()->createQueryBuilder('t');
+
+            $qb->linkInner('t.product', 'p')
+                ->andWhere('p.sku = :sku AND t.link = :link AND t.global_tab IS NULL')
+                ->setParameter('sku', $data['product'])
+                ->setParameter('link', $data['link']);
+
+            return $qb->getSingleResult();
+        }
     }
 
     /**
@@ -154,34 +167,18 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
     }
 
     /**
-     * Find global tab by name
+     * Find global tab by link
      *
-     * @param array $name
-     *
-     * @return null|\XLite\Model\Product\GlobalTab
-     */
-    protected function getGlobalTabByNames($name)
-    {
-        return isset($name[\XLite\Logic\Import\Importer::getLanguageCode()])
-            ? $this->getGlobalTabByName($name[\XLite\Logic\Import\Importer::getLanguageCode()])
-            : null;
-    }
-
-    /**
-     * Find global tab by name
-     *
-     * @param array $name
+     * @param array $link
      *
      * @return null|\XLite\Model\Product\GlobalTab
      */
-    protected function getGlobalTabByName($name)
+    protected function getGlobalTabByLink($link)
     {
         $qb = Database::getRepo('XLite\Model\Product\GlobalTab')->createQueryBuilder('gt');
 
-        $qb->innerJoin('gt.custom_tab', 'ct')
-            ->innerJoin('ct.translations', 'ctt')
-            ->where('ctt.name = :name')
-            ->setParameter('name', $name);
+        $qb->andWhere('gt.link = :link')
+            ->setParameter('link', $link);
 
         return $qb->getSingleResult();
     }
@@ -200,12 +197,50 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
         if (isset($data['alias']) && $this->normalizeValueAsBoolean($data['alias'])) {
             $tab->setGlobalTab(
                 empty($data['service_name'])
-                    ? $this->getGlobalTabByNames($data['name'])
+                    ? $this->getGlobalTabByLink($data['link'])
                     : $this->getGlobalTabByServiceName($data['service_name'])
             );
         }
 
         return $tab;
+    }
+
+    /**
+     * Update model
+     *
+     * @param \XLite\Model\AEntity $model Model
+     * @param array                $data  Data
+     *
+     * @return boolean
+     */
+    protected function updateModel(\XLite\Model\AEntity $model, array $data)
+    {
+        $result = parent::updateModel($model, $data);
+
+        if (!$model->isGlobal()) {
+            $link = $data["link"] ?: $this->getRepository()->generateTabLink($model);
+            $model->setLink($link);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Import data
+     *
+     * @param array $data Row set Data
+     *
+     * @return boolean
+     */
+    protected function importData(array $data)
+    {
+        $result = parent::importData($data);
+
+        if ($result) {
+            \XLite\Core\Database::getEM()->flush();
+        }
+
+        return $result;
     }
 
     // {{{ Verification
@@ -218,11 +253,12 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
     public static function getMessages()
     {
         return parent::getMessages() + [
-            'TABS-PRODUCT-FMT'  => 'The product with "{{value}}" SKU does not exist',
-            'TABS-NAME-FMT'     => 'The name is empty',
-            'TABS-ENABLED-FMT'  => 'Wrong enabled format',
-            'TABS-POSITION-FMT' => 'Wrong position format',
-            'TABS-GLOBAL-NF'    => 'Global tab not found',
+            'TABS-PRODUCT-FMT'     => 'The product with SKU "{{value}}" does not exist. The tab "{{tab_name}}" will not be imported',
+            'TABS-NAME-FMT'        => 'The name is empty',
+            'TABS-ENABLED-FMT'     => 'Wrong enabled format',
+            'TABS-POSITION-FMT'    => 'Wrong position format',
+            'TABS-GLOBAL-NF'       => 'Global tab not found',
+            'TABS-DUPLICATED-LINK' => 'Duplicated link',
         ];
     }
 
@@ -279,8 +315,11 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function verifyProduct($value, array $column)
     {
+        $tabNames = $this->currentRowData['name'];
+        $tabName = $this->getDefLangValue($tabNames);
+
         if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsProduct($value)) {
-            $this->addWarning('TABS-PRODUCT-FMT', ['column' => $column, 'value' => $value]);
+            $this->addWarning('TABS-PRODUCT-FMT', ['column' => $column, 'value' => $value, 'tab_name' => $tabName]);
         }
     }
 
@@ -310,18 +349,28 @@ class CustomTabs extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyGlobalTab($data, array $column)
     {
         if (isset($data['alias']) && $this->normalizeValueAsBoolean($data['alias'])) {
-            $name = isset($data['name_' . \XLite\Logic\Import\Importer::getLanguageCode()])
-                ? $data['name_' . \XLite\Logic\Import\Importer::getLanguageCode()]
-                : null;
-
             $globalTab = empty($data['service_name'])
-                ? $this->getGlobalTabByName($name)
+                ? $this->getGlobalTabByLink($data['link'])
                 : $this->getGlobalTabByServiceName($data['service_name']);
 
             if (!$globalTab) {
                 $this->addError('TABS-GLOBAL-NF', [
                     'column' => $column,
-                    'value' => empty($data['service_name']) ? $name : $data['service_name']
+                    'value' => empty($data['service_name']) ? $data['link'] : $data['service_name']
+                ]);
+            }
+        } elseif ($data['link']) {
+            $qb = Database::getRepo('XLite\Model\Product\GlobalTab')->createQueryBuilder('gt');
+
+            $qb->andWhere('gt.link = :link')
+                ->setParameter('link', $data['link']);
+
+            $globalTabWithSameLink = $qb->getSingleResult();
+            if ($globalTabWithSameLink) {
+                $this->addError('TABS-DUPLICATED-LINK', [
+                    'column' => $column,
+                    'value' => $data['link'],
+                    'globalTab' => $globalTabWithSameLink->getName()
                 ]);
             }
         }

@@ -27,35 +27,35 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
      *
      * @var array
      */
-    protected $classesCache = array();
+    protected $classesCache = [];
 
     /**
      * Attribute groups cache
      *
      * @var array
      */
-    protected $groupsCache = array();
+    protected $groupsCache = [];
 
     /**
      * Attributes cache
      *
      * @var array
      */
-    protected $attributesCache = array();
+    protected $attributesCache = [];
 
     /**
      * Products cache
      *
      * @var array
      */
-    protected $productsCache = array();
+    protected $productsCache = [];
 
     /**
      * Products cache
      *
      * @var array
      */
-    protected $attrsCache = array();
+    protected $attrsCache = [];
 
 
     /**
@@ -118,6 +118,7 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
             'editable'          => [],
             'attributePosition' => [],
             'valuePosition'     => [],
+            'displayMode'       => [],
         ];
     }
 
@@ -131,7 +132,7 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
     public static function getMessages()
     {
         return parent::getMessages()
-            + array(
+            + [
                 'ATTRS-PRODUCT-SKU-FMT'     => 'ProductSKU is empty',
                 'ATTRS-PRODUCT-NOT-EXISTS'  => 'Product with SKU "{{value}}" does not exists',
                 'ATTRS-TYPE-FMT'            => 'Wrong "type" value ({{value}}). This should be "C", "S", "H" or "T"',
@@ -143,7 +144,9 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
                 'ATTRS-CLASS-WRN'           => 'Product class {{value}} does not exists and will be created',
                 'ATTRS-GROUP-WRN'           => 'Group {{value}} does not exists and will be created',
                 'ATTRS-EDITABLE-FMT'        => 'Wrong "owner" format ({{value}}). Value should be one of "Yes" or "No" or empty',
-            );
+                'ATTR-MODE-S-FMT'           => 'Wrong display mode format for selector',
+                'ATTR-MODE-NOT-S-FMT'       => 'Wrong display mode format for not selector',
+            ];
     }
 
     /**
@@ -182,7 +185,7 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
         $type = $this->assembleColumnData($typeProcessed, $rows);
 
         return !$type || $this->attributeType != $type
-            ? array()
+            ? []
             : parent::assembleColumnsData($rows);
     }
 
@@ -208,13 +211,13 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyProductSKU($value, array $column)
     {
         if ($this->verifyValueAsEmpty($value)) {
-            $this->addError('ATTRS-PRODUCT-SKU-FMT', array('column' => $column, 'value' => $value));
+            $this->addError('ATTRS-PRODUCT-SKU-FMT', ['column' => $column, 'value' => $value]);
 
         } elseif (!$this->isUpdateMode()) {
-            $product = \XLite\Core\Database::getRepo('XLite\Model\Product')->findOneBy(array('sku' => $value));
+            $product = \XLite\Core\Database::getRepo('XLite\Model\Product')->findOneBy(['sku' => $value]);
 
             if (!$product && !$this->isProductWillBeAdded($value)) {
-                $this->addError('ATTRS-PRODUCT-NOT-EXISTS', array('column' => $column, 'value' => $value));
+                $this->addError('ATTRS-PRODUCT-NOT-EXISTS', ['column' => $column, 'value' => $value]);
             }
         }
     }
@@ -229,8 +232,8 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function verifyType($value, array $column)
     {
-        if (!$this->verifyValueAsSet($value, array('C', 'S', 'T', 'H'))) {
-            $this->addError('ATTRS-TYPE-FMT', array('column' => $column, 'value' => $value));
+        if (!$this->verifyValueAsSet($value, ['C', 'S', 'T', 'H'])) {
+            $this->addError('ATTRS-TYPE-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -245,7 +248,7 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyName($value, array $column)
     {
         if ($this->verifyValueAsEmpty($value)) {
-            $this->addError('ATTRS-NAME-FMT', array('column' => $column, 'value' => $value));
+            $this->addError('ATTRS-NAME-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -260,7 +263,7 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyOwner($value, array $column)
     {
         if (!$this->verifyValueAsBoolean($value)) {
-            $this->addError('ATTRS-OWNER-FMT', array('column' => $column, 'value' => $value));
+            $this->addError('ATTRS-OWNER-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -275,7 +278,7 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyDefault($value, array $column)
     {
         if (!$this->verifyValueAsBoolean($value)) {
-            $this->addError('ATTRS-DEFAULT-FMT', array('column' => $column, 'value' => $value));
+            $this->addError('ATTRS-DEFAULT-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -290,7 +293,7 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyPriceModifier($value, array $column)
     {
         if (!$this->verifyValueAsEmpty($value) && !$this->checkModifierFormat($value)) {
-            $this->addError('ATTRS-PRICE-MODIFIER-FMT', array('column' => $column, 'value' => $value));
+            $this->addError('ATTRS-PRICE-MODIFIER-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -305,7 +308,7 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyWeightModifier($value, array $column)
     {
         if (!$this->verifyValueAsEmpty($value) && !$this->checkModifierFormat($value)) {
-            $this->addError('ATTRS-WEIGHT-MODIFIER-FMT', array('column' => $column, 'value' => $value));
+            $this->addError('ATTRS-WEIGHT-MODIFIER-FMT', ['column' => $column, 'value' => $value]);
         }
     }
 
@@ -329,7 +332,7 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
             $entity = \XLite\Core\Database::getRepo('XLite\Model\ProductClass')->findOneByName($value);
 
             if (!$entity) {
-                $this->addWarning('ATTRS-CLASS-WRN', array('column' => $column, 'value' => $value));
+                $this->addWarning('ATTRS-CLASS-WRN', ['column' => $column, 'value' => $value]);
             }
         }
     }
@@ -349,7 +352,7 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
             $entity = \XLite\Core\Database::getRepo('XLite\Model\AttributeGroup')->findOneByName($value);
 
             if (!$entity) {
-                $this->addWarning('ATTRS-GROUP-WRN', array('column' => $column, 'value' => $value));
+                $this->addWarning('ATTRS-GROUP-WRN', ['column' => $column, 'value' => $value]);
             }
         }
     }
@@ -365,8 +368,79 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
     protected function verifyEditable($value, array $column)
     {
         if (!$this->verifyValueAsEmpty($value) && !$this->verifyValueAsBoolean($value)) {
-            $this->addError('ATTRS-EDITABLE-FMT', array('column' => $column, 'value' => $value));
+            $this->addError('ATTRS-EDITABLE-FMT', ['column' => $column, 'value' => $value]);
         }
+    }
+
+    /**
+     * Verify 'displayMode' value
+     *
+     * @param mixed $value  Value
+     * @param array $column Column info
+     *
+     * @return void
+     */
+    protected function verifyDisplayMode($value, array $column)
+    {
+        if ($this->isDisplayModeVerified($this->currentRowData)) {
+            return;
+        }
+
+        if ($this->currentRowData['type'] === \XLite\Model\Attribute::TYPE_SELECT) {
+            $availableDisplayModes = \XLite\Model\Attribute::getDisplayModes();
+            if (!isset($availableDisplayModes[$value])) {
+                $this->addError('ATTR-MODE-S-FMT', ['column' => $column, 'value' => $value]);
+            }
+        } elseif (!$this->verifyValueAsEmpty($value)) {
+            $this->addError('ATTR-MODE-NOT-S-FMT', ['column' => $column, 'value' => $value]);
+        }
+
+        $this->setDisplayModeVerified($this->currentRowData);
+    }
+
+    /**
+     * @param array $rowData
+     *
+     * @return bool
+     */
+    protected function isDisplayModeVerified(array $rowData)
+    {
+        $options = $this->importer->getOptions();
+
+        $key = $this->getDisplayModeVerifiedKey($rowData);
+
+        return isset($options[$key]) && $options[$key] === true;
+    }
+
+    /**
+     * @param array $rowData
+     */
+    protected function setDisplayModeVerified(array $rowData)
+    {
+        $options = $this->importer->getOptions();
+
+        $key = $this->getDisplayModeVerifiedKey($rowData);
+
+        $options[$key] = true;
+        $this->importer->setOptions($options);
+    }
+
+    /**
+     * @param array $rowData
+     *
+     * @return string
+     */
+    protected function getDisplayModeVerifiedKey(array $rowData)
+    {
+        return implode('.', [
+            'displayModeVerify',
+            $rowData['productSKU'],
+            $rowData['type'],
+            $rowData['name'],
+            $rowData['class'],
+            $rowData['group'],
+            $rowData['owner'],
+        ]);
     }
 
     /**
@@ -579,14 +653,14 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function getAttribute($data)
     {
-        $keyData = array(
+        $keyData = [
             'p:' . $data['productSKU'],
             't:' . $data['type'],
             'c:' . $data['class'],
             'g:' . $data['group'],
             'o:' . $data['owner'],
             'n:' . $data['name'],
-        );
+        ];
 
         $key = implode(';', $keyData);
 
@@ -632,7 +706,7 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
     protected function getProduct($sku)
     {
         if (!isset($this->productsCache[$sku])) {
-            $this->productsCache[$sku] = \XLite\Core\Database::getRepo('XLite\Model\Product')->findOneBy(array('sku' => $sku));
+            $this->productsCache[$sku] = \XLite\Core\Database::getRepo('XLite\Model\Product')->findOneBy(['sku' => $sku]);
         }
 
         return $this->productsCache[$sku];
@@ -675,9 +749,9 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
      */
     protected function getAttributeValueData($data, $attribute)
     {
-        return array(
+        return [
             'value' => $data['value'],
-        );
+        ];
     }
 
     /**
@@ -712,13 +786,13 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
             $attributeGroup = $this->getAttributeGroup($data['group'], $productClass, true);
         }
 
-        return array(
+        return [
             'name'           => $data['name'],
             'productClass'   => $productClass,
             'attributeGroup' => $attributeGroup,
             'product'        => $product,
             'type'           => $data['type'],
-        );
+        ];
     }
 
 
@@ -739,6 +813,26 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
                 'position' => $value
             ]);
             $this->setAttributePositionImported($model);
+        }
+    }
+
+    /**
+     * Import 'displayMode' value
+     *
+     * @param \XLite\Model\AttributeValue\AttributeValueSelect $model  Attribute value object
+     * @param mixed                                            $value  Value
+     * @param array                                            $column Column info
+     *
+     * @return void
+     */
+    protected function importDisplayModeColumn($model, $value, array $column)
+    {
+        if ($value && !$this->isDisplayModeImported($model)) {
+            $model->getAttribute()
+                ->getProperty($model->getProduct())
+                ->setDisplayMode($value);
+
+            $this->setDisplayModeImported($model);
         }
     }
 
@@ -790,6 +884,52 @@ abstract class AAttributeValue extends \XLite\Logic\Import\Processor\AProcessor
     protected function getAttributePositionImportedKey(AttributeValue\AAttributeValue $attributeValue)
     {
         return implode('.', [
+            'position',
+            $attributeValue->getProduct()
+                ? $attributeValue->getProduct()->getProductId()
+                : 'none',
+            $attributeValue->getAttribute()
+                ? $attributeValue->getAttribute()->getId()
+                : 'none',
+        ]);
+    }
+
+    /**
+     * @param AttributeValue\AAttributeValue $attributeValue
+     *
+     * @return bool
+     */
+    protected function isDisplayModeImported(AttributeValue\AAttributeValue $attributeValue)
+    {
+        $options = $this->importer->getOptions();
+
+        $key = $this->getDisplayModeImportedKey($attributeValue);
+
+        return isset($options[$key]) && $options[$key] === true;
+    }
+
+    /**
+     * @param AttributeValue\AAttributeValue $attributeValue
+     */
+    protected function setDisplayModeImported(AttributeValue\AAttributeValue $attributeValue)
+    {
+        $options = $this->importer->getOptions();
+
+        $key = $this->getDisplayModeImportedKey($attributeValue);
+
+        $options[$key] = true;
+        $this->importer->setOptions($options);
+    }
+
+    /**
+     * @param AttributeValue\AAttributeValue $attributeValue
+     *
+     * @return string
+     */
+    protected function getDisplayModeImportedKey(AttributeValue\AAttributeValue $attributeValue)
+    {
+        return implode('.', [
+            'displayModeImport',
             $attributeValue->getProduct()
                 ? $attributeValue->getProduct()->getProductId()
                 : 'none',

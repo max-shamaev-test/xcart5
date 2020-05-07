@@ -37,8 +37,6 @@ td .attribute-options div.table-value {
   cursor: move;
   color: #3a618d;
   background: #e2f1f7;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
   border: none;
   font-size: 14px;

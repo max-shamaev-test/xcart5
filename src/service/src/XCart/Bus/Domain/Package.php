@@ -12,9 +12,9 @@ use BadMethodCallException;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use UnexpectedValueException;
+use XCart\Bus\Core\Archive\ArchiveFactory;
 use XCart\Bus\Exception\PackageException;
 use XCart\Bus\System\Filesystem;
-use XCart\Bus\System\ResourceChecker;
 use XCart\SilexAnnotations\Annotations\Service;
 
 /**
@@ -40,14 +40,14 @@ class Package
     private $fileSystem;
 
     /**
+     * @var ArchiveFactory
+     */
+    private $archiveFactory;
+
+    /**
      * @var Module
      */
     private $module;
-
-    /**
-     * @var boolean
-     */
-    private $canCompress;
 
     /**
      * @var ModuleInfoProvider
@@ -57,20 +57,20 @@ class Package
     /**
      * @param Application        $app
      * @param Filesystem         $fileSystem
+     * @param ArchiveFactory     $archiveFactory
      * @param ModuleInfoProvider $moduleInfoProvider
      */
     public function __construct(
         Application $app,
         Filesystem $fileSystem,
+        ArchiveFactory $archiveFactory,
         ModuleInfoProvider $moduleInfoProvider
     ) {
         $this->packagesDir        = $app['config']['module_packs_dir'];
         $this->rootDir            = $app['config']['root_dir'];
         $this->fileSystem         = $fileSystem;
         $this->moduleInfoProvider = $moduleInfoProvider;
-        $this->canCompress = ResourceChecker::PharIsInstalled()
-            ? \Phar::canCompress(\Phar::GZ)
-            : false;
+        $this->archiveFactory     = $archiveFactory;
     }
 
     /**
@@ -98,11 +98,25 @@ class Package
         try {
             $phar     = new \PharData($filePath);
             $metadata = $phar->getMetadata();
-
+            if (!$metadata) {
+                throw PackageException::fromNonFormatArchive();
+            }
             $module  = Module::fromPackageMetadata($metadata);
             $package = $this->fromModule($module);
 
-            $this->fileSystem->rename($filePath, $this->packagesDir . $package->getFileName(), true);
+            $fileName = "{$module->id}.{$module->version}";
+
+            foreach ($package->archiveFactory->getPacker()->getAvailableExtensions() as $ext) {
+                $packagePath = "{$this->packagesDir}{$fileName}{$ext}";
+                $this->fileSystem->remove($packagePath);
+            }
+
+            $packageExt = $package->archiveFactory->getPacker()->getExtension($filePath);
+            $packagePath = "{$this->packagesDir}{$fileName}{$packageExt}";
+
+            $this->fileSystem->mkdir($this->packagesDir);
+            $this->fileSystem->remove($packagePath);
+            $this->fileSystem->rename($filePath, $packagePath, true);
 
             return $package;
 
@@ -138,20 +152,15 @@ class Package
         $this->fileSystem->mkdir($this->packagesDir);
         $this->fileSystem->remove($fullPath);
 
-        $phar = new \PharData($fullPath);
-        $phar->buildFromIterator($iterator, $this->rootDir);
+        $files    = array_keys(iterator_to_array($iterator));
+        $hash     = json_encode($this->getHash($iterator));
+        $metadata = $this->module->toPackageMetadata();
 
-        $phar->setMetadata($this->module->toPackageMetadata());
-
-        $phar->addFromString(static::HASH_FILE, json_encode($this->getHash($iterator)));
-
-        if ($this->canCompress) {
-            $phar = $phar->compress(\Phar::GZ);
-            // Truncates version, see https://bugs.php.net/bug.php?id=58852
-            $this->fileSystem->rename($phar->getPath(), $fullPath, true);
+        if ($this->archiveFactory->getPacker()->pack($fullPath, $this->rootDir, $files, $hash, $metadata)) {
+            return $fullPath;
         }
 
-        return $fullPath;
+        return '';
     }
 
     /**
@@ -166,18 +175,7 @@ class Package
             throw PackageException::fromNoFile();
         }
 
-        $fullPath = $this->packagesDir . basename($file);
-
-        $this->fileSystem->mkdir($this->packagesDir);
-        $this->fileSystem->remove($fullPath);
-
-        try {
-            $this->fileSystem->rename($file, $fullPath, true);
-        } catch (FileException $e) {
-            throw PackageException::fromGenericError($e);
-        }
-
-        return $this->fromFile($fullPath);
+        return $this->fromFile($file);
     }
 
     /**
@@ -189,7 +187,7 @@ class Package
             ? $this->module->id . '.' . $this->module->version
             : '';
 
-        return $fileName . ($this->canCompress ? '.tgz' : '.tar');
+        return $fileName . ($this->archiveFactory->getPacker()->canCompress() ? '.tgz' : '.tar');
     }
 
     /**

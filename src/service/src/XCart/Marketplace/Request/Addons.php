@@ -11,18 +11,10 @@ namespace XCart\Marketplace\Request;
 use XCart\Marketplace\Constant;
 use XCart\Marketplace\ITransport;
 use XCart\Marketplace\IValidator;
-use XCart\Marketplace\Validator\SchemaList;
+use XCart\Marketplace\Validator\Schema;
 
 class Addons extends AAPIRequest
 {
-    /**
-     * @return int
-     */
-    public static function getTransportTTL(): int
-    {
-        return ITransport::TTL_LONG;
-    }
-
     /**
      * @return string
      */
@@ -36,7 +28,14 @@ class Addons extends AAPIRequest
      */
     public function getValidator(): IValidator
     {
-        return new SchemaList(AddonInfo::getResponseSchema());
+        return new Schema([
+            Constant::FIELD_MODULES => [
+                'flags'  => \FILTER_REQUIRE_ARRAY,
+            ],
+            Constant::FIELD_INFO => [
+                'flags'  => \FILTER_REQUIRE_ARRAY,
+            ],
+        ]);
     }
 
     /**
@@ -49,7 +48,7 @@ class Addons extends AAPIRequest
     {
         $result = [];
 
-        foreach ((array) $data as $module) {
+        foreach ((array) $data[Constant::FIELD_MODULES] as $module) {
             // Module key fields
             $author = static::getElement($module, Constant::FIELD_AUTHOR);
             $name   = static::getElement($module, Constant::FIELD_NAME);
@@ -83,7 +82,7 @@ class Addons extends AAPIRequest
                 return html_entity_decode($tag);
             }, static::getElement($module, Constant::FIELD_TAGS));
 
-            $result[$key][] = [
+            $result['modules'][$key][] = [
                 'id'                       => $key,
                 'version'                  => sprintf('%s.%s.%s.%s', $coreVersion, $majorVersion, $minorVersion, $buildVersion),
                 'author'                   => $author,
@@ -101,6 +100,7 @@ class Addons extends AAPIRequest
                 'authorEmail'              => static::getElement($module, Constant::FIELD_AUTHOR_EMAIL),
                 'revisionDate'             => static::getElement($module, Constant::FIELD_REVISION_DATE),
                 'price'                    => static::getElement($module, Constant::FIELD_PRICE),
+                'origPrice'                => static::getElement($module, Constant::FIELD_ORIG_PRICE) ?: static::getElement($module, Constant::FIELD_PRICE),
                 'currency'                 => static::getElement($module, Constant::FIELD_CURRENCY),
                 'downloads'                => static::getElement($module, Constant::FIELD_DOWNLOADS_COUNT),
                 'rating'                   => static::getElement($module, Constant::FIELD_RATING, Constant::FIELD_RATING_RATE),

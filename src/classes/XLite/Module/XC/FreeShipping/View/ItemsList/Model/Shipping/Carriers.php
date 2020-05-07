@@ -14,19 +14,6 @@ namespace XLite\Module\XC\FreeShipping\View\ItemsList\Model\Shipping;
 class Carriers extends \XLite\View\ItemsList\Model\Shipping\Carriers implements \XLite\Base\IDecorator
 {
     /**
-     * Get a list of CSS files
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list   = parent::getCSSFiles();
-        $list[] = 'modules/XC/FreeShipping/items_list/model/table/shipping/carriers/style.css';
-
-        return $list;
-    }
-
-    /**
      * Disable removing special methods
      *
      * @param \XLite\Model\AEntity $entity Shipping method object
@@ -36,7 +23,7 @@ class Carriers extends \XLite\View\ItemsList\Model\Shipping\Carriers implements 
     protected function isAllowEntityRemove(\XLite\Model\AEntity $entity)
     {
         /** @var \XLite\Model\Shipping\Method $entity */
-        return parent::isAllowEntityRemove($entity) && !$entity->getFree() && !$this->isFixedFeeMethod($entity);
+        return parent::isAllowEntityRemove($entity) && !$entity->getFree() && !$entity->isFixedFee();
     }
 
     /**
@@ -49,20 +36,7 @@ class Carriers extends \XLite\View\ItemsList\Model\Shipping\Carriers implements 
     protected function isAllowEntitySwitch(\XLite\Model\AEntity $entity)
     {
         /** @var \XLite\Model\Shipping\Method $entity */
-        return parent::isAllowEntitySwitch($entity) && !$entity->getFree() && !$this->isFixedFeeMethod($entity);
-    }
-
-    /**
-     * Return true if method is 'Freight fixed fee'
-     *
-     * @param \XLite\Model\Shipping\Method $method
-     *
-     * @return boolean
-     */
-    protected function isFixedFeeMethod(\XLite\Model\Shipping\Method $method)
-    {
-        return \XLite\Model\Shipping\Method::METHOD_TYPE_FIXED_FEE === $method->getCode()
-            && 'offline' === $method->getProcessor();
+        return parent::isAllowEntitySwitch($entity) && !$entity->getFree() && !$entity->isFixedFee();
     }
 
     /**

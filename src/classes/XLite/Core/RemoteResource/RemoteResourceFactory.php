@@ -21,6 +21,10 @@ class RemoteResourceFactory
         /** @var IURL[] $resources */
         $resources = array_merge(static::getResources(), ['XLite\Core\RemoteResource\PlainURL']);
 
+        if (!\XLite\Core\Converter::isURL($url)) {
+            $url = \Includes\Utils\Operator::purifyLink($url);
+        }
+
         foreach ($resources as $resource) {
             if ($resource::isMatch($url)) {
                 return new $resource($url);

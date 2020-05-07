@@ -62,8 +62,8 @@ class Date extends \XLite\View\FormField\Input\Text
         $this->widgetParams += [
             self::PARAM_MIN       => new \XLite\Model\WidgetParam\TypeInt('Minimum date', null),
             self::PARAM_MAX       => new \XLite\Model\WidgetParam\TypeInt('Maximum date', null),
-            self::PARAM_HIGH_YEAR => new \XLite\Model\WidgetParam\TypeInt('The high year', date('Y', \XLite\Core\Converter::time()) - 1),
-            self::PARAM_LOW_YEAR  => new \XLite\Model\WidgetParam\TypeInt('The low year', 2035),
+            self::PARAM_HIGH_YEAR => new \XLite\Model\WidgetParam\TypeInt('The high year', 2035),
+            self::PARAM_LOW_YEAR  => new \XLite\Model\WidgetParam\TypeInt('The low year', date('Y', \XLite\Core\Converter::time()) - 1),
         ];
     }
 

@@ -33,20 +33,6 @@ class Warning extends \XLite\View\AView
     }
 
     /**
-     * Register CSS files
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-
-        $list[] = 'modules/XC/RESTAPI/warning.css';
-
-        return $list;
-    }
-
-    /**
      * Return widget default template
      *
      * @return string

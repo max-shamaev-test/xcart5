@@ -4,13 +4,13 @@
  # @ListChild (list="wholesale-quicklook.price.widgetlist", weight="10")
  #}
 
-{% if this.wholesalePrice.getQuantityRangeEnd() > 0 %}
+{% if this.wholesalePrice.quantityRangeEnd > 0 %}
   <td>
-    {% if this.wholesalePrice.getQuantityRangeBegin() != this.wholesalePrice.getQuantityRangeEnd() %}
-      <span class="items-range">{{ this.wholesalePrice.getQuantityRangeBegin() }}-{{ this.wholesalePrice.getQuantityRangeEnd() }}</span>
+    {% if this.wholesalePrice.quantityRangeBegin != this.wholesalePrice.quantityRangeEnd %}
+      <span class="items-range">{{ this.wholesalePrice.quantityRangeBegin }}-{{ this.wholesalePrice.quantityRangeEnd }}</span>
     {% endif %}
-    {% if this.wholesalePrice.getQuantityRangeBegin() == this.wholesalePrice.getQuantityRangeEnd() %}
-      <span class="items-range">{{ this.wholesalePrice.getQuantityRangeBegin() }}</span>
+    {% if this.wholesalePrice.quantityRangeBegin == this.wholesalePrice.quantityRangeEnd %}
+      <span class="items-range">{{ this.wholesalePrice.quantityRangeBegin }}</span>
     {% endif %}
     <span class="items-label">{{ t('items') }}</span>
   </td>

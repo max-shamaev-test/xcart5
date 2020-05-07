@@ -50,13 +50,37 @@ class DiscountCoupon extends \XLite\View\Order\Details\Admin\Modifier
     }
 
     /**
-     * Get used coupons
+     * Get used coupons data
      *
      * @return array
      */
-    protected function getUsedCoupons()
+    protected function getUsedCouponsData()
     {
-        return $this->getOrder()->getUsedCoupons();
+        $result = [];
+
+        /** @var \XLite\Module\CDev\Coupons\Model\UsedCoupon $usedCoupon */
+        foreach ($this->getOrder()->getUsedCoupons() as $usedCoupon) {
+            $result[] = $this->getUsedCouponData($usedCoupon);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param \XLite\Module\CDev\Coupons\Model\UsedCoupon $usedCoupon
+     * @return array
+     */
+    protected function getUsedCouponData(\XLite\Module\CDev\Coupons\Model\UsedCoupon $usedCoupon)
+    {
+        $result = [
+            'usedCoupon' => $usedCoupon,
+            'code' => $usedCoupon->getCode(),
+            'value' => $usedCoupon->getValue(),
+            'publicName' => $usedCoupon->getPublicName(),
+            'couponCodeHash' => $this->getCouponCodeHash($usedCoupon),
+        ];
+
+        return $result;
     }
 
     /**

@@ -46,6 +46,7 @@ class Settings extends \XLite\View\Model\Settings implements \XLite\Base\IDecora
                 'This option is ignored as Add to Cart Popup module is installed and enabled.',
                 ['url' => $url]
             );
+            $cell[static::SCHEMA_CLASS] = 'XLite\View\FormField\Input\Hidden';
         }
 
         return $cell;

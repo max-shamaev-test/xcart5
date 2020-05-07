@@ -198,13 +198,9 @@ class Profile extends \XLite\Controller\Customer\ACustomer
         } else {
             $this->postprocessActionRegisterSuccess();
 
-            if (\XLite\Core\Request::getInstance()->fromURL) {
-                $this->setReturnURL(\XLite\Core\Request::getInstance()->fromURL);
-            } else {
-                $this->setReturnURL(
-                    call_user_func_array(array($this, 'buildURL'), $this->getActionRegisterSuccessURL())
-                );
-            }
+            $this->setReturnURL(
+                call_user_func_array(array($this, 'buildURL'), $this->getActionRegisterSuccessURL())
+            );
         }
     }
 

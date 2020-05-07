@@ -9,7 +9,7 @@
   <div class="dropdown-menu" role="menu">
     <input name="{{ this.getName() }}[alt]"
            v-model="alt"
-           value="{{ this.object.alt }}"
+           value="{{ this.getAlt() }}"
            class="form-control input-alt"
            @change="doChangeAlt"
            @keydown="doChangeAlt"

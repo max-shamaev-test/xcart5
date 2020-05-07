@@ -13,7 +13,7 @@
       <a target="_blank"
         href="{{ url('product', '', {'product_id': product.product_id}) }}"
         class="product-thumbnail">
-          {{ widget('\\XLite\\View\\Image', image=product.getImage(), maxWidth='110', maxHeight='70', alt=product.name, className='photo') }}
+          {{ widget('\\XLite\\View\\Image', image=product.getImage(), maxWidth='60', maxHeight='60', alt=product.name, className='photo') }}
       </a>
       <a
         href="{{ url('compare', 'delete', {'product_id': product.product_id}) }}"

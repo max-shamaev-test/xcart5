@@ -85,7 +85,11 @@ class ScenarioResolver
     {
         $scenario = $this->scenarioDataSource->find($args['id']);
 
-        return $scenario ?: [];
+        if ($scenario) {
+            return $this->changeUnitProcessor->process($scenario, $scenario['changeUnits'] ?? []);
+        }
+
+        return [];
     }
 
     /**
@@ -233,6 +237,44 @@ class ScenarioResolver
      * @param ResolveInfo $info
      *
      * @return array
+     * @throws Exception
+     *
+     * @Resolver()
+     */
+    public function mutateDisableUnallowedModules($value, $args, Context $context, ResolveInfo $info): array
+    {
+        $unallowedModulesPage = $this->modulesResolver->resolvePage(
+            [],
+            ['licensed' => false, 'enabled' => true],
+            $context,
+            $info
+        );
+
+        /** @var Module[] $unallowedModules */
+        $unallowedModules = $unallowedModulesPage['modules'] ?? [];
+
+        $changeUnits = [];
+        foreach ($unallowedModules as $module) {
+            $changeUnits[] = [
+                'id'     => $module->id,
+                'enable' => false,
+            ];
+        }
+
+        $scenario = $this->changeUnitProcessor->process($this->scenarioDataSource->startEmptyScenario(), $changeUnits);
+
+        $this->scenarioDataSource->saveOne($scenario);
+
+        return $scenario;
+    }
+
+    /**
+     * @param             $value
+     * @param             $args
+     * @param Context     $context
+     * @param ResolveInfo $info
+     *
+     * @return array
      *
      * @Resolver()
      */
@@ -242,7 +284,10 @@ class ScenarioResolver
 
         return array_replace(
             $value['info'] ?? [],
-            ['moduleName' => $module ? $module->moduleName : '']
+            [
+                'moduleName' => $module ? $module->moduleName : '',
+                'moduleLicense' => (bool)($module ? $module->hasLicense : 0),
+            ]
         );
     }
 

@@ -35,12 +35,6 @@ function LeftMenu() {
     var box = jQuery(this).parent().nextAll('.box');
     var height = box.outerHeight();
 
-    if (box.parents('.compressed').length) {
-      box.css('width', 198);
-      height = box.outerHeight() - 60;
-      box.css('width', '');
-    }
-
     box.css('height', height);
     item.data('box-height', height);
     box.css('visibility', 'visible');
@@ -69,11 +63,24 @@ function LeftMenu() {
     }
   });
 
+  jQuery('body').on('click', '#leftMenu.compressed > ul > li:not(.empty) > .line > a', function (event) {
+    event.preventDefault();
+  });
+
+  jQuery('body').on('click', '#leftMenu.compressed > ul > li:not(.empty) > .box li.title a.link', function (event) {
+    event.preventDefault();
+  });
+
   this.recalculatePosition();
 
   core.bind('recalculateLeftMenuPosition', function() {
     self.recalculatePosition()
   });
+
+  if (this.$menu.hasClass('pre-compressed')) {
+    this.$menu.removeClass('pre-compressed')
+    this.$menu.addClass('compressed')
+  }
 }
 
 LeftMenu.prototype.getWindowHeight = function () {
@@ -93,19 +100,21 @@ LeftMenu.prototype.getMenuHeight = function () {
     result += jQuery(this).outerHeight();
   });
 
+  result += parseInt(jQuery(this.$menu).css('padding-top'));
+
   return result;
 };
 
 LeftMenu.prototype.getHeaderSpace = function () {
-  var headerSpace = jQuery('#header-wrapper').outerHeight() - window.scrollY;
+  const headerSpace = jQuery('#header-wrapper').outerHeight() - window.scrollY;
 
-  headerSpace = headerSpace > 0 ? headerSpace : 0;
+  return headerSpace > 0 ? headerSpace : 0;
+};
 
-  if ($('.demo-header-wrapper').length > 0) {
-    headerSpace += $('.demo-header-wrapper').outerHeight();
-  }
+LeftMenu.prototype.getHeaderOffset = function () {
+  const demoHeader = $('.demo-header-wrapper');
 
-  return headerSpace;
+  return demoHeader.length > 0 ? demoHeader.outerHeight() : 0;
 };
 
 LeftMenu.prototype.recalculatePosition = function (heightDelta) {
@@ -114,66 +123,33 @@ LeftMenu.prototype.recalculatePosition = function (heightDelta) {
     return;
   }
 
-  var viewPortHeight = window.innerHeight;
-  var headerSpace = this.getHeaderSpace();
-  this.$menu.css('min-height', viewPortHeight - headerSpace);
+  const sideBar = jQuery('#sidebar-first');
 
-  var menuHeight = this.getMenuHeight() + (heightDelta || 0);
-  var sideBar = jQuery('#sidebar-first');
-  sideBar.height(menuHeight);
+  const menuHeight = this.getMenuHeight() + (heightDelta | 0);
+  const menuOffset = this.getHeaderOffset();
+  const headerHeight = this.getHeaderSpace();
+  const windowHeight = window.innerHeight;
+  const scroll = window.scrollY;
+  const isAffix = this.$menu.is('.affix');
+  const topOffset = headerHeight + menuOffset;
+  const minHeight = windowHeight - topOffset;
 
-  var scrollDelta = this.getScrollDelta();
-
-  var viewPortTop = window.scrollY;
-  var menuTop = this.$menu.offset().top;
-
-  var viewPortBottom = viewPortTop + viewPortHeight;
-  var menuBottom = menuTop + menuHeight;
-
-  var menuCssTop = parseInt(this.$menu.css('top'));
-  var offset = menuCssTop - scrollDelta;
-
-  var maxOffset = menuHeight - viewPortHeight;
-
-  var isAffix = this.$menu.is('.affix')
-    && menuTop !== sideBar.offset().top
-    && menuTop !== 0;
+  let topPosition = menuOffset;
+  let height = (menuHeight + topOffset) > windowHeight ? menuHeight : minHeight;
 
   if (isAffix) {
-    if (menuHeight < viewPortHeight) {
-      this.$menu.css('min-height', viewPortHeight);
-      this.$menu.css('top', 0);
-    } else {
-      if (scrollDelta > 0 && viewPortBottom < menuBottom) {
-        this.$menu.css('top', -offset < maxOffset ? offset : -maxOffset);
+    topPosition = menuOffset - (scroll - menuOffset);
 
-      } else if (scrollDelta < 0 && viewPortTop > menuTop) {
-        this.$menu.css('top', offset < 0 ? offset : 0);
-      }
-
-      if (viewPortBottom > menuBottom) {
-        this.$menu.css('top', menuCssTop + (viewPortBottom - menuBottom));
-      }
-
-      var body = document.body, html = document.documentElement;
-      var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-      if (menuBottom >= height) {
-        var self = this;
-        setTimeout(
-          function () {
-            var menuHeight = self.getMenuHeight();
-            if (menuTop + menuHeight >= height) {
-              self.$menu.animate({top: viewPortHeight - menuHeight}, 150);
-            }
-          }, 300
-        );
-        // this.$menu.css('top', viewPortHeight - menuHeight);
-      }
+    if (height + topPosition < windowHeight) {
+      topPosition = windowHeight - height;
     }
   }
 
+  sideBar.css({ height: height });
+  this.$menu.css({ 'min-height': minHeight, top: topPosition });
+
   if (this.$menu.is('.compressed')) {
-    var visibleBox = jQuery('.box', this.$menu).filter(function () {
+    const visibleBox = jQuery('.box', this.$menu).filter(function () {
       return jQuery(this).css('visibility') === 'visible'
     });
     if (visibleBox.length) {
@@ -259,7 +235,10 @@ LeftMenu.prototype.decompress = function () {
 };
 
 LeftMenu.prototype.correctPosition = function (box) {
-  box.css('top', 0);
+  box.css({
+    'top': 0,
+    'bottom': 'auto'
+  });
 
   var boxTop = box.offset().top;
   var boxBottom = boxTop + box.outerHeight();

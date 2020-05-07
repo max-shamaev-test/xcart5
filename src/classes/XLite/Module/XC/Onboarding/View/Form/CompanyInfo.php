@@ -8,7 +8,6 @@
 
 namespace XLite\Module\XC\Onboarding\View\Form;
 
-
 class CompanyInfo extends \XLite\View\Form\AForm
 {
     protected function getDefaultTarget()

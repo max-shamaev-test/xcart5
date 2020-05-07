@@ -258,8 +258,6 @@ div.actions .statuses {
   background-color: @items-list-head-bg;
   padding: (@rhythmic-unit / 2);
   border: 1px solid @table-border-color;
-  -moz-border-radius: @border-radius-base;
-  -webkit-border-radius: @border-radius-base;
   border-radius: @border-radius-base;
   width: 400px;
 }
@@ -271,7 +269,7 @@ div.actions .status {
 
   select.form-control {
     margin: @form-row-vertical-padding 0;
-    width: 235px;
+    width: 233px;
   }
 
   .clear {
@@ -695,8 +693,8 @@ div.line-3 .items a {
   height: 48px;
 }
 
-.order-info.not-editable .totals li.subtotal {
-  padding-right: 0;
+.order-info.not-editable .totals li:not(.total) > .value {
+  padding: (@rhythmic-unit / 3) (@rhythmic-unit / 2);
 }
 
 .totals li.subtotal .value {
@@ -758,7 +756,6 @@ div.line-3 h2 {
 }
 
 .collapsing {
-  -webkit-transition: none;
   transition: none;
 }
 
@@ -795,7 +792,7 @@ div.line-3 h2 {
 .order-info .sticky-panel .recalculate.last {
   position: absolute;
   left: 722px;
-  top: 12px;
+  top: 15px;
 }
 
 .order-info .value .tooltip .tooltip-inner {
@@ -817,7 +814,7 @@ div.line-3 h2 {
 }
 
 .order-info .totals .value .inline-field.has-view .field {
-  width: 94px;
+  width: 92px;
 }
 
 .order-info .totals .value .inline-field.has-view.edit-open-mark .editable.view {

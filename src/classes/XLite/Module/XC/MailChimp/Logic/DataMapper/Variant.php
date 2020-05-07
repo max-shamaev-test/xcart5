@@ -18,14 +18,16 @@ class Variant
      */
     public static function getVariantDataByOrderItem(\XLite\Model\OrderItem $item)
     {
+        $image = $item->getImage() ? $item->getImageURL() : null;
+
         $data = [
-            'id'                    => strval($item->getItemId()) . '_dv',
+            'id'                    => (string) $item->getItemId() . '_dv',
             'title'                 => $item->getName() ?: '',
             'url'                   => '',
             'sku'                   => $item->getSku(),
             'price'                 => $item->getDisplayPrice(),
             'inventory_quantity'    => 1,
-            'image_url'             => $item->getImageURL() ?: '',
+            'image_url'             => $image ?: '',
         ];
         
         if ($item->getObject()) {
@@ -39,14 +41,14 @@ class Variant
     }
 
     /**
-     * @param \XLite\Model\Product $product
+     * @param \XLite\Model\Product|\XLite\Module\XC\MailChimp\Model\Product $product
      *
      * @return array
      */
-    public static function getVariantDataByProduct(\XLite\Model\Product $product)
+    public static function getVariantDataByProduct(\XLite\Model\Product $product): array
     {
         return [
-            'id'                    => strval($product->getProductId()) . '_dv',
+            'id'                    => $product->getProductId() . '_dv',
             'title'                 => $product->getName() ?: '',
             'url'                   => $product->getFrontURLForMailChimp(),
             'sku'                   => $product->getSku(),

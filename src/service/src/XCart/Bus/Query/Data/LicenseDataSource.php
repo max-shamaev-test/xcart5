@@ -18,6 +18,7 @@ use XCart\SilexAnnotations\Annotations\Service;
 class LicenseDataSource extends SerializedDataSource
 {
     public const KEY_TYPE_CORE = 2;
+    public const KEY_TYPE_PENDING = 'pending';
 
     /**
      * @var CoreConfigDataSource
@@ -153,5 +154,35 @@ class LicenseDataSource extends SerializedDataSource
     protected function buildItemId($item): string
     {
         return implode('-', [$item['author'], $item['name'], $item['keyType']]);
+    }
+
+    /**
+     * @param string $author
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function savePending($author, $name): bool
+    {
+        return $this->saveOne([
+            'author' => $author,
+            'name' => $name,
+            'active' => true,
+            'keyType' => static::KEY_TYPE_PENDING,
+            'keyValue' => static::KEY_TYPE_PENDING
+        ]);
+    }
+
+    /**
+     * @param array $item
+     *
+     * @return bool
+     */
+    public function removePending($item): bool
+    {
+        $item['keyType'] = static::KEY_TYPE_PENDING;
+        $pendingId = $this->buildItemId($item);
+
+        return $this->removeOne($pendingId);
     }
 }

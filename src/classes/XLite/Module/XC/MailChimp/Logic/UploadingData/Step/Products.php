@@ -8,27 +8,22 @@
 
 namespace XLite\Module\XC\MailChimp\Logic\UploadingData\Step;
 
-use XLite\Module\XC\MailChimp\Core\MailChimpECommerce;
+use XLite\Module\XC\MailChimp\Core\Request\Product as MailChimpProduct;
+use XLite\Module\XC\MailChimp\Logic\DataMapper;
 
 class Products extends AStep
 {
     /**
      * Process model
      *
-     * @param \XLite\Model\AEntity $model Model
+     * @param \XLite\Model\Product|\XLite\Model\AEntity $model Model
      *
      * @return void
      */
     protected function processModel(\XLite\Model\AEntity $model)
     {
-        /** @var \XLite\Model\Product $model */
-
         foreach ($this->getStores() as $storeId) {
-            $result = MailChimpECommerce::getInstance()->updateProduct($storeId, $model);
-
-            if ($result === null) {
-                MailChimpECommerce::getInstance()->createProductFast($storeId, $model);
-            }
+            MailChimpProduct\Update::executeAction($storeId, DataMapper\Product::getDataByProduct($model));
         }
     }
 

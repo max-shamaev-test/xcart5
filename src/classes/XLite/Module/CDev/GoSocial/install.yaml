@@ -193,28 +193,6 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'Hashtag to show within the Tweet button and in the text of the tweet status (optional)'
-  - name: gosocial_sep_4
-    category: 'CDev\GoSocial'
-    type: separator
-    orderby: 3000
-    translations:
-      - code: en
-        option_name: 'Google+ button settings'
-  - name: gplus_use
-    category: 'CDev\GoSocial'
-    type: checkbox
-    orderby: 3050
-    value: false
-    translations:
-      - code: en
-        option_name: 'Display the Google+ button on product pages'
-  - name: gplus_page_id
-    category: 'CDev\GoSocial'
-    type: text
-    orderby: 3100
-    translations:
-      - code: en
-        option_name: 'Google+ page id'
   - name: gosocial_sep_5
     category: 'CDev\GoSocial'
     type: separator
@@ -241,5 +219,4 @@ XLite\Model\LanguageLabel:
   - { name: "Pin It", translations: [{ code: en, label: "Pin It" }] }
 
   - { name: 'Pin', translations: [{ code: en, label: 'Pin' }]}
-  - { name: 'Plus', translations: [{ code: en, label: 'Plus' }]}
   - { name: 'Share', translations: [{ code: en, label: 'Share' }]}

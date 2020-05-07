@@ -16,14 +16,6 @@ use XCart\Marketplace\Validator\Schema;
 class AddonInfo extends AAPIRequest
 {
     /**
-     * @return int
-     */
-    public static function getTransportTTL(): int
-    {
-        return ITransport::TTL_LONG;
-    }
-
-    /**
      * @return array
      */
     public static function getResponseSchema(): array
@@ -136,6 +128,10 @@ class AddonInfo extends AAPIRequest
             Constant::FIELD_SALES_CHANNEL_POS => [
                 'filter'  => \FILTER_VALIDATE_INT,
                 'options' => [],
+            ],
+            Constant::FIELD_LICENSE              => [
+                'filter'  => \FILTER_VALIDATE_REGEXP,
+                'options' => ['regexp' => Constant::REGEXP_TEXT],
             ],
         ];
     }

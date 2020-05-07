@@ -68,9 +68,5 @@ class Promotions extends \XLite\Controller\Admin\Promotions implements \XLite\Ba
     {
         $list = new \XLite\Module\CDev\VolumeDiscounts\View\ItemsList\VolumeDiscounts();
         $list->processQuick();
-
-        // Additional correction to re-define end of subtotal range for each discount
-        \XLite\Core\Database::getRepo('XLite\Module\CDev\VolumeDiscounts\Model\VolumeDiscount')
-            ->correctSubtotalRangeEnd();
     }
 }

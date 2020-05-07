@@ -40,14 +40,10 @@ class SalesChannels extends \XLite\View\IFrame
      */
     protected function getSrc()
     {
-        $query = http_build_query([
+        return \XLite::getInstance()->getServiceURL('#/iframe/sales-channels', null, [
             'moduleInstallMode' => 'single',
             'max_items'         => $this->getMaxItems()
         ]);
-
-        return \XLite::getInstance()->getServiceURL(
-            '#/iframe/sales-channels?' . $query
-        );
     }
 
     protected function getMaxItems()

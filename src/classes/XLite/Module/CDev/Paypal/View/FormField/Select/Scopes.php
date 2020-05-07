@@ -89,8 +89,6 @@ class Scopes extends \XLite\View\FormField\Select\Multiple
             'email'   => 'email',
             'profile' => 'profile',
             'address' => 'address',
-            'phone'   => 'phone',
-            'https://uri.paypal.com/services/expresscheckout' => 'Use Seamless Checkout',
         ];
     }
 

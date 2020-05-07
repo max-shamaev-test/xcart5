@@ -22,6 +22,13 @@ XLite\Model\LanguageLabel:
   - { name: 'Use the addon Google Product Feed for advanced flexibility generating a data feed for Facebook based on the product attributes and variants from your store catalog', translations: [{ code: en, label: 'Use the addon Google Product Feed for advanced flexibility generating a data feed for Facebook based on the product attributes and variants from your store catalog' }]}
   - { name: 'Generate product feed', translations: [{ code: en, label: 'Generate product feed' }]}
   - { name: 'Include out of stock products into feed', translations: [{ code: en, label: 'Include out of stock products into feed' }]}
+  - { name: 'Value for the "Add to cart" event is calculated as', translations: [{ code: en, label: 'Value for the "Add to cart" event is calculated as: product price multiplied by' }]}
+  - { name: 'Enable Advanced Matching', translations: [{ code: en, label: 'Enable Advanced Matching' }]}
+  - { name: 'Specify the percentage of users who complete the transaction (Add to cart)', translations: [{ code: en, label: 'Specify the percentage of users who complete the transaction. To find this value, go to Activity > Funnels and create a Funnel with the events Add to Cart and Purchases. The value you require will be shown on a Grey arrow.' }]}
+  - { name: 'Value for the "ViewContent" event on a product page is calculated as', translations: [{ code: en, label: 'Value for the "ViewContent" event on a product page is calculated as: product price multiplied by' }]}
+  - { name: 'Value for the "InitiateCheckout" event is calculated as', translations: [{ code: en, label: 'Value for the "InitiateCheckout" event is calculated as: cart subtotal multiplied by' }]}
+  - { name: 'Specify the percentage of users who complete the transaction (View content)', translations: [{ code: en, label: 'Specify the percentage of users who complete the transaction. To find this value, go to Activity > Funnels and create a Funnel with the events Content View and Purchases. The value you require will be shown on a Grey arrow.' }]}
+  - { name: 'Specify the percentage of users who complete the transaction (Initiate checkout)', translations: [{ code: en, label: 'Specify the percentage of users who complete the transaction. To find this value, go to Activity > Funnels and create a Funnel with the events Initiated Checkout and Purchases. The value you require will be shown on a Grey arrow.' }]}
 
 XLite\Model\Config:
   - name: pixel_id
@@ -36,6 +43,22 @@ XLite\Model\Config:
     category: XC\FacebookMarketing
     type: hidden
     value: 86400
+  - name: add_to_cart_value
+    category: XC\FacebookMarketing
+    type: hidden
+    value: 30
+  - name: view_content_value
+    category: XC\FacebookMarketing
+    type: hidden
+    value: 10
+  - name: init_checkout_value
+    category: XC\FacebookMarketing
+    type: hidden
+    value: 40
+  - name: advanced_matching
+    category: XC\FacebookMarketing
+    type: hidden
+    value: true
 
 XLite\Model\Task:
   - owner: XLite\Module\XC\FacebookMarketing\Core\Task\GenerateProductFeed

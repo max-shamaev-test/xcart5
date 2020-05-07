@@ -9,6 +9,7 @@
 namespace XLite\Module\XC\Onboarding\View\Dashboard;
 
 use XLite\Core\Auth;
+use XLite\Core\Request;
 use XLite\Model\Role\Permission;
 use XLite\Module\XC\Onboarding\Core\WizardState;
 
@@ -17,7 +18,7 @@ use XLite\Module\XC\Onboarding\Core\WizardState;
  *
  * @ListChild(list="dashboard-sidebar", weight="50", zone="admin")
  */
-class WizardStatus extends \XLite\View\AView
+class WizardStatus extends \XLite\Module\XC\Onboarding\View\MiniWizardStatus
 {
     /**
      * Add widget specific CSS file
@@ -27,107 +28,16 @@ class WizardStatus extends \XLite\View\AView
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/style.less';
+        $list[] ='modules/XC/Onboarding/dashboard/wizard/style.less';
 
         return $list;
     }
 
     /**
-     * Add widget specific JS-file
-     *
-     * @return array
-     */
-    public function getJSFiles()
-    {
-        $list = parent::getJSFiles();
-        $list[] = $this->getDir() . '/circle-progress.min.js';
-        $list[] = $this->getDir() . '/controller.js';
-
-        return $list;
-    }
-
-
-    /**
-     * Return widget templates directory
-     *
      * @return string
      */
-    protected function getDir()
+    protected function isTargetIsAllowed()
     {
-        return 'modules/XC/Onboarding/dashboard/wizard';
-    }
-
-    /**
-     * Get block style
-     *
-     * @return string
-     */
-    protected function getBlockStyle()
-    {
-        return '';
-    }
-
-    /**
-     * @return int
-     */
-    protected function getCurrentProgress()
-    {
-        return WizardState::getInstance()->getWizardProgress();
-    }
-
-    /**
-     * @return string
-     */
-    protected function getCurrentStatus()
-    {
-        return $this->getCurrentProgress() > 0
-            ? static::t('X% Wizard completion', ['X' => $this->getCurrentProgress()])
-            : static::t('Let’s setup your store');
-    }
-
-    /**
-     * @return string
-     */
-    protected function getButtonLabel()
-    {
-        return $this->getCurrentProgress() > 0
-            ? 'Continue'
-            : 'Proceed';
-    }
-
-    /**
-     * @return string
-     */
-    protected function getWizardUrl()
-    {
-        return \XLite::getController()->buildURL('onboarding_wizard');
-    }
-
-    /**
-     * @return bool
-     */
-    protected function checkACL()
-    {
-        return Auth::getInstance()->isPermissionAllowed(Permission::ROOT_ACCESS);
-    }
-
-    /**
-     * @return bool
-     */
-    protected function isVisible()
-    {
-        return parent::isVisible()
-            && $this->getCurrentProgress() < 100
-            && \XLite\Core\Config::getInstance()->XC->Onboarding->wizard_state !== 'disabled';
-    }
-
-    /**
-     * Return widget default template
-     *
-     * @return string
-     */
-    protected function getDefaultTemplate()
-    {
-        return $this->getDir() . '/body.twig';
+        return \XLite::getController()->getTarget() === 'main';
     }
 }

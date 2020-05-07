@@ -13,6 +13,13 @@ use XCart\Bus\Rebuild\Scenario\TransitionInfo;
 interface TransitionInterface
 {
     /**
+     * @param TransitionInterface $transition
+     *
+     * @return bool
+     */
+    public function canOverwrite(TransitionInterface $transition): bool;
+
+    /**
      * @return string
      */
     public function getModuleId(): string;

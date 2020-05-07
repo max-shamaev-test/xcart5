@@ -8,36 +8,30 @@
 
 namespace XLite\Module\XC\MailChimp\Core\Action;
 
-use XLite\Module\XC\MailChimp\Core\MailChimpECommerce;
+use XLite\Model\Product;
+use XLite\Module\XC\MailChimp\Core\Request\Product as MailChimpProduct;
+use XLite\Module\XC\MailChimp\Logic\DataMapper;
 use XLite\Module\XC\MailChimp\Main;
 
 class ProductUpdate implements IMailChimpAction
 {
     /**
-     * @var \XLite\Model\Product
+     * @var Product
      */
-    private $product;
+    protected $product;
 
     /**
-     * @inheritDoc
+     * @param Product $product
      */
-    public function __construct(\XLite\Model\Product $product)
+    public function __construct(Product $product)
     {
         $this->product = $product;
     }
 
-    /**
-     *
-     */
-    public function execute()
+    public function execute(): void
     {
-        $ecCore = MailChimpECommerce::getInstance();
-
         foreach (Main::getMainStores() as $store) {
-            $updateResult = $ecCore->updateProduct($store->getId(), $this->product);
-            if ($updateResult === null) {
-                $ecCore->createProduct($store->getId(), $this->product);
-            }
+            MailChimpProduct\Update::scheduleAction($store->getId(), DataMapper\Product::getDataByProduct($this->product));
         }
     }
 }

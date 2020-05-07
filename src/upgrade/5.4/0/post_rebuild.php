@@ -8,6 +8,8 @@
 
 return function()
 {
+    removeEmailNotificationTranslations540();
+
     // Loading data to the database from yaml file
     $yamlFile = __DIR__ . LC_DS . 'post_rebuild.yaml';
 
@@ -36,6 +38,15 @@ function removeConfigOptions540()
     foreach ($options as $option) {
         \XLite\Core\Database::getEM()->remove($option);
     }
+}
+
+function removeEmailNotificationTranslations540()
+{
+    $qb = \XLite\Core\Database::getRepo('XLite\Model\NotificationTranslation')->createPureQueryBuilder('nt');
+    $qb->delete()
+        ->where($qb->expr()->neq('nt.code', ':default_lang'))
+        ->setParameter('default_lang', 'en')
+        ->getQuery()->execute();
 }
 
 function removeEmailNotifications540()

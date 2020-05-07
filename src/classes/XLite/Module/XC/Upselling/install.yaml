@@ -7,7 +7,7 @@
 
 XLite\Model\LanguageLabel:
   - { name: 'Related products', translations: [{ code: en, label: 'Related products' }] }
-  - { name: 'Alternatives products you may be interested in', translations: [{ code: en, label: 'Alternatives products you may be interested in' }] }
+  - { name: 'Alternatives products you may be interested in', translations: [{ code: en, label: 'Alternative products you may be interested in' }] }
   - { name: "This product is no longer available although you may find similar or newer version below.", translations: [{ code: en, label: "This product is no longer available although you may find similar or newer version below." }] }
   - { name: 'Mutual link', translations: [{ code: en, label: 'Bidirectional link' }, { code: ru, label: 'Двунаправленная связь' }] }
   - { name: 'Related products page', translations: [{ code: en, label: 'Related products page' }] }

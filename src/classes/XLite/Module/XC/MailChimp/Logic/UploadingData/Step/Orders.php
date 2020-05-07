@@ -9,10 +9,37 @@
 namespace XLite\Module\XC\MailChimp\Logic\UploadingData\Step;
 
 use XLite\Module\XC\MailChimp\Core\MailChimpECommerce;
-use XLite\Module\XC\MailChimp\Logic\DataMapper\Order;
+use XLite\Module\XC\MailChimp\Logic\DataMapper;
 
 class Orders extends AStep
 {
+    /**
+     * @inheritDoc
+     */
+    public function __construct(\XLite\Logic\AGenerator $generator)
+    {
+        parent::__construct($generator);
+
+        if ($generator) {
+            $this->getRepository()->setExportFilter(
+                static::getLastYearFilter()
+            );
+        }
+    }
+
+    /**
+     * @return \XLite\Core\CommonCell
+     */
+    protected static function getLastYearFilter()
+    {
+        $start = new \DateTime("-1 year");
+
+        $cnd                                    = new \XLite\Core\CommonCell();
+        $cnd->{\XLite\Model\Repo\Order::P_DATE} = [$start->getTimestamp()];
+
+        return $cnd;
+    }
+
     /**
      * @param $model
      */
@@ -20,20 +47,23 @@ class Orders extends AStep
     {
         $model = \XLite\Core\Database::getEM()->merge($model);
 
-        $key = 'batch_data_' . get_class($this);
+        $key     = 'batch_data_' . get_class($this);
         $options = $this->generator->getOptions();
 
         if (!isset($options[$key])) {
             $options[$key] = [];
         }
 
-        $options[$key][] = Order::getDataByOrder(
-            null,
+        $orderData = DataMapper\Order::getDataByOrder(
             null,
             null,
             $model,
             false
         );
+
+        $orderData['customer'] = DataMapper\Customer::getDataForOrder(null, $model->getProfile(), false);
+
+        $options[$key][] = $orderData;
 
         $this->generator->setOptions($options);
     }
@@ -56,20 +86,6 @@ class Orders extends AStep
     }
 
     /**
-     * @inheritDoc
-     */
-    public function __construct(\XLite\Logic\AGenerator $generator)
-    {
-        parent::__construct($generator);
-
-        if ($generator) {
-            $this->getRepository()->setExportFilter(
-                static::getLastYearFilter()
-            );
-        }
-    }
-
-    /**
      * Get repository
      *
      * @return \XLite\Model\Repo\ARepo
@@ -78,18 +94,4 @@ class Orders extends AStep
     {
         return \XLite\Core\Database::getRepo('XLite\Model\Order');
     }
-
-    /**
-     * @return \XLite\Core\CommonCell
-     */
-    protected static function getLastYearFilter()
-    {
-        $start = new \DateTime("-1 year");
-
-        $cnd = new \XLite\Core\CommonCell();
-        $cnd->{\XLite\Model\Repo\Order::P_DATE} = array($start->getTimestamp());
-
-        return $cnd;
-    }
-
 }

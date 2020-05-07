@@ -32,10 +32,10 @@ class Tag extends \XLite\View\ItemsList\Model\Table
         return [
             'name'     => [
                 static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Name'),
-                static::COLUMN_CLASS   => 'XLite\View\FormField\Inline\Input\Text',
-                static::COLUMN_PARAMS  => ['required' => true],
+                static::COLUMN_CLASS   => 'XLite\Module\XC\ProductTags\View\FormField\Inline\Input\Text',
                 static::COLUMN_MAIN    => true,
                 static::COLUMN_PARAMS  => [
+                    \XLite\View\FormField\Input\Base\StringInput::PARAM_REQUIRED => true,
                     \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 128,
                 ],
                 static::COLUMN_ORDERBY => 100,

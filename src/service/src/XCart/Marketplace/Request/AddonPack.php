@@ -20,14 +20,6 @@ use XCart\Marketplace\Validator\Callback as CallbackValidator;
 class AddonPack extends AAPIRequest
 {
     /**
-     * @return int
-     */
-    public static function getTransportTTL(): int
-    {
-        return ITransport::TTL_LONG;
-    }
-
-    /**
      * @return string
      */
     public function getAction(): ?string

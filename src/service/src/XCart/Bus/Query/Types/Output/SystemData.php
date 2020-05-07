@@ -24,15 +24,18 @@ class SystemData extends AObjectType
     {
         return [
             'fields' => [
-                'cacheDate'       => Type::int(),
-                'dataDate'        => Type::int(),
-                'authLock'        => Type::int(),
-                'marketplaceLock' => Type::boolean(),
-                'purchaseUrl'     => Type::string(),
-                'wave'            => Type::string(),
-                'pharIsInstalled' => Type::boolean(),
-                'email'           => Type::string(),
-                'demoMode'        => Type::boolean(),
+                'cacheDate'                 => Type::int(),
+                'dataDate'                  => Type::int(),
+                'authLock'                  => Type::int(),
+                'marketplaceLock'           => Type::boolean(),
+                'purchaseUrl'               => Type::string(),
+                'wave'                      => Type::string(),
+                'pharIsInstalled'           => Type::boolean(),
+                'email'                     => Type::string(),
+                'demoMode'                  => Type::boolean(),
+                'isCloud'                   => Type::boolean(),
+                'displayUploadAddon'        => Type::boolean(),
+                'displayUpdateNotification' => Type::boolean(),
             ],
         ];
     }

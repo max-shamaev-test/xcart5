@@ -64,7 +64,7 @@ class Database extends \XLite\Base\Singleton
      * @var array
      */
     protected static $cacheDriversQuery = [
-        'apc',
+        'apcu',
         'xcache',
         'memcache',
     ];
@@ -842,7 +842,7 @@ class Database extends \XLite\Base\Singleton
     {
         /* @var ClassMetadata $classMetadata */
         $classMetadata = $eventArgs->getClassMetadata();
-        $tableName = isset($classMetadata->table['originalName'])
+        $tableName     = isset($classMetadata->table['originalName'])
             ? $classMetadata->table['originalName']
             : $classMetadata->getTableName();
 
@@ -871,6 +871,10 @@ class Database extends \XLite\Base\Singleton
                     }
                 }
             }
+        }
+
+        if ($classMetadata->getName() === 'XLite\Model\LanguageLabel') {
+            $classMetadata->fieldMappings['name']['options']['collation'] = \XLite\Core\Database::getCharset() . '_bin';
         }
     }
 

@@ -174,7 +174,7 @@ XLite\Model\Config:
     orderby: 400
     translations:
       - code: en
-        option_name: 'Show only ESD related fulfilment statuses'
+        option_name: 'Show only ESD related fulfillment statuses'
         option_comment: 'This option leave only 3 method: New, Delivered and Will Not Deliver. You can rename it with "Custom Order Statuses" module'
       - code: ru
         option_name: 'Отображать только статусы для цифровой дистрибуции'

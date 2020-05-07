@@ -8,7 +8,6 @@
 
 namespace XLite\Module\XC\MailChimp\Logic\DataMapper;
 
-
 class Product
 {
     /**
@@ -16,18 +15,20 @@ class Product
      *
      * @return array
      */
-    public static function getDataByOrderItem(\XLite\Model\OrderItem $item)
+    public static function getDataByOrderItem(\XLite\Model\OrderItem $item): array
     {
+        $image = $item->getImage() ? $item->getImageURL() : null;
+
         $data = [
-            'id'                    => strval($item->getItemId()),
-            'title'                 => $item->getName() ?: '',
-            'url'                   => '',
-            'description'           => '',
-            'vendor'                => 'admin',                             // TODO integration with XC\MultiVendor
-            'image_url'             => $item->getImageURL() ?: '',
-            'variants'              => static::getVariantsByOrderItemData($item),
+            'id'          => (string) $item->getItemId(),
+            'title'       => $item->getName() ?: '',
+            'url'         => '',
+            'description' => '',
+            'vendor'      => 'admin',
+            'image_url'   => $image ?: '',
+            'variants'    => static::getVariantsByOrderItemData($item),
         ];
-        
+
         if ($item->getObject()) {
             // Replace with product data if available
             $data = array_merge(
@@ -35,33 +36,34 @@ class Product
                 static::getDataByProduct($item->getObject())
             );
         }
-        
+
         return $data;
     }
 
     /**
-     * @param \XLite\Model\Product $product
+     * @param \XLite\Model\Product|\XLite\Module\XC\MailChimp\Model\Product $product
      *
      * @return array
      */
-    public static function getDataByProduct(\XLite\Model\Product $product)
+    public static function getDataByProduct(\XLite\Model\Product $product): array
     {
         return [
-            'id'                    => strval($product->getProductId()),
-            'title'                 => $product->getName() ?: '',
-            'url'                   => $product->getFrontURLForMailChimp() ?: '',
-            'description'           => $product->getBriefDescription() ?: '',
-            'vendor'                => 'admin',                             // TODO integration with XC\MultiVendor
-            'image_url'             => $product->getImageURL() ?: '',
-            'variants'              => static::getVariantsByProductData($product),
-            'published_at_foreign'  => date('c', time()),
+            'id'                   => (string) $product->getProductId(),
+            'title'                => $product->getName() ?: '',
+            'url'                  => $product->getFrontURLForMailChimp(),
+            'description'          => $product->getBriefDescription() ?: '',
+            'vendor'               => 'admin',
+            'image_url'            => $product->getImageURL() ?: '',
+            'variants'             => static::getVariantsByProductData($product),
         ];
     }
 
     /**
-     * @param \XLite\Model\Product $product
+     * @param \XLite\Model\Product|\XLite\Module\XC\MailChimp\Model\Product $product
+     *
+     * @return array
      */
-    protected static function getVariantsByProductData(\XLite\Model\Product $product)
+    protected static function getVariantsByProductData(\XLite\Model\Product $product): array
     {
         return [
             Variant::getVariantDataByProduct($product),
@@ -70,30 +72,13 @@ class Product
 
     /**
      * @param \XLite\Model\OrderItem $item
+     *
+     * @return array
      */
-    protected static function getVariantsByOrderItemData(\XLite\Model\OrderItem $item)
+    protected static function getVariantsByOrderItemData(\XLite\Model\OrderItem $item): array
     {
         return [
             Variant::getVariantDataByOrderItem($item),
         ];
-    }
-
-    /**
-     * Get category data
-     * 
-     * @param \XLite\Model\Category[] $categories
-     * @return array
-     */
-    protected static function getCategoryData(array $categories)
-    {
-        if (!empty($categories)) {
-            $categoryId = $categories[0]->getId();
-            $categoryName = $categories[0]->getStringPath();
-        } else {
-            $categoryId = 0;
-            $categoryName = '';
-        }
-        
-        return [ $categoryId, $categoryName ];
     }
 }

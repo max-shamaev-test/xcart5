@@ -45,9 +45,9 @@ abstract class Main extends \XLite\Module\AModuleSkin
     {
         return [
             \XLite\Logic\ImageResize\Generator::MODEL_PRODUCT => [
-                'SBSmallThumbnail' => [100, 120],
-                'XSThumbnail'      => [58, 70],
-                'MSThumbnail'      => [75, 90],
+                'SBSmallThumbnail' => [120, 120],
+                'XSThumbnail'      => [60, 60],
+                'MSThumbnail'      => [60, 60],
             ],
         ];
     }
@@ -456,7 +456,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
                     ['customer.checkout.signin', \XLite\Model\ViewList::INTERFACE_CUSTOMER],
                 ],
                 static::TO_ADD    => [
-                    ['signin-anonymous-title', 300, \XLite\Model\ViewList::INTERFACE_CUSTOMER],
+                    ['signin.main', 20, \XLite\Model\ViewList::INTERFACE_CUSTOMER],
                 ],
             ];
         }
@@ -467,7 +467,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
                     ['customer.checkout.signin', \XLite\Model\ViewList::INTERFACE_CUSTOMER],
                 ],
                 static::TO_ADD    => [
-                    ['signin-anonymous-title', 300, \XLite\Model\ViewList::INTERFACE_CUSTOMER],
+                    ['signin.main', 30, \XLite\Model\ViewList::INTERFACE_CUSTOMER],
                 ],
             ];
         }
@@ -478,7 +478,7 @@ abstract class Main extends \XLite\Module\AModuleSkin
                     ['customer.checkout.signin', \XLite\Model\ViewList::INTERFACE_CUSTOMER],
                 ],
                 static::TO_ADD    => [
-                    ['signin-anonymous-title', 300, \XLite\Model\ViewList::INTERFACE_CUSTOMER],
+                    ['signin.main', 40, \XLite\Model\ViewList::INTERFACE_CUSTOMER],
                 ],
             ];
         }

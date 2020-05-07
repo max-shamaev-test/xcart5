@@ -87,16 +87,7 @@
   // spaced according to the vertical rhythm unit (@rhythmic-unit)
   .vertical-grid(@color: #ddd, @unit:@rhythmic-unit) {
     @stop: 100% - 100% / @unit;
-    background: -webkit-gradient(
-            linear,
-            left top,
-            left bottom,
-            from(white),
-            color-stop(100% - 100% / @unit, white),
-            color-stop(100% - 100% / @unit, @color),
-            to(@color)
-    );
-    background: -moz-linear-gradient(top, white, white @stop, @color @stop,  @color);
+    background: linear-gradient(to bottom, white, white @stop, @color @stop,  @color);
     background-size: auto @unit;
   }
 

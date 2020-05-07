@@ -36,7 +36,7 @@ class MutationType extends AObjectType
         return [
             'name'   => 'Mutation',
             'fields' => [
-                'createScenario'     => [
+                'createScenario'          => [
                     'type'    => $this->app[ScenarioType::class],
                     'args'    => [
                         'type'      => Type::string(),
@@ -44,7 +44,7 @@ class MutationType extends AObjectType
                     ],
                     'resolve' => $this->app[ScenarioResolver::class . ':createScenario'],
                 ],
-                'fillScenario'       => [
+                'fillScenario'            => [
                     'type'    => $this->app[ScenarioType::class],
                     'args'    => [
                         'scenarioId' => Type::nonNull(Type::id()),
@@ -53,14 +53,14 @@ class MutationType extends AObjectType
                     ],
                     'resolve' => $this->app[UpgradeResolver::class . ':fillScenario'], // todo: use scenario resolver
                 ],
-                'discardScenario'    => [
+                'discardScenario'         => [
                     'args'    => [
                         'scenarioId' => Type::nonNull(Type::id()),
                     ],
                     'type'    => $this->app[ScenarioType::class],
                     'resolve' => $this->app[ScenarioResolver::class . ':discardScenario'],
                 ],
-                'changeModulesState' => [
+                'changeModulesState'      => [
                     'args'    => [
                         'states'     => Type::nonNull(Type::listOf($this->app[ChangeModuleStateType::class])),
                         'scenarioId' => Type::nonNull(Type::id()),
@@ -72,7 +72,7 @@ class MutationType extends AObjectType
                     'type'    => $this->app[ScenarioType::class],
                     'resolve' => $this->app[ScenarioResolver::class . ':changeModulesState'],
                 ],
-                'changeSkinState'    => [
+                'changeSkinState'         => [
                     'args'    => [
                         'moduleId'  => Type::nonNull(Type::id()),
                         'returnUrl' => Type::string(),
@@ -80,7 +80,7 @@ class MutationType extends AObjectType
                     'type'    => $this->app[ScenarioType::class],
                     'resolve' => $this->app[ScenarioResolver::class . ':changeSkinState'],
                 ],
-                'startRebuild'       => [
+                'startRebuild'            => [
                     'type'        => $this->app[RebuildStateType::class],
                     'description' => 'Prepares the rebuild execution, checks the environment and returns the initial rebuild state',
                     'args'        => [
@@ -101,7 +101,7 @@ class MutationType extends AObjectType
                     ],
                     'resolve'     => $this->app[RebuildResolver::class . ':startRebuild'],
                 ],
-                'startRollback'      => [
+                'startRollback'           => [
                     'type'        => $this->app[RebuildStateType::class],
                     'description' => 'Prepares the rollback execution',
                     'args'        => [
@@ -112,7 +112,15 @@ class MutationType extends AObjectType
                     ],
                     'resolve'     => $this->app[RebuildResolver::class . ':startRollback'],
                 ],
-                'executeRebuild'     => [
+                'dropRebuild'             => [
+                    'type'    => Type::boolean(),
+                    'resolve' => $this->app[RebuildResolver::class . ':dropRebuild'],
+                ],
+                'clearCache'             => [
+                    'type'    => Type::boolean(),
+                    'resolve' => $this->app[LicenseResolver::class . ':clearCache'],
+                ],
+                'executeRebuild'          => [
                     'type'        => $this->app[RebuildStateType::class],
                     'description' => 'Runs the rebuild script execution step, returning the execution state',
                     'args'        => [
@@ -131,7 +139,7 @@ class MutationType extends AObjectType
                     ],
                     'resolve'     => $this->app[RebuildResolver::class . ':executeRebuild'],
                 ],
-                'registerLicenseKey' => [
+                'registerLicenseKey'      => [
                     'type'    => $this->app[LicenseStateType::class],
                     'args'    => [
                         'key'   => Type::string(),
@@ -139,33 +147,40 @@ class MutationType extends AObjectType
                     ],
                     'resolve' => $this->app[LicenseResolver::class . ':register'],
                 ],
-                'resendLicenseKey' => [
+                'resendLicenseKey'        => [
                     'type'    => $this->app[LicenseStateType::class],
                     'args'    => [
                         'email' => Type::string(),
                     ],
                     'resolve' => $this->app[LicenseResolver::class . ':resendLicenseKey'],
                 ],
-                'setWave'            => [
+                'setWave'                 => [
                     'type'    => $this->app[WaveType::class],
                     'args'    => [
                         'wave' => Type::string(),
                     ],
                     'resolve' => $this->app[WavesResolver::class . ':changeWave'],
                 ],
-                'requestForUpgrade'  => [
+                'requestForUpgrade'       => [
                     'type'    => Type::listOf($this->app[AlertType::class]),
                     'args'    => [
                         'id' => Type::id(),
                     ],
                     'resolve' => $this->app[UpgradeResolver::class . ':requestForUpgrade'],
                 ],
-                'removeUnallowedModules'     => [
+                'removeUnallowedModules'  => [
                     'type'    => $this->app[ScenarioType::class],
                     'args'    => [
                         'returnUrl' => Type::string(),
                     ],
                     'resolve' => $this->app[ScenarioResolver::class . ':mutateRemoveUnallowedModules'],
+                ],
+                'disableUnallowedModules' => [
+                    'type'    => $this->app[ScenarioType::class],
+                    'args'    => [
+                        'returnUrl' => Type::string(),
+                    ],
+                    'resolve' => $this->app[ScenarioResolver::class . ':mutateDisableUnallowedModules'],
                 ],
             ],
         ];

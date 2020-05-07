@@ -81,6 +81,10 @@ class Files extends \XLite\Controller\Admin\AAdmin
                 : new \XLite\Model\Video\Temporary();
         }
 
+        if (\XLite\Core\Request::getInstance()->alt) {
+            $file->setAlt(\XLite\Core\Request::getInstance()->alt);
+        }
+
         $message = '';
         if ($file->loadFromRequest('file')) {
             $this->checkFile($file);
@@ -110,6 +114,11 @@ class Files extends \XLite\Controller\Admin\AAdmin
             ? new \XLite\Model\Image\Content()
             : new \XLite\Model\TemporaryFile();
         $message = '';
+
+        if (\XLite\Core\Request::getInstance()->alt) {
+            $file->setAlt(\XLite\Core\Request::getInstance()->alt);
+        }
+
         if ($file->loadFromURL(\XLite\Core\Request::getInstance()->uploadedUrl, \XLite\Core\Request::getInstance()->copy)) {
             $this->checkFile($file);
             $this->postProcessImageUpload($file);

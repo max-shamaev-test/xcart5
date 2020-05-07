@@ -35,7 +35,6 @@ class MarketPrice extends \XLite\Module\XC\BulkEditing\Logic\BulkEdit\Field\AFie
                         'message' => static::t('Minimum value is X', ['value' => 0]),
                     ],
                 ],
-                'input_grid'        => 'col-sm-2',
                 'position'          => isset($options['position']) ? $options['position'] : 0,
             ],
         ];

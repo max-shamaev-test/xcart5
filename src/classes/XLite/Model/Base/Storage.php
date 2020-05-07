@@ -345,8 +345,10 @@ abstract class Storage extends \XLite\Model\AEntity
     {
         if ($this->isURL($path) && !$forceFile) {
             $headers = \XLite\Core\Operator::checkURLAvailability($path ?: $this->getPath());
+            $contentLengths = explode(',', $headers->ContentLength ?? '');
+            $contentLength = (int)array_pop($contentLengths);
 
-            $exists = $headers && $headers->ContentLength > 0;
+            $exists = $headers && $contentLength > 0;
         } else {
             $exists = \Includes\Utils\FileManager::isFileReadable($path ?: $this->getStoragePath());
         }
@@ -1002,6 +1004,8 @@ abstract class Storage extends \XLite\Model\AEntity
             }
         } elseif (static::STORAGE_ABSOLUTE == $this->getStorageType()) {
             $result = ($path ?: $this->getPath());
+        } elseif (static::STORAGE_URL == $this->getStorageType()){
+            $result = $this->getPath();
         }
 
         return $result;

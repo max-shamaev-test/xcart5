@@ -13,7 +13,7 @@
 
     <div class="add-coupon clearfix" style="display: none;">
       {% form '\\XLite\\Module\\CDev\\Coupons\\View\\Form\\Customer\\AddCoupon' %}
-        {{ widget('XLite\\View\\FormField\\Input\\Text', fieldName='code', required='true', placeholder=t('Enter code'), maxlength='16', fieldOnly=this.isFieldOnly(), label=t('Coupon code')) }}
+        {{ widget('XLite\\View\\FormField\\Input\\Text', fieldName='code', required='true', placeholder=t('Enter code', [], null, 'placeholder'), maxlength='16', fieldOnly=this.isFieldOnly(), label=t('Coupon code')) }}
         {{ widget('XLite\\Module\\CDev\\Coupons\\View\\Button\\AddCoupon') }}
       {% endform %}
     </div>

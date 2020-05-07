@@ -12,7 +12,7 @@ function getWholesaleParams(product)
   var base = jQuery('.product-info-' + product.product_id);
 
   return {
-    quantity: jQuery(".product-qty input[type='text']", base).val()
+    quantity: jQuery(".product-qty input[type='number']", base).val()
   };
 }
 
@@ -33,29 +33,35 @@ function bindWholesaleTriggers()
   };
 
   var timer;
-  var forms = jQuery(".product-qty.wholesale-price-defined input[type='text']").closest('form');
+  var forms = jQuery(".product-qty.wholesale-price-defined input[type='number']").closest('form');
 
   if (forms) {
     forms.each(function(id, obj) {
       var productId = jQuery('input[name="product_id"]', obj).val();
-      jQuery(".product-qty.wholesale-price-defined input[type='text']", obj)
-        .one(
-          'input',
-          function (event) {
-            clearTimeout(timer);
-            timer = setTimeout(
-              function () {
-                var ctrl = event.currentTarget.commonController;
-                if (ctrl.isChanged() && ctrl.validate(true)) {
-                  ctrl.saveValue();
-                  handler(productId);
-                }
-              },
-              2000
-            );
-        });
+      before_handler(obj, timer, handler, productId);
     });
   }
+}
+
+function before_handler(obj, timer, handler, productId) {
+  jQuery(".product-qty.wholesale-price-defined input[type='number']", obj)
+    .one(
+      'input',
+      function (event) {
+        clearTimeout(timer);
+        timer = setTimeout(
+          function () {
+            var ctrl = event.currentTarget.commonController;
+            if (ctrl.isChanged() && ctrl.validate(true)) {
+              ctrl.saveValue();
+              handler(productId);
+            } else {
+              before_handler(obj, timer, handler, productId);
+            }
+          },
+          2000
+        );
+    });
 }
 
 core.registerWidgetsParamsGetter('update-product-page', getWholesaleParams);

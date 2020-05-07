@@ -24,7 +24,14 @@ jQuery().ready(
             self.location = URLHandler.buildURL({ 'target': 'facebook_marketing', 'product_feed_generation_completed': 1 });
           }
         }
-      );
+      ).bind(
+        'cancel',
+        function() {
+          setTimeout(function() {
+            self.location = URLHandler.buildURL({ 'target': 'facebook_marketing' });
+          }, 4000);
+        }
+    );
 
     var height = 0;
     jQuery('.product-feed-generation-completed .files.std ul li.file').each(

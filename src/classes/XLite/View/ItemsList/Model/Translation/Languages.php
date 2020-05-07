@@ -8,9 +8,6 @@
 
 namespace XLite\View\ItemsList\Model\Translation;
 
-use Includes\Utils\Module\Manager;
-use Includes\Utils\Module\Module;
-
 /**
  * Languages list
  */
@@ -90,7 +87,7 @@ class Languages extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_NAME  => static::t('Customer area'),
                 static::COLUMN_SUBHEADER => static::t('Default: {{code}}',
                     ['code' => mb_strtoupper(\XLite\Core\Config::getInstance()->General->default_language)]),
-                static::COLUMN_CLASS => '\XLite\View\FormField\Inline\Input\Radio\Radio',
+                static::COLUMN_CLASS => \XLite\View\FormField\Inline\Input\Radio\Radio::class,
                 static::COLUMN_EDIT_ONLY => true,
                 static::COLUMN_PARAMS => array(
                     'fieldName' => 'defaultCustomer',
@@ -101,7 +98,7 @@ class Languages extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_NAME => static::t('Admin panel'),
                 static::COLUMN_SUBHEADER => static::t('Default: {{code}}',
                     ['code' => mb_strtoupper(\XLite\Core\Config::getInstance()->General->default_admin_language)]),
-                static::COLUMN_CLASS => '\XLite\View\FormField\Inline\Input\Radio\Radio',
+                static::COLUMN_CLASS => \XLite\View\FormField\Inline\Input\Radio\Radio::class,
                 static::COLUMN_EDIT_ONLY => true,
                 static::COLUMN_PARAMS => array(
                     'fieldName' => 'defaultAdmin',
@@ -115,6 +112,12 @@ class Languages extends \XLite\View\ItemsList\Model\Table
                 static::COLUMN_HEAD_HELP => $this->getColumnLabelsCountHelp(),
                 static::COLUMN_ORDERBY  => 250,
             ),
+            'countries' => [
+                static::COLUMN_NAME    => \XLite\Core\Translation::lbl('Countries'),
+                static::COLUMN_MAIN    => true,
+                static::COLUMN_CLASS   => \XLite\View\FormField\Inline\Select\Select2\Countries::class,
+                static::COLUMN_ORDERBY => 800,
+            ],
         );
     }
 
@@ -158,7 +161,7 @@ class Languages extends \XLite\View\ItemsList\Model\Table
      */
     protected function getData(\XLite\Core\CommonCell $cnd, $countOnly = false)
     {
-        $languages = \XLite\Core\Database::getRepo('\XLite\Model\Language')->findAddedLanguages();
+        $languages = \XLite\Core\Database::getRepo(\XLite\Model\Language::class)->findAddedLanguages();
 
         return $countOnly ? count($languages) : $languages;
     }
@@ -269,7 +272,7 @@ class Languages extends \XLite\View\ItemsList\Model\Table
      */
     protected function getLabelsCount(\XLite\Model\AEntity $entity)
     {
-        return \XLite\Core\Database::getRepo('XLite\Model\LanguageLabel')->countByCode($entity->getCode());
+        return \XLite\Core\Database::getRepo(\XLite\Model\LanguageLabel::class)->countByCode($entity->getCode());
     }
 
     /**
@@ -318,10 +321,9 @@ class Languages extends \XLite\View\ItemsList\Model\Table
         $message = null;
 
         if ($entity->getValidModule()) {
-            $author = Module::callMainClassMethod($entity->getModule(), 'getAuthorName');
-            $module = Module::callMainClassMethod($entity->getModule(), 'getModuleName');
+            $module = \Includes\Utils\Module\Manager::getRegistry()->getModule($entity->getModule());
 
-            $moduleName = sprintf('%s (%s)', $module, $author);
+            $moduleName = sprintf('%s (%s)', $module->moduleName, $module->authorName);
             $message = static::t('This language is added by module and cannot be removed.', array('module' => $moduleName));
 
         } elseif ('en' === $entity->getCode()) {
@@ -341,5 +343,31 @@ class Languages extends \XLite\View\ItemsList\Model\Table
     protected function getRemoveMessage($count)
     {
         return static::t('X languages have been removed', array('count' => $count));
+    }
+
+    /**
+     * Returns list of available country codes
+     *
+     * @return array
+     */
+    protected function getUnavailableCountries()
+    {
+        $unavailableCountries = \XLite\Core\Database::getRepo(\XLite\Model\Country::class)->findAllEnabledCountriesWithActiveLanguage();
+
+        $result = array_map(function ($value) {
+            return $value['code'];
+        }, $unavailableCountries);
+
+        return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function displayCommentedData(array $data)
+    {
+        $data['unavailableCountries'] = $this->getUnavailableCountries();
+
+        parent::displayCommentedData($data);
     }
 }

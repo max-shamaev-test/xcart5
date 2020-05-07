@@ -23,6 +23,7 @@ abstract class AAdmin extends \XLite\Core\Mail\Order\AOrder
     {
         return [
                 'customer_name' => '',
+                'first_name'    => static::t('na_admin'),
                 'order_link'    => \XLite::getInstance()->getShopURL(),
             ] + parent::defineVariables();
     }
@@ -39,6 +40,7 @@ abstract class AAdmin extends \XLite\Core\Mail\Order\AOrder
 
         $this->populateVariables([
             'customer_name' => $order->getProfile()->getName(),
+            'first_name'    => static::t('na_admin'),
             'order_link'    => Converter::buildFullURL(
                 'order',
                 '',

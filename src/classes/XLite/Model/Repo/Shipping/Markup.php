@@ -44,11 +44,10 @@ class Markup extends \XLite\Model\Repo\ARepo
      */
     public function findMarkupsByProcessor($processor, \XLite\Logic\Order\Modifier\Shipping $modifier)
     {
-        $result = array();
+        $result = [];
+        $customerZones = [];
 
         $address = \XLite\Model\Shipping::getInstance()->getDestinationAddress($modifier);
-
-        $customerZones = array();
 
         if (null !== $address) {
             // Get customer zone sorted out by weight

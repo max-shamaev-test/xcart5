@@ -26,4 +26,18 @@ class PaymentMethod extends \XLite\View\ItemsList\Model\Payment\Item\PaymentMeth
         return $result;
     }
 
+    /**
+     * Get a list of CSS files required to display the widget properly
+     *
+     * @return array
+     */
+    public function getCSSFiles()
+    {
+        $list = parent::getCSSFiles();
+
+        $list[] = 'modules/XPay/XPaymentsCloud/items_list/payment_method.css';
+
+        return $list;
+    }
+
 }

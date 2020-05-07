@@ -8,6 +8,8 @@
 
 namespace XLite\Module\XPay\XPaymentsCloud\Model;
 
+use \XLite\Module\XPay\XPaymentsCloud\Main as XPaymentsCloud;
+
 /**
  * X-Payments Specific fields
  *
@@ -24,11 +26,11 @@ class Profile extends \XLite\Model\Profile implements \XLite\Base\IDecorator
     protected $xpaymentsCustomerId = '';
 
     /**
-     * Hash of X-Payments cards
+     * Cache of X-Payments cards and related data
      *
-     * @var array
+     * @var \stdClass
      */
-    protected $cards = null;
+    protected $xpaymentsCardsCache = null;
 
     /**
      * Returns X-Payments Customer Id
@@ -55,13 +57,14 @@ class Profile extends \XLite\Model\Profile implements \XLite\Base\IDecorator
     }
 
     /**
-     * Get SDK Client
+     * Get X-Payments Saved cards limit
      *
-     * @return \XPaymentsCloud\Client
+     * @return \stdClass
      */
-    protected function getXpaymentsClient()
+    public function getXpaymentsTokenizationSettings()
     {
-        return \XLite\Module\XPay\XPaymentsCloud\Core\ApiClient::getInstance()->getClient();
+        $this->validateXpaymentsCardsCache();
+        return $this->xpaymentsCardsCache;
     }
 
     /**
@@ -71,35 +74,59 @@ class Profile extends \XLite\Model\Profile implements \XLite\Base\IDecorator
      */
     public function getXpaymentsCards()
     {
-        if (null === $this->cards) { 
+        $this->validateXpaymentsCardsCache();
+        return $this->xpaymentsCardsCache['cards'];
+    }
 
-            $this->cards = array();
+    /**
+     * Makes API call to get cards and related data if it is not made yet
+     *
+     * @return void
+     */
+    protected function validateXpaymentsCardsCache()
+    {
+        if (null === $this->xpaymentsCardsCache) {
 
-            if (
-                $this->getXpaymentsClient()
-                && $this->getXpaymentsCustomerId()
-            ) {
+            $this->xpaymentsCardsCache = [
+                'cards' => [],
+                'limit' => 3,
+                'limitReached' => false,
+                'tokenizationEnabled' => false,
+                'tokenizeCardAmount' => '1.00',
+            ];
 
-                try {
+            try {
 
-                    $this->cards = $this->getXpaymentsClient()
-                        ->doGetCustomerCards($this->getXpaymentsCustomerId())
-                        ->customer_cards;
+                if ($this->getXpaymentsCustomerId()) {
+                    $response = XPaymentsCloud::getClient()
+                        ->doGetCustomerCards($this->getXpaymentsCustomerId());
 
-                    foreach ($this->cards as &$card) {
+                    $this->xpaymentsCardsCache['cards'] = $response->cards;
+
+                    foreach ($this->xpaymentsCardsCache['cards'] as &$card) {
                         $card['cssType'] = strtolower($card['type']);
-                        $card['cardNumber'] = sprintf('%s******%s', $card['first6'], $card['last4']);
+                        $placeholderLength = ('amex' === $card['cssType']) ? 5 : 6;
+                        $card['placeholder'] = str_repeat('&#8226;', $placeholderLength);
+                        $card['cardNumber'] =
+                            $card['first6']
+                            . str_repeat('*', $placeholderLength)
+                            . $card['last4'];
                         $card['expire'] = sprintf('%s/%s', $card['expireMonth'], $card['expireYear']);
                     }
-
-                } catch (\Exception $exception) {
-
-                    \XLite\Logger::getInstance()->logCustom('XPaymentsCloud', $exception->getMessage());
+                } else {
+                    $response = XPaymentsCloud::getClient()->doGetTokenizationSettings();
                 }
+
+                $this->xpaymentsCardsCache['limit'] = $response->limit;
+                $this->xpaymentsCardsCache['limitReached'] = $response->limitReached;
+                $this->xpaymentsCardsCache['tokenizationEnabled'] = $response->tokenizationEnabled;
+                $this->xpaymentsCardsCache['tokenizeCardAmount'] = $response->tokenizeCardAmount;
+
+            } catch (\Exception $exception) {
+
+                XPaymentsCloud::log($exception->getMessage());
             }
         }
-
-        return $this->cards;
     }
 
     /**
@@ -113,21 +140,18 @@ class Profile extends \XLite\Model\Profile implements \XLite\Base\IDecorator
     {
         $result = false;
 
-        if (
-            $this->getXpaymentsClient()
-            && $this->getXpaymentsCustomerId()
-        ) {
+        if ($this->getXpaymentsCustomerId()) {
 
             try {
 
-                $response = $this->getXpaymentsClient()
+                $response = XPaymentsCloud::getClient()
                     ->doSetDefaultCustomerCard($this->getXpaymentsCustomerId(), $cardId);
 
                 $result = (bool)$response->result;
 
             } catch (\Exception $exception) {
 
-                \XLite\Logger::getInstance()->logCustom('XPaymentsCloud', $exception->getMessage());
+                XPaymentsCloud::log($exception->getMessage());
             }
         }
 
@@ -145,21 +169,18 @@ class Profile extends \XLite\Model\Profile implements \XLite\Base\IDecorator
     {
         $result = false;
 
-        if (
-            $this->getXpaymentsClient()
-            && $this->getXpaymentsCustomerId()
-        ) {
+        if ($this->getXpaymentsCustomerId()) {
 
             try {
 
-                $response = $this->getXpaymentsClient()
+                $response = XPaymentsCloud::getClient()
                     ->doDeleteCustomerCard($this->getXpaymentsCustomerId(), $cardId);
 
                 $result = (bool)$response->result;
 
             } catch (\Exception $exception) {
 
-                \XLite\Logger::getInstance()->logCustom('XPaymentsCloud', $exception->getMessage());
+                XPaymentsCloud::log($exception->getMessage());
             }
         }
 

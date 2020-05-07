@@ -18,7 +18,7 @@ abstract class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\I
      *
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @OneToMany (targetEntity="XLite\Module\XC\CanadaPost\Model\Order\Parcel\Item", mappedBy="orderItem", cascade={"all"})
+     * @OneToMany (targetEntity="XLite\Module\XC\CanadaPost\Model\Order\Parcel\Item", mappedBy="orderItem")
      */
     protected $capostParcelItems;
 
@@ -30,6 +30,13 @@ abstract class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\I
      * @OneToMany (targetEntity="XLite\Module\XC\CanadaPost\Model\ProductsReturn\Item", mappedBy="orderItem", cascade={"all"})
      */
     protected $capostReturnItems;
+
+    /**
+     * Canada Post return items (reference to the Canada Post return item model)
+     *
+     * @var integer
+     */
+    protected $copyOfAmount;
 
     /**
      * Add a Canada Post parcel item 
@@ -101,5 +108,23 @@ abstract class OrderItem extends \XLite\Model\OrderItem implements \XLite\Base\I
     public function getCapostReturnItems()
     {
         return $this->capostReturnItems;
+    }
+
+    /**
+     * Set copy of amount
+     */
+    public function setCopyOfAmount()
+    {
+        $this->copyOfAmount = $this->getAmount();
+    }
+
+    /**
+     * Return copy of amount
+     *
+     * @return int|null
+     */
+    public function getCopyOfAmount()
+    {
+        return $this->copyOfAmount;
     }
 }

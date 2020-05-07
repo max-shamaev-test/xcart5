@@ -31,6 +31,13 @@
             tags: self.params.allowCreateTags,
             escapeMarkup: function (markup) {
               return markup;
+            },
+            createTag: function (params) {
+              return {
+                id: '_' + params.term,
+                text:  params.term,
+                newTag: true // add additional parameters
+              }
             }
           }
         )

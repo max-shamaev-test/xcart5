@@ -52,7 +52,8 @@ class DateRange extends \XLite\View\FormField\Input\Text
      */
     protected static function getDateFormat($forJS = false)
     {
-        return $forJS ? 'M d, yy' : 'M d, Y';
+        $formats = \XLite\Core\Converter::getDateFormatsByStrftimeFormat();
+        return $forJS ? $formats['jsFormat'] : $formats['phpFormat'];
     }
 
     /**

@@ -134,8 +134,20 @@ class PayflowAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
                 $product = $item->getProduct();
                 $result['L_NAME' . $index] = $product->getName();
 
-                if ($product->getSku()) {
-                    $result['L_SKU' . $index] = $product->getSku();
+                if ($item->getSku()) {
+                    $result['L_SKU' . $index] = $item->getSku();
+                }
+
+                $attributesValues = [];
+                foreach ($item->getAttributeValues() as $k => $value) {
+                    $attrValue = $value->getValue();
+                    if ($value) {
+                        $attributesValues[] = $value->getActualName() . ': ' . $attrValue;
+                    }
+                }
+
+                if ($attributesValues) {
+                    $result['L_DESC' . $index] = implode(', ', $attributesValues);
                 }
 
                 $qty = $item->getAmount();
@@ -639,11 +651,6 @@ class PayflowAPI extends \XLite\Module\CDev\Paypal\Core\AAPI
         // todo: remove?!
         if (\XLite\Core\Config::getInstance()->Security->customer_security) {
             $result['HDRIMG'] = \XLite\Module\CDev\Paypal\Main::getLogo();
-        }
-
-        if (\Includes\Utils\ConfigParser::getOptions(array('other', 'cookie_samesite'))) {
-            // Cookie's samesite option has non-empty value, pass user session as an additional parameter
-            $result['USER1'] = \XLite\Core\Session::getInstance()->getID();
         }
 
         return $result;

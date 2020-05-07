@@ -104,7 +104,7 @@ class MailChimpLoggableAPI extends \DrewM\MailChimp\MailChimp
         $request = $this->getLastRequest();
         $request['body'] = json_decode($request['body'], true);
 
-        $response = $this->getLastRequest();
+        $response = $this->getLastResponse();
         $response['body'] = json_decode($response['body'], true);
 
         if ($this->success()) {

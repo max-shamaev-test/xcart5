@@ -30,7 +30,7 @@ class EditMethod extends \XLite\View\Shipping\EditMethod implements \XLite\Base\
         /** @var \XLite\Module\XC\FreeShipping\Model\Shipping\Method $method */
         $method = $this->getMethod();
 
-        return ($method->getFree() || $this->isFixedFeeMethod($method))
+        return ($method->getFree() || $method->isFixedFee())
             ? 'modules/XC/FreeShipping/shipping/add_method/parts/offline_help.twig'
             : 'shipping/add_method/parts/offline_help.twig';
     }
@@ -44,7 +44,7 @@ class EditMethod extends \XLite\View\Shipping\EditMethod implements \XLite\Base\
     {
         $method = $this->getMethod();
 
-        return $this->isFixedFeeMethod($method)
+        return $method->isFixedFee()
             ? static::t('Shipping freight tooltip text')
             : static::t('Free shipping tooltip text');
     }
@@ -63,18 +63,5 @@ class EditMethod extends \XLite\View\Shipping\EditMethod implements \XLite\Base\
         }
 
         return $this->method;
-    }
-
-    /**
-     * Return true if method is 'Freight fixed fee'
-     *
-     * @param \XLite\Model\Shipping\Method $method
-     *
-     * @return boolean
-     */
-    protected function isFixedFeeMethod(\XLite\Model\Shipping\Method $method)
-    {
-        return \XLite\Model\Shipping\Method::METHOD_TYPE_FIXED_FEE === $method->getCode()
-            && 'offline' === $method->getProcessor();
     }
 }

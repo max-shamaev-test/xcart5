@@ -9,8 +9,6 @@
 
 .address-block {
   list-style: none;
-  width: -webkit-calc(~"50% - 20px");
-  width: -moz-calc(~"50% - 20px");
   width: calc(~"50% - 20px");
   display: inline-block;
   border: @border-base solid @color-border;
@@ -78,16 +76,10 @@
   ul.addresses {
     margin: 0px;
     padding: 0px;
-    width: -webkit-calc(~"100% + 20px");
-    width: -moz-calc(~"100% + 20px");
     width: calc(~"100% + 20px");
 
     @media(min-width: @screen-xs-min) {
-      display: -webkit-box;
-      display: -ms-flexbox;
       display: flex;
-
-      -ms-flex-wrap: wrap;
       flex-wrap: wrap;
     }
 

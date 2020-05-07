@@ -20,7 +20,7 @@ use XCart\SilexAnnotations\Annotations\Service;
 class XC5LoginService
 {
     /**
-     * @var \GuzzleHttp\Client
+     * @var XCart
      */
     protected $client;
 

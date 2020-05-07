@@ -51,5 +51,17 @@ abstract class ACustomer extends \XLite\View\Product\Details\ADetails
         );
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function getJSFiles()
+    {
+        return array_merge(
+            parent::getJSFiles(),
+            [
+                'js/attributetoform.js'
+            ]
+        );
+    }
 
 }

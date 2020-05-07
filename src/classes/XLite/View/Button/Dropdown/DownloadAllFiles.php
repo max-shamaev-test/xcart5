@@ -29,7 +29,8 @@ class DownloadAllFiles extends \XLite\View\Button\Dropdown\ADropdown
                     'label'      => $type,
                     'icon-style' => 'icon-zip',
                     'location'   => static::buildURL('export', 'pack', ['type' => $type])
-                ]
+                ],
+                'position' => 100,
             ];
         }
 

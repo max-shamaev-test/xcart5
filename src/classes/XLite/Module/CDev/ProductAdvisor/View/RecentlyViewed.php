@@ -316,7 +316,7 @@ class RecentlyViewed extends \XLite\View\ItemsList\Product\Customer\ACustomer
 
         return array_merge($result, [
             \XLite\View\Product\ListItem::PARAM_ICON_MAX_HEIGHT => 120,
-            \XLite\View\Product\ListItem::PARAM_ICON_MAX_WIDTH  => 100,
+            \XLite\View\Product\ListItem::PARAM_ICON_MAX_WIDTH  => 120,
         ]);
     }
 }

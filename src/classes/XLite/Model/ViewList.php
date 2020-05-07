@@ -8,6 +8,9 @@
 
 namespace XLite\Model;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Includes\Utils\Module\Manager;
+
 /**
  * View list
  *
@@ -74,10 +77,18 @@ class ViewList extends \XLite\Model\AEntity
      *
      * @var \XLite\Model\ViewList
      *
-     * @ManyToOne  (targetEntity="XLite\Model\ViewList", inversedBy="presetVariants")
-     * @JoinColumn (name="parent_id", referencedColumnName="list_id", onDelete="CASCADE")
+     * @ManyToOne  (targetEntity="XLite\Model\ViewList", inversedBy="variants")
+     * @JoinColumn (name="parent_id", referencedColumnName="list_id", onDelete="SET NULL")
      */
     protected $parent;
+
+    /**
+     * Variants of view list item
+     *
+     * @OneToMany (targetEntity="XLite\Model\ViewList", mappedBy="parent")
+     * @OrderBy ({"list_id"="ASC"})
+     */
+    protected $variants;
 
     /**
      * Class list name
@@ -170,6 +181,21 @@ class ViewList extends \XLite\Model\AEntity
     protected $override_mode = 0;
 
     /**
+     * Is class or template is deleted
+     *
+     * @var boolean
+     *
+     * @Column (type="boolean")
+     */
+    protected $deleted = false;
+
+    public function __construct(array $data = array())
+    {
+        $this->variants = new ArrayCollection();
+        parent::__construct($data);
+    }
+
+    /**
      * Get in zone hash
      *
      * @return string
@@ -216,6 +242,24 @@ class ViewList extends \XLite\Model\AEntity
     }
 
     /**
+     * Prepare remove
+     *
+     * @return void
+     *
+     * @PreRemove
+     */
+    public function prepareBeforeRemove()
+    {
+        if ($this->parent) {
+            $this->parent->removeVariant($this);
+        }
+
+        foreach ($this->variants->getIterator() as $child) {
+            $child->deleteParent();
+        }
+    }
+
+    /**
      * Get list_id
      *
      * @return integer 
@@ -234,6 +278,7 @@ class ViewList extends \XLite\Model\AEntity
      */
     public function setParent(ViewList $parent)
     {
+        $parent->addVariant($this);
         $this->parent = $parent;
         return $this;
     }
@@ -246,6 +291,17 @@ class ViewList extends \XLite\Model\AEntity
     public function getParent()
     {
         return $this->parent;
+    }
+
+    /**
+     * Delete parent
+     *
+     * @return $this
+     */
+    public function deleteParent()
+    {
+        $this->parent = null;
+        return $this;
     }
 
     /**
@@ -447,6 +503,58 @@ class ViewList extends \XLite\Model\AEntity
     }
 
     /**
+     * @return bool
+     */
+    public function getDeleted()
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * @param bool $deleted
+     * @return ViewList
+     */
+    public function setDeleted($deleted)
+    {
+        $this->deleted = $deleted;
+        return $this;
+    }
+
+    /**
+     * Get view list variants
+     *
+     * @return ArrayCollection
+     */
+    public function getVariants()
+    {
+        return $this->variants;
+    }
+
+    /**
+     * Add view list variant
+     *
+     * @param ViewList $entity
+     * @return $this
+     */
+    public function addVariant(ViewList $entity)
+    {
+        $this->variants[] = $entity;
+
+        return $this;
+    }
+
+    /**
+     * Remove view list variant
+     *
+     * @param ViewList $entity
+     * @return bool
+     */
+    public function removeVariant(ViewList $entity)
+    {
+        return $this->variants->removeElement($entity);
+    }
+
+    /**
      * Returns name of view list where this item will be actually displayed (takes overrides into account)
      *
      * @return string
@@ -523,6 +631,33 @@ class ViewList extends \XLite\Model\AEntity
             $this->setWeightOverride($other->getWeightOverride());
             $this->setOverrideMode($other->getOverrideMode());
         }
+    }
+
+    /**
+     * Check if module for list item is enabled
+     *
+     * @return bool
+     */
+    public function isViewListModuleEnabled()
+    {
+        $class = $this->getChild();
+        $tpl = $this->getTpl();
+
+        if ($class
+            && preg_match('/XLite\\\Module\\\(\w+)\\\(\w+)\\\/S', $class, $match)
+            && !Manager::getRegistry()->isModuleEnabled($match[1], $match[2])
+        ) {
+            return false;
+        }
+
+        if ($tpl
+            && preg_match('#modules/(\w+)/(\w+)/#S', $tpl, $match)
+            && !Manager::getRegistry()->isModuleEnabled($match[1], $match[2])
+        ) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

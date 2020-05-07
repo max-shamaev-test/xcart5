@@ -13,7 +13,6 @@ namespace XLite\View;
  */
 class ShippingList extends \XLite\View\AView
 {
-    const DISPLAY_SELECTOR_CUTOFF = 5;
 
     const PARAM_CART = 'cart';
 
@@ -36,6 +35,16 @@ class ShippingList extends \XLite\View\AView
         $list[] = 'form_field/js/shipping_list.js';
 
         return $list;
+    }
+
+    /**
+     * Get display selector cutoff
+     *
+     * @return integer
+     */
+    public function getDisplaySelectorCutoff()
+    {
+        return \Includes\Utils\ConfigParser::getOptions(['shipping_list', 'display_selector_cutoff']);
     }
 
     /**
@@ -185,7 +194,7 @@ class ShippingList extends \XLite\View\AView
      */
     protected function isDisplaySelector()
     {
-        return static::DISPLAY_SELECTOR_CUTOFF < count($this->getRates());
+        return $this->getDisplaySelectorCutoff() < count($this->getRates());
     }
 
     /**
@@ -216,10 +225,10 @@ class ShippingList extends \XLite\View\AView
             ? sprintf(' (%s) ', $this->getMethodDeliveryTime($rate))
             : '';
 
-        return $this->getMethodName($rate)
+        return static::formatPrice($this->getTotalRate($rate), $this->getCart()->getCurrency())
             . $deliveryTimeStr
             . ' - '
-            . static::formatPrice($this->getTotalRate($rate), $this->getCart()->getCurrency());
+            . $this->getMethodName($rate);
     }
 
     /**

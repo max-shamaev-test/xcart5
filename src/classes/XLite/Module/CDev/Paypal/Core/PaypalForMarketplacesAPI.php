@@ -394,7 +394,7 @@ class PaypalForMarketplacesAPI
                 'cache.enabled'        => true,
                 'cache.FileName'       => LC_DIR_DATA . 'paypal.auth.cache',
                 'log.LogEnabled'       => true,
-                'log.FileName'         => LC_DIR_LOG . date('Y' . LC_DS . 'm') . LC_DS . 'paypal_api.log.' . date('Y-m-d') . '.php',
+                'log.FileName'         => LC_DIR_LOG . date('Y') . LC_DS . date('m') . LC_DS . 'paypal_api.log.' . date('Y-m-d') . '.php',
                 'log.LogLevel'         => LogLevel::DEBUG,
                 'mode'                 => $config['mode'],
                 'http.CURLOPT_TIMEOUT' => 30,

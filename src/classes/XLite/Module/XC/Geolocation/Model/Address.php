@@ -48,8 +48,7 @@ abstract class Address extends \XLite\Model\Address implements \XLite\Base\IDeco
                         $result = $result ?: null;
                     }
                     if (!$result || (!$fieldValue && isset($location['country']))) {
-                        $result = \XLite\Core\Database::getRepo('XLite\Model\State')->findByCountryCode($location['country']);
-                        $result = $result ? $result[0] : null;
+                        return null;
                     }
                     break;
 

@@ -10,6 +10,7 @@
     </span>
     <span class="input-date-range-container">
       <input{{ this.getAttributesCode()|raw }} />
+      <input type="hidden" class="daterange-value-input" name="{{ this.getName() }}" value="{{ this.getValue() }}">
     </span>
   </span>
 {% endspaceless %}

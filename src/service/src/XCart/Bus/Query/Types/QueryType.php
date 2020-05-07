@@ -13,11 +13,14 @@ use XCart\Bus\Query\Resolver\BannersResolver;
 use XCart\Bus\Query\Resolver\GDPRModulesResolver;
 use XCart\Bus\Query\Resolver\LanguageDataResolver;
 use XCart\Bus\Query\Resolver\LicenseResolver;
+use XCart\Bus\Query\Resolver\LicenseTextResolver;
 use XCart\Bus\Query\Resolver\ModulesResolver;
 use XCart\Bus\Query\Resolver\NotificationsResolver;
 use XCart\Bus\Query\Resolver\PaymentMethodsResolver;
 use XCart\Bus\Query\Resolver\RebuildResolver;
+use XCart\Bus\Query\Resolver\RecommendedModulesResolver;
 use XCart\Bus\Query\Resolver\ScenarioResolver;
+use XCart\Bus\Query\Resolver\SectionsResolver;
 use XCart\Bus\Query\Resolver\ShippingMethodsResolver;
 use XCart\Bus\Query\Resolver\SystemDataResolver;
 use XCart\Bus\Query\Resolver\TagsResolver;
@@ -27,17 +30,22 @@ use XCart\Bus\Query\Resolver\WavesResolver;
 use XCart\Bus\Query\Types\Output\AvailableUpgradeType;
 use XCart\Bus\Query\Types\Output\BannerType;
 use XCart\Bus\Query\Types\Output\InstallationData;
+use XCart\Bus\Query\Types\Output\IntegrityCheckCacheType;
 use XCart\Bus\Query\Types\Output\LanguageMessageType;
+use XCart\Bus\Query\Types\Output\LicensesTextType;
 use XCart\Bus\Query\Types\Output\LicenseType;
 use XCart\Bus\Query\Types\Output\ModulesPageType;
 use XCart\Bus\Query\Types\Output\ModuleType;
 use XCart\Bus\Query\Types\Output\NotificationType;
 use XCart\Bus\Query\Types\Output\PaymentMethodType;
 use XCart\Bus\Query\Types\Output\RebuildStateType;
+use XCart\Bus\Query\Types\Output\RecommendedModulesType;
 use XCart\Bus\Query\Types\Output\ScenarioType;
+use XCart\Bus\Query\Types\Output\SectionsType;
 use XCart\Bus\Query\Types\Output\ShippingMethodType;
 use XCart\Bus\Query\Types\Output\SystemData;
 use XCart\Bus\Query\Types\Output\TagType;
+use XCart\Bus\Query\Types\Output\SkinData;
 use XCart\Bus\Query\Types\Output\TrialType;
 use XCart\Bus\Query\Types\Output\UpgradeEntryType;
 use XCart\Bus\Query\Types\Output\WaveType;
@@ -94,6 +102,8 @@ class QueryType extends AObjectType
                         'isSalesChannel' => Type::boolean(),
                         'isLanding'      => Type::boolean(),
                         'includeIds'     => Type::listOf(Type::id()),
+                        'integrityCheck' => Type::boolean(),
+                        'existsUpdate'   => Type::string(),
                     ],
                 ],
                 'module'                => [
@@ -107,6 +117,11 @@ class QueryType extends AObjectType
                 'notifications'         => [
                     'type'    => Type::listOf($this->app[NotificationType::class]),
                     'resolve' => $this->app[NotificationsResolver::class . ':getList'],
+                    'args'    => [
+                        'type'   => Type::string(),
+                        'target' => Type::string(),
+                        'page'   => Type::string(),
+                    ],
                 ],
                 'ongoing'               => [
                     'type'        => Type::listOf($this->app[RebuildStateType::class]),
@@ -176,7 +191,7 @@ class QueryType extends AObjectType
                     'type'    => Type::listOf($this->app[LicenseType::class]),
                     'resolve' => $this->app[LicenseResolver::class . ':getList'],
                 ],
-                'renewLicensesUrl'              => [
+                'renewLicensesUrl'      => [
                     'type'    => Type::string(),
                     'resolve' => $this->app[LicenseResolver::class . ':getRenewLicensesUrl'],
                 ],
@@ -188,6 +203,10 @@ class QueryType extends AObjectType
                     'type'    => $this->app[LicenseType::class],
                     'resolve' => $this->app[LicenseResolver::class . ':resolveCoreLicense'],
                 ],
+                'coreLicenseEdition'    => [
+                    'type'    => Type::string(),
+                    'resolve' => $this->app[LicenseResolver::class . ':getCoreLicenseEdition'],
+                ],
                 'installationData'      => [
                     'type'    => $this->app[InstallationData::class],
                     'resolve' => $this->app[SystemDataResolver::class . ':resolveInstallationData'],
@@ -195,6 +214,10 @@ class QueryType extends AObjectType
                 'systemData'            => [
                     'type'    => $this->app[SystemData::class],
                     'resolve' => $this->app[SystemDataResolver::class . ':resolveSystemData'],
+                ],
+                'skinData'              => [
+                    'type'    => $this->app[SkinData::class],
+                    'resolve' => $this->app[SystemDataResolver::class . ':resolveSkinData'],
                 ],
                 'marketplaceState'      => [
                     'type'    => $this->app[SystemData::class],
@@ -227,6 +250,31 @@ class QueryType extends AObjectType
                         'id' => Type::id(),
                     ],
                     'resolve' => $this->app[RebuildResolver::class . ':find'],
+                ],
+                'integrityCheckCache'   => [
+                    'type'        => $this->app[IntegrityCheckCacheType::class],
+                    'description' => 'Returns integrity check state cache',
+                    'resolve'     => $this->app[ModulesResolver::class . ':getIntegrityCheckCache'],
+                ],
+                'licensesText'          => [
+                    'type'    => Type::listOf($this->app[LicensesTextType::class]),
+                    'args'    => [
+                        'modulesId' => Type::listOf(Type::string()),
+                    ],
+                    'resolve' => $this->app[LicenseTextResolver::class . ':getLicensesText'],
+                ],
+                'sections'              => [
+                    'type'    => Type::listOf($this->app[SectionsType::class]),
+                    'resolve' => $this->app[SectionsResolver::class . ':getList'],
+                ],
+                'recommendedModules'    => [
+                    'type'    => Type::listOf($this->app[RecommendedModulesType::class]),
+                    'resolve' => $this->app[RecommendedModulesResolver::class . ':getList'],
+                    'args'    => [
+                        'target' => Type::string(),
+                        'page'   => Type::string(),
+                        'limit'  => Type::int(),
+                    ],
                 ],
             ],
         ];

@@ -22,6 +22,12 @@
 .shipping-status .alert div.table-label {
   color: inherit;
   width: auto;
+  padding: 0;
+  margin-right: 12px;
+}
+
+.shipping-status .alert div.single-form-field {
+  align-items: center;
 }
 
 .shipping-status .alert .onoffswitch input[type=checkbox]:not(:checked) + label .off-label {

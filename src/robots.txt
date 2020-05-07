@@ -10,7 +10,7 @@ User-agent: *
 Disallow: /Includes/
 Disallow: /classes/
 Disallow: /etc/
-Disallow: /files/
+Disallow: /files/service/
 Disallow: /lib/
 Disallow: /sql/
 Disallow: /modules_manager/

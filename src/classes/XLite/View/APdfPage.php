@@ -228,6 +228,28 @@ abstract class APdfPage extends \XLite\View\AView
         return $stylesheet;
     }
 
+
+    /**
+     * @return string
+     */
+    protected function getBodyFont()
+    {
+        $code = \XLite\Core\Translation::getTmpTranslationCode() ?: $this->getLanguageCode();
+        $code = strtoupper($code);
+
+        $cjkList = [
+            'ZH' => 'TC',
+            'KO' => 'KR',
+            'JA' => 'JP',
+        ];
+
+        if (isset($cjkList[$code])) {
+            return 'Noto Sans ' . $cjkList[$code];
+        }
+
+        return 'DejaVu Sans';
+    }
+
     /**
      * Inline styles
      *
@@ -237,66 +259,17 @@ abstract class APdfPage extends \XLite\View\AView
      */
     protected function buildHtml($body, $styles, $title)
     {
+        $bodyFont = $this->getBodyFont();
+
         $html =
 "<html>
     <head>
         <title>$title</title>
         <style type='text/css'>
-            @font-face {
-                font-family: 'DejaVu Sans';
-                src: url('https://fontlibrary.org/assets/fonts/dejavu-sans/f5ec8426554a3a67ebcdd39f9c3fee83/21546d802d508f3d358082d85bc0d9f1/DejaVuSansBold.ttf') format('truetype');
-                font-weight: bold;
-                font-style: normal;
+            body {
+                font-family: $bodyFont !important;
+                letter-spacing: -.5px;
             }
-            @font-face {
-                font-family: 'DejaVu Sans';
-                src: url('https://fontlibrary.org/assets/fonts/dejavu-sans/f5ec8426554a3a67ebcdd39f9c3fee83/e5947ee873600dd1cae20e30cf80ee68/DejaVuSansBoldOblique.ttf') format('truetype');
-                font-weight: bold;
-                font-style: italic;
-            }
-            @font-face {
-                font-family: 'DejaVu Sans';
-                src: url('https://fontlibrary.org/assets/fonts/dejavu-sans/f5ec8426554a3a67ebcdd39f9c3fee83/49c0f03ec2fa354df7002bcb6331e106/DejaVuSansBook.ttf') format('truetype');
-                font-weight: normal;
-                font-style: normal;
-            }
-            @font-face {
-                font-family: 'DejaVu Sans';
-                src: url('https://fontlibrary.org/assets/fonts/dejavu-sans/f5ec8426554a3a67ebcdd39f9c3fee83/deed2dec8b2a429759183d4ce25ccd39/DejaVuSansCondensed.ttf') format('truetype');
-                font-weight: normal;
-                font-style: normal;
-            }
-            @font-face {
-                font-family: 'DejaVu Sans';
-                src: url('https://fontlibrary.org/assets/fonts/dejavu-sans/f5ec8426554a3a67ebcdd39f9c3fee83/f05d91a4bf97b24878103a3cdf8787d0/DejaVuSansCondensedBold.ttf') format('truetype');
-                font-weight: bold;
-                font-style: normal;
-            }
-            @font-face {
-                font-family: 'DejaVu Sans';
-                src: url('https://fontlibrary.org/assets/fonts/dejavu-sans/f5ec8426554a3a67ebcdd39f9c3fee83/d5e8cfd6145aec5c1c6059484c896b88/DejaVuSansCondensedBoldOblique.ttf') format('truetype');
-                font-weight: bold;
-                font-style: italic;
-            }
-            @font-face {
-                font-family: 'DejaVu Sans';
-                src: url('https://fontlibrary.org/assets/fonts/dejavu-sans/f5ec8426554a3a67ebcdd39f9c3fee83/01fef11654a41d40b5aa1d9564eeb16f/DejaVuSansCondensedOblique.ttf') format('truetype');
-                font-weight: normal;
-                font-style: italic;
-            }
-            @font-face {
-                font-family: 'DejaVu Sans';
-                src: url('https://fontlibrary.org/assets/fonts/dejavu-sans/f5ec8426554a3a67ebcdd39f9c3fee83/5213563f6868aea7a7b5dd9ab2581ec9/DejaVuSansExtraLight.ttf') format('truetype');
-                font-weight: normal;
-                font-style: normal;
-            }
-            @font-face {
-                font-family: 'DejaVu Sans';
-                src: url('https://fontlibrary.org/assets/fonts/dejavu-sans/f5ec8426554a3a67ebcdd39f9c3fee83/8723fc16d3649200d6179f391dd43f9f/DejaVuSansOblique.ttf') format('truetype');
-                font-weight: normal;
-                font-style: italic;
-            }
-            body { font-family: 'DejaVu Sans' !important; letter-spacing: -.5px;}
             $styles
         </style>
         <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>

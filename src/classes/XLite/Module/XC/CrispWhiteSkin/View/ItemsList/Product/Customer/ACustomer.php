@@ -43,7 +43,6 @@ abstract class ACustomer extends \XLite\View\ItemsList\Product\Customer\ACustome
     public function getJSFiles()
     {
         $list = parent::getJSFiles();
-        $list[] = 'js/add_to_cart.js';
         $list[] = 'modules/XC/CrispWhiteSkin/items_list/product/products_list.js';
 
         return $list;

@@ -8,9 +8,13 @@
 
 namespace XLite\Module\XC\MailChimp\Core;
 
-use XLite\Module\XC\MailChimp\Logic\DataMapper\Cart;
-use \XLite\Module\XC\MailChimp\Logic\DataMapper\Order;
+use XLite\Module\XC\MailChimp\Core\Request\Audience as MailChimpAudience;
+use XLite\Module\XC\MailChimp\Core\Request\Cart as MailChimpCart;
+use XLite\Module\XC\MailChimp\Core\Request\Order as MailChimpOrder;
+use XLite\Module\XC\MailChimp\Core\Request\Store as MailChimpStore;
+use XLite\Module\XC\MailChimp\Logic\DataMapper\Order;
 use XLite\Module\XC\MailChimp\Main;
+use XLite\Module\XC\MailChimp\Model\MailChimpList;
 
 require_once LC_DIR_MODULES . 'XC' . LC_DS . 'MailChimp' . LC_DS . 'lib' . LC_DS . 'MailChimp.php';
 
@@ -33,6 +37,42 @@ class MailChimp extends \XLite\Base\Singleton
     protected $mailChimpAPI = null;
 
     /**
+     * Protected constructor.
+     * It's not possible to instantiate a derived class (using the "new" operator)
+     * until that child class is not implemented public constructor
+     *
+     * @return void
+     *
+     * @throws MailChimpException
+     */
+    protected function __construct()
+    {
+        parent::__construct();
+
+        try {
+            $this->mailChimpAPI = new \XLite\Module\XC\MailChimp\Core\MailChimpLoggableAPI(
+                \XLite\Core\Config::getInstance()->XC->MailChimp->mailChimpAPIKey
+            );
+
+        } catch (\Exception $e) {
+            if (
+                MailChimpException::MAILCHIMP_NO_API_KEY_ERROR == $e->getMessage()
+                && \XLite::isAdminZone()
+            ) {
+                if ('' != \XLite\Core\Config::getInstance()->XC->MailChimp->mailChimpAPIKey) {
+                    \XLite\Core\TopMessage::addError($e->getMessage());
+                }
+
+                \XLite\Core\Operator::redirect(
+                    \XLite\Core\Converter::buildURL('mailchimp_options')
+                );
+            }
+
+            throw new MailChimpException($e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
      * Check if current subscription select type is select box
      *
      * @return boolean
@@ -40,7 +80,7 @@ class MailChimp extends \XLite\Base\Singleton
     public static function isSelectBoxElement()
     {
         return \XLite\Module\XC\MailChimp\View\FormField\Select\ElementType::SELECT
-               == \XLite\Core\Config::getInstance()->XC->MailChimp->subscriptionElementType;
+            === \XLite\Core\Config::getInstance()->XC->MailChimp->subscriptionElementType;
     }
 
     /**
@@ -51,85 +91,8 @@ class MailChimp extends \XLite\Base\Singleton
     public static function hasAPIKey()
     {
         return \XLite\Core\Config::getInstance()->XC
-               && \XLite\Core\Config::getInstance()->XC->MailChimp
-               && \XLite\Core\Config::getInstance()->XC->MailChimp->mailChimpAPIKey;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getStoreName($listId)
-    {
-        /** @var \XLite\Module\XC\MailChimp\Model\MailChimpList $list */
-        $list = \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\MailChimpList')->find($listId);
-
-        return sprintf('%s (%s)',
-                       \XLite\Core\Config::getInstance()->Company->company_name,
-                       $list
-                           ? $list->getName()
-                           : 'unknown'
-        );
-    }
-
-    /**
-     * @param string $listId
-     *
-     * @return bool|string
-     */
-    public function getStoreId($listId = null)
-    {
-        if ($listId) {
-            $repo = \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\Store');
-
-            /** @var \XLite\Module\XC\MailChimp\Model\Store $store */
-            $store = $repo->findStoreByListId($listId);
-            if ($store) {
-                return $store->getId();
-            }
-        }
-
-        $rawId = \Includes\Utils\URLManager::getShopURL();
-        $rawId .= $listId ?: 'no_list_id';
-        $rawId .= 'xc_5_weak_salt';
-
-        return md5($rawId);
-    }
-
-    /**
-     * @param $campId
-     *
-     * @return bool|string
-     */
-    public function getStoreIdByCampaign($campId)
-    {
-        return static::getInstance()->getStoreId(
-            static::getInstance()->getListIdByCampaignId($campId)
-        );
-    }
-
-    /**
-     * @param $campId
-     *
-     * @return bool
-     */
-    public function getListIdByCampaignId($campId)
-    {
-        $campaignInfo = MailChimpECommerce::getInstance()->getCampaign($campId);
-
-        if (!$campaignInfo
-            || !isset($campaignInfo['recipients'])
-            || !$campaignInfo['recipients']
-        ) {
-            return false;
-        }
-
-        $list = isset($campaignInfo['recipients']['list_id'])
-            ? $campaignInfo['recipients']
-            : $campaignInfo['recipients'][0];
-
-        return isset($list['list_id'])
-            ? $list['list_id']
-            : null;
+            && \XLite\Core\Config::getInstance()->XC->MailChimp
+            && \XLite\Core\Config::getInstance()->XC->MailChimp->mailChimpAPIKey;
     }
 
     /**
@@ -138,7 +101,6 @@ class MailChimp extends \XLite\Base\Singleton
      * @param \XLite\Model\Profile $profile Profile
      *
      * @return void
-     *
      * @throws MailChimpException
      */
     public static function processSubscriptionAll(\XLite\Model\Profile $profile)
@@ -157,8 +119,8 @@ class MailChimp extends \XLite\Base\Singleton
     /**
      * Subscribe/unsubscribe profile based on the form input data
      *
-     * @param \XLite\Module\XC\MailChimp\Model\Profile $profile Profile
-     * @param array|string $data Subscriptions data
+     * @param \XLite\Model\Profile|\XLite\Module\XC\MailChimp\Model\Profile $profile Profile
+     * @param array|string                                                  $data    Subscriptions data
      *
      * @return void
      *
@@ -193,8 +155,8 @@ class MailChimp extends \XLite\Base\Singleton
                 $data = $tmpData;
             }
 
-            $toSubscribe = [];
-            $toUnsubscribe = [];
+            $toSubscribe    = [];
+            $toUnsubscribe  = [];
             $listGroupToSet = [];
 
             if (!$interests || !is_array($interests)) {
@@ -202,7 +164,6 @@ class MailChimp extends \XLite\Base\Singleton
             }
 
             foreach ($data as $listId => $v) {
-
                 if (
                     1 == $v
                     && !in_array($listId, $currentlySubscribed)
@@ -263,106 +224,6 @@ class MailChimp extends \XLite\Base\Singleton
     }
 
     /**
-     * Update MailChimp lists
-     *
-     * @return void
-     */
-    public function updateMailChimpLists()
-    {
-        try {
-            $mailChimpLists = $this->getMailChimpLists();
-
-            if (isset($mailChimpLists['lists']) && $mailChimpLists['lists']) {
-                \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\MailChimpList')
-                    ->updateLists($mailChimpLists['lists']);
-            } else {
-                Main::logError('No lists', []);
-            }
-        } catch (MailChimpException $e) {
-            Main::logError($e->getMessage(), []);
-        }
-    }
-
-    /**
-     * Check if current MailChimp lists has removed list
-     *
-     * @return boolean
-     */
-    public function hasRemovedMailChimpLists()
-    {
-        return \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\MailChimpList')
-            ->hasRemovedMailChimpLists();
-    }
-
-    /**
-     * Get MailChimp Lists
-     *
-     * @return array
-     *
-     * @throws MailChimpException
-     */
-    public function getMailChimpLists()
-    {
-        try {
-            return $this->mailChimpAPI->get('lists');
-        } catch (\Exception $e) {
-            throw new MailChimpException($e->getMessage(), $e->getCode(), $e);
-        }
-    }
-
-    /**
-     * Get MailChimp automations
-     *
-     * @return array
-     *
-     * @throws MailChimpException
-     */
-    public function getAutomations()
-    {
-        try {
-            return $this->mailChimpAPI->get('automations');
-        } catch (\Exception $e) {
-            throw new MailChimpException($e->getMessage(), $e->getCode(), $e);
-        }
-    }
-
-    /**
-     * Get MailChimp automation emails
-     *
-     * @return array
-     *
-     * @throws MailChimpException
-     */
-    public function getAutomationEmails($automationId)
-    {
-        try {
-            return $this->mailChimpAPI->get("automations/{$automationId}/emails");
-        } catch (\Exception $e) {
-            throw new MailChimpException($e->getMessage(), $e->getCode(), $e);
-        }
-    }
-
-    /**
-     * Trigger MailChimp automation email
-     *
-     * @throws MailChimpException
-     */
-    public function triggerAutomationEmail($automationId, $automationEmailId, $email)
-    {
-        try {
-            $url = "automations/{$automationId}/emails/{$automationEmailId}/queue";
-            $data = [
-                'email_address' => $email
-            ];
-
-            return $this->mailChimpAPI->post($url, $data);
-
-        } catch (\Exception $e) {
-            throw new MailChimpException($e->getMessage(), $e->getCode(), $e);
-        }
-    }
-
-    /**
      * Subscriptions data
      *
      * @return array
@@ -373,7 +234,7 @@ class MailChimp extends \XLite\Base\Singleton
 
         $cnd = new \XLite\Core\CommonCell();
 
-        $cnd->enabled = true;
+        $cnd->enabled            = true;
         $cnd->subscribeByDefault = \XLite\Model\SearchCondition\Expression\TypeEquality::create(
             'subscribeByDefault',
             true
@@ -400,15 +261,15 @@ class MailChimp extends \XLite\Base\Singleton
 
         $cnd = new \XLite\Core\CommonCell();
 
-        $cnd->enabled = \XLite\Model\SearchCondition\Expression\TypeEquality::create(
+        $cnd->enabled                 = \XLite\Model\SearchCondition\Expression\TypeEquality::create(
             'enabled',
             true
         );
-        $cnd->subscribeByDefault = \XLite\Model\SearchCondition\Expression\TypeEquality::create(
+        $cnd->subscribeByDefault      = \XLite\Model\SearchCondition\Expression\TypeEquality::create(
             'subscribeByDefault',
             true
         );
-        $cnd->groupEnabled = \XLite\Model\SearchCondition\Expression\TypeEquality::create(
+        $cnd->groupEnabled            = \XLite\Model\SearchCondition\Expression\TypeEquality::create(
             'group.enabled',
             true
         );
@@ -416,7 +277,7 @@ class MailChimp extends \XLite\Base\Singleton
             'group.list.subscribeByDefault',
             true
         );
-        $cnd->listEnabled = \XLite\Model\SearchCondition\Expression\TypeEquality::create(
+        $cnd->listEnabled             = \XLite\Model\SearchCondition\Expression\TypeEquality::create(
             'group.list.enabled',
             true
         );
@@ -437,9 +298,35 @@ class MailChimp extends \XLite\Base\Singleton
     }
 
     /**
+     * Update MailChimp lists
+     *
+     * @return void
+     */
+    public function updateMailChimpLists()
+    {
+        $lists = MailChimpAudience\GetAll::executeAction();
+
+        if ($lists) {
+            \XLite\Core\Database::getRepo(MailChimpList::class)
+                ->updateLists($lists);
+        }
+    }
+
+    /**
+     * Check if current MailChimp lists has removed list
+     *
+     * @return boolean
+     */
+    public function hasRemovedMailChimpLists()
+    {
+        return \XLite\Core\Database::getRepo(MailChimpList::class)
+            ->hasRemovedMailChimpLists();
+    }
+
+    /**
      * Subscribe email to MailChimp list
      *
-     * @param string $id MailChimp list ID
+     * @param string $id    MailChimp list ID
      * @param string $email E-mail
      *
      * @return array
@@ -448,10 +335,12 @@ class MailChimp extends \XLite\Base\Singleton
     {
         $hash = md5(mb_strtolower($email));
 
+        $subscriber = $this->mailChimpAPI->get("lists/{$id}/members/{$hash}");
+
         $data = [
             'email_type'    => 'html',
             'email_address' => $email,
-            'status'        => \XLite\Core\Config::getInstance()->XC->MailChimp->doubleOptinDisabled
+            'status'        => \XLite\Core\Config::getInstance()->XC->MailChimp->doubleOptinDisabled || $subscriber['status'] == 'subscribed'
                 ? 'subscribed'
                 : 'pending',
             'merge_fields'  => [
@@ -459,37 +348,20 @@ class MailChimp extends \XLite\Base\Singleton
                 self::MC_LAST_NAME  => $lastName,
             ],
         ];
-
         $this->mailChimpAPI->setActionMessageToLog('Profile subscription');
+
         return $this->mailChimpAPI->put("lists/{$id}/members/{$hash}", $data);
     }
 
     /**
-     * Unsubscribe email to MailChimp list
-     *
-     * @param string $id MailChimp list ID
-     * @param string $email E-mail
-     *
-     * @return array
+     * @param string $listId
+     * @param string $email
      */
-    public function doUnsubscribe($id, $email)
+    public function doUnsubscribe($listId, $email)
     {
         $hash = md5(mb_strtolower($email));
 
-        $this->mailChimpAPI->setActionMessageToLog('Profile unsubscription');
-        return $this->mailChimpAPI->delete("lists/{$id}/members/{$hash}");
-    }
-
-    /**
-     * Create batch
-     *
-     * @param array $operations Operations
-     *
-     * @return array
-     */
-    public function batch($operations)
-    {
-        return $this->mailChimpAPI->post('batches', ['operations' => $operations]);
+        MailChimpAudience\UnSubscribe::executeAction($listId, $hash);
     }
 
     /**
@@ -509,184 +381,6 @@ class MailChimp extends \XLite\Base\Singleton
     }
 
     /**
-     * Subscribe batch
-     *
-     * @param string $id MailChimp list ID
-     * @param array $emails E-mails
-     *
-     * @return array
-     */
-    public function doSubscribeBatch($id, array $emails)
-    {
-        $data = [];
-
-        foreach ($emails as $subscribeData) {
-            $hash = md5(mb_strtolower($subscribeData['email']));
-
-            $data[] = [
-                'method' => "PUT",
-                'path'   => "lists/{$id}/members/{$hash}",
-                'body'   => json_encode([
-                                            'email_type'    => 'html',
-                                            'email_address' => $subscribeData['email'],
-                                            'status'        => \XLite\Core\Config::getInstance()->XC->MailChimp->doubleOptinDisabled
-                                                ? 'subscribed'
-                                                : 'pending',
-                                            'merge_fields'  => [
-                                                self::MC_FIRST_NAME => $subscribeData['firstName'],
-                                                self::MC_LAST_NAME  => $subscribeData['lastName'],
-                                            ],
-                                        ]),
-            ];
-        }
-
-        return $this->mailChimpAPI->post('batches', ['operations' => $data]);
-    }
-
-    /**
-     * Unsubscribe batch
-     *
-     * @param string $id MailChimp list ID
-     * @param array $emails E-mails
-     *
-     * @return array
-     */
-    public function doUnsubscribeBatch($id, array $emails)
-    {
-        $data = [];
-
-        foreach ($emails as $subscribeData) {
-            $hash = md5(mb_strtolower($subscribeData['email']));
-
-            $data[] = [
-                'method' => "DELETE",
-                'path'   => "lists/{$id}/members/{$hash}",
-            ];
-        }
-
-        return $this->mailChimpAPI->post('batches', ['operations' => $data]);
-    }
-
-    /**
-     * Send ECommerce360 cart data
-     *
-     * @param \XLite\Model\Cart $cart
-     *
-     * @return bool
-     */
-    public function createOrUpdateCart(\XLite\Model\Cart $cart)
-    {
-        $stores = [];
-
-        if ($defaultStore = Main::getStoreForDefaultAutomation()) {
-            $stores[$defaultStore->getId()] = $defaultStore->getId();
-        }
-
-        if (isset(\XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID})) {
-            $providedStoreId = static::getInstance()->getStoreIdByCampaign(
-                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
-            );
-
-            if ($providedStoreId) {
-                $stores[$providedStoreId] = $providedStoreId;
-            }
-        }
-
-        $ecCore = MailChimpECommerce::getInstance();
-
-        $result = [];
-
-        foreach ($stores as $storeId) {
-            $data = Cart::getDataByCart(
-                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID},
-                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_USER_ID},
-                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_TRACKING_CODE},
-                $cart,
-                MailChimpECommerce::getInstance()->isCustomerExists(
-                    $storeId,
-                    $cart->getProfile()->getProfileId()
-                        ?: \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_USER_ID}
-                )
-            );
-
-            // Create cart if not exists
-            if (\XLite\Model\Cart::isMcNewCart() || !$ecCore->getCart($storeId, $cart->getOrderId())) {
-                $result[] = $this->execCartRelatedRequest(
-                    "ecommerce/stores/{$storeId}/carts",
-                    $data,
-                    $cart->getItems(),
-                    $storeId,
-                    false
-                );
-
-            } else {
-                $cartId = $data['id'];
-
-                $result[] = $this->execCartRelatedRequest(
-                    "ecommerce/stores/{$storeId}/carts/{$cartId}",
-                    $data,
-                    $cart->getItems(),
-                    $storeId,
-                    true
-                );
-            }
-        }
-
-        $failedRequests = array_filter($result, function ($res) {
-            return $res === false;
-        });
-
-        return count($failedRequests) === 0;
-    }
-
-    /**
-     * Send ECommerce360 cart data
-     *
-     * @param \XLite\Model\Cart $cart
-     *
-     * @return array
-     */
-    public function createCart(\XLite\Model\Cart $cart)
-    {
-        $storeName = static::getInstance()->getStoreName(
-            static::getInstance()->getListIdByCampaignId(
-                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
-            )
-        );
-        $storeId = static::getInstance()->getStoreIdByCampaign(
-            \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
-        );
-
-        $data = Cart::getDataByCart(
-            \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID},
-            \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_USER_ID},
-            \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_TRACKING_CODE},
-            $cart,
-            MailChimpECommerce::getInstance()->isCustomerExists(
-                $storeId,
-                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_USER_ID}
-            )
-        );
-
-        $this->mailChimpAPI->setActionMessageToLog('Creating cart');
-        $result = $this->execOrderRelatedRequest(
-            "ecommerce/stores/{$storeId}/carts",
-            $data,
-            $cart->getItems(),
-            [
-                'campaign_id'   => $data['campaign_id'],
-                'store_id'      => $storeId,
-                'store_name'    => $storeName,
-                'currency_code' => $data['currency_code'],
-                'money_format'  => \XLite::getInstance()->getCurrency()->getPrefix()
-                    ?: \XLite::getInstance()->getCurrency()->getSuffix(),
-            ]
-        );
-
-        return $result;
-    }
-
-    /**
      * Remove ECommerce360 cart data
      *
      * @param \XLite\Model\Cart $cart
@@ -695,247 +389,32 @@ class MailChimp extends \XLite\Base\Singleton
      */
     public function removeCart(\XLite\Model\Cart $cart)
     {
-        $stores = [];
-
-        if ($defaultStore = Main::getStoreForDefaultAutomation()) {
-            $stores[$defaultStore->getId()] = [
-                'id' => $defaultStore->getId(),
-            ];
-        }
-
-        if (isset(\XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID})) {
-            $providedStoreId = static::getInstance()->getStoreIdByCampaign(
-                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
-            );
-
-            if ($providedStoreId) {
-                $stores[$providedStoreId] = [
-                    'id' => $providedStoreId,
-                ];
-            }
-        }
-
-        $result = [];
-
-        foreach ($stores as $storeData) {
-            $this->mailChimpAPI->setActionMessageToLog('Removing cart');
-            $result[] = MailChimpECommerce::getInstance()->removeCart(
-                $storeData['id'],
-                $cart->getOrderId()
-            );
-        }
-
-        $failedRequests = array_filter($result, function ($res) {
-            return $res === false;
-        });
-
-        return count($failedRequests) === 0;
+        MailChimpCart\Remove::scheduleAction($cart->getOrderId());
     }
 
     /**
-     * Send ECommerce360 order data
-     *
      * @param \XLite\Model\Order $order
-     *
-     * @return bool
      */
     public function createOrder(\XLite\Model\Order $order)
     {
-        $stores = [];
-
-        if ($defaultStore = Main::getStoreForDefaultAutomation()) {
-            $defaultStoreName = static::getInstance()->getStoreName(
-                \XLite\Core\Config::getInstance()->XC->MailChimp->defaultAutomationListId
-            );
-            $stores[$defaultStore->getId()] = [
-                'id'        => $defaultStore->getId(),
-                'name'      => $defaultStoreName,
-                'isDefault' => true,
-            ];
-        }
-
-        if (isset(\XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID})) {
-            $providedStoreId = static::getInstance()->getStoreIdByCampaign(
-                \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
-            );
-
-            if ($providedStoreId) {
-                $providedStoreName = static::getInstance()->getStoreName(
-                    static::getInstance()->getListIdByCampaignId(
-                        \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
-                    )
-                );
-                $stores[$providedStoreId] = [
-                    'id' => $providedStoreId,
-                    'name' => $providedStoreName,
-                ];
-            }
-        }
-
-        $result = [];
-
-        foreach ($stores as $storeData) {
-            $storeId = $storeData['id'];
-            $storeName = $storeData['name'];
-
-            $orderData = Order::getDataByOrder(
-                !empty($storeData['isDefault']) ? null : \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID},
-                !empty($storeData['isDefault']) ? null : \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_USER_ID},
-                !empty($storeData['isDefault']) ? null : \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_TRACKING_CODE},
-                $order,
-                MailChimpECommerce::getInstance()->isCustomerExists(
-                    $storeId,
-                    $order->getOrigProfile() && $order->getOrigProfile()->getProfileId()
-                        ? $order->getOrigProfile()->getProfileId()
-                        : \XLite\Core\Request::getInstance()->{Request::MAILCHIMP_USER_ID}
-                )
-            );
-
-            $this->mailChimpAPI->setActionMessageToLog('Creating order');
-
-            $result[] = $this->execOrderRelatedRequest(
-                "ecommerce/stores/{$storeId}/orders",
-                $orderData,
-                $order->getItems(),
-                [
-                    'campaign_id'   => $orderData['campaign_id'],
-                    'store_id'      => $storeId,
-                    'store_name'    => $storeName,
-                    'currency_code' => $orderData['currency_code']
-                ]
-            );
-        }
-
-        $failedRequests = array_filter($result, function ($res) {
-            return $res === false;
-        });
-
-        return count($failedRequests) === 0;
+        MailChimpOrder\Create::scheduleAction($order);
     }
 
     /**
-     * Send ECommerce360 order data
-     *
      * @param \XLite\Model\Order $order
-     *
-     * @return bool
      */
     public function updateOrder(\XLite\Model\Order $order)
     {
-        /** @var \XLite\Module\XC\MailChimp\Model\Order $order */
+        /** @var \XLite\Model\Order|\XLite\Module\XC\MailChimp\Model\Order $order */
         $stores = [$order->getMailchimpStoreId()];
 
-        if ($defaultStore = Main::getStoreForDefaultAutomation()) {
-            $stores[] = $defaultStore->getId();
+        if ($defaultAutomationStoreId = MailChimpStore\Get::getDefaultAutomationStoreIdByDB()) {
+            $stores[] = $defaultAutomationStoreId;
         }
-
-        $orderData = Order::mapDataForChange($order);
-        $orderId = $orderData['id'];
-
-        $result = [];
-
-        $this->mailChimpAPI->setActionMessageToLog('Update order');
 
         foreach (array_unique($stores) as $storeId) {
-            $res = $this->mailChimpAPI->patch(
-                "ecommerce/stores/{$storeId}/orders/{$orderId}",
-                $orderData
-            );
-
-            $result[] = $this->mailChimpAPI->success()
-                ? $res
-                : null;
+            MailChimpOrder\Update::scheduleAction($storeId, $order);
         }
-
-        $failedRequests = array_filter($result, function ($res) {
-            return $res === false;
-        });
-
-        return count($failedRequests) === 0;
-    }
-
-    /**
-     * @param string $url
-     * @param array $data
-     * @param \XLite\Model\OrderItem[] $lines
-     * @param string $storeId
-     * @param bool $update
-     *
-     * @return array|bool|false
-     */
-    public function execCartRelatedRequest($url, $data, $lines, $storeId, $update = false)
-    {
-        $ecCore = MailChimpECommerce::getInstance();
-
-        // Create products
-        $products = [];
-        foreach ($lines as $item) {
-            $products[] = $item->getObject();
-        }
-        $ecCore->createProductsBatch($storeId, $products);
-
-
-        $this->mailChimpAPI->setActionMessageToLog($update ? 'Cart updated' : 'Cart created');
-        $result = $update
-            ? $this->mailChimpAPI->patch($url, $data)
-            : $this->mailChimpAPI->post($url, $data);
-
-        return $this->mailChimpAPI->success()
-            ? $result
-            : null;
-    }
-
-    /**
-     * @param string $url
-     * @param array $data
-     * @param \XLite\Model\OrderItem[] $lines
-     * @param array $storeData
-     * @param bool $update
-     *
-     * @return array|bool|false
-     */
-    public function execOrderRelatedRequest($url, $data, $lines, $storeData, $update = false)
-    {
-        $ecCore = MailChimpECommerce::getInstance();
-
-        $storeId = $storeData['store_id'];
-
-        // Create store if not exists
-        if (!$ecCore->isStoreExists($storeId)) {
-            $ecCore->createStore($storeData);
-        }
-
-        // Create products if not exists
-        foreach ($lines as $item) {
-            $productId = $item->getObject() ? $item->getObject()->getProductId() : $item->getItemId;
-            $product = $ecCore->isProductExists($storeId, $productId);
-
-            if ($item->getObject()
-                && (!$product
-                    || (
-                        isset($product['published_at_foreign'])
-                        && \DateTime::createFromFormat('c', $product['published_at_foreign']) < $item->getObject()->getUpdateDate()
-                    )
-                )
-            ) {
-                if ($product) {
-                    $ecCore->removeProduct($storeId, $productId);
-                }
-
-                $this->mailChimpAPI->setActionMessageToLog($product ? 'Product updated' : 'Product created');
-                $ecCore->createProductFast($storeId, $item->getObject());
-            }
-        }
-
-
-        $this->mailChimpAPI->setActionMessageToLog($update ? 'Order/Cart updated' : 'Order/Cart created');
-        $result = $update
-            ? $this->mailChimpAPI->patch($url, $data)
-            : $this->mailChimpAPI->post($url, $data);
-
-        return $this->mailChimpAPI->success()
-            ? $result
-            : null;
     }
 
     /**
@@ -970,29 +449,6 @@ class MailChimp extends \XLite\Base\Singleton
     }
 
     /**
-     * Add email to list segment
-     *
-     * @param string $listId MailChimp list ID
-     * @param string $segmentId Segment ID
-     * @param array $emails Emails
-     *
-     * @return array
-     */
-    public function addToSegment($listId, $segmentId, array $emails)
-    {
-        $batch = [];
-
-        foreach ($emails as $email) {
-            $batch[] = ['email' => $email];
-        }
-
-        $this->mailChimpAPI->setActionMessageToLog('Adding to segments');
-        return $this->mailChimpAPI->post("lists/{$listId}/segments/{$segmentId}", [
-            'members_to_add' => $batch
-        ]);
-    }
-
-    /**
      * Add interests to a member
      *
      * @param       $listId
@@ -1006,8 +462,9 @@ class MailChimp extends \XLite\Base\Singleton
         $subscriberHash = md5(mb_strtolower($subscriberEmail));
 
         $this->mailChimpAPI->setActionMessageToLog('Profile subscribing to group');
+
         return $this->mailChimpAPI->patch("lists/{$listId}/members/{$subscriberHash}", [
-            'interests' => $interests
+            'interests' => $interests,
         ]);
     }
 
@@ -1033,7 +490,7 @@ class MailChimp extends \XLite\Base\Singleton
     /**
      * Get group names
      *
-     * @param string $listId MailChimp list ID
+     * @param string $listId  MailChimp list ID
      * @param string $groupId MailChimp group ID
      *
      * @return array
@@ -1048,41 +505,5 @@ class MailChimp extends \XLite\Base\Singleton
         }
 
         return $names['interests'];
-    }
-
-    /**
-     * Protected constructor.
-     * It's not possible to instantiate a derived class (using the "new" operator)
-     * until that child class is not implemented public constructor
-     *
-     * @return void
-     *
-     * @throws MailChimpException
-     */
-    protected function __construct()
-    {
-        parent::__construct();
-
-        try {
-            $this->mailChimpAPI = new \XLite\Module\XC\MailChimp\Core\MailChimpLoggableAPI(
-                \XLite\Core\Config::getInstance()->XC->MailChimp->mailChimpAPIKey
-            );
-
-        } catch (\Exception $e) {
-            if (
-                MailChimpException::MAILCHIMP_NO_API_KEY_ERROR == $e->getMessage()
-                && \XLite::isAdminZone()
-            ) {
-                if ('' != \XLite\Core\Config::getInstance()->XC->MailChimp->mailChimpAPIKey) {
-                    \XLite\Core\TopMessage::addError($e->getMessage());
-                }
-
-                \XLite\Core\Operator::redirect(
-                    \XLite\Core\Converter::buildURL('mailchimp_options')
-                );
-            }
-
-            throw new MailChimpException($e->getMessage(), $e->getCode(), $e);
-        }
     }
 }

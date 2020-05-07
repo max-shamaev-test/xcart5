@@ -10,13 +10,11 @@ namespace XLite\Module\XC\MailChimp\Model;
 
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use XLite\Module\XC\MailChimp\Core\Action;
-use XLite\Module\XC\MailChimp\Core\MailChimpECommerce;
 use XLite\Module\XC\MailChimp\Core\MailChimpQueue;
+use XLite\Module\XC\MailChimp\Core\Request\Product as MailChimpProduct;
+use XLite\Module\XC\MailChimp\Logic\DataMapper;
 use XLite\Module\XC\MailChimp\Main;
 
-/**
- * Class represents an order
- */
 abstract class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
 {
     /**
@@ -29,6 +27,8 @@ abstract class Product extends \XLite\Model\Product implements \XLite\Base\IDeco
     protected $useAsSegmentCondition = false;
 
     /**
+     * @param LifecycleEventArgs $event
+     *
      * @PostPersist
      */
     public function prepareBeforeCreateCorrect(LifecycleEventArgs $event)
@@ -39,13 +39,12 @@ abstract class Product extends \XLite\Model\Product implements \XLite\Base\IDeco
 
         if (Main::isMailChimpECommerceConfigured() && Main::getMainStores()) {
             foreach (Main::getMainStores() as $store) {
-                MailChimpECommerce::getInstance()->createProduct($store->getId(), $this);
+                MailChimpProduct\Create::scheduleAction($store->getId(), DataMapper\Product::getDataByProduct($this));
             }
         }
     }
 
     /**
-     * @inheritdoc
      * @PreUpdate
      */
     public function prepareBeforeUpdate()
@@ -72,17 +71,6 @@ abstract class Product extends \XLite\Model\Product implements \XLite\Base\IDeco
     }
 
     /**
-     * Return list of excluded fields
-     *
-     * @return array
-     */
-    protected function getExcludedFieldsForMailchimpUpdate()
-    {
-        return [ 'enabled' ];
-    }
-
-    /**
-     * @inheritdoc
      * @PreRemove
      */
     public function prepareBeforeRemove()
@@ -91,49 +79,59 @@ abstract class Product extends \XLite\Model\Product implements \XLite\Base\IDeco
 
         if (Main::isMailChimpECommerceConfigured() && Main::getMainStores()) {
             foreach (Main::getMainStores() as $store) {
-                MailChimpECommerce::getInstance()->removeProduct($store->getId(), $this->getProductId());
+                MailChimpProduct\Remove::scheduleAction($store->getId(), $this->getProductId());
             }
         }
     }
 
     /**
-     * Set useAsSegmentCondition
-     *
-     * @param boolean $useAsSegmentCondition
-     * @return Product
-     */
-    public function setUseAsSegmentCondition($useAsSegmentCondition)
-    {
-        $this->useAsSegmentCondition = $useAsSegmentCondition;
-        return $this;
-    }
-
-    /**
-     * Get useAsSegmentCondition
-     *
-     * @return boolean 
-     */
-    public function getUseAsSegmentCondition()
-    {
-        return $this->useAsSegmentCondition;
-    }
-    
-    /**
-     * Get front URL
-     *
      * @return string
      */
-    public function getFrontURLForMailChimp($withAttributes = false)
+    public function getFrontURLForMailChimp(): string
     {
         return $this->getProductId()
             ? \XLite::getInstance()->getShopURL(
                 \XLite\Core\Converter::buildURL(
                     'product',
                     '',
-                    $this->getParamsForFrontURL($withAttributes),
+                    $this->getParamsForFrontURL(),
                     \XLite::getCustomerScript()
                 )
             )
-            : null;
+            : '';
+    }
+
+    /**
+     * Get useAsSegmentCondition
+     *
+     * @return boolean
+     */
+    public function getUseAsSegmentCondition()
+    {
+        return $this->useAsSegmentCondition;
+    }
+
+    /**
+     * Set useAsSegmentCondition
+     *
+     * @param boolean $useAsSegmentCondition
+     *
+     * @return Product
+     */
+    public function setUseAsSegmentCondition($useAsSegmentCondition)
+    {
+        $this->useAsSegmentCondition = $useAsSegmentCondition;
+
+        return $this;
+    }
+
+    /**
+     * Return list of excluded fields
+     *
+     * @return array
+     */
+    protected function getExcludedFieldsForMailchimpUpdate(): array
+    {
+        return ['enabled'];
     }
 }

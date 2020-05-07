@@ -27,7 +27,8 @@ define('form_model/type/product/simplified', ['js/vue/vue', 'form_model'], funct
                 'temp_id': data.images.temp_id,
                 'alt': data.images.alt
               }
-            }
+            },
+            'from_onboarding': true
           });
         }
       }

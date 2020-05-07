@@ -28,8 +28,9 @@ class ForceEnabledWhenRequired extends DependencyRuleAbstract
      */
     public function isApplicable(TransitionInterface $transition): bool
     {
-        return $transition->getType() === ChangeUnitProcessor::TRANSITION_DISABLE
-            && $this->getRequiringModules($transition->getModuleId());
+        return ($transition->getType() === ChangeUnitProcessor::TRANSITION_DISABLE
+                || $transition->getType() === ChangeUnitProcessor::TRANSITION_REMOVE
+            ) && $this->getRequiringModules($transition->getModuleId());
     }
 
     /**

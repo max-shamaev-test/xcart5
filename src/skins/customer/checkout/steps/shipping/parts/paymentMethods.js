@@ -86,7 +86,7 @@ PaymentMethodsView.prototype.assignWaitOverlay = function(base)
 
   var shippingMethods = jQuery('.step-shipping-methods');
   if (shippingMethods.length) {
-    assignShadeOverlay(shippingMethods, true);
+    assignShadeOverlay(shippingMethods);
   }
 };
 

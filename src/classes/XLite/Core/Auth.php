@@ -340,6 +340,9 @@ class Auth extends \XLite\Base
             // Return profile object if it's ok
             if (isset($profile) && $this->loginProfile($profile)) {
 
+                \XLite\Core\Session::getInstance()->setLanguage($profile->getLanguage(), 'admin');
+                \XLite\Core\Session::getInstance()->setLanguage($profile->getLanguage(), 'customer');
+
                 // Rewrite password hash if current hash is obsolete
                 if (!isset($secureHash) && $password && $profile->getPasswordAlgo() != static::DEFAULT_HASH_ALGO) {
                     $profile->setPassword(static::encryptPassword($password));
@@ -897,8 +900,8 @@ class Auth extends \XLite\Base
      */
     public function closeStorefront()
     {
-        $this->changeStorefrontActivity(false);
         $this->generateShopKey();
+        $this->changeStorefrontActivity(false);
     }
 
     /**

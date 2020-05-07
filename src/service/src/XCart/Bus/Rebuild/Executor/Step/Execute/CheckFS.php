@@ -635,8 +635,8 @@ class CheckFS implements StepInterface
         $result = [];
 
         $entries = [
-            'directory' => [],
-            'file'      => [],
+            'directories' => [],
+            'files'      => [],
         ];
 
         foreach ($errors as $path) {
@@ -648,13 +648,13 @@ class CheckFS implements StepInterface
                         : 'find ' . $commonPath . ' -type f -execdir chmod 666 "{}" \\;';
                 }
             } else {
-                $entries[is_dir($path) ? 'directories' : 'files'] = $path;
+                $entries[is_dir($path) ? 'directories' : 'files'][] = $path;
             }
         }
 
         foreach ($entries as $type => $paths) {
             if ($paths) {
-                $permission = ($type == 'directory') ? '777' : '666';
+                $permission = ($type == 'directories') ? '777' : '666';
                 $result[]   = 'chmod ' . $permission . ' ' . implode(' ', array_unique($paths)) . ';';
 
             }

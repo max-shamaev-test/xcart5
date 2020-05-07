@@ -488,7 +488,6 @@ class USPS extends \XLite\Model\Shipping\Processor\AProcessor
             'Pounds' => (int) $pounds, // integer, range=0-70
             'Ounces' => sprintf('%.3f', $ounces), // decimal, range=0.0-1120.0, totalDigits=10
             'Container' => $config->container,  // RECTANGULAR | NONRECTANGULAR | ...
-            'Size' => $config->package_size,  // REGULAR | LARGE
             'FirstClassMailType' => $config->first_class_mail_type, // LETTER | PARCEL | FLAT | POSTCARD | PACKAGE SERVICE
             'Width' => sprintf('%.1f', $dim['width']), // Units=inches, decimal, min=0.0, totalDigits=10. Required for LARGE
             'Length' => sprintf('%.1f', $dim['length']), // Units=inches, decimal, min=0.0, totalDigits=10. Required for LARGE
@@ -544,6 +543,16 @@ OUT;
                 $firstClassMailTypeXML = '';
             }
 
+            if ($pack['Width'] > 0 && $pack['Length'] > 0 && $pack['Height'] > 0) {
+                $dimensions = <<<OUT
+        <Width>{$pack['Width']}</Width>
+        <Length>{$pack['Length']}</Length>
+        <Height>{$pack['Height']}</Height>
+OUT;
+            } else {
+                $dimensions = '';
+            }
+
             $packagesXML .= <<<OUT
     <Package ID="{$packIdStr}">
         <Service>{$data['serviceCode']}</Service>
@@ -553,10 +562,7 @@ $firstClassMailTypeXML
         <Pounds>{$pack['Pounds']}</Pounds>
         <Ounces>{$pack['Ounces']}</Ounces>
         <Container>{$pack['Container']}</Container>
-        <Size>{$pack['Size']}</Size>
-        <Width>{$pack['Width']}</Width>
-        <Length>{$pack['Length']}</Length>
-        <Height>{$pack['Height']}</Height>
+$dimensions
 $girth
         <Value>{$pack['Value']}</Value>
 $amountToCollectXML
@@ -735,8 +741,6 @@ OUT;
             'MailType' => $config->mail_type,  // Package | Postcards or aerogrammes | Envelope | LargeEnvelope | FlatRate
             'ValueOfContents' => sprintf('%.2f', $data['packages'][$packKey]['subtotal']), // decimal
             'Country' => $this->getUSPSCountryByCode($data['dstAddress']['country']), // lenght=5, pattern=/\d{5}/
-            'Container' => $config->container_intl,  // RECTANGULAR | NONRECTANGULAR
-            'Size' => $config->package_size,  // REGULAR | LARGE
             'Width' => sprintf('%.1f', $dim['width']), // Units=inches, decimal, min=0.0, totalDigits=10. Required for LARGE
             'Length' => sprintf('%.1f', $dim['length']), // Units=inches, decimal, min=0.0, totalDigits=10. Required for LARGE
             'Height' => sprintf('%.1f', $dim['height']), // Units=inches, decimal, min=0.0, totalDigits=10. Required for LARGE
@@ -780,6 +784,16 @@ OUT;
                 $gxg = '';
             }
 
+            if ($pack['Width'] > 0 && $pack['Length'] > 0 && $pack['Height'] > 0) {
+                $dimensions = <<<OUT
+        <Width>{$pack['Width']}</Width>
+        <Length>{$pack['Length']}</Length>
+        <Height>{$pack['Height']}</Height>
+OUT;
+            } else {
+                $dimensions = '';
+            }
+
             $packages .= <<<OUT
     <Package ID="{$packIdStr}">
         <Pounds>{$pack['Pounds']}</Pounds>
@@ -789,11 +803,7 @@ OUT;
 $gxg
         <ValueOfContents>{$pack['ValueOfContents']}</ValueOfContents>
         <Country>{$pack['Country']}</Country>
-        <Container>{$pack['Container']}</Container>
-        <Size>REGULAR</Size>
-        <Width>{$pack['Width']}</Width>
-        <Length>{$pack['Length']}</Length>
-        <Height>{$pack['Height']}</Height>
+$dimensions
         <Girth>{$pack['Girth']}</Girth>
         <OriginZip>{$pack['OriginZip']}</OriginZip>
         <CommercialFlag>{$pack['CommercialFlag']}</CommercialFlag>
@@ -1296,6 +1306,7 @@ OUT;
             'SN' => 'Senegal',
             'SO' => 'Somalia',
             'SR' => 'Suriname',
+            'SS' => 'South Sudan',
             'ST' => 'Sao Tome and Principe',
             'SV' => 'El Salvador',
             'SY' => 'Syrian Arab Republic',

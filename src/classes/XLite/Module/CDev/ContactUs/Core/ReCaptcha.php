@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\ContactUs\Core;
 
+use ReCaptcha\RequestMethod\CurlPost;
+
 /**
  * Class ReCaptcha
  */
@@ -19,19 +21,26 @@ class ReCaptcha extends \XLite\Base\Singleton
      * @var null
      */
 
-    protected $privateKey = null;
+    protected $privateKey;
 
     /**
      * Public (site) key
      *
      * @var null
      */
-    protected $publicKey = null;
+    protected $publicKey;
+
+    /**
+     * recaptcha version
+     *
+     * @var int
+     */
+    protected $version;
 
     /**
      * @var \ReCaptcha\ReCaptcha
      */
-    protected $reCaptchaInstance = null;
+    protected $reCaptchaInstance;
 
     /**
      * Constructor
@@ -42,6 +51,7 @@ class ReCaptcha extends \XLite\Base\Singleton
 
         $this->setPrivateKey($config->recaptcha_private_key);
         $this->setPublicKey($config->recaptcha_public_key);
+        $this->setVersion($config->recaptcha_version);
 
         static::preloadIncludes();
     }
@@ -54,7 +64,7 @@ class ReCaptcha extends \XLite\Base\Singleton
     protected function getReCaptcha()
     {
         if (null === $this->reCaptchaInstance) {
-            $this->reCaptchaInstance = new \ReCaptcha\ReCaptcha($this->getPrivateKey());
+            $this->reCaptchaInstance = new \ReCaptcha\ReCaptcha($this->getPrivateKey(), new CurlPost());
         }
 
         return $this->reCaptchaInstance;
@@ -79,37 +89,7 @@ class ReCaptcha extends \XLite\Base\Singleton
      */
     public function isConfigured()
     {
-        return strlen($this->getPrivateKey()) && strlen($this->getPublicKey());
-    }
-
-    /**
-     * Return list or js urls
-     *
-     * @return array
-     */
-    public function getJsResources()
-    {
-        return ['https://www.google.com/recaptcha/api.js'];
-    }
-
-    /**
-     * Return widget html code
-     *
-     * @return string
-     */
-    public function getWidget()
-    {
-        $result = '';
-
-        if ($this->isConfigured()) {
-            foreach ($this->getJsResources() as $resource) {
-                $result .= "<script src=\"{$resource}\" async defer></script>";
-            }
-
-            $result .= '<div class="g-recaptcha" data-sitekey="' . $this->getPublicKey() . '"></div>';
-        }
-
-        return $result;
+        return strlen($this->getPrivateKey()) && strlen($this->getPublicKey()) && $this->getVersion();
     }
 
     /**
@@ -146,6 +126,16 @@ class ReCaptcha extends \XLite\Base\Singleton
     }
 
     /**
+     * Return recaptcha version
+     *
+     * @return int
+     */
+    public function getVersion()
+    {
+        return (int)$this->version;
+    }
+
+    /**
      * Set PublicKey
      *
      * @param string $publicKey
@@ -155,6 +145,18 @@ class ReCaptcha extends \XLite\Base\Singleton
     public function setPublicKey($publicKey)
     {
         $this->publicKey = $publicKey;
+        return $this;
+    }
+
+    /**
+     * Set recaptcha version
+     *
+     * @param int $version
+     * @return $this
+     */
+    public function setVersion($version)
+    {
+        $this->version = (int)$version;
         return $this;
     }
 

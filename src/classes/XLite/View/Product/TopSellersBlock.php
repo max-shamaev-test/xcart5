@@ -10,6 +10,8 @@ namespace XLite\View\Product;
 
 /**
  * Top sellers block widget
+ *
+ * @ListChild (list="dashboard-center", zone="admin", weight="200")
  */
 class TopSellersBlock extends \XLite\View\Dialog
 {
@@ -23,8 +25,8 @@ class TopSellersBlock extends \XLite\View\Dialog
      */
     public function getCSSFiles()
     {
-        $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/style.css';
+        $list   = parent::getCSSFiles();
+        $list[] = $this->getDir() . '/style.less';
 
         return $list;
     }
@@ -36,7 +38,7 @@ class TopSellersBlock extends \XLite\View\Dialog
      */
     public function getJSFiles()
     {
-        $list = parent::getJSFiles();
+        $list   = parent::getJSFiles();
         $list[] = $this->getDir() . '/controller.js';
 
         return $list;
@@ -51,12 +53,12 @@ class TopSellersBlock extends \XLite\View\Dialog
     {
         parent::defineWidgetParams();
 
-        $this->widgetParams += array(
+        $this->widgetParams += [
             static::PARAM_PERIOD       => new \XLite\Model\WidgetParam\TypeString('Period', $this->definePeriod()),
             static::PARAM_AVAILABILITY => new \XLite\Model\WidgetParam\TypeString(
                 'Availability', $this->defineAvailability()
             ),
-        );
+        ];
     }
 
     /**
@@ -118,35 +120,11 @@ class TopSellersBlock extends \XLite\View\Dialog
     /**
      * Return true if current period is a default
      *
-     * @param string $period Period name
-     *
-     * @return boolean
-     */
-    protected function isSelectedPeriod($period)
-    {
-        return $this->getSelectedPeriod() === $period;
-    }
-
-    /**
-     * Return true if current period is a default
-     *
      * @return string
      */
     protected function getSelectedPeriod()
     {
         return $this->getParam(static::PARAM_PERIOD);
-    }
-
-    /**
-     * Return true if current availability is selected
-     *
-     * @param string $value Period name
-     *
-     * @return boolean
-     */
-    protected function isSelectedAvailability($value)
-    {
-        return $this->getSelectedAvailability() === $value;
     }
 
     /**
@@ -178,6 +156,6 @@ class TopSellersBlock extends \XLite\View\Dialog
     protected function checkACL()
     {
         return parent::checkACL()
-               && \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage catalog');
+            && \XLite\Core\Auth::getInstance()->isPermissionAllowed('manage catalog');
     }
 }

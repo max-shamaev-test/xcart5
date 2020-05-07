@@ -45,9 +45,6 @@ class RunHook extends Command
             }
             $io->newLine(2);
         }
-
-        \XLite\Core\Database::getEM()->flush();
-        \XLite\Core\Database::getEM()->clear();
     }
 
     protected function runHook($path, SymfonyStyle $io)

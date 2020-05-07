@@ -114,20 +114,20 @@
   <div class="two-column">
     <div class="left-column">
       <h3>{{ t('Critical') }}</h3>
-      <table cellspacing="1" cellpadding="5" class="settings-table critical-requirements-table">
+      <ul class="settings-table critical-requirements-table">
         {% for name, requirement in this.getCriticalRequirements() %}
           {{ widget('XLite\\View\\Requirement', requirement=requirement, name=name, odd=loop.index is odd) }}
         {% endfor %}
-      </table>
+      </ul>
     </div>
 
     <div class="right-column">
       <h3>{{ t('Non-critical') }}</h3>
-      <table cellspacing="1" cellpadding="5" class="settings-table non-critical-requirements-table">
+      <ul class="settings-table non-critical-requirements-table">
         {% for name, requirement in this.getNonCriticalRequirements() %}
           {{ widget('XLite\\View\\Requirement', requirement=requirement, name=name, odd=loop.index is odd) }}
         {% endfor %}
-      </table>
+      </ul>
     </div>
   </div>
 </fieldset>

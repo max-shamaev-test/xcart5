@@ -9,8 +9,9 @@
 namespace XLite\Module\XC\MailChimp\Model;
 
 use XLite\Core\Request;
-use \XLite\Module\XC\MailChimp\Core;
+use XLite\Module\XC\MailChimp\Core;
 use XLite\Module\XC\MailChimp\Core\MailChimpQueue;
+use XLite\Module\XC\MailChimp\Core\Request\Store as MailChimpStore;
 use XLite\Module\XC\MailChimp\Main;
 
 /**
@@ -19,48 +20,6 @@ use XLite\Module\XC\MailChimp\Main;
 abstract class Cart extends \XLite\Model\Cart implements \XLite\Base\IDecorator
 {
     protected static $mcNewCartFlag;
-
-    protected function needUpdateMailchimpCart()
-    {
-        $request = \XLite\Core\Request::getInstance();
-        $result = true;
-
-        if (
-            $request->widget == '\XLite\View\Minicart'
-            || (
-                $request->target == 'checkout'
-                && $request->action !== 'shipping'
-            )
-        ) {
-            $result = false;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Prepare order before save data operation
-     *
-     * @PrePersist
-     * @PreUpdate
-     */
-    public function prepareBeforeSave()
-    {
-        parent::prepareBeforeSave();
-
-        if ($this->needUpdateMailchimpCart()
-            && Core\MailChimp::hasAPIKey()
-            && Main::isMailChimpAbandonedCartEnabled()
-            && !$this->getOrderNumber()
-            && $this->getProfile()
-            && $this->getProfile()->getEmail()
-        ) {
-            MailChimpQueue::getInstance()->addAction(
-                'cartUpdate',
-                new Core\Action\CartUpdate($this)
-            );
-        }
-    }
 
     /**
      * Method to access a singleton
@@ -91,6 +50,29 @@ abstract class Cart extends \XLite\Model\Cart implements \XLite\Base\IDecorator
     }
 
     /**
+     * Prepare order before save data operation
+     *
+     * @PrePersist
+     * @PreUpdate
+     */
+    public function prepareBeforeSave()
+    {
+        parent::prepareBeforeSave();
+
+        if ($this->needUpdateMailchimpCart()
+            && Main::isMailChimpAbandonedCartEnabled()
+            && !$this->getOrderNumber()
+            && $this->getProfile()
+            && $this->getProfile()->getEmail()
+        ) {
+            MailChimpQueue::getInstance()->addAction(
+                'cartUpdate',
+                new Core\Action\CartUpdate($this)
+            );
+        }
+    }
+
+    /**
      * Called when an order successfully placed by a client
      *
      * @return void
@@ -99,34 +81,25 @@ abstract class Cart extends \XLite\Model\Cart implements \XLite\Base\IDecorator
     {
         parent::processSucceed();
 
-        if (
-            (
-                $this->isECommerce360Order()
-                || Main::getStoreForDefaultAutomation()
-            )
-            && Core\MailChimp::hasAPIKey()
+        /** @see \XLite\Module\XC\MailChimp\Model\Order::isECommerce360Order() */
+        if (($this->isECommerce360Order()
+                || Main::getStoreForDefaultAutomation())
             && Main::isMailChimpECommerceConfigured()
         ) {
             try {
                 $mcCore = Core\MailChimp::getInstance();
-                $result = $mcCore->createOrder($this);
-                $storeId = $mcCore->getStoreIdByCampaign(
-                    Request::getInstance()->{Request::MAILCHIMP_CAMPAIGN_ID}
-                );
-                $this->setMailchimpStoreId($storeId);
 
-                if ($result) {
-                    Core\MailChimp::getInstance()->removeCart($this);
-                }
+                $mcCore->createOrder($this);
+
+                $mcCore->removeCart($this);
+
             } catch (\Exception $e) {
                 \XLite\Logger::getInstance()->log($e->getMessage());
             }
         }
 
         $profile = $this->getAvailableProfile();
-
-        if (
-            isset($profile)
+        if ($profile
             && $profile->hasMailChimpSubscriptions()
         ) {
             $profile->checkSegmentsConditions();
@@ -134,11 +107,30 @@ abstract class Cart extends \XLite\Model\Cart implements \XLite\Base\IDecorator
     }
 
     /**
+     * @return bool
+     */
+    protected function needUpdateMailchimpCart()
+    {
+        $request = \XLite\Core\Request::getInstance();
+        $result  = true;
+
+        if ($request->widget === '\XLite\View\Minicart'
+            || ($request->target === 'checkout'
+                && $request->action !== 'shipping'
+            )
+        ) {
+            $result = false;
+        }
+
+        return $result;
+    }
+
+    /**
      * Get available profile
      *
-     * @return \XLite\Model\Profile
+     * @return \XLite\Module\XC\MailChimp\Model\Profile|\XLite\Model\Profile
      */
-    protected function getAvailableProfile()
+    protected function getAvailableProfile(): \XLite\Model\Profile
     {
         return $this->getOrigProfile() ? $this->getOrigProfile() : $this->getProfile();
     }

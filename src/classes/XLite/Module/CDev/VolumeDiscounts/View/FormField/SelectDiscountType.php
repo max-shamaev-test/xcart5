@@ -27,9 +27,9 @@ class SelectDiscountType extends \XLite\View\FormField\Select\Regular
      */
     protected function getDefaultOptions()
     {
-        return array(
+        return [
             self::VALUE_PERCENT  => '%',
             self::VALUE_ABSOLUTE => \XLite::getInstance()->getCurrency()->getCurrencySymbol(),
-        );
+        ];
     }
 }

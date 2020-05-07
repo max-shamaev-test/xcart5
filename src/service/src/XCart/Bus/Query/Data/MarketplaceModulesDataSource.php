@@ -12,6 +12,7 @@ use Silex\Application;
 use XCart\Bus\Client\MarketplaceClient;
 use XCart\Bus\Domain\Module;
 use XCart\Bus\Domain\Storage\StorageInterface;
+use XCart\Marketplace\Constant;
 use XCart\SilexAnnotations\Annotations\Service;
 
 /**
@@ -29,6 +30,11 @@ class MarketplaceModulesDataSource extends AMarketplaceCachedDataSource
      */
     private $licenseDataSource;
 
+    /**
+     * @var CoreConfigDataSource
+     */
+    private $coreConfigDataSource;
+
     private $localCache = [];
 
     /**
@@ -37,6 +43,7 @@ class MarketplaceModulesDataSource extends AMarketplaceCachedDataSource
      * @param SetDataSource             $setDataSource
      * @param UploadedModulesDataSource $uploadedModulesDataSource
      * @param LicenseDataSource         $licenseDataSource
+     * @param CoreConfigDataSource      $coreConfigDataSource
      * @param StorageInterface          $storage
      *
      * @return static
@@ -50,6 +57,7 @@ class MarketplaceModulesDataSource extends AMarketplaceCachedDataSource
         SetDataSource $setDataSource,
         UploadedModulesDataSource $uploadedModulesDataSource,
         LicenseDataSource $licenseDataSource,
+        CoreConfigDataSource $coreConfigDataSource,
         StorageInterface $storage
     ) {
         return new static(
@@ -57,6 +65,7 @@ class MarketplaceModulesDataSource extends AMarketplaceCachedDataSource
             $setDataSource,
             $uploadedModulesDataSource,
             $licenseDataSource,
+            $coreConfigDataSource,
             $storage->build($app['config']['cache_dir'], 'busMarketplaceModulesStorage')
         );
     }
@@ -66,6 +75,7 @@ class MarketplaceModulesDataSource extends AMarketplaceCachedDataSource
      * @param SetDataSource             $setDataSource
      * @param UploadedModulesDataSource $uploadedModulesDataSource
      * @param LicenseDataSource         $licenseDataSource
+     * @param CoreConfigDataSource      $coreConfigDataSource
      * @param StorageInterface          $storage
      */
     public function __construct(
@@ -73,12 +83,14 @@ class MarketplaceModulesDataSource extends AMarketplaceCachedDataSource
         SetDataSource $setDataSource,
         UploadedModulesDataSource $uploadedModulesDataSource,
         LicenseDataSource $licenseDataSource,
+        CoreConfigDataSource $coreConfigDataSource,
         StorageInterface $storage
     ) {
         parent::__construct($client, $setDataSource, $storage);
 
         $this->uploadedModulesDataSource = $uploadedModulesDataSource;
         $this->licenseDataSource         = $licenseDataSource;
+        $this->coreConfigDataSource      = $coreConfigDataSource;
     }
 
     /**
@@ -155,15 +167,23 @@ class MarketplaceModulesDataSource extends AMarketplaceCachedDataSource
         
         if ($keys) {
             $keysInfo = $this->client->getLicenseInfo($keys);
-            $this->licenseDataSource->updateAll($keysInfo);
+
+            if ($keysInfo || ($this->client->getLastError() !== null && !$this->client->isMarketplaceLocked())) {
+                $this->licenseDataSource->updateAll($keysInfo);
+            }
         }
 
+        $modulesData = $this->client->getAllModules();
+
         $modules = [];
-        foreach ($this->client->getAllModules() as $id => $versions) {
+        foreach ($modulesData[Constant::FIELD_MODULES] ?? [] as $id => $versions) {
             $modules[$id] = array_map(static function ($item) {
                 return new Module($item);
             }, $versions);
         }
+
+        $isConfirmed = (bool) ($modulesData[Constant::FIELD_INFO][Constant::FIELD_IS_CONFIRMED] ?? false);
+        $this->coreConfigDataSource->saveOne($isConfirmed, Constant::FIELD_IS_CONFIRMED);
 
         $cores = [];
         foreach ($this->client->getCores() as $id => $versions) {

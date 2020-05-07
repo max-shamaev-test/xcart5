@@ -34,3 +34,11 @@
   background: none !important;
 }
 
+.table-wrapper>table>tbody>tr.ui-sortable-placeholder>td,
+.table-wrapper>table>tbody>tr.ui-sortable-placeholder>th {
+  border-top: 0;
+}
+
+.items-list-table table.list tbody tr.ui-sortable-placeholder td {
+  height: 59px;
+}

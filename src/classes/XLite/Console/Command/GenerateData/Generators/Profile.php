@@ -74,7 +74,7 @@ class Profile
 
         $address->setZipcode($location->postcode);
         $address->setCity($location->city);
-        $address->setStreet($location->street);
+        $address->setStreet($location->street->name.' '.$location->street->number);
 
         $profile->addAddresses($address);
 

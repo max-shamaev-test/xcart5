@@ -8,6 +8,8 @@
 
 namespace XLite\View\FormField\Select\Select2;
 
+use XLite\Core\Request;
+use XLite\Core\Validator;
 use XLite\Core\Cache\ExecuteCachedTrait;
 use XLite\View\FormField\Select\MultipleTrait;
 use XLite\View\FormField\Select\Select2Trait;
@@ -25,7 +27,10 @@ class Category extends \XLite\View\FormField\Select\Category
         Select2Trait::getValueContainerClass as getSelect2ContainerClass;
     }
 
-    const PARAM_MULTIPLE = 'multiple';
+    const PARAM_MULTIPLE          = 'multiple';
+    const PARAM_OBJECT_CLASS_NAME = 'objectClassName';
+    const PARAM_OBJECT_ID_NAME    = 'objectIdName';
+    const PARAM_OBJECT_ID         = 'objectId';
 
     /**
      * Define widget params
@@ -38,6 +43,9 @@ class Category extends \XLite\View\FormField\Select\Category
 
         $this->widgetParams += [
             static::PARAM_MULTIPLE => new \XLite\Model\WidgetParam\TypeBool('Select multiple', false),
+            self::PARAM_OBJECT_CLASS_NAME => new \XLite\Model\WidgetParam\TypeString('Object class name'),
+            self::PARAM_OBJECT_ID_NAME => new \XLite\Model\WidgetParam\TypeString('Object Id name', 'id'),
+            self::PARAM_OBJECT_ID => new \XLite\Model\WidgetParam\TypeInt('Object Id'),
         ];
     }
 
@@ -182,5 +190,45 @@ class Category extends \XLite\View\FormField\Select\Category
             'displayAnyCategory'  => $this->getParam(static::PARAM_DISPLAY_ANY_CATEGORY) ? 1 : 0,
             'excludeCategory'     => $this->getParam(static::PARAM_EXCLUDE_CATEGORY) ?? 0,
         ]);
+    }
+
+    /**
+     * Check field validity
+     *
+     * @return bool
+     */
+    protected function checkFieldValidity()
+    {
+        $result = parent::checkFieldValidity();
+        $objectClass = $this->getParam(self::PARAM_OBJECT_CLASS_NAME);
+
+        if ($result && $objectClass && $this->getValue()) {
+            $validator = new Validator\LoopProtect(
+                $this->getParam(self::PARAM_NAME),
+                $objectClass,
+                $this->getObjectId()
+            );
+            try {
+                foreach ($this->getValue() as $value) {
+                    $validator->validate($value);
+                }
+            } catch (Validator\Exception $exception) {
+                $result = false;
+                $this->errorMessage = static::t('The directory selected as a parent directory has already been specified as a child directory');
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Returns object id
+     *
+     * @return integer
+     */
+    protected function getObjectId()
+    {
+        return $this->getParam(static::PARAM_OBJECT_ID)
+            ?: Request::getInstance()->{$this->getParam(static::PARAM_OBJECT_ID_NAME)};
     }
 }

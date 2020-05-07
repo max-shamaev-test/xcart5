@@ -14,15 +14,23 @@ class Query
 
     private $params;
 
-    public function __construct($query, $params)
+    private $variables;
+
+    public function __construct($query, $params, $variables = [])
     {
-        $this->query  = $query;
-        $this->params = $params;
+        $this->query     = $query;
+        $this->params    = $params;
+        $this->variables = $variables;
     }
 
     public function getQuery()
     {
         return $this->prepareQuery($this->query, $this->params);
+    }
+
+    public function getVariables()
+    {
+        return $this->variables;
     }
 
     public function __toString()

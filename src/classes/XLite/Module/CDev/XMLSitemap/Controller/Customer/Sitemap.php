@@ -24,7 +24,7 @@ class Sitemap extends \XLite\Controller\Customer\ACustomer
 
         $index = intval(\XLite\Core\Request::getInstance()->index);
         $content = $index ? $generator->getSitemap($index) : $generator->getIndex();
-        if ($generator->isGenerated() && !$generator->isGenerationStarted()) {
+        if ($generator->isGenerated()) {
             $this->displayContent($content);
         }else{
             $this->headerStatus(404);

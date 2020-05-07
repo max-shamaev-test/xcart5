@@ -8,6 +8,8 @@
 
 namespace XLite\Module\CDev\Coupons\Model\Repo;
 
+use XLite\Core\Cache\ExecuteCachedTrait;
+
 /**
  * @Api\Operation\Create(modelClass="XLite\Module\CDev\Coupons\Model\Coupon", summary="Add new coupon")
  * @Api\Operation\Read(modelClass="XLite\Module\CDev\Coupons\Model\Coupon", summary="Retrieve coupon by id")
@@ -27,6 +29,7 @@ namespace XLite\Module\CDev\Coupons\Model\Repo;
  */
 class Coupon extends \XLite\Model\Repo\ARepo
 {
+    use ExecuteCachedTrait;
 
     // {{{ Find duplicates
 
@@ -98,4 +101,15 @@ class Coupon extends \XLite\Model\Repo\ARepo
     }
 
     // }}}
+
+    public function findAllProductSpecific()
+    {
+        return $this->executeCachedRuntime(function() {
+            $qb = $this->createQueryBuilder('c')
+                ->andWhere('c.specificProducts = :specificProducts')
+                ->setParameter('specificProducts', true);
+
+            return $qb->getResult();
+        });
+    }
 }

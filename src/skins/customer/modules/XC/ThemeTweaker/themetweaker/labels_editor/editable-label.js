@@ -27,6 +27,10 @@ var EditableLabel = Object.extend({
   init: function () {
     this.popover = this.initializePopover();
     this.state = false;
+
+    if (jQuery('[data-panel-switcher="data-panel-switcher"]').prop("checked")) {
+      this.enable();
+    }
   },
 
   disable: function () {

@@ -29,19 +29,6 @@ class Progress extends \XLite\View\AView
     }
 
     /**
-     * Register CSS files
-     *
-     * @return array
-     */
-    public function getCSSFiles()
-    {
-        $list = parent::getCSSFiles();
-        $list[] = 'modules/XC/MailChimp/store_data/progress/style.less';
-
-        return $list;
-    }
-
-    /**
      * Returns processor instance
      *
      * @return mixed

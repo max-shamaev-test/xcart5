@@ -25,7 +25,7 @@ if (!empty($requirements) && is_array($requirements)) {
 
     <div id="report-window" class="report-window">
 
-<a class="report-close" href="#" onclick="javascript: document.getElementById('report-layer').style.display='none'; return false;"><img src="<?php echo $skinsDir; ?>images/spacer.gif" width="10" height="10" border="0" alt="" /><span class="report-close" style="display: none;">close</span></a>
+<a class="report-close" href="#" onclick="javascript: document.getElementById('report-layer').style.display='none'; return false;"></a>
 
 
 <form method="post" name="report_form" action="https://secure.x-cart.com/service.php">
@@ -35,30 +35,21 @@ if (!empty($requirements) && is_array($requirements)) {
 
 <div class="report-title"><?php echo xtr('Technical problems report'); ?></div>
 
-<br />
-
 <textarea name="report" class="report-details form-control" rows="5" cols="70" readonly="readonly"><?php echo $report; ?></textarea>
-
-<br />
 
 <div class="section-title"><?php echo xtr('Email:'); ?></div>
 
 <div style="width:25%">
-  <input type="text" name="user_email" class="form-control" value="<?php echo $params['login']; ?>" size="30" />
+  <input type="email" name="user_email" class="form-control" value="<?php echo $params['login']; ?>" size="30" />
 </div>
-<?php echo xtr('user_email_hint'); ?>
-
-<br />
-<br />
+  <div class="field-notice"><?php echo xtr('user_email_hint'); ?></div>
 
 <div class="section-title"><?php echo xtr('Additional comments'); ?></div>
 
 <textarea name="user_note" class="report-notes form-control" rows="4" cols="70"></textarea>
 
-<br />
-
-<div style="text-align: center;">
-    <input type="submit" class="btn btn-warning" value="<?php echo xtr('Send report and get a help'); ?>" onclick="javascript: ga('send', 'event', 'button', 'click', 'send-report');" />
+<div class="report-buttons">
+    <input type="submit" class="btn btn-warning btn-lg" value="<?php echo xtr('Send report and get a help'); ?>" onclick="javascript: ga('send', 'event', 'button', 'click', 'send-report');" />
 </div>
 
 </form>

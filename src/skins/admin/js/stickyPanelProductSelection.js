@@ -30,8 +30,7 @@ StickyPanelProductSelection.autoload = function()
   );
 };
 
-// Reposition
-StickyPanelProductSelection.prototype.reposition = function(isResize)
+StickyPanelProductSelection.prototype.reposition = function()
 {
 
 };

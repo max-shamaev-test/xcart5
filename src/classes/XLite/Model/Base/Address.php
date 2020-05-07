@@ -331,7 +331,7 @@ abstract class Address extends \XLite\Model\AEntity
      *
      * @return string
      */
-    protected static function getDefaultFieldName($fieldName)
+    public static function getDefaultFieldName($fieldName)
     {
         $result = \XLite\Model\Config::SHIPPING_VALUES_PREFIX;
 

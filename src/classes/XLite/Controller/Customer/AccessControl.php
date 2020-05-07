@@ -8,6 +8,8 @@
 
 namespace XLite\Controller\Customer;
 
+use XLite\Model\AccessControlCell;
+
 /**
  * Access Control Actions Controller
  */
@@ -21,7 +23,12 @@ class AccessControl extends \XLite\Controller\Customer\ACustomer
     /**
      * Max count of login attempt
      */
-    const MAX_COUNT_OF_ACCESS_ATTEMPTS = 5;
+    const MAX_COUNT_OF_ACCESS_ATTEMPTS = 1;
+
+    /**
+     * Max count of login attempt
+     */
+    const MAX_COUNT_OF_RESEND_ATTEMPTS = 1;
 
     /**
      * Prefix for tmp vars storage access attempts
@@ -167,6 +174,8 @@ class AccessControl extends \XLite\Controller\Customer\ACustomer
 
             $newAcc->setReturnData($acc->getReturnData());
 
+            $acc->setResendDate(\XLite\Core\Converter::time());
+
             \XLite\Core\Mailer::sendAccessLinkCustomer($profile, $newAcc);
 
             \XLite\Core\TopMessage::addInfo('Access link has been successfully sent');
@@ -252,6 +261,19 @@ class AccessControl extends \XLite\Controller\Customer\ACustomer
             return true;
         }
 
+        return $this->isResendLocked();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isResendLocked()
+    {
+        $accessCell = $this->getAccessControlCell();
+        if ($accessCell) {
+            return $accessCell->isResendLocked();
+        }
+
         return false;
     }
 
@@ -260,10 +282,16 @@ class AccessControl extends \XLite\Controller\Customer\ACustomer
      */
     public function getTimeLeftToUnlock()
     {
+        if ($this->isResendLocked()) {
+            $accessCell = $this->getAccessControlCell();
+
+            return $accessCell
+                ? $accessCell->getResendDate() + AccessControlCell::ACCESS_CONTROL_CELL_RESEND_LOCK_TTL - \XLite\Core\Converter::time()
+                : 0;
+        }
+
         $ip = \XLite\Core\Request::getInstance()->getClientIp();
-
         $tmpVarCell = static::TMP_VAR_LOCK_IP_PREFIX . $ip;
-
         $attemptsData = \XLite\Core\TmpVars::getInstance()->{$tmpVarCell};
 
         if ($attemptsData) {

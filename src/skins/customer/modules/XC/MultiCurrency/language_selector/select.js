@@ -43,6 +43,12 @@ CountrySelect.prototype.changeCountry = function(elem)
         currenciesByCountry[jQuery(this.base).val()]
     );
   }
+
+  if (typeof languagesByCountry[jQuery(this.base).val()] != 'undefined') {
+    jQuery('form select[name="language"]').val(
+      languagesByCountry[jQuery(this.base).val()]
+    );
+  }
 };
 
 core.autoload(CountrySelect);

@@ -10,6 +10,7 @@ namespace XLite\Model;
 
 use XLite\Core\MagicMethodsIntrospectionInterface;
 use XLite\Core\Serialization\SerializableEntity;
+use Includes\Utils\ConfigParser;
 
 /**
  * Abstract entity
@@ -273,7 +274,7 @@ abstract class AEntity extends \XLite\Base\SuperClass implements SerializableEnt
      */
     protected function logWrongPropertyAccess($property, $isGetter = true)
     {
-        if (LOG_DEBUG == \Includes\Utils\ConfigParser::getOptions(array('log_details', 'level'))) {
+        if (LOG_DEBUG == ConfigParser::getOptions(['log_details', 'level'])) {
             \XLite\Logger::getInstance()->log(
                 sprintf(
                     'Requested %s for unknown property: %s::%s',
@@ -619,5 +620,20 @@ abstract class AEntity extends \XLite\Base\SuperClass implements SerializableEnt
     public function isSerializable()
     {
         return null !== $this->getUniqueIdentifier();
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        if (LOG_DEBUG == ConfigParser::getOptions(['log_details', 'level'])) {
+            $result = serialize($this);
+        } else {
+            $result = 'EntityName: ' . $this->getEntityName() . ', '
+                . 'UniqueIdentifier: ' . ($this->getUniqueIdentifier() ?: 'NULL');
+        }
+
+        return $result;
     }
 }

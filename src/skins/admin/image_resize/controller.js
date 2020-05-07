@@ -24,6 +24,13 @@ jQuery().ready(
             self.location = URLHandler.buildURL({ 'target': 'images', 'resize_completed': 1 });
           }
         }
+      ).bind(
+        'cancel',
+        function() {
+          setTimeout(function() {
+            self.location = URLHandler.buildURL({ 'target': 'images' });
+          }, 4000);
+        }
       );
 
     var height = 0;

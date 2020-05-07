@@ -112,10 +112,6 @@ DiscountCouponsView.prototype.handleAdd = function(event)
   return false;
 }
 
-DiscountCouponsView.prototype.reload = _.debounce(function() {
-  this.load();
-}, 100);
-
 DiscountCouponsView.prototype.handleUpdateCart = function(event, data)
 {
   if (data.coupons) {
@@ -136,7 +132,7 @@ DiscountCouponsView.prototype.handleUpdateCart = function(event, data)
   });
 
   if (needsUpdate) {
-    this.reload();
+    this.load();
   }
 }
 
@@ -166,10 +162,8 @@ core.bind('checkout.cart_items.ready', debouncedAutoloader);
 core.bind(
   'cart.main.postprocess',
   function (event, state) {
-    view = new DiscountCouponsView('.coupons');
-
-    view = new DiscountPanelView('.discount-coupons-panel');
-    view.assignItemsHandlers(event, state);
+    core.autoload(DiscountCouponsView, '.coupons');
+    (new DiscountPanelView('.discount-coupons-panel')).assignItemsHandlers(event, state);
   }
 );
 

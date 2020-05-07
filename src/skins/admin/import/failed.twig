@@ -5,13 +5,13 @@
 <div class="import-box import-failed">
 
   <div class="header clearfix">
-    <h2><i class="icon-exclamation-sign"></i>  {{ this.getFailedHeader() }}</h2>
+    <h3>{{ this.getFailedHeader() }}</h3>
   </div>
 
   <div class="content">
     {% if this.getLinesMessage() %}
       <div class="subcontent clearfix">
-        <h4>{{ this.getLinesMessage() }}</h4>
+        <p>{{ this.getLinesMessage() }}</p>
       </div>
     {% endif %}
     <div class="subcontent clearfix">

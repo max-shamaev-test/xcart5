@@ -81,96 +81,7 @@ class UpgradeTopBox extends \XLite\View\AView
     {
         return parent::isVisible()
             && \XLite\Core\Auth::getInstance()->isAdmin()
-            && $this->getUpgradeTypesEntries();
-    }
-
-    /**
-     * @return array
-     */
-    protected function getUpgradeTypesEntries()
-    {
-        // TODO Implement real non-realtime cache, find some appropriate cacheKey base
-
-        $systemData = \XLite\Core\Marketplace::getInstance()->getSystemData();
-
-        $cacheParts = [
-            'getUpgradeTypesEntries',
-            $systemData['dataDate'] ?? 0
-        ];
-
-        return ExecuteCached::executeCached(function () {
-            $data = \XLite\Core\Marketplace\Retriever::getInstance()->retrieve(
-                \XLite\Core\Marketplace\QueryRegistry::getQuery('upgrade_entries'),
-                new \XLite\Core\Marketplace\Normalizer\Raw()
-            );
-
-            if (!$data) {
-                return [];
-            }
-
-            foreach ($data as $key => $datum) {
-                $datum = $datum ?: [];
-                $keys = array_map(function ($type) {
-                    return $type['id'];
-                }, $datum);
-                $data[$key] = array_combine($keys, $datum);
-            }
-
-            return $data;
-        }, $cacheParts);
-    }
-
-    /**
-     * @param bool $withCore
-     *
-     * @return array
-     */
-    protected function getHashMap($withCore = true)
-    {
-        $entries = $this->getUpgradeTypesEntries();
-
-        $listToCheckInOrder = [
-            'build',
-            'minor',
-            'major',
-            'core', // Means 1 number changes, e.g. 5.x.x.x to 6.x.x.x
-        ];
-
-        $result = array_merge(
-            [
-                'total' => 0,
-                'core-types' => []
-            ],
-            array_fill_keys($listToCheckInOrder, 0)
-        );
-
-        foreach ($listToCheckInOrder as $type) {
-            $entriesByType = $entries[$type] ?? [];
-            //if (!empty($entries[$type])) {
-                if ((isset($entriesByType['CDev-Core']) && $entriesByType['CDev-Core']['type'] === $type)
-                    || (isset($entries['self']['XC-Service']) && $entries['self']['XC-Service']['type'] === $type)
-                ) {
-                    $result['core-types'][] = $type;
-                }
-
-                $entriesOfType = array_filter(
-                    $entriesByType,
-                    function ($entry) use ($withCore, $type) {
-                        return $entry['type'] === $type && ($withCore || $entry['id'] !== 'CDev-Core');
-                    }
-                );
-
-                $previousTypeIndex = (int) $type - 1;
-                $previousTypeCount = isset($result[$previousTypeIndex])
-                    ? $result[$previousTypeIndex]
-                    : 0;
-                $countOnlyThisType = count($entriesOfType) - $previousTypeCount;
-                $result[$type] = $countOnlyThisType;
-                $result['total'] += $countOnlyThisType;
-            //}
-        }
-
-        return $result;
+            && \XLite\Core\Marketplace::getInstance()->getUpgradeTypesEntries();
     }
 
     /**
@@ -182,7 +93,7 @@ class UpgradeTopBox extends \XLite\View\AView
      */
     protected function getCountOfType($type, $withCore = true)
     {
-        $modulesHash = $this->getHashMap($withCore);
+        $modulesHash = \XLite\Core\Marketplace::getInstance()->getHashMap($withCore);
 
         return isset($modulesHash[$type])
             ? $modulesHash[$type]
@@ -221,7 +132,7 @@ class UpgradeTopBox extends \XLite\View\AView
      */
     protected function hasUpgrades()
     {
-        $entries = $this->getUpgradeTypesEntries();
+        $entries = \XLite\Core\Marketplace::getInstance()->getUpgradeTypesEntries();
 
         $hasCoreUpgrade = false;
         if (!$this->hasEntriesOfType('build') && !$this->hasEntriesOfType('minor')) {
@@ -269,7 +180,7 @@ class UpgradeTopBox extends \XLite\View\AView
      */
     protected function getCoreUpgradeTypes()
     {
-        $map = $this->getHashMap();
+        $map = \XLite\Core\Marketplace::getInstance()->getHashMap();
 
         return $map['core-types'];
     }
@@ -283,7 +194,7 @@ class UpgradeTopBox extends \XLite\View\AView
      */
     protected function hasCoreUpgradeType($type)
     {
-        $map = $this->getHashMap();
+        $map = \XLite\Core\Marketplace::getInstance()->getHashMap();
 
         return in_array($type, $map['core-types'], true);
     }
@@ -361,7 +272,7 @@ class UpgradeTopBox extends \XLite\View\AView
             ? $this->getCountOfType('build', false)
             : $this->getCountOfType('total', false) - $this->getCountOfType('build', false);
 
-        $entries = $this->getUpgradeTypesEntries();
+        $entries = \XLite\Core\Marketplace::getInstance()->getUpgradeTypesEntries();
 
         if ($entries['self']) {
             $result = static::t('Marketplace');
@@ -384,7 +295,7 @@ class UpgradeTopBox extends \XLite\View\AView
      */
     public function getUpgradeUrl()
     {
-        $entries = $this->getUpgradeTypesEntries();
+        $entries = \XLite\Core\Marketplace::getInstance()->getUpgradeTypesEntries();
         if ($entries['self']) {
             return \XLite::getInstance()->getServiceURL('#/upgrade/');
         }

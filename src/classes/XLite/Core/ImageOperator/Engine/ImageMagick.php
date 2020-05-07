@@ -9,6 +9,7 @@
 namespace XLite\Core\ImageOperator\Engine;
 
 use XLite\Core\ImageOperator\ADTO;
+use XLite\Core\ImageOperator\DTO\Local;
 
 /**
  * ImageMagic engine
@@ -76,7 +77,7 @@ class ImageMagick extends \XLite\Core\ImageOperator\AEngine
         $result = false;
 
         $newResource = tempnam(LC_DIR_TMP, 'image.new');
-        if ($this->execFilmStripLook($newResource) === 0
+        if ($this->execFilmStripLook($newResource, $this->getImage()->getType()) === 0
             && $this->execResize($newResource, $width, $height) === 0
         ) {
             copy($newResource, $this->resource);
@@ -90,13 +91,74 @@ class ImageMagick extends \XLite\Core\ImageOperator\AEngine
         return $result;
     }
 
+    /**
+     * Resize bulk
+     *
+     * @param array $sizes
+     *
+     * @return array
+     */
+    public function resizeBulk($sizes)
+    {
+        $result = [];
+
+        $newResource = tempnam(LC_DIR_TMP, 'image.new');
+        $last        = end($sizes);
+        $cmd         = '"' . static::getImageMagickExecutable()
+            . '" -quality ' . $this->options['resize_quality'] . ' ';
+
+        if (\XLite\Core\ConfigParser::getOptions(['images', 'make_progressive'])) {
+            $cmd .= '-interlace Plane ';
+        }
+
+        $cmd .= $newResource . ' \\' . PHP_EOL;
+
+        if ($this->execFilmStripLook($newResource, $this->getImage()->getType()) === 0) {
+            foreach ($sizes as $key => $size) {
+                $lastRow = $last === $size ? true : false;
+
+                $resizedTmp         = tempnam(LC_DIR_TMP, 'image.new');
+                $sizes[$key]['tmp'] = $resizedTmp;
+
+                if (!$lastRow) {
+                    $cmd .= '\( +clone ';
+                }
+
+                $cmd .= '-resize ' . $size['width'] . 'x' . $size['height'] . ' -strip ';
+
+                if (!$lastRow) {
+                    $cmd .= '-write ';
+                }
+
+                $cmd .= $resizedTmp;
+
+                if (!$lastRow) {
+                    $cmd .= ' +delete \) \\' . PHP_EOL;
+                }
+            }
+
+            exec($cmd, $output, $result);
+
+            foreach ($sizes as $key => $size) {
+                $sizes[$key]['tmp'] = new Local($size['tmp']);
+                unlink($size['tmp']);
+            }
+
+            $result = $sizes;
+        }
+
+        unlink($newResource);
+
+        return $result;
+    }
+
     public function rotate($degree)
     {
         $result = false;
 
         $newResource = tempnam(LC_DIR_TMP, 'image.new');
         if (
-            $this->execFilmStripLook($newResource) === 0
+            $this->execFilmStripLook($newResource, $this->getImage()->getType()) === 0
             && $this->execRotate($newResource, $degree) === 0
         ) {
             copy($newResource, $this->resource);
@@ -116,7 +178,7 @@ class ImageMagick extends \XLite\Core\ImageOperator\AEngine
 
         $newResource = tempnam(LC_DIR_TMP, 'image.new');
         if (
-            $this->execFilmStripLook($newResource) === 0
+            $this->execFilmStripLook($newResource, $this->getImage()->getType()) === 0
             && $this->execMirror($newResource, $horizontal) === 0
         ) {
             copy($newResource, $this->resource);
@@ -134,19 +196,25 @@ class ImageMagick extends \XLite\Core\ImageOperator\AEngine
      * Execution of preparing film strip look
      *
      * @param string $newResource File path to new image
+     * @param string fileType of original file
      *
      * @return integer
      */
-    protected function execFilmStripLook($newResource)
+    protected function execFilmStripLook($newResource, $fileType)
     {
+        $options = ' ';
+
+        if ($fileType === 'image/gif') {
+            $options = ' -coalesce ';
+        }
+
         exec(
             '"' . static::getImageMagickExecutable()
-            . '" ' . $this->resource . ' -coalesce '
+            . '" ' . $this->resource . $options
             . $newResource,
             $output,
             $result
         );
-
         return $result;
     }
 
@@ -161,25 +229,19 @@ class ImageMagick extends \XLite\Core\ImageOperator\AEngine
      */
     protected function execResize($newImage, $width, $height)
     {
-        $quality = $this->options['resize_quality'];
-
-        exec(
-            '"' . static::getImageMagickExecutable() . '" '
+        $cmd = '"' . static::getImageMagickExecutable() . '" '
             . $newImage
             . ' -resize '
             . $width . 'x' . $height
-            . " -quality {$quality} "
-            . $newImage,
-            $output,
-            $result
-        );
+            . ' -quality ' . $this->options['resize_quality'] . ' ';
 
         if (\XLite\Core\ConfigParser::getOptions(['images', 'make_progressive'])) {
-            exec(
-                '"' . static::getImageMagickExecutable() . '" '
-                . " -strip -interlace Plane -quality 100 $newImage $newImage"
-            );
+            $cmd .= '-strip -interlace Plane ';
         }
+
+        $cmd .= $newImage;
+
+        exec($cmd, $output, $result);
 
         return $result;
     }

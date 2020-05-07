@@ -21,7 +21,6 @@
       </div>
     {% endspaceless %}
   {% endif %}
-
   {% if this.isPageBodyVisible() %}
     {% include this.getPageBodyTemplate() %}
   {% endif %}
@@ -39,6 +38,8 @@
   {% endif %}
 
 </div>
+
+{{ widget_list('itemsList.footer.after') }}
 
 {% if this.isPanelVisible() %}
   {{ widget(this.getPanelClass()) }}

@@ -50,7 +50,7 @@ XLite\Model\Config:
     orderby: 400
     translations:
       - code: en
-        option_name: 'Show only ESD related fulfilment statuses'
+        option_name: 'Show only ESD related fulfillment statuses'
         option_comment: 'With this option enabled, only 3 statuses will be available: New, Delivered and Will Not Deliver. You can rename the statuses as you require using the "Custom Order Statuses" module'
       - code: ru
         option_name: 'Отображать только статусы для цифровой дистрибуции'
@@ -115,7 +115,11 @@ XLite\Model\Config:
         option_name: S3 Bucket
   - name: bucket_region
     category: CDev\Egoods
-    type: hidden
+    type: 'XLite\View\FormField\Input\Text'
     orderby: 1500
-    value: ''
+    value: 'us-east-1'
+    translations:
+      - code: en
+        option_name: 'S3 Bucket region'
+        option_comment: 'If not specified, the bucket region will be detected based on the URL. If the region cannot be detected, the default region us-east-1 will be used.'
 

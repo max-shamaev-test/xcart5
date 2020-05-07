@@ -8,6 +8,7 @@
 
 namespace XLite\Module\XC\Concierge;
 
+use Includes\Decorator\Utils\CacheManager;
 use XLite\Module\XC\Concierge\Core\Mediator;
 
 /**
@@ -15,21 +16,20 @@ use XLite\Module\XC\Concierge\Core\Mediator;
  */
 abstract class Logger extends \XLite\Logger implements \XLite\Base\IDecorator
 {
-    /**
-     * @inheritdoc
-     */
     public function log($message, $level = LOG_DEBUG, $trace = [])
     {
         parent::log($message, $level, $trace);
 
-        if (in_array($level, [LOG_ERR, LOG_WARNING, LOG_CRIT, LOG_NOTICE], true)) {
-            Mediator::getInstance()->throwTrack(
-                'Error',
-                [
-                    'error'     => $message,
-                    'backTrace' => $trace ?: static::getBackTrace(),
-                ]
-            );
+        if (!CacheManager::isRebuildInProgress()) {
+            if (in_array($level, [LOG_ERR, LOG_WARNING, LOG_CRIT, LOG_NOTICE], true)) {
+                Mediator::getInstance()->throwTrack(
+                    'Error',
+                    [
+                        'error'     => $message,
+                        'backTrace' => $trace ?: static::getBackTrace(),
+                    ]
+                );
+            }
         }
     }
 }

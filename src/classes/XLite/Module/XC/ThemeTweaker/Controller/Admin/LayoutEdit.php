@@ -48,9 +48,32 @@ class LayoutEdit extends \XLite\Controller\Admin\AAdmin
 
             foreach ($logoFields as $field) {
                 if (\XLite\Core\Request::getInstance()->{$field}) {
-                    $result = $this->uploadLogoImage($field);
-                    if ($result) {
-                        $this->updateLogoConfigValue($field, $result);
+                    $data = \XLite\Core\Request::getInstance()->{$field};
+
+                    $isDelete = isset($data['is_delete']) ? $data['is_delete'] === 'true' : false;
+                    $hasTempId = $data['temp_id'] ?? false;
+
+                    switch (true) {
+                        case $isDelete && !$hasTempId:
+                            if ($this->deleteLogoImage($field)) {
+                                $this->updateLogoConfigValue($field, '');
+                                $shouldReload = true;
+                            }
+                            break;
+                        case !$isDelete && $hasTempId:
+                            $result = $this->uploadLogoImage($field);
+                            if ($result) {
+                                $this->updateLogoConfigValue($field, $result);
+                                $shouldReload = true;
+                            }
+                            break;
+                        case $isDelete && $hasTempId:
+                            $shouldReload = true;
+                            break;
+                    }
+
+                    if ('logo' === $field && isset($data['alt'])) {
+                        $this->updateLogoConfigValue('logo_alt', $data['alt']);
                         $shouldReload = true;
                     }
                 }
@@ -228,6 +251,29 @@ class LayoutEdit extends \XLite\Controller\Admin\AAdmin
         }
 
         return $optionValue;
+    }
+
+    /**
+     * @param $type
+     * @return bool|string
+     */
+    protected function deleteLogoImage($type)
+    {
+        if (!$this->isLogoConfigurable()) {
+            return false;
+        }
+
+        $optionValue = \XLite\Core\Config::getInstance()->CDev->SimpleCMS->{$type};
+
+        $subDir = \Includes\Utils\FileManager::getRelativePath(LC_DIR_IMAGES, LC_DIR) . LC_DS . 'simplecms' . LC_DS;
+        $dir = LC_DIR . LC_DS . $subDir;
+
+        if ($optionValue) {
+            // Remove old image file
+            \Includes\Utils\FileManager::deleteFile($dir . basename($optionValue));
+        }
+
+        return true;
     }
 
     /**

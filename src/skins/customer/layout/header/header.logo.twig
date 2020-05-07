@@ -4,7 +4,7 @@
  # @ListChild (list="layout.header", weight="100")
  #}
 <div id="{{ this.getUniqueId('logo') }}" class="company-logo">
-  <a href="{{ url() }}" title="{{ t('Home') }}" rel="home">
+  <a href="{{ url() }}" title="{{ this.getLogoAlt() }}" rel="home">
     {{ widget('\\XLite\\View\\Logo') }}
   </a>
 </div>

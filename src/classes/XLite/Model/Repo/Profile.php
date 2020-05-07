@@ -291,7 +291,7 @@ class Profile extends \XLite\Model\Repo\ARepo
     {
         $cnd = $this->searchState['currentSearchCnd'];
 
-        if (!$cnd->{static::SEARCH_ORDER_ID}) {
+        if (isset($cnd->{static::SEARCH_ORDER_ID}) && !$cnd->{static::SEARCH_ORDER_ID}) {
             $cnd->{static::SEARCH_ORDER_ID} = 0;
         }
 

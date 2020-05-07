@@ -102,18 +102,16 @@ class ProductVariant extends \XLite\Module\XC\ProductVariants\Model\ProductVaria
     }
 
     /**
-     * Get front URL
-     *
      * @return string
      */
-    public function getFrontURLForMailChimp($withAttributes = true)
+    public function getFrontURLForMailChimp(): string
     {
         return $this->getProduct() && $this->getId()
             ? \XLite::getInstance()->getShopURL(
                 \XLite\Core\Converter::buildURL(
                     'product',
                     '',
-                    $this->getParamsForFrontURL($withAttributes),
+                    $this->getParamsForFrontURL(true),
                     \XLite::getCustomerScript()
                 )
             )

@@ -41,7 +41,7 @@ var searchCallback = function ($form, linked) {
       }
 
       if (!skipParam) {
-        if (value && jQuery.isArray(value)) {
+        if (jQuery.isArray(value) && value.length) {
           for (var x in value) {
             $linked.setURLParam(jQuery(elem).attr('name').replace('[]', '[' + x + ']'), value[x]);
           }

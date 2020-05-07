@@ -8,6 +8,7 @@
 
 namespace XLite\Core\Marketplace;
 
+use Includes\Requirements;
 use XLite\Core\GraphQL\ClientFactory;
 
 /**
@@ -29,16 +30,24 @@ class Retriever extends \XLite\Base\Singleton
     public function retrieve($query, Normalizer $normalizer)
     {
         try {
+            $requirementWidget = new \XLite\View\Requirement();
+            $requirement       = $requirementWidget->getRequirementResult('loopback_request');
+
+            if ($requirement['state'] !== Requirements::STATE_SUCCESS) {
+                return [];
+            }
+
             $client = static::getClient();
 
-            $response = $client->query((string) $query);
+            $response = $client->query((string) $query, $query->getVariables());
 
             /* @var \XLite\Core\GraphQL\Response $response */
             if ($response->hasErrors()) {
                 \XLite\Logger::getInstance()->log(
                     ' request errors:'
                     . PHP_EOL
-                    . var_export($response->getErrors(), true)
+                    . var_export($response->getErrors(), true),
+                    LOG_ERR
                 );
             }
 
@@ -47,11 +56,13 @@ class Retriever extends \XLite\Base\Singleton
             \XLite\Logger::getInstance()->log(
                 $e->getMessage()
                 . PHP_EOL
-                . var_export($e->getErrors(), true)
+                . var_export($e->getErrors(), true),
+                LOG_ERR
             );
         } catch (\XLite\Core\Exception $e) {
             \XLite\Logger::getInstance()->log(
-                $e->getMessage()
+                $e->getMessage(),
+                LOG_ERR
             );
         }
 

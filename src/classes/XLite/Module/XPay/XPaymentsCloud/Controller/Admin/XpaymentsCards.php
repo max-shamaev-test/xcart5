@@ -53,8 +53,21 @@ class XpaymentsCards extends \XLite\Controller\Admin\AAdmin
             $profileId = \XLite\Core\Auth::getInstance()->getProfile()->getProfileId();
         }
 
-        return \XLite\Core\Database::getRepo('XLite\Model\Profile')
+        /** @var \XLite\Model\Profile $profile */
+        $profile = \XLite\Core\Database::getRepo('XLite\Model\Profile')
             ->find(intval($profileId));
+
+        return $profile;
+    }
+
+    /**
+     * Returns array with customer cards
+     *
+     * @return array
+     */
+    public function getCards()
+    {
+        return $this->getCustomerProfile()->getXpaymentsCards();
     }
 
     /**

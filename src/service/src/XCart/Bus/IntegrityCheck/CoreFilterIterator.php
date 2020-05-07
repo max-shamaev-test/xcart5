@@ -10,10 +10,6 @@ namespace XCart\Bus\IntegrityCheck;
 
 use XCart\Bus\System\Filesystem;
 
-/**
- * Class CoreFilterIterator
- * @package XCart\Bus\IntegrityCheck
- */
 class CoreFilterIterator extends \RecursiveFilterIterator
 {
     /**
@@ -46,8 +42,6 @@ class CoreFilterIterator extends \RecursiveFilterIterator
     protected $filesystem;
 
     /**
-     * IntegrityViolationProcessor constructor.
-     *
      * @param \RecursiveIterator $iterator
      * @param string             $rootDir
      * @param Filesystem         $filesystem

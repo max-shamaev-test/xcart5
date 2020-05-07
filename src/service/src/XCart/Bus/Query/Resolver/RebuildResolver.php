@@ -18,6 +18,7 @@ use XCart\Bus\Query\Data\InstalledModulesDataSource;
 use XCart\Bus\Query\Data\ScenarioDataSource;
 use XCart\Bus\Query\Data\ScriptStateDataSource;
 use XCart\Bus\Rebuild\Executor;
+use XCart\Bus\Rebuild\Executor\RebuildLockManager;
 use XCart\Bus\Rebuild\Executor\ScriptState;
 use XCart\Bus\Rebuild\Scenario\ChangeUnitProcessor;
 use XCart\SilexAnnotations\Annotations\Service;
@@ -48,6 +49,11 @@ class RebuildResolver
     private $systemDataResolver;
 
     /**
+     * @var RebuildLockManager
+     */
+    private $rebuildLockManager;
+
+    /**
      * @var Executor
      */
     private $executor;
@@ -62,6 +68,7 @@ class RebuildResolver
      * @param ScriptStateDataSource      $scriptStateDataSource
      * @param ScenarioDataSource         $scenarioDataSource
      * @param SystemDataResolver         $systemDataResolver
+     * @param RebuildLockManager         $rebuildLockManager
      * @param Executor                   $executor
      * @param LoggerInterface            $logger
      */
@@ -70,6 +77,7 @@ class RebuildResolver
         ScriptStateDataSource $scriptStateDataSource,
         ScenarioDataSource $scenarioDataSource,
         SystemDataResolver $systemDataResolver,
+        RebuildLockManager $rebuildLockManager,
         Executor $executor,
         LoggerInterface $logger
     ) {
@@ -77,6 +85,7 @@ class RebuildResolver
         $this->scriptStateDataSource      = $scriptStateDataSource;
         $this->scenarioDataSource         = $scenarioDataSource;
         $this->systemDataResolver         = $systemDataResolver;
+        $this->rebuildLockManager         = $rebuildLockManager;
         $this->executor                   = $executor;
         $this->logger                     = $logger;
     }
@@ -95,8 +104,9 @@ class RebuildResolver
     {
         $state = $this->scriptStateDataSource->find($args['id']);
 
-        $state['gaData'] = $this->getGAData($state);
+        $state['gaData']                = $this->getGAData($state);
         $state['hasEnabledTransitions'] = $this->hasEnabledTransitions($state);
+        $state['modulesWithSettings']   = $this->getModulesWithSettings($state);
 
         return $state;
     }
@@ -134,8 +144,9 @@ class RebuildResolver
         // remove scenario, to avoid double execution
         $this->scenarioDataSource->removeOne($args['id']);
 
-        $state['gaData'] = $this->getGAData($state);
+        $state['gaData']                = $this->getGAData($state);
         $state['hasEnabledTransitions'] = $this->hasEnabledTransitions($state);
+        $state['modulesWithSettings']   = $this->getModulesWithSettings($state);
 
         return $state;
     }
@@ -160,8 +171,9 @@ class RebuildResolver
 
         $this->scriptStateDataSource->saveOne($state, $state->id);
 
-        $state['gaData'] = $this->getGAData($state);
+        $state['gaData']                = $this->getGAData($state);
         $state['hasEnabledTransitions'] = $this->hasEnabledTransitions($state);
+        $state['modulesWithSettings']   = $this->getModulesWithSettings($state);
 
         return $state;
     }
@@ -187,6 +199,29 @@ class RebuildResolver
         $state['gaData'] = $this->getGAData($state);
 
         return $state;
+    }
+
+    /**
+     * @param             $value
+     * @param array       $args
+     * @param             $context
+     * @param ResolveInfo $info
+     *
+     * @return bool
+     * @throws Exception
+     *
+     * @Resolver()
+     */
+    public function dropRebuild($value, $args, $context, ResolveInfo $info): bool
+    {
+        foreach ($this->scriptStateDataSource->getRunning() as $scriptState) {
+            $state = $this->executor->cancel($this->getStateById($scriptState['id']));
+            $this->scriptStateDataSource->saveOne($state, $scriptState['id']);
+        }
+
+        $this->rebuildLockManager->clearAnySetRebuildFlags();
+
+        return true;
     }
 
     /**
@@ -228,8 +263,9 @@ class RebuildResolver
             throw $e;
         }
 
-        $newState['gaData'] = $this->getGAData($newState);
+        $newState['gaData']                = $this->getGAData($newState);
         $newState['hasEnabledTransitions'] = $this->hasEnabledTransitions($newState);
+        $newState['modulesWithSettings']   = $this->getModulesWithSettings($newState);
 
         return $newState;
     }
@@ -343,5 +379,33 @@ class RebuildResolver
         }
 
         return false;
+    }
+
+    /**
+     * @param ScriptState $state
+     *
+     * @return string[]
+     */
+    private function getModulesWithSettings($state): array
+    {
+        $result = [];
+
+        foreach ((array) $state->transitions as $transition) {
+            if ($transition['transition'] === ChangeUnitProcessor::TRANSITION_ENABLE
+                || $transition['transition'] === ChangeUnitProcessor::TRANSITION_INSTALL_ENABLED) {
+                if (!empty($transition['stateAfterTransition']['showSettingsForm'])) {
+                    $result[] = [$transition['id'], $transition['stateAfterTransition']['authorName'], $transition['stateAfterTransition']['moduleName']];
+                } else {
+                    /** @var Module $module */
+                    $module = $this->installedModulesDataSource->find($transition['id']);
+
+                    if ($module && $module->showSettingsForm) {
+                        $result[] = [$transition['id'], $module->authorName, $module->moduleName];
+                    }
+                }
+            }
+        }
+
+        return $result;
     }
 }

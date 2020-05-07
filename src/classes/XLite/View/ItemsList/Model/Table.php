@@ -38,6 +38,8 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel implements Provi
     const COLUMN_REMOVE        = 'columnRemove';
     const COLUMN_ORDERBY       = 'orderBy';
     const COLUMN_EDIT_LINK     = 'editLink';
+    const COLUMN_NO_HEAD       = 'noHead';
+    const COLUMN_HEAD_COLSPAN  = 'headColspan';
 
     /**
      * Widget param names
@@ -291,6 +293,9 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel implements Provi
                 $column[static::COLUMN_PARAMS] = isset($column[static::COLUMN_PARAMS])
                     ? $column[static::COLUMN_PARAMS]
                     : array();
+                $column[static::COLUMN_NO_HEAD] = false;
+                $column[static::COLUMN_HEAD_COLSPAN] = 1;
+
                 $this->columns[] = $column;
             }
 
@@ -313,9 +318,110 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel implements Provi
                     static::COLUMN_REMOVE   => $this->isRemoved(),
                 );
             }
+
+            $this->assignColspanHeaders($this->columns);
         }
 
         return $this->columns;
+    }
+
+    /**
+     * @param $columns array
+     */
+    protected function assignColspanHeaders(&$columns)
+    {
+        foreach ($this->getColspanHeaders() as $code => $union) {
+            $index = $this->getColumnIndex($columns, $code);
+
+            $columns = $this->assignColspanHeader($columns, $index, $union);
+        }
+    }
+
+    /**
+     * @param array    $columns
+     * @param int      $index
+     * @param string[] $union
+     *
+     * @return array
+     */
+    protected function assignColspanHeader($columns, $index, $union): array
+    {
+        $columns = $this->assignColspanHeaderLeft($columns, $index, $union);
+        $columns = $this->assignColspanHeaderRight($columns, $index, $union);
+
+        return $columns;
+    }
+
+    /**
+     * @param array    $columns
+     * @param int      $index
+     * @param string[] $union
+     *
+     * @return array
+     */
+    protected function assignColspanHeaderLeft($columns, $index, $union): array
+    {
+        $columnIndex = $index;
+        while (--$columnIndex >= 0) {
+            if (in_array($columns[$columnIndex][static::COLUMN_CODE], $union, true)) {
+                $columns[$columnIndex][static::COLUMN_NO_HEAD] = true;
+                $columns[$index][static::COLUMN_HEAD_COLSPAN]++;
+            } else {
+                break;
+            }
+        }
+
+        return $columns;
+    }
+
+    /**
+     * @param array    $columns
+     * @param int      $index
+     * @param string[] $union
+     *
+     * @return array
+     */
+    protected function assignColspanHeaderRight($columns, $index, $union): array
+    {
+        $columnIndex = $index;
+        while (++$columnIndex <= count($columns)) {
+            if (in_array($columns[$columnIndex][static::COLUMN_CODE], $union, true)) {
+                $columns[$columnIndex][static::COLUMN_NO_HEAD] = true;
+                $columns[$index][static::COLUMN_HEAD_COLSPAN]++;
+            } else {
+                break;
+            }
+        }
+
+        return $columns;
+    }
+
+    /**
+     * @param array  $columns
+     * @param string $code
+     *
+     * @return int|null
+     */
+    protected function getColumnIndex($columns, $code): ?int
+    {
+        foreach ($columns as $index => $column) {
+            if ($column[static::COLUMN_CODE] === $code) {
+                return (int) $index;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Define columns with same header
+     * Format: ['main_column_code' => ['merged_column_1', 'merged_column_2', 'merged_column_3']]
+     *
+     * @return array
+     */
+    protected function getColspanHeaders()
+    {
+        return [];
     }
 
     /**
@@ -425,6 +531,22 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel implements Provi
         }
 
         return $result;
+    }
+
+    /**
+     * Check if at least one of headers has subheader
+     *
+     * @return boolean
+     */
+    protected function hasSubheaders()
+    {
+        foreach ($this->getColumns() as $column) {
+            if (!empty($column[static::COLUMN_SUBHEADER])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -872,6 +994,24 @@ abstract class Table extends \XLite\View\ItemsList\Model\AModel implements Provi
     protected function getHeadClass(array $column)
     {
         return $column[static::COLUMN_CODE];
+    }
+
+    /**
+     * @param array $column
+     * @return bool|mixed
+     */
+    protected function isNoColumnHead(array $column)
+    {
+        return $column[static::COLUMN_NO_HEAD] ?? false;
+    }
+
+    /**
+     * @param array $column
+     * @return int|mixed
+     */
+    protected function getColumnHeadColspan(array $column)
+    {
+        return $column[static::COLUMN_HEAD_COLSPAN] ?? 1;
     }
 
     /**

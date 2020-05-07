@@ -18,8 +18,6 @@
 
 .value-range .ui-slider-horizontal {
   height: 8px;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
   border-radius: 4px;
   background: #f4f4f4;
   border: 1px solid #dfdfdf;
@@ -30,8 +28,6 @@
   height: 16px;
   width: 16px;
   border: 1px solid #a6a6a6;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
   border-radius: 4px;
   top: -4px;
 }

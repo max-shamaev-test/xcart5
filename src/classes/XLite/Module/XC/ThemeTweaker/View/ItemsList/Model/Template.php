@@ -160,11 +160,18 @@ class Template extends \XLite\View\ItemsList\Model\Table
      */
     protected function removeEntity(\XLite\Model\AEntity $entity)
     {
-        $pathSkin = Layout::THEME_TWEAKER_CUSTOMER_INTERFACE;
-        $localPath = $entity->getTemplate();
+        /** @var Layout $layout */
+        $layout = \XLite\Core\Layout::getInstance();
 
-        $shortPath = substr($localPath, strpos($localPath, LC_DS, strlen($pathSkin)));
-        $fullPath = $this->getFullPathByShortPath($shortPath);
+        $localPath = $entity->getTemplate();
+        $interfaceByPath = $layout->getInterfaceByLocalPath($localPath);
+
+        if ($interfaceByPath === \XLite::MAIL_INTERFACE) {
+            $innerInterface = $layout->getInnerInterfaceByLocalPath($localPath);
+            $layout->setMailSkin($innerInterface);
+        }
+
+        $fullPath = $layout->getFullPathByLocalPath($localPath, $interfaceByPath);
 
         \Includes\Utils\FileManager::deleteFile($fullPath);
 

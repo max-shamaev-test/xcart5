@@ -482,11 +482,7 @@ class Address extends \XLite\Model\Base\PersonalAddress
         $result = $this->country;
 
         if (!$result) {
-            $countryField = \XLite\Core\Database::getRepo('XLite\Model\AddressField')
-                ->findOneBy(['serviceName' => 'country_code', 'enabled' => false]);
-            if ($countryField) {
-                $result = \XLite\Model\Address::getDefaultFieldValue('country');
-            }
+            $result = \XLite\Model\Address::getDefaultFieldValue('country');
         }
 
         return $result;

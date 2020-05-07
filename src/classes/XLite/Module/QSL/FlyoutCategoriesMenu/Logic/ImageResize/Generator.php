@@ -21,7 +21,7 @@ class Generator extends \XLite\Logic\ImageResize\Generator implements \XLite\Bas
     public static function defineImageSizes()
     {
         $result = parent::defineImageSizes();
-        $result[static::MODEL_CATEGORY]['XXXSThumbnail'] = array(16, 16);
+        $result[static::MODEL_CATEGORY]['XXXSThumbnail'] = array(60, 60);
 
         return $result;
     }

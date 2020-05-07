@@ -239,7 +239,9 @@ define('themetweaker/layout_editor', ['js/vue/vue'], function (XLiteVue) {
 
         this.clearChanges();
         this.setResetAvailable(true);
-        this.$dispatch('completed.save');
+        this.$dispatch('completed.save', function () {
+          window.location.reload();
+        });
       },
 
       onSaveFail: function (event) {

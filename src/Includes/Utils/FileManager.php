@@ -15,6 +15,13 @@ namespace Includes\Utils;
 abstract class FileManager extends \Includes\Utils\AUtils
 {
     /**
+     * Runtime cache of existing directories
+     *
+     * @var array
+     */
+    private static $dirTouched = [];
+
+    /**
      * Checks whether a file or directory exists
      *
      * @param string $file File name to check
@@ -156,6 +163,23 @@ abstract class FileManager extends \Includes\Utils\AUtils
     public static function getRealPath($path)
     {
         return realpath($path);
+    }
+
+    /**
+     * Check directory and create it if not exits
+     *
+     * @param string $dir
+     * @return bool
+     */
+    public static function touchDir(string $dir)
+    {
+        if (!isset(static::$dirTouched[$dir])) {
+            static::$dirTouched[$dir] = static::isExists($dir)
+                ? static::isDir($dir) && static::isWriteable($dir)
+                : static::$dirTouched[$dir] = static::mkdirRecursive($dir);
+        }
+
+        return static::$dirTouched[$dir];
     }
 
     /**

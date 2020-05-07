@@ -25,7 +25,7 @@ class ListItem extends \XLite\View\Product\ListItem implements \XLite\Base\IDeco
 
         $label = \XLite\Module\CDev\Sale\Core\Labels::getLabel($product);
 
-        if ($product->getParticipateSale() && !$label) {
+        if ($product->hasParticipateSale() && !$label) {
             $widget = $this->getWidget(
                 array(
                     'product'   => $product,

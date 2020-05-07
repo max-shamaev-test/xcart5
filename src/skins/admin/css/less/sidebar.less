@@ -344,6 +344,28 @@
     }
   }
 
+  &.pre-compressed {
+    ul.menu {
+      & > li {
+        & > .line {
+          .link {
+            .icon {
+              width: 53px;
+
+              &:after {
+                left: 30px;
+              }
+            }
+
+            span.title {
+              visibility: hidden;
+            }
+          }
+        }
+      }
+    }
+  }
+
   &.compressed {
     width: @left-side-menu-width-compressed;
 
@@ -353,6 +375,14 @@
 
     ul.menu {
       & > li {
+
+        &:not(.empty) > .line > a {
+          cursor: default;
+        }
+
+        &:not(.empty) > .box li.title a.link {
+          cursor: default;
+        }
 
         &.expanded > .line {
           span.title {
@@ -410,6 +440,7 @@
           width: 220px;
           left: @left-side-menu-width-compressed - 8px;
           top: -10px;
+          bottom: 0;
           padding-left: 30px;
           padding-right: 30px;
           max-width: 450px;

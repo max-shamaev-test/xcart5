@@ -28,6 +28,6 @@ class NewReviewVendor extends NewReview
     public function __construct(Review $review, Profile $vendor)
     {
         parent::__construct($review);
-        $this->setTo($vendor->getLogin());
+        $this->setTo(['email' => $vendor->getLogin(), 'name' => $vendor->getName(false)]);
     }
 }

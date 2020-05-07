@@ -30,6 +30,26 @@ class Main extends \XLite\View\ItemsList\Product\Customer\Category\ACategory
     }
 
     /**
+     * Check if header is visible
+     *
+     * @return boolean
+     */
+    protected function isHeaderVisible()
+    {
+        return $this->hasResults();
+    }
+
+    /**
+     * Check if pager is visible
+     *
+     * @return boolean
+     */
+    protected function isPagerVisible()
+    {
+        return $this->hasResults();
+    }
+
+    /**
      * Return "empty list" catalog
      *
      * @return string

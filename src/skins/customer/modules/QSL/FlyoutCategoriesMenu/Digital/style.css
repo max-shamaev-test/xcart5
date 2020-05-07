@@ -24,8 +24,6 @@
 .sidebar .flyout-menu li ul {
   background: #222222 url(sideblock_bg.gif) 0 0 repeat-x;
   border: 0 none;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
   border-radius: 0;
 }
 
@@ -37,8 +35,6 @@
 .flyout-menu li ul.sublevel li a:visited{
   color: #fff;
   border-top: none;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
   border-radius: 0;
 }
 

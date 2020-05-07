@@ -121,7 +121,7 @@ class ModuleInfoProvider
 
         return array_map(function ($module) {
             return str_replace('/', '-', $module);
-        }, glob('{*/*}', GLOB_BRACE));
+        }, glob('*/*'));
     }
 
     /**

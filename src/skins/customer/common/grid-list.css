@@ -24,8 +24,7 @@ ul.grid-list li
 {
   list-style: none;
   background-image: none;
-  vertical-align: top;
-  display: -moz-inline-stack;   /* FF2 supports this instead of "inline-block" */
+  vertical-align: top;   /* FF2 supports this instead of "inline-block" */
   display: inline-block;
   border-style: solid;          /* Weird but FF requires this in order to display "inline-blocks" properly */
   border-color: transparent;    /* Hide the border in all browsers but IE6 */

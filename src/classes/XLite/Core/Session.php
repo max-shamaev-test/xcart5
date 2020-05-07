@@ -457,8 +457,6 @@ class Session extends \XLite\Base\Singleton
 
             $this->__set('language', $code);
             $this->language = null;
-
-            \XLite\Core\Request::getInstance()->setLanguageCode($language);
         }
     }
 
@@ -634,7 +632,7 @@ class Session extends \XLite\Base\Singleton
      */
     protected function createSession()
     {
-        if ($this->useDumpSession()) {
+        if ($this->useDumpSession() || $this->isXidFreePaymentReturn()) {
             $this->session = new \XLite\Model\SessionDump();
 
         } else {
@@ -662,11 +660,7 @@ class Session extends \XLite\Base\Singleton
                 || !\XLite\Core\Config::getInstance()->Security->customer_security
             )
         ) {
-            if ($this->isDump()) {
-                \XLite\Core\Request::getInstance()->unsetCookie($this->getName());
-                \XLite\Core\Request::getInstance()->unsetCookie(static::LC_REFERER_COOKIE_NAME);
-
-            } else {
+            if (!$this->isDump()) {
                 \XLite\Core\Request::getInstance()->setCookie(
                     $this->getName(),
                     $this->getID(),
@@ -774,8 +768,10 @@ class Session extends \XLite\Base\Singleton
 
         $useCleanUrls = defined('LC_USE_CLEAN_URLS') && true == LC_USE_CLEAN_URLS;
 
-        if ($useCleanUrls && \XLite\Core\Router::getInstance()->isUseLanguageUrls() && \XLite\Core\Request::getInstance()->getLanguageCode()) {
-            $code = array_merge($code, ['customer' => \XLite\Core\Request::getInstance()->getLanguageCode()]);
+        $languageCodeFromRequest = \XLite\Core\Request::getInstance()->getLanguageCode();
+
+        if ($useCleanUrls && \XLite\Core\Router::getInstance()->isUseLanguageUrls() && $languageCodeFromRequest) {
+            $code = array_merge($code, ['customer' => $languageCodeFromRequest]);
         }
 
         if (!empty($code[$zone])) {
@@ -783,9 +779,9 @@ class Session extends \XLite\Base\Singleton
 
             if (!isset($language) || !$language->getAdded() || !$language->getEnabled()) {
                 unset($code[$zone]);
-            } elseif ($useCleanUrls && \XLite\Core\Router::getInstance()->isUseLanguageUrls() && \XLite\Core\Request::getInstance()->getLanguageCode()) {
+            } elseif ($useCleanUrls && \XLite\Core\Router::getInstance()->isUseLanguageUrls() && $languageCodeFromRequest) {
                 $lang = $this->__get('language') ?: [];
-                $lang['customer'] = \XLite\Core\Request::getInstance()->getLanguageCode();
+                $lang['customer'] = $languageCodeFromRequest;
                 $this->__set('language', $lang);
             }
         }
@@ -829,6 +825,20 @@ class Session extends \XLite\Base\Singleton
     protected function useDumpSession()
     {
         return \XLite\Core\Request::getInstance()->isBot();
+    }
+
+    /**
+     * Check if payment return request without xid (it is possible in case lax/strict xid cookie)
+     *
+     * @return bool
+     */
+    protected function isXidFreePaymentReturn()
+    {
+        [$session,] = $this->detectPublicSession();
+
+        $target = \XLite\Core\Request::getInstance()->target;
+
+        return !$session && \XLite\Core\Converter::convertFromCamelCase($target) === 'payment_return';
     }
 
     /**

@@ -37,6 +37,17 @@ class PackageException extends RuntimeException
     }
 
     /**
+     * @return PackageException
+     */
+    public static function fromNonFormatArchive(): PackageException
+    {
+        $exception = new self('exception.addon-package.wrong-format-error', self::ERR_BAD_ARGUMENTS);
+        $exception->setParams([]);
+
+        return $exception;
+    }
+
+    /**
      * @param \Exception $previous
      *
      * @return PackageException

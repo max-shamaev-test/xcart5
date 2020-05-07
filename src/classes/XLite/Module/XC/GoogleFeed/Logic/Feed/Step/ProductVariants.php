@@ -126,7 +126,7 @@ class ProductVariants extends \XLite\Module\XC\GoogleFeed\Logic\Feed\Step\Produc
             $result = array_slice($result, $offset, 9 + $offset);
         }
 
-        return $result;
+        return implode("</g:additional_image_link><g:additional_image_link>", $result);
     }
 
     /**
@@ -171,7 +171,7 @@ class ProductVariants extends \XLite\Module\XC\GoogleFeed\Logic\Feed\Step\Produc
             'g:id'                => mb_substr($this->getVariantId($model), 0, self::SKU_LENGTH),
             'g:link'              => mb_substr($this->getVariantLink($model), 0, self::LINK_LENGTH),
             'g:title'             => mb_substr($this->getVariantTitle($model), 0, self::TITLE_LENGTH),
-            'g:description'       => mb_substr($model->getProduct()->getMetaDesc(), 0, self::DESCRIPTION_LENGTH),
+            'g:description'       => mb_substr(trim(strip_tags($model->getProduct()->getProcessedDescription())), 0, self::DESCRIPTION_LENGTH),
             'g:price'             => $this->getVariantPrice($model),
             'g:availability'      => $this->getVariantAvailability($model),
             'g:condition'         => $this->getCondition($model->getProduct()),

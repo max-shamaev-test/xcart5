@@ -18,6 +18,15 @@ use Includes\Utils\Module\Manager;
 class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
 {
     /**
+     * Flag, if the wholeSale price of product is used in sales
+     *
+     * @var boolean
+     *
+     * @Column (type="boolean")
+     */
+    protected $applySaleToWholesale = false;
+
+    /**
      * Relation to a product entity
      *
      * @var \Doctrine\Common\Collections\Collection
@@ -70,6 +79,26 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     }
 
     /**
+     * Set applySaleToWholesale
+     *
+     * @param boolean $applySaleToWholesale
+     */
+    public function setApplySaleToWholesale($applySaleToWholesale)
+    {
+        $this->applySaleToWholesale = (boolean) $applySaleToWholesale;
+    }
+
+    /**
+     * Get applySaleToWholesale
+     *
+     * @return boolean
+     */
+    public function getApplySaleToWholesale()
+    {
+        return $this->applySaleToWholesale;
+    }
+
+    /**
      * Set wholesale membership
      *
      * @param \XLite\Model\Membership|boolean $membership Membership
@@ -89,6 +118,30 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     public function getWholesaleMembership()
     {
         return $this->wholesaleMembership;
+    }
+
+    /**
+     * Get display Price
+     *
+     * @return float
+     */
+    public function getDisplayPrice()
+    {
+        return \XLite\Logic\Price::getInstance()->apply($this, 'getNetPrice', ['taxable'], 'display');
+    }
+
+    /**
+     * Is current selected variant has Tier 1 Wholesale price
+     * @return bool
+     */
+    public function isFirstWholesaleTier()
+    {
+        $wholesaleprices = \XLite\Core\Database::getRepo('XLite\Module\CDev\Wholesale\Model\WholesalePrice')->getWholesalePrices(
+            $this,
+            $this->getCurrentMembership()
+        );
+
+        return empty($wholesaleprices) || $wholesaleprices[0]->getQuantityRangeBegin() > $this->getWholesaleQuantity();
     }
 
     /**
@@ -143,7 +196,8 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     public function isWholesalePricesEnabled()
     {
         return !Manager::getRegistry()->isModuleEnabled('CDev-Sale')
-            || !$this->getParticipateSale();
+            || !$this->getParticipateSale()
+            || ($this->getApplySaleToWholesale() && $this->getDiscountType() === $this::SALE_DISCOUNT_TYPE_PERCENT);
     }
 
     /**

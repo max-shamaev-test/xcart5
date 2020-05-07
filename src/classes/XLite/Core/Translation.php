@@ -57,14 +57,15 @@ class Translation extends \XLite\Base\Singleton implements \XLite\Base\IREST
      * @param string $name      Label name
      * @param array  $arguments Substitute arguments OPTIONAL
      * @param string $code      Language code OPTIONAL
+     * @param string $type      Label type, can be used in \XLite\Core\ITranslationProcessor
      *
      * @return string
      */
-    public static function lbl($name, array $arguments = array(), $code = null)
+    public static function lbl($name, array $arguments = array(), $code = null, $type = null)
     {
         return $name instanceof \XLite\Core\Translation\Label
             ? $name
-            : new \XLite\Core\Translation\Label($name, $arguments, $code);
+            : new \XLite\Core\Translation\Label($name, $arguments, $code, $type);
     }
 
     /**
@@ -111,10 +112,11 @@ class Translation extends \XLite\Base\Singleton implements \XLite\Base\IREST
      * @param string $name      Label name
      * @param array  $arguments Substitute arguments OPTIONAL
      * @param string $code      Language code OPTIONAL
+     * @param string $type      Label type, can be used in \XLite\Core\ITranslationProcessor
      *
      * @return string
      */
-    public function translate($name, array $arguments = array(), $code = null)
+    public function translate($name, array $arguments = array(), $code = null, $type = null)
     {
         $result = '';
 
@@ -133,7 +135,7 @@ class Translation extends \XLite\Base\Singleton implements \XLite\Base\IREST
                 ? $this->translateByHandler($handler, $name, $arguments, $code)
                 : $this->translateByString($name, $arguments, $code);
 
-            $result = $this->postprocessTranslation($result, $name, $arguments, $code);
+            $result = $this->postprocessTranslation($result, $name, $arguments, $code, $type);
         }
 
         return $result;
@@ -347,14 +349,15 @@ class Translation extends \XLite\Base\Singleton implements \XLite\Base\IREST
     /**
      * Translate by string
      *
-     * @param string $translation      Translated label string
-     * @param string $name             Label name
-     * @param array  $arguments        Substitute arguments OPTIONAL
-     * @param string $code             Language code OPTIONAL
+     * @param string $translation Translated label string
+     * @param string $name        Label name
+     * @param array  $arguments   Substitute arguments OPTIONAL
+     * @param string $code        Language code OPTIONAL
+     * @param string $type        Label type, can be used in \XLite\Core\ITranslationProcessor
      *
      * @return string
      */
-    public function postprocessTranslation($translation, $name, array $arguments = array(), $code = null)
+    public function postprocessTranslation($translation, $name, array $arguments = [], $code = null, $type = null)
     {
         if (empty($code)) {
             $code = \XLite\Logic\Export\Generator::getLanguageCode()
@@ -362,7 +365,7 @@ class Translation extends \XLite\Base\Singleton implements \XLite\Base\IREST
         }
 
         if ($this->getProcessor()) {
-            $translation = $this->getProcessor()->postprocess($translation, $name, $arguments, $code);
+            $translation = $this->getProcessor()->postprocess($translation, $name, $arguments, $code, $type);
         }
 
         return $translation;

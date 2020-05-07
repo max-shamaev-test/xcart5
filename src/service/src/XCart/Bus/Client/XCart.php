@@ -11,7 +11,7 @@ namespace XCart\Bus\Client;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Cookie\SetCookie;
-use GuzzleHttp\Message\ResponseInterface;
+use Psr\Http\Message\ResponseInterface;
 use Silex\Application;
 use XCart\SilexAnnotations\Annotations\Service;
 
@@ -78,7 +78,7 @@ class XCart
      */
     public function getLoginURL(): string
     {
-        return $this->getClient()->getBaseUrl() . $this->app['config']['admin_script'] . '?target=login&returnToSpa=1';
+        return $this->getClient()->getConfig('base_uri') . $this->app['config']['admin_script'] . '?target=login&returnToSpa=1';
     }
 
     /**
@@ -86,7 +86,7 @@ class XCart
      */
     public function getUpgradeFrontendURL(): string
     {
-        return $this->getClient()->getBaseUrl() . 'service.php?#/';
+        return $this->getClient()->getConfig('base_uri') . 'service.php?#/';
     }
 
     /**
@@ -179,7 +179,7 @@ class XCart
         ]);
 
         return $response
-            ? $response->json()
+            ? json_decode((string) $response->getBody(), true)
             : null;
     }
 
@@ -209,7 +209,7 @@ class XCart
             'Name'   => $this->app['config']['xc_cookie_name'],
             'Value'  => $cookieValue,
             'Domain' => $this->getCookieDomain($this->app['config']['domain']),
-            'Path'   => $this->app['config']['webdir'],
+            'Path'   => $this->app['config']['webdir'] ?: '/',
         ]);
     }
 

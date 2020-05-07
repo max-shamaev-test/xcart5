@@ -42,7 +42,9 @@ slidebar.prototype.options = {
   }
 };
 
-slidebar.prototype.configuration = {};
+slidebar.prototype.configuration = {
+  panelNodetype: "ul, ol"
+};
 
 core.bind('navbar.mobile.loaded', function () {
   core.autoload(slidebar);

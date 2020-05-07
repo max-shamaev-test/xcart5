@@ -8,6 +8,7 @@
 
 namespace XLite\View\FormField\Select;
 
+use XLite\Core\Cache\ExecuteCachedTrait;
 use XLite\Core\PreloadedLabels\ProviderInterface;
 
 /**
@@ -15,6 +16,7 @@ use XLite\Core\PreloadedLabels\ProviderInterface;
  */
 class Country extends \XLite\View\FormField\Select\Regular implements ProviderInterface
 {
+    use ExecuteCachedTrait;
     use SingleOptionAsLabelTrait;
 
     /**
@@ -126,17 +128,25 @@ class Country extends \XLite\View\FormField\Select\Regular implements ProviderIn
      */
     protected function getDefaultOptions()
     {
-        $list = $this->onlyEnabled
-            ? \XLite\Core\Database::getRepo('XLite\Model\Country')->findAllEnabled()
-            : \XLite\Core\Database::getRepo('XLite\Model\Country')->findAllCountries();
-
         $options = [];
 
-        foreach ($list as $country) {
+        foreach ($this->getCountries() as $country) {
             $options[$country->getCode()] = $country->getCountry();
         }
 
         return $options;
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function getCountries()
+    {
+        return $this->executeCachedRuntime(function () {
+            return $this->onlyEnabled
+                ? \XLite\Core\Database::getRepo('XLite\Model\Country')->findAllEnabled()
+                : \XLite\Core\Database::getRepo('XLite\Model\Country')->findAllCountries();
+        }, [__METHOD__]);
     }
 
     /**

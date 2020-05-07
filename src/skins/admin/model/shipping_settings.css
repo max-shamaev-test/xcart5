@@ -34,9 +34,6 @@ h2#additionalsettingsseparator:before {
 h2#additionalsettingsseparator.expanded:before {
   content: "\f147";
 }
-.cod-status-value .form-field-comment {
-  padding-top: 10px;
-}
 .cod-status-value .onoffswitch input[type=checkbox]:disabled + label {
   cursor: no-drop;
 }

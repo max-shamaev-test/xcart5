@@ -94,7 +94,7 @@
             <div class="cardName">
                 <div class="title">{{ t('Cardholder name') }}</div>
                 <div class="value">
-                    <input size="40" id="cc_name" class="form-control validate[required]" placeholder="{{ t('Cardholder name') }}" type="text" autocomplete="off" v-model="payment.cc_holder_name" lazy>
+                    <input size="40" id="cc_name" class="form-control validate[required]" placeholder="{{ t('Cardholder name', [], null, 'placeholder') }}" type="text" autocomplete="off" v-model="payment.cc_holder_name" lazy>
                 </div>
             </div>
 

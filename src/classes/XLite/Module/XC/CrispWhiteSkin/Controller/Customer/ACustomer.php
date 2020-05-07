@@ -74,4 +74,14 @@ class ACustomer extends \XLite\Controller\Customer\ACustomer implements \XLite\B
             ? Auth::getInstance()->getProfile()->getLogin()
             : null;
     }
+
+    /**
+     * Check if additional mobile breadcrumbs are shown
+     *
+     * @return boolean
+     */
+    public function isShowAdditionalMobileBreadcrumbs()
+    {
+        return false;
+    }
 }

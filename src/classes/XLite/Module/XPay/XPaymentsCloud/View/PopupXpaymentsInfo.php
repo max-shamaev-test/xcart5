@@ -82,7 +82,7 @@ class PopupXpaymentsInfo extends \XLite\View\AView
      */
     protected function getXpaymentsClient()
     {
-        return \XLite\Module\XPay\XPaymentsCloud\Core\ApiClient::getInstance()->getClient();
+        return \XLite\Module\XPay\XPaymentsCloud\Main::getClient();
     }
 
     /**

@@ -360,6 +360,16 @@ class Order extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * Check controller visibility
+     *
+     * @return boolean
+     */
+    protected function isVisible()
+    {
+        return parent::isVisible() && $this->getOrders();
+    }
+
+    /**
      * Check if current page is accessible
      *
      * @return boolean
@@ -369,9 +379,8 @@ class Order extends \XLite\Controller\Admin\AAdmin
         $orders = $this->getOrders();
 
         return parent::checkAccess()
-            && $orders
-            && $orders[0]
-            && $orders[0]->getProfile();
+            && (isset($orders[0])
+                && $orders[0]->getProfile());
     }
 
     /**
@@ -412,10 +421,15 @@ class Order extends \XLite\Controller\Admin\AAdmin
                         : $transaction->getMethodName();
                 }
             }
+
             $result = $paymentMethod ?: static::t('Payment method data');
 
-        } else {
+        } elseif ($this->getOrder()) {
             $result = static::t('Order X', ['id' => $this->getOrder()->getOrderNumber()]);
+
+        } else {
+
+            $result = parent::getTitle();
         }
 
         return $result;
@@ -467,7 +481,7 @@ class Order extends \XLite\Controller\Admin\AAdmin
                         $result[] = $order;
                     }
                 }
-            } else {
+            } elseif ($this->getOrder()) {
                 $result[] = $this->getOrder();
             }
 
@@ -709,6 +723,38 @@ class Order extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * Update product sales
+     *
+     * @param $before Array of saled product in order
+     * @param \XLite\Model\Order $order Order
+     *
+     * @return void
+     */
+    public function updateProductSales($before, $order)
+    {
+        foreach ($order->getItems() as $item) {
+            if (isset($before[$item->getID()])) {
+                if ($before[$item->getId()]['amount'] != $item->getAmount()) {
+                    $diff = $item->getAmount() - $before[$item->getId()]['amount'];
+                    if ($item->getObject()) {
+                        $item->getObject()->setSales($item->getObject()->getSales() + $diff);
+                    }
+                }
+                unset($before[$item->getID()]);
+            } else {
+                if ($item->getObject()) {
+                    $item->getObject()->setSales($item->getObject()->getSales() + $item->getAmount());
+                }
+            }
+        }
+        foreach ($before as $k => $item) {
+            if ($item['item']->getObject()) {
+                $item['item']->getObject()->setSales($item['item']->getObject()->getSales() - $item['amount']);
+            }
+        }
+    }
+
+    /**
      * Display recalculate data
      *
      * @param \XLite\Model\Order $order Order
@@ -829,7 +875,9 @@ class Order extends \XLite\Controller\Admin\AAdmin
 
         if ($this->isOrderEditable()) {
             // Update order items list
+            $before = $this->getOrderItemsAndAmountBeforeUpdate($order);
             $this->updateOrderItems($order);
+            $this->updateProductSales($before, $order);
 
             // Update common order form fields
             $this->updateCommonForm();
@@ -866,6 +914,22 @@ class Order extends \XLite\Controller\Admin\AAdmin
         return (boolean)$this->getOrderChanges();
     }
 
+    /**
+     * Get order items amount and model before update
+     *
+     * @param \XLite\Model\Order $order Order
+     *
+     * @return array
+     */
+    public function getOrderItemsAndAmountBeforeUpdate($order)
+    {
+        foreach ($order->getItems() as $item) {
+            $array[$item->getID()]['amount'] = $item->getAmount();
+            $array[$item->getID()]['item']   = $item;
+        }
+
+        return $array;
+    }
     /**
      * Update common form
      *
@@ -1227,7 +1291,7 @@ class Order extends \XLite\Controller\Admin\AAdmin
         $item->setProduct(\XLite\Core\Database::getRepo('XLite\Model\Product')->find($request->product_id));
 
         $attributes = $request->new;
-        $attributes = reset($attributes);
+        $attributes = !empty($attributes) ? reset($attributes) : null;
         $attributeValues = array();
         if (!empty($attributes['attribute_values'])) {
             $attributeValues = $attributes['attribute_values'];
@@ -1289,7 +1353,7 @@ class Order extends \XLite\Controller\Admin\AAdmin
         return array(
             'item_id'   => $item->getItemId(),
             'requestId' => \XLite\Core\Request::getInstance()->requestId,
-            'price'     => $item->getItemPrice(),
+            'price'     => $item->getClearPrice(),
             'max_qty'   => $maxAmount,
         );
     }
@@ -1324,8 +1388,10 @@ class Order extends \XLite\Controller\Admin\AAdmin
     public function getPages()
     {
         $list = parent::getPages();
-        $list['default'] = static::t('General info');
-        $list['invoice'] = static::t('Invoice');
+        if ($this->getOrder()) {
+            $list['default'] = static::t('General info');
+            $list['invoice'] = static::t('Invoice');
+        }
 
         return $list;
     }

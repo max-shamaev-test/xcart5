@@ -37,6 +37,14 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: 'reCAPTCHA'
+  - name: recaptcha_version
+    category: 'CDev\ContactUs'
+    type: \XLite\Module\CDev\ContactUs\View\FormField\VersionSwitch
+    orderby: 1050
+    value: '2'
+    translations:
+      - code: en
+        option_name: 'Version'
   - name: recaptcha_public_key
     category: 'CDev\ContactUs'
     type: text
@@ -74,7 +82,7 @@ XLite\Model\Notification:
         name: 'Contact us form submitted (Contact us module)'
         description: 'This notification is sent to the administrator when someone submits a request via the "Contact us" form.'
         adminSubject: 'New message: %message_subject%'
-        adminText: '<h3 dir="ltr">Hey boss, </h3><p dir="ltr">%message_author% has sent you a message through the &ldquo;Contact us&rdquo; form and is waiting for your answer. Come on, reply to this email and drop him a line or two.</p><blockquote><p dir="ltr">%message%</p></blockquote>'
+        adminText: '<h3 dir="ltr">Hey, </h3><p dir="ltr">%message_author% has sent you a message through the &ldquo;Contact us&rdquo; form and is waiting for your answer. Come on, reply to this email and drop him a line or two.</p><blockquote><p dir="ltr">%message%</p></blockquote>'
       - code: ru
         name: Заполнена форма для связи с администрацией магазина (модуль Contact us)
         description: "Данное сообщение используется для оповещения администратора в случае поступления в адрес магазина обращения через форму для связи с администрацией."
@@ -83,7 +91,7 @@ XLite\Model\Notification:
 
 XLite\Model\LanguageLabel:
   - { name: "This field is required.", translations: [{ code: en, label: "This field is required." }] }
-  - { name: "Please enter the correct captcha", translations: [{ code: en, label: "Please enter the correct code" }] }
+  - { name: "Please enter the correct captcha", translations: [{ code: en, label: "Sorry, we can't verify you are not a robot" }] }
   - { name: "Message has been sent", translations: [{ code: en, label: "The message has been sent" }] }
   - { name: "Your Message", translations: [{ code: en, label: "Your Message" }] }
   - { name: 'Email Address', translations: [{ code: en, label: 'Email Address' }]}
@@ -92,3 +100,4 @@ XLite\Model\LanguageLabel:
   - { name: 'Send a message', translations: [{ code: en, label: 'Send a message' }]}
 
   - { name: 'Our location', translations: [{ code: en, label: 'Our location' }]}
+  - { name: 'recaptcha_terms_of_service', translations: [{ code: en, label: 'This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.' }]}

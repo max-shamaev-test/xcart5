@@ -90,15 +90,15 @@ class Product extends \XLite\Model\Product implements \XLite\Base\IDecorator
     protected function defineAdditionalMetaTags()
     {
         return [
-                'product:availability' => $this->availableInDate()
+                'product:availability'     => $this->availableInDate()
                     ? (
                     $this->isOutOfStock()
                         ? 'oos'
                         : 'instock'
                     )
                     : 'pending',
-                'product:category'     => $this->getCategory()->getName(),
-                'product:condition'    => 'new',
+                'product:condition'        => 'new',
+                'product:retailer_item_id' => $this->getSku(),
             ]
             + $this->getOgPrice()
             + $this->getOgWeight();

@@ -68,10 +68,10 @@ CurrencyManageForm.prototype.initialize = function ()
   var renewCountriesList = function () {
     setTimeout(function () {
       $('.input-countries-select2 select option:not(:disabled, :selected)').filter(function () {
-        return unavailableCountries.indexOf($(this).val()) >= 0;
+        return unavailableCountries !== null && unavailableCountries.indexOf($(this).val()) >= 0;
       }).attr('disabled', true);
       $('.input-countries-select2 select option:disabled').filter(function () {
-        return unavailableCountries.indexOf($(this).val()) === -1;
+        return unavailableCountries === null || unavailableCountries.indexOf($(this).val()) === -1;
       }).attr('disabled', false);
 
       $('.input-countries-select2 select').each(function () {
@@ -79,7 +79,10 @@ CurrencyManageForm.prototype.initialize = function ()
       });
     });
   };
-  renewCountriesList();
+
+  $(function() {
+    renewCountriesList();
+  });
 
   $('.input-countries-select2 select').each(function () {
     this.oldCountries = $(this).val();

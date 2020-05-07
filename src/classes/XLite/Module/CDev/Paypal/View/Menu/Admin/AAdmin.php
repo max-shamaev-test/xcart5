@@ -27,6 +27,7 @@ abstract class AAdmin extends \XLite\View\Menu\Admin\AAdmin implements \XLite\Ba
         if ('payment_settings' === $target) {
             $result[] = 'paypal_settings';
             $result[] = 'paypal_credit';
+            $result[] = 'paypal_button';
         }
 
         return $result;

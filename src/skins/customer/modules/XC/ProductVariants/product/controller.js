@@ -37,6 +37,7 @@ jQuery(document).ready(
       };
 
       jQuery("ul.attribute-values input[type='checkbox']").unbind('change').change(handler);
+      jQuery("ul.attribute-values input.blocks-input").unbind('change').change(handler);
       jQuery("ul.attribute-values select").unbind('change').change(handler);
     }
     if (jQuery('div.product-details').length > 0 && 'undefined' !== typeof(jQuery('div.product-details').get(0).controller)) {

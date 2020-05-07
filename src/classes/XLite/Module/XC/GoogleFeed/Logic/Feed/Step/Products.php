@@ -130,7 +130,7 @@ class Products extends AFeedStep
 
         $price = implode('', $parts);
 
-        return ':::' . $price;
+        return ['g:price' => $price];
     }
 
     /**
@@ -178,7 +178,7 @@ class Products extends AFeedStep
             $result = array_slice($result, 1, 10);
         }
 
-        return $result;
+        return implode("</g:additional_image_link><g:additional_image_link>", $result);
     }
 
     /**
@@ -299,7 +299,7 @@ class Products extends AFeedStep
             'g:id'                => mb_substr($this->getRecordId($model), 0, self::SKU_LENGTH),
             'g:link'              => mb_substr($this->getLink($model), 0, self::LINK_LENGTH),
             'g:title'             => mb_substr($model->getName(), 0, self::TITLE_LENGTH),
-            'g:description'       => mb_substr($model->getMetaDesc(), 0, self::DESCRIPTION_LENGTH),
+            'g:description'       => mb_substr(trim(strip_tags($model->getProcessedDescription())), 0, self::DESCRIPTION_LENGTH),
             'g:price'             => $this->getPrice($model),
             'g:availability'      => $this->getAvailability($model),
             'g:condition'         => $this->getCondition($model),

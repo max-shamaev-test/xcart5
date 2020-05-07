@@ -32,8 +32,8 @@
     </div>
   {% endif %}
 {% endif %}
-{% if column.subheader %}
-  <div class="subheader">{{ column.subheader }}</div>
+{% if column.subheader or this.hasSubheaders() %}
+  <div class="subheader">{% if column.subheader %}{{ column.subheader }}{% endif %}</div>
 {% endif %}
 {{ widget_list(this.getCellListNamePart('head', column), type='inherited', column=column) }}
 {% if column.columnSelector %}

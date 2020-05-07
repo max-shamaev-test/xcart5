@@ -105,9 +105,7 @@ class Country extends \XLite\Model\Repo\Base\I18n
         $data = $this->getFromCache('enabled' . $lng);
         if (!isset($data)) {
             $data = $this->defineAllEnabledQuery()->getOnlyEntities();
-            foreach ($data as $c) {
-                $c->getCountry();
-            }
+
             $this->saveToCache($data, 'enabled' . $lng);
         }
 
@@ -122,10 +120,14 @@ class Country extends \XLite\Model\Repo\Base\I18n
     protected function defineAllEnabledQuery()
     {
         $qb = $this->createQueryBuilder()
+            ->addSelect('translations')
             ->addSelect('s')
             ->leftJoin('c.states', 's')
             ->andWhere('c.enabled = :enable')
-            ->setParameter('enable', true);
+            ->setParameter('enable', true)
+            ->addSelect('currency')
+            ->leftJoin('c.currency', 'currency')
+        ;
 
         $this->prepareCndOrderBy($qb, array('translations.country', 'ASC'));
 
@@ -148,9 +150,7 @@ class Country extends \XLite\Model\Repo\Base\I18n
         $data = $this->getFromCache('all' . $lng);
         if (!isset($data)) {
             $data = $this->defineAllCountriesQuery()->getOnlyEntities();
-            foreach ($data as $c) {
-                $c->getCountry();
-            }
+
             $this->saveToCache($data, 'all' . $lng);
         }
 
@@ -165,8 +165,12 @@ class Country extends \XLite\Model\Repo\Base\I18n
     protected function defineAllCountriesQuery()
     {
         $qb = $this->createQueryBuilder()
+            ->addSelect('translations')
             ->addSelect('s')
-            ->leftJoin('c.states', 's');
+            ->leftJoin('c.states', 's')
+            ->addSelect('currency')
+            ->leftJoin('c.currency', 'currency')
+        ;
 
         $this->prepareCndOrderBy($qb, array('translations.country', 'ASC'));
 
@@ -429,6 +433,33 @@ class Country extends \XLite\Model\Repo\Base\I18n
         } else {
             $queryBuilder->addSelect('IFNULL(st.country,translations.country) calculatedCountry');
         }
+    }
+
+    /**
+     * Find all countries with active language
+     *
+     * @return \Doctrine\Common\Collections\ArrayCollection
+     */
+    public function findAllEnabledCountriesWithActiveLanguage()
+    {
+        $data = $this->defineAllEnabledCountriesWithActiveLanguageQuery()
+            ->getResult();
+
+        return $data;
+    }
+
+    /**
+     * Define query builder for findAllEnabledCountriesWithActiveLanguage()
+     *
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    protected function defineAllEnabledCountriesWithActiveLanguageQuery()
+    {
+        return $this->createQueryBuilder()
+            ->select('c.code')
+            ->linkInner('c.language')
+            ->where('language.added = 1')
+            ->andWhere('c.enabled = 1');
     }
 
     // }}}

@@ -81,6 +81,7 @@ ListView.prototype.postprocess = function(isSuccess, initial)
       function() {
         // scroll page to list top
         jQuery('html, body').animate({scrollTop: o.base.offset().top});
+
         return !o.load({'pageId': core.getValueFromClass(this, 'page')});
       }
     );

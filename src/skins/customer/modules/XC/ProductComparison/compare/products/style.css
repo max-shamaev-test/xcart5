@@ -29,13 +29,9 @@ div.add-to-compare.products div.compare-popup {
 div.add-to-compare.products div.compare-popup.visible {
   margin: 0 40px;
   top: 0;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
   border-radius: 4px;
   border: solid 1px #bbc7d2;
   box-shadow: 2px 2px 3px #bbc7d2;
-  -moz-box-shadow: 2px 2px 3px #bbc7d2;
-  -webkit-box-shadow: 2px 2px 3px #bbc7d2;
   background-color: #fff;
 }
 
@@ -49,8 +45,6 @@ div.add-to-compare.products div.compare-checkbox {
   top: 0;
   padding: 2px;
   padding-top: 6px;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
   border-radius: 4px;
   border: solid 1px #d7e1e8;
   background-color: #eaf6fe;
@@ -95,6 +89,4 @@ div.add-to-compare.products div.compare-popup.hide_item {
   border: none !important;
   background: none !important;
   box-shadow: none !important;
-  -moz-box-shadow: none !important;
-  -webkit-box-shadow: none !important;
 }

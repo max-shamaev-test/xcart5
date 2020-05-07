@@ -9,6 +9,7 @@
 namespace XLite\Core\GraphQL\Client;
 
 use GuzzleHttp\Exception\TransferException;
+use GuzzleHttp\Psr7\Request;
 
 /**
  * Abstract GraphQL client
@@ -73,7 +74,7 @@ abstract class AClient
             if ($response->getStatusCode() !== 200) {
                 throw new \GuzzleHttp\Exception\BadResponseException(
                     "GraphQL authorization request failed: expected HTTP code \"200\" received \"{$response->getStatusCode()}\"",
-                    $this->httpClient->createRequest('POST'),
+                    new Request('POST', null),
                     $response
                 );
             }

@@ -25,6 +25,8 @@ class AccessControlCell extends \XLite\Model\AEntity
 {
     const ACCESS_CONTROL_CELL_AVAILABILITY_TTL = 3600;
 
+    const ACCESS_CONTROL_CELL_RESEND_LOCK_TTL = 300;
+
     /**
      * ID
      *
@@ -89,6 +91,15 @@ class AccessControlCell extends \XLite\Model\AEntity
      * @Column (type="integer")
      */
     protected $date = 0;
+
+    /**
+     * Resend date (UNIX timestamp)
+     *
+     * @var integer
+     *
+     * @Column (type="integer")
+     */
+    protected $resendDate = 0;
 
     /**
      * Constructor
@@ -345,6 +356,17 @@ class AccessControlCell extends \XLite\Model\AEntity
     }
 
     /**
+     * Check is expired
+     *
+     * @return bool
+     */
+    public function isResendLocked()
+    {
+        return $this->getResendDate()
+            && (\XLite\Core\Converter::time() - static::ACCESS_CONTROL_CELL_RESEND_LOCK_TTL) < $this->getResendDate();
+    }
+
+    /**
      * Return true if cell has access to entity
      *
      * @param AEntity $entity
@@ -398,5 +420,23 @@ class AccessControlCell extends \XLite\Model\AEntity
             isset($data['action']) ? $data['action'] : '',
             isset($data['params']) ? $data['params'] : []
         );
+    }
+
+    /**
+     * @return int
+     */
+    public function getResendDate()
+    {
+        return $this->resendDate;
+    }
+
+    /**
+     * @param int $resendDate
+     */
+    public function setResendDate(int $resendDate)
+    {
+        $this->resendDate = $resendDate;
+
+        return $this;
     }
 }

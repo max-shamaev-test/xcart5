@@ -120,7 +120,7 @@ class CleanURLType extends AType
 
                 $resolveHints[] = static::t('Enter a different Clean URL value for this page');
 
-                if ($conflict->getCleanURL() === $value) {
+                if (strtolower($conflict->getCleanURL()) === strtolower($value)) {
                     $hasUnForcibleError = true;
                     if ($conflict instanceof \XLite\Model\TargetCleanUrl) {
                         $errorMessage = static::t('The Clean URL entered is already in use by target alias.');

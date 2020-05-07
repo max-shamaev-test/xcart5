@@ -54,7 +54,7 @@ abstract class Main extends \XLite\Module\AModule
         /** @var \XLite\Module\XC\MailChimp\Model\Repo\Store $repo */
         $repo = \XLite\Core\Database::getRepo('XLite\Module\XC\MailChimp\Model\Store');
 
-        return $repo->findStoreByListId(
+        return $repo->findOneByList(
             \XLite\Core\Config::getInstance()->XC->MailChimp->defaultAutomationListId
         );
     }

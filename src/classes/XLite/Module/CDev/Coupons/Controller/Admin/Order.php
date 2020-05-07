@@ -151,13 +151,10 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
     }
 
     /**
-     * Process coupons
-     *
-     * @param \XLite\Model\Order $order Order
-     *
-     * @return void
+     * @param \XLite\Model\Order $order
+     * @throws \Doctrine\ORM\ORMException
      */
-    protected function processCoupons(\XLite\Model\Order $order)
+    protected function processCouponsRemove(\XLite\Model\Order $order)
     {
         $request = \XLite\Core\Request::getInstance();
 
@@ -167,7 +164,7 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
             if ($coupon->getCode() && !empty($request->removeCoupons[$hash])) {
                 // Register order change
                 static::setOrderChanges(
-                    'Removed coupons:' . $coupon->getId(),
+                    'Removed coupons:' . $coupon->getCode(),
                     $coupon->getCode()
                 );
                 // Remove used coupon from order
@@ -175,6 +172,15 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
                 \XLite\Core\Database::getEM()->remove($coupon);
             }
         }
+    }
+
+    /**
+     * @param \XLite\Model\Order $order
+     * @throws \Doctrine\ORM\ORMException
+     */
+    protected function processCouponsAdd(\XLite\Model\Order $order)
+    {
+        $request = \XLite\Core\Request::getInstance();
 
         // Add coupon
         if (!empty($request->newCoupon) && is_array($request->newCoupon)) {
@@ -184,11 +190,7 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
                         ->findOneByCode($code);
 
                     if ($coupon) {
-                        $usedCoupon = new \XLite\Module\CDev\Coupons\Model\UsedCoupon;
-                        $usedCoupon->setOrder($order);
-                        $order->addUsedCoupons($usedCoupon);
-                        $usedCoupon->setCoupon($coupon);
-                        $coupon->addUsedCoupons($usedCoupon);
+                        $order->addCoupon($coupon);
 
                         $orderStatusDeclined = in_array(
                             $order->getPaymentStatusCode(),
@@ -199,10 +201,8 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
                         );
 
                         if (!$order->isTemporary() && !$orderStatusDeclined) {
-                            $usedCoupon->markAsUsed();
+                            $coupon->setUses($coupon->getUses() + 1);
                         }
-
-                        \XLite\Core\Database::getEM()->persist($usedCoupon);
 
                         // Register order change
                         static::setOrderChanges(
@@ -213,6 +213,19 @@ class Order extends \XLite\Controller\Admin\Order implements \XLite\Base\IDecora
                 }
             }
         }
+    }
+
+    /**
+     * Process coupons
+     *
+     * @param \XLite\Model\Order $order Order
+     *
+     * @return void
+     */
+    protected function processCoupons(\XLite\Model\Order $order)
+    {
+        $this->processCouponsRemove($order);
+        $this->processCouponsAdd($order);
     }
 
     /**

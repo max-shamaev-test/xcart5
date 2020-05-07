@@ -31,17 +31,12 @@
     z-index: 1003;
     left: 50%;
     top: 50%;
-    -webkit-transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
     transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
     opacity: 0.5;
 
-    -webkit-animation-name: opc-circles;
     animation-name: opc-circles;
-    -webkit-animation-duration: 2.5s;
     animation-duration: 2.5s;
-    -webkit-animation-timing-function: linear;
     animation-timing-function: linear;
-    -webkit-animation-iteration-count: infinite;
     animation-iteration-count: infinite;
 
     border-radius: 50%;
@@ -61,8 +56,6 @@
     z-index: 1000;
     opacity: 1;
     background: fade(@body-bg, 90%);
-
-    -webkit-animation: opc-appear .3s ease-in-out;
     animation: opc-appear .3s ease-in-out;
   }
 
@@ -90,22 +83,18 @@ button.reloading {
 
 @-webkit-keyframes opc-circles {
   0% {
-    -webkit-transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
     transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
   }
   12.5% {
-    -webkit-transform: translate(-50%, -50%) scale(0.3) rotate(180deg);
     transform: translate(-50%, -50%) scale(0.3) rotate(180deg);
   }
   25%, 50% {
     opacity: 1;
   }
   50% {
-    -webkit-transform: translate(-50%, -50%) scale(1) rotate(720deg);
     transform: translate(-50%, -50%) scale(1) rotate(720deg);
   }
   100% {
-    -webkit-transform: translate(-50%, -50%) scale(0.3) rotate(1800deg);
     transform: translate(-50%, -50%) scale(0.3) rotate(1800deg);
     opacity: 0.5;
   }
@@ -113,22 +102,18 @@ button.reloading {
 
 @keyframes opc-circles {
   0% {
-    -webkit-transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
     transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
   }
   12.5% {
-    -webkit-transform: translate(-50%, -50%) scale(0.3) rotate(180deg);
     transform: translate(-50%, -50%) scale(0.3) rotate(180deg);
   }
   25%, 50% {
     opacity: 1;
   }
   50% {
-    -webkit-transform: translate(-50%, -50%) scale(1) rotate(720deg);
     transform: translate(-50%, -50%) scale(1) rotate(720deg);
   }
   100% {
-    -webkit-transform: translate(-50%, -50%) scale(0.3) rotate(1800deg);
     transform: translate(-50%, -50%) scale(0.3) rotate(1800deg);
     opacity: 0.5;
   }

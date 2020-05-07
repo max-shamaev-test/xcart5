@@ -8,52 +8,6 @@
  */
 
 /**
- * Export
- */
-.resize-box {
-  width: 902px;
-  min-width: 902px;
-  display: block;
-}
-
-.resize-box h3 {
-  color: #333;
-  font-size: 20px;
-  line-height: normal;
-  font-family: Arial;
-  margin-bottom: 4px;
-  font-weight: normal;
-}
-
-.resize-box .subcontent {
-  padding: 20px;
-}
-
-.resize-box .buttons {
-  text-align: center;
-  padding-top: 12px;
-}
-
-.resize-box .buttons .main-button {
-  padding-left: 75px;
-  padding-right: 75px;
-}
-
-/**
- * Export (progress)
- */
-
-.resize-progress .subcontent {
-  padding: 20px 0;
-  padding-bottom: 12px;
-}
-
-.resize-progress div.content {
-  width: 650px;
-}
-
-*/
-/**
  * Export failed
  */
 

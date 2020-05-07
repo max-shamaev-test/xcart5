@@ -25,6 +25,7 @@ abstract class AOrder extends \XLite\Core\Mail\AMail
                 'order_number'         => '42',
                 'order_total'          => AView::formatPrice(42),
                 'recipient_name'       => static::t('John Doe'),
+                'first_name'           => static::t('John'),
                 'shipping_method_name' => static::t('Shipping method'),
                 'payment_method_name'  => static::t('Payment method'),
             ] + parent::defineVariables();
@@ -41,6 +42,7 @@ abstract class AOrder extends \XLite\Core\Mail\AMail
             'order_number'         => $order->getOrderNumber(),
             'order_total'          => AView::formatPrice($order->getTotal()),
             'recipient_name'       => $order->getProfile()->getName(),
+            'first_name'           => $order->getProfile()->getName(true, true),
             'shipping_method_name' => $order->getShippingMethodName(),
             'payment_method_name'  => $order->getPaymentMethodName(),
         ]);

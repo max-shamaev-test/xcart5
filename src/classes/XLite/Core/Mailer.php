@@ -185,7 +185,7 @@ class Mailer extends \XLite\Base\Singleton
         if ($mail::isEnabled()) {
             $mail->schedule();
 
-        } elseif (!\XLite::isAdminZone()) {
+        } elseif ($order->isJustClosed()) {
             // OrderProcessed notification is disabled - send OrderCreated if order just created by customer
             static::sendOrderCreatedAdmin($order);
         }
@@ -201,7 +201,7 @@ class Mailer extends \XLite\Base\Singleton
         if ($mail::isEnabled()) {
             $mail->schedule();
 
-        } elseif (!\XLite::isAdminZone()) {
+        } elseif ($order->isJustClosed()) {
             // OrderProcessed notification is disabled - send OrderCreated if order just created by customer
             static::sendOrderCreatedCustomer($order);
         }

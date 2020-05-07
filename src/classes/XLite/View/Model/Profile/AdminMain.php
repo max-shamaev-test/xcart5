@@ -72,7 +72,7 @@ class AdminMain extends \XLite\View\Model\AModel
             ],
         ],
         'password'      => [
-            self::SCHEMA_CLASS            => '\XLite\View\FormField\Input\Password',
+            self::SCHEMA_CLASS            => '\XLite\View\FormField\Input\PasswordWithButton',
             self::SCHEMA_LABEL            => 'Password',
             self::SCHEMA_REQUIRED         => false,
             self::SCHEMA_MODEL_ATTRIBUTES => [
@@ -83,7 +83,7 @@ class AdminMain extends \XLite\View\Model\AModel
             ],
         ],
         'password_conf' => [
-            self::SCHEMA_CLASS            => '\XLite\View\FormField\Input\Password',
+            self::SCHEMA_CLASS            => '\XLite\View\FormField\Input\PasswordWithButton',
             self::SCHEMA_LABEL            => 'Confirm password',
             self::SCHEMA_REQUIRED         => false,
             self::SCHEMA_MODEL_ATTRIBUTES => [
@@ -313,7 +313,7 @@ class AdminMain extends \XLite\View\Model\AModel
                     }
                 }
 
-                if (!$value) {
+                if (!$value || (is_object($value) && !count($value))) {
                     $rootRole = \XLite\Core\Database::getRepo('XLite\Model\Role')->findOneRoot();
 
                     if ($rootRole) {
@@ -446,7 +446,7 @@ class AdminMain extends \XLite\View\Model\AModel
 
                     if ($name === 'password') {
                         $mainSchema['password_current'] = [
-                            self::SCHEMA_CLASS            => 'XLite\View\FormField\Input\Password',
+                            self::SCHEMA_CLASS            => 'XLite\View\FormField\Input\PasswordWithButton',
                             self::SCHEMA_LABEL            => 'Current password',
                             self::SCHEMA_MODEL_ATTRIBUTES => [
                                 \XLite\View\FormField\Input\Base\StringInput::PARAM_MAX_LENGTH => 'length',
@@ -519,17 +519,6 @@ class AdminMain extends \XLite\View\Model\AModel
             unset($this->accessSchema['forceChangePassword']);
             $this->accessSchema['roles'][static::SCHEMA_CLASS] = '\XLite\View\FormField\Label';
             $this->accessSchema['roles'][static::SCHEMA_REQUIRED] = false;
-        }
-
-        $persistentModel = $this->getModelObject() && $this->getModelObject()->isPersistent();
-        if (!$persistentModel) {
-            $this->accessSchema['roles'][self::SCHEMA_COMMENT] = static::t(
-                'Attention! You are creating an account with full access. Roles warning',
-                [
-                    'roles_link' => $this->buildURL('roles'),
-                    'kb_link'    => static::t('https://kb.x-cart.com/users/user_roles.html'),
-                ]
-            );
         }
 
         return $this->getFieldsBySchema($this->accessSchema);

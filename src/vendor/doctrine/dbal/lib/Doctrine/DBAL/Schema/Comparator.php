@@ -10,7 +10,9 @@ use function array_map;
 use function array_merge;
 use function array_shift;
 use function array_unique;
+use function assert;
 use function count;
+use function get_class;
 use function strtolower;
 
 /**
@@ -108,6 +110,8 @@ class Comparator
                 }
 
                 foreach ($diff->changedTables[$localTableName]->removedForeignKeys as $key => $removedForeignKey) {
+                    assert($removedForeignKey instanceof ForeignKeyConstraint);
+
                     // We check if the key is from the removed table if not we skip.
                     if ($tableName !== strtolower($removedForeignKey->getForeignTableName())) {
                         continue;
@@ -251,6 +255,7 @@ class Comparator
 
             // See if index has changed in table 2.
             $table2Index = $index->isPrimary() ? $table2->getPrimaryKey() : $table2->getIndex($indexName);
+            assert($table2Index instanceof Index);
 
             if (! $this->diffIndex($index, $table2Index)) {
                 continue;
@@ -371,7 +376,9 @@ class Comparator
                 continue;
             }
 
-            $tableDifferences->renamedIndexes[$removedIndexName] = $addedIndex;
+            // See BUG-3896 for details
+            // This fix is moved from 084a919916cf37564e6a416e82ca60363e0e2759
+            //  $tableDifferences->renamedIndexes[$removedIndexName] = $addedIndex;
             unset(
                 $tableDifferences->addedIndexes[$addedIndexName],
                 $tableDifferences->removedIndexes[$removedIndexName]
@@ -418,7 +425,11 @@ class Comparator
 
         $changedProperties = [];
 
-        foreach (['type', 'notnull', 'unsigned', 'autoincrement'] as $property) {
+        if (get_class($properties1['type']) !== get_class($properties2['type'])) {
+            $changedProperties[] = 'type';
+        }
+
+        foreach (['notnull', 'unsigned', 'autoincrement'] as $property) {
             if ($properties1[$property] === $properties2[$property]) {
                 continue;
             }

@@ -2,6 +2,6 @@
  # Tooltip 
  #}
 
-{% if this.isFixedFeeMethod(this.entity) %}
+{% if this.entity.isFixedFee() %}
   {{ widget('\\XLite\\View\\Tooltip', id='menu-links-help-text', text=t('Shipping freight tooltip text'), isImageTag='true', className='help-small-icon') }}
 {% endif %}

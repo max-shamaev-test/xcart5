@@ -154,6 +154,16 @@ abstract class Image extends \XLite\Model\Base\Storage
     {
         $newEntity = parent::cloneEntity();
 
+        return $this->processClonnedEntity($newEntity);
+    }
+
+    /**
+     * @param \XLite\Model\AEntity $newEntity
+     *
+     * @return \XLite\Model\AEntity
+     */
+    protected function processClonnedEntity($newEntity)
+    {
         $newEntity->setPath('');
 
         if (static::STORAGE_URL == $this->getStorageType()) {
@@ -161,7 +171,7 @@ abstract class Image extends \XLite\Model\Base\Storage
 
         } else {
             // Clone local image (will be created new file with unique name)
-            $newEntity->loadFromLocalFile($this->getStoragePath(), null, true);
+            $newEntity->loadFromLocalFile($this->getStoragePath(), null, false);
         }
 
         return $newEntity;
@@ -315,13 +325,15 @@ abstract class Image extends \XLite\Model\Base\Storage
      *
      * @param integer $width  Width limit OPTIONAL
      * @param integer $height Height limit OPTIONAL
+     * @param integer $basewidth Base Width OPTIONAL
+     * @param integer $baseheight Base Height OPTIONAL
      *
      * @return array (new width, new height, URL)
      */
-    public function getResizedURL($width = null, $height = null)
+    public function getResizedURL($width = null, $height = null, $basewidth = null, $baseheight = null)
     {
         if ($this->isUseDynamicImageResizing()) {
-            $result = $this->doResize($width, $height, false);
+            $result = $this->doResize($width, $height, false, $basewidth, $baseheight);
 
         } else {
             list($newWidth, $newHeight) = ImageOperator::getCroppedDimensions(
@@ -330,6 +342,15 @@ abstract class Image extends \XLite\Model\Base\Storage
                 $width,
                 $height
             );
+
+            if ($basewidth && $baseheight) {
+                list($newWidth, $newHeight) = ImageOperator::getCroppedDimensions(
+                    $this->getWidth(),
+                    $this->getHeight(),
+                    $basewidth,
+                    $baseheight
+                );
+            }
 
             if ($this->isURL()) {
                 $url = $retinaURL = $this->getURL();
@@ -390,24 +411,96 @@ abstract class Image extends \XLite\Model\Base\Storage
     }
 
     /**
-     * Do resize
+     * Do resize multiple
      *
-     * @param array   $sizes     Sizes
+     * @param array $sizes
      * @param boolean $doRewrite Rewrite flag OPTIONAL
      *
      * @return array
      */
     public function doResizeAll($sizes, $doRewrite = false)
     {
-        $result = [];
+        $sizesData = $this->prepareSizesData($sizes, $doRewrite);
+
+        $operator = new ImageOperator($this);
+        $result = $operator->resizeBulk($sizesData);
+
+        foreach ($result as $size) {
+            if (isset($size['tmp'])) {
+                \Includes\Utils\FileManager::write($size['path'], $size['tmp']->getBody());
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Prepare sizes array
+     *
+     * @param array $sizes
+     * @param boolean $doRewrite
+     *
+     * @return array
+     */
+    protected function prepareSizesData($sizes, $doRewrite = false) {
+        $sizesData = [];
 
         foreach ($sizes as $size) {
             list($width, $height) = $size;
 
-            $result[] = $this->doResize($width, $height, $doRewrite);
+            $sizeValue = $this->checkSizeExists($width, $height, $doRewrite);
+
+            if ($sizeValue) {
+                $sizesData[] = $sizeValue;
+            }
+
+            if (\XLite\Core\ConfigParser::getOptions(['images', 'generate_retina_images'])
+                && ($width * static::RETINA_RATIO) <= $this->getWidth()
+                && ($height * static::RETINA_RATIO) <= $this->getHeight()
+            ) {
+                $sizeValue = $this->checkSizeExists(
+                    $width * static::RETINA_RATIO,
+                    $height * static::RETINA_RATIO,
+                    $doRewrite
+                );
+                if ($sizeValue) {
+                    $sizesData[] = $sizeValue;
+                }
+            }
         }
 
-        return $result;
+        return array_unique($sizesData, SORT_REGULAR);
+    }
+
+    /**
+     * @param integer $width
+     * @param integer $height
+     * @param boolean $doRewrite
+     *
+     * @return array|null
+     */
+    protected function checkSizeExists($width, $height, $doRewrite) {
+        $sizeValue = null;
+
+        list($newWidth, $newHeight) = $this->getCropDimensions($width, $height);
+
+        $name = $this->getStorageType()===static::STORAGE_ABSOLUTE
+            ? basename($this->getPath())
+            : $this->getPath();
+        $size = ($width ?: 'x') . '.' . ($height ?: 'x');
+        $path = $this->getResizedPath($size, $name);
+        $url = $this->getResizedPublicURL($size, $name);
+
+        if (!$this->isResizedIconAvailable($path) || $doRewrite) {
+            $sizeValue = [
+                'width' => $newWidth,
+                'height' => $newHeight,
+                'path' => $path,
+                'url' => $url
+            ];
+        }
+
+        return $sizeValue;
     }
 
     /**
@@ -416,12 +509,19 @@ abstract class Image extends \XLite\Model\Base\Storage
      * @param integer $width     Width limit OPTIONAL
      * @param integer $height    Height limit OPTIONAL
      * @param boolean $doRewrite Force rewrite OPTIONAL
+     * @param integer $basewidth Base width OPTIONAL
+     * @param integer $baseheight Base height OPTIONAL
      *
      * @return array of [actualWidth, actualHeight, resizedPath, retinaResizedPath]
      */
-    public function doResize($width = null, $height = null, $doRewrite = false)
+    public function doResize($width = null, $height = null, $doRewrite = false, $basewidth = null, $baseheight = null)
     {
         list($newWidth, $newHeight) = $this->getCropDimensions($width, $height);
+
+        if ($basewidth && $baseheight) {
+            list($newWidth, $newHeight) = $this->getCropDimensions($basewidth, $baseheight);
+        }
+
         $resizedPath = $retinaResizedPath = $this->resizeImage($width, $height, $doRewrite) ?: $this->getURL();
 
         if (\XLite\Core\ConfigParser::getOptions(['images', 'generate_retina_images'])
@@ -606,17 +706,15 @@ abstract class Image extends \XLite\Model\Base\Storage
         }
 
         $sizes = $this->getAllSizes();
-        foreach ($sizes as $size) {
-            list($width, $height) = $size;
+        $sizesData = $this->prepareSizesData($sizes, true);
 
-            $size = ($width ?: 'x') . '.' . ($height ?: 'x');
-            $path = $this->getResizedPath($size, $name);
+        foreach ($sizesData as $size) {
 
-            if (\Includes\Utils\FileManager::isExists($path)) {
-                $isDeleted = \Includes\Utils\FileManager::deleteFile($path);
+            if (\Includes\Utils\FileManager::isExists($size['path'])) {
+                $isDeleted = \Includes\Utils\FileManager::deleteFile($size['path']);
 
                 if (!$isDeleted) {
-                    \XLite\Logger::getInstance()->log('Can\'t delete resized image ' . $path, LOG_DEBUG);
+                    \XLite\Logger::getInstance()->log('Can\'t delete resized image ' . $size['path'], LOG_DEBUG);
                 }
             }
         }

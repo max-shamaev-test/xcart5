@@ -47,7 +47,7 @@ class Dimensions extends \XLite\View\FormField\Input\AInput
     public function getCSSFiles()
     {
         $list = parent::getCSSFiles();
-        $list[] = $this->getDir() . '/input/text/dimensions.css';
+        $list[] = $this->getDir() . '/input/text/dimensions.less';
 
         return $list;
     }

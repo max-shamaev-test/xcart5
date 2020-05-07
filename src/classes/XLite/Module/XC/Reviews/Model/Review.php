@@ -227,7 +227,7 @@ class Review extends \XLite\Model\AEntity
             'review'       => $this->getReview(),
         ];
 
-        return \XLite::t('reviewMetaDescription', $data);
+        return \XLite::t('reviewMetaDescription', $data)->translate();
     }
 
     /**

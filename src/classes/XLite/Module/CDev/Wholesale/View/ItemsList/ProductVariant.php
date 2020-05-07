@@ -15,7 +15,7 @@ namespace XLite\Module\CDev\Wholesale\View\ItemsList;
  */
 class ProductVariant extends \XLite\Module\XC\ProductVariants\View\ItemsList\Model\ProductVariant implements \XLite\Base\IDecorator
 {
-   /**
+    /**
      * Define columns structure
      *
      * @return array
@@ -37,10 +37,11 @@ class ProductVariant extends \XLite\Module\XC\ProductVariants\View\ItemsList\Mod
         return $columns;
     }
 
-    public function getJSFiles()
+    /**
+     * @return array
+     */
+    protected function getColspanHeaders()
     {
-        return array_merge(parent::getJSFiles(), [
-            'modules/CDev/Wholesale/items_list/variants.js'
-        ]);
+        return ['price' => ['wholesalePrices']];
     }
 }

@@ -816,6 +816,19 @@ class Order extends \XLite\Model\Repo\ARepo
     }
 
     /**
+     * Nothing to prepare, only for non-error using parent class
+     *
+     * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
+     * @param integer                    $value        Condition data
+     *
+     * @return true
+     */
+    protected function prepareCndNpOrder(\Doctrine\ORM\QueryBuilder $queryBuilder, $value)
+    {
+        return true;
+    }
+
+    /**
      * Prepare certain search condition
      *
      * @param \Doctrine\ORM\QueryBuilder $queryBuilder Query builder to prepare
@@ -1017,10 +1030,14 @@ class Order extends \XLite\Model\Repo\ARepo
     protected function defineAllExpiredTemporaryOrdersQuery()
     {
         return $this->createQueryBuilder(null, null, false)
+            ->distinct()
             ->leftJoin('o.orig_profile', 'op')
+            ->leftJoin('o.payment_transactions', 'pt')
             ->andWhere('o INSTANCE OF XLite\Model\Cart')
             ->andWhere('op.profile_id IS NULL')
+            ->andWhere('pt.status <> :inProgress')
             ->andWhere('o.date < :time')
+            ->setParameter('inProgress', \XLite\Model\Payment\Transaction::STATUS_INPROGRESS)
             ->setParameter('time', \XLite\Core\Converter::time() - $this->getOrderTTL());
     }
 

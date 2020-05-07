@@ -21,6 +21,7 @@ class Iframe extends \XLite\View\AView
     const PARAM_WIDTH  = 'width';
     const PARAM_HEIGHT = 'height';
     const PARAM_SRC    = 'src';
+    const PARAM_ADDITIONAL_ATTRIBUTES = 'additional_attributes';
 
 
     /**
@@ -77,7 +78,23 @@ class Iframe extends \XLite\View\AView
             self::PARAM_WIDTH  => new \XLite\Model\WidgetParam\TypeInt('Width', 400),
             self::PARAM_HEIGHT => new \XLite\Model\WidgetParam\TypeInt('Height', 400),
             self::PARAM_SRC    => new \XLite\Model\WidgetParam\TypeString('Source', ''),
+            self::PARAM_ADDITIONAL_ATTRIBUTES => new \XLite\Model\WidgetParam\TypeCollection('Additional attributes', []),
         );
+    }
+
+    /**
+     * @return string
+     */
+    protected function getAdditionalAttributesString()
+    {
+        $attributes = $this->getParam(self::PARAM_ADDITIONAL_ATTRIBUTES);
+
+        $result = '';
+        foreach ($attributes as $name => $value) {
+            $result .= $name . '="' . htmlspecialchars($value) . '" ';
+        }
+
+        return $result;
     }
 
     /**

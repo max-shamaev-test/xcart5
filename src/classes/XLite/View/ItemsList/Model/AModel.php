@@ -224,12 +224,12 @@ abstract class AModel extends \XLite\View\ItemsList\AItemsList
                         $count++;
 
                     } else {
-                        $this->undoCreatedEntity($entity);
+                        $this->undoCreatedEntity($entity, true);
                         $errCount++;
                     }
 
                 } else {
-                    $this->undoCreatedEntity($entity);
+                    $this->undoCreatedEntity($entity, false);
                     $errCount++;
                 }
             }
@@ -874,8 +874,9 @@ abstract class AModel extends \XLite\View\ItemsList\AItemsList
         // because executeCachedRuntime bind to the object, not class
 
         if (!static::$savedDataCache) {
-            static::$savedDataCache = \XLite\Core\Session::getInstance()->get(
-                get_class($this)
+            $session = \XLite\Core\Session::getInstance();
+            static::$savedDataCache = $session->get(
+                get_class($this) . '_' . $session->getCurrentLanguage()
             );
         }
 
@@ -887,8 +888,9 @@ abstract class AModel extends \XLite\View\ItemsList\AItemsList
      */
     protected function setSavedData($data)
     {
-        \XLite\Core\Session::getInstance()->set(
-            get_class($this),
+        $session = \XLite\Core\Session::getInstance();
+        $session->set(
+            get_class($this) . '_' . $session->getCurrentLanguage(),
             $data
         );
     }

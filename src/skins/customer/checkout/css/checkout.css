@@ -70,8 +70,7 @@ ul.address-box li.address-text-city .address-text-comma,
 
 .place .regular-main-button.place-order.disabled:hover,
 .place .regular-main-button.place-order[disabled]:hover {
-  opacity: 0.8;
-  transition: opacity ease-in-out .3s;
+  cursor: not-allowed !important;
 }
 
 .place .regular-main-button.place-order.disabled,

@@ -37,7 +37,7 @@ class QuickData extends \XLite\Core\QuickData implements \XLite\Base\IDecorator
      * @param \XLite\Model\Product $product    Product
      * @param mixed                $membership Membership
      *
-     * @return \XLite\Model\QuickData
+     * @return array
      */
     public function updateData(\XLite\Model\Product $product, $membership)
     {

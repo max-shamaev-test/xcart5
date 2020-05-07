@@ -85,8 +85,10 @@ class UpgradeWave extends \XLite\View\FormField\Select\Regular
             $waves         = \XLite\Core\Marketplace::getInstance()->getWaves();
             static::$waves = [];
 
-            foreach ($waves as $wave) {
-                static::$waves[(string) $wave['id']] = $wave['name'];
+            if ($waves) {
+                foreach ($waves as $wave) {
+                    static::$waves[(string) $wave['id']] = $wave['name'];
+                }
             }
         }
 

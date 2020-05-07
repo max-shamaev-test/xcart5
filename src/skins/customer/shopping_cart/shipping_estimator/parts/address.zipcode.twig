@@ -6,6 +6,6 @@
 
 {% if this.hasField('zipcode') %}
   <li class="zipcode">
-    {{ widget('\\XLite\\View\\FormField\\Input\\Text', fieldName='destination_zipcode', value=this.getZipcode(), label=t('Zip code'), required='true') }}
+    {{ widget('\\XLite\\View\\FormField\\Input\\Text', fieldName='destination_zipcode', value=this.getZipcode(), label=t('Zip code'), required=this.isFieldRequired('zipcode')) }}
   </li>
 {% endif %}

@@ -642,3 +642,5 @@ XLite\Model\LanguageLabel:
   - { name: 'Shipments pick up type', translations: [{ code: en, label: 'Shipments pick up type' }]}
   - { name: 'Site number of the deposit location', translations: [{ code: en, label: 'Site number of the deposit location' }]}
   - { name: 'Way to deliver', translations: [{ code: en, label: 'Way to deliver' }]}
+  - { name: 'As a result of your latest order edit, previously created shipments for the order were dropped. Transmitted shipments (if any) remained unchanged. Visit the page X to manage shipments.', translations: [{ code: en, label: 'As a result of your latest order edit, previously created shipments for the order were dropped. Transmitted shipments (if any) remained unchanged. Visit the page <a href="{{shipmentsUrl}}">{{shipmentsUrl}}</a> to manage shipments.' }] }
+  - { name: 'Some of the items in the parcel were removed. To view all the items, including the removed ones, see the document.', translations: [{ code: en, label: 'Some of the items in the parcel were removed. To view all the items, including the removed ones, see the <a href="{{docUrl}}">{{docTitle}}</a>.' }] }

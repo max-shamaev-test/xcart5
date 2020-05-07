@@ -194,6 +194,16 @@ abstract class APaypal extends \XLite\Model\Payment\Base\Iframe
     }
 
     /**
+     * Get the list of merchant countries where this payment processor can work
+     *
+     * @return array
+     */
+    public function getAllowedMerchantCountries()
+    {
+        return [];
+    }
+
+    /**
      * Check - payment method is configured or not
      *
      * @param \XLite\Model\Payment\Method $method Payment method
@@ -203,6 +213,8 @@ abstract class APaypal extends \XLite\Model\Payment\Base\Iframe
     public function isConfigured(\XLite\Model\Payment\Method $method)
     {
         return parent::isConfigured($method)
+            && (!$this->getAllowedMerchantCountries()
+                || in_array(\XLite\Core\Config::getInstance()->Company->location_country, $this->getAllowedMerchantCountries(), true))
             && $this->api->isConfigured();
     }
 

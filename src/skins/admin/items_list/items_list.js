@@ -336,12 +336,13 @@ ItemsList.prototype.extractRequestData = function(div)
 // Place new list content
 ItemsList.prototype.placeNewContent = function(content)
 {
-  this.container.replaceWith(jQuery('.items-list.sessioncell-' + this.params.cell, content));
+  const selector = '.items-list.sessioncell-' + this.params.cell;
+  this.container.replaceWith(jQuery(selector, content));
 
   this.triggerVent('place', {'widget': this});
 
   require('js/vue/vue', function (XLiteVue) {
-    XLiteVue.start();
+    XLiteVue.start(jQuery(selector));
   });
 
   this.reassign();

@@ -57,7 +57,11 @@ class OnlineList extends \XLite\View\AView
                     ? $method->getProcessorObject()->getSettingsURL()
                     : '';
             } else {
-                $url = Manager::getRegistry()->getModuleServiceURL($module);
+                $returnUrl = $this->buildFullURL('shipping_methods', 'add', ['id' => $method->getMethodId()]);
+                $url = \XLite::getInstance()->getShopURL('service.php?/installModule', null, [
+                    'returnUrl' => urlencode($returnUrl),
+                    'moduleId' => $module
+                ]);
             }
         }
 

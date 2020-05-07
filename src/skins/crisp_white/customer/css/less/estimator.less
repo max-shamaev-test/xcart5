@@ -27,8 +27,12 @@ form.estimator ul.form li,
 {
   list-style: none;
   background-image: none;
-  padding: 0px;
-  margin: 0px;
+  padding: 0;
+  margin: 0 0 20px 0;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 form.estimator ul.form {
@@ -98,13 +102,7 @@ form.estimator .main {
 }
 
 img.fade {
-  background: -moz-linear-gradient(left,  rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
-  background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(255,255,255,0)), color-stop(100%,rgba(255,255,255,1)));
-  background: -webkit-linear-gradient(left,  rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
-  background: -o-linear-gradient(left,  rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
-  background: -ms-linear-gradient(left,  rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
   background: linear-gradient(to right,  rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
-  -ms-filter: "progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=1 )";
   display: block;
   position: absolute;
   right: 0px;

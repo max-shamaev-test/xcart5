@@ -11,7 +11,7 @@ namespace XLite\Core\Marketplace;
 class QueryRegistry
 {
     protected static $queries = [
-        'banners'             => <<<GraphQL
+        'banners'               => <<<GraphQL
             banners {
                 image
                 module
@@ -20,7 +20,7 @@ class QueryRegistry
             }
 GraphQL
         ,
-        'notifications'       => <<<GraphQL
+        'notifications'         => <<<GraphQL
             notifications {
                 type
                 module
@@ -29,10 +29,14 @@ GraphQL
                 description
                 link
                 date
+                pageParams {
+                    target
+                    page
+                }
             }
 GraphQL
         ,
-        'payment_methods'     => <<<GraphQL
+        'payment_methods'       => <<<GraphQL
             payment_methods %PARAMS% {
                 service_name
                 class
@@ -56,7 +60,7 @@ GraphQL
             }
 GraphQL
         ,
-        'shipping_methods'    => <<<GraphQL
+        'shipping_methods'      => <<<GraphQL
             shipping_methods {
                 processor
                 carrier
@@ -73,7 +77,7 @@ GraphQL
             }
 GraphQL
         ,
-        'gdpr_modules'        => <<<GraphQL
+        'gdpr_modules'          => <<<GraphQL
             gdpr_modules {
                 id
                 moduleName
@@ -82,7 +86,7 @@ GraphQL
             }
 GraphQL
         ,
-        'marketplace_modules' => <<<GraphQL
+        'marketplace_modules'   => <<<GraphQL
             modulesPage %PARAMS% {
                 count
                 modules {
@@ -98,6 +102,7 @@ GraphQL
                     revisionDate
                     price
                     downloads
+                    version
                     tags {
                         name
                     }
@@ -105,20 +110,22 @@ GraphQL
             }
 GraphQL
         ,
-        'installation_data'   => <<<GraphQL
+        'installation_data'     => <<<GraphQL
             installationData {
                 installationDate
+                purchasesCount
             }
 GraphQL
         ,
-        'system_data'         => <<<GraphQL
+        'system_data'           => <<<GraphQL
             systemData {
                 dataDate
                 wave
+                purchasesCount
             }
 GraphQL
         ,
-        'core_license'        => <<<GraphQL
+        'core_license'          => <<<GraphQL
             coreLicense {
                 keyValue
                 id
@@ -134,7 +141,7 @@ GraphQL
             }
 GraphQL
         ,
-        'inactive_content'        => <<<GraphQL
+        'inactive_content'      => <<<GraphQL
             modulesPage %PARAMS% {
                 count
                 modules {
@@ -154,59 +161,142 @@ GraphQL
             }
 GraphQL
         ,
-        'waves'               => <<<GraphQL
+        'waves'                 => <<<GraphQL
             waves {
                 id
                 name
             }
 GraphQL
         ,
-        'setWave'             => <<<GraphQL
+        'setWave'               => <<<GraphQL
             setWave %PARAMS% {
                 id
             }
 GraphQL
         ,
-        'upgrade_entries'     => <<<GraphQL
-          build: upgradeList (type: "build") {
-            id
-            type
-          }
+        'upgrade_entries'       => <<<GraphQL
+            build: upgradeList (type: "build") {
+                id
+                type
+            }
           
-          minor: upgradeList (type: "minor") {
-            id
-            type
-          }
+            minor: upgradeList (type: "minor") {
+                id
+                type
+            }
           
-          major: upgradeList (type: "major") {
-            id
-            type
-          }
+            major: upgradeList (type: "major") {
+                id
+                type
+            }
           
-          core: upgradeList (type: "core") {
-            id
-            type
-          }
+            core: upgradeList (type: "core") {
+                id
+                type
+            }
 
-          self: upgradeList (type: "self") {
-            id
-            type
-          }
+            self: upgradeList (type: "self") {
+                id
+                type
+            }
 GraphQL
         ,
-        'changeSkinState'     => <<<GraphQL
+        'availableUpgradeTypes' => <<<GraphQL
+            availableUpgradeTypes {
+                name
+                count
+            }
+GraphQL
+        ,
+        'upgradeList'           => <<<GraphQL
+            query upgradeList (\$type: String!) {
+                upgradeList (type: \$type) {
+                    id
+                    type
+                    canUpgrade
+                    entry {
+                        version
+                        installedVersion
+                    }
+                }
+            }
+GraphQL
+        ,
+        'changeSkinState'       => <<<GraphQL
             changeSkinState %PARAMS% {
                 id
             }
 GraphQL
         ,
-        'startRebuild'        => <<<GraphQL
+        'startRebuild'          => <<<GraphQL
             startRebuild %PARAMS% {
                 id
-            }
+                type
+                reason
+                canRollback
+                progressMax
+                progressValue
+
+                errorType
+                errorData
+                errorTitle
+                errorDescription
+
+                currentStepInfo {
+                    message
+                    params
+                }
+                finishedStepInfo {
+                    message
+                    params
+                }
+
+                state
+                returnUrl
+                failureReturnUrl
+
+                gaData
+
+                hasEnabledTransitions
+                modulesWithSettings
+        }
 GraphQL
         ,
-        'registerLicenseKey'  => <<<GraphQL
+        'rebuildState'          => <<<GraphQL
+            rebuildState %PARAMS% {
+                id
+                type
+                reason
+                canRollback
+                progressMax
+                progressValue
+
+                errorType
+                errorData
+                errorTitle
+                errorDescription
+
+                currentStepInfo {
+                    message
+                    params
+                }
+                finishedStepInfo {
+                    message
+                    params
+                }
+
+                state
+                returnUrl
+                failureReturnUrl
+
+                gaData
+
+                hasEnabledTransitions
+                modulesWithSettings
+        }
+GraphQL
+        ,
+        'registerLicenseKey'    => <<<GraphQL
             registerLicenseKey %PARAMS% {
                 key
                 action
@@ -214,7 +304,99 @@ GraphQL
                     type
                     message
                     params
+                    translated
                 }
+            }
+GraphQL
+        ,
+        'dropRebuild'           => <<<GraphQL
+            dropRebuild
+GraphQL
+        ,
+        'clearCache'            => <<<GraphQL
+            clearCache
+GraphQL
+        ,
+        'createScenario'        => <<<GraphQL
+            createScenario %PARAMS% {
+                id
+                updatedAt
+                type
+                modulesTransitions {
+                    id
+                    stateAfterTransition {
+                        installed
+                        enabled
+                        upgraded
+                        version
+                    }
+                    transition
+                    info {
+                        moduleName
+                        reason
+                        humanReason
+                    }
+                }
+            }
+GraphQL
+        ,
+        'changeModulesState'    => <<<GraphQL
+            mutation changeModulesState (\$scenarioId: ID!, \$states: [ChangeModuleStateInput]!) {
+                changeModulesState (states: \$states, scenarioId: \$scenarioId) {
+                    id
+                    updatedAt
+                    type
+                    modulesTransitions {
+                        id
+                        stateAfterTransition {
+                            installed
+                            enabled
+                            upgraded
+                            version
+                        }
+                        transition
+                        info {
+                            moduleName
+                            reason
+                            humanReason
+                        }
+                    }
+                }
+            }
+GraphQL
+        ,
+        'executeRebuild'        => <<<GraphQL
+            executeRebuild %PARAMS% {
+                id
+                type
+                reason
+                canRollback
+                progressMax
+                progressValue
+
+                errorType
+                errorData
+                errorTitle
+                errorDescription
+
+                currentStepInfo {
+                    message
+                    params
+                    translated
+                }
+                finishedStepInfo {
+                    message
+                    params
+                }
+
+                state
+                returnUrl
+                failureReturnUrl
+
+                gaData
+
+                hasEnabledTransitions
+                modulesWithSettings
             }
 GraphQL
         ,
@@ -229,10 +411,19 @@ GraphQL
         return null;
     }
 
-    public static function getMutation($type, $params = null)
+    public static function getMutation($type, $params = null, $variables = [])
     {
         if (isset(static::$queries[$type])) {
-            return new Query(static::prepareMutation(static::$queries[$type]), $params);
+            return new Query(static::prepareMutation(static::$queries[$type]), $params, $variables);
+        }
+
+        return null;
+    }
+
+    public static function getRaw($type, $params = null, $variables = [])
+    {
+        if (isset(static::$queries[$type])) {
+            return new Query(static::$queries[$type], $params, $variables);
         }
 
         return null;

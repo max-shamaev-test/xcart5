@@ -76,7 +76,7 @@
 .items-list-table.order-items table.list thead th.price,
 .items-list-table.order-items table.list thead th.amount
 {
-  text-align: center;
+  text-align: right;
 }
 
 .items-list-table.order-items table.list tbody td.price .table-value input {
@@ -88,8 +88,8 @@
 }
 
 .items-list-table.order-items table.list tr.line td.cell.main {
-  width: 509px;
-  max-width: 509px;
+  width: 489px;
+  max-width: 489px;
 
   div.cell {
     .align-items(center);
@@ -116,18 +116,31 @@
 
 .items-list-table.order-items table.list tbody td.cell.price {
   width: 152px;
-  text-align: center;
+  text-align: right;
+  position: relative;
 }
 
 .items-list-table.order-items table.list tbody td.cell.amount {
-  width: 74px;
-  text-align: center;
+  width: 94px;
+  text-align: right;
   padding-left: 12px;
 }
 
 .items-list-table.order-items table.list tbody td.cell.total {
   width: 108px;
   text-align: right;
+}
+
+.items-list-table.order-items table.list tbody td.cell.price .cell, .items-list-table.order-items table.list tbody td.cell.amount .cell {
+  margin-right: 12px;
+}
+
+.items-list-table.order-items table.list tbody tr.edit-open-mark td.cell.price .cell, .items-list-table.order-items table.list tbody tr.edit-open-mark td.cell.amount .cell {
+  margin-right: 0px;
+}
+
+.items-list-table table.list tbody.lines td.amount .inline-field.editable {
+  max-width: 65%;
 }
 
 .items-list-table.order-items table.list tbody td.cell.name .item-name {
@@ -164,7 +177,6 @@
   display: inline-block;
   padding-right: 20px;
   text-overflow: ellipsis;
-  -o-text-overflow: ellipsis;
   line-height: 19px;
   white-space: nowrap;
 }
@@ -212,11 +224,20 @@
 }
 
 .items-list-table.order-items tbody td.cell.price .restore-orig-price {
-  top: -45px;
-  right: -5px;
-  text-align: right;
-  position: relative;
-  height: 0;
+  background-image: url(../../../../../admin/images/reset-2.svg);
+  background-position: center center;
+  background-repeat: no-repeat;
+  height: 100%;
+  position: absolute;
+  right: -@rhythmic-unit;
+  top: 0px;
+  width: 16px;
+}
+
+.items-list-table.order-items tbody td.cell.price .restore-orig-price span {
+  float: left;
+  width: 100%;
+  height: 100%;
 }
 
 .order-info .restore-orig-price .fa {

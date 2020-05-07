@@ -200,8 +200,6 @@ class Conversation extends \XLite\Model\AEntity
 
         $message->markAsRead($author);
 
-        $message->resetNotifications();
-
         return $message;
     }
 

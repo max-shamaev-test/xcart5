@@ -86,10 +86,13 @@ class Attachment extends \XLite\Model\Base\I18n
      * 
      * @return \XLite\Module\CDev\FileAttachments\Model\Product\Attachment\Storage
      */
-    public function getStorage()
+    public function getStorage($method = null)
     {
         if (!$this->storage) {
             $this->setStorage(new \XLite\Module\CDev\FileAttachments\Model\Product\Attachment\Storage);
+            if (isset($method)) {
+                $this->storage->setStorageType($this->storage::STORAGE_URL);
+            }
             $this->storage->setAttachment($this);
         }
 

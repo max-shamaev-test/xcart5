@@ -17,7 +17,8 @@ use XLite\View\FormField\Select\AbsoluteOrPercent;
  * @Entity
  * @Table  (name="volume_discounts",
  *      indexes={
- *          @Index (name="range", columns={"subtotalRangeBegin", "subtotalRangeEnd"})
+ *          @Index (name="date_range", columns={"dateRangeBegin","dateRangeEnd"}),
+ *          @Index (name="subtotal", columns={"subtotalRangeBegin"}),
  *      }
  * )
  */
@@ -66,15 +67,6 @@ class VolumeDiscount extends \XLite\Model\AEntity
     protected $subtotalRangeBegin = 0;
 
     /**
-     * Subtotal range (end)
-     *
-     * @var   float
-     *
-     * @Column (type="decimal", precision=14, scale=4)
-     */
-    protected $subtotalRangeEnd = 0;
-
-    /**
      * Membership
      *
      * @var   \XLite\Model\Membership
@@ -85,9 +77,52 @@ class VolumeDiscount extends \XLite\Model\AEntity
     protected $membership;
 
     /**
+     * Zones
+     *
+     * @var   \Doctrine\Common\Collections\ArrayCollection
+     *
+     * @ManyToMany (targetEntity="XLite\Model\Zone", inversedBy="volume_discounts")
+     * @JoinTable (name="zones_volume_discounts",
+     *      joinColumns={@JoinColumn (name="volume_discount_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@JoinColumn (name="zone_id", referencedColumnName="zone_id", onDelete="CASCADE")}
+     * )
+     */
+    protected $zones;
+
+    /**
+     * Date range (begin)
+     *
+     * @var   integer
+     *
+     * @Column (type="integer", options={ "unsigned": true })
+     */
+    protected $dateRangeBegin = 0;
+
+    /**
+     * Date range (end)
+     *
+     * @var   integer
+     *
+     * @Column (type="integer", options={ "unsigned": true })
+     */
+    protected $dateRangeEnd = 0;
+
+    /**
+     * Constructor
+     *
+     * @param array $data Entity properties OPTIONAL
+     */
+    public function __construct(array $data = array())
+    {
+        $this->zones = new \Doctrine\Common\Collections\ArrayCollection();
+
+        parent::__construct($data);
+    }
+
+    /**
      * Returns handling fee
      *
-     * @return float
+     * @return array
      */
     public function getDiscount()
     {
@@ -147,17 +182,6 @@ class VolumeDiscount extends \XLite\Model\AEntity
             : ($order->getSubtotal() * $this->getValue() / 100);
 
         return min($discount, $order->getSubtotal());
-    }
-
-    /**
-     * Get fingerprint
-     *
-     * @return string
-     */
-    public function getFingerprint()
-    {
-        return $this->getSubtotalRangeBegin() . ':'
-               . ($this->getMembership() ? $this->getMembership()->getMembershipId() : 0);
     }
 
     /**
@@ -237,35 +261,102 @@ class VolumeDiscount extends \XLite\Model\AEntity
     }
 
     /**
-     * Set subtotalRangeEnd
+     * Set dateRangeBegin
      *
-     * @param float $subtotalRangeEnd
+     * @param integer $dateRangeBegin
      * @return VolumeDiscount
      */
-    public function setSubtotalRangeEnd($subtotalRangeEnd)
+    public function setDateRangeBegin($dateRangeBegin)
     {
-        $this->subtotalRangeEnd = $subtotalRangeEnd;
+        $this->dateRangeBegin = $dateRangeBegin;
         return $this;
     }
 
     /**
-     * Get subtotalRangeEnd
+     * Get dateRangeBegin
      *
-     * @return float
+     * @return integer
      */
-    public function getSubtotalRangeEnd()
+    public function getDateRangeBegin()
     {
-        return $this->subtotalRangeEnd;
+        return $this->dateRangeBegin;
+    }
+
+    /**
+     * Set dateRangeEnd
+     *
+     * @param integer $dateRangeEnd
+     * @return VolumeDiscount
+     */
+    public function setDateRangeEnd($dateRangeEnd)
+    {
+        $this->dateRangeEnd = $dateRangeEnd;
+        return $this;
+    }
+
+    /**
+     * Get dateRangeEnd
+     *
+     * @return integer
+     */
+    public function getDateRangeEnd()
+    {
+        return $this->dateRangeEnd;
+    }
+
+    /**
+     * Get real dateRangeEnd ()
+     *
+     * @return integer
+     */
+    public function getRealDateRangeEnd()
+    {
+        return $this->dateRangeEnd == 0
+            ? PHP_INT_MAX
+            : $this->dateRangeEnd;
+    }
+
+    /**
+     * Add zone
+     *
+     * @param \XLite\Model\Zone $zone
+     * @return VolumeDiscount
+     */
+    public function addZone(\XLite\Model\Zone $zone)
+    {
+        $this->zones[] = $zone;
+        return $this;
+    }
+
+    /**
+     * Get zones
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getZones()
+    {
+        return $this->zones;
+    }
+
+    /**
+     * Clear zones
+     */
+    public function clearZones()
+    {
+        if ($this->getZones()) {
+            $this->getZones()->clear();
+        }
     }
 
     /**
      * Set membership
      *
-     * @param \XLite\Model\Membership $membership
+     * @param string $membershipId
      * @return VolumeDiscount
      */
-    public function setMembership(\XLite\Model\Membership $membership = null)
+    public function setMembership(string $membershipId)
     {
+        $membership = \XLite\Core\Database::getRepo('\XLite\Model\Membership')->find($membershipId);
         $this->membership = $membership;
         return $this;
     }
@@ -278,5 +369,15 @@ class VolumeDiscount extends \XLite\Model\AEntity
     public function getMembership()
     {
         return $this->membership;
+    }
+
+    /**
+     * Check - volume discount is expired or not
+     *
+     * @return boolean
+     */
+    public function isExpired()
+    {
+        return 0 < $this->getDateRangeEnd() && $this->getDateRangeEnd() < \XLite\Core\Converter::time();
     }
 }

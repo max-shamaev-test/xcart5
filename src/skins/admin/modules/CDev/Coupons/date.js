@@ -17,9 +17,11 @@ function validateCouponDate(field, rules, i, options)
     ? field.parents('form').find('[name="' + pattern.replace(/%/, 'End') + '"].datepicker-value-input').eq(0)
     : field.siblings('.datepicker-value-input');
 
+  var commentedData = core.getCommentedData(field.parents('.input-field-wrapper'));
+  var bd = Date.parse(begin.val());
+  var ed = Date.parse(end.val());
+
   if (begin.length && end.length && begin.val() && end.val()) {
-    var bd = Date.parse(begin.val());
-    var ed = Date.parse(end.val());
     if (!isNaN(bd) && !isNaN(ed)) {
       if (begin.get(0).name == field.get(0).name && bd > ed) {
         return lbl_validate_coupons_begin_date_error;
@@ -28,6 +30,12 @@ function validateCouponDate(field, rules, i, options)
         return lbl_validate_coupons_end_date_error;
       }
     }
+  }
+
+  var curDate = Date.parse(field.val());
+
+  if (!isNaN(curDate) && curDate > Date.UTC(commentedData.highYear) || curDate < Date.UTC(commentedData.lowYear)) {
+    return lbl_validate_coupons_max_date_error;
   }
 }
 

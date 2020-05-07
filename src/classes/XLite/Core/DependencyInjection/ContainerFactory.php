@@ -27,6 +27,7 @@ class ContainerFactory
         // TODO: setup definition caching (file system)
 
         $this->setupDefinitions($builder);
+        $this->setupAdditionalDefinitions($builder);
 
         return $builder->build();
     }
@@ -39,6 +40,7 @@ class ContainerFactory
         $builder = new ContainerBuilder();
 
         $this->setupDefinitions($builder);
+        $this->setupAdditionalDefinitions($builder);
 
         return $builder->build();
     }
@@ -74,6 +76,16 @@ class ContainerFactory
             // Other services
             'event_dispatcher'                        => \DI\object('Symfony\Component\EventDispatcher\EventDispatcher'),
         ]);
+    }
+
+    /**
+     * Setup additional PHP-DI definitions
+     *
+     * @param ContainerBuilder $builder
+     */
+    protected function setupAdditionalDefinitions(ContainerBuilder $builder)
+    {
+
     }
 
     /**

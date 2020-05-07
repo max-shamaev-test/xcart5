@@ -35,21 +35,21 @@ class ValueRange extends \XLite\View\FormField\AFormField
     /**
      * Return min value
      *
-     * @return string
+     * @return float
      */
     public function getMinValue()
     {
-        return $this->getParam(self::PARAM_MIN_VALUE);
+        return floor($this->getParam(self::PARAM_MIN_VALUE));
     }
 
     /**
      * Return max value
      *
-     * @return string
+     * @return float
      */
     public function getMaxValue()
     {
-        return $this->getParam(self::PARAM_MAX_VALUE);
+        return ceil($this->getParam(self::PARAM_MAX_VALUE));
     }
 
     /**

@@ -9,7 +9,6 @@
 namespace XCart\Bus\Query\Resolver;
 
 use GraphQL\Type\Definition\ResolveInfo;
-use Silex\Application;
 use XCart\Bus\Core\Annotations\Resolver;
 use XCart\Bus\Domain\Module;
 use XCart\Bus\Domain\ServiceDataProvider;
@@ -44,6 +43,24 @@ class LanguageDataResolver
     }
 
     /**
+     * @param string $message
+     * @param array  $params
+     *
+     * @return string
+     */
+    public static function getMessageWithReplacedParams($message, $params)
+    {
+        $keys   = [];
+        $values = [];
+        foreach ($params as $k => $v) {
+            $keys[]   = '{' . $k . '}';
+            $values[] = $v;
+        }
+
+        return str_replace($keys, $values, $message);
+    }
+
+    /**
      * @param             $value
      * @param             $args
      * @param             $context
@@ -70,19 +87,32 @@ class LanguageDataResolver
      */
     public function getLanguageMessages($value, $args, $context, ResolveInfo $info)
     {
-        if (!isset($args['code']) || $args['code'] === 'en') {
-            $service = $this->serviceDataProvider->getCoreServiceData();
+        $service = $this->serviceDataProvider->getCoreServiceData();
+        $result  = $service['LanguageLabel'];
 
-            return $service['LanguageLabel'];
+        if (isset($args['code']) && $args['code'] !== 'en') {
+            $result = $this->convertToArray(
+                $this->convertToHash($this->getLanguageMessagesByCode($args['code'])) + $this->convertToHash($result)
+            );
         }
 
+        return $result;
+    }
+
+    /**
+     * @param string $code
+     *
+     * @return array
+     */
+    private function getLanguageMessagesByCode($code): array
+    {
         /** @var Module $module */
         foreach ($this->installedModulesDataSource->getAll() as $module) {
             if (!$module->enabled || !isset($module->service['Language'])) {
                 continue;
             }
 
-            if ($module->service['Language']['code'] === $args['code']) {
+            if ($module->service['Language']['code'] === $code) {
                 return $module->service['LanguageLabel'];
             }
         }
@@ -91,20 +121,37 @@ class LanguageDataResolver
     }
 
     /**
-     * @param string $message
-     * @param array $params
+     * @param array $languageMessages
      *
-     * @return string
+     * @return array
      */
-    public static function getMessageWithReplacedParams($message, $params)
+    private function convertToHash($languageMessages)
     {
-        $keys = [];
-        $values = [];
-        foreach ($params as $k => $v) {
-            $keys[] = '{' . $k . '}';
-            $values[] = $v;
+        $result = [];
+
+        foreach ($languageMessages as $languageMessage) {
+            $result[$languageMessage['name']] = $languageMessage['label'];
         }
 
-        return str_replace($keys, $values, $message);
+        return $result;
+    }
+
+    /**
+     * @param array $languageMessages
+     *
+     * @return array
+     */
+    private function convertToArray($languageMessages)
+    {
+        $result = [];
+
+        foreach ($languageMessages as $name => $label) {
+            $result[] = [
+                'name' => $name,
+                'label' => $label
+            ];
+        }
+
+        return $result;
     }
 }

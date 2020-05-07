@@ -70,16 +70,15 @@ class Main extends \Includes\Decorator\Plugin\Templates\Plugin\APlugin
                 } else {
                     $entity = $override->cloneEntity();
                     $entity->setVersion($currentKey);
+                    $entity->setDeleted(!$entity->isViewListModuleEnabled());
 
-                    \XLite\Core\Database::getEM()->persist($entity);
-                }
-
-                if ($override->getParent()) {
-                    $equalParent = $repo->findEqual($override->getParent(), true);
+                    $equalParent = $repo->findEqualParent($override->getParent() ?: $entity, true);
 
                     if ($equalParent) {
                         $entity->setParent($equalParent);
                     }
+
+                    \XLite\Core\Database::getEM()->persist($entity);
                 }
             }
 

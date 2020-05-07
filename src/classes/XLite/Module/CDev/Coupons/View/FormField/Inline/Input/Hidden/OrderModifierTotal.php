@@ -124,16 +124,36 @@ class OrderModifierTotal extends \XLite\View\FormField\Inline\Base\Single
      */
     protected function saveFieldEntityValue(array $field, $value)
     {
-        $isPersistent = $this->getEntity()->isPersistent();
+        $oldValue = $this->getEntity()->getOrder()->getCurrency()->roundValue($this->getEntity()->getValue());
 
-        if ($this->getEntity()->getModifier()) {
-            $surcharges = $this->getEntity()->getModifier()->calculate();
+        $this->updateCouponSurcharge($this->getEntity());
+
+        $newValue = $this->getEntity()->getOrder()->getCurrency()->roundValue($this->getEntity()->getValue());
+
+        if ($oldValue !== $newValue) {
+            \XLite\Controller\Admin\Order::setOrderChanges(
+                $this->getParam(static::PARAM_FIELD_NAME),
+                static::formatPrice(abs($newValue), $this->getEntity()->getOrder()->getCurrency(), true),
+                static::formatPrice(abs($oldValue), $this->getEntity()->getOrder()->getCurrency(), true)
+            );
+        }
+    }
+
+    /**
+     * @param \XLite\Model\Order\Surcharge $couponSurcharge
+     * @throws \Doctrine\ORM\ORMException
+     */
+    protected function updateCouponSurcharge(\XLite\Model\Order\Surcharge $couponSurcharge)
+    {
+        $isPersistent = $couponSurcharge->isPersistent();
+        $value = 0;
+
+        if ($couponSurcharge->getModifier()) {
+            $surcharges = $couponSurcharge->getModifier()->calculate();
 
             if (!is_array($surcharges)) {
-                $surcharges = array($surcharges);
+                $surcharges = [$surcharges];
             }
-
-            $value = 0;
 
             foreach ($surcharges as $surcharge) {
                 if (is_object($surcharge)) {
@@ -147,21 +167,10 @@ class OrderModifierTotal extends \XLite\View\FormField\Inline\Base\Single
             }
         }
 
-        if (0 < $value && $this->getEntity()->getType() === \XLite\Model\Base\Surcharge::TYPE_DISCOUNT) {
+        if (0 < $value && $couponSurcharge->getType() === \XLite\Model\Base\Surcharge::TYPE_DISCOUNT) {
             $value = $value * -1;
         }
 
-        $oldValue = $this->getEntity()->getOrder()->getCurrency()->roundValue($this->getEntity()->getValue());
-        $newValue = $this->getEntity()->getOrder()->getCurrency()->roundValue($value);
-
-        if ($oldValue !== $newValue) {
-            \XLite\Controller\Admin\Order::setOrderChanges(
-                $this->getParam(static::PARAM_FIELD_NAME),
-                static::formatPrice(abs($value), $this->getEntity()->getOrder()->getCurrency(), true),
-                static::formatPrice(abs($this->getEntity()->getValue()), $this->getEntity()->getOrder()->getCurrency(), true)
-            );
-        }
-
-        $this->getEntity()->setValue($value);
+        $couponSurcharge->setValue($value);
     }
 }

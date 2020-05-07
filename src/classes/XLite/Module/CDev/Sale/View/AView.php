@@ -35,7 +35,16 @@ abstract class AView extends \XLite\View\AView implements \XLite\Base\IDecorator
      */
     protected function participateSaleAdmin(\XLite\Model\Product $product)
     {
-        return $product->getParticipateSale()
-            && $product->getDisplayPrice() < $product->getDisplayPriceBeforeSale();
+        return $product->getParticipateSale() ||
+            ($product->hasParticipateSale() && empty($product->getApplicableSaleDiscounts()));
+    }
+
+    /**
+     * @param \XLite\Module\CDev\Sale\Model\SaleDiscount $saleDiscount
+     * @return string
+     */
+    protected function getSaleDiscountEditLink(\XLite\Module\CDev\Sale\Model\SaleDiscount $saleDiscount)
+    {
+        return $this->buildURL('sale_discount', '', ['id' => $saleDiscount->getId()]);
     }
 }

@@ -94,5 +94,7 @@ abstract class Main extends \XLite\Module\AModule
             'name'     => 'feed_key',
             'value'    => $key,
         ]);
+
+        \XLite\Core\Config::updateInstance();
     }
 }

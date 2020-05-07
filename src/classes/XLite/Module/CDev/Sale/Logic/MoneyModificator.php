@@ -25,8 +25,8 @@ class MoneyModificator extends \XLite\Logic\ALogic
      */
     static public function isApply(\XLite\Model\AEntity $model, $property, array $behaviors, $purpose)
     {
-        return static::getObject($model) instanceOf \XLite\Model\Product
-            && static::getObject($model)->getParticipateSale();
+        return self::getObject($model) instanceOf \XLite\Model\Product
+            && self::getObject($model)->getParticipateSale();
     }
 
     /**
