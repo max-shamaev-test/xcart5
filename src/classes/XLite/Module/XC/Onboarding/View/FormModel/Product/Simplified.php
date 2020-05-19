@@ -120,6 +120,12 @@ class Simplified extends \XLite\View\FormModel\AFormModel
                     'type'     => 'XLite\Module\XC\Onboarding\View\FormModel\Type\TemplateType',
                     'template' => 'modules/XC/Onboarding/form_model/product/other_options.twig',
                     'position' => 400
+                ],
+                'import_link' => [
+                    'label'    => false,
+                    'type'     => 'XLite\Module\XC\Onboarding\View\FormModel\Type\TemplateType',
+                    'template' => 'modules/XC/Onboarding/form_model/product/import_link.twig',
+                    'position' => 500
                 ]
             ],
         ];
@@ -156,21 +162,7 @@ class Simplified extends \XLite\View\FormModel\AFormModel
             ]
         );
 
-        $result['import'] = new \XLite\View\Button\SimpleLink(
-            [
-                \XLite\View\Button\AButton::PARAM_LABEL => 'onboarding.add_product.import',
-                \XLite\View\Button\AButton::PARAM_STYLE => 'always-enabled external',
-                \XLite\View\Button\LINK::PARAM_BLANK => true,
-                \XLite\View\Button\Link::PARAM_LOCATION => $this->getImportLinkUrl(),
-            ]
-        );
-
         return $result;
-    }
-
-    protected function getImportLinkUrl()
-    {
-        return static::t('https://kb.x-cart.com/import-export/csv_format_by_x-cart_data_type/csv_import_products.html');
     }
 
     /**

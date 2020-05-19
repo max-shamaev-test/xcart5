@@ -41,6 +41,14 @@ class OnboardingWizard extends \XLite\Controller\Admin\AAdmin
     }
 
     /**
+     * @return bool
+     */
+    public static function isCloud():bool
+    {
+        return (bool)\Includes\Utils\ConfigParser::getOptions(['service', 'is_cloud']);
+    }
+
+    /**
      * Return the current page title (for the content area)
      *
      * @return string
@@ -254,6 +262,59 @@ class OnboardingWizard extends \XLite\Controller\Admin\AAdmin
         }
     }
 
+    public function doActionUpdateBusinessInfo()
+    {
+        $this->silent = true;
+        $this->setSuppressOutput(true);
+
+        $request = \XLite\Core\Request::getInstance();
+
+        \XLite\Core\Database::getRepo('\XLite\Model\Config')->createOptions([
+            [
+                'category' => 'Company',
+                'name'     => 'company_name',
+                'value'    => $request->company_name,
+            ],
+            [
+                'category' => 'Company',
+                'name'     => 'company_phone',
+                'value'    => $request->phone,
+            ],
+            [
+                'category' => 'Company',
+                'name'     => 'sell_experience',
+                'value'    => $request->experience,
+            ],
+            [
+                'category' => 'Company',
+                'name'     => 'business_category',
+                'value'    => $request->category,
+            ],
+            [
+                'category' => 'Company',
+                'name'     => 'business_revenue',
+                'value'    => $request->revenue,
+            ],
+        ]);
+
+       $revenueFiled = !empty($request->revenue) || in_array($request->experience, ['not_selling', 'building_for_another']);
+
+        $fullFilled = !empty($request->company_name)
+            && !empty($request->phone)
+            && !empty($request->experience)
+            && !empty($request->category)
+            && $revenueFiled
+        ;
+
+        $this->displayJSON([
+            'full-filled' => $fullFilled,
+            'onboarding-company-name' => $request->company_name,
+            'onboarding-revenue' => $request->revenue,
+            'onboarding-industry' => $request->category,
+            'onboarding-experience' => $request->experience,
+        ]);
+    }
+
     public function doActionEnableShipping()
     {
         \XLite\Core\Database::getRepo('XLite\Model\Config')->createOption([
@@ -407,11 +468,10 @@ class OnboardingWizard extends \XLite\Controller\Admin\AAdmin
         $errors = [];
 
         foreach ($form->all() as $child) {
-            $errors = array_merge(
-                $errors,
-                $this->buildErrorArray($child)
-            );
+            $errors[] = $this->buildErrorArray($child);
         }
+
+        $errors = array_merge(...$errors);
 
         foreach ($form->getErrors() as $error) {
             $errors[$error->getCause()->getPropertyPath()] = $error->getMessage();

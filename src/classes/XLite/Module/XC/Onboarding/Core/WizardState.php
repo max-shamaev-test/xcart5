@@ -7,17 +7,20 @@
  */
 
 namespace XLite\Module\XC\Onboarding\Core;
+
 use XLite\Core\Cache\ExecuteCached;
+use XLite\Module\XC\Onboarding\Controller\Admin\OnboardingWizard;
+use XLite\Module\XC\Onboarding\View\WizardStep;
 
 /**
- * MailChimp core class
+ * WizardState core class
  */
 class WizardState extends \XLite\Base\Singleton
 {
     const COOKIE_CURRENT_PROGRESS = 'Wizard_currentProgress';
-    const COOKIE_MAX_PROGRESS = 'Wizard_maxProgress';
-    const COOKIE_LANDMARKS = 'Wizard_landmarks';
-    const COOKIE_LASTLOGO = 'Wizard_lastLogo';
+    const COOKIE_MAX_PROGRESS     = 'Wizard_maxProgress';
+    const COOKIE_LANDMARKS        = 'Wizard_landmarks';
+    const COOKIE_LASTLOGO         = 'Wizard_lastLogo';
 
     /**
      * Returns current wizard step
@@ -35,6 +38,7 @@ class WizardState extends \XLite\Base\Singleton
     public function setCurrentStep($stepName)
     {
         $steps = array_keys($this->defineWizardSteps());
+
         return in_array($stepName, $steps, true)
             ? \XLite\Core\Request::getInstance()->setCookie(self::COOKIE_CURRENT_PROGRESS, $stepName)
             : false;
@@ -65,66 +69,104 @@ class WizardState extends \XLite\Base\Singleton
      */
     public function defineWizardSteps()
     {
+        return OnboardingWizard::isCloud()
+            ? $this->getCloudWizardSteps()
+            : $this->getDefaultWizardSteps();
+    }
+
+    protected function getDefaultWizardSteps(): array
+    {
         return [
             'intro'              => [
                 'progress' => 0,
                 'name'     => 'Intro',
-                'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\Intro',
+                'body'     => WizardStep\Intro::class,
             ],
             'add_product'        => [
                 'progress' => 10,
                 'name'     => 'Product',
-                'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\AddProduct',
+                'body'     => WizardStep\AddProduct::class,
             ],
             'product_added'      => [
                 'progress' => 20,
                 'name'     => 'Product added',
-                'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\ProductAdded',
+                'body'     => WizardStep\ProductAdded::class,
             ],
             'company_logo'       => [
                 'progress' => 30,
                 'name'     => 'Logo upload',
-                'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\CompanyLogo',
+                'body'     => WizardStep\CompanyLogo::class,
             ],
             'company_logo_added' => [
                 'progress' => 35,
                 'name'     => 'Logo confirmation',
-                'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\CompanyLogoAdded',
+                'body'     => WizardStep\CompanyLogoAdded::class,
             ],
             'location'           => [
                 'progress' => 50,
                 'name'     => 'Location',
-                'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\Location',
+                'body'     => WizardStep\Location::class,
             ],
             'company_info'       => [
                 'progress' => 55,
                 'name'     => 'Company info',
-                'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\CompanyInfo',
+                'body'     => WizardStep\CompanyInfo::class,
             ],
             'shipping'           => [
                 'progress' => 70,
                 'name'     => 'Shipping type',
-                'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\Shipping',
+                'body'     => WizardStep\Shipping::class,
             ],
             'shipping_rates'     => [
                 'progress' => 75,
                 'name'     => 'Shipping method/rate',
-                'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\ShippingRates',
+                'body'     => WizardStep\ShippingRates::class,
             ],
-            'shipping_done'     => [
+            'shipping_done'      => [
                 'progress' => 80,
                 'name'     => 'Shipping success',
-                'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\ShippingDone',
+                'body'     => WizardStep\ShippingDone::class,
             ],
-            'payment'     => [
+            'payment'            => [
                 'progress' => 90,
                 'name'     => 'Payment',
-                'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\Payment',
+                'body'     => WizardStep\Payment::class,
             ],
-            'done'     => [
+            'done'               => [
                 'progress' => 100,
                 'name'     => 'Wizard completed',
-                'body'     => 'XLite\Module\XC\Onboarding\View\WizardStep\Done',
+                'body'     => WizardStep\Done::class,
+            ],
+        ];
+    }
+
+    protected function getCloudWizardSteps(): array
+    {
+        return [
+            'intro'               => [
+                'progress' => 0,
+                'name'     => 'Intro',
+                'body'     => WizardStep\Intro::class,
+            ],
+            'business_info'       => [
+                'progress' => 10,
+                'name'     => 'Tell us about your business',
+                'body'     => WizardStep\BusinessInfo::class,
+            ],
+            'add_product_cloud'   => [
+                'progress' => 50,
+                'name'     => 'Product',
+                'body'     => WizardStep\AddProductCloud::class,
+            ],
+            'product_added_cloud' => [
+                'progress' => 70,
+                'name'     => 'Product added',
+                'body'     => WizardStep\ProductAddedCloud::class,
+            ],
+            'company_logo_cloud'  => [
+                'progress' => 100,
+                'name'     => 'Logo upload',
+                'body'     => WizardStep\CompanyLogoCloud::class,
             ],
         ];
     }
@@ -134,7 +176,7 @@ class WizardState extends \XLite\Base\Singleton
         return [
             'XLite\Model\Order',
             'XLite\Model\Product',
-            'XLite\Model\Category'
+            'XLite\Model\Category',
         ];
     }
 
@@ -144,7 +186,7 @@ class WizardState extends \XLite\Base\Singleton
      */
     public function hasDemoCatalog()
     {
-        return ExecuteCached::executeCachedRuntime(function() {
+        return ExecuteCached::executeCachedRuntime(function () {
             $types = $this->getDemoEntityTypes();
 
             foreach ($types as $type) {
@@ -202,12 +244,14 @@ class WizardState extends \XLite\Base\Singleton
 
     public function reset()
     {
-        WizardState::setLastAddedProductId(null);
-        \XLite\Core\Request::getInstance()->setCookie(self::COOKIE_CURRENT_PROGRESS, null);
-        \XLite\Core\Request::getInstance()->setCookie(self::COOKIE_MAX_PROGRESS, null);
-        \XLite\Core\Request::getInstance()->setCookie(self::COOKIE_LASTLOGO, null);
-        \XLite\Core\Request::getInstance()->setCookie(self::COOKIE_LANDMARKS, null);
-        WizardState::getInstance()->updateConfigOption('wizard_state', 'visible');
-        WizardState::getInstance()->setLastAddedProductId(null);
+        $request = \XLite\Core\Request::getInstance();
+
+        $this->setLastAddedProductId(null);
+        $request->setCookie(self::COOKIE_CURRENT_PROGRESS, null);
+        $request->setCookie(self::COOKIE_MAX_PROGRESS, null);
+        $request->setCookie(self::COOKIE_LASTLOGO, null);
+        $request->setCookie(self::COOKIE_LANDMARKS, null);
+        $this->updateConfigOption('wizard_state', 'visible');
+        $this->setLastAddedProductId(null);
     }
 }

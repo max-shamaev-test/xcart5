@@ -40,14 +40,14 @@ class OrderMessageNotification extends AMessageNotification
 
         $this->populateVariables([
             'order_number'        => $order->getOrderNumber(),
-            'order_link'          => Converter::buildURL(
+            'order_link'          => \XLite::getInstance()->getShopURL(Converter::buildURL(
                 'order',
                 null,
                 ['order_number' => $order->getOrderNumber()],
                 $recipient && !$recipient->isAdmin()
                     ? \XLite::getCustomerScript()
                     : \XLite::getAdminScript()
-            ),
+            )),
             'order_messages_link' => $this->getOrderMessagesLink($order, $recipient),
         ]);
 

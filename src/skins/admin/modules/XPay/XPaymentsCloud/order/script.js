@@ -19,3 +19,15 @@ function popupXpaymentsInfo(xpid) {
   );
 }
 
+function showRebillBox(orderNumber, amount) {
+    popup.load(
+        URLHandler.buildURL(
+            {
+                'target': 'popup_xpayments_cards',
+                'order_number': orderNumber,
+                'amount': amount,
+                'widget': '\\XLite\\Module\\XPay\\XPaymentsCloud\\View\\PopupXpaymentsCards'
+            }
+        )
+    );
+}

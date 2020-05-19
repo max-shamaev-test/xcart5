@@ -127,4 +127,29 @@ class Info extends \XLite\View\Order\Details\Admin\Info implements \XLite\Base\I
         return \XLite::getController()->getOrder();
     }
 
+    /**
+     * Is recharge allowed for the orde
+     *
+     * @return bool
+     */
+    protected function isXpaymentsChargeDifferenceAvailable()
+    {
+        return $this->getOrder()->isXpaymentsChargeDifferenceAvailable();
+    }
+
+    /**
+     * Javascript code for recharge popup
+     *
+     * @return string
+     */
+    protected function getXpaymentsChargeDifferenceJsCode()
+    {
+        $orderNumber = '\'' . $this->getOrder()->getOrderNumber() . '\'';
+        $amount = '\'' . $this->getOrder()->getAomTotalDifference() . '\'';
+
+        $code = 'showRebillBox(' . $orderNumber . ', ' . $amount . ');';
+
+        return $code;
+    }
+
 }

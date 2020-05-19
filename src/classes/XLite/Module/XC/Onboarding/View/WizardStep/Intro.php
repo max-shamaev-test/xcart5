@@ -15,8 +15,4 @@ use XLite\Module\XC\Onboarding\View\AWizardStep;
  */
 class Intro extends AWizardStep
 {
-    protected function getAdminName()
-    {
-        return 'Tatyana';
-    }
 }

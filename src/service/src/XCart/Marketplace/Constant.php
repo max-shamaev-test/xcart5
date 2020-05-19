@@ -164,6 +164,7 @@ class Constant
     const FIELD_SALES_CHANNEL_POS           = 'salesChannelPos';
     const FIELD_TOKEN                       = 'token';
     const FIELD_PURCHASE                    = 'purchase';
+    const FIELD_PROLONGATION                = 'prolongation';
     const FIELD_TRANSLATIONS                = 'translations';
     const FIELD_SUBSTRING                   = 'substring';
     const FIELD_PRODUCTS                    = 'products';

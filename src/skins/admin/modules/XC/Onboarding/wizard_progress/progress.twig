@@ -1,10 +1,10 @@
 <xlite-wizard-progress inline-template :step="step" :steps="steps" :landmarks="{{ this.getLandmarks() | json_encode }}" :current-step="currentStep" :last-product="lastProduct">
-  <div class="onboarding-wizard-progress" v-data='{"progress": {{ this.getPercentage() }} }'>
+  <div class="{{ this.getDivStyle() }}" v-data='{"progress": {{ this.getPercentage() }} }'>
     <div class="percentage" v-text="this.progress + '%'" v-if="!isCurrentStep('intro')" transition="fade-in-out">{{ this.getPercentage() ~ '%' }}</div>
     <div class="bar">
       <div class="landmarks">
         {% for step in this.getLandmarks() %}
-          <div v-if="'{{ step.index }}' === 'product' && isCurrentStep('intro')"
+          <div v-if="'{{ step.index }}' === '{{ this.getFirstIndex() }}' && isCurrentStep('intro')"
                class="landmark landmark-{{ step.index }}"
                :class="{{ 'landmarkClass.' ~ step.index }}"
                tabindex="-1">

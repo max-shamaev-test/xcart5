@@ -16,7 +16,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'Model' . DIRECTORY_SEPARATOR . 'Pa
 
 class Client
 {
-    const SDK_VERSION = '0.2.0';
+    const SDK_VERSION = '0.2.1';
 
     private $account;
     private $secretKey;
@@ -188,6 +188,36 @@ class Client
     public function doDecline($xpid)
     {
         return $this->doAction('decline', $xpid);
+    }
+
+    /**
+     * @param string $refId
+     * @param string $customerId
+     * @param string $callbackUrl
+     * @param string $xpid
+     * @param array $cart
+     * @return Response
+     * @throws ApiException
+     */
+    public function doRebill(string $refId, string $customerId, string $callbackUrl, string $xpid, array $cart)
+    {
+        $request = new Request($this->account, $this->apiKey, $this->secretKey);
+
+        $params = [
+            'refId'       => $refId,
+            'customerId'  => $customerId,
+            'callbackUrl' => $callbackUrl,
+            'xpid'        => $xpid,
+            'cart'        => $cart,
+        ];
+
+        $response = $request->send('rebill', $params);
+
+        if (is_null($response->getPayment())) {
+            throw new ApiException('Invalid response');
+        }
+
+        return $response;
     }
 
     /**
@@ -382,11 +412,13 @@ class Client
      */
     public function getAdminUrl()
     {
-        return sprintf(
-            'https://%s.%s/admin.php',
-            $this->account,
-            Request::XP_DOMAIN
-        );
+        $host = $this->account . '.' . Request::XP_DOMAIN;
+
+        if (defined('XPAYMENTS_SDK_DEBUG_SERVER_HOST')) {
+            $host = constant('XPAYMENTS_SDK_DEBUG_SERVER_HOST');
+        }
+
+        return 'https://' . $host . '/admin.php';
     }
 
     /**

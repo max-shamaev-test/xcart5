@@ -46,7 +46,11 @@ define('wizard/controller', ['js/vue/vue', 'wizard/store', 'wizard/tracking'], f
       if (this.lastProduct) {
         this.updateProduct(this.lastProduct);
       }
-      this.currentStep = this.accessCurrentProgress() || this.step;
+      let currentStep = this.accessCurrentProgress() || this.step;
+      if (this.steps[currentStep] === undefined) {
+        currentStep = 'intro';
+      }
+      this.currentStep = currentStep;
       $('[data-toggle="tooltip"]', this.$el).tooltip();
       core.trigger('wizard.ready', this);
       this.calculateViewport();
@@ -148,6 +152,14 @@ define('wizard/controller', ['js/vue/vue', 'wizard/store', 'wizard/tracking'], f
 
       'wizard.step.requestPrevious': function() {
         this.goToPreviousStep();
+      },
+
+      'wizard.hide': function () {
+        this.hideWizard();
+      }
+
+      ,'wizard.close': function () {
+        this.closeWizard();
       }
     },
 

@@ -83,7 +83,10 @@ define('wizard/steps/product-added', ['js/vue/vue'], function (XLiteVue) {
       onDeleteFail: function() {
         console.error('Demo catalog is not deleted');
         this.$dispatch('unblockBody');
-      }
+      },
+      hideWizard: function() {
+        this.$dispatch('wizard.hide');
+      },
     }
   });
 });

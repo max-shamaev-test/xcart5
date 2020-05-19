@@ -31,7 +31,7 @@ class WizardProgress extends \XLite\View\AView
     public function getJSFiles()
     {
         return [
-            $this->getDir() . '/progress.js'
+            $this->getDir() . '/progress.js',
         ];
     }
 
@@ -41,7 +41,7 @@ class WizardProgress extends \XLite\View\AView
     public function getCSSFiles()
     {
         return [
-            $this->getDir() . '/progress.css'
+            $this->getDir() . '/progress.css',
         ];
     }
 
@@ -55,53 +55,75 @@ class WizardProgress extends \XLite\View\AView
         return $this->getDir() . '/progress.twig';
     }
 
+    /**
+     * @return int|mixed
+     */
     protected function getPercentage()
     {
         return WizardState::getInstance()->getWizardProgress();
     }
 
+    /**
+     * @return string
+     */
+    protected function getFirstIndex(): string
+    {
+        return 'product';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getDivStyle()
+    {
+        return 'onboarding-wizard-progress';
+    }
+
+    /**
+     * @return array[]
+     */
     protected function getLandmarks()
     {
         return [
-            'product' => [
-                'index' => 'product',
-                'name'  => 'Add first product',
-                'target' => 'add_product',
-                'steps' => ['add_product'],
+            'product'  => [
+                'index'    => 'product',
+                'name'     => 'Add first product',
+                'target'   => 'add_product',
+                'steps'    => ['add_product'],
                 'activeOn' => 10,
-                'image' => 'modules/XC/Onboarding/images/step-product.svg'
+                'image'    => 'modules/XC/Onboarding/images/step-product.svg',
             ],
-            'company' => [
-                'index' => 'company',
-                'name'  => 'Upload company logo',
-                'target' => 'company_logo',
-                'steps' => ['company_logo', 'company_logo_added'],
+            'company'  => [
+                'index'    => 'company',
+                'name'     => 'Upload company logo',
+                'target'   => 'company_logo',
+                'steps'    => ['company_logo', 'company_logo_added'],
                 'activeOn' => 30,
-                'image' => 'modules/XC/Onboarding/images/step-company.svg'
+                'image'    => 'modules/XC/Onboarding/images/step-company.svg',
             ],
             'location' => [
-                'index' => 'location',
-                'name'  => 'Verify geo settings',
-                'target' => 'location',
-                'steps' => ['location', 'company_info'],
+                'index'    => 'location',
+                'name'     => 'Verify geo settings',
+                'target'   => 'location',
+                'steps'    => ['location', 'company_info'],
                 'activeOn' => 50,
-                'image' => 'modules/XC/Onboarding/images/step-location.svg'
+                'image'    => 'modules/XC/Onboarding/images/step-location.svg',
             ],
             'shipping' => [
-                'index' => 'shipping',
-                'name'  => 'Set up shipping methods',
-                'target' => 'shipping',
-                'steps' => ['shipping', 'shipping_rates'],
+                'index'    => 'shipping',
+                'name'     => 'Set up shipping methods',
+                'target'   => 'shipping',
+                'steps'    => ['shipping', 'shipping_rates'],
                 'activeOn' => 70,
-                'image' => 'modules/XC/Onboarding/images/step-shipping.svg'
+                'image'    => 'modules/XC/Onboarding/images/step-shipping.svg',
             ],
-            'payment' => [
-                'index' => 'payment',
-                'name'  => 'Set up payment gateways',
-                'target' => 'payment',
-                'steps' => ['payment'],
+            'payment'  => [
+                'index'    => 'payment',
+                'name'     => 'Set up payment gateways',
+                'target'   => 'payment',
+                'steps'    => ['payment'],
                 'activeOn' => 90,
-                'image' => 'modules/XC/Onboarding/images/step-payment.svg'
+                'image'    => 'modules/XC/Onboarding/images/step-payment.svg',
             ],
         ];
     }

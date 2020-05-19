@@ -46,7 +46,7 @@ class XLite extends \XLite\Base
     /**
      * Core version
      */
-    const XC_VERSION = '5.4.1.4';
+    const XC_VERSION = '5.4.1.5';
 
     /**
      * Endpoints

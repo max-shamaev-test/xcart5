@@ -19,6 +19,10 @@ function createXPaymentsWidget()
       total: '{{ this.getCart().getTotal() }}',
       currency: '{{ this.getCart().getCurrency().getCode() }}'
     },
+    company: {
+      name: '{{ this.config.Company.company_name }}',
+      countryCode: '{{ this.config.Company.location_country }}',
+    },
     language: '{{ this.getCurrentLanguage().getCode() }}',
   }).on('fail', function() {
      {% if 'fast-lane' == this.config.General.checkout_type %}
@@ -38,6 +42,8 @@ function createXPaymentsWidget()
          core.showError(params.message);
        }
      }, 500)
+  }).on('paymentmethod.change', function(params) {
+    toggleApplePayButton('apple_pay' === params.newId);
   });
 
   core.bind('xpaymentsAnonymousRegister', updateXPaymentsSaveCard);
@@ -72,6 +78,11 @@ function resizeXPaymentsWidget(event, data)
 }
 {% endif %}
 
+function toggleApplePayButton(state)
+{
+    jQuery('.place-order').toggleClass('apple-pay-button', state);
+}
+
 function updateXPaymentsTotal(event, data)
 {
   var widget = getXPaymentsWidget();
@@ -99,9 +110,14 @@ function getXPaymentsWidget(onlyValid = true)
 function loadXPaymentsWidget()
 {
   jQuery(function() {
+    toggleApplePayButton(false);
     var widget = getXPaymentsWidget(false);
     if (!widget) {
         widget = createXPaymentsWidget();
+        core.bind('checkout.placeOrderButton.loaded', function() {
+          var widget = getXPaymentsWidget(true);
+          widget && toggleApplePayButton('apple_pay' === widget.getPaymentMethod());
+        });
     }
     widget.load();
   });

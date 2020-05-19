@@ -1214,7 +1214,7 @@ XLite\Model\LanguageLabel:
   - { name: "Status", translations: [{ code: en, label: "Status" }] }
   - { name: "Store Maintenance", translations: [{ code: en, label: "Store Maintenance" }] }
   - { name: "Store currency", translations: [{ code: en, label: "Store currency" }] }
-  - { name: "Store info", translations: [{ code: en, label: "Contact information" }] }
+  - { name: "Store info", translations: [{ code: en, label: "Store profile" }] }
   - { name: "Store is closed", translations: [{ code: en, label: "Store is closed" }] }
   - { name: "Store is open", translations: [{ code: en, label: "Store is open" }] }
   - { name: "Store setup", translations: [{ code: en, label: "Store setup" }] }

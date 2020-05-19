@@ -26,6 +26,7 @@ abstract class AAdmin extends \XLite\Controller\Admin\AAdmin implements \XLite\B
             && WizardState::getInstance()->getWizardProgress() >= 100) {
 
             WizardState::getInstance()->updateConfigOption('wizard_state', 'disabled');
+            \XLite\Core\Config::updateInstance();
         }
 
         parent::handleRequest();

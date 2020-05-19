@@ -10,6 +10,10 @@ XLite\Model\Config:
     category: 'XC\Onboarding'
     type: hidden
     value: 'visible' # possible states: 'visible', 'minimized', 'disabled'
+  - name: cloud_domain
+    category: 'Company'
+    type: XLite\Module\XC\Onboarding\View\FormField\CloudDomain
+    orderby: 36900
 
 XLite\Model\LanguageLabel:
   - name: "Add first product"
@@ -105,6 +109,11 @@ XLite\Model\LanguageLabel:
         label: Let’s set up your online store in a few easy steps. Track your progress at the top.<br/>As soon as you hit 100%, you’re all set to accept the first order.
       - code: ru
         label: "Этот мастер настройки поможет пошагово выполнить основные настройки магазина.<br/>Пройдя его до конца, вы сможете принять свой первый заказ."
+
+  - name: onboarding.cloud.intro.text
+    translations:
+      - code: en
+        label: Let’s set up your online store in a few easy steps. Track your progress at the top.<br/>When all the icons turn green, you will be all set to accept the first order.
 
   - name: onboarding.intro.next_button
     translations:
@@ -646,3 +655,15 @@ XLite\Model\LanguageLabel:
   - { name: 'My Shipping', translations: [{ code: en, label: 'My Shipping' }]}
   - { name: 'Onboarding Wizard', translations: [{ code: en, label: 'Onboarding Wizard' }]}
   - { name: 'Name length must be less then {{length}}', translations: [{ code: en, label: 'Name length must be less then {{length}}' }]}
+  - { name: "OK, now let’s get your store ready for sales", translations: [{ code: en, label: "OK, now let’s get your store ready for sales" }]}
+  - { name: 'Domain name', translations: [{ code: en, label: 'Domain name' }]}
+  - { name: 'Your current domain is X', translations: [{ code: en, label: 'Your current domain is <strong>{{domain}}</strong>.' }]}
+  - { name: 'Payment Processing', translations: [{ code: en, label: 'Payment Processing' }]}
+  - { name: 'Choose the best way for customers to pay you.', translations: [{ code: en, label: 'Choose the best way for customers to pay you.' }]}
+  - { name: 'Activated! Your current domain is X', translations: [{ code: en, label: 'Activated! Your current domain is <strong>{{domain}}</strong>' }]}
+  - { name: 'If you want to change the domain name for your store, please send us a new one that you would like to use and our manager will contact you:', translations: [{ code: en, label: 'If you want to change the domain name for your store, please send us a new one that you would like to use <br/>and our manager will contact you:' }]}
+  - { name: 'Change domain name', translations: [{ code: en, label: 'Change domain name' }]}
+  - { name: 'Your request has been sent, our manager will contact you shortly.', translations: [{ code: en, label: 'Your request has been sent, our manager will contact you shortly.' }]}
+  - { name: 'Something went wrong, please try again or contact us at X', translations: [{ code: en, label: 'Something went wrong, please try again or contact us at <a href="mailto:{{email}}">{{email}}</a>' }]}
+  - { name: 'Set it up', translations: [{ code: en, label: 'Set it up' }]}
+  - { name: 'Onboarding: Get shipping rates from major shipping carrier companies.', translations: [{ code: en, label: 'Get shipping rates from major shipping carrier companies.' }]}

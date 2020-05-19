@@ -7,29 +7,60 @@
  * See https://www.x-cart.com/license-agreement.html for license details.
  */
 
-.onboarding-wizard-step.step-product_added .buttons {
+.onboarding-wizard-step.step-product_added,
+.onboarding-wizard-step.step-product_added_cloud {
+  .buttons {
     margin: 17px auto 3px;
     display: flex;
     align-items: center;
     justify-content: space-around;
     flex-direction: row-reverse;
-}
+  }
 
-.onboarding-wizard-step.step-product_added .demo-products-showcase {
+  .demo-products-showcase {
     margin-top: 20px;
-}
+  }
 
-.onboarding-wizard-step.step-product_added div.file-uploader .alt {
+  div.file-uploader .alt {
     display: none;
-}
+  }
 
-.onboarding-wizard-step.step-product_added .catalog-deleted-image,
-.onboarding-wizard-step.step-product_added .product-added-image {
+  .catalog-deleted-image,
+  .product-added-image {
     margin-top: 40px;
     margin-bottom: 40px;
+  }
+
+  .catalog-deleted .regular-main-button,
+  .no-demo-catalog .regular-main-button {
+    margin-top: 40px;
+  }
 }
 
-.onboarding-wizard-step.step-product_added .catalog-deleted .regular-main-button,
-.onboarding-wizard-step.step-product_added .no-demo-catalog .regular-main-button {
-    margin-top: 40px;
+.onboarding-wizard-step.step-product_added_cloud {
+
+  .step-contents {
+    padding-bottom: 80px;
+  }
+
+  .buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    .buttons-wrapper {
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: space-around;
+
+      & > * {
+        margin: 0 @rhythmic-unit / 2;
+      }
+    }
+
+    .additional-buttons {
+      flex-basis: 100%;
+    }
+  }
+
+
 }

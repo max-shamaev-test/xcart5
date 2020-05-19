@@ -15,25 +15,30 @@
   display: none !important;
 }
 
-.add-product-form .form-horizontal .form-default-images,
-.add-product-form .form-horizontal .form-default-other-options
-{
-  justify-content: center;
+.add-product-form .form-group.form-row {
+  width: 350px;
+}
+
+.add-product-form .form-group.uploader-row {
+  display: block;
+  float: left;
+  width: auto;
+  margin-right: 24px;
+  padding-top: 4px;
 }
 
 .add-product-form .form-horizontal .form-default-name input {
   width: 100% !important;
 }
 
-.add-product-form .form-horizontal .form-default-name,
-.add-product-form .form-horizontal .form-default-price {
-  display: inline-block;
-  vertical-align: middle;
+.add-product-form .form-group.form-default-name {
+  margin-bottom: 6px;
 }
 
-.add-product-form .form-default-name + .form-default-price {
-  padding-left: 20px;
+.add-product-form .form-group.form-default-other-options {
+  margin-bottom: 0;
 }
+
 
 .add-product-form .form-default-name .input-widget {
   max-width: 250px !important;

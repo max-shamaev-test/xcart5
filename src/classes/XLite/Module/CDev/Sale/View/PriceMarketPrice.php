@@ -22,6 +22,6 @@ abstract class PriceMarketPrice extends \XLite\View\Price implements \XLite\Base
      */
     protected function isShowMarketPrice()
     {
-        return !$this->getProduct()->getParticipateSale() && parent::isShowMarketPrice();
+        return !$this->participateSale() && parent::isShowMarketPrice();
     }
 }

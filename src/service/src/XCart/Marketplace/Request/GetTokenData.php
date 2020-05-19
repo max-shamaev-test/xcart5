@@ -34,7 +34,12 @@ class GetTokenData extends AAPIRequest
                     'flags'   => FILTER_REQUIRE_ARRAY,
                     'options' => ['regexp' => Constant::REGEXP_WORD],
                 ],
-            ]
+                Constant::FIELD_PROLONGATION => [
+                    'filter'  => FILTER_VALIDATE_REGEXP,
+                    'flags'   => FILTER_REQUIRE_ARRAY,
+                    'options' => ['regexp' => Constant::REGEXP_WORD],
+                ],
+            ], false
         );
     }
 }

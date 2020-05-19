@@ -25,7 +25,11 @@ class FileUploader extends \XLite\View\FileUploader implements \XLite\Base\IDeco
         $list = parent::getJSFiles();
 
         if (\XLite::getController() instanceof OnboardingWizard) {
-            $list[] = 'modules/XC/Onboarding/file_uploader/onboarding.js';
+            if (OnboardingWizard::isCloud()) {
+                $list[] = 'modules/XC/Onboarding/file_uploader/onboarding_cloud.js';
+            } else {
+                $list[] = 'modules/XC/Onboarding/file_uploader/onboarding.js';
+            }
         }
 
         return $list;

@@ -16,7 +16,7 @@ use XCart\SilexAnnotations\Annotations\Service;
 /**
  * @Service\Service()
  */
-class ScriptStateDataSource extends SerializedDataSource
+class ScriptStateDataSource extends SerializedSeparatedDataSource
 {
     /**
      * @param Application      $app
@@ -32,8 +32,26 @@ class ScriptStateDataSource extends SerializedDataSource
         StorageInterface $storage
     ) {
         return new static(
-            $storage->build($app['config']['cache_dir'], 'scriptStateStorage')
+            $app['config']['cache_dir'],
+            'scriptStateStorage',
+            $storage
         );
+    }
+
+    /**
+     * @return int
+     */
+    protected function getItemTTL(): int
+    {
+        return 259200; // 3 day;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getOldDataFileName(): string
+    {
+        return 'scriptStateStorage';
     }
 
     /**

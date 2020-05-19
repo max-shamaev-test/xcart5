@@ -51,7 +51,7 @@ abstract class Price extends \XLite\View\Price implements \XLite\Base\IDecorator
      */
     protected function getSalePriceDifference()
     {
-        return $this->getOldPrice() - $this->getCart()->getCurrency()->roundValue($this->getListPrice());
+        return $this->getOldPrice() - $this->getListPrice();
     }
 
     /**
@@ -61,7 +61,19 @@ abstract class Price extends \XLite\View\Price implements \XLite\Base\IDecorator
      */
     protected function getOldPrice()
     {
-        return $this->getProduct()->getDisplayPriceBeforeSale();
+        return $this->getCart()->getCurrency()->roundValue($this->getProduct()->getDisplayPriceBeforeSale());
+    }
+
+    /**
+     * Return old price value without possible market price
+     *
+     * @return float
+     */
+    protected function getPureOldPrice()
+    {
+        $oldPrice = \XLite\Module\CDev\Sale\Logic\PriceBeforeSale::getInstance()->apply($this->getProduct(), 'getNetPriceBeforeSale', array('taxable'), 'display');
+
+        return $this->getCart()->getCurrency()->roundValue($oldPrice);
     }
 
     /**
@@ -71,7 +83,7 @@ abstract class Price extends \XLite\View\Price implements \XLite\Base\IDecorator
      */
     protected function participateSale()
     {
-        return $this->getListPrice() < $this->getOldPrice();
+        return $this->getListPrice() < $this->getPureOldPrice();
     }
 
     /**

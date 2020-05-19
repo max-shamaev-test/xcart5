@@ -38,6 +38,9 @@ define('form_model/sticky_panel/non_sticky', ['js/vue/vue', 'form_model/sticky_p
       },
       processReposition: function () {
       },
+      hideWizard: function () {
+        this.$dispatch('wizard.hide');
+      }
     }
   });
 

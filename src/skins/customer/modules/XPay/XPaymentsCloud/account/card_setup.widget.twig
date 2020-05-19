@@ -13,11 +13,17 @@ function createXPaymentsWidget()
     widgetKey: '{{ this.getPaymentMethod().getSetting('widget_key') }}',
     container: '#xpayments-iframe-container',
     form: 'form.card-setup',
+    showSaveCard: false,
+    enableWallets: false,
     order: {
       tokenizeCard: true,
       currency: '{{ this.getCurrency().getCode() }}'
     },
     language: '{{ this.getCurrentLanguage().getCode() }}',
+    company: {
+      name: '{{ this.config.Company.company_name }}',
+      countryCode: '{{ this.config.Company.location_country }}',
+    },
   }).on('fail', function() {
     enableSubmit();
   }).on('alert', function(params) {

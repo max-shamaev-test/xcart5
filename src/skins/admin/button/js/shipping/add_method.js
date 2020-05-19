@@ -10,6 +10,11 @@
 function PopupButtonAddShippingMethod()
 {
   PopupButtonAddShippingMethod.superclass.constructor.apply(this, arguments);
+
+  const params = jQuery.getQueryParameters();
+  if (params.show_add_shipping_popup && !popup.currentPopup) {
+    jQuery('button.add-shipping-method-button').click();
+  }
 }
 
 extend(PopupButtonAddShippingMethod, PopupButton);

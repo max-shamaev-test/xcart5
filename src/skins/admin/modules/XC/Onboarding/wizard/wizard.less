@@ -18,6 +18,23 @@
     justify-content: center;
     align-items: center;
     padding-bottom: 41px;
+
+    .buttons > .additional-buttons.muted-buttons {
+        padding-top: @rhythmic-unit / 2;
+    }
+
+    a.muted-button,
+    .buttons > .additional-buttons.muted-buttons a {
+          font-size: 12px;
+          cursor: pointer;
+          color: #9b9b9b;
+
+          &:hover,
+          &:focus {
+              color: #3a7ccd;
+              text-decoration: none;
+          }
+      }
 }
 
 .panel-wrapper, .step-contents > .buttons, .step-contents .bottom-sticky {

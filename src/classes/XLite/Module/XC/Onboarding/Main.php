@@ -31,4 +31,9 @@ abstract class Main extends \XLite\Module\AModule
     {
         return Manager::getRegistry()->isModuleEnabled($name);
     }
+
+    public static function getCloudDomainName()
+    {
+        return \XLite::getInstance()->getOptions(['host_details', 'http_host']);
+    }
 }

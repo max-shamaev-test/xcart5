@@ -6,7 +6,7 @@
   class="onboarding-wizard-header">
   <div class="intro-text" v-if="isCurrentStep('intro')" transition="fade-in-out">
     <h2 class="heading">{{ t('onboarding.intro.heading') }}</h2>
-    <p class="text">{{ t('onboarding.intro.text')|raw }}</p>
+    <p class="text">{{ this.getIntroText()|raw }}</p>
   </div>
-  {{ widget('XLite\\Module\\XC\\Onboarding\\View\\WizardProgress') }}
+  {{ widget(this.getWizardProgressClass()) }}
 </div>

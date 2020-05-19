@@ -10,6 +10,8 @@
 define('wizard/steps/add-product', ['js/vue/vue'], function (XLiteVue) {
   XLiteVue.component('xlite-wizard-step-add-product', {
 
+    props: ['skipStep'],
+
     activate: function (done) {
       done();
     },
@@ -61,8 +63,8 @@ define('wizard/steps/add-product', ['js/vue/vue'], function (XLiteVue) {
       },
       'form.submit.skip': function() {
         this.$dispatch('wizard.tracking.event', 'link', '(skip)');
-        if (this.demoCatalog === false || this.demoRemovalSkip === true) {
-          this.$dispatch('wizard.step.switch', 'shipping', true);
+        if (this.skipStep && (this.demoCatalog === false || this.demoRemovalSkip === true)) {
+          this.$dispatch('wizard.step.switch', this.skipStep, true);
         } else {
           this.$dispatch('wizard.step.requestNext');
         }
@@ -71,8 +73,8 @@ define('wizard/steps/add-product', ['js/vue/vue'], function (XLiteVue) {
         this.updateProduct(data.product);
         this.$dispatch('wizard.tracking.event', 'form');
 
-        if (this.demoRemovalSkip === true) {
-          this.$dispatch('wizard.step.switch', 'shipping', true);
+        if (this.demoRemovalSkip === true && this.skipStep) {
+          this.$dispatch('wizard.step.switch', this.skipStep, true);
         } else {
           this.$dispatch('wizard.step.requestNext');
         }
@@ -91,7 +93,10 @@ define('wizard/steps/add-product', ['js/vue/vue'], function (XLiteVue) {
     methods: {
       getRootElement: function () {
         return $(this.$el).closest('.onboarding-wizard-step');
-      }
+      },
+      hideWizard: function() {
+        this.$dispatch('wizard.hide');
+      },
     }
   });
 });

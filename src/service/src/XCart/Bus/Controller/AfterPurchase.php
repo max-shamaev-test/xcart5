@@ -117,8 +117,8 @@ class AfterPurchase
     {
         $tokenData = $this->marketplaceClient->getTokenData($token);
 
-        if (!empty($tokenData['purchase'])) {
-            $key      = $tokenData['purchase'][0];
+        if (!empty($tokenData['purchase']) || !empty($tokenData['prolongation'])) {
+            $key      = $tokenData['purchase'][0] ?? $tokenData['prolongation'][0];
             $keysInfo = $this->marketplaceClient->getLicenseInfo($key);
 
             if ($keysInfo && $keysInfo[$key]) {
@@ -136,6 +136,7 @@ class AfterPurchase
                         if ($licence) {
                             $licence['keyValue'] = $key;
                             $licence['active']   = true;
+                            $licence['keyData']  = $info['keyData'];
                             $this->licenseDataSource->saveOne($licence);
                         } else {
                             $info['keyValue'] = $key;
@@ -145,7 +146,7 @@ class AfterPurchase
                     }
                 }
             }
-        } else {
+        } elseif ($moduleAuthor && $moduleName) {
             $this->licenseDataSource->savePending($moduleAuthor, $moduleName);
         }
     }

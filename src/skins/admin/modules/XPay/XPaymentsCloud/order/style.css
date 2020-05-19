@@ -193,3 +193,11 @@ td.links-column > a.dotted {
   border-bottom: 1px dotted;
   margin-right: 23px;
 }
+
+.xpayments-rebill-order {
+  min-width: 400px;
+}
+
+.xpayments-cards .xpayments-selector-column {
+  width: 50px;
+}

@@ -119,6 +119,7 @@
     position: absolute;
     color: white;
     border-radius: 100px;
+    line-height: 20px;
     background-color: #4990e2;
     border: solid 3px #ffffff;
     padding: 0 4px;
@@ -166,6 +167,11 @@
     stroke: #9b9b9b;
 }
 
+.onboarding-wizard-progress .landmark svg path[fill] {
+    stroke: none;
+    fill: #9b9b9b;
+}
+
 .onboarding-wizard-progress .landmark svg #LOGO {
     fill: #9b9b9b;
     stroke: transparent;
@@ -191,6 +197,12 @@
 .onboarding-wizard-progress .landmark.current svg polyline,
 .onboarding-wizard-progress .landmark.current svg polygon {
     stroke: white;
+}
+
+.onboarding-wizard-progress .landmark.active svg path[fill],
+.onboarding-wizard-progress .landmark.current svg path[fill] {
+    stroke: none;
+    fill: white;
 }
 
 .onboarding-wizard-progress .landmark.active svg #LOGO,
@@ -220,4 +232,14 @@
 
 .onboarding-wizard-progress .landmark.current {
     box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.2);
+}
+
+.onboarding-wizard-progress-cloud .finish-mark,
+.onboarding-wizard-progress-cloud .percentage {
+    display: none;
+}
+
+.onboarding-wizard-progress-cloud .progress-line {
+    margin: 0 90px;
+    position: relative;
 }

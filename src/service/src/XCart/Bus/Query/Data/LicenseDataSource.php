@@ -60,6 +60,26 @@ class LicenseDataSource extends SerializedDataSource
     }
 
     /**
+     * @return array
+     */
+    public function getAll(): array
+    {
+        $result = parent::getAll();
+
+        // TODO: remove after some time (see BUG-8625)
+        $wrongItems = array_filter($result, function ($item) {
+            return is_null($item['author']) || is_null($item['name']);
+        });
+
+        if (!empty($wrongItems)) {
+            $result = array_diff_key($result, $wrongItems);
+            $this->saveAll($result);
+        }
+
+        return $result;
+    }
+
+    /**
      * @param array $condition
      *
      * @return array

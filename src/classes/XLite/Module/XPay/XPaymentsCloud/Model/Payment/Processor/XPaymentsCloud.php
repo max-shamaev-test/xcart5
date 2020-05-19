@@ -397,6 +397,69 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
     }
 
     /**
+     * @param Order $order
+     * @param Transaction $parentCardTransaction
+     * @param float $amount
+     * @param string $xpid
+     * @return string
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function doRebill(Order $order, float $amount, string $xpid)
+    {
+        $newTransaction = new Transaction();
+        $newTransaction->setPaymentMethod(\XLite\Module\XPay\XPaymentsCloud\Main::getPaymentMethod());
+        $newTransaction->setStatus(Transaction::STATUS_INPROGRESS);
+        $newTransaction->setValue($amount);
+        $newTransaction->renewTransactionId();
+
+        $order->addPaymentTransactions($newTransaction);
+        $newTransaction->setOrder($order);
+
+        $this->transaction = $newTransaction;
+
+        \XLite\Core\Database::getEM()->persist($newTransaction);
+        \XLite\Core\Database::getEM()->flush();
+
+        $api = $this->initClient();
+
+        $cart = $this->prepareRebillCart($amount, $order->getOrderNumber());
+
+        try {
+            $response = $api->doRebill(
+                $this->getTransactionId(),
+                $this->getXpaymentsCustomerId(),
+                $this->getCallbackURL(null, true),
+                $xpid,
+                $cart
+            );
+
+            $payment = $response->getPayment();
+            $note = $response->message ?: $payment->message;
+
+            $result = $this->processPaymentFinish($newTransaction, $payment);
+            if (static::FAILED == $result) {
+                TopMessage::addError($note);
+            } else {
+                $newTransaction->setStatus(Transaction::STATUS_SUCCESS);
+                TopMessage::addInfo($note);
+            }
+
+        } catch (\XPaymentsCloud\ApiException $exception) {
+            $result = static::FAILED;
+            $note = $exception->getMessage();
+            $this->transaction->setDataCell('xpaymentsMessage', $note, 'Message');
+
+            $this->handleApiException($exception, 'Failed to process the rebill!');
+        }
+
+        $this->transaction->setNote(substr($note, 0, 255));
+
+        \XLite\Core\Database::getEM()->flush();
+
+        return $result;
+    }
+
+    /**
      * Auxiliary function for secondary actions execution
      *
      * @param $action
@@ -596,7 +659,7 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
     /*
      * Load X-Payments Cloud SDK
      */
-    protected function loadApi()
+    protected function initSDK()
     {
         require_once LC_DIR_MODULES . 'XPay' . LC_DS . 'XPaymentsCloud' . LC_DS . 'lib' . LC_DS . 'XPaymentsCloud' . LC_DS . 'Client.php';
     }
@@ -608,7 +671,7 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
      */
     protected function initClient()
     {
-        $this->loadApi();
+        $this->initSDK();
 
         return new \XPaymentsCloud\Client(
             $this->getSetting('account'),
@@ -619,8 +682,6 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
 
     /**
      * Get payment method input template
-     *
-     * @param \XLite\Model\Payment\Method $method Payment method
      *
      * @return string
      */
@@ -1043,6 +1104,20 @@ class XPaymentsCloud extends \XLite\Model\Payment\Base\CreditCard
         );
 
         return $result;
+    }
+
+    /**
+     * @param float $amount
+     * @param string $orderNumber
+     * @return array
+     */
+    public function prepareRebillCart(float $amount, string $orderNumber)
+    {
+        $cart = $this->prepareCart();
+        $cart['totalCost'] = $this->roundCurrency($amount);
+        $cart['description'] = 'Extra charge for order #' . $orderNumber;
+
+        return $cart;
     }
 
     /**

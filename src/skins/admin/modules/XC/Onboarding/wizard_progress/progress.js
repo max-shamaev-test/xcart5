@@ -17,6 +17,9 @@ define('wizard/progress', ['js/vue/vue'], function (XLiteVue) {
 
     ready: function() {
       this.$bar = $(this.$el).find('.progress-line-filled');
+      jQuery(window).on('popstate', _.bind(this.setIndexFromUrl, this));
+      core.bind('wizard.step.changed', _.bind(this.stepChanged, this));
+      this.setIndexFromUrl();
     },
 
     data: function () {
@@ -24,7 +27,8 @@ define('wizard/progress', ['js/vue/vue'], function (XLiteVue) {
         switchBlocked: false,
         progress: 0,
         previousLandmarkClass: null,
-        previousProgress: 0
+        previousProgress: 0,
+        pushState: true,
       }
     },
 
@@ -164,6 +168,8 @@ define('wizard/progress', ['js/vue/vue'], function (XLiteVue) {
 
         if (target === 'add_product' && (this.lastProduct || _.contains(this.accessLandmarks(), 'product'))) {
           target = 'product_added';
+        } else if (target === 'add_product_cloud' && (this.lastProduct || _.contains(this.accessLandmarks(), 'product'))) {
+          target = 'product_added_cloud';
         }
 
         return target;
@@ -173,6 +179,42 @@ define('wizard/progress', ['js/vue/vue'], function (XLiteVue) {
       },
       persistMaxProgress: function(stepName) {
         jQuery.cookie('Wizard_maxProgress', stepName);
+      },
+      getIndexByTarget: function(target) {
+        const targets = [];
+        jQuery.each(this.landmarks, function (index, item) {
+          item.steps.map(function(step) {
+            targets[step] = index;
+          })
+          targets[item.target] = index;
+        })
+
+        return targets[target];
+      },
+      stepChanged: function(ev, stepName) {
+        if (this.pushState) {
+          this.changeUrl(this.getIndexByTarget(stepName));
+        } else {
+          this.pushState = true;
+        }
+      },
+      changeUrl: function(stepName) {
+        const currentStep = this.getIndexFromUrl();
+        if (stepName && currentStep !== stepName) {
+          const url = document.location.pathname + document.location.search + '#step=' + stepName;
+          window.history.pushState(null, null, url);
+        }
+      },
+      getIndexFromUrl: function() {
+        const match = document.location.hash.match(/^#step=([a-z_]*)$/);
+        return match ? match[1] : null;
+      },
+      setIndexFromUrl: function() {
+        const index = this.getIndexFromUrl();
+        if (index) {
+          this.pushState = false;
+          this.goToStep(index);
+        }
       }
     }
   });

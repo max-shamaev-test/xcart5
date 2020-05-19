@@ -23,7 +23,19 @@ class Price extends \XLite\View\Price implements \XLite\Base\IDecorator
     protected function getOldPrice()
     {
         return $this->getProductVariant()
-            ? $this->getProductVariant()->getDisplayPriceBeforeSale()
+            ? $this->getCart()->getCurrency()->roundValue($this->getProductVariant()->getDisplayPriceBeforeSale())
             : parent::getOldPrice();
+    }
+
+    /**
+     * Return old price value without possible market price
+     *
+     * @return float
+     */
+    protected function getPureOldPrice()
+    {
+        return $this->getProductVariant()
+            ? $this->getOldPrice()
+            : parent::getPureOldPrice();
     }
 }

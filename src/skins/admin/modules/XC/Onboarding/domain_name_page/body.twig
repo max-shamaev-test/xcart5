@@ -1,0 +1,33 @@
+{##
+ # Domain name page template
+ #}
+
+<div class="domain-name-page">
+    <div class="alert alert-success">
+        {{ t('Activated! Your current domain is X', {'domain': this.getDomainName()})|raw }}
+    </div>
+
+    <p>{{ t('If you want to change the domain name for your store, please send us a new one that you would like to use and our manager will contact you:')|raw }}</p>
+
+    <div class="send-form">
+        {% form 'XLite\\View\\Form' with {formTarget: 'cloud_domain_name', formAction: 'change_domain'} %}
+            <ul class="table">
+                <li class="send-field">
+                    <div class="table-label domain-name-label">
+                        <label for="domain-name" title="{{ t('Domain name') }}">{{ t('Domain name') }}</label>
+                    </div>
+                    <div class="table-value domain-name-value">
+                        <div class="input-internal-wrapper">
+                            <span class="input-field-wrapper input input-text">
+                                <input id="domain-name" name="domain_name" type="text" value="" autocomplete="off" maxlength="255" class="validate[required,maxSize[255]] form-control">
+                            </span>
+                        </div>
+                        {{ widget('XLite\\View\\Button\\Regular', action="change_domain", label=t('Send'), style="send-btn disabled") }}
+                    </div>
+                    <div class="clear"></div>
+                </li>
+            </ul>
+        {% endform %}
+    </div>
+</div>
+

@@ -48,4 +48,4 @@ define('LC_OS_WINDOWS', 'WIN' === strtoupper(substr(PHP_OS, 0, 3)));
 define('LC_IS_PHP_7', version_compare(PHP_VERSION, '7.0.0', '>='));
 
 // Current X-Cart version
-define('LC_VERSION', '5.4.1.4');
+define('LC_VERSION', '5.4.1.5');

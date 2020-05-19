@@ -9,6 +9,7 @@
 namespace XLite\Module\XC\Onboarding\View;
 
 use XLite\Core\PreloadedLabels\ProviderInterface;
+use XLite\Module\XC\Onboarding\Controller\Admin\OnboardingWizard;
 
 /**
  * @listChild (list="admin.center", zone="admin")
@@ -35,7 +36,7 @@ class Wizard extends \XLite\View\AView implements ProviderInterface
     public static function getAllowedTargets()
     {
         return [
-            'onboarding_wizard'
+            'onboarding_wizard',
         ];
     }
 
@@ -47,7 +48,7 @@ class Wizard extends \XLite\View\AView implements ProviderInterface
         return [
             $this->getDir() . '/wizard.js',
             $this->getDir() . '/tracking.js',
-            $this->getDir() . '/wizard_store.js'
+            $this->getDir() . '/wizard_store.js',
         ];
     }
 
@@ -63,7 +64,6 @@ class Wizard extends \XLite\View\AView implements ProviderInterface
         ];
     }
 
-
     /**
      * Register files from common repository
      *
@@ -72,6 +72,7 @@ class Wizard extends \XLite\View\AView implements ProviderInterface
     protected function getCommonFiles()
     {
         $list = parent::getCommonFiles();
+
         $list[static::RESOURCE_JS] = array_merge($list[static::RESOURCE_JS], static::getVueLibraries());
 
         return $list;
@@ -98,6 +99,26 @@ class Wizard extends \XLite\View\AView implements ProviderInterface
     }
 
     /**
+     * @return string
+     */
+    protected function getWizardProgressClass(): string
+    {
+        return OnboardingWizard::isCloud()
+            ? CloudWizardProgress::class
+            : WizardProgress::class;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getIntroText(): string
+    {
+        return OnboardingWizard::isCloud()
+            ? static::t('onboarding.cloud.intro.text')
+            : static::t('onboarding.intro.text');
+    }
+
+    /**
      * getViewListChildren
      *
      * @param string $list List name
@@ -107,6 +128,7 @@ class Wizard extends \XLite\View\AView implements ProviderInterface
     protected function getViewListChildren($list)
     {
         $additional = [];
+
         $steps = \XLite::getController()->getWizardSteps();
 
         if ($list === 'onboarding-wizard.body') {

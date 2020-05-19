@@ -8,10 +8,10 @@
 
 namespace XLite\Module\XPay\XPaymentsCloud\Model;
 
-use XLite\Model\Payment\BackendTransaction;
-use XLite\Module\XPay\XPaymentsCloud\Model\Payment\XpaymentsFraudCheckData as FraudCheckData;
-use XLite\Model\Payment\Transaction;
 use XLite\Model\Order\Status\Payment as PaymentStatus;
+use XLite\Model\Payment\BackendTransaction;
+use XLite\Model\Payment\Transaction;
+use XLite\Module\XPay\XPaymentsCloud\Model\Payment\XpaymentsFraudCheckData as FraudCheckData;
 
 /**
  * X-Payments Specific order fields
@@ -254,6 +254,120 @@ class Order extends \XLite\Model\Order implements \XLite\Base\IDecorator
         }
 
         return $result;
+    }
+
+    /**
+     * Process backordered items
+     *
+     * @return int
+     *
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    protected function processBackorderedItems()
+    {
+        if (
+            $this->getItems()
+            && $this->getItems()->last()
+            && $this->getItems()->last()->isXpaymentsEmulated()
+        ) {
+            $result = 0;
+        } else {
+            $result = parent::processBackorderedItems();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Difference in order Total after AOM changes if (any)
+     *
+     * @return float
+     */
+    public function getAomTotalDifference()
+    {
+        return $this->getOpenTotal();
+    }
+
+    /**
+     * Check if total difference after AOM changes is greater than zero
+     *
+     * @return bool
+     */
+    public function isAomTotalDifferencePositive()
+    {
+        return $this->getAomTotalDifference() > \XLite\Model\Order::ORDER_ZERO;
+    }
+
+    /**
+     * Return array of active X-Payments saved cards of order customer's profile
+     *
+     * @return array
+     */
+    public function getActiveXpaymentsCards()
+    {
+        $cards = [];
+
+        if (
+            $this->getOrigProfile()
+            && $this->getOrigProfile()->getXpaymentsCards()
+        ) {
+            $cards = $this->getOrigProfile()->getXpaymentsCards();
+            foreach ($cards as $key => $value) {
+                if (false === $cards[$key]['isActive']) {
+                    unset($cards[$key]);
+                }
+            }
+        }
+
+        return $cards;
+    }
+
+    /**
+     * Checks if at least one transaction is handled by X-Payments
+     *
+     * @return bool
+     */
+    protected function isXpayments()
+    {
+        $transactions = $this->getPaymentTransactions();
+
+        $isXpayments = false;
+        foreach ($transactions as $t) {
+            if ($t->isXpayments()) {
+                $isXpayments = true;
+                break;
+            }
+        }
+
+        return $isXpayments;
+    }
+
+    /**
+     * Whether charge the difference is available for the order
+     *
+     * @return bool
+     */
+    public function isXpaymentsChargeDifferenceAvailable()
+    {
+        return $this->isXpayments()
+            && $this->isAomTotalDifferencePositive()
+            && !empty($this->getActiveXpaymentsCards());
+    }
+
+    /**
+     * @return array
+     */
+    public function getPaymentTransactionSums()
+    {
+        $paymentTransactionSums = parent::getPaymentTransactionSums();
+
+        if ($this->isXpaymentsChargeDifferenceAvailable()) {
+            $difference = (string) static::t('Difference between total and paid amount');
+            $paymentTransactionSums[$difference] = $this->getAomTotalDifference();
+        }
+
+        return $paymentTransactionSums;
     }
 
 }
