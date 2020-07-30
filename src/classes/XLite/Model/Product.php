@@ -2794,6 +2794,7 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
      */
     function getTotal($amount)
     {
+        $array = Array('val1', 'val2');
         return $this->getPrice() * $amount;
     }
 }
