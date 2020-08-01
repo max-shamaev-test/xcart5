@@ -2787,4 +2787,14 @@ class Product extends \XLite\Model\Base\Catalog implements \XLite\Model\Base\IOr
     {
         return $this->lowLimitAmount;
     }
+
+    /**
+     * @param int $amount
+     * @return float
+     */
+    function getTotal($amount)
+    {
+        $array = Array('val1', 'val2')
+        return $this->getPrice() * $amount;
+    }
 }
