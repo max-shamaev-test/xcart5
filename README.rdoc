@@ -3,3 +3,5 @@ X-Cart 5 is an eCommerce software, developed in cooperation with real merchants.
 Learn more about X-Cart 5 on our website http://www.x-cart.com and follow us in {Twitter}[https://twitter.com/x_cart] and {Facebook}[https://www.facebook.com/xcart]
 
 Free and Commercial editions (with lifetime license) available. View details {here}[http://www.x-cart.com/software_pricing.html]
+
+{<img src="https://api.codacy.com/project/badge/Grade/72cefefe5f32466c91fddac6933c5b47" alt="Codacy Badge">}[https://app.codacy.com/gh/max-shamaev-test/xcart5?utm_source=github.com&utm_medium=referral&utm_content=max-shamaev-test/xcart5&utm_campaign=Badge_Grade_Settings]
